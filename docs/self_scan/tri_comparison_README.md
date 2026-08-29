@@ -95,6 +95,7 @@ the complete list — GitGalaxy's genuine cross-corpus function recall is ~99.9%
 | cpp / c | return type supplied by a macro — `__control_entrypoint(x) STDAPI Foo()`, `IFACEMETHODIMP_(HRESULT, Bar)` | [#2460](https://github.com/squid-protocol/gitgalaxy/issues/2460) |
 | lua | a `local function` that is not the first statement on its line (`local a; local function f(x) … end`) | [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461) |
 | dart | bodyless default constructors (`_Foo();`), the `extension` keyword, generic methods with `<T extends …>` return-type prefixes | [#2462](https://github.com/squid-protocol/gitgalaxy/issues/2462) |
+| typescript | object-literal method shorthand (`{ return: async () => … }`, AsyncIterator protocol); bodyless overload signatures with a `=>`/nested-`<>` generic type-parameter list | [#2464](https://github.com/squid-protocol/gitgalaxy/issues/2464) |
 
 Every other `tree-sitter-finds / GitGalaxy-misses` occurrence `recall_audit.py` prints was
 individually assessed and is a comparison/audit-tool artifact — `#if 0` dead code (tree-sitter

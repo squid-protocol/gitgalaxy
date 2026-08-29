@@ -812,6 +812,26 @@ def run_engine_scan(corpus_dir: Path, tmp_dir: Path) -> Path:
     return db_path
 
 
+_CPP_TEMPLATE_ARGS_RE = re.compile(r"\s*<[^<>]*(?:<[^<>]*>[^<>]*)*>")
+
+
+def _cpp_canonical_operator_name(text: str) -> str:
+    """Normalize a C++ conversion-operator / operator name to the form GitGalaxy's `func_start`
+    regex stores: keep the `operator ` keyword and any `Ns::` qualifier, but drop the trailing
+    parameter list + cv-qualifiers (`() const`, `() noexcept`) and any template argument list
+    (`<Plane>`, `<K, V>`). `Variant::operator String() const` -> `Variant::operator String`;
+    `operator BitField<T>() const` -> `operator BitField`. The param list and cv-quals are part
+    of the signature, not the name, and GitGalaxy's per-`operator Vector<T>` occurrences all
+    collapse to `operator Vector` -- #2455."""
+    stripped = re.sub(r"\s*\([^()]*\)\s*(?:const|noexcept|final|override|\s)*$", "", text).strip()
+    stripped = _CPP_TEMPLATE_ARGS_RE.sub("", stripped).strip()
+    # never collapse to a bare `operator` / `Ns::operator` (would happen for a symbol operator
+    # that slipped past the caller's guard) -- keep the original in that case.
+    if not stripped or stripped.rstrip(":").endswith("operator"):
+        return text
+    return stripped
+
+
 def _unwrap_c_style_declarator(node: Any) -> Optional[str]:
     """Walks a C/C++ declarator subtree down to its terminal identifier-like node. Unlike most
     NODE_MAPS grammars, tree-sitter-c/cpp's `function_definition` has no top-level "name" field --
@@ -820,17 +840,30 @@ def _unwrap_c_style_declarator(node: Any) -> Optional[str]:
     terminal node itself varies: `identifier` (a plain function), `field_identifier` (a method
     defined inline in a class body), `qualified_identifier` (an out-of-class definition like
     `Foo::bar`, drilled via its own "name" field -- which can nest further for `Foo::Bar::baz`),
-    or `operator_name`/`destructor_name` (C++ special members). Confirmed empirically against the
-    real language-crucible C/C++ corpus (see #1265): before this, `_get_node_name` always
-    returned None for every C function_definition (0/1790 across the corpus), so real_functions
-    was always 0 regardless of corpus content.
+    `operator_name`/`destructor_name` (C++ special members), or `operator_cast` (a C++
+    user-defined conversion operator, `operator String() const` -- whose node text bakes in the
+    param list + cv-quals). Confirmed empirically against the real language-crucible C/C++ corpus
+    (see #1265): before this, `_get_node_name` always returned None for every C function_definition
+    (0/1790 across the corpus), so real_functions was always 0 regardless of corpus content.
     """
     if node is None:
         return None
     if node.type in ("identifier", "field_identifier", "operator_name", "destructor_name"):
         return node.text.decode("utf8")
+    if node.type == "operator_cast":
+        # #2455: a C++ user-defined conversion operator (`operator String() const`). tree-sitter's
+        # node text runs through the `() const` -- canonicalize to GitGalaxy's `operator <type>`.
+        return _cpp_canonical_operator_name(node.text.decode("utf8"))
     if node.type == "qualified_identifier":
-        return node.text.decode("utf8")
+        text = node.text.decode("utf8")
+        # A CONVERSION operator only -- `Ns::operator String() const`, or the doubly-qualified
+        # `Object::Connection::operator Variant() const` (nested qualified_identifier, the
+        # operator_cast is a grandchild). `operator ` followed by a type token. Symbol operators
+        # (`operator()`, `operator==`, `operator[]`, `Foo::operator->`) attach the symbol with no
+        # space and must NOT have their trailing `()` stripped.
+        if re.search(r"\boperator\s+[^\s(]", text):
+            return _cpp_canonical_operator_name(text)
+        return text
     inner = node.child_by_field_name("declarator")
     if inner is not None:
         return _unwrap_c_style_declarator(inner)
@@ -1011,7 +1044,23 @@ def _get_node_name(node: Any) -> Optional[str]:
     # whose function_definition DOES carry a "name" field (python, matlab, solidity, ...): those
     # already returned above via the fast path and never reach here.
     if node.type == "function_definition":
-        return _unwrap_c_style_declarator(node.child_by_field_name("declarator"))
+        nm = _unwrap_c_style_declarator(node.child_by_field_name("declarator"))
+        # #2455: a Godot-style force-inline macro (`_FORCE_INLINE_`) immediately before a C++
+        # special member defeats tree-sitter-cpp's parse -- it drops the `operator` keyword or
+        # the `~` into a sibling ERROR node and names the member by its bare type
+        # (`_FORCE_INLINE_ operator T() const` -> "T"; `_FORCE_INLINE_ ~Variant()` -> "Variant").
+        # GitGalaxy's regex is immune and stores "operator T" / "~Variant". Recover the prefix
+        # from the ERROR node so the two readers agree instead of double-counting.
+        if nm is not None:
+            for child in node.children:
+                if child.type != "ERROR":
+                    continue
+                err = child.text.decode("utf8").strip()
+                if err == "~" and not nm.startswith("~"):
+                    nm = "~" + _CPP_TEMPLATE_ARGS_RE.sub("", nm).strip()
+                elif err == "operator" and "operator" not in nm:
+                    nm = "operator " + _CPP_TEMPLATE_ARGS_RE.sub("", nm).strip()
+        return nm
 
     # tree-sitter-fortran doesn't register a "name" FIELD on these statement nodes (confirmed via
     # a real WRF corpus file, which also parses under a top-level ERROR node -- the grammar can't
@@ -1955,6 +2004,10 @@ def _find_blind_spot_ranges(root_node: Any, ts_lang: str) -> list[tuple[int, int
     GitGalaxy matches inside them are legitimate and should not be penalized as 'extra'.
     - rust: macro_rules! and macro_invocation treat their bodies as opaque tokens.
     - fortran: C Preprocessor directives (like #if) cause the parser to emit ERROR nodes.
+    - cpp: a function-like macro with no visible definition immediately before a C++ special
+      member (`_FORCE_INLINE_ operator T() const`, `_FORCE_INLINE_ ~Variant()`,
+      `_FORCE_INLINE_ RequiredResult(...) : ... {}`) desyncs tree-sitter-cpp's parse -- it drops
+      the member into a small ERROR node. GitGalaxy's regex extracts the real member; #2455.
     """
     ranges = []
 
@@ -1962,9 +2015,17 @@ def _find_blind_spot_ranges(root_node: Any, ts_lang: str) -> list[tuple[int, int
         if (
             (ts_lang == "rust" and node.type in ("macro_definition", "macro_invocation"))
             or (ts_lang == "fortran" and (node.type == "ERROR" or node.type.startswith("preproc_")))
-            or (ts_lang == "zig" and node.type == "ERROR")
+            or (ts_lang in ("zig", "cpp") and node.type == "ERROR")
         ):
-            ranges.append((node.start_point[0] + 1, node.end_point[0] + 1))
+            start, end = node.start_point[0] + 1, node.end_point[0] + 1
+            if ts_lang == "cpp":
+                # tree-sitter-cpp's ERROR node lands on the `_FORCE_INLINE_ NAME(...)` line, but
+                # for a templated member GitGalaxy anchors the occurrence on the `template <...>`
+                # line just above it (and the member-init `: _value(...)` / trailing `{}` can sit
+                # a line below). Pad so the promotion covers the whole declaration.
+                start -= 2
+                end += 1
+            ranges.append((start, end))
 
         for child in node.children:
             walk(child)

@@ -48,7 +48,7 @@ for the same metrics tracked over time across pushes to main.
 | Java | 100.0% | 100.0% | 100.0% | 100.0% |
 | Javascript | 100.0% | 98.0% | 100.0% | 100.0% |
 | Kotlin | 100.0% | 100.0% | 100.0% | 100.0% |
-| Lua | 81.5% | 97.7% | N/A | 0.0% |
+| Lua | 89.8% | 98.8% | N/A | 0.0% |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 100.0% | N/A | N/A |
 | Objective-C | 98.7% | 98.1% | 100.0% | 100.0% |

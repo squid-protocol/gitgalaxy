@@ -406,6 +406,18 @@ CTAGS_FUNC_KINDS: dict[str, set[str]] = {
     # disagreement (kotlin/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]) rather than
     # something this reader can work around.
     "kotlin": {"m"},
+    # lua: "f" is the only function kind. Two ctags-Lua behaviours worth knowing, both confirmed by
+    # the tri-comparison-ledger-sweep (2026-08-29) and NOT worked around here (ctags is the
+    # over-reader, GitGalaxy + tree-sitter-lua are the reference):
+    #   * ctags-Lua over-tags -- it tags the LHS name of ANY statement whose RHS contains the token
+    #     `function`, so `res = pcall(function() ... end)`, `X = function() ... end`, metatable
+    #     fields (`__index = function`), the literal word inside a string (`type(x) == "function"`)
+    #     and even inside a comment all become "function" tags. ~442 of ctags' ~1095 corpus tags
+    #     are this. Shape lua/function/existence/agree[ctags]_vs[gitgalaxy,tree_sitter].
+    #   * ctags-Lua emits NO `signature:` field (verified via `ctags --fields=+S --languages=Lua`),
+    #     so it cannot participate in a per-function args comparison at all. Shape
+    #     lua/function/args/agree[none]_vs[gitgalaxy,tree_sitter] -- GitGalaxy + tree-sitter agree,
+    #     ctags is simply absent.
     "lua": {"f"},
     "makefile": {"t"},  # targets are the closest func-analog
     "matlab": {"f"},

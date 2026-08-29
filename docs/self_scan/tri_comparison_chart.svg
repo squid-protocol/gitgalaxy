@@ -603,34 +603,36 @@
 <rect class="bar-track" x="682" y="1135" width="88" height="34" rx="2"/>
 <text class="lang-label" x="20" y="1199.5">lua</text>
 <rect class="bar-track" x="154" y="1179" width="88" height="34" rx="2"/>
-<rect x="154" y="1179" width="41.9" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1187">517*</text>
+<rect x="154" y="1179" width="45.7" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="1187">564</text>
 <rect x="154" y="1191" width="50.3" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="198.0" y="1199">620*</text>
+<text class="bar-value-label" x="198.0" y="1199">620</text>
 <rect x="154" y="1203" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="1211">1085*</text>
+<text class="bar-value-label" x="198.0" y="1211">1085</text>
 <rect class="bar-track" x="286" y="1179" width="88" height="34" rx="2"/>
-<rect x="286" y="1179" width="86.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1187">505/517*</text>
-<rect x="286" y="1191" width="85.7" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="1199">604/620*</text>
-<rect x="286" y="1203" width="49.4" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1211">609/1085*</text>
+<rect x="286" y="1179" width="86.9" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1187">557/564</text>
+<rect x="286" y="1191" width="86.3" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="1199">608/620</text>
+<rect x="286" y="1203" width="48.8" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="1211">602/1085</text>
+<circle cx="390.0" cy="1196.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="390.0" y="1199.0">G</text>
 <rect class="bar-track" x="418" y="1179" width="88" height="34" rx="2"/>
 <rect x="418" y="1179" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="462.0" y="1187">14*</text>
+<text class="bar-value-label" x="462.0" y="1187">14</text>
 <rect x="418" y="1191" width="2.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="462.0" y="1199">0*</text>
+<text class="bar-value-label" x="462.0" y="1199">0</text>
 <rect x="418" y="1203" width="2.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="1211">0*</text>
+<text class="bar-value-label" x="462.0" y="1211">0</text>
 <rect class="bar-track" x="550" y="1179" width="88" height="34" rx="2"/>
 <rect x="550" y="1179" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="1187">0/14*</text>
+<text class="bar-value-label" x="594.0" y="1187">0/14</text>
 <rect class="bar-track" x="682" y="1179" width="88" height="34" rx="2"/>
 <rect x="682" y="1179" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1187">484*</text>
+<text class="bar-value-label" x="726.0" y="1187">551</text>
 <rect x="682" y="1191" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1199">484*</text>
+<text class="bar-value-label" x="726.0" y="1199">551</text>
 <rect class="stripe" x="16" y="1218" width="780" height="44"/>
 <text class="lang-label" x="20" y="1243.5">m4</text>
 <rect class="bar-track" x="154" y="1223" width="88" height="34" rx="2"/>
@@ -1183,10 +1185,10 @@
 <rect x="682" y="2115" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="726.0" y="2123">2751</text>
 <line x1="16" y1="2152" x2="796" y2="2152" stroke="#dedcd6" stroke-width="1"/>
-<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 64 real comparisons (1-bar groups and empty panels don't count)</text>
+<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 65 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2184" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2187">G</text>
-<text class="legend-label" x="36" y="2188">GitGalaxy best: 28 (44%)</text>
+<text class="legend-label" x="36" y="2188">GitGalaxy best: 29 (45%)</text>
 <circle cx="215.8" cy="2184" r="7" fill="#eb6834"/>
 <text class="badge-label" x="215.8" y="2187">T</text>
 <text class="legend-label" x="228.8" y="2188">tree-sitter best: 3 (5%)</text>
@@ -1194,6 +1196,6 @@
 <text class="badge-label" x="408.6" y="2187">C</text>
 <text class="legend-label" x="421.6" y="2188">ctags best: 0 (0%)</text>
 <circle cx="564.2" cy="2184" r="7" fill="#9a9a95"/>
-<text class="legend-label" x="577.2" y="2188">Ties: 33 (52%)</text>
+<text class="legend-label" x="577.2" y="2188">Ties: 33 (51%)</text>
 <text class="scope-note" x="16" y="2208">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>
 </svg>

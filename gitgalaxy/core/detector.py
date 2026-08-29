@@ -233,6 +233,20 @@ class ScopeParsingRegistry:
                 r"\brepeat\b",
             ],
             "closers": [r"\bend\b", r"\buntil\b"],
+            # tri-comparison-ledger-sweep (lua, 2026-08-29): same #1262 gap ruby had.
+            # The stack-depth scan only ever emits the OUTERMOST open scope's
+            # satellite, so a `function`/`local function` declared inside a `do`
+            # block, after an earlier control-flow desync, or nested in another
+            # function's body got folded into the enclosing satellite instead of
+            # its own FunctionNode. Recovers ~50 real named lua functions in the
+            # language-crucible corpus (shape `lua/function/existence/
+            # agree[ctags,tree_sitter]_vs[gitgalaxy]`, ~82 -> ~33 with the
+            # companion `_apply_literal_shield` lua fix below; overall lua named
+            # extraction 517 -> 564). Mirrors ruby's own `function_opener`: a
+            # second, nesting-independent pass over every real declaration line,
+            # gated on this key so shell/vb/elixir (no corpus audit yet) keep
+            # their exact existing behavior.
+            "function_opener": r"^[ \t]*(?:local[ \t]+)?(?:export[ \t]+)?function\b",
         },
         "elixir": {
             "mode": "mode_d",
@@ -1875,6 +1889,19 @@ class StructuralExtractor:
             # ~10 top-level functions from a single crucible file
             # (haiku/HardwareChecker.sh) after one `alert --stop "…"` call.
             comment_markers = r"#"
+        elif lang_id == "lua":
+            # tri-comparison-ledger-sweep (lua, 2026-08-29): Lua's ONLY line
+            # comment is `--`. `#` is the length operator (`#arg`, `#t`) and
+            # `//` is floor division (Lua 5.3+) -- both appear constantly in
+            # ordinary code. Leaving them in the shared set let
+            # `for i = 1, #arg do ... end` be truncated at the `#` as a bogus
+            # "comment", dropping the `do ... end`'s closing `end` from the
+            # keyword count and desynchronizing the Mode-D depth stack by +1
+            # per vararg loop -- which cascaded into an oversized
+            # `_[Truncated]` remnant + a `_slice_by_labels` re-scan emitting
+            # every real function a SECOND time at the wrong line
+            # (`bitwise.lua`: `bit.band` reported at both 118 and 134).
+            comment_markers = r"--"
         # Standard strings can span multiple lines natively in some languages.
         # In others (C/Java/JS), an unclosed quote on one line is an error, so we bound it
         # by newline to prevent an unclosed quote from swallowing the rest of the file.
@@ -1918,6 +1945,28 @@ class StructuralExtractor:
             # by `_slice_by_keywords`'s own post-hoc pass.
             rf"(?:^|(?<=[ \t]))(?P<comment>{comment_markers})[^\n]*"
         )
+        if lang_id == "lua":
+            # tri-comparison-ledger-sweep (lua, 2026-08-29): Lua long-bracket
+            # literals -- strings `[[ ... ]]` / `[=[ ... ]=]` and long comments
+            # `--[[ ... ]]` / `--[=[ ... ]=]` -- span multiple lines and the
+            # closing bracket's `=` count must match the opener's. The line
+            # `comment_markers` pass below only reaches the first line of a
+            # `--[[` comment, and nothing shields a bare `[[` string at all, so
+            # `function` / `for` / `end` keywords in their bodies used to
+            # corrupt the Mode-D depth stack and get mis-extracted as real
+            # declarations (`gc.lua`'s `local prog = [[ ... function foo(x,y)
+            # ... ]]`, `coroutine.lua`'s `T.testC(state, [[ ... # get function
+            # for body ... ]])`). Run BEFORE the quote pass so the line-comment
+            # alternative can't nibble the `--[[` opener first. `\1` (the `=*`
+            # run) is the only backref and the sub is isolated, so it can't
+            # perturb `atomic_string_pattern`'s own group numbering.
+            text = re.sub(
+                r"(?:--)?\[(=*)\[.*?\]\1\]",
+                lambda m: '""' + "\n" * m.group(0).count("\n"),
+                text,
+                flags=re.DOTALL,
+            )
+
         text = re.sub(atomic_string_pattern, preserve_newlines, text, flags=re.DOTALL | re.MULTILINE)
         t_quotes = time.time()
 

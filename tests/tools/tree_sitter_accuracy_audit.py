@@ -1000,7 +1000,7 @@ def _get_node_name(node: Any) -> Optional[str]:
         return ".".join(parts) if parts else None
 
     if node.type == "method_definition" and node.children and node.children[0].type in ("-", "+"):
-        # #2459: an Objective-C method (the leading `-`/`+` marker is objc-only; a JavaScript /
+        # #2463: an Objective-C method (the leading `-`/`+` marker is objc-only; a JavaScript /
         # TypeScript `method_definition` never has one, so this branch can't touch them). NeXT-era
         # objc omits the parenthesised return type -- `- unsigned char next_input_block { ... }` /
         # `- void appendEndBlock { ... }`. tree-sitter-objc has no `method_type` child then and
@@ -1913,7 +1913,7 @@ _C_KNOWN_MACRO_HALLUCINATIONS = frozenset(
     }
 )
 
-# #2459: the same shape as _C_KNOWN_MACRO_HALLUCINATIONS, for C++. A function-like macro whose
+# #2463: the same shape as _C_KNOWN_MACRO_HALLUCINATIONS, for C++. A function-like macro whose
 # invocation has the `NAME(args) {` shape tree-sitter-cpp reads as a `function_definition`:
 #   - OPCODE            godot/gdscript_vm.cpp -- `OPCODE(OPCODE_SET_INDEXED_VALIDATED) { ... }`,
 #                       ~96 case-label bodies in the bytecode interpreter's computed-goto table
@@ -1938,7 +1938,7 @@ def _find_dead_preproc_ranges(root_node: Any, ts_lang: str) -> list[tuple[int, i
     """(start_line, end_line) spans of `#if 0` / `#if false` blocks in C/C++. tree-sitter has no
     preprocessor model, so it parses the dead branch as live code -- a real function_definition
     inside one is NOT ground truth GitGalaxy is wrong to skip (docs/why_gitgalaxy_beats_ast_here.md
-    Claim 8). #2459."""
+    Claim 8). #2463."""
     if ts_lang not in ("c", "cpp"):
         return []
     ranges: list[tuple[int, int]] = []
@@ -2073,7 +2073,7 @@ def _find_blind_spot_ranges(root_node: Any, ts_lang: str) -> list[tuple[int, int
     ranges = []
 
     if ts_lang == "fortran":
-        # #2459: WRF-style module files carry a `#ifdef VERT_UNIT` unit-test driver -- one or
+        # #2463: WRF-style module files carry a `#ifdef VERT_UNIT` unit-test driver -- one or
         # more top-level `program X ... end program X` blocks that are alternative compilation
         # roots, DEAD when the file is built as a module (how the corpus scans it). tree-sitter
         # has no preprocessor model and parses them; a `subroutine`/`call` inside one becomes a
@@ -2317,7 +2317,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         # (e.g. `AbsPath`) appear twice -- once bodyless near the top,
                         # once with a real body much later -- and only the real,
                         # body-bearing occurrence is ever in GitGalaxy's own output.
-                        # #2459: a function_definition tree-sitter built INSIDE an
+                        # #2463: a function_definition tree-sitter built INSIDE an
                         # already-identified blind spot is not trustworthy ground truth -- its
                         # name is parse noise (cpp `_FORCE_INLINE_` mangling) or it's a phantom
                         # from dead code tree-sitter has no preprocessor model for (fortran's
@@ -2332,7 +2332,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         _cpp_defaulted = lang == "cpp" and any(
                             c.type in ("default_method_clause", "delete_method_clause") for c in node.children
                         )
-                        # #2459: a cpp function_definition with an ERROR child (or a whole
+                        # #2463: a cpp function_definition with an ERROR child (or a whole
                         # class_specifier swallowed as its "return type") is a corrupted parse --
                         # a `_FORCE_INLINE_`-mangled member or a field-with-initializer
                         # (`ptr_type _value = ptr_type();`) read as a definition. Name unreliable.
@@ -2342,7 +2342,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         if (
                             (lang == "perl" and node.child_by_field_name("body") is None)
                             or (lang == "haskell" and is_continuation_clause)
-                            # #2459: inside a tree-sitter-cpp ERROR span (a `_FORCE_INLINE_`-style
+                            # #2463: inside a tree-sitter-cpp ERROR span (a `_FORCE_INLINE_`-style
                             # macro before a member desyncs the parse) tree-sitter's names are
                             # noise -- bare `for` / `bool` / `void`, a field name read as a
                             # function. #2455's #1849-Phase-2 promotion already fills the region

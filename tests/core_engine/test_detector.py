@@ -713,6 +713,41 @@ def test_detector_mode_d_livecode_builder_handlers():
     assert not any("Truncated" in n for n in names), f"a scope failed to close: {names}"
 
 
+def test_detector_mode_d_livecode_no_backslash_string_escape():
+    """
+    #2419: LiveCode has no `\\` string escapes. The Mode-D shield's escape-aware
+    `"(?:\\\\.|[^"\\\\])*"` misread `"\\"` (a real one-char string) as an escaped
+    quote, and a `/*` inside a later string literal then opened a bogus block
+    comment that swallowed the enclosing handler(s) as one `_[Truncated]`
+    satellite.
+    """
+    opt_detector = StructuralExtractor("livecode", MOCK_LANG_DEFS)
+    code = (
+        "on escapeLabel pLabel\n"
+        '   replace quote with "\\" & quote in pLabel\n'
+        "   return pLabel\n"
+        "end escapeLabel\n"
+        "\n"
+        "on collectLibs\n"
+        '   filter tItems with "Android/*"\n'
+        "   repeat for each line tItem in tItems\n"
+        "      put tItem & return after tResult\n"
+        "   end repeat\n"
+        "end collectLibs\n"
+        "\n"
+        "function tallyResult\n"
+        "   return the number of lines of tResult\n"
+        "end tallyResult\n"
+    )
+    result = opt_detector.splice(code, "")
+    names = [f["name"] for f in result["functions"]]
+
+    assert "escapeLabel" in names
+    assert "collectLibs" in names
+    assert "tallyResult" in names, f"handler after the `/*`-in-string was lost: {names}"
+    assert not any("Truncated" in n for n in names), f"a scope failed to close: {names}"
+
+
 # ==============================================================================
 # TEST 6: MODE C (INDENTATION STRATIFICATION)
 # ==============================================================================

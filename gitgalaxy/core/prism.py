@@ -119,6 +119,20 @@ class Prism:
             r"|(?<!\\)`(?:\\.|[^`\\])*`)"
         )
 
+        # #2419: LiveCode (`multi_style_live`) string literals have NO backslash
+        # escapes -- `\` is an ordinary character, and `"` is the only string
+        # delimiter (`'` and backtick are not string delimiters in either
+        # dialect). The shared SHIELD_PATTERN's C-style, escape-aware,
+        # newline-unbounded `"(?:\\.|[^"\\])*"` misreads `"\"` (a real one-char
+        # LiveCode string containing a backslash, e.g. `replace quote with "\" &
+        # quote`) as an escaped-quote-opening a string that runs -- under
+        # `re.S` -- to the next `"` many lines away, desynchronizing every
+        # subsequent quote pair and eventually exposing a `/*` inside a later
+        # string literal as a bogus block-comment opener (confirmed:
+        # revsaveasandroidstandalone.livecodescript, `filter ... with
+        # "Android/*"`, swallowed ~17 handlers). Single-line, no-escape.
+        self.MULTI_STYLE_LIVE_LITERAL_MASK_PATTERN = r'("[^"\r\n]*")'
+
         # #1271: detects a quote that opens but never closes before end-of-
         # line -- a backslash-newline-continued literal (legal in both Ruby
         # and Python) -- so _strip_single_line_comments can carry that
@@ -477,6 +491,10 @@ class Prism:
                     # ---> THE FIX: Strip any rogue inline flags injected by the config <---
                     p = p.replace("(?i)", "").replace("(?m)", "").replace("(?s)", "")
                     literal_mask = literal_pattern or self.LITERAL_MASK_PATTERN
+                    # #2419: LiveCode has no `\` string escapes -- see
+                    # MULTI_STYLE_LIVE_LITERAL_MASK_PATTERN's own comment.
+                    if fam_key == "multi_style_live" and literal_pattern is None:
+                        literal_mask = self.MULTI_STYLE_LIVE_LITERAL_MASK_PATTERN
                     full_pattern = f"{literal_mask}|{p}"
 
                     flags = re.S | re.M

@@ -67,13 +67,6 @@ as String)` with parenthesized typed parameters).
 
 ## 5. Known limitations (filed, not yet fixed)
 
-- **[#2419](https://github.com/squid-protocol/gitgalaxy/issues/2419) — `_apply_literal_shield`
-  treats `/*` / `*/` inside a LiveCode string literal as a block-comment delimiter.** Exactly one
-  handler in the corpus (`addExternalFromFile` in the 2183-line
-  `revsaveasandroidstandalone.livecodescript`, which has `"Android/*"` and `"*/R.java"` string
-  literals) over-extends its body because its own `end` lines fall inside a bogus comment span.
-  A narrow shield edge, not a Mode D gap — every other handler slices cleanly; does not affect
-  the 934/934 handler-*existence* count (§9).
 - **[#2411](https://github.com/squid-protocol/gitgalaxy/issues/2411) — a leading UTF-8 BOM
   defeats `^`-anchored line-1 extraction.** 38 real `.livecodescript` class objects (of 95) are
   missed purely because `head -1` is `﻿script "Name"` and `^[ \t]*` will not step over the BOM.
@@ -124,7 +117,7 @@ alone would have missed.
 | :--- | ---: | ---: | ---: | :--- |
 | `class_start` | 34 → **57** | 33 → **57** | 0 → **57** | ✅ **57/57 precision, 0 false positives** — badge earned |
 | `args` (file signal) | 0 → **471** | 0 → **442** | — | signal alive; per-function count fixed by #2410 (see 2026-08-29 subsection) |
-| `func_start` | 847 | 781 → **~900** | 1 → **934** | raw signal was always correct; named extraction fixed by #2409 + #2410 (see 2026-08-29 subsection) |
+| `func_start` | 847 | 781 → **~960** | 1 → **964** | raw signal was always correct; named extraction fixed by #2409 + #2410 + #2419 (see 2026-08-29 subsection) |
 
 (`struct_*` < raw regex in every row is correct: `prism.py` legitimately strips `func_start`/
 `args`-shaped lines that sit inside `/* … */` doc/comment blocks — 32 in
@@ -190,30 +183,32 @@ The `func_start` row above ("named list: **1**") is now fixed. Two changes, one 
    typed. `foreign handler` (344 FFI binding declarations, C-prototype shaped, no body) and
    `handler type <Name>()` (function-pointer typedefs) are excluded by construction.
 
-**Verification (independent-scanner name-diff, whole corpus).** Ground truth = every real handler
-*definition* header (an independent line scanner sharing no implementation with `func_start`,
-skipping `end`/`foreign handler`/comments). Result: **934 truth defs, 934 GG named funcs, 1
-missing / 2 extra before a `handler type` guard was added → 934 / 934, zero false positives, zero
-missed** after it. `.livecodescript`: ~815 handlers; `.lcb`: 121 real `handler` definitions.
+**Verification (string-aware independent-scanner name-diff, whole corpus).** Ground truth = every
+real handler *definition* header, from an independent scanner that shares no implementation with
+`func_start` and does its own string-aware `/* */` + line-comment removal. Result after
+[#2419](https://github.com/squid-protocol/gitgalaxy/issues/2419) landed: **964 truth defs, 964 GG
+named funcs, ZERO missing, ZERO extra, ZERO truncation markers anywhere in the corpus.**
 
-| Signature | before | after |
-| :--- | ---: | ---: |
-| `func_start` named list | 1 | **934** (933 clean + 1 `_[Truncated]`, see #2419) |
-| `func_recall` matched_consensus (Func Found panel) | 1 | **934** |
-| `func_precision` total_slots | 1 | **934** → `934/934**` + **G** badge |
-| `gg_args_found` (Args Found panel) | 2 | **950** |
+| Signature | before #2409/#2410 | after #2409/#2410 | after #2419 |
+| :--- | ---: | ---: | ---: |
+| `func_start` named list | 1 | 934 (1 truncated) | **964** (0 truncated) |
+| `func_recall` matched_consensus (Func Found panel) | 1 | 934 | **964** |
+| `func_precision` total_slots | 1 | 934 | **964** → `964/964**` + **G** badge |
+| `gg_args_found` (Args Found panel) | 2 | 950 | **~990** |
 
-**One body-extent limitation, filed as [#2419](https://github.com/squid-protocol/gitgalaxy/issues/2419)**,
-does not affect the existence count: `addExternalFromFile` (in the 2183-line
-`revsaveasandroidstandalone.livecodescript`) is the only truncation in the corpus, caused by
-`_apply_literal_shield` mis-reading `/*` / `*/` inside that file's string literals.
+**#2419 (fixed in the same sweep, own PR).** prism's `multi_style_live` string mask (and the
+detector Mode-D shield's) was C-escape-aware, so `"\"` — a real one-character LiveCode string
+containing a backslash (`replace quote with "\" & quote`) — was misread as an escaped quote,
+desyncing quote pairing until a `/*` inside a later string literal (`"Android/*"`) opened a bogus
+block comment that blanked ~30 real handlers in one 2183-line file. LiveCode has **no** `\`
+string escapes; the mask is now single-line, `"`-only, non-escaping. Both the earlier `934` count
+*and its verification* undercounted for the same reason — corrected to `964`.
 
-**Chain:** livecode gauntlet + strict (113 passed) · new `test_detector_mode_d_livecode_*` (2) ·
-full `tests/core_engine/` + `tests/extraction/` (6803 passed) · `audit_check.py` clean
-(ruff / mypy / dead-key / ast-accuracy) · `crucible_check.py` full corpus — **every diff is
-livecode or its downstream ripple**, zero unrelated-language diffs (livecode's global mass share
-*drops* ~18× as its one monster function splits into ~934 correctly-sized ones; `dominant_language`
-corrects `livecode` → `c`) · both golden masters re-blessed and re-verified `PASS`.
+**Chain:** livecode gauntlet + strict + prism + detector (303 passed) · full
+`tests/core_engine/` + `tests/extraction/` · `audit_check.py` clean (ruff / mypy / dead-key /
+ast-accuracy) · `crucible_check.py` full corpus — **every diff is livecode or its downstream
+ripple**, zero unrelated-language diffs (`multi_style_live` is livecode-only; the Mode-D shield
+change is `lang_id == "livecode"`-gated) · both golden masters re-blessed and re-verified `PASS`.
 `tri_comparison_chart.svg` is regenerated by the post-merge `tri-comparison-history.yml` job, not
 here.
 

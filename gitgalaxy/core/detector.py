@@ -1882,6 +1882,13 @@ class StructuralExtractor:
         # Use negative lookbehind (?<!\\) to prevent \" or \' from falsely opening a string literal when outside one
         standard_double = r'(?<!\\)"(?:\\.|[^"\\])*"' if ml_aware else r'(?<!\\)"(?:\\.|[^"\\\n\r])*"'
         standard_single = r"(?<!\\)'(?:\\.|[^'\\])*'" if ml_aware else r"(?<!\\)'(?:\\.|[^'\\\n\r])*'"
+        if lang_id == "livecode":
+            # #2419: LiveCode string literals have NO `\` escapes -- `\` is an
+            # ordinary character, so an escape-aware `\\.` branch misreads `"\"`
+            # (a real one-char string) as an escaped quote. `"` is the only
+            # string delimiter in both dialects; single-line, no-escape.
+            standard_double = r'"[^"\r\n]*"'
+            standard_single = r"'[^'\r\n]*'"
 
         # For heredoc-capable scripting languages, match a real heredoc opener
         # BEFORE the quote alternatives so `<< 'EOF'` / `<<-"EOT"` keeps its

@@ -28,6 +28,8 @@ MOCK_COMMENT_DEFS = {
         "line_exclusive": {"delimiters": ["#"]},
         "recursive_block": {"delimiters": ["//", "/*", "*/"]},
         "positional_anchored": {"delimiters": []},
+        # #2419: real LiveCode order -- [line #, line --, line //, block /*, block */]
+        "multi_style_live": {"delimiters": ["#", "--", "//", "/*", "*/"]},
     }
 }
 
@@ -39,6 +41,7 @@ MOCK_LANG_DEFS = {
     "markdown": {"lexical_family": "prose"},
     "html": {"lexical_family": "xml"},
     "php": {"lexical_family": "standard_block"},
+    "livecode": {"lexical_family": "multi_style_live"},
 }
 
 
@@ -130,6 +133,37 @@ def test_prism_string_shield_protection(prism_engine):
     assert "/* DO NOT STRIP ME */" in code
     assert "Set the target URL" in docs
     assert "Real block comment" in docs
+
+
+def test_prism_livecode_string_has_no_backslash_escape(prism_engine):
+    """
+    #2419: LiveCode string literals have NO `\\` escapes -- `\\` is an ordinary
+    character. The shared C-style `"(?:\\\\.|[^"\\\\])*"` mask misread `"\\"` (a
+    real one-char string holding a backslash) as an escaped quote and, under
+    re.S, ran the "string" to the next `"` many lines away -- desyncing every
+    subsequent quote pair until a `/*` inside a later string literal
+    (`"Android/*"`) opened a bogus block comment that blanked whole handlers.
+    """
+    content = (
+        'on escapeLabel pLabel\n'
+        '   replace quote with "\\" & quote in pLabel\n'  # `"\\"` == string containing one backslash
+        '   return pLabel\n'
+        'end escapeLabel\n'
+        '\n'
+        'on doFilter\n'
+        '   filter tItems with "Android/*"\n'  # `/*` here must NOT open a block comment
+        '   put "keep me" into tResult\n'
+        'end doFilter\n'
+    )
+    result = prism_engine.split_streams(content, primary_lang="livecode")
+    code = result["code_stream"]
+
+    # Every handler boundary survives -- nothing was swallowed by a runaway string/comment.
+    assert "on escapeLabel" in code
+    assert "end escapeLabel" in code
+    assert "on doFilter" in code
+    assert "end doFilter" in code
+    assert "keep me" in code or "tResult" in code
 
 
 # ==============================================================================

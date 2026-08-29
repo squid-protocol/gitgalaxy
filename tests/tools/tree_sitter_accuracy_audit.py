@@ -999,6 +999,25 @@ def _get_node_name(node: Any) -> Optional[str]:
         parts = [child.text.decode("utf8") for child in node.children if child.type == "identifier"]
         return ".".join(parts) if parts else None
 
+    if node.type == "method_definition" and node.children and node.children[0].type in ("-", "+"):
+        # #2459: an Objective-C method (the leading `-`/`+` marker is objc-only; a JavaScript /
+        # TypeScript `method_definition` never has one, so this branch can't touch them). NeXT-era
+        # objc omits the parenthesised return type -- `- unsigned char next_input_block { ... }` /
+        # `- void appendEndBlock { ... }`. tree-sitter-objc has no `method_type` child then and
+        # names the method by its first token (the return type `unsigned` / `void`); the real
+        # selector is the last identifier of the trailing `declaration` child, or a sibling
+        # `ERROR` node's text when the parse fully desyncs. GitGalaxy's func_start names these
+        # correctly, so without this they double-count.
+        if not any(c.type == "method_type" for c in node.children):
+            for c in node.children:
+                if c.type == "ERROR" and c.text.strip():
+                    return c.text.decode("utf8").strip()
+            decl = next((c for c in node.children if c.type == "declaration"), None)
+            if decl is not None:
+                toks = re.findall(r"[A-Za-z_]\w*", decl.text.decode("utf8"))
+                if toks:
+                    return toks[-1]
+
     if node.type == "operator_signature":
         # #Claim 5 (why_gitgalaxy_beats_ast_here.md): no child is field-tagged "name" at all --
         # the operator symbol (`==`, `+`, `[]`, `[]=`, unary `-`, ...) is a plainly-typed child
@@ -1894,6 +1913,48 @@ _C_KNOWN_MACRO_HALLUCINATIONS = frozenset(
     }
 )
 
+# #2459: the same shape as _C_KNOWN_MACRO_HALLUCINATIONS, for C++. A function-like macro whose
+# invocation has the `NAME(args) {` shape tree-sitter-cpp reads as a `function_definition`:
+#   - OPCODE            godot/gdscript_vm.cpp -- `OPCODE(OPCODE_SET_INDEXED_VALIDATED) { ... }`,
+#                       ~96 case-label bodies in the bytecode interpreter's computed-goto table
+#   - IFACEMETHOD_      powertoys COM headers -- `IFACEMETHOD_(HRESULT, Foo)(...)` declaration macro
+# GitGalaxy's func_start correctly excludes known function-like macro names (same fact ctags uses).
+# Plus the bare control-flow keywords tree-sitter-cpp's error recovery emits as a "function name"
+# when a macro with no visible expansion sits in statement position (`OBJ_DEBUG_LOCK\n if (...) {`
+# -> a function_definition named `if`). A keyword is never a valid C++ identifier.
+_CPP_KNOWN_MACRO_HALLUCINATIONS = frozenset(
+    {"OPCODE", "IFACEMETHOD_", "if", "for", "while", "switch", "do", "else", "return", "case", "goto"}
+)
+
+_KNOWN_MACRO_HALLUCINATIONS: dict[str, frozenset[str]] = {
+    "c": _C_KNOWN_MACRO_HALLUCINATIONS,
+    "cpp": _CPP_KNOWN_MACRO_HALLUCINATIONS,
+}
+
+_FALSY_PREPROC_CONDITIONS = frozenset({"0", "false", "FALSE", "False"})
+
+
+def _find_dead_preproc_ranges(root_node: Any, ts_lang: str) -> list[tuple[int, int]]:
+    """(start_line, end_line) spans of `#if 0` / `#if false` blocks in C/C++. tree-sitter has no
+    preprocessor model, so it parses the dead branch as live code -- a real function_definition
+    inside one is NOT ground truth GitGalaxy is wrong to skip (docs/why_gitgalaxy_beats_ast_here.md
+    Claim 8). #2459."""
+    if ts_lang not in ("c", "cpp"):
+        return []
+    ranges: list[tuple[int, int]] = []
+
+    def walk(node: Any) -> None:
+        if node.type == "preproc_if":
+            cond = node.child_by_field_name("condition")
+            if cond is not None and cond.text.decode("utf8").strip() in _FALSY_PREPROC_CONDITIONS:
+                ranges.append((node.start_point[0] + 1, node.end_point[0] + 1))
+                return  # nested content is all dead; don't descend
+        for child in node.children:
+            walk(child)
+
+    walk(root_node)
+    return ranges
+
 
 def _align_occurrences_by_line(
     real: list[tuple[int, int]], gg: list[tuple[int, int]]
@@ -2010,6 +2071,33 @@ def _find_blind_spot_ranges(root_node: Any, ts_lang: str) -> list[tuple[int, int
       the member into a small ERROR node. GitGalaxy's regex extracts the real member; #2455.
     """
     ranges = []
+
+    if ts_lang == "fortran":
+        # #2459: WRF-style module files carry a `#ifdef VERT_UNIT` unit-test driver -- one or
+        # more top-level `program X ... end program X` blocks that are alternative compilation
+        # roots, DEAD when the file is built as a module (how the corpus scans it). tree-sitter
+        # has no preprocessor model and parses them; a `subroutine`/`call` inside one becomes a
+        # phantom real_funcs entry GitGalaxy is right to skip. When the file also defines a
+        # module, mark every `program`..`end program` statement span as a blind spot.
+        prog_starts: list[int] = []
+        prog_ends: list[int] = []
+        has_module = [False]
+
+        def _scan(n: Any) -> None:
+            if n.type in ("module", "module_statement"):
+                has_module[0] = True
+            if n.type == "program_statement":
+                prog_starts.append(n.start_point[0] + 1)
+            if n.type == "end_program_statement":
+                prog_ends.append(n.end_point[0] + 1)
+            for c in n.children:
+                _scan(c)
+
+        _scan(root_node)
+        if has_module[0] and prog_starts:
+            for s in prog_starts:
+                e = min((x for x in prog_ends if x >= s), default=s)
+                ranges.append((s, e))
 
     def walk(node: Any) -> None:
         if (
@@ -2162,6 +2250,8 @@ def measure(lang: str, verbose: bool = False) -> dict:
 
                 trailing_error_start = _find_trailing_error_cascade_start(tree.root_node)
                 blind_spot_ranges = _find_blind_spot_ranges(tree.root_node, ts_lang)
+                dead_preproc_ranges = _find_dead_preproc_ranges(tree.root_node, ts_lang)
+                macro_hallucinations = _KNOWN_MACRO_HALLUCINATIONS.get(lang, frozenset())
 
                 # #1526: list, not a single int -- a name can have multiple real occurrences in
                 # one file (property getter/setter pairs, same-named methods on different
@@ -2227,8 +2317,41 @@ def measure(lang: str, verbose: bool = False) -> dict:
                         # (e.g. `AbsPath`) appear twice -- once bodyless near the top,
                         # once with a real body much later -- and only the real,
                         # body-bearing occurrence is ever in GitGalaxy's own output.
-                        if (lang == "perl" and node.child_by_field_name("body") is None) or (
-                            lang == "haskell" and is_continuation_clause
+                        # #2459: a function_definition tree-sitter built INSIDE an
+                        # already-identified blind spot is not trustworthy ground truth -- its
+                        # name is parse noise (cpp `_FORCE_INLINE_` mangling) or it's a phantom
+                        # from dead code tree-sitter has no preprocessor model for (fortran's
+                        # `#ifdef VERT_UNIT` unit-test `program` blocks). #1849 Phase 2 already
+                        # promotes GitGalaxy's correct reading for the region; this is the
+                        # symmetric half. Scoped to the two langs whose blind spots can contain
+                        # real (wrong) tree-sitter structure -- rust/zig blind spots are opaque
+                        # macro/ERROR bodies with nothing to walk.
+                        _in_blind_spot = lang in ("cpp", "fortran") and any(
+                            s <= node.start_point[0] + 1 <= e for s, e in blind_spot_ranges
+                        )
+                        _cpp_defaulted = lang == "cpp" and any(
+                            c.type in ("default_method_clause", "delete_method_clause") for c in node.children
+                        )
+                        # #2459: a cpp function_definition with an ERROR child (or a whole
+                        # class_specifier swallowed as its "return type") is a corrupted parse --
+                        # a `_FORCE_INLINE_`-mangled member or a field-with-initializer
+                        # (`ptr_type _value = ptr_type();`) read as a definition. Name unreliable.
+                        _cpp_corrupt = lang == "cpp" and any(
+                            c.type in ("ERROR", "class_specifier") for c in node.children
+                        )
+                        if (
+                            (lang == "perl" and node.child_by_field_name("body") is None)
+                            or (lang == "haskell" and is_continuation_clause)
+                            # #2459: inside a tree-sitter-cpp ERROR span (a `_FORCE_INLINE_`-style
+                            # macro before a member desyncs the parse) tree-sitter's names are
+                            # noise -- bare `for` / `bool` / `void`, a field name read as a
+                            # function. #2455's #1849-Phase-2 promotion already fills the region
+                            # with GitGalaxy's correct reading; this is its symmetric half.
+                            or _in_blind_spot
+                            # `X() = default;` / `= delete;` -- not a body-bearing definition, so
+                            # GitGalaxy correctly doesn't count it (same rule as perl bodyless).
+                            or _cpp_defaulted
+                            or _cpp_corrupt
                         ):
                             pass
                         else:
@@ -2297,7 +2420,13 @@ def measure(lang: str, verbose: bool = False) -> dict:
                                             or (lang == "javascript" and name in _JS_KNOWN_FLOW_HALLUCINATIONS)
                                         )
                                     )
-                                    and not (lang == "c" and name in _C_KNOWN_MACRO_HALLUCINATIONS)
+                                    and name not in macro_hallucinations
+                                    and not (
+                                        dead_preproc_ranges
+                                        and any(
+                                            s <= node.start_point[0] + 1 <= e for s, e in dead_preproc_ranges
+                                        )
+                                    )
                                 ):
                                     start_line = node.start_point[0] + 1
                                     real_funcs.setdefault(name, []).append((start_line, _get_param_count(node, lang)))

@@ -202,7 +202,7 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
     classes: list[Occurrence] = []
 
     def walk(node, is_continuation_clause=False):
-        # #2451: an HTML `<script>` / `<style>` element is a container -- the real
+        # #2452: an HTML `<script>` / `<style>` element is a container -- the real
         # code lives in an embedded language (JavaScript / CSS), which is exactly
         # what GitGalaxy's own polyglot detector descends into (e.g. a `<style>`'s
         # `@media` rule is reported by GitGalaxy as a function `media`). Without

@@ -374,7 +374,7 @@ CTAGS_FUNC_KINDS: dict[str, set[str]] = {
     # at-rule / JS function inside a `<style>` / `<script>` block is invisible to it -- e.g.
     # cpython_jinja/layout.html:40's `@media only screen { ... }`, which GitGalaxy's polyglot
     # detector and tree-sitter (with the css grammar injected, see tri_comparison_gatherer.py's
-    # #2451 walk branch) both correctly report as a function `media`. Shape
+    # #2452 walk branch) both correctly report as a function `media`. Shape
     # html/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags].
     "html": set(),
     "java": {"m"},

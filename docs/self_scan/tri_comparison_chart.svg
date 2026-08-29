@@ -726,11 +726,11 @@
 <text class="bar-value-label" x="594.0" y="1387">5/5</text>
 <rect class="bar-track" x="682" y="1355" width="88" height="34" rx="2"/>
 <rect x="682" y="1355" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1363">47</text>
+<text class="bar-value-label" x="726.0" y="1363">49*</text>
 <rect x="682" y="1367" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1375">47</text>
+<text class="bar-value-label" x="726.0" y="1375">49*</text>
 <rect x="682" y="1379" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="726.0" y="1387">47</text>
+<text class="bar-value-label" x="726.0" y="1387">49*</text>
 <rect class="stripe" x="16" y="1394" width="780" height="44"/>
 <text class="lang-label" x="20" y="1419.5">perl</text>
 <rect class="bar-track" x="154" y="1399" width="88" height="34" rx="2"/>

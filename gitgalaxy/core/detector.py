@@ -246,7 +246,7 @@ class ScopeParsingRegistry:
             # second, nesting-independent pass over every real declaration line,
             # gated on this key so shell/vb/elixir (no corpus audit yet) keep
             # their exact existing behavior.
-            "function_opener": r"^[ \t]*(?:local[ \t]+)?(?:export[ \t]+)?function\b",
+            "function_opener": r"(?:^[ \t]*|;[ \t]*)(?:local[ \t]+)?(?:export[ \t]+)?function\b",
         },
         "elixir": {
             "mode": "mode_d",
@@ -3186,9 +3186,59 @@ class StructuralExtractor:
         # to inherit or compare against any prior match's boundary.
         current_line_count = offset + 1
         last_counted_idx = 0
+        # #2462: end index of the most recently resolved dart multi-line arrow
+        # expression body -- a func_start match starting before this is a phantom
+        # from an expression on one of that body's continuation lines (a ternary
+        # `cond ? _SomeType(x) : _Other(y)` reads as return-type-prefix + name +
+        # `(`), never a real declaration (dart arrow bodies hold only anonymous
+        # closures), so it's skipped.
+        dart_arrow_body_end = 0
 
         for match_idx, match in enumerate(matches):
             start_idx = match.start()
+
+            if lang_id == "dart" and start_idx < dart_arrow_body_end:
+                continue
+
+            # #2462: func_start's branch-D lookahead now accepts a bodyless
+            # constructor with EMPTY parens (`ClassName();`), which is shape-
+            # identical to a bare zero-arg call statement (`SomeService.start();`).
+            # Keep it only when the name's leading segment is the nearest brace-
+            # enclosing class/mixin/enum -- a real constructor always is, a call
+            # statement never is.
+            if lang_id == "dart" and match.lastindex:
+                _nm = match.group(match.lastindex)
+                _nstart = match.start(match.lastindex)
+                _prefix = safe_code[safe_code.rfind("\n", 0, _nstart) + 1 : _nstart]
+                _zero_prefix = re.fullmatch(r"[ \t]*(?:@[\w.]+(?:\([^)]*\))?[ \t]*|const[ \t]+)*", _prefix) is not None
+                _after = safe_code[match.end() : match.end() + 96]
+                if (
+                    _zero_prefix
+                    and _nm.lstrip("_")[:1].isupper()
+                    and re.match(r"[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?\([ \t\n]*\)[ \t\n]*;", _after)
+                ):
+                    _head = _nm.split(".")[0]
+                    _depth = 0
+                    _q = start_idx - 1
+                    _enclosing = None
+                    while _q >= 0 and start_idx - _q < 20000:
+                        _ch = safe_code[_q]
+                        if _ch == "}":
+                            _depth += 1
+                        elif _ch == "{":
+                            if _depth == 0:
+                                _cds = list(
+                                    re.finditer(
+                                        r"\b(?:class|mixin|enum)[ \t\n]+([A-Za-z_]\w*)",
+                                        safe_code[max(0, _q - 600) : _q],
+                                    )
+                                )
+                                _enclosing = _cds[-1].group(1) if _cds else None
+                                break
+                            _depth -= 1
+                        _q -= 1
+                    if _enclosing != _head:
+                        continue
 
             # #1631: typescript's func_start colon-annotated-arrow branch
             # cannot distinguish a real arrow-function property from a
@@ -3801,10 +3851,45 @@ class StructuralExtractor:
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                     args_sig_end = term_idx + 1
                 elif term_kind == "arrow":
-                    semi_after_arrow = safe_code.find(";", term_idx, dart_search_limit)
+                    # #2462: `dart_search_limit` is capped at `next_match_start`,
+                    # which for a MULTI-line arrow body can be a phantom
+                    # func_start match on one of the body's own continuation
+                    # lines -- landing before the real terminating `;` and
+                    # dropping this whole real method. A dart arrow expression
+                    # body cannot contain a named declaration, so scan past any
+                    # such phantom to the first genuine top-level `;`, tracking
+                    # (), [], {} and generic <> depth. Bounded to keep a
+                    # pathological unterminated body from scanning the whole file.
+                    semi_after_arrow = -1
+                    _dp = _db = _dbr = _dang = 0
+                    _cap = min(len(safe_code), term_idx + 8000)
+                    _p = term_idx + 2
+                    while _p < _cap:
+                        _c = safe_code[_p]
+                        if _c == "(":
+                            _dp += 1
+                        elif _c == ")":
+                            _dp = max(0, _dp - 1)
+                        elif _c == "[":
+                            _dbr += 1
+                        elif _c == "]":
+                            _dbr = max(0, _dbr - 1)
+                        elif _c == "{":
+                            _db += 1
+                        elif _c == "}":
+                            _db = max(0, _db - 1)
+                        elif _c == "<" and _p > 0 and (safe_code[_p - 1].isalnum() or safe_code[_p - 1] in "_]>"):
+                            _dang += 1
+                        elif _c == ">":
+                            _dang = max(0, _dang - 1)
+                        elif _c == ";" and _dp == 0 and _db == 0 and _dbr == 0 and _dang == 0:
+                            semi_after_arrow = _p
+                            break
+                        _p += 1
                     if semi_after_arrow == -1:
                         continue
                     end_idx = semi_after_arrow + 1
+                    dart_arrow_body_end = end_idx
                     args_sig_end = min(term_idx + 2, end_idx)  # +2: past the full "=>"
                 else:
                     continue
@@ -3868,29 +3953,24 @@ class StructuralExtractor:
                                     p_idx = start_idx - 1
                                     d_paren = d_bracket = d_angle = d_brace = 0
                                     outer_container = None
+                                    # #2464: an opener only names the enclosing
+                                    # container when EVERY other bracket depth is
+                                    # also zero -- a bare `<` comparison inside a
+                                    # preceding sibling's arrow body (`if (i <
+                                    # n)`) was previously mistaken for an
+                                    # enclosing generic (`d_angle`/`d_paren`
+                                    # weren't cross-checked), wrongly classifying
+                                    # a real object-literal method (`return:
+                                    # async () => {`) as a parameter-list type
+                                    # annotation and dropping it.
                                     while p_idx >= 0:
                                         c_ch = safe_code[p_idx]
                                         if c_ch == "}":
                                             d_brace += 1
-                                        elif c_ch == "{":
-                                            if d_brace == 0:
-                                                outer_container = "{"
-                                                break
-                                            d_brace -= 1
                                         elif c_ch == ")":
                                             d_paren += 1
-                                        elif c_ch == "(":
-                                            if d_paren == 0:
-                                                outer_container = "("
-                                                break
-                                            d_paren -= 1
                                         elif c_ch == "]":
                                             d_bracket += 1
-                                        elif c_ch == "[":
-                                            if d_bracket == 0:
-                                                outer_container = "["
-                                                break
-                                            d_bracket -= 1
                                         elif c_ch == ">":
                                             if p_idx + 1 < len(safe_code) and safe_code[p_idx + 1] == "=":
                                                 p_idx -= 1
@@ -3899,17 +3979,30 @@ class StructuralExtractor:
                                                 p_idx -= 1
                                                 continue
                                             d_angle += 1
-                                        elif c_ch == "<":
-                                            if p_idx + 1 < len(safe_code) and safe_code[p_idx + 1] == "=":
-                                                p_idx -= 1
-                                                continue
-                                            if p_idx > 0 and safe_code[p_idx - 1] == "<":
-                                                p_idx -= 2
-                                                continue
-                                            if d_angle == 0:
-                                                outer_container = "<"
+                                        elif c_ch in "{([<":
+                                            if c_ch == "<":
+                                                if p_idx + 1 < len(safe_code) and safe_code[p_idx + 1] == "=":
+                                                    p_idx -= 1
+                                                    continue
+                                                if p_idx > 0 and safe_code[p_idx - 1] == "<":
+                                                    p_idx -= 2
+                                                    continue
+                                            own = {"{": d_brace, "(": d_paren, "[": d_bracket, "<": d_angle}[c_ch]
+                                            if own > 0:
+                                                if c_ch == "{":
+                                                    d_brace -= 1
+                                                elif c_ch == "(":
+                                                    d_paren -= 1
+                                                elif c_ch == "[":
+                                                    d_bracket -= 1
+                                                else:
+                                                    d_angle -= 1
+                                            elif d_brace == d_paren == d_bracket == d_angle == 0:
+                                                outer_container = c_ch
                                                 break
-                                            d_angle -= 1
+                                            # else: a stray unmatched opener while
+                                            # still nested elsewhere -- brace-blind
+                                            # noise (a `<` comparison), skip it.
                                         p_idx -= 1
                                     if outer_container in ("(", "<", "["):
                                         break  # it's a type annotation inside a parameter list or generic
@@ -4613,6 +4706,27 @@ class StructuralExtractor:
                 and re.search(r"(?<![\w=\-])(?:if|while|until|for)(?![\w=\-]).*\{[ \t]*$", safe_line)
             ):
                 opens -= 1
+
+            # #2459: The Shell Command-Position Guard. `if`/`while`/`until`/`for`/
+            # `case` are shell reserved words ONLY as the first token of a simple
+            # command. As a plain argument word -- quoted OR unquoted (`echo
+            # "could not determine ULP limit for $routine"`) -- the keyword is
+            # not a scope opener, but `open_pattern`'s `(?<![\w=\-])for(?![\w=\-])`
+            # still counts it, permanently desyncing the Mode-D depth stack for
+            # the rest of the enclosing function (`freebsd-src/runulp.sh::t` was
+            # emitted as `t_[Truncated]`). Recount only the command-position
+            # occurrences -- line start, or right after a command separator
+            # (`;`/`|`/`&`/`(`/backtick/`&&`/`||`) or `then`/`do`/`else`/`elif`.
+            if lang_key == "shell" and opens > 0:
+                kw = r"(?<![\w=\-])(?:if|while|until|for|case)(?![\w=\-])"
+                non_cmd = len(re.findall(kw, safe_line)) - len(
+                    re.findall(
+                        r"(?:^[ \t]*|[ \t]*(?:[;&|(`]|&&|\|\||\bthen\b|\bdo\b|\belse\b|\belif\b)[ \t]*)" + kw,
+                        safe_line,
+                    )
+                )
+                if non_cmd > 0:
+                    opens -= non_cmd
 
             # The Ruby/Elixir Inline Modifier Guard
             if lang_key in ["ruby", "elixir"] and opens > 0:

@@ -312,7 +312,10 @@ breakdown:
   tree-sitter has no preprocessor model (Claim 8).
 - **1 real GitGalaxy recall gap** — `__control_entrypoint(DllExport) STDAPI DllCanUnloadNow()`
   in `powertoys/ImageResizerExt.cpp`: a macro-supplied return type `func_start` doesn't admit.
-  → [#2460](https://github.com/squid-protocol/gitgalaxy/issues/2460).
+  → [#2460](https://github.com/squid-protocol/gitgalaxy/issues/2460). **Fixed** (2026-08-29): the
+  `func_start` compiler-attribute shield now also consumes a `__`- / `_Uppercase`-prefixed
+  SAL / entry-point annotation macro (naming-shape bounded so it can't eat a real call). Cpp func
+  recall 99.9% → 100.0%.
 
 Six real GitGalaxy engine defects were confirmed and filed in this sweep — more than any other
 language this sweep methodology has been run against so far, though that reflects C++'s syntactic

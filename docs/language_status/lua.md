@@ -60,11 +60,12 @@ tradeoff.
 
 ## 5. Known limitations (accepted / tracked)
 
-- **Two recall misses** (skill step 2.6 recall audit, 2026-08-29 — func recall 99.7%), both
-  filed as [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461):
-  - `constructs.lua:105` — `local a; local function f(x) ... end`. `func_start` is
-    start-of-line anchored, so a `local function` that is not the first statement on its line is
-    missed. GitGalaxy finds the other 4 `function f` in the file; this is a real, narrow gap.
+- **One residual recall miss** (skill step 2.6 recall audit, 2026-08-29 — func recall 99.7% →
+  **99.8%** after the fix below), filed as
+  [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461):
+  - `constructs.lua:105` — `local a; local function f(x) ... end`. **Fixed** (2026-08-29):
+    `func_start` / `function_opener` now also anchor after a bare `;` statement separator, not
+    only start-of-line.
   - `literals.lua:80` — `local function lexerror (s, err)`, inside `test/literals.lua` (the Lua
     suite's *lexer-torture fixture*, adversarial nested `[==[[===[[=[…]]=][====[…]` long
     brackets that defeat `_LUA_LONG_BRACKET_RE`'s single-backref shielding). Only ever exercised
@@ -267,9 +268,10 @@ shared reason." This is the common case per the skill's step 4 guidance.
   heuristic matched ALL_CAPS data tables.
 - [#2440](https://github.com/squid-protocol/gitgalaxy/issues/2440) — **fixed**: polyglot
   segmentation split a function at `<style>` / `<script>` inside a `[[ ]]` string.
-- [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461) — `local function` not first
-  on its line (`local a; local function f(x)`); + the `literals.lua` lexer-torture nested-bracket
-  shielding gap. Found by the step 2.6 recall audit — §5.
+- [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461) — **fixed** (`;`-anchored
+  `func_start` / `function_opener`): `local function` not first on its line (`local a; local
+  function f(x)`). Residual: the `literals.lua` lexer-torture nested-bracket shielding gap (one
+  adversarial fixture only). Found by the step 2.6 recall audit — §5.
 
 ### Full record
 

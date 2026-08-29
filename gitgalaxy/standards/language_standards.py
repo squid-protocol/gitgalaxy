@@ -36,10 +36,10 @@ for the same metrics tracked over time across pushes to main.
 | -------- | ----------- | -------------- | ------------ | --------------- |
 | Apex | 100.0% | 100.0% | 100.0% | 100.0% |
 | C | 100.0% | 99.5% | 100.0% | 100.0% |
-| Cpp | 99.9% | 100.0% | 100.0% | 100.0% |
+| Cpp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Csharp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
-| Dart | 99.5% | 99.3% | 100.0% | 100.0% |
+| Dart | 99.9% | 99.5% | 100.0% | 100.0% |
 | Fortran | 100.0% | 100.0% | 100.0% | 100.0% |
 | Go | 100.0% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
@@ -48,7 +48,7 @@ for the same metrics tracked over time across pushes to main.
 | Java | 100.0% | 100.0% | 100.0% | 100.0% |
 | Javascript | 100.0% | 98.0% | 100.0% | 100.0% |
 | Kotlin | 100.0% | 100.0% | 100.0% | 100.0% |
-| Lua | 99.7% | 100.0% | N/A | 0.0% |
+| Lua | 99.8% | 100.0% | N/A | 0.0% |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 100.0% | N/A | N/A |
 | Objective-C | 100.0% | 99.4% | 100.0% | 100.0% |
@@ -59,7 +59,7 @@ for the same metrics tracked over time across pushes to main.
 | Ruby | 100.0% | 100.0% | 100.0% | 100.0% |
 | Rust | 100.0% | 100.0% | 100.0% | 100.0% |
 | Scala | 100.0% | 100.0% | 100.0% | 100.0% |
-| Shell | 99.6% | 96.8% | N/A | N/A |
+| Shell | 99.8% | 97.0% | N/A | N/A |
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 100.0% | 99.2% | 100.0% | 100.0% |
 | Tcl | 100.0% | 99.3% | N/A | N/A |
@@ -3234,7 +3234,12 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # 2. LINKAGE & STORAGE MODIFIERS (Now supports vertical formatting)
                 r"(?:(?:static|inline|extern|virtual|_Noreturn|constexpr|consteval|constinit|__inline__|__forceinline)[ \t\n]+){0,5}"
                 # 3. COMPILER ATTRIBUTES PRE-TYPE (Includes C23 [[...]])
-                r"(?:(?:__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\]|__declspec[ \t]*\([^)]*\))[ \t\n]*){0,5}"
+                # #2460: also a SAL / entry-point annotation macro -- a `__`- or
+                # `_Uppercase`-prefixed identifier optionally taking a bracketed
+                # argument (`__control_entrypoint(DllExport)`, `_Ret_maybenull_`,
+                # `_Check_return_`). Bounded to that naming shape so it can't eat
+                # an ordinary lowercase function call as a phantom prefix.
+                r"(?:(?:__attribute__[ \t]*\((?:[^)(]|\([^)]*\))*\)|\[\[[^\]]*\]\]|__declspec[ \t]*\([^)]*\)|(?:__[a-z]\w*|_[A-Z][A-Za-z0-9]*_)(?:[ \t]*\((?:[^)(]|\([^)]*\))*\))?)[ \t\n]*){0,5}"
                 # 4. THE RETURN TYPE (Pointers/references explicitly bound)
                 # [IRON WALL]: Prevents the engine from reading a `#define` on the next line as a return type.
                 # [POINTER AMBIGUITY FIX]: Strictly enforces sequential evaluation of pointers and spaces.
@@ -3681,7 +3686,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # 1. The Horizontal Anchor
                 r"^[ \t]*"
                 # [ THE COMPILER ATTRIBUTE SHIELD ]: Safely consumes GCC/Clang attributes across newlines.
-                r"(?:__attribute__\s*\((?:[^)(]|\((?:[^)(]|\([^)]*\))*\))*\)\s*){0,5}"
+                # #2460: also a SAL / entry-point annotation macro before the return type
+                # (`__control_entrypoint(DllExport) STDAPI Foo()`, `_Ret_maybenull_`) --
+                # a `__`- or `_Uppercase`-prefixed identifier, optionally with a bracketed
+                # argument. Naming-shape bounded so it can't eat an ordinary function call.
+                r"(?:(?:__attribute__\s*\((?:[^)(]|\((?:[^)(]|\([^)]*\))*\))*\)|(?:__[a-z]\w*|_[A-Z][A-Za-z0-9]*_)(?:\s*\((?:[^)(]|\([^)]*\))*\))?)\s*){0,5}"
                 # 2. Modifiers (Strictly bounded)
                 r"(?:(?:static|inline|extern|_Noreturn|__inline__|__forceinline|constexpr)\s+){0,3}"
                 # 3. Complex types
@@ -7646,7 +7655,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # modifier stack, and securely allowed `[ \t\n]*` in the positive
                 # lookahead for the parenthesis. Includes support for Luau generic types.
                 # =====================================================================
-                r"^[ \t]*(?:local[ \t\n]+)?(?:export[ \t\n]+)?function[ \t\n]+([a-zA-Z_][\w.:]*)(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?\()",
+                # #2461: also anchor after a `;` -- a `local function` / `function`
+                # declaration is not always the first statement on its line
+                # (`local a; local function f(x) ... end`, common in the Lua test
+                # suite). `;` is a bare statement separator once strings/comments
+                # are shielded, so a `function` keyword immediately after one is a
+                # real declaration head, not text.
+                r"(?:^[ \t]*|;[ \t]*)(?:local[ \t\n]+)?(?:export[ \t\n]+)?function[ \t\n]+([a-zA-Z_][\w.:]*)(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?\()",
                 re.M,
             ),
             # 5. class_start: Object / Entity Declarations. Captures proto-tables or EmmyLua class definitions.
@@ -9720,14 +9735,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+))?"
                 r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getA>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
-                r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|(?(getA);|(?!))))"
+                # #2462: one level of generic-argument nesting in the method's
+                # own type-parameter list (`foo<T extends State<StatefulWidget>>()`)
+                # -- a bare `<[^>]*>` stops at the inner `>` and the whole
+                # generic method is missed.
+                r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\(|=>|\{|(?(getA);|(?!))))"
                 r"|"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
                 r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?:(?!\?[ \t\n]+(?:get|set|factory|[a-zA-Z_]))(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+)))"
                 r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getB>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
-                r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\(|=>|\{|(?(getB);|(?!))))"
+                r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\(|=>|\{|(?(getB);|(?!))))"
                 r"|"
                 # #2308 item 1: `implements`/`with` added to every occurrence of this
                 # keyword-exclusion list (all 8, shared verbatim across all 4
@@ -9771,36 +9790,26 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getC>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
-                r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?(?:\((?!\s*:)(?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*(?:async\*?|sync\*)?[ \t\n]*(?:=>|\{|:)|(?(getC)=>|(?!))|\{))"
+                r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\((?!\s*:)(?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*(?:async\*?|sync\*)?[ \t\n]*(?:=>|\{|:)|(?(getC)=>|(?!))|\{))"
                 r"|"
                 r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:const[ \t\n]+)?(_?[A-Z]\w*(?:\.[a-zA-Z_]\w*)?)"
-                # #2308 item 2 (investigated, NOT fixed -- confirmed unsafe): this
-                # alternative requires `this.`/`super.` inside the parens, on the
-                # theory that dart's zero-prefix valid cases are all constructors
-                # that always have bodies anyway -- true for constructors that
-                # forward fields, but a bodyless DEFAULT/named constructor with an
-                # EMPTY parameter list (`ClassName();`, e.g. flutter/semantics.dart's
+                # #2308 item 2 / #2462: this alternative originally required
+                # `this.`/`super.` inside the parens. A bodyless DEFAULT/named
+                # constructor with an EMPTY parameter list (`ClassName();`,
+                # `ClassName.foo();` -- e.g. flutter/semantics.dart's
                 # `ChildSemanticsConfigurationsResultBuilder();`) has neither and
-                # never matches. Widening this lookahead to also accept
-                # whitespace-only parens (tried in this same investigation) DOES
-                # recover that shape, but this branch's NAME pattern
-                # (`_?[A-Z]\w*(?:\.[a-zA-Z_]\w*)?`) is structurally identical for a
-                # real constructor declaration and a bare STATIC METHOD CALL
-                # STATEMENT with zero arguments -- `FlutterTimeline.finishSync();`,
-                # `LiveText.startLiveTextInput();`, `SystemNavigator.
-                # selectSingleEntryHistory();` (all real, all confirmed
-                # false-positive-matched by the widened version against
-                # language-crucible/data/dart). Telling the two apart needs knowing
-                # whether this line sits at class-body top level (declaration) or
-                # nested inside a method body (statement) -- real brace-depth
-                # tracking from the enclosing class's own opening brace, which this
-                # regex has no mechanism for. Left unfixed rather than trade one
-                # recall gap for a new, more common precision regression; a real
-                # fix belongs in detector.py with actual scope tracking, not a
-                # regex-only change here.
-                r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?\([^)]*(?:this\.|super\.)[^)]*\)[ \t\n]*;)"
+                # never matched. The lookahead now also accepts whitespace-only
+                # parens -- but that form is shape-identical to a bare zero-arg
+                # call statement (`FlutterTimeline.finishSync();`,
+                # `SystemNavigator.selectSingleEntryHistory();`), so detector.py's
+                # dart branch gates the empty-paren case on real brace-depth
+                # tracking: it's kept only when the name's leading segment is the
+                # nearest brace-enclosing class/mixin/enum -- true for a real
+                # constructor, never for a call statement. The `this.`/`super.`
+                # form stays regex-only (unambiguous on its own).
+                r"(?=[ \t\n]*(?:<[^>]*>[ \t\n]*)?\((?:[ \t\n]*|[^)]*(?:this\.|super\.)[^)]*)\)[ \t\n]*;)"
                 r")",
                 re.M,
             ),

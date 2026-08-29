@@ -289,7 +289,9 @@ does not (6 occurrences) was individually read. **All 6 are inside `#if 0` dead 
 (`sqlite/lemon.c:3443`, K&R-style *and* dead). tree-sitter-c has no preprocessor model and
 parses the dead branch; GitGalaxy correctly skips it (Claim 8). The accuracy audit was corrected
 to drop `#if 0` / `#if false` function definitions from ground truth — **C func recall 99.7% →
-100.0%**, zero real recall gaps.
+100.0%**, zero real recall gaps. The C `func_start` compiler-attribute shield also picked up the
+same [#2460](https://github.com/squid-protocol/gitgalaxy/issues/2460) SAL / entry-point
+annotation-macro prefix as C++ (for consistency; the C corpus does not currently exercise it).
 (found and fixed as part of the same pass) or a known tree-sitter-c/ctags limitation — never
 GitGalaxy's regex engine itself. Current measured numbers
 (`tests/tools/tri_comparison_chart.py --languages c`, `language-crucible/data/c/` —

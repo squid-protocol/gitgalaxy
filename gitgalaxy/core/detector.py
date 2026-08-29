@@ -4477,6 +4477,24 @@ class StructuralExtractor:
                     if tail and not tail.startswith(("--", "//", "#", "/*")):
                         opens -= 1
 
+            # #2405: The Shell Brace-Block Guard (SerenityOS `/bin/Shell` and any
+            # `{ }`-delimited shell dialect). POSIX `if`/`for`/`while`/`until`
+            # scopes close with `fi`/`done`; SerenityOS Shell writes
+            # `if cond { ... }` / `for x in ... { ... }` with NO `then`/`do`/
+            # `fi`/`done`, so on such a header line BOTH the keyword (+1) and the
+            # trailing `{` (+1) fire but only the later `}` (-1) ever closes -- a
+            # permanent +1 desync per block that swallows the rest of the file.
+            # When a loop/conditional keyword sits on a line that ENDS in a bare
+            # `{` block opener, the brace pair owns that scope; drop the keyword's
+            # contribution. Safe for POSIX: a POSIX `if`/`for` header never ends
+            # in a bare `{` (a `{ ...; }` command group is its own balanced pair).
+            if (
+                lang_key == "shell"
+                and opens > 0
+                and re.search(r"(?<![\w=\-])(?:if|while|until|for)(?![\w=\-]).*\{[ \t]*$", safe_line)
+            ):
+                opens -= 1
+
             # The Ruby/Elixir Inline Modifier Guard
             if lang_key in ["ruby", "elixir"] and opens > 0:
                 # Find all valid condition keywords on the line
@@ -4580,20 +4598,45 @@ class StructuralExtractor:
                 # "Anonymous_Block" fallback control-flow openers still get)
                 # -- an unclosed non-function block is still worth flagging.
                 is_matlab_eof_function = lang_id == "matlab" and satellite_name not in ("Anonymous_Block", "Main")
-                final_name = satellite_name if is_matlab_eof_function else satellite_name + "_[Truncated]"
-                sat, mag = self._calculate_block_metrics(
-                    final_name,
-                    block,
-                    loc,
-                    sat_start_line,
-                    current_line_offset,
-                    rules,
-                    sat_start_char,
-                    current_char_offset,
-                    spatial_map,
-                )
-                satellites.append(sat)
-                sum_fxn_impact += mag
+
+                # #2405: blast-radius containment. In the keyword-scoped shell /
+                # ruby / lua / elixir dialects, a single opener/closer desync (a
+                # SerenityOS `{`-block, a bare keyword used as a plain word in an
+                # argument, ...) leaves one scope open all the way to EOF -- so
+                # this remnant `block` can be almost the whole file, and emitting
+                # it as ONE `<name>_[Truncated]` satellite silently hides every
+                # real function defined after the desync point. Re-scan the
+                # swallowed span for `func_start` matches (Mode-A greedy label
+                # slice) and emit those individually; only the first recovered
+                # function keeps the `_[Truncated]` marker (the unclosed scope is
+                # at or before it). Scoped to these four dialects deliberately:
+                # matlab's trailing-`function`-without-`end` is a legitimate
+                # idiom (#1266), not a desync, and vb/livecode don't hit this.
+                recovered: list[FunctionNode] = []
+                rec_mag = 0.0
+                if lang_key in ("shell", "ruby", "lua", "elixir"):
+                    recovered, rec_mag = self._slice_by_labels(block, rules, sat_start_line - 1, spatial_map)
+
+                if len(recovered) > 1:
+                    if not recovered[0].get("name", "").endswith("_[Truncated]"):
+                        recovered[0]["name"] = recovered[0].get("name", satellite_name) + "_[Truncated]"
+                    satellites.extend(recovered)
+                    sum_fxn_impact += rec_mag
+                else:
+                    final_name = satellite_name if is_matlab_eof_function else satellite_name + "_[Truncated]"
+                    sat, mag = self._calculate_block_metrics(
+                        final_name,
+                        block,
+                        loc,
+                        sat_start_line,
+                        current_line_offset,
+                        rules,
+                        sat_start_char,
+                        current_char_offset,
+                        spatial_map,
+                    )
+                    satellites.append(sat)
+                    sum_fxn_impact += mag
 
         if global_dust and "".join(global_dust).strip():
             block = "\n".join(global_dust).strip()

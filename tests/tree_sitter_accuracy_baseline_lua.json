@@ -1,12 +1,12 @@
 {
-  "args_comparable": 488,
-  "args_exact_match": 451,
+  "args_comparable": 505,
+  "args_exact_match": 463,
   "corpus_path": "language-crucible/data/lua",
   "extra_classes": 14,
   "extra_functions": 12,
   "files_scanned": 109,
   "found_classes": 0,
-  "found_functions": 488,
+  "found_functions": 505,
   "real_classes": 0,
   "real_functions": 620
 }

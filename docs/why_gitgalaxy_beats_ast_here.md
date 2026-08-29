@@ -429,6 +429,22 @@ shielding regex and Universal Ctags' hand-written scanner both find correctly. S
 the grammar mishandles flattens the rest of the file into an `ERROR` region" mechanism as the
 csharp and javascript cascades above, on a third grammar.
 
+## A fifth confirmed instance: SerenityOS `/bin/Shell`, a non-POSIX brace-block dialect (2026-08-29, #2405)
+
+`language-crucible`'s `shell/serenity/{builtin.sh,run-tests-and-shutdown.sh,generate_manpages.sh}`
+carry a `#!/bin/Shell` shebang — SerenityOS's own shell, which is **not POSIX `sh`**. It writes
+`if cond { ... }` / `for x in ... { ... }` / `match $x { ... }` brace blocks with no
+`then`/`do`/`fi`/`done`, and `for $(...)` / `$*[-1]` slice syntax. `tree-sitter-bash` cannot parse
+any of it: `builtin.sh` has **4** ordinary `name() { ... }` function definitions
+(`_complete_unalias`, `__complete_job_spec`, `_complete_kill`, `_complete_cd`) but
+`tree.root_node.has_error` is `True` and tree-sitter recovers only **1** `function_definition`
+node. GitGalaxy's regex `func_start` finds all 4 — and with #2405's brace-block guard (the
+collocated `if`/`for` keyword doesn't double-count when a `{` block opener owns the scope) it
+slices them cleanly instead of letting the `if cond {` desync swallow the file. This shows up in
+`tree_sitter_accuracy_audit.py` as `shell extra_functions 14 -> 15`: reviewed and re-blessed, a
+real dialect the base grammar was never built for, same shape as Claim 2's Cython instance but on
+the bash grammar.
+
 ## Where Claim 3 does NOT apply
 
 - This is a grammar-*implementation* limitation (a specific parser version's bug/gap on one

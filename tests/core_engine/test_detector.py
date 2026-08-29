@@ -566,6 +566,68 @@ def test_detector_mode_d_shell_handshake():
     assert func["branch_count"] == 2, "Failed to register internal structural branches!"
 
 
+def test_detector_mode_d_shell_serenity_brace_blocks():
+    """
+    #2405: SerenityOS `/bin/Shell` uses `if cond { ... }` / `for x in ... { ... }`
+    with no `then`/`do`/`fi`/`done`. Both the keyword (+1) and the trailing `{`
+    (+1) used to fire while only `}` (-1) closed -- a permanent +1 desync that
+    swallowed every later function. The brace-block guard drops the collocated
+    keyword so the `{`/`}` pair owns the scope.
+    """
+    opt_detector = StructuralExtractor("shell", MOCK_LANG_DEFS)
+    code = (
+        "_complete_unalias() {\n"
+        "    name=''\n"
+        "    if test ${length $names} -ne 0 {\n"
+        '        name="$names[-1]"\n'
+        "    }\n"
+        "    for $(alias | grep x) {\n"
+        "        echo $it\n"
+        "    }\n"
+        "}\n"
+        "\n"
+        "_complete_kill() {\n"
+        "    echo done\n"
+        "}\n"
+    )
+    result = opt_detector.splice(code, "")
+    names = [f["name"] for f in result["functions"]]
+
+    assert "_complete_unalias" in names
+    assert "_complete_kill" in names, f"function after a SerenityOS brace-block was swallowed: {names}"
+    assert not any("Truncated" in n for n in names), f"scope desync not contained: {names}"
+
+
+def test_detector_mode_d_blast_radius_containment():
+    """
+    #2405: when a Mode-D keyword desync leaves one scope open to EOF, the
+    swallowed span is re-scanned for `func_start` matches instead of being
+    emitted as a single file-spanning `_[Truncated]` satellite -- so a single
+    desync costs one function, not every function after it.
+    """
+    opt_detector = StructuralExtractor("shell", MOCK_LANG_DEFS)
+    code = (
+        "desync_here() {\n"
+        '    echo "note: use for-loops here"\n'  # bare `for` in an argument -> phantom +1, never closed
+        "    :\n"
+        "}\n"
+        "\n"
+        "still_found() {\n"
+        "    echo ok\n"
+        "}\n"
+        "\n"
+        "also_found() {\n"
+        "    echo ok\n"
+        "}\n"
+    )
+    result = opt_detector.splice(code, "")
+    names = [f["name"] for f in result["functions"]]
+
+    assert any("desync_here" in n for n in names)
+    assert "still_found" in names, f"containment failed -- function lost to the desync: {names}"
+    assert "also_found" in names, f"containment failed -- function lost to the desync: {names}"
+
+
 def test_detector_mode_d_ruby_inline_modifier():
     """
     Proves the engine's Ruby inline modifier guard prevents trailing conditionals

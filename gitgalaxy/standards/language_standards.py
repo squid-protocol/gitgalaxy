@@ -48,7 +48,7 @@ for the same metrics tracked over time across pushes to main.
 | Java | 100.0% | 100.0% | 100.0% | 100.0% |
 | Javascript | 100.0% | 98.0% | 100.0% | 100.0% |
 | Kotlin | 100.0% | 100.0% | 100.0% | 100.0% |
-| Lua | 78.7% | 97.6% | N/A | 0.0% |
+| Lua | 81.5% | 97.7% | N/A | 0.0% |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 100.0% | N/A | N/A |
 | Objective-C | 98.7% | 98.1% | 100.0% | 100.0% |
@@ -59,7 +59,7 @@ for the same metrics tracked over time across pushes to main.
 | Ruby | 100.0% | 100.0% | 100.0% | 100.0% |
 | Rust | 100.0% | 100.0% | 100.0% | 100.0% |
 | Scala | 100.0% | 100.0% | 100.0% | 100.0% |
-| Shell | 99.1% | 97.0% | N/A | N/A |
+| Shell | 99.6% | 96.8% | N/A | N/A |
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 100.0% | 99.2% | 100.0% | 100.0% |
 | Tcl | 100.0% | 99.3% | N/A | N/A |

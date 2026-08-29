@@ -586,10 +586,10 @@
 <text class="lang-label" x="20" y="1155.5">livecode</text>
 <rect class="bar-track" x="154" y="1135" width="88" height="34" rx="2"/>
 <rect x="154" y="1135" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1143">934</text>
+<text class="bar-value-label" x="198.0" y="1143">964</text>
 <rect class="bar-track" x="286" y="1135" width="88" height="34" rx="2"/>
 <rect x="286" y="1135" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1143">934/934**</text>
+<text class="bar-value-label" x="330.0" y="1143">964/964**</text>
 <circle cx="390.0" cy="1152.0" r="8" fill="#2a78d6"/>
 <text class="badge-label" x="390.0" y="1155.0">G</text>
 <rect class="bar-track" x="418" y="1135" width="88" height="34" rx="2"/>

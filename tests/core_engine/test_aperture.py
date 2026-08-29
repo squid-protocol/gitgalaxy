@@ -88,6 +88,54 @@ def test_aperture_semantic_path_and_intent(filter_engine, tmp_path):
     assert "GuideStar Intent Lock" in reason
 
 
+def test_aperture_infra_path_shield_requires_left_boundary(filter_engine):
+    """
+    #2415: the Semantic Path Shield's leading token had an optional `[-_./\\]?`
+    prefix and no left boundary, so an infra word (gen/lib/out/test/spec/build/
+    ...) matched as the SUFFIX of any path component sitting right before a `.`
+    or `/`. That silently dropped real source files -- `MAPGEN.jcl` (matched
+    `gen`), `DBRMLIB.jcl` (matched `lib`), `layout.tsx`/`checkout.rb` (`out`),
+    `pytest.ini` (`test`) -- whenever no manifest supplied an Intent Lock.
+
+    After the fix the token must be preceded by start-of-path or a real
+    separator, so it only matches whole path segments / separator-delimited
+    tokens (the stated intent).
+    """
+    # Real source files that merely CONTAIN an infra word mid-component -- must pass now.
+    for allowed in (
+        "cics-banking-sample-application-cbsa/MAPGEN.jcl",
+        "cobol-programming-course/DBRMLIB.jcl",
+        "web/components/layout.tsx",
+        "store/checkout.rb",
+        "api/rollout.js",
+        "pkg/pytest.ini",
+        "core/rebuild_index.go",
+        "net/dependency_graph.c",
+    ):
+        assert filter_engine._check_ignore_rules(allowed) is True, allowed
+
+    # Genuine infra path segments -- must STILL be blocked (no has_intent).
+    for blocked in (
+        "vendor/lib/library.py",
+        "src/vendor.bundle.js",
+        "node_modules/foo/index.js",
+        "third-party/x.c",
+        "third_party/x.c",
+        "project/build/output.o",
+        "foo/dist/app.js",
+        "src/gen/schema.py",
+        "a/generated/b.py",
+        "test/test_foo.py",
+        "spec/foo_spec.rb",
+        "scripts/deploy.sh",
+        "deps/leftpad/index.js",
+        "libraries/foo.py",
+        "x/.github/workflows/ci.yml",
+        ".gitlab/ci.yml",
+    ):
+        assert filter_engine._check_ignore_rules(blocked) is False, blocked
+
+
 # ==============================================================================
 # TEST 3: THE AUTO-GEN SHIELD & DYNAMIC INFECTION
 # ==============================================================================

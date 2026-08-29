@@ -1,12 +1,12 @@
 {
-  "args_comparable": 2379,
-  "args_exact_match": 2379,
+  "args_comparable": 2381,
+  "args_exact_match": 2381,
   "corpus_ref": "v2.4.7",
   "extra_classes": 0,
   "extra_functions": 0,
-  "files_scanned": 225,
-  "found_classes": 61,
-  "found_functions": 2379,
-  "real_classes": 61,
-  "real_functions": 2379
+  "files_scanned": 226,
+  "found_classes": 62,
+  "found_functions": 2381,
+  "real_classes": 62,
+  "real_functions": 2381
 }

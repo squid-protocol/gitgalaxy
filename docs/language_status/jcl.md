@@ -59,12 +59,10 @@
 
 ## 5. Known limitations (accepted, not fixed)
 
-- **Perimeter filter drops JCL files whose name contains `gen`/`lib`/etc.**
-  ([#2415](https://github.com/squid-protocol/gitgalaxy/issues/2415)): `aperture.py`'s
-  `infra_path_pattern` has no left word boundary, so `MAPGEN.jcl` (matched as `gen`) and
-  `DBRMLIB.jcl` (matched as `lib`) are excluded before extraction when no manifest supplies
-  Intent. Not a JCL-specific bug; surfaced by the §9 manual-verification pass. Costs JCL 5 EXEC
-  steps and 1 JOB card against the v1.1.0 corpus.
+None currently. ([#2415](https://github.com/squid-protocol/gitgalaxy/issues/2415) — `aperture.py`'s
+`infra_path_pattern` had no left word boundary, so `MAPGEN.jcl` (matched `gen`) and `DBRMLIB.jcl`
+(matched `lib`) were dropped before extraction — was found by the §9 manual-verification pass and
+**fixed**; see §9.)
 
 ## 6. Test depth
 
@@ -110,36 +108,38 @@ This pass re-established the record against the full corpus.
 Plus a step-2b pipeline cross-check: `file_data.struct_func_start` / `struct_class_start` from a
 real `galaxyscope --db-only` run, per file, against the raw regex count.
 
-| Signature | Raw-corpus truth | Independent scanner | False positives | Misses | Pipeline (`struct_*`) vs. raw, per scanned file |
+| Signature | Corpus truth | Independent scanner | False positives | Misses | Pipeline (`struct_*`) vs. raw, per scanned file |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| `func_start` (EXEC steps) | **375 / 375** | 375 | 0 | 0 | identical on all 182 scanned files |
-| `class_start` (JOB cards) | **117 / 117** | 117 | 0 | 0 | identical on all 182 scanned files |
+| `func_start` (EXEC steps) | **375 / 375** | 375 | 0 | 0 | identical on all 184 scanned files |
+| `class_start` (JOB cards) | **117 / 117** | 117 | 0 | 0 | identical on all 184 scanned files |
 
 - **100% precision, 100% recall** for both signatures across the whole corpus. GitGalaxy
   correctly rejects every `//*`-commented JOB/EXEC line, every keyword buried in inline SYSIN
   card data, and the `//<CMASAPPL> JOB` angle-bracket template placeholder in `sampcma.jcl` /
   `sampwui.jcl`. A naive `^//\S+\s+JOB` grep's 15 extra "hits" are all such noise.
-- **Extraction path is clean.** For every one of the 182 files the pipeline scans, the raw regex
+- **Extraction path is clean.** For every one of the 184 files the pipeline scans, the raw regex
   count equals `struct_*` exactly — no `prism.py` comment-splitter corruption, no `detector.py`
   body-slicing drop. Mode A (greedy-to-next-label) slicing is correct for JCL, which has no
-  brace-delimited bodies.
+  brace-delimited bodies. `DFH$SIP1.jcl` is the one `.jcl` file not scanned, correctly: it is a
+  SYSIN parameter deck (`*`-prefixed lines, no `//` statements) with zero real signatures.
 
-**One engine defect found** ([#2415](https://github.com/squid-protocol/gitgalaxy/issues/2415)):
-`aperture.py`'s `infra_path_pattern` "Semantic Path Shield" has no left word boundary, so
-`MAPGEN.jcl` (matches `gen`) and `DBRMLIB.jcl` (matches `lib`) are blocked at the perimeter
-before extraction — costing 5 real EXEC steps and 1 real JOB card. `DFH$SIP1.jcl` is also not
-counted, correctly: it is a SYSIN parameter deck (`*`-prefixed lines, no `//` statements) with
-zero real signatures. Not a JCL-specific bug; the fix touches every language's file-filtering
-and ripples both golden masters, so it is filed for its own PR rather than fixed here.
+**One engine defect found and fixed**
+([#2415](https://github.com/squid-protocol/gitgalaxy/issues/2415)): `aperture.py`'s
+`infra_path_pattern` "Semantic Path Shield" had an optional `[-_./\\]?` prefix and no left word
+boundary, so an infra word (`gen` / `lib` / `out` / `test` / `spec` / `build` / …) matched as the
+*suffix* of any path component sitting right before a `.` or `/` — `MAPGEN.jcl` (`gen`),
+`DBRMLIB.jcl` (`lib`) — dropping those files at the perimeter before extraction. Not JCL-specific:
+the same pass fixed 23 wrongly-excluded files across 12 languages (`codegen.c`, `layout.html`,
+`autogen.sh`, `Alamofire.podspec`, `speedtest.tcl`, `CommonLibrary.psm1`, …). Fixed by requiring
+a real left boundary (`(?:^|[-_./\\])`); both golden masters re-blessed in the same PR.
 
 **Chart records** (`manual_verification.json`, keyed to GitGalaxy's live claim count as the
 staleness anchor — a PRECISION record):
 
-- **Functions (EXEC steps)**: `370 / 370` verified — every EXEC step the engine currently
-  extracts is a real one, and nothing real is missed within the files it scans. Raw-corpus truth
-  is `375 / 375`; the 5-step gap is entirely #2415.
-- **Classes (JOB cards)**: `116 / 116` verified — same standard. Raw-corpus truth is `117 / 117`;
-  the 1-card gap is entirely #2415.
+- **Functions (EXEC steps)**: `375 / 375` verified — every EXEC step the engine extracts is a
+  real one, and nothing real is missed anywhere in the corpus. (Was `370 / 370` before #2415's
+  fix restored `MAPGEN.jcl` / `DBRMLIB.jcl`.)
+- **Classes (JOB cards)**: `117 / 117` verified — same standard. (Was `116 / 116` pre-fix.)
 - **Args**: JCL `func_start` matches `EXEC` job steps, a document-structural marker with no
   parameter-list concept at any granularity (`ARGS_GRANULARITY["jcl"] == "none"`). The chart
   shows GitGalaxy's raw `PARM=` / PROC-symbolic signal count with the granularity marker and no

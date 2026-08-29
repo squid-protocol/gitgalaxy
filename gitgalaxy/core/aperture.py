@@ -98,8 +98,14 @@ class ApertureFilter:
 
         # ---> SEMANTIC PATH SHIELD <---
         # Matches boundaries commonly associated with generated, build, vendor, and noise directories.
+        # The leading alternation MUST be a real left boundary (`(?:^|[-_./\\])`), not an optional
+        # separator -- with the old `[-_./\\]?` prefix an infra word matched as the *suffix* of any
+        # path component right before a `.` or `/` (`MAPGEN.jcl` -> `gen`, `DBRMLIB.jcl` -> `lib`,
+        # `layout.tsx`/`checkout.rb` -> `out`, `pytest.ini` -> `test`), silently dropping real source
+        # files whenever no manifest supplied an Intent Lock (#2415). `.github`/`.gitlab` are literal
+        # dots, not "any char".
         self.infra_path_pattern = re.compile(
-            r"(?i)[-_./\\]?(?:gen|generated|build|dist|out|vendor|mock|test|spec|docs|assets|scripts|__monolith__|__snapshots__|.github|.gitlab|node_modules|third[-_]?party|deps?|lib(?:rary|raries)?)[-_./\\]?\b"
+            r"(?i)(?:^|[-_./\\])(?:gen|generated|build|dist|out|vendor|mock|test|spec|docs|assets|scripts|__monolith__|__snapshots__|\.github|\.gitlab|node_modules|third[-_]?party|deps?|lib(?:rary|raries)?)[-_./\\]?\b"
         )
 
         # --- STATE CACHE & DYNAMIC STATE ---

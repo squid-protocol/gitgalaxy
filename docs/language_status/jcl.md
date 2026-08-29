@@ -146,4 +146,12 @@ staleness anchor — a PRECISION record):
   `**` — there is nothing to verify, so JCL carries no `args` entry in `manual_verification.json`
   (same as `dockerfile`, the other `none`-granularity gg-only language). The 2026-08-23 `1/1`
   args entry was removed. For the record, GitGalaxy's `args` regex matches 28 real `PARM=`
-  strings / PROC symbolic-parameter declarations across the full corpus, zero spurious.
+  strings / PROC symbolic-parameter declarations across the full corpus, zero spurious. Two
+  known, accepted proxy imprecisions, neither worth its own issue since the metric is `none`:
+  (1) the line-anchored `args` regex only sees `PARM=` when it sits on the `EXEC` line itself, so
+  ~16–18 `//` continuation-line `PARM=(...)` occurrences (`asmmap.jcl`, `BATCH.jcl`, `CICS.jcl`,
+  `CICSTS56.jcl:45`, `cobol.jcl:68`, `defdrep.jcl:39`, …) are not counted; (2) the per-step
+  `Occurrence.args` values feeding `gg_args_found` (`24‡`) are `0` for 352 steps, `1` for 17
+  (a `PARM=` is present), and `7` for one — `ZOSCSEC.jcl`'s `BPXIT` step, a mild over-count where
+  Mode A's unbounded args search (see [#1973](https://github.com/squid-protocol/gitgalaxy/issues/1973))
+  sweeps a multi-line `PARM='SH chmod …'` string.

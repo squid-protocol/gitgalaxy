@@ -10947,9 +10947,17 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # 2. args: Parameters / Coupling. Captures parameters in handlers (on, command, function).
+            # BUG FIX (livecode tri-comparison manual verification, 2026-08-28): this
+            # `^`-anchored per-line pattern was compiled `re.I` only -- missing the
+            # `re.M` its structurally-identical `func_start` sibling below has -- so
+            # `^` only ever matched the very start of the file. Result: at most one
+            # args match per file (only when line 1 is a handler header), and ZERO
+            # across the entire language-crucible/data/livecode corpus (99 files, 781
+            # real handlers). Same one-flag omission class as any `^`-anchored
+            # signal rule; the pattern itself was already correct on a single line.
             "args": re.compile(
                 r"^[ \t]*(?:private[ \t]+|public[ \t]+)?(?:on|command|function|getprop|setprop)[ \t]+[a-zA-Z0-9_-]+[ \t]+((?:(?!--|//|#|/\*)[^ \t\r\n])(?:(?!--|//|#|/\*)[^\r\n])*?)(?=[ \t]*(?:--|//|#|/\*|\r|\n|$))",
-                re.I,
+                re.I | re.M,
             ),
             # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries and state transformation verbs.
             # BUG FIX (#593): "constant" used to be listed here too, duplicating
@@ -10977,8 +10985,22 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # never-functional leading quote-char option (a quote immediately
             # after would break the same lookahead, so it never actually
             # matched anything either).
+            #
+            # BUG FIX (livecode tri-comparison manual verification, 2026-08-28):
+            # added a real quoted-name alternative as its OWN capture branch
+            # (`"([^"\r\n]{1,200})"`), distinct from the broken char-class option
+            # removed above. A LiveCode Script stack/behavior script exported to a
+            # `.livecodescript` file opens with `script "Name"` (quoted, one per
+            # file) -- the dominant declaration form for the Script half of the
+            # corpus, ~63 files -- and the bareword-only capture matched NONE of
+            # them (struct_class_start was 33, all from `.lcb` `module com.x.y`
+            # bareword decls, 0 from `.livecodescript`). Two capture groups now;
+            # `_resolve_class_start_match` in detector.py already handles the
+            # group-1-or-group-2 alternation shape (same as fortran/lua/abap).
             "class_start": re.compile(
-                r"^[ \t]*(?:script|behavior|widget|module|library)[ \t]+([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*){0,10})(?=[ \t]*(?:--|//|#|/\*|\r?$))",
+                r"^[ \t]*(?:script|behavior|widget|module|library)[ \t]+"
+                r"(?:\"([^\"\r\n]{1,200})\"|([a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*){0,10}))"
+                r"(?=[ \t]*(?:--|//|#|/\*|\r?$))",
                 re.I | re.M,
             ),
             # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

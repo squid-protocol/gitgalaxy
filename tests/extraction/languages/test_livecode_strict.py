@@ -112,14 +112,12 @@ _LIVECODE_SIMPLE_CASES = [
     ("regex_execution", 'matchText(tString, "^[0-9]+$")', "put 1 into x"),
     ("time_date_logic", "put the seconds into tNow", "put 1 into x"),
     ("ipc_rpc_bridges", 'put shell("ls -la") into tOutput', "put 1 into x"),
-
     # --- DEEP ADVERSARIAL CASES: branch ---
     ("branch", "next   repeat", "put the next_repeat into x"),
     ("branch", "repeat for each item tItem in tList", "put 1 into switcharoo"),
     ("branch", "try\n  put 1\ncatch tError", "command notAFunction"),
     ("branch", "finally", "put branching into x"),
     ("branch", "if (x = 1) and (y = 2) then", "put 1 into if_func"),
-
     # --- DEEP ADVERSARIAL CASES: args ---
     ("args", "on myHandler p1, p2, p3", "on myHandler"),
     ("args", "function calculateTotal pPrice, pTax", "command myCmd\n  put 1 into x"),
@@ -127,27 +125,24 @@ _LIVECODE_SIMPLE_CASES = [
     ("args", "getprop myProp pIndex", "put 1 into x -- on myHandler pArg"),
     ("args", "on myCmd arg1\r\n", "on myCmd  \r\n"),
     ("args", "on myHandler   p1,p2   ", "command myCmd  -- comment"),
-
     # --- DEEP ADVERSARIAL CASES: func_start ---
     ("func_start", "private command myCmd", "put on into x"),
     ("func_start", "on my-Command_123", "command_not_start"),
     ("func_start", "function myFunc\r\n", "on  \r\n"),
     ("func_start", "public   getprop   myProp", "private  put 1 into x"),
     ("func_start", "setprop myProp", "functionality_test"),
-
     # --- DEEP ADVERSARIAL CASES: class_start ---
     ("class_start", "widget com.livecode.widget.button", "widget_button"),
     ("class_start", "module myMod -- comment", "library_not_start"),
     ("class_start", "behavior myBehavior\r\n", "script  \r\n"),
     ("class_start", "library com.livecode.library", "module  "),
     ("class_start", "script myScript /* block */", "behavioral_test"),
-
     # --- DEEP ADVERSARIAL CASES: structural_boundaries ---
     ("structural_boundaries", "visual   effect", "constant visual_effect = 1"),
     ("structural_boundaries", "go card 2", "going to card 2"),
-    ("structural_boundaries", "dispatch \"myMessage\"", "dispatcher"),
+    ("structural_boundaries", 'dispatch "myMessage"', "dispatcher"),
     ("structural_boundaries", "pass myHandler", "passing value"),
-    ("structural_boundaries", "replace \"a\" with \"b\"", "replacement"),
+    ("structural_boundaries", 'replace "a" with "b"', "replacement"),
 ]
 
 
@@ -222,18 +217,51 @@ def test_livecode_class_start_dotted_module_name_regression():
     lookahead then required whitespace/EOL immediately after the partial
     match, which a `.` never satisfies, so the whole match failed. Fixed by
     widening the name pattern to allow up to 10 dotted segments.
+
+    Updated (livecode tri-comparison manual verification, 2026-08-28): the
+    pattern now has two name-capture branches -- a quoted `script "Name"` form
+    (group 1) for `.livecodescript` exports and the bareword/dotted form
+    (group 2) for `.lcb` -- so the bareword name lands in group 2. This is the
+    same group-1-or-group-2 alternation shape fortran/lua/abap already use, and
+    `_resolve_class_start_match` in detector.py handles it.
     """
     pattern = LIVECODE_RULES["class_start"]
-    m = pattern.search("module com.livecode.string")
-    assert m, "dotted module name still didn't match"
-    assert m.group(1) == "com.livecode.string"
 
-    m = pattern.search("widget com.livecode.widget.myWidget")
-    assert m, "multi-segment dotted widget name still didn't match"
-    assert m.group(1) == "com.livecode.widget.myWidget"
+    def _name(payload):
+        m = pattern.search(payload)
+        if not m:
+            return None
+        return next((g for g in m.groups() if g is not None), None)
 
-    m = pattern.search("behavior myBehavior")
-    assert m and m.group(1) == "myBehavior", "plain non-dotted name regressed"
+    assert _name("module com.livecode.string") == "com.livecode.string"
+    assert _name("widget com.livecode.widget.myWidget") == "com.livecode.widget.myWidget", (
+        "multi-segment dotted widget name still didn't match"
+    )
+    assert _name("behavior myBehavior") == "myBehavior", "plain non-dotted name regressed"
+    # The new quoted branch: a LiveCode Script object export header.
+    assert _name('script "CoreEngineClipboardPrivateSetter"') == "CoreEngineClipboardPrivateSetter"
+    assert _name('script "Command Line Builder"') == "Command Line Builder", "quoted name with spaces"
+
+
+def test_livecode_args_multiline_anchor_regression():
+    """
+    Regression test (livecode tri-comparison manual verification, 2026-08-28):
+    the `^`-anchored `args` pattern was compiled `re.I` only -- missing the
+    `re.M` its structurally-identical `func_start` sibling carries -- so `^`
+    only matched the very start of a string. Every real corpus file has a
+    license header / `script "..."` line before the first handler, so `args`
+    matched at most once per file (never, in practice) and returned ZERO
+    across the whole language-crucible/data/livecode corpus. Every prior
+    args test put the handler on line 1, so none of them exercised `re.M`.
+    """
+    args = LIVECODE_RULES["args"]
+    body = 'script "CoreMathArithmeticCommmands"\n\nprivate function MapError pError, pSrcErr, pDstErr\n   return empty\nend MapError\n'
+    matches = [m.group(1) for m in args.finditer(body)]
+    assert matches == ["pError, pSrcErr, pDstErr"], matches
+
+    # func_start already had re.M; confirm both agree on a non-line-1 handler.
+    func = LIVECODE_RULES["func_start"]
+    assert [m.group(1) for m in func.finditer(body)] == ["MapError"]
 
 
 def test_livecode_doc_author_colon_trailing_boundary_regression():

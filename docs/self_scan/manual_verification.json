@@ -70,6 +70,15 @@
         "verified_at": "2026-08-23",
         "verified_by": "Antigravity"
       }
+    },
+    "livecode": {
+      "class": {
+        "note": "class_start named extraction, verified by direct source cross-check of EVERY detected class against its declaration line across the whole language-crucible/data/livecode corpus (97 ingested files): 57/57 correct, ZERO false positives. Two real declaration forms, both handled: `.livecodescript` `script \"Name\"` (quoted object-script export header) and `.lcb` `module com.x.y` (bareword reverse-DNS). Fixes shipped in the same pass: the class_start regex only captured barewords (added a quoted-name branch), and livecode was missing from detector.py's _CLASS_START_NAMED_EXTRACTION_LANGS (added). `total` is GitGalaxy's own live class-claim count (57), matching the chart's staleness anchor; this is a PRECISION record. Separately, GitGalaxy has a RECALL gap of 38 more real `.livecodescript` objects (95 real total) that it misses entirely because a leading UTF-8 BOM on line 1 defeats the `^`-anchored regex -- a general engine gap affecting 58 corpus files across 6 languages, filed as #2411, not a livecode class_start defect. `map.lcb` is correctly NOT counted (its `module` line is commented out). See docs/language_status/livecode.md.",
+        "total": 57,
+        "verified": 57,
+        "verified_at": "2026-08-28",
+        "verified_by": "Claude Sonnet 5"
+      }
     }
   }
 }

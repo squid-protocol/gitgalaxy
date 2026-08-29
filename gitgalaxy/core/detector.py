@@ -417,6 +417,17 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "java",
         "javascript",
         "kotlin",
+        # livecode tri-comparison manual verification (2026-08-28): gg_only
+        # language (no tree-sitter, no ctags), verified via direct source
+        # cross-check instead -- see docs/language_status/livecode.md. Its own
+        # class_start regex cleanly extracts both real declaration forms in the
+        # corpus: `.livecodescript` `script "Name"` (quoted) and `.lcb`
+        # `module com.x.y` (bareword reverse-DNS). Without this entry the generic
+        # fallback regex (lowercase `class|struct|interface|trait|enum`) can never
+        # match `script`/`behavior`/`module`/`widget`/`library`, so the named
+        # class list stayed permanently empty (0 of ~96 real objects) regardless
+        # of struct_class_start's own accurate count.
+        "livecode",
         "lua",
         "makefile",
         "matlab",

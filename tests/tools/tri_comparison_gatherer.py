@@ -202,6 +202,19 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
     classes: list[Occurrence] = []
 
     def walk(node, is_continuation_clause=False):
+        # #2451: an HTML `<script>` / `<style>` element is a container -- the real
+        # code lives in an embedded language (JavaScript / CSS), which is exactly
+        # what GitGalaxy's own polyglot detector descends into (e.g. a `<style>`'s
+        # `@media` rule is reported by GitGalaxy as a function `media`). Without
+        # this branch tree-sitter-html yields NOTHING for these (its `raw_text` is
+        # opaque and `_get_node_name` has no branch for the element types), so a
+        # correct GitGalaxy polyglot find looks like an over-detection. Reuses the
+        # audit's own `_html_embedded_ts_funcs` (grammar injection + line offset +
+        # `<script src=...>` skip), same as `measure()`'s walk().
+        if lang == "html" and node.type in tsaa._HTML_EMBEDDED_LANG:
+            for name, abs_line, pc, _sub in tsaa._html_embedded_ts_funcs(node):
+                funcs.append(Occurrence(name=name, line=abs_line, args=pc))
+            return
         if node.type in func_node_types:
             name = tsaa._get_node_name(node)
             if (

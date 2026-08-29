@@ -326,6 +326,9 @@ class Prism:
         elif lang_id == "php":
             text, php_lits = self._strip_php_string_mass(text)
             lits.extend(php_lits)
+        elif lang_id == "powershell":
+            text, ps_lits = self._strip_powershell_herestrings(text)
+            lits.extend(ps_lits)
 
         # 2. SPECIALIZED LEXICAL FAMILY ROUTING
         # #386: these three used to check "recursive_c_style"/"column_sensitive"/
@@ -658,6 +661,29 @@ class Prism:
         text = self.PHP_HEREDOC_PATTERN.sub(capture_lit, text)
 
         return text, lits
+
+    # #2450: PowerShell here-strings -- `@"` (only whitespace after, then a newline)
+    # ... `"@` at the start of a line, and the literal `@'` ... `'@` form. Their
+    # bodies routinely carry code-shaped text (this file generates a C#/IDL
+    # interface from a `Write-Output @"namespace ... enum ProviderType { ... }"@`
+    # here-string), and PowerShell's `embedded_syntax` lexical family strips only
+    # `#` / `<# #>` comments -- nothing shields string mass -- so `class_start` /
+    # `func_start` matched `enum ProviderType` inside the here-string as a real
+    # declaration. Blanked to same-length filler (newlines kept) so byte offsets
+    # and line numbers are unchanged, same idiom as `_mask_lua_long_brackets`.
+    _PS_HERESTRING_RE = re.compile(r"@\"[^\n]*\n.*?\n\"@|@'[^\n]*\n.*?\n'@", re.DOTALL)
+
+    def _strip_powershell_herestrings(self, text: str) -> tuple[str, list[str]]:
+        """Blanks PowerShell here-string bodies (`@\" ... \"@` / `@' ... '@`) so their
+        code-shaped contents can't be mis-read as real declarations, capturing each
+        to the documentation stream. Newline-count preserving."""
+        lits: list[str] = []
+
+        def _repl(m: "re.Match[str]") -> str:
+            lits.append(m.group(0).strip())
+            return "".join("\n" if ch == "\n" else " " for ch in m.group(0))
+
+        return self._PS_HERESTRING_RE.sub(_repl, text), lits
 
     _LUA_LONG_BRACKET_RE = re.compile(r"(?:--)?\[(=*)\[.*?\]\1\]", re.DOTALL)
 

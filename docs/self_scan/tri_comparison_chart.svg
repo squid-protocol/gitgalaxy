@@ -411,18 +411,20 @@
 <text class="lang-label" x="20" y="891.5">haskell</text>
 <rect class="bar-track" x="154" y="871" width="88" height="34" rx="2"/>
 <rect x="154" y="871" width="71.9" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="879">147*</text>
+<text class="bar-value-label" x="198.0" y="879">147</text>
 <rect x="154" y="883" width="71.4" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="198.0" y="891">146*</text>
+<text class="bar-value-label" x="198.0" y="891">146</text>
 <rect x="154" y="895" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="903">180*</text>
+<text class="bar-value-label" x="198.0" y="903">180</text>
 <rect class="bar-track" x="286" y="871" width="88" height="34" rx="2"/>
 <rect x="286" y="871" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="879">147/147*</text>
+<text class="bar-value-label" x="330.0" y="879">147/147</text>
 <rect x="286" y="883" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="891">146/146*</text>
+<text class="bar-value-label" x="330.0" y="891">146/146</text>
 <rect x="286" y="895" width="38.1" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="903">78/180*</text>
+<text class="bar-value-label" x="330.0" y="903">78/180</text>
+<circle cx="390.0" cy="888.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="390.0" y="891.0">G</text>
 <rect class="bar-track" x="418" y="871" width="88" height="34" rx="2"/>
 <rect x="418" y="871" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="879">16</text>
@@ -444,13 +446,15 @@
 <rect class="bar-track" x="154" y="915" width="88" height="34" rx="2"/>
 <rect x="154" y="915" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="198.0" y="923">1*</text>
-<rect x="154" y="927" width="2.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="198.0" y="935">0*</text>
+<rect x="154" y="927" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="198.0" y="935">1*</text>
 <rect x="154" y="939" width="2.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="947">0*</text>
 <rect class="bar-track" x="286" y="915" width="88" height="34" rx="2"/>
-<rect x="286" y="915" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="923">0/1*</text>
+<rect x="286" y="915" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="923">1/1*</text>
+<rect x="286" y="927" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="330.0" y="935">1/1*</text>
 <rect class="bar-track" x="682" y="915" width="88" height="34" rx="2"/>
 <rect class="stripe" x="16" y="954" width="780" height="44"/>
 <text class="lang-label" x="20" y="979.5">java</text>
@@ -820,16 +824,16 @@
 <text class="badge-label" x="390.0" y="1507.0">G</text>
 <rect class="bar-track" x="418" y="1487" width="88" height="34" rx="2"/>
 <rect x="418" y="1487" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="462.0" y="1495">10*</text>
-<rect x="418" y="1499" width="79.2" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="462.0" y="1507">9*</text>
+<text class="bar-value-label" x="462.0" y="1495">9</text>
+<rect x="418" y="1499" width="88.0" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="462.0" y="1507">9</text>
 <rect x="418" y="1511" width="2.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="1519">0*</text>
+<text class="bar-value-label" x="462.0" y="1519">0</text>
 <rect class="bar-track" x="550" y="1487" width="88" height="34" rx="2"/>
-<rect x="550" y="1487" width="79.2" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="1495">9/10*</text>
+<rect x="550" y="1487" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="594.0" y="1495">9/9</text>
 <rect x="550" y="1499" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="594.0" y="1507">9/9*</text>
+<text class="bar-value-label" x="594.0" y="1507">9/9</text>
 <rect class="bar-track" x="682" y="1487" width="88" height="34" rx="2"/>
 <rect x="682" y="1487" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="726.0" y="1495">241</text>
@@ -1185,10 +1189,10 @@
 <rect x="682" y="2115" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="726.0" y="2123">2751</text>
 <line x1="16" y1="2152" x2="796" y2="2152" stroke="#dedcd6" stroke-width="1"/>
-<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 65 real comparisons (1-bar groups and empty panels don't count)</text>
+<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 67 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2184" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2187">G</text>
-<text class="legend-label" x="36" y="2188">GitGalaxy best: 28 (43%)</text>
+<text class="legend-label" x="36" y="2188">GitGalaxy best: 29 (43%)</text>
 <circle cx="215.8" cy="2184" r="7" fill="#eb6834"/>
 <text class="badge-label" x="215.8" y="2187">T</text>
 <text class="legend-label" x="228.8" y="2188">tree-sitter best: 4 (6%)</text>
@@ -1196,6 +1200,6 @@
 <text class="badge-label" x="408.6" y="2187">C</text>
 <text class="legend-label" x="421.6" y="2188">ctags best: 0 (0%)</text>
 <circle cx="564.2" cy="2184" r="7" fill="#9a9a95"/>
-<text class="legend-label" x="577.2" y="2188">Ties: 33 (51%)</text>
+<text class="legend-label" x="577.2" y="2188">Ties: 34 (51%)</text>
 <text class="scope-note" x="16" y="2208">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>
 </svg>

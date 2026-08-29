@@ -360,7 +360,22 @@ CTAGS_FUNC_KINDS: dict[str, set[str]] = {
     # wrf/module_initialize_real.F:7519's `program foo` is a real ctags "program" tag ctags itself
     # emits correctly, just invisible to this comparison because "p" wasn't in the set.
     "go": {"f"},
+    # haskell: "f" (function) is the only func-shaped kind. ctags-haskell emits ONE "f" tag PER
+    # LINE of a multi-line definition -- the bare name line, the `::` type-signature line, and
+    # every pattern-match equation -- so a function written across 3 lines produces 3 identical
+    # tags (found via tri-comparison-ledger-sweep, haskell/function/existence/
+    # agree[ctags,gitgalaxy]_vs[tree_sitter], 2026-08-29: pandoc/Shared.hs's `addPandocAttributes`
+    # is tagged at lines 300/301/302 while GitGalaxy and tree-sitter each report it once, at 299
+    # and 301). tri_comparison_reconcile pairs occurrences by rank, so ctags' surplus tags leave
+    # a phantom GitGalaxy+ctags-only slot with no tree-sitter partner -- an artifact of ctags'
+    # per-line tagging, not a real tree-sitter recall gap. Not worked around here.
     "haskell": {"f"},
+    # html: no function-equivalent kind. ctags-html also has no CSS/JS parser, so a real CSS
+    # at-rule / JS function inside a `<style>` / `<script>` block is invisible to it -- e.g.
+    # cpython_jinja/layout.html:40's `@media only screen { ... }`, which GitGalaxy's polyglot
+    # detector and tree-sitter (with the css grammar injected, see tri_comparison_gatherer.py's
+    # #2451 walk branch) both correctly report as a function `media`. Shape
+    # html/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags].
     "html": set(),
     "java": {"m"},
     "javascript": {"f", "m"},  # functions + methods -- but see two confirmed parser-level gaps

@@ -3,7 +3,7 @@
   "args_exact_match": 572,
   "corpus_path": "language-crucible/data/lua",
   "extra_classes": 1,
-  "extra_functions": 1,
+  "extra_functions": 0,
   "files_scanned": 109,
   "found_classes": 0,
   "found_functions": 618,

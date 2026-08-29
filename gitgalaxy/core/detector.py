@@ -1959,6 +1959,19 @@ class StructuralExtractor:
             # string delimiter in both dialects; single-line, no-escape.
             standard_double = r'"[^"\r\n]*"'
             standard_single = r"'[^'\r\n]*'"
+        elif lang_id == "lua":
+            # #2437: Lua's `\z` escape skips the following run of whitespace,
+            # INCLUDING line breaks -- so `'... skipping tests for \z\nuserdata
+            # <<<\n'` (events.lua) is one string spanning two physical lines.
+            # The default newline-bounded pattern can't match it, leaking the
+            # word `for` as live code -> `\bfor\b` opens a Mode-D scope that
+            # never closes (runaway `_[Truncated]` to EOF). Add `\z` + its
+            # trailing whitespace as an explicit cross-newline alternative;
+            # plain `\<newline>` continuation is already covered by `\\.` under
+            # re.DOTALL. Kept newline-bounded otherwise (an unterminated single-
+            # line quote must not still swallow the file).
+            standard_double = r'(?<!\\)"(?:\\z[ \t\r\n]*|\\.|[^"\\\n\r])*"'
+            standard_single = r"(?<!\\)'(?:\\z[ \t\r\n]*|\\.|[^'\\\n\r])*'"
 
         # For heredoc-capable scripting languages, match a real heredoc opener
         # BEFORE the quote alternatives so `<< 'EOF'` / `<<-"EOT"` keeps its

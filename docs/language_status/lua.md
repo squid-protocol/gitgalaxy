@@ -9,7 +9,7 @@ looks old relative to `last_updated` below.
 **Scope note:** §9 was written by the `tri-comparison-ledger-sweep` skill and is the part of this
 doc with the most recent, most detailed investigation behind it — a real 3-way
 GitGalaxy / tree-sitter-lua / Universal-Ctags comparison on the `language-crucible` corpus, with
-five engine defects found and fixed across two PRs. §§1–8 are the standard primary-source
+six engine defects found and fixed across three PRs. §§1–8 are the standard primary-source
 snapshot.
 
 ## 1. At a glance
@@ -60,13 +60,12 @@ tradeoff.
 
 ## 5. Known limitations (accepted / tracked)
 
-- **A single-quoted string continued across a newline by `\z`** leaks past the newline-bounded
-  literal shield (`events.lua`: `'... skipping tests for \z\nuserdata <<<\n'`), leaving an
-  unclosed `if not T then` that runs to EOF as one `Anonymous_Block_[Truncated]` satellite. This
-  is the last remaining lua `_[Truncated]` in the corpus (1 occurrence). It's a pre-existing
-  cross-language gap in `_apply_literal_shield`'s newline-bounded quote patterns, not a
-  lua-specific desync — #2437's original keyword-count desync and #2440's segmentation split
-  are both fixed.
+- **Two low-value recall misses** (shape `agree[ctags,tree_sitter]_vs[gitgalaxy]`, 2
+  occurrences). `constructs.lua:f` is an occurrence-alignment fuzz on a name defined 4× — ctags'
+  own false-positive `f` (from a `local f = load(...)` assignment) and a tree-sitter `f` pair to
+  different lines than GitGalaxy's four real ones. `literals.lua:lexerror` is a genuine single
+  miss inside `test/literals.lua`, the Lua suite's lexer-torture fixture (adversarial nested
+  `[[` / `]=]` / `\z` string data by design). Neither is worth chasing.
 - **`class_start` keeps one borderline hit** (`tracegc.lua:M` — `local M = {}` with
   `function M.start` / `function M.stop` / `return M`, a real module table). #2439's proto-table
   "tell" gate dropped the other 13 ALL_CAPS-data-table false positives; `M` is legitimately
@@ -87,9 +86,14 @@ tradeoff.
   (offsets preserved, slicing unchanged).
 - [#2439](https://github.com/squid-protocol/gitgalaxy/issues/2439) — `class_start` heuristic
   over-matched ALL_CAPS data tables; fixed with the proto-table tell gate above.
-- [#2437](https://github.com/squid-protocol/gitgalaxy/issues/2437) — mid-file keyword desync; no
-  remaining lua repro after #2441's literal-shield fix (kept open as a general Mode-D hardening
-  task).
+- [#2437](https://github.com/squid-protocol/gitgalaxy/issues/2437) — mid-file keyword desync.
+  Fully resolved for lua: #2441 handled the `#` / `//` / `[[ ]]` sources, and a dedicated `\z`
+  string-continuation fix (`\z` skips whitespace *including line breaks*, so
+  `'… tests for \z\nuserdata <<<\n'` is one string the newline-bounded shield couldn't match —
+  it leaked the word `for` as a `\bfor\b` opener) cleared the last one, `events.lua`. lua
+  `extra_functions` 1 → 0, function precision **100.0%**. Kept open as a general Mode-D hardening
+  task (the containment-heuristic half is deliberately not done — no remaining repro to validate
+  it against).
 
 ## 6. Test depth
 
@@ -120,24 +124,25 @@ across `cosmopolitan` (the Lua 5.4 test suite, heavily nested and adversarial by
 
 **Summary.** All **8** discrepancy shapes the tri-comparison tool flagged for Lua were
 investigated and marked `validated` in one pass (2026-08-29) via the
-`tri-comparison-ledger-sweep` skill. **Five** confirmed GitGalaxy engine defects were found and
-fixed across two PRs (#2441, then the #2438/#2439/#2440 follow-up); the rest are tool-architecture
-differences or absences with no privileged ground truth. Cumulative effect, measured by
-`tree_sitter_accuracy_audit.py --lang lua`:
+`tri-comparison-ledger-sweep` skill. **Six** confirmed GitGalaxy engine defects were found and
+fixed across three PRs (#2441; the #2438/#2439/#2440 follow-up; then a `\z` string-continuation
+fix for #2437); the rest are tool-architecture differences or absences with no privileged ground
+truth. Cumulative effect, measured by `tree_sitter_accuracy_audit.py --lang lua`:
 
-| Metric | Baseline | After #2441 | After follow-up |
-|---|---:|---:|---:|
-| `found_functions` | 505 | 557 | **618** |
-| `extra_functions` (lower is better) | 12 | 7 | **1** |
-| `extra_classes` (lower is better) | 14 | 14 | **1** |
-| `args_exact_match` | 463 | 516 | **572** |
+| Metric | Baseline | After #2441 | After #2438/9/40 | After #2437 |
+|---|---:|---:|---:|---:|
+| `found_functions` | 505 | 557 | 618 | **618** |
+| `extra_functions` (lower is better) | 12 | 7 | 1 | **0** |
+| `extra_classes` (lower is better) | 14 | 14 | 1 | **1** |
+| `args_exact_match` | 463 | 516 | 572 | **572** |
 
-Lua recall 81.5% → **99.7%**, function precision 97.7% → **99.8%**. Both golden masters were
+Lua recall 81.5% → **99.7%**, function precision 97.7% → **100.0%**. Both golden masters were
 re-blessed and `tests/tree_sitter_accuracy_baseline_lua.json` regenerated in each PR.
 
-### Confirmed engine defects (5, all fixed)
+### Confirmed engine defects (6, all fixed)
 
-Defects 1–2 landed in PR #2441; defects 3–5 in the #2438/#2439/#2440 follow-up.
+Defects 1–2 landed in PR #2441; defects 3–5 in the #2438/#2439/#2440 follow-up; defect 6 in the
+`\z` fix for #2437.
 
 **1 — Mode-D recall gap: nested `function` declarations folded into the enclosing satellite**
 (shape `lua/function/existence/agree[ctags,tree_sitter]_vs[gitgalaxy]`, was ~82 occurrences).
@@ -190,6 +195,20 @@ Name[.:]`, `Name.__index`, `setmetatable(…, Name)`, or `Name[.:]new` — for t
 (the explicit `---@class` annotation branch is never gated). Only `tracegc.lua:M` (a real module
 table) survives.
 
+**6 — `\z` string continuation defeated the literal shield** (#2437; shape
+`agree[gitgalaxy]_vs[ctags,tree_sitter]`, 1 → 0). Lua's `\z` escape skips the following run of
+whitespace *including line breaks*, so `'\n >>> testC not active: skipping tests for \z\nuserdata
+<<<\n'` (`events.lua`) is a single string spanning two physical lines. `_apply_literal_shield`'s
+newline-bounded quote patterns couldn't match it, leaking the word **`for`** as live code — a
+`\bfor\b` Mode-D opener with no `end`, running to EOF as an `Anonymous_Block_[Truncated]`
+satellite. Fixed by adding `\z[ \t\r\n]*` as an explicit cross-newline alternative to lua's
+`standard_double` / `standard_single` shield patterns (plain `\<newline>` continuation was
+already covered by `\\.` under `re.DOTALL`). This was #2437's last lua repro; function precision
+reached 100.0%. #2437's other half — a mid-file blast-radius containment heuristic — was
+deliberately **not** built: after this fix there is no remaining corpus repro to validate it
+against, and fixing desync *sources* (6/6 of this sweep's defects) has consistently beaten adding
+containment backstops.
+
 ### Where the other tools have real, documented gaps
 
 - **Universal Ctags over-detects massively** (shape
@@ -236,16 +255,17 @@ shared reason." This is the common case per the skill's step 4 guidance.
 
 ### Issues
 
-- [#2437](https://github.com/squid-protocol/gitgalaxy/issues/2437) — mid-file Mode-D desync;
-  no lua repro after #2441, kept open as general Mode-D hardening.
+- [#2437](https://github.com/squid-protocol/gitgalaxy/issues/2437) — **fixed** for lua: `#` /
+  `//` / `[[ ]]` sources (#2441) + `\z` string continuation (defect 6). Kept open as a general
+  Mode-D containment-hardening task with no lua repro left to drive it.
 - [#2438](https://github.com/squid-protocol/gitgalaxy/issues/2438) — **fixed**: one-line
   function declarations never emitted.
 - [#2439](https://github.com/squid-protocol/gitgalaxy/issues/2439) — **fixed**: `class_start`
   heuristic matched ALL_CAPS data tables.
 - [#2440](https://github.com/squid-protocol/gitgalaxy/issues/2440) — **fixed**: polyglot
   segmentation split a function at `<style>` / `<script>` inside a `[[ ]]` string.
-- One tracked residual (not filed): a `\z` line-continuation inside a single-quoted string
-  defeats the newline-bounded literal shield (`events.lua`), a pre-existing cross-language gap.
+- Two low-value recall misses remain (`constructs.lua:f` alignment fuzz, `literals.lua:lexerror`
+  in a lexer-torture fixture) — §5, not filed.
 
 ### Full record
 

@@ -870,6 +870,34 @@ Together these two shapes are the full, sole explanation for the ledger entry's 
 + 1, zero unexplained residual) — see `tests/tools/ctags_reader.py`'s cobol notes for the
 cross-reference.
 
+### Fourth instance (2026-08-30): COBOL segment-numbered SECTION headers ctags' Cobol parser can't parse
+
+The same "generic parser's grammar assumption is narrower than the real dialect" mechanism,
+function-side this time. COBOL-68/74 **program segmentation** lets a section header carry a
+segment-priority number between `SECTION` and the terminating period —
+`NUMBER1 SECTION 18.`, `SECT-IC219-0001 SECTION 30.` — an overlay-structuring feature for early
+mainframes' limited memory, still accepted by modern compilers for legacy support. Confirmed
+against `language-crucible` v1.2.0's NIST COBOL-85 CCVS content, ledger shape
+`cobol/function/existence/agree[gitgalaxy]_vs[ctags]` (`credit_tools=[gitgalaxy]`).
+
+`ctags -x --language-force=Cobol --kinds-Cobol='*'` emits **zero** tags — neither section (`s`)
+nor paragraph (`p`) — for a segment-numbered section header, while tagging a plain
+`X SECTION.` on the same run without trouble:
+```
+$ ctags -x --language-force=Cobol --kinds-Cobol='*' che-che4z_nist_ccvs85/SG4014.2.cbl
+CONFIGURATION    section       7 ... 000700 CONFIGURATION SECTION.
+...
+SG401M-DUMMY2    paragraph    31 ... 003100 SG401M-DUMMY2.
+                                        # NUMBER1/NUMBER2/NUMBER3 SECTION 18/19. -> no tag at all
+```
+GitGalaxy's `func_start` matches all three via its `SECTION(?:[ \t\n]+[0-9]{1,2})?` allowance
+(added for exactly this feature, epic #813/#854). Confirmed on all 9 real occurrences
+(`SG3034.2.cbl`, `SG4014.2.cbl` — `NUMBER1/2/3`; `OBIC24.2.cbl` — `SECT-IC219-0001/0002/0003`),
+a whole-corpus check. This is **not** a `CTAGS_FUNC_KINDS` filter issue — that map has carried
+section kind `s` since #1891 was fixed (#2121, 2026-08-22); ctags genuinely produces nothing to
+filter. Sole explanation for the shape's residual after #2480's mangle fix landed. See
+`tests/tools/ctags_reader.py`'s cobol notes.
+
 ## Where Claim 12 does NOT apply
 
 - This is specific to a dialect whose real lexical grammar (what counts as a valid identifier)

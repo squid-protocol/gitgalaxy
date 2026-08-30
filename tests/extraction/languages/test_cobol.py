@@ -106,6 +106,38 @@ def test_cobol_func_start_segment_number_regression():
     assert m2 and m2.group(1) == "TargetFunc", "plain (non-segmented) section must still match"
 
 
+def test_cobol_func_start_debug_line_bracketed_by_comments_regression():
+    """
+    Regression test for #2480. In DB1034.2.cbl a debug-line paragraph
+    (`066600DDEBUG-LINE-TEST-05-A.` -- col-1-6 sequence number, col-7 `D`
+    debug indicator, name glued on) is bracketed by `*` comment lines.
+    prism.py blanks those comment lines to EMPTY lines before detector.py
+    runs func_start, leaving a run of `\\n` in front of the real line.
+
+    The old anchor `^(?:<seq-area>)?[ \\t\\n]*` let `^` (re.M) match on one
+    of those blank lines: the 6-char sequence-area group matched empty
+    (a `\\n` is not `[0-9a-zA-Z \\t]`), then `[ \\t\\n]*` skipped forward
+    across the newline onto the real line -- PAST the sequence-area shield
+    -- so `066600` + `D` were swept into the captured name
+    (`066600DDEBUG-LINE-TEST-05-A`). Fixed by consuming blank lines with a
+    leading `(?:[ \\t]*\\n)*` so the shield always re-anchors on the real
+    content line.
+    """
+    func_start = COBOL_RULES["func_start"]
+    # leading blank lines == prism's output after it strips the bracketing `*` comments
+    bracketed = "\n\n\n066600DDEBUG-LINE-TEST-05-A.\n066700D    PERFORM FAIL."
+    m = func_start.search(bracketed)
+    assert m and m.group(1) == "DEBUG-LINE-TEST-05-A", (
+        f"#2480: sequence number must not glue onto the name, got {m.group(1) if m else None!r}"
+    )
+    # the inline-body sibling shape (never regressed) must still be clean
+    inline = "063900DDEBUG-LINE-TEST-03A.       PERFORM PASS."
+    m2 = func_start.search(inline)
+    assert m2 and m2.group(1) == "DEBUG-LINE-TEST-03A", (
+        f"col-7 D debug indicator regressed, got {m2.group(1) if m2 else None!r}"
+    )
+
+
 def test_cobol_func_start_known_limitation_multiline_perform_target_still_matches():
     """
     Documents a known, NOT-fixed limitation: a multi-line PERFORM statement
@@ -126,9 +158,17 @@ def test_cobol_func_start_known_limitation_multiline_perform_target_still_matche
 
 
 def test_cobol_func_start_redos_immunity():
-    """ReDoS sweep for the widened SECTION segment-number lookahead."""
+    """ReDoS sweep for the widened SECTION segment-number lookahead and the
+    #2480 anchor change (`[ \\t\\n]*` -> `[ \\t]*` after the sequence-area
+    group). Candidates that re-added a blank-line consumer -- a second
+    `[ \\t]*` after the original `[ \\t\\n]*`, or a leading `(?:[ \\t]*\\n)*`
+    -- were both measurably catastrophic on a whitespace-heavy input; these
+    payloads pin that down."""
     func_start = COBOL_RULES["func_start"]
     assert_redos_immune(func_start, "a" * 200000 + " SECTION 1", timeout_sec=3.0)
+    assert_redos_immune(func_start, ("      " + " " * 40 + "\n") * 5000, timeout_sec=3.0)
+    assert_redos_immune(func_start, "\n" * 100000 + " " * 100000 + "!", timeout_sec=3.0)
+    assert_redos_immune(func_start, " " * 200000, timeout_sec=3.0)
     assert func_start.search("TargetFunc.")
 
 

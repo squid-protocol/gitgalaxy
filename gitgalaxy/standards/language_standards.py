@@ -8905,7 +8905,7 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # =====================================================================
                 # 1. THE HORIZONTAL ANCHOR & FORMAT SHIELD
                 # Safely handles strict 80-column punched card formats (6-char sequence)
-                # and modern free-format code. Upgraded to `[ \t\n]*` to allow vertical gaps.
+                # and modern free-format code.
                 # The column-7 indicator slot accepts a blank/`-` (continuation), and a
                 # `D`/`d` debug flag ONLY when a name-char immediately follows it
                 # (`064100D` + `DEBUG-LINE-TEST-03-A`, otherwise captured as
@@ -8915,9 +8915,22 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # this fix is about a mangled name, not about widening what counts.
                 # `*`/`/` (comment, page-eject) are excluded -- prism.py strips those
                 # first, and a commented-out paragraph is dead_code, not a func_start.
+                # The post-anchor slot is `[ \t]*` -- HORIZONTAL whitespace only, no
+                # `\n`. #2480: the old `[ \t\n]*` let `^` (re.M) match on a blank line
+                # that prism.py leaves behind after stripping the `*` comment lines that
+                # bracket a debug paragraph, then skip forward across the newline INTO
+                # the real content line -- PAST the col-1-6 sequence-area shield -- so the
+                # sequence number + col-7 `D` were swept into the captured name
+                # (`066600DDEBUG-LINE-TEST-05-A` in DB1034.2.cbl:665). Dropping `\n` here
+                # fixes it with no loss: `^` already re-anchors on the real line under
+                # re.M, and the one genuine vertical gap (name and its `SECTION` keyword
+                # on separate physical lines) is consumed by the section-6 lookahead's
+                # own `[ \t\n]+SECTION`, not here. Re-adding a blank-line consumer was
+                # tried and rejected -- every variant either regressed corpus output or
+                # was measurably catastrophic on a whitespace-heavy pathological input.
                 # Confirmed against language-crucible v1.2.0
-                # (che-che4z_nist_ccvs85/DB1024.2.cbl:640, DB1034.2.cbl).
-                r"^(?:[0-9a-zA-Z \t]{6}(?:[ \-]|(?<=[0-9])[Dd](?=[A-Za-z]))?)?[ \t\n]*"
+                # (che-che4z_nist_ccvs85/DB1024.2.cbl:640, DB1034.2.cbl:665).
+                r"^(?:[0-9a-zA-Z \t]{6}(?:[ \-]|(?<=[0-9])[Dd](?=[A-Za-z]))?)?[ \t]*"
                 # 2. THE DATA DIVISION SHIELD
                 # Explicitly bans data level indicators (01 through 88).
                 # Prevents massive "01 POLICY." data structures from being hallucinated as paragraphs.

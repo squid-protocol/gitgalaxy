@@ -79,6 +79,20 @@ KIND MAPS
         hide underneath this noise in the same ledger shape -- fixed, issue #1892; re-confirmed
         2026-08-28 that zero real-paragraph false negatives remain in the expanded corpus, only
         the three ctags-side false-positive shapes above.
+        One more function-side limitation, opposite direction (GitGalaxy finds it, ctags does
+        not), confirmed 2026-08-30 against `language-crucible` v1.2.0's NIST COBOL-85 CCVS
+        content: ctags' Cobol parser CANNOT parse a **segment-numbered SECTION header**
+        (`NUMBER1 SECTION 18.`, `SECT-IC219-0001 SECTION 30.` -- COBOL-68/74 program
+        segmentation, a segment-priority number between `SECTION` and the period, still accepted
+        by modern compilers). `ctags -x --language-force=Cobol --kinds-Cobol='*'` emits **zero**
+        tags -- neither "s" nor "p" -- for such a line; a plain `X SECTION.` on the same run is
+        tagged fine. Confirmed directly on all 9 real occurrences (SG3034.2.cbl, SG4014.2.cbl,
+        OBIC24.2.cbl), not a sample. GitGalaxy's func_start matches them via its
+        `SECTION(?:[ \t\n]+[0-9]{1,2})?` allowance. This is the full, sole explanation for
+        ledger shape `cobol/function/existence/agree[gitgalaxy]_vs[ctags]`'s residual (which
+        carries `credit_tools=[gitgalaxy]`) -- NOT a `CTAGS_FUNC_KINDS` filter issue: that map
+        has included section kind "s" since #1891 was fixed (gitgalaxy#2121, 2026-08-22). See
+        `docs/why_gitgalaxy_beats_ast_here.md` Claim 12's fourth instance.
       - scheme: GitGalaxy's class-analog is SRFI-9 `define-record-type`. ctags' Scheme parser
         exposes no kind for it (only function/set/unknown) -- CTAGS_CLASS_KINDS["scheme"] is
         deliberately empty, so class metrics render as ctags_available=False for scheme, not a

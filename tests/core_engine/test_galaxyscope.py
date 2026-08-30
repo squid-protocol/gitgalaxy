@@ -733,6 +733,15 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.mock_config["LANGUAGE_DEFINITIONS"] = {"python": {"extensions": [".py"], "rules": {}}}
 
         with tempfile.TemporaryDirectory() as td:
+            # Resolve the tempdir the way the real orchestrator resolves its
+            # scan target (`Path(args.target).resolve()`): on macOS `td` is
+            # under `/var/...` but resolves to `/private/var/...`, and on
+            # Windows it can come back as an `8.3` short name (`RUNNER~1`) that
+            # resolves to the long form -- GuideStarLens / ApertureFilter both
+            # `.resolve()` their own root internally, so an unresolved root_str
+            # here makes their `path.relative_to(self.root)` raise ValueError
+            # before the BOM assertions below are ever reached.
+            td = str(Path(td).resolve())
             src = Path(td) / "leading_bom.py"
             src.write_bytes(b"\xef\xbb\xbfimport os\nprint('hi')\n")
 

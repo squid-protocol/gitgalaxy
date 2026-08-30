@@ -495,6 +495,61 @@ def _manual_verification_winner(
     return "gitgalaxy"
 
 
+def _ledger_credited_lone_claimant_winner(
+    scores: dict[str, MetricScore],
+    available_tools: tuple[str, ...],
+    lang: str,
+    symbol_type: str,
+    metric: str,
+    ledger_path: Path = ledger_mod.LEDGER_PATH,
+) -> str | None:
+    """A second, DIFFERENT path to the same "no comparison could ever exist here" conclusion
+    `_manual_verification_winner`'s args carve-out already established -- but evidenced by an
+    actually-investigated ledger verdict instead of a static per-language flag, so it clears the
+    "func/class precision's real 0/N must stay visible" bar that function's own docstring holds
+    args-only exceptions to. Confirmed case: sqlite's function panel -- ctags is "available" for
+    sqlite (it covers the class panel), but SQLite genuinely has no CREATE FUNCTION/PROCEDURE
+    syntax, so ctags's function-kind claim count is structurally always 0 (confirmed directly:
+    universal-ctags' own SQL parser CAN emit `f`/`p` for dialects that have them -- PL/SQL, T-SQL
+    -- it simply has nothing to find here). That's not "we haven't compared yet" (the args
+    carve-out's justification) or "nobody's checked whether ctags could do better" (exactly what
+    the "0/N must stay visible" guard exists to protect against) -- it's a specific,
+    ledger-validated confirmation that this is a real semantic absence, not an unroot-caused
+    parser gap.
+
+    Only ever reached once `_winner`/`_winner_or_tie` already returned None (fewer than 2 tools
+    have real, non-None `rate_pct` data for this panel -- the SAME structural precondition the
+    manual-verification fallback requires) AND `_manual_verification_winner` also returned None
+    (this isn't a whole-language 1-tool case). Requires:
+      - exactly one available tool has real data for this panel, and it's gitgalaxy (mirrors the
+        whole-language check, just scoped to "real data" instead of "tool exists at all")
+      - a ledger entry for (lang, symbol_type, metric) is `status: "validated"`, has
+        `agreeing_tools == ["gitgalaxy"]` (gitgalaxy is the SOLE claimant this shape is about --
+        anything else means the credited claims don't cover the whole panel), and
+        `"gitgalaxy" in credit_tools` (a human read real source and confirmed the claims were
+        real, the same rigor a genuine cross-tool win requires, per this module's own WINNER
+        BADGE docstring)
+    A validated shape with NO credit (a genuine "different question, nobody's right or wrong"
+    verdict, e.g. sqlite's own function shape before its follow-up validation pass) does NOT
+    qualify -- only a `credit_tools` entry makes the "these claims are the real, complete answer"
+    claim this badge represents."""
+    real_tools = [t for t in available_tools if t in scores and scores[t].rate_pct is not None]
+    if real_tools != ["gitgalaxy"]:
+        return None
+    ledger = ledger_mod.load_ledger(ledger_path)
+    for entry in ledger.get("entries", {}).values():
+        if (
+            entry["language"] == lang
+            and entry["symbol_type"] == symbol_type
+            and entry["metric"] == metric
+            and entry["status"] == "validated"
+            and entry.get("agreeing_tools") == ["gitgalaxy"]
+            and "gitgalaxy" in entry.get("credit_tools", [])
+        ):
+            return "gitgalaxy"
+    return None
+
+
 _CHART_STYLE = """<style>
   .surface { fill: #fcfcfb; }
   .title { font-size: 15px; font-weight: 600; fill: #0b0b0b; }
@@ -584,6 +639,10 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
                     symbol_type,
                     gg_score.total_slots if gg_score is not None else None,
                     data.available_tools,
+                )
+            if result is None:
+                result = _ledger_credited_lone_claimant_winner(
+                    scores, data.available_tools, lang, symbol_type, ledger_metric
                 )
             if result is not None:
                 tally[result] += 1
@@ -783,6 +842,10 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
                         (gg_score.total_slots if gg_score is not None else None) if ranked else data.gg_args_found
                     )
                     winner = _manual_verification_winner(manual_verification, lang, mv_key, live_total, data.available_tools)
+                if winner is None and ranked:
+                    winner = _ledger_credited_lone_claimant_winner(
+                        scores, data.available_tools, lang, symbol_type, ledger_metric
+                    )
                 if winner:
                     bx = px + bar_max_w + inner_gap + badge_col_w / 2
                     by = y + row_h / 2

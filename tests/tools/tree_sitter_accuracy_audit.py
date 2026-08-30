@@ -1153,14 +1153,33 @@ def _get_node_name(node: Any) -> Optional[str]:
     if node.type == "supports_statement":
         return "supports"
     if node.type == "keyframes_statement":
+        # This grammar version names the at-keyword child literally `@keyframes` /
+        # `@-webkit-keyframes`, NOT `at_keyword` (that shape is only how @media/@supports
+        # are built). Checking only `at_keyword` here was dead code -- it always fell
+        # through to `return None`, so tree-sitter silently reported 0 keyframes
+        # corpus-wide even though GitGalaxy's own func_start matches @keyframes. Same
+        # audit-reader bug class as #1313 (which fixed media/supports but mis-wrote this
+        # branch). Surfaced by tri-comparison-ledger-sweep on css:
+        # css/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter].
         for child in node.children:
-            if child.type == "at_keyword":
+            if child.type in ("at_keyword", "@keyframes", "@-webkit-keyframes"):
                 return child.text.decode("utf8").lstrip("@")
-        return None
+        return "keyframes"
     if node.type == "at_rule":
         # The generic bucket also holds @font-face/@page/@charset/@namespace/@property/@scope --
         # none of those are in GitGalaxy's func_start scope, so counting them here would
         # manufacture a false recall gap. Only @layer/@container are.
+        #
+        # A bodyless at-rule (`@layer a, b, c;` -- a cascade-layer ORDERING statement with
+        # no block) is likewise not a function-equivalent: GitGalaxy's css func_start
+        # matches only block-bearing at-rules (its `(?=[^{]*\{)` lookahead), the same
+        # body-bearing-definition-only convention that drops C/C++ forward declarations.
+        # Counting the bodyless `@layer` list here manufactured a false recall gap
+        # (css/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy], surfaced by
+        # tri-comparison-ledger-sweep). @container is never bodyless, so this only affects
+        # the `@layer a, b;` form.
+        if not any(child.type == "block" for child in node.children):
+            return None
         for child in node.children:
             if child.type == "at_keyword":
                 keyword = child.text.decode("utf8")

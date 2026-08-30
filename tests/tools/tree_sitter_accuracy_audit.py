@@ -294,6 +294,22 @@ SCOPE & LIMITATIONS
     languages' Func Precision badge from ctags to GitGalaxy). Baseline regenerated and reviewed
     rather than treated as a real regression, same "ground truth can be wrong" precedent as
     every other entry in this section.
+
+    css's at-rule "functions" (`@media`/`@supports`/`@container`/`@layer`/`@keyframes`) show a
+    permanent `args_comparable` discrepancy: GitGalaxy assigns them a param count read from the
+    at-rule prelude tokens (`@media all and (max-width: 600px)` -> got=3;
+    `@layer wp-ui-components {` -> got=1), while `_get_param_count` here always returns 0 for them
+    -- an at-rule statement node has no "parameters" field and isn't a `function_definition`, so
+    none of that function's branches apply. This is not a GitGalaxy defect: a CSS at-rule genuinely
+    has no formal parameter list, and counting these at-rules as functions at all is a deliberate,
+    ledger-validated design choice (`tri_comparison_ledger.json`'s
+    `css/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`, status validated: at-rule
+    keywords are "the closest function-shaped construct CSS has"). Same "no formal signature to
+    read at the declaration site" shape as the shell/perl note above (#1518/#1519), minus a
+    body-scan heuristic to bridge it -- the informational `args_comparable` count simply carries
+    these as non-exact, and the gated `args_exact_match` is unaffected (an at-rule with a
+    genuinely 0-token prelude, `@media {`, still matches 0 == 0). Noted here so the css
+    `args_comparable` gap isn't mistaken for a real args-regex bug on a future baseline review.
 """
 
 import argparse

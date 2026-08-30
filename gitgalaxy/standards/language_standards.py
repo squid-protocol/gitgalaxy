@@ -8906,7 +8906,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # 1. THE HORIZONTAL ANCHOR & FORMAT SHIELD
                 # Safely handles strict 80-column punched card formats (6-char sequence)
                 # and modern free-format code. Upgraded to `[ \t\n]*` to allow vertical gaps.
-                r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t\n]*"
+                # The column-7 indicator slot accepts a blank/`-` (continuation), and a
+                # `D`/`d` debug flag ONLY when a name-char immediately follows it
+                # (`064100D` + `DEBUG-LINE-TEST-03-A`, otherwise captured as
+                # `DDEBUG-LINE-TEST-03-A`). The `(?=[A-Za-z])` keeps this narrow: a `D`
+                # followed by whitespace (`064000D        PASS.`) is left to the normal
+                # path so debug-only paragraph *redefinitions* aren't newly counted --
+                # this fix is about a mangled name, not about widening what counts.
+                # `*`/`/` (comment, page-eject) are excluded -- prism.py strips those
+                # first, and a commented-out paragraph is dead_code, not a func_start.
+                # Confirmed against language-crucible v1.2.0
+                # (che-che4z_nist_ccvs85/DB1024.2.cbl:640, DB1034.2.cbl).
+                r"^(?:[0-9a-zA-Z \t]{6}(?:[ \-]|(?<=[0-9])[Dd](?=[A-Za-z]))?)?[ \t\n]*"
                 # 2. THE DATA DIVISION SHIELD
                 # Explicitly bans data level indicators (01 through 88).
                 # Prevents massive "01 POLICY." data structures from being hallucinated as paragraphs.
@@ -8928,7 +8939,11 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"SOURCE-COMPUTER|OBJECT-COMPUTER|"
                 r"INPUT-OUTPUT|CONFIGURATION|DISPLAY|CALL|MOVE|COMPUTE|PERFORM|ADD|SUBTRACT|MULTIPLY|"
                 r"DIVIDE|INITIALIZE|SET|IF|ELSE|GOBACK|EXIT|STOP|EVALUATE|WHEN|READ|WRITE|REWRITE|"
-                r"DELETE|OPEN|CLOSE|PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Za-z0-9_-]+)(?=[ \t\n.]))"
+                # CONTINUE is a no-op statement (COBOL's `pass`); on its own line
+                # `CONTINUE.` is `<verb>.`, not a paragraph header. Confirmed FP against
+                # language-crucible v1.2.0 (che-che4z_nist_ccvs85/IF4014.2.cbl:30 etc.,
+                # cobol-sample_SAMPLE1.cbl). Same class as LOCAL-STORAGE (#1890).
+                r"DELETE|OPEN|CLOSE|CONTINUE|PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Za-z0-9_-]+)(?=[ \t\n.]))"
                 # 4. THE DIVISION/SECTION HEADER SHIELD
                 # Bans any word followed immediately by DIVISION (e.g., "PROCEDURE DIVISION").
                 # Upgraded to `[ \t\n]+` to prevent vertical ghosting.
@@ -8936,7 +8951,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # 5. THE IDENTIFIER CAPTURE (FUNCTION IDENTIFIER - GROUP 1)
                 # [ THE GREEDY MARGIN SHIELD ]: The `\b` forces the engine to evaluate the whole word,
                 # preventing the 6-character margin-eater from splitting flush-left identifiers.
-                r"\b([A-Za-z0-9_-]+)"
+                # The `(?<=[0-9]{6}[ \-Dd])` alternative to `\b` lets the name start
+                # immediately after a real fixed-format col-1-7 prefix (6-digit sequence
+                # + indicator) even when col-7 is a `D` debug flag glued to a word-char
+                # name start (`064100D` + `DEBUG-LINE-TEST-03-A`) -- the digit prefix
+                # proves it's a genuine sequence area, not the greedy-margin trap
+                # (`TargetFunc.`), whose 6 non-digit chars fail this lookbehind.
+                # The name must contain at least one letter: a pure-digit token is a
+                # stray sequence number, not a paragraph name (a real digit-led name
+                # like `0000-MAIN` still matches -- it has letters). Both confirmed FP
+                # against language-crucible v1.2.0 (che-che4z_nist_ccvs85/DB1024.2.cbl:640,
+                # NC1134.2.cbl:118).
+                r"(?:\b|(?<=[0-9]{6}[ \-Dd]))([0-9_-]*[A-Za-z][A-Za-z0-9_-]*)"
                 # 6. THE IGNITION & TRAILING ANCHOR (Lookahead)
                 # Confirms paragraph/section by looking for an optional "SECTION", then a mandatory ".".
                 # Upgraded to `[ \t\n]+` to allow vertical separation between the name and SECTION.

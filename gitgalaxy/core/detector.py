@@ -2638,8 +2638,15 @@ class StructuralExtractor:
             if raw_name is None:
                 raw_name = match.group(0)
 
-            if any(m in raw_name for m in ["BOOST_", "TEST", "TEST_F", "TEST_CASE"]):
-                raw_name = match.group(0)
+            # NB: the C++ GoogleTest / Boost.Test `BOOST_`/`TEST`/`TEST_F`/`TEST_CASE`
+            # "fall back to match.group(0)" heuristic lives in the brace-based
+            # extractor, not here. In this label-based mode (assembly / COBOL / ABAP)
+            # func_start always captures a real identifier in a group, and
+            # match.group(0) is `<anchor> + <name>` -- so a *substring* hit on a real
+            # paragraph name like COBOL's `DEBUG-LINE-TEST-03-A` would only re-mangle
+            # it back to `064100DDEBUG-LINE-TEST-03-A` (language-crucible v1.2.0
+            # che-che4z_nist_ccvs85/DB1024.2.cbl:640). None of the three Mode-A
+            # languages have a C++ test macro to disambiguate.
 
             name = self._extract_name(raw_name)
 

@@ -190,20 +190,35 @@ the 201 discrepancy shapes logged, **200 are validated (99.5%)** — read
 against real source, investigated, and recorded with a verdict, not just
 counted.
 
-**First target closed: function detection (2026-08-30).** Every one of
-the 31 tree-sitter-comparable languages now measures **100.0% function
-recall and 100.0% validated function precision** on the pinned corpus —
-GitGalaxy finds every function tree-sitter finds, and every function it
-reports is real, once each three-way disagreement has been read and
-verdicted. This is a narrow claim: one structural target (existence, not
-argument counts, not scope nesting), one fixed corpus, and several
-languages whose function counts are small enough that the percentage
-carries little weight — it is not "GitGalaxy parses as accurately as an
-AST" in general. Real code outside the corpus will surface shapes it
-doesn't cover; the mandatory occurrence-level
+**Current state (2026-08-30), on the pinned corpus:**
+
+- **Functions — precision:** 100.0% validated across all 31
+  tree-sitter-comparable languages. Once every three-way disagreement is
+  read and verdicted, every function GitGalaxy reports is a real
+  function.
+- **Functions — recall:** 100.0% for 30 of 31. Shell measures 99.8% — a
+  single nested function definition (inside an `if` guard) that
+  GitGalaxy's top-level-only shell extractor doesn't reach by design.
+  Every other apparent miss is a validated comparison-tool artifact
+  (both tools independently hallucinating the same macro, per-clause
+  tagging of one Haskell function, and so on).
+- **Classes:** GitGalaxy is never the tool found wrong in any class
+  disagreement — 100.0% validated recall and precision wherever a class
+  ground truth exists.
+- **Arguments:** GitGalaxy is never debited in any *validated* argument
+  disagreement either; each one resolves to tree-sitter or ctags
+  miscounting, or a language with no formal parameter list. One small
+  Objective-C shape is still unverified.
+
+This is a narrow benchmark: three structural targets, one fixed corpus,
+and several languages whose entity counts are small enough that a
+percentage means little. It is not "GitGalaxy parses as accurately as an
+AST" in general — it is "for the entities GitGalaxy's graph needs,
+targeted extraction recovers them as completely as established parsers,
+here." Real code outside the corpus will surface shapes it doesn't cover;
+the mandatory occurrence-level
 [recall audit](docs/self_scan/tri_comparison_README.md#the-recall-audit-is-gitgalaxy-missing-anything)
-is the standing process for the next one. Class and argument targets are
-still in progress.
+is the standing process for the next one.
 
 See
 [the tri-comparison methodology doc](docs/self_scan/tri_comparison_README.md)
@@ -429,9 +444,10 @@ never hand-edited.
 
 The same corpus is analyzed against GitGalaxy, Tree-sitter and Ctags
 where coverage exists — 24 of 45 languages get all three tools, 200 of
-201 logged discrepancies validated. Function detection is the first
-target closed: 100.0% recall and 100.0% validated precision across all
-31 tree-sitter-comparable languages, on the pinned corpus. See
+201 logged discrepancies validated. On the pinned corpus, GitGalaxy is
+never the tool found wrong in a validated function-precision, class, or
+argument disagreement, and matches tree-sitter's function recall
+everywhere except one nested shell definition it skips by design. See
 [the methodology](docs/self_scan/tri_comparison_README.md) and the
 ["structural validation" section above](#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags)
 for the full picture and its limits.

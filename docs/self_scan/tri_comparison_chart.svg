@@ -16,7 +16,7 @@
 </style>
 <rect class="surface" x="0" y="0" width="812" height="2262"/>
 <text class="title" x="16" y="20">GitGalaxy Structural Extraction: Tri-Comparison vs. Tree-sitter and ctags</text>
-<text class="subtitle" x="16" y="36">2026-08-29 &#183; source: tests/tools/tri_comparison_chart.py &#183; ledger: docs/self_scan/tri_comparison_ledger.json</text>
+<text class="subtitle" x="16" y="36">2026-08-30 &#183; source: tests/tools/tri_comparison_chart.py &#183; ledger: docs/self_scan/tri_comparison_ledger.json</text>
 <text class="scope-note" x="16" y="52">No tool is ground truth. Found-count panels are unranked raw counts (no badge) -- a shared "how many are real" denominator turned out as corruptible as any one tool's own noise. Precision is each tool's own claims vs. what another tool corroborated.</text>
 <text class="scope-note" x="16" y="64">Bar groups vary 1-3 by language's tool coverage -- order is always GitGalaxy, tree-sitter, ctags. css/html class panels are out of scope by design (selectors, not OOP classes).</text>
 <text class="scope-note" x="16" y="76">`*` marks EVERY tool's label in a cell with any unvalidated disagreement, not just GitGalaxy's -- not a verdict either way. Badge = the tool that scored strictly highest on a RANKED, UN-disputed panel (blank on a tie, a disputed cell, or a found-count panel).</text>

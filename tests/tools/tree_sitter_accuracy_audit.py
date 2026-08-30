@@ -2034,6 +2034,26 @@ def _align_occurrences_by_line(
 # comparison apples-to-apples: the `<style>`'s `media_statement` names `media`, matching GitGalaxy.
 _HTML_EMBEDDED_LANG = {"style_element": "css", "script_element": "javascript"}
 
+# A `<script>` whose `type` is anything other than a JavaScript MIME type (or `module`, or
+# bare/empty) is a non-executed DATA block, not code -- the browser never runs it. Common in the
+# corpus: reveal.js `type="text/template"` slide samples (literal `function` text shown as a code
+# listing), `x-shader/x-vertex` / `x-shader/x-fragment` GLSL sources, `math/tex` (MathJax), JSON
+# `importmap`. GitGalaxy's polyglot detector does not descend into these and ctags-html does not
+# read them either; only this grammar injection did, inventing phantom functions that then counted
+# against GitGalaxy's recall. Mirrors the HTML spec's "classic script" / "module script" type gate.
+_EXECUTABLE_SCRIPT_TYPES = frozenset(
+    {
+        b"module",
+        b"text/javascript",
+        b"application/javascript",
+        b"text/ecmascript",
+        b"application/ecmascript",
+        b"application/x-javascript",
+        b"text/jsx",
+        b"text/babel",
+    }
+)
+
 
 def _html_embedded_ts_funcs(element_node: Any) -> list[tuple[str, int, int, Any]]:
     """For an HTML `<script>` / `<style>` element, parse its inline body with the embedded
@@ -2051,11 +2071,21 @@ def _html_embedded_ts_funcs(element_node: Any) -> list[tuple[str, int, int, Any]
 
     if element_node.type == "script_element":
         start_tag = next((c for c in element_node.children if c.type == "start_tag"), None)
-        if start_tag is not None and any(
-            attr.type == "attribute" and attr.text.split(b"=", 1)[0].strip().lower() == b"src"
-            for attr in start_tag.children
-        ):
-            return []
+        if start_tag is not None:
+            attrs: dict[bytes, bytes] = {}
+            for attr in start_tag.children:
+                if attr.type != "attribute":
+                    continue
+                name, _, value = attr.text.partition(b"=")
+                attrs[name.strip().lower()] = value.strip().strip(b"\"'").strip()
+            # `<script src=...>` -- external load, no inline code (GitGalaxy extracts nothing there).
+            if b"src" in attrs:
+                return []
+            # `<script type="...">` outside the JS/`module` set -- a non-executed data block
+            # (`html/function/existence/agree[tree_sitter]_vs[ctags,gitgalaxy]` in the ledger).
+            stype = attrs.get(b"type", b"").split(b";", 1)[0].strip().lower()
+            if stype and stype not in _EXECUTABLE_SCRIPT_TYPES:
+                return []
 
     try:
         sub_tree = tree_sitter_language_pack.get_parser(embedded_lang).parse(raw.text)

@@ -291,6 +291,45 @@ def test_detector_nested_class_does_not_truncate_outer_scope_indentation():
     assert "inner_method" not in outer_methods, "Inner's method was double-counted into Outer's method list!"
 
 
+def test_detector_sqlite_class_start_named_extraction():
+    """
+    sqlite is wired into `_CLASS_START_NAMED_EXTRACTION_LANGS` (verified against
+    universal-ctags' `t` kind via the tri-comparison ledger, since sqlite has no
+    tree-sitter grammar). Proves `CREATE TABLE` lands real table names in
+    `classes` -- previously the generic fallback regex (`class|struct|interface|
+    trait|enum`) could never match `CREATE TABLE`, so sqlite's class list was
+    permanently empty despite its own epic #813/#836 `class_start` regex working.
+    Also proves the three SQLite quoted-identifier styles ("x", `x`, [x]) and a
+    schema qualifier are stripped to the bare identifier the way ctags, SQLite
+    itself, and every downstream consumer name the table.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    sql_detector = StructuralExtractor("sqlite", LANGUAGE_DEFINITIONS)
+    code = (
+        "BEGIN;\n"
+        "CREATE TABLE releases (version FLOAT PRIMARY KEY);\n"
+        'CREATE TABLE "source_message" (id INTEGER PRIMARY KEY);\n'
+        "CREATE TABLE `message` (id INTEGER PRIMARY KEY);\n"
+        "CREATE TABLE [audit log] (id INTEGER PRIMARY KEY);\n"
+        "CREATE TABLE main.users (id INTEGER PRIMARY KEY);\n"
+        "CREATE VIRTUAL TABLE searchindex USING fts5(content);\n"
+        "COMMIT;\n"
+    )
+
+    result = sql_detector.splice(code_stream=code, comment_stream="", confidence=1.0)
+    names = {c["name"] for c in result["classes"]}
+
+    assert names == {
+        "releases",
+        "source_message",
+        "message",
+        "audit log",
+        "users",
+        "searchindex",
+    }, f"sqlite CREATE TABLE names not cleanly extracted: {sorted(names)}"
+
+
 def test_detector_atomic_literal_shield():
     """
     Proves the _apply_literal_shield safely blanks complex strings and heredocs

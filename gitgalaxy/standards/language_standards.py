@@ -6077,9 +6077,28 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # way to reach "AS" with the space excluded from the capture.
             # Fixed with real per-quote-style alternatives (single-quoted,
             # double-quoted, bare), consistent with the PowerShell fix.
+            # BUG FIX (2026-08-30, sqlite tri-comparison validation pass): the
+            # `.import`/`.read`/`.load` alternative captured the FIRST
+            # whitespace-delimited token after the dot-command unconditionally
+            # -- but SQLite CLI's real `.import` accepts leading flags
+            # (`-csv`, `-ascii`, `-colsep ","`, `-skip N`, `-schema NAME`,
+            # `-v`), a documented, common shape (`sqlite_cli_scripts/import01.
+            # sql`'s corpus is full of `.import -csv file1.csv t4`). The old
+            # pattern captured `-csv` itself as the "dependency path" -- a
+            # real false positive polluting the dependency DAG with a garbage
+            # flag-shaped node instead of the actual imported file. There's no
+            # safe, bounded way to know which flags take a value (`-colsep`)
+            # vs. are boolean (`-csv`) without a flag table this regex layer
+            # doesn't have, so guessing past them risks capturing a flag's
+            # OWN value instead (worse: still wrong, now silently so). Given
+            # that choice, requiring the captured token not start with `-`
+            # trades a miss (no dependency edge for a flagged `.import`) for
+            # what this signal already prioritizes elsewhere in this file --
+            # never a wrong path -- consistent with `.import data.csv mytable`
+            # (no flags) staying captured correctly.
             "_dependency_capture": re.compile(
                 r"\bATTACH\s+(?:DATABASE\s+)?(?:'([^']+)'|\"([^\"]+)\"|([^'\"\s;]+))\s+AS|"
-                r"\bload_extension\s*\(\s*['\"]([^'\"]+)['\"]|^[ \t]*\.(?:read|load|import)\s+['\"]?([^'\"\s]+)['\"]?",
+                r"\bload_extension\s*\(\s*['\"]([^'\"]+)['\"]|^[ \t]*\.(?:read|load|import)\s+['\"]?([^'\"\s-][^'\"\s]*)['\"]?",
                 re.I | re.M,
             ),
             # 25. ownership (Authorship Metadata)

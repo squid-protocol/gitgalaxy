@@ -497,6 +497,25 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "scala",
         "shell",
         "solidity",
+        # sqlite tri-comparison verification (2026-08-30): ctags-only language
+        # (no tree-sitter grammar), verified against universal-ctags' `t` (table)
+        # kind via docs/self_scan/tri_comparison_ledger.json's
+        # sqlite/class/existence shape rather than tree_sitter_accuracy_audit.py.
+        # The epic #813/#836 `class_start` regex already handles every real form
+        # in the corpus -- schema-qualified (`main.users`), all three quoted-
+        # identifier styles, `IF NOT EXISTS`, `VIRTUAL TABLE ... USING fts5`, the
+        # vertical `CREATE TABLE IF NOT EXISTS\n  users` gap, and (via prism's
+        # `/* */` stripping) MediaWiki's `CREATE TABLE /*_*/actor` prefix-comment
+        # convention -- and lands on 73/73 real tables across the pinned crucible
+        # corpus (40 scanned files) vs. ctags' 66, the 7-table gap being ctags'
+        # own `t`-kind misses (virtual tables, tables after a leading `BEGIN;`,
+        # backtick-quoted identifiers -- see the validated
+        # sqlite/class/existence/agree[gitgalaxy]_vs[ctags] ledger entry), not a
+        # gitgalaxy defect. Without this entry the generic fallback regex
+        # (lowercase `class|struct|interface|trait|enum`) can never match
+        # `CREATE TABLE`, so the named class list stayed permanently empty
+        # (0 of ~183 real tables) despite sqlite's own regex working.
+        "sqlite",
         "swift",
         "tcl",
         "typescript",
@@ -1097,6 +1116,23 @@ class StructuralExtractor:
                         continue
 
                 name_group_idx, name, inheritance = _resolve_class_start_match(match, class_start_groups)
+
+                # sqlite's class_start captures all three SQLite quoted-identifier
+                # styles ("name", `name`, [name]) with the quote characters left
+                # INSIDE the capture group on purpose -- epic #813/#836 kept them
+                # in a single group rather than adding numbered sub-groups, to
+                # preserve the "group 2 == inheritance parent" convention every
+                # other allowlisted language relies on. Strip a matched
+                # surrounding pair here so the stored name is the bare identifier,
+                # matching how ctags, SQLite itself, and the tri-comparison ledger
+                # refer to the table (`CREATE TABLE "User"` -> `User`).
+                if (
+                    self.primary_lang_id == "sqlite"
+                    and name
+                    and len(name) >= 2
+                    and (name[0], name[-1]) in (('"', '"'), ("`", "`"), ("[", "]"))
+                ):
+                    name = name[1:-1]
 
                 # #2439: Lua has no `class` keyword. The `---@class Name` (LuaLS
                 # annotation) alternative of lua's class_start is an explicit

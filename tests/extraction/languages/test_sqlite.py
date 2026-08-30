@@ -154,12 +154,24 @@ CLASS_CASES: dict[str, Any] = {
         ('CREATE TABLE "my_table"(id INTEGER);', "my_table"),  # double-quoted -- was a real bug, now fixed
         ('CREATE TABLE "my table"(id INTEGER);', "my table"),  # double-quoted with space -- was a real bug, now fixed
         ("CREATE TABLE [my_table](id INTEGER);", "my_table"),  # bracket-quoted
+        ("CREATE TABLE `message` (id INTEGER);", "`message`"),  # backtick-quoted (yii2 corpus shape)
         ("CREATE TABLE users (id INTEGER) STRICT;", "users"),  # STRICT clause after
         ("CREATE TABLE users (id INTEGER) WITHOUT ROWID;", "users"),  # WITHOUT ROWID clause after
+        (
+            "CREATE TABLE new_changes AS SELECT * FROM changes;",
+            "new_changes",
+        ),  # CREATE TABLE ... AS SELECT (sqitch upgrade-patch corpus shape)
+        (
+            "CREATE TEMPORARY TABLE __temp__archive AS\nSELECT ar_id FROM archive;",
+            "__temp__archive",
+        ),  # MediaWiki alter-patch shape, post prism `/*_*/` strip
     ],
     "invalid": [
         "-- CREATE TABLE users (id INTEGER);",  # commented-out (-- line comment)
         "SELECT * FROM users;",  # unrelated statement
+        "CREATE INDEX idx_email ON users(email);",  # an index is func_start, not class_start
+        "CREATE TRIGGER trg AFTER INSERT ON users BEGIN\nEND;",  # a trigger is func_start, not class_start
+        "CREATE VIEW active_users AS SELECT * FROM users;",  # a view is func_start, not class_start
     ],
     "pathological": [
         (
@@ -394,3 +406,25 @@ def test_sqlite_dependency_capture_redos_immunity():
     dep = SQLITE_RULES["_dependency_capture"]
     assert_redos_immune(dep, "ATTACH DATABASE '" + "a" * 200000, timeout_sec=3.0)
     assert dep.search("ATTACH DATABASE 'file.db' AS mydb;")
+
+
+def test_sqlite_dependency_capture_import_flag_not_mistaken_for_path_regression():
+    """
+    Regression test for a real bug found while validating the new sqlite
+    corpus (2026-08-30): SQLite CLI's real `.import` accepts leading flags
+    (`-csv`, `-ascii`, `-colsep ","`, `-skip N`, `-schema NAME`, `-v`) before
+    the actual file path -- a documented, common shape (`sqlite_cli_scripts/
+    import01.sql`'s corpus is full of `.import -csv file1.csv t4`). The old
+    `.(?:read|load|import)\\s+['"]?([^'"\\s]+)['"]?` captured the FIRST
+    whitespace-delimited token unconditionally, so a flagged `.import`
+    captured the flag itself (`-csv`) as the "dependency path" -- a real
+    false positive that would have polluted the dependency DAG with a
+    garbage flag-shaped node. Fixed by requiring the captured token not
+    start with `-`; an unflagged `.import`/`.read`/`.load` is unaffected.
+    """
+    dep = SQLITE_RULES["_dependency_capture"]
+    assert dep.search(".import -csv file1.csv t4") is None, "captured the -csv flag instead of skipping it"
+    assert dep.search(".import -csv -skip 7 <<END t3") is None, "captured a flag instead of skipping it"
+    m = dep.search(".import data.csv mytable")
+    captured = next((g for g in m.groups() if g), None) if m else None
+    assert captured == "data.csv", "unflagged .import regressed"

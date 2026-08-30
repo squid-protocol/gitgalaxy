@@ -232,6 +232,54 @@ def test_prism_positional_anchors(prism_engine):
     assert "This is an inline comment" in docs
 
 
+# #259: _strip_positional_comments split directly on `*>` / `!` / `"` with no
+# string-literal shielding, unlike every other stripper in prism.py -- a
+# delimiter-shaped char inside a literal was misread as a real inline comment,
+# truncating the statement and leaving code_stream with a dangling quote.
+def test_prism_positional_delimiter_inside_literal_is_shielded(prism_engine):
+    """#259: `*>` / `!` inside a COBOL/Fortran string literal is not a comment."""
+    # COBOL `*>` inside a "..." literal
+    code, lits = prism_engine._strip_positional_comments(
+        '       DISPLAY "Rate *> 5%" TO CONSOLE.\n       MOVE X TO Y.', cobol_mode=True
+    )
+    assert code == '       DISPLAY "Rate *> 5%" TO CONSOLE.\n       MOVE X TO Y.'
+    assert lits == "\n"
+
+    # COBOL `!` inside a "..." literal
+    code, lits = prism_engine._strip_positional_comments(
+        '       DISPLAY "Warning!" TO CONSOLE.\n       MOVE X TO Y.', cobol_mode=True
+    )
+    assert code == '       DISPLAY "Warning!" TO CONSOLE.\n       MOVE X TO Y.'
+    assert lits == "\n"
+
+    # Fortran `!` inside a '...' literal
+    code, lits = prism_engine._strip_positional_comments("       PRINT *, 'Warning!'")
+    assert code == "       PRINT *, 'Warning!'"
+    assert lits == ""
+
+
+def test_prism_positional_real_inline_comment_still_stripped(prism_engine):
+    """#259 regression guard: a genuine inline `*>` / `!` comment (outside any
+    literal) must still be routed to the comment stream after the fix."""
+    code, lits = prism_engine._strip_positional_comments(
+        '       MOVE "x" TO Y. *> real comment\n       X = 1 ! also real', cobol_mode=True
+    )
+    assert code.splitlines()[0].strip() == 'MOVE "x" TO Y.'
+    assert "real comment" in lits
+    assert code.splitlines()[1].strip() == "X = 1"
+    assert "also real" in lits
+
+
+def test_prism_positional_abap_quote_inside_string_literal_is_shielded(prism_engine):
+    """#259: ABAP's `"` comment delimiter must not split a `'...'` literal that
+    contains a `"`; a real trailing `"` comment is still stripped."""
+    code, lits = prism_engine._strip_positional_comments(
+        "    result = 'he said \"hi\"'. \" trailing comment", abap_mode=True
+    )
+    assert code.rstrip() == "    result = 'he said \"hi\"'."
+    assert "trailing comment" in lits
+
+
 # ==============================================================================
 # TEST 5: HARDENED PYTHON DOCSTRINGS
 # ==============================================================================

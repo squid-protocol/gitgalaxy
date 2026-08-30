@@ -133,6 +133,14 @@ class Prism:
         # "Android/*"`, swallowed ~17 handlers). Single-line, no-escape.
         self.MULTI_STYLE_LIVE_LITERAL_MASK_PATTERN = r'("[^"\r\n]*")'
 
+        # #259: ABAP's `"` is a comment delimiter, never a string quote -- ABAP
+        # string literals are `'...'` and string templates use backtick. Masking
+        # with the shared SHIELD_PATTERN's `"..."` branch in _strip_positional_
+        # comments would swallow an ABAP comment that happens to contain an inner
+        # `"..."` pair as if it were a live literal, so ABAP's positional stripper
+        # masks single-quote / backtick literals only.
+        self.ABAP_LITERAL_MASK_PATTERN = r"((?<!\\)'(?:\\.|[^'\\])*'|(?<!\\)`(?:\\.|[^`\\])*`)"
+
         # #1271: detects a quote that opens but never closes before end-of-
         # line -- a backslash-newline-continued literal (legal in both Ruby
         # and Python) -- so _strip_single_line_comments can carry that
@@ -1000,16 +1008,31 @@ class Prism:
                 lits.append(line)
                 continue
 
-            # 2. Modern Inline Fortran (!), COBOL (*>), and ABAP (") comments
-            if "*>" in line:
-                parts = line.split("*>", 1)
-                code.append(parts[0])
-                lits.append("*>" + parts[1])
-            elif abap_mode and '"' in line:
-                parts = line.split('"', 1)
-                code.append(parts[0])
-                lits.append('"' + parts[1])
-            elif not abap_mode and "!" in line:
+            # 2. Modern Inline Fortran (!), COBOL (*>), and ABAP (") comments.
+            # #259: mask string/char literals first -- per line, the same bounded
+            # discipline _strip_single_line_comments adopted for #1184 -- so a
+            # delimiter-shaped character INSIDE a literal (`DISPLAY "Rate *> 5%"`,
+            # `PRINT *, "Warning!"`, ABAP `x = 'he said "hi"'`) isn't mistaken for
+            # a real inline-comment marker, truncating the statement mid-literal
+            # and leaving code_stream with a dangling unterminated quote. Every
+            # other stripping path in this file already shields this way; this one
+            # didn't. ABAP masks single-quote/backtick only (its `"` is the
+            # comment delimiter, not a quote -- see ABAP_LITERAL_MASK_PATTERN).
+            # A literal continued onto a later line via a fixed-form column-7 `-`
+            # indicator is out of scope: masking is deliberately line-bounded, so
+            # a delimiter in the continuation half stays unshielded (#1184).
+            mask_pat = self.ABAP_LITERAL_MASK_PATTERN if abap_mode else self.LITERAL_MASK_PATTERN
+            masked_line, masked_lits = self._mask_line_literals(line, mask_pat)
+
+            if "*>" in masked_line:
+                head, tail = masked_line.split("*>", 1)
+                code.append(self._restore_masked_literals(head, masked_lits))
+                lits.append(self._restore_masked_literals("*>" + tail, masked_lits))
+            elif abap_mode and '"' in masked_line:
+                head, tail = masked_line.split('"', 1)
+                code.append(self._restore_masked_literals(head, masked_lits))
+                lits.append(self._restore_masked_literals('"' + tail, masked_lits))
+            elif not abap_mode and "!" in masked_line:
                 # #1911: `!` has no comment meaning in ABAP at all (its only
                 # real markers are `*` in column 1 and `"` inline) -- it's
                 # the classic ABAP formal-parameter-name escape prefix
@@ -1017,9 +1040,9 @@ class Prism:
                 # signature's IMPORTING/EXPORTING/CHANGING clause. Without
                 # this gate every `!param` line was truncated at the `!`,
                 # erasing the parameter name and its TYPE clause.
-                parts = line.split("!", 1)
-                code.append(parts[0])
-                lits.append("!" + parts[1])
+                head, tail = masked_line.split("!", 1)
+                code.append(self._restore_masked_literals(head, masked_lits))
+                lits.append(self._restore_masked_literals("!" + tail, masked_lits))
             else:
                 code.append(line)
                 lits.append("")
@@ -1242,15 +1265,15 @@ class Prism:
 
         return "\n".join(code), "\n".join(comments)
 
-    def _mask_line_literals(self, line: str) -> tuple[str, list[str]]:
-        """Replaces each string/char literal on a single line with a `__MASK_N__` placeholder, returning the masked line and the literals in match order."""
+    def _mask_line_literals(self, line: str, pattern: Optional[str] = None) -> tuple[str, list[str]]:
+        """Replaces each string/char literal on a single line with a `__MASK_N__` placeholder, returning the masked line and the literals in match order. `pattern` overrides the default LITERAL_MASK_PATTERN (e.g. #259's ABAP mask, which must not treat `"` as a quote)."""
         masked_literals: list[str] = []
 
         def shield_callback(m: re.Match) -> str:
             masked_literals.append(m.group(0))
             return f"__MASK_{len(masked_literals) - 1}__"
 
-        return re.sub(self.LITERAL_MASK_PATTERN, shield_callback, line), masked_literals
+        return re.sub(pattern or self.LITERAL_MASK_PATTERN, shield_callback, line), masked_literals
 
     def _restore_masked_literals(self, masked: str, masked_literals: list[str]) -> str:
         """Reverses _mask_line_literals, substituting each `__MASK_N__` placeholder back for its original literal text."""

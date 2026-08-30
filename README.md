@@ -182,18 +182,33 @@ When tools disagree:
 6.  genuine tool limitations are documented;
 7.  the result is re-measured.
 
-**24 of 45 languages get all three tools compared, 16 more get two, and
-5 GitGalaxy-only languages** (`abap`, `dockerfile`, `jcl`, `livecode`,
-`yaml`) get hand-reviewed manual verification instead of cross-tool
-agreement. Of the 180 discrepancy shapes logged so far, **87 are
-validated (48%)** — read, investigated, and recorded with a verdict,
-not just counted.
+**24 of 45 languages get all three tools compared, 13 more get two, and
+5** (`abap`, `agc_assembly`, `dockerfile`, `jcl`, `livecode`) **use
+committed manual verification** — in whole, or for the `args` metric
+where no tool emits a signature — instead of cross-tool agreement. Of
+the 201 discrepancy shapes logged, **200 are validated (99.5%)** — read
+against real source, investigated, and recorded with a verdict, not just
+counted.
 
-The goal is to finish the audit, close remaining GitGalaxy defects,
-establish independent ground truth where necessary, and then publish
-final precision/recall measurements. See
+**First target closed: function detection (2026-08-30).** Every one of
+the 31 tree-sitter-comparable languages now measures **100.0% function
+recall and 100.0% validated function precision** on the pinned corpus —
+GitGalaxy finds every function tree-sitter finds, and every function it
+reports is real, once each three-way disagreement has been read and
+verdicted. This is a narrow claim: one structural target (existence, not
+argument counts, not scope nesting), one fixed corpus, and several
+languages whose function counts are small enough that the percentage
+carries little weight — it is not "GitGalaxy parses as accurately as an
+AST" in general. Real code outside the corpus will surface shapes it
+doesn't cover; the mandatory occurrence-level
+[recall audit](docs/self_scan/tri_comparison_README.md#the-recall-audit-is-gitgalaxy-missing-anything)
+is the standing process for the next one. Class and argument targets are
+still in progress.
+
+See
 [the tri-comparison methodology doc](docs/self_scan/tri_comparison_README.md)
-for how matching, the ledger lifecycle, and CI enforcement work.
+for how matching, the ledger lifecycle, the recall audit, and CI
+enforcement work.
 
 ![Tri-comparison](docs/self_scan/tri_comparison_chart.svg)
 
@@ -413,11 +428,13 @@ never hand-edited.
 ### Tri-comparison
 
 The same corpus is analyzed against GitGalaxy, Tree-sitter and Ctags
-where coverage exists — 24 of 45 languages get all three tools, 87 of
-180 logged discrepancies validated so far. See
+where coverage exists — 24 of 45 languages get all three tools, 200 of
+201 logged discrepancies validated. Function detection is the first
+target closed: 100.0% recall and 100.0% validated precision across all
+31 tree-sitter-comparable languages, on the pinned corpus. See
 [the methodology](docs/self_scan/tri_comparison_README.md) and the
 ["structural validation" section above](#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags)
-for the full picture.
+for the full picture and its limits.
 
 ### Raw repository output
 

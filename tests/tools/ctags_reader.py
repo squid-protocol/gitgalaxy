@@ -649,7 +649,24 @@ _CTAGS_SCOPE_KIND_KEYS = ("class", "struct", "namespace", "union", "enum", "inte
 # an out-of-class qualified definition at all, so this path is simply inert for them. If a similar
 # convention turns up for another language's ledger shapes later, add it here rather than assuming
 # this set is complete.
-_QUALIFY_NAME_WITH_SCOPE = {"cpp"}
+#
+# tcl (2026-08-30, tri-comparison-ledger-sweep): confirmed the identical mechanism for Tcl
+# namespace-qualified procs -- `proc portfetch::percent_encode {str} {` inside
+# macports_port_api/*.tcl. GitGalaxy's func_start and tree-sitter-tcl both read the qualified
+# identifier straight out of the source text (`portfetch::percent_encode`), matching each other
+# exactly; ctags splits it into a bare `name:percent_encode` tag plus a separate
+# `scope:portfetch` / `scopeKind:namespace` field (confirmed via `--output-format=json
+# --fields=+znS`), landing 93 occurrences (tcl/function/existence/agree[ctags]_vs
+# [gitgalaxy,tree_sitter]) as an apparent ctags-only claim -- a pure naming mismatch, not a real
+# disagreement about whether these procs exist; all three tools found every one of them. Tcl's
+# `namespace` scope kind is already in _CTAGS_SCOPE_KIND_KEYS and its `::` separator is identical
+# to C++'s, so the existing candidate-generation + verbatim-source-line guard needs no Tcl-specific
+# change -- the guard already protects a `proc bare_name {...}` written INSIDE a `namespace eval
+# ns { ... }` block (structurally scoped to `ns` in ctags' own tree, same as an in-class-body C++
+# method) from being over-qualified, the same way it already does for cpp; this corpus's own
+# convention is an explicit `proc ns::name` outside the eval block, so that guard path isn't
+# exercised here, but the mechanism is unchanged from its proven cpp behavior either way.
+_QUALIFY_NAME_WITH_SCOPE = {"cpp", "tcl"}
 
 
 # ctags' scope VALUE for a member of a class nested inside an outer namespace includes that
@@ -776,7 +793,8 @@ def read_ctags_symbols(filepath: Path, lang: str) -> list[CtagsSymbol]:
         line_no = int(fields["line"]) if "line" in fields else -1
         signature = fields.get("signature")
         if lang in _QUALIFY_NAME_WITH_SCOPE:
-            name = _normalize_cpp_operator_name(name)
+            if lang == "cpp":
+                name = _normalize_cpp_operator_name(name)
             source_text = line[:marker_idx]
             for scope_key in _CTAGS_SCOPE_KIND_KEYS:
                 if scope_key in fields:

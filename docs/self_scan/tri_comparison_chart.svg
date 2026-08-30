@@ -1137,25 +1137,27 @@
 <text class="lang-label" x="20" y="1947.5">tcl</text>
 <rect class="bar-track" x="154" y="1927" width="88" height="34" rx="2"/>
 <rect x="154" y="1927" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1935">352*</text>
+<text class="bar-value-label" x="198.0" y="1935">352</text>
 <rect x="154" y="1939" width="84.2" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="198.0" y="1947">337*</text>
+<text class="bar-value-label" x="198.0" y="1947">337</text>
 <rect x="154" y="1951" width="83.5" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="1959">334*</text>
+<text class="bar-value-label" x="198.0" y="1959">334</text>
 <rect class="bar-track" x="286" y="1927" width="88" height="34" rx="2"/>
 <rect x="286" y="1927" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1935">352/352*</text>
+<text class="bar-value-label" x="330.0" y="1935">352/352</text>
 <rect x="286" y="1939" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="330.0" y="1947">337/337*</text>
-<rect x="286" y="1951" width="63.5" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="1959">241/334*</text>
+<text class="bar-value-label" x="330.0" y="1947">337/337</text>
+<rect x="286" y="1951" width="88.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="330.0" y="1959">334/334</text>
+<circle cx="390.0" cy="1944.0" r="8" fill="#2a78d6"/>
+<text class="badge-label" x="390.0" y="1947.0">G</text>
 <rect class="bar-track" x="418" y="1927" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="550" y="1927" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="682" y="1927" width="88" height="34" rx="2"/>
 <rect x="682" y="1927" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1935">229</text>
+<text class="bar-value-label" x="726.0" y="1935">321</text>
 <rect x="682" y="1939" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1947">229</text>
+<text class="bar-value-label" x="726.0" y="1947">321</text>
 <text class="lang-label" x="20" y="1991.5">typescript</text>
 <rect class="bar-track" x="154" y="1971" width="88" height="34" rx="2"/>
 <rect x="154" y="1971" width="88.0" height="10" rx="2" fill="#2a78d6"/>
@@ -1237,10 +1239,10 @@
 <rect x="682" y="2115" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="726.0" y="2123">2751</text>
 <line x1="16" y1="2152" x2="796" y2="2152" stroke="#dedcd6" stroke-width="1"/>
-<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 70 real comparisons (1-bar groups and empty panels don't count)</text>
+<text class="summary-title" x="16" y="2166">Summary -- best tool per (language, metric), ranked panels only (Func/Class Precision), 71 real comparisons (1-bar groups and empty panels don't count)</text>
 <circle cx="23" cy="2184" r="7" fill="#2a78d6"/>
 <text class="badge-label" x="23" y="2187">G</text>
-<text class="legend-label" x="36" y="2188">GitGalaxy best: 31 (44%)</text>
+<text class="legend-label" x="36" y="2188">GitGalaxy best: 32 (45%)</text>
 <circle cx="215.8" cy="2184" r="7" fill="#eb6834"/>
 <text class="badge-label" x="215.8" y="2187">T</text>
 <text class="legend-label" x="228.8" y="2188">tree-sitter best: 0 (0%)</text>
@@ -1248,6 +1250,6 @@
 <text class="badge-label" x="408.6" y="2187">C</text>
 <text class="legend-label" x="421.6" y="2188">ctags best: 0 (0%)</text>
 <circle cx="564.2" cy="2184" r="7" fill="#9a9a95"/>
-<text class="legend-label" x="577.2" y="2188">Ties: 39 (56%)</text>
+<text class="legend-label" x="577.2" y="2188">Ties: 39 (55%)</text>
 <text class="scope-note" x="16" y="2208">Ranked-panel labels are matched/total; found-count panels are a single raw count, no denominator. Regenerate: tri_comparison_chart.py --all --write</text>
 </svg>

@@ -89,6 +89,38 @@ directly by `tri_comparison_chart.py` to render the `**` marker and award GitGal
 `docs/self_scan/how_to_investigate_a_discrepancy.md` for the methodology and the
 `tri-comparison-ledger-sweep` skill's manual-verification fallback for the procedure.
 
+### 2026-08-30: re-verified against the v1.2.0 corpus expansion
+
+`language-crucible` v1.2.0 (pin bumped in [#2478](https://github.com/squid-protocol/gitgalaxy/pull/2478))
+added one `.jcl` file — `cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl`, an IDCAMS VSAM-cluster
+define job — bringing JCL's corpus to **186 `.jcl` files across 6 repos** (185 pipeline-scanned).
+#2478 bumped the pin without refreshing `manual_verification.json`, so the 2026-08-29 record
+(`375 / 117`) went stale against the pinned corpus and JCL's precision panels dropped back to a
+bare `0/376` / `0/118` with no badge. This pass re-established the record.
+
+**Method.** The same three independent readings as the 2026-08-29 pass, over the whole v1.2.0
+corpus: GitGalaxy's own `func_start` / `class_start` regex; an independent line scanner sharing no
+implementation; and a `galaxyscope --db-only` pipeline cross-check (`struct_*` vs. `*_count` vs.
+`function_data` / `class_data` row counts), per file.
+
+| Signature | Corpus truth | Independent scanner | Pipeline | False positives | Misses |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| `func_start` (EXEC steps) | **376 / 376** | 376 | 376 | 0 | 0 |
+| `class_start` (JOB cards) | **118 / 118** | 118 | 118 | 0 | 0 |
+
+- The single new file contributes exactly **one EXEC step** (`//DEFINE EXEC PGM=IDCAMS`) and
+  **one JOB card** (`//DEFVSAM JOB`). Its instream IDCAMS control statements (`DELETE`,
+  `DEFINE CLUSTER`) between `//SYSIN DD *` and `/*` are correctly **not** matched — the same
+  SYSIN-payload rejection the 2026-08-29 pass verified, holding on new content.
+- Net effect of the v1.2.0 expansion is `+1 / +1`. No engine change, no new defect, no
+  regression: every other JCL count is identical to the 2026-08-29 reading, and per-file
+  `struct_*` still equals the raw regex count on every scanned file.
+- `DFH$SIP1.jcl` remains the one correctly-unscanned `.jcl` (SIP parameter deck, `*`-prefixed
+  lines, zero real signatures).
+
+**Chart records** (`manual_verification.json`, `2026-08-30`): Functions `376 / 376`, Classes
+`118 / 118`. Args unchanged — still `none`-granularity, no entry.
+
 ### 2026-08-29: re-verified against the v1.1.0 corpus expansion
 
 `language-crucible` v1.1.0 (pin bumped in [#2398](https://github.com/squid-protocol/gitgalaxy/pull/2398))

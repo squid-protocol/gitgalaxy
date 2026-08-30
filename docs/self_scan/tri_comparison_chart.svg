@@ -1088,8 +1088,8 @@
 <rect x="154" y="1851" width="2.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="1859">0</text>
 <rect class="bar-track" x="286" y="1839" width="88" height="34" rx="2"/>
-<rect x="286" y="1839" width="2.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1847">0/262</text>
+<rect x="286" y="1839" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="1847">262/262</text>
 <rect class="bar-track" x="418" y="1839" width="88" height="34" rx="2"/>
 <rect x="418" y="1839" width="88.0" height="10" rx="2" fill="#2a78d6"/>
 <text class="bar-value-label" x="462.0" y="1847">73</text>

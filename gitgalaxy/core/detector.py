@@ -2508,15 +2508,23 @@ class StructuralExtractor:
 
     # galaxyscope:ignore sec_high_risk_execution
 
-    # #1973: per-language line-continuation marker used to extend a Mode A
+    # #1973/#2483: per-language line-continuation marker used to extend a Mode A
     # label's args-search window past its own first physical line, keyed by
     # primary_lang_id. Deliberately NOT a generic "any trailing symbol"
     # rule -- cobol's fixed-format continuation is a column-7 indicator on
     # the CONTINUING line, not a trailing marker on the line before, so
     # cobol legitimately gets no entry here and stays single-line-only.
+    # jcl's marker is a bare trailing comma: any `//` statement line ending in
+    # `,` continues onto the next `//` line by real JCL syntax (no separate
+    # indicator column the way cobol/fixed-format languages use) -- this
+    # window bound doesn't validate that the following line actually starts
+    # with `//` (it just extends by one full line once the marker is seen),
+    # but within an already-matched JCL step's own block that's always true
+    # for well-formed input.
     _MODE_A_ARGS_CONTINUATION_MARKER: ClassVar[dict[str, str]] = {
         "dockerfile": "\\",
         "fortran": "&",
+        "jcl": ",",
     }
 
     def _mode_a_args_window_end(self, code: str, start_idx: int, hard_limit_idx: int) -> int:
@@ -2716,8 +2724,8 @@ class StructuralExtractor:
                     if asm_matches:
                         args_count_override = self._count_assembly_register_args(asm_matches)
 
-            # #1973: for the 3 Mode A languages that never get a dedicated
-            # args_count_override at all (cobol, fortran, dockerfile), the
+            # #1973/#2483: for the 4 Mode A languages that never get a dedicated
+            # args_count_override at all (cobol, fortran, dockerfile, jcl), the
             # generic args-count derivation in _calculate_block_metrics
             # defaults to searching the WHOLE greedy `block` -- which can span
             # many unrelated statements past the matched label's own
@@ -2754,8 +2762,19 @@ class StructuralExtractor:
             # `send_receive`: real args 1, regressed to 0). Those 3
             # languages' own body-idiom scans are intentionally left on the
             # original unbounded path -- this issue never covered them.
+            #
+            # #2483: jcl joined this bound for the same reason dockerfile did --
+            # its `args` construct (`PARM=` on an EXEC step) is a genuinely
+            # separate, unrelated-to-other-steps statement, and an unbounded
+            # whole-`block` search could sweep a multi-line `PARM='...'` string
+            # (or, worse, an unrelated later step's own PARM=) into this step's
+            # count (confirmed real: ZOSCSEC.jcl's BPXIT step read `args=7` off
+            # an unbounded sweep of its own multi-line `PARM='SH chmod ...'`
+            # string, documented in docs/language_status/jcl.md). jcl's own
+            # continuation marker is a trailing comma (`,`), unlike dockerfile's
+            # backslash -- see _MODE_A_ARGS_CONTINUATION_MARKER.
             args_search_text = None
-            if self.primary_lang_id in ("cobol", "fortran", "dockerfile"):
+            if self.primary_lang_id in ("cobol", "fortran", "dockerfile", "jcl"):
                 args_window_end = self._mode_a_args_window_end(code, start_idx, start_idx + end_offset)
                 args_search_text = code[start_idx:args_window_end]
                 if self.primary_lang_id == "fortran":

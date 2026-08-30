@@ -185,9 +185,10 @@ def test_jcl_cross_line_false_match_regression():
     line falsely bind to a keyword starting an *entirely different* line
     that has no `//` prefix of its own -- JCL statements never span a
     physical line via bare whitespace (only via explicit continuation
-    columns, which this engine doesn't need to model since the "practical
-    reality" per Rule 1 is that continued PARAMETER lists, not the
-    name+keyword pair itself, are what wraps). Bounded to `[ \\t]+`.
+    columns; the name+keyword pair itself never wraps, only a continued
+    PARAMETER list can -- see test_jcl_args_parm_continuation_line_regression
+    for the `args` rule's own bounded support for that, added by #2482).
+    Bounded to `[ \\t]+`.
     """
     old_func_start = re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)\s+EXEC\b", re.M | re.I)
     old_class_start = re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)\s+JOB\b", re.M | re.I)
@@ -216,6 +217,81 @@ def test_jcl_cross_line_false_match_regression():
     assert JCL_RULES["func_start"].search("//STEP01  EXEC PGM=IEFBR14")
     assert JCL_RULES["class_start"].search("//MYJOB   JOB (ACCT)")
     assert JCL_RULES["ownership"].search("//*Author: Jane Doe").group(1) == "Jane Doe"
+
+
+def test_jcl_args_parm_continuation_line_regression():
+    """
+    Regression test for #2482: the `args` regex only ever saw `PARM=` when it
+    sat on the EXEC statement's own physical line -- a real, common JCL idiom
+    (docs/language_status/jcl.md documented ~16-18 corpus occurrences missed
+    this way) since `PARM=` routinely lands on a `//` continuation line
+    instead, sometimes more than one hop away.
+    """
+    old_pattern = re.compile(
+        r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:EXEC(?:[ \t].*?)?,[ \t]*PARM=('(?:[^']|'')*'|\([^)]*\)|[^ \t\n,]+)|PROC[ \t]+(\S.*))",
+        re.M | re.I,
+    )
+    pattern = JCL_RULES["args"]
+
+    # cics-genapp/cobol.jcl:68 shape -- PARM= one continuation line down.
+    one_hop = "//LKED     EXEC PGM=HEWL,COND=(7,LT,COBL),\n//  PARM='LIST,XREF,RENT,NAME=&MEM'\n"
+    assert not old_pattern.search(one_hop), "sanity check: bug must reproduce against the old pattern"
+    m = pattern.search(one_hop)
+    assert m and m.group(1) == "'LIST,XREF,RENT,NAME=&MEM'", "single-continuation PARM= still not found"
+
+    # cics-banking-sample-application-cbsa/CICSTS56.jcl:45 shape -- a second
+    # continuation line (COND=...,) sits between EXEC and the PARM= line.
+    two_hop = "//CICS    EXEC PGM=DFHSIP,REGION=&REG,TIME=1440,\n// COND=(1,NE,CICSCNTL),\n// PARM='START=&START,SYSIN',MEMLIMIT=16G\n"
+    m2 = pattern.search(two_hop)
+    assert m2 and m2.group(1) == "'START=&START,SYSIN'", "two-hop continuation PARM= still not found"
+
+    # cics-genapp/defdrep.jcl shape -- PARM=(...) itself keeps going across
+    # several MORE continuation lines after the hop that reaches it; the
+    # value capture already spans newlines (`[^)]*` doesn't exclude `\n`),
+    # this only needed the hop to reach the opening `PARM=(` at all.
+    multiline_value = (
+        "//DREPINIT EXEC PGM=EYU9XDUT,\n"
+        "//             COND=(8,LT),\n"
+        "//             PARM=('CMASNAME=<CMASAPPL>',\n"
+        "//             'DAYLIGHT=N',\n"
+        "//             'ZONEOFFSET=0')\n"
+    )
+    m3 = pattern.search(multiline_value)
+    assert m3 and m3.group(1).startswith("('CMASNAME=<CMASAPPL>'") and m3.group(1).endswith("'ZONEOFFSET=0')"), (
+        "multi-line PARM=(...) continuation value not fully captured"
+    )
+
+    # Same-line PARM= (the common case) must be unaffected.
+    assert pattern.search("//STEP1   EXEC PGM=FOO,PARM='SAME-LINE'").group(1) == "'SAME-LINE'"
+
+    # A step with NO PARM= anywhere, even across a trailing-comma
+    # continuation, must still not match -- the hop must not manufacture a
+    # match out of thin air.
+    no_parm = "//STEP2   EXEC PGM=FOO,REGION=1M,\n//        COND=(4,LT)\n"
+    assert not pattern.search(no_parm), "hop mechanism must not match when no PARM= is ever present"
+
+    # A later, unrelated step's own PARM= must never be attributed to an
+    # earlier step that has none of its own (no cross-step bleed).
+    two_steps = "//STEP1   EXEC PGM=FOO\n//STEP2   EXEC PGM=BAR,PARM='STEP2ONLY'\n"
+    all_matches = list(pattern.finditer(two_steps))
+    assert len(all_matches) == 1, "exactly one match expected (STEP2's own), not a bleed onto STEP1"
+    assert all_matches[0].group(1) == "'STEP2ONLY'"
+    assert all_matches[0].start() == two_steps.index("//STEP2"), "match must anchor to STEP2's own line, not STEP1's"
+
+
+def test_jcl_args_redos_immunity():
+    """
+    ReDoS immunity for #2482's continuation-hop addition specifically --
+    the hop group is bounded ({0,7} repetitions) and every repetition's
+    `[^\\n]*` is itself bounded to a single physical line, so this can't
+    backtrack catastrophically even when fed a long run of comma-heavy
+    lines that never actually reach a `//`-prefixed continuation (the
+    shape that would matter if the bound were missing).
+    """
+    pattern = JCL_RULES["args"]
+    assert_redos_immune(pattern, "//X EXEC PGM=Y," + "A," * 20000, timeout_sec=3.0)
+    many_fake_hops = "//X EXEC PGM=Y,\n" + "\n".join(f"//   FIELD{i}=VAL{i}," for i in range(20000))
+    assert_redos_immune(pattern, many_fake_hops, timeout_sec=3.0)
 
 
 def test_jcl_lexical_family_no_block_terminator_state_to_confuse():

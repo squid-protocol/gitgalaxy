@@ -14038,8 +14038,36 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
             # Control flow in JCL (IF/THEN/ELSE/ENDIF)
             "branch": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:IF|ELSE|ENDIF)\b", re.M | re.I),
             # Extract arguments from EXEC PARM= strings or PROC symbolics definitions.
+            # #2482: PARM= routinely sits on a JCL continuation line, not the EXEC
+            # line itself -- a trailing comma on a `//` statement line means "this
+            # statement keeps going on the next `//` line," and real corpus JCL
+            # chains this more than once before PARM= appears (cics-genapp's
+            # CICSTS56.jcl: EXEC line ends in a comma, then a COND=(...) continuation
+            # line ALSO ends in a comma, and only the third line carries PARM=).
+            # `(?:\n//[ \t]*(?:[^\n]*,[ \t]*\n//[ \t]*){0,7})?` models this: the whole
+            # thing is optional (same-line PARM=, the common case, is untouched), but
+            # once triggered it crosses at least one continuation boundary
+            # (`\n//[ \t]*`) and then allows up to 7 more hops, each of which must
+            # itself end in a real trailing comma (`[^\n]*,` -- greedy, so it lands on
+            # the LAST comma on that line, the actual continuation indicator, not an
+            # incidental earlier one) before crossing again. Every repeated unit is
+            # bounded to a single physical line (`[^\n]*` cannot cross a newline), so
+            # this cannot backtrack catastrophically even on adversarial input -- see
+            # test_jcl_args_parm_continuation_line_regression's ReDoS case. The value
+            # capture itself (`\([^)]*\)` / `'...'`) already spanned newlines before
+            # this fix (`[^)]*`/`[^']*` don't exclude `\n`), so a PARM=(...) that
+            # keeps going across further continuation lines (cics-genapp's
+            # defdrep.jcl, 5 more lines after the opening paren) is captured whole --
+            # EXCEPT when the value itself contains a nested, unquoted `(...)` (e.g.
+            # `'AMODE(31)'` inside a larger PARM=(...) list), where the capture still
+            # stops at that inner `)` -- a separate, pre-existing limitation this
+            # issue doesn't attempt to fix (nested-paren balancing isn't expressible
+            # in a single bounded regex pass the way this engine requires).
             "args": re.compile(
-                r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:EXEC(?:[ \t].*?)?,[ \t]*PARM=('(?:[^']|'')*'|\([^)]*\)|[^ \t\n,]+)|PROC[ \t]+(\S.*))",
+                r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+"
+                r"(?:EXEC(?:[ \t].*?)?,[ \t]*(?:\n//[ \t]*(?:[^\n]*,[ \t]*\n//[ \t]*){0,7})?"
+                r"PARM=('(?:[^']|'')*'|\([^)]*\)|[^ \t\n,]+)"
+                r"|PROC[ \t]+(\S.*))",
                 re.M | re.I,
             ),
             # Structural boundaries (Any line starting with // and a command)

@@ -109,11 +109,9 @@ ARGS_VALID = [
         "'THIS STRING CONTINUES                    X\n//             AT COLUMN 16'",
         marks=pytest.mark.xfail(reason="Known limitation: Engine cannot parse JCL line continuations"),
     ),
-    pytest.param(
-        "//STEP EXEC PGM=X, \n//   PARM='A=B'",
-        "'A=B'",
-        marks=pytest.mark.xfail(reason="Known limitation: Engine cannot parse JCL line continuations"),
-    ),
+    # #2482: PARM= on a `//` continuation line, reached via the trailing-comma
+    # continuation marker -- no longer an xfail, this is the exact shape fixed.
+    ("//STEP EXEC PGM=X, \n//   PARM='A=B'", "'A=B'"),
 ]
 
 ARGS_INVALID = [
@@ -135,6 +133,43 @@ def test_jcl_args_invalid(payload):
     if JCL_RULES.get("args") is None:
         pytest.skip("args is None for jcl")
     assert_invalid_no_match(JCL_RULES["args"], payload, "jcl.args")
+
+
+def test_jcl_args_mode_a_window_bounded_no_over_count():
+    """
+    Pipeline-level regression for #2483: Mode A's generic args-count
+    derivation used to search the WHOLE greedy block (this step's own
+    signature through to the next EXEC step), not just this step's own
+    statement -- a real corpus bug (docs/language_status/jcl.md:
+    ZOSCSEC.jcl's BPXIT step read `args=7` off an unbounded sweep of its own
+    multi-line `PARM='SH chmod ...'` string) and, more seriously, a step
+    with NO `PARM=` of its own could pick up a LATER, unrelated step's
+    PARM= instead. `args_search_text` must now be bounded to just this
+    step's own (possibly continuation-extended) statement via jcl's `,`
+    entry in `_MODE_A_ARGS_CONTINUATION_MARKER`.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    extractor = StructuralExtractor("jcl", LANGUAGE_DEFINITIONS)
+
+    # A step with no PARM= of its own, followed by an unrelated step that
+    # DOES have one -- the first step must read args=0, never borrowing the
+    # second step's PARM=.
+    two_steps = "//STEP1   EXEC PGM=FOO\n//STEP2   EXEC PGM=BAR,PARM='SHOULDNOTBLEED'\n"
+    segments = extractor._partition_segments(two_steps, "jcl")
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    step1 = next(f for f in functions if f["name"] == "STEP1")
+    step2 = next(f for f in functions if f["name"] == "STEP2")
+    assert step1["args"] == 0, f"STEP1 must not borrow STEP2's PARM=, got args={step1['args']}"
+    assert step2["args"] == 1, f"STEP2's own PARM= should still count normally, got args={step2['args']}"
+
+    # A single-value PARM= must not be over-counted just because the window
+    # now spans a multi-line continuation -- one PARM= is still one value.
+    continued = "//CICS    EXEC PGM=DFHSIP,REGION=&REG,TIME=1440,\n// COND=(1,NE,CICSCNTL),\n// PARM='START=&START,SYSIN',MEMLIMIT=16G\n//NEXT     EXEC PGM=OTHER\n"
+    segments2 = extractor._partition_segments(continued, "jcl")
+    functions2, _ = extractor._function_slice(segments2, [{} for _ in segments2], {}, {}, None)
+    cics_step = next(f for f in functions2 if f["name"] == "CICS")
+    assert cics_step["args"] == 1, f"a single PARM= value must count as 1, got args={cics_step['args']}"
 
 
 # ==============================================================================

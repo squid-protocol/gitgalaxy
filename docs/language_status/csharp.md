@@ -249,7 +249,7 @@ deeper inspection is needed.
 Unlike python.md's and javascript.md's §9 (each a one-off, hand-built diff against `ast` /
 `tree-sitter-language-pack`), C# already has a maintained, CI-wired measurement:
 `tests/tools/tree_sitter_accuracy_audit.py`, run against the pinned
-[`language-crucible`](https://github.com/squid-protocol/language-crucible) corpus (`v1.1.0` as of
+[`language-crucible`](https://github.com/squid-protocol/language-crucible) corpus (`v1.2.0` as of
 this writing; see `tests/_crucible_pin.py` for the current pin) —
 6 real C# files, dominated by `roslyn/LanguageParser.cs` and `roslyn/CSharpCompilation.cs`
 (mainstream Roslyn source, not synthetic fixtures). tree-sitter's own parse of each file becomes

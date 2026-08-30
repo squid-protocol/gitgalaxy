@@ -18,7 +18,7 @@ to trust if the two ever disagree.
 
 [`tree-sitter-language-pack`](https://pypi.org/project/tree-sitter-language-pack/) parses every
 file in the pinned [`language-crucible`](https://github.com/squid-protocol/language-crucible)
-corpus (`v1.1.0` as of this writing — see `tests/_crucible_pin.py` or the `LANGUAGE_CRUCIBLE_REF`
+corpus (`v1.2.0` as of this writing — see `tests/_crucible_pin.py` or the `LANGUAGE_CRUCIBLE_REF`
 repo variable for the current pin — ~120 real, disconnected subdirectories of production code: Godot's C++,
 Roslyn's C#, curl, tokio, and more) into a real AST, per baselined language. That AST becomes the
 reconciled ground truth for that language: real function/class names, their positions, and their
@@ -95,7 +95,7 @@ caused real CI failures when skipped.
 ```bash
 # from the gitgalaxy repo root -- check tests/_crucible_pin.py or the LANGUAGE_CRUCIBLE_REF
 # repo variable first; the tag below drifts out of date as that pin gets bumped.
-git clone --branch v1.1.0 --depth 1 https://github.com/squid-protocol/language-crucible.git ../language-crucible
+git clone --branch v1.2.0 --depth 1 https://github.com/squid-protocol/language-crucible.git ../language-crucible
 pip install tree-sitter-language-pack
 
 python tests/tools/tree_sitter_accuracy_audit.py --all --ci   # baseline-gated pass/fail, no writes

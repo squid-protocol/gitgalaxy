@@ -21,4 +21,4 @@ copies (6 workflow files, 4 scripts, 4 docs) this replaced.
 review the diff on this file as your reminder to also run that command.
 """
 
-PINNED_TAG = "v1.1.0"
+PINNED_TAG = "v1.2.0"

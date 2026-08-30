@@ -751,7 +751,7 @@ NODE_MAPS = {
 #     key, a `jobs:` key), not general YAML syntax -- tree-sitter's generic YAML grammar has no
 #     concept of "job" vs. any other mapping key, so there's no structural ground truth to diff
 #     against regardless of node-type mapping.
-#   - ada: language-crucible has no `data/ada` directory at all (as of the v1.1.0 pin) -- nothing to
+#   - ada: language-crucible has no `data/ada` directory at all (as of the v1.2.0 pin) -- nothing to
 #     measure against yet; revisit if/when the corpus adds Ada samples.
 
 

@@ -38,13 +38,13 @@ for the same metrics tracked over time across pushes to main.
 | C | 100.0% | 99.5% | 100.0% | 100.0% |
 | Cpp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Csharp | 100.0% | 100.0% | 100.0% | 100.0% |
-| Css | 100.0% | 100.0% | N/A | N/A |
+| Css | 83.3% | 80.0% | N/A | N/A |
 | Dart | 100.0% | 100.0% | 100.0% | 100.0% |
 | Fortran | 100.0% | 100.0% | 100.0% | 100.0% |
 | Go | 100.0% | 100.0% | 100.0% | 100.0% |
-| Groovy | N/A | N/A | N/A | N/A |
+| Groovy | N/A | 0.0% | N/A | N/A |
 | Haskell | 100.0% | 99.3% | 100.0% | 100.0% |
-| Html | 100.0% | 100.0% | N/A | N/A |
+| Html | 94.9% | 97.4% | N/A | N/A |
 | Java | 100.0% | 100.0% | 100.0% | 100.0% |
 | Javascript | 100.0% | 98.0% | 100.0% | 100.0% |
 | Kotlin | 100.0% | 100.0% | 100.0% | 100.0% |
@@ -62,7 +62,7 @@ for the same metrics tracked over time across pushes to main.
 | Shell | 99.8% | 97.0% | N/A | N/A |
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 100.0% | 99.2% | 100.0% | 100.0% |
-| Tcl | 100.0% | 99.3% | N/A | N/A |
+| Tcl | 100.0% | 99.1% | N/A | N/A |
 | Typescript | 100.0% | 100.0% | 100.0% | 100.0% |
 | Zig | 100.0% | 100.0% | 100.0% | 100.0% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->

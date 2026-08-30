@@ -29,7 +29,7 @@ from gitgalaxy.core.spatial_correlation import (
     correlate_signals as _correlate_signals_impl,
 )
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
-from gitgalaxy.standards.language_standards import LENS_CONFIG
+from gitgalaxy.standards.language_standards import HTML_NONEXECUTABLE_SCRIPT_TAG, LENS_CONFIG
 
 HAS_TIKTOKEN = False
 try:
@@ -3216,6 +3216,17 @@ class StructuralExtractor:
             matches = list(func_start.finditer(safe_code))
         except Exception:
             return [], 0.0
+
+        # #2492: html's `func_start` carries a negative lookahead that rejects a
+        # `<script>` whose `type` is a non-executable value (a `text/template`
+        # slide sample, `x-shader/*` GLSL, ...). That lookahead fires for the raw
+        # structural-signal count but NOT here -- `safe_code` (built above) has
+        # already blanked every quoted attribute value, so the `type` string the
+        # lookahead needs is gone by the time it runs against `safe_code`.
+        # Re-apply the check against the un-shielded `code` for the named list,
+        # so `struct_func_start` and `function_count` stay consistent.
+        if lang_id == "html":
+            matches = [m for m in matches if HTML_NONEXECUTABLE_SCRIPT_TAG.match(code, m.start()) is None]
 
         # #1041: this used to skip any match whose start fell before the
         # previously accepted match's end ("if start_idx < last_end_idx:

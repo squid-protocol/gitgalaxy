@@ -40,6 +40,11 @@ FUNC_START_VALID = [
     ('<style\tmedia="print"\n>', "style"),
     ('<script/type="module">', "script"),
     ("<script type=module>", "script"),
+    # #2492: a JS / `module` / `text/babel` type still anchors; only a
+    # non-executable `type` is excluded (see FUNC_START_INVALID below).
+    ('<script type="application/javascript">', "script"),
+    ('<script type="text/babel" data-presets="react">', "script"),
+    ('<script src="cdn/x.js" type="text/javascript">', "script"),
     ('<script\u0020type="text/javascript">', "script"),
 ]
 
@@ -48,6 +53,17 @@ FUNC_START_INVALID = [
     "</script>",
     "<scripting>",
     "<stylesheet>",
+    # #2492: a `<script>` whose `type` is a non-executable value is an inert
+    # data block the browser never runs -- not an executable-logic anchor.
+    '<script type="text/template">',
+    "<script type='text/template'>",
+    '<script id="tpl" type="text/template">',
+    '<script type="x-shader/x-vertex" id="vertexShader">',
+    '<script id="fragmentShader" type="x-shader/x-fragment">',
+    '<script type="math/tex; mode=display">',
+    '<SCRIPT TYPE="TEXT/TEMPLATE">',
+    '<script type="application/ld+json">',
+    '<script type="text/x-handlebars-template">',
     # TODO: Disguised tags (comments/strings) are very hard for naive regex
     # "<!-- <script> -->",
     # "<div title=\"<script>\">",
@@ -231,3 +247,43 @@ def test_html_dependency_invalid(payload):
 @pytest.mark.parametrize("payload,expected_name", DEPENDENCY_PATHOLOGICAL)
 def test_html_dependency_pathological(payload, expected_name):
     assert_pathological_match(HTML_RULES["_dependency_capture"], payload, expected_name, "html.dependency")
+
+
+# ==============================================================================
+# #2492: non-executable <script type=...> must not become a FunctionNode
+# (detector.py Mode B re-applies HTML_NONEXECUTABLE_SCRIPT_TAG against raw
+# source because the brace-safe stream has blanked the `type` value out by the
+# time func_start's own negative lookahead runs there).
+# ==============================================================================
+from gitgalaxy.core.detector import StructuralExtractor  # noqa: E402
+
+
+def _html_func_names(source: str) -> list[str]:
+    result = StructuralExtractor("html", LANGUAGE_DEFINITIONS).splice(source, "")
+    return [f["name"] for f in result["functions"]]
+
+
+def test_html_text_template_script_yields_no_function():
+    src = (
+        '<pre><code class="hljs javascript"><script type="text/template">\n'
+        "  function Example() { return 1; }\n"
+        "  function SecondExample() { return 2; }\n"
+        "</script></code></pre>\n"
+    )
+    assert _html_func_names(src) == []
+
+
+def test_html_shader_script_yields_no_function():
+    src = '<script id="vs" type="x-shader/x-vertex">\nvoid main() { gl_Position = vec4(0.0); }\n</script>\n'
+    assert _html_func_names(src) == []
+
+
+def test_html_real_module_script_still_yields_functions():
+    src = (
+        '<script type="module">\n'
+        "  function boot() {\n"
+        "    return 42;\n"
+        "  }\n"
+        "</script>\n"
+    )
+    assert "boot" in _html_func_names(src)

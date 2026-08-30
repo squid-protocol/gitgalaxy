@@ -234,9 +234,10 @@ behaviors are, however, deliberately documented in the test suite rather than fi
   tri-comparison sweep) — the #2421 / #2452 embedded-grammar injection descended into **every**
   `<script>` regardless of its `type`, so `<script type="text/template">` slide samples in
   `revealjs_decks/demo.html` contributed two phantom "functions" that counted against GitGalaxy's
-  html recall (94.9%). Part 1 (fixed this pass): `_html_embedded_ts_funcs` now skips a
-  non-executable `<script type>`; recall → 100%. Part 2 (open): the symmetric `type=` exclusion
-  for HTML's own `func_start`. See §9.
+  html recall (94.9%). Part 1: `_html_embedded_ts_funcs` now skips a non-executable
+  `<script type>`; recall → 100%. Part 2: the symmetric exclusion in HTML's own `func_start` +
+  `detector.py`'s Mode B slicer, removing a bare `script` over-anchor on the same block; precision
+  → 100%. Both parts fixed; golden masters + ts-accuracy baseline re-blessed. See §9.
 
 **Cross-language fixes that touched HTML routing:**
 - [#2440](https://github.com/squid-protocol/gitgalaxy/issues/2440) — `detector.py`'s mid-file
@@ -288,13 +289,15 @@ Universal Ctags. `ctags`-html has no CSS parser and only a thin JS-in-markup mod
 every `<script>` / `<style>`-derived signal is a GitGalaxy-vs-tree-sitter comparison with ctags
 absent. Class metrics are forced N/A (`_CLASS_EXTRACTION_OUT_OF_SCOPE = {"css", "html"}`).
 
-**Sweep (2026-08-30):** 3 ledger shapes, **all validated**; recall audit clean; 0 real GitGalaxy
-engine defects; 1 comparison-tooling defect found and fixed.
+**Sweep (2026-08-30):** 3 ledger shapes, **all validated and non-reproducing** (bar the
+37-occurrence real consensus); recall audit clean; 1 comparison-tooling defect and 1 minor
+GitGalaxy over-anchor, both found and fixed ([#2492](https://github.com/squid-protocol/gitgalaxy/issues/2492)
+parts 1 and 2).
 
 | Ledger shape | Occ | Verdict |
 | :--- | :---: | :--- |
 | `agree[gitgalaxy,tree_sitter]_vs[ctags]` | 37 | **Real 2-tool consensus.** GitGalaxy's polyglot descent names `<style>` / `<script>` blocks after their embedded CSS at-rule (`media` — `cpython_jinja/layout.html:40`, `html5_boilerplate/{dist,src}_404.html:40`) or JS function (`startup` — `cesium_sandcastle/gallery_cylinders_and_cones.html:29`; `runTests` / `createHTML` / `wrapInTrustedHtml` / `toString` — `jquery_test_fixtures/trusted-html.html`; `goRemote` / `goLocal` — `playwright_dom_fixtures/dynamic-oopif.html`). `ctags`-html emits nothing (no CSS parser; documented in `ctags_reader.py`). No credit/debit. |
-| `agree[gitgalaxy]_vs[ctags,tree_sitter]` | 1 | **Minor GitGalaxy over-anchor.** `script` @ `revealjs_decks/demo.html:142` — the bare `<script type="text/template">` tag opening a reveal.js code-listing slide. HTML `func_start` (`<(script\|style)…`) anchors a function-analog on every `<script>`/`<style>` block; for a non-executable `text/template` block with no embedded code it recognises, the anchor is left with the bare name `script` and no corroboration. Symmetric `type=` exclusion for `func_start` filed as [#2492](https://github.com/squid-protocol/gitgalaxy/issues/2492) part 2 (deferred — `language_standards.py` change, needs its own differential scan). No credit/debit — a marginal FP, not a structural win. |
+| `agree[gitgalaxy]_vs[ctags,tree_sitter]` | 1 | **Minor GitGalaxy over-anchor — FIXED, non-reproducing.** `script` @ `revealjs_decks/demo.html:142` — the bare `<script type="text/template">` tag opening a reveal.js code-listing slide. HTML `func_start` (`<(script\|style)…`) anchors a function-analog on every `<script>`/`<style>` block; for a non-executable `text/template` block with no embedded code it recognises, the anchor was left with the bare name `script` and no corroboration. **Fixed this pass** ([#2492](https://github.com/squid-protocol/gitgalaxy/issues/2492) part 2): `func_start` now carries a negative lookahead rejecting a `<script>` with a non-executable `type`, and `detector.py`'s Mode B slicer re-applies `HTML_NONEXECUTABLE_SCRIPT_TAG` against raw source for the named list (the brace-safe stream blanks the `type` value before `func_start`'s own lookahead runs there). Both golden masters re-blessed (6 diffs, all the `demo.html:142` removal + magnitude/impact ripple). No credit/debit. |
 | `agree[tree_sitter]_vs[ctags,gitgalaxy]` | 2 | **Resolved / non-reproducing — comparison-tooling artifact.** `Example` @ `revealjs_decks/demo.html:145`, `SecondExample` @ `:158`, both `function` declarations inside the same `<script type="text/template">` slide-sample block. `tree_sitter_accuracy_audit._html_embedded_ts_funcs` (shared by `tri_comparison_gatherer`) injected the JavaScript grammar into **every** `<script>`, checking only `src=` and never `type=` — parsing two phantom functions from a data block the browser never runs, GitGalaxy never descends into, and ctags never reads. **Fixed this pass** ([#2492](https://github.com/squid-protocol/gitgalaxy/issues/2492) part 1): `_html_embedded_ts_funcs` now skips a `<script>` whose `type` is present and not in `_EXECUTABLE_SCRIPT_TYPES` (mirrors its `src=` skip and the HTML spec's classic/module-script gate). Regression test: `tests/tools/test_html_embedded_ts_funcs.py`. |
 
 ### Recall audit (skill step 2.6)
@@ -313,12 +316,13 @@ whole-corpus name-diff via `gather_language("html")`).
 
 | Metric | Value | Note |
 | :--- | :---: | :--- |
-| Function recall | **37 / 37 = 100%** | was 94.9% (39 real) — the 2 phantom `real_functions` removed by the #2492 fix |
-| Function precision | 37 / 38 = 97.4% | the 1 "extra" is the `script`@142 over-anchor ([#2492](https://github.com/squid-protocol/gitgalaxy/issues/2492) part 2) |
+| Function recall | **37 / 37 = 100%** | was 94.9% (39 real) — the 2 phantom `real_functions` removed by #2492 part 1 |
+| Function precision | **37 / 37 = 100%** | was 97.4% (38 claimed) — the 1 `script`@142 over-anchor removed by #2492 part 2 |
 | Class recall / precision | N/A | `<form>` / `<table>` / custom-element boundaries are not what tree-sitter counts as a class |
 
-On this corpus `tree-sitter` currently leads html function precision (37/37 vs GitGalaxy's
-37/38) on the strength of that single `script`@142 over-anchor; #2492 part 2 closes the gap.
+GitGalaxy and `tree-sitter` now both sit at 37/37 for html function existence — a clean tie, no
+winner badge. (Between #2492 part 1 and part 2, `tree-sitter` briefly led 37/37 vs 37/38 on the
+strength of the single `script`@142 over-anchor; part 2 closed it.)
 
 ### Where GitGalaxy wins outright
 
@@ -335,11 +339,17 @@ files' style/script content.
   comparison and accuracy tools compensate by injecting the css/javascript grammar (#2421 /
   #2452), and now correctly skip non-executable `<script type>` blocks (#2492 part 1).
 
-### Bugs found & fixed in comparison tooling
+### Bugs found & fixed
 
-- [#2492](https://github.com/squid-protocol/gitgalaxy/issues/2492) part 1 —
+- [#2492](https://github.com/squid-protocol/gitgalaxy/issues/2492) **part 1 (comparison tooling)** —
   `_html_embedded_ts_funcs` counted phantom functions from non-executable `<script type=...>`
-  blocks (`text/template`, `x-shader/*`, `math/tex`). Fixed + regression-tested this pass.
+  blocks (`text/template`, `x-shader/*`, `math/tex`). Fixed + regression-tested.
+- [#2492](https://github.com/squid-protocol/gitgalaxy/issues/2492) **part 2 (GitGalaxy engine)** —
+  html `func_start` and `detector.py`'s Mode B slicer anchored a bare `script` function-analog on
+  the same non-executable `<script type>` blocks. Fixed with a shared
+  `HTML_NONEXECUTABLE_SCRIPT_TAG` denylist (`language_standards.py`), the denylist complement of
+  the audit's `_EXECUTABLE_SCRIPT_TYPES` allowlist. Both golden masters + the html ts-accuracy
+  baseline re-blessed; `crucible_check.py` full-corpus clean (6 diffs, all the one removal).
 
 ### Full record
 

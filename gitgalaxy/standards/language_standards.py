@@ -44,7 +44,7 @@ for the same metrics tracked over time across pushes to main.
 | Go | 100.0% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | 0.0% | N/A | N/A |
 | Haskell | 100.0% | 99.3% | 100.0% | 100.0% |
-| Html | 100.0% | 97.4% | N/A | N/A |
+| Html | 100.0% | 100.0% | N/A | N/A |
 | Java | 100.0% | 100.0% | 100.0% | 100.0% |
 | Javascript | 100.0% | 98.0% | 100.0% | 100.0% |
 | Kotlin | 100.0% | 100.0% | 100.0% | 100.0% |
@@ -297,6 +297,29 @@ GLOBAL_LLM_ORCHESTRATOR = re.compile(_IMPORT_WRAPPER.format(names=_LLM_ORCHESTRA
 GLOBAL_LLM_VECTOR_STORE = re.compile(_IMPORT_WRAPPER.format(names=_LLM_VECTOR_STORE_NAMES))
 GLOBAL_ML_TRADITIONAL = re.compile(_IMPORT_WRAPPER.format(names=_ML_TRADITIONAL_NAMES))
 GLOBAL_DL_FRAMEWORKS = re.compile(_IMPORT_WRAPPER.format(names=_DL_FRAMEWORKS_NAMES))
+
+# A `<script>` whose `type` attribute is any of these carries NO executable logic
+# -- a browser treats every `type` outside the JS-MIME / `module` / bare set as an
+# inert data block and never runs it. Real corpus cases: reveal.js
+# `text/template` slide samples (literal `function` text shown as a code listing),
+# `x-shader/x-vertex` / `x-shader/x-fragment` GLSL sources, `math/tex` (MathJax),
+# JSON `application/ld+json`. GitGalaxy's polyglot detector must not descend into
+# them and its html `func_start` must not anchor a function-analog on them (#2492).
+# The list is the denylist complement of tree_sitter_accuracy_audit.py's own
+# `_EXECUTABLE_SCRIPT_TYPES` allowlist -- keep the two in sync.
+_HTML_NONEXECUTABLE_SCRIPT_TYPES = (
+    r"text/template|text/x-template|text/x-handlebars-template|text/html|"
+    r"application/json|application/ld\+json|x-shader/x-[a-z]+|math/tex"
+)
+# Matches a `<script ...>` OPEN TAG carrying a non-executable `type`. Used by
+# detector.py's Mode B slicer to drop such a match after `_build_brace_safe_stream`
+# has blanked the quoted `type` value out of the stream `func_start` is matched
+# against (so `func_start`'s own negative lookahead below can't see it there).
+# `[^>]*` stays inside the tag (Rule 5 negated class); one unbounded quantifier.
+HTML_NONEXECUTABLE_SCRIPT_TAG = re.compile(
+    r"<script\b[^>]*?\btype[ \t\n\r\f]*=[ \t\n\r\f]*[\"']?(?:" + _HTML_NONEXECUTABLE_SCRIPT_TYPES + r")",
+    re.IGNORECASE,
+)
 
 # ------------------------------------------------------------------------------
 # 4. LANGUAGE DEFINITIONS (The Structural Signature Matrix)
@@ -6212,8 +6235,21 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 re.I,
             ),
             # 4. func_start (Executable Logic Anchors)
-            # ONLY executable behavior blocks.
-            "func_start": re.compile(r"<(script|style)(?=[ \t\n\r\f/>])", re.IGNORECASE),
+            # ONLY executable behavior blocks. The negative lookahead (Rule 15)
+            # excludes a `<script>` whose `type` is a non-executable value -- a
+            # browser treats any `type` outside the JS-MIME / `module` set as an
+            # inert data block and never runs it (#2492). This lookahead gates the
+            # raw structural-signal count (matched against un-shielded source);
+            # detector.py's Mode B slicer re-applies HTML_NONEXECUTABLE_SCRIPT_TAG
+            # against raw source for the named-function list, because the shared
+            # brace-safe stream has blanked the `type` value by the time this
+            # regex runs there.
+            "func_start": re.compile(
+                r"<(script|style)"
+                r"(?![^>]*\btype[ \t\n\r\f]*=[ \t\n\r\f]*[\"']?(?:" + _HTML_NONEXECUTABLE_SCRIPT_TYPES + r"))"
+                r"(?=[ \t\n\r\f/>])",
+                re.IGNORECASE,
+            ),
             # 5. class_start (Object / Entity Declarations)
             # Defines structural entities, Web Components, and template boundaries.
             "class_start": re.compile(

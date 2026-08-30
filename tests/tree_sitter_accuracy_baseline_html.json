@@ -3,7 +3,7 @@
   "args_exact_match": 37,
   "corpus_path": "language-crucible/data/html",
   "extra_classes": 0,
-  "extra_functions": 1,
+  "extra_functions": 0,
   "files_scanned": 54,
   "found_classes": 0,
   "found_functions": 37,

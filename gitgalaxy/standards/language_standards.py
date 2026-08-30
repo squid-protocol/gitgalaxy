@@ -39,7 +39,7 @@ for the same metrics tracked over time across pushes to main.
 | Cpp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Csharp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
-| Dart | 100.0% | 99.5% | 100.0% | 100.0% |
+| Dart | 100.0% | 100.0% | 100.0% | 100.0% |
 | Fortran | 100.0% | 100.0% | 100.0% | 100.0% |
 | Go | 100.0% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
@@ -9750,9 +9750,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"^[ \t]*(?!(?:implements|with|extends)\b)(?:@[a-zA-Z_$][\w$]*\b(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){1,5}"
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+))?"
-                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getA>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 # #2462: one level of generic-argument nesting in the method's
                 # own type-parameter list (`foo<T extends State<StatefulWidget>>()`)
@@ -9761,9 +9761,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\(|=>|\{|(?(getA);|(?!))))"
                 r"|"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?:(?!\?[ \t\n]+(?:get|set|factory|[a-zA-Z_]))(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+)))"
-                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getB>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\(|=>|\{|(?(getB);|(?!))))"
                 r"|"
@@ -9806,13 +9806,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # rejects a parameter list that opens with `:` (only valid in Dart's
                 # object-destructuring patterns, e.g. `StatefulElement(:final T
                 # state) => state,` -- never a real parameter list).
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getC>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\((?!\s*:)(?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*(?:async\*?|sync\*)?[ \t\n]*(?:=>|\{|:)|(?(getC)=>|(?!))|\{))"
                 r"|"
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|in|on|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:const[ \t\n]+)?(_?[A-Z]\w*(?:\.[a-zA-Z_]\w*)?)"
                 # #2308 item 2 / #2462: this alternative originally required
                 # `this.`/`super.` inside the parens. A bodyless DEFAULT/named

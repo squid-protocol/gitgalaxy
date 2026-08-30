@@ -3237,6 +3237,28 @@ class StructuralExtractor:
             if lang_id == "dart" and start_idx < dart_arrow_body_end:
                 continue
 
+            # #2470-followup: reject a dart func_start match that is really an
+            # expression, not a declaration. The return-type-prefix token loop is
+            # permissive enough (`.`, `?`, balanced `(...)`) to swallow a whole
+            # method-call chain on a continuation line -- `x?.foo(a) ??\n
+            # Type.method(b)` reads as `<return type> <name>(`. A real dart return
+            # type is a single type expression: it never contains `??` / `&&` /
+            # `||` / `..` / a bare `!` / a spaced ternary `?`, nor a lowercase
+            # `.method(` call; and a real declaration's name is never directly
+            # preceded by one of those operators.
+            if lang_id == "dart" and match.lastindex:
+                _ns = match.start(match.lastindex)
+                _rt = safe_code[start_idx:_ns]
+                if re.search(r"\?\?|&&|\|\||\.\.|!(?!=)|\s\?[ \t\n]|\.[a-z]\w*[ \t\n]*\(", _rt):
+                    continue
+                _p = _ns - 1
+                while _p >= 0 and safe_code[_p] in " \t\n\r":
+                    _p -= 1
+                if _p >= 1 and safe_code[_p - 1 : _p + 1] in ("&&", "||", "??"):
+                    continue
+                if _p >= 0 and safe_code[_p] == "?" and (_p == 0 or safe_code[_p - 1] in " \t\n\r"):
+                    continue  # spaced ternary `cond ? name(...)`, not a nullable type `Foo?`
+
             # #2462: func_start's branch-D lookahead now accepts a bodyless
             # constructor with EMPTY parens (`ClassName();`), which is shape-
             # identical to a bare zero-arg call statement (`SomeService.start();`).

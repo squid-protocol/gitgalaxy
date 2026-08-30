@@ -91,6 +91,16 @@ the five real recall gaps it found are all fixed and **every tree-sitter-compara
 has 100.0% function recall** against the pinned corpus — GitGalaxy ties or beats tree-sitter and
 ctags on function detection everywhere.
 
+**Function precision (2026-08-30):** dart was the last language below 100.0% validated function
+precision (9 discrepancies). Two were tree-sitter's own blind spot — redirecting factory
+constructors (`factory Foo.named(...) = Bar;`), a node type missing from the audit's ground-truth
+registry (`why_gitgalaxy_beats_ast_here.md` Claim 5). The other seven were genuine `func_start`
+over-reach: an expression on a continuation line (`x?.foo(a) ??\n Type.method(b)`) reading as
+`<return type> <name>(`, plus the dart keywords `in` / `on` leaking through the return-type token
+loop. Fixed via a detector-side expression-position guard + keyword exclusions. **Every
+tree-sitter-comparable language is now at 100.0% on both function recall and validated function
+precision.**
+
 | Language | Source form GitGalaxy missed | Issue | Fixed |
 |---|---|---|---|
 | shell | a control-flow keyword (`for`/`if`/…) as a plain unquoted argument word desyncs Mode-D (`echo … limit for $x …` → `t_[Truncated]`) | [#2459](https://github.com/squid-protocol/gitgalaxy/issues/2459) | ✅ command-position guard |

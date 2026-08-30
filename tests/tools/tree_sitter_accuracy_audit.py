@@ -560,6 +560,13 @@ NODE_MAPS = {
             "constructor_signature",
             "constant_constructor_signature",
             "factory_constructor_signature",
+            # #2470-followup: a REDIRECTING factory constructor (`factory Foo.named(...)
+            # = _NamedFoo;`) is its own node type, omitted here originally -- it's a
+            # real named callable declaration (GitGalaxy's func_start finds all of
+            # them), so leaving it out under-counted real_functions and turned
+            # GitGalaxy's correct finds into phantom `extra_functions`
+            # (flutter/navigator.dart's `_RestorationInformation.named` / `.anonymous`).
+            "redirecting_factory_constructor_signature",
             "getter_signature",
             "setter_signature",
             "operator_signature",
@@ -976,7 +983,16 @@ def _get_node_name(node: Any) -> Optional[str]:
             return None
         return name_node.text.decode("utf8")
 
-    if node.type in ("constructor_signature", "constant_constructor_signature", "factory_constructor_signature"):
+    if node.type in (
+        "constructor_signature",
+        "constant_constructor_signature",
+        "factory_constructor_signature",
+        # #2470-followup: `factory Foo.named(...) = _NamedFoo;` -- the redirect
+        # target is a `type_identifier` child (after `=`), never an `identifier`,
+        # so the direct-`identifier`-children join below yields exactly the
+        # declared name (`Foo.named`), matching what GitGalaxy's func_start emits.
+        "redirecting_factory_constructor_signature",
+    ):
         # #1569: checked first, ahead of the generic "name" field fast path below -- it would
         # otherwise intercept `constructor_signature` first (see next paragraph) and return only
         # the bare class name. Joins every direct "identifier"-typed child by "." instead
@@ -1599,6 +1615,9 @@ def _get_param_count(node: Any, lang: str = "") -> int:
         "operator_signature",
         "constant_constructor_signature",
         "factory_constructor_signature",
+        # #2470-followup: same `formal_parameter_list` -> `optional_formal_parameters`
+        # -> `formal_parameter` shape as the other factory-constructor node types.
+        "redirecting_factory_constructor_signature",
     ):
         # #1339: dart's `function_signature`/`method_signature` have no "parameters" field --
         # the param list is an untyped `formal_parameter_list` child wrapping "formal_parameter"

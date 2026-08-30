@@ -609,6 +609,19 @@ misdetected as function stubs, #1624 closure-literal-argument call sites misdete
 definitions, #1625 bodyless zero-prefix constructors not found) — none of those five are part of
 this claim either; they're real GitGalaxy defects to fix, not ground-truth artifacts.
 
+**2026-08-30 follow-up (same mechanism, different node type):** a *redirecting* factory
+constructor — `factory Foo.named(...) = _NamedFoo;`, dart's delegation shorthand — parses as its
+own `redirecting_factory_constructor_signature` node, a sibling of the already-registered
+`factory_constructor_signature`, and was likewise absent from `func_node_types`. GitGalaxy's
+`func_start` finds every one (its `factory` prefix and dotted-name capture don't care whether a
+body or a `= redirect` follows). Adding the node type + a `_get_node_name` branch (the redirect
+target is a `type_identifier` child after `=`, never an `identifier`, so the existing
+join-direct-`identifier`-children logic already yields the right `Foo.named`) moved
+`flutter/navigator.dart`'s `_RestorationInformation.named` / `.anonymous` from phantom
+`extra_functions` to paired real finds — the last two of dart's nine function-precision
+discrepancies, the other seven being genuine `func_start` over-reach fixed in the engine the same
+day. Dart function precision → **100.0%**.
+
 ## Where Claim 5 does NOT apply
 
 - This is specific to grammars that nest a function-like construct's identifying node *below* the

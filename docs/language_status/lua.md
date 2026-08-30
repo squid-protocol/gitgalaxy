@@ -60,16 +60,20 @@ tradeoff.
 
 ## 5. Known limitations (accepted / tracked)
 
-- **One residual recall miss** (skill step 2.6 recall audit, 2026-08-29 — func recall 99.7% →
-  **99.8%** after the fix below), filed as
-  [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461):
-  - `constructs.lua:105` — `local a; local function f(x) ... end`. **Fixed** (2026-08-29):
-    `func_start` / `function_opener` now also anchor after a bare `;` statement separator, not
-    only start-of-line.
-  - `literals.lua:80` — `local function lexerror (s, err)`, inside `test/literals.lua` (the Lua
-    suite's *lexer-torture fixture*, adversarial nested `[==[[===[[=[…]]=][====[…]` long
-    brackets that defeat `_LUA_LONG_BRACKET_RE`'s single-backref shielding). Only ever exercised
-    by this one fixture.
+- **Recall audit (skill step 2.6, 2026-08-29): func recall 99.7% → 100.0%.** Two real misses,
+  both fixed, both filed as [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461):
+  - `constructs.lua:105` — `local a; local function f(x) ... end`. **Fixed**: `func_start` /
+    `function_opener` now also anchor after a bare `;` statement separator, not only
+    start-of-line.
+  - `literals.lua:80` — `local function lexerror (s, err)` was erased before extraction.
+    `literals.lua` is the Lua suite's escape-sequence torture fixture; a line like
+    `t("[=[alo]]")` has a `[=[` **inside a string literal**, which the long-bracket shield
+    (`_LUA_LONG_BRACKET_RE`) matched as a real opener and scanned 87 lines for its `]=]`.
+    Separately, converting a quoted `"[[...]]"` test string to `""` collapsed it to four bare
+    quotes, which then read as a Python triple-quote and swallowed lines 48–114 (including
+    `lexerror`'s declaration). **Fixed** (also closes
+    [#2437](https://github.com/squid-protocol/gitgalaxy/issues/2437)): the long-bracket shield
+    now skips an opener that sits inside an unclosed single-line quote.
 - **`class_start` keeps one borderline hit** (`tracegc.lua:M` — `local M = {}` with
   `function M.start` / `function M.stop` / `return M`, a real module table). #2439's proto-table
   "tell" gate dropped the other 13 ALL_CAPS-data-table false positives; `M` is legitimately
@@ -128,22 +132,23 @@ across `cosmopolitan` (the Lua 5.4 test suite, heavily nested and adversarial by
 
 **Summary.** All **8** discrepancy shapes the tri-comparison tool flagged for Lua were
 investigated and marked `validated` in one pass (2026-08-29) via the
-`tri-comparison-ledger-sweep` skill. **Six** confirmed GitGalaxy engine defects were found and
-fixed across three PRs (#2441; the #2438/#2439/#2440 follow-up; then a `\z` string-continuation
-fix for #2437); the rest are tool-architecture differences or absences with no privileged ground
-truth. Cumulative effect, measured by `tree_sitter_accuracy_audit.py --lang lua`:
+`tri-comparison-ledger-sweep` skill. **Eight** confirmed GitGalaxy engine defects were found and
+fixed across four PRs (#2441; the #2438/#2439/#2440 follow-up; the `\z` string-continuation fix
+for #2437; then the step-2.6 recall-audit fixes for #2461 + the long-bracket-in-string guard that
+finally closes #2437); the rest are tool-architecture differences or absences with no privileged
+ground truth. Cumulative effect, measured by `tree_sitter_accuracy_audit.py --lang lua`:
 
-| Metric | Baseline | After #2441 | After #2438/9/40 | After #2437 |
-|---|---:|---:|---:|---:|
-| `found_functions` | 505 | 557 | 618 | **618** |
-| `extra_functions` (lower is better) | 12 | 7 | 1 | **0** |
-| `extra_classes` (lower is better) | 14 | 14 | 1 | **1** |
-| `args_exact_match` | 463 | 516 | 572 | **572** |
+| Metric | Baseline | After #2441 | After #2438/9/40 | After #2437 | After #2461 |
+|---|---:|---:|---:|---:|---:|
+| `found_functions` | 505 | 557 | 618 | 618 | **620** |
+| `extra_functions` (lower is better) | 12 | 7 | 1 | 0 | **0** |
+| `extra_classes` (lower is better) | 14 | 14 | 1 | 1 | **1** |
+| `args_exact_match` | 463 | 516 | 572 | 572 | **574** |
 
-Lua recall 81.5% → **99.7%**, function precision 97.7% → **100.0%**. Both golden masters were
+Lua recall 81.5% → **100.0%**, function precision 97.7% → **100.0%**. Both golden masters were
 re-blessed and `tests/tree_sitter_accuracy_baseline_lua.json` regenerated in each PR.
 
-### Confirmed engine defects (6, all fixed)
+### Confirmed engine defects (8, all fixed)
 
 Defects 1–2 landed in PR #2441; defects 3–5 in the #2438/#2439/#2440 follow-up; defect 6 in the
 `\z` fix for #2437.
@@ -268,10 +273,11 @@ shared reason." This is the common case per the skill's step 4 guidance.
   heuristic matched ALL_CAPS data tables.
 - [#2440](https://github.com/squid-protocol/gitgalaxy/issues/2440) — **fixed**: polyglot
   segmentation split a function at `<style>` / `<script>` inside a `[[ ]]` string.
-- [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461) — **fixed** (`;`-anchored
-  `func_start` / `function_opener`): `local function` not first on its line (`local a; local
-  function f(x)`). Residual: the `literals.lua` lexer-torture nested-bracket shielding gap (one
-  adversarial fixture only). Found by the step 2.6 recall audit — §5.
+- [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461) — **fixed**: `local function`
+  not first on its line (`;`-anchored `func_start` / `function_opener`), **and**
+  `literals.lua`'s `lexerror` (a `[=[` inside a string literal wrongly triggered the long-bracket
+  shield). Also closes [#2437](https://github.com/squid-protocol/gitgalaxy/issues/2437). Lua func
+  recall now 100.0%. Found by the step 2.6 recall audit — §5.
 
 ### Full record
 

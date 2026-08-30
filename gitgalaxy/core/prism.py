@@ -687,6 +687,29 @@ class Prism:
 
     _LUA_LONG_BRACKET_RE = re.compile(r"(?:--)?\[(=*)\[.*?\]\1\]", re.DOTALL)
 
+    @staticmethod
+    def _lua_lb_opener_in_string(text: str, opener_start: int) -> bool:
+        """#2437: a `[[` / `[=[` inside a single-line `"..."` / `'...'` string
+        literal (`t("[=[alo]]")`, `"[[\\n...]]"` escape-test data) is string
+        content, not a real long-bracket opener -- blanking it would corrupt the
+        enclosing real string. Detected via an unclosed quote in the line
+        prefix."""
+        seg = text[text.rfind("\n", 0, opener_start) + 1 : opener_start]
+        in_q: Optional[str] = None
+        i = 0
+        while i < len(seg):
+            c = seg[i]
+            if c == "\\":
+                i += 2
+                continue
+            if in_q is not None:
+                if c == in_q:
+                    in_q = None
+            elif c in ('"', "'"):
+                in_q = c
+            i += 1
+        return in_q is not None
+
     def _mask_lua_long_brackets(self, text: str) -> str:
         """Blanks Lua long-bracket literals -- strings `[[ ... ]]` / `[=[ ... ]=]`
         and long comments `--[[ ... ]]` -- to same-length filler, preserving every
@@ -697,6 +720,8 @@ class Prism:
         (#2440)."""
 
         def _repl(m: "re.Match[str]") -> str:
+            if self._lua_lb_opener_in_string(m.string, m.start()):
+                return m.group(0)
             return "".join("\n" if ch == "\n" else " " for ch in m.group(0))
 
         return self._LUA_LONG_BRACKET_RE.sub(_repl, text)

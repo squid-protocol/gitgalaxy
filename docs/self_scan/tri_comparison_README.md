@@ -87,16 +87,17 @@ step 8 capstone is not done until its list is empty of unassessed entries.
 
 <!-- RECALL_AUDIT:BEGIN -->
 As of the 2026-08-29 full sweep (`recall_audit.py` over all 31 tree-sitter-comparable languages),
-GitGalaxy's genuine cross-corpus function recall is ~99.95%. The five real recall gaps the sweep
-found have since been fixed (leaving only the narrow residuals in the last column):
+the five real recall gaps it found are all fixed and **every tree-sitter-comparable language now
+has 100.0% function recall** against the pinned corpus — GitGalaxy ties or beats tree-sitter and
+ctags on function detection everywhere.
 
-| Language | Source form GitGalaxy missed | Issue | Fixed | Residual |
-|---|---|---|---|---|
-| shell | a control-flow keyword (`for`/`if`/…) as a plain unquoted argument word desyncs Mode-D (`echo … limit for $x …` → `t_[Truncated]`) | [#2459](https://github.com/squid-protocol/gitgalaxy/issues/2459) | ✅ command-position guard | — |
-| cpp / c | return type supplied by a SAL / entry-point macro — `__control_entrypoint(x) STDAPI Foo()` | [#2460](https://github.com/squid-protocol/gitgalaxy/issues/2460) | ✅ macro-prefix shield | — |
-| lua | a `local function` that is not the first statement on its line (`local a; local function f(x) … end`) | [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461) | ✅ `;`-anchored opener | — |
-| dart | multi-line arrow methods, `<T extends State<Widget>>` generic methods, bodyless default constructors (`_Foo();`) | [#2462](https://github.com/squid-protocol/gitgalaxy/issues/2462) | ✅ 8/9 occurrences | a method literally named `extension` (1 occ., semi-reserved word) |
-| typescript | object-literal method shorthand (`{ return: async () => … }`, AsyncIterator protocol) | [#2464](https://github.com/squid-protocol/gitgalaxy/issues/2464) | ✅ enclosing-container depth fix | bodyless overload signature with a `=>` inside its generic bound (1 occ.; the implementation line is captured) |
+| Language | Source form GitGalaxy missed | Issue | Fixed |
+|---|---|---|---|
+| shell | a control-flow keyword (`for`/`if`/…) as a plain unquoted argument word desyncs Mode-D (`echo … limit for $x …` → `t_[Truncated]`) | [#2459](https://github.com/squid-protocol/gitgalaxy/issues/2459) | ✅ command-position guard |
+| cpp / c | return type supplied by a SAL / entry-point macro — `__control_entrypoint(x) STDAPI Foo()` | [#2460](https://github.com/squid-protocol/gitgalaxy/issues/2460) | ✅ macro-prefix shield |
+| lua | (a) a `local function` not first on its line; (b) `local function lexerror` erased because a `[[`/`[=[` inside a string literal (`t("[=[alo]]")`) triggered the long-bracket shield, collapsing the real string to `""""` → phantom triple-quote swallowing 60+ lines | [#2461](https://github.com/squid-protocol/gitgalaxy/issues/2461) / [#2437](https://github.com/squid-protocol/gitgalaxy/issues/2437) | ✅ `;`-anchored opener + string-context guard on the long-bracket shield |
+| dart | multi-line arrow methods, `<T extends State<Widget>>` generic methods, bodyless default constructors (`_Foo();`), a method literally named `extension` | [#2462](https://github.com/squid-protocol/gitgalaxy/issues/2462) | ✅ all 9 occurrences |
+| typescript | object-literal method shorthand (`{ return: async () => … }`); `x = () => null` conditional-reassignment; bodyless overload signature with `=>` in its generic bound (`createInstance<Ctor extends new (...) => unknown>`) | [#2464](https://github.com/squid-protocol/gitgalaxy/issues/2464) | ✅ enclosing-container depth fix + `=>`-tolerant generic step-over + value-context body allowance |
 
 Every other `tree-sitter-finds / GitGalaxy-misses` occurrence `recall_audit.py` prints was
 individually assessed and is a comparison/audit-tool artifact — `#if 0` dead code (tree-sitter

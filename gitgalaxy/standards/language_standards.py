@@ -39,7 +39,7 @@ for the same metrics tracked over time across pushes to main.
 | Cpp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Csharp | 100.0% | 100.0% | 100.0% | 100.0% |
 | Css | 100.0% | 100.0% | N/A | N/A |
-| Dart | 99.9% | 99.5% | 100.0% | 100.0% |
+| Dart | 100.0% | 99.5% | 100.0% | 100.0% |
 | Fortran | 100.0% | 100.0% | 100.0% | 100.0% |
 | Go | 100.0% | 100.0% | 100.0% | 100.0% |
 | Groovy | N/A | N/A | N/A | N/A |
@@ -48,7 +48,7 @@ for the same metrics tracked over time across pushes to main.
 | Java | 100.0% | 100.0% | 100.0% | 100.0% |
 | Javascript | 100.0% | 98.0% | 100.0% | 100.0% |
 | Kotlin | 100.0% | 100.0% | 100.0% | 100.0% |
-| Lua | 99.8% | 100.0% | N/A | 0.0% |
+| Lua | 100.0% | 100.0% | N/A | 0.0% |
 | Makefile | 100.0% | 100.0% | N/A | N/A |
 | Matlab | 100.0% | 100.0% | N/A | N/A |
 | Objective-C | 100.0% | 99.4% | 100.0% | 100.0% |
@@ -63,7 +63,7 @@ for the same metrics tracked over time across pushes to main.
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 100.0% | 99.2% | 100.0% | 100.0% |
 | Tcl | 100.0% | 99.3% | N/A | N/A |
-| Typescript | 99.9% | 100.0% | 100.0% | 100.0% |
+| Typescript | 100.0% | 100.0% | 100.0% | 100.0% |
 | Zig | 100.0% | 100.0% | 100.0% | 100.0% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->
 """
@@ -1196,7 +1196,15 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # never start a return-type annotation, so this can't collide
                 # with the function-TYPE-signature case the rest of this
                 # alternation is busy disambiguating against.
-                r"(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?:[^=;{()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
+                # #2464: in the `IDENT = arrow` (assignment) shape, the arrow's
+                # body is always a VALUE, never a type annotation -- so `undefined`
+                # / `null` (both legal bare-value bodies, `x = () => null`, common
+                # in conditional-reassignment blocks) are NOT blacklisted here,
+                # unlike the `:`-annotated branch below where they can be a real
+                # member-signature return type. The type keywords (`void`,
+                # `string`, ...) stay excluded: they are never valid bare arrow
+                # bodies in JS/TS in either context.
+                r"(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?:[^=;{()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint)\b)[a-z_][\w$]*)))|"
                 r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:<(?:[^<>]|<[^<>]*>)*>\s*)?(?:function(?:\s*\*)?\b|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)(?:[^=;{()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)|[a-zA-Z_$][\w$]*[ \t\n]*=>[ \t\n]*(?:[{<]|\(|!|$|[a-zA-Z_$][\w$]*(?=[ \t\n]*\()|(?!(?:void|string|number|boolean|any|unknown|never|object|symbol|bigint|undefined|null)\b)[a-z_][\w$]*)))|"
                 # #1221: the trailing lookahead used to be just
                 # `(?=[ \t\n]{0,50}(?:<...>)?[ \t\n]{0,50}\()` -- proof a
@@ -1371,7 +1379,18 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # the others, so `constructor` is added to this branch's own
                 # exclusion list (it's handled by its own alternative above)
                 # alongside the catch/return/throw conditional exclusion.
-                r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void|constructor)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
+                # #2464: the generic step-over here is `=>`-tolerant (`=>` and a
+                # lone `=` are explicit tokens, `>` closes only when not part of
+                # `=>`) so a bodyless overload signature whose type-parameter list
+                # itself contains a function type -- `createInstance<Ctor extends
+                # new (...args: any[]) => unknown, R extends InstanceType<Ctor>>
+                # (...): R;` (vscode/instantiationService.ts:117) -- is matched
+                # rather than truncated at the `>` of `=>`. Alternatives stay
+                # mutually exclusive on their first char (`=>` vs `=(?!>)` vs
+                # `[^<>=]` vs `<`), so still linear (Rule 11). The mandatory
+                # `:Type;` / `{` terminator below keeps a bare generic call
+                # statement (`useCallback<() => void>(cb);`) from matching.
+                r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void|constructor)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:=>|=(?!>)|[^<>=]|<(?:=>|=(?!>)|[^<>=])*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
                 r")",
                 re.M,
             ),
@@ -9731,9 +9750,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"^[ \t]*(?!(?:implements|with|extends)\b)(?:@[a-zA-Z_$][\w$]*\b(?:\([^)]*\))?[ \t\n]*){0,5}"
                 r"(?:"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){1,5}"
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+))?"
-                r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getA>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 # #2462: one level of generic-argument nesting in the method's
                 # own type-parameter list (`foo<T extends State<StatefulWidget>>()`)
@@ -9742,9 +9761,9 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\(|=>|\{|(?(getA);|(?!))))"
                 r"|"
                 r"(?:(?:static|external|abstract|covariant|late)[ \t\n]+){0,5}"
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
                 r"(?:(?!\?[ \t\n]+(?:get|set|factory|[a-zA-Z_]))(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,4}?(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+(?<!,)[ \t\n]+)))"
-                r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getB>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\(|=>|\{|(?(getB);|(?!))))"
                 r"|"
@@ -9787,13 +9806,13 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
                 # rejects a parameter list that opens with `:` (only valid in Dart's
                 # object-destructuring patterns, e.g. `StatefulElement(:final T
                 # state) => state,` -- never a real parameter list).
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-                r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:(?:(?P<getC>get)|set|factory|const)[ \t\n]+)?((?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*|operator[ \t\n]+[^\s\w]+)"
                 r"(?=[ \t\n]*(?:<(?:[^<>]|<[^<>]*>)*>[ \t\n]*)?(?:\((?!\s*:)(?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]*(?:async\*?|sync\*)?[ \t\n]*(?:=>|\{|:)|(?(getC)=>|(?!))|\{))"
                 r"|"
-                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
-                r"(?!(?:class|mixin|enum|extension|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
+                r"(?!(?:(?:(?:[\w<>\[\],.?]|\((?:[^()]|\([^()]*\))*\))+[ \t\n]+){0,5}?)(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\())\b)"
+                r"(?!(?:class|mixin|enum|extension(?![ \t\n]*[(<])|typedef|implements|with|if|for|while|switch|catch|try|finally|case|when|assert|return|throw|new|var|final|const(?![ \t\n]+(?:[a-zA-Z_]\w*\.)?[a-zA-Z_]\w*[ \t\n]*(?:<[^>]*>[ \t\n]*)?\()|Function)\b)"
                 r"(?:const[ \t\n]+)?(_?[A-Z]\w*(?:\.[a-zA-Z_]\w*)?)"
                 # #2308 item 2 / #2462: this alternative originally required
                 # `this.`/`super.` inside the parens. A bodyless DEFAULT/named

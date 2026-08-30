@@ -515,8 +515,41 @@ _CLASS_START_REQUIRES_BODY_ANCHOR = frozenset({"c", "cpp"})
 _LUA_LONG_BRACKET_RE = re.compile(r"(?:--)?\[(=*)\[.*?\]\1\]", re.DOTALL)
 
 
+def _lua_lb_opener_in_string(text: str, opener_start: int) -> bool:
+    """#2437: a `[[` / `[=[` that sits inside a single-line `"..."` / `'...'`
+    string literal is string DATA, not a real long-bracket opener --
+    `lexerror("[=[alo]]", ...)` and bracket-shaped escape-test data in the Lua
+    test suite (`literals.lua`). Blanking it corrupts the surrounding real
+    string (a quoted `[[...]]` collapses to four bare quotes, which then read
+    as a Python triple quote and swallow dozens of following lines, including
+    real `local function` declarations). Detected by scanning the line prefix
+    for an unclosed quote."""
+    line_start = text.rfind("\n", 0, opener_start) + 1
+    seg = text[line_start:opener_start]
+    in_q: Optional[str] = None
+    i = 0
+    while i < len(seg):
+        c = seg[i]
+        if c == "\\":
+            i += 2
+            continue
+        if in_q is not None:
+            if c == in_q:
+                in_q = None
+        elif c in ('"', "'"):
+            in_q = c
+        i += 1
+    return in_q is not None
+
+
+def _lua_long_bracket_blank(m: "re.Match[str]") -> str:
+    if _lua_lb_opener_in_string(m.string, m.start()):
+        return m.group(0)
+    return "".join("\n" if ch == "\n" else " " for ch in m.group(0))
+
+
 def _mask_lua_long_brackets(text: str) -> str:
-    return _LUA_LONG_BRACKET_RE.sub(lambda m: "".join("\n" if ch == "\n" else " " for ch in m.group(0)), text)
+    return _LUA_LONG_BRACKET_RE.sub(_lua_long_bracket_blank, text)
 
 
 # #2011: cpp needs its own body-anchor check, not C's flat "stop at the first {/;/,/)/="
@@ -2018,7 +2051,11 @@ class StructuralExtractor:
             # perturb `atomic_string_pattern`'s own group numbering.
             text = re.sub(
                 r"(?:--)?\[(=*)\[.*?\]\1\]",
-                lambda m: '""' + "\n" * m.group(0).count("\n"),
+                lambda m: (
+                    m.group(0)
+                    if _lua_lb_opener_in_string(m.string, m.start())
+                    else '""' + "\n" * m.group(0).count("\n")
+                ),
                 text,
                 flags=re.DOTALL,
             )

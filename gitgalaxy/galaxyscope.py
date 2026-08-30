@@ -839,6 +839,15 @@ class Orchestrator:
         self.MICRO_MASS_BYTES = 50
         self.MICRO_MASS_GRACE_LIMIT = 15
         self.neighborhood_tracker: defaultdict[str, int] = defaultdict(int)
+        # Extensions exempt from the quota: real files that are legitimately tiny AND
+        # legitimately come in directories with many of them -- COBOL copybooks/JCL job
+        # files, and (2026-08-30, sqlite tri-comparison validation) SQL DDL/DML. Confirmed
+        # case: Prisma's typed-SQL convention (one bare query per file, language-crucible's
+        # prisma_typed_sql/) puts 16 real, distinct queries at 42-49 bytes each in one
+        # directory -- the 16th (past MICRO_MASS_GRACE_LIMIT) was silently dropped from
+        # file_data with no trace but an Excluded Artifacts line, never reaching prism/
+        # detector at all (#2512).
+        self.MICRO_MASS_EXEMPT_EXTENSIONS = frozenset({".cpy", ".cbl", ".cob", ".jcl", ".sql", ".ddl", ".dml"})
 
         self.splicing_telemetry = {
             "top_slowest": [],
@@ -1469,9 +1478,14 @@ class Orchestrator:
             # Process the results synchronously to prevent race conditions on state maps
             for rel_path, path_obj, is_valid, size_bytes, reason in inspections:
                 # ---> NEW: THE NEIGHBORHOOD MICRO-MASS QUOTA <---
-                # Exempt mainframe files (COBOL/JCL) from being flagged as micro-debris
+                # Exempt legitimately-tiny-and-legitimately-numerous file kinds (see
+                # MICRO_MASS_EXEMPT_EXTENSIONS above) from being flagged as micro-debris.
                 safe_ext = path_obj.suffix.lower()
-                if is_valid and size_bytes < self.MICRO_MASS_BYTES and safe_ext not in {".cpy", ".cbl", ".cob", ".jcl"}:
+                if (
+                    is_valid
+                    and size_bytes < self.MICRO_MASS_BYTES
+                    and safe_ext not in self.MICRO_MASS_EXEMPT_EXTENSIONS
+                ):
                     dir_path = str(path_obj.parent)
                     self.neighborhood_tracker[dir_path] += 1
 
@@ -1526,9 +1540,14 @@ class Orchestrator:
                 is_valid, size_bytes, reason = self.filter.evaluate_path_integrity(full_p)
 
                 # ---> NEW: THE NEIGHBORHOOD MICRO-MASS QUOTA <---
-                # Exempt mainframe files (COBOL/JCL) from being flagged as micro-debris
+                # Exempt legitimately-tiny-and-legitimately-numerous file kinds (see
+                # MICRO_MASS_EXEMPT_EXTENSIONS above) from being flagged as micro-debris.
                 safe_ext = full_p.suffix.lower()
-                if is_valid and size_bytes < self.MICRO_MASS_BYTES and safe_ext not in {".cpy", ".cbl", ".cob", ".jcl"}:
+                if (
+                    is_valid
+                    and size_bytes < self.MICRO_MASS_BYTES
+                    and safe_ext not in self.MICRO_MASS_EXEMPT_EXTENSIONS
+                ):
                     dir_path = str(full_p.parent.relative_to(self.root))
                     self.neighborhood_tracker[dir_path] += 1
                     if self.neighborhood_tracker[dir_path] > self.MICRO_MASS_GRACE_LIMIT:

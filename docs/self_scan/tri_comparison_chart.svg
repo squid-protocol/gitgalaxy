@@ -1084,22 +1084,22 @@
 <text class="lang-label" x="20" y="1859.5">sqlite</text>
 <rect class="bar-track" x="154" y="1839" width="88" height="34" rx="2"/>
 <rect x="154" y="1839" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1847">262</text>
+<text class="bar-value-label" x="198.0" y="1847">734</text>
 <rect x="154" y="1851" width="2.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="1859">0</text>
 <rect class="bar-track" x="286" y="1839" width="88" height="34" rx="2"/>
 <rect x="286" y="1839" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1847">262/262</text>
+<text class="bar-value-label" x="330.0" y="1847">734/734</text>
 <rect class="bar-track" x="418" y="1839" width="88" height="34" rx="2"/>
 <rect x="418" y="1839" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="462.0" y="1847">73</text>
-<rect x="418" y="1851" width="79.6" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="1859">66</text>
+<text class="bar-value-label" x="462.0" y="1847">188</text>
+<rect x="418" y="1851" width="85.7" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="462.0" y="1859">183</text>
 <rect class="bar-track" x="550" y="1839" width="88" height="34" rx="2"/>
 <rect x="550" y="1839" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="1847">73/73</text>
-<rect x="550" y="1851" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="594.0" y="1859">66/66</text>
+<text class="bar-value-label" x="594.0" y="1847">188/188</text>
+<rect x="550" y="1851" width="87.0" height="10" rx="2" fill="#1baf7a"/>
+<text class="bar-value-label" x="594.0" y="1859">181/183</text>
 <circle cx="654.0" cy="1856.0" r="8" fill="#2a78d6"/>
 <text class="badge-label" x="654.0" y="1859.0">G</text>
 <rect class="bar-track" x="682" y="1839" width="88" height="34" rx="2"/>

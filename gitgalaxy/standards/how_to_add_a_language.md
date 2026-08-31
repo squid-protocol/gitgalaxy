@@ -443,3 +443,20 @@ pattern, and a one-line INCLUDES description, listed under a new `### <Name> Ext
 heading naming which languages carry it. Keep extension keys out of the baseline schema above —
 that schema is the one every language is expected to implement to Strict Feature Parity (Rule
 4); extension packs are deliberately the exception, not the rule.
+## After the language lands: the control-corpus folder (keyword-rosetta)
+
+Every language in `LANGUAGE_DEFINITIONS` has a matching control folder in
+[keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) (built for issue #1096):
+the same 12-probe program shell expressed in that language, planted with exactly known
+signal-keyword counts and gated end-to-end by that repo's `tools/verify_language.py`. It is
+the project's cross-language measurement-consistency instrument — the gitgalaxy README's
+bias-variance chart regenerates from it.
+
+Adding a new language here without authoring its control folder there reopens the blind spot
+that corpus exists to close, so treat the folder as part of the language addition, not an
+optional follow-up. Author it per that repo's
+[`SPEC.md`](https://github.com/squid-protocol/keyword-rosetta/blob/main/SPEC.md) (canonical
+shell + decoy rules + workflow) and
+[`docs/GATING.md`](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/GATING.md)
+(deviation-ledger lifecycle); its CI runs the verifier on any changed `data/` folder. Corpus
+integration on the gitgalaxy side (pinned-tag CI gate) is tracked in #2557.

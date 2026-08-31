@@ -44,71 +44,74 @@ Use this doc every time you touch README.md, not just on a dedicated cleanup pas
    adoption numbers before enterprise/licensing. A skeptical engineer reads in that order —
    the README should match.
 
-## Section order (current target state, as of the 2026-08-22 rewrite)
+## Section order (current target state, as of the 2026-08-31 product-first restructure)
 
-1. Title + one-line tagline ("Repository-scale structural intelligence without
-   compilation.") + the Docs/Visualizer/Language Crucible/Raw Output link line. **No badges
-   currently** — License, PyPI version, Python version, and Dependencies badges all existed
-   before this rewrite and were dropped along with it; restoring any of them (each still has
-   a real link behind it, so each would pass rule 1) is an open gap, not a considered removal.
-2. Proof strip — currently `1 scan · 97 structural signals · 50+ languages · no compilation ·
-   19 risk-exposure categories · 6 outputs`. This dropped the dependency-count claim
-   entirely; cross-check against `docs/readme_evidence_roadmap.md`'s PyYAML row before
-   deciding whether to add "0 dependencies" back — that claim was shipped and true as of
-   #1104, so its absence here is a regression, not a status change.
-3. **The short version** — plain-terms description, the "same graph feeds N consumers"
-   bullet list, and a blockquoted central-thesis line. No BLAST/genomics analogy anywhere in
-   the current draft (the whole brand-metaphor vocabulary rule-2 exists for is currently
-   unused) — reintroducing it is fine as long as rule 2 still holds once it's back.
-4. **The problem** — ASCII-diagrammed statement of the trade GitGalaxy makes. This replaced
-   "What Pain Point Does This Solve?"'s bulleted, externally-motivated framing (see that
-   section's git history for why it existed — a first-time visitor couldn't tell within a
-   minute whether this competes with CodeQL/Semgrep/SonarQube). The explicit "this is not X"
-   disambiguation that used to live here now only exists later, folded into "What GitGalaxy is
-   — and isn't" (item 13) — confirm that's still reachable early enough for a skeptical
-   first-time reader before treating this as settled.
-5. **One graph, many consumers** — consumer/question table + the architecture pipeline
-   diagram (`docs/wiki/assets/sankey_v4.3.1.png`).
-6. **The structural-extraction thesis** — the ~97 structural-signal-category list + the
-   testable-hypothesis blockquote.
-7. **Structural validation: GitGalaxy vs Tree-sitter vs Ctags** — the tri-comparison
-   methodology, current coverage numbers (languages with 3/2/0 comparator tools, ledger
-   validation count), and the "what the benchmark is/isn't asking" + "languages without
-   comparator coverage" subsections. Anchor slug
-   `#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags` is now a link target from later
-   sections — keep it stable.
-8. **Validation is a ladder** — new in this rewrite, no prior equivalent. Six escalating
-   validity levels (structural → regression → scale → model → temporal → external). This is a
-   genuinely stronger evidence framework than what existed before the rewrite; keep it even if
-   other sections get walked back toward the pre-rewrite structure.
-9. **Risk exposure: what GitGalaxy claims** (tone-bar section #1 — do not rewrite its prose,
-   only relocate it if needed; see the intro note above on why the name changed).
-10. **The next validation: risk over Git history** — forward-looking research section
-    (git-history-as-validation-source experiment design). New in this rewrite.
-11. **Evidence, not just claims** (tone-bar section #2). Every bullet under it should name a
-    real, current number — "Regression suite" in particular must cite the actual collected
-    test count (`python -m pytest tests/ --collect-only -q`), not a vague "thousands"; numbers
-    drift as the suite grows, so re-verify rather than copying forward.
-12. **What GitGalaxy is — and isn't** — is/is-not bullet lists + the tool-comparison table.
-    This is the section that now carries what "How This Compares, Architecturally" used to
-    carry (comparator table vs. Tree-sitter/Ctags/Semgrep/CodeQL/SCA tools); no longer at a
-    stable, separately-named anchor, so re-check any old link pointing at
-    `#how-this-compares-architecturally` — it no longer resolves here.
-13. **Real-world scale** — the Kubernetes benchmark bullet. Needs a rule-4 limitation clause
-    (currently missing — see rule 4 above).
-14. **Outputs** — SARIF/SBOM/SQLite/LLM-brief/JSON/3D-viz table.
-15. **Git history and architecture** — churn/bus-factor/hotspot signals, framed as feeding the
-    Git-history validation direction (item 10).
-16. **Privacy and deployment** — one section, not two. If a future edit reintroduces a second
-    privacy section (it has happened once already, pre-rewrite — "Data Privacy & On-Premise
-    Deployment" and "Zero-Trust Data Security" said the same three things in two places),
-    merge them back.
-17. **Installation** (+ CI/CD subsection).
-18. **Explore the evidence** — link table to Docs/Language Crucible/Raw Output/tests/README.md
-    /ledger/manual-verification/how-to-investigate/Visualizer. This is currently the only place
-    the Visualizer gets a dedicated mention — it no longer has its own section.
-19. **Current research direction** — closing sequence-of-questions narrative + what's next.
-20. **License.**
+The 2026-08-31 restructure split the README in two: `README.md` leads with the product
+(what a scan gives you, shown with real report excerpts), and the long proof narrative —
+the structural-extraction thesis, the full tri-comparison section with its subsections,
+the validity ladder, the risk-over-Git-history experiment, and the closing research
+direction — moved intact to `docs/validation.md`. Edit proof prose there, not by
+reintroducing it into README.md. The README keeps a condensed "Accuracy, measured"
+summary with both charts and per-claim limitation clauses.
+
+1. Title + one-line tagline + the Docs/Visualizer/Language Crucible/Keyword
+   Rosetta/Raw Output link line. **No badges currently** — License, PyPI version, Python
+   version, and Dependencies badges all existed before the 2026-08-22 rewrite and were
+   dropped with it; restoring any of them (each still has a real link behind it, so each
+   would pass rule 1) is an open gap, not a considered removal.
+2. Proof strip — `1 scan · 97 structural signals · 50+ languages · no compilation ·
+   19 risk-exposure categories · 6 outputs`. Still missing the "0 dependencies" claim
+   (shipped and true as of #1104) — its absence remains a regression, not a status change.
+3. **The short version** — plain-terms description folding in the old "The problem"
+   polyglot code block, the consumer list as prose, the blockquoted central-thesis line,
+   and a forward link to `docs/validation.md`.
+4. **What a scan gives you** — the product section (new 2026-08-31): install/run command,
+   the six-outputs table (absorbing the old standalone "Outputs" section), and "The
+   architecture brief" showcase with two dated, reproducible scan excerpts (curl,
+   cics-genapp), each carrying its own rule-4 limitation clause. Excerpt numbers are
+   point-in-time by design — they name their scan date and the engine that produced them;
+   refresh the excerpts (rerun `galaxyscope --llm-only` on the same public repos) rather
+   than letting undated numbers drift. Ends with the "One graph, many consumers"
+   consumer/question table + the sankey pipeline diagram.
+5. **Accuracy, measured** — condensed two-part proof summary. Subsection headings
+   "Structural validation: GitGalaxy vs Tree-sitter vs Ctags" (keeps the old
+   `#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags` anchor resolving — do not
+   rename it) and "Cross-language consistency: the Keyword Rosetta control corpus". Chart
+   order is deliberate: tri-comparison SVG (accuracy on real code) before the
+   keyword-rosetta bias-variance SVG (consistency on planted code, embedded from that
+   repo's raw main-branch URL so it self-updates). Each subsection states one limitation
+   and links to `docs/validation.md` for the full treatment. Proof sits before the
+   speed benchmark on purpose (rule 5) — don't float "Real-world scale" back above it.
+6. **Real-world scale** — Kubernetes benchmark + the fitted two-regime speed model as its
+   rule-4 limitation clause (the clause rule 4 previously flagged as missing — now
+   present; keep it) + the self-updating loc_vs_time chart.
+7. **Risk exposure: what GitGalaxy claims** (tone-bar section #1 — do not rewrite its
+   prose, only relocate it if needed; see the intro note above on why the name changed).
+8. **Evidence, not just claims** (tone-bar section #2). Every bullet under it should name
+   a real, current number — "Regression suite" in particular must cite the actual
+   collected test count (`python -m pytest tests/ --collect-only -q`), not a vague
+   "thousands"; numbers drift as the suite grows, so re-verify rather than copying
+   forward. Now includes a "Keyword Rosetta control corpus" bullet alongside the
+   tri-comparison one.
+9. **What GitGalaxy is — and isn't** — is/is-not bullet lists + the tool-comparison table
+   (carries what "How This Compares, Architecturally" used to; the old
+   `#how-this-compares-architecturally` anchor still doesn't resolve anywhere).
+10. **Git history and architecture** — churn/bus-factor/hotspot signals as a short
+    paragraph, linking to the validation doc's Git-history experiment.
+11. **Privacy and deployment** — one section, not two. If a future edit reintroduces a
+    second privacy section (it has happened once already, pre-rewrite), merge them back.
+12. **Installation** (+ CI/CD subsection).
+13. **Explore the evidence** — link table; now includes `docs/validation.md` and Keyword
+    Rosetta rows. Still the only place the Visualizer gets a dedicated mention.
+14. **License.**
+
+**Sections moved to `docs/validation.md` on 2026-08-31 (not cut):** "The
+structural-extraction thesis," the full "Structural validation" section with its "what
+the benchmark is asking" and "languages without comparator coverage" subsections,
+"Validation is a ladder" (now seven rungs — a "Measurement consistency" rung for the
+control corpus was added between structural and regression validity), "The next
+validation: risk over Git history," and "Current research direction." The five rules
+apply to that file exactly as they do to README.md.
 
 **Sections present before the 2026-08-22 rewrite and currently absent:** badges (item 1
 above), "Weakness Classes, Not Just CVEs," "Real-World Adoption" (stars/downloads, deliberately

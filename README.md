@@ -3,9 +3,10 @@
 **Repository-scale structural intelligence without compilation.**
 
 [Docs](https://squid-protocol.github.io/gitgalaxy/) ·
-[Visualizer](https://gitgalaxy.io/) · [Language
-Crucible](https://github.com/squid-protocol/language-crucible) · [Raw
-Output](https://github.com/squid-protocol/gitgalaxy-raw-output)
+[Visualizer](https://gitgalaxy.io/) ·
+[Language Crucible](https://github.com/squid-protocol/language-crucible) ·
+[Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) ·
+[Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output)
 
 **1 scan · 97 structural signals · 50+ languages · no compilation · 19
 risk-exposure categories · 6 outputs**
@@ -13,37 +14,10 @@ risk-exposure categories · 6 outputs**
 ## The short version
 
 GitGalaxy builds a **language-agnostic structural graph of an entire
-repository** directly from source text.
+repository** directly from source text — no build, no per-language toolchain.
 
-It is designed for repositories that are polyglot, partially broken,
-legacy, vendor-heavy, or otherwise difficult to analyze through a
-build-first workflow.
-
-Instead of requiring a successful build and a separate parser/toolchain
-for every language, GitGalaxy extracts a common vocabulary of
-**structural signatures**---functions, classes, arguments, control flow,
-state mutation, I/O, APIs, dependencies, and other signals---and
-normalizes those observations into one repository model.
-
-The same graph can then feed:
-
--   architecture analysis
--   risk-exposure prioritization
--   dependency/SBOM analysis
--   refactoring and ownership analysis
--   legacy-code analysis
--   AI-oriented codebase context
--   CI/CD workflows
--   historical risk analysis
-
-> **Central thesis:** complete language parsing is not always necessary
-> to recover highly useful structural information at repository scale.
-
-------------------------------------------------------------------------
-
-## The problem
-
-Large repositories routinely contain:
+It is designed for repositories that are polyglot, partially broken, legacy,
+vendor-heavy, or otherwise difficult to analyze through a build-first workflow:
 
 ``` text
 Go + C++ + Python + Java + Bash + YAML
@@ -51,292 +25,174 @@ Go + C++ + Python + Java + Bash + YAML
 + half-migrated modules + broken dependencies
 ```
 
-Traditional language tooling can be excellent within its intended scope
-while still leaving the repository fragmented across language-specific
-representations.
+Instead of a separate parser per language, GitGalaxy extracts a common
+vocabulary of **structural signatures** — functions, classes, arguments,
+control flow, state mutation, I/O, APIs, dependencies — and normalizes them
+into one deterministic repository model that feeds architecture analysis,
+risk-exposure prioritization, SBOM generation, refactoring and ownership
+analysis, AI-oriented codebase context, and CI/CD gates.
 
-GitGalaxy makes a different trade:
+> **Central thesis:** complete language parsing is not always necessary to
+> recover highly useful structural information at repository scale.
 
-``` text
-Source repository
-       |
-       v
-Structural signatures
-       |
-       v
-Normalized entities + risk signals
-       |
-       v
-Deterministic repository graph
-       |
-       +---- Architecture
-       +---- Risk exposure
-       +---- Dependencies / SBOM
-       +---- AI context
-       +---- Refactoring
-       +---- Git-history analysis
-```
-
-The objective is **not** to reproduce every syntactic detail of every
-language.
-
-The objective is to recover the structural information downstream
-repository intelligence actually needs.
+How that thesis is tested — against Tree-sitter and Ctags, against a planted
+control corpus, and next against Git history — is summarized in
+[Accuracy, measured](#accuracy-measured) below and laid out in full in
+[the validation program](docs/validation.md).
 
 ------------------------------------------------------------------------
 
-## One graph, many consumers
+## What a scan gives you
 
-GitGalaxy's core output is a deterministic structural representation of
-the repository.
+One command:
 
-  -----------------------------------------------------------------------
-  Consumer                            Question
-  ----------------------------------- -----------------------------------
-  Architecture                        What is this repository made of?
+``` bash
+pip install gitgalaxy
+galaxyscope path/to/repo
+```
 
-  Structural analysis                 Where are the functions, classes,
-                                      APIs, dependencies and control
-                                      structures?
+Six coordinated views of the same deterministic scan:
 
-  Risk exposure                       Where are potentially important
-                                      risk patterns concentrated?
+| Output | Purpose |
+|---|---|
+| **LLM architecture brief** | Compact machine/agent-oriented context (below) |
+| **SARIF** | CI/security dashboard integration |
+| **CycloneDX SBOM** | Dependency inventory/compliance |
+| **SQLite** | Queryable repository knowledge graph |
+| **JSON audit data** | Forensic/automation workflows |
+| **3D visualization data** | Interactive repository topology |
 
-  Refactoring                         Which files are complex, high-churn
-                                      or load-bearing?
+### The architecture brief
 
-  Supply chain                        What dependencies physically exist
-                                      on disk?
+The flagship report is a single Markdown brief built to hand an engineer — or
+an AI agent — a working mental model of a repository they've never seen. It is
+a self-contained package: the risk equations are printed in the report itself,
+and an embedded interpretation prompt lets any LLM narrate it without
+hallucinating what the numbers mean. Sections cover macro state and language
+composition, network topology (modularity, articulation points, cyclic
+density), dependency choke points, the heaviest functions and files, per-file
+structural signatures with PageRank blast radius, targeted and cumulative risk
+hitlists, supply-chain audits, and refactoring targets ranked by volatility and
+authorship centralization — plus an itemized list of every file it *refused* to
+scan, and why.
 
-  AI context                          What architecture and relationships
-                                      should an agent know?
+Two examples, scanned 2026-08-31 with the current engine. Both repositories
+are public — clone either and run `galaxyscope --llm-only <path>` to reproduce
+the full brief:
 
-  Legacy migration                    Where are the structural units to
-                                      transform?
+**curl** — 4,250 artifacts, 696 scanned, 112,653 LOC across C, Perl, Python,
+Shell, M4 and Makefile. The brief ranks `src/tool_setup.h` as the top
+structural pillar (80 inbound connections) and puts a *Perl* function —
+`APPEND_imap` in `tests/ftpserver.pl`, Impact 2135, 1,672 LOC — at the top of
+the repo-wide function hitlist, in the same ranking as the C code. That
+cross-language graph is the product: one comparable signal set across every
+language in the repo. The honest caveat in the same brief: only 16.4% of
+artifacts were scanned — the ingestion filter drops binaries, generated code
+and test data aggressively, and §5 of the brief itemizes every exclusion by
+extension and reason.
 
-  Historical analysis                 How does measured exposure change
-                                      as the repository evolves?
-  -----------------------------------------------------------------------
+**cics-genapp** (IBM's CICS COBOL/DB2 sample) — 92.1% scanned: 44 COBOL
+programs, 29 JCL jobs. The cumulative-risk hitlist leads with
+`base/src/lgupdb01.cbl` (state flux ~100%, cognitive load 92%), and the
+heaviest paragraph in the repo is `UPDATE-POLICY-DB2-INFO` — the `SELECT FOR
+UPDATE` row-locking logic, which is exactly where a maintainer of that program
+would want to look first. The same brief also shows a limitation plainly: on a
+flat architecture with no real import graph, the "structural pillars" list
+degenerates to zero-connection files, and the report says to check the
+connection counts before trusting it.
+
+Hundreds of unedited briefs for independently selected repositories are
+committed at
+[gitgalaxy-raw-output](https://github.com/squid-protocol/gitgalaxy-raw-output);
+this repo's own always-current self-scan brief is at
+[`docs/gitgalaxy_architecture_brief.md`](docs/gitgalaxy_architecture_brief.md).
+
+### One graph, many consumers
+
+| Consumer | Question |
+|---|---|
+| Architecture | What is this repository made of? |
+| Structural analysis | Where are the functions, classes, APIs, dependencies and control structures? |
+| Risk exposure | Where are potentially important risk patterns concentrated? |
+| Refactoring | Which files are complex, high-churn or load-bearing? |
+| Supply chain | What dependencies physically exist on disk? |
+| AI context | What architecture and relationships should an agent know? |
+| Legacy migration | Where are the structural units to transform? |
+| Historical analysis | How does measured exposure change as the repository evolves? |
 
 ![GitGalaxy architecture pipeline](docs/wiki/assets/sankey_v4.3.1.png)
 
 ------------------------------------------------------------------------
 
-# The structural-extraction thesis
+## Accuracy, measured
 
-GitGalaxy deliberately does **not** begin by constructing a complete AST
-for every language.
+Two standing measurement programs back the claims above. The full narrative —
+methodology, verdicts, limits, and what comes next — lives in
+[the validation program](docs/validation.md); this is the summary.
 
-It uses approximately 97 structural-signal categories to identify things
-such as:
+### Structural validation: GitGalaxy vs Tree-sitter vs Ctags
 
--   function and method boundaries
--   classes and declarations
--   arguments
--   branches and control flow
--   state mutation
--   I/O
--   APIs and routes
--   imports and dependencies
--   unsafe operations
--   reflection and dynamic execution
--   concurrency
--   closures
--   globals
--   entropy and physical-file anomalies
-
-This creates a specific, testable hypothesis:
-
-> **For repository-scale intelligence, targeted structural extraction
-> can recover the entities required for useful code intelligence without
-> requiring a complete language parser for every file.**
-
-That hypothesis is being tested empirically.
-
-------------------------------------------------------------------------
-
-# Structural validation: GitGalaxy vs Tree-sitter vs Ctags
-
-This is currently one of the most important validation programs in the
-project.
-
-GitGalaxy is being evaluated against **Tree-sitter and Universal Ctags**
-on the same [Language Crucible](https://github.com/squid-protocol/language-crucible) corpus.
-
-The first structural targets are:
-
--   functions
--   classes
--   arguments
-
-The benchmark is deliberately **not** treated as a three-tool popularity
-contest.
-
-When tools disagree:
-
-1.  the disagreement is recorded;
-2.  the source is inspected;
-3.  each tool's behavior is investigated;
-4.  GitGalaxy is fixed when GitGalaxy is wrong;
-5.  comparator/adaptor code is fixed when the comparator is wrong;
-6.  genuine tool limitations are documented;
-7.  the result is re-measured.
-
-**24 of 45 languages get all three tools compared, 13 more get two, and
-5** (`abap`, `agc_assembly`, `dockerfile`, `jcl`, `livecode`) **use
-committed manual verification** — in whole, or for the `args` metric
-where no tool emits a signature — instead of cross-tool agreement. Of
-the 201 discrepancy shapes logged, **200 are validated (99.5%)** — read
-against real source, investigated, and recorded with a verdict, not just
-counted.
-
-**Current state (2026-08-30), on the pinned corpus:**
-
-- **Functions — precision:** 100.0% validated across all 31
-  tree-sitter-comparable languages. Once every three-way disagreement is
-  read and verdicted, every function GitGalaxy reports is a real
-  function.
-- **Functions — recall:** 100.0% for 30 of 31. Shell measures 99.8% — a
-  single nested function definition (inside an `if` guard) that
-  GitGalaxy's top-level-only shell extractor doesn't reach by design.
-  Every other apparent miss is a validated comparison-tool artifact
-  (both tools independently hallucinating the same macro, per-clause
-  tagging of one Haskell function, and so on).
-- **Classes:** GitGalaxy is never the tool found wrong in any class
-  disagreement — 100.0% validated recall and precision wherever a class
-  ground truth exists.
-- **Arguments:** GitGalaxy is never debited in any *validated* argument
-  disagreement either; each one resolves to tree-sitter or ctags
-  miscounting, or a language with no formal parameter list. One small
-  Objective-C shape is still unverified.
-
-This is a narrow benchmark: three structural targets, one fixed corpus,
-and several languages whose entity counts are small enough that a
-percentage means little. It is not "GitGalaxy parses as accurately as an
-AST" in general — it is "for the entities GitGalaxy's graph needs,
-targeted extraction recovers them as completely as established parsers,
-here." Real code outside the corpus will surface shapes it doesn't cover;
-the mandatory occurrence-level
-[recall audit](docs/self_scan/tri_comparison_README.md#the-recall-audit-is-gitgalaxy-missing-anything)
-is the standing process for the next one.
-
-See
-[the tri-comparison methodology doc](docs/self_scan/tri_comparison_README.md)
-for how matching, the ledger lifecycle, the recall audit, and CI
-enforcement work.
+GitGalaxy is benchmarked against **Tree-sitter and Universal Ctags** on the
+pinned [Language Crucible](https://github.com/squid-protocol/language-crucible)
+corpus — 24 of 45 languages get all three tools, 13 more get two, and every
+disagreement is investigated against real source and recorded with a verdict
+(200 of 201 logged discrepancy shapes validated). On that corpus, GitGalaxy's
+validated function precision is 100% across all 31 tree-sitter-comparable
+languages, and it is never the tool found wrong in a validated class or
+argument disagreement. The limit: three structural targets, one fixed corpus —
+not "parses as accurately as an AST" in general.
 
 ![Tri-comparison](docs/self_scan/tri_comparison_chart.svg)
 
-See:
+### Cross-language consistency: the Keyword Rosetta control corpus
 
--   [`tests/tools/tri_comparison_chart.py`](tests/tools/tri_comparison_chart.py)
--   [`docs/self_scan/tri_comparison_ledger.json`](docs/self_scan/tri_comparison_ledger.json)
-    — the full, per-shape validated record
--   [`docs/self_scan/tri_comparison_points_of_interest.md`](docs/self_scan/tri_comparison_points_of_interest.md)
-    — the same ledger, rendered and ranked by signal strength
--   [`docs/self_scan/how_to_investigate_a_discrepancy.md`](docs/self_scan/how_to_investigate_a_discrepancy.md)
--   [`docs/self_scan/manual_verification.json`](docs/self_scan/manual_verification.json)
+The newer program asks the opposite question: **does GitGalaxy measure
+identical intent identically in every language?** The
+[keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus
+plants the same 12-probe program in all 46 supported languages with exact known
+signal counts — so any divergence is measured language bias, by construction.
+Current answer: not yet. On average 75% of languages land within ±25% of the
+cross-language median per metric, but only 3 of 33 metrics pass the strict
+cross-language gate, and the weakest (`risk_cognitive_load`, at 15% of
+languages in band) are named in the chart rather than hidden. Each deviation is
+recorded in a validated ledger and the defect classes found this way are
+[filed as GitGalaxy issues](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md).
 
-### What the benchmark is actually asking
+![Cross-language variance chart](https://raw.githubusercontent.com/squid-protocol/keyword-rosetta/main/docs/bias_variance_chart.svg)
 
-Not:
-
-> "Is GitGalaxy a better parser than Tree-sitter?"
-
-But:
-
-> **"For the structural entities GitGalaxy needs to build its repository
-> graph, how accurately can targeted structural extraction recover them
-> compared with established parsing and indexing systems?"**
-
-That is the narrower claim the experiment can support.
-
-### Languages without suitable comparator coverage
-
-Some languages do not currently have a suitable independent
-Tree-sitter/Ctags comparison path.
-
-Those are kept in a separate evidentiary category and use committed
-manual verification rather than pretending cross-tool agreement exists.
-
-This currently includes languages such as:
-
--   ABAP
--   Dockerfile
--   JCL
--   LiveCode
--   YAML
-
-Where practical, the next step is to add independent lexical,
-grammar-based, or domain-specific comparators. Where no credible
-independent comparator exists, human-verified ground truth remains the
-appropriate category.
+A control corpus proves measurement inequality on identical intent; it says
+nothing about accuracy on real code (the tri-comparison's job above) — and a
+constant per-file bias still preserves ranking *within* a language. The
+[incidence report](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/incidence_report.md)
+sizes each confirmed shape against real licensed code.
 
 ------------------------------------------------------------------------
 
-# Validation is a ladder
+## Real-world scale
 
-GitGalaxy's evidence is being organized around progressively stronger
-questions.
+Example: **Kubernetes** — ~1.39M lines across Go, YAML, JSON, Shell and Proto.
+End-to-end scan: **50.83 seconds**. Scan time follows a fitted two-regime model
+(flat ~0.11s below ~4.3K LOC, then `time(s) ≈ 3.36e-05 × LOC^0.969`, R²=0.88
+across 599 repos) — so a handful of 20M+ LOC outliers still take minutes, and a
+fast scan proves throughput, not insight quality; the accuracy question is
+handled separately below.
 
-### 1. Structural validity
+![GitGalaxy scan
+speed](https://raw.githubusercontent.com/squid-protocol/gitgalaxy-raw-output/main/speed_charts/latest/loc_vs_time.png)
 
-**Does GitGalaxy correctly identify code structures?**
-
-Tree-sitter + Ctags + independently investigated disagreements. See
-["Structural validation" above](#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags).
-
-### 2. Regression validity
-
-**Does the implementation remain stable on real code?**
-
-[Golden-master testing](tests/tools/update_golden_master.py) against
-[Language Crucible](https://github.com/squid-protocol/language-crucible).
-
-### 3. Scale validity
-
-**Does it work on real repositories?**
-
-Unedited raw scan output from
-[hundreds of repositories](https://github.com/squid-protocol/gitgalaxy-raw-output).
-
-### 4. Model validity
-
-**Do structural signatures correspond to the exposure categories they
-are intended to represent?**
-
-Statistical analysis against independently observable outcomes---not
-merely against GitGalaxy's own equations.
-
-### 5. Temporal validity
-
-**Does exposure behave sensibly as software changes?**
-
-Git-history analysis comparing repository states before and after real
-changes.
-
-### 6. External validity
-
-**Do exposure changes correspond to independently documented security or
-maintenance outcomes?**
-
-Future work: security fixes, regressions, advisories, defects and other
-external event datasets.
-
-This distinction matters: a score can be internally consistent without
-necessarily being externally meaningful.
+See the [raw output
+repository](https://github.com/squid-protocol/gitgalaxy-raw-output) for
+unedited artifacts.
 
 ------------------------------------------------------------------------
 
 # Risk exposure: what GitGalaxy claims
 
-GitGalaxy produces **risk-exposure measurements**, not vulnerability
-verdicts.
+GitGalaxy produces **risk-exposure measurements**, not vulnerability verdicts.
 
 A high exposure means:
 
-> **This location deserves attention relative to the rest of the
-> repository.**
+> **This location deserves attention relative to the rest of the repository.**
 
 It does not mean:
 
@@ -361,66 +217,11 @@ The underlying signatures cover patterns involving areas such as:
 -   entropy
 -   other structural/security characteristics
 
-The important research question is whether these signatures are
-**empirically associated with meaningful classes of software risk**,
-rather than merely correlated with a score that GitGalaxy itself
-mathematically constructed.
+The important research question is whether these signatures are **empirically
+associated with meaningful classes of software risk**, rather than merely
+correlated with a score that GitGalaxy itself mathematically constructed.
 
 That distinction drives the next phase.
-
-------------------------------------------------------------------------
-
-# The next validation: risk over Git history
-
-Once structural validation is sufficiently mature, GitGalaxy can test
-its exposure model longitudinally.
-
-``` text
-Git history
-    |
-    v
-security-relevant event
-    |
-    +-------------------+
-    |                   |
-    v                   v
-parent state        changed state
-    |                   |
-    v                   v
-GitGalaxy scan      GitGalaxy scan
-    |                   |
-    +---------+---------+
-              |
-              v
-        exposure delta
-              |
-              v
-     independent event class
-```
-
-The central experiment is:
-
-> **Do commits independently identified as security fixes typically
-> reduce the corresponding GitGalaxy exposure?**
-
-Negative controls are equally important:
-
-> Do ordinary development commits show the same behavior?
-
-Eventually:
-
-> Do security regressions increase exposure?
-
-The planned harness will preserve commit SHA, parent state, changed
-files/functions, exposure before/after, exposure deltas, structural
-changes and event classification.
-
-That tests:
-
-**structure → exposure → real software evolution**
-
-rather than merely testing the internal mathematics of the exposure
-model.
 
 ------------------------------------------------------------------------
 
@@ -428,41 +229,50 @@ model.
 
 ### Language Crucible
 
-A pinned corpus of real-world source including projects such as Godot,
-Roslyn, curl, Kubernetes and Apollo 11 flight software.
+A pinned corpus of real-world source including projects such as Godot, Roslyn,
+curl, Kubernetes and Apollo 11 flight software.
 
 [Language Crucible](https://github.com/squid-protocol/language-crucible)
 
 ### Golden-master regression
 
-Real source is rescanned and compared against checked-in expected output
-so parser changes have an observable diff. Regenerated with
+Real source is rescanned and compared against checked-in expected output so
+parser changes have an observable diff. Regenerated with
 [`tests/tools/update_golden_master.py`](tests/tools/update_golden_master.py),
 never hand-edited.
 
 ### Tri-comparison
 
-The same corpus is analyzed against GitGalaxy, Tree-sitter and Ctags
-where coverage exists — 24 of 45 languages get all three tools, 200 of
-201 logged discrepancies validated. On the pinned corpus, GitGalaxy is
-never the tool found wrong in a validated function-precision, class, or
-argument disagreement, and matches tree-sitter's function recall
-everywhere except one nested shell definition it skips by design. See
-[the methodology](docs/self_scan/tri_comparison_README.md) and the
-["structural validation" section above](#structural-validation-gitgalaxy-vs-tree-sitter-vs-ctags)
-for the full picture and its limits.
+The same corpus is analyzed against GitGalaxy, Tree-sitter and Ctags where
+coverage exists — 24 of 45 languages get all three tools, 200 of 201 logged
+discrepancies validated. On the pinned corpus, GitGalaxy is never the tool
+found wrong in a validated function-precision, class, or argument disagreement,
+and matches tree-sitter's function recall everywhere except one nested shell
+definition it skips by design. See
+[the methodology](docs/self_scan/tri_comparison_README.md) and
+[the validation program](docs/validation.md) for the full picture and its
+limits.
+
+### Keyword Rosetta control corpus
+
+The same 12-probe program planted in all 46 supported languages with exact
+known signal counts, measuring cross-language consistency of every metric —
+with a validated deviation ledger and the resulting engine defects
+[filed as issues](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md).
+
+[Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta)
 
 ### Raw repository output
 
-Unedited GitGalaxy output is retained for hundreds of independently
-selected repositories.
+Unedited GitGalaxy output is retained for hundreds of independently selected
+repositories.
 
 [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output)
 
 ### Regression suite
 
-**7,043 tests** in the default suite (`python -m pytest tests/`), of
-which **6,165** are per-signature tests across all 45 structurally-signatured
+**7,043 tests** in the default suite (`python -m pytest tests/`), of which
+**6,165** are per-signature tests across all 45 structurally-signatured
 languages — positive matches, explicit exclusions, and adversarial/ReDoS
 inputs. See [`tests/README.md`](tests/README.md) for the breakdown, and
 [`docs/why_gitgalaxy_beats_ast_here.md`](docs/why_gitgalaxy_beats_ast_here.md)
@@ -470,8 +280,9 @@ for specific, evidenced cases where this extraction beats an AST read.
 
 ### Historical validation
 
-The next research layer will test whether exposure measurements
-correspond to real security and maintenance events over Git history.
+The next research layer will test whether exposure measurements correspond to
+real security and maintenance events over Git history — see
+[the validation program](docs/validation.md#the-next-validation-risk-over-git-history).
 
 ------------------------------------------------------------------------
 
@@ -498,81 +309,25 @@ correspond to real security and maintenance events over Git history.
 -   a complete language parser
 -   a guarantee that a high exposure is a vulnerability
 
-  -----------------------------------------------------------------------
-  Tool                                Primary question
-  ----------------------------------- -----------------------------------
-  **GitGalaxy**                       What does this entire repository
-                                      look like, structurally, and where
-                                      should attention go first?
-
-  Tree-sitter                         What syntactic structure does this
-                                      source contain?
-
-  Ctags                               Where are the navigable code
-                                      entities?
-
-  Semgrep                             Does this code match a specified
-                                      pattern?
-
-  CodeQL                              What data/control relationships can
-                                      deeper analysis establish?
-
-  SCA/CVE tools                       Is this dependency/version
-                                      associated with a known advisory?
-  -----------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-# Real-world scale
-
-GitGalaxy is intended for repositories too heterogeneous or broken for a
-traditional single-language build-first workflow.
-
-Example: **Kubernetes**
-
-\~1.39M lines across Go, YAML, JSON, Shell and Proto.
-
-End-to-end scan: **50.83 seconds**.
-
-![GitGalaxy scan
-speed](https://raw.githubusercontent.com/squid-protocol/gitgalaxy-raw-output/main/speed_charts/latest/loc_vs_time.png)
-
-See the [raw output
-repository](https://github.com/squid-protocol/gitgalaxy-raw-output) for
-unedited artifacts.
-
-------------------------------------------------------------------------
-
-# Outputs
-
-  Output                       Purpose
-  ---------------------------- ----------------------------------------
-  **SARIF**                    CI/security dashboard integration
-  **CycloneDX SBOM**           Dependency inventory/compliance
-  **SQLite**                   Queryable repository knowledge graph
-  **LLM architecture brief**   Compact machine/agent-oriented context
-  **JSON audit data**          Forensic/automation workflows
-  **3D visualization data**    Interactive repository topology
-
-These are different views of the same deterministic scan, rather than
-independent analysis engines.
+| Tool | Primary question |
+|---|---|
+| **GitGalaxy** | What does this entire repository look like, structurally, and where should attention go first? |
+| Tree-sitter | What syntactic structure does this source contain? |
+| Ctags | Where are the navigable code entities? |
+| Semgrep | Does this code match a specified pattern? |
+| CodeQL | What data/control relationships can deeper analysis establish? |
+| SCA/CVE tools | Is this dependency/version associated with a known advisory? |
 
 ------------------------------------------------------------------------
 
 # Git history and architecture
 
-GitGalaxy already incorporates Git history into signals such as:
-
--   churn
--   contributor concentration
--   bus-factor exposure
--   refactoring hotspots
--   file ownership
--   temporal activity
-
-The research direction is to extend this from **history as a contextual
-signal** to **history as an external validation source for the exposure
-model**.
+GitGalaxy already incorporates Git history into signals such as churn,
+contributor concentration, bus-factor exposure, refactoring hotspots, file
+ownership and temporal activity. The research direction is to extend this from
+**history as a contextual signal** to **history as an external validation
+source for the exposure model** — the experiment design is in
+[the validation program](docs/validation.md#the-next-validation-risk-over-git-history).
 
 ------------------------------------------------------------------------
 
@@ -599,82 +354,27 @@ current commands and configuration.
 
 ### CI/CD
 
-Templates are provided for:
-
--   GitHub Actions
--   GitLab CI
--   Bitbucket Pipelines
--   Azure Pipelines
--   generic shell-invocable CI environments
-
-See [`templates/`](templates/) and the [CI integration
+Templates are provided for GitHub Actions, GitLab CI, Bitbucket Pipelines,
+Azure Pipelines, and generic shell-invocable CI environments. See
+[`templates/`](templates/) and the [CI integration
 guide](github-action-readme.md).
 
 ------------------------------------------------------------------------
 
 # Explore the evidence
 
-  ---------------------------------------------------------------------------------------------------------------------------------
-  Resource                                                                                      What it contains
-  --------------------------------------------------------------------------------------------- -----------------------------------
-  [Documentation](https://squid-protocol.github.io/gitgalaxy/)                                  Architecture, claims and
-                                                                                                methodology
-
-  [Language Crucible](https://github.com/squid-protocol/language-crucible)                      Cross-language benchmark and golden
-                                                                                                corpus
-
-  [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output)                          Unedited scans of real repositories
-
-  [`tests/README.md`](tests/README.md)                                                          Regression and golden-master
-                                                                                                methodology
-
-  [`tri_comparison_ledger.json`](docs/self_scan/tri_comparison_ledger.json)                     Disagreement-by-disagreement
-                                                                                                validation record
-
-  [`manual_verification.json`](docs/self_scan/manual_verification.json)                         Reviewed cases where comparator
-                                                                                                coverage is unavailable
-
-  [`how_to_investigate_a_discrepancy.md`](docs/self_scan/how_to_investigate_a_discrepancy.md)   Comparator-disagreement methodology
-
-  [Visualizer](https://gitgalaxy.io/)                                                           Local browser-based repository
-                                                                                                visualization
-  ---------------------------------------------------------------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-# Current research direction
-
-GitGalaxy is moving through a sequence of increasingly difficult
-questions:
-
-> **Can we scan heterogeneous source without compiling it?**
-
-↓
-
-> **Can we reliably recover the structural entities needed to understand
-> it?**
-
-↓
-
-> **Do those structural measurements correspond to meaningful risk
-> exposure?**
-
-↓
-
-> **Does measured exposure behave correctly as real software evolves?**
-
-The Tree-sitter/Ctags validation is currently about halfway complete.
-The immediate priority is to finish that audit before turning
-preliminary measurements into stronger claims.
-
-The next major experiment is:
-
-**Git history → independently identified change/fix events → GitGalaxy
-before/after scans → exposure deltas → statistical analysis.**
-
-That is where GitGalaxy can begin testing not only whether it *sees*
-structure, but whether its structural model **tracks meaningful changes
-in real software**.
+| Resource | What it contains |
+|---|---|
+| [Documentation](https://squid-protocol.github.io/gitgalaxy/) | Architecture, claims and methodology |
+| [The validation program](docs/validation.md) | The full proof narrative: thesis, benchmarks, validity ladder, next experiments |
+| [Language Crucible](https://github.com/squid-protocol/language-crucible) | Cross-language benchmark and golden corpus |
+| [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) | 46-language planted control corpus and bias reports |
+| [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output) | Unedited scans of real repositories |
+| [`tests/README.md`](tests/README.md) | Regression and golden-master methodology |
+| [`tri_comparison_ledger.json`](docs/self_scan/tri_comparison_ledger.json) | Disagreement-by-disagreement validation record |
+| [`manual_verification.json`](docs/self_scan/manual_verification.json) | Reviewed cases where comparator coverage is unavailable |
+| [`how_to_investigate_a_discrepancy.md`](docs/self_scan/how_to_investigate_a_discrepancy.md) | Comparator-disagreement methodology |
+| [Visualizer](https://gitgalaxy.io/) | Local browser-based repository visualization |
 
 ------------------------------------------------------------------------
 
@@ -682,7 +382,6 @@ in real software**.
 
 Copyright (c) 2026 Joe Esquibel
 
-GitGalaxy is distributed under the **PolyForm Noncommercial License
-1.0.0**.
+GitGalaxy is distributed under the **PolyForm Noncommercial License 1.0.0**.
 
 See the repository license for full terms.

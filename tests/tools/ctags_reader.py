@@ -462,6 +462,18 @@ CTAGS_FUNC_KINDS: dict[str, set[str]] = {
     "ruby": {"f", "S"},  # method + singletonMethod
     "rust": {"f", "P"},  # function + method
     "shell": {"f"},
+    # tcl: "p" (procedure). Confirmed real, isolated ctags-side misses beyond the namespace-
+    # qualification fix above (docs/language_status/tcl.md §9): macports_registry/portimage.tcl's
+    # `deactivate_composite`/`deactivate`/`_check_registry` (lines 153/162/259) are ordinary
+    # brace-body procs GitGalaxy and tree-sitter-tcl both find; a raw `ctags -x
+    # --language-force=Tcl` on the same file misses all three, in one contiguous block starting
+    # right after `activate`'s body contains a bare apostrophe inside a double-quoted string
+    # ("Can't find image file...", line 119) and ending after a second apostrophe pair
+    # ('$v', line 159) -- the same odd/even single-quote-parity desync shape GitGalaxy's own
+    # #2242 bug had (fixed by gating tcl out of naive single-quote pairing entirely, since Tcl
+    # has no single-quote string syntax at all). Consistent with, not independently proven
+    # against, ctags' own Tcl.c source -- not something this repo can fix (a third-party
+    # C parser), so documented here rather than filed as an issue.
     "tcl": {"p"},  # procedure
     "typescript": {"f", "m"},
     "ada": {"r"},  # subprogram (procedures/functions)

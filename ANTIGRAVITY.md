@@ -125,6 +125,23 @@ To ensure rigorous, adversarial testing, structure your work into a strict **5-s
 
 *(Tip: You can use the `/teamwork-preview` slash command to help automate and visualize complex multi-agent teams for large projects).*
 
+## 8b. The Repo Constellation & Skills
+
+- GitGalaxy is the hub of several sibling repos (language-crucible, keyword-rosetta,
+  gitgalaxy-raw-output, squid-telemetry, gitgalaxy-population-analyses) and local-only
+  directories (the `gitgalaxy/data/` source pool; stale `v1`–`v5`/`temp/`/`threat_hunter/`
+  copies — **only `gitgalaxy/v6` is the live engine checkout**, verify paths before trusting a
+  grep hit). **`docs/ecosystem.md` is the canonical, agent-neutral map** — read it before any
+  cross-repo work (crucible pin bumps, keyword-rosetta sweeps). Note especially:
+  keyword-rosetta's CI checks out gitgalaxy **main**, so a rosetta corpus PR depending on new
+  engine rules stays **draft** until the engine PR merges.
+- **Skills** (step-by-step workflow docs any agent can follow) live at `.agents/skills/`
+  (a symlink to `.claude/skills/`) in this repo, and the same layout in keyword-rosetta
+  (`rosetta-language-sweep`) and language-crucible (`expand-language-coverage`). Before
+  re-deriving a workflow (extraction hardening, tri-comparison sweeps, language status docs,
+  CI push checklist, release notes), check the relevant repo's skills directory first —
+  `docs/ecosystem.md` has the full inventory.
+
 ## 9. Submitting Pull Requests
 
 When working in this repository, **you MUST ALWAYS work on a side branch and submit a PR to `main`. NEVER merge or push your changes directly to `main` without a PR.** This strict workflow ensures that tests and multi-agent pipelines are run in isolation.
@@ -141,6 +158,7 @@ When generating or submitting a Pull Request for this repository, it is critical
   - **Metrics & Limitations:** You must explicitly list: (1) How many adversarial tests were created, (2) How many errors/failures were initially found by these tests, and (3) Any known regex limitations or edge-cases that remain for this language.
   - **Do not leave the PR body blank, sparse, or lame.** A poor description will cause the PR to be rejected.
 - **Add relevant labels:** Ensure the PR has descriptive labels attached so it integrates correctly into the project's tracking and CI processes.
+- **Cross-repo note:** If the PR participates in a cross-repo workflow (see `docs/ecosystem.md`), the body MUST name the companion PR/issue in the other repo, which side merges first and why, and what must re-run after the other side lands.
 
 ## 10. Scratch Files & Working Directory
 

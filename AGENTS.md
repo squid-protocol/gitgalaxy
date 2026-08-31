@@ -20,3 +20,5 @@ Whenever you file issues or create pull requests, you **MUST** adhere to the fol
 1. **Detailed PR Bodies**: When using `gh pr create`, always provide a detailed, well-formatted PR body describing the problem, the root cause, and the fix. Do not leave the body brief or empty.
 2. **Auto-closing Issues**: Always include issue-closing keywords (e.g., `Resolves #123`, `Fixes #456`) in the **initial** PR body during creation. Do not rely on `gh pr edit` to add them later, as the PR may auto-merge before you do so, leaving the issues open.
 3. **Issue Labels**: When using `gh issue create`, always apply appropriate labels using the `--label` flag (e.g., `--label "bug"`, `--label "upstream"`).
+
+2. **Cross-Repo PRs**: This repo is the hub of a multi-repo constellation (`docs/ecosystem.md` is the canonical map — repos, skills, workflows, merge ordering). Any PR participating in a cross-repo workflow MUST include a "Cross-repo" section in its body naming the companion PR/issue in the other repo(s), which side merges first and why, and what must be re-run after the other side lands. Example: squid-protocol/gitgalaxy#2611 ↔ squid-protocol/keyword-rosetta#4.

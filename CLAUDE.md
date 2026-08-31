@@ -9,6 +9,19 @@ repository, extracts **Structural Signatures** via bounded, ReDoS-proof regexes 
 toolchain, no ASTs), and builds a mathematical knowledge graph used for risk scoring, SBOM
 generation, dependency mapping, and 3D visualization. CLI entry points: `galaxyscope` / `blast`.
 
+## The repo constellation (read before cross-repo work)
+
+This engine is the hub of several sibling repos — the language-crucible benchmark corpus
+(pinned by CI), the keyword-rosetta cross-language control corpus (whose CI checks out THIS
+repo's main), gitgalaxy-raw-output (scan evidence), squid-telemetry, and population-analyses —
+plus local-only directories (the `gitgalaxy/data/` source pool; the stale `v1`–`v5`/`temp/`/
+`threat_hunter/` copies — only `v6` is live). **`docs/ecosystem.md` is the canonical map**: per-
+repo purpose, where every skill lives, the cross-repo workflows and their merge order, and the
+PR convention — any PR in a cross-repo workflow must carry a "Cross-repo" note naming its
+companion PRs, which side merges first, and what re-runs after. Read it before a crucible pin
+bump, a rosetta sweep, or any change whose companion lives in another repo, and keep it (not
+this file) updated when the constellation changes.
+
 ## Commands
 
 ```bash

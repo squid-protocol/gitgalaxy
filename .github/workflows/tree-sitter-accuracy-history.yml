@@ -10,7 +10,7 @@ name: Tree-sitter Accuracy History
 # baselined language again and append one row each to
 # docs/self_scan/tree_sitter_accuracy_history.csv (an accumulating time series, unlike the
 # gitignored self-scan DB -- this is meant to be graphed later), regenerate the Markdown
-# summary table embedded in language_standards.py's docstring so it can't drift from the
+# summary table embedded in language_standards/__init__.py's docstring so it can't drift from the
 # committed baselines between now and the next manual --summary-table run, and re-render
 # docs/self_scan/tree_sitter_accuracy_chart.svg (a small-multiples bar chart of the most
 # recent history batch -- always the one this same job just appended). Opens an auto-merged
@@ -19,7 +19,7 @@ name: Tree-sitter Accuracy History
 # protection), and why the loop guard below is load-bearing.
 #
 # Adaptive by design, not just by trigger path: the trigger below fires on any push touching
-# detector.py/prism.py/language_standards.py, but not every such push actually moves a
+# detector.py/prism.py/language_standards/, but not every such push actually moves a
 # language's measured accuracy. --history itself detects that (see
 # tree_sitter_accuracy_audit.py's `_batch_matches_measured`) and skips appending a row when the
 # fresh measurement is identical to the last recorded batch -- which means --chart re-renders
@@ -34,7 +34,7 @@ on:
     paths:
       - "gitgalaxy/core/detector.py"
       - "gitgalaxy/core/prism.py"
-      - "gitgalaxy/standards/language_standards.py"
+      - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/tree_sitter_accuracy_audit.py"
       - "tests/tree_sitter_accuracy_baseline_*.json"
 
@@ -44,7 +44,7 @@ permissions:
 jobs:
   tree-sitter-accuracy-history:
     # Guards against the same infinite-loop shape documented in gitgalaxy.yml's
-    # full-report job: this workflow's own bot commit touches language_standards.py and
+    # full-report job: this workflow's own bot commit touches language_standards/__init__.py and
     # the baseline-adjacent history CSV, which are both in the trigger's `paths` filter,
     # so without this it would re-trigger itself on every merge of its own PR.
     if: |
@@ -114,7 +114,7 @@ jobs:
             ${{ steps.blurbs.outputs.blurbs }}
 
             - Appends one row per language to `docs/self_scan/tree_sitter_accuracy_history.csv`.
-            - Regenerates the summary table in `gitgalaxy/standards/language_standards.py`.
+            - Regenerates the summary table in `gitgalaxy/standards/language_standards/__init__.py`.
             - Re-renders `docs/self_scan/tree_sitter_accuracy_chart.svg` from that same batch.
 
             Never touches `tests/tree_sitter_accuracy_baseline_*.json` -- those stay
@@ -124,7 +124,7 @@ jobs:
           add-paths: |
             docs/self_scan/tree_sitter_accuracy_history.csv
             docs/self_scan/tree_sitter_accuracy_chart.svg
-            gitgalaxy/standards/language_standards.py
+            gitgalaxy/standards/language_standards/__init__.py
 
       # Same rationale as gitgalaxy.yml's "Merge the LLM Brief PR" step -- nothing else
       # gates this PR, so without an explicit merge it just sits mergeable-but-unmerged.

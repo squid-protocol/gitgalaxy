@@ -24,7 +24,7 @@ on:
     paths:
       - "gitgalaxy/core/detector.py"
       - "gitgalaxy/core/prism.py"
-      - "gitgalaxy/standards/language_standards.py"
+      - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/tri_comparison_chart.py"
       - "tests/tools/tri_comparison_gatherer.py"
       - "tests/tools/tri_comparison_reconcile.py"

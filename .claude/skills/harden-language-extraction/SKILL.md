@@ -1,6 +1,6 @@
 ---
 name: harden-language-extraction
-description: Deepen or fix a language's structural-extraction accuracy in gitgalaxy/standards/language_standards.py (func_start/args/class_start/_dependency_capture regexes) using the epic #813 methodology. Use when the user asks to "harden extraction for X", "add strict tests for language X", "find bugs in X's parsing", or similar per-language regex-correctness work -- not for adding a brand-new language from scratch (that's how_to_add_a_language.md's LLM generation prompt) and not for the broader ReDoS/boundary-correctness rules covered there either.
+description: Deepen or fix a language's structural-extraction accuracy in gitgalaxy/standards/language_standards/languages/<lang>.py (func_start/args/class_start/_dependency_capture regexes) using the epic #813 methodology. Use when the user asks to "harden extraction for X", "add strict tests for language X", "find bugs in X's parsing", or similar per-language regex-correctness work -- not for adding a brand-new language from scratch (that's how_to_add_a_language.md's LLM generation prompt) and not for the broader ReDoS/boundary-correctness rules covered there either.
 ---
 
 Source of truth is `tests/extraction/how_to_harden_extraction.md` -- read it directly, don't work
@@ -12,7 +12,8 @@ a language-specific quirk.
 
 ## Process (translating that doc's 5-stage pipeline to this tool's Agent tool)
 
-1. **Load the target.** Read the language's full `rules` dict from `language_standards.py` and its
+1. **Load the target.** Read the language's full `rules` dict from
+   `gitgalaxy/standards/language_standards/languages/<lang>.py` and its
    existing cases in `tests/extraction/languages/test_<lang>.py` (or the old monolithic
    `test_*_extraction_strict.py` files if it hasn't migrated yet). Work one language, all four
    gauntlets, in one sitting -- not gauntlet-by-gauntlet across languages.
@@ -30,7 +31,7 @@ a language-specific quirk.
    unrealistic payload), not an automatic fix.
 5. **Fix real bugs with the full discipline**: ReDoS scaling check on any quantifier change,
    `python tests/tools/audit_check.py` (add `--regenerate` for pure line-shifts), then
-   `pytest tests/extraction/languages/test_<lang>.py`. If the fix touches `language_standards.py`,
+   `pytest tests/extraction/languages/test_<lang>.py`. If the fix touches `language_standards/`,
    `detector.py`, or `prism.py`: `python tests/tools/crucible_check.py` -- confirm any real diff is
    confined to the language(s) actually changed (check `_dependency_capture` fixes for legitimate
    cross-language DAG ripple, per the doc's note) before `--update --yes`.

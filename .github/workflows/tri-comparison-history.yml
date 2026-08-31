@@ -16,7 +16,7 @@ name: Tri-Comparison History
 # whatever actually changed -- same mechanism gitgalaxy.yml uses for the LLM architecture brief.
 #
 # Adaptive by design, not just by trigger path: the trigger below fires on any push touching
-# detector.py/prism.py/language_standards.py, but not every such push moves a language's measured
+# detector.py/prism.py/language_standards/, but not every such push moves a language's measured
 # numbers or an existing ledger entry's counts. Unlike the tree-sitter history CSV (an
 # append-only file that needs its own _batch_matches_measured dedup check to stay a no-op), the
 # three files here are overwritten in place -- "no diff" already IS the adaptivity, so
@@ -29,7 +29,7 @@ on:
     paths:
       - "gitgalaxy/core/detector.py"
       - "gitgalaxy/core/prism.py"
-      - "gitgalaxy/standards/language_standards.py"
+      - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/tri_comparison_chart.py"
       - "tests/tools/tri_comparison_gatherer.py"
       - "tests/tools/tri_comparison_reconcile.py"

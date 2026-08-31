@@ -18,7 +18,7 @@ on:
     paths:
       - "gitgalaxy/core/detector.py"
       - "gitgalaxy/core/prism.py"
-      - "gitgalaxy/standards/language_standards.py"
+      - "gitgalaxy/standards/language_standards/**"
       - "tests/tools/tree_sitter_accuracy_audit.py"
       - "tests/tree_sitter_accuracy_baseline_*.json"
       - ".github/workflows/tree-sitter-accuracy-audit.yml"
@@ -63,8 +63,8 @@ jobs:
         run: |
           cd gitgalaxy
           python tests/tools/tree_sitter_accuracy_audit.py --summary-table
-          if ! git diff --exit-code -- gitgalaxy/standards/language_standards.py; then
-            echo "::error::gitgalaxy/standards/language_standards.py's summary table is stale."
+          if ! git diff --exit-code -- gitgalaxy/standards/language_standards/__init__.py; then
+            echo "::error::gitgalaxy/standards/language_standards/__init__.py's summary table is stale."
             echo "Run 'python tests/tools/tree_sitter_accuracy_audit.py --summary-table' and commit the result."
             exit 1
           fi

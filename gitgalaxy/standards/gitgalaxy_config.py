@@ -99,7 +99,7 @@ XRAY_BYPASS_PATHS = [
     "yarn.lock",
     "composer.lock",
     "gitgalaxy/core/aperture.py",
-    "gitgalaxy/standards/language_standards.py",
+    "gitgalaxy/standards/language_standards/",
     "gitgalaxy/security/security_lens.py",
     "gitgalaxy/tools/network_auditing/full_api_network_map.py",
     "gitgalaxy/tools/cobol_to_cobol/cobol_schema_forge.py",

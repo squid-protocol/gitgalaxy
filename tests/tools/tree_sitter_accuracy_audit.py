@@ -22,7 +22,7 @@ USAGE
     python tests/tools/tree_sitter_accuracy_audit.py --summary-table
         Regenerates the Markdown table between the
         <!-- TREE_SITTER_ACCURACY_TABLE:BEGIN/END --> markers in
-        gitgalaxy/standards/language_standards.py's module docstring from the
+        gitgalaxy/standards/language_standards/__init__.py's module docstring from the
         COMMITTED baselines (no live scan, no corpus needed). Languages with
         no committed baseline are simply absent from the table -- it never
         fabricates a row.
@@ -2954,7 +2954,7 @@ _CLASS_EXTRACTION_OUT_OF_SCOPE = frozenset({"css", "html"})
 
 _TABLE_BEGIN = "<!-- TREE_SITTER_ACCURACY_TABLE:BEGIN -->"
 _TABLE_END = "<!-- TREE_SITTER_ACCURACY_TABLE:END -->"
-_LANGUAGE_STANDARDS_PATH = REPO_ROOT / "gitgalaxy" / "standards" / "language_standards.py"
+_LANGUAGE_STANDARDS_PATH = REPO_ROOT / "gitgalaxy" / "standards" / "language_standards" / "__init__.py"
 
 
 def _ratio_pct(numerator: int, denominator: int) -> Optional[float]:

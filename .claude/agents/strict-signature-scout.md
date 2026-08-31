@@ -1,6 +1,6 @@
 ---
 name: strict-signature-scout
-description: Mechanical gap-reporting and candidate-verification for epic #1069 (hardening tests/extraction/languages/test_<lang>_strict.py). Runs tests/extraction/tools/audit_strict_coverage.py and tests/extraction/tools/verify_candidates.py and reports structured results -- it does not draft test cases or judge realism, only executes scripts and formats their output. Use before a case-writing pass (to get one language's exact gap list without loading language_standards.py cold) and after drafting candidate cases (to batch-verify them against the real compiled regex before they're written into a test file).
+description: Mechanical gap-reporting and candidate-verification for epic #1069 (hardening tests/extraction/languages/test_<lang>_strict.py). Runs tests/extraction/tools/audit_strict_coverage.py and tests/extraction/tools/verify_candidates.py and reports structured results -- it does not draft test cases or judge realism, only executes scripts and formats their output. Use before a case-writing pass (to get one language's exact gap list without loading language_standards/languages/<lang>.py cold) and after drafting candidate cases (to batch-verify them against the real compiled regex before they're written into a test file).
 tools: Bash, Read
 model: haiku
 ---

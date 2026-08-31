@@ -14,16 +14,32 @@ To add a new language to the Language Classifier, you will use an advanced LLM (
 ---
 
 ### Step 1: Initialize the LLM Context
-Before asking the LLM to generate the new language signatures, upload the `gitgalaxy/standards/language_standards.py` file to the chat window. Issue this exact command:
-> *"Read this file to understand how the GitGalaxy Structural Signature Analysis Engine uses bounded regex to guarantee ReDoS immunity. Pay close attention to how C++ and Python are mapped to prevent Catastrophic Backtracking."*
+`gitgalaxy/standards/language_standards/` is a package with one file per language (each a
+`DEFINITION: dict[str, Any] = {...}` literal, assembled into the `LANGUAGE_DEFINITIONS` registry
+by `__init__.py`), not a single monolithic file. Before asking the LLM to generate new language
+signatures, upload `gitgalaxy/standards/language_standards/__init__.py` plus one or two
+representative per-language files (e.g. `languages/python.py` and `languages/cpp.py`) to the chat
+window. Issue this exact command:
+> *"Read these files to understand how the GitGalaxy Structural Signature Analysis Engine uses bounded regex to guarantee ReDoS immunity, and how each language's rules dict is registered in `__init__.py`. Pay close attention to how C++ and Python are mapped to prevent Catastrophic Backtracking."*
 
 ### Step 2: Inject the Structural Signature Prompt
 Copy the **Generation Prompt** below and paste it into the LLM. Replace `[TARGET LANGUAGE]` with the exact language you want to map.
 
 ### Step 3: Register the Signatures
-1. Open `gitgalaxy/standards/language_standards.py`.
-2. Locate the `LANGUAGE_DEFINITIONS` registry.
-3. Paste the generated Python dictionary directly into the registry to instantly grant the engine native support for the new language architecture.
+1. Create `gitgalaxy/standards/language_standards/languages/<lang>.py` containing
+   `DEFINITION: dict[str, Any] = {...}` with the generated dictionary as its value (see any
+   existing file in that directory for the exact shape — license header, `import re`, and a
+   `from .._shared_patterns import ...` line only if the rules reference one of the shared
+   `GLOBAL_*` cross-language constants).
+2. In `gitgalaxy/standards/language_standards/__init__.py`, add an
+   `from .languages import <lang> as _<lang>` import (isort-sorted alphabetically among the
+   others) and a `"<lang>": _<lang>.DEFINITION,` line inside the `LANGUAGE_DEFINITIONS` dict, in
+   the same position other entries follow (insertion order is preserved end-to-end, so add new
+   languages at the end unless you have a specific reason not to).
+3. If the language's key isn't a valid Python identifier (spaces, hyphens, etc. — the only
+   existing case is `"objective-c"`, whose module is `languages/objectivec.py`), the file's own
+   module name still needs to be identifier-safe even though the dict key itself doesn't; pick a
+   concatenated or underscored slug and keep the dict key exactly as the LLM/consumers expect it.
 
 <br><br>
 

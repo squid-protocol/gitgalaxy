@@ -84,7 +84,7 @@ Grouped by the phase headers `language_standards.py` uses for COBOL. Description
 **Specialized subsystems**
 | Key | What it captures for COBOL |
 |---|---|
-| `planned_debt` / `fragile_debt` | Shared `GLOBAL_` TODO/FIXME-family markers |
+| `planned_debt` / `fragile_debt` | Shared `GLOBAL_` TODO/FIXME-family markers (since [#2537](https://github.com/squid-protocol/gitgalaxy/issues/2537)/[PR #2622](https://github.com/squid-protocol/gitgalaxy/pull/2622), guarded against COBOL's own hyphenated identifiers — `HACK-LEVEL` / `BUG-COUNT` data items no longer count as debt, see §10) |
 | `spec_exposure` | `[SPEC-123]`, `[spec ...]`, `[audit ...]` traceability tags |
 | `ssr_boundaries` | `EXEC CICS WEB SEND/DOCUMENT/WEB READ` — CICS web endpoints |
 | `events` | `EXEC CICS SIGNAL/HANDLE CONDITION`, `CALL 'MQPUT'/'MQGET'` — signal handlers and MQ pub/sub bindings |
@@ -407,3 +407,61 @@ diagnosis in #1858) were corrected as part of this sweep rather than left as sil
 
 Full record: `docs/self_scan/tri_comparison_ledger.json` (filter keys starting `cobol/`),
 rendered summary in `docs/self_scan/tri_comparison_points_of_interest.md`.
+
+## 10. Rosetta cross-language consistency (control-corpus capstone)
+
+This section is the [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta)
+counterpart of §9: where §9 asks "is COBOL extraction *accurate* on real code?", the rosetta
+control corpus asks "does GitGalaxy measure *identical planted intent* the same in COBOL as in
+the other 45 languages?" — every deviation from the 46-language median is measured bias, tracked
+in [#2567](https://github.com/squid-protocol/gitgalaxy/issues/2567) (epic
+[#2560](https://github.com/squid-protocol/gitgalaxy/issues/2560)) and validated in the corpus's
+[deviation ledger](https://github.com/squid-protocol/keyword-rosetta/blob/main/deviation_ledger.json).
+
+**Summary (2026-08-31).** COBOL went from **6🔴 / 4🟡** out-of-band metrics to **3🔴 / 4🟡** in
+one pass — gitgalaxy [#2537](https://github.com/squid-protocol/gitgalaxy/issues/2537)
+(PR [#2622](https://github.com/squid-protocol/gitgalaxy/pull/2622)) plus keyword-rosetta
+[PR #10](https://github.com/squid-protocol/keyword-rosetta/pull/10) — with every residual
+ledgered or pinned to a named cross-cutting issue. The five-cause decomposition (the
+`rosetta-language-sweep` skill's taxonomy, first proven on jcl.md §10):
+
+1. **One real engine bug** (#2537, fixed by #2622): the shared
+   `GLOBAL_FRAGILE_DEBT`/`GLOBAL_PLANNED_DEBT` patterns used bare `\b(...)\b` — and `-` is a
+   regex word boundary — so debt keywords matched **inside hyphenated code identifiers**:
+   `HACK-LEVEL` and `BUG-COUNT` data items, the `PROBE-TODO` paragraph name (python's
+   `HACK_LEVEL` was inert only because `_` is a word char — tokenization luck). Ordinary COBOL
+   code inflated tech-debt scoring in exactly the legacy ecosystem where debt measurement
+   matters most; scheme reproduced it via kebab-case symbols, and the golden-master re-bless
+   killed the same FP class corpus-wide (an SSN format mask `xxx-xx-xxxx` counted as `XXX`
+   fragile debt, a `roles-path-bug` directory name counted ×4). Fixed with fixed-width
+   hyphen-adjacency guards; real markers (`* HACK:`, `-- TODO`, `--TODO`, `TODO--`) still count.
+2. **Missing rules with genuine morphology**: none — COBOL's 39-rule surface was already the
+   deepest in the registry.
+3. **A corpus authoring gap, not morphology**: `comment_lines` 14 vs median 30 (lowest of all
+   46) — the cobol shells were the only ones authored with zero blank lines (fortran/ada
+   siblings carry ~12; blank lines are legal COBOL). Re-authored → 33, in-band. Same lesson as
+   jcl's `args`: test authoring before ledgering.
+4. **Intended morphology, ledgered** (`cobol-args-clause-match-morphology`, validated):
+   `args` 1 vs 13 — paragraphs declare no parameters; the only argument surface is the
+   program-level `PROCEDURE DIVISION USING`, and the file-level metric counts USING/RETURNING
+   clause *matches*, not captured names (verified empirically: a 13-name USING still records
+   `struct_args` 1). Every per-probe alternative (`CALL`/`ENTRY`/`INVOKE … USING`) is also an
+   `api`-rule keyword — overlap-cost rejection, the jcl `DISP=` precedent. Also `globals` +1
+   (`WORKING-STORAGE SECTION` in the globals rule is deliberate shared-state design, ledger
+   `cobol-working-storage-globals`; keeping it was confirmed during this sweep).
+5. **Median inflation / cross-cutting — COBOL is the honest one**: `state_mutation` 2 matches
+   planted intent exactly; the median 6 is inflated by the ×3 flux weighting
+   ([#2546](https://github.com/squid-protocol/gitgalaxy/issues/2546)).
+   `high_risk_execution`/`io` carry +1 each from a string-literal decoy COBOL doesn't shield
+   ([#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535)'s selective-shielding
+   design question). No COBOL action; re-baselines when those land.
+
+**Remaining out-of-band** (all accounted, none actionable at the COBOL level): `args` (bucket-4
+ledger), `state_mutation` (#2546), `globals`/`high_risk_execution`/`io` (bucket-4 ledger /
+#2535), and the §3 risk-score shadows (`risk_cognitive_load` −57%, `risk_safety_score` +42% —
+the epic forbids tuning risk formulas against biased inputs).
+
+Reproduce: `GALAXYSCOPE_BIN=<venv>/bin/galaxyscope python tools/verify_language.py cobol` in the
+corpus repo (gate: 75 assertions), `python tools/language_deviations.py cobol` for the live
+vs-median band table, and the corpus's
+[findings_by_language.md#cobol](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md#cobol).

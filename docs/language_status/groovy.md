@@ -146,32 +146,40 @@ Four keys are hard-set to `None` in Groovy's `rules` dict:
 **No `known_limitation`-named tests exist** in `test_groovy.py` or `test_groovy_strict.py` as of
 this writing (confirmed via `grep -n "known_limitation"` across both files — zero matches).
 
-One real, current gap is documented instead as
-**[#2530](https://github.com/squid-protocol/gitgalaxy/issues/2530) (OPEN)** — filed during this
-same session's tri-comparison manual-verification pass, and deliberately left unfixed rather than
-patched with a fragile denylist:
+One gap was found, mostly fixed, and one narrower residual + one newly-unmasked defect are
+documented instead:
 
 - **MarkupBuilder / Jenkins-Pipeline-DSL trailing-closure calls misdetected as function
-  definitions.** `func_start`'s zero-prefix branch (needed to match real bare constructors like
-  `MyClass(String arg) {`) is syntactically indistinguishable from Groovy's extremely common
+  definitions — [#2530](https://github.com/squid-protocol/gitgalaxy/issues/2530) (mostly fixed).**
+  `func_start`'s zero-prefix branch (needed to match real bare constructors like
+  `MyClass(String arg) {`) was syntactically indistinguishable from Groovy's extremely common
   "call a builder method with a named-argument map plus a trailing closure" idiom —
-  `button(name: "clear", type: "submit") { raw _("Dismiss") }`,
-  `l.layout(title: "...") { ... }`, `stage("Build") { ... }`. This is the standard
-  `MarkupBuilder`/`NodeBuilder` DSL shape (used pervasively in Jenkins's own `.groovy` view
-  templates, which replaced Jelly) and also covers Jenkins Pipeline steps (`stage`, `node`, `dir`,
-  `timeout`) and Gradle DSL blocks. `func_start` already excludes a hand-picked list of known
-  Gradle keywords for exactly this reason, but an arbitrary builder/tag method name (`div`, `a`,
-  `button`, `li`, ...) can't be enumerated the same way — the set of possible builder tag names is
-  unbounded. Measured against the `language-crucible/data/groovy/jenkins_view_groovy/` corpus (29
-  files): 57 of 718 total named functions found across the whole Groovy corpus (~8%) come from
-  this one folder, and essentially all of them are DSL/builder calls misread as definitions
-  (`div`×9, `span`×7, `li`×7, `a`×7, `ul`×4, `stage`×4, `section`×4, `node`×3, and others), with two
-  qualified-form cases (`l.layout(...)`, `l.main_panel()`) falling back to the generic
-  `Unknown_Block` name entirely. Judged a real grammar ambiguity rather than a deterministic
-  defect — a correct fix needs either a curated (necessarily incomplete) denylist of
-  HTML/XML-tag-shaped builder names, or a smarter heuristic (e.g. treating a named-argument map as
-  the sole/first parameter as a builder-call signal a real constructor rarely has), which needs its
-  own design pass and full-corpus verification rather than a drive-by regex tweak.
+  `button(name: "clear", type: "submit") { ... }`, `l.layout(title: "...") { ... }`. Fix: a real
+  Groovy declaration's parameter list can never contain a `key:` token (that's call-site
+  named-argument sugar only), so branch 2 now rejects a candidate whose parenthesized argument
+  list contains an identifier immediately followed by `:` with no intervening whitespace
+  (distinguishing it from a ternary's `cond ? a : b`, which conventionally has a space before the
+  colon). Verified via a full corpus differential scan: 44 of the 57 misdetections in
+  `jenkins_view_groovy/` (29 files) resolved, zero legitimate bare constructors lost recall
+  anywhere in the 201-file corpus (including ones with a colon-containing default like
+  `MyClass(Map config = [:]) {}` or a ternary default).
+
+  **Residual, still open:** calls with a single *positional* argument and no named-arg map at
+  all — `stage('Build') { ... }`, `node('label') { ... }`, `dir(path) { ... }` (Jenkins Pipeline
+  DSL steps) — have no `key:` token to key off of, so this heuristic can't distinguish them from
+  a real bare constructor taking one string/identifier argument. 13 of the original 57 remain
+  (`stage`×4, `node`×3, `dir`×2, `withChecks`×1, `recordIssues`×1, plus 2 pre-existing
+  `Unknown_Block`-fallback qualified-call cases, `l.layout(...)`/`l.main_panel()`) — same class the
+  issue explicitly scoped out (a curated tag-name denylist is fragile/incomplete by construction).
+- **A second, unrelated `func_start` defect unmasked by the above fix —
+  [#2558](https://github.com/squid-protocol/gitgalaxy/issues/2558) (OPEN).** Removing the
+  `button(...)` false positive in `hudson_triggers_SlowTriggerAdminMonitor_message.groovy`
+  revealed that `raw _("Dismiss")` (a paren-less call, Groovy's `_()` i18n-helper convention) on
+  the very next line was *already* being misdetected too, via branch 1 treating the bare
+  identifier `raw` as a modifier/type prefix — just silently absorbed as "nested inside `button`"
+  and never surfaced as its own entry until `button` stopped being (wrongly) detected as an
+  enclosing function. A distinct root cause in a different branch, filed separately rather than
+  bundled into #2530's fix.
 
 ## 6. Test depth
 
@@ -340,6 +348,12 @@ templates (Jelly's Groovy-based successor). ~19,000 lines scanned.
 | `func_start` | 851 | 721 (1003 raw pre-shielding-fix; 282 silently dropped, ~57% misnamed `"def"`/truncated where present) | 718 | 0 unexplained | 661/718 (92.1%) — see false-positive class below |
 | `class_start` | 222 | 286 (100% misnamed `"Anonymous_Class"`; included ~64 fixture-string false positives before the Prism fix) | 222 | 0 unexplained | 222/222 (100%) |
 
+**Update ([#2530](https://github.com/squid-protocol/gitgalaxy/issues/2530), same-week follow-up):**
+the MarkupBuilder/Jenkins-DSL named-argument-map fix above takes `func_start` from 718 named
+functions to 675 (44 of the 57-occurrence false-positive class removed, 1 new match surfaced by
+[#2558](https://github.com/squid-protocol/gitgalaxy/issues/2558)), precision 661/718 (92.1%) →
+661/675 (97.9%). See §5 for the residual and the newly-unmasked defect.
+
 Recall: zero real declarations found by the independent ground-truth scanner and missed by
 GitGalaxy anywhere in the 188-file corpus, for either signal, after accounting for triple-quoted
 fixture-text spans on both sides.
@@ -414,6 +428,11 @@ pass — unlike the three defects above, this needs a real design decision (a cu
 builder-tag-name denylist is fragile and incomplete by construction; a smarter heuristic like
 "named-argument-map-shaped first parameter" needs its own full-corpus verification to confirm it
 doesn't trade these false positives for new false negatives on real bare constructors).
+
+**Update:** #2530 was mostly fixed the same week (the named-argument-map heuristic above) — 44 of
+these 57 resolved. The 13 residual (single-positional-arg calls, no `key:` token to key off of)
+and 1 newly-unmasked defect ([#2558](https://github.com/squid-protocol/gitgalaxy/issues/2558)) are
+current as of this doc; see §5.
 
 ### Ledger and manual-verification record
 

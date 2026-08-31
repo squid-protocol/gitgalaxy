@@ -42,6 +42,10 @@ FUNCTION_CASES: dict[str, Any] = {
         ("@Override\nprotected <T extends Comparable<T>> List<T> sort(List<T> list) throws Exception {", "sort"),
         ("java.lang.String[] fullyQualifiedArrayReturn(int a) {", "fullyQualifiedArrayReturn"),
         ("MyClass(String constructorArg) {", "MyClass"),
+        # #2530: a bare constructor whose default value is an empty map
+        # literal (`[:]`) has a colon, but not adjacent to an identifier
+        # the way a named-arg call's `key:` is -- must still match.
+        ("MyClass(Map config = [:]) {", "MyClass"),
     ],
     "invalid": [
         "if (condition()) {",
@@ -51,6 +55,14 @@ FUNCTION_CASES: dict[str, Any] = {
         "/* def hiddenMethod() { */",
         '"def stringMethod() {"',
         "def myClosure = { -> }",
+        # #2530: MarkupBuilder/Jenkins-DSL named-argument-map calls with a
+        # trailing closure are syntactically identical to a bare zero-
+        # prefix declaration otherwise -- the named-arg `key:` shape is
+        # the discriminator (real declarations never contain one).
+        'div(class: "empty-state-block") {',
+        'button(name: "clear", type: "submit") {',
+        "timeout(time: 6, unit: 'HOURS') {",
+        "a(href: \"newJob\", class: \"content-block__link\") {",
     ],
     "pathological": [
         ("public \n void \n weirdSpacing \n ( \n ) \n {", "weirdSpacing"),

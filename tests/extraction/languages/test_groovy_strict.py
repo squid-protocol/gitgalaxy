@@ -674,3 +674,54 @@ def test_groovy_dead_code_and_doc_no_false_collision():
     block_dead_code = "/* class Foo {} */"
     assert dead_code.search(block_dead_code)
     assert not doc.search(block_dead_code), "single-star block comment incorrectly triggered doc"
+
+
+def test_groovy_func_start_markup_builder_dsl_call_false_positive_regression():
+    """
+    #2530: func_start's zero-prefix branch (needed to match a real bare
+    constructor, `MyClass(String arg) {`) is syntactically indistinguishable
+    from Groovy's MarkupBuilder/NodeBuilder DSL idiom -- a method call with
+    a named-argument map plus a trailing closure (`div(class: "x") { ... }`,
+    `button(name: "clear", type: "submit") { ... }`). Confirmed against the
+    `language-crucible` `jenkins_view_groovy/` corpus (29 files): 44 of the
+    57 misdetected "functions" in that folder were this exact shape.
+
+    Fix: a real Groovy declaration's parameter list can never contain a
+    `key:` token (that syntax is call-site named-argument sugar only), so
+    branch 2 now rejects a candidate whose parenthesized argument list
+    contains an identifier immediately followed by `:` (no intervening
+    whitespace, to tell it apart from a ternary's `cond ? a : b`, which
+    conventionally has a space before the colon).
+
+    Verified via a full corpus differential scan (galaxyscope --db-only,
+    201 files, 1135 -> 1092 total functions): all 44 removed matches were
+    in `jenkins_view_groovy/`, zero removals anywhere else in the corpus --
+    no legitimate bare constructor lost recall. `div`/`section`/`ul`/`li`/
+    `stage`(single-positional-arg Jenkins Pipeline steps like `stage('x')
+    { }`/`node('x') { }`/`dir(x) { }`, which have no named-arg map at all)
+    remain a known, unaddressed residual -- same class the issue explicitly
+    scoped out (a curated tag-name denylist is fragile/incomplete by
+    construction).
+    """
+    func_start = GROOVY_RULES["func_start"]
+
+    dsl_builder_calls = [
+        'div(class: "empty-state-block") {',
+        'form(method: "post", name: "clear", action: "x") {',
+        'button(name: "clear", type: "submit", class: "jenkins-button") {',
+        "timeout(time: 6, unit: 'HOURS') {",
+        "withChecks(name: 'Tests', includeStage: true) {",
+        "a(href: \"newJob\", class: \"content-block__link\") {",
+    ]
+    for snippet in dsl_builder_calls:
+        assert not func_start.search(snippet), f"func_start incorrectly matched a DSL builder call: {snippet!r}"
+
+    # Real bare constructors/methods -- including ones that take a Map
+    # literal or a colon-containing default -- must still match.
+    assert func_start.search("MyClass(String constructorArg) {")
+    assert func_start.search("MyClass(Map config = [:]) {")
+    match = func_start.search("MyClass(String x = cond ? a : b) {")
+    assert match and match.group(0).strip().startswith("MyClass"), (
+        "func_start should still match a bare constructor whose default value is a ternary "
+        "(space-before-colon), only the tight `key:` named-arg shape is excluded"
+    )

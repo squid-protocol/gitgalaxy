@@ -430,10 +430,10 @@
 <text class="lang-label" x="20" y="847.5">groovy</text>
 <rect class="bar-track" x="154" y="827" width="88" height="34" rx="2"/>
 <rect x="154" y="827" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="835">718</text>
+<text class="bar-value-label" x="198.0" y="835">675</text>
 <rect class="bar-track" x="286" y="827" width="88" height="34" rx="2"/>
 <rect x="286" y="827" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="835">661/718**</text>
+<text class="bar-value-label" x="330.0" y="835">661/675**</text>
 <circle cx="390.0" cy="844.0" r="8" fill="#2a78d6"/>
 <text class="badge-label" x="390.0" y="847.0">G</text>
 <rect class="bar-track" x="418" y="827" width="88" height="34" rx="2"/>

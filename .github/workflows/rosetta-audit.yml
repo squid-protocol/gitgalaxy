@@ -1,0 +1,78 @@
+name: rosetta-audit
+
+# Cross-language consistency gate (#2557, Phase 5 of the control-corpus plan):
+# checks out keyword-rosetta at the pinned KEYWORD_ROSETTA_REF and runs its
+# verifier across ALL 46 language folders against THIS PR's engine build, plus
+# the corpus's baseline-gated n/a review audit. An engine change that shifts
+# corpus-observed counts, or nulls a rule without a validated ledger entry,
+# fails HERE -- in the PR that caused it -- instead of days later in the
+# corpus repo (how the #2552 cobol drift was found).
+#
+# Intentional drift is re-baselined via the cross-repo protocol in
+# docs/self_scan/BUMPING_THE_ROSETTA_PIN.md (the corpus repo's ENGINE_REF
+# escape hatch + a bump of KEYWORD_ROSETTA_REF in the engine PR).
+
+on:
+  pull_request:
+    branches: [main, v6-dev]
+    paths:
+      - "gitgalaxy/**"
+      - "pyproject.toml"
+      - ".github/workflows/rosetta-audit.yml"
+  workflow_dispatch:
+
+jobs:
+  rosetta-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitGalaxy PR
+        uses: actions/checkout@v4
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Checkout keyword-rosetta (pinned)
+        uses: actions/checkout@v4
+        with:
+          repository: squid-protocol/keyword-rosetta
+          ref: ${{ vars.KEYWORD_ROSETTA_REF || 'main' }}
+          path: keyword-rosetta
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # Full-precision deps: without all of them galaxyscope silently drops to
+      # Zero-Dependency Mode and observed counts drift from what the corpus
+      # manifests were locked against.
+      - name: Install GitGalaxy (full precision)
+        run: |
+          python -m pip install --upgrade pip
+          pip install PyYAML networkx tiktoken numpy pandas xgboost
+          pip install -e ./gitgalaxy
+
+      - name: Run all language gates
+        working-directory: keyword-rosetta
+        env:
+          GITGALAXY_PATH: ${{ github.workspace }}/gitgalaxy
+        run: |
+          rc=0
+          for d in data/*/; do
+            L=$(basename "$d")
+            python tools/verify_language.py "$L" || rc=1
+          done
+          exit $rc
+
+      - name: n/a review audit (baseline-gated)
+        working-directory: keyword-rosetta
+        env:
+          GITGALAXY_PATH: ${{ github.workspace }}/gitgalaxy
+        run: |
+          if [ -f tools/na_check.py ]; then
+            python tools/na_check.py --ci
+          else
+            echo "::notice::pinned keyword-rosetta ref predates tools/na_check.py -- bump KEYWORD_ROSETTA_REF to activate the n/a audit"
+          fi

@@ -42,6 +42,7 @@ MOCK_LANG_DEFS = {
     "html": {"lexical_family": "xml"},
     "php": {"lexical_family": "standard_block"},
     "livecode": {"lexical_family": "multi_style_live"},
+    "assembly": {"lexical_family": "line_exclusive"},
 }
 
 
@@ -1188,3 +1189,65 @@ def test_prism_recursive_block_lisp_redos_immunity():
     real_prism.split_streams(poison, "scheme")
     duration = time.time() - start
     assert duration < 2.0, f"recursive_block_lisp took {duration:.2f}s on a pathological unterminated payload"
+
+
+def test_prism_assembly_strips_c_style_block_comments(prism_engine):
+    """
+    Assembly's own lexical_family ("line_exclusive") only ever recognized `;`/`#` line
+    comments -- real gap, since `.S` files are routed through the C preprocessor and
+    routinely carry genuine `/* ... */` blocks (BSD/FreeBSD kernel license headers, Emacs
+    modelines, register-usage doc comments). Confirmed real corpus false positives:
+    label-shaped text INSIDE an unstripped block comment matching func_start
+    (`Result:` in a stack-layout doc comment, `r9:`/`r10:`/`r11:` in a register-usage doc
+    comment). Proves the block comment is gone from code_stream and landed in
+    comment_stream instead.
+    """
+    src = "/*\n * Registers on entry:\n * r9: image pointer\n */\nreal_func:\n\tret\n"
+    res = prism_engine.split_streams(src, primary_lang="assembly")
+    assert "r9:" not in res["code_stream"]
+    assert "real_func:" in res["code_stream"]
+    assert "r9" in res["comment_stream"]
+
+
+def test_prism_assembly_block_comment_stripped_before_line_comments(prism_engine):
+    """
+    Regression test for the real ordering hazard: 121 real `/* ... */` blocks in the
+    assembly corpus contain a bare `;` or `#` (copyright prose, URLs, Emacs modelines like
+    `/*-*- mode:unix-assembly; indent-tabs-mode:t; ... -*-*/`). If `;`/`#` line-stripping
+    ran FIRST, every one of those blocks would get truncated at its first internal `;`/`#`,
+    corrupting the search for the block's real closing `*/` and silently swallowing
+    everything up to the next unrelated `*/` (or the rest of the file). Block-comment
+    stripping must run first so the semicolon inside this comment never gets a chance to
+    truncate it before the real `*/` is found.
+    """
+    src = "/* mode:unix-assembly; indent-tabs-mode:t */\nreal_func:\n\tret\n"
+    res = prism_engine.split_streams(src, primary_lang="assembly")
+    assert "real_func:" in res["code_stream"], (
+        f"block comment's internal ';' corrupted comment-span detection: {res['code_stream']!r}"
+    )
+
+
+def test_prism_assembly_block_comment_shields_string_literals(prism_engine):
+    """A `/*`-shaped byte sequence inside a real string literal (e.g. an `.ascii` directive)
+    must not be misread as a block-comment opener -- LITERAL_MASK_PATTERN is tried first in
+    the same shielded-alternation idiom the generic REGEX_MATRIX stripper already uses."""
+    src = 'msg:\n\t.ascii "a /* not a comment */ b"\nreal_func:\n\tret\n'
+    res = prism_engine.split_streams(src, primary_lang="assembly")
+    assert '"a /* not a comment */ b"' in res["code_stream"]
+    assert "real_func:" in res["code_stream"]
+
+
+def test_prism_assembly_block_comment_redos_immunity():
+    """ReDoS check: an adversarial payload with a `/*` opener and no closing `*/` must
+    resolve well under the generous timeout used throughout this suite -- same
+    non-greedy-bounded-by-two-fixed-delimiters shape already accepted as safe for every
+    "standard_block" C-family language's own `/\\*.*?\\*/`."""
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    poison = "/* " + ("a" * 50000) + "\nreal_func:\n\tret\n"
+    start = time.time()
+    real_prism.split_streams(poison, "assembly")
+    duration = time.time() - start
+    assert duration < 2.0, f"assembly block-comment stripping took {duration:.2f}s on an unterminated payload"

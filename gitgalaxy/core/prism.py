@@ -337,6 +337,9 @@ class Prism:
         elif lang_id == "powershell":
             text, ps_lits = self._strip_powershell_herestrings(text)
             lits.extend(ps_lits)
+        elif lang_id == "assembly":
+            text, asm_lits = self._strip_asm_block_comments(text)
+            lits.extend(asm_lits)
 
         # 2. SPECIALIZED LEXICAL FAMILY ROUTING
         # #386: these three used to check "recursive_c_style"/"column_sensitive"/
@@ -690,6 +693,47 @@ class Prism:
         def _repl(m: "re.Match[str]") -> str:
             lits.append(m.group(0).strip())
             return "".join("\n" if ch == "\n" else " " for ch in m.group(0))
+
+        return self._PS_HERESTRING_RE.sub(_repl, text), lits
+
+    def _strip_asm_block_comments(self, text: str) -> tuple[str, list[str]]:
+        """Strips C-style `/* ... */` block comments before assembly's own `line_exclusive`
+        family (`;`/`#` line comments only, per its own docstring: "The language possesses no
+        native multi-line block syntax") ever runs. Real gap, not theoretical: `.S` files are
+        routed through the C preprocessor before assembling, so both GAS and NASM `.S`/`.asm`
+        sources routinely carry genuine `/* */` blocks (BSD/FreeBSD kernel license headers, Emacs
+        modelines, register-usage doc comments) that `line_exclusive` never recognized at all --
+        confirmed real corpus false positives (`func_start` matching label-shaped text INSIDE an
+        unstripped block comment): `Result:` (linux_1_0_kernel/drivers_FPU-emu_reg_u_div.S, a
+        stack-layout doc comment) and `r9:`/`r10:`/`r11:` (freebsd_kernel_arch/amd64_amd64_
+        kexec_tramp.S, a register-usage doc comment), 5 occurrences total across the corpus.
+
+        Runs BEFORE `;`/`#` line-stripping, not after -- deliberately, confirmed by direct corpus
+        measurement rather than assumed either way. 121 real `/* ... */` blocks in this same
+        corpus contain a bare `;` or `#` (copyright-header prose, URLs, Emacs modelines like
+        `/*-*- mode:unix-assembly; indent-tabs-mode:t; ... -*-*/`, and `/* #define ... */`-style
+        commented-out-code notes) -- stripping line comments FIRST would truncate every one of
+        those blocks at its first internal `;`/`#`, corrupting the search for the block's real
+        closing `*/` (silently swallowing everything up to the next UNRELATED `*/` later in the
+        file, or the whole rest of the file if none exists). The reverse direction was also
+        checked and found clean: zero lines in this corpus have a `;`/`#` line comment containing
+        an unclosed `/*` that could similarly mis-pair with a later real `*/`. Same shielded-
+        alternation idiom as the generic REGEX_MATRIX stripper (LITERAL_MASK_PATTERN tried first
+        so a `/*`-shaped byte sequence inside a real string literal, e.g. `.ascii "a /* b"`,
+        passes through unharmed), same non-greedy-bounded-by-two-fixed-delimiters shape already
+        accepted as ReDoS-safe for every "standard_block" C-family language's own `/\\*.*?\\*/`.
+        """
+        lits: list[str] = []
+        pattern = re.compile(rf"{self.LITERAL_MASK_PATTERN}|(/\*.*?\*/)", re.DOTALL)
+
+        def _repl(m: "re.Match[str]") -> str:
+            if m.group(1) is not None:
+                return m.group(0)
+            comment = m.group(2)
+            lits.append(comment.strip())
+            return "\n" * comment.count("\n")
+
+        return pattern.sub(_repl, text), lits
 
         return self._PS_HERESTRING_RE.sub(_repl, text), lits
 

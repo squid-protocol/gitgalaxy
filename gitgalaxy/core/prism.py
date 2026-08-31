@@ -328,7 +328,7 @@ class Prism:
         lits = []
 
         # 1. PRE-PROCESSING: Extract documentation surface BEFORE any early returns
-        if lang_id in ("python", "micropython", "ruby"):
+        if lang_id in ("python", "micropython", "embedded_python", "ruby"):
             text, python_lits = self._strip_python_docstrings(text)
             lits.extend(python_lits)
         elif lang_id == "php":
@@ -1180,8 +1180,8 @@ class Prism:
         quote inside a real comment can still only mis-pair within that
         same line, exactly as #1184 intended.
 
-        Gated to `lang_id in ("python", "micropython", "ruby")` -- the same
-        set already routed through `_strip_python_docstrings` above, whose
+        Gated to `lang_id in ("python", "micropython", "embedded_python", "ruby")` --
+        the same set already routed through `_strip_python_docstrings` above, whose
         `"`/`'` are always genuine string delimiters. Confirmed unsafe to
         widen to the rest of the "line_exclusive" family: Perl's `y///`,
         `tr///`, `s///`, and `m//` quote-like operators can contain a bare
@@ -1193,7 +1193,7 @@ class Prism:
         (confirmed via language-crucible's perl/mojo/Template.pm).
         """
         pattern = self.SINGLE_LINE_DELIMITER_PATTERNS.get(lang_id) or re.compile(r"(?!)")
-        carry_aware = lang_id in ("python", "micropython", "ruby", "shell")
+        carry_aware = lang_id in ("python", "micropython", "embedded_python", "ruby", "shell")
         code, comments = [], []
         carry_quote: Optional[str] = None
 

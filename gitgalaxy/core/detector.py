@@ -448,6 +448,12 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         # fallback regex. Its own class_start safely extracts build stage
         # boundaries (either the explicit `AS <alias>` name or the base image).
         "dockerfile",
+        # tri-comparison-ledger-sweep (embedded_python, 2026-08-31): embedded_python's
+        # own class_start regex already matches real Python `class Name:` syntax
+        # correctly -- it was simply never added to this allowlist (same "never in
+        # scope, not decided out" gap as cobol's own entry above), so the named class
+        # list stayed empty regardless of struct_class_start's own accurate count.
+        "embedded_python",
         "jcl",
         # #1858: cobol's own class_start regex already matches PROGRAM-ID/CLASS-ID/
         # INTERFACE-ID/FACTORY/OBJECT correctly and identically to universal-ctags'
@@ -1095,7 +1101,7 @@ class StructuralExtractor:
             # is non-empty) so class_safe_stream/use_indentation_scoping are
             # never referenced uninitialized below.
             lang_family = self.languages.get(self.primary_lang_id, {}).get("lexical_family", "c_style_comment")
-            use_indentation_scoping = self.primary_lang_id in ("python", "yaml") or lang_family in (
+            use_indentation_scoping = self.primary_lang_id in ("python", "embedded_python", "yaml") or lang_family in (
                 "single_line_only",
                 "multi_style_dash",
             )
@@ -1530,7 +1536,7 @@ class StructuralExtractor:
                 break
 
         # 2. Harvest Below (Python docstrings, MATLAB help, Ruby =begin)
-        if lang_id in ("python", "matlab", "ruby", "elixir"):
+        if lang_id in ("python", "embedded_python", "matlab", "ruby", "elixir"):
             in_below_doc = False
             for j in range(i + 1, min(len(self.raw_content_lines), i + 10)):
                 nxt = self.raw_content_lines[j].strip()
@@ -2367,6 +2373,20 @@ class StructuralExtractor:
                         sats, impact = self._slice_by_m4_brackets(code, rules, offset, spatial_map)
                     elif family in ("single_line_only", "multi_style_dash") or lang_id in (
                         "python",
+                        # tri-comparison-ledger-sweep (embedded_python, 2026-08-31,
+                        # embedded_python/function/existence/agree[ctags]_vs[gitgalaxy],
+                        # 69 occurrences): embedded_python's syntax is real Python
+                        # (indentation-scoped, no braces at all), but it had no
+                        # ScopeParsingRegistry entry and wasn't in this tuple, so it
+                        # silently fell through to Mode_B_Braces below -- which can only
+                        # bound a body when a stray `{`/`}` happens to appear nearby (a
+                        # dict/set literal), dropping the vast majority of real function
+                        # bodies. Confirmed via language-crucible's embedded_python/
+                        # meow_turtle corpus: raw func_start regex matched 82/82 real
+                        # functions across the 7 files GitGalaxy actually classifies as
+                        # embedded_python (matching ctags almost exactly), but the live
+                        # pipeline's named function_data list only reached 13.
+                        "embedded_python",
                         "yaml",
                         # #1266: Haskell's layout rule is indentation-based (the
                         # "off-side rule"), not brace-based -- it was falling
@@ -4707,7 +4727,8 @@ class StructuralExtractor:
             # Extract the raw payload using the ORIGINAL code to retain the exact executable payload
             block = code[start_idx:end_idx].strip()
             if not block or (
-                len(block.splitlines()) < 2 and lang_id not in ("haskell", "python", "typescript", "javascript")
+                len(block.splitlines()) < 2
+                and lang_id not in ("haskell", "python", "embedded_python", "typescript", "javascript")
             ):
                 continue
 

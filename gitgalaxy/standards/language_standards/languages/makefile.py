@@ -44,7 +44,7 @@ DEFINITION: dict[str, Any] = {
         # --------------------------------------------------------------------------
         # Captures Make conditionals and typical inline shell conditional branches.
         "branch": re.compile(
-            r"^[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else|endif)\b(?![ \t]*:)|(?:^[ \t]*(?:@|-|\+)*[ \t]*|[;|&|(][ \t]*)\b(?:if|elif|for|while|case)\b|&&|\|\|",
+            r"^[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else|endif)\b(?![ \t]*:)|(?:^[ \t]*(?:@|-|\+)*[ \t]*|[;|&(][ \t]*)\b(?:if|elif|for|while|case)\b|&&|\|\|",
             re.M,
         ),
         # Make dynamically accesses arguments within $(call macro, args...) or positional $1, $2 inside recipes.

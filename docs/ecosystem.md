@@ -18,8 +18,10 @@ Canonical local layout on the dev machine — all siblings under `/srv/storage_1
 | **language-crucible** | `all_language_repo` | Zero-execution structural-parser **benchmark corpus** (`data/<language>/<repo-folder>/`, per-category `SOURCES.md`, machine-readable `PROVENANCE.json`). gitgalaxy CI pins it to a release tag (`LANGUAGE_CRUCIBLE_REF` GH Actions var + `tests/_crucible_pin.py`) and diffs golden masters against it. Releases per its `RELEASING.md`. |
 | **keyword-rosetta** | `keyword-rosetta` | **Control corpus**: one identical 12-probe program shell in all 46 signature-bearing languages, exact planted keyword counts — measures whether the engine treats identical intent identically across languages (cross-language bias). Gates via `tools/verify_language.py`; deviations live in `deviation_ledger.json` per its `docs/GATING.md`. Its CI checks out gitgalaxy **main** (see choreography below). |
 | **gitgalaxy-raw-output** | `gitgalaxy-raw-output` | Real, unedited **scan outputs** on independently-chosen production repos (`v<engine-version>/<repo>/<repo>_galaxy_llm.md` + gzipped audit/SBOM) plus speed charts. Evidence source for README claims and `docs/language_status/` §8 sections. |
-| **squid-telemetry** | `squid-telemetry` | Automated **data warehouse / visualization pipeline** (the engine itself is air-gapped and phones nothing home; this repo aggregates published artifacts). Hosts the live WebGL architecture map. |
-| **gitgalaxy-population-analyses** | `gitgalaxy-population-analyses` | Offline **statistical analyses** over scan populations (risk-distribution ridgeplots, archetype clustering, threat-prediction distribution studies). Consumes scan DBs; never on any CI path. |
+| **squid-telemetry** | `squid-telemetry` | **Distribution/adoption analytics** (the engine itself is air-gapped and phones nothing home; this pipeline scrapes public GitHub/GitLab/PyPI fetch metrics daily via Actions and commits regenerated chart PNGs). |
+| **gitgalaxy-population-analyses** | `gitgalaxy-population-analyses` | Offline **statistical analyses** over scan populations (risk-distribution ridgeplots, archetype clustering, threat-prediction distribution studies). Reads raw inputs from gitgalaxy-raw-output; never on any CI path. |
+| **cobol_to_java_examples** | *(not usually checked out locally)* | **Legacy-modernization showcase**: 10 COBOL repos auto-translated by the engine's `cobol_to_java` pipeline into compiling Spring Boot architectures (entities/controllers/services + `ai_agent_jobs/` tickets). Evidence for the docs site's Legacy Bridge chapter. |
+| **squid-protocol** (profile repo) | *(not usually checked out locally)* | The org/user **profile README** — the public front door linking the flagship projects. Update it when a new constellation repo becomes showcase-worthy. |
 
 **Local-only directories that are NOT repos** (but matter):
 
@@ -32,6 +34,29 @@ Canonical local layout on the dev machine — all siblings under `/srv/storage_1
   or `/srv/.../gitgalaxy` will hit stale copies of files like `language_standards.py` in
   `temp/`, `threat_hunter/`, and the pool's self-scan clone — check the path before trusting or
   editing a hit.
+
+## Public-facing surfaces & reusable assets
+
+Things to link (never duplicate) when writing READMEs, docs, issues, or showcase material:
+
+- **The docs site** — https://squid-protocol.github.io/gitgalaxy/ (source: this repo's `gh-pages`
+  branch). ~100 pages: architecture chapters (pipeline 02-*, risk-equation methodology 08-*,
+  visual-encoding 07-*), the ten claims (03-*), security landscape (04-*), the **Legacy Bridge
+  chapter** (05-* — refraction controller, Spring Boot scaffolding, JCL forge/auditor, agent
+  tickets), plus the [Museum of Code](https://squid-protocol.github.io/gitgalaxy/museum-of-code/)
+  (full architectural teardowns), a cookbook, LLM-report examples, and the CLI reference.
+- **The visualizer / product site** — https://gitgalaxy.io/ · **PyPI** —
+  https://pypi.org/project/gitgalaxy/ · **Demo video** — https://www.youtube.com/watch?v=XWWSd8LmoCM
+- **Auto-regenerating chart assets** (embed by raw URL; they update themselves, so never
+  hand-copy the image):
+  - keyword-rosetta bias chart: `https://raw.githubusercontent.com/squid-protocol/keyword-rosetta/main/docs/bias_variance_chart.svg` (regen by `tools/bias_report.py`)
+  - raw-output speed charts: `https://raw.githubusercontent.com/squid-protocol/gitgalaxy-raw-output/main/speed_charts/latest/{loc_vs_time,rate_model}.png` (regen per scan batch)
+  - telemetry adoption charts: `https://raw.githubusercontent.com/squid-protocol/squid-telemetry/main/{cumulative_downloads,conversion_funnel,discovery_channels,feature_intent,release_correlation}.png` (regen daily by Actions)
+- **README convention**: every constellation repo's README carries a short "GitGalaxy
+  constellation" section linking its neighbors (with a *you-are-here* marker) and the docs site —
+  so a reader landing anywhere can navigate the whole web. The engine README's own linking is
+  governed by `docs/how_to_maintain_the_readme.md` (evidence-shaped, five rules) — follow that
+  doc, not this section, when editing it.
 
 ## Where the skills live
 

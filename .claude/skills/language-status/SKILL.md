@@ -128,7 +128,26 @@ Follow `python.md`'s section order:
    comparison) -- the methodology in one paragraph, a results table (recall/precision per signal,
    not just one aggregate number), and any confirmed defects with links to the issues filed for
    them. Omit this section entirely rather than writing a stub if no ground-truth parser was
-   available -- an absent §9 reads as "not attempted yet," not "verified clean."
+   available -- an absent §9 reads as "not attempted yet," not "verified clean." (For a language
+   with NO ground-truth parser at all, the manual-verification fallback recorded in
+   `docs/self_scan/manual_verification.json` takes §9's place -- see jcl.md §9.)
+10. **Rosetta cross-language consistency** (only once the language's rosetta tracking issue --
+   epic #2560's per-language children #2561-#2607 -- has had a real sweep pass) -- §9 asks "is
+   extraction *accurate* on real code?"; this section asks "does the engine measure *identical
+   planted intent* the same here as in the other 45 languages?" Material lives in the
+   `keyword-rosetta` repo (a sibling checkout or github.com/squid-protocol/keyword-rosetta):
+   `docs/bias_data.json` + `tools/language_deviations.py <lang>` for the live vs-median band
+   table, `docs/findings_by_language.md#<lang>` for the tracked deviations,
+   `deviation_ledger.json` for validated verdicts. Structure the section as: a one-line
+   before/after summary (red/amber counts, links to the tracking issue and the PRs), then the
+   deviations **grouped by the five-cause taxonomy** from the keyword-rosetta
+   `rosetta-language-sweep` skill (real engine bug / missing rule with genuine morphology /
+   corpus authoring gap / intended morphology ledgered / median inflation by other languages'
+   bugs), then a "remaining out-of-band" paragraph stating what each residual is blocked on.
+   The reasoning is the point -- a future reader must be able to tell a deliberately-absent rule
+   (jcl `cleanup`) from an unexamined gap without re-deriving the investigation. jcl.md §10 is
+   the finished example. Omit the section entirely until a sweep has actually run -- same
+   "absent reads as not-attempted" rule as §9.
 
 ## Process
 

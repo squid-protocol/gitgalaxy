@@ -6,10 +6,10 @@
 | :--- | :--- |
 | **Status** | production |
 | **Target Version** | IBM z/OS JCL |
-| **Lexical Family** | line_exclusive |
-| **Rules Wired** | 11 / 24 |
-| **Extraction tests** | 41 |
-| **Strict tests** | 51 |
+| **Lexical Family** | line_exclusive (with a dedicated `//*` whole-line stripper — see §10) |
+| **Rules Wired** | 16 / 27 |
+| **Extraction tests** | 42 |
+| **Strict tests** | 65 |
 
 ## 2. Identification surface
 
@@ -29,6 +29,8 @@
 
 **Safety & Risk**
 - `high_risk_execution`: Matches execution of specific programs via `PGM=`.
+- `safety`: Matches `COND=` return-code tests (JCL's step error-handling); the bare bypass forms are excluded by lookahead. Added by [#2610](https://github.com/squid-protocol/gitgalaxy/issues/2610).
+- `safety_bypasses`: Matches `COND=EVEN` / `COND=ONLY` (run the step despite a prior abend — JCL's native ignore-the-error idiom). The combined form `COND=((4,LT),EVEN)` deliberately counts **both** safety and bypass: it carries a real RC test and a run-after-abend bypass at once. Added by #2610.
 
 **Resource Management**
 - `io`: Matches dataset definitions and I/O routing such as `DSN`, `DSNAME`, `SYSOUT`, `SYSPRINT`, `DISP=`.
@@ -39,22 +41,29 @@
 **Architecture & Domain Sensors**
 - `import`: Matches JCL includes (`INCLUDE`).
 - `_dependency_capture`: Captures the `MEMBER=` name for the dependency graph, as well as dataset names in `DD` statements and `JCLLIB` orders.
-- `ownership`: Matches ownership/maintainer comments like `//* Author:`.
+- `ownership`: Matches ownership/maintainer comments like `//* Author:` (counted on the comment stream since #2610 — previously it only worked by accident on the code stream, see §10).
+- `telemetry`: Matches `MSGLEVEL=` / `MSGCLASS=` (job-log verbosity and routing — JCL's observability dials). Added by #2610.
+- `planned_debt` / `fragile_debt`: The shared `GLOBAL_PLANNED_DEBT` / `GLOBAL_FRAGILE_DEBT` comment-anchored patterns (same wiring as cobol) — a `//* TODO ...` / `//* HACK ...` banner in a job deck now counts. Added by #2610; structurally dead before it because JCL's comment stream was always empty (§10).
 
 ## 4. What GitGalaxy explicitly does not track
 
-- `safety`: None (JCL doesn't have traditional code equivalents for these, kept null to prevent crashes).
-- `api`: None (JCL doesn't have traditional code equivalents for these, kept null to prevent crashes).
+- `api`: None (JCL has no api rule; in practice `api` still appears on scanned JCL via the
+  orphan-conversion mechanism — see the keyword-rosetta ledger's `api-contextual-baseline-fix`).
+- `cleanup`: None — **a deliberate decision, not an oversight** (#2610): the honest JCL cleanup
+  idiom is `DISP=(...,DELETE)`, but `DISP=` already feeds the `io` rule, so a cleanup rule would
+  double-count every disposition. Recorded in the keyword-rosetta deviation ledger
+  (`jcl-2610-rebaseline-residual-morphology`) as intended morphology.
+- `globals`: None — JCL has no scoped-vs-global variable distinction (`SET` symbolics are already
+  `state_mutation`; a `JOBLIB`/`STEPLIB` rule was considered and rejected because those DD
+  statements would inflate `io` and `dependency_links`).
 - `concurrency`: None.
 - `ui_framework`: None.
 - `closures`: None.
-- `globals`: None.
 - `decorators`: None.
 - `generics`: None.
 - `comprehensions`: None.
 - `scientific`: None.
 - `reflection_metaprogramming`: None.
-- `telemetry`: None.
 - `debug_prints`: None.
 
 ## 5. Known limitations (accepted, not fixed)
@@ -66,8 +75,9 @@ None currently. ([#2415](https://github.com/squid-protocol/gitgalaxy/issues/2415
 
 ## 6. Test depth
 
-- **Extraction-gauntlet tests**: 41 cases in `tests/extraction/languages/test_jcl.py`
-- **Strict-signature tests**: 51 cases in `tests/extraction/languages/test_jcl_strict.py`
+- **Extraction-gauntlet tests**: 42 cases in `tests/extraction/languages/test_jcl.py`
+- **Strict-signature tests**: 65 cases in `tests/extraction/languages/test_jcl_strict.py`
+  (grew 51 → 65 with #2610's COND-partition semantics, JES3-guard, and ReDoS detonation cases)
 
 ## 7. Relevant closed work
 
@@ -187,3 +197,66 @@ staleness anchor — a PRECISION record):
   (a `PARM=` is present), and `7` for one — `ZOSCSEC.jcl`'s `BPXIT` step, a mild over-count where
   Mode A's unbounded args search (see [#1973](https://github.com/squid-protocol/gitgalaxy/issues/1973))
   sweeps a multi-line `PARM='SH chmod …'` string.
+
+  *(Update: both proxy imprecisions above were subsequently fixed — continuation-line `PARM=` by
+  [#2482](https://github.com/squid-protocol/gitgalaxy/issues/2482)'s bounded continuation-hop
+  addition to the `args` regex, and the `BPXIT` sweep by
+  [#2483](https://github.com/squid-protocol/gitgalaxy/issues/2483)'s args-count bound. The dated
+  records above are kept as written; the metric remains `none`-granularity either way.)*
+
+## 10. Rosetta cross-language consistency (control-corpus capstone)
+
+This section is the [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta)
+counterpart of §9: where §9 asks "is JCL extraction *accurate* on real code?", the rosetta
+control corpus asks "does GitGalaxy measure *identical planted intent* the same in JCL as in the
+other 45 languages?" — every deviation from the 46-language median is measured bias, tracked in
+[#2581](https://github.com/squid-protocol/gitgalaxy/issues/2581) (epic
+[#2560](https://github.com/squid-protocol/gitgalaxy/issues/2560)) and validated in the corpus's
+[deviation ledger](https://github.com/squid-protocol/keyword-rosetta/blob/main/deviation_ledger.json).
+
+**Summary (2026-08-31).** JCL went from **13🔴 / 7🟡** out-of-band metrics (4th-worst of 46) to
+**6🔴 / 8🟡** (mid-pack) in one pass: gitgalaxy [#2610](https://github.com/squid-protocol/gitgalaxy/issues/2610)
+(PR [#2611](https://github.com/squid-protocol/gitgalaxy/pull/2611)) plus keyword-rosetta
+[PR #4](https://github.com/squid-protocol/keyword-rosetta/pull/4). The 20 tracked deviations
+decomposed into exactly five causes, each with a different fix path — recorded here because the
+*taxonomy* is the reusable part (see the keyword-rosetta `rosetta-language-sweep` skill):
+
+1. **One real engine bug** (#2610, fixed): prism never stripped `//*` comments — jcl's
+   `line_exclusive` delimiter list is deliberately empty (`//` also prefixes every statement, so
+   the stateless per-line stripper cannot express a whole-line positional prefix), and no
+   positional path existed either. Every `//*` line sat in the *code* stream: `doc_loc` was 0 for
+   all JCL, `comment_analysis` (doc/ownership/debt) ran on an empty string engine-wide, and
+   `ownership` only counted by accident via `coding_analysis` on the wrong surface. Fixed with a
+   dedicated line-count-preserving `_strip_jcl_comments` partition, guarded (case-sensitively)
+   for the ten JES3 `//*`-prefixed control verbs, which are statements, not comments.
+2. **Missing rules with genuine JCL morphology** (#2610, added): `safety` = `COND=` RC-tests,
+   `safety_bypasses` = `COND=EVEN/ONLY`, `telemetry` = `MSGLEVEL=/MSGCLASS=`, and the shared
+   comment-anchored debt patterns (§3). These were recorded as "JCL doesn't have equivalents",
+   which was wrong — JCL's error-handling, error-*ignoring*, and log-verbosity idioms are real
+   and risk-relevant for legacy modernization.
+3. **A corpus authoring gap, not morphology**: `args` measured 1 vs median 13, but JCL expresses
+   per-step arguments (`PARM=`) and the engine rule already handled them (#2482) — the rosetta
+   shell had simply under-planted. Re-authored with `PARM=` on all 13 EXEC steps → exactly at
+   median. Lesson: check whether the language *could* express the spec before ledgering a
+   structure deviation as morphology.
+4. **Intended morphology, ledgered** (`jcl-2610-rebaseline-residual-morphology`, validated):
+   `cleanup`/`doc`/`test`/`globals` zeros (§4 reasoning), `dependency_links` 4 vs 3 (the DD
+   `DSN=` capture is deliberate blast-radius design — datasets *are* JCL dependencies), and the
+   `comment_lines` residual (JCL permits no blank lines; the metric's `total_loc − coding_loc`
+   proxy counts other languages' blank-line style as comment mass).
+5. **Median inflation by other languages' bugs — JCL is the honest one**: `branch` 3 and
+   `state_mutation` 2 match planted intent exactly; their out-of-band standing is the
+   return-counts-as-branch family ([#2545](https://github.com/squid-protocol/gitgalaxy/issues/2545))
+   and the ×3 flux weighting ([#2546](https://github.com/squid-protocol/gitgalaxy/issues/2546))
+   inflating the cross-language median. No JCL action; re-baselines when those land.
+
+**Remaining out-of-band** (all accounted, none actionable at the JCL level): the bucket-4
+morphology zeros (final disposition is the epic's scoring-side "absent morphology = incomparable"
+work), the bucket-5 metrics (blocked on #2545/#2546), and the §3 risk-score consequences
+(downstream shadows; the epic forbids tuning risk formulas against biased inputs).
+
+Reproduce: `GALAXYSCOPE_BIN=<venv>/bin/galaxyscope python tools/verify_language.py jcl` in the
+corpus repo (gate: 76 assertions), `python tools/language_deviations.py jcl` for the live
+vs-median band table, and the corpus's
+[findings_by_language.md#jcl](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md#jcl) /
+[bias chart](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/bias_variance_chart.svg).

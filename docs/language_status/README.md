@@ -42,6 +42,19 @@ from class bodies, tied to a previously-unfixed diagnosis in #789). Worth readin
 needed a from-scratch tree-sitter node-walker (no existing helper), and surfaced a genuine,
 separate infra bug along the way.
 
+**`jcl.md`'s §10 is the first "Rosetta cross-language consistency" capstone section** — the
+[keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) control-corpus counterpart
+of §9: not "is extraction accurate on real code?" but "does the engine measure identical planted
+intent the same in this language as in the other 45?" It records the language's measured-bias
+standing (epic [#2560](https://github.com/squid-protocol/gitgalaxy/issues/2560)'s per-language
+tracking issue), with every deviation classified by cause — real engine bug, missing rule with
+genuine morphology, corpus authoring gap, ledgered intended morphology, or median inflation by
+*other* languages' bugs — so a deliberately-absent rule reads differently from an unexamined gap.
+The jcl pass found one engine-wide bug this way (#2610: `//*` comments never reached the comment
+surface) and took jcl from 4th-worst of 46 to mid-pack. Write this section via the
+keyword-rosetta repo's `rosetta-language-sweep` skill once a language's rosetta issue gets a real
+sweep; the section template is in the `language-status` skill.
+
 ## Signature-bearing languages (46)
 
 `LANGUAGE_DEFINITIONS` recognizes 59 languages/formats; these 46 have at least one non-`None`

@@ -17,6 +17,7 @@ See CLAUDE.md's "Using GitGalaxy's self-scan output for orientation" section for
 
 ## 1. Local & Unit Validation (~1 min)
 * **Standalone Regex Re-test:** Isolate the target regex (e.g., `func_start`) against the failing corpus file manually to ensure false positives and negatives are resolved without affecting real matches.
+* **See what the engine actually extracted before re-deriving it from source:** `galaxyscope <path> --db-only --debug --output <scratch-dir>` and grep the log for `[WORKER-TRACE] extracted functions for` -- one line per file with the exact satellite/function names produced. Much cheaper than tracing `_slice_by_keywords`/`_slice_by_terminator`/etc. cold when the question is "what did the engine actually name/count here." See CLAUDE.md's "Debugging what detector.py actually extracted from a specific file" for the full recipe (DB cross-reference, etc.) -- not repeated here.
 * **Extraction Gauntlet & Strict Tests:** Run `pytest tests/extraction/languages/test_<lang>.py` and `test_<lang>_strict.py` for the language you modified.
 
 ## 2. Static Analysis & Linting (~15s)
@@ -27,6 +28,14 @@ See CLAUDE.md's "Using GitGalaxy's self-scan output for orientation" section for
 * **Run the Crucible Check (Mandatory):** Execute `python tests/tools/crucible_check.py` against the full ~80-repo corpus.
 * **Re-Bless Golden Masters:** If `crucible_check.py` shows expected, accurately traced diffs resulting from your fix, bless the new state:
   `python tests/tools/crucible_check.py --update --yes`
+  * Always go through `crucible_check.py --update`, never `python tests/tools/update_golden_master.py`
+    directly -- the latter only updates whichever ONE fixture matches whatever happens to be
+    importable in your current shell, with no automatic venv/PATH management; `crucible_check.py
+    --update` runs it once per mode through its own properly-scoped venv, no manual bookkeeping.
+  * **Claude Code note:** blessing a golden master is exactly the kind of action Auto Mode's
+    classifier treats as destructive-looking and blocks by default (even via `--yes`, even on a
+    clean tree where it would be a no-op) -- expect to explicitly ask the user for one-time
+    permission before this step rather than being surprised mid-task.
 * **Isolate exactly what your change touched, independent of whether the committed fixture is even current:** `python tests/tools/scope_check.py --expect <lang>[,<lang2>]` scans your working tree AND a comparison ref (default `origin/main`) fresh, in separate venvs, and buckets every difference by language -- fails loudly if anything outside `--expect` changed. This answers "is my diff actually scoped to what I meant to touch" directly, without needing the committed golden master to be current first (useful mid-investigation, or after `main` has moved and the committed fixture reflects a bunch of OTHER PRs' legitimate changes you didn't make). Costs roughly 2x a single `crucible_check.py` run (it builds and scans two venvs, not one) -- background it.
 * **On the old "never clone a fresh corpus copy" folklore:** a fresh `language-crucible` clone is fine, and both `crucible_check.py` and `scope_check.py` do this routinely (the latter clones a temporary comparison-ref worktree every run). What actually causes massive, invalid-looking diffs is one of two SPECIFIC, now-automatically-checked things, not "metadata" in general (verified by direct repro, PR #2518, 2026-08-30/31 -- see `crucible_check.py`'s own module docstring for the full incident writeups):
   1. **Wrong pin.** The corpus isn't on the tag `tests/_crucible_pin.py` names. `crucible_check.py` now warns about this automatically (`_check_corpus_pin`) -- if you see the warning, `git fetch --tags && git checkout <tag>` in the corpus checkout.

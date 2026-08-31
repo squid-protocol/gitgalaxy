@@ -150,6 +150,30 @@ diff be" is answered from data instead of a guess informed only by the issue tex
     `"scala"` key starts inside `language_standards.py`'s `LANGUAGE_DEFINITIONS`) — it's for
     orientation and prioritization, not symbol lookup. Read the actual file for that.
 
+## Debugging what detector.py actually extracted from a specific file
+
+Before tracing `_slice_by_keywords`/`_slice_by_terminator`/etc. by hand to understand why a
+signal looks wrong for some target file or corpus, check what the engine actually did first —
+much cheaper than re-deriving it from the regex/slicing logic cold (#2547: confirmed the exact
+root cause — a slicer-synthesized non-function bucket name being miscounted as an orphan — in a
+few minutes this way, instead of hours of pure static reading):
+
+- `galaxyscope <path> --db-only --debug --output <scratch-dir>` and grep the resulting log for
+  `[WORKER-TRACE] extracted functions for` — one line per file, listing the exact satellite/
+  function names `_function_slice` produced for it (`detector.py`'s own debug trace, gated
+  behind `logger.isEnabledFor(logging.DEBUG)`). This is the fastest way to see whether a
+  suspiciously-named entry (a synthetic bucket, a reused generic keyword, a truncated remnant)
+  is in play, before assuming the signal count itself is what's wrong.
+- Cross-reference the aggregated per-file numbers in the recorder DB this same run produces
+  (`<scratch-dir>/<repo>_galaxy_master.db`, `file_data` table) — column names are the
+  `record_keeper.py`-renamed form of the raw equation keys (e.g. `orphaned_logic` →
+  `state_slop_orphans`, `api` → `arch_api`; confirm via `.schema file_data` since this evolves).
+- For a control/golden corpus already checked out locally (e.g. `keyword-rosetta`,
+  `language-crucible`), point `galaxyscope` straight at it this way instead of writing a
+  standalone repro script — the census requires git-tracked files (see `census-requires-git-
+  tracked` in a corpus's own deviation ledger if one exists), so scan the real corpus checkout,
+  not an ad hoc copy.
+
 ## Adding or hardening a language's structural signatures
 
 Full protocol (LLM generation prompt, the 12 numbered engine rules for ReDoS/boundary
@@ -211,8 +235,17 @@ expected to be verified against `tests/golden_master_audit.json` /
 `tests/golden_master_zero_dep_audit.json` — snapshots diffed by the `crucible-audit` CI check
 against a ~80-repo corpus plus the PR's target repo. A failing diff means output changed: either
 a bug, or an intentional improvement that needs the baseline re-blessed. **Never hand-edit these
-fixtures.** Regenerate with `python tests/tools/update_golden_master.py` (shows the diff, asks
-for confirmation) and explain *why* in the PR description — CI flags any PR touching these files.
+fixtures.** Regenerate with `python tests/tools/crucible_check.py --update --yes` (default
+`--mode both`) — explain *why* the output changed in the PR description, CI flags any PR touching
+these files. This handles BOTH fixtures (full-precision and zero-dependency each need their own
+venv/interpreter) in one command with no manual `PATH`/`pip install -e .` bookkeeping — see the
+"Verifying locally before pushing" paragraph just below for exactly what it automates and why
+that matters. `python tests/tools/update_golden_master.py` (`--yes` to skip its own confirmation
+prompt) is the underlying single-mode script `--update` shells out to per venv; call it directly
+only if you're already inside one specific mode's venv and deliberately want just that fixture —
+reaching for it from your default shell silently updates whichever ONE fixture matches whatever
+happens to be importable there (#2547: this cost a full investigation cycle before landing on
+`crucible_check.py --update` instead).
 
 The same PR paths also run `tri-comparison-audit.yml`, a baseline-gated regression check on
 GitGalaxy's own **validated** precision against tree-sitter+ctags (see `docs/self_scan/

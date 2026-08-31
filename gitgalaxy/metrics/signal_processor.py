@@ -395,7 +395,7 @@ class SignalProcessor:
                 # 1. Zero out all standard architectural risks
                 blanket_risk_vector = [0.0] * len(self.RISK_SCHEMA)
 
-                # 2. Check for ANY malicious intent (eval, network fetching, etc.)
+                # 2. Check for ANY malicious intent (dynamic code execution, network fetching, etc.)
                 intent_mass = (
                     raw_signals.get("sec_high_risk_execution", 0)
                     + raw_signals.get("sec_io", 0)

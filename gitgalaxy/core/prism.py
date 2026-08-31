@@ -565,7 +565,7 @@ class Prism:
                 continue
 
             # In shell and makefile, '#' is only a comment if it is the start of a word (preceded by whitespace or start of line).
-            # This protects bash parameter expansions like `${var##prefix}` from being falsely stripped.
+            # This protects POSIX parameter expansions like `${var##prefix}` from being falsely stripped.
             if token == "#" and lang_id in ("shell", "makefile"):  # noqa: S105
                 alternatives.append(r"(?:^|(?<=\s))#")
                 continue

@@ -124,8 +124,15 @@ class SecurityLens:
                 re.I,
             ),
             # 6. Commented-out Executable Logic (Deprecated Trails)
+            # BUG FIX (confirmed via this repo's own GitHub Advanced Security self-scan, #847):
+            # the bare `#` comment-marker alternative matched a script's own `#!/bin/bash`
+            # shebang line -- a `#` immediately followed by `!` is never "commented-out
+            # executable logic", it's the interpreter directive every real shell script
+            # requires. `(?!!)` excludes only that one shape; every other real `#`-comment
+            # (including a genuine commented-out `# curl ... | bash`) still matches exactly
+            # as before.
             "dead_code": re.compile(
-                r"(?://|#|--|\*>|^.{6}\*)[^\n]*?\b(?:http|bash|curl|wget|eval|base64|nc\s+-e|/dev/tcp|BPXBATCH)\b|"
+                r"(?://|#(?!!)|--|\*>|^.{6}\*)[^\n]*?\b(?:http|bash|curl|wget|eval|base64|nc\s+-e|/dev/tcp|BPXBATCH)\b|"
                 r"/\*(?:(?!\*/).){0,500}?\b(?:http|bash|curl|wget|eval|base64|nc\s+-e|/dev/tcp)\b",
                 re.I,
             ),

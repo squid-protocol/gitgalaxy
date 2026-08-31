@@ -2048,8 +2048,10 @@ class StructuralExtractor:
         # pass would otherwise rewrite `'EOF'` -> `''` and the delimiter would
         # be lost, leaving the entire heredoc body live to corrupt the Mode-D
         # depth stack). `preserve_newlines` returns this match verbatim.
-        # Scoped to shell/bash: ruby's `<<` is also the append operator and
-        # elixir's is the bitstring builder, both of which this would false-match.
+        # Scoped to the Bourne-family shell lang_id (checked both by its resolved
+        # "shell" alias and the literal name below): ruby's `<<` is also the append
+        # operator and elixir's is the bitstring builder, both of which this would
+        # false-match.
         heredoc_opener_alt = (
             r"(?P<heredoc><<[-~]?[ \t]*(?:'[A-Za-z_]\w*'|\"[A-Za-z_]\w*\"|[A-Za-z_]\w*))|"
             if lang_id in ("shell", "bash")
@@ -4767,8 +4769,8 @@ class StructuralExtractor:
         # docstring/comments for why a separate later pass was unsafe.
         # #1266: this call used to drop `lang_id` entirely (always passing
         # the implicit `None` default), which silently disabled BOTH the
-        # heredoc-protection branch for ruby/perl/elixir/shell/bash (each
-        # explicitly gated on `lang_id in [...]`, never actually reachable)
+        # heredoc-protection branch for ruby/perl/elixir/the Bourne-family shell
+        # id (each explicitly gated on `lang_id in [...]`, never actually reachable)
         # and, now, MATLAB's `%`-comment-marker resolution. Passing it
         # through is a strict correctness fix -- verified via
         # `crucible_check.py` to change nothing for the languages other than

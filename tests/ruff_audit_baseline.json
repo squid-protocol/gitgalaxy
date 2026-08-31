@@ -46,7 +46,7 @@
   "gitgalaxy/recorders/sbom_recorder.py:221: PERF401": "Use `list.extend` to create a transformed list",
   "gitgalaxy/security/security_auditor.py:359: RUF046": "Value being cast to `int` is already an integer",
   "gitgalaxy/security/security_auditor.py:424: PERF203": "`try`-`except` within a loop incurs performance overhead",
-  "gitgalaxy/security/security_lens.py:394: SIM102": "Use a single `if` statement instead of nested `if` statements",
+  "gitgalaxy/security/security_lens.py:401: SIM102": "Use a single `if` statement instead of nested `if` statements",
   "gitgalaxy/standards/config_resolver.py:254: UP045": "Use `X | None` for type annotations",
   "gitgalaxy/standards/config_resolver.py:255: UP045": "Use `X | None` for type annotations",
   "gitgalaxy/standards/config_resolver.py:256: UP045": "Use `X | None` for type annotations",

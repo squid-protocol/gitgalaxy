@@ -365,6 +365,11 @@ def test_cobol_func_start_excludes_reserved_verbs_and_headers():
     WRITE, EXIT, GOBACK, STOP, DISPLAY, DIVISION, SECTION headers) -- these
     are false alarms from the sweep picking up func_start's own exclusion
     list text, not a real double-match risk.
+
+    #2538 extends this same list: CEE3DMP/CEEMOUT/CEEDUMP (the `telemetry`
+    rule's LE runtime diagnostic service names) share the same "bare
+    token + period" shape as a paragraph header when indented into Area B,
+    with nothing in the old shield to exclude them.
     """
     func_start = COBOL_RULES["func_start"]
     for reserved in (
@@ -375,6 +380,9 @@ def test_cobol_func_start_excludes_reserved_verbs_and_headers():
         "       PROCEDURE DIVISION.",
         "       STOP RUN.",
         "       GOBACK.",
+        "            CEE3DMP.",
+        "            CEEMOUT.",
+        "            CEEDUMP.",
     ):
         assert not func_start.search(reserved), f"func_start incorrectly matched reserved line {reserved!r}"
 

@@ -142,7 +142,27 @@ DEFINITION: dict[str, Any] = {
             # `CONTINUE.` is `<verb>.`, not a paragraph header. Confirmed FP against
             # language-crucible v1.2.0 (che-che4z_nist_ccvs85/IF4014.2.cbl:30 etc.,
             # cobol-sample_SAMPLE1.cbl). Same class as LOCAL-STORAGE (#1890).
-            r"DELETE|OPEN|CLOSE|CONTINUE|PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Za-z0-9_-]+)(?=[ \t\n.]))"
+            r"DELETE|OPEN|CLOSE|CONTINUE|"
+            # #2538: CEE3DMP/CEEMOUT/CEEDUMP are Language Environment (LE)
+            # runtime diagnostic service names -- already recognized elsewhere
+            # in this file as the `telemetry` class (see that rule below) -- not
+            # paragraph names. A bare `CEE3DMP.` statement call sitting on its
+            # own line, indented into Area B, was being swept up as a paragraph
+            # header: this shield had no entry for them, and the post-sequence-
+            # area slot (`[ \t]*`, item 1 above) tolerates any horizontal
+            # indent to support genuinely free-format source, so it doesn't
+            # distinguish Area A (paragraph names, columns 8-11) from Area B on
+            # its own. Confirmed FP: `data/cobol/b.cpy` (che-che4z #1096 control
+            # corpus) planted `CEE3DMP.`/`CEEMOUT.` in Area B and both were
+            # captured as extra paragraphs (func_start=5 for 3 real paragraphs).
+            # Scoped narrowly to these three known LE tokens, same fix class as
+            # CONTINUE/LOCAL-STORAGE above, rather than a general Area-A column
+            # anchor: the sequence-area consumer in item 1 can't reliably tell
+            # a genuine fixed-format sequence number from 6 free-format leading
+            # spaces, so a real structural fix needs file-level fixed/free-
+            # format detection -- out of scope for this narrow token exclusion.
+            r"CEE3DMP|CEEMOUT|CEEDUMP|"
+            r"PROGRAM-ID|CLASS-ID|SECTION|DIVISION|END-[A-Za-z0-9_-]+)(?=[ \t\n.]))"
             # 4. THE DIVISION/SECTION HEADER SHIELD
             # Bans any word followed immediately by DIVISION (e.g., "PROCEDURE DIVISION").
             # Upgraded to `[ \t\n]+` to prevent vertical ghosting.

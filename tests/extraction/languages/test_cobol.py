@@ -66,6 +66,9 @@ FUNCTION_CASES: dict[str, Any] = {
         "      * TargetFunc.",  # column-7 comment marker
         "123456* TargetFunc.",  # column-7 comment with real sequence numbers
         "      *> TargetFunc.",  # free-format inline comment marker
+        "000600            CEE3DMP.",  # #2538: LE diagnostic call, Area B, not a paragraph
+        "000700            CEEMOUT.",  # #2538: LE diagnostic call, Area B, not a paragraph
+        "               CEEDUMP.",  # #2538: same LE-service class, free-format indent
     ],
     "pathological": [
         ("TargetFunc \n           SECTION.", "TargetFunc"),  # carried-forward: margin-hugging + vertical split

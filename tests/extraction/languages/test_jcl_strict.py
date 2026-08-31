@@ -83,6 +83,26 @@ _JCL_SIMPLE_CASES = [
     ("structural_boundaries", "//$DD     DD DUMMY", "// DUMMY"),
     ("structural_boundaries", "//INC     INCLUDE MEMBER=A", "INCLUDE MEMBER=A"),
     ("structural_boundaries", "//@SET    SET X=Y", "SET X=Y"),
+
+    # #2610: safety = COND= return-code tests; the bare bypass forms are
+    # excluded (they belong to safety_bypasses, not safety)
+    ("safety", "//S1      EXEC PGM=X,COND=(4,LT)", "//S2      EXEC PGM=Y,COND=EVEN"),
+    ("safety", "//        COND=(0,NE,STEP1)", "//S2      EXEC PGM=Y,COND=ONLY"),
+    ("safety", "//S3      EXEC PGM=Z,COND=((4,LT),EVEN)", "//S4      EXEC PGM=W,CONDX=(4,LT)"),
+
+    # #2610: safety_bypasses = COND=EVEN / COND=ONLY (run despite abend)
+    ("safety_bypasses", "//S2      EXEC PGM=Y,COND=EVEN", "//S1      EXEC PGM=X,COND=(4,LT)"),
+    ("safety_bypasses", "//S2      EXEC PGM=Y,COND=ONLY", "//S1      EXEC PGM=X,COND=(4,LT,STEP1)"),
+    ("safety_bypasses", "//S3      EXEC PGM=Z,COND=((4,LT),EVEN)", "//S4      EXEC PGM=W,COND=(4,LT),PARM='EVENT'"),
+
+    # #2610: telemetry = job-log verbosity/routing operands
+    ("telemetry", "//J       JOB 1,MSGLEVEL=(1,1)", "//S1      EXEC PGM=X"),
+    ("telemetry", "//J       JOB 1,MSGCLASS=H", "//J       JOB 1,CLASS=A"),
+
+    # #2610: comment-anchored debt markers (shared GLOBAL_* patterns; only
+    # meaningful now that prism routes //* lines to the comment stream)
+    ("planned_debt", "//* TODO wire the FTP step", "//* all wired up here"),
+    ("fragile_debt", "//* HACK: overrides the region size", "//* routine banner comment"),
 ]
 
 
@@ -292,6 +312,49 @@ def test_jcl_args_redos_immunity():
     assert_redos_immune(pattern, "//X EXEC PGM=Y," + "A," * 20000, timeout_sec=3.0)
     many_fake_hops = "//X EXEC PGM=Y,\n" + "\n".join(f"//   FIELD{i}=VAL{i}," for i in range(20000))
     assert_redos_immune(pattern, many_fake_hops, timeout_sec=3.0)
+
+
+def test_jcl_cond_safety_vs_bypass_partition():
+    """
+    #2610: the two COND= rules partition by semantics, not by keyword --
+    a plain RC test is safety only, a bare EVEN/ONLY is bypass only, and
+    the combined form carries both (a real RC test AND a run-after-abend
+    bypass on the same step). An EVEN-shaped token *outside* the COND
+    value's own parentheses must not leak into the bypass count.
+    """
+    safety = JCL_RULES["safety"]
+    bypass = JCL_RULES["safety_bypasses"]
+
+    plain = "//S1      EXEC PGM=X,COND=(4,LT)"
+    assert safety.search(plain) and not bypass.search(plain)
+
+    bare_even = "//S2      EXEC PGM=Y,COND=EVEN"
+    assert bypass.search(bare_even) and not safety.search(bare_even)
+
+    combined = "//S3      EXEC PGM=Z,COND=((4,LT),EVEN)"
+    assert safety.search(combined) and bypass.search(combined)
+
+    # EVEN-ish text later on the line, outside the COND parens, is not a bypass
+    outside = "//S4      EXEC PGM=W,COND=(4,LT),PARM='EVENT'"
+    assert safety.search(outside) and not bypass.search(outside)
+
+    # continuation-line COND= (the same real-corpus shape #2482 documents
+    # for PARM=) still counts -- the rule is operand-anchored, not line-anchored
+    continuation = "//S5      EXEC PGM=V,\n//             COND=ONLY"
+    assert bypass.search(continuation)
+
+
+def test_jcl_cond_bypass_redos_immunity():
+    """
+    #2610: the combined-form branch's scan is the bounded one-level-paren
+    idiom -- alternatives disjoint on their first character, inner star
+    inside literal parens -- fed here with an adversarial run that never
+    closes and never reaches EVEN/ONLY (the shape that would matter if
+    the alternation partitioned ambiguously).
+    """
+    pattern = JCL_RULES["safety_bypasses"]
+    assert_redos_immune(pattern, "//X EXEC PGM=Y,COND=(" + "(A)," * 20000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "//X EXEC PGM=Y,COND=(" + "A" * 100000, timeout_sec=3.0)
 
 
 def test_jcl_lexical_family_no_block_terminator_state_to_confuse():

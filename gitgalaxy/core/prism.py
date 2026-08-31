@@ -217,6 +217,21 @@ class Prism:
         self.PYTHON_DOC_PATTERN = re.compile(PRISM_CONFIG.get("PYTHON_DOC_PATTERN", ""), re.M)
         self.PHP_HEREDOC_PATTERN = re.compile(PRISM_CONFIG.get("PHP_HEREDOC_PATTERN", ""), re.M)
 
+        # #2610: JCL's `//*` comment is a whole-line positional prefix that the
+        # line_exclusive delimiter stripper can't express (every JCL *statement*
+        # also starts with `//`, so a bare `//` delimiter would comment out the
+        # entire language -- which is why gitgalaxy_config.py's per-language
+        # delimiter list for jcl is deliberately empty). Matched per-line in
+        # _strip_jcl_comments instead. The negative lookahead keeps the ten
+        # JES3 control statements (`//*MAIN`, `//*FORMAT`, ...) in the code
+        # stream: they share the `//*` prefix but are real statements, not
+        # comments. Deliberately case-SENSITIVE -- JES3 verbs are only valid
+        # uppercase, while a lowercase `//*main story...` prose comment must
+        # still strip.
+        self.JCL_COMMENT_LINE_PATTERN = re.compile(
+            r"^//\*(?!(?:MAIN|FORMAT|NET|DATASET|ENDDATASET|PROCESS|ENDPROCESS|OPERATOR|PAUSE|ROUTE)\b)"
+        )
+
         self.logger.info(f"Structural Scanner Online | Calibrated {len(self.REGEX_MATRIX)} syntax rules.")
 
     def split_streams(self, content: str, primary_lang: str) -> PrismResult:
@@ -373,6 +388,16 @@ class Prism:
             )
             if pos_lits:
                 lits.extend(pos_lits.splitlines())
+            return code, "\n".join(lits)
+
+        if lang_id == "jcl":
+            # #2610: jcl is nominally line_exclusive but its delimiter list is
+            # (correctly) empty -- see JCL_COMMENT_LINE_PATTERN's construction
+            # note. Without this branch, every `//*` comment line stayed in the
+            # code stream, so jcl's comment surface (doc/ownership/debt rules,
+            # doc_loc) was structurally dead engine-wide.
+            code, jcl_lits = self._strip_jcl_comments(text)
+            lits.extend(jcl_lits)
             return code, "\n".join(lits)
 
         if family == "line_exclusive":
@@ -1051,6 +1076,29 @@ class Prism:
 
         # 3. Final Logic Unmasking
         return unmask(protected_code), lits
+
+    def _strip_jcl_comments(self, text: str) -> tuple[str, list[str]]:
+        """
+        Whole-line `//*` comment stripping for JCL (#2610).
+
+        JCL has no inline comment form this engine models -- the comment
+        statement is the entire physical line, prefix-anchored at column 1 --
+        so this is a pure per-line partition with no literal shielding needed
+        (a `//*` mid-line is operand text, and a line not starting `//*` can
+        never become a comment partway through). Line count is preserved by
+        emitting an empty code line per stripped comment, mirroring
+        _strip_positional_comments, so downstream spatial line numbers stay
+        aligned with the raw file. JES3 control verbs (`//*MAIN` etc.) are
+        excluded by JCL_COMMENT_LINE_PATTERN and stay in the code stream.
+        """
+        code, lits = [], []
+        for line in text.split("\n"):
+            if self.JCL_COMMENT_LINE_PATTERN.match(line):
+                lits.append(line)
+                code.append("")
+            else:
+                code.append(line)
+        return "\n".join(code), lits
 
     def _strip_positional_comments(
         self, text: str, abap_mode: bool = False, cobol_mode: bool = False

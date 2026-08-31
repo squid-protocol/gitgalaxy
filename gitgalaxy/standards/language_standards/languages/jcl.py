@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "IBM z/OS JCL",
@@ -80,9 +82,32 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\bPGM=[A-Za-z0-9_#$@]+\b", re.I),
         # I/O (Data Set Names and Sysouts)
         "io": re.compile(r"\b(DSN|DSNAME|SYSOUT|SYSPRINT|DISP=)\b", re.I),
-        # JCL doesn't have traditional code equivalents for these, keep them null to prevent crashes
-        "safety": None,
+        # #2610: JCL's error handling is the COND= operand -- a return-code
+        # test deciding whether a step runs after a prior step's outcome.
+        # Unanchored (like io's DISP=/PGM= operands) because COND= routinely
+        # sits on a `//` continuation line, not the EXEC line itself (the same
+        # real-corpus shape the args rule's #2482 note documents). The negative
+        # lookahead keeps the plain bypass forms (COND=EVEN / COND=ONLY) out of
+        # safety: those are the *absence* of a return-code test and belong to
+        # safety_bypasses below. A combined form like COND=((4,LT),EVEN)
+        # deliberately counts BOTH -- it carries a real RC test and a run-even-
+        # after-abend bypass at once.
+        "safety": re.compile(r"\bCOND=(?!(?:EVEN|ONLY)\b)", re.I),
         "api": None,
+        # #2610: COND=EVEN ("run even if a prior step abended") and COND=ONLY
+        # ("run only after an abend") execute a step in spite of upstream
+        # failure -- JCL's native ignore-the-error idiom. Two alternatives:
+        # the bare form, and the parenthesized combined form
+        # (COND=((4,LT),EVEN)), whose scan is the bounded one-level-paren
+        # idiom -- the two branches are disjoint on their first character
+        # ("(" vs not) and the inner star sits inside literal parens, so no
+        # position ever partitions ambiguously (ReDoS-safe), and neither
+        # branch can cross a newline or escape the COND value's own parens to
+        # reach an unrelated EVEN/ONLY later on the line.
+        "safety_bypasses": re.compile(
+            r"\bCOND=(?:EVEN|ONLY)\b|\bCOND=\((?:[^\n()]|\([^\n()]*\))*?\b(?:EVEN|ONLY)\b",
+            re.I,
+        ),
         # BUG FIX: unanchored -- `\bSET\s+NAME=` matched "SET" anywhere in the
         # file, including inline SYSIN card data (`//SYSIN DD *` ... `/*`) that
         # isn't a JCL statement at all (e.g. an embedded SQL/shell/config
@@ -118,7 +143,19 @@ DEFINITION: dict[str, Any] = {
         # captured garbage from that *different* line (including its own "//*"
         # prefix) instead of correctly failing to match. Bounded to `[ \t]+`.
         "ownership": re.compile(r"^//\*[ \t]*(?:Author|Created by|Maintainer):[ \t]+(.*)", re.I | re.M),
-        "telemetry": None,
+        # #2610: MSGLEVEL= (what the job log records: statements/allocations)
+        # and MSGCLASS= (where the log goes) are JCL's observability dials --
+        # the closest native equivalent of configuring a logger. Unanchored
+        # like the other operand rules (JOB-card operands continue across `//`
+        # lines the same way EXEC's do).
+        "telemetry": re.compile(r"\bMSG(?:LEVEL|CLASS)=", re.I),
         "debug_prints": None,
+        # #2610: comment-anchored debt markers. Dead rules before the #2610
+        # prism fix (jcl's comment stream was always empty); now that `//*`
+        # lines reach comment_analysis, a `//* TODO ...` banner in a real job
+        # deck counts the same way it does in cobol. Shared global patterns,
+        # same as cobol.py.
+        "planned_debt": GLOBAL_PLANNED_DEBT,
+        "fragile_debt": GLOBAL_FRAGILE_DEBT,
     },
 }

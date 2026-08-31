@@ -466,6 +466,52 @@ def test_prism_strips_comments_against_the_real_config():
     assert "a comment" not in result["code_stream"]
     assert "a comment" in result["comment_stream"]
 
+    # jcl (#2610): nominally line_exclusive but with a deliberately empty
+    # delimiter list (`//` prefixes every statement too), served by its own
+    # whole-line `//*` stripper instead
+    result = real_prism.split_streams("//* a comment\n//STEP1   EXEC PGM=IEFBR14\n", "jcl")
+    assert "a comment" not in result["code_stream"]
+    assert "a comment" in result["comment_stream"]
+    assert "EXEC PGM=IEFBR14" in result["code_stream"]
+
+
+def test_prism_jcl_comment_stripping_details():
+    """
+    #2610: JCL `//*` whole-line comments move to the comment stream while
+    everything `//`-statement-shaped stays code -- including the ten JES3
+    control statements (`//*MAIN` etc.), which share the comment's prefix
+    but are real statements (uppercase-only, hence the guard being
+    case-sensitive while a lowercase `//*main ...` prose comment still
+    strips). Line count must be preserved so downstream spatial line
+    numbers stay aligned with the raw file.
+    """
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    real_prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    deck = (
+        "//* banner comment\n"
+        "//*MAIN CLASS=A\n"
+        "//*main lowercase prose comment\n"
+        "//ROSETTA JOB\n"
+        "//STEP1   EXEC PGM=IEFBR14\n"
+        "//SYSIN   DD *\n"
+        "SET X=1 payload line, not JCL\n"
+        "/*\n"
+    )
+    result = real_prism.split_streams(deck, "jcl")
+    code, comments = result["code_stream"], result["comment_stream"]
+
+    assert "banner comment" not in code and "banner comment" in comments
+    assert "lowercase prose comment" not in code and "lowercase prose comment" in comments
+    # JES3 control statement stays code, never a "comment"
+    assert "//*MAIN CLASS=A" in code and "//*MAIN" not in comments
+    # ordinary statements, inline SYSIN payload, and the /* delimiter stay code
+    assert "//ROSETTA JOB" in code and "EXEC PGM=IEFBR14" in code
+    assert "payload line" in code and "/*" in code
+    # line alignment: stripped lines are blanked, not deleted
+    assert code.count("\n") == deck.count("\n")
+
 
 def test_prism_sub_families_fix_the_standard_block_delimiter_gap():
     """

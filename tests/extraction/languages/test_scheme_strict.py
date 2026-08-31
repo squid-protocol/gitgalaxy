@@ -324,6 +324,7 @@ def test_scheme_redos_immunity_sweep():
     assert SCHEME_RULES["class_start"].search("(define-record-type <point> (make-point x y) point?)")
     assert SCHEME_RULES["globals"].search("(define default->value 5)")
 
+
 _SCHEME_DEEP_CASES = [
     # branch
     ("branch", "(\n  if a b c)", "xif"),
@@ -331,27 +332,23 @@ _SCHEME_DEEP_CASES = [
     ("branch", "(cond\n (else 1))", "conditional"),
     ("branch", "(when (and a b))", "awhen"),
     ("branch", "unless", "runless"),
-
     # args
     ("args", "(define (foo \n x \n y)\n  ...)", "(define foo 5)"),
     ("args", "(define (foo))", "(define (foo"),
     ("args", "(define (foo . rest) ...)", "(define foo (lambda (x) x))"),
     ("args", "(define (foo!x y))", "(define foo!x)"),
     ("args", "(define (a-b-c d e))", "(+ 1 2)"),
-
     # func_start
     ("func_start", "(define (call/cc-wrapper x) ...)", "(define foo 5)"),
     ("func_start", "(\n  define (foo x))", "(define-syntax foo)"),
     ("func_start", "(define (* a b) ...)", None),
     ("func_start", "(define (1+ x) x)", "(define)"),
-    ("func_start", "(define (foo))", "define (foo)"), # space instead of (
-
+    ("func_start", "(define (foo))", "define (foo)"),  # space instead of (
     # class_start
     ("class_start", "(define-record-type point)", "(define-record-type)"),
     ("class_start", "(\n  define-record-type <point>)", "(define (define-record-type x))"),
     ("class_start", "(define-record-type (point x y))", "(+ 1 2)"),
     ("class_start", "(define-record-type point\n  (make-point))", "define-record-type x"),
-
     # structural_boundaries
     ("structural_boundaries", "(let ((x 1)) x)", "let-syntax"),
     ("structural_boundaries", "(let* ((x 1)) x)", "foo-let"),
@@ -360,6 +357,7 @@ _SCHEME_DEEP_CASES = [
     ("structural_boundaries", "(do ((i 0 (+ i 1))) ((= i 5)) i)", "redo"),
 ]
 
+
 @pytest.mark.parametrize("signature,positive,negative", _SCHEME_DEEP_CASES)
 def test_scheme_deep_cases(signature, positive, negative):
     pattern = SCHEME_RULES[signature]
@@ -367,3 +365,20 @@ def test_scheme_deep_cases(signature, positive, negative):
     assert pattern.search(positive), f"Deep positive failed for {signature}: {positive!r}"
     if negative:
         assert not pattern.search(negative), f"Deep negative failed for {signature}: {negative!r}"
+
+
+def test_scheme_debt_rules_ignore_hyphenated_symbols_regression():
+    """#2537: scheme reproduces the hyphenated-identifier debt leak -- a
+    `(define (probe-todo ...))` symbol recorded planned_debt alongside the
+    real `;; TODO:` comment (the #1096 control corpus measured planned_debt
+    2 for one planted marker). Kebab-case is THE Lisp-family naming
+    convention, so ordinary symbols must never feed debt scoring."""
+    planned = SCHEME_RULES["planned_debt"]
+    fragile = SCHEME_RULES["fragile_debt"]
+
+    corpus_shaped = "(define (probe-todo plan)\n  ;; TODO: fill in the probe body later\n  'planned)\n"
+    assert len(planned.findall(corpus_shaped)) == 1, "planned_debt must count ONLY the ;; TODO: comment"
+
+    for text in ("(fix-me-later x)", "(define bug-tracker '())", "(hack-level 9)"):
+        assert not fragile.search(text), f"fragile_debt matched inside symbol: {text!r}"
+        assert not planned.search(text), f"planned_debt matched inside symbol: {text!r}"

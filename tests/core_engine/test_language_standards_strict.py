@@ -205,3 +205,63 @@ def test_spec_exposure_adjacent_quantifier_redos_sweep(language, old_pattern_tex
         assert spec_exposure.search(extra_positive), (
             f"{language}: lost its own extra alternative ({extra_positive!r}) while bounding the fix"
         )
+
+
+# ==============================================================================
+# TEST 9: HYPHENATED-IDENTIFIER DEBT LEAK (#2537)
+# The two GLOBAL debt patterns are shared by every language block, so this
+# cross-language regression lives here rather than in any one per-language
+# strict file (cobol/scheme carry their own end-to-end-shaped repros too).
+# ==============================================================================
+def test_global_debt_patterns_ignore_hyphenated_identifiers():
+    """#2537: `-` is a regex word boundary, so the unguarded `\\b(...)\\b`
+    alternations matched debt keywords EMBEDDED INSIDE hyphenated code
+    identifiers (COBOL `HACK-LEVEL`, Lisp `probe-todo`, css `.bug-icon`),
+    inflating tech-debt scoring from ordinary code. The guard must refuse a
+    match glued to hyphen-plus-alphanumeric on either side while keeping
+    every real comment-marker shape -- including hyphen-ADJACENT ones whose
+    neighbor char is not alphanumeric (`-- TODO`, `--TODO`, `TODO--`)."""
+    from gitgalaxy.standards.language_standards._shared_patterns import (
+        GLOBAL_FRAGILE_DEBT,
+        GLOBAL_PLANNED_DEBT,
+    )
+
+    # Identifier-embedded shapes: must NOT count.
+    for pattern, text in (
+        (GLOBAL_FRAGILE_DEBT, "77 HACK-LEVEL PIC 9."),  # COBOL data item
+        (GLOBAL_FRAGILE_DEBT, "DISPLAY HACK-LEVEL."),  # ...and its reference
+        (GLOBAL_FRAGILE_DEBT, "MOVE 0 TO WS-BUG-COUNT."),  # both-sides glued
+        (GLOBAL_FRAGILE_DEBT, ".bug-icon { color: red; }"),  # css class
+        (GLOBAL_PLANNED_DEBT, "       PROBE-TODO."),  # COBOL paragraph name
+        (GLOBAL_PLANNED_DEBT, "(define (probe-todo plan)"),  # Lisp-family symbol
+        (GLOBAL_PLANNED_DEBT, "see the todo-list section"),  # kebab prose
+    ):
+        assert not pattern.search(text), f"identifier-embedded debt keyword counted: {text!r}"
+
+    # Real debt markers: must still count, exactly once each.
+    for pattern, text in (
+        (GLOBAL_FRAGILE_DEBT, "      * HACK: shortcut kept deliberately"),  # COBOL comment
+        (GLOBAL_FRAGILE_DEBT, ";; HACK: shortcut"),  # Lisp comment
+        (GLOBAL_FRAGILE_DEBT, "# FIXME handle overflow"),
+        (GLOBAL_PLANNED_DEBT, "      * TODO: fill in the probe body later"),
+        (GLOBAL_PLANNED_DEBT, "-- TODO wire this up"),  # Ada/Haskell/SQL comment
+        (GLOBAL_PLANNED_DEBT, "--TODO glued to the comment marker"),
+        (GLOBAL_PLANNED_DEBT, "TODO-- reversed gluing"),
+        (GLOBAL_PLANNED_DEBT, "@todo document this"),
+        (GLOBAL_PLANNED_DEBT, "待办事项"),  # DENSE (CJK) path unguarded
+    ):
+        assert len(pattern.findall(text)) == 1, f"real debt marker lost or duplicated: {text!r}"
+
+    # The guards add fixed-width lookarounds only (no new quantifiers) -- prove
+    # both patterns stay immune to a hyphen-heavy adversarial payload anyway.
+    from pathlib import Path as _P
+    import sys as _sys
+
+    _langs_dir = str(_P(__file__).resolve().parent.parent / "extraction" / "languages")
+    if _langs_dir not in _sys.path:
+        _sys.path.insert(0, _langs_dir)
+    from _strict_harness import assert_redos_immune as _immune  # type: ignore
+
+    payload = "TOD-" * 25000 + "TODO-"
+    _immune(GLOBAL_PLANNED_DEBT, payload, timeout_sec=3.0)
+    _immune(GLOBAL_FRAGILE_DEBT, "HAC-" * 25000 + "HACK-", timeout_sec=3.0)

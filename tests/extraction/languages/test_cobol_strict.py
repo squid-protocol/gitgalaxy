@@ -110,7 +110,6 @@ _COBOL_SIMPLE_CASES = [
     ("regex_execution", "INSPECT X TALLYING Y.", "MOVE X TO Y."),
     ("time_date_logic", "ACCEPT WS-DATE FROM DATE.", "MOVE X TO Y."),
     ("ipc_rpc_bridges", "CALL 'SUBPROG' USING X.", "MOVE X TO Y."),
-
     # --- DEEP ADVERSARIAL CASES ---
     # args: multiline parsing and commas
     ("args", "USING \n BY REFERENCE WS-A \n BY CONTENT WS-B", "MOVE X TO Y."),
@@ -118,28 +117,22 @@ _COBOL_SIMPLE_CASES = [
     ("args", "USING WS-A, WS-B, WS-C", "MOVE X TO Y."),
     ("args", "USING \n WS-A \n WS-B \n WS-C", "MOVE X TO Y."),
     ("args", "USING BY VALUE WS-A", "MOVE X TO Y."),
-
     # branch: edge cases, multi-word, line-wrapped
     ("branch", "DEPENDING \n ON", "MOVE X TO Y."),
     ("branch", "ON \n SIZE ERROR", "MOVE X TO Y."),
     ("branch", "INVALID \n KEY", "MOVE X TO Y."),
     ("branch", "AT \n END", "MOVE X TO Y."),
     ("branch", "NOT AT END", None),
-
     # func_start: reserved words shouldn't match, edge margins
     ("func_start", "       MY-FUNC SECTION 12.", "       DIVISION."),
     ("func_start", "       1234-VALID-PARA.", "       SECTION."),
     ("func_start", "       SOME-PARA.", "       PROCEDURE DIVISION."),
     ("func_start", "000100 VALID-FUNC-WITH-MARGIN.", "000100 WORKING-STORAGE SECTION."),
     ("func_start", "      -VALID-WITH-DASH.", "      *COMMENT-SHOULD-NOT-MATCH."),
-
     # class_start: trailing clauses, optional names
     ("class_start", "       PROGRAM-ID. MYPROG IS INITIAL.", "       100-PROCESS-RECORDS SECTION."),
     ("class_start", "       CLASS-ID. FOO INHERITS BASE.", "       01 WS-DATA."),
-
-
     ("class_start", "000100 PROGRAM-ID. P1.", "       PROCEDURE DIVISION."),
-
     # structural_boundaries:
     ("structural_boundaries", "PROCEDURE DIVISION", "MOVE X TO Y."),
     ("structural_boundaries", "XML PARSE", "MOVE X TO Y."),
@@ -147,7 +140,6 @@ _COBOL_SIMPLE_CASES = [
     ("structural_boundaries", "STOP RUN", "MOVE X TO Y."),
     ("structural_boundaries", "EXIT PROGRAM", "MOVE X TO Y."),
 ]
-
 
 
 @pytest.mark.parametrize("signature,positive,negative", _COBOL_SIMPLE_CASES)
@@ -412,3 +404,30 @@ def test_cobol_redos_immunity_sweep():
     assert COBOL_RULES["func_start"].search("       100-PROCESS-RECORDS SECTION.")
     assert COBOL_RULES["class_start"].search("       PROGRAM-ID. MYPROG.")
     assert COBOL_RULES["time_date_logic"].search("ACCEPT WS-DATE FROM DATE.")
+
+
+def test_cobol_debt_rules_ignore_hyphenated_identifiers_regression():
+    """#2537: cobol's debt rules (the shared GLOBAL patterns) counted debt
+    keywords embedded inside hyphenated identifiers -- the #1096 control
+    corpus's `77 HACK-LEVEL PIC 9.` data item recorded fragile_debt from
+    plain code and the `PROBE-TODO.` paragraph name recorded planned_debt.
+    Real `* HACK:` / `* TODO:` comment markers must keep counting."""
+    fragile = COBOL_RULES["fragile_debt"]
+    planned = COBOL_RULES["planned_debt"]
+
+    corpus_shaped = (
+        "      * Keyword Rosetta control shell: cobol / c\n"
+        "       77 HACK-LEVEL PIC 9.\n"
+        "       PROBE-DEBT.\n"
+        "      * HACK: shortcut kept deliberately for the rosetta corpus\n"
+        "           DISPLAY HACK-LEVEL.\n"
+        "       PROBE-TODO.\n"
+        "      * TODO: fill in the probe body later\n"
+        "           DISPLAY 'PLANNED'.\n"
+    )
+    assert len(fragile.findall(corpus_shaped)) == 1, "fragile_debt must count ONLY the * HACK: comment"
+    assert len(planned.findall(corpus_shaped)) == 1, "planned_debt must count ONLY the * TODO: comment"
+
+    # Realistic mainframe identifier shapes from #2537's report.
+    for text in ("MOVE 1 TO BUG-COUNT.", "05 WS-FIX-FLAG PIC X.", "ADD 1 TO HACK-TOTAL."):
+        assert not fragile.search(text), f"fragile_debt matched inside identifier: {text!r}"

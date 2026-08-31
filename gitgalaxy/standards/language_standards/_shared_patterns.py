@@ -43,7 +43,26 @@ _DENSE_PLANNED = (
     r"للقيام به|لاحقا|يجب عمله"  # Arabic
     r")"
 )
-GLOBAL_PLANNED_DEBT = re.compile(f"{_SPACED_PLANNED}|{_DENSE_PLANNED}", re.I)
+# #2537: `-` is a regex word boundary, so the bare `\b(...)\b` alternations
+# matched debt keywords EMBEDDED INSIDE hyphenated code identifiers -- COBOL
+# data items (`HACK-LEVEL`, `BUG-COUNT`), COBOL/Lisp-family paragraph and
+# symbol names (`PROBE-TODO`, `probe-todo`), css classes (`.bug-icon`) --
+# inflating tech-debt scoring from ordinary code in exactly the hyphenated-
+# identifier ecosystems (COBOL/JCL, Lisp, css) where debt measurement matters
+# most. Python's `HACK_LEVEL` was inert only by tokenization luck (`_` is a
+# word char, so `\bHACK\b` can't fire mid-identifier).
+# THE GUARD: refuse a match glued to a hyphen-plus-alphanumeric on either
+# side -- the shape of an identifier CONTINUING through the hyphen. Real
+# comment markers keep counting, including hyphen-adjacent ones whose
+# neighbor char is NOT alphanumeric: `-- TODO x` (Ada/Haskell/SQL comments),
+# a glued `--TODO`, or a trailing `TODO--` (the char beside the hyphen is
+# another `-`, not a letter/digit). Deliberately scoped to the SPACED
+# (Latin/Cyrillic) alternation only: the DENSE CJK/RTL alternation has no
+# hyphenated-identifier idiom to guard against.
+_HYPHEN_IDENT_PRE = r"(?<![A-Za-z0-9]-)"
+_HYPHEN_IDENT_POST = r"(?!-[A-Za-z0-9])"
+
+GLOBAL_PLANNED_DEBT = re.compile(f"{_HYPHEN_IDENT_PRE}{_SPACED_PLANNED}{_HYPHEN_IDENT_POST}|{_DENSE_PLANNED}", re.I)
 
 
 # --- 2. FRAGILE DEBT (Hacks, FIXMEs, Code Smells) ---
@@ -70,7 +89,8 @@ _DENSE_FRAGILE = (
     r"مؤقت|إصلاح|ترقيع"  # Arabic (Tarqie = Patching/Hacking)
     r")"
 )
-GLOBAL_FRAGILE_DEBT = re.compile(f"{_SPACED_FRAGILE}|{_DENSE_FRAGILE}", re.I)
+# #2537: same hyphenated-identifier guard as GLOBAL_PLANNED_DEBT above.
+GLOBAL_FRAGILE_DEBT = re.compile(f"{_HYPHEN_IDENT_PRE}{_SPACED_FRAGILE}{_HYPHEN_IDENT_POST}|{_DENSE_FRAGILE}", re.I)
 
 
 # --- 3. AI / LLM & ML SDK DETECTION (split by SIGNAL_SCHEMA category) ---

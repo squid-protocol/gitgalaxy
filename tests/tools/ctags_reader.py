@@ -235,12 +235,12 @@ KIND MAPS
 
 LANGUAGE COVERAGE
     Not every GitGalaxy language has a ctags parser at all. See LANG_MAP below: 33 languages have
-    an entry (24 that overlap with tree-sitter's 31 baselined languages, plus 9 more from
+    an entry (24 that overlap with tree-sitter's 30 baselined languages, plus 9 more from
     GitGalaxy's tree-sitter-blind set -- ada, agc_assembly, assembly, cobol, embedded_python, m4,
     scheme, sqlite, yacc -- where ctags is the first-ever external check on GitGalaxy's numbers).
-    7 of the 31 tree-sitter-baselined languages have no ctags parser (Apex, Dart, Groovy, Scala,
-    Solidity, Swift, Zig); 5 gg_only languages have neither (abap, dockerfile, jcl, livecode,
-    yaml). Call `ctags_available(lang)` before assuming a reading exists.
+    6 of the 30 tree-sitter-baselined languages have no ctags parser (Apex, Dart, Scala,
+    Solidity, Swift, Zig); 6 gg_only languages have neither (abap, dockerfile, groovy, jcl,
+    livecode, yaml). Call `ctags_available(lang)` before assuming a reading exists.
 
 SIGNATURE FIELD
     `--fields=+S` gives a free-text parameter-list string, not a count -- format varies by

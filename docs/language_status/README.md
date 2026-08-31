@@ -70,7 +70,7 @@ epic #813), not that no cases exist.
 | embedded_python | production | line_exclusive | 51/52 | 64 | 107 | not written |
 | **[fortran](fortran.md)** | production | positional_anchored | 45/52 | 35 | 101 | **written** |
 | go | production | standard_block | 51/52 | 47 | 84 | not written |
-| groovy | production | standard_block | 44/48 | 53 | 91 | not written |
+| **[groovy](groovy.md)** | production | standard_block | 44/48 | 53 | 91 | **written** |
 | haskell | production | recursive_block_haskell | 52/52 | 48 | 97 | not written |
 | html | production | block_exclusive | 39/48 | 91 | 123 | not written |
 | **[java](java.md)** | production | standard_block | 50/52 | 70 | 91 | **written** |

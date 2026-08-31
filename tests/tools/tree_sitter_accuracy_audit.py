@@ -677,11 +677,6 @@ NODE_MAPS = {
         "func_node_types": {"function_definition", "modifier_definition", "constructor_definition"},
         "class_node_types": {"contract_declaration", "interface_declaration", "library_declaration"},
     },
-    "groovy": {
-        "ts_lang": "groovy",
-        "func_node_types": {"func"},
-        "class_node_types": {"generics_class"},
-    },
     "zig": {
         "ts_lang": "zig",
         # #1313: "FnProto" is correctly named, but (like kotlin) has no "name" FIELD -- the
@@ -769,6 +764,18 @@ NODE_MAPS = {
 #     against regardless of node-type mapping.
 #   - ada: language-crucible has no `data/ada` directory at all (as of the v1.2.0 pin) -- nothing to
 #     measure against yet; revisit if/when the corpus adds Ada samples.
+#   - groovy: tri-comparison manual verification (2026-08-31) confirmed tree-sitter-language-pack's
+#     "groovy" grammar has no class_declaration/method_declaration node type at all -- `class Foo {`
+#     parses into a generic command/unit/block soup (3.2% ERROR rate across a 30-file/13K-node
+#     sample). The two node types this entry used to map ("func", "generics_class") are
+#     semantically wrong, not just imprecise: "func" nodes are CALL expressions
+#     (`getLogger(JiraService.class)`), not definitions, and "generics_class" nodes are generic
+#     TYPE USAGE (`Map<String, X>`), not class declarations -- which is why the committed baseline
+#     read real_functions=0/real_classes=0 against 721 GitGalaxy detections it had no way to
+#     corroborate. See docs/language_status/groovy.md for the full verification (independent
+#     grep-based ground-truth cross-check across the 188-file corpus, three real GitGalaxy engine
+#     defects found and fixed along the way) and docs/self_scan/manual_verification.json for the
+#     resulting verified count. Same shape as cobol above, minus the CI-budget problem.
 
 
 def _gg_only_langs() -> list[str]:

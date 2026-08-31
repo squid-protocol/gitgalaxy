@@ -337,6 +337,9 @@ class Prism:
         elif lang_id == "powershell":
             text, ps_lits = self._strip_powershell_herestrings(text)
             lits.extend(ps_lits)
+        elif lang_id == "groovy":
+            text, groovy_lits = self._strip_groovy_triple_quoted_strings(text)
+            lits.extend(groovy_lits)
         elif lang_id == "assembly":
             text, asm_lits = self._strip_asm_block_comments(text)
             lits.extend(asm_lits)
@@ -695,6 +698,37 @@ class Prism:
             return "".join("\n" if ch == "\n" else " " for ch in m.group(0))
 
         return self._PS_HERESTRING_RE.sub(_repl, text), lits
+
+    # Tri-comparison manual verification (2026-08-31): Groovy triple-quoted strings
+    # (`"""..."""` / `'''...'''`) routinely carry code-shaped fixture text -- Gradle
+    # integration-test build-script snippets (`buildFile '''class Circular { ... }'''`),
+    # Spock's own compiler-smoke-test source samples (`compiler.compileSpecBody("""def
+    # m1() { ... }""")`) -- and groovy's `standard_block` lexical family only strips
+    # `//`/`/* */` comments, nothing shields multi-line string mass. The shared
+    # SHIELD_PATTERN's single/double-quote branches can't help either: matched against
+    # a `"""`  open, the double-quote branch's `(?:\\.|[^"\\])*"` immediately hits the
+    # second `"` (excluded from its own negated class) and closes on it, consuming just
+    # `""` as one empty string and leaving the third quote as a stray unshielded
+    # character -- the real triple-quoted span is never treated as one unit, so
+    # `class_start`/`func_start` matched real-looking text inside it directly, and a
+    # stray/mismatched leftover quote could desync brace-counting for the rest of the
+    # file. Non-greedy so back-to-back triple-quoted strings don't merge into one span.
+    # Blanked to same-length filler (newlines kept) so byte offsets and line numbers
+    # are unchanged, same idiom as `_strip_powershell_herestrings`/
+    # `_mask_lua_long_brackets`.
+    _GROOVY_TRIPLE_QUOTED_RE = re.compile(r'"""[\s\S]*?"""|\'\'\'[\s\S]*?\'\'\'')
+
+    def _strip_groovy_triple_quoted_strings(self, text: str) -> tuple[str, list[str]]:
+        """Blanks Groovy triple-quoted string bodies (`\"\"\"...\"\"\"` / `'''...'''`)
+        so their code-shaped contents can't be mis-read as real declarations, capturing
+        each to the documentation stream. Newline-count preserving."""
+        lits: list[str] = []
+
+        def _repl(m: "re.Match[str]") -> str:
+            lits.append(m.group(0).strip())
+            return "".join("\n" if ch == "\n" else " " for ch in m.group(0))
+
+        return self._GROOVY_TRIPLE_QUOTED_RE.sub(_repl, text), lits
 
     def _strip_asm_block_comments(self, text: str) -> tuple[str, list[str]]:
         """Strips C-style `/* ... */` block comments before assembly's own `line_exclusive`

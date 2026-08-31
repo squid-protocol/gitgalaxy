@@ -126,13 +126,28 @@ DEFINITION: dict[str, Any] = {
         # its (non-nested, same bound as `args`) parameter list and
         # reach a real `{` -- `next();` has neither a prefix nor a
         # closing `{`, so it satisfies neither branch.
+        # BUG FIX (tri-comparison manual verification, 2026-08-31): "def" added to
+        # both branches' exclusion lookahead. Spock feature methods routinely use a
+        # quoted description as the method's own name (`def "invalidates cache upon
+        # change to X"() { ... }`); detector.py's brace-safety pass (needed to keep
+        # string content from corrupting brace-depth counting) correctly blanks that
+        # quoted span to same-length whitespace before this regex ever runs against
+        # it -- but with the name gone, branch 2 (zero-prefix) then matched the bare
+        # "def" keyword itself as if IT were the function's own name (nothing in its
+        # exclusion list stopped it, and "def" immediately followed by the
+        # now-blanked-then-real `() {` satisfies branch 2's shape exactly), so every
+        # quoted-description method was misnamed literally "def" instead of being
+        # silently missed. Real Groovy code can never have "def" alone (with no name
+        # at all after it) as a legitimate declaration, so this costs no real
+        # coverage. Confirmed via a 188-file corpus scan: after this fix, the
+        # remaining "def"-named entries in the named function list dropped to zero.
         "func_start": re.compile(
             r"^[ \t]*(?:"
             r"(?:(?:public|private|protected|static|final|def|abstract|@[A-Za-z0-9_.]+(?:\([^)]*\))?|<[^>]{0,100}(?:<[^>]{0,100}>[^>]{0,100}){0,5}>|(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t\n]+){1,18}"
-            r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)"
+            r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|def|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)"
             r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\()"
             r"|"
-            r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)"
+            r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|def|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)"
             r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\([^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w.,<> \t\n]+)?[ \t\n]*\{)"
             r")",
             re.M,
@@ -140,7 +155,15 @@ DEFINITION: dict[str, Any] = {
         # 5. class_start (Object / Entity Declarations)
         "class_start": re.compile(
             r"^[ \t]*(?:(?:public|private|protected|static|final|abstract|sealed|non-sealed|@[A-Za-z0-9_.]+(?:\([^)]*\))?)[ \t\n]+){0,10}"
-            r"(?:class|interface|trait|enum|record)\s+[A-Za-z_$][\w_$]*",
+            # BUG FIX (tri-comparison manual verification, 2026-08-31): the name
+            # portion had no capturing group at all (pattern.groups == 0), so
+            # detector.py's _resolve_class_start_match could never extract a real
+            # name and silently fell back to "Anonymous_Class" for every single
+            # match -- class *existence* was detected correctly (struct_class_start
+            # counts were right), but the named class list was 100% synthetic
+            # placeholders. Confirmed the only language in
+            # _CLASS_START_NAMED_EXTRACTION_LANGS with this defect (checked all 36).
+            r"(?:class|interface|trait|enum|record)\s+([A-Za-z_$][\w_$]*)",
             re.M,
         ),
         # --- PHASE 2: RISK ENGINE (Structural Integrity) ---

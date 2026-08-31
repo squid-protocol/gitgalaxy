@@ -57,10 +57,11 @@ CSS/HTML CLASS PANELS: OUT OF SCOPE, NOT JUST LOW-SCORING
 
 BAR GROUPS: VARIABLE, NOT ALWAYS THREE
     Every language with real data gets a GitGalaxy bar. Only 24 of GitGalaxy's 45 languages get
-    all three (both tree-sitter and ctags available); 7 more get GitGalaxy+tree-sitter only
+    all three (both tree-sitter and ctags available); 6 more get GitGalaxy+tree-sitter only
     (ctags has no parser for them); 9 get GitGalaxy+ctags only (tree-sitter has no grammar for
     them -- ada, agc_assembly, assembly, cobol, embedded_python, m4, scheme, sqlite, yacc); the
-    rest render GitGalaxy alone. Bars are drawn compactly -- a 2-bar group is never padded with
+    remaining 6 (abap, dockerfile, groovy, jcl, livecode, yaml -- neither tool) render GitGalaxy
+    alone. Bars are drawn compactly -- a 2-bar group is never padded with
     an empty slot for the missing tool -- but ALWAYS in the fixed order GitGalaxy, tree-sitter,
     ctags, so a given vertical position in the stack means the same tool in every row.
 
@@ -177,8 +178,9 @@ def _manual_verification_entry(manual_verification: dict, lang: str, symbol_type
     return manual_verification.get(lang, {}).get(symbol_type)
 
 # The 45 languages with real structural signatures (see docs/language_status/README.md) --
-# NODE_MAPS's 31 tree-sitter-baselined languages plus the 14 GitGalaxy extracts from but
-# tree-sitter has no grammar for.
+# NODE_MAPS's 30 tree-sitter-baselined languages plus the 15 GitGalaxy extracts from but
+# tree-sitter has no grammar for (or, for groovy, has a grammar that loads but can't parse
+# real declarations -- see tree_sitter_accuracy_audit.py's NODE_MAPS exclusion comment).
 _GG_ONLY_LANGS = (
     "abap",
     "ada",
@@ -187,6 +189,7 @@ _GG_ONLY_LANGS = (
     "cobol",
     "dockerfile",
     "embedded_python",
+    "groovy",
     "jcl",
     "livecode",
     "m4",

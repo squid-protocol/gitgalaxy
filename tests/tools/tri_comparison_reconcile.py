@@ -269,7 +269,7 @@ def reconcile_symbols(
     only for the assembly leading-dot local-label normalization (see `_pairing_name`); the
     caller knows it, this module otherwise doesn't. available_tools: whichever of ALL_TOOLS actually have
     a reading for this language -- both tree-sitter (absent for 9 of GitGalaxy's 45 languages,
-    ctags-only there) and ctags (absent for 7 of the 31 tree-sitter-baselined languages) are
+    ctags-only there) and ctags (absent for 6 of the 30 tree-sitter-baselined languages) are
     independently optional per language; GitGalaxy is the only one always present.
 
     Returns (recall_scores, precision_scores, args_scores, discrepancy_groups). args_scores is

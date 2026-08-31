@@ -2820,6 +2820,27 @@ class StructuralExtractor:
             text = m.group(0)
             if lang_id == "zig" and text.startswith('@"'):
                 return text
+            # Tri-comparison manual verification (2026-08-31): a Spock feature method's
+            # own name is routinely a quoted description (`def "invalidates cache upon
+            # change to X"() { ... }`) -- blanking it here (correct in general, since a
+            # description COULD contain a stray `{`/`}` that would desync the brace
+            # counter below) left func_start with nothing to capture a real name from,
+            # regardless of which branch matched. Preserving it specifically when
+            # immediately preceded by `def` closes that gap the same way zig's `@"..."`
+            # exception just above does for its own quoted-identifier case -- a small,
+            # low-probability risk (a description that happens to contain a literal
+            # brace) traded for a confirmed, common recall+precision gap. Triple-quoted
+            # spans are already blanked upstream by Prism's own groovy-specific
+            # shielding, so `not text.startswith('"""')` is a defensive no-op here, not
+            # the primary guard.
+            if (
+                lang_id == "groovy"
+                and text
+                and text[0] in "\"'"
+                and not text.startswith('"""')
+                and re.search(r"\bdef[ \t]+$", code[max(0, m.start() - 10) : m.start()])
+            ):
+                return text
             if "\n" not in text:
                 return " " * len(text)
             return "\n".join(" " * len(line) for line in text.split("\n"))
@@ -6250,6 +6271,23 @@ class StructuralExtractor:
         match_strip = raw_match.strip()
 
         if match_strip.startswith('@"'):
+            return match_strip
+
+        # Tri-comparison manual verification (2026-08-31): groovy is currently the
+        # only language whose func_start regex captures a quoted string as a whole
+        # name (Spock feature methods: `def "invalidates cache upon change to X"()
+        # { ... }` -- confirmed via a full LANGUAGE_DEFINITIONS scan, so this branch
+        # can never fire for any other language today). Without this early return,
+        # the generic word-extraction below (designed for ordinary identifiers) tore
+        # a multi-word quoted description apart on spaces/quotes and kept only
+        # `words[-1]` -- the description's LAST word -- discarding the rest of what
+        # is semantically the method's whole real name, and risking silent
+        # collisions between two different feature methods that happen to end their
+        # descriptions in the same word. `tests/extraction/languages/test_groovy.py`
+        # already asserts the regex's own captured group is the full quoted string
+        # (quotes included) for exactly this shape -- this preserves that same value
+        # through to the stored name instead of truncating it afterward.
+        if len(match_strip) >= 2 and match_strip[0] in "\"'" and match_strip[-1] == match_strip[0]:
             return match_strip
 
         # 1.2 Python Decorator Stripping

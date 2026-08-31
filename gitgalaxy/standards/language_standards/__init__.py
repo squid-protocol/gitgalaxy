@@ -39,7 +39,6 @@ for the same metrics tracked over time across pushes to main.
 | Dart | 100.0% | 100.0% | 100.0% | 100.0% |
 | Fortran | 100.0% | 100.0% | 100.0% | 100.0% |
 | Go | 100.0% | 100.0% | 100.0% | 100.0% |
-| Groovy | N/A | 0.0% | N/A | N/A |
 | Haskell | 100.0% | 99.3% | 100.0% | 100.0% |
 | Html | 100.0% | 100.0% | N/A | N/A |
 | Java | 100.0% | 100.0% | 100.0% | 100.0% |

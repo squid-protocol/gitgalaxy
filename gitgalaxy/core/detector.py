@@ -780,6 +780,37 @@ _TS_JS_RESERVED_MODIFIER_KEYWORDS = frozenset(
     {"async", "static", "public", "private", "protected", "abstract", "readonly", "override", "get", "set"}
 )
 
+# #2547: satellite names the structural slicer synthesizes for languages/modes with
+# no real same-file call graph -- Mode D's (_slice_by_keywords) top-level loose-code
+# bucket ("__global_context__", see ~5063) and Mode E's (_slice_by_terminator)
+# per-statement-type bucket ("Declarative_Block", see ~5176/5265, or a
+# "<KEYWORD>_Statement" name derived from the igniter match, see ~5235). None of
+# these are ever real, callable identifiers, so they must never be eligible for
+# orphan/duplicate classification below -- their name can never legitimately appear
+# a second time in the file, and treating that as "orphaned" or "duplicated" just
+# measures the slicer's own bucketing instead of real dead/copy-pasted code. Both
+# `Main` and `Anonymous_Block` (Mode D's own top-of-scope/fallback names) plus
+# `Unknown_Sat` (legacy) round out the same family. The slicer also appends
+# `_[Truncated]`/`_[Unterminated]` to several of these when a scope runs off the end
+# of a block (~5039, ~5043, ~5277), so those suffixes are stripped before matching.
+_SYNTHETIC_SATELLITE_NAMES = frozenset(
+    {"Unknown_Sat", "Anonymous_Block", "Main", "Declarative_Block", "__global_context__"}
+)
+_SYNTHETIC_SATELLITE_SUFFIXES = ("_[Truncated]", "_[Unterminated]")
+
+
+def _is_synthetic_satellite_name(name: str) -> bool:
+    base = name
+    for suffix in _SYNTHETIC_SATELLITE_SUFFIXES:
+        if base.endswith(suffix):
+            base = base[: -len(suffix)]
+            break
+    if base in _SYNTHETIC_SATELLITE_NAMES:
+        return True
+    # Mode E never captures a real identifier for SQL's igniter-based naming --
+    # it always synthesizes "<IGNITER-KEYWORD>_Statement" (~5235).
+    return bool(re.fullmatch(r"[A-Z0-9]+_Statement", base))
+
 
 class StructuralExtractor:
     """
@@ -1300,23 +1331,21 @@ class StructuralExtractor:
                 func_name = func.get("name", "")
                 usage_status = 0  # 0 = Normal
 
-                # Check for Duplicates: same name AND materially the same body,
-                # defined multiple times in the same file.
-                if (
-                    func_name
-                    and func_name_counts[func_name] > 1
-                    and body_hash_counts[(func_name, func_body_hashes[id(func)])] > 1
-                ):
-                    usage_status = 2  # 2 = Duplicate
-                    duplicate_count += 1
-                elif len(func_name) > 3 and func_name not in {
-                    "Unknown_Sat",
-                    "Anonymous_Block",
-                    "Main",
-                    "Declarative_Block",
-                }:
-                    # If the function name only exists where it was defined, it's an orphan
-                    if token_counts[func_name] <= 1:
+                # #2547: synthetic slicer bucket names (Mode D's "__global_context__",
+                # Mode E's "<KEYWORD>_Statement"/"Declarative_Block", etc.) are never
+                # real callable identifiers -- skip them for BOTH the duplicate and
+                # orphan checks below, not just the orphan one.
+                if func_name and not _is_synthetic_satellite_name(func_name):
+                    # Check for Duplicates: same name AND materially the same body,
+                    # defined multiple times in the same file.
+                    if (
+                        func_name_counts[func_name] > 1
+                        and body_hash_counts[(func_name, func_body_hashes[id(func)])] > 1
+                    ):
+                        usage_status = 2  # 2 = Duplicate
+                        duplicate_count += 1
+                    elif len(func_name) > 3 and token_counts[func_name] <= 1:
+                        # If the function name only exists where it was defined, it's an orphan
                         orphan_count += 1
                         usage_status = 1  # 1 = Orphan / Unused
 

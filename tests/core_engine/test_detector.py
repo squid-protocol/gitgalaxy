@@ -430,6 +430,76 @@ def test_detector_duplicate_logic_is_scope_blind_to_shadowed_same_name_helpers()
     )
 
 
+def test_detector_orphan_census_excludes_synthetic_slicer_names():
+    """
+    Regression test for #2547: languages sliced by Mode D (_slice_by_keywords) or
+    Mode E (_slice_by_terminator) synthesize bucket names for structural chunks that
+    were never real, callable functions -- Mode D's "__global_context__" for
+    top-level loose code sitting before the first real scope, and Mode E's
+    "<KEYWORD>_Statement"/"Declarative_Block" per-statement buckets for SQL. These
+    must never be eligible for orphan/duplicate classification: a synthetic name can
+    never legitimately appear a second time in the file, so without this exclusion
+    they were ALWAYS flagged "orphaned", inflating orphaned_logic with non-function
+    shapes instead of real dead code.
+    """
+    # Mode D: shell. `. ./b.sh` is real top-level code (not a comment) preceding the
+    # first function -- gets bucketed into a synthetic "__global_context__" satellite.
+    shell_detector = StructuralExtractor("shell", MOCK_LANG_DEFS)
+    shell_code = (
+        ". ./b.sh\n"
+        "\n"
+        "active_helper() {\n"
+        "    echo hi\n"
+        "}\n"
+        "\n"
+        "forgotten_orphan() {\n"
+        "    echo bye\n"
+        "}\n"
+        "\n"
+        "main_process() {\n"
+        "    active_helper\n"
+        "}\n"
+    )
+    shell_result = shell_detector.splice(shell_code, "")
+    shell_names = [f["name"] for f in shell_result["functions"]]
+    assert "__global_context__" in shell_names, "Test setup didn't reproduce the synthetic bucket -- fixture drifted"
+
+    synthetic_flagged = [
+        f["name"]
+        for f in shell_result["functions"]
+        if f["name"] == "__global_context__" and f.get("usage_status") != 0
+    ]
+    assert synthetic_flagged == [], "__global_context__ (non-function slicer bucket) was flagged as orphan/duplicate!"
+
+    real_orphans = [f["name"] for f in shell_result["functions"] if f.get("usage_status") == 1]
+    assert set(real_orphans) == {"forgotten_orphan", "main_process"}, f"Real orphan detection regressed: {real_orphans}"
+    assert shell_result["equations"].get("orphaned_logic", 0) == 2, (
+        "orphaned_logic should count only the 2 real uncalled functions, not the synthetic bucket!"
+    )
+
+    # Mode E: sql. Every top-level statement becomes its own satellite, named
+    # generically from its leading keyword ("SELECT_Statement", "CREATE_Statement",
+    # ...) -- never a real captured identifier, so none should be orphan-eligible.
+    sql_detector = StructuralExtractor("sql", MOCK_LANG_DEFS)
+    sql_code = (
+        "SELECT * FROM users;\n"
+        "INSERT INTO users (id) VALUES (1);\n"
+        "CREATE INDEX idx_users_id ON users (id);\n"
+    )
+    sql_result = sql_detector.splice(sql_code, "")
+    sql_names = [f["name"] for f in sql_result["functions"]]
+    assert any(name.endswith("_Statement") for name in sql_names), (
+        "Test setup didn't reproduce Mode E's synthetic per-statement bucket -- fixture drifted"
+    )
+
+    assert all(f.get("usage_status") == 0 for f in sql_result["functions"]), (
+        f"A synthetic Mode E statement bucket was flagged as orphan/duplicate: {sql_result['functions']}"
+    )
+    assert sql_result["equations"].get("orphaned_logic", 0) == 0, (
+        "orphaned_logic should be 0 -- SQL statements have no real callable names to be orphaned!"
+    )
+
+
 def test_detector_c_macro_dead_branch_shield():
     """
     Proves the Mode B Preprocessor Shield successfully blanks out dead

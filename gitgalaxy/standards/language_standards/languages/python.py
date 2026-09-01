@@ -180,8 +180,14 @@ DEFINITION: dict[str, Any] = {
             r"\b(eval|exec|subprocess\.(?:call|Popen|run)|os\.system|pickle\.loads?|yaml\.unsafe_load|shell=True)\b"
         ),
         # 9. io (I/O & Network Boundaries)
+        # #2593: `os\.`/`sys\.` used to match ANY `os.x`/`sys.x` attribute access, which
+        # overlaps the `globals` rule's `os.environ`/`sys.argv`/`sys.path` (those are shared
+        # process state, not an I/O boundary) -- one planted `os.environ` or `sys.argv` read
+        # was double-counted as both `globals` and `io`. Negative lookaheads carve out exactly
+        # those three tokens so `os.path`/`os.open`/`sys.stdin`/etc. still count as `io`.
         "io": re.compile(
-            r"\b(open|requests|httpx|aiohttp|boto3|os\.|sys\.|pathlib|socket|sqlalchemy|psycopg2?|asyncpg)\b"
+            r"\b(open|requests|httpx|aiohttp|boto3|pathlib|socket|sqlalchemy|psycopg2?|asyncpg)\b"
+            r"|\bos\.(?!environ\b)|\bsys\.(?!argv\b|path\b)"
         ),
         # 10. api (Public Surface Area)
         # Implicit public defaults (undercased root definitions) + explicit __all__.
@@ -199,7 +205,12 @@ DEFINITION: dict[str, Any] = {
         # 13. doc (Structured Documentation)
         "doc": re.compile(r'"""|\'\'\'|:param|:return|:raises|:type|\b(?:Args|Returns|Yields|Raises|Attributes):\b'),
         # 14. test (Testing & Assertions)
-        "test": re.compile(r"\b(unittest|pytest|TestCase|fixture|patch)\b|def[ \t]+test_|\bassert\b|\bMock\b"),
+        # #2593: `assert` is a general-purpose validation keyword already owned by `safety`
+        # (see that rule above) -- it isn't itself a testing signal, so a runtime invariant
+        # check in production code (`assert isinstance(value, int)`, no test framework in
+        # sight) was being double-counted as `test` too. Removed; `def test_`/unittest/pytest/
+        # fixture/patch/Mock already cover real testing idioms without it.
+        "test": re.compile(r"\b(unittest|pytest|TestCase|fixture|patch)\b|def[ \t]+test_|\bMock\b"),
         # --- PHASE 3: SPECIALIZED SENSORS (Architecture & Hidden Complexity) ---
         # 15. concurrency (Asynchronous Execution)
         "concurrency": re.compile(

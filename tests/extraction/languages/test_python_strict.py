@@ -33,6 +33,8 @@ _PY_SIMPLE_CASES = [
     ("safety_bypasses", "except Exception:\n    log(e)", "except ValueError:\n    log(e)"),
     ("high_risk_execution", "eval(user_input)", "print('safe')"),
     ("io", "with open('f.txt') as f:\n    pass", "opened = True"),
+    ("io", "os.path.join(a, b)", "os.environ.get('X')"),
+    ("io", "sys.stdin.read()", "sys.argv[0]"),
     ("state_mutation", "self.value = 1", "print(self.value)"),
     ("dead_code", "# def old_unused_function():", "# just a note"),
     ("doc", '"""A module docstring."""', '"a regular string"'),
@@ -87,6 +89,7 @@ _PY_SIMPLE_CASES = [
     ("ml_traditional", "from sklearn.linear_model import LogisticRegression", "from scipy import stats"),
     ("structural_boundaries", "return x", "yield x"),
     ("test", "def test_addition():\n    assert 1 + 1 == 2", "def calculate_addition(a, b):\n    return a + b"),
+    ("test", "unittest.TestCase", "assert isinstance(value, int)"),
     ("vectorized_math", "result = A @ B", "result = a * b"),
 
     # === DEEP/ADVERSARIAL CASES FOR HIGH-AMBIGUITY SIGNATURES ===
@@ -136,6 +139,51 @@ def test_python_signature_positive_and_negative(signature, positive, negative):
         assert not pattern.search(negative), (
             f"python {signature!r} incorrectly matched an excluded/negative case: {negative!r}"
         )
+
+
+def test_python_io_excludes_globals_overlap():
+    """
+    Regression test for #2593 (rosetta): `io`'s `os\\.`/`sys\\.` used to match
+    ANY `os.x`/`sys.x` attribute, overlapping `globals`' own `os.environ`/
+    `sys.argv`/`sys.path` -- one planted globals read was double-counted as
+    `io` too. Negative lookaheads carve out exactly those three tokens;
+    every other `os.`/`sys.` attribute access must still count as `io`, and
+    the carved-out tokens must still count as `globals`.
+    """
+    io = PY_RULES["io"]
+    globals_rule = PY_RULES["globals"]
+
+    assert not io.search("os.environ.get('X')"), "io incorrectly matched os.environ (owned by globals)"
+    assert not io.search("sys.argv[0]"), "io incorrectly matched sys.argv (owned by globals)"
+    assert not io.search("sys.path.append(x)"), "io incorrectly matched sys.path (owned by globals)"
+    assert io.search("os.path.join(a, b)"), "io failed to match a real os. attribute (os.path)"
+    assert io.search("os.remove(path)"), "io failed to match a real os. attribute (os.remove)"
+    assert io.search("sys.stdin.read()"), "io failed to match a real sys. attribute (sys.stdin)"
+
+    assert globals_rule.search("os.environ.get('X')"), "globals failed to match os.environ"
+    assert globals_rule.search("sys.argv[0]"), "globals failed to match sys.argv"
+
+
+def test_python_test_excludes_bare_assert():
+    """
+    Regression test for #2593 (rosetta): `test` used to include `\\bassert\\b`,
+    double-counting every `assert` already owned by `safety` -- a runtime
+    invariant check in production code (no test framework in sight) was
+    miscounted as a testing signal. `assert` alone must no longer match
+    `test`, but must still match `safety`; real testing idioms are unaffected.
+    """
+    test_rule = PY_RULES["test"]
+    safety = PY_RULES["safety"]
+
+    assert not test_rule.search("assert isinstance(value, int)"), (
+        "test incorrectly matched a bare assert (owned by safety, not a testing signal)"
+    )
+    assert safety.search("assert isinstance(value, int)"), "safety failed to match assert"
+    assert test_rule.search("import unittest"), "test failed to match unittest"
+    assert test_rule.search("import pytest"), "test failed to match pytest"
+    assert test_rule.search("def test_foo():"), "test failed to match a def test_ function"
+    assert test_rule.search("mock.patch('x')"), "test failed to match patch"
+    assert test_rule.search("Mock()"), "test failed to match Mock"
 
 
 def test_python_comprehensions_was_fixed_from_a_javascript_copy_paste():

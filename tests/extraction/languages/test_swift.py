@@ -235,10 +235,12 @@ def test_swift_class_start_pathological(payload, expected_name):
 # ==============================================================================
 DEPENDENCY_CASES: dict[str, Any] = {
     "valid": [
+        ("import a", "a"),  # issue #2543: single-letter module
         ("import Foundation", "Foundation"),
         ("@_exported import UIKit", "UIKit"),
     ],
     "invalid": [
+        "import",
         "var importData = true",
     ],
     "pathological": [
@@ -267,3 +269,7 @@ def test_swift_dependency_capture_pathological(payload, expected_path):
     assert_pathological_dependency_match(
         SWIFT_RULES["_dependency_capture"], payload, expected_path, "swift._dependency_capture"
     )
+
+
+def test_swift_dependency_capture_redos_immunity():
+    assert_redos_immune(SWIFT_RULES["_dependency_capture"], "import " + "a." * 50000, timeout_sec=3.0)

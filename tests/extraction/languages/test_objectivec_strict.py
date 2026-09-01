@@ -92,28 +92,24 @@ _OBJC_SIMPLE_CASES = [
     # --- Deep Adversarial Cases ---
     ("branch", "@try\n{", "@trycatch"),
     ("branch", "else if (x) {", "something_else"),
-    ("branch", "int x = a ? b : c;", "NSString *url = @\"https://try.example.com\";"),
+    ("branch", "int x = a ? b : c;", 'NSString *url = @"https://try.example.com";'),
     ("branch", "@finally {", "@finallysomething"),
     ("branch", "    goto label;", "gotofail"),
-
     ("args", ": (NSString *)name", "if (a) {"),
     ("args", ":(id<MyProto>)arg", "while (1) {"),
     ("args", "^(int a, int b) {", "catch (NSException *e) {"),
     ("args", "void my_func(int a, void (*cb)(int)) {", "sizeof(int);"),
     ("args", ":(void(^)(BOOL, NSError *))completion", "__attribute__((unused))"),
-
     ("func_start", "- (void)doThing:(id)arg;", "void(^my_block)(void) = ^{"),
     ("func_start", "- (NSDictionary<NSString *, id> *)doThing {", "@interface Foo"),
     ("func_start", "+ (id<MyProto>)doThing {", "int x = 1;"),
     ("func_start", "static void (*my_func_ptr)(int) {", "struct Node {"),
-    ("func_start", "extern \"C\" void my_export_func(void);", "typedef int MyInt;"),
-
+    ("func_start", 'extern "C" void my_export_func(void);', "typedef int MyInt;"),
     ("class_start", "@interface MyClass // comment", "@interfaceFoo"),
     ("class_start", "@implementation MyClass {", "@implementationBar"),
     ("class_start", "@interface MyClass /* comment */", "my_struct"),
     ("class_start", "@interface MyClass: NSObject", "@class Foo;"),
     ("class_start", "@interface MyClass (Category)", "int my_interface = 1;"),
-
     ("structural_boundaries", "@interface Foo : NSObject", "@interfaceFoo"),
     ("structural_boundaries", "__strong id obj = nil;", "my_strong_var"),
     ("structural_boundaries", "@synthesize prop = _prop;", "@synthesize_it"),
@@ -261,3 +257,23 @@ def test_objectivec_globals_bracket_message_regression():
     pattern = OBJC_RULES["globals"]
     assert pattern.search("id app = [UIApplication sharedApplication];")
     assert pattern.search("id ws = [NSWorkspace sharedWorkspace];")
+
+
+def test_objectivec_return_not_counted_as_branch_regression():
+    """#2545: `return` must not phantom-count as a branch -- C, objc's own base
+    language, doesn't count it either. Moved to structural_boundaries (not just
+    deleted, since objc had no other rule tracking it)."""
+    branch = OBJC_RULES["branch"]
+    structural = OBJC_RULES["structural_boundaries"]
+
+    assert not branch.search("return x;"), "bare return must not count as branch"
+    assert not branch.search("- (int)f { return 1; }"), "return in a real method must not count as branch"
+    assert branch.search("if (x) return 1;"), "the real if must still count as branch"
+    assert len(branch.findall("if (x) return 1;")) == 1, "only the if should match, not the return"
+    assert structural.search("return x;"), "return must now be tracked via structural_boundaries"
+    # goto stays -- C's own branch rule also counts it, unaffected by this change.
+    assert branch.search("goto done;"), "goto must remain counted as branch (unaffected by #2545)"
+
+
+def test_objectivec_structural_boundaries_redos_immune_after_return_addition():
+    assert_redos_immune(OBJC_RULES["structural_boundaries"], "return " * 20000, timeout_sec=3.0)

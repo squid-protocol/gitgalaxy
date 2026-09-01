@@ -40,7 +40,13 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: Decisions that split flow. Includes Solidity 0.6+ try/catch.
-        "branch": re.compile(r"\b(if|else|for|while|do|break|continue|return|try|catch)\b|\?"),
+        # #2545: `return` removed -- was phantom-counting every early-return function as a
+        # branch with no real decision point. No checked sibling language counts bare
+        # `return` as branch. Moved to `structural_boundaries` below instead, matching the
+        # java/c/rust/go/csharp/kotlin/apex/powershell/zig convention -- not just deleted,
+        # since solidity had no other rule tracking it. Corpus impact: solidity branch 19
+        # (planted 3, +280%) -> exact.
+        "branch": re.compile(r"\b(if|else|for|while|do|break|continue|try|catch)\b|\?"),
         # 2. args: Parameters / Coupling. Captures parameters for functions, errors, events, and modifiers.
         # Bounded `{0,50}` to prevent ReDoS on massive tuple returns or complex signatures.
         # #1209: parameter-list span wrapped in its own capture group in
@@ -55,8 +61,11 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:function|modifier|error|event)\s+([a-zA-Z_]\w*\s*)?(\([^)]{0,500}\))|\b(?:constructor|fallback|receive)\s*(\([^)]{0,500}\))"
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
+        # #2545: `return` added here (moved out of `branch` above) -- matches the
+        # java/c/rust/go/csharp/kotlin/apex/powershell/zig convention of tracking `return`
+        # as a structural boundary, not a branch.
         "structural_boundaries": re.compile(
-            r"\b(pragma|import|contract|interface|library|struct|enum|type|mapping|address|uint\d*|int\d*|bytes\d*|bool|string)\b"
+            r"\b(pragma|import|contract|interface|library|struct|enum|type|mapping|address|uint\d*|int\d*|bytes\d*|bool|string|return)\b"
         ),
         # 4. func_start: Executable Logic Anchors. Anchors executable logic (Functions, Modifiers, Custom Errors, Events).
         # LOOKAHEAD MANDATE APPLIED: Stops exactly at the identifier name before the parenthesis.

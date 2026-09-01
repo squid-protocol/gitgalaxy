@@ -109,32 +109,27 @@ _POWERSHELL_SIMPLE_CASES = [
     ("branch", "$x = $y ? 1 : 2", "$status = ${?}"),
     ("branch", "Get-Process | ? Name -eq 'pwsh'", "Get-Process"),
     ("branch", "Get-Process | ?{$_.Name -eq 'pwsh'}", "$branch = 1"),
-
     ("args", "param ( [int]$x, [string]$y )", "if ($x -eq $y) {"),
     ("args", "function global:Foo($x) {", "while ($true) {"),
     ("args", "hidden [int] Foo($a) {", "hidden $myVar = 5"),
     ("args", "static [string] Bar($b, $c) {", "foreach ($x in $y) {"),
     ("args", "hidden static [System.Collections.Generic.List[int]] GetItems($d) {", "switch ($x) {"),
     ("args", "[void] DoThing( $a, $b ) {", "$x = Foo($y) {"),
-
     ("func_start", "function global:Foo {", "if ($x) {"),
     ("func_start", "hidden Foo() {", "$hiddenVar = 1"),
     ("func_start", "[int] Foo() {", "while ($true) {"),
     ("func_start", "hidden [int] Foo() {", "foreach ($x in $y) {"),
     ("func_start", "hidden static [int] Foo() {", "switch ($x) {"),
     ("func_start", "static [int] Foo() {", "if ($x -eq $y) {"),
-
     ("class_start", "class Foo {", "$class = 'math'"),
     ("class_start", "enum MyEnum {", "Get-Class"),
     ("class_start", "   class Bar {", "# class Bar"),
     ("class_start", "class  SpacedClass  {", "classy"),
-
     ("structural_boundaries", "process {", "$process = 123"),
     ("structural_boundaries", "begin {", "Get-Process"),
     ("structural_boundaries", "end {", "$obj.process()"),
     ("structural_boundaries", "clean {", "Invoke-Clean"),
     ("structural_boundaries", "using namespace System.Math", "New-Item -ItemType class"),
-
 ]
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
@@ -475,3 +470,16 @@ def test_powershell_bitwise_ops_and_closures_no_false_collision():
 
     assert closures.search("{ $_.Name }")
     assert not bitwise_ops.search("{ $_.Name }")
+
+
+def test_powershell_return_not_counted_as_branch_regression():
+    """#2545: `return` must not phantom-count as a branch. Still tracked under
+    structural_boundaries (`(?:return|exit)\\b`)."""
+    branch = POWERSHELL_RULES["branch"]
+    structural = POWERSHELL_RULES["structural_boundaries"]
+
+    assert not branch.search("return $x"), "bare return must not count as branch"
+    assert not branch.search("function f { return 1 }"), "return in a real function must not count as branch"
+    assert branch.search("if ($x) { return 1 }"), "the real if must still count as branch"
+    assert len(branch.findall("if ($x) { return 1 }")) == 1, "only the if should match, not the return"
+    assert structural.search("return $x"), "return must still be tracked via structural_boundaries"

@@ -42,7 +42,14 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. Includes modern 'when' and Elvis operator.
         # EXCLUDES throw (bailout_hits).
-        "branch": re.compile(r"\b(if|else|when|for|while|do|try|catch|finally|break|continue|return)\b|\?:|&&|\|\|"),
+        # #2545: `return` was previously counted here, making every early-return function
+        # phantom-count branch mass with no real decision point -- kotlin's own JVM sibling
+        # java doesn't count `return` as branch (nor do 10 other checked languages across
+        # every relevant family, including rust/csharp which share kotlin's early-return
+        # idiom). `return` is already tracked under `structural_boundaries` below, matching
+        # java/c/rust/go/csharp's convention -- removing it here is a pure de-duplication,
+        # not a signal loss. Corpus impact: kotlin branch 19 (planted 3, +280%) -> exact.
+        "branch": re.compile(r"\b(if|else|when|for|while|do|try|catch|finally|break|continue)\b|\?:|&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # OPTIMIZED: Removed overlapping whitespace quantifiers to fix Regex Sludge.
         "args": re.compile(

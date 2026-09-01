@@ -64,23 +64,27 @@ _KOTLIN_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
     ("branch", "when (x) {", "val whenTime = 5"),
     ("branch", "} else {", "val ifBlock = IfBlock()"),
-    ("branch", "val name = user?.name ?: \"Unknown\"", "val effort = 5"),
+    ("branch", 'val name = user?.name ?: "Unknown"', "val effort = 5"),
     ("branch", "if (a && b || c) {", "val tryBlock = 1"),
-    ("branch", "try { doWork() } catch (e: Exception) {", "val branch = \"test\""),
+    ("branch", "try { doWork() } catch (e: Exception) {", 'val branch = "test"'),
     ("branch", "do { x++ } while (x < 10)", "fun differentiate()"),
     ("args", "fun foo(x: (Int) -> String) {", "val func = foo(x, y)"),
     ("args", "fun <T : Comparable<T>> sort(list: List<T>) {", "class Foo(val x: Int)"),
     ("args", "constructor(name: String, age: Int) {", "if (a < b && c > d)"),
     ("args", "fun com.example.MyClass.extension(x: Int) {", "{ println(it) }"),
     ("args", "fun `weird name with spaces`(x: Int) {", "val args = arrayOf()"),
-    ("args", "{ x: Int, y: Int ->", "map.get(\"x\")"),
+    ("args", "{ x: Int, y: Int ->", 'map.get("x")'),
     ("args", "fun foo(a: List<Map<String, Int>>) {", "funCall()"),
     ("args", "val f = fun(x: Int) { }", "val x = y"),
-    ("func_start", "@JvmStatic\n@JvmOverloads\npublic final suspend inline fun <T> `my func`() {", "val function = { }"),
+    (
+        "func_start",
+        "@JvmStatic\n@JvmOverloads\npublic final suspend inline fun <T> `my func`() {",
+        "val function = { }",
+    ),
     ("func_start", "context(Logger, Env)\nfun doWork() {", "funCall()"),
-    ("func_start", "override fun toString(): String = \"\"", "class funTime {"),
+    ("func_start", 'override fun toString(): String = ""', "class funTime {"),
     ("func_start", "init {", "val x = y"),
-    ("func_start", "constructor() : this(0)", "map.get(\"x\")"),
+    ("func_start", "constructor() : this(0)", 'map.get("x")'),
     ("func_start", "fun <T, U : List<T>> genericFunc() {", "val foo = 1"),
     ("func_start", "internal expect fun platformSpecific(): Int", "val y = 2"),
     ("func_start", "@OptIn(ExperimentalCoroutinesApi::class)\nsuspend fun fetch() {", "val z = 3"),
@@ -97,7 +101,7 @@ _KOTLIN_SIMPLE_CASES = [
     ("structural_boundaries", "return", "val packageId = 5"),
     ("structural_boundaries", "class Foo", "val returnCode = 0"),
     ("structural_boundaries", "interface Bar", "val classType = 1"),
-    ("structural_boundaries", "object Baz", "val importPath = \"\""),
+    ("structural_boundaries", "object Baz", 'val importPath = ""'),
     ("structural_boundaries", "fun doWork()", "funCall()"),
     ("structural_boundaries", "typealias Name = String", "val x = 1"),
     ("safety", "val x = require(x > 0)", "val isValid = true"),
@@ -279,3 +283,18 @@ def test_kotlin_redos_immunity_sweep():
     assert_redos_immune(KOTLIN_RULES["func_start"], "fun foo<" + "<" * 100000, timeout_sec=3.0)
     assert_redos_immune(KOTLIN_RULES["class_start"], "@a(" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(KOTLIN_RULES["decorators"], "@a" + ".a" * 50000, timeout_sec=3.0)
+
+
+def test_kotlin_return_not_counted_as_branch_regression():
+    """#2545: `return` must not phantom-count as a branch -- java, kotlin's own JVM
+    sibling, doesn't count it either, and every early-return function was inflating
+    branch mass with no real decision point. Still tracked under
+    structural_boundaries (unaffected by this change)."""
+    branch = KOTLIN_RULES["branch"]
+    structural = KOTLIN_RULES["structural_boundaries"]
+
+    assert not branch.search("return x"), "bare return must not count as branch"
+    assert not branch.search("fun f(): Int { return 1 }"), "return in a real function must not count as branch"
+    assert branch.search("if (x) return 1"), "the real if must still count as branch"
+    assert len(branch.findall("if (x) return 1")) == 1, "only the if should match, not the return"
+    assert structural.search("return x"), "return must still be tracked via structural_boundaries"

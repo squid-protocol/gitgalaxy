@@ -38,8 +38,12 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes switch on/when and DML try-catch.
+        # #2545: `return` removed -- was phantom-counting every early-return method as a
+        # branch with no real decision point (java, apex's own JVM-family sibling, doesn't
+        # count it either). Already tracked under `structural_boundaries` below, so this is
+        # a pure de-duplication. Corpus impact: apex branch 19 (planted 3, +280%) -> exact.
         "branch": re.compile(
-            r"\b(if|else|switch\s+on|when|for|while|do|try|catch|finally|break|continue|return)\b|&&|\|\||\?|\?\?",
+            r"\b(if|else|switch\s+on|when|for|while|do|try|catch|finally|break|continue)\b|&&|\|\||\?|\?\?",
             re.I,
         ),
         # 2. args: Parameters / Coupling. Captures method parameters and trigger event signatures.

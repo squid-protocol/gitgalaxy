@@ -44,8 +44,13 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: decisions that split flow. Includes ternary operators (?) and null-coalescing (??).
+        # #2545: `return` removed -- was phantom-counting every early-return function/script
+        # as a branch with no real decision point (no other checked shell/scripting or
+        # C-family sibling counts bare `return`). Already tracked under
+        # `structural_boundaries` below (`(?:return|exit)\b`), so this is a pure
+        # de-duplication. Corpus impact: powershell branch 10 (planted 3, +100%) -> exact.
         "branch": re.compile(
-            r"(?<![-$.])\b(if|else|elseif|switch|for|foreach|while|do|until|try|catch|finally|throw|trap|break|continue|return)\b|-and|-or|-not|-xor|\?\?|(?<=\s)\?(?=\s|\{)",
+            r"(?<![-$.])\b(if|else|elseif|switch|for|foreach|while|do|until|try|catch|finally|throw|trap|break|continue)\b|-and|-or|-not|-xor|\?\?|(?<=\s)\?(?=\s|\{)",
             re.I,
         ),
         # args: Parameters / Coupling. Captures the param block mass of functions and script files.

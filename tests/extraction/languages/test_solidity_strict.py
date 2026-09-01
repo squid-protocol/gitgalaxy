@@ -82,43 +82,39 @@ def test_solidity_signature_positive_and_negative(signature, positive, negative)
         )
 
 
-
 _SOLIDITY_ADVERSARIAL_CASES = [
     # --- branch ---
     ("branch", "uint256 x = a ? b : c;", "uint256 amount = 5;"),
-    ("branch", "try feed.getData(token) returns (uint v) {", "target.call{value: 1 ether}(\"\");"),
+    ("branch", "try feed.getData(token) returns (uint v) {", 'target.call{value: 1 ether}("");'),
     ("branch", "if\n(x)\n{", "assembly { let x := 5 }"),
-    ("branch", "while(true){}", "string memory name = \"foo:bar\";"),
+    ("branch", "while(true){}", 'string memory name = "foo:bar";'),
     ("branch", "catch Error(string memory reason) {", "uint256[10] memory arr;"),
-
     # --- args ---
     ("args", "function\ntransfer\n(address to) public", "transfer(to, amount);"),
     ("args", "modifier onlyOwner\n() {", "emit Transfer(msg.sender);"),
     ("args", "event Transfer(\naddress indexed from,\naddress indexed to\n);", "revert Unauthorized(msg.sender);"),
-    ("args", "error Unauthorized\n(\naddress caller\n);", "require(x > 0, \"error\");"),
+    ("args", "error Unauthorized\n(\naddress caller\n);", 'require(x > 0, "error");'),
     ("args", "constructor\n(\n) payable", "if (x) { return; }"),
-
     # --- func_start ---
     ("func_start", "    function \n transfer \n(address to) public {", "transfer(to);"),
     ("func_start", "\tmodifier\nonlyOwner\n() {", "functionType = 5;"),
     ("func_start", "event\nTransfer\n(", "eventually = true;"),
     ("func_start", "error\nUnauthorized\n(", "    // function foo() {"),
     ("func_start", "    fallback\n(\n)\nexternal", "fallbackFn();"),
-
     # --- class_start ---
     ("class_start", "contract Token\nis\nERC20 {", "// contract Token {"),
-    ("class_start", "abstract  contract  Token \n{", "contractName = \"Token\";"),
+    ("class_start", "abstract  contract  Token \n{", 'contractName = "Token";'),
     ("class_start", "interface\nIToken\n{", "contractingParty = 0x0;"),
     ("class_start", "library\nMath\n{", "libraryAddress = 0x123;"),
     ("class_start", "contract\nToken\n \nis\nERC20\n{", "abstracted = true;"),
-
     # --- structural_boundaries ---
-    ("structural_boundaries", "pragma\nsolidity\n^0.8.20;", "pragmaVersion = \"0.8\";"),
+    ("structural_boundaries", "pragma\nsolidity\n^0.8.20;", 'pragmaVersion = "0.8";'),
     ("structural_boundaries", "uint256\npublic\nconstant", "uint256Amount = 5;"),
     ("structural_boundaries", "mapping\n(\naddress\n=>\nuint256\n)", "addressBook[msg.sender];"),
     ("structural_boundaries", "struct\nUser\n{", "structData = 0;"),
     ("structural_boundaries", "enum\nState\n{", "enumValue = 1;"),
 ]
+
 
 @pytest.mark.parametrize("signature,positive,negative", _SOLIDITY_ADVERSARIAL_CASES)
 def test_solidity_signature_adversarial(signature, positive, negative):
@@ -269,3 +265,23 @@ def test_solidity_explicit_casts_and_pointers_no_false_collision():
     assert not casts.search("uint256 memory x;"), "explicit_casts incorrectly matched a memory location keyword"
     assert pointers.search("uint256 memory arr;")
     assert not pointers.search("uint256(x);"), "pointers incorrectly matched an explicit cast"
+
+
+def test_solidity_return_not_counted_as_branch_regression():
+    """#2545: `return` must not phantom-count as a branch -- no checked sibling
+    language counts bare return. Moved to structural_boundaries (not just deleted,
+    since solidity had no other rule tracking it)."""
+    branch = SOLIDITY_RULES["branch"]
+    structural = SOLIDITY_RULES["structural_boundaries"]
+
+    assert not branch.search("return x;"), "bare return must not count as branch"
+    assert not branch.search("function f() public returns (uint) { return 1; }"), (
+        "return in a real function must not count as branch"
+    )
+    assert branch.search("if (x) return 1;"), "the real if must still count as branch"
+    assert len(branch.findall("if (x) return 1;")) == 1, "only the if should match, not the return"
+    assert structural.search("return x;"), "return must now be tracked via structural_boundaries"
+
+
+def test_solidity_structural_boundaries_redos_immune_after_return_addition():
+    assert_redos_immune(SOLIDITY_RULES["structural_boundaries"], "return " * 20000, timeout_sec=3.0)

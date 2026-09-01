@@ -57,8 +57,15 @@ DEFINITION: dict[str, Any] = {
         # non-word, so the leading \b could never match once `@` was
         # preceded by anything else non-word (a space, line start) --
         # meaning these 3 alternatives never actually matched real code.
+        # #2545: `return` removed from branch -- was phantom-counting every early-return
+        # method as a branch with no real decision point. C, objc's own base language,
+        # doesn't count `return` either (though it does count `goto`, kept here to match).
+        # `return` moves to `structural_boundaries` below instead, matching the convention
+        # java/c/rust/go/csharp/kotlin/apex/powershell/zig all use -- not just deleted,
+        # since objc had no other rule tracking it. Corpus impact: objective-c branch 18
+        # (planted 3, +260%) -> exact.
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|break|continue|return|goto)\b|@(try|catch|finally)\b|&&|\|\||\?"
+            r"\b(if|else|switch|case|default|for|while|do|break|continue|goto)\b|@(try|catch|finally)\b|&&|\|\||\?"
         ),
         # 2. args: Parameters / Coupling. Captures method parameters (colons), C-style args, and Blocks (^).
         "args": re.compile(
@@ -137,8 +144,11 @@ DEFINITION: dict[str, Any] = {
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining interface, implementation, and memory types.
         # BUG FIX: the 8 @-prefixed alternatives never matched -- same
         # \b-before-@ shape as branch's fix above.
+        # #2545: `return` added here (moved out of `branch` above) -- matches the
+        # java/c/rust/go/csharp/kotlin/apex/powershell/zig convention of tracking `return`
+        # as a structural boundary, not a branch.
         "structural_boundaries": re.compile(
-            r"@(interface|implementation|protocol|end|synthesize|dynamic|class|import)\b|\b(typedef|struct|enum|union|__block|__weak|__strong)\b"
+            r"@(interface|implementation|protocol|end|synthesize|dynamic|class|import)\b|\b(typedef|struct|enum|union|__block|__weak|__strong|return)\b"
         ),
         # 4. func_start: Executable Logic Anchors. Anchors executable logic.
         # The Critical Fix: Compiled with re.M and optional return types for TBL / NeXTSTEP syntax

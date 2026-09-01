@@ -98,40 +98,60 @@ _APEX_SIMPLE_CASES = [
     ("branch", "catch (Exception e) {", "catchVar = 1;"),
     ("branch", "finally {", "finalVar = 1;"),
     ("branch", "do {", "doMethod();"),
-
     # args
     ("args", "public static List<Id> getIds(Map<Id, Account> accMap, Boolean flag) {", "System.debug(map, true);"),
     ("args", "global override Database.QueryLocator start(Database.BatchableContext BC)", "Id x = start();"),
     ("args", "@AuraEnabled(cacheable=true) public static List<Account> getAccounts(String name)", "public class Foo {"),
-    ("args", "@RestResource(urlMapping='/Account/*/details/(.*)') global static void doThing(String id) {", "System.debug('public void doThing()');"),
+    (
+        "args",
+        "@RestResource(urlMapping='/Account/*/details/(.*)') global static void doThing(String id) {",
+        "System.debug('public void doThing()');",
+    ),
     ("args", "trigger MyTrigger on Account (before insert, after update) {", "for (Integer i = 0; i < 10; i++) {"),
     ("args", "public void noArgs()", "class noArgs {"),
-    ("args", "private static Map<Id, List<Contact>> complex(Map<String, Map<Id, SObject>> nested, Boolean flag) {", "String x = 'x';"),
-
+    (
+        "args",
+        "private static Map<Id, List<Contact>> complex(Map<String, Map<Id, SObject>> nested, Boolean flag) {",
+        "String x = 'x';",
+    ),
     # func_start
     ("func_start", "public void doThing() {", "public class Foo {"),
     ("func_start", "global static List<Account> getAccounts() {", "global class AccountService {"),
     ("func_start", "private \n void \n helperMethod \n () {", "private String varName;"),
     ("func_start", "@AuraEnabled\npublic static String performAction(Id recId)", "@AuraEnabled public Integer count;"),
-    ("func_start", "override protected Database.QueryLocator start(Database.BatchableContext BC)", "override class MyBatch {"),
+    (
+        "func_start",
+        "override protected Database.QueryLocator start(Database.BatchableContext BC)",
+        "override class MyBatch {",
+    ),
     ("func_start", "@AuraEnabled(cacheable=true) public static List<Account> getAccounts() {", "if (true) {"),
-    ("func_start", "@RestResource(urlMapping='/Account/*/details/(.*)') global static void doThing() {", "public interface Foo {"),
+    (
+        "func_start",
+        "@RestResource(urlMapping='/Account/*/details/(.*)') global static void doThing() {",
+        "public interface Foo {",
+    ),
     ("func_start", "trigger MyTrigger on Account (before insert) {", "catch (Exception e) {"),
     ("func_start", "public virtual List<Map<String, Object>> complexReturn() {", "return complexReturn;"),
-
     # class_start
     ("class_start", "public class Foo {", "public void doThing() {"),
     ("class_start", "global with sharing class SecureService implements BaseService {", "global void doSharing() {"),
     ("class_start", "private virtual abstract class BaseHelper", "private String baseVar;"),
     ("class_start", "@isTest\nprivate class MyTestClass {", "@isTest static void testMethod() {"),
-    ("class_start", "@RestResource(urlMapping='/Account/*/details/(.*)') global class Foo {", "String className = 'Foo';"),
+    (
+        "class_start",
+        "@RestResource(urlMapping='/Account/*/details/(.*)') global class Foo {",
+        "String className = 'Foo';",
+    ),
     ("class_start", "public \n without \n sharing \n class \n Foo \n extends \n Bar {", "System.debug('class');"),
     ("class_start", "public enum Status {", "public void Status() {"),
     ("class_start", "global interface IService {", "global void IService() {"),
-
     # structural_boundaries
     ("structural_boundaries", "public class Foo {", "Integer x = 1;"),
-    ("structural_boundaries", "trigger AccountTrigger on Account (before insert)", "AccountTrigger handler = new AccountTrigger();"),
+    (
+        "structural_boundaries",
+        "trigger AccountTrigger on Account (before insert)",
+        "AccountTrigger handler = new AccountTrigger();",
+    ),
     ("structural_boundaries", "public interface IService {", "String classVar = 'x';"),
     ("structural_boundaries", "public enum Status {", "Integer enumVal = 1;"),
     ("structural_boundaries", "final Integer x = 1;", "finalize();"),
@@ -141,7 +161,6 @@ _APEX_SIMPLE_CASES = [
     ("structural_boundaries", "public virtual class Foo", "virtualMethod();"),
     ("structural_boundaries", "public abstract class Foo", "abstractMethod();"),
     ("structural_boundaries", "return x;", "String returnVar = 'x';"),
-
     ("safety", "try {", "Integer x = 1;"),
     ("safety_bypasses", "without sharing", "with sharing"),
     ("high_risk_execution", "delete records;", "insert records;"),
@@ -358,3 +377,16 @@ def test_apex_redos_immunity_sweep():
     assert APEX_RULES["func_start"].search("public void doThing() {")
     assert APEX_RULES["class_start"].search("public class Foo {")
     assert APEX_RULES["safety_bypasses"].search("without sharing")
+
+
+def test_apex_return_not_counted_as_branch_regression():
+    """#2545: `return` must not phantom-count as a branch -- java, apex's own JVM
+    sibling, doesn't count it either. Still tracked under structural_boundaries."""
+    branch = APEX_RULES["branch"]
+    structural = APEX_RULES["structural_boundaries"]
+
+    assert not branch.search("return x;"), "bare return must not count as branch"
+    assert not branch.search("Integer f() { return 1; }"), "return in a real method must not count as branch"
+    assert branch.search("if (x) return 1;"), "the real if must still count as branch"
+    assert len(branch.findall("if (x) return 1;")) == 1, "only the if should match, not the return"
+    assert structural.search("return x;"), "return must still be tracked via structural_boundaries"

@@ -96,6 +96,11 @@ class StateRehydrator:
                     "lang_id": f["language"],
                     "total_loc": f["total_loc"],
                     "coding_loc": f["coding_loc"],
+                    # #2625: same Schema Drift Protection as silo_risk above. Before
+                    # doc_loc was persisted, rehydrated (unchanged) files silently
+                    # reported "Documentation LOC: 0" on every incremental scan
+                    # because this reconstruction had no column to read it from.
+                    "doc_loc": f["doc_loc"] if "doc_loc" in row_keys else 0,
                     "file_impact": float(f["structural_mass"]),
                     "control_flow_ratio": float(f["control_flow_ratio"]),
                     # Initialize empty collections for downstream pipeline requirements

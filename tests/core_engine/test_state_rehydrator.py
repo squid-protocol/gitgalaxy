@@ -241,3 +241,40 @@ def test_rehydrator_dictionary_type_spoofing(tmp_path):
     assert result is None, (
         "Failed to reject a type-spoofed database gracefully -- crashed instead of falling back to a cold start!"
     )
+
+
+def test_rehydrator_doc_loc_defensive_default_on_legacy_db(mock_db):
+    """#2625: a pre-doc_loc database must rehydrate with doc_loc 0 (schema
+    drift protection, silo_risk precedent) -- not KeyError. The mock_db
+    fixture deliberately has no doc_loc column."""
+    result = StateRehydrator(mock_db).load_latest_state("test_repo")
+    assert result is not None
+    assert result["ram_cache"]["src/main.py"]["doc_loc"] == 0
+
+
+def test_rehydrator_doc_loc_read_back_when_present(tmp_path):
+    """#2625: with the modern schema, an unchanged file's doc_loc must
+    survive rehydration instead of silently reporting 0 documentation on
+    every incremental scan (the pre-#2625 behavior)."""
+    db_path = tmp_path / "modern.db"
+    conn = sqlite3.connect(db_path)
+    conn.execute("CREATE TABLE repo_data (repo_name TEXT, commit_hash TEXT, commit_date INTEGER)")
+    conn.execute(
+        """CREATE TABLE file_data (
+            repo_name TEXT, commit_hash TEXT, file_path TEXT, language TEXT,
+            total_loc INTEGER, coding_loc INTEGER, doc_loc INTEGER, structural_mass REAL,
+            control_flow_ratio REAL, popularity INTEGER, author TEXT,
+            ai_threat_score REAL, silo_risk REAL, total_downstream INTEGER, total_upstream INTEGER
+        )"""
+    )
+    conn.execute("INSERT INTO repo_data VALUES ('test_repo', 'hash_1', 1700000000)")
+    conn.execute(
+        "INSERT INTO file_data VALUES ('test_repo', 'hash_1', 'src/main.py', 'python', "
+        "150, 100, 42, 45.5, 0.35, 12, 'Joe Esquibel', 85.0, 12.5, 4, 2)"
+    )
+    conn.commit()
+    conn.close()
+
+    result = StateRehydrator(str(db_path)).load_latest_state("test_repo")
+    assert result is not None
+    assert result["ram_cache"]["src/main.py"]["doc_loc"] == 42

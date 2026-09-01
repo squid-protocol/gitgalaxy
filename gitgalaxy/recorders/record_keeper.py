@@ -257,6 +257,7 @@ class RecordKeeper:
                 directory_group TEXT,
                 total_loc INTEGER,
                 coding_loc INTEGER,
+                doc_loc INTEGER,
                 structural_mass REAL,
                 cog_raw REAL,
                 ownership_entropy REAL,
@@ -348,6 +349,24 @@ class RecordKeeper:
         # DEFENSIVE GUARD: Indexes to Prevent Cascade Delete Hangs
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_class_file_id ON class_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_function_file_id ON function_data(file_id);")
+
+        # #2625: file_data historically persisted only total_loc (blank-inclusive)
+        # and coding_loc (blank-exclusive), forcing downstream consumers to
+        # re-derive documentation mass as total_loc - coding_loc -- which silently
+        # counts every BLANK line as documentation. prism.py's real doc_loc
+        # (non-blank, non-code lines) is now persisted alongside them; this
+        # ALTER heals pre-#2625 databases whose existing file_data table (the
+        # CREATE IF NOT EXISTS above won't touch it) predates the column --
+        # same auto-heal precedent as repo_data's is_zero_dependency_mode.
+        # Runs AFTER the CREATE so a fresh database (table just created, column
+        # already present) lands in the expected duplicate-column branch.
+        try:
+            cursor.execute("ALTER TABLE file_data ADD COLUMN doc_loc INTEGER DEFAULT 0")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" in str(exc).lower():
+                self.logger.debug("Schema migration skipped: 'doc_loc' already exists.")
+            else:
+                raise
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS excluded_artifacts (
@@ -627,6 +646,7 @@ class RecordKeeper:
                 file_data.get("directory_group", "__monolith__"),
                 file_data.get("total_loc", 0),
                 file_data.get("coding_loc", 0),
+                file_data.get("doc_loc", 0),
                 file_data.get("file_impact", 0.0),
                 tel.get("densities", {}).get("cog_raw", 0.0),
                 tel.get("ownership_entropy", 0.0),
@@ -692,7 +712,7 @@ class RecordKeeper:
                 f"""
                 INSERT INTO file_data (
                     repo_name, commit_date, commit_hash, file_name, file_path, parent_entity, language, directory_group, 
-                    total_loc, coding_loc, structural_mass, cog_raw, ownership_entropy, silo_risk, 
+                    total_loc, coding_loc, doc_loc, structural_mass, cog_raw, ownership_entropy, silo_risk,
                     raw_churn_freq, popularity, import_count, pagerank_score, normalized_blast_radius, betweenness_score, closeness_score, producer_ratio, ecosystem_role,
                     control_flow_ratio, function_count, class_count,
                     func_complexity_vector, avg_func_loc, avg_func_complexity, max_func_complexity, 

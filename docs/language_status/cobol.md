@@ -452,14 +452,22 @@ ledgered or pinned to a named cross-cutting issue. The five-cause decomposition 
 5. **Median inflation / cross-cutting — COBOL is the honest one**: `state_mutation` 2 matches
    planted intent exactly; the median 6 is inflated by the ×3 flux weighting
    ([#2546](https://github.com/squid-protocol/gitgalaxy/issues/2546)).
-   `high_risk_execution`/`io` carry +1 each from a string-literal decoy COBOL doesn't shield
-   ([#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535)'s selective-shielding
-   design question). No COBOL action; re-baselines when those land.
+   `high_risk_execution`/`io` carry +1 each because COBOL's `a.cpy` string decoy
+   (`'IF ALTER FAILS TRY OPEN AGAIN'`) contains `ALTER`/`OPEN` but not a token in COBOL's own
+   `safety` rule (`END-IF`/`END-PERFORM`/…/`VALIDATE`/`CHECK` — no `TRY`), so nothing dampens
+   them: this **is the raw, correct count**. [#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535)
+   (closed, not-a-bug) traced the *median*'s pull the other way: languages whose safety rule
+   happens to include a `TRY`-shaped keyword get their same decoy's danger/io hit silenced by
+   the ordinary Silencer Region dampener — a real, working mechanism, just coincidentally
+   triggered by decoy prose. No COBOL action; the median re-baselines once
+   [keyword-rosetta#17](https://github.com/squid-protocol/keyword-rosetta/issues/17) redesigns
+   the decoy sentences corpus-wide to stop conflating that collision with literal counting.
 
 **Remaining out-of-band** (all accounted, none actionable at the COBOL level): `args` (bucket-4
-ledger), `state_mutation` (#2546), `globals`/`high_risk_execution`/`io` (bucket-4 ledger /
-#2535), and the §3 risk-score shadows (`risk_cognitive_load` −57%, `risk_safety_score` +42% —
-the epic forbids tuning risk formulas against biased inputs).
+ledger), `state_mutation` (#2546), `globals` (bucket-4 ledger), `high_risk_execution`/`io`
+(median inflation from other languages' decoy/safety-vocab collision — rosetta#17), and the §3
+risk-score shadows (`risk_cognitive_load` −57%, `risk_safety_score` +42% — the epic forbids
+tuning risk formulas against biased inputs).
 
 Reproduce: `GALAXYSCOPE_BIN=<venv>/bin/galaxyscope python tools/verify_language.py cobol` in the
 corpus repo (gate: 75 assertions), `python tools/language_deviations.py cobol` for the live

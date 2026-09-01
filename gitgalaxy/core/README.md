@@ -34,6 +34,33 @@ This file categorizes different keyword terms into structural signature counts. 
 * **Fluid-State Language Switching:** Rather than failing on polyglot files, the engine dynamically swaps syntax registries mid-file. It uses scope-aware handshakes to isolate and parse embedded languages (e.g., evaluating SQL execution inside a Python string, or extracting JavaScript logic nested within HTML blocks) without losing context.
 * **AST-Free Cyclomatic Complexity:** Instead of compiling an Abstract Syntax Tree, this module counts control-flow branch signatures (conditionals, loops, switches) directly from the lexical stream as a fast proxy for cyclomatic complexity, in the same linear-time pass covered by the throughput benchmark above. It does not infer algorithmic (Big-O) complexity or recursion depth from indentation shape -- an earlier heuristic that attempted this was removed after proving unreliable in practice (whitespace geometry doesn't measure algorithmic complexity, and name-occurrence recursion detection false-positived on docstrings, comments, and logging calls).
 
+#### Proximity correlations (`spatial_correlation.py`) — the dampener/amplifier pairs
+
+After raw counting, six signal-pair correlations adjust the recorded counts based on *where*
+hits sit relative to each other — within a character radius **and** (post-#346/#348) inside the
+same detected function. These were previously invisible outside the source (#2546 — the #1096
+keyword-rosetta control corpus had to rediscover the flux weighting by micro-repro), so the
+full set is documented here. Every adjustment is tallied in the per-file
+`mitigation_telemetry`, surfaced in the audit report as "Contextual Mitigations &
+Amplifications", so raw counts stay recoverable.
+
+| Pair (targets ← context) | Radius | Effect on recorded counts | Telemetry key |
+|---|---|---|---|
+| `high_risk_execution` ← `safety` | 500 | −1 per mitigated hit (the "Silencer Region") | `mitigated_danger` |
+| `concurrency` ← `state_mutation` (unless `sync_locks` ≤300 away) | 150 | +5 per race-condition pairing | `amplified_race_conditions` |
+| `memory_alloc` ← `cleanup` | 800 | count reduced to unmitigated allocs | `mitigated_memory_allocs` |
+| `memory_scraping` ← `exfiltration_camouflage` | 200 | +100 per confirmed pairing | `amplified_leaks` |
+| `high_risk_execution` ← `io` | 250 | +1 `sec_tainted_injection` per corroborated RCE | `amplified_rce` |
+| `state_mutation` ← `branch` | 150 | **+2 per cascading hit → ×3 net** (the flux weighting, #2546) | `amplified_cascading_flux` |
+
+The flux row deserves the detail: state mutated near control flow is deliberately weighted ×3
+(feeding `risk_state_flux` / cognitive-load scoring), scoped per mutation to a 150-char radius
+within the same function — **not** a blanket per-function toggle. Raw count =
+`recorded − 2 × amplified_cascading_flux`. Known amplifier FP: in languages whose branch rules
+don't shield string literals (#2535), a branch keyword inside a string creates phantom branch
+context and triples real nearby mutations — that fix belongs to #2535. Semantics are pinned by
+`tests/core_engine/test_spatial_correlation.py`'s flux micro-repros.
+
 ### 5. `network_risk_sensor.py` (The Topology Mapper)
 **Role:** Dependency Graphing.
 Once files are structurally parsed, this module wires them together into a Directed Acyclic Graph (DAG) using their raw import statements. It executes PageRank mathematics to determine each file's absolute **Dependency Blast Radius**, identifies **Architectural Choke Points**, and classifies their **Ecosystem Role** (Producer vs. Consumer).

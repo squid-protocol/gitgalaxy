@@ -237,7 +237,39 @@ def apply_amplifier_correlations(
         counts["sec_tainted_injection"] += corroborated_rce
         mitigations["amplified_rce"] += corroborated_rce
 
-    # 6. The OOM Bomb (Cascading State Flux)
+    # 6. The OOM Bomb (Cascading State Flux) -- the x3 flux weighting (#2546).
+    #
+    # SEMANTICS (documented per #2546; mapped by the #1096 keyword-rosetta
+    # control corpus, ledger entry `state-flux-branch-weighting`): every
+    # state_mutation hit with a branch hit within 150 CHARACTERS *and* inside
+    # the SAME function (correlate_scoped; flat-radius fallback for
+    # module-level code) is "cascading" and gains +2 here -- so it counts x3
+    # net in the recorded state_mutation total. State mutated under nearby
+    # control flow is deliberately weighted as riskier than straight-line
+    # mutation; this feeds risk_state_flux / cognitive-load scoring
+    # downstream.
+    #
+    # NOT a blanket per-function toggle: the corpus first described this as
+    # "branch context anywhere in the function triples every mutation", which
+    # only *looked* true because its probe functions were shorter than the
+    # 150-char radius. A mutation >150 chars from every branch in its
+    # function stays x1.
+    #
+    # OBSERVABILITY: the amplified count is tallied below as
+    # `amplified_cascading_flux` in mitigation_telemetry, surfaced per file
+    # in the audit report ("6. Contextual Mitigations & Amplifications"), so
+    # the raw hit count is always recoverable:
+    #     raw = recorded_state_mutation - 2 * amplified_cascading_flux.
+    #
+    # KNOWN AMPLIFIER FP (#2535, deliberately NOT fixed here): languages
+    # whose branch rules aren't literal-shielded let a branch keyword inside
+    # a STRING ("if eval fails, try open") create phantom branch context that
+    # triples real, unrelated mutations nearby. That is the literal-shielding
+    # question's highest-leverage scoring consequence and lands with
+    # whichever direction #2535 takes.
+    #
+    # Behavior pinned by tests/core_engine/test_spatial_correlation.py's
+    # flux-weighting micro-repros -- change those on purpose or not at all.
     if "state_mutation" in spatial_map and "branch" in spatial_map:
         _, cascading_flux = correlate_scoped(
             targets=spatial_map["state_mutation"],
@@ -245,7 +277,7 @@ def apply_amplifier_correlations(
             satellite_ranges=satellite_ranges,
             max_distance=150,  # If state is mutated near heavy branching
         )
-        counts["state_mutation"] += cascading_flux * 2  # Double the raw signal
+        counts["state_mutation"] += cascading_flux * 2  # +2 on top of the raw hit = x3 net
         mitigations["amplified_cascading_flux"] = mitigations.get("amplified_cascading_flux", 0) + cascading_flux
 
 

@@ -1,4 +1,5 @@
 from gitgalaxy.core.spatial_correlation import (
+    apply_amplifier_correlations,
     apply_dampener_correlations,
     correlate_against_ledger,
     correlate_scoped,
@@ -255,3 +256,84 @@ def test_correlate_against_ledger_corroboration_style_reads_mitigated():
 
     _, corroborated = correlate_against_ledger(threat_locations, functions, "api", "db_hooks", max_distance=10)
     assert corroborated == 1, "API route and DB hook in the same function should corroborate"
+
+
+# ==============================================================================
+# TEST: THE x3 FLUX WEIGHTING MICRO-REPROS (#2546)
+# Pins Block 6 (The OOM Bomb / Cascading State Flux) exactly as documented in
+# spatial_correlation.py -- these encode the deliberate semantics the #1096
+# control corpus had to discover by micro-repro. Change them on purpose or
+# not at all.
+# ==============================================================================
+def test_flux_weighting_branch_within_radius_same_function_triples():
+    """One mutation + one branch within 150 chars in the SAME function:
+    +2 on top of the raw hit = x3 net, tallied as amplified_cascading_flux."""
+    satellite_ranges = [(0, 400)]
+    spatial_map = {"state_mutation": [100], "branch": [180]}
+    counts = {"state_mutation": 1}
+    mitigations = _fresh_mitigations()
+
+    apply_amplifier_correlations(spatial_map, satellite_ranges, counts, mitigations)
+
+    assert counts["state_mutation"] == 3, "Mutation near a same-function branch must count x3 net"
+    assert mitigations["amplified_cascading_flux"] == 1
+
+
+def test_flux_weighting_no_branch_stays_raw():
+    """No branch signal at all: the raw count is untouched (x1)."""
+    satellite_ranges = [(0, 400)]
+    spatial_map = {"state_mutation": [100]}
+    counts = {"state_mutation": 1}
+    mitigations = _fresh_mitigations()
+
+    apply_amplifier_correlations(spatial_map, satellite_ranges, counts, mitigations)
+
+    assert counts["state_mutation"] == 1, "Mutation with no branch context must stay x1"
+    assert "amplified_cascading_flux" not in mitigations or mitigations["amplified_cascading_flux"] == 0
+
+
+def test_flux_weighting_branch_beyond_150_chars_stays_raw():
+    """A branch >150 chars away IN THE SAME function does not amplify --
+    the weighting is proximity-based (150-char radius), not a blanket
+    per-function branch-context toggle (the corpus's first description)."""
+    satellite_ranges = [(0, 1000)]
+    spatial_map = {"state_mutation": [100], "branch": [400]}
+    counts = {"state_mutation": 1}
+    mitigations = _fresh_mitigations()
+
+    apply_amplifier_correlations(spatial_map, satellite_ranges, counts, mitigations)
+
+    assert counts["state_mutation"] == 1, "Branch beyond the 150-char radius must not amplify"
+    assert mitigations.get("amplified_cascading_flux", 0) == 0
+
+
+def test_flux_weighting_branch_in_other_function_stays_raw():
+    """A branch within 150 raw chars but across a function boundary does not
+    amplify -- correlate_scoped requires target and 'dampener' in the SAME
+    satellite (go corpus evidence: 11 = one function's 3x3 + another's 2x1)."""
+    satellite_ranges = [(0, 150), (150, 400)]
+    spatial_map = {"state_mutation": [140], "branch": [160]}
+    counts = {"state_mutation": 1}
+    mitigations = _fresh_mitigations()
+
+    apply_amplifier_correlations(spatial_map, satellite_ranges, counts, mitigations)
+
+    assert counts["state_mutation"] == 1, "Cross-function branch must not amplify this mutation"
+    assert mitigations.get("amplified_cascading_flux", 0) == 0
+
+
+def test_flux_weighting_per_mutation_accounting():
+    """Two mutations near branches + one isolated mutation in the same
+    function: 2 amplified (x3 each) + 1 raw = 3 raw hits -> 7 net, and the
+    raw count stays recoverable as net - 2 * amplified_cascading_flux."""
+    satellite_ranges = [(0, 1000)]
+    spatial_map = {"state_mutation": [100, 200, 900], "branch": [150]}
+    counts = {"state_mutation": 3}
+    mitigations = _fresh_mitigations()
+
+    apply_amplifier_correlations(spatial_map, satellite_ranges, counts, mitigations)
+
+    assert counts["state_mutation"] == 7, "2 amplified (+2 each) + 1 raw should net 7"
+    assert mitigations["amplified_cascading_flux"] == 2
+    raw = counts["state_mutation"] - 2 * mitigations["amplified_cascading_flux"]
+    assert raw == 3, "Raw hit count must be recoverable from the telemetry"

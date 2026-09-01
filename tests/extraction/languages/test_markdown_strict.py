@@ -295,6 +295,12 @@ _DEP_NEGATIVE_CASES = [
     "[pure anchor](#section)",
     "[not a link] (space.md)",
     "plain prose with no link at all",
+    # angle-bracket destination (CommonMark escape hatch for URLs with
+    # spaces/parens) -- found live in wtfpython's README during the #2638
+    # golden-master re-bless, where the pre-fix capture produced the junk
+    # fragment '<https://en.wikipedia.org/wiki/Collision_'
+    "[wiki](<https://en.wikipedia.org/wiki/Collision_(computer_science)>)",
+    "[angle rel](<my file.md>)",
 ]
 
 

@@ -418,18 +418,30 @@ skill's taxonomy; jcl.md and cobol.md §10 are the earlier capstones):
 5. **Median inflation / cross-cutting — python is the honest one**: `safety` 3 and
    `state_mutation` 2 match planted intent exactly (medians distorted by the ×3 flux weighting,
    [#2546](https://github.com/squid-protocol/gitgalaxy/issues/2546)); `doc` +100% is the
-   docstring open/close-delimiter double-count, adjacent to the literal-shielding question
-   ([#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535)); and `comment_lines` +73%
-   surfaced a NEW engine-wide finding filed as
-   [#2625](https://github.com/squid-protocol/gitgalaxy/issues/2625) — `total_loc − coding_loc`
-   folds blank lines into "documentation" everywhere, loudest in python because its shells have
-   the highest blank-line ratio (jcl's and cobol's capstones hit the same proxy from the other
-   side).
+   docstring open/close-delimiter double-count — a genuinely separate mechanism, **not**
+   related to string-literal counting despite the earlier adjacency note here (see below).
 
-**Remaining out-of-band** (all accounted, none actionable in python's own rule file): `safety`/
-`state_mutation` (#2546), `doc` (#2535 — re-measure if that lands before assuming a residual
-bug), `comment_lines` (#2625), and the §3 risk shadows (`risk_api_exposure`,
-`risk_cognitive_load`). #2593 stays open pending those cross-cutting fixes — python re-baselines
+**UPDATE 2026-09-01 — two cross-cutting fixes landed since this section was written, and one
+earlier cross-reference here was wrong; corrected rather than left stale:**
+- **`comment_lines` is RESOLVED**: [#2625](https://github.com/squid-protocol/gitgalaxy/issues/2625)
+  (engine persists `doc_loc` instead of the blank-line-contaminated `total_loc − coding_loc`
+  proxy) took python 52 → 15, red → green.
+- **[#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535) is closed, not-a-bug**:
+  there is no string-literal shielding mechanism in the engine at all — every "selective
+  shielding" reading traced to the ordinary Silencer Region dampener
+  ([#2546](https://github.com/squid-protocol/gitgalaxy/issues/2546)'s table) coincidentally
+  triggered by the shared decoy sentence's incidental overlap with a language's own `safety`
+  vocabulary. `doc`'s deviation is unaffected by this finding — it was never a literal-shielding
+  question, it's the docstring delimiter double-count, and stays an open residual on its own.
+- **A new residual surfaced live** (`io` 4 vs median 3, +33%) that predates a fresh sweep pass
+  and isn't triaged here — `tools/language_deviations.py python` currently reports **3🔴/3🟡**
+  (`doc`, `state_mutation`, `risk_cognitive_load` red; `io`, `safety`, `risk_api_exposure`
+  amber), down from this section's original 4🔴/3🟡. Re-run the sweep skill's Phase 0/1 before
+  trusting either count.
+
+**Remaining out-of-band** (all accounted, none actionable in python's own rule file without a
+fresh sweep): `safety`/`state_mutation` (#2546), `doc` (open residual, own cause), `io` (newly
+surfaced, unswept), and the §3 risk shadows. #2593 stays open pending #2546 and a fresh pass —
 into band on its own as they land.
 
 Reproduce: `GALAXYSCOPE_BIN=<venv>/bin/galaxyscope python tools/verify_language.py python` in

@@ -465,9 +465,7 @@ def test_detector_orphan_census_excludes_synthetic_slicer_names():
     assert "__global_context__" in shell_names, "Test setup didn't reproduce the synthetic bucket -- fixture drifted"
 
     synthetic_flagged = [
-        f["name"]
-        for f in shell_result["functions"]
-        if f["name"] == "__global_context__" and f.get("usage_status") != 0
+        f["name"] for f in shell_result["functions"] if f["name"] == "__global_context__" and f.get("usage_status") != 0
     ]
     assert synthetic_flagged == [], "__global_context__ (non-function slicer bucket) was flagged as orphan/duplicate!"
 
@@ -481,11 +479,7 @@ def test_detector_orphan_census_excludes_synthetic_slicer_names():
     # generically from its leading keyword ("SELECT_Statement", "CREATE_Statement",
     # ...) -- never a real captured identifier, so none should be orphan-eligible.
     sql_detector = StructuralExtractor("sql", MOCK_LANG_DEFS)
-    sql_code = (
-        "SELECT * FROM users;\n"
-        "INSERT INTO users (id) VALUES (1);\n"
-        "CREATE INDEX idx_users_id ON users (id);\n"
-    )
+    sql_code = "SELECT * FROM users;\nINSERT INTO users (id) VALUES (1);\nCREATE INDEX idx_users_id ON users (id);\n"
     sql_result = sql_detector.splice(sql_code, "")
     sql_names = [f["name"] for f in sql_result["functions"]]
     assert any(name.endswith("_Statement") for name in sql_names), (
@@ -814,22 +808,22 @@ def test_detector_mode_d_livecode_script_handlers():
     """
     opt_detector = StructuralExtractor("livecode", MOCK_LANG_DEFS)
     code = (
-        'on mouseUp\n'
-        '   if the shiftKey is down then beep\n'  # one-liner, no `end if`
-        '   if tCount > 0 then\n'
-        '      repeat with i = 1 to tCount\n'
-        '         put i after tResult\n'
-        '      end repeat\n'
-        '   end if\n'
-        'end mouseUp\n'
-        '\n'
-        'private function computeTotal pRows\n'
-        '   return the number of lines of pRows\n'
-        'end computeTotal\n'
-        '\n'
-        'command logIt pMessage\n'
+        "on mouseUp\n"
+        "   if the shiftKey is down then beep\n"  # one-liner, no `end if`
+        "   if tCount > 0 then\n"
+        "      repeat with i = 1 to tCount\n"
+        "         put i after tResult\n"
+        "      end repeat\n"
+        "   end if\n"
+        "end mouseUp\n"
+        "\n"
+        "private function computeTotal pRows\n"
+        "   return the number of lines of pRows\n"
+        "end computeTotal\n"
+        "\n"
+        "command logIt pMessage\n"
         '   write pMessage & return to file "log.txt"\n'
-        'end logIt\n'
+        "end logIt\n"
     )
 
     result = opt_detector.splice(code, "")
@@ -861,7 +855,7 @@ def test_detector_mode_d_livecode_builder_handlers():
         "\n"
         "public handler DoWork(in pInput as String, out pResult as String)\n"
         "   if pInput is empty then\n"
-        "      put \"none\" into pResult\n"
+        '      put "none" into pResult\n'
         "      return\n"
         "   end if\n"
         "   put pInput into pResult\n"
@@ -3784,3 +3778,30 @@ AC_DEFUN([ANOTHER],
     assert sats[0]["loc"] == 1
     assert sats[1]["loc"] == 6
     assert sats[2]["loc"] == 4
+
+
+def test_detector_early_returns_do_not_clobber_worker_raw_imports():
+    """#2638 regression: splice()'s early-return paths (markdown prose
+    deflection, prose/structured-data empty return, empty code_stream,
+    catastrophic-failure fallback) used to include a placeholder
+    "raw_imports": [] in their LogicData. The worker merges splice output
+    into its payload AFTER independently extracting dependencies via
+    `_dependency_capture` (galaxyscope.py Phase 6), so the placeholder
+    silently erased every dependency those paths' files had -- markdown's
+    relative links being the first real casualty. splice() must not emit
+    the key at all: dependency extraction is the worker's, not the
+    detector's."""
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    # Markdown prose deflection path (real defs: lit rules live in comment_stream)
+    md_detector = StructuralExtractor("markdown", LANGUAGE_DEFINITIONS)
+    md_result = md_detector.splice("", "# Title\n[a](a.md)\n")
+    assert "raw_imports" not in md_result, (
+        "markdown prose-deflection splice() emitted a raw_imports placeholder; "
+        "it would clobber Phase 6's link extraction in the worker payload merge"
+    )
+
+    # Empty code_stream early return (any code language)
+    py_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
+    empty_result = py_detector.splice("", "")
+    assert "raw_imports" not in empty_result, "empty-code_stream splice() emitted a raw_imports placeholder"

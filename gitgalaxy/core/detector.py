@@ -999,7 +999,6 @@ class StructuralExtractor:
                 "logic_density": 0.0,
                 "sum_fxn_impact": 0.0,
                 "total_control_flow_ratio": 0.0,
-                "raw_imports": [],
                 "metadata": ghost_meta,
             }
 
@@ -1022,7 +1021,6 @@ class StructuralExtractor:
                 "logic_density": 0.0,
                 "sum_fxn_impact": 0.0,
                 "total_control_flow_ratio": 0.0,
-                "raw_imports": [],
                 "metadata": ghost_meta,
             }
 
@@ -1033,7 +1031,6 @@ class StructuralExtractor:
                 "logic_density": 0.0,
                 "sum_fxn_impact": 0.0,
                 "total_control_flow_ratio": 0.0,
-                "raw_imports": [],
                 "metadata": ghost_meta,
             }
 
@@ -1409,7 +1406,6 @@ class StructuralExtractor:
                 "logic_density": 0.0,
                 "sum_fxn_impact": 0.0,
                 "total_control_flow_ratio": 0.0,
-                "raw_imports": [],
                 "metadata": ghost_meta,
             }
 

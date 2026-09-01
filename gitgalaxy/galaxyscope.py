@@ -563,24 +563,29 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             raw_imports = set()
             named_tokens = set()  # <--- NEW: Initialize token tracker
 
-            if not is_inert:
-                # 1. Extract raw file dependencies
-                import_regex = lang_defs.get(lang_id, {}).get("rules", {}).get("_dependency_capture")
-                if import_regex:
-                    try:
-                        for match in import_regex.finditer(content_buffer):
-                            extracted_path = next((g for g in match.groups() if g), None)
-                            if extracted_path:
-                                # Handle comma-separated blocks and brackets (e.g., Rust/Scala: {A, B}, Python: a, b as c)
-                                clean_group = extracted_path.replace("{", "").replace("}", "")
-                                for item in clean_group.split(","):
-                                    # Strip 'as alias' and whitespace to isolate the pure module name
-                                    clean_module = re.split(r"\s+as\s+", item)[0].strip()
-                                    if clean_module:
-                                        raw_imports.add(clean_module)
-                    except Exception:
-                        logging.exception("Import extraction failed for language '%s'.", lang_id)
+            # 1. Extract raw file dependencies. An inert (static-asset) language
+            # normally skips this whole phase, but one that explicitly DECLARES
+            # `_dependency_capture` has opted its references into the DAG (#2638:
+            # markdown's relative links are dependencies -- popularity and
+            # orphaned-docs detection). The other inert skips (security lens,
+            # named tokens, popularity census) stay skipped.
+            import_regex = lang_defs.get(lang_id, {}).get("rules", {}).get("_dependency_capture")
+            if import_regex:
+                try:
+                    for match in import_regex.finditer(content_buffer):
+                        extracted_path = next((g for g in match.groups() if g), None)
+                        if extracted_path:
+                            # Handle comma-separated blocks and brackets (e.g., Rust/Scala: {A, B}, Python: a, b as c)
+                            clean_group = extracted_path.replace("{", "").replace("}", "")
+                            for item in clean_group.split(","):
+                                # Strip 'as alias' and whitespace to isolate the pure module name
+                                clean_module = re.split(r"\s+as\s+", item)[0].strip()
+                                if clean_module:
+                                    raw_imports.add(clean_module)
+                except Exception:
+                    logging.exception("Import extraction failed for language '%s'.", lang_id)
 
+            if not is_inert:
                 # 2. Extract Named Tokens dynamically via Language Standards
                 named_token_regex = lang_defs.get(lang_id, {}).get("rules", {}).get("_named_token_capture")
                 if named_token_regex:

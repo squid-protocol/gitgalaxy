@@ -43,6 +43,17 @@ DEFINITION: dict[str, Any] = {
     # Mapping this to 'hybrid_dash' would cause the engine to miss hidden documentation mass.
     "lexical_family": "line_exclusive",
     "rules": {
+        # Relative-link dependency capture (#2638): a doc that links a sibling file
+        # depends on it the same way code imports a module -- the target feeds the
+        # DAG (popularity / orphaned-docs detection). Scheme URLs (http:, mailto:),
+        # protocol-relative (//) and pure-anchor (#...) targets are external or
+        # intra-file and are excluded by the lookahead; the capture stops before
+        # any #fragment, whitespace-separated title, or closing paren. The bracket
+        # half reuses lit_links' vetted bounded shape (one nesting level, no
+        # adjacent unbounded quantifiers).
+        "_dependency_capture": re.compile(
+            r"\[(?:[^\[\]]|\[[^\[\]]*\])+\]\(\s*(?![a-zA-Z][a-zA-Z0-9+.-]*:|//|#)([^()\s#]+)"
+        ),
         "lit_code_blocks": re.compile(r"^[ \t]{0,3}```+[^`\r\n]*$", re.M),
         "lit_diagrams": re.compile(r"^[ \t]{0,3}```+(?:mermaid|plantuml)\b", re.I | re.M),
         "lit_headers": re.compile(r"^[ \t]{0,3}#{1,6}[ \t]+", re.M),

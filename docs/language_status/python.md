@@ -386,3 +386,55 @@ anything on its own.
 
 Full record: `docs/self_scan/tri_comparison_ledger.json` (filter keys starting `python/`) and
 `docs/self_scan/tri_comparison_points_of_interest.md`.
+
+## 11. Rosetta cross-language consistency (control-corpus capstone)
+
+This section is the [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta)
+counterpart of §9/§10: where those ask "is python extraction *accurate* on real code?", the
+rosetta control corpus asks "does GitGalaxy measure *identical planted intent* the same in python
+as in the other 45 languages?" — every deviation from the 46-language median is measured bias,
+tracked in [#2593](https://github.com/squid-protocol/gitgalaxy/issues/2593) (epic
+[#2560](https://github.com/squid-protocol/gitgalaxy/issues/2560)) and validated in the corpus's
+[deviation ledger](https://github.com/squid-protocol/keyword-rosetta/blob/main/deviation_ledger.json).
+
+**Summary (2026-08-31).** Python went from **5🔴 / 3🟡** to **4🔴 / 3🟡** out-of-band metrics:
+gitgalaxy [#2626](https://github.com/squid-protocol/gitgalaxy/pull/2626) plus keyword-rosetta
+[PR #13](https://github.com/squid-protocol/keyword-rosetta/pull/13). Two real keyword-overlap bugs
+fixed, the rest classified and left for cross-cutting work:
+
+1. **Real engine bug, fixed** (#2626): `io`'s `os\.`/`sys\.` matched ANY `os.x`/`sys.x` attribute,
+   overlapping `globals`' own `os.environ`/`sys.argv`/`sys.path` — one planted globals read was
+   double-counted as `io` too (6 vs median 3, +100% → 4 vs median 3, +33%). Fixed with negative
+   lookaheads carving out exactly those three tokens; real `os.`/`sys.` I/O calls (`os.path`,
+   `os.remove`, `sys.stdin`, ...) are unaffected.
+2. **Real engine bug, fixed** (#2626): `test` included bare `\bassert\b`, already owned by
+   `safety` — a runtime invariant check in production code was miscounted as a testing signal (3
+   vs median 2, +50% → 2 vs median 2, **now in-band**). Removed; `unittest`/`pytest`/`TestCase`/
+   `fixture`/`patch`/`def test_`/`Mock` cover real testing idioms without it.
+3. **Median inflation by other languages' bugs — python is the honest one**: `safety` (3) and
+   `state_mutation` (2) both match planted intent exactly; their out-of-band standing is the
+   cross-language median being inflated by the ×3 flux weighting
+   ([#2546](https://github.com/squid-protocol/gitgalaxy/issues/2546)) in other languages. No
+   python action; re-baselines when #2546 lands.
+4. **Out of scope for this pass, tracked separately**: `doc` (2 vs median 1, +100%) — the
+   `"""`/`'''` docstring pattern counts both the opening and closing delimiter as separate matches;
+   related to the string-literal-shielding upstream question
+   ([#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535)), not re-investigated here.
+   `comment_lines` (52 vs median 30, +73%) turned out to be a **new, engine-wide finding, not
+   python-specific** — filed as [#2625](https://github.com/squid-protocol/gitgalaxy/issues/2625):
+   `comment_lines` = `total_loc − coding_loc`, but `total_loc` includes blank lines while
+   `coding_loc` doesn't, so blank lines get folded into "documentation" for every language. Python's
+   corpus shells simply have a higher blank-line ratio than most language shells, so it surfaces
+   loudest here (jcl's own §10 capstone independently hit the same root cause for its
+   `comment_lines` residual).
+
+**Remaining out-of-band** (all accounted, none actionable at the python level right now): the
+bucket-3 metrics (blocked on #2546), `doc` (blocked on #2535), `comment_lines` (blocked on the new
+#2625), and the §3 risk-score consequences (downstream shadows; the epic forbids tuning risk
+formulas against biased inputs). Issue #2593 stays open pending those.
+
+Reproduce: `GALAXYSCOPE_BIN=<venv>/bin/galaxyscope python tools/verify_language.py python` in the
+corpus repo (gate: 80 assertions), `python tools/language_deviations.py python` for the live
+vs-median band table, and the corpus's
+[findings_by_language.md#python](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md#python) /
+[bias chart](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/bias_variance_chart.svg).

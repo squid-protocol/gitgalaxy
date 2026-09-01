@@ -386,3 +386,53 @@ anything on its own.
 
 Full record: `docs/self_scan/tri_comparison_ledger.json` (filter keys starting `python/`) and
 `docs/self_scan/tri_comparison_points_of_interest.md`.
+
+## 11. Rosetta cross-language consistency (control-corpus capstone)
+
+This section is the [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta)
+counterpart of §9-§10: where those ask "is python extraction *accurate* on real code?", the
+rosetta control corpus asks "does GitGalaxy measure *identical planted intent* the same in python
+as in the other 45 languages?" — every deviation from the 46-language median is measured bias,
+tracked in [#2593](https://github.com/squid-protocol/gitgalaxy/issues/2593) (epic
+[#2560](https://github.com/squid-protocol/gitgalaxy/issues/2560)) and validated in the corpus's
+[deviation ledger](https://github.com/squid-protocol/keyword-rosetta/blob/main/deviation_ledger.json).
+
+**Summary (2026-09-01).** Python — the corpus's original reference language — went from
+**5🔴 / 3🟡** out-of-band metrics to **4🔴 / 3🟡** via gitgalaxy
+[#2626](https://github.com/squid-protocol/gitgalaxy/pull/2626) plus keyword-rosetta
+[PR #12](https://github.com/squid-protocol/keyword-rosetta/pull/12), with every residual pinned
+to a named cross-cutting issue. The five-cause decomposition (the `rosetta-language-sweep`
+skill's taxonomy; jcl.md and cobol.md §10 are the earlier capstones):
+
+1. **Real engine bugs — fixed** (#2626): two keyword-overlap double-counts inside python's own
+   rule file. `io`'s `os\.`/`sys\.` prefixes matched *any* attribute access, so the `globals`
+   plants (`os.environ`/`sys.argv`/`sys.path`) each counted as io too (io 6 → 4); and a bare
+   `assert` fed both `safety` and `test` — it's a validation signal, not a testing-framework
+   signal, so it was removed from `test` (test 3 → 2, now in-band). Ledger:
+   `os-sys-prefix-overlaps-io` (resolved for python), `assert-overlaps-safety-and-test`
+   (python removed; still reproduces for c/perl).
+2. **Missing rules with genuine morphology**: none — python is the reference shell.
+3. **Corpus authoring gap**: none found this pass.
+4. **Intended morphology**: nothing new ledgered; python's shapes were already the corpus
+   baseline.
+5. **Median inflation / cross-cutting — python is the honest one**: `safety` 3 and
+   `state_mutation` 2 match planted intent exactly (medians distorted by the ×3 flux weighting,
+   [#2546](https://github.com/squid-protocol/gitgalaxy/issues/2546)); `doc` +100% is the
+   docstring open/close-delimiter double-count, adjacent to the literal-shielding question
+   ([#2535](https://github.com/squid-protocol/gitgalaxy/issues/2535)); and `comment_lines` +73%
+   surfaced a NEW engine-wide finding filed as
+   [#2625](https://github.com/squid-protocol/gitgalaxy/issues/2625) — `total_loc − coding_loc`
+   folds blank lines into "documentation" everywhere, loudest in python because its shells have
+   the highest blank-line ratio (jcl's and cobol's capstones hit the same proxy from the other
+   side).
+
+**Remaining out-of-band** (all accounted, none actionable in python's own rule file): `safety`/
+`state_mutation` (#2546), `doc` (#2535 — re-measure if that lands before assuming a residual
+bug), `comment_lines` (#2625), and the §3 risk shadows (`risk_api_exposure`,
+`risk_cognitive_load`). #2593 stays open pending those cross-cutting fixes — python re-baselines
+into band on its own as they land.
+
+Reproduce: `GALAXYSCOPE_BIN=<venv>/bin/galaxyscope python tools/verify_language.py python` in
+the corpus repo, `python tools/language_deviations.py python` for the live vs-median band table,
+and the corpus's
+[findings_by_language.md#python](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md#python).

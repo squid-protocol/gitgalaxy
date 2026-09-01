@@ -35,6 +35,7 @@ def mock_pipeline_state():
             "lock_tier": 0,
             "total_loc": 200,
             "coding_loc": 150,
+            "doc_loc": 30,
             "file_impact": 45.5,
             "raw_imports": ["src/db/models.py"],
             "telemetry": {
@@ -334,3 +335,51 @@ def test_record_keeper_empty_state(keeper, tmp_path):
     assert cursor.fetchone()[0] == 1  # The repo row should exist, just filled with 0s
 
     conn.close()
+
+
+def test_record_keeper_persists_doc_loc(keeper, mock_pipeline_state, tmp_path):
+    """#2625: prism's real doc_loc (non-blank, non-code lines) must round-trip
+    into file_data. Before this column existed, consumers re-derived doc mass
+    as total_loc - coding_loc, silently counting every BLANK line as
+    documentation (total_loc is blank-inclusive, coding_loc is not)."""
+    db_path = tmp_path / "test_doc_loc.sqlite"
+    parsed, unparsable, summary, session = mock_pipeline_state
+
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute("SELECT total_loc, coding_loc, doc_loc FROM file_data").fetchone()
+    conn.close()
+
+    assert row["doc_loc"] == 30, "doc_loc must persist prism's value verbatim"
+    # The old blank-contaminated proxy and the honest column must be
+    # independently readable -- 200-150=50 != 30 proves the column is NOT
+    # just the subtraction re-derived.
+    assert row["total_loc"] - row["coding_loc"] == 50
+
+
+def test_record_keeper_doc_loc_migration_on_legacy_db(keeper, mock_pipeline_state, tmp_path):
+    """#2625: recording into a pre-doc_loc database must auto-heal the schema
+    (same is_zero_dependency_mode ALTER TABLE precedent) instead of failing
+    the INSERT with a column-count mismatch."""
+    db_path = tmp_path / "legacy.sqlite"
+    parsed, unparsable, summary, session = mock_pipeline_state
+
+    # First mission builds the modern schema; drop doc_loc to simulate a
+    # legacy (pre-#2625) database. DROP COLUMN keeps class_data/function_data
+    # foreign keys intact, unlike a rename-and-rebuild.
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+    conn = sqlite3.connect(db_path)
+    conn.execute("ALTER TABLE file_data DROP COLUMN doc_loc")
+    conn.commit()
+    conn.close()
+
+    # Second mission against the legacy-shaped DB must migrate and insert.
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute("SELECT doc_loc FROM file_data ORDER BY id DESC LIMIT 1").fetchone()
+    conn.close()
+    assert row["doc_loc"] == 30, "post-migration insert must carry the real doc_loc"

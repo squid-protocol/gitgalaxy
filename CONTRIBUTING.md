@@ -78,7 +78,43 @@ When you modify GitGalaxy's core engine, several CI workflows will rigorously te
    - Run `python tests/tools/tree_sitter_accuracy_audit.py --ci --all`.
    - If your regex fix legitimately drops false positives causing ground truth drift, regenerate the baseline: `python tests/tools/tree_sitter_accuracy_audit.py --regenerate --lang <lang>`
 
+4. **Cross-Language Consistency (`rosetta-audit`, the [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus)**
+   This runs the control corpus's verifier across all 46 language folders against your engine build,
+   so a change that shifts corpus-observed counts fails **in the PR that caused it**. Unlike the three
+   baselines above, the expected values live in *another repository* — you cannot re-bless them here.
+   - Run one language locally: `GITGALAXY_PATH=<path-to-this-repo> python tools/verify_language.py <lang>` from a keyword-rosetta checkout.
+   - If the drift is an unintentional regression: fix the engine change. **Do not touch the pin.**
+   - If the drift is an intentional, corpus-visible improvement: it needs a companion re-baseline PR
+     in keyword-rosetta *before* this one can merge. Follow
+     [`docs/self_scan/BUMPING_THE_ROSETTA_PIN.md`](docs/self_scan/BUMPING_THE_ROSETTA_PIN.md) — in short,
+     set that repo's committed `ENGINE_REF` file to `pull/<your PR number>/head` so its gates run green
+     against your unmerged branch, then a maintainer restores it and bumps `KEYWORD_ROSETTA_REF` here.
+   - Bumping the pin needs repo admin, so **ask a maintainer** rather than trying to do it yourself.
+     Bumping a pin is never a way to make a red check go away.
+
 If your PR touches any baseline fixtures, **explain why in the PR description** (e.g. "improved the Rust parser, now correctly detects async trait bounds"). A CI check flags any PR that modifies these files so it's never invisible in a large diff.
+
+---
+
+## 🍴 Checks that cannot run on fork PRs
+
+If you opened your PR from a fork, expect these four checks to fail immediately, before your code
+is ever exercised:
+
+- `crucible-audit (full-precision)` and `crucible-audit (zero-dependency)`
+- `tree-sitter-accuracy-audit`
+- `tri-comparison-audit`
+
+**This is not a problem with your changes.** These audits clone the
+[language-crucible](https://github.com/squid-protocol/language-crucible) corpus at a ref pinned in
+the `LANGUAGE_CRUCIBLE_REF` Actions variable, and GitHub withholds repository variables — like
+secrets — from `pull_request` runs raised from a fork. The pin resolves to an empty string and the
+clone fails. A maintainer re-runs these audits from a branch in this repo before merging, so there
+is nothing for you to do.
+
+`rosetta-audit` is unaffected (it falls back to the corpus's `main`), and every other check —
+`full-suite`, the `smoke-test` matrix, `ruff-audit`, `mypy-audit`, `ast-accuracy-audit` — runs
+normally on a fork PR and is worth taking seriously.
 
 ---
 

@@ -34,9 +34,12 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes unique 'orelse' and 'catch' patterns.
-        "branch": re.compile(
-            r"(?<!@\")\b(if|else|switch|while|for|try|catch|orelse|break|continue|return)\b(?!\")|&&|\|\|"
-        ),
+        # #2545: `return` removed -- was phantom-counting every early-return function as a
+        # branch with no real decision point. Rust, zig's closest sibling with the exact
+        # same error-propagation-via-return idiom, doesn't count it either. Already tracked
+        # under `structural_boundaries` below, so this is a pure de-duplication. Corpus
+        # impact: zig branch 19 (planted 3, +280%) -> exact.
+        "branch": re.compile(r"(?<!@\")\b(if|else|switch|while|for|try|catch|orelse|break|continue)\b(?!\")|&&|\|\|"),
         # 2. args: Parameters / Coupling. Captures parameters in function signatures.
         "args": re.compile(
             r"\bfn[ \t\n]*(?:@\"[^\"]+\"|[a-zA-Z_]\w*[ \t\n]*)?\(((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*)\)"

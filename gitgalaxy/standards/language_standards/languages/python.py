@@ -203,7 +203,9 @@ DEFINITION: dict[str, Any] = {
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"#[ \t]*(?:def|class|import|if|for|while|try|return)\b"),
         # 13. doc (Structured Documentation)
-        "doc": re.compile(r'"""|\'\'\'|:param|:return|:raises|:type|\b(?:Args|Returns|Yields|Raises|Attributes):\b'),
+        # BUG FIX #2658: Match full docstring span as a single bounded body so
+        # """ counts as doc=1, not 2. Unterminated delimiters fail safely.
+        "doc": re.compile(r'"""[\s\S]{0,15000}?"""|\'\'\'[\s\S]{0,15000}?\'\'\'|:param|:return|:raises|:type|\b(?:Args|Returns|Yields|Raises|Attributes):\b'),
         # 14. test (Testing & Assertions)
         # #2593: `assert` is a general-purpose validation keyword already owned by `safety`
         # (see that rule above) -- it isn't itself a testing signal, so a runtime invariant

@@ -85,6 +85,7 @@ _GO_SIMPLE_CASES = [
     ('regex_execution', 'regexp.MustCompile(pattern)', 'regexp.Compiled = true'),
     ('safety', 'if err != nil {', 'err == nil'),
     ('safety_bypasses', '_, err = foo()', 'x, err = foo()'),
+    ('safety_bypasses', 'import . "fmt"', 'import "fmt"'),
     ('scientific', 'math.Sqrt(4)', 'foo.math()'),
     ('serialization_parsing', 'json.Unmarshal(data, &v)', 'json.Marshaled = true'),
     ('spec_exposure', '// [SPEC-123] implements the contract', '// spec sheet'),
@@ -290,6 +291,32 @@ def test_go_ambiguity_sweep_shared_literals_are_not_bugs():
     assert not api.search(commented_const)
 
     assert casts.search("uintptr(p)") and pointers.search("uintptr(p)")
+
+
+def test_go_safety_bypasses_dot_import_only_regression():
+    """
+    Regression test (#2542): the import alternation made the dot OPTIONAL
+    (`import\\s+(?:\\.[ \\t]+)?"`), so EVERY plain quoted import
+    (`import "fmt"`) counted as a safety bypass -- Go's completely normal,
+    idiomatic import form -- not just the namespace-polluting dot-import
+    (`import . "fmt"`). The dot is now mandatory.
+
+    Grouped imports are documented, not changed, by the fix: the `(` between
+    `import` and the quoted path means this alternation never matched any
+    line of a grouped block (dot-prefixed or not) before the fix, and still
+    doesn't after -- the fix only removes the false positive on the
+    single-line plain form.
+    """
+    pattern = GO_RULES["safety_bypasses"]
+
+    assert len(pattern.findall('import . "fmt"')) == 1, "dot-import must count exactly one safety bypass"
+    assert not pattern.search('import "fmt"'), "a plain quoted import is not a safety bypass"
+    assert not pattern.search('import f "fmt"'), "an aliased import is not a safety bypass"
+    assert pattern.search('import .\t"unsafe"'), "tab-separated dot-import must still match"
+
+    # Grouped forms: never matched by this alternation, before or after.
+    assert not pattern.search('import (\n\t"fmt"\n\t"os"\n)')
+    assert not pattern.search('import (\n\t. "fmt"\n)')
 
 
 def test_go_test_vs_regex_execution_no_false_collision():

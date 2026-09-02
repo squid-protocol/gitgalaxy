@@ -70,6 +70,15 @@ ENGINE_CONSTANTS = {
     # Math constraints
     "TESTING_RISK_FLOOR": 15.0,
     "MASSIVE_FILE_THRESHOLD": 300,  # Lines of code where tests lose efficacy
+    # Evidence-mass floor (#2655): every per-file density equation divides by
+    # max(coding_loc, EVIDENCE_MASS_FLOOR). Below the floor a file is scored on its
+    # COUNTS (a 2-hit file is a 2-hit file whether it is 5 or 49 lines long); at or
+    # above it the density regime is untouched. This is the single small-file
+    # mechanism -- it replaced the <15-LOC cognitive-load cliff, the loc/15
+    # bureaucracy dampener and the unbounded irc/loc floor, which used to fight
+    # each other. 50 is the engine's existing unit of mass (file_impact = loc/50,
+    # graveyard's safe_mass_floor) and the golden-master corpus median.
+    "EVIDENCE_MASS_FLOOR": 50,
 }
 
 FIDELITY_TIERS = {

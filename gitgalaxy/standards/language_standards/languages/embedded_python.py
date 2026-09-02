@@ -115,7 +115,9 @@ DEFINITION: dict[str, Any] = {
         # 13. doc (Structured Documentation)
         # BUG FIX #2658: Match full docstring span as a single bounded body so
         # """ counts as doc=1, not 2. Unterminated delimiters fail safely.
-        "doc": re.compile(r'"""[\s\S]{0,15000}?"""|\'\'\'[\s\S]{0,15000}?\'\'\'|:param|:return|:raises|:type|#\s*Pin[ \t]*=|#\s*GPIO'),
+        "doc": re.compile(
+            r'"""[\s\S]{0,15000}?"""|\'\'\'[\s\S]{0,15000}?\'\'\'|:param|:return|:raises|:type|#\s*Pin[ \t]*=|#\s*GPIO'
+        ),
         # 14. test (Testing & Assertions)
         # BUG FIX: `test_` was wrapped inside the shared `\b(...)\b` group.
         # `_` is a word character, so the trailing `\b` after `test_` demands

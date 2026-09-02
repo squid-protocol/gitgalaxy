@@ -96,25 +96,36 @@ If your PR touches any baseline fixtures, **explain why in the PR description** 
 
 ---
 
-## 🍴 Checks that cannot run on fork PRs
+## 🍴 Corpus-backed checks
 
-If you opened your PR from a fork, expect these four checks to fail immediately, before your code
-is ever exercised:
+Four checks scan the [language-crucible](https://github.com/squid-protocol/language-crucible)
+corpus rather than just this repo:
 
 - `crucible-audit (full-precision)` and `crucible-audit (zero-dependency)`
 - `tree-sitter-accuracy-audit`
 - `tri-comparison-audit`
 
-**This is not a problem with your changes.** These audits clone the
-[language-crucible](https://github.com/squid-protocol/language-crucible) corpus at a ref pinned in
-the `LANGUAGE_CRUCIBLE_REF` Actions variable, and GitHub withholds repository variables — like
-secrets — from `pull_request` runs raised from a fork. The pin resolves to an empty string and the
-clone fails. A maintainer re-runs these audits from a branch in this repo before merging, so there
-is nothing for you to do.
+**These now run normally on fork PRs.** They clone the corpus at a ref taken from the
+`LANGUAGE_CRUCIBLE_REF` Actions variable, and GitHub withholds repository variables — like
+secrets — from `pull_request` runs raised from a fork. The corpus repo is public and needs no
+credentials to clone, though, so when that variable is unavailable the workflows fall back to
+`PINNED_TAG` in [`tests/_crucible_pin.py`](tests/_crucible_pin.py), which is committed here and
+therefore readable on a fork run. You will see a `Corpus pin read from the repo` notice in the
+job log when the fallback is used; the audit itself is the real thing, and a failure is a real
+failure worth reading.
 
-`rosetta-audit` is unaffected (it falls back to the corpus's `main`), and every other check —
-`full-suite`, the `smoke-test` matrix, `ruff-audit`, `mypy-audit`, `ast-accuracy-audit` — runs
-normally on a fork PR and is worth taking seriously.
+> **Historical note.** Before this fallback existed these four checks failed instantly on every
+> fork PR, and CONTRIBUTING told you to ignore them because a maintainer would re-run them from
+> a branch in this repo. That is no longer necessary — treat a red corpus-backed audit on your
+> fork PR as genuine signal.
+
+If you are moving the pin, bump it in **both** places — `tests/_crucible_pin.py` and the
+`LANGUAGE_CRUCIBLE_REF` repository variable. Nothing enforces that they match; see that file's
+docstring for why the pin is deliberately duplicated.
+
+`rosetta-audit` uses the same escape hatch against a different corpus (it falls back to
+keyword-rosetta's `main`), and every other check — `full-suite`, the `smoke-test` matrix,
+`ruff-audit`, `mypy-audit`, `ast-accuracy-audit` — runs normally on a fork PR too.
 
 ---
 

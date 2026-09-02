@@ -57,7 +57,23 @@ jobs:
 
       - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF, same as CI)
         run: |
-          git clone --branch "${{ vars.LANGUAGE_CRUCIBLE_REF }}" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+          # This workflow only ever runs from `release`/`workflow_dispatch` in this repo, so
+          # the repository variable is always available -- unlike the fork PR case the audit
+          # workflows guard against. The in-repo PINNED_TAG fallback is here anyway so the
+          # archive can never be silently cut against an EMPTY ref (a deleted or renamed
+          # variable would otherwise make `git clone --branch ""` the failure mode, and
+          # would blank the tag out of the archive PR body below).
+          ref="${{ vars.LANGUAGE_CRUCIBLE_REF }}"
+          if [ -z "$ref" ]; then
+            ref=$(sed -n 's/^PINNED_TAG = "\(.*\)"/\1/p' gitgalaxy/tests/_crucible_pin.py)
+            echo "::notice title=Corpus pin read from the repo::LANGUAGE_CRUCIBLE_REF was empty, so this archive pinned its corpus to '$ref', read from tests/_crucible_pin.py."
+          fi
+          if [ -z "$ref" ]; then
+            echo "::error title=Corpus pin unavailable::Could not resolve a corpus pin from either the LANGUAGE_CRUCIBLE_REF repository variable or PINNED_TAG in gitgalaxy/tests/_crucible_pin.py."
+            exit 1
+          fi
+          echo "CRUCIBLE_REF=$ref" >> "$GITHUB_ENV"
+          git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
 
       - name: Run GalaxyScope against the crucible corpus
         env:
@@ -101,7 +117,7 @@ jobs:
           title: "chore: archive ${{ env.RELEASE_TAG }} crucible baseline"
           body: |
             Automated archive of GitGalaxy `${{ env.RELEASE_TAG }}`'s output against the pinned
-            `data/` corpus (`${{ vars.LANGUAGE_CRUCIBLE_REF }}` tag), for release-over-release comparison.
+            `data/` corpus (`${{ env.CRUCIBLE_REF }}` tag), for release-over-release comparison.
 
             The remaining artifacts (SQLite DB, graph, SARIF, SBOM, GPU payload, LLM brief) are
             attached to the release itself rather than committed here:

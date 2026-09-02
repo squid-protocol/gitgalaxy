@@ -87,9 +87,22 @@ jobs:
 
       - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF)
         run: |
+          # GitHub withholds repository variables (like secrets) from pull_request runs
+          # raised from a fork, so `vars.LANGUAGE_CRUCIBLE_REF` is empty there. That used to
+          # fail this job before any code ran. But the corpus repo is PUBLIC and clones with
+          # no credentials -- the only thing a fork run actually lacks is the ref *string*,
+          # and that string is already committed in-repo as PINNED_TAG. So fall back to it
+          # and give fork contributors real signal. Same escape-hatch shape as
+          # rosetta-audit.yml's `vars.KEYWORD_ROSETTA_REF || 'main'`, but pinned exactly
+          # rather than floating on main. See tests/_crucible_pin.py's docstring for why the
+          # pin lives in two places, and remember to bump BOTH when moving it.
           ref="${{ vars.LANGUAGE_CRUCIBLE_REF }}"
           if [ -z "$ref" ]; then
-            echo "::error title=Corpus pin unavailable::LANGUAGE_CRUCIBLE_REF resolved to an empty value, so this corpus-backed audit cannot pin its corpus and did not run. GitHub withholds repository variables (like secrets) from pull_request runs raised from a fork, so this is expected on a fork PR and is NOT a problem with the contributor's changes -- a maintainer re-runs these audits from a branch in this repo before merge. See CONTRIBUTING.md, 'Checks that cannot run on fork PRs'."
+            ref=$(sed -n 's/^PINNED_TAG = "\(.*\)"/\1/p' gitgalaxy/tests/_crucible_pin.py)
+            echo "::notice title=Corpus pin read from the repo::LANGUAGE_CRUCIBLE_REF was empty -- expected on a pull_request run raised from a fork -- so this audit pinned its corpus to '$ref', read from tests/_crucible_pin.py."
+          fi
+          if [ -z "$ref" ]; then
+            echo "::error title=Corpus pin unavailable::Could not resolve a corpus pin from either the LANGUAGE_CRUCIBLE_REF repository variable or PINNED_TAG in gitgalaxy/tests/_crucible_pin.py. If PINNED_TAG was renamed or its formatting changed, update the sed fallback in this workflow to match. See CONTRIBUTING.md, 'Corpus-backed checks'."
             exit 1
           fi
           git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible

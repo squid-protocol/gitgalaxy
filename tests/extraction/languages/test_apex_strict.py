@@ -379,6 +379,98 @@ def test_apex_redos_immunity_sweep():
     assert APEX_RULES["safety_bypasses"].search("without sharing")
 
 
+def test_apex_doc_counts_apexdoc_block_once_not_per_tag_regression():
+    """#2672: a `doc` rule listing both a doc-comment marker (`/**`) and the tags that
+    live inside it (`@param`, `@return`, ...) as independent alternatives counts one
+    ApexDoc block once per marker plus once per tag. Fixed by pairing the block into a
+    single bounded, non-greedy span (same shape as #2658's python `\"\"\"` fix) so the
+    whole block -- markers and every tag inside it -- is one hit.
+    """
+    doc = APEX_RULES["doc"]
+    block = "/**\n * @description does the thing\n * @param x in\n * @return out\n */"
+    assert len(doc.findall(block)) == 1, "one ApexDoc block must count as doc=1, not once per tag"
+
+    # a tag OUTSIDE any doc comment must still count (non-goal: bare tags stay counted).
+    assert len(doc.findall("@param bare tag with no enclosing doc block")) == 1
+
+
+def test_apex_doc_and_ownership_author_colon_optional_split_regression():
+    """#2672's apex-specific half-step: `doc` and `ownership` both listed `@author`, but
+    `ownership` required a colon (`@author:\\s+`), so idiomatic colon-less ApexDoc
+    (`@author Joe`) was doc-only while `@author: Joe` double-counted both rules. Fix:
+    drop `@author` from `doc` entirely (it's `ownership`'s to own) and relax just the
+    `@author` alternative in `ownership` to colon-optional, leaving the other
+    prose-risky alternatives (Author|Created by|Maintainer|Copyright|...) colon-required
+    so ordinary prose can't false-positive. Four cases verified directly against the
+    issue's own worked examples.
+    """
+    doc = APEX_RULES["doc"]
+    ownership = APEX_RULES["ownership"]
+
+    # idiomatic ApexDoc: @author with no colon, inside a real doc block -> doc counts the
+    # block once (not via @author, which doc no longer lists), ownership claims @author.
+    idiomatic = "/**\n * @author Joe\n */"
+    assert len(doc.findall(idiomatic)) == 1
+    m = ownership.search(idiomatic)
+    assert m and m.group(1).strip() == "Joe"
+
+    # colon form outside any doc block: doc has nothing to match (no /**, @author isn't
+    # a doc tag anymore); ownership still claims it via the colon-optional alternative.
+    colon_form = "@author: Joe"
+    assert not doc.search(colon_form)
+    m2 = ownership.search(colon_form)
+    assert m2 and m2.group(1).strip() == "Joe"
+
+    # the real rosetta corpus construct (data/apex/main.cls): doc=1 comes from the
+    # separate @description line, unaffected by dropping @author; ownership still
+    # claims the colon-required "Author:" alternative. Unchanged by this fix.
+    corpus = "// Author: keyword-rosetta generator\n// @description dispatch each probe once"
+    assert len(doc.findall(corpus)) == 1
+    m3 = ownership.search(corpus)
+    assert m3 and m3.group(1).strip() == "keyword-rosetta generator"
+
+    # prose must never false-positive on either rule.
+    prose = "the Author of this module"
+    assert not doc.search(prose)
+    assert not ownership.search(prose)
+
+
+def test_apex_doc_block_redos_immunity():
+    """ReDoS probe on #2672's new bounded, non-greedy block alternative -- an
+    unterminated `/**` running into 200k+ chars of never-closing input must fail
+    closed (no catastrophic backtracking), same profile as #2658's python probe.
+    """
+    assert_redos_immune(APEX_RULES["doc"], "/**" + "a" * 200000, timeout_sec=3.0)
+    # sanity: the pattern still matches its real positive case after the sweep.
+    assert APEX_RULES["doc"].search("/** @param x in */")
+
+
+def test_apex_import_ignorecase_type_guard_regression():
+    """#2671: `import` is compiled with re.IGNORECASE (needed so `Type.forName` and
+    `TYPE.FORNAME` both match), which also neutralised the `[A-Z]` guard meant to
+    isolate a genuine type reference (lowercase receiver, capitalised member) -- under
+    re.I, `[A-Z]` matches any letter, degrading the alternative to "any word.word" and
+    counting every ordinary method call as an import. Fixed with a locally-scoped
+    `(?-i:...)` that turns case-sensitivity back on for just the member-name class.
+    """
+    import_rule = APEX_RULES["import"]
+
+    # positive: Type.forName in either case, and a real capitalised type reference.
+    assert import_rule.search("Type.forName('a')")
+    assert import_rule.search("TYPE.FORNAME('a')")
+    assert import_rule.search("Account.SObjectType")
+
+    # negative: these all wrongly matched before the fix (per the issue's micro-repro).
+    for false_positive in ("foo.bar", "conn.clear", "Logger.info"):
+        assert not import_rule.search(false_positive), (
+            f"apex 'import' incorrectly matched an ordinary method call: {false_positive!r}"
+        )
+
+    # already-correctly-excluded via the namespace lookahead -- must stay excluded.
+    assert not import_rule.search("System.debug('x')")
+    assert not import_rule.search("Database.query('SELECT Id FROM Account')")
+
+
 def test_apex_return_not_counted_as_branch_regression():
     """#2545: `return` must not phantom-count as a branch -- java, apex's own JVM
     sibling, doesn't count it either. Still tracked under structural_boundaries."""

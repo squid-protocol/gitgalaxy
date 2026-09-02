@@ -198,6 +198,18 @@ DEFINITION: dict[str, Any] = {
         # 24. import (Dependency Inclusions)
         # Scheme module resolution dependencies.
         "import": re.compile(r"^[ \t]*\([ \t]*(?:import|use-modules|require)(?![^ \t)\]\n\r])", re.M),
+        # BUG FIX (#2652): added _dependency_capture to support DAG edge creation.
+        # Handles both the rosetta corpus's bare `(import a)` form and real R7RS
+        # `(import (scheme base))` / Guile `(use-modules (ice-9 popen))` library-list
+        # forms; captures the last path component / module name as the DAG resolver
+        # expects. The optional leading `\(?` and bounded `{0,6}` component repeat
+        # keep this ReDoS-safe (no nested unbounded quantifiers).
+        "_dependency_capture": re.compile(
+            r"^[ \t]*\([ \t\n]*(?:import|use-modules|require)[ \t\n]+"
+            r"\(?[ \t\n]*(?:[a-zA-Z0-9_!?*+/<>=.~$%^&:-]+[ \t\n]+){0,6}"
+            r"([a-zA-Z0-9_!?*+/<>=.~$%^&:-]+)[ \t\n]*\)?[ \t\n]*\)",
+            re.M,
+        ),
         # 25. ownership (Authorship Metadata)
         "ownership": re.compile(
             r"^[ \t]*;+\s*(?:Author|Created by|Maintainer|Copyright):\s+(.*)",

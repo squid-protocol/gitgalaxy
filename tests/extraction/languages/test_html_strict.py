@@ -713,15 +713,33 @@ def test_html_high_risk_execution_srcdoc_no_overlap_with_io_attribute_list():
     assert not io.search('srcdoc="<p>x</p>"'), "io's attribute alternation unexpectedly matched a bare srcdoc="
 
 
-def test_html_high_risk_execution_srcdoc_iframe_still_double_counts_io_by_design():
+def test_html_srcdoc_iframe_is_not_io_but_is_high_risk_execution():
     """
-    An `<iframe srcdoc="...">` legitimately fires BOTH `io` (the enclosing
-    `<iframe>` tag -- an embed/navigation boundary regardless of its
-    attributes) AND `high_risk_execution` (the `srcdoc` attribute itself).
-    This is an intentional double-classification, not a bug: the element is
-    genuinely both things at once, the same shape as yaml's documented
-    `curl ... | bash` (safety_bypasses <-> io) overlap.
+    An `<iframe srcdoc="...">` fetches NOTHING: the document is inline, and
+    per the HTML spec `srcdoc` overrides `src` when both are present. So it
+    is not an I/O boundary, and `io`'s bare-tag alternative must not claim
+    it -- only `high_risk_execution` (the srcdoc attribute) should fire.
+
+    This deliberately supersedes an earlier framing of the overlap as an
+    intentional double-classification by analogy with yaml's `curl ... |
+    bash`. The analogy does not hold: there the curl really does fetch, so
+    both signals are true at once. Here the frame performs no I/O at all.
+
+    Concretely, it is also what lets the control corpus plant srcdoc: with
+    io claiming the tag, planting `high_risk_execution` would have pushed
+    html's io off its planted 3, trading one out-of-band cell for another.
     """
-    sample = '<iframe srcdoc="<p>fallback</p>"></iframe>'
-    assert HTML_RULES["io"].search(sample), "io should still see the enclosing <iframe> tag"
-    assert HTML_RULES["high_risk_execution"].search(sample), "high_risk_execution should see srcdoc="
+    inline = '<iframe srcdoc="fallback text"></iframe>'
+    assert not HTML_RULES["io"].search(inline), "a srcdoc-only iframe fetches nothing and must not count as io"
+    assert HTML_RULES["high_risk_execution"].search(inline), "high_risk_execution should see srcdoc="
+
+    # A real fetch is unaffected: the tag AND the src= attribute both count.
+    fetching = '<iframe src="child.html"></iframe>'
+    assert len(HTML_RULES["io"].findall(fetching)) == 2
+    assert not HTML_RULES["high_risk_execution"].search(fetching)
+
+    # srcdoc wins over src per spec, so the tag is excluded -- but an explicit
+    # src= attribute is still its own io surface and keeps counting.
+    both = '<iframe src="child.html" srcdoc="inline"></iframe>'
+    assert len(HTML_RULES["io"].findall(both)) == 1
+    assert HTML_RULES["high_risk_execution"].search(both)

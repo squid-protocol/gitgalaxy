@@ -150,8 +150,18 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\bsrcdoc=(?:\"[^\"]*\"|'[^']*')", re.I),
         # 9. io (I/O & Network Boundaries)
         # Hyperlink navigation and resource fetching. (The core of the Web).
+        # BUG FIX (#2645 follow-on): an <iframe> carrying `srcdoc` fetches
+        # nothing -- the document is inline, and per the HTML spec srcdoc
+        # overrides src when both are present -- so the bare-tag alternative
+        # must not claim it as io. Without this, planting the srcdoc that
+        # `high_risk_execution` now measures would have moved html's io off
+        # its planted 3, trading one red cell for another. A real fetch
+        # (`<iframe src=...>`) is unaffected, and an explicit src= attribute
+        # still counts through the attribute alternative either way.
         "io": re.compile(
-            r"\b(?:src|href|action|poster|data)=(?:\"[^\"]*\"|'[^']*')|<(?:a|form|iframe|audio|video|object|embed|source|track|img)(?=[ \t\n\r\f/>])",
+            r"\b(?:src|href|action|poster|data)=(?:\"[^\"]*\"|'[^']*')"
+            r"|<(?:a|form|audio|video|object|embed|source|track|img)(?=[ \t\n\r\f/>])"
+            r"|<iframe(?![^>]*\bsrcdoc=)(?=[ \t\n\r\f/>])",
             re.I,
         ),
         # 10. api (Public Surface Area)

@@ -100,7 +100,7 @@ _ABAP_SIMPLE_CASES = [
     ("api", "@OData.publish: true", "DATA lv_x TYPE i."),
     ("state_mutation", "MOVE lv_a TO lv_b.", "DATA lv_x TYPE i."),
     ("dead_code", "* DATA lv_old TYPE i.", "* just a note"),
-    ("doc", "* AUTHOR: Jane Doe", "* just a note"),
+    ("doc", "* DESCRIPTION: Jane Doe", "* just a note"),
     ("test", "METHOD foo FOR TESTING.", "DATA lv_x TYPE i."),
     ("concurrency", "CALL FUNCTION 'ENQUEUE_FOO'.", "DATA lv_x TYPE i."),
     ("ui_framework", "CALL SCREEN 100.", "DATA lv_x TYPE i."),
@@ -215,7 +215,7 @@ def test_abap_doc_trailing_colon_boundary_regression():
     `...\\b(?:AUTHOR|DESCRIPTION|PURPOSE|REMARKS):\\b`. A trailing `\\b`
     placed directly after a literal `:` can never fire when the colon is
     followed by whitespace (both sides of that position are non-word) --
-    and real ABAP headers are always written as "AUTHOR: Jane Doe" (space
+    and real ABAP headers are always written as "DESCRIPTION: Jane Doe" (space
     after the colon), so the realistic form never matched under the old
     pattern. `:` is already self-delimiting; the trailing `\\b` was dropped.
     """
@@ -223,11 +223,11 @@ def test_abap_doc_trailing_colon_boundary_regression():
         r'^"!\s*@(?:parameter|raising|return)|\b(?:AUTHOR|DESCRIPTION|PURPOSE|REMARKS):\b',
         re.I | re.M,
     )
-    realistic = "* AUTHOR: Jane Doe"
+    realistic = "* DESCRIPTION: Jane Doe"
     assert not old_pattern.search(realistic), "sanity check: bug must reproduce against the old pattern"
 
     doc = ABAP_RULES["doc"]
-    assert doc.search(realistic), "realistic space-after-colon AUTHOR header still didn't match"
+    assert doc.search(realistic), "realistic space-after-colon DESCRIPTION header still didn't match"
     assert doc.search('"! @parameter iv_x | The input'), "ABAPDoc form regressed"
 
 
@@ -282,18 +282,24 @@ def test_abap_dead_code_requires_column_anchor_not_just_token_presence():
     assert matches == ["* DATA"], f"only the real column-1 comment line should match, got {matches!r}"
 
 
-def test_abap_doc_vs_ownership_overlap_is_intentional():
+def test_abap_doc_vs_ownership_author_collision_fix():
     """
-    Ambiguity sweep finding: `doc` and `ownership` both fire on an
-    "AUTHOR: Jane Doe" header line. Confirmed intentional, not a bug --
-    both signatures are legitimately about traceability/metadata, and
-    `ownership` additionally captures the specific author name (group 1)
-    for downstream attribution, which `doc` does not attempt.
+    BUG FIX (#2650): The doc rule matching "AUTHOR:" double-counted the line
+    that rightfully belongs to ownership. AUTHOR has been removed from doc.
     """
+    doc = ABAP_RULES["doc"]
+    ownership = ABAP_RULES["ownership"]
+
     header = "* AUTHOR: Jane Doe"
-    assert ABAP_RULES["doc"].search(header)
-    m = ABAP_RULES["ownership"].search(header)
+    assert not doc.search(header), "AUTHOR: should NOT match doc"
+    m = ownership.search(header)
     assert m and m.group(1) == "Jane Doe"
+
+    # Genuine doc-idiom headers still match doc
+    assert doc.search('"! @parameter foo')
+    assert doc.search("* DESCRIPTION: Does something")
+    assert doc.search("* PURPOSE: To do something")
+    assert doc.search("* REMARKS: Important note")
 
 
 def test_abap_explicit_casts_vs_pointers_intentional_double_classification():

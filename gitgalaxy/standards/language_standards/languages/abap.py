@@ -125,13 +125,16 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # 13. doc: Structured Documentation. ABAP Doc annotations and metadata headers.
+        # BUG FIX (#2650): The doc rule matched AUTHOR: which is owned by the ownership
+        # rule, causing double counting. AUTHOR removed from doc's bare alternative;
+        # DESCRIPTION/PURPOSE/REMARKS remain as they do not collide.
         # BUG FIX: the trailing `\b` sat right after a literal `:` (Rule 9,
         # mirror case). Real headers are written as "AUTHOR: Jane Doe" --
         # the space after `:` means both sides of that position are
         # non-word, so `\b` never fired and the realistic form never
         # matched. `:` is already self-delimiting; `\b` dropped.
         "doc": re.compile(
-            r'^"!\s*@(?:parameter|raising|return)|\b(?:AUTHOR|DESCRIPTION|PURPOSE|REMARKS):',
+            r'^"!\s*@(?:parameter|raising|return)|\b(?:DESCRIPTION|PURPOSE|REMARKS):',
             re.I | re.M,
         ),
         # 14. test: Testing & Assertions. ABAP Unit markers and test-injection.

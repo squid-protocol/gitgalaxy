@@ -4769,9 +4769,11 @@ class StructuralExtractor:
 
             # Extract the raw payload using the ORIGINAL code to retain the exact executable payload
             block = code[start_idx:end_idx].strip()
+            # #2649: YAML GitHub Actions steps (e.g., `- run: pytest`) are overwhelmingly single-line
+            # entities; they must bypass the multi-line floor or they are completely dropped.
             if not block or (
                 len(block.splitlines()) < 2
-                and lang_id not in ("haskell", "python", "embedded_python", "typescript", "javascript")
+                and lang_id not in ("haskell", "python", "embedded_python", "typescript", "javascript", "yaml")
             ):
                 continue
 

@@ -409,7 +409,43 @@ def test_dart_args_xfail_invalid(payload):
 
 
 # -------------------------------------------------------------------------
-# 4. DEPENDENCY CAPTURE RULES
+# 5. GLOBALS RULES
+# -------------------------------------------------------------------------
+GLOBALS_CASES = {
+    "valid": [
+        ("static final int x = 1;", "static final"),
+        ("static const String y = 'hi';", "static const"),
+        ("const MY_GLOBAL = 42;", None),
+        ("final globalStr = 'hi';", None),
+        ("var globalVar = true;", None),
+    ],
+    "invalid": [
+        "  const localVar = 1;",
+        "\tvar localVar = 2;",
+        "    final localVar = 'hi';",
+    ],
+    "xfail_invalid": [],
+}
+
+
+@pytest.mark.parametrize("payload,expected", GLOBALS_CASES["valid"])
+def test_dart_globals_valid(payload, expected):
+    assert_valid_match(DART_RULES["globals"], payload, expected, "dart.globals")
+
+
+@pytest.mark.parametrize("payload", GLOBALS_CASES["invalid"])
+def test_dart_globals_invalid(payload):
+    assert_invalid_no_match(DART_RULES["globals"], payload, "dart.globals")
+
+
+@pytest.mark.parametrize("payload", GLOBALS_CASES["xfail_invalid"])
+@pytest.mark.xfail(reason="String/comment lookalikes lack AST block shielding", strict=True)
+def test_dart_globals_xfail_invalid(payload):
+    assert_invalid_no_match(DART_RULES["globals"], payload, "dart.globals")
+
+
+# -------------------------------------------------------------------------
+# 6. DEPENDENCY CAPTURE RULES
 # -------------------------------------------------------------------------
 DEPENDENCY_CAPTURE_CASES = {
     "valid": [

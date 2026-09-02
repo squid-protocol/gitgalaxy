@@ -128,8 +128,10 @@ DEFINITION: dict[str, Any] = {
         # 17. closures: Closures / Anonymous Functions. (Zig lacks traditional anonymous closures).
         "closures": None,
         # 18. globals: Global / Shared State. Top-level file-scoped state.
+        # BUG FIX (#2651): Anchored to true column-0 (no indentation) to prevent
+        # function-local var/const declarations from being incorrectly counted as globals.
         "globals": re.compile(
-            r"^[ \t]*(?:pub[ \t]+)?(?:threadlocal[ \t]+)?(?:comptime[ \t]+)?(?:const|var)\s+[a-zA-Z_]\w*\s*(?::[^=]+)?=",
+            r"^(?![ \t])(?:pub[ \t]+)?(?:threadlocal[ \t]+)?(?:comptime[ \t]+)?(?:const|var)\s+[a-zA-Z_]\w*\s*(?::[^=]+)?=",
             re.M,
         ),
         # 19. decorators: Decorators / Annotations. (Zig uses @builtins instead).

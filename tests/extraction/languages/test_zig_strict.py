@@ -456,3 +456,16 @@ def test_zig_return_not_counted_as_branch_regression():
     assert branch.search("if (x) return 1;"), "the real if must still count as branch"
     assert len(branch.findall("if (x) return 1;")) == 1, "only the if should match, not the return"
     assert structural.search("return x;"), "return must still be tracked via structural_boundaries"
+
+
+def test_zig_globals_anchor_bug_regression():
+    """#2651: `globals` rule anchored to column-0 to prevent function-local
+    declarations from being counted as globals."""
+    globals_rule = ZIG_RULES["globals"]
+
+    assert globals_rule.search("const MY_GLOBAL = 42;"), "true top-level const must count as global"
+    assert globals_rule.search("var global_state: i32 = 0;"), "true top-level var must count as global"
+
+    assert not globals_rule.search("    const local_var = 1;"), "indented const must NOT count as global"
+    assert not globals_rule.search("\tvar local_var: i32 = 0;"), "tab-indented var must NOT count as global"
+

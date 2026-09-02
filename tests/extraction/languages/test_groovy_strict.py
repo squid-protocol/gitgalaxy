@@ -147,8 +147,8 @@ def test_groovy_signature_positive_and_negative(signature, positive, negative):
     assert pattern is not None, f"groovy's {signature!r} rule is unexpectedly None"
     assert pattern.search(positive), f"groovy {signature!r} failed to match its own documented positive case"
     if negative is not None:
-        assert not pattern.search(negative), (
-        )
+        assert not pattern.search(negative), ()
+
 
 _GROOVY_DEEP_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
@@ -158,28 +158,28 @@ _GROOVY_DEEP_CASES = [
     ("branch", "def a = b ?: c", "String type"),
     ("branch", "switch(x) { case 1: break }", "def list = [1, 2]"),
     ("branch", "for (String s in list) {", "def map = [a: 1]"),
-
     # args: complex generic types, string method names, intermixed annotations
-    ("args", "public static final Map<String, List<Tuple2<Integer, String>>> complexArgMethod(int x, List<String> y) {", "if (Map<String) {"),
-    ("args", "def \"a method with spaces in its name\"(int x) {", "def \"not a method\" = 1"),
+    (
+        "args",
+        "public static final Map<String, List<Tuple2<Integer, String>>> complexArgMethod(int x, List<String> y) {",
+        "if (Map<String) {",
+    ),
+    ("args", 'def "a method with spaces in its name"(int x) {', 'def "not a method" = 1'),
     ("args", "public @CompileStatic final void foo(int x) {", "if (x > 0) {"),
     ("args", "def foo(int x, \n String y) {", "while (x) {"),
-    ("args", "abstract def \"test case\"(String input)", "synchronized(lock) {"),
-
+    ("args", 'abstract def "test case"(String input)', "synchronized(lock) {"),
     # func_start: generics, string names, intermixed annotations
     ("func_start", "public <T extends Number> void process(T t) {", "class List<T> {"),
-    ("func_start", "def \"a method with spaces\"() {", "String x = 1"),
+    ("func_start", 'def "a method with spaces"() {', "String x = 1"),
     ("func_start", "@Test\n@Timeout(value = 1)\ndef testMethod() {", "class Foo {"),
     ("func_start", "public @CompileStatic def myMethod() {", "def var = 1"),
     ("func_start", "abstract Map<String, Integer> calculateTotals(List<Item> items)", "if (items) {"),
-
     # class_start: sealed, non-sealed, intermixed annotations
     ("class_start", "abstract sealed class Shape permits Circle, Square {", "def abstract() {}"),
     ("class_start", "final @CompileStatic class Optimizer {", "def foo() {}"),
     ("class_start", "@Entity\npublic class User {", "def class_name = 1"),
     ("class_start", "public non-sealed class MyClass {", "public void method() {}"),
     ("class_start", "protected @Deprecated abstract sealed class Internal {", "String x = 1"),
-
     # structural_boundaries: includes sealed, permits, non-sealed
     ("structural_boundaries", "sealed class MyClass {", "int x = 1"),
     ("structural_boundaries", "abstract sealed class Shape permits Circle, Square {", "if (Circle) {"),
@@ -187,6 +187,7 @@ _GROOVY_DEEP_CASES = [
     ("structural_boundaries", "package com.example.foo", "int package_name = 1"),
     ("structural_boundaries", "import static org.junit.Assert.*", "int import_value = 2"),
 ]
+
 
 @pytest.mark.parametrize("signature,positive,negative", _GROOVY_DEEP_CASES)
 def test_groovy_signature_deep_positive_and_negative(signature, positive, negative):
@@ -711,7 +712,7 @@ def test_groovy_func_start_markup_builder_dsl_call_false_positive_regression():
         'button(name: "clear", type: "submit", class: "jenkins-button") {',
         "timeout(time: 6, unit: 'HOURS') {",
         "withChecks(name: 'Tests', includeStage: true) {",
-        "a(href: \"newJob\", class: \"content-block__link\") {",
+        'a(href: "newJob", class: "content-block__link") {',
     ]
     for snippet in dsl_builder_calls:
         assert not func_start.search(snippet), f"func_start incorrectly matched a DSL builder call: {snippet!r}"
@@ -725,3 +726,111 @@ def test_groovy_func_start_markup_builder_dsl_call_false_positive_regression():
         "func_start should still match a bare constructor whose default value is a ternary "
         "(space-before-colon), only the tight `key:` named-arg shape is excluded"
     )
+
+
+def test_groovy_func_start_paren_less_builder_call_false_positive_regression():
+    """
+    #2558: found while investigating #2530 -- once that fix correctly excluded
+    `button(...) { ... }` as a DSL builder call, `raw _("Dismiss")` (nested inside
+    it) was no longer absorbed inside the (incorrectly detected) enclosing match's
+    span, so it surfaced as its own top-level func_start hit.
+
+    `raw _("Dismiss")` is Groovy's optional-parens sugar for `raw(_("Dismiss"))` --
+    a paren-less call to a builder method (`raw`), passing the result of `_(...)`
+    (the standard Jenkins/Groovy-view l10n idiom for a resource-bundle message
+    lookup) -- not a declaration. Branch 1 (the >=1-prefix-token branch) treated
+    the bare identifier `raw` as a plausible type/modifier prefix, then captured
+    `_` as the "function name" since `_(` immediately satisfied branch 1's lenient
+    lookahead (unlike branch 2, branch 1 requires neither a matching close-paren
+    nor a trailing `{`).
+
+    Fix: a real declaration is never named the single character `_` (that name is
+    reserved, in practice, for this exact l10n call idiom), so `_` was added to
+    branch 1's existing name-exclusion lookahead -- same reasoning already used to
+    exclude "def" as a bogus captured name. Confirmed via a full corpus scan
+    (language-crucible groovy/, 305 files) that this removes exactly this shape
+    (3 occurrences across 3 jenkins_view_groovy/ files, including this issue's own
+    file) and nothing else -- zero matches added or removed anywhere in the rest
+    of the corpus.
+    """
+    func_start = GROOVY_RULES["func_start"]
+
+    paren_less_builder_calls = [
+        'raw _("Dismiss")',
+        'p _("blurb")',
+        'h1 _("Title")',
+    ]
+    for snippet in paren_less_builder_calls:
+        assert not func_start.search(snippet), (
+            f"func_start incorrectly matched a paren-less builder call as a declaration: {snippet!r}"
+        )
+
+    # The exact corpus shape: nested inside a builder block, on its own line.
+    nested_in_builder_block = 'button(name: "clear", type: "submit") {\n    raw _("Dismiss")\n}'
+    for match in func_start.finditer(nested_in_builder_block):
+        assert match.group(1) != "_" and match.group(2) != "_", (
+            f"func_start still captured '_' as a function name inside a builder block: {match.group(0)!r}"
+        )
+
+    # Real declarations -- plain, modifier-prefixed, and with generics -- must
+    # still match after the fix.
+    assert func_start.search("def foo(x) { }")
+    match = func_start.search("String bar(int y) { }")
+    assert match and match.group(1) == "bar"
+    match = func_start.search("static void baz() { }")
+    assert match and match.group(1) == "baz"
+    match = func_start.search("public abstract <T extends Number> List<T> process(T t) { }")
+    assert match and match.group(1) == "process"
+
+    # #2530's sibling shape (named-argument-map builder call) must still be
+    # excluded -- this fix must not weaken that one.
+    assert not func_start.search('div(class: "empty-state-block") {')
+    assert not func_start.search('button(name: "clear", type: "submit", class: "jenkins-button") {')
+
+
+def test_groovy_func_start_statement_keyword_as_prefix_false_positive_regression():
+    """
+    #2676: found while gathering evidence for #2558 -- branch 1 (the
+    >=1-prefix-token branch) already excludes statement keywords (`new`,
+    `return`, `throw`, ...) from being captured as the function *name*, but
+    nothing stopped them being consumed as a *prefix token* instead. Since
+    the bare-identifier prefix alternative was unguarded, `return`/`throw`/
+    `new` satisfy the prefix and the *next* identifier becomes the "function
+    name" -- `throw new IllegalArgumentException(msg)` misread as a
+    declaration named `IllegalArgumentException`, `return acceptOrReject(x)`
+    as one named `acceptOrReject`. The paren-less-call-with-`new`-argument
+    shape from #2558 (`specInfo.addInterceptor new I(cfg)`,
+    `addresses new LinkedList()`) is the same mechanism with a non-keyword
+    leading token. Fix: guard the bare-identifier prefix alternative with
+    the same statement-keyword negative lookahead already used for the name
+    capture. Full-corpus scan (language-crucible groovy/, 305 files):
+    968 -> 885 (-83) branch-1 matches, all 83 genuine non-declarations;
+    rosetta groovy func_start stays 13.
+    """
+    func_start = GROOVY_RULES["func_start"]
+
+    statement_keyword_false_positives = [
+        "throw new IllegalArgumentException(msg)",
+        "return acceptOrReject(x)",
+        "specInfo.addInterceptor new I(cfg)",
+        "addresses new LinkedList()",
+    ]
+    for snippet in statement_keyword_false_positives:
+        assert not func_start.search(snippet), (
+            f"func_start incorrectly matched a statement-keyword-as-prefix false positive: {snippet!r}"
+        )
+
+    # Real declarations -- plain, modifier-prefixed, generic-return-typed --
+    # must still match after the fix.
+    assert func_start.search("def foo(x) { }")
+    match = func_start.search("String bar(int y) { }")
+    assert match and match.group(1) == "bar"
+    match = func_start.search("static void baz() { }")
+    assert match and match.group(1) == "baz"
+    match = func_start.search("abstract Map<String, Integer> calculateTotals(List<Item> items)")
+    assert match and match.group(1) == "calculateTotals"
+
+    # #2530's named-argument-map builder call and #2558's paren-less `_(...)`
+    # lookup idiom must stay excluded -- this fix must not weaken either.
+    assert not func_start.search('div(class: "empty-state-block") {')
+    assert not func_start.search('raw _("Dismiss")')

@@ -271,3 +271,72 @@ def test_markdown_adversarial_edge_cases():
     assert not headers.search("#12345"), "matched issue number #12345"
     assert not headers.search("#hashtag"), "matched hashtag #hashtag"
     assert not headers.search("#\nBare hash followed by line break"), "matched bare # across line break"
+
+
+# ==============================================================================
+# MARKDOWN: RELATIVE-LINK DEPENDENCY CAPTURE (#2638)
+# ==============================================================================
+_DEP_POSITIVE_CASES = [
+    # (snippet, expected captured target)
+    ("[a](a.md)", "a.md"),
+    ("See [the guide](docs/setup.md#install) here", "docs/setup.md"),
+    ("[dotted rel](./b.md)", "./b.md"),
+    ("[parent rel](../other/c.md)", "../other/c.md"),
+    ('[titled](a.md "My Title")', "a.md"),
+    ("![diagram](img/arch.png)", "img/arch.png"),
+    ("[nested [badge]](y.md)", "y.md"),
+]
+
+_DEP_NEGATIVE_CASES = [
+    "[ext](https://example.com/x.md)",
+    "[ext caps](HTTPS://EXAMPLE.COM/x.md)",
+    "[mail](mailto:joe@example.com)",
+    "[proto-relative](//cdn.example.com/a.md)",
+    "[pure anchor](#section)",
+    "[not a link] (space.md)",
+    "plain prose with no link at all",
+    # angle-bracket destination (CommonMark escape hatch for URLs with
+    # spaces/parens) -- found live in wtfpython's README during the #2638
+    # golden-master re-bless, where the pre-fix capture produced the junk
+    # fragment '<https://en.wikipedia.org/wiki/Collision_'
+    "[wiki](<https://en.wikipedia.org/wiki/Collision_(computer_science)>)",
+    "[angle rel](<my file.md>)",
+]
+
+
+@pytest.mark.parametrize("snippet,expected", _DEP_POSITIVE_CASES)
+def test_markdown_dependency_capture_positive(snippet, expected):
+    pattern = MARKDOWN_RULES["_dependency_capture"]
+    match = pattern.search(snippet)
+    assert match, f"markdown _dependency_capture failed to match {snippet!r}"
+    assert match.group(1) == expected, (
+        f"markdown _dependency_capture captured {match.group(1)!r} from {snippet!r}, expected {expected!r}"
+    )
+
+
+@pytest.mark.parametrize("snippet", _DEP_NEGATIVE_CASES)
+def test_markdown_dependency_capture_negative(snippet):
+    pattern = MARKDOWN_RULES["_dependency_capture"]
+    assert not pattern.search(snippet), (
+        f"markdown _dependency_capture matched external/anchor/non-link target: {snippet!r}"
+    )
+
+
+def test_markdown_dependency_capture_fragment_and_title_boundaries():
+    """The capture must stop before #fragments and whitespace-separated titles,
+    so the DAG resolver receives a bare repo-relative path it can match against
+    the census suffix map."""
+    pattern = MARKDOWN_RULES["_dependency_capture"]
+    assert pattern.search("[x](docs/a.md#L10-L20)").group(1) == "docs/a.md"
+    assert pattern.search('[x](a.md "quoted title")').group(1) == "a.md"
+    assert pattern.search("[x]( padded.md )").group(1) == "padded.md"
+
+
+def test_markdown_dependency_capture_redos_detonation():
+    """Rule 1/Rule 14 detonation: adversarial bracket/paren floods and unclosed
+    links must fail in linear time (same payload family as lit_links' own)."""
+    pattern = MARKDOWN_RULES["_dependency_capture"]
+    assert_redos_immune(pattern, "[" * 20000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "[link](" * 20000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "[a](" + "b" * 100000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "[x](" + " " * 50000 + ")", timeout_sec=3.0)

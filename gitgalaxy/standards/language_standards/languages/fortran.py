@@ -257,7 +257,7 @@ DEFINITION: dict[str, Any] = {
         # 13. doc (Structured Documentation)
         # Documentation meant to be parsed by generators (Doxygen style `!>`, `!<`, or `! @`).
         "doc": re.compile(
-            r"^[Cc*!dD][ \t]*[@><\\]|^[ \t]*![ \t]*(?:Author|Description|Param|Return):",
+            r"^[Cc*!dD][ \t]*[@><\\]|^[ \t]*![ \t]*(?:Description|Param|Return):",
             re.I | re.M,
         ),
         # 14. test (Testing & Assertions)

@@ -61,6 +61,7 @@ _SCHEME_SIMPLE_CASES = [
     ("scientific", "(sqrt 4)", "(+ x 1)"),
     ("reflection_metaprogramming", "(define-syntax my-macro (syntax-rules () ((_ x) x)))", "(+ x 1)"),
     ("import", "(import (scheme base))", "(+ x 1)"),
+    ("_dependency_capture", "(import (scheme base))", "(+ x 1)"),
     ("ownership", "; Author: Jane Doe", "; just a note"),
     ("planned_debt", "; TODO: fix this", "; done"),
     ("fragile_debt", "; HACK: workaround", "; clean"),
@@ -318,6 +319,7 @@ def test_scheme_redos_immunity_sweep():
     assert_redos_immune(SCHEME_RULES["dead_code"], ";" + " " * 100000, timeout_sec=3.0)
     assert_redos_immune(SCHEME_RULES["doc"], ";;;" + " " * 100000, timeout_sec=3.0)
     assert_redos_immune(SCHEME_RULES["ownership"], "; Author:" + " " * 100000, timeout_sec=3.0)
+    assert_redos_immune(SCHEME_RULES["_dependency_capture"], "(import (" + " " * 100000, timeout_sec=3.0)
 
     # sanity: all still match their real positive cases after the sweep
     assert SCHEME_RULES["func_start"].search("(define (list->vector x) x)")

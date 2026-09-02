@@ -642,3 +642,14 @@ def test_html_signature_deep(signature, positive, negative):
     assert pattern.search(positive), f"html {signature!r} failed to match deep positive case: {positive!r}"
     if negative is not None:
         assert not pattern.search(negative), f"html {signature!r} incorrectly matched deep negative case: {negative!r}"
+
+
+def test_html_ambiguity_doc_vs_ownership_author_no_collision():
+    """
+    BUG FIX (#2659): `meta name="author"` is exclusively an `ownership` trait. Including it
+    in `doc` caused double-counting on standard authorship headers.
+    """
+    header = '<meta name="author" content="Jane Doe">'
+    assert not HTML_RULES["doc"].search(header)
+    m = HTML_RULES["ownership"].search(header)
+    assert m and m.group(1) == "Jane Doe"

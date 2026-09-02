@@ -202,8 +202,14 @@ DEFINITION: dict[str, Any] = {
         # non-word on both sides of that position, so the boundary never
         # fired and the tag never matched. `:` is already self-delimiting
         # (same principle as Rule 10), so the trailing `\b` is dropped.
+        #
+        # BUG FIX (#2659): `Author:` is already exclusively captured by the
+        # `ownership` rule. Including it in `doc`'s bare-tag alternation
+        # caused a double-count on every header author line. Removed here,
+        # following the established precedent in ada.py. Genuine structured
+        # `@author` tags remain in `doc`.
         "doc": re.compile(
-            r"^[ \t]*(?:--\||--@|/\*\*|//!).*(?:@param|@return|@author)|\b(?:Description|Purpose|Author|Summary):",
+            r"^[ \t]*(?:--\||--@|/\*\*|//!).*(?:@param|@return|@author)|\b(?:Description|Purpose|Summary):",
             re.I | re.M,
         ),
         # 14. test: Testing & Assertions. Unit testing framework markers.

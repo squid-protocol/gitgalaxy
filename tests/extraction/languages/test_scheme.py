@@ -16,6 +16,7 @@ scheme_rules = LANGUAGE_DEFINITIONS["scheme"]["rules"]
 FUNC_START = scheme_rules.get("func_start")
 ARGS = scheme_rules.get("args")
 CLASS_START = scheme_rules.get("class_start")
+DEPENDENCY_CAPTURE = scheme_rules.get("_dependency_capture")
 
 FUNCTION_CASES = {
     "valid": [
@@ -77,6 +78,25 @@ CLASS_CASES = {
     ],
 }
 
+DEPENDENCY_CASES = {
+    "valid": [
+        ("(import (scheme base))", "base"),
+        ("(import (name))", "name"),
+        ("(use-modules (ice-9 match))", "match"),
+        # the rosetta corpus's actual shell convention -- bare, no inner parens
+        ("(import a)", "a"),
+        ("(use-modules b)", "b"),
+    ],
+    "invalid": [
+        "(define (foo x) x)",
+        "(import-not-real (foo))",
+        "; (import (scheme base))",
+    ],
+    "pathological": [
+        ("( \n import \n ( \n scheme \n base \n ) \n )", "base"),
+        ("(use-modules \t (ice-9\n  match))", "match"),
+    ],
+}
 
 class TestSchemeExtraction:
     @pytest.mark.parametrize("payload, expected_name", FUNCTION_CASES.get("valid", []))
@@ -132,3 +152,21 @@ class TestSchemeExtraction:
         if not CLASS_START:
             pytest.skip("No pattern")
         assert_pathological_match(CLASS_START, payload, expected_name, "scheme")
+
+    @pytest.mark.parametrize("payload, expected_name", DEPENDENCY_CASES.get("valid", []))
+    def test_positive_dependency_extraction(self, payload, expected_name):
+        if not DEPENDENCY_CAPTURE:
+            pytest.skip("No pattern")
+        assert_valid_match(DEPENDENCY_CAPTURE, payload, expected_name, "scheme")
+
+    @pytest.mark.parametrize("payload", DEPENDENCY_CASES.get("invalid", []))
+    def test_negative_dependency_extraction(self, payload):
+        if not DEPENDENCY_CAPTURE:
+            pytest.skip("No pattern")
+        assert_invalid_no_match(DEPENDENCY_CAPTURE, payload, "scheme")
+
+    @pytest.mark.parametrize("payload, expected_name", DEPENDENCY_CASES.get("pathological", []))
+    def test_pathological_dependency_extraction(self, payload, expected_name):
+        if not DEPENDENCY_CAPTURE:
+            pytest.skip("No pattern")
+        assert_pathological_match(DEPENDENCY_CAPTURE, payload, expected_name, "scheme")

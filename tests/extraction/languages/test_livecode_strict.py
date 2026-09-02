@@ -78,7 +78,7 @@ _LIVECODE_SIMPLE_CASES = [
     ("api", 'on mouseUp\n  answer "hi"\nend mouseUp', "private command foo"),
     ("state_mutation", "put the effective filename of this stack into tPath", "answer 1"),
     ("dead_code", "-- put 1 into x", "put 1 into x"),
-    ("doc", "-- Author: Jane Doe", "put 1 into x"),
+    ("doc", "-- Purpose: To do something", "put 1 into x"),
     ("test", "command testLogin", "put 1 into x"),
     ("concurrency", 'send "myHandler" to me in 2 seconds', "put 1 into x"),
     ("ui_framework", 'put the label of button "OK" into tLabel', "put 1 into x"),
@@ -267,16 +267,15 @@ def test_livecode_args_multiline_anchor_regression():
 def test_livecode_doc_author_colon_trailing_boundary_regression():
     """
     Regression test (Rule 9/10-class trailing-boundary bug): the
-    `Description|Purpose|Author|Summary` alternation had a trailing `\\b`
+    `Description|Purpose|Summary` alternation had a trailing `\b`
     placed immediately after the literal `:` it requires. `:` is a
-    non-word character, so that `\\b` only fires if the very next character
+    non-word character, so that `\b` only fires if the very next character
     is a word character -- but the near-universal real form is
-    "Author: John Doe" (colon then a space), which is non-word on both
+    "Description: John Doe" (colon then a space), which is non-word on both
     sides of that exact position, so the tag never matched. Fixed by
-    dropping the trailing `\\b` (`:` is already self-delimiting).
+    dropping the trailing `\b` (`:` is already self-delimiting).
     """
     pattern = LIVECODE_RULES["doc"]
-    assert pattern.search("-- Author: John Doe"), "'Author: ' (colon-space) form still didn't match"
     assert pattern.search("-- Description: Handles login"), "'Description: ' form still didn't match"
     assert pattern.search("-- Purpose: Validates input"), "'Purpose: ' form still didn't match"
     assert pattern.search("-- Summary: Entry point"), "'Summary: ' form still didn't match"
@@ -465,7 +464,7 @@ def test_livecode_doc_comment_style_completeness():
     assert pattern.search("--@ @author Jane Doe"), "'--@' doc-block style regressed"
     assert pattern.search("/** @param pName the user name\n@return true */"), "'/**' doc-block style regressed"
     assert pattern.search("//! @author Jane Doe"), "'//!' doc-block style regressed"
-    assert pattern.search("-- Author: Jane Doe"), "'--' plain Author: tag regressed"
+    assert pattern.search("-- Purpose: Something"), "'--' plain Purpose: tag regressed"
 
 
 def test_livecode_ownership_comment_style_completeness():
@@ -532,18 +531,16 @@ def test_livecode_ambiguity_listeners_func_start_events_full_overlap():
     assert func_start.search(text) and listeners.search(text) and events.search(text)
 
 
-def test_livecode_ambiguity_doc_vs_ownership_author_dual_classification():
+def test_livecode_ambiguity_doc_vs_ownership_author_no_collision():
     """
-    Confirmed intentional dual-classification, not a bug: an "Author:"
-    tag is simultaneously structured documentation (`doc`) and authorship
-    metadata (`ownership`) -- the same real-world convention JSDoc's
-    `@author` tag represents in other languages, where both signatures
-    are expected to co-fire on the same line.
+    BUG FIX (#2659): `Author:` is exclusively an `ownership` trait. Including it
+    in `doc` caused double-counting on standard authorship headers.
     """
     doc = LIVECODE_RULES["doc"]
     ownership = LIVECODE_RULES["ownership"]
     text = "-- Author: Jane Doe"
-    assert doc.search(text) and ownership.search(text)
+    assert not doc.search(text)
+    assert ownership.search(text)
 
 
 def test_livecode_ambiguity_io_vs_ipc_rpc_bridges_url_dual_classification():

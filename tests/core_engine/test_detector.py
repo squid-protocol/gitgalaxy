@@ -3805,3 +3805,34 @@ def test_detector_early_returns_do_not_clobber_worker_raw_imports():
     py_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
     empty_result = py_detector.splice("", "")
     assert "raw_imports" not in empty_result, "empty-code_stream splice() emitted a raw_imports placeholder"
+
+
+# ==============================================================================
+# TEST: MODE C 2-LINE FLOOR EXEMPTION FOR YAML (#2649)
+# ==============================================================================
+def test_detector_yaml_single_line_step_survives_two_line_floor():
+    """
+    Regression for #2649: _slice_by_indentation drops any sliced block under
+    2 lines unless the language is in a hardcoded exemption tuple. yaml was
+    missing from that tuple, so every single-line GitHub Actions step
+    (`- run: 'pytest'`) -- the dominant real-world form -- was silently
+    dropped from the function census. A multi-line block-scalar step must
+    keep working too.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    yaml_detector = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS)
+    code = (
+        "jobs:\n"
+        "  build:\n"
+        "    steps:\n"
+        "      - run: pytest\n"
+        "      - run: |\n"
+        "          echo one\n"
+        "          echo two\n"
+    )
+
+    result = yaml_detector.splice(code_stream=code, comment_stream="", confidence=1.0)
+    names = [f["name"] for f in result["functions"]]
+
+    assert len(names) == 2, f"expected both the single-line and multi-line run: steps, got {names}"

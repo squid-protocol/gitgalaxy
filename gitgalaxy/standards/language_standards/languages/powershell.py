@@ -166,8 +166,11 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # api: Public Surface Area. Exposed surface area (Module exports and non-hidden functions).
+        # BUG FIX: Issue #2656. The bare-identifier alternative lacked the keyword-exclusion
+        # negative lookahead that func_start and args carry, causing 'param(', 'if (',
+        # and 'switch (' lines to miscount as API surface. Added the exclusion set.
         "api": re.compile(
-            r"\b(Export-ModuleMember|New-Alias|CmdletBinding)\b|^[ \t]*(?!hidden\s+)[a-zA-Z_]\w*\s*\(",
+            r"\b(Export-ModuleMember|New-Alias|CmdletBinding)\b|^[ \t]*(?!hidden\s+)(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch|param)\b)[a-zA-Z_]\w*\s*\(",
             re.I | re.M,
         ),
         # 11. flux (State Mutation)

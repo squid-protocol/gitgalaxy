@@ -295,8 +295,10 @@ DEFINITION: dict[str, Any] = {
         # elsewhere in this sweep.
         "closures": re.compile(r"=>|\(\s*[^)]{0,300}\)\s*(?:async\*?|sync\*?)?[ \t]*\{"),
         # 18. globals: Global / Shared State. Static class fields and environmental bindings.
+        # BUG FIX (#2651): Anchored to true column-0 (no indentation) to prevent
+        # function-local var/const declarations from being incorrectly counted as globals.
         "globals": re.compile(
-            r"\b(static\s+final|static\s+const|Platform\.environment|window\.|Zone\.current)\b|^[ \t]*(?:final|const|var)\s+[A-Za-z_$][\w$]*[ \t]*=",
+            r"\b(static\s+final|static\s+const|Platform\.environment|window\.|Zone\.current)\b|^(?![ \t])(?:final|const|var)\s+[A-Za-z_$][\w$]*[ \t]*=",
             re.I | re.M,
         ),
         # 19. decorators: Decorators / Annotations. Annotations applied to methods/classes.

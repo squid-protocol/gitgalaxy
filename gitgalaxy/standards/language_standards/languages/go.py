@@ -103,7 +103,15 @@ DEFINITION: dict[str, Any] = {
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Explicitly ignoring errors via blank identifier.
-        "safety_bypasses": re.compile(r'_\s*,\s*err[ \t]*=|_[ \t]*=\s*\w+|\bimport\s+(?:\.[ \t]+)?"'),
+        # BUG FIX (#2542): the import alternation made the dot OPTIONAL
+        # (`import\s+(?:\.[ \t]+)?"`), so EVERY plain quoted import
+        # (`import "fmt"`) counted as a safety bypass, not just the
+        # namespace-polluting dot-import form (`import . "fmt"`). The dot
+        # is now mandatory. Note this alternation only ever matched the
+        # single-line form either way: grouped imports (`import (\n...\n)`)
+        # have a `(` between `import` and the quoted path, which the
+        # pattern never crossed before and still doesn't.
+        "safety_bypasses": re.compile(r'_\s*,\s*err[ \t]*=|_[ \t]*=\s*\w+|\bimport\s+\.[ \t]+"'),
         # 8. danger (High-Risk Execution / System Calls)
         # Process-killing commands and direct syscalls. EXCLUDES TODO (debt) and fmt.Print (print_hits).
         "high_risk_execution": re.compile(r"\b(os\.Exit|syscall\.Kill|syscall\.RawSyscall|log\.Fatal(?:f|ln)?)\b"),

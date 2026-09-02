@@ -131,8 +131,23 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 8. danger (High-Risk Execution / System Calls)
-        # HTML is declarative markup. Execution dangers (eval, setTimeout) belong in JS.
-        "high_risk_execution": None,
+        # BUG FIX (#2645): `srcdoc=` embeds an entire inline HTML document -- including
+        # `<script>` content -- as a string attribute value. That's a real execution
+        # primitive distinct from ordinary markup, and it was invisible to every
+        # structural signal: `io`'s attribute alternation (`src|href|action|poster|data`)
+        # requires the token to end right at the `=`, so `srcdoc=` (the extra `doc`
+        # before the `=`) never satisfies any of those alternatives; `_lens_config.py`'s
+        # HANDSHAKE_REGISTRY script-tag trigger requires `^[ \t]*<script\b` anchored at
+        # line start, never true for a token buried inside a quoted attribute value.
+        # Matches bare presence of the attribute -- same "the primitive itself is the
+        # risk, regardless of argument shape" logic other languages apply to `eval`/
+        # `exec` -- rather than trying to detect script content inside the embedded
+        # document, which would require actually parsing it. Zero overlap with any other
+        # html rule (confirmed against the full rules dict): `io`'s tag alternation still
+        # separately (and correctly) counts the enclosing `<iframe>` itself -- an iframe
+        # carrying `srcdoc` is legitimately both an I/O boundary AND a high-risk
+        # execution surface, not a double-count of the same thing.
+        "high_risk_execution": re.compile(r"\bsrcdoc=(?:\"[^\"]*\"|'[^']*')", re.I),
         # 9. io (I/O & Network Boundaries)
         # Hyperlink navigation and resource fetching. (The core of the Web).
         "io": re.compile(

@@ -84,9 +84,12 @@ DEFINITION: dict[str, Any] = {
             r"\b(pcall|xpcall|assert|error|type|getmetatable|rawequal|ipairs|pairs|next)\b|<\s*(?:const|close|toclose)\s*>"
         ),
         # 7. safety_neg: Safety Bypasses. Actively bypassing safety (environment manipulation/raw access).
-        "safety_bypasses": re.compile(
-            r"\b(rawget|rawset|rawlen|debug\.[a-zA-Z0-9_]+|collectgarbage|_G|_ENV|getfenv|setfenv)\b"
-        ),
+        # BUG FIX (#2675): dropped `_G`/`_ENV` (a bare reference to the global
+        # table -- `globals` owns it via `\b(_G|_ENV|_VERSION|arg)\b`) and
+        # `collectgarbage` (GC control, not a bypass -- `cleanup` owns it).
+        # probe_globals in a.lua and probe_cleanup in c.lua each contributed
+        # +1 of this rule's +2 over the planted value.
+        "safety_bypasses": re.compile(r"\b(rawget|rawset|rawlen|debug\.[a-zA-Z0-9_]+|getfenv|setfenv)\b"),
         # 8. danger: High-Risk Execution. Dynamic evaluation and OS-level execution hooks.
         "high_risk_execution": re.compile(r"\b(os\.execute|os\.exit|os\.remove|os\.rename|load|loadstring|loadfile)\b"),
         # 9. io: I/O & Network Boundaries. Standard IO library and environment inquiries.

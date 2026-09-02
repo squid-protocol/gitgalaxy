@@ -107,8 +107,16 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\brm[ \t]+-rf[ \t]+/(?![A-Za-z])|\beval\b|\bexec\b", re.M | re.I),
         # 9. io (I/O & Network Boundaries)
         # Interaction with external networks, copying files from host, or executing package managers.
+        # BUG FIX (#2675): the bare package-manager names matched their own
+        # cleanup subcommands too (`apt-get clean`, `yum clean all`), which
+        # touch no network and no external file -- `cleanup` already owns
+        # those exact phrases. Now requires a non-clean subcommand. The
+        # corpus's probe_cleanup in c.dockerfile (`apt-get clean` + `yum
+        # clean all`) contributed the entire +2 over the planted value.
         "io": re.compile(
-            r"^[ \t]*(?:COPY|ADD)[ \t]+|\b(?:wget|curl|apt-get|apk|yum|dnf|git[ \t]+clone|tar[ \t]+-[cx]f|unzip|pip[ \t]+install|npm[ \t]+install)\b",
+            r"^[ \t]*(?:COPY|ADD)[ \t]+"
+            r"|\b(?:wget|curl|git[ \t]+clone|tar[ \t]+-[cx]f|unzip|pip[ \t]+install|npm[ \t]+install)\b"
+            r"|\b(?:apt-get|apk|yum|dnf)[ \t]+(?!clean\b|cache[ \t]+clean\b)[a-z-]+",
             re.M | re.I,
         ),
         # 10. api (Public Surface Area)

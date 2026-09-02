@@ -2390,6 +2390,24 @@ class StructuralExtractor:
                         # the trailing `%%`), exactly like COBOL's label-only
                         # paragraphs. `.l`/`.ll` (lex/flex) share this rule set.
                         "yacc",
+                        # #2648: makefile has no ScopeParsingRegistry entry and no
+                        # brace-delimited bodies at all (target recipes are
+                        # tab-indented, no braces at all), so it was silently
+                        # falling through to Mode_B_Braces below -- which only
+                        # "succeeds" when a `{` happens to appear by coincidence.
+                        # This dropped 100% of real matches (0 of 14 raw matches
+                        # reached the named list). Mode A's "greedy to the next
+                        # func_start match" body heuristic is a correct, direct fit.
+                        "makefile",
+                        # #2648: ada has no ScopeParsingRegistry entry and no
+                        # brace-delimited bodies at all (procedures use `is ...
+                        # begin ... end;`, never `{`/`}`), so it was silently
+                        # falling through to Mode_B_Braces below -- which only
+                        # "succeeds" when a `{` happens to appear by coincidence.
+                        # This dropped 100% of real matches (0 of 13 raw matches
+                        # reached the named list). Mode A's "greedy to the next
+                        # func_start match" body heuristic is a correct, direct fit.
+                        "ada",
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)

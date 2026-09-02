@@ -116,6 +116,12 @@ _PHP_DEEP_CASES = [
     ("branch", "$x = $y ?? $z;", "Foo::if();"),
     ("branch", "$x = $y ? $z : $w;", "$while = 2;"),
     ("branch", "match ($x) {", "$match = 1;"),
+    # #2541: PHP's own tag syntax must not count as a branch -- the bare
+    # ternary `\?` alternation used to match the `?` in `<?php`, `<?=`,
+    # bare `<?`, and `?>`.
+    ("branch", "$x = $y ?: $w;", "<?php"),
+    ("branch", "$x ??= $y;", "?>"),
+    ("branch", "<?= $a ?? $b ?>", "<?= $name ?>"),
 
     # args
     ("args", 'function foo($a = ")\\"") {', "foo($a = array(1,2));"),
@@ -187,6 +193,35 @@ def test_php_globals_superglobals_leading_boundary_regression():
     assert pattern.search('$_SESSION["user"]')
     assert pattern.search('$_ENV["PATH"]')
     assert pattern.search('$GLOBALS["x"]')
+
+
+def test_php_branch_open_close_tags_not_counted_regression():
+    """
+    Regression test (#2541): every PHP file recorded branch >= 1 from its own
+    `<?php` open tag -- the branch rule's bare ternary `\\?` alternation
+    matched the `?` in the tag. Also affected `?>` close tags and `<?=`
+    short-echo tags. A tag-only, straight-line file must count branch 0,
+    while real ternary `?` and null-coalescing `??` still count.
+    """
+    pattern = PHP_RULES["branch"]
+
+    # A plain <?php file with only straight-line code: branch must be 0.
+    straight_line = "<?php\n$a = 1;\n$b = $a + 2;\necho $b;\n"
+    assert len(pattern.findall(straight_line)) == 0, "open tag alone still counts as a branch"
+
+    # Close tag at the end of a ternary-free file must also count 0.
+    assert len(pattern.findall("<?php\n$x = 1;\n?>")) == 0, "close tag still counts as a branch"
+
+    # Short-echo tag: the tag itself must not count...
+    assert len(pattern.findall("<?= $name ?>")) == 0, "short-echo tag still counts as a branch"
+    # ...but a real ?? inside one still counts exactly once.
+    assert len(pattern.findall("<?= $a ?? $b ?>")) == 1
+
+    # Real operators are unaffected, each counted exactly once.
+    assert len(pattern.findall("$x = $y ? $z : $w;")) == 1  # ternary
+    assert len(pattern.findall("$x = $y ?: $w;")) == 1  # Elvis
+    assert len(pattern.findall("$x = $y ?? $z;")) == 1  # null coalescing
+    assert len(pattern.findall("$x ??= $y;")) == 1  # null-coalescing assignment
 
 
 def test_php_safety_bypasses_at_operator_on_variable_regression():

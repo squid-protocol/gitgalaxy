@@ -163,7 +163,13 @@ DEFINITION: dict[str, Any] = {
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"//[ \t]*(?:val|var|fun|class|interface|object|if|when|for|return|import)\b"),
         # 13. doc (Structured Documentation)
-        "doc": re.compile(r"/\*\*|@param|@return|@property|@receiver|@constructor|@throws|@see|@since"),
+        # BUG FIX #2672: pair `/**` with its closing `*/` into one bounded
+        # (0,15000 chars) non-greedy span so a KDoc block counts once, not
+        # once per tag inside it (the #2658 shape). Bare tags stay last so a
+        # tag outside any doc block still counts.
+        "doc": re.compile(
+            r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@property|@receiver|@constructor|@throws|@see|@since"
+        ),
         # 14. test (Testing & Assertions)
         "test": re.compile(
             r"@(?:Test|ParameterizedTest|BeforeTest|AfterTest)|\b(?:assert[A-Za-z0-9_]*|mockk|spyk|test)\s*\(|\b(?:shouldBe|shouldNotBe)\b|\b(?:every|verify)\s*\{"

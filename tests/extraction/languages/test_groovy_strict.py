@@ -834,3 +834,31 @@ def test_groovy_func_start_statement_keyword_as_prefix_false_positive_regression
     # lookup idiom must stay excluded -- this fix must not weaken either.
     assert not func_start.search('div(class: "empty-state-block") {')
     assert not func_start.search('raw _("Dismiss")')
+
+
+def test_groovy_doc_block_counts_once_regression():
+    """
+    #2672: `/\\*\\*` and its tags (`@param`, `@return`, ...) were independent
+    alternatives, so one groovydoc block counted doc=2 -- the #2658 shape.
+    Pair the block into a single bounded (0,15000 chars) non-greedy span so
+    it counts once, regardless of how many tags it carries.
+    """
+    doc = GROOVY_RULES["doc"]
+
+    block = "/**\n * @param argv probe input\n */\n"
+    assert len(doc.findall(block)) == 1, "a single groovydoc block must count once, not once per tag"
+
+    two_blocks = "/**\n * @param argv probe input\n */\ndef f() {}\n/**\n * @return again\n */\n"
+    assert len(doc.findall(two_blocks)) == 2, "two separate groovydoc blocks must still count as 2"
+
+
+def test_groovy_doc_bare_tag_outside_block_still_counts_regression():
+    """#2672: a tag outside any groovydoc block must still count."""
+    doc = GROOVY_RULES["doc"]
+    assert doc.search("@deprecated outside any doc block")
+    assert doc.search("@see SomeClass")
+
+
+def test_groovy_doc_block_redos_immune_regression():
+    """#2672 ReDoS probe: an unterminated `/**` must fail closed quickly, not hang."""
+    assert_redos_immune(GROOVY_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)

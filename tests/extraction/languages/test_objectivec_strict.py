@@ -277,3 +277,43 @@ def test_objectivec_return_not_counted_as_branch_regression():
 
 def test_objectivec_structural_boundaries_redos_immune_after_return_addition():
     assert_redos_immune(OBJC_RULES["structural_boundaries"], "return " * 20000, timeout_sec=3.0)
+
+
+def test_objectivec_doc_block_and_line_marker_count_once_regression():
+    """
+    #2672: `/\\*\\*`/`/\\*!`/`///` and the doc tags (`@param`, `@brief`, ...)
+    were independent alternatives, so one doc comment counted doc
+    proportional to its tag density -- the #2658 shape. Off-corpus only
+    (the rosetta corpus plants one of {marker, tag} for objective-c, so
+    this does not move the corpus). Both block openers (standard and
+    NeXT-style `/*!`) pair into a single bounded (0,15000 chars) non-greedy
+    span; the line-marker form (`///`) now swallows the rest of its line so
+    a tag on the same line as the marker is one hit.
+    """
+    doc = OBJC_RULES["doc"]
+
+    block = "/**\n * @brief thing\n * @param x in\n */\n"
+    assert len(doc.findall(block)) == 1, "a single /** doc block must count once, not once per tag"
+
+    next_block = "/*!\n * @brief thing\n * @param x in\n */\n"
+    assert len(doc.findall(next_block)) == 1, "a single /*! doc block must count once, not once per tag"
+
+    one_line = "/// @param x in\n"
+    assert len(doc.findall(one_line)) == 1, "a single `///` line with a tag must count once, not twice"
+
+    two_blocks = "/*!\n * @brief one\n */\nvoid f();\n/*!\n * @brief two\n */\n"
+    assert len(doc.findall(two_blocks)) == 2, "two separate doc blocks must still count as 2"
+
+
+def test_objectivec_doc_bare_tag_outside_block_still_counts_regression():
+    """#2672: a doc tag outside any doc comment must still count."""
+    doc = OBJC_RULES["doc"]
+    assert doc.search("@discussion leftover outside any doc block")
+    assert doc.search("@brief leftover outside any doc block")
+
+
+def test_objectivec_doc_block_redos_immune_regression():
+    """#2672 ReDoS probes: unterminated `/**`, `/*!`, and a very long unterminated `///` line must fail closed quickly."""
+    assert_redos_immune(OBJC_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
+    assert_redos_immune(OBJC_RULES["doc"], "/*!" + "x" * 200000, timeout_sec=3.0)
+    assert_redos_immune(OBJC_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)

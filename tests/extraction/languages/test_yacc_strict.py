@@ -402,7 +402,7 @@ def test_yacc_branch_deep():
     """Deep adversarial coverage for branch signature."""
     pattern = YACC_RULES["branch"]
     # Positive
-    assert pattern.search("expr: term | expr '+' term;") # Grammar alternation
+    assert pattern.search("expr: term | expr '+' term;")  # Grammar alternation
     assert pattern.search("if  (x)")
     assert pattern.search("} else {")
     assert pattern.search("switch(x)")
@@ -415,6 +415,7 @@ def test_yacc_branch_deep():
     assert not pattern.search("x = ifelse(y);")
     assert not pattern.search("formatting_done();")
     assert not pattern.search("int diff = 5;")
+
 
 def test_yacc_args_deep():
     """Deep adversarial coverage for args signature (yacc semantic values)."""
@@ -435,6 +436,7 @@ def test_yacc_args_deep():
     assert not pattern.search("x = 1;")
     assert not pattern.search("var_with_$_inside")
 
+
 def test_yacc_func_start_deep():
     """Deep adversarial coverage for func_start signature."""
     pattern = YACC_RULES["func_start"]
@@ -448,8 +450,9 @@ def test_yacc_func_start_deep():
     assert not pattern.search("public:")
     assert not pattern.search("private:")
     assert not pattern.search("protected:")
-    assert not pattern.search("expr ;") # missing colon
-    assert not pattern.search("// expr:") # commented out
+    assert not pattern.search("expr ;")  # missing colon
+    assert not pattern.search("// expr:")  # commented out
+
 
 def test_yacc_structural_boundaries_deep():
     """Deep adversarial coverage for structural_boundaries."""
@@ -471,3 +474,65 @@ def test_yacc_structural_boundaries_deep():
     assert not pattern.search("int return_val = 0;")
     assert not pattern.search("goto_target:")
     assert not pattern.search("breaker")
+
+
+# ==============================================================================
+# #2672: doc-family fix -- block form first, bare tags last, so one doc
+# comment counts once even when it carries multiple tags. Same shape as the
+# other 17 family members (#2658's precedent).
+# ==============================================================================
+
+
+def test_yacc_doc_block_form_counts_once_with_multiple_tags():
+    """
+    Regression test for the #2672 double-count defect: a real Doxygen-style
+    `/** ... */` block carrying both @param and @return used to score doc=3
+    (one for `/\\*\\*`, one per tag) because all three were independent
+    alternatives. The block form must now be a single bounded, non-greedy
+    match spanning the whole comment, so the same block scores 1.
+    """
+    pattern = YACC_RULES["doc"]
+    block = "/** @brief parse one token\n * @param x the lookahead token\n * @return the token class\n */"
+    matches = pattern.findall(block)
+    assert len(matches) == 1, f"a single /** ... */ block with tags must count once, got {matches!r}"
+
+
+def test_yacc_doc_corpus_line_unchanged_at_one():
+    """
+    #2672 explicitly requires the rosetta corpus to NOT move for yacc: the
+    planted doc line is a single-star `/* @param ... */` comment, which the
+    new `/\\*\\*` block alternative (two literal asterisks) never matches --
+    only the bare `@param` tag alternative fires, exactly as before the fix.
+    """
+    pattern = YACC_RULES["doc"]
+    corpus_line = "/* @param flag the probe input */"
+    assert not pattern.match("/**"), "sanity: /** requires two literal asterisks"
+    matches = pattern.findall(corpus_line)
+    assert matches == ["@param"], f"corpus doc line must still score exactly one bare @param hit, got {matches!r}"
+
+
+def test_yacc_doc_bare_tag_outside_comment_still_counts():
+    """A tag with no enclosing doc comment (not idiomatic yacc, but kept for
+    doc-family shape parity) must still count -- the block alternative only
+    changes behavior when a real `/** ... */` block is present."""
+    pattern = YACC_RULES["doc"]
+    assert pattern.search("@param x the lookahead token")
+    assert pattern.search("@return the token class")
+
+
+def test_yacc_doc_unterminated_block_fails_closed():
+    """#2672's accepted trade-off (same as #2658): an unterminated `/**`
+    with no matching `*/` within the 15000-char bound must not match at all
+    (fails closed) rather than falling back to counting the bare opener."""
+    pattern = YACC_RULES["doc"]
+    unterminated = "/** never closed, no tags in here " + ("z" * 20000)
+    assert not pattern.search(unterminated), "unterminated /** block beyond the bound must not match"
+
+
+def test_yacc_doc_redos_immunity():
+    """ReDoS probe for the new bounded, non-greedy `/\\*\\*[\\s\\S]{0,15000}?\\*/`
+    quantified alternative -- same methodology as #2658's own probe."""
+    pattern = YACC_RULES["doc"]
+    assert_redos_immune(pattern, "/**" + "z" * 200000, timeout_sec=3.0)
+    # Sanity: still matches a real block after the adversarial run.
+    assert pattern.search("/** @param x in\n * @return out\n */")

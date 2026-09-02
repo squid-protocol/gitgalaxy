@@ -302,8 +302,17 @@ DEFINITION: dict[str, Any] = {
             r"(?://|/\*)[ \t]*(?:if|for|while|auto|class|struct|std::cout|std::print|printf|void|int|return)\b"
         ),
         # 13. doc (Structured Documentation)
+        # BUG FIX #2672: `/**`, `///` and the Doxygen tags (`@param`,
+        # `\param`, ...) were independent alternatives, so one Doxygen
+        # comment counted doc proportional to its tag density. Block form
+        # first (bounded 0,15000 chars non-greedy span, the #2658 shape),
+        # then the line-marker form so `/// @param x` is one hit per line,
+        # not two; bare tags stay last so a tag outside any doc comment
+        # still counts. No corpus movement -- the rosetta corpus only
+        # plants one of {marker, tag} for this language.
         "doc": re.compile(
-            r"///|/\*\*|@param|@return|@brief|@details|@tparam|\\param|\\return|\\brief|\\details|\\tparam"
+            r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@param|@return|@brief|@details|@tparam"
+            r"|\\param|\\return|\\brief|\\details|\\tparam"
         ),
         # 14. test (Testing & Assertions)
         # Triggers indicating internal verification. Anchors explicit GTest/Catch2 macros and prevents prose collisions.

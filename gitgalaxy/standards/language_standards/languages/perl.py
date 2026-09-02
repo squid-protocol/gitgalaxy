@@ -209,7 +209,17 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 13. doc: Structured Documentation. Structured POD documentation.
-        "doc": re.compile(r"^=(?:pod|head[1-6]|item|over|back|cut|begin|end|encoding|for)\b", re.M),
+        # BUG FIX #2672/#2670: the opener (`=pod`, `=head1`, ...) and `=cut`
+        # were independent alternatives, so one `=pod ... =cut` block
+        # counted doc=2. Pair the opener to its closing `^=cut` into one
+        # bounded (0,15000 chars) non-greedy span first (the #2658 shape);
+        # an unpaired opener (no `=cut` yet, or malformed input) still
+        # counts once via the second alternative.
+        "doc": re.compile(
+            r"^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b[\s\S]{0,15000}?^=cut\b"
+            r"|^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b",
+            re.M,
+        ),
         # 14. test: Testing & Assertions. Assertions and Test frameworks.
         "test": re.compile(
             r"\b(?:Test2::V0|Test::More|cmp_ok|is_deeply|subtest|done_testing|BAIL_OUT)\b|\b(?:ok|is|isnt|like|unlike|plan|diag|note)\s*\("

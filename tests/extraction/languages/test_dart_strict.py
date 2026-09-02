@@ -28,92 +28,92 @@ DART_RULES = LANGUAGE_DEFINITIONS["dart"]["rules"]
 
 _DART_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
-    ('api', "export 'src/foo.dart';", 'exportedCount = 5;'),
-    ('args', 'void foo(int x) {', 'foo(x);'),
-    ('bitwise_ops', 'a & b;', 'a && b;'),
-    ('branch', 'if (x) { return; }', 'int x = 5;'),
-    ('class_start', 'class Foo {', 'Foo instance = Foo();'),
-    ('cleanup', 'controller.dispose();', 'disposed = true;'),
-    ('closures', '(int x) { return x + 1; }', 'int x = 1;'),
-    ('comprehensions', '[for (var x in list) x * 2]', 'for (var x in list) { x * 2; }'),
-    ('concurrency', 'await foo();', 'foo();'),
-    ('debug_prints', "print('debug');", "printer.write('debug');"),
-    ('decorators', '@override', 'overrideFunc();'),
-    ('dependency_injection', 'GetIt.instance.get<Foo>();', 'foo.get();'),
-    ('doc', '/// This is a doc comment', '// A regular comment'),
-    ('encapsulation', 'int _secret = 5;', 'int secret = 5;'),
-    ('events', 'myStream.listen(onData);', 'foo.listenTo(onData);'),
-    ('explicit_casts', 'x as String;', "String x = 'a';"),
-    ('fragile_debt', '// HACK: workaround', '// HACKATHON: event'),
-    ('func_start', 'void foo() {', 'class Foo {'),
-    ('generics', 'List<String> names;', 'a < 5 && b > 3;'),
-    ('globals', 'static const x = 5;', 'int x = 5;'),
-    ('high_risk_execution', 'exit(1);', 'exitDoor();'),
-    ('immutability_locks', 'const x = 5;', 'var x = 5;'),
-    ('import', "import 'package:foo/foo.dart';", 'imported = true;'),
-    ('io', "File('test.txt').readAsStringSync();", 'var filed = true;'),
-    ('ipc_rpc_bridges', 'Isolate.spawn(entryPoint, message);', 'foo.spawn();'),
-    ('listeners', "emitter.on('event', cb);", 'onEvent(cb);'),
-    ('macros', '@JsonSerializable()', "final x = 'JsonSerializable';"),
-    ('memory_alloc', 'malloc.allocate(10);', 'foo.allocate(10);'),
-    ('ownership', '// Author: Jane Doe', '// Authorized by Jane Doe'),
-    ('panics_and_aborts', "throw Exception('err');", 'foo.throwException();'),
-    ('planned_debt', '// TODO: refactor', '// TODONE'),
-    ('pointers', 'Pointer<Int32> p;', 'int p;'),
-    ('reflection_metaprogramming', 'noSuchMethod(invocation);', 'foo.someMethod();'),
-    ('regex_execution', "RegExp(r'\\d+');", 'RegExp match = null;'),
-    ('safety', 'try { risky(); } catch (e) {}', 'risky();'),
-    ('safety_bypasses', 'x!;', 'x != null;'),
-    ('scientific', 'math.sqrt(4);', 'double x = 4;'),
-    ('serialization_parsing', 'jsonDecode(response.body);', 'foo.decode();'),
-    ('spec_exposure', '// [SPEC-123] implements the contract', '// spec sheet'),
-    ('ssr_boundaries', "Response.ok('hi');", 'foo.Response();'),
-    ('state_mutation', 'list.add(1);', 'list.length;'),
-    ('structural_boundaries', 'await foo();', 'foo();'),
-    ('sync_locks', 'final lock = Mutex();', 'bool locked = false;'),
-    ('telemetry', "log.info('message');", 'log.toString();'),
-    ('test', "test('should work', () {});", 'testMode = true;'),
-    ('test_skip', "@Ignore('reason')", "final x = 'Ignore';"),
-    ('thread_sleeps', 'sleep(Duration(seconds: 1));', 'foo.wake();'),
-    ('time_date_logic', 'DateTime.now();', 'foo.DateTime();'),
-    ('ui_framework', 'Widget build(BuildContext context) {', 'int build() {'),
-    ('dead_code', '// if (x) {', '// just a note'),
+    ("api", "export 'src/foo.dart';", "exportedCount = 5;"),
+    ("args", "void foo(int x) {", "foo(x);"),
+    ("bitwise_ops", "a & b;", "a && b;"),
+    ("branch", "if (x) { return; }", "int x = 5;"),
+    ("class_start", "class Foo {", "Foo instance = Foo();"),
+    ("cleanup", "controller.dispose();", "disposed = true;"),
+    ("closures", "(int x) { return x + 1; }", "int x = 1;"),
+    ("comprehensions", "[for (var x in list) x * 2]", "for (var x in list) { x * 2; }"),
+    ("concurrency", "await foo();", "foo();"),
+    ("debug_prints", "print('debug');", "printer.write('debug');"),
+    ("decorators", "@override", "overrideFunc();"),
+    ("dependency_injection", "GetIt.instance.get<Foo>();", "foo.get();"),
+    ("doc", "/// This is a doc comment", "// A regular comment"),
+    ("encapsulation", "int _secret = 5;", "int secret = 5;"),
+    ("events", "myStream.listen(onData);", "foo.listenTo(onData);"),
+    ("explicit_casts", "x as String;", "String x = 'a';"),
+    ("fragile_debt", "// HACK: workaround", "// HACKATHON: event"),
+    ("func_start", "void foo() {", "class Foo {"),
+    ("generics", "List<String> names;", "a < 5 && b > 3;"),
+    ("globals", "static const x = 5;", "int x = 5;"),
+    ("high_risk_execution", "exit(1);", "exitDoor();"),
+    ("immutability_locks", "const x = 5;", "var x = 5;"),
+    ("import", "import 'package:foo/foo.dart';", "imported = true;"),
+    ("io", "File('test.txt').readAsStringSync();", "var filed = true;"),
+    ("ipc_rpc_bridges", "Isolate.spawn(entryPoint, message);", "foo.spawn();"),
+    ("listeners", "emitter.on('event', cb);", "onEvent(cb);"),
+    ("macros", "@JsonSerializable()", "final x = 'JsonSerializable';"),
+    ("memory_alloc", "malloc.allocate(10);", "foo.allocate(10);"),
+    ("ownership", "// Author: Jane Doe", "// Authorized by Jane Doe"),
+    ("panics_and_aborts", "throw Exception('err');", "foo.throwException();"),
+    ("planned_debt", "// TODO: refactor", "// TODONE"),
+    ("pointers", "Pointer<Int32> p;", "int p;"),
+    ("reflection_metaprogramming", "noSuchMethod(invocation);", "foo.someMethod();"),
+    ("regex_execution", "RegExp(r'\\d+');", "RegExp match = null;"),
+    ("safety", "try { risky(); } catch (e) {}", "risky();"),
+    ("safety_bypasses", "x!;", "x != null;"),
+    ("scientific", "math.sqrt(4);", "double x = 4;"),
+    ("serialization_parsing", "jsonDecode(response.body);", "foo.decode();"),
+    ("spec_exposure", "// [SPEC-123] implements the contract", "// spec sheet"),
+    ("ssr_boundaries", "Response.ok('hi');", "foo.Response();"),
+    ("state_mutation", "list.add(1);", "list.length;"),
+    ("structural_boundaries", "await foo();", "foo();"),
+    ("sync_locks", "final lock = Mutex();", "bool locked = false;"),
+    ("telemetry", "log.info('message');", "log.toString();"),
+    ("test", "test('should work', () {});", "testMode = true;"),
+    ("test_skip", "@Ignore('reason')", "final x = 'Ignore';"),
+    ("thread_sleeps", "sleep(Duration(seconds: 1));", "foo.wake();"),
+    ("time_date_logic", "DateTime.now();", "foo.DateTime();"),
+    ("ui_framework", "Widget build(BuildContext context) {", "int build() {"),
+    ("dead_code", "// if (x) {", "// just a note"),
 ]
 
 _DART_DEEP_CASES = [
     # branch
-    ('branch', 'when (x)', 'int counter = 5;'),
-    ('branch', 'case Foo():', 'caseInSensitive = true;'),
-    ('branch', 'a ?? b', 'a + b'),
-
+    ("branch", "when (x)", "int counter = 5;"),
+    ("branch", "case Foo():", "caseInSensitive = true;"),
+    ("branch", "a ?? b", "a + b"),
     # args
-    ('args', 'Future<void> foo<T>(int x, {required String y}) async {', 'if (x > 0) {'),
-    ('args', 'void bar(List<Map<String, int>> data) =>', 'while (x == 5) {'),
-    ('args', '(int a, [int? b]) =>', 'switch (x) {'),
-    ('args', 'Map<String, dynamic> parse(String json) {', 'catch (e) {'),
-    ('args', 'void foo() : super() {', 'return (x) {'),
-
+    ("args", "Future<void> foo<T>(int x, {required String y}) async {", "if (x > 0) {"),
+    ("args", "void bar(List<Map<String, int>> data) =>", "while (x == 5) {"),
+    ("args", "(int a, [int? b]) =>", "switch (x) {"),
+    ("args", "Map<String, dynamic> parse(String json) {", "catch (e) {"),
+    ("args", "void foo() : super() {", "return (x) {"),
     # func_start
-    ('func_start', '  @override\n  Future<Map<String, dynamic>> fetchData() async {', 'class Foo {'),
-    ('func_start', 'external void externalFunc();', 'mixin Bar {'),
-    ('func_start', 'static List<T> generate<T>() =>', 'if (x > 0) {'),
-    ('func_start', 'operator +(Foo other) {', "  @pragma('vm:prefer-inline')\n  static final Map<String, List<int>> Function(String)? parser = (s) => {};"),
-    ('func_start', 'factory Foo.fromJson() {', 'final Function(int) myCallback;'),
-    ('func_start', 'get value =>', 'case (x):'),
-    ('func_start', 'set value(int v) {', 'return (x) {'),
-    ('func_start', 'Tuple<List<int>, Map<String, dynamic>> complexReturn() {', 'throw (e) {'),
-
+    ("func_start", "  @override\n  Future<Map<String, dynamic>> fetchData() async {", "class Foo {"),
+    ("func_start", "external void externalFunc();", "mixin Bar {"),
+    ("func_start", "static List<T> generate<T>() =>", "if (x > 0) {"),
+    (
+        "func_start",
+        "operator +(Foo other) {",
+        "  @pragma('vm:prefer-inline')\n  static final Map<String, List<int>> Function(String)? parser = (s) => {};",
+    ),
+    ("func_start", "factory Foo.fromJson() {", "final Function(int) myCallback;"),
+    ("func_start", "get value =>", "case (x):"),
+    ("func_start", "set value(int v) {", "return (x) {"),
+    ("func_start", "Tuple<List<int>, Map<String, dynamic>> complexReturn() {", "throw (e) {"),
     # class_start
-    ('class_start', 'abstract base mixin class Foo<T> extends Bar with Baz {', 'final Foo user = Foo();'),
-    ('class_start', 'sealed class Either<L, R> {', '  @aclass Foo {}'),
-    ('class_start', 'extension type const MyString(String value) {', 'extension on String {'),
-    ('class_start', 'macro class Data {', None),
-    ('class_start', '@JsonSerializable()\nclass User {', None),
-
+    ("class_start", "abstract base mixin class Foo<T> extends Bar with Baz {", "final Foo user = Foo();"),
+    ("class_start", "sealed class Either<L, R> {", "  @aclass Foo {}"),
+    ("class_start", "extension type const MyString(String value) {", "extension on String {"),
+    ("class_start", "macro class Data {", None),
+    ("class_start", "@JsonSerializable()\nclass User {", None),
     # structural_boundaries
-    ('structural_boundaries', 'late final String name;', 'String foo = "bar";'),
-    ('structural_boundaries', 'yield* stream;', 'int variable = 5;'),
-    ('structural_boundaries', 'sealed class Foo {', 'String data = "";'),
+    ("structural_boundaries", "late final String name;", 'String foo = "bar";'),
+    ("structural_boundaries", "yield* stream;", "int variable = 5;"),
+    ("structural_boundaries", "sealed class Foo {", 'String data = "";'),
 ]
 
 
@@ -378,3 +378,36 @@ def test_dart_globals_anchor_bug_regression():
     assert not globals_rule.search("    const local_var = 1;"), "indented const must NOT count as global"
     assert not globals_rule.search("\tvar local_var = false;"), "tab-indented var must NOT count as global"
 
+
+def test_dart_doc_block_and_line_marker_count_once_regression():
+    """
+    #2672: `/\\*\\*`/`///` and the doc tags (`@param`, `@return`) were
+    independent alternatives, so one doc comment counted doc proportional
+    to its tag density -- the #2658 shape. Off-corpus only (the rosetta
+    corpus plants one of {marker, tag} for dart, so this does not move the
+    corpus). Block form pairs into a single bounded (0,15000 chars)
+    non-greedy span; the line-marker form (`///`) now swallows the rest of
+    its line so a tag on the same line as the marker is one hit.
+    """
+    doc = DART_RULES["doc"]
+
+    block = "/**\n * @param x in\n * @return out\n */\n"
+    assert len(doc.findall(block)) == 1, "a single dartdoc block must count once, not once per tag"
+
+    one_line = "/// A doc comment with @param x in it\n"
+    assert len(doc.findall(one_line)) == 1, "a single `///` line with a tag must count once, not twice"
+
+    two_lines = "/// line one\n/// line two @param x\n"
+    assert len(doc.findall(two_lines)) == 2, "two `///` lines still count once per line (explicit non-goal)"
+
+
+def test_dart_doc_bare_tag_outside_marker_still_counts_regression():
+    """#2672: a doc tag outside any `///`/`/**` marker must still count."""
+    doc = DART_RULES["doc"]
+    assert doc.search("@return leftover outside any doc comment")
+
+
+def test_dart_doc_block_redos_immune_regression():
+    """#2672 ReDoS probes: unterminated `/**` and a very long unterminated `///` line must fail closed quickly."""
+    assert_redos_immune(DART_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
+    assert_redos_immune(DART_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)

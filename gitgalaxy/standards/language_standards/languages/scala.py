@@ -150,7 +150,11 @@ DEFINITION: dict[str, Any] = {
             r"//[ \t]*(?:def|val|var|class|object|trait|if|match|println|import)\b|/\*[ \t]*(?:def|val|class|object)"
         ),
         # 13. doc: Structured Documentation. Scaladoc documentation (/**) and annotations.
-        "doc": re.compile(r"/\*\*|@param|@return|@tparam|@throws|@see|@note"),
+        # BUG FIX #2672: pair `/**` with its closing `*/` into one bounded
+        # (0,15000 chars) non-greedy span so a Scaladoc block counts once,
+        # not once per tag inside it (the #2658 shape). Bare tags stay last
+        # so a tag outside any doc block still counts.
+        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@tparam|@throws|@see|@note"),
         # 14. test: Testing & Assertions. ScalaTest, MUnit, and standard expect/verify markers.
         # BUG FIX: `test\s*\(` ends on `(` (non-word), so the shared
         # trailing \b could never fire. Never matched.

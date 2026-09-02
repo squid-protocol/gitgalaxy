@@ -82,14 +82,12 @@ C_RULES = LANGUAGE_DEFINITIONS["c"]["rules"]
 
 _C_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
-
     # --- DEEP CASES FOR branch ---
     ("branch", "if(x) {", "ifdef FOO"),
     ("branch", "} else if (", "form_data = 1;"),
     ("branch", "case 1:", "case_name"),
     ("branch", "x && y", "x & y"),
     ("branch", "a ? b : c", "int a = 1;"),
-
     # --- DEEP CASES FOR args ---
     ("args", "void myfunc(int (*cb)(int))", "foo(a, b);"),
     ("args", "foo(const struct foo *f)", "return (int)x;"),
@@ -98,7 +96,6 @@ _C_SIMPLE_CASES = [
     ("args", "int my_func(unsigned long int * x)", "sizeof(int)"),
     ("args", "macro_like(enum x y)", "typeof(int)"),
     ("args", "void func(char buf[10])", "_Alignof(int)"),
-
     # --- DEEP CASES FOR func_start ---
     ("func_start", "int main(int argc, char **argv) {", "if (x) {"),
     ("func_start", "static inline void * my_func(void) {", "int a = 1;"),
@@ -107,21 +104,18 @@ _C_SIMPLE_CASES = [
     ("func_start", "int \n myfunc(void) \n {", "for (int i=0; i<10; i++) {"),
     ("func_start", "int old_style(a, b) int a; int b; {", "MACRO(x)\\nint x;"),
     ("func_start", "void _Generic_func() {", "return (x) {"),
-
     # --- DEEP CASES FOR class_start ---
     ("class_start", "struct Point {", "int x;"),
     ("class_start", "typedef struct {", "structing foo;"),
     ("class_start", "enum foo", "instruction"),
     ("class_start", "union bar", "unionize"),
     ("class_start", "  typedef union bar", "reunion"),
-
     # --- DEEP CASES FOR structural_boundaries ---
     ("structural_boundaries", "return x;", "return_val = 1;"),
     ("structural_boundaries", "struct foo", "structured_data"),
     ("structural_boundaries", "_BitInt(32)", "voidable"),
     ("structural_boundaries", "alignas(16)", "true_story"),
     ("structural_boundaries", "typedef int my_int;", "enum_name"),
-
     # Original simple cases (remaining):
     ("safety", "assert(x > 0);", "x = 1;"),
     ("safety_bypasses", "strcpy(dst, src);", "memcpy(dst, src, n);"),
@@ -452,3 +446,38 @@ def test_c_redos_immunity_sweep():
     assert C_RULES["func_start"].search("int foo(int a) {")
     assert C_RULES["class_start"].search("struct Point {")
     assert C_RULES["explicit_casts"].search("y = (int)x;")
+
+
+def test_c_doc_block_and_line_marker_count_once_regression():
+    """
+    #2672: `/\\*\\*`/`///` and the Doxygen tags (`@param`, `\\param`, ...)
+    were independent alternatives, so one Doxygen comment counted doc
+    proportional to its tag density -- the #2658 shape. Off-corpus only
+    (the rosetta corpus plants one of {marker, tag} for c, so this does not
+    move the corpus). Block form pairs into a single bounded (0,15000
+    chars) non-greedy span; the line-marker form (`///`) now swallows the
+    rest of its line so a tag on the same line as the marker is one hit.
+    """
+    doc = C_RULES["doc"]
+
+    block = "/**\n * @brief do it\n * @param x in\n * @return out\n */\n"
+    assert len(doc.findall(block)) == 1, "a single Doxygen block must count once, not once per tag"
+
+    one_line = "/// @param x in\n"
+    assert len(doc.findall(one_line)) == 1, "a single `///` line with a tag must count once, not twice"
+
+    two_blocks = "/**\n * @brief one\n */\nvoid f();\n/**\n * @brief two\n */\n"
+    assert len(doc.findall(two_blocks)) == 2, "two separate Doxygen blocks must still count as 2"
+
+
+def test_c_doc_bare_tag_outside_block_still_counts_regression():
+    """#2672: a Doxygen tag outside any doc comment must still count."""
+    doc = C_RULES["doc"]
+    assert doc.search(r"\param leftover outside any doc block")
+    assert doc.search("@brief leftover outside any doc block")
+
+
+def test_c_doc_block_redos_immune_regression():
+    """#2672 ReDoS probes: unterminated `/**` and a very long unterminated `///` line must fail closed quickly."""
+    assert_redos_immune(C_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
+    assert_redos_immune(C_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)

@@ -78,7 +78,17 @@ DEFINITION: dict[str, Any] = {
         "api": re.compile(r"%define\b|%code\b|%provides\b|%requires\b"),
         "state_mutation": re.compile(r"(?<![=!<>])=(?![=])|\+\+|--"),
         "dead_code": re.compile(r"//[ \t]*(?:if|for|while|return|%token)\b|/\*[ \t]*(?:if|for|while|return|%token)"),
-        "doc": re.compile(r"/\*\*|@param|@return"),
+        # #2672: doc-family fix -- block form first (bounded, non-greedy, same
+        # shape/bound as #2658) so a whole /** ... */ doc comment counts once
+        # even when it carries @param/@return tags inside it, instead of once
+        # per marker plus once per tag. Bare tags remain last so a tag
+        # outside any doc comment (not applicable to yacc today, but kept for
+        # family-shape parity) still counts. yacc's own corpus doc line is a
+        # single-star `/* @param ... */` comment, which `/\*\*` never
+        # matches, so this is corpus-inert for yacc (doc stays 1) -- the
+        # fix only changes yacc's off-corpus behavior on a real `/** ... */`
+        # Doxygen-style block.
+        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return"),
         "test": None,
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         "concurrency": None,

@@ -563,3 +563,34 @@ def test_perl_structural_boundaries_sub_and_method():
     assert pattern.search("class Point {")
     assert pattern.search("role Throwable {")
     assert not pattern.search("my_sub()"), "should not match substrings"
+
+
+def test_perl_doc_pod_block_counts_once_regression():
+    """
+    #2672/#2670: the POD opener (`=pod`, `=head1`, ...) and `=cut` were
+    independent alternatives, so one `=pod ... =cut` block counted doc=2 --
+    the #2658 shape. Pair the opener to its closing `^=cut` into a single
+    bounded (0,15000 chars) non-greedy span so a full POD block counts once.
+    """
+    doc = PERL_RULES["doc"]
+
+    block = "=pod\n\nSome documentation here.\n\n=cut\n"
+    assert len(doc.findall(block)) == 1, "a single =pod...=cut block must count once, not twice"
+
+    two_blocks = "=pod\n\nfirst\n\n=cut\n\n=head1 NAME\n\nsecond\n\n=cut\n"
+    assert len(doc.findall(two_blocks)) == 2, "two separate POD blocks must still count as 2"
+
+
+def test_perl_doc_unterminated_opener_still_counts_regression():
+    """
+    #2672: an opener with no `=cut` yet (or malformed input) must still
+    count once via the fallback bare-opener alternative, not fail to match
+    at all.
+    """
+    doc = PERL_RULES["doc"]
+    assert doc.search("=head1 NAME\n\nSome text without a closing cut.\n")
+
+
+def test_perl_doc_pod_block_redos_immune_regression():
+    """#2672 ReDoS probe: an unterminated `=pod` must fail closed quickly, not hang."""
+    assert_redos_immune(PERL_RULES["doc"], "=pod\n" + "x" * 200000, timeout_sec=3.0)

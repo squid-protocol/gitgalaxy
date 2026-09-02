@@ -119,55 +119,59 @@ JAVA_RULES = LANGUAGE_DEFINITIONS["java"]["rules"]
 
 _JAVA_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
-    ('api', 'public void foo() {}', 'String result = compute();'),
-    ('args', 'public void foo(int x) {', 'foo(x, y);'),
-    ('bitwise_ops', 'a << 2', 'a < 2 && b > 2'),
-    ('branch', 'if (x) { return; }', 'int x = 5;'),
-    ('class_start', 'public class Foo {', 'Foo instance = new Foo();'),
-    ('cleanup', 'conn.close();', 'closeable.markUsed();'),
-    ('closures', 'list.forEach(x -> print(x));', 'int x = list.get(0);'),
-    ('comprehensions', 'list.stream().map(x -> x);', 'list.size();'),
-    ('concurrency', 'Thread t = new Thread(runnable);', 'Threading.configure();'),
-    ('debug_prints', 'System.out.println("debug");', 'System.out.write(bytes);'),
-    ('decorators', '@Override', 'final String email = "user@example.com";'),
-    ('dependency_injection', '@Autowired\nprivate Foo foo;', '@Deprecated\npublic void foo() {}'),
-    ('doc', '/** A doc comment */', '/* A regular block comment */'),
-    ('encapsulation', 'private int x;', 'public int x;'),
-    ('events', 'ApplicationEvent event = new FooEvent();', 'CustomEvent event = new FooEvent();'),
-    ('explicit_casts', '(String) obj', 'int result = (x + y);'),
-    ('fragile_debt', '// HACK: workaround', '// HACKATHON: team building event'),
-    ('func_start', 'public void foo() {', 'public class Foo {'),
-    ('generics', 'List<String> names;', 'a < 5 && b > 3;'),
-    ('globals', 'public static final String FOO = "bar";', 'private int x = 5;'),
-    ('high_risk_execution', 'System.exit(1);', 'long now = System.currentTimeMillis();'),
-    ('immutability_locks', 'final int x = 5;', 'protected void finalize() {}'),
-    ('import', 'import java.util.List;', '// import java.util.List;'),
-    ('io', 'File f = new File(path);', 'String path = getPath();'),
-    ('ipc_rpc_bridges', 'ProcessBuilder pb = new ProcessBuilder();', 'KafkaConsumer consumer = new KafkaConsumer();'),
-    ('listeners', 'button.addEventListener(handler);', 'button.removeEventListener(handler);'),
-    ('memory_alloc', 'Arena arena = Arena.ofConfined();', 'MemorySegment seg = allocator.allocate(8);'),
-    ('ownership', '@author Jane Doe', '// Written by Jane Doe'),
-    ('panics_and_aborts', 'throw new RuntimeException("err");', 'throwable.printStackTrace();'),
-    ('planned_debt', '// TODO: refactor', '// TODONE: already implemented'),
-    ('pointers', 'MemorySegment segment = arena.allocate(8);', 'MemoryMappedFile mmf = open(path);'),
-    ('reflection_metaprogramming', 'Class.forName("Foo");', 'Class<?> clazz = obj.getClass();'),
-    ('regex_execution', 'Pattern.compile(regex);', 'Pattern.quote(regex);'),
-    ('safety', 'try { risky(); } catch (Exception e) {}', 'result = compute();'),
-    ('safety_bypasses', 'Object x = null;', 'Object x = getValue();'),
-    ('scientific', 'Math.sqrt(4);', 'double result = compute();'),
-    ('serialization_parsing', 'ObjectMapper mapper = new ObjectMapper();', 'ObjectOutputStream oos = new ObjectOutputStream(fos);'),
-    ('spec_exposure', '// [SPEC-123] implements the contract', '// see the spec sheet for details'),
-    ('ssr_boundaries', 'ModelAndView mav = new ModelAndView();', 'HttpServletContext ctx = getContext();'),
-    ('state_mutation', 'this.count = 5;', 'System.out.println(count);'),
-    ('structural_boundaries', 'import java.util.List;', 'importedCount = 5;'),
-    ('sync_locks', 'synchronized (lock) { }', 'unlocked = true;'),
-    ('telemetry', 'logger.info("message");', 'logger.setLevel(Level.INFO);'),
-    ('test', '@Test\npublic void testFoo() {}', 'public void testFoo() {}'),
-    ('test_skip', '@Disabled', '@Deprecated'),
-    ('thread_sleeps', 'Thread.sleep(1000);', 'Thread.currentThread();'),
-    ('time_date_logic', 'LocalDate.now();', 'OffsetDateTime odt = OffsetDateTime.now();'),
-    ('ui_framework', 'JFrame frame = new JFrame();', 'JTable table = new JTable();'),
-    ('dead_code', '// public void foo() {}', '// just a note'),
+    ("api", "public void foo() {}", "String result = compute();"),
+    ("args", "public void foo(int x) {", "foo(x, y);"),
+    ("bitwise_ops", "a << 2", "a < 2 && b > 2"),
+    ("branch", "if (x) { return; }", "int x = 5;"),
+    ("class_start", "public class Foo {", "Foo instance = new Foo();"),
+    ("cleanup", "conn.close();", "closeable.markUsed();"),
+    ("closures", "list.forEach(x -> print(x));", "int x = list.get(0);"),
+    ("comprehensions", "list.stream().map(x -> x);", "list.size();"),
+    ("concurrency", "Thread t = new Thread(runnable);", "Threading.configure();"),
+    ("debug_prints", 'System.out.println("debug");', "System.out.write(bytes);"),
+    ("decorators", "@Override", 'final String email = "user@example.com";'),
+    ("dependency_injection", "@Autowired\nprivate Foo foo;", "@Deprecated\npublic void foo() {}"),
+    ("doc", "/** A doc comment */", "/* A regular block comment */"),
+    ("encapsulation", "private int x;", "public int x;"),
+    ("events", "ApplicationEvent event = new FooEvent();", "CustomEvent event = new FooEvent();"),
+    ("explicit_casts", "(String) obj", "int result = (x + y);"),
+    ("fragile_debt", "// HACK: workaround", "// HACKATHON: team building event"),
+    ("func_start", "public void foo() {", "public class Foo {"),
+    ("generics", "List<String> names;", "a < 5 && b > 3;"),
+    ("globals", 'public static final String FOO = "bar";', "private int x = 5;"),
+    ("high_risk_execution", "System.exit(1);", "long now = System.currentTimeMillis();"),
+    ("immutability_locks", "final int x = 5;", "protected void finalize() {}"),
+    ("import", "import java.util.List;", "// import java.util.List;"),
+    ("io", "File f = new File(path);", "String path = getPath();"),
+    ("ipc_rpc_bridges", "ProcessBuilder pb = new ProcessBuilder();", "KafkaConsumer consumer = new KafkaConsumer();"),
+    ("listeners", "button.addEventListener(handler);", "button.removeEventListener(handler);"),
+    ("memory_alloc", "Arena arena = Arena.ofConfined();", "MemorySegment seg = allocator.allocate(8);"),
+    ("ownership", "@author Jane Doe", "// Written by Jane Doe"),
+    ("panics_and_aborts", 'throw new RuntimeException("err");', "throwable.printStackTrace();"),
+    ("planned_debt", "// TODO: refactor", "// TODONE: already implemented"),
+    ("pointers", "MemorySegment segment = arena.allocate(8);", "MemoryMappedFile mmf = open(path);"),
+    ("reflection_metaprogramming", 'Class.forName("Foo");', "Class<?> clazz = obj.getClass();"),
+    ("regex_execution", "Pattern.compile(regex);", "Pattern.quote(regex);"),
+    ("safety", "try { risky(); } catch (Exception e) {}", "result = compute();"),
+    ("safety_bypasses", "Object x = null;", "Object x = getValue();"),
+    ("scientific", "Math.sqrt(4);", "double result = compute();"),
+    (
+        "serialization_parsing",
+        "ObjectMapper mapper = new ObjectMapper();",
+        "ObjectOutputStream oos = new ObjectOutputStream(fos);",
+    ),
+    ("spec_exposure", "// [SPEC-123] implements the contract", "// see the spec sheet for details"),
+    ("ssr_boundaries", "ModelAndView mav = new ModelAndView();", "HttpServletContext ctx = getContext();"),
+    ("state_mutation", "this.count = 5;", "System.out.println(count);"),
+    ("structural_boundaries", "import java.util.List;", "importedCount = 5;"),
+    ("sync_locks", "synchronized (lock) { }", "unlocked = true;"),
+    ("telemetry", 'logger.info("message");', "logger.setLevel(Level.INFO);"),
+    ("test", "@Test\npublic void testFoo() {}", "public void testFoo() {}"),
+    ("test_skip", "@Disabled", "@Deprecated"),
+    ("thread_sleeps", "Thread.sleep(1000);", "Thread.currentThread();"),
+    ("time_date_logic", "LocalDate.now();", "OffsetDateTime odt = OffsetDateTime.now();"),
+    ("ui_framework", "JFrame frame = new JFrame();", "JTable table = new JTable();"),
+    ("dead_code", "// public void foo() {}", "// just a note"),
 ]
 
 
@@ -291,14 +295,14 @@ def test_java_test_vs_regex_execution_no_false_collision():
     assert regex_pattern.search("str.matches(regex)")
     assert not test_pattern.search("str.matches(regex)"), "test incorrectly matched a regex method call"
 
+
 _JAVA_DEEP_CASES = [
     # --- branch ---
-    ("branch", "if(x) {", "String shift = \"yes\";"),
+    ("branch", "if(x) {", 'String shift = "yes";'),
     ("branch", "for (int i=0;i<10;i++)", "int form = 1;"),
     ("branch", "yield value;", "yields_value();"),
     ("branch", "when (true)", "whence();"),
     ("branch", "catch(Exception e)", "catch_it();"),
-
     # --- args ---
     ("args", "public void foo( @NonNull int x, String y) {", "foo(x, y);"),
     ("args", "@Override public <T extends List<String>> void genericMethod(T x) {", "genericMethod(x);"),
@@ -307,35 +311,37 @@ _JAVA_DEEP_CASES = [
     ("args", "(int x, int y) -> x + y", "int x = y - z;"),
     ("args", "String::toLowerCase", "String toLowerCase;"),
     ("args", "public <T, U extends Comparable<U>> void multiGeneric(T a, U b) {", "return multiGeneric(a, b);"),
-
     # --- func_start ---
     ("func_start", "public void myFunc(int a) {", "new MyObject();"),
     ("func_start", "public static <T extends Comparable<T>> T genericFunc() {", "return genericFunc();"),
     ("func_start", "Map<String, List<Integer>> getComplexData() {", "return getComplexData();"),
-    ("func_start", "@Annotation(value = \"x\")\npublic void annotatedFunc() {", "return annotatedFunc();"),
+    ("func_start", '@Annotation(value = "x")\npublic void annotatedFunc() {', "return annotatedFunc();"),
     ("func_start", "public java.util.List<String> fullyQualifiedReturn() {", "return fullyQualifiedReturn();"),
     ("func_start", "public <T, U extends Comparable<U>> T multiGeneric(T a, U b) {", "return multiGeneric(a, b);"),
     ("func_start", "public int[] returnArray() {", "return returnArray();"),
     ("func_start", "public Map.Entry<K, V> returnEntry() {", "return returnEntry();"),
-    ("func_start", "@SuppressWarnings(\"unchecked\") public void foo() {", "return foo();"),
+    ("func_start", '@SuppressWarnings("unchecked") public void foo() {', "return foo();"),
     ("func_start", "public void\nweirdSpacing() {", "return weirdSpacing();"),
-
     # --- class_start ---
     ("class_start", "public abstract class AbstractNode {", "AbstractNode node = new AbstractNode();"),
     ("class_start", "public sealed interface Expr permits Add, Mul {", "Expr expr = new Expr();"),
     ("class_start", "record Point(int x, int y) {}", "new Point(1, 2);"),
-    ("class_start", "class Node<T extends Comparable<T>> extends BaseNode<T> implements Cloneable {", "Node<String> node;"),
+    (
+        "class_start",
+        "class Node<T extends Comparable<T>> extends BaseNode<T> implements Cloneable {",
+        "Node<String> node;",
+    ),
     ("class_start", "enum Color { RED, GREEN }", "Color.RED;"),
     ("class_start", "public class MultiGeneric<T, U extends Comparable<U>> {", "MultiGeneric<String, Integer> mg;"),
-    ("class_start", "@Entity @Table(name = \"users\")\npublic class User {", "User user = new User();"),
-
+    ("class_start", '@Entity @Table(name = "users")\npublic class User {', "User user = new User();"),
     # --- structural_boundaries ---
     ("structural_boundaries", "public sealed interface Foo permits Bar {", "permitted = true;"),
-    ("structural_boundaries", "module com.example.foo {", "module_name = \"foo\";"),
+    ("structural_boundaries", "module com.example.foo {", 'module_name = "foo";'),
     ("structural_boundaries", "requires java.base;", "required = true;"),
     ("structural_boundaries", "exports com.example.api;", "exported = true;"),
     ("structural_boundaries", "provides com.example.Service with com.example.ServiceImpl;", "provided = true;"),
 ]
+
 
 @pytest.mark.parametrize("signature,positive,negative", _JAVA_DEEP_CASES)
 def test_java_signature_deep_cases(signature, positive, negative):
@@ -346,3 +352,36 @@ def test_java_signature_deep_cases(signature, positive, negative):
         assert not pattern.search(negative), (
             f"java {signature!r} incorrectly matched an excluded/negative deep case: {negative!r}"
         )
+
+
+def test_java_doc_block_counts_once_regression():
+    """
+    #2672: `/\\*\\*` and its tags (`@param`, `@return`, ...) were independent
+    alternatives, so one javadoc block counted doc=2 (one for the opener,
+    one per tag inside it) -- the #2658 shape. Pair the block into a single
+    bounded (0,15000 chars) non-greedy span so it counts once, regardless of
+    how many tags it carries.
+    """
+    doc = JAVA_RULES["doc"]
+
+    block = "/**\n * @param argv probe input\n * @return nothing\n */\n"
+    assert len(doc.findall(block)) == 1, "a single javadoc block must count once, not once per tag"
+
+    two_blocks = "/**\n * @param argv probe input\n */\npublic void f() {}\n/**\n * @return again\n */\n"
+    assert len(doc.findall(two_blocks)) == 2, "two separate javadoc blocks must still count as 2"
+
+
+def test_java_doc_bare_tag_outside_block_still_counts_regression():
+    """
+    #2672: a real annotation like `@Operation`/`@Schema` living in code (not
+    inside a `/** */` javadoc block) must still count -- the bare-tag
+    alternatives are unchanged and stay last in the alternation.
+    """
+    doc = JAVA_RULES["doc"]
+    assert doc.search('@Operation(summary = "does a thing")')
+    assert doc.search('@Schema(description = "x")')
+
+
+def test_java_doc_block_redos_immune_regression():
+    """#2672 ReDoS probe: an unterminated `/**` must fail closed quickly, not hang."""
+    assert_redos_immune(JAVA_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)

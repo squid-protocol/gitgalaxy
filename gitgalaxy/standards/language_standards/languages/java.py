@@ -221,8 +221,15 @@ DEFINITION: dict[str, Any] = {
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"//[ \t]*(?:public|private|protected|class|void|if|for|while|return|import)\b"),
         # 13. doc (Structured Documentation)
+        # BUG FIX #2672: `/\*\*` and its tags (`@param`, `@return`, ...) were
+        # independent alternatives, so one javadoc block counted doc=2 (one
+        # for the opener, one for each tag inside it). Match the whole block
+        # as a single bounded (0,15000 chars) non-greedy span first, same
+        # shape as #2658's docstring fix, so a block counts once. Bare tags
+        # stay last so a tag outside any javadoc block (e.g. a real
+        # `@Operation`/`@Schema` annotation) still counts.
         "doc": re.compile(
-            r"/\*\*|@param|@return|@throws|@deprecated|@see|@since|@apiNote|@implSpec|@Operation|@Schema"
+            r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see|@since|@apiNote|@implSpec|@Operation|@Schema"
         ),
         # 14. test (Testing & Assertions)
         "test": re.compile(

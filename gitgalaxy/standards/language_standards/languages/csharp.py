@@ -304,7 +304,14 @@ DEFINITION: dict[str, Any] = {
             r"(?://|/\*)[ \t]*(?:public|private|protected|internal|class|void|if|for|foreach|while|return|using)\b"
         ),
         # 13. doc (Structured Documentation)
-        "doc": re.compile(r"///|///\s*<summary>|///\s*<param|///\s*<returns>|///\s*<remarks>"),
+        # BUG FIX #2672: apply the family-wide line-marker fix (#2658
+        # shape) so `///` swallows the rest of its line as one hit. The
+        # more specific `///\s*<summary>` etc. alternatives already require
+        # the `///` prefix (they are not independent bare tags), so this
+        # was never a double-count vector here -- no corpus or behavior
+        # change; a run of consecutive `///` lines still counts once per
+        # line (unchanged, explicit non-goal).
+        "doc": re.compile(r"///[^\n]*|///\s*<summary>|///\s*<param|///\s*<returns>|///\s*<remarks>"),
         # 14. test (Testing & Assertions)
         # BUG FIX: `Should\(\)` (FluentAssertions) ends on `)`
         # (non-word), so the shared trailing \b could never fire --

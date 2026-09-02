@@ -199,7 +199,17 @@ DEFINITION: dict[str, Any] = {
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"(?://|/\*)[ \t]*(?:if|for|while|struct|union|enum|void|int|return)\b"),
         # 13. doc (Structured Documentation)
-        "doc": re.compile(r"///|/\*\*|@param|@return|@brief|@details|\\param|\\return|\\brief|\\details"),
+        # BUG FIX #2672: `/**`, `///` and the Doxygen tags (`@param`,
+        # `\param`, ...) were independent alternatives, so one Doxygen
+        # comment counted doc proportional to its tag density. Block form
+        # first (bounded 0,15000 chars non-greedy span, the #2658 shape),
+        # then the line-marker form so `/// @param x` is one hit per line,
+        # not two; bare tags stay last so a tag outside any doc comment
+        # still counts. No corpus movement -- the rosetta corpus only
+        # plants one of {marker, tag} for this language.
+        "doc": re.compile(
+            r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@param|@return|@brief|@details|\\param|\\return|\\brief|\\details"
+        ),
         # 14. test (Testing & Assertions)
         "test": re.compile(
             r"\b(?:TEST|TEST_F|TEST_CASE|CU_ASSERT|RUN_TEST|EXPECT_[A-Z_]+|ASSERT_[A-Z_]+)\b|\bassert\s*\("

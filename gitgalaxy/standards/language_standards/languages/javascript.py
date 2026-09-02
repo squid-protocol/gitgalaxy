@@ -221,7 +221,14 @@ DEFINITION: dict[str, Any] = {
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"//[ \t]*(?:if|for|while|function|class|return|var|const|let|import)\b"),
         # 13. doc (Structured Documentation)
-        "doc": re.compile(r"/\*\*|@param|@return|@throws|@deprecated|@typedef|@type|@template"),
+        # BUG FIX #2672: `/**` and the JSDoc tags (`@param`, `@return`, ...)
+        # were independent alternatives, so one JSDoc block counted doc
+        # proportional to its tag density. Block form first (bounded
+        # 0,15000 chars non-greedy span, the #2658 shape); bare tags stay
+        # last so a tag outside any doc block still counts. No corpus
+        # movement -- the rosetta corpus only plants one of {marker, tag}
+        # for this language.
+        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template"),
         # 14. test (Testing & Assertions)
         # (?<!\.) on the it|test alternation: TypeScript's near-identical rule
         # already carries this guard so `myRegex.test('x')` (a regex method

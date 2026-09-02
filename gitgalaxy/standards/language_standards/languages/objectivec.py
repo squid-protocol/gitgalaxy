@@ -214,7 +214,18 @@ DEFINITION: dict[str, Any] = {
             r"//[ \t]*(?:@interface|@implementation|\[|if|NSLog|- \()|/\*[ \t]*(?:@interface|@implementation|\[|if|NSLog|- \()"
         ),
         # 13. doc: Structured Documentation. Structured documentation (Includes NeXT style).
-        "doc": re.compile(r"/\*\*|///|/\*!|@param|@return|@brief|@discussion"),
+        # BUG FIX #2672: `/**`/`/*!`, `///` and the doc tags (`@param`,
+        # `@brief`, ...) were independent alternatives, so one doc comment
+        # counted doc proportional to its tag density. Block form first for
+        # both the standard and NeXT-style (`/*!`) openers (bounded
+        # 0,15000 chars non-greedy span, the #2658 shape), then the
+        # line-marker form so `/// @param x` is one hit per line, not two;
+        # bare tags stay last so a tag outside any doc comment still
+        # counts. No corpus movement -- the rosetta corpus only plants one
+        # of {marker, tag} for this language.
+        "doc": re.compile(
+            r"/\*\*[\s\S]{0,15000}?\*/|/\*![\s\S]{0,15000}?\*/|///[^\n]*|@param|@return|@brief|@discussion"
+        ),
         # 14. test: Testing & Assertions. Unit testing framework markers (OCUnit/XCTest).
         "test": re.compile(
             r"\b(XCTest|XCTestCase|XCTAssert[A-Za-z]*|SenTestCase|STAssert[A-Za-z]*)\b|\b(?:setUp|tearDown)\s*\("

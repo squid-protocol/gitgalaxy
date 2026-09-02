@@ -9,6 +9,16 @@ from pathlib import Path
 from typing import Any, Optional
 
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+# #2540: languages whose import/module references resolve case-insensitively
+# (fortran `USE A` binds a.f90, cobol `COPY A.` binds a.cpy, haskell's
+# necessarily-capitalized `import A` may live in a.hs). Declared per-language
+# via the "case_insensitive_imports" flag on each language DEFINITION;
+# resolution for every other language stays strictly case-sensitive.
+CASE_INSENSITIVE_IMPORT_LANGS = frozenset(
+    lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("case_insensitive_imports")
+)
 
 HAS_NETWORKX = False
 try:
@@ -57,12 +67,40 @@ class NetworkRiskSensor:
 
         return resolution_map
 
-    def _resolve_target(self, target_token: str, resolution_map: dict[str, list[str]], curr_path: str) -> Optional[str]:
+    def _build_folded_resolution_map(self, resolution_map: dict[str, list[str]]) -> dict[str, list[str]]:
+        """
+        #2540: derives a lowercase-keyed view of the resolution map so
+        imports from case-insensitive-resolution languages (fortran, cobol,
+        haskell — see CASE_INSENSITIVE_IMPORT_LANGS) can fall back to a
+        case-folded lookup. Kept separate from the exact-case map so
+        case-sensitive languages never gain cross-case resolution, and so
+        exact-case matches always win first even for the folding languages.
+        """
+        folded_map: dict[str, list[str]] = defaultdict(list)
+        for key, paths in resolution_map.items():
+            folded_map[key.lower()].extend(paths)
+        return folded_map
+
+    def _resolve_target(
+        self,
+        target_token: str,
+        resolution_map: dict[str, list[str]],
+        curr_path: str,
+        folded_map: Optional[dict[str, list[str]]] = None,
+        fold: bool = False,
+    ) -> Optional[str]:
         """
         Resolves an import token to a single file path, refusing to guess when
         genuinely ambiguous rather than silently misattributing an edge.
+
+        When `fold` is True (the importing file's language resolves imports
+        case-insensitively, #2540) and no exact-case key matches, the lookup
+        retries against `folded_map` with a lowercased token. Exact matches
+        always win first, so mixed-case repos keep their precise edges.
         """
         token_as_path = target_token.replace(".", "/").replace("\\", "/")
+        bare_component = token_as_path.rsplit("/", 1)[-1]
+        folded_hit = False
 
         # Stage 1: direct key lookup — handles full-path, bare-filename, and
         # bare-stem tokens that match a stored key exactly.
@@ -74,8 +112,17 @@ class NetworkRiskSensor:
         # token's final path component so there's something to disambiguate
         # against in Stage 2.
         if not candidates:
-            bare_component = token_as_path.rsplit("/", 1)[-1]
             candidates = resolution_map.get(bare_component)
+
+        # Stage 1c (#2540): case-insensitive-resolution languages retry the
+        # same two lookups case-folded, only after both exact-case stages
+        # miss — fortran `USE A` -> a.f90, cobol `COPY A.` -> a.cpy,
+        # haskell `import A` -> a.hs.
+        if not candidates and fold and folded_map is not None:
+            folded_hit = True
+            candidates = folded_map.get(target_token.lower())
+            if not candidates:
+                candidates = folded_map.get(bare_component.lower())
 
         if not candidates:
             return None
@@ -86,9 +133,17 @@ class NetworkRiskSensor:
 
         # Stage 2: multiple files share this name/stem — disambiguate using
         # any path context already present in the token, comparing against
-        # each candidate's path with its extension stripped.
+        # each candidate's path with its extension stripped. A case-folded
+        # hit compares case-folded here too, for consistency with Stage 1c.
+        cmp_token = token_as_path.lower() if folded_hit else token_as_path
         path_matches = [
-            c for c in candidates if str(Path(c).with_suffix("")).replace("\\", "/").endswith(token_as_path)
+            c
+            for c in candidates
+            if (
+                str(Path(c).with_suffix("")).replace("\\", "/").lower()
+                if folded_hit
+                else str(Path(c).with_suffix("")).replace("\\", "/")
+            ).endswith(cmp_token)
         ]
         if len(path_matches) == 1:
             return path_matches[0]
@@ -99,6 +154,11 @@ class NetworkRiskSensor:
             f"files {candidates}; skipping edge from '{curr_path}'."
         )
         return None
+
+    @staticmethod
+    def _folds_case(f: dict[str, Any]) -> bool:
+        """#2540: does this file's language resolve import targets case-insensitively?"""
+        return str(f.get("lang_id", "")).lower() in CASE_INSENSITIVE_IMPORT_LANGS
 
     def extract_test_coverage_mapping(self, files: list[dict[str, Any]]) -> dict[str, dict[str, list[dict[str, Any]]]]:
         """
@@ -111,6 +171,7 @@ class NetworkRiskSensor:
         """
         coverage_map: dict[str, dict[str, list[dict[str, Any]]]] = {}
         resolution_map = self._build_resolution_map(files)
+        folded_map = self._build_folded_resolution_map(resolution_map)
 
         # 2. Identify Test Files and extract their outgoing invocations
         for f in files:
@@ -126,7 +187,9 @@ class NetworkRiskSensor:
             target_paths = set()
             for imp in f.get("raw_imports", []):
                 target_token = imp[0] if isinstance(imp, tuple) and len(imp) == 2 else imp
-                target_path = self._resolve_target(target_token, resolution_map, path)
+                target_path = self._resolve_target(
+                    target_token, resolution_map, path, folded_map=folded_map, fold=self._folds_case(f)
+                )
 
                 if target_path and target_path != path:
                     target_paths.add(target_path)
@@ -174,6 +237,7 @@ class NetworkRiskSensor:
 
         # 1. Build the Resolution Map (Fast Path Lookup)
         resolution_map = self._build_resolution_map(parsed_files)
+        folded_map = self._build_folded_resolution_map(resolution_map)
         for f in parsed_files:
             path = f.get("path", "")
 
@@ -196,7 +260,9 @@ class NetworkRiskSensor:
                     target_token = imp
                     entity = None
 
-                target_path = self._resolve_target(target_token, resolution_map, curr_path)
+                target_path = self._resolve_target(
+                    target_token, resolution_map, curr_path, folded_map=folded_map, fold=self._folds_case(f)
+                )
                 if target_path and target_path != curr_path:
                     # Edge weight can be increased if specific entities are highly coupled
                     weight = 1.5 if entity else 1.0
@@ -382,6 +448,7 @@ class NetworkRiskSensor:
         )
 
         resolution_map = self._build_resolution_map(parsed_files)
+        folded_map = self._build_folded_resolution_map(resolution_map)
 
         in_degrees = {f.get("path", ""): 0 for f in parsed_files}
         out_degrees = {f.get("path", ""): 0 for f in parsed_files}
@@ -390,7 +457,9 @@ class NetworkRiskSensor:
             curr_path = f.get("path", "")
             for imp in f.get("raw_imports", []):
                 target_token = imp[0] if isinstance(imp, tuple) and len(imp) == 2 else imp
-                target_path = self._resolve_target(target_token, resolution_map, curr_path)
+                target_path = self._resolve_target(
+                    target_token, resolution_map, curr_path, folded_map=folded_map, fold=self._folds_case(f)
+                )
                 if target_path and target_path != curr_path:
                     out_degrees[curr_path] = out_degrees.get(curr_path, 0) + 1
                     in_degrees[target_path] = in_degrees.get(target_path, 0) + 1

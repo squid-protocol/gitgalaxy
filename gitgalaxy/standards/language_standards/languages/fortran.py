@@ -50,6 +50,12 @@ DEFINITION: dict[str, Any] = {
     # UPGRADED: Maps to Family 7 (The Positional Ancients)
     # Rationale: Fixed-format requires Column 1 monitoring ('C' or '*'); Free-format uses '!'.
     "lexical_family": "positional_anchored",
+    # #2540: Fortran resolves module names case-insensitively (`USE A` and
+    # `use a` both bind module a). The dependency DAG's import-token ->
+    # file lookup (network_risk_sensor.py) must case-fold for this
+    # language or uppercase legacy style (`USE A`) never resolves to
+    # `a.f90` and the whole import chain goes invisible.
+    "case_insensitive_imports": True,
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)

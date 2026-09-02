@@ -710,3 +710,34 @@ def test_network_case_fold_fallback_mode(sensor, case_fold_universe):
         assert a_f90["telemetry"]["network_metrics"]["in_degree"] == 1
         a_cpy = next(f for f in mapped_files if f["path"] == "/cbl/payroll.cpy")
         assert a_cpy["telemetry"]["network_metrics"]["in_degree"] == 1
+
+
+# ==============================================================================
+# TEST 19: THE FOLD NEVER INVENTS A CROSS-LANGUAGE EDGE (#2540)
+# ==============================================================================
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_network_fold_does_not_cross_language_resolve(sensor):
+    """
+    Found by the crucible corpus during the #2540 re-bless: haskell's
+    `import Text.Pandoc.Generic` case-folded onto go's generic.go purely on
+    a stem collision. Folding is a property of the importing language's own
+    resolution rules, so the folded fallback only sees that language's files
+    -- while a same-language fold in the same universe still resolves.
+    """
+    files = [
+        {"path": "/go/generic.go", "lang_id": "go", "raw_imports": []},
+        {"path": "/hs/pandoc.hs", "lang_id": "haskell", "raw_imports": ["Text.Pandoc.Generic"]},
+        {"path": "/hs/writer.hs", "lang_id": "haskell", "raw_imports": []},
+        {"path": "/hs/Main.hs", "lang_id": "haskell", "raw_imports": ["Writer"]},
+    ]
+
+    mapped_files, _ = sensor.build_dependency_graph(files)
+
+    generic_go = next(f for f in mapped_files if f["path"] == "/go/generic.go")
+    assert generic_go["telemetry"]["network_metrics"]["in_degree"] == 0, (
+        "haskell import must not fold onto a go file on a stem collision!"
+    )
+    writer_hs = next(f for f in mapped_files if f["path"] == "/hs/writer.hs")
+    assert writer_hs["telemetry"]["network_metrics"]["in_degree"] == 1, (
+        "Same-language folded resolution must still work alongside the guard."
+    )

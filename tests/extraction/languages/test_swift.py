@@ -241,6 +241,9 @@ DEPENDENCY_CASES: dict[str, Any] = {
     ],
     "invalid": [
         "var importData = true",
+        # #2543 follow-up: relaxing the module-name tail to `*` (so `import a` captures)
+        # must not go so far that a bare `import` with no module name matches at all.
+        "import",
     ],
     "pathological": [
         (
@@ -268,3 +271,10 @@ def test_swift_dependency_capture_pathological(payload, expected_path):
     assert_pathological_dependency_match(
         SWIFT_RULES["_dependency_capture"], payload, expected_path, "swift._dependency_capture"
     )
+
+
+def test_swift_dependency_capture_redos_immunity():
+    # The dotted-module tail `[\w.]*` is the one unbounded quantifier in this rule, so it is
+    # the part worth pinning: a long `a.a.a...` module path must stay linear. func_start and
+    # args already have this coverage; _dependency_capture did not.
+    assert_redos_immune(SWIFT_RULES["_dependency_capture"], "import " + "a." * 50000, timeout_sec=3.0)

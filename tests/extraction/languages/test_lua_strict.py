@@ -221,3 +221,19 @@ def test_lua_redos_immunity_sweep():
     ratios) before writing this as a permanent regression pin.
     """
     assert_redos_immune(LUA_RULES["args"], "function foo(" + "(" * 100000, timeout_sec=3.0)
+
+
+def test_lua_api_module_return_column_anchored_regression():
+    """
+    #2657: the api rule's `return M`-at-EOF module-export idiom used a
+    `^[ \t]*` (any-indentation) anchor, so an ordinary indented `return x`
+    inside a function body false-positived as a module export (rosetta
+    corpus: risk_api_exposure +110%). Anchored to true column 0.
+    """
+    api = LUA_RULES["api"]
+
+    assert not api.search("    return x"), "indented function-body return must NOT count as api"
+    assert not api.search("\treturn value"), "tab-indented function-body return must NOT count as api"
+
+    assert api.search("return M"), "column-0 module-final return must still count as api"
+    assert api.search("return MyModule"), "column-0 module-final return (named module) must still count as api"

@@ -84,7 +84,13 @@ DEFINITION: dict[str, Any] = {
             r"function\s+(\w*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
             r"(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[^=;{]*=>|"
             r"([a-zA-Z_$][\w$]{0,100})[ \t]*=>|"
-            r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t]+){0,4}(?:async[ \t]+)?(?:\*[ \t]*)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|yield|await|void)\b)(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))",
+            # #2539: `with` excluded CONDITIONALLY (only when followed by whitespace
+            # then `(` -- the `with (shape) {` statement shape) rather than added to
+            # the unconditional keyword list: `with` is a real, prominent method name
+            # in modern code (`Array.prototype.with` ES2023, Temporal's `.with()`),
+            # and formatters never put a space before a method definition's paren --
+            # same discriminator func_start's #2276 catch/return/throw fix uses.
+            r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t]+){0,4}(?:async[ \t]+)?(?:\*[ \t]*)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|yield|await|void)\b|with\b[ \t\n]+\()(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))",
             re.M,
         ),
         # 3. linear (Sequential Boundaries)
@@ -338,7 +344,12 @@ DEFINITION: dict[str, Any] = {
             # testing that `} catch (e) {` still correctly does NOT
             # match, while `catch<TResult = never>(...)` and
             # `return: () => {...}` now do.
-            r"(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
+            # #2539: `with` joined the CONDITIONAL exclusion group -- `with (shape) {`
+            # (a statement, always spaced) must not count as a method, but a real
+            # method/signature named `with` (`Array.prototype.with` ES2023,
+            # Temporal's `.with()` -- ubiquitous in `.d.ts`) never has that space,
+            # exactly the discriminator this group already relies on.
+            r"(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw|with)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}\()"
             r"|"
             # BUG FIX (R3): The arrow-value (Branch 5 / standalone value) branch
             # is known to fail on mid-statement function values (e.g. `const a = b || () => {}`)
@@ -418,7 +429,8 @@ DEFINITION: dict[str, Any] = {
             # `[^<>=]` vs `<`), so still linear (Rule 11). The mandatory
             # `:Type;` / `{` terminator below keeps a bare generic call
             # statement (`useCallback<() => void>(cb);`) from matching.
-            r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void|constructor)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:=>|=(?!>)|[^<>=]|<(?:=>|=(?!>)|[^<>=])*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
+            # #2539: same conditional `with` exclusion as Branch A -- see its comment.
+            r"(?:^[ \t]*|(?<=[,{])[ \t\n]*)(?!(?:class|interface|enum|if|for|while|switch|new|typeof|jQuery|function|yield|await|void|constructor)\b|type\b(?![ \t\n]*\()|\$|(?:catch|return|throw|with)\b[ \t\n]+(?:\(|<))(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?=\??[ \t\n]{0,50}(?:<(?:=>|=(?!>)|[^<>=]|<(?:=>|=(?!>)|[^<>=])*>)*>)?[ \t\n]{0,50}\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\)[ \t\n]{0,50}(?:(?::[^{;]{0,200})?[ \t\n]{0,50}(?:=>[ \t\n]{0,50})?\{|:[^{;]{0,200}[ \t\n]{0,50};))"
             r")",
             re.M,
         ),

@@ -80,6 +80,8 @@ FUNCTION_CASES: dict[str, Any] = {
         "typeof TargetFunc",  # typeof lookalike
         "if ((TargetFunc = compute()) !== null) {",  # assignment-in-condition lookalike
         "class Foo {\n  [Symbol.iterator]() {}\n}",  # computed method name, out of scope
+        "with (shape) {",  # #2539: sloppy-mode with-statement lookalike
+        "  with (document.forms[0]) {",  # #2539: indented with-statement
     ],
     "pathological": [
         (
@@ -181,6 +183,37 @@ def test_javascript_func_start_bare_call_site_identifier_no_longer_matches():
     assert not func_start.search(swap_block), "the inline function in the arguments prevents match"
 
 
+def test_javascript_with_statement_not_counted_as_function_regression():
+    """
+    Regression test for issue #2539: the sloppy-mode `with (shape) {`
+    statement has the exact `keyword (...) {` shape func_start's and args'
+    class-method branches match, and `with` was missing from both branches'
+    control-flow exclusion lists (`if|for|while|switch|catch|return`), so
+    every with-statement was counted as a function/method named `with`.
+
+    Also documents the #2539 audit of the OTHER block-statement keywords:
+    `do` cannot be caught the same way (`do {` puts no parens between the
+    keyword and the block, and its trailing `while (cond);` is already
+    excluded), and if/for/while/switch/catch were already in both lists --
+    `with` was the only offender.
+    """
+    func_start = JS_RULES["func_start"]
+    args = JS_RULES["args"]
+    with_block = "function render(shape) {\n  with (shape) {\n    draw(x, y);\n  }\n}"
+
+    for match in func_start.finditer(with_block):
+        assert "with" not in match.group(0), f"with-statement counted as func_start: {match.group(0)!r}"
+    assert func_start.search(with_block), "sanity: the real enclosing function must still count"
+
+    assert not args.search("with (shape) {"), "with-statement counted as args"
+    assert args.search("function render(shape) {"), "sanity: a real signature's args must still count"
+
+    # `do { ... } while (cond);` -- verified NOT catchable by this bug class.
+    do_block = "do {\n  poll();\n} while (pending);"
+    assert not func_start.search(do_block), "do/while must not count as func_start"
+    assert not args.search(do_block), "do/while must not count as args"
+
+
 def test_javascript_func_start_string_literal_lookalike_still_matches_at_regex_level():
     """
     Documents a known, NOT-fixed limitation: func_start's own regex has no
@@ -221,6 +254,7 @@ ARGS_CASES: dict[str, Any] = {
     "invalid": [
         "TargetFunc(req, res)",
         "while (i < 10) {",
+        "with (shape) {",  # #2539: sloppy-mode with-statement lookalike
     ],
     "pathological": [
         (

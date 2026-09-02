@@ -359,6 +359,130 @@ def test_record_keeper_persists_doc_loc(keeper, mock_pipeline_state, tmp_path):
     assert row["total_loc"] - row["coding_loc"] == 50
 
 
+# ==============================================================================
+# #2536: RAW PRE-ADJUSTMENT HIT_VECTOR PERSISTENCE
+# galaxyscope.py's Contextual Baseline Fix folds orphaned_logic into api for
+# any imported file BEFORE the hit_vector is built, so arch_api /
+# state_slop_orphans only ever carry the adjusted values. The raw
+# pre-adjustment counts must round-trip via file_data["raw_pre_adjustment"]
+# into the additive raw_arch_api / raw_state_slop_orphans columns.
+# ==============================================================================
+@pytest.fixture
+def baseline_keeper():
+    """RecordKeeper whose signal schema contains the two keys the Contextual
+    Baseline Fix rewrites, so both the adjusted columns and the raw columns
+    are observable side by side."""
+    mock_schemas = {
+        "RISK_SCHEMA": ["tech_debt"],
+        "SIGNAL_SCHEMA": ["api", "orphaned_logic"],
+    }
+    with patch("gitgalaxy.recorders.record_keeper.RECORDING_SCHEMAS", mock_schemas):
+        return RecordKeeper()
+
+
+def _baseline_state(hit_vector, raw_pre_adjustment):
+    """Minimal pipeline state for the baseline_keeper's 2-signal schema."""
+    file_entry = {
+        "path": "src/lib.py",
+        "lang_id": "python",
+        "risk_vector": [0.0],
+        "hit_vector": hit_vector,
+    }
+    if raw_pre_adjustment is not None:
+        file_entry["raw_pre_adjustment"] = raw_pre_adjustment
+    session = {
+        "target": "TestProject",
+        "git_audit": {"commit_hash": "a1b2c3d4", "latest_commit_date": "2026-06-18T10:00:00Z"},
+    }
+    return [file_entry], [], {}, session
+
+
+def _fetch_raw_row(db_path):
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT arch_api, state_slop_orphans, raw_arch_api, raw_state_slop_orphans FROM file_data"
+    ).fetchone()
+    conn.close()
+    return row
+
+
+def test_raw_columns_persist_pre_adjustment_values(baseline_keeper, tmp_path):
+    """An imported file with uncalled defs: the Contextual Baseline Fix folded
+    raw orphaned_logic=3 into api (2 -> 5), so the adjusted hit_vector is
+    [5, 0] -- but the raw snapshot must survive verbatim, with the invariant
+    adjusted api == raw_api + raw_orphaned_logic."""
+    db_path = tmp_path / "test_raw_adjusted.sqlite"
+    parsed, unparsable, summary, session = _baseline_state(
+        hit_vector=[5, 0], raw_pre_adjustment={"api": 2, "orphaned_logic": 3}
+    )
+
+    baseline_keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    row = _fetch_raw_row(db_path)
+    assert row["arch_api"] == 5, "Adjusted api must persist unchanged (no behavior change to scoring)"
+    assert row["state_slop_orphans"] == 0, "Adjusted orphaned_logic must persist unchanged"
+    assert row["raw_arch_api"] == 2, "Raw pre-adjustment api was not preserved"
+    assert row["raw_state_slop_orphans"] == 3, "Raw pre-adjustment orphaned_logic was not preserved"
+    assert row["arch_api"] == row["raw_arch_api"] + row["raw_state_slop_orphans"], (
+        "Contextual Baseline Fix invariant broken: adjusted api must equal raw api + raw orphans"
+    )
+
+
+def test_raw_columns_equal_adjusted_for_untouched_file(baseline_keeper, tmp_path):
+    """An un-imported file (popularity == 0) never gets adjusted -- galaxyscope
+    still snapshots unconditionally, so raw == adjusted."""
+    db_path = tmp_path / "test_raw_untouched.sqlite"
+    parsed, unparsable, summary, session = _baseline_state(
+        hit_vector=[1, 4], raw_pre_adjustment={"api": 1, "orphaned_logic": 4}
+    )
+
+    baseline_keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    row = _fetch_raw_row(db_path)
+    assert row["raw_arch_api"] == row["arch_api"] == 1
+    assert row["raw_state_slop_orphans"] == row["state_slop_orphans"] == 4
+
+
+def test_raw_columns_fall_back_to_adjusted_without_snapshot(baseline_keeper, tmp_path):
+    """A producer that ships no raw_pre_adjustment (synthetic leak/model nodes)
+    must land raw == adjusted, never a fake zero."""
+    db_path = tmp_path / "test_raw_fallback.sqlite"
+    parsed, unparsable, summary, session = _baseline_state(hit_vector=[7, 2], raw_pre_adjustment=None)
+
+    baseline_keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    row = _fetch_raw_row(db_path)
+    assert row["raw_arch_api"] == 7, "Fallback must mirror the adjusted arch_api slot"
+    assert row["raw_state_slop_orphans"] == 2, "Fallback must mirror the adjusted state_slop_orphans slot"
+
+
+def test_raw_columns_migration_on_legacy_db(baseline_keeper, tmp_path):
+    """#2536: recording into a pre-raw-columns database must auto-heal the
+    schema (same doc_loc / is_zero_dependency_mode ALTER TABLE precedent)
+    instead of failing the INSERT with a column-count mismatch."""
+    db_path = tmp_path / "legacy_raw.sqlite"
+    parsed, unparsable, summary, session = _baseline_state(
+        hit_vector=[5, 0], raw_pre_adjustment={"api": 2, "orphaned_logic": 3}
+    )
+
+    # First mission builds the modern schema; drop both raw columns to
+    # simulate a legacy (pre-#2536) database.
+    baseline_keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+    conn = sqlite3.connect(db_path)
+    conn.execute("ALTER TABLE file_data DROP COLUMN raw_arch_api")
+    conn.execute("ALTER TABLE file_data DROP COLUMN raw_state_slop_orphans")
+    conn.commit()
+    conn.close()
+
+    # Second mission against the legacy-shaped DB must migrate and insert.
+    baseline_keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    row = _fetch_raw_row(db_path)
+    assert row["raw_arch_api"] == 2
+    assert row["raw_state_slop_orphans"] == 3
+
+
 def test_record_keeper_doc_loc_migration_on_legacy_db(keeper, mock_pipeline_state, tmp_path):
     """#2625: recording into a pre-doc_loc database must auto-heal the schema
     (same is_zero_dependency_mode ALTER TABLE precedent) instead of failing

@@ -307,6 +307,8 @@ class RecordKeeper:
                 appsec_god_mode BOOLEAN DEFAULT 0,
                 hallucination_zone BOOLEAN DEFAULT 0,
                 silent_mutation_risk BOOLEAN DEFAULT 0,
+                raw_arch_api INTEGER DEFAULT 0,
+                raw_state_slop_orphans INTEGER DEFAULT 0,
                 {", ".join(risk_cols)},
                 {", ".join(hit_cols)}
             )
@@ -368,6 +370,29 @@ class RecordKeeper:
             else:
                 raise
 
+        # #2536: galaxyscope.py's Contextual Baseline Fix folds orphaned_logic
+        # into api for any imported file BEFORE the hit_vector is built, so
+        # arch_api / state_slop_orphans only ever carry the ADJUSTED values.
+        # These two columns persist the raw pre-adjustment extraction counts
+        # alongside them (needed by the #1096 cross-language control corpus);
+        # for files the adjustment never touches, raw == adjusted. Same
+        # auto-heal precedent as doc_loc above for pre-#2536 databases.
+        try:
+            cursor.execute("ALTER TABLE file_data ADD COLUMN raw_arch_api INTEGER DEFAULT 0")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" in str(exc).lower():
+                self.logger.debug("Schema migration skipped: 'raw_arch_api' already exists.")
+            else:
+                raise
+
+        try:
+            cursor.execute("ALTER TABLE file_data ADD COLUMN raw_state_slop_orphans INTEGER DEFAULT 0")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" in str(exc).lower():
+                self.logger.debug("Schema migration skipped: 'raw_state_slop_orphans' already exists.")
+            else:
+                raise
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS excluded_artifacts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -405,6 +430,13 @@ class RecordKeeper:
 
         # PERFORMANCE OPTIMIZATION: Global array for batched executemany inserts
         all_func_rows = []
+
+        # #2536: hit_vector indexes for the two keys the Contextual Baseline
+        # Fix rewrites -- used to fall back to the adjusted values whenever a
+        # producer doesn't ship the raw snapshot (synthetic leak/model nodes),
+        # so raw == adjusted there rather than a fake zero.
+        api_sig_idx = self.SIGNAL_SCHEMA.index("api") if "api" in self.SIGNAL_SCHEMA else -1
+        orphan_sig_idx = self.SIGNAL_SCHEMA.index("orphaned_logic") if "orphaned_logic" in self.SIGNAL_SCHEMA else -1
 
         for file_data in parsed_files:
             tel = file_data.get("telemetry", {})
@@ -464,6 +496,16 @@ class RecordKeeper:
 
             rv = file_data.get("risk_vector", [0.0] * len(self.RISK_SCHEMA))
             hv = file_data.get("hit_vector", [0] * len(self.SIGNAL_SCHEMA))
+
+            # #2536: raw pre-adjustment extraction counts, snapshotted by
+            # galaxyscope.py BEFORE the Contextual Baseline Fix rewrites
+            # api/orphaned_logic. Absent snapshot -> fall back to the adjusted
+            # hit_vector slots (raw == adjusted).
+            raw_pre = file_data.get("raw_pre_adjustment", {})
+            adjusted_api = hv[api_sig_idx] if 0 <= api_sig_idx < len(hv) else 0
+            adjusted_orphans = hv[orphan_sig_idx] if 0 <= orphan_sig_idx < len(hv) else 0
+            raw_api = int(raw_pre.get("api", adjusted_api))
+            raw_orphans = int(raw_pre.get("orphaned_logic", adjusted_orphans))
 
             file_archetype = tel.get("archetype", "Unknown")
             file_fingerprint_str = json.dumps(tel.get("archetype_fingerprint", {}))
@@ -696,6 +738,8 @@ class RecordKeeper:
                 god_mode,
                 hallucination_zone,
                 silent_mutation,
+                raw_api,
+                raw_orphans,
             ]
 
             row_data.extend(rv)
@@ -723,6 +767,7 @@ class RecordKeeper:
                     ecosystem_baseline, repo_z_score,
                     ai_threat_score, is_malware, has_credentials, binary_anomaly, obfuscation_flag,
                     token_mass, financial_read_cost, agentic_isolation_risk, requires_hitl, appsec_god_mode, hallucination_zone, silent_mutation_risk,
+                    raw_arch_api, raw_state_slop_orphans,
                     {", ".join([f"risk_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
                     {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}
                 ) VALUES ({placeholders})

@@ -131,7 +131,7 @@ DEFINITION: dict[str, Any] = {
         "dead_code": re.compile(r"(?i)#[ \t]*(?:TCF|CCS|INDEX|BZF|BZN|CA|CS)\b"),
         # 13. doc (Structured Documentation)
         "doc": re.compile(
-            r"^#\s*(?:Page|MOD\s+(?:BY|NO)|FUNCTIONAL\s+DESCRIPTION|SUBROUTINE|PURPOSE|CALLING\s+SEQUENCE|AUTHOR|PROGRAM|REVISION)",
+            r"^#\s*(?:Page|MOD\s+(?:BY|NO)|FUNCTIONAL\s+DESCRIPTION|SUBROUTINE|PURPOSE|CALLING\s+SEQUENCE|PROGRAM|REVISION)",
             re.M | re.I,
         ),
         # 14. test (Testing & Assertions)

@@ -266,6 +266,44 @@ produced a false "zero diff" pass locally while CI correctly failed on real outp
 confirming which checkout its editable install actually resolves to
 (`python -c "import gitgalaxy; print(gitgalaxy.__file__)"` from inside that venv).
 
+**Scoping a bless: `crucible_check.py` shows you only a fraction of the diff.** Its output is
+capped twice -- `tests/golden_diff.py` prints 50 differences, and `crucible_check.py`'s wrapper
+keeps a 4000-char window of that -- so a run reporting "581 differences" surfaces about 28.
+GATING-style scoped-diff review ("every unrelated mover is attributed to a named PR, or the
+bless waits") is therefore **impossible from its output alone**: on 2026-09-02 all 28 surfaced
+diffs were groovy and said nothing about the other 18 languages that had moved. Regenerate the
+audit and diff it yourself:
+
+```sh
+.crucible_venvs/zero_dependency/bin/galaxyscope <language-crucible>/data \
+    --output /tmp/gm/ --file-speed --splicing-speed          # same flags as tests/test_golden_crucible.py
+python -c "
+import sys; sys.path.insert(0,'tests'); import golden_diff as gd
+g=gd.load_and_sanitize('tests/golden_master_zero_dep_audit.json')
+a=gd.load_and_sanitize('/tmp/gm/data_galaxy_audit.json')
+for d in gd.deep_compare(g,a): print(d)"
+```
+
+Expect most of the volume to be topological `X`/`Y`/`Z` coordinates: the 3D layout re-solves
+corpus-wide whenever any node's mass changes, so a single-language fix ripples coordinates
+across every language in the corpus. Those are attributable as a class; filter them out and
+scope the remainder, which is what actually needs a per-language explanation.
+
+**The two accuracy audits exit 0 while doing nothing if `galaxyscope` is off `PATH`.**
+`tests/tools/tree_sitter_accuracy_audit.py` and `tests/tools/tri_comparison_chart.py` report
+`galaxyscope not found on PATH` per language, skip every one, and still print
+`all OK` with exit code 0 -- a false green that looks exactly like a pass. They need the **main
+`.venv`**, which has both `galaxyscope` and `tree_sitter_language_pack`; neither crucible venv
+does (`full_precision` has `galaxyscope` but not the tree-sitter pack). Always run them as:
+
+```sh
+PATH="$PWD/.venv/bin:$PATH" .venv/bin/python tests/tools/tree_sitter_accuracy_audit.py --ci --all
+PATH="$PWD/.venv/bin:$PATH" .venv/bin/python tests/tools/tri_comparison_chart.py --all --ci
+```
+
+and confirm the summary line names a plausible language count (30 and 3 respectively as of
+2026-09-02) -- "0 languages checked, all OK" is a failure wearing a pass.
+
 ## Logging cases where GitGalaxy beats tree-sitter/AST ground truth
 
 The general rule, stated plainly in `README.md`'s "One Graph, Not Five Separate Tools" section, is

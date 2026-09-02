@@ -32,6 +32,10 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Strictly fixed-format. The engine must monitor Column 7 for an asterisk '*'
     # or slash '/' to identify line-level Commented / Non-Executable Text.
     "lexical_family": "positional_anchored",
+    # #2540: COBOL copybook names are case-insensitive (`COPY A.` binds the
+    # same copybook as `copy a.`), so the dependency DAG's import-token ->
+    # file lookup (network_risk_sensor.py) case-folds for this language.
+    "case_insensitive_imports": True,
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: Entscheidungslogik. Control flow that splits execution paths.

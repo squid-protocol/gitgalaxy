@@ -522,3 +522,191 @@ def test_resolve_target_returns_none_for_external_package_import(sensor):
     resolution_map = sensor._build_resolution_map([{"path": "/src/real.py", "raw_imports": []}])
     assert sensor._resolve_target("numpy", resolution_map, "/src/real.py") is None
     assert sensor._resolve_target("some.deeply.nested.external.pkg", resolution_map, "/src/real.py") is None
+
+
+# ==============================================================================
+# MOCK: CASE-INSENSITIVE IMPORT RESOLUTION (Regression tests for #2540)
+# ==============================================================================
+# Fortran, COBOL, and Haskell resolve import/module references
+# case-insensitively (or with mandatory casing that need not match the file
+# name on disk). With dominant legacy style (`USE A`, `COPY A.`, `import A`)
+# an exact-case lookup misses `a.f90`/`a.cpy`/`a.hs` entirely: popularity
+# stays 0 and the orphan->api conversion never fires. The resolver must
+# case-fold the lookup for these languages ONLY -- case-sensitive languages
+# (e.g. python) must never gain cross-case resolution.
+
+CASE_FOLD_FILES = [
+    {
+        "path": "/src/orbit_math.f90",
+        "lang_id": "fortran",
+        "raw_imports": [],
+    },
+    {
+        "path": "/src/main.f90",
+        "lang_id": "fortran",
+        # `USE ORBIT_MATH` -- _dependency_capture yields the module name
+        # verbatim, uppercase, while the module lives in lowercase
+        # orbit_math.f90.
+        "raw_imports": ["ORBIT_MATH"],
+    },
+    {
+        "path": "/hs/parser.hs",
+        "lang_id": "haskell",
+        "raw_imports": [],
+    },
+    {
+        "path": "/hs/Main.hs",
+        "lang_id": "haskell",
+        # Haskell module names are necessarily capitalized: `import Parser`.
+        "raw_imports": ["Parser"],
+    },
+    {
+        "path": "/cbl/payroll.cpy",
+        "lang_id": "cobol",
+        "raw_imports": [],
+    },
+    {
+        "path": "/cbl/prog.cbl",
+        "lang_id": "cobol",
+        # `COPY PAYROLL.` -- _dependency_capture yields "PAYROLL".
+        "raw_imports": ["PAYROLL"],
+    },
+]
+
+
+@pytest.fixture
+def case_fold_universe():
+    """Returns a fresh copy of the case-insensitive-language mock universe."""
+    return copy.deepcopy(CASE_FOLD_FILES)
+
+
+# ==============================================================================
+# TEST 15: CASE-FOLDED RESOLUTION FOR CASE-INSENSITIVE LANGUAGES (#2540)
+# ==============================================================================
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_network_fortran_uppercase_use_resolves(sensor, case_fold_universe):
+    """
+    Regression test for #2540: fortran `USE A` must resolve to a.f90 even
+    though the captured token's case doesn't match the file stem -- fortran
+    is case-insensitive and uppercase USE is the dominant legacy style.
+    """
+    mapped_files, _ = sensor.build_dependency_graph(case_fold_universe)
+
+    a_f90 = next(f for f in mapped_files if f["path"] == "/src/orbit_math.f90")
+    telemetry = a_f90["telemetry"]["network_metrics"]
+
+    assert telemetry["in_degree"] == 1, "Uppercase `USE A` failed to resolve to a.f90 -- import chain invisible!"
+    assert telemetry["ecosystem_role"] != "Isolated/Orphan", (
+        "a.f90 is imported by main.f90 and must not be classified an orphan."
+    )
+    assert a_f90["telemetry"]["popularity"] == 1
+
+
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_network_haskell_capitalized_import_resolves(sensor, case_fold_universe):
+    """
+    Regression test for #2540 (issue comment): haskell module names are
+    necessarily capitalized (`import A`), so a lowercase a.hs on disk must
+    still receive the edge.
+    """
+    mapped_files, _ = sensor.build_dependency_graph(case_fold_universe)
+
+    a_hs = next(f for f in mapped_files if f["path"] == "/hs/parser.hs")
+    assert a_hs["telemetry"]["network_metrics"]["in_degree"] == 1, (
+        "`import A` failed to resolve to a.hs -- haskell DAG invisible!"
+    )
+
+
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_network_cobol_copy_statement_resolves(sensor, case_fold_universe):
+    """
+    Regression test for #2540 (issue comment): cobol `COPY A.` captures "A"
+    and must resolve to the lowercase copybook a.cpy.
+    """
+    mapped_files, _ = sensor.build_dependency_graph(case_fold_universe)
+
+    a_cpy = next(f for f in mapped_files if f["path"] == "/cbl/payroll.cpy")
+    assert a_cpy["telemetry"]["network_metrics"]["in_degree"] == 1, (
+        "`COPY A.` failed to resolve to a.cpy -- cobol copybook edge lost!"
+    )
+
+
+# ==============================================================================
+# TEST 16: CASE-SENSITIVE LANGUAGES MUST NOT CROSS-CASE RESOLVE (#2540)
+# ==============================================================================
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_network_python_does_not_cross_case_resolve(sensor):
+    """
+    Guard for #2540's chosen design (per-language flag, not an unconditional
+    fold): python is case-sensitive, so `import Foo` must NOT suddenly
+    resolve to foo.py just because the fold exists for fortran/cobol/haskell.
+    """
+    files = [
+        {"path": "/src/foo.py", "lang_id": "python", "raw_imports": []},
+        {"path": "/src/app.py", "lang_id": "python", "raw_imports": ["Foo"]},
+    ]
+
+    mapped_files, _ = sensor.build_dependency_graph(files)
+
+    foo = next(f for f in mapped_files if f["path"] == "/src/foo.py")
+    assert foo["telemetry"]["network_metrics"]["in_degree"] == 0, (
+        "Case-sensitive python `import Foo` must not cross-case resolve to foo.py!"
+    )
+
+
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_network_unknown_language_stays_case_sensitive(sensor):
+    """A file with no lang_id at all (mock/legacy dicts) keeps exact-case resolution."""
+    files = [
+        {"path": "/src/foo.js", "raw_imports": []},
+        {"path": "/src/app.js", "raw_imports": ["FOO"]},
+    ]
+
+    mapped_files, _ = sensor.build_dependency_graph(files)
+
+    foo = next(f for f in mapped_files if f["path"] == "/src/foo.js")
+    assert foo["telemetry"]["network_metrics"]["in_degree"] == 0
+
+
+# ==============================================================================
+# TEST 17: EXACT-CASE MATCH WINS BEFORE THE FOLD (#2540)
+# ==============================================================================
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_network_exact_case_match_wins_over_folded(sensor):
+    """
+    When both A.hs and a.hs exist, `import A` from a folding language must
+    take the exact-case match (A.hs) -- the fold is a fallback for when the
+    exact lookup misses, never a replacement for it.
+    """
+    files = [
+        {"path": "/hs/A.hs", "lang_id": "haskell", "raw_imports": []},
+        {"path": "/hs/a.hs", "lang_id": "haskell", "raw_imports": []},
+        {"path": "/hs/Main.hs", "lang_id": "haskell", "raw_imports": ["A"]},
+    ]
+
+    mapped_files, _ = sensor.build_dependency_graph(files)
+
+    exact = next(f for f in mapped_files if f["path"] == "/hs/A.hs")
+    folded = next(f for f in mapped_files if f["path"] == "/hs/a.hs")
+    assert exact["telemetry"]["network_metrics"]["in_degree"] == 1, "Exact-case A.hs must win the lookup."
+    assert folded["telemetry"]["network_metrics"]["in_degree"] == 0, (
+        "The folded candidate must not steal an edge that resolved exactly."
+    )
+
+
+# ==============================================================================
+# TEST 18: CASE-FOLDED RESOLUTION — FALLBACK (ZERO-DEPENDENCY) MODE (#2540)
+# ==============================================================================
+def test_network_case_fold_fallback_mode(sensor, case_fold_universe):
+    """
+    Regression test for #2540 in the pure-Python fallback path
+    (_fallback_build_graph): the same case-folded resolution must apply
+    even when NetworkX isn't installed.
+    """
+    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
+        mapped_files, _ = sensor.build_dependency_graph(case_fold_universe)
+
+        a_f90 = next(f for f in mapped_files if f["path"] == "/src/orbit_math.f90")
+        assert a_f90["telemetry"]["network_metrics"]["in_degree"] == 1
+        a_cpy = next(f for f in mapped_files if f["path"] == "/cbl/payroll.cpy")
+        assert a_cpy["telemetry"]["network_metrics"]["in_degree"] == 1

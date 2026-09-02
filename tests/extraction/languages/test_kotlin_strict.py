@@ -298,3 +298,49 @@ def test_kotlin_return_not_counted_as_branch_regression():
     assert branch.search("if (x) return 1"), "the real if must still count as branch"
     assert len(branch.findall("if (x) return 1")) == 1, "only the if should match, not the return"
     assert structural.search("return x"), "return must still be tracked via structural_boundaries"
+
+
+# ==============================================================================
+# GLOBALS: `const val` vs bare `val` DISCRIMINATION (#2673)
+# ==============================================================================
+def test_kotlin_globals_const_val_vs_local_val_regression():
+    """#2673: the single indented `val` alternative couldn't tell a
+    `companion object { const val LIMIT = 5 }` (a real global) from a
+    function-local `val TIMEOUT = 3000` (a false positive). `const val` is
+    only legal at top level or on an object/companion object member -- a
+    compile error inside a function body or on a regular class property --
+    so `const val` is a global at any indentation, while a bare `val` is a
+    global only at true column-0.
+
+    Covers all six rows of the issue's verification table.
+    """
+    globals_rule = KOTLIN_RULES["globals"]
+
+    # 1. top-level `const val` -- counts.
+    assert len(globals_rule.findall("const val MAX = 10")) == 1
+
+    # 2. top-level bare `val` (SCREAMING_CASE) -- counts.
+    assert len(globals_rule.findall("val REGISTRY = mutableMapOf<String,Int>()")) == 1
+
+    # 3. `const val` inside a nested `companion object` -- still counts (2
+    #    hits total: the `companion object` keyword plus the const val).
+    nested_companion = "class Foo {\n    companion object {\n        const val LIMIT = 5\n    }\n}"
+    assert len(globals_rule.findall(nested_companion)) == 2
+
+    # 4. `const val` inside a nested `object` -- 2 hits (the `object`
+    #    keyword plus the const val).
+    nested_object = "object Cfg {\n    const val TIMEOUT = 30\n}"
+    assert len(globals_rule.findall(nested_object)) == 2
+
+    # 5. function-local bare `val` -- was 1, now 0.
+    assert len(globals_rule.findall("fun f() {\n    val TIMEOUT = 3000\n}")) == 0
+
+    # 6. regular class property bare `val` -- was 1, now 0.
+    assert len(globals_rule.findall("class Foo {\n    val TIMEOUT = 3000\n}")) == 0
+
+
+def test_kotlin_globals_const_val_redos_immunity():
+    """ReDoS probe on the new quantified `const val` alternative: a 100k-char
+    identifier following `const val` (with no terminating `=`, forcing the
+    engine to scan the whole run without a match) must resolve quickly."""
+    assert_redos_immune(KOTLIN_RULES["globals"], "const val " + "a" * 100000, timeout_sec=3.0)

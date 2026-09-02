@@ -138,8 +138,25 @@ DEFINITION: dict[str, Any] = {
         # could only fire when a word char immediately preceded the
         # `@`, never true for how attributes are actually written.
         # Never matched at all.
+        # BUG FIX (#2544): `open` sat in the same bare
+        # `\b(?:public|open|package)\b` alternative as `public`/`package`, so it
+        # matched the word anywhere -- string literals, prose, a bare `open(path)`
+        # call -- not its one real meaning: an access modifier in front of a
+        # declaration. Now its own alternative, requiring a declaration keyword.
+        # Two shape decisions worth keeping: NOT line-anchored, because real Swift
+        # puts attributes ahead of the modifier (`@_spi(WebSocket) open func foo()`,
+        # per Alamofire in the real-world corpus), and a bounded modifier stepper
+        # between the two, because Swift allows `open override func`,
+        # `open private(set) var`, `open class func`. `class` is in both the
+        # modifier and declaration lists on purpose; backtracking resolves it. The
+        # stepper is `{0,4}` not `*` -- an unbounded nested quantifier over a
+        # `[ \t]+`-separated alternation is a ReDoS shape (see
+        # test_swift_api_open_redos_immunity). `public`/`package` are untouched.
         "api": re.compile(
-            r"\b(?:public|open|package)\b"
+            r"\b(?:public|package)\b"
+            r"|\bopen\b[ \t]+"
+            r"(?:(?:final|override|weak|unowned|lazy|static|class|mutating|nonmutating|convenience|required|dynamic|indirect|(?:private|internal|fileprivate|public)\(set\))[ \t]+){0,4}"
+            r"(?:class|func|var|let|subscript|init\??|actor|struct|enum|protocol|extension)\b"
             r"|@usableFromInline|@objc|@objcMembers|@_exported|@IBAction|@IBOutlet|@Published"
         ),
         # 11. flux (State Mutation)

@@ -141,13 +141,31 @@ DEFINITION: dict[str, Any] = {
         # at all after it) as a legitimate declaration, so this costs no real
         # coverage. Confirmed via a 188-file corpus scan: after this fix, the
         # remaining "def"-named entries in the named function list dropped to zero.
+        # BUG FIX (#2558): branch 1 (the >=1-prefix-token branch) treats any bare
+        # identifier as a plausible type/modifier prefix, so a paren-less
+        # single-argument builder call -- `raw _("Dismiss")`, Groovy's
+        # optional-parens sugar for `raw(_("Dismiss"))` -- gets misread as a
+        # declaration: "raw" satisfies the bare-identifier prefix, then "_"
+        # immediately followed by "(" satisfies branch 1's lenient lookahead. A
+        # real declaration is never named "_" in this engine's corpora, so
+        # excluding it costs no coverage (same reasoning as "def" above).
+        # Full-corpus scan (language-crucible groovy/, 305 files): 964 -> 961
+        # branch-1 matches, all 3 removals this shape, nothing else affected.
+        # BUG FIX (#2676): branch 1's bare-identifier prefix alternative had no
+        # keyword guard, so a statement keyword (new/return/throw/assert/yield)
+        # satisfies the prefix and the *next* identifier is captured as the
+        # "function name" -- `throw new IllegalArgumentException(msg)` misreads as
+        # a declaration, same for `return foo(x)` and the paren-less-call-with-
+        # `new`-argument shape. Guarded the same way the name capture already is.
+        # Full-corpus scan (language-crucible groovy/, 305 files): 968 -> 885
+        # (-83) branch-1 matches, all genuine non-declarations; rosetta stays 13.
         "func_start": re.compile(
             r"^[ \t]*(?:"
-            r"(?:(?:public|private|protected|static|final|def|abstract|@[A-Za-z0-9_.]+(?:\([^)]*\))?|<[^>]{0,100}(?:<[^>]{0,100}>[^>]{0,100}){0,5}>|(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t\n]+){1,18}"
-            r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|def|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)"
+            r"(?:(?:public|private|protected|static|final|def|abstract|@[A-Za-z0-9_.]+(?:\([^)]*\))?|<[^>]{0,100}(?:<[^>]{0,100}>[^>]{0,100}){0,5}>|(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|(?!(?:new|return|throw|assert|yield)[ \t\n])[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t\n]+){1,18}"
+            r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|def|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext|_)\b)"
             r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\()"
             r"|"
-            r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|def|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext)\b)"
+            r"(?!(?:if|for|while|switch|catch|synchronized|new|return|class|interface|enum|trait|def|implementation|testImplementation|api|compileOnly|runtimeOnly|classpath|dependency|from|file|mavenCentral|plugins|dependencies|repositories|task|project|allprojects|subprojects|ext|_)\b)"
             r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')(?=[ \t\n]*\((?![^)]*\b[A-Za-z_$][\w$]*:(?!:))[^)]*\)[ \t\n]*(?:throws[ \t\n]+[\w.,<> \t\n]+)?[ \t\n]*\{)"
             r")",
             re.M,

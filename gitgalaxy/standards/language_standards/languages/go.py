@@ -192,8 +192,10 @@ DEFINITION: dict[str, Any] = {
         # (`func(x int) int {`) never matched either shape.
         "closures": re.compile(r"func[ \t\n]{0,80}\([^)]{0,300}\)[^{]{0,80}\{"),
         # 18. globals (Global / Shared State)
+        # BUG FIX (#2660): Anchored to true column-0 (no indentation) to prevent
+        # function-local var declarations from being incorrectly counted as globals.
         "globals": re.compile(
-            r"^[ \t]*var\s+[a-zA-Z_]\w*\s*(?:[a-zA-Z_]\w*\s*)?=|os\.Getenv|os\.Environ",
+            r"^(?![ \t])var\s+[a-zA-Z_]\w*\s*(?:[a-zA-Z_]\w*\s*)?=|os\.Getenv|os\.Environ",
             re.M,
         ),
         # 19. decorators (Decorators / Annotations)

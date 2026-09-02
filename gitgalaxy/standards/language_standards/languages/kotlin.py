@@ -181,8 +181,16 @@ DEFINITION: dict[str, Any] = {
         # OPTIMIZED: Removed overlapping whitespace quantifiers to fix ReDoS.
         "closures": re.compile(r"\{[ \t\n]*[a-zA-Z_][a-zA-Z0-9_ \t\n:<>,.?]{0,150}?->"),
         # 18. globals (Global / Shared State)
+        # BUG FIX (#2673): The single indented `val` alternative couldn't tell a
+        # `companion object { const val LIMIT = 5 }` (a real global) from a
+        # function-local `val TIMEOUT = 3000` (a false positive). Kotlin permits
+        # `const val` only at top level or on an object/companion object member --
+        # a compile error elsewhere -- so `const val` is a global at any
+        # indentation, while a bare `val` is a global only at true column-0.
         "globals": re.compile(
-            r"\b(object|companion\s+object)\b|^[ \t]*(?:const[ \t]+)?val\s+[A-Z_0-9]+[ \t]*=",
+            r"\b(object|companion\s+object)\b"
+            r"|^[ \t]*const[ \t]+val\s+[A-Za-z_]\w*[ \t]*="
+            r"|^(?![ \t])(?:const[ \t]+)?val\s+[A-Z_0-9]+[ \t]*=",
             re.M,
         ),
         # 19. decorators (Decorators / Annotations)

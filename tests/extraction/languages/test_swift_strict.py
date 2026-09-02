@@ -19,6 +19,11 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
+_EXTRACTION_DIR = str(Path(__file__).resolve().parent.parent)
+if _EXTRACTION_DIR not in sys.path:
+    sys.path.insert(0, _EXTRACTION_DIR)
+
+from _extraction_harness import assert_valid_match  # noqa: E402 # type: ignore
 from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
@@ -140,7 +145,6 @@ _SWIFT_SIMPLE_CASES = [
     ("regex_execution", "let re = try Regex(pattern)", "regexPattern = String"),
     ("time_date_logic", "let d = Date()", "dateString = formatter.string(from: date)"),
     ("ipc_rpc_bridges", "URLSession.shared.dataTask(with: url)", "processedCount += 1"),
-
     # DEEP ADVERSARIAL CASES
     ("branch", "throws(Error)", "func myThrows(x: Int) {"),
     ("branch", "try? perform()", "a != b"),
@@ -148,29 +152,25 @@ _SWIFT_SIMPLE_CASES = [
     ("branch", "catch let error as NSError {", "let catcher = error"),
     ("branch", "defer { cleanup() }", "let deferment = 5"),
     ("branch", "guard let x = y else { return }", "let guardValue = 5"),
-
     ("args", "func foo(a: (((Int) -> Void)?)) {", "let foo = 5"),
     ("args", "{ [weak self, unowned delegate] in", "let inValue = 5"),
     ("args", "{ in", "a = b"),
     ("args", "func complex<T: Collection<Array<Int>>>(a: T) {", "struct Foo {"),
     ("args", "init?(a: @escaping (Int) -> Void) {", "let initializer = 5"),
     ("args", "subscript<T>(index: Int) -> T {", "let subscript_val = 5"),
-    ("args", "{ () in print(\"foo\") }", "if let foo = bar {"),
-
+    ("args", '{ () in print("foo") }', "if let foo = bar {"),
     ("func_start", "nonisolated(unsafe) func qux() {", "let qux = 5"),
     ("func_start", "func complex<T: Collection<Array<Int>>>(a: T) {", "let a = 5"),
     ("func_start", "@available(iOS 15, *) @objc(myFunc) func foo() {", "var foo = 5"),
     ("func_start", "fileprivate final class func doSomething() {", "let classFunc = 5"),
     ("func_start", "mutating func update() {", "let mutate = true"),
     ("func_start", "@_specialize(where T == Int) public func compute<T>() {", "let spec = true"),
-
     ("class_start", "indirect enum List<T> { case empty }", "func indirectEnum() {}"),
     ("class_start", "@MainActor final class Foo {", "let foo = 5"),
     ("class_start", "public macro stringify<T>", "var stringify = 5"),
     ("class_start", "@objc(MyCustomActor) distributed actor CustomActor {", "let actorVal = 5"),
     ("class_start", "fileprivate final class MyClass<T, U> where T: Equatable {", "func myClass() {}"),
     ("class_start", "@available(*, unavailable) struct Unusable {", "let available = false"),
-
     ("structural_boundaries", "func foo()", "func_name = 5"),
     ("structural_boundaries", "init()", "initial = 5"),
     ("structural_boundaries", "subscript(index: Int) -> Int", "subscript_val = 5"),
@@ -323,3 +323,85 @@ def test_swift_redos_immunity_sweep():
     assert_redos_immune(SWIFT_RULES["args"], "func foo<" + "<" * 100000, timeout_sec=3.0)
     assert_redos_immune(SWIFT_RULES["func_start"], "func foo<" + "<" * 100000, timeout_sec=3.0)
     assert_redos_immune(SWIFT_RULES["class_start"], "@a(" + "a" * 100000, timeout_sec=3.0)
+
+
+# ==============================================================================
+# SWIFT: `api`'s BARE `open` FALSE-POSITIVE REGRESSION (#2544)
+# ==============================================================================
+# Found by the #1096 control corpus: `open` was bundled into api's bare
+# `\b(?:public|open|package)\b` alternative, so it matched the word
+# anywhere -- a string literal, ordinary prose, any non-declaration use --
+# not only its one real meaning in Swift: an access modifier immediately in
+# front of a declaration keyword. Fixed by giving `open` its own
+# alternative that requires a declaration keyword after it, with a bounded
+# stepper for the other modifiers Swift legally stacks in between (a first
+# cut required the keyword *immediately* after `open` and silently scored
+# 0 on every stacked-modifier declaration -- see
+# test_swift_api_open_stacked_modifiers_valid below). `public`/`package`
+# are untouched -- the issue was filed against `open` specifically -- and
+# are covered by the existing `api` case in _SWIFT_SIMPLE_CASES above.
+_SWIFT_API_OPEN_CASES = {
+    "valid": [
+        ("open class Foo {}", "open class"),
+        ("open func bar() {}", "open func"),
+        ("open var x = 5", "open var"),
+        ("    open func bar() {}", "open func"),
+    ],
+    "invalid": [
+        'let note = "if eval fails, try open"',
+        "openFile(path)",
+        "open(path)",
+    ],
+}
+
+# Legal Swift modifier-stacking combinations between `open` and the
+# declaration keyword it modifies -- all real, all silently scored 0 by
+# the first (adjacency-only) cut of this fix.
+_SWIFT_API_OPEN_STACKED_MODIFIER_CASES = [
+    ("open override func viewDidLoad() {}", "open override func"),
+    ("open private(set) var count = 0", "open private(set) var"),
+    ("open final class Sealed {}", "open final class"),
+    ("open weak var delegate: D?", "open weak var"),
+    ("open class func factory() {}", "open class func"),
+    ("open static let shared = X()", "open static let"),
+]
+
+
+@pytest.mark.parametrize("payload,expected", _SWIFT_API_OPEN_CASES["valid"])
+def test_swift_api_open_declaration_position_valid(payload, expected):
+    assert_valid_match(SWIFT_RULES["api"], payload, expected, "swift.api.open")
+
+
+@pytest.mark.parametrize("payload,expected", _SWIFT_API_OPEN_STACKED_MODIFIER_CASES)
+def test_swift_api_open_stacked_modifiers_valid(payload, expected):
+    assert_valid_match(SWIFT_RULES["api"], payload, expected, "swift.api.open.stacked")
+
+
+@pytest.mark.parametrize("payload", _SWIFT_API_OPEN_CASES["invalid"])
+def test_swift_api_open_non_declaration_position_invalid(payload):
+    assert not SWIFT_RULES["api"].search(payload), (
+        f"[swift.api.open] incorrectly matched a non-declaration use of 'open': {payload!r}"
+    )
+
+
+def test_swift_api_open_real_world_attribute_prefix_still_matches():
+    """
+    Real Swift (Alamofire's Session.swift) puts an attribute before `open`
+    on the same line: `@_spi(WebSocket) open func webSocketRequest(...)`.
+    The fix deliberately does not anchor `open` to column-0/line-start
+    (unlike the sketch in #2544), specifically so this common shape still
+    counts -- an anchored version would have swapped one false-positive
+    class for a false-negative one.
+    """
+    assert SWIFT_RULES["api"].search("@_spi(WebSocket) open func webSocketRequest(_ url: URL) {")
+
+
+def test_swift_api_open_redos_immunity():
+    """
+    The modifier stepper between `open` and the declaration keyword is
+    bounded (`{0,4}`), not unbounded (`*`), specifically because an
+    unbounded nested quantifier over a `[ \t]+`-separated alternation is a
+    classic ReDoS shape. Pins that the bound holds under adversarial
+    stacking of the modifier word itself.
+    """
+    assert_redos_immune(SWIFT_RULES["api"], "open " + "final " * 40000 + "func", timeout_sec=3.0)

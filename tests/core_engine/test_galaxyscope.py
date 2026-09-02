@@ -1387,6 +1387,70 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertEqual(model_node["telemetry"]["domain_context"]["architecture"], "Llama")
 
     # ==============================================================================
+    # TEST 17b: #2536 -- RAW PRE-ADJUSTMENT SNAPSHOT (Contextual Baseline Fix)
+    # ==============================================================================
+    def test_contextual_baseline_fix_snapshots_raw_signals(self):
+        """
+        COVERAGE TARGET: The Contextual Baseline Fix block in _calculate_risk_exposures.
+        #2536: the fix rewrites api += orphaned_logic / orphaned_logic = 0 for any
+        imported file (popularity > 0) BEFORE recording, making the raw extraction
+        counts unrecoverable. meta["raw_pre_adjustment"] must snapshot the raw
+        values first -- unconditionally, so untouched files carry raw == adjusted.
+        """
+        from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+
+        scope = Orchestrator(".", self.mock_config)
+
+        scope.ram_cache = {
+            # Imported by the ecosystem: 3 orphans get converted into API exposure.
+            "src/imported_lib.py": {
+                "path": "src/imported_lib.py",
+                "coding_loc": 100,
+                "lang_id": "python",
+                "equations": {"api": 2, "orphaned_logic": 3},
+                "functions": [{"name": "helper", "usage_status": 1}],
+            },
+            # Never imported: the adjustment must not touch it.
+            "src/island.py": {
+                "path": "src/island.py",
+                "coding_loc": 50,
+                "lang_id": "python",
+                "equations": {"api": 1, "orphaned_logic": 4},
+            },
+        }
+        scope.popularity_scores = {"src/imported_lib.py": 2, "src/island.py": 0}
+
+        scope._calculate_risk_exposures()
+
+        by_path = {f.get("path"): f for f in scope.parsed_files}
+        lib = by_path["src/imported_lib.py"]
+        island = by_path["src/island.py"]
+
+        # 1. Adjusted behavior is byte-identical to before: orphans folded into api.
+        self.assertEqual(lib["equations"]["api"], 5, "Contextual Baseline Fix no longer folds orphans into api!")
+        self.assertEqual(lib["equations"]["orphaned_logic"], 0, "Contextual Baseline Fix no longer wipes orphans!")
+
+        # 2. The raw pre-adjustment values survive on the snapshot, and the
+        #    invariant adjusted api == raw_api + raw_orphaned_logic holds.
+        self.assertEqual(lib["raw_pre_adjustment"], {"api": 2, "orphaned_logic": 3})
+        self.assertEqual(
+            lib["equations"]["api"],
+            lib["raw_pre_adjustment"]["api"] + lib["raw_pre_adjustment"]["orphaned_logic"],
+            "adjusted api must equal raw api + raw orphaned_logic",
+        )
+
+        # 3. The adjusted values are what flow into the recorder's hit_vector.
+        signal_schema = RECORDING_SCHEMAS.get("SIGNAL_SCHEMA", [])
+        if "api" in signal_schema and "orphaned_logic" in signal_schema:
+            self.assertEqual(lib["hit_vector"][signal_schema.index("api")], 5)
+            self.assertEqual(lib["hit_vector"][signal_schema.index("orphaned_logic")], 0)
+
+        # 4. Untouched file: snapshot still present, raw == adjusted.
+        self.assertEqual(island["raw_pre_adjustment"], {"api": 1, "orphaned_logic": 4})
+        self.assertEqual(island["equations"]["api"], 1)
+        self.assertEqual(island["equations"]["orphaned_logic"], 4)
+
+    # ==============================================================================
     # TEST 18: WORKER I/O ERRORS & BINARY THREAT ESCALATION
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)

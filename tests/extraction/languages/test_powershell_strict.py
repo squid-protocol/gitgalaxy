@@ -483,3 +483,23 @@ def test_powershell_return_not_counted_as_branch_regression():
     assert branch.search("if ($x) { return 1 }"), "the real if must still count as branch"
     assert len(branch.findall("if ($x) { return 1 }")) == 1, "only the if should match, not the return"
     assert structural.search("return $x"), "return must still be tracked via structural_boundaries"
+
+def test_powershell_api_no_control_flow_false_positives():
+    """#2656: the api rule's bare-identifier alternative lacked keyword exclusions,
+    causing control-flow lines ('param(', 'if (', 'switch (') to miscount as API
+    surface. It must not match control-flow; a real exported function or 
+    Export-ModuleMember must still match."""
+    api = POWERSHELL_RULES["api"]
+
+    # Must NOT count as API
+    assert not api.search("param("), "param( must not count as API"
+    assert not api.search("if ($x) {"), "if ( must not count as API"
+    assert not api.search("switch ($x) {"), "switch ( must not count as API"
+    assert not api.search("while ($true) {"), "while ( must not count as API"
+
+    # Must STILL count as API
+    assert api.search("Export-ModuleMember -Function 'Get-Foo'"), "Export-ModuleMember must count as API"
+    # NB: the bare-identifier alternative's [a-zA-Z_]\w* never matched hyphenated
+    # Verb-Noun cmdlet names (pre-existing, unrelated to #2656) -- use a plain
+    # identifier here to test the exclusion fix in isolation.
+    assert api.search("GetFoo ("), "Real bare-identifier function call should count as API"

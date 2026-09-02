@@ -386,16 +386,13 @@ def test_fortran_dead_code_column_anchor_vs_free_form_inline_comment():
     assert dead_code.search("C IF (x) THEN"), "column-1 legacy comment must still match"
 
 
-def test_fortran_doc_vs_ownership_overlap_is_intentional():
+def test_fortran_doc_vs_ownership_author_no_collision():
     """
-    Ambiguity sweep finding (mirrors the abap case): `doc` and `ownership`
-    both fire on an "! Author: Jane Doe" header line -- both signatures
-    are legitimately about traceability/metadata, and `ownership`
-    additionally captures the specific author name (group 1) for
-    downstream attribution, which `doc` does not attempt.
+    BUG FIX (#2659): `Author:` is exclusively an `ownership` trait. Including it
+    in `doc` caused double-counting on standard authorship headers.
     """
     header = "! Author: Jane Doe"
-    assert FORTRAN_RULES["doc"].search(header)
+    assert not FORTRAN_RULES["doc"].search(header)
     m = FORTRAN_RULES["ownership"].search(header)
     assert m and m.group(1) == "Jane Doe"
 
@@ -411,9 +408,9 @@ def test_fortran_ownership_column_anchor_stricter_than_doc():
     not a bug: `ownership`'s docstring targets legacy fixed-form headers,
     which are always unindented at file/routine scope.
     """
-    indented = "   ! Author: Jane Doe"
+    indented = "   ! Description: A thing"
     assert FORTRAN_RULES["doc"].search(indented), "doc should tolerate leading whitespace before '!'"
-    assert not FORTRAN_RULES["ownership"].search(indented), (
+    assert not FORTRAN_RULES["ownership"].search("   ! Author: Jane Doe"), (
         "ownership requires column-1 anchoring -- indented form must not match"
     )
 

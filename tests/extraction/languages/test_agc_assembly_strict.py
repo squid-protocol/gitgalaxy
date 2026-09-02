@@ -237,3 +237,14 @@ def test_agc_assembly_redos_immunity_sweep():
     # sanity: all still match their real positive cases after the sweep
     assert AGC_RULES["func_start"].search("MYLABEL\tTC\tFOO")
     assert AGC_RULES["api"].search("MYLABEL\tEQUALS\t5")
+
+
+def test_agc_assembly_ambiguity_doc_vs_ownership_author_no_collision():
+    """
+    BUG FIX (#2659): `AUTHOR` is exclusively an `ownership` trait. Including it
+    in `doc` caused double-counting on standard authorship headers.
+    """
+    header = "# AUTHOR: Jane Doe"
+    assert not AGC_RULES["doc"].search(header)
+    m = AGC_RULES["ownership"].search(header)
+    assert m and m.group(1) == "Jane Doe"

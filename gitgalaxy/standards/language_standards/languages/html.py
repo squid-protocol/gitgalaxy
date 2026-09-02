@@ -157,7 +157,7 @@ DEFINITION: dict[str, Any] = {
         # 13. doc (Structured Documentation)
         # Structured intent for crawlers and accessibility.
         "doc": re.compile(
-            r"<title>[^<]*</title>|<meta\s+name=(?:\"(?:description|keywords|author)\"|'(?:description|keywords|author)')\s+content=(?:\"[^\"]*\"|'[^']*')|\baria-(?:description|label|labelledby|describedby|details)=(?:\"[^\"]*\"|'[^']*')",
+            r"<title>[^<]*</title>|<meta\s+name=(?:\"(?:description|keywords)\"|'(?:description|keywords)')\s+content=(?:\"[^\"]*\"|'[^']*')|\baria-(?:description|label|labelledby|describedby|details)=(?:\"[^\"]*\"|'[^']*')",
             re.I,
         ),
         # 14. test (Testing & Assertions)

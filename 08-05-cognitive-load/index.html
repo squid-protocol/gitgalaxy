@@ -12114,13 +12114,14 @@
 - <strong>Unsafe Operations:</strong> Unsafe memory access or dynamic code execution.</p>
 <p><strong>Mathematical Formulation</strong>
 1. <strong>Calculate Clamped Line Densities:</strong>
-$<span class="arithmatex">\(\text{BranchDensity} = \min\left(\frac{\text{branch}}{\text{LOC}}, 0.5\right)\)</span>$
-$<span class="arithmatex">\(\text{FluxDensity} = \min\left(\frac{\text{state\_mutation}}{\text{LOC}} \times 2.0, 0.75\right)\)</span>$</p>
+Where <span class="arithmatex">\(M = \max(\text{LOC}, 50)\)</span> is the evidence mass (the UEF's evidence-mass floor, <a href="../08-03-transforming-regex-counts/">08-03</a>): below 50 coding lines the file is scored on counts, so identical signals score identically at any length. A file with no branches scores <span class="arithmatex">\(0\)</span> at any length -- no decision density, no load.
+$<span class="arithmatex">\(\text{BranchDensity} = \min\left(\frac{\text{branch}}{M}, 0.5\right)\)</span>$
+$<span class="arithmatex">\(\text{FluxDensity} = \min\left(\frac{\text{state\_mutation}}{M} \times 2.0, 0.75\right)\)</span>$</p>
 <ol>
 <li>
 <p><strong>Sum Heavy Logic &amp; Apply Gini Coefficient:</strong>
 $<span class="arithmatex">\(\text{HeavyLogic} = (\text{concurrency} \times 3.0) + (\text{reflection} \times 5.0) + (\text{unsafe} \times 5.0)\)</span>$
-$<span class="arithmatex">\(\text{TotalDensity} = \left(\text{BranchDensity} + \text{FluxDensity} + \frac{\text{HeavyLogic}}{\text{LOC}} + \frac{Irc}{\text{LOC}}\right) \times \text{GiniMultiplier}\)</span>$</p>
+$<span class="arithmatex">\(\text{TotalDensity} = \left(\text{BranchDensity} + \text{FluxDensity} + \frac{\text{HeavyLogic}}{M} + \frac{Irc}{M}\right) \times \text{GiniMultiplier}\)</span>$</p>
 </li>
 <li>
 <p><strong>Map Through Sigmoid Curve:</strong>
@@ -12128,7 +12129,7 @@ $<span class="arithmatex">\(\text{RawScore} = \frac{100}{1 + e^{-4.0 \times (\te
 </li>
 <li>
 <p><strong>Apply Documentation Mitigation &amp; Path Modifier:</strong>
-$<span class="arithmatex">\(\text{DocCoverage} = \frac{\text{doc} \times 10.0}{\text{LOC}}\)</span>$
+$<span class="arithmatex">\(\text{DocCoverage} = \frac{\text{doc} \times 10.0}{M}\)</span>$
 $<span class="arithmatex">\(\text{CoolingFactor} = \max\left(0.5, 1.0 - (\text{DocCoverage} \times Fc)\right)\)</span>$
 $<span class="arithmatex">\(\text{FinalScore} = \min(\text{RawScore} \times \text{CoolingFactor} \times Mp, 100)\)</span>$</p>
 </li>

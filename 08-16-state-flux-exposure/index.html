@@ -12191,7 +12191,8 @@
 <p>If <span class="arithmatex">\(\text{net\_volatility} = 0\)</span>, the function returns <span class="arithmatex">\(0.0\)</span>.</p>
 <h3 id="2-volatility-density">2. Volatility Density</h3>
 <p>Calculate mutation density per line of code, adding the dampened language risk (<span class="arithmatex">\(\text{IRC} \times 0.15\)</span>):</p>
-<div class="arithmatex">\[\text{Density} = \left( \frac{\text{net\_volatility}}{\max(\text{LOC} + \text{loc\_padding}, 1)} \right) \times 100.0 + (\text{IRC} \times 0.15)\]</div>
+<p>$<span class="arithmatex">\(\text{Density} = \left( \frac{\text{net\_volatility}}{\max(\text{LOC}, 50) + \text{loc\_padding}} \right) \times 100.0 + (\text{IRC} \times 0.15)\)</span>$
+<span class="arithmatex">\(\max(\text{LOC}, 50)\)</span> is the UEF evidence-mass floor (<a href="../08-03-transforming-regex-counts/">08-03</a>): two mutations in a 10-line file no longer read as 20% volatility (#2655).</p>
 <h3 id="3-sigmoid-normalization">3. Sigmoid Normalization</h3>
 <p>Map density using a base threshold of <span class="arithmatex">\(15.0\)</span> and slope of <span class="arithmatex">\(0.2\)</span>, scaled by the path modifier (<span class="arithmatex">\(Mp\)</span>):</p>
 <div class="arithmatex">\[\text{RawScore} = \frac{1.0}{1.0 + e^{-0.2 \times (\text{Density} - 15.0)}}$$

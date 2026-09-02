@@ -12123,7 +12123,8 @@ $<span class="arithmatex">\(\text{UndocumentedRisk} = \sum_{\text{undocumented}}
 $<span class="arithmatex">\(\text{RiskHits} = \text{UndocumentedRisk} + (\text{API\_Exposure} \times 2.0) + Irc\)</span>$
 3. <strong>Net Exposure &amp; Line Density:</strong>
 $<span class="arithmatex">\(\text{NetExposure} = \max\left(0, \text{RiskHits} - \frac{\text{DefenseHits}}{2.0}\right)\)</span>$
-$<span class="arithmatex">\(\text{Density} = \left( \frac{\text{NetExposure}}{\max(\text{LOC}, 1)} \right) \times 100.0\)</span>$
+$<span class="arithmatex">\(\text{Density} = \left( \frac{\text{NetExposure}}{\max(\text{LOC}, 50) + 20} \right) \times 100.0\)</span>$
+The denominator is the UEF evidence-mass floor plus the equation's smoothing pad (<a href="../08-03-transforming-regex-counts/">08-03</a>). <span class="arithmatex">\(Irc\)</span> corrects measured risk, it never creates it: when <span class="arithmatex">\(\text{UndocumentedRisk} + \text{API\_Exposure} = 0\)</span> the score is <span class="arithmatex">\(0\)</span> in every language tier (#2655).
 4. <strong>Systemic Multipliers &amp; Mapping:</strong>
 $<span class="arithmatex">\(\text{FinalMultiplier} = \left(1.0 + \frac{\text{Pop}}{10}\right) \times \left(1.0 + \frac{\text{Silo}}{200}\right) \times Mp\)</span>$
 $<span class="arithmatex">\(\text{RawRisk} = \frac{100.0}{1 + e^{-0.2 \times (\text{Density} - 10.0)}}\)</span>$</p>

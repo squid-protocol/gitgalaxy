@@ -12116,7 +12116,8 @@
 1. <strong>Stress Sum Calculation:</strong>
 $<span class="arithmatex">\(\text{StressSum} = (\text{PlannedDebt} \times 1.0) + (\text{FragileDebt} \times 3.0) + (Irc \times 0.5)\)</span>$
 2. <strong>Density Normalization (per 100 LOC):</strong>
-$<span class="arithmatex">\(\text{Density} = \left( \frac{\text{StressSum}}{\max(\text{LOC}, 1)} \right) \times 100.0\)</span>$
+$<span class="arithmatex">\(\text{Density} = \left( \frac{\text{StressSum}}{\max(\text{LOC}, 50)} \right) \times 100.0\)</span>$
+The denominator is the UEF evidence-mass floor (<a href="../08-03-transforming-regex-counts/">08-03</a>): a <code>TODO</code> and a <code>FIXME</code> in a 6-line config file and the same pair in a 49-line one carry the same debt score (#2655).
 3. <strong>Sigmoidal Threshold Mapping:</strong>
 $<span class="arithmatex">\(\text{RawScore} = \frac{100.0}{1 + e^{-0.5 \times (\text{Density} - 5.0)}}\)</span>$
 4. <strong>Apply Path Modifier:</strong>

@@ -101,6 +101,7 @@ FUNCTION_CASES: dict[str, Any] = {
         "class Foo {\n  @Input() TargetFunc: string;\n}",  # decorated field, not a method
         "type TargetFunc = () => void;",
         "if (this.TargetFunc as unknown as boolean) {",
+        "with (shape) {",  # #2539: with-statement lookalike (invalid TS, but real in misrouted JS-ish text)
         # NOTE: string-literal lookalikes (`let query = "function Foo() {";`) are
         # NOT tested here as an invalid case -- func_start's own regex has no
         # way to know it's inside a string (that's Prism's/detector.py's job).
@@ -269,6 +270,7 @@ ARGS_CASES: dict[str, Any] = {
     "invalid": [
         "return TargetFunc<string>(val);",
         "catch (e: any) {",
+        "with (shape) {",  # #2539: with-statement lookalike (statement shape: space before paren)
     ],
     "pathological": [
         (
@@ -311,6 +313,35 @@ def test_typescript_args_invalid(payload):
 @pytest.mark.parametrize("payload,expected_name", ARGS_CASES["pathological"])
 def test_typescript_args_pathological(payload, expected_name):
     assert_pathological_match(TS_RULES["args"], payload, expected_name, "typescript.args")
+
+
+def test_typescript_with_statement_excluded_but_with_method_still_counts_regression():
+    """
+    Regression test for issue #2539 (TypeScript side). TypeScript duplicates
+    javascript's func_start/args class-method branches with its own exclusion
+    lists, and `with` was missing from both. Unlike javascript's plain
+    exclusion-list add, `with` here joins the CONDITIONAL exclusion group
+    (#2276 precedent: excluded only in the spaced statement shape
+    `with (...)`), because `with` is a real, prominent method name in modern
+    code (`Array.prototype.with` ES2023, Temporal's `.with()` -- ubiquitous
+    in `.d.ts` files) that formatters always emit with zero space before the
+    paren -- an unconditional exclusion would have permanently hidden those.
+    """
+    func_start = TS_RULES["func_start"]
+    args = TS_RULES["args"]
+
+    # Statement shape (space before paren) must NOT count.
+    assert not func_start.search("with (shape) {"), "with-statement counted as func_start"
+    assert not args.search("with (shape) {"), "with-statement counted as args"
+
+    # Real `with` members (zero space, per every formatter) must STILL count.
+    m = func_start.search("class Wrapper<T> {\n  with(index: number, value: T): Wrapper<T> {\n")
+    assert m, "a real method named `with` must still count as func_start"
+    dts = "interface PlainDate {\n  with(dateLike: PlainDateLike): PlainDate;\n}"
+    assert func_start.search(dts), "a bodyless `.d.ts` signature named `with` must still count"
+    assert args.search("  with(index: number, value: T): Wrapper<T> {"), (
+        "a real method named `with` must still count for args"
+    )
 
 
 def test_typescript_args_known_limitation_bare_call_at_line_start():

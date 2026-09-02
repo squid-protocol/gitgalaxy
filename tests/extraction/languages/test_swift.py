@@ -237,6 +237,7 @@ DEPENDENCY_CASES: dict[str, Any] = {
     "valid": [
         ("import Foundation", "Foundation"),
         ("@_exported import UIKit", "UIKit"),
+        ("import a", "a"),  # #2543: single-char module name must still capture
     ],
     "invalid": [
         "var importData = true",

@@ -2146,6 +2146,23 @@ class Orchestrator:
             # -----------------------------------------------------------------
 
             # =================================================================
+            # ---> #2536: RAW PRE-ADJUSTMENT SNAPSHOT <---
+            # The Contextual Baseline Fix below rewrites api/orphaned_logic
+            # IN PLACE for any imported file, which made the raw extraction
+            # counts unrecoverable from the recorder DB (the #1096
+            # cross-language control corpus needs them). Snapshot the affected
+            # keys unconditionally BEFORE the adjustment runs so files the
+            # adjustment never touches record raw == adjusted. Purely
+            # additive: scoring still consumes the adjusted equations.
+            # =================================================================
+            pre_adjust_eq = meta.get("equations", {})
+            meta["raw_pre_adjustment"] = {
+                "api": pre_adjust_eq.get("api", 0),
+                "orphaned_logic": pre_adjust_eq.get("orphaned_logic", 0),
+            }
+            # =================================================================
+
+            # =================================================================
             # ---> THE CONTEXTUAL BASELINE FIX <---
             # If the file is imported by the ecosystem, its "orphans" are actually its API.
             # =================================================================

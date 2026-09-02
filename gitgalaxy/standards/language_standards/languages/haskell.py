@@ -38,6 +38,13 @@ DEFINITION: dict[str, Any] = {
     # (standard_block never used the `--`/`{-`/`-}` tokens).
     # Rationale: Uses '--' for lines and '{- -}' for blocks, which strictly supports recursive nesting.
     "lexical_family": "recursive_block_haskell",
+    # #2540: Haskell module names are necessarily capitalized (`import A`),
+    # while on-disk file names may not match that casing exactly -- exact-case
+    # lookup makes `import A` miss `a.hs` and the whole DAG for the repo goes
+    # invisible. The dependency DAG's import-token -> file lookup
+    # (network_risk_sensor.py) case-folds for this language; exact-case
+    # matches still win first.
+    "case_insensitive_imports": True,
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: decisions that split flow. Includes guards (|) and modern \cases.

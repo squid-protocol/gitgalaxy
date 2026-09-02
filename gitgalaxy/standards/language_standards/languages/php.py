@@ -63,8 +63,17 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Control flow. Includes modern match expression. EXCLUDES throw (bailout_hits).
+        # BUG FIX (#2541): the bare ternary `\?` alternation matched the `?`
+        # inside PHP's own tag syntax -- `<?php`, `<?=` (short echo), and `?>`
+        # -- so every PHP file recorded branch >= 1 from its open tag alone.
+        # Excluded via tag-shape guards on the `?` alternations: `(?<!<)`
+        # blocks a `?` directly after `<` (all open-tag forms, incl. the bare
+        # `<?` short tag) and `(?!>)` blocks a `?` directly before `>` (the
+        # close tag). Real ternaries (`$a ? $b : $c`, Elvis `?:`) and
+        # null-coalescing `??`/`??=` are unaffected: no valid PHP operator
+        # use of `?` sits immediately after `<` or immediately before `>`.
         "branch": re.compile(
-            r"(?<!\$)(?<!->)(?<!::)\b(if|else|elseif|switch|case|default|foreach|for|while|do|try|catch|finally|break|continue|match|goto)\b|&&|\|\||\?\?|\?"
+            r"(?<!\$)(?<!->)(?<!::)\b(if|else|elseif|switch|case|default|foreach|for|while|do|try|catch|finally|break|continue|match|goto)\b|&&|\|\||(?<!<)\?\?|(?<!<)\?(?!>)"
         ),
         # 2. args (Parameters / Coupling)
         # Signatures for functions and arrow functions. Bounded to prevent ReDoS.

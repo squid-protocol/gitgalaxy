@@ -83,8 +83,11 @@ DEFINITION: dict[str, Any] = {
             # FIX 1 (Invocation Shield): Injected `(?=[ \t\n]*\{)` at the end of the class
             # method branch, demanding structural proof that the signature opens a logic block.
             # FIX 2 (Control Flow Shield): `while (i < 10) {` structurally mimics a method.
-            # Injected `(?!(?:if|for|while|switch|catch|return)\b)` to prevent reserve words
-            # from being mapped as method names.
+            # Injected `(?!(?:if|for|while|switch|catch|return|with)\b)` to prevent reserve words
+            # from being mapped as method names. (#2539: `with (shape) {` -- sloppy-mode
+            # statement syntax, same `keyword (...) {` shape -- was missing from the list
+            # and counted as a method named `with`. `do` needs no entry: `do {` has no
+            # parens between keyword and block, so this branch can't match it.)
             # FIX 3 (Quadratic Blowup Shield): The arrow-function branch's identifier
             # match used an unbounded `[\w$]*`. On a long line with no `=>` at all
             # (e.g. a single massive minified/obfuscated line), the engine retried the
@@ -117,7 +120,7 @@ DEFINITION: dict[str, Any] = {
             r"(?:"
             r"\b(?:async[ \t\n]+)?function[ \t\n]*\*?[ \t\n]*(\w*)[ \t\n]*(\([^)]*\))|"
             r"(\([^)]*\)|[a-zA-Z_$][\w$]{0,100})[ \t\n]*=>|"
-            r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get[ \t\n]+|set[ \t\n]+)?\*?(?!(?:if|for|while|switch|catch|return)\b)(#?[a-zA-Z_$][\w$]*)[ \t\n]*(\([^)]*\))(?=[ \t\n]*\{)"
+            r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get[ \t\n]+|set[ \t\n]+)?\*?(?!(?:if|for|while|switch|catch|return|with)\b)(#?[a-zA-Z_$][\w$]*)[ \t\n]*(\([^)]*\))(?=[ \t\n]*\{)"
             r")",
             re.M,
         ),
@@ -174,7 +177,11 @@ DEFINITION: dict[str, Any] = {
             # working the same as before; only a bare statement with
             # neither `{` nor `=>` anywhere (e.g. `next();`) is newly
             # rejected.
-            r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get\s+|set\s+)?\*?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|jQuery|function)\b|\$)#?[a-zA-Z_$][\w$]*(?=[ \t\n]*\([^)(]*\)[ \t\n]*(?::[^{=;]+)?[ \t\n]*(?:=>[ \t\n]*)?\{)"
+            # #2539: `with` added to the exclusion -- `with (shape) {` (sloppy-mode
+            # statement) has the exact `keyword (...) {` shape this branch matches,
+            # so it was counted as a method named `with`. `do` can't be caught the
+            # same way (`do {` has no parens), so it needs no entry.
+            r"^[ \t]*(?:static[ \t\n]+)?(?:async[ \t\n]+)?(?:get\s+|set\s+)?\*?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|jQuery|function|with)\b|\$)#?[a-zA-Z_$][\w$]*(?=[ \t\n]*\([^)(]*\)[ \t\n]*(?::[^{=;]+)?[ \t\n]*(?:=>[ \t\n]*)?\{)"
             r")",
             re.M,
         ),

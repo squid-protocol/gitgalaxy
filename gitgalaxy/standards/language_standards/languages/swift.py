@@ -196,7 +196,7 @@ DEFINITION: dict[str, Any] = {
         # 24. import (Dependency Inclusions)
         "import": re.compile(r"^[ \t]*(?:@_exported[ \t]+)?import\s+[a-zA-Z_]\w*", re.M),
         "_dependency_capture": re.compile(
-            r"^[ \t]*(?:@_exported[ \t]+)?import\s+(?:(?:typealias|struct|class|enum|protocol|let|var|func)\s+)?([a-zA-Z_][\w.]+)",
+            r"^[ \t]*(?:@_exported[ \t]+)?import\s+(?:(?:typealias|struct|class|enum|protocol|let|var|func)\s+)?([a-zA-Z_][\w.]*)",
             re.M,
         ),
         # 25. ownership (Authorship Metadata)

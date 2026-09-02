@@ -365,3 +365,16 @@ def test_dart_explicit_casts_and_pointers_no_false_collision():
 
 def test_dart_router_boundary_regression():
     assert LANGUAGE_DEFINITIONS["dart"]["rules"]["ssr_boundaries"].search("final app = Router();")
+
+
+def test_dart_globals_anchor_bug_regression():
+    """#2651: `globals` rule anchored to column-0 to prevent function-local
+    declarations from being counted as globals."""
+    globals_rule = DART_RULES["globals"]
+
+    assert globals_rule.search("const MY_GLOBAL = 42;"), "true top-level const must count as global"
+    assert globals_rule.search("var global_state = false;"), "true top-level var must count as global"
+
+    assert not globals_rule.search("    const local_var = 1;"), "indented const must NOT count as global"
+    assert not globals_rule.search("\tvar local_var = false;"), "tab-indented var must NOT count as global"
+

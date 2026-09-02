@@ -338,3 +338,23 @@ def test_python_globals_builtin_call_boundary_regression():
     r = LANGUAGE_DEFINITIONS["python"]["rules"]
     assert r["globals"].search("x = globals()")
     assert r["globals"].search("y = locals()")
+
+
+def test_python_doc_docstring_counts_once_regression():
+    """
+    #2658: the doc rule matched opening and closing docstring delimiters
+    independently with no pairing, so one docstring counted doc=2. Match
+    the full delimited span as a single bounded non-greedy hit instead.
+    """
+    doc = PY_RULES["doc"]
+
+    assert len(doc.findall('"""one docstring"""')) == 1, "a single docstring must count once, not twice"
+    assert (
+        len(doc.findall("'''one docstring'''")) == 1
+    ), "a single '''-delimited docstring must count once, not twice"
+
+    two = '"""first"""\ndef f():\n    """second"""\n'
+    assert len(doc.findall(two)) == 2, "two separate docstrings must count as 2"
+
+    # An unterminated delimiter at EOF must not hang or falsely count.
+    assert_redos_immune(doc, '"""' + "x" * 200000, timeout_sec=3.0)

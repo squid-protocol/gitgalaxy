@@ -498,3 +498,18 @@ def test_embedded_python_comprehensions_one_level_nesting():
     pattern = EP_RULES["comprehensions"]
     assert pattern.search("[x for x in [y for y in range(10)]]")
     assert pattern.search("{k: v for k, v in {a: b for a, b in pairs}.items()}")
+
+
+def test_embedded_python_doc_docstring_counts_once_regression():
+    """
+    #2658: same fix as python's doc rule -- one docstring must count once,
+    not twice from unpaired open/close delimiter matches.
+    """
+    doc = LANGUAGE_DEFINITIONS["embedded_python"]["rules"]["doc"]
+
+    assert len(doc.findall('"""one docstring"""')) == 1, "a single docstring must count once, not twice"
+
+    two = '"""first"""\ndef f():\n    """second"""\n'
+    assert len(doc.findall(two)) == 2, "two separate docstrings must count as 2"
+
+    assert_redos_immune(doc, '"""' + "x" * 200000, timeout_sec=3.0)

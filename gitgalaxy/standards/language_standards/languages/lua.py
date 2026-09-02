@@ -92,8 +92,10 @@ DEFINITION: dict[str, Any] = {
         # 9. io: I/O & Network Boundaries. Standard IO library and environment inquiries.
         "io": re.compile(r"\b(io\.open|io\.read|io\.lines|io\.close|io\.input|io\.output|io\.popen|os\.getenv)\b"),
         # 10. api: Public Surface Area. Functions NOT marked local or explicit module returns.
+        # BUG FIX #2657: The 'return M' module-export idiom is anchored to column 0 (^return)
+        # to avoid false positives on indented function-body returns, which spiked risk_api_exposure.
         "api": re.compile(
-            r"^[ \t]*function\s+[^_][\w.:]*|^[ \t]*return\s+[a-zA-Z_]\w*[ \t]*$|---@public|\bexport\b",
+            r"^[ \t]*function\s+[^_][\w.:]*|^return[ \t]+[a-zA-Z_]\w*[ \t]*$|---@public|\bexport\b",
             re.M,
         ),
         # 11. flux: State Mutation. State mutation (assignments and table mutators).

@@ -106,6 +106,8 @@ class SignalProcessor:
         )
         self.MASSIVE_FILE_THRESHOLD = physics.get("MASSIVE_FILE_THRESHOLD", 300)
         self.TESTING_RISK_FLOOR = physics.get("TESTING_RISK_FLOOR", 15.0)
+        # Evidence-mass floor (#2655) -- see _mass_loc().
+        self.EVIDENCE_MASS_FLOOR = float(physics.get("EVIDENCE_MASS_FLOOR", 50))
 
         # Fetch Path Modifiers & Asset Masks
         self.path_modifiers = getattr(config, "PATH_MODIFIERS", {})
@@ -743,10 +745,11 @@ class SignalProcessor:
             )
             spec_score = self._calc_spec_alignment(raw_signals, mp_map.get("spec", 1.0))
 
-            bureaucracy_dampener = min(loc / 15.0, 1.0)
-            test_score *= bureaucracy_dampener
-            doc_score *= bureaucracy_dampener
-            spec_score *= bureaucracy_dampener
+            # The old `bureaucracy_dampener = min(loc / 15, 1)` that scaled the
+            # doc/test/spec scores of sub-15-LOC files is gone (#2655): it stacked a
+            # second, linear length dependence on top of the per-LOC density one.
+            # The evidence-mass floor inside each equation is now the only
+            # small-file mechanism.
 
             exposure_vector = {
                 "cognitive_load": cog_score,
@@ -827,6 +830,11 @@ class SignalProcessor:
                 "local_drift": local_drift,
                 "local_fingerprint": local_fingerprint,
                 "densities": {"cog_raw": round(cog_raw, 3)},
+                # Evidence-mass flag (#2655): consumers can tell a count-regime score
+                # (file below the floor, scored as if it were `evidence_mass` lines
+                # long) from a density-regime one.
+                "evidence_mass": self._mass_loc(loc),
+                "mass_floored": loc < self.EVIDENCE_MASS_FLOOR,
                 "raw_churn_freq": raw_churn_freq,
                 "func_complexity_gini": func_gini,
                 "ownership_entropy": ownership_score,
@@ -1314,6 +1322,21 @@ class SignalProcessor:
             return "Spaces"
         return f"Mixed ({space_ratio:.1f}% Spaces / {100 - space_ratio:.1f}% Tabs)"
 
+    def _mass_loc(self, loc: int) -> float:
+        """
+        Evidence-mass floor (#2655): the denominator every per-file density equation
+        divides by. Below EVIDENCE_MASS_FLOOR coding lines a file is scored on its
+        COUNTS -- a 2-hit file is a 2-hit file whether it is 5 or 49 lines long -- so
+        identical intent scores identically regardless of file length. At or above
+        the floor this is the identity, so the density regime is untouched.
+
+        This is the per-file analog of the mass-weighted averaging the directory scope
+        already applies, and it replaced six independent small-file guards (the <15
+        cognitive-load cliff, the loc/15 bureaucracy dampener, the unbounded irc/loc
+        floor, ...) that each fired on a different LOC range and fought each other.
+        """
+        return max(float(loc), 1.0, self.EVIDENCE_MASS_FLOOR)
+
     def _calc_cog_load(
         self,
         loc: int,
@@ -1323,37 +1346,22 @@ class SignalProcessor:
         mp: float,
         func_gini: float = 0.0,
     ) -> tuple[float, float]:
-        safe_loc = max(loc, 1)
         t = self.risk_tuning.get("cognitive_load", {})
+        mass_loc = self._mass_loc(loc)
 
-        if safe_loc < 15:
-            total_density = sum(
-                [
-                    raw_signals.get(k, 0)
-                    for k in [
-                        "branch",
-                        "state_mutation",
-                        "concurrency",
-                        "reflection_metaprogramming",
-                    ]
-                ]
-            ) / safe_loc + (irc / safe_loc)
-            # A provably empty tiny file (<=2 LOC, zero signal in every
-            # category) gets a true zero rather than the small-file floor
-            # below -- there's no statistical-noise argument for treating a
-            # near-blank stub as risky.
-            if safe_loc <= 2 and total_density == 0:
-                return 0.0, total_density
-            return 5.0, total_density
-
+        # No decision density means no cognitive load, at ANY length. This used to
+        # apply only above 50 LOC (files of 15-50 lines computed a flux-only density
+        # and files under 15 were forced to a flat 5.0), which put a cliff at 15 and
+        # a discontinuity at 50/51 for the same branchless file (#2655). The old
+        # "provably empty tiny file scores a true zero" carve-out is a special case.
         branches = raw_signals.get("branch", 0)
-        if branches == 0 and safe_loc > 50:
+        if branches == 0:
             return 0.0, 0.0
 
-        branch_density = branches / safe_loc
-        flux_density = raw_signals.get("state_mutation", 0) / safe_loc
-        concurrency_density = raw_signals.get("concurrency", 0) / safe_loc
-        heat_density = raw_signals.get("reflection_metaprogramming", 0) / safe_loc
+        branch_density = branches / mass_loc
+        flux_density = raw_signals.get("state_mutation", 0) / mass_loc
+        concurrency_density = raw_signals.get("concurrency", 0) / mass_loc
+        heat_density = raw_signals.get("reflection_metaprogramming", 0) / mass_loc
 
         clamped_branch = min(branch_density * 1.0, t.get("branch_clamp", 0.5))
         clamped_flux = min(flux_density * t.get("flux_mult", 2.0), t.get("flux_clamp", 0.75))
@@ -1366,7 +1374,10 @@ class SignalProcessor:
         if func_gini > 0.7:
             gini_multiplier = 1.0 + (func_gini * 0.5)
 
-        total_density = (clamped_branch + clamped_flux + heavy_logic + (irc / safe_loc)) * gini_multiplier
+        # irc stays a pseudo-hit here (not a density offset) so >=50-LOC tier
+        # semantics are unchanged; the floor bounds it at irc/EVIDENCE_MASS_FLOOR
+        # instead of letting it grow without limit as the file shrinks.
+        total_density = (clamped_branch + clamped_flux + heavy_logic + (irc / mass_loc)) * gini_multiplier
 
         try:
             raw_score = 100.0 / (
@@ -1375,7 +1386,7 @@ class SignalProcessor:
         except OverflowError:
             raw_score = 100.0 if total_density > t.get("sigmoid_offset", 0.75) else 0.0
 
-        doc_coverage = (raw_signals.get("doc", 0) * t.get("doc_mult", 10.0)) / safe_loc
+        doc_coverage = (raw_signals.get("doc", 0) * t.get("doc_mult", 10.0)) / mass_loc
         cooling = max(0.5, 1.0 - (doc_coverage * fc))
 
         return min(raw_score * cooling * mp, 100.0), total_density
@@ -1383,7 +1394,7 @@ class SignalProcessor:
     def _calc_safety(
         self, loc: int, raw_signals: dict[str, int], irc: int, fc: float, mp: float, mem_mp: float = 1.0
     ) -> float:
-        safe_loc = max(loc, 1)
+        mass_loc = self._mass_loc(loc)
         t = self.risk_tuning.get("safety", {})
 
         attack_hits = (
@@ -1400,7 +1411,9 @@ class SignalProcessor:
         if attack_hits == 0:
             return 0.0
 
-        smoothed_loc = safe_loc + t.get("laplace_smoothing", 20.0)
+        # Laplace padding is kept ON TOP of the evidence-mass floor so that files at
+        # or above the floor score exactly as before (#2655).
+        smoothed_loc = mass_loc + t.get("laplace_smoothing", 20.0)
         # Tier2/tier3 languages (fc < 1.0) get a proportional discount on the
         # attack signal rather than a flat subtraction: a flat subtraction of
         # a value larger than net_exposure's typical range wipes out small-
@@ -1416,7 +1429,7 @@ class SignalProcessor:
         except OverflowError:
             score = 100.0 if net_exposure > 0 else 0.0
 
-        danger_density = (raw_signals.get("high_risk_execution", 0) + raw_signals.get("safety_bypasses", 0)) / safe_loc
+        danger_density = (raw_signals.get("high_risk_execution", 0) + raw_signals.get("safety_bypasses", 0)) / mass_loc
         if danger_density > t.get("vulnerability_density_min", 0.03) and attack > defense:
             floor = min(
                 t.get("breach_floor_max", 80.0),
@@ -1452,7 +1465,7 @@ class SignalProcessor:
         if slop_stress > 0 and (good_debt > 0 or bad_debt > 0):
             stress *= 1.5
 
-        density = (stress / max(loc, 1)) * 100.0
+        density = (stress / self._mass_loc(loc)) * 100.0
         threshold = t.get("threshold", 5.0)
 
         try:
@@ -1500,18 +1513,25 @@ class SignalProcessor:
                 if impact > 50.0 and not func.get("docstring"):
                     opaque_execution += 5.0 + math.log1p(impact)
 
-        # Add Implicit Risk Correction (Maintenance Overhead) to the risk
-        risk_hits = opaque_execution + api_exposure + irc
-
-        if risk_hits == 0:
+        # Irc CORRECTS measured risk; it never creates it (#2655). A file with no
+        # public surface and no load-bearing undocumented block has nothing to
+        # document, whatever its language tier -- the same zero-evidence convention
+        # _calc_safety, _calc_tech_debt, _calc_concurrency and _calc_state_flux
+        # already follow. Before this, tier-3 files with api=0 scored 19-42 on irc
+        # alone (html/css a/b/c in the rosetta corpus).
+        measured_risk = opaque_execution + api_exposure
+        if measured_risk == 0:
             return 0.0
 
+        # Add Implicit Risk Correction (Maintenance Overhead) to the risk
+        risk_hits = measured_risk + irc
+
         # 3. UNIVERSAL DENSITY EQUATION
-        # Small-file smoothing (mirrors _calc_safety's laplace_smoothing): without
-        # it, irc's flat additive contribution to risk_hits dominates density at
-        # tiny files, since it's divided by raw loc instead of a padded floor.
+        # loc_smoothing is kept ON TOP of the evidence-mass floor so files at or
+        # above the floor score exactly as before; the floor is what bounds irc's
+        # flat additive contribution at tiny files (#2655).
         net_exposure = max(0.0, risk_hits - (defense_hits / 2.0))
-        smoothed_loc = max(loc, 1) + t.get("loc_smoothing", 20.0)
+        smoothed_loc = self._mass_loc(loc) + t.get("loc_smoothing", 20.0)
         density = (net_exposure / smoothed_loc) * 100.0
 
         # 4. THE MULTIPLIERS (Dependency Blast Radius & Authorship Centralization)
@@ -1606,7 +1626,7 @@ class SignalProcessor:
 
         # Step D: Executable Density Normalization & Ecosystem Modifiers
         # Apply the Opacity Tax (ot) directly to the density
-        raw_density = (total_untested_impact / max(loc, 1)) * ot
+        raw_density = (total_untested_impact / self._mass_loc(loc)) * ot
 
         # The GuideStar Umbrella (Dampener)
         # umbrella_bonus is max 50.0. If bonus is 50, dampener is 0.5.
@@ -1643,7 +1663,9 @@ class SignalProcessor:
 
         t = self.risk_tuning.get("dead_code", {})
         deprecated_lines = hits * t.get("hit_mult", 3.0)
-        density = (deprecated_lines / max(total_loc, t.get("safe_mass_floor", 50.0))) * 100.0
+        # Graveyard had its own mass floor before #2655 generalised the idea; the
+        # tuning key still wins if set, otherwise the shared floor applies.
+        density = (deprecated_lines / max(total_loc, t.get("safe_mass_floor", self.EVIDENCE_MASS_FLOOR))) * 100.0
 
         threshold = t.get("threshold_base", 10.0) / max(mp, 0.1)
         try:
@@ -1676,8 +1698,9 @@ class SignalProcessor:
         else:
             network_multiplier = min(1.0 + (math.log1p(popularity) / 5.0), 2.0)
 
-        # LOGARITHMIC MASS CORRECTION
-        volume_weight = math.log1p(api_hits) / math.log1p(max(total_loc, 10))
+        # LOGARITHMIC MASS CORRECTION -- floored at the evidence mass (#2655) so six
+        # public functions score the same whether they sit in 13 or 49 lines.
+        volume_weight = math.log1p(api_hits) / math.log1p(max(float(total_loc), self.EVIDENCE_MASS_FLOOR))
 
         return min(exposure_ratio * volume_weight * network_multiplier * 100.0, 100.0)
 
@@ -1704,7 +1727,7 @@ class SignalProcessor:
         if net_concurrency == 0:
             return 0.0
 
-        density = (net_concurrency / max(loc + loc_padding, 1)) * 100.0
+        density = (net_concurrency / (self._mass_loc(loc) + loc_padding)) * 100.0
         density += irc * tuning.get("irc_mult", 0.1)
 
         threshold = tuning.get("threshold_base", 4.0)  # Matches your config!
@@ -1731,7 +1754,7 @@ class SignalProcessor:
         if net_volatility == 0:
             return 0.0
 
-        density = (net_volatility / max(loc + loc_padding, 1)) * 100.0
+        density = (net_volatility / (self._mass_loc(loc) + loc_padding)) * 100.0
         density += irc * tuning.get("irc_mult", 0.15)
 
         threshold = tuning.get("threshold_base", 15.0)
@@ -1740,7 +1763,12 @@ class SignalProcessor:
         return min(self._sigmoid(density, threshold, slope) * 100.0 * mp, 100.0)
 
     def _calc_spec_alignment(self, raw_signals: dict[str, int], mp: float) -> float:
-        entities = max(raw_signals.get("func_start", 0) + raw_signals.get("class_start", 0), 1)
+        entities = raw_signals.get("func_start", 0) + raw_signals.get("class_start", 0)
+        # Nothing to specify, nothing misaligned (#2655): a file with no functions or
+        # classes (css, yaml, a constants module) used to score a flat 100 because the
+        # denominator was floored to 1 and then hidden by the loc/15 dampener.
+        if entities == 0:
+            return 0.0
         ratio = min(raw_signals.get("spec_exposure", 0) / entities, 1.0)
         return min((1.0 - ratio) * 100.0 * mp, 100.0)
 

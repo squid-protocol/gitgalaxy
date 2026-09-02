@@ -29,7 +29,8 @@ The analysis engine categorizes comment tokens into two debt classes:
 1. **Stress Sum Calculation:**
 $$\text{StressSum} = (\text{PlannedDebt} \times 1.0) + (\text{FragileDebt} \times 3.0) + (Irc \times 0.5)$$
 2. **Density Normalization (per 100 LOC):**
-$$\text{Density} = \left( \frac{\text{StressSum}}{\max(\text{LOC}, 1)} \right) \times 100.0$$
+$$\text{Density} = \left( \frac{\text{StressSum}}{\max(\text{LOC}, 50)} \right) \times 100.0$$
+The denominator is the UEF evidence-mass floor ([08-03](08-03-transforming-regex-counts.md)): a `TODO` and a `FIXME` in a 6-line config file and the same pair in a 49-line one carry the same debt score (#2655).
 3. **Sigmoidal Threshold Mapping:**
 $$\text{RawScore} = \frac{100.0}{1 + e^{-0.5 \times (\text{Density} - 5.0)}}$$
 4. **Apply Path Modifier:**

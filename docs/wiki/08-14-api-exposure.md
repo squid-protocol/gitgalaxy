@@ -21,19 +21,19 @@ To measure the ratio of exported public endpoints against total declared entitie
 Files that expose every internal function and class create highly coupled, brittle systems where changing internal implementation details breaks external consumers. Developers need visibility into which modules are leaking their internal state versus those properly encapsulating logic behind a narrow public interface.
 
 ## Design
-The calculation combines a relative export ratio (40% weight) with an absolute logarithmic endpoint volume (60% weight).
-- **Numerator:** Export keywords (`export`, `public`, `module.exports`) or casing conventions (Go/Python).
-- **Denominator:** Total logical entities (functions + classes).
+The calculation multiplies a relative exposure ratio (public against public-plus-private) by a logarithmic volume weight and a network multiplier.
+- **Risk:** Export keywords (`export`, `public`, `module.exports`) or casing conventions (Go/Python) -- the `api` signal.
+- **Mitigation:** Internal/private boundaries -- the `encapsulation` signal.
 
-**Mathematical Formulation**
-1. **Encapsulation Short-Circuit:** If `api_hits == 0`, score is `0.0`.
-2. **Exposure Ratio Calculation (40% Weight):**
-$$\text{Entities} = \max(\text{func\_start} + \text{class\_start}, 1)$$
-$$\text{Ratio} = \min\left( \frac{\text{api\_hits}}{\text{Entities}}, 1.0 \right)$$
-3. **Logarithmic Volume Calculation (60% Weight):**
-$$\text{VolumeWeight} = \min\left( \frac{\log_{10}(\text{api\_hits} + 1)}{1.5}, 1.0 \right)$$
+**Mathematical Formulation** (as implemented in `_calc_api_exposure`; an earlier revision of this page described a 40/60 ratio-plus-volume blend that the code never shipped -- the `api_exposure` tuning keys are unread)
+1. **Encapsulation Short-Circuit:** If `api_hits == 0`, score is `0.0` (the ratio below would be $0$ anyway; encapsulation cannot push exposure below zero).
+2. **Exposure Ratio:**
+$$\text{Ratio} = \frac{\text{api\_hits}}{\max(\text{api\_hits} + \text{encapsulation}, 1)}$$
+3. **Logarithmic Volume Weight** over the UEF evidence-mass floor ([08-03](08-03-transforming-regex-counts.md)), so six public functions score the same whether they sit in 13 or 49 lines (#2655):
+$$\text{VolumeWeight} = \frac{\ln(\text{api\_hits} + 1)}{\ln(\max(\text{TotalLOC}, 50) + 1)}$$
+3b. **Isolated-Node Adjustment:** $\text{Network} = 0.2$ when the file has no inbound dependents (popularity $0$), else $\min(1 + \ln(1 + \text{popularity}) / 5, 2.0)$.
 4. **Compound Score & Path Modifier:**
-$$\text{RawScore} = \left( (\text{Ratio} \times 0.4) + (\text{VolumeWeight} \times 0.6) \right) \times 100.0$$
+$$\text{RawScore} = \text{Ratio} \times \text{VolumeWeight} \times \text{Network} \times 100.0$$
 $$\text{FinalScore} = \min(\text{RawScore} \times Mp, 100.0)$$
 
 ## Pipeline Integration
@@ -49,7 +49,7 @@ flowchart LR
 - **Dependencies:** Relies upstream on structural entity counting from the static analysis engine.
 
 ## Tradeoffs
-- Weighting absolute volume heavily (60%) over pure ratio (40%) ensures that a file exporting 1 public function out of 1 total (100% ratio) scores much lower than a file exporting 50 public functions out of 100 (50% ratio). This correctly flags massive API surfaces over tiny single-export scripts.
+- Multiplying the ratio by a logarithmic volume weight ensures that a file exporting 1 public function out of 1 total (100% ratio) scores much lower than a file exporting 50 public functions out of 100 (50% ratio). This correctly flags massive API surfaces over tiny single-export scripts, and the evidence-mass floor keeps a small file from inflating the weight just by being short.
 - Logarithmic scaling for absolute volume ensures that scores do not scale infinitely, capping out reasonably as API sizes hit critical mass.
 
 ## Limitations

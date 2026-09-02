@@ -36,7 +36,8 @@ $$\text{UndocumentedRisk} = \sum_{\text{undocumented}} \left( 5.0 + \ln(\text{Im
 $$\text{RiskHits} = \text{UndocumentedRisk} + (\text{API\_Exposure} \times 2.0) + Irc$$
 3. **Net Exposure & Line Density:**
 $$\text{NetExposure} = \max\left(0, \text{RiskHits} - \frac{\text{DefenseHits}}{2.0}\right)$$
-$$\text{Density} = \left( \frac{\text{NetExposure}}{\max(\text{LOC}, 1)} \right) \times 100.0$$
+$$\text{Density} = \left( \frac{\text{NetExposure}}{\max(\text{LOC}, 50) + 20} \right) \times 100.0$$
+The denominator is the UEF evidence-mass floor plus the equation's smoothing pad ([08-03](08-03-transforming-regex-counts.md)). $Irc$ corrects measured risk, it never creates it: when $\text{UndocumentedRisk} + \text{API\_Exposure} = 0$ the score is $0$ in every language tier (#2655).
 4. **Systemic Multipliers & Mapping:**
 $$\text{FinalMultiplier} = \left(1.0 + \frac{\text{Pop}}{10}\right) \times \left(1.0 + \frac{\text{Silo}}{200}\right) \times Mp$$
 $$\text{RawRisk} = \frac{100.0}{1 + e^{-0.2 \times (\text{Density} - 10.0)}}$$

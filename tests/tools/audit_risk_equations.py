@@ -111,7 +111,8 @@ EQUATION_CASES: list[EquationCase] = [
         name="cog_load",
         method_name="_calc_cog_load",
         notes="irc adds to density (risk axis); fc gates doc-coverage cooling (defense axis). "
-        "LOC<15 takes a flat-5.0 small-file floor that ignores fc/irc entirely by design.",
+        "Below EVIDENCE_MASS_FLOOR (#2655) the LOC sweep points collapse onto one count-based "
+        "score per tier -- see tests/tools/audit_length_invariance.py for the length axis.",
         scenarios=[
             Scenario(
                 "risk",

@@ -17,10 +17,11 @@ Applies four stabilizing principles:
 2. **The Breach Cap:** If raw risk hits exceed guardrail hits, the safety rating is severely capped, bypassing averages.
 3. **Sigmoid Gating:** Uses a logistic sigmoid function to filter low-density noise (0-5%) and scale exponentially as risk crosses thresholds.
 4. **Quantized Tiering:** Scores are binned into qualitative tiers (Unshielded to Fortified).
+5. **Evidence-Mass Floor:** Every per-file density divides by $\max(LOC, 50)$, never by raw LOC. Below 50 coding lines a file is scored on its *counts* (a two-hit file is a two-hit file whether it is 5 or 49 lines long), so identical intent scores identically regardless of file length; at or above the floor the density regime is untouched. This is the per-file analog of the mass-weighted averaging used at directory scope, and it is the *only* small-file mechanism -- it replaced six independent guards (a `<15 LOC` cognitive-load cliff, two `+20` paddings, a `loc/15` dampener, an unbounded $Irc/LOC$ floor, a `max(total_loc, 10)` API guard) that each fired on a different LOC range and fought each other (#2655). Files below the floor carry `mass_floored: true` and their `evidence_mass` in telemetry. Two consistency rules follow from it: $Irc$ *corrects* measured risk and never creates it (zero measured evidence scores zero in every tier), and a file with no branches carries no cognitive load at any length.
 
 Language Confidence Tiers (1 to 3) apply Fidelity Coefficients ($Fc$) and Implicit Risk Corrections ($Irc$) based on language strictness.
 General Risk Equation:
-$$RiskExposure = \left( \frac{((RiskHits + Irc) \times Weight) - (DefenseHits \times Fc)}{LOC} \right) \times Mp$$
+$$RiskExposure = \left( \frac{((RiskHits + Irc) \times Weight) - (DefenseHits \times Fc)}{\max(LOC,\ 50)} \right) \times Mp$$
 
 ## Pipeline Integration
 - **Inputs:** Raw regex counts, LOC, language metadata.

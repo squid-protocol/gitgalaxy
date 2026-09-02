@@ -32,7 +32,8 @@ If $\text{net\_volatility} = 0$, the function returns $0.0$.
 ### 2. Volatility Density
 Calculate mutation density per line of code, adding the dampened language risk ($\text{IRC} \times 0.15$):
 
-$$\text{Density} = \left( \frac{\text{net\_volatility}}{\max(\text{LOC} + \text{loc\_padding}, 1)} \right) \times 100.0 + (\text{IRC} \times 0.15)$$
+$$\text{Density} = \left( \frac{\text{net\_volatility}}{\max(\text{LOC}, 50) + \text{loc\_padding}} \right) \times 100.0 + (\text{IRC} \times 0.15)$$
+$\max(\text{LOC}, 50)$ is the UEF evidence-mass floor ([08-03](08-03-transforming-regex-counts.md)): two mutations in a 10-line file no longer read as 20% volatility (#2655).
 
 ### 3. Sigmoid Normalization
 Map density using a base threshold of $15.0$ and slope of $0.2$, scaled by the path modifier ($Mp$):

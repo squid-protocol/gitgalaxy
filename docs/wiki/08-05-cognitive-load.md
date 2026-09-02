@@ -27,18 +27,19 @@ The calculation processes heuristic counts from static analysis and weights them
 
 **Mathematical Formulation**
 1. **Calculate Clamped Line Densities:**
-$$\text{BranchDensity} = \min\left(\frac{\text{branch}}{\text{LOC}}, 0.5\right)$$
-$$\text{FluxDensity} = \min\left(\frac{\text{state\_mutation}}{\text{LOC}} \times 2.0, 0.75\right)$$
+Where $M = \max(\text{LOC}, 50)$ is the evidence mass (the UEF's evidence-mass floor, [08-03](08-03-transforming-regex-counts.md)): below 50 coding lines the file is scored on counts, so identical signals score identically at any length. A file with no branches scores $0$ at any length -- no decision density, no load.
+$$\text{BranchDensity} = \min\left(\frac{\text{branch}}{M}, 0.5\right)$$
+$$\text{FluxDensity} = \min\left(\frac{\text{state\_mutation}}{M} \times 2.0, 0.75\right)$$
 
 2. **Sum Heavy Logic & Apply Gini Coefficient:**
 $$\text{HeavyLogic} = (\text{concurrency} \times 3.0) + (\text{reflection} \times 5.0) + (\text{unsafe} \times 5.0)$$
-$$\text{TotalDensity} = \left(\text{BranchDensity} + \text{FluxDensity} + \frac{\text{HeavyLogic}}{\text{LOC}} + \frac{Irc}{\text{LOC}}\right) \times \text{GiniMultiplier}$$
+$$\text{TotalDensity} = \left(\text{BranchDensity} + \text{FluxDensity} + \frac{\text{HeavyLogic}}{M} + \frac{Irc}{M}\right) \times \text{GiniMultiplier}$$
 
 3. **Map Through Sigmoid Curve:**
 $$\text{RawScore} = \frac{100}{1 + e^{-4.0 \times (\text{TotalDensity} - 0.75)}}$$
 
 4. **Apply Documentation Mitigation & Path Modifier:**
-$$\text{DocCoverage} = \frac{\text{doc} \times 10.0}{\text{LOC}}$$
+$$\text{DocCoverage} = \frac{\text{doc} \times 10.0}{M}$$
 $$\text{CoolingFactor} = \max\left(0.5, 1.0 - (\text{DocCoverage} \times Fc)\right)$$
 $$\text{FinalScore} = \min(\text{RawScore} \times \text{CoolingFactor} \times Mp, 100)$$
 

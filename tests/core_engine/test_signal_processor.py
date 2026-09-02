@@ -165,17 +165,45 @@ def test_signal_processor_encapsulation_ratio_all_global_still_zero(processor):
     assert res["telemetry"]["encapsulation_ratio"] == 0.0
 
 
-def test_signal_processor_small_file_floor_still_applies(processor):
+def test_signal_processor_small_file_scores_on_counts(processor):
     """
-    Proves the small-file 5.0 floor is untouched for files under 15 LOC that
-    DO have some signal -- only the provably-empty <=2 LOC case should get
-    the true-zero carve-out.
+    #2655: the old flat 5.0 small-file floor (`loc < 15`) is gone. A file below
+    the evidence-mass floor is scored on its COUNTS, as if it were
+    EVIDENCE_MASS_FLOOR lines long -- so a 10-LOC file with 3 branches must score
+    exactly what a 49-LOC file with 3 branches scores, and exactly what a
+    50-LOC file with 3 branches scores (the floor is continuous, not a cliff).
     """
-    meta, sig = create_synthetic_star(processor, "small_but_real", 10, {"branch": 3})
-    res = processor.calculate_risk_vector(meta, sig)
-
     idx_cog = processor.RISK_SCHEMA.index("cognitive_load")
-    assert res["risk_vector"][idx_cog] == 5.0, "Small file with real signal should still hit the 5.0 floor!"
+    scores = {}
+    for loc in (3, 10, 14, 15, 16, 49, 50):
+        meta, sig = create_synthetic_star(processor, f"small_{loc}", loc, {"branch": 3})
+        scores[loc] = processor.calculate_risk_vector(meta, sig)["risk_vector"][idx_cog]
+
+    assert scores[10] != 5.0 or scores[49] == 5.0, "The flat 5.0 floor should no longer exist"
+    assert len(set(scores.values())) == 1, f"Identical signals must score identically below the floor: {scores}"
+    assert 0.0 < scores[10] < 20.0, f"3 branches per 50 lines is low, not zero and not red: {scores[10]}"
+
+    # Flag + mass are exposed so consumers can tell a count-regime score apart.
+    meta, sig = create_synthetic_star(processor, "flagged", 10, {"branch": 3})
+    tel = processor.calculate_risk_vector(meta, sig)["telemetry"]
+    assert tel["mass_floored"] is True
+    assert tel["evidence_mass"] == processor.EVIDENCE_MASS_FLOOR
+    meta, sig = create_synthetic_star(processor, "unflagged", 120, {"branch": 3})
+    tel = processor.calculate_risk_vector(meta, sig)["telemetry"]
+    assert tel["mass_floored"] is False
+    assert tel["evidence_mass"] == 120.0
+
+
+def test_signal_processor_branchless_file_zero_cog_at_any_length(processor):
+    """
+    #2655: "no branches, no cognitive load" used to apply only above 50 LOC, so a
+    branchless file with state mutation scored ~6 at 50 lines and 0.0 at 51. The
+    rule now applies at every length.
+    """
+    idx_cog = processor.RISK_SCHEMA.index("cognitive_load")
+    for loc in (2, 10, 30, 50, 51, 200):
+        meta, sig = create_synthetic_star(processor, f"flux_only_{loc}", loc, {"state_mutation": 6, "branch": 0})
+        assert processor.calculate_risk_vector(meta, sig)["risk_vector"][idx_cog] == 0.0, loc
 
 
 # ==============================================================================

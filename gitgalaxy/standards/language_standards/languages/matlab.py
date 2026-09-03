@@ -140,6 +140,23 @@ DEFINITION: dict[str, Any] = {
             r"[ \t]*=[ \t]*[^=]|\b(?:clear|clearvars)\b",
             re.M,
         ),
+        # #2654: MATLAB has no `return <value>` statement -- a function result
+        # IS an assignment to a variable named in the `function [out] = f(...)`
+        # signature. So the rule above charged every language-crucible and
+        # rosetta function one state_mutation just for RETURNING, the one
+        # language in the registry that pays for it (c/go/java's `return env;`
+        # costs nothing for the identical statement). The discriminator is not
+        # anything on the assignment's own line -- it is whether the enclosing
+        # function ever READS the variable back. `out = env;` in a body that
+        # never mentions `out` again is the return channel; runica.m's
+        # `weights = startweights;` in a body that reads `weights` throughout
+        # is genuine working state and still counts, as does any indexed or
+        # self-referential write (`out(i) = x`, `out = out + i`). See
+        # `_matlab_return_channel_offsets` in detector.py. Measured: the
+        # rosetta corpus drops 15 of 19 hits (all four files' `out = <arg>;`
+        # returns), eeglab drops 15 of 1321 (1.1%) and every one of those is a
+        # terminal `com = ''` / `varargout = {...}` / `h = uimenu(...)` binding.
+        "_scope_filters": {"state_mutation": "matlab_return_channel"},
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"^[ \t]*%[ \t]*(?:if|for|while|function|classdef)\b", re.M),
         # doc: Standard MATLAB Help text (`%%` sections) or typed annotations.

@@ -5594,6 +5594,18 @@ class StructuralExtractor:
     _LISP_FORM_HEAD: ClassVar[re.Pattern[str]] = re.compile(r'[ \t\r\n]*([^\s()\[\];"]{1,200})')
     _LISP_LET_FAMILY: ClassVar[frozenset[str]] = frozenset({"let", "let*", "letrec", "letrec*"})
 
+    # #2654: every MATLAB function declaration, whether or not it declares
+    # outputs. The output list is optional so a `function helper(x)` still
+    # opens a span -- otherwise its body would be scanned as part of the
+    # PRECEDING function's, and a same-named local there could be dropped as
+    # if it were that function's return channel. Both name lists are bounded
+    # (no adjacent unbounded quantifiers), so the scan stays linear.
+    _MATLAB_FUNC_DECL: ClassVar[re.Pattern[str]] = re.compile(
+        r"^[ \t]*function\b"
+        r"(?:[ \t]*(?:\[(?P<outs>[^\]\n]{0,400})\]|(?P<out1>[a-zA-Z_]\w{0,127}))[ \t]*=(?![=]))?",
+        re.M,
+    )
+
     def _apply_scope_filter(
         self,
         filter_name: str,
@@ -5621,10 +5633,91 @@ class StructuralExtractor:
                 if paren != -1 and paren in keep:
                     kept.append(m)
             return kept
+        if filter_name == "matlab_return_channel":
+            if filter_name not in cache:
+                cache[filter_name] = self._matlab_return_channel_offsets(code)
+            drop = cache[filter_name]
+            kept = []
+            for m in matches:
+                # The assignment alternative is `^[ \t]*` anchored, so its
+                # identifier is the line's first non-space character; the
+                # `clear`/`clearvars` alternative is unanchored and can only
+                # start further in, which is what keeps a `out = 1; clear y`
+                # line from losing its cleanup hit along with its binding.
+                idx = m.start()
+                while idx < len(code) and code[idx] in " \t":
+                    idx += 1
+                if idx not in drop:
+                    kept.append(m)
+            return kept
         self.logger.warning(
             f"[DIAGNOSTIC] Unknown scope filter '{filter_name}' declared for '{seg_lang}::{rule_name}'. Ignoring."
         )
         return matches
+
+    def _matlab_return_channel_offsets(self, code: str) -> set[int]:
+        """
+        Offsets of every bare assignment to a MATLAB output variable that its
+        function only ever WRITES -- the return-channel bindings (#2654).
+
+        MATLAB has no `return <value>`: a result is an assignment to a name in
+        the `function [out] = f(...)` signature, so `out = env;` is the exact
+        statement c/go/java write as `return env;` for zero state_mutation.
+        Dropping every write to an output variable would be wrong the other
+        way -- runica.m uses `weights` as the working accumulator for a whole
+        ICA loop and assigns it repeatedly -- so the discriminator is whether
+        the body ever reads the name back. A name whose every occurrence in
+        the body is a bare left-hand side (`name =`, no subscript, no field,
+        no mention on the right) is pure return channel; one that appears
+        anywhere else -- read in an expression, `out(i) = x`, `out = out + 1`,
+        passed as an argument -- is working state and keeps all of its hits.
+
+        A function's body runs to the next `function` declaration. For a
+        nested function that truncates the parent's body early, which can only
+        make the parent's name look MORE read (the nested span is scanned
+        under the nested declaration) and so only ever KEEPS hits: the failure
+        direction is the pre-filter count, never a zeroed metric.
+
+        Measured over Prism code streams: the rosetta corpus drops 15 of 19
+        hits (25 -> 4 once the per-function x3 flux weighting is applied,
+        against a corpus median of 2); language-crucible's eeglab drops 15 of
+        1321 (1.1%), each a terminal `com = ''` / `varargout = {...}` /
+        `name = dirName;` binding, with `weights`, `y` and `EEG` untouched.
+        """
+        decls = list(self._MATLAB_FUNC_DECL.finditer(code))
+        if not decls:
+            return set()
+
+        offsets: set[int] = set()
+        for i, decl in enumerate(decls):
+            raw_outs = decl.group("outs")
+            if raw_outs is not None:
+                names = {t.strip() for t in raw_outs.split(",") if t.strip()}
+            elif decl.group("out1"):
+                names = {decl.group("out1")}
+            else:
+                continue
+
+            body_start = decl.end()
+            body_end = decls[i + 1].start() if i + 1 < len(decls) else len(code)
+            body = code[body_start:body_end]
+
+            for name in names:
+                if not name.isidentifier():
+                    continue
+                quoted = re.escape(name)
+                write = re.compile(rf"^[ \t]*({quoted})[ \t]*=(?![=])", re.M)
+                write_starts = {m.start(1) for m in write.finditer(body)}
+                if not write_starts:
+                    continue
+                # Any occurrence that is not one of those bare left-hand sides
+                # is a read (or a structured write), which disqualifies the
+                # whole name -- MATLAB's output variable is then ordinary
+                # working state, not just the return channel.
+                if all(m.start() in write_starts for m in re.finditer(rf"\b{quoted}\b", body)):
+                    offsets.update(body_start + start for start in write_starts)
+
+        return offsets
 
     def _lisp_module_level_define_offsets(self, code: str) -> set[int]:
         """

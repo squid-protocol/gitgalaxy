@@ -1011,11 +1011,21 @@ class Prism:
         # match start -- claims the entire line before the scanner ever reaches an
         # apostrophe/backtick inside it, regardless of how far away an unrelated
         # real quote/backtick happens to sit.
+        # #2674: Scheme's char literals are `#\x` -- and `#\;` / `#\"` / `#\(` are
+        # all legal (cpnanopass.ss: `(write-char #\; p)`). With `;` as the family's
+        # line-comment token, the comment branch below claimed `#\;` and ate the rest
+        # of the line INCLUDING its closing parens, so every paren-balanced scan
+        # downstream (the Mode-B function slicer, the #2674 scope filter) was one
+        # level deep for the rest of the file. Claim the literal atomically first;
+        # it goes through the same mask/unmask path as a string so the code stream
+        # keeps it verbatim. Bounded exactly like detector.py's _LISP_SCOPE_TOKEN.
+        lisp_char_literal = r"#\\(?:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}|[^\s])|" if family == "recursive_block_lisp" else ""
         combined_pattern = re.compile(
-            r'(?<!\\)"(?:\\.|[^"\\])*"'
-            r"|(?<!\\)'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\]){0,10}'"
-            r"|(?<!\\)`(?:\\.|[^`\\]){0,200}`"
-            rf"|{re.escape(s_line)}[^\n]*",
+            lisp_char_literal
+            + r'(?<!\\)"(?:\\.|[^"\\])*"'
+            + r"|(?<!\\)'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\]){0,10}'"
+            + r"|(?<!\\)`(?:\\.|[^`\\]){0,200}`"
+            + rf"|{re.escape(s_line)}[^\n]*",
             re.S | re.M,
         )
         string_cache: dict[str, str] = {}

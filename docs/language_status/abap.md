@@ -489,10 +489,19 @@ languages?" Every deviation from the 46-language median is measured bias, tracke
 [#2560](https://github.com/squid-protocol/gitgalaxy/issues/2560)) and validated in the corpus's
 [deviation ledger](https://github.com/squid-protocol/keyword-rosetta/blob/main/deviation_ledger.json).
 
-**Summary (2026-09-03).** ABAP opened at **3🔴 / 3🟡** and is now **fully in band: zero
-out-of-band metrics across all 57 comparable columns** — the only language in the corpus with no
-deviation of any kind. Tracking issue [#2561](https://github.com/squid-protocol/gitgalaxy/issues/2561)
-closed under Batch E.4 of [#2669](https://github.com/squid-protocol/gitgalaxy/issues/2669).
+**Summary (2026-09-03).** ABAP opened at **3🔴 / 3🟡** and reached **zero out-of-band metrics
+across all 57 comparable columns then measured** — briefly the only language in the corpus with no
+deviation of any kind — which closed
+[#2561](https://github.com/squid-protocol/gitgalaxy/issues/2561) under Batch E.4 of
+[#2669](https://github.com/squid-protocol/gitgalaxy/issues/2669).
+
+**That did not survive the next measurement, and the reason is worth recording.** The bias report
+was scoring `risk_*` metrics whose inputs it never measured; adding those four columns took it to 59
+(then 61) comparable metrics, and ABAP now shows **one amber cell** — `raw_state_slop_orphans` 3.25
+against a 2.5 median (+30%), a single orphaned function's worth. #2561 was reopened rather than left
+closed against a criterion it no longer meets. Nothing about ABAP changed; the corpus simply started
+looking at a column it had never looked at, and "clean" is only ever a statement about what is
+currently measured.
 
 ABAP's deviations were retired by corpus and engine work that was never ABAP-specific:
 
@@ -508,8 +517,12 @@ ABAP's deviations were retired by corpus and engine work that was never ABAP-spe
    ([#2546](https://github.com/squid-protocol/gitgalaxy/issues/2546)) stopped skewing the
    cross-language median.
 
-**Remaining out-of-band: none.** ABAP is the corpus's control case for what "clean" looks like —
-worth reading alongside a language with many ledgered deviations, because it shows the bands are
+**Remaining out-of-band: one amber**, `raw_state_slop_orphans`, untriaged. It is not ABAP-specific:
+that column is out of band in 16 of 46 languages the first time it was ever measured, which is its
+own finding and needs a pass of its own rather than a hasty per-language ledger entry.
+
+ABAP remains the corpus's closest thing to a control case for what "clean" looks like — worth
+reading alongside a language with many ledgered deviations, because it shows the bands are
 achievable rather than aspirational.
 
 **Reading the close criterion correctly.** `tools/language_deviations.py abap` exiting 0 means every

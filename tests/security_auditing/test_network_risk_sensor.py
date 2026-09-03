@@ -741,3 +741,111 @@ def test_network_fold_does_not_cross_language_resolve(sensor):
     assert writer_hs["telemetry"]["network_metrics"]["in_degree"] == 1, (
         "Same-language folded resolution must still work alongside the guard."
     )
+
+
+# ==============================================================================
+# TEST 20: RELATIVE IMPORTS THAT CARRY AN EXTENSION (#2668)
+# ==============================================================================
+# `_resolve_target` rewrote every dot to a slash before taking the token's
+# last path component, so "./b.sh" became "//b/sh" and the lookup key was the
+# *extension*. shell, powershell, yaml and javascript therefore reported
+# dependency_links while building no edges at all: popularity, betweenness,
+# closeness and producer_ratio pinned at 0, pagerank at the uniform 1/N of an
+# edgeless graph. The token forms below are the real captures taken from
+# keyword-rosetta's shell/powershell/yaml/javascript shells.
+_EXTENSION_CARRYING_RELATIVE_IMPORTS = [
+    ("shell", "./b.sh", "/repo/b.sh"),
+    ("powershell", "./b.ps1", "/repo/b.ps1"),
+    ("yaml", "./b.yml", "/repo/b.yml"),
+    ("javascript", "./c.js", "/repo/c.js"),
+    # Deeper relative forms of the same shape.
+    ("javascript-parent", "../lib/helper.js", "/repo/lib/helper.js"),
+    ("javascript-subdir", "./lib/helper.js", "/repo/lib/helper.js"),
+]
+
+
+@pytest.mark.parametrize("label,token,expected", _EXTENSION_CARRYING_RELATIVE_IMPORTS)
+def test_resolve_target_resolves_relative_import_carrying_extension(sensor, label, token, expected):
+    """#2668: each of these resolved to None before the literal-path stage."""
+    files = [
+        {"path": p, "raw_imports": []}
+        for p in ("/repo/main.sh", "/repo/b.sh", "/repo/b.ps1", "/repo/b.yml", "/repo/c.js", "/repo/lib/helper.js")
+    ]
+    resolution_map = sensor._build_resolution_map(files)
+    assert sensor._resolve_target(token, resolution_map, "/repo/main.sh") == expected, label
+
+
+_RESOLVER_CONTROLS = [
+    # (label, token, files, expected) -- forms that already resolved, and
+    # must keep resolving by exactly the same route after #2668.
+    ("typescript-extensionless-relative", "./c", ["/repo/c.ts"], "/repo/c.ts"),
+    ("c-bare-filename", "b.c", ["/repo/b.c"], "/repo/b.c"),
+    ("markdown-link", "b.md", ["/repo/b.md"], "/repo/b.md"),
+    # The dot-rewrite fallback is what makes a package-style token resolve;
+    # #2668 keeps it as the last stage rather than removing it.
+    ("python-package-token", "pkg.utils", ["/repo/pkg/utils.py"], "/repo/pkg/utils.py"),
+    ("python-deep-package-token", "a.b.utils", ["/repo/a/b/utils.py"], "/repo/a/b/utils.py"),
+    # External packages still resolve to nothing.
+    ("external-package", "numpy", ["/repo/real.py"], None),
+    ("external-dotted", "some.deeply.nested.external.pkg", ["/repo/real.py"], None),
+]
+
+
+@pytest.mark.parametrize("label,token,paths,expected", _RESOLVER_CONTROLS)
+def test_resolve_target_controls_unchanged_by_relative_path_stage(sensor, label, token, paths, expected):
+    """The controls from #2668's evidence table: extension-only and ./-only
+    tokens both already worked; only ./ *plus* an extension was fatal."""
+    files = [{"path": p, "raw_imports": []} for p in paths]
+    resolution_map = sensor._build_resolution_map(files)
+    assert sensor._resolve_target(token, resolution_map, "/repo/main.py") == expected, label
+
+
+def test_resolve_target_survives_degenerate_relative_tokens(sensor):
+    """
+    Import tokens are arbitrary captured text, so the relative-path stage
+    has to tolerate tokens that are nothing but path syntax -- ".", "..",
+    "./" and "" all reach pathlib's `with_suffix("")`, which raises on them.
+    """
+    files = [{"path": p, "raw_imports": []} for p in ("/repo/main.sh", "/repo/b.sh")]
+    resolution_map = sensor._build_resolution_map(files)
+    for token in ("", ".", "..", "./", "../", ".././", "/", "..."):
+        assert sensor._resolve_target(token, resolution_map, "/repo/main.sh") is None, token
+
+
+def test_resolve_target_uses_relative_path_context_to_disambiguate(sensor):
+    """
+    Two files share a filename; the token's own directory context decides,
+    and the token's extension must come off before the comparison (candidate
+    paths are compared with their suffix stripped).
+    """
+    files = [{"path": p, "raw_imports": []} for p in ("/repo/lib/helper.js", "/repo/lib/sub/helper.js")]
+    resolution_map = sensor._build_resolution_map(files)
+    assert sensor._resolve_target("./sub/helper.js", resolution_map, "/repo/main.js") == "/repo/lib/sub/helper.js"
+    # Genuinely ambiguous (no path context at all) -- still refuses to guess.
+    assert sensor._resolve_target("./helper.js", resolution_map, "/repo/main.js") is None
+
+
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_relative_extension_imports_produce_a_real_dag(sensor):
+    """
+    The end-to-end symptom from #2668: keyword-rosetta's shell shell records
+    dependency_links 3 with an edgeless graph. Wired through the real graph
+    builder, the chain main -> a -> b -> c must now exist.
+    """
+    files = [
+        {"path": "/repo/main.sh", "raw_imports": ["./a.sh"], "lang_id": "shell"},
+        {"path": "/repo/a.sh", "raw_imports": ["./b.sh"], "lang_id": "shell"},
+        {"path": "/repo/b.sh", "raw_imports": ["./c.sh"], "lang_id": "shell"},
+        {"path": "/repo/c.sh", "raw_imports": [], "lang_id": "shell"},
+    ]
+
+    mapped_files, _ = sensor.build_dependency_graph(files)
+
+    by_path = {f["path"]: f["telemetry"]["network_metrics"] for f in mapped_files}
+    assert by_path["/repo/c.sh"]["in_degree"] == 1
+    assert by_path["/repo/main.sh"]["out_degree"] == 1
+    assert by_path["/repo/main.sh"]["in_degree"] == 0
+    # An edgeless graph gives every node the uniform 1/N pagerank -- the
+    # exact fingerprint #2668 was diagnosed from.
+    pageranks = {round(m["pagerank_score"], 6) for m in by_path.values()}
+    assert len(pageranks) > 1, "uniform pagerank means the graph is still edgeless"

@@ -80,17 +80,17 @@ When you modify GitGalaxy's core engine, several CI workflows will rigorously te
 
 4. **Cross-Language Consistency (`rosetta-audit`, the [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus)**
    This runs the control corpus's verifier across all 46 language folders against your engine build,
-   so a change that shifts corpus-observed counts fails **in the PR that caused it**. Unlike the three
-   baselines above, the expected values live in *another repository* — you cannot re-bless them here.
-   - Run one language locally: `GITGALAXY_PATH=<path-to-this-repo> python tools/verify_language.py <lang>` from a keyword-rosetta checkout.
-   - If the drift is an unintentional regression: fix the engine change. **Do not touch the pin.**
-   - If the drift is an intentional, corpus-visible improvement: it needs a companion re-baseline PR
-     in keyword-rosetta *before* this one can merge. Follow
-     [`docs/self_scan/BUMPING_THE_ROSETTA_PIN.md`](docs/self_scan/BUMPING_THE_ROSETTA_PIN.md) — in short,
-     set that repo's committed `ENGINE_REF` file to `pull/<your PR number>/head` so its gates run green
-     against your unmerged branch, then a maintainer restores it and bumps `KEYWORD_ROSETTA_REF` here.
-   - Bumping the pin needs repo admin, so **ask a maintainer** rather than trying to do it yourself.
-     Bumping a pin is never a way to make a red check go away.
+   then re-runs anything that failed against a build of the branch you target, so it can tell
+   "this PR moves the corpus" from "the corpus is behind main" (the latter is a notice, not a
+   failure). Unlike the three baselines above, the expected values live in *another repository* —
+   you cannot re-bless them here, and you do not have to before merging.
+   - Run it locally: `python tests/tools/rosetta_audit.py` (needs `../keyword-rosetta` and `galaxyscope` on PATH).
+   - If the drift is an unintentional regression: fix the engine change.
+   - If the drift is an intentional, corpus-visible improvement: add the `rosetta:rebless-owed` label
+     (the check goes green with the languages still listed), merge, then open the re-bless PR in
+     keyword-rosetta against engine main. Full detail in
+     [`docs/self_scan/ROSETTA_AUDIT.md`](docs/self_scan/ROSETTA_AUDIT.md). There is no pin on
+     either side and nothing to reset afterwards.
 
 If your PR touches any baseline fixtures, **explain why in the PR description** (e.g. "improved the Rust parser, now correctly detects async trait bounds"). A CI check flags any PR that modifies these files so it's never invisible in a large diff.
 
@@ -123,8 +123,8 @@ If you are moving the pin, bump it in **both** places — `tests/_crucible_pin.p
 `LANGUAGE_CRUCIBLE_REF` repository variable. Nothing enforces that they match; see that file's
 docstring for why the pin is deliberately duplicated.
 
-`rosetta-audit` uses the same escape hatch against a different corpus (it falls back to
-keyword-rosetta's `main`), and every other check — `full-suite`, the `smoke-test` matrix,
+`rosetta-audit` needs no escape hatch: it always checks out keyword-rosetta's `main` (that repo is
+public), so it runs for real on a fork PR too. Every other check — `full-suite`, the `smoke-test` matrix,
 `ruff-audit`, `mypy-audit`, `ast-accuracy-audit` — runs normally on a fork PR too.
 
 ---

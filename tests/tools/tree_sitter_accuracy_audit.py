@@ -2928,6 +2928,10 @@ def run_all(mode_fn) -> int:
     """Runs a single-language mode function (run_ci_check/run_regenerate/run_full_report)
     across every baselined language, in one process. See `_all_baseline_langs`."""
     langs = _all_baseline_langs()
+    if not langs:
+        # "0 languages checked, all OK" is a failure wearing a pass (#2682).
+        print("tree_sitter_accuracy_audit --all: no committed baselines found -- refusing to report success.")
+        return 1
     failed = []
     for lang in langs:
         print(f"\n=== {lang} ===")

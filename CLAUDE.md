@@ -289,20 +289,21 @@ corpus-wide whenever any node's mass changes, so a single-language fix ripples c
 across every language in the corpus. Those are attributable as a class; filter them out and
 scope the remainder, which is what actually needs a per-language explanation.
 
-**The two accuracy audits exit 0 while doing nothing if `galaxyscope` is off `PATH`.**
-`tests/tools/tree_sitter_accuracy_audit.py` and `tests/tools/tri_comparison_chart.py` report
-`galaxyscope not found on PATH` per language, skip every one, and still print
-`all OK` with exit code 0 -- a false green that looks exactly like a pass. They need the **main
-`.venv`**, which has both `galaxyscope` and `tree_sitter_language_pack`; neither crucible venv
-does (`full_precision` has `galaxyscope` but not the tree-sitter pack). Always run them as:
+**The corpus-backed audit runners need the main `.venv`, and they refuse to pass on nothing.**
+`tests/tools/tree_sitter_accuracy_audit.py`, `tests/tools/tri_comparison_chart.py` and
+`tests/tools/rosetta_audit.py` all need `galaxyscope` on `PATH` (the main `.venv` has it plus
+`tree_sitter_language_pack`; neither crucible venv has both). Since #2682 a run that checked zero
+languages, or a baselined language whose scan could not run, is a hard failure — previously
+`tri_comparison_chart.py --ci` skipped every language and printed `all OK` with exit 0 when
+`galaxyscope` was missing. Run them as:
 
 ```sh
 PATH="$PWD/.venv/bin:$PATH" .venv/bin/python tests/tools/tree_sitter_accuracy_audit.py --ci --all
 PATH="$PWD/.venv/bin:$PATH" .venv/bin/python tests/tools/tri_comparison_chart.py --all --ci
+PATH="$PWD/.venv/bin:$PATH" .venv/bin/python tests/tools/rosetta_audit.py      # needs ../keyword-rosetta
 ```
 
-and confirm the summary line names a plausible language count (30 and 3 respectively as of
-2026-09-02) -- "0 languages checked, all OK" is a failure wearing a pass.
+and still glance at the summary line's language count (30, 3 and 46 respectively as of 2026-09-03).
 
 ## Logging cases where GitGalaxy beats tree-sitter/AST ground truth
 

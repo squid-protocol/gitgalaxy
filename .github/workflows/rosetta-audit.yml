@@ -1,16 +1,20 @@
 name: rosetta-audit
 
-# Cross-language consistency gate (#2557, Phase 5 of the control-corpus plan):
-# checks out keyword-rosetta at the pinned KEYWORD_ROSETTA_REF and runs its
-# verifier across ALL 46 language folders against THIS PR's engine build, plus
-# the corpus's baseline-gated n/a review audit. An engine change that shifts
-# corpus-observed counts, or nulls a rule without a validated ledger entry,
-# fails HERE -- in the PR that caused it -- instead of days later in the
-# corpus repo (how the #2552 cobol drift was found).
+# Cross-language consistency audit (#2557, redesigned in #2682): runs the keyword-rosetta
+# control corpus's verifier across ALL language folders against THIS PR's engine build and
+# reports which languages the build moves. Modelled on tri-comparison-audit.yml: this job
+# only ever MEASURES, never writes, and is baseline-gated -- a language that already fails
+# against engine main (the corpus has not caught up with a merged engine change yet) is a
+# notice, not a failure, so an unrelated PR stays green while the corpus is behind.
 #
-# Intentional drift is re-baselined via the cross-repo protocol in
-# docs/self_scan/BUMPING_THE_ROSETTA_PIN.md (the corpus repo's ENGINE_REF
-# escape hatch + a bump of KEYWORD_ROSETTA_REF in the engine PR).
+# There is no pin. The corpus is checked out at its main; its own CI verifies against THIS
+# repo's main. Both are advisory (neither repo requires a status check to merge), so an
+# intentional, corpus-visible engine change simply merges first and the corpus re-blesses
+# against engine main afterwards -- see docs/self_scan/ROSETTA_AUDIT.md. Add the
+# `rosetta:rebless-owed` label to such a PR and its regressions become warnings.
+#
+# Every step that can silently do nothing is asserted: rosetta_audit.py exits 2 unless it
+# actually verified every language folder, and a verifier crash is "broken", never "fail".
 
 on:
   pull_request:
@@ -18,8 +22,12 @@ on:
     paths:
       - "gitgalaxy/**"
       - "pyproject.toml"
+      - "tests/tools/rosetta_audit.py"
       - ".github/workflows/rosetta-audit.yml"
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   rosetta-audit:
@@ -31,11 +39,20 @@ jobs:
           path: gitgalaxy
           persist-credentials: false
 
-      - name: Checkout keyword-rosetta (pinned)
+      # The baseline build: the branch this PR targets. Failing languages are re-run against
+      # it so the audit can tell "this PR moved the corpus" from "the corpus is behind main".
+      - name: Checkout GitGalaxy baseline (PR base branch)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref || github.ref_name }}
+          path: gitgalaxy-baseline
+          persist-credentials: false
+
+      - name: Checkout keyword-rosetta (main)
         uses: actions/checkout@v4
         with:
           repository: squid-protocol/keyword-rosetta
-          ref: ${{ vars.KEYWORD_ROSETTA_REF || 'main' }}
+          ref: main
           path: keyword-rosetta
           persist-credentials: false
 
@@ -46,33 +63,40 @@ jobs:
           cache: "pip"
 
       # Full-precision deps: without all of them galaxyscope silently drops to
-      # Zero-Dependency Mode and observed counts drift from what the corpus
-      # manifests were locked against.
-      - name: Install GitGalaxy (full precision)
+      # Zero-Dependency Mode and observed counts drift from what the corpus manifests
+      # were locked against. The baseline gets its own venv (a snapshot install, not
+      # editable) so the two builds cannot alias each other.
+      - name: Install GitGalaxy PR build (full precision)
         run: |
           python -m pip install --upgrade pip
           pip install PyYAML networkx tiktoken numpy pandas xgboost
           pip install -e ./gitgalaxy
 
-      - name: Run all language gates
-        working-directory: keyword-rosetta
+      - name: Install GitGalaxy baseline build (full precision, separate venv)
+        run: |
+          python -m venv baseline-venv
+          baseline-venv/bin/pip install --upgrade pip
+          baseline-venv/bin/pip install PyYAML networkx tiktoken numpy pandas xgboost
+          baseline-venv/bin/pip install ./gitgalaxy-baseline
+
+      - name: Run all language gates, classify against the baseline
         env:
           GITGALAXY_PATH: ${{ github.workspace }}/gitgalaxy
         run: |
-          rc=0
-          for d in data/*/; do
-            L=$(basename "$d")
-            python tools/verify_language.py "$L" || rc=1
-          done
-          exit $rc
+          allow=""
+          if [ "${{ contains(github.event.pull_request.labels.*.name, 'rosetta:rebless-owed') }}" = "true" ]; then
+            allow="--allow-regressions"
+            echo "::notice::rosetta:rebless-owed label present -- regressions reported as warnings"
+          fi
+          python gitgalaxy/tests/tools/rosetta_audit.py \
+            --corpus keyword-rosetta \
+            --baseline-bin "${{ github.workspace }}/baseline-venv/bin/galaxyscope" \
+            $allow
 
+      # Baseline-gated: fails only on unreviewed rule-absent (n/a) cells beyond the corpus's
+      # docs/na_baseline.json -- an engine PR cannot quietly null a rule nobody has ledgered.
       - name: n/a review audit (baseline-gated)
         working-directory: keyword-rosetta
         env:
           GITGALAXY_PATH: ${{ github.workspace }}/gitgalaxy
-        run: |
-          if [ -f tools/na_check.py ]; then
-            python tools/na_check.py --ci
-          else
-            echo "::notice::pinned keyword-rosetta ref predates tools/na_check.py -- bump KEYWORD_ROSETTA_REF to activate the n/a audit"
-          fi
+        run: python tools/na_check.py --ci

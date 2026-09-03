@@ -2275,3 +2275,112 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             mock_orchestrator.assert_not_called()
         finally:
             os.remove(temp_yaml_path)
+
+
+# ==============================================================================
+# #2684: THE POPULARITY TALLY'S BARE-FILENAME CLAUSE
+# ==============================================================================
+# `_resolve_dependency_graph`'s stem fallback ends with `"/" not in clean_path`,
+# which is true of EVERY bare filename, so one import token credited every
+# same-stemmed file in the scan -- across languages and repositories. Found
+# while attributing gitgalaxy#2685's golden-master diff: a cobol flex file's
+# `#include "parser.h"` converted orphan debt into API surface on parser.ts,
+# Parser.pm, Parser.php and Parser.zig in four unrelated repos.
+class TestPopularityTallyExtensionAgreement(unittest.TestCase):
+    def _tally(self, files, imports_by_file):
+        """Runs the real Pass-1.5 tally over a synthetic repo and returns popularity."""
+        scope = Orchestrator(
+            ".",
+            {
+                "LANGUAGE_DEFINITIONS": {},
+                "APERTURE_CONFIG": {},
+                "PARANOID_MODE": False,
+                "FAIL_ON_SECRETS": False,
+                "FAIL_ON_MALWARE": False,
+            },
+        )
+        scope.stem_map = dict(zip(files, files))
+        # Pass 0 normally builds ext_tally; without it every extension looks
+        # unknown to the tally and `foo.h` is rewritten to `foo/h` before any
+        # of this is reached -- which makes the negative cases below pass for
+        # entirely the wrong reason.
+        scope.ext_tally = {}
+        for f in files:
+            scope.ext_tally[Path(f).suffix.lower()] = 1
+            scope.ext_tally[Path(f).name.lower()] = 1
+        scope.ram_cache = {
+            f: {"raw_imports": set(imports_by_file.get(f, ())), "equations": {}, "metadata": {}} for f in files
+        }
+        scope.parsed_files = []
+        scope.unparsable_files = []
+        scope._resolve_dependency_graph()
+        return scope.popularity_scores
+
+    def test_c_header_does_not_credit_a_same_stemmed_file_of_another_language(self):
+        """The headline case: `#include <assert.h>` must not credit assert.lcb."""
+        pop = self._tally(
+            ["c/micropython/vm.c", "livecode/livecode/assert.lcb"],
+            {"c/micropython/vm.c": ["assert.h"]},
+        )
+        self.assertEqual(pop["livecode/livecode/assert.lcb"], 0)
+
+    def test_header_still_credits_its_own_languages_sources(self):
+        """The guard must not cost a real C dependency its popularity."""
+        pop = self._tally(
+            ["src/vm.c", "src/parser.c", "src/parser.h"],
+            {"src/vm.c": ['#include "parser.h"']},
+        )
+        self.assertGreater(pop["src/parser.h"] + pop["src/parser.c"], 0)
+
+    def test_header_credits_the_grammar_that_generates_it(self):
+        """`.y` is registered to c as well as yacc, so parser.h -> parser.y survives."""
+        # An unrelated .h has to exist somewhere in the scan, or the tally
+        # rewrites `parser.h` to `parser/h` before the stem stage (that gate
+        # is ext_tally's, and predates this guard).
+        pop = self._tally(
+            ["cobol/gnucobol/scanner.l", "cobol/gnucobol/parser.y", "cobol/gnucobol/cobc.h"],
+            {"cobol/gnucobol/scanner.l": ['#include "parser.h"']},
+        )
+        self.assertEqual(pop["cobol/gnucobol/parser.y"], 1)
+
+    def test_typescript_esm_import_of_the_emitted_js_still_credits_the_ts_file(self):
+        """
+        TypeScript ESM imports name the emitted file (`import "./lifecycle.js"`
+        resolves to lifecycle.ts) -- the one cross-language extension pair that
+        is the documented norm rather than a stem collision. Found in
+        typescript/vscode, where the first cut of this guard broke it.
+        """
+        pop = self._tally(
+            ["ts/async.ts", "ts/lifecycle.ts", "ts/vendor/shim.js"],
+            {"ts/async.ts": ["lifecycle.js"]},
+        )
+        self.assertEqual(pop["ts/lifecycle.ts"], 1)
+
+    def test_extensionless_token_is_left_alone(self):
+        """COBOL's `COPY SQLCA` names no file type, so the guard must not fire."""
+        pop = self._tally(
+            ["cobol/app/CASH00.cbl", "cobol/app/sqlca.cpy"],
+            {"cobol/app/CASH00.cbl": ["SQLCA"]},
+        )
+        self.assertEqual(pop["cobol/app/sqlca.cpy"], 1)
+
+    def test_unknown_extension_is_left_alone(self):
+        """The guard fires only on a positive contradiction between two known extensions."""
+        pop = self._tally(
+            ["proj/thing.madeup", "proj/thing.py"],
+            {"proj/thing.py": ["thing.madeup"]},
+        )
+        self.assertEqual(pop["proj/thing.madeup"], 1)
+
+    def test_cross_language_stem_collisions_are_all_refused(self):
+        """The measured corpus offenders, as one table."""
+        cases = [
+            ("zig/bun/build.zig", "Package.zig", "ts/vscode/package.json"),
+            ("zig/bun/build.zig", "Value.zig", "go/core/value.go"),
+            ("js/app/index.js", "errors.js", "lua/cosmo/errors.lua"),
+            ("c/doom/p_mobj.h", "tables.h", "sql/pg/tables.sql"),
+        ]
+        for importer, token, victim in cases:
+            with self.subTest(token=token, victim=victim):
+                pop = self._tally([importer, victim], {importer: [token]})
+                self.assertEqual(pop[victim], 0)

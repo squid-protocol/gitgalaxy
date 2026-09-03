@@ -85,6 +85,54 @@ logger = logging.getLogger("GalaxyScope")
 _worker_state: dict[str, Any] = {}
 
 
+# ==============================================================================
+# #2684: EXTENSION AGREEMENT FOR THE POPULARITY TALLY'S STEM FALLBACK
+# ==============================================================================
+# The stem fallback below credits a bare filename token to every file sharing
+# its stem, which let a C `#include <assert.h>` credit livecode's assert.lcb
+# and a doom `tables.h` credit a Postgres tables.sql. If the token names an
+# extension, that extension says which languages the target can possibly be
+# written in -- so a candidate whose own extension shares no language with it
+# is not the file being imported, whatever its stem says.
+#
+# Deliberately permissive at both edges: a token with no extension is left
+# alone (COBOL's `COPY SQLCA` names no file type), and so is any extension the
+# registry does not know, so the guard only ever fires on a positive
+# contradiction. `.h` maps to c/cpp/objective-c and `.y` to c/yacc, so a
+# header still credits its own language's sources -- including the real
+# generated-parser case (`#include "parser.h"` -> that repo's parser.y).
+def _build_extension_languages() -> dict[str, frozenset[str]]:
+    """Inverts the registry: file extension -> every language claiming it."""
+    table: dict[str, set[str]] = {}
+    for lang_id, lang_cfg in LANGUAGE_DEFINITIONS.items():
+        for ext in lang_cfg.get("extensions", []) or []:
+            table.setdefault(ext.lower(), set()).add(lang_id)
+    return {ext: frozenset(langs) for ext, langs in table.items()}
+
+
+_EXTENSION_LANGUAGES: dict[str, frozenset[str]] = _build_extension_languages()
+
+# TypeScript's ESM imports name the *emitted* file, so `import "./x.js"` is how
+# a .ts file is imported -- the one ecosystem where a cross-language extension
+# pair is the documented norm rather than a stem collision.
+_INTERCHANGEABLE_LANGUAGES: frozenset[frozenset[str]] = frozenset({frozenset({"javascript", "typescript"})})
+
+
+def _extensions_can_name_the_same_file(token_ext: str, candidate_ext: str) -> bool:
+    """
+    #2684: may an import token ending in `token_ext` refer to a file whose own
+    extension is `candidate_ext`? True unless the two name provably different
+    languages.
+    """
+    token_langs = _EXTENSION_LANGUAGES.get(token_ext.lower())
+    candidate_langs = _EXTENSION_LANGUAGES.get(candidate_ext.lower())
+    if not token_langs or not candidate_langs:
+        return True  # unknown to the registry -- no contradiction to act on
+    if token_langs & candidate_langs:
+        return True
+    return any(token_langs & pair and candidate_langs & pair for pair in _INTERCHANGEABLE_LANGUAGES)
+
+
 def execution_timeout_failsafe(_signum, _frame):
     """
     Hardware-level OS interrupt for Catastrophic Backtracking (ReDoS) protection.
@@ -1895,9 +1943,18 @@ class Orchestrator:
                 # --- THE FALLBACK: Stem Matching ---
                 if not matched_internal:
                     guess_stem = Path(clean_path).stem.lower()
+                    token_ext = Path(clean_path).suffix
                     if guess_stem in stem_to_paths and guess_stem not in stop_stems and len(guess_stem) >= 3:
                         for target_path in stem_to_paths[guess_stem]:
                             if clean_path in target_path or guess_stem == clean_path or "/" not in clean_path:
+                                # #2684: the third clause is true of EVERY bare
+                                # filename, so without this guard one token
+                                # credits every same-stemmed file in the whole
+                                # scan, across languages and repositories.
+                                if token_ext and not _extensions_can_name_the_same_file(
+                                    token_ext, Path(target_path).suffix
+                                ):
+                                    continue
                                 self.popularity_scores[target_path] += 1
                                 matched_internal = True
 

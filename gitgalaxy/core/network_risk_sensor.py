@@ -164,16 +164,14 @@ class NetworkRiskSensor:
         # path, that path's final component, then the dot-rewritten
         # component. A key is compared against candidate paths with their
         # extension stripped, so the token's own extension comes off too.
-        lookup_forms: list[tuple[str, str]] = [(target_token, token_as_path)]
-        lookup_forms.extend(
-            (form, literal_cmp)
-            for form in (literal_path, literal_path.rsplit("/", 1)[-1])
-            if form and form != target_token
-        )
-        lookup_forms.append((bare_component, token_as_path))
-
-        seen_keys: set[str] = set()
-        lookup_forms = [f for f in lookup_forms if not (f[0] in seen_keys or seen_keys.add(f[0]))]
+        # A dict de-dupes by key with the first (highest-priority) context
+        # winning, and preserves insertion order.
+        lookup_forms: dict[str, str] = {}
+        lookup_forms.setdefault(target_token, token_as_path)
+        for form in (literal_path, literal_path.rsplit("/", 1)[-1]):
+            if form and form != target_token:
+                lookup_forms.setdefault(form, literal_cmp)
+        lookup_forms.setdefault(bare_component, token_as_path)
 
         folded_hit = False
         match_cmp = token_as_path
@@ -186,7 +184,7 @@ class NetworkRiskSensor:
         # map keys directly — resolution_map only holds full paths, bare
         # filenames and bare stems — so the dot-rewritten final component is
         # the last resort, giving Stage 2 something to disambiguate against.
-        for key, cmp_context in lookup_forms:
+        for key, cmp_context in lookup_forms.items():
             candidates = resolution_map.get(key)
             if candidates:
                 match_cmp = cmp_context
@@ -201,7 +199,7 @@ class NetworkRiskSensor:
             lang_map = folded_maps.get(fold_lang)
             if lang_map:
                 folded_hit = True
-                for key, cmp_context in lookup_forms:
+                for key, cmp_context in lookup_forms.items():
                     candidates = lang_map.get(key.lower())
                     if candidates:
                         match_cmp = cmp_context

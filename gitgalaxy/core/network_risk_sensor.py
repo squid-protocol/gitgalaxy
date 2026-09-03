@@ -4,6 +4,7 @@
 # ==============================================================================
 import logging
 import math
+import re
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Optional
@@ -19,6 +20,28 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 CASE_INSENSITIVE_IMPORT_LANGS = frozenset(
     lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("case_insensitive_imports")
 )
+
+# #2668: leading relative-path markers are path syntax, not part of the
+# imported target's name -- "./b.sh" and "../lib/helper.js" name b.sh and
+# lib/helper.js. Anchored and bounded by the input's own length; no
+# backtracking risk (single non-overlapping alternative, fixed-width group).
+LEADING_RELATIVE_MARKER = re.compile(r"^(?:\.{1,2}/)+")
+
+
+def _without_extension(path_str: str) -> str:
+    """
+    Drops a trailing file extension from a slash-separated token, leaving
+    everything else untouched. Hand-rolled rather than
+    `PurePosixPath.with_suffix("")` because import tokens are arbitrary
+    captured text: `.`, `..` and `` all reach here and all raise from
+    pathlib. A leading dot is a hidden-file marker, not an extension.
+    """
+    name = path_str.rsplit("/", 1)[-1]
+    dot = name.rfind(".")
+    if dot <= 0:
+        return path_str
+    return path_str[: len(path_str) - (len(name) - dot)]
+
 
 HAS_NETWORKX = False
 try:
@@ -119,34 +142,68 @@ class NetworkRiskSensor:
         lowercased token. Exact matches always win first, so mixed-case repos
         keep their precise edges.
         """
+        # The historical form: every dot becomes a separator, which is what
+        # lets a package-style token ("pkg.utils") find utils.py.
         token_as_path = target_token.replace(".", "/").replace("\\", "/")
         bare_component = token_as_path.rsplit("/", 1)[-1]
+
+        # #2668: that rewrite also shreds a relative import that carries its
+        # own extension — "./b.sh" becomes "//b/sh", so the lookup key is the
+        # *extension* ("sh"), nothing resolves, and shell/powershell/yaml/
+        # javascript built no edges at all despite reporting dependency_links.
+        # Read the token as a literal path first (leading "./" / "../"
+        # stripped, dots left alone) and keep the dot rewrite as the last
+        # fallback, so every token that resolved before still resolves the
+        # same way — the path forms are only *tried* when they differ from
+        # the token itself, i.e. exactly for relative and compound paths.
+        literal_path = LEADING_RELATIVE_MARKER.sub("", target_token.replace("\\", "/"))
+        literal_cmp = _without_extension(literal_path)
+
+        # (lookup key, path context to disambiguate with in Stage 2), in
+        # priority order and de-duplicated: exact token, literal relative
+        # path, that path's final component, then the dot-rewritten
+        # component. A key is compared against candidate paths with their
+        # extension stripped, so the token's own extension comes off too.
+        # A dict de-dupes by key with the first (highest-priority) context
+        # winning, and preserves insertion order.
+        lookup_forms: dict[str, str] = {}
+        lookup_forms.setdefault(target_token, token_as_path)
+        for form in (literal_path, literal_path.rsplit("/", 1)[-1]):
+            if form and form != target_token:
+                lookup_forms.setdefault(form, literal_cmp)
+        lookup_forms.setdefault(bare_component, token_as_path)
+
         folded_hit = False
+        match_cmp = token_as_path
+        candidates = None
 
-        # Stage 1: direct key lookup — handles full-path, bare-filename, and
-        # bare-stem tokens that match a stored key exactly.
-        candidates = resolution_map.get(target_token)
-
-        # Stage 1b: compound tokens (e.g. "service_b/utils" or "pkg.utils")
-        # are never stored as map keys directly — resolution_map only holds
-        # full paths, bare filenames, and bare stems. Fall back to the
-        # token's final path component so there's something to disambiguate
-        # against in Stage 2.
-        if not candidates:
-            candidates = resolution_map.get(bare_component)
+        # Stage 1: direct key lookup — handles full-path, bare-filename and
+        # bare-stem tokens that match a stored key exactly (first form), the
+        # #2668 literal-path forms next, and finally Stage 1b: compound
+        # tokens (e.g. "service_b/utils" or "pkg.utils") are never stored as
+        # map keys directly — resolution_map only holds full paths, bare
+        # filenames and bare stems — so the dot-rewritten final component is
+        # the last resort, giving Stage 2 something to disambiguate against.
+        for key, cmp_context in lookup_forms.items():
+            candidates = resolution_map.get(key)
+            if candidates:
+                match_cmp = cmp_context
+                break
 
         # Stage 1c (#2540): case-insensitive-resolution languages retry the
-        # same two lookups case-folded, only after both exact-case stages
-        # miss — fortran `USE A` -> a.f90, cobol `COPY A.` -> a.cpy,
+        # same lookups case-folded, only after every exact-case form
+        # misses — fortran `USE A` -> a.f90, cobol `COPY A.` -> a.cpy,
         # haskell `import A` -> a.hs. Scoped to the importing language's own
         # files so folding never invents a cross-language edge.
         if not candidates and fold_lang and folded_maps is not None:
             lang_map = folded_maps.get(fold_lang)
             if lang_map:
                 folded_hit = True
-                candidates = lang_map.get(target_token.lower())
-                if not candidates:
-                    candidates = lang_map.get(bare_component.lower())
+                for key, cmp_context in lookup_forms.items():
+                    candidates = lang_map.get(key.lower())
+                    if candidates:
+                        match_cmp = cmp_context
+                        break
 
         if not candidates:
             return None
@@ -159,7 +216,7 @@ class NetworkRiskSensor:
         # any path context already present in the token, comparing against
         # each candidate's path with its extension stripped. A case-folded
         # hit compares case-folded here too, for consistency with Stage 1c.
-        cmp_token = token_as_path.lower() if folded_hit else token_as_path
+        cmp_token = match_cmp.lower() if folded_hit else match_cmp
         path_matches = [
             c
             for c in candidates

@@ -455,6 +455,91 @@ def test_self_propagation_detects_self_copy_and_self_overwrite(lens):
     assert lens.scan_content(py_self_copy)["counts"].get("self_propagation", 0) > 0
 
 
+def test_self_propagation_covers_php_ruby_powershell_and_shell(lens):
+    """
+    [DETECTION] #1172: `__FILE__` was already an accepted token, but no PHP or
+    Ruby copy/write function was paired with it anywhere -- and `__FILE__` only
+    appears in PHP/Ruby source, which never calls `shutil.copy`. That half of
+    the alternation could therefore never match. PowerShell and Shell are the
+    two ecosystems where self-copy-to-a-startup-location is the classic dropper
+    persistence step.
+    """
+    cases = {
+        "php copy": "copy(__FILE__, '/var/www/html/.cache.php');",
+        "php read-write": "file_put_contents($dest, file_get_contents(__FILE__));",
+        "ruby cp": "FileUtils.cp(__FILE__, dest)",
+        "ruby write": "File.write(dest, File.read(__FILE__))",
+        "powershell": "Copy-Item $PSCommandPath -Destination $startupFolder",
+        "powershell invocation": "Copy-Item $MyInvocation.MyCommand.Path $dest",
+        "shell cp": 'cp "$0" /etc/cron.hourly/update',
+        "shell install": "install -m 755 $0 /usr/local/bin/updater",
+        "shell cp with flags": 'cp -f -- "$0" "$HOME/.config/autostart/x.sh"',
+    }
+    for label, src in cases.items():
+        assert lens.scan_content(src)["counts"].get("self_propagation", 0) > 0, label
+
+
+def test_self_propagation_tolerates_normalization_wrappers_and_read_then_write(lens):
+    """
+    [DETECTION] #1174: two shapes that are equally worm-like slipped through the
+    literal-first-argument rule -- one bounded path-normalization wrapper, and
+    a self-copy spelled as two calls instead of one.
+    """
+    cases = {
+        "py abspath wrapper": "shutil.copy(os.path.abspath(__file__), dest)",
+        "js resolve wrapper": "fs.copyFileSync(path.resolve(__filename), dest)",
+        "js read-then-write": "fs.writeFileSync(dest, fs.readFileSync(__filename))",
+        "py realpath wrapper": "shutil.copy2(os.path.realpath(__file__), target)",
+    }
+    for label, src in cases.items():
+        assert lens.scan_content(src)["counts"].get("self_propagation", 0) > 0, label
+
+
+def test_self_propagation_does_not_fire_on_ordinary_shell_and_powershell_idioms(lens):
+    """
+    [FALSE POSITIVE DEFENSE] `$0` is ubiquitous in usage banners and logging,
+    and `$PSCommandPath` in diagnostics -- precision depends entirely on
+    requiring the token as a literal argument to a copy call, which is the same
+    discipline the JS/Python half has always used. A `cp` of anything else, or
+    with a flag VALUE in the way, must stay silent too.
+    """
+    benign = {
+        "usage banner": 'echo "usage: $0 [--force] <target>"',
+        "basename logging": 'log_info "starting $(basename $0)"',
+        "powershell logging": 'Write-Host "running from $PSCommandPath"',
+        "php dirname": "$dir = dirname(__FILE__);",
+        "php realpath only": "$self = realpath(__FILE__);",
+        "ruby read only": "content = File.read(__FILE__)",
+        "cp unrelated": "cp /etc/hosts /tmp/hosts.bak",
+        "cp with flag value": "cp -m 755 /src/a /dst/b",
+        "install unrelated": "install -m 644 config.yml /etc/app/",
+        "cp other variable": 'cp -f "$SRC" /tmp/out',
+        "unrelated copy call": "copy(source_list, destination)",
+    }
+    for label, src in benign.items():
+        assert lens.scan_content(src)["counts"].get("self_propagation", 0) == 0, label
+
+
+def test_self_propagation_redos_immunity(lens):
+    """
+    Every quantifier in the widened pattern is bounded (Engine Rule 14). The
+    adversarial inputs target each new branch's gap: the flag repeat, the
+    normalization wrapper, and the read-then-write span.
+    """
+    import time
+
+    payloads = [
+        "cp " + "-a " * 20000,
+        "shutil.copy(" + "os.path.abspath(" * 5000,
+        "fs.writeFileSync(" + "x," * 20000,
+        "Copy-Item " + " " * 100000,
+    ]
+    for payload in payloads:
+        start = time.perf_counter()
+        lens.scan_content(payload)
+        assert time.perf_counter() - start < 3.0, f"pathological backtracking on {payload[:30]!r}"
+
+
 def test_self_propagation_ignores_ordinary_path_resolution_and_self_reads(lens):
     """
     [FALSE POSITIVE DEFENSE] __filename/__file__ used for ordinary path resolution

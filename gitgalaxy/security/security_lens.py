@@ -197,10 +197,52 @@ class SecurityLens:
             # reads (common benign self-inspection, e.g. version banners) --
             # only the unambiguous "self-path handed straight into a mutating
             # call" shape qualifies.
+            # A worm's defining mechanical trait: duplicating or overwriting
+            # itself. The precision rule that shipped in #1150/#1169 is kept
+            # exactly -- the self-reference token has to visibly, directly feed
+            # a copy/write call, never merely appear nearby -- and only the
+            # ways it can *reach* that call are broadened (#1172, #1174).
+            #
+            # #1172: `__FILE__` was already an accepted token, but no PHP or
+            # Ruby copy/write function was ever paired with it, so that half of
+            # the alternation was dead: `__FILE__` appears only in PHP/Ruby
+            # source, which never calls `shutil.copy`. PowerShell and Shell are
+            # added for the same reason they matter in the wild -- self-copy to
+            # a startup folder or cron directory is the classic dropper
+            # persistence step.
+            #
+            # #1174: two shapes that are equally worm-like slipped through the
+            # literal-first-argument rule -- a single bounded path-normalization
+            # wrapper (`os.path.abspath(__file__)`), and read-then-write
+            # (`fs.writeFileSync(dest, fs.readFileSync(__filename))`), which is
+            # a self-copy spelled as two calls.
+            #
+            # Every quantifier here is bounded (Engine Rule 14); `$0` is only
+            # ever accepted as a literal argument to `cp`/`install`, since it is
+            # otherwise ubiquitous in usage banners and logging.
             "self_propagation": re.compile(
-                r"\b(?:fs\.(?:copyFileSync|writeFileSync|appendFileSync|renameSync)|"
-                r"shutil\.(?:copy2?|copyfile|move)|os\.rename)"
-                r"\s*\([ \t]*(?:__filename|__dirname|import\.meta\.url|__file__|__FILE__)\b",
+                # 1. copy/write/rename call taking the self-reference as its
+                #    first argument, optionally through ONE normalizer.
+                r"\b(?:fs\.(?:copyFileSync|writeFileSync|appendFileSync|renameSync)"
+                r"|shutil\.(?:copy2?|copyfile|move)|os\.rename"
+                r"|FileUtils\.(?:cp|copy|mv)|File\.write"
+                r"|file_put_contents|copy|rename"
+                r"|Copy-Item|Move-Item"
+                r")\s*\(\s*"
+                r"(?:(?:os\.path\.(?:abspath|realpath|normpath)|path\.resolve|Resolve-Path|realpath)\s*\([ \t]*){0,1}"
+                r"[\"']?(?:__filename|__dirname|import\.meta\.url|__file__"
+                r"|\$PSCommandPath|\$MyInvocation\.MyCommand\.Path|\$0)\b"
+                # 2. shell / powershell command form -- no parentheses at all.
+                r"|\b(?:cp|install|Copy-Item|Move-Item)\b[ \t]+"
+                r"(?:-{1,2}[A-Za-z-]{1,20}(?:[ \t]+[A-Za-z0-9._/=-]{1,32})?[ \t]+){0,3}"
+                r"[\"']?(?:\$0|\$PSCommandPath|\$MyInvocation\.MyCommand\.Path)\b"
+                # 3. read-then-write: writing elsewhere the bytes it just read
+                #    of itself. Bounded, lazy gap over a negated class.
+                r"|\b(?:fs\.(?:writeFileSync|appendFileSync)|File\.write|file_put_contents"
+                r"|shutil\.copyfileobj)\s*\([^)\n]{0,120}?"
+                r"(?:fs\.readFileSync|File\.read|file_get_contents|open)\s*\(\s*"
+                r"(?:(?:os\.path\.(?:abspath|realpath|normpath)|path\.resolve|realpath)\s*\([ \t]*){0,1}"
+                r"[\"']?(?:__filename|__dirname|import\.meta\.url|__file__)\b",
                 re.I,
             ),
         }

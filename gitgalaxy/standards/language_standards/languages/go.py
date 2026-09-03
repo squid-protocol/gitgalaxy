@@ -117,7 +117,7 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(os\.Exit|syscall\.Kill|syscall\.RawSyscall|log\.Fatal(?:f|ln)?)\b"),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
-            r"\b(os\.(?:Open|Create|ReadFile)|io\.(?:Reader|Writer|Copy)|net/http|database/sql|bufio\.|grpc\.|sqlx\.|pgx\.)\b"
+            r"\b(os\.(?:Create|ReadFile)|io\.(?:Reader|Writer|Copy)|net/http|database/sql|bufio\.|grpc\.|sqlx\.|pgx\.)\b"
         ),
         # 10. api (Public Surface Area)
         # Implicit Public Reality: Capitalized top-level identifiers in Go are public.

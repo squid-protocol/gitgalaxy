@@ -2398,15 +2398,36 @@ class TestSyntheticSliceExclusion(unittest.TestCase):
     a population containing three things that are not functions.
     """
 
-    def test_detector_stamps_the_verdict_on_every_slice(self):
-        from gitgalaxy.core.detector import _is_synthetic_satellite_name
+    def test_uncountable_slice_names_are_narrower_than_the_orphan_check(self):
+        """
+        The population filter must NOT reuse `_is_synthetic_satellite_name`.
+        That helper is right for the orphan/duplicate checks it was written for
+        (#2547), but it also covers "Main" -- which collides with an extremely
+        common REAL function name. Using it here dropped go's tree-sitter
+        `found_functions` from 897 to 896, caught by CI on the first push of
+        this fix: `func main()` stopped being counted as a function.
+        """
+        from gitgalaxy.core.detector import (
+            _UNCOUNTABLE_SLICE_NAMES,
+            _is_synthetic_satellite_name,
+        )
 
-        # The names the stamp is derived from, so the test fails if the set
-        # driving it ever changes shape.
-        self.assertTrue(_is_synthetic_satellite_name("__global_context__"))
-        self.assertTrue(_is_synthetic_satellite_name("Declarative_Block"))
-        self.assertTrue(_is_synthetic_satellite_name("SELECT_Statement"))
-        self.assertFalse(_is_synthetic_satellite_name("probe_globals"))
+        # Placeholder names no source language can produce -- safe to exclude.
+        self.assertIn("__global_context__", _UNCOUNTABLE_SLICE_NAMES)
+        self.assertIn("Anonymous_Block", _UNCOUNTABLE_SLICE_NAMES)
+
+        # The regression guard: real function names must stay countable, even
+        # when the broader orphan-check helper treats them as synthetic.
+        self.assertNotIn("Main", _UNCOUNTABLE_SLICE_NAMES)
+        self.assertTrue(
+            _is_synthetic_satellite_name("Main"),
+            "if this ever becomes False the two lists have converged and this "
+            "test no longer guards anything -- re-derive the distinction",
+        )
+
+        # A truncated block is a diagnostic about real code, not a placeholder.
+        self.assertNotIn("probe_a_[Truncated]", _UNCOUNTABLE_SLICE_NAMES)
+        self.assertNotIn("probe_globals", _UNCOUNTABLE_SLICE_NAMES)
 
     def test_record_keeper_excludes_synthetic_slices_from_the_population(self):
         """function_count is what the corpus reads as functions_found."""

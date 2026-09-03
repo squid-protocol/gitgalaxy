@@ -805,6 +805,22 @@ _SYNTHETIC_SATELLITE_NAMES = frozenset(
 )
 _SYNTHETIC_SATELLITE_SUFFIXES = ("_[Truncated]", "_[Unterminated]")
 
+# #2691: the subset of the above that may be excluded from the FUNCTION
+# POPULATION -- the placeholder names no real source language can produce, so a
+# row carrying one is never a function anyone wrote. Deliberately NARROWER than
+# `_is_synthetic_satellite_name`, which is right for the orphan/duplicate checks
+# it was written for (#2547) but too broad to count with:
+#   * "Main" collides with an extremely common REAL function name (C's
+#     `int main()`, Go's `func main()`), so excluding it would hide genuine
+#     over/under-detection of literal main functions -- go's found_functions
+#     dropped 897 -> 896 in tree-sitter accuracy when this fix first used the
+#     broad helper, which is exactly that failure;
+#   * a `_[Truncated]`/`_[Unterminated]` suffix marks a real block that hit EOF
+#     unclosed -- a diagnostic signal about real code, not a placeholder.
+# `tests/tools/tree_sitter_accuracy_audit.py`'s `_SYNTHETIC_GG_FUNC_NAMES` made
+# the identical call for the identical reason; this is that list, in the engine.
+_UNCOUNTABLE_SLICE_NAMES = frozenset({"Anonymous_Block", "__global_context__"})
+
 # #2692: a colon with whitespace on either side marks a type annotation
 # (`Env : Integer`, `x: int`), i.e. ONE parameter -- as opposed to a bare colon
 # inside a Lisp identifier (`foo:bar`), which is just part of the name.
@@ -1340,16 +1356,16 @@ class StructuralExtractor:
                 func_name = func.get("name", "")
                 usage_status = 0  # 0 = Normal
 
-                # #2691: stamp the synthetic-slice verdict onto the record itself.
-                # This is the one place every function passes through with the test
-                # already computed, so downstream consumers can exclude these from
-                # the FUNCTION POPULATION -- "how many functions does this file
-                # have, and what is the average one like" -- without importing the
-                # detector or re-deriving the rule. The bucket keeps existing and
-                # its signals are still counted at file level: only its membership
-                # in the population was ever wrong. An unnamed slice is synthetic
-                # for the same reason, and the guard below already treats it so.
-                func["is_synthetic_slice"] = not func_name or _is_synthetic_satellite_name(func_name)
+                # #2691: stamp the uncountable-slice verdict onto the record. This
+                # is the one place every function passes through, so downstream
+                # consumers can exclude these from the FUNCTION POPULATION -- "how
+                # many functions does this file have, and what is the average one
+                # like" -- without re-deriving the rule in three files. The slice
+                # keeps existing and its signals are still counted at file level:
+                # only its membership in the population was ever wrong. See
+                # `_UNCOUNTABLE_SLICE_NAMES` for why this is narrower than the
+                # orphan check's own synthetic-name test.
+                func["is_synthetic_slice"] = func_name in _UNCOUNTABLE_SLICE_NAMES
 
                 # #2547: synthetic slicer bucket names (Mode D's "__global_context__",
                 # Mode E's "<KEYWORD>_Statement"/"Declarative_Block", etc.) are never

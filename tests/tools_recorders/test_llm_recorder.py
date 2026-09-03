@@ -313,3 +313,68 @@ def test_generate_artifacts_integration(recorder, mock_pipeline_state, tmp_path)
 
     assert (tmp_path / "TestProject_galaxy_llm.md").exists()
     assert (tmp_path / "TestProject_galaxy_graph.sqlite").exists()
+
+
+# ==============================================================================
+# #2556: A FLAT DEPENDENCY GRAPH IS NOT A RANKING
+# ==============================================================================
+def _flat_graph_state(mock_pipeline_state):
+    """The same state with every inbound and outbound connection removed."""
+    parsed, unparsable, summary, session = mock_pipeline_state
+    flat = []
+    for f in parsed:
+        g = dict(f)
+        g["telemetry"] = {**g.get("telemetry", {}), "popularity": 0}
+        g["raw_imports"] = []
+        flat.append(g)
+    return flat, unparsable, summary, session
+
+
+def test_structural_pillars_reports_no_ranking_on_a_flat_graph(recorder, mock_pipeline_state):
+    """
+    #2556: scanning cicsdev/cics-genapp produced a "Top 5 Structural Pillars
+    (Highest 'Imported By')" list of five files with 0 inbound connections
+    each -- presented as "the most interconnected files". Ranking by a key
+    that is 0 for everything just emits scan order, and an LLM consuming the
+    brief repeats it as fact.
+    """
+    parsed, unparsable, summary, session = _flat_graph_state(mock_pipeline_state)
+
+    md_text = recorder._build_markdown(parsed, unparsable, summary, session, {})
+
+    assert "Top 5 Structural Pillars" in md_text, "the heading itself should still be present"
+    assert "no blast-radius ranking to report" in md_text
+    assert "0 inbound connections" not in md_text
+    assert "most interconnected files" not in md_text
+
+
+def test_orchestrators_reports_no_ranking_on_a_flat_graph(recorder, mock_pipeline_state):
+    """
+    The neighbouring section had the identical defect, which #2556 does not
+    mention: with no resolvable imports it called five files with 0 outbound
+    dependencies "highly coupled and fragile to API changes".
+    """
+    parsed, unparsable, summary, session = _flat_graph_state(mock_pipeline_state)
+
+    md_text = recorder._build_markdown(parsed, unparsable, summary, session, {})
+
+    assert "Top 5 Orchestrators" in md_text
+    assert "no coupling ranking to report" in md_text
+    assert "0 outbound dependencies" not in md_text
+    assert "highly coupled and fragile" not in md_text
+
+
+def test_rankings_still_render_when_the_graph_has_any_connection(recorder, mock_pipeline_state):
+    """The guard must fire only on an all-zero graph, never on a sparse one."""
+    parsed, unparsable, summary, session = _flat_graph_state(mock_pipeline_state)
+    parsed[0]["telemetry"]["popularity"] = 1
+    parsed[0]["raw_imports"] = ["os"]
+
+    md_text = recorder._build_markdown(parsed, unparsable, summary, session, {})
+
+    assert "most interconnected files" in md_text
+    assert "1 inbound connections" in md_text
+    assert "no blast-radius ranking to report" not in md_text
+    assert "highly coupled and fragile" in md_text
+    assert "1 outbound dependencies" in md_text
+    assert "no coupling ranking to report" not in md_text

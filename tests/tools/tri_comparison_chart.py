@@ -331,6 +331,10 @@ def run_pipeline(languages: list[str], verbose: bool = True) -> dict[str, Langua
         try:
             results = gather_language(lang)
         except SystemExit as e:
+            # Remember WHY, not just that it failed: run_ci_check must be able to tell a
+            # missing corpus from a scan that could not run at all (#2682 -- with galaxyscope
+            # off PATH this used to skip every language and still print "all OK").
+            data.awaiting_note = f"gather failed: {e}"
             if verbose:
                 print(f"tri_comparison_chart: {lang} -- gather failed ({e}), skipping")
             data.has_data = False
@@ -958,8 +962,15 @@ def _regressions(current: dict, baseline: dict) -> list[str]:
 def run_ci_check(lang: str, verbose: bool = True) -> int:
     data = run_pipeline([lang], verbose=verbose)[lang]
     if not data.has_data:
-        print(f"tri_comparison_chart: {lang} -- no corpus data available, skipping.")
-        return 0
+        # A baselined language with nothing to measure is a FAILURE in --ci, never a skip:
+        # the baseline proves corpus data existed when it was written, so "no data" here
+        # means the corpus is missing or galaxyscope could not run (#2682). Skipping used
+        # to turn either into a green "all OK" with zero languages actually checked.
+        print(
+            f"tri_comparison_chart: {lang} -- no corpus data available ({data.awaiting_note}); "
+            "a baselined language must be measurable in --ci, failing closed."
+        )
+        return 1
 
     current = _extract_precision(data)
     baseline = load_baseline(lang)
@@ -1007,6 +1018,10 @@ def _all_baseline_langs() -> list[str]:
 
 
 def run_all_baseline_mode(languages: list[str], mode_fn, verbose: bool = True) -> int:
+    if not languages:
+        # "0 languages checked, all OK" is a failure wearing a pass (#2682).
+        print("tri_comparison_chart --ci: no languages to check -- refusing to report success.")
+        return 1
     failed = []
     for lang in languages:
         print(f"\n=== {lang} ===")

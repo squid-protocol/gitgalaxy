@@ -59,7 +59,7 @@ jobs:
           # no credentials -- the only thing a fork run actually lacks is the ref *string*,
           # and that string is already committed in-repo as PINNED_TAG. So fall back to it
           # and give fork contributors real signal. Same escape-hatch shape as
-          # rosetta-audit.yml's `vars.KEYWORD_ROSETTA_REF || 'main'`, but pinned exactly
+          # rosetta-audit.yml's unpinned checkout of keyword-rosetta main, but pinned exactly
           # rather than floating on main. See tests/_crucible_pin.py's docstring for why the
           # pin lives in two places, and remember to bump BOTH when moving it.
           ref="${{ vars.LANGUAGE_CRUCIBLE_REF }}"

@@ -469,17 +469,33 @@ class LLMRecorder:
             reverse=True,
         )[:5]
         lines.append("### Top 5 Structural Pillars (Highest 'Imported By' / Blast Radius)")
-        lines.append(
-            "These are the most interconnected files relative to the rest of this repository. On a repo with dense "
-            "internal coupling, that means core load-bearing infrastructure -- changes carry real cascading-break "
-            "risk. On a repo with a flatter internal architecture, the gap between #1 and #5 may be small, and this "
-            "list is a weaker signal accordingly; compare the connection counts below before treating it as a verdict.\n"
-        )
-        for rank, file_data in enumerate(pillars, 1):
-            name = file_data.get("name", "Unknown")
-            path = file_data.get("path", "Unknown")
-            count = file_data.get("telemetry", {}).get("popularity", 0)
-            lines.append(f"{rank}. **{name}** (`{path}`) — {count} inbound connections")
+        # #2556: ranking by popularity is meaningless when the maximum is 0 --
+        # the sort is stable, so an all-zero graph just emits the first five
+        # files in scan order (documentation, usually) under a heading that
+        # calls them "the most interconnected files". An LLM consuming this
+        # brief repeats that as fact. A flat graph is a real finding; say so
+        # instead of dressing scan order up as a ranking.
+        if not any(f.get("telemetry", {}).get("popularity", 0) > 0 for f in pillars):
+            lines.append(
+                "No file in this repository is imported by another file that GitGalaxy could resolve, so there is "
+                "no blast-radius ranking to report. That is itself a finding: either the codebase genuinely has no "
+                "internal dependency structure (a collection of scripts, documents or configuration rather than a "
+                "coupled system), or its import style is one the engine does not resolve for this language. Do not "
+                "infer that any file is load-bearing from this section.\n"
+            )
+        else:
+            lines.append(
+                "These are the most interconnected files relative to the rest of this repository. On a repo with "
+                "dense internal coupling, that means core load-bearing infrastructure -- changes carry real "
+                "cascading-break risk. On a repo with a flatter internal architecture, the gap between #1 and #5 may "
+                "be small, and this list is a weaker signal accordingly; compare the connection counts below before "
+                "treating it as a verdict.\n"
+            )
+            for rank, file_data in enumerate(pillars, 1):
+                name = file_data.get("name", "Unknown")
+                path = file_data.get("path", "Unknown")
+                count = file_data.get("telemetry", {}).get("popularity", 0)
+                lines.append(f"{rank}. **{name}** (`{path}`) — {count} inbound connections")
         lines.append("")
 
         orchestrators = sorted(
@@ -488,14 +504,29 @@ class LLMRecorder:
             reverse=True,
         )[:5]
         lines.append("### Top 5 Orchestrators (Highest 'Imports' / Fragility Index)")
-        lines.append(
-            "These files pull in the most external dependencies. They are highly coupled and fragile to API changes.\n"
-        )
-        for rank, file_data in enumerate(orchestrators, 1):
-            name = file_data.get("name", "Unknown")
-            path = file_data.get("path", "Unknown")
-            count = len(file_data.get("raw_imports", [])) if isinstance(file_data.get("raw_imports"), list) else 0
-            lines.append(f"{rank}. **{name}** (`{path}`) — {count} outbound dependencies")
+
+        def _outbound(file_data):
+            raw = file_data.get("raw_imports", [])
+            return len(raw) if isinstance(raw, list) else 0
+
+        # #2556: the same zero-guard as the pillar list above. This section had
+        # the identical defect and the issue did not mention it -- with no
+        # resolvable imports anywhere it called five files with 0 outbound
+        # dependencies "highly coupled and fragile to API changes".
+        if not any(_outbound(f) > 0 for f in orchestrators):
+            lines.append(
+                "No file in this repository declares an import that GitGalaxy resolved, so there is no coupling "
+                "ranking to report. See the note above -- the same caveat applies.\n"
+            )
+        else:
+            lines.append(
+                "These files pull in the most external dependencies. They are highly coupled and fragile to API "
+                "changes.\n"
+            )
+            for rank, file_data in enumerate(orchestrators, 1):
+                name = file_data.get("name", "Unknown")
+                path = file_data.get("path", "Unknown")
+                lines.append(f"{rank}. **{name}** (`{path}`) — {_outbound(file_data)} outbound dependencies")
         lines.append("")
 
         import heapq

@@ -1816,6 +1816,19 @@ class StructuralExtractor:
 
             seg_len = len(seg_code)
 
+            # #2674: a registry may declare `_scope_filters: {rule_name: filter_name}`
+            # for rules whose regex can match a construct that only *sometimes*
+            # means what the rule counts, and where the deciding context is the
+            # ENCLOSING FORM rather than anything a flat pattern can see (scheme's
+            # `(define x v)` is a global at module level and a local binding
+            # inside any lambda/let/procedure body, at identical indentation).
+            # The filter runs over the same segment the regex ran over and only
+            # ever REMOVES matches, so counts, spatial_map and threat_locations
+            # stay mutually consistent. Scans are cached per segment because a
+            # filter's structural pass is independent of which rule asks for it.
+            scope_filters: dict[str, str] = rules.get("_scope_filters") or {}
+            scope_cache: dict[str, set[int]] = {}
+
             # ---> NEW: Spatial Map for this segment <---
             spatial_map: dict[str, list[int]] = {}
 
@@ -1845,6 +1858,11 @@ class StructuralExtractor:
                     # ---> THE UPGRADE: Spatial Mapping instead of raw counting <---
                     if hasattr(pattern, "finditer"):
                         matches = list(pattern.finditer(seg_code))
+                        scope_filter_name = scope_filters.get(rule_name)
+                        if scope_filter_name and matches:
+                            matches = self._apply_scope_filter(
+                                scope_filter_name, seg_lang, rule_name, seg_code, matches, scope_cache
+                            )
                         hit_indices = [m.start() for m in matches]
 
                         # ---> NEW: Offset to LOC Conversion <---
@@ -5505,6 +5523,197 @@ class StructuralExtractor:
                     return i
             i += 1
         return len(text)
+
+    # ------------------------------------------------------------------
+    # #2674: registry-declared scope filters (see `_scope_filters` in
+    # coding_analysis). One filter exists today; add new ones here, keyed
+    # by the name a language definition uses, so the registry stays data.
+    # ------------------------------------------------------------------
+
+    # Forms whose body is a LOCAL scope: a `(define ...)` whose nearest
+    # classifying ancestor is one of these is an internal definition (R7RS
+    # 5.3.2 "Internal definitions"), not a global. `define` itself is here
+    # because a define nested inside another define's body is internal by
+    # construction, and every `define-*` form (`define-syntax` templates,
+    # `define-record-type` / nanopass `define-pass` bodies) is treated the
+    # same way in the walk. Unknown heads (`begin`, `if`, a `cond` clause's
+    # own `[...]`, quoted data) are TRANSPARENT: the walk keeps climbing, so a
+    # top-level `(begin (define x 1))` still counts (begin splices into the
+    # enclosing context, R7RS 5.6.1). `let-syntax` / `letrec-syntax` are
+    # transparent too: R6RS 11.18 splices their bodies into the surrounding
+    # context, and Chez's io.ss wraps its whole file in one.
+    _LISP_BODY_FORMS: ClassVar[frozenset[str]] = frozenset(
+        {
+            "lambda",
+            "case-lambda",
+            "let",
+            "let*",
+            "letrec",
+            "letrec*",
+            "let-values",
+            "let*-values",
+            "when",
+            "unless",
+            "cond",
+            "case",
+            "parameterize",
+            "fluid-let",
+            "dynamic-wind",
+            "with-output-language",
+            "meta-cond",
+            "guard",
+            "do",
+            "define",
+        }
+    )
+    # Forms whose body IS the module scope when nothing above them is a body
+    # form: R6RS `library`, Racket `module`, R7RS `define-library`. Chez also
+    # allows `(module ...)` wherever a definition may appear (a LOCAL module),
+    # so one nested inside a lambda/let body is body scope, not module scope.
+    _LISP_MODULE_FORMS: ClassVar[frozenset[str]] = frozenset(
+        {"library", "module", "define-library", "top-level-program"}
+    )
+    # Every token that can open/close a form or hide a paren from the scan.
+    # Comments are already stripped by Prism before coding_analysis, so the
+    # `;` / `#|` branches are defensive only (the scanner is also usable
+    # on raw source). Every alternative is anchored on a distinct first
+    # character and bounded or single-pass, so the tokenizer is linear
+    # (see test_scheme_strict.py's timing check). An unterminated `"` is
+    # swallowed to end of line rather than to end of file so a typo can
+    # only desync one line, not blind the whole scan.
+    _LISP_SCOPE_TOKEN: ClassVar[re.Pattern[str]] = re.compile(
+        r'"(?:\\.|[^"\\])*"'
+        r'|"[^"\n]*'
+        r"|;[^\n]*"
+        r"|#\|"
+        r"|\|#"
+        r"|#\\(?:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}|[^\s])"
+        r"|[()\[\]]",
+        re.S,
+    )
+    _LISP_FORM_HEAD: ClassVar[re.Pattern[str]] = re.compile(r'[ \t\r\n]*([^\s()\[\];"]{1,200})')
+    _LISP_LET_FAMILY: ClassVar[frozenset[str]] = frozenset({"let", "let*", "letrec", "letrec*"})
+
+    def _apply_scope_filter(
+        self,
+        filter_name: str,
+        seg_lang: str,
+        rule_name: str,
+        code: str,
+        matches: list[re.Match[str]],
+        cache: dict[str, set[int]],
+    ) -> list[re.Match[str]]:
+        """
+        Drop the matches of `rule_name` that the named structural filter
+        rejects. Returns `matches` untouched (with a diagnostic) for a filter
+        name the engine doesn't implement, so a registry typo can only ever
+        restore the pre-filter count, never zero a metric.
+        """
+        if filter_name == "lisp_body_position":
+            if filter_name not in cache:
+                cache[filter_name] = self._lisp_module_level_define_offsets(code)
+            keep = cache[filter_name]
+            kept: list[re.Match[str]] = []
+            for m in matches:
+                # The rules that opt in all begin `^[ \t]*\(` so the first "("
+                # inside the match is the define's own opening paren.
+                paren = code.find("(", m.start(), m.end())
+                if paren != -1 and paren in keep:
+                    kept.append(m)
+            return kept
+        self.logger.warning(
+            f"[DIAGNOSTIC] Unknown scope filter '{filter_name}' declared for '{seg_lang}::{rule_name}'. Ignoring."
+        )
+        return matches
+
+    def _lisp_module_level_define_offsets(self, code: str) -> set[int]:
+        """
+        Offsets of the "(" of every `(define ...)` in `code` whose nearest
+        classifying enclosing form makes it MODULE-LEVEL (#2674).
+
+        In Scheme indentation says nothing about scope -- the enclosing form
+        does. `(define y 5)` inside `(define (f x) ...)` is a local binding;
+        `(define y 5)` inside a file-wrapping `(let () ...)` (the standard
+        Chez/R6RS idiom: cpnanopass.ss has 682 indented defines and none at
+        column 0) is a real global. So this walks the paren structure with a
+        stack of form frames, skipping strings / char literals / comments,
+        and classifies each define by climbing the stack to the nearest
+        non-transparent frame:
+
+          * MODULE frame -> module-level. A `_LISP_MODULE_FORMS` head, or the
+            file wrapper: a bindings-less let-family form. Either is a module
+            frame only if no BODY frame sits above it (a local module inside
+            a lambda is local); the wrapper additionally needs no other
+            wrapper above it (a nested `(let () (define who ...))` is a block).
+          * BODY frame -> internal. A `_LISP_BODY_FORMS` head, any `define-*`
+            form, a let-family form with bindings, or a module/let that failed
+            the test above.
+          * everything else is transparent; running out of stack -> module.
+
+        Linear in `len(code)`: one tokenizer pass, and each define's climb is
+        bounded by nesting depth.
+
+        Measured on the language-crucible golden master (Prism code streams,
+        which is what coding_analysis actually sees): the `globals` regex
+        matches 45 defines across cpnanopass.ss / io.ss / schemify.rkt /
+        thread.rkt; this pass keeps 8 (io.ss's six wrapper-level buffer
+        constants and `open-files`, thread.rkt's one top-level callback,
+        cpnanopass.ss's one wrapper-module binding) and drops 37, every one
+        of them inside a procedure body, a nanopass `define-pass`, a `cond`
+        clause, or a local `(module ...)` under a block-scope `(let () ...)`.
+        Against #2674's raw-source oracle the three deliberate differences
+        are: `(begin ...)` and `let-syntax` bodies inside the wrapper are
+        spliced (kept), a `module` inside a `define-pass` is pass-local
+        (dropped), and a `module` under a nested block let is block-local
+        (dropped) -- the same rule the oracle applied to `(define who ...)`.
+        """
+        module_forms = self._LISP_MODULE_FORMS
+        body_forms = self._LISP_BODY_FORMS
+        let_family = self._LISP_LET_FAMILY
+        head_re = self._LISP_FORM_HEAD
+        # Frame kinds: "module" / "body" / "" (transparent).
+        stack: list[str] = []
+        keep: set[int] = set()
+        comment_depth = 0
+        for tok in self._LISP_SCOPE_TOKEN.finditer(code):
+            text = tok.group(0)
+            first = text[0]
+            if comment_depth:
+                if text == "#|":
+                    comment_depth += 1
+                elif text == "|#":
+                    comment_depth -= 1
+                continue
+            if text == "#|":
+                comment_depth = 1
+                continue
+            if first in ")]":
+                if stack:
+                    stack.pop()
+                continue
+            if first not in "([":
+                continue  # string, char literal, line comment, stray |#
+            head_m = head_re.match(code, tok.end())
+            head = head_m.group(1) if head_m else ""
+            if head == "define":
+                kind = "module"
+                for enclosing in reversed(stack):
+                    if enclosing:
+                        kind = enclosing
+                        break
+                if kind == "module":
+                    keep.add(tok.start())
+            frame = ""
+            if head in module_forms:
+                frame = "body" if "body" in stack else "module"
+            elif head in let_family and head_m is not None:
+                after = code[head_m.end() : head_m.end() + 64].lstrip(" \t\r\n")
+                empty_bindings = after.startswith("()") or after.startswith("[]")
+                frame = "module" if empty_bindings and not any(stack) else "body"
+            elif head in body_forms or head.startswith("define-"):
+                frame = "body"
+            stack.append(frame)
+        return keep
 
     @staticmethod
     def _count_space_separated_args(args_str: str) -> int:

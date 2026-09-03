@@ -101,6 +101,14 @@ DEFINITION: dict[str, Any] = {
         "scientific": None,
         "reflection_metaprogramming": re.compile(r"%\{|%\}|%%"),
         "import": re.compile(r'^[ \t]*#(?:include)\s*[<"][^>"]+[>"]', re.M),
+        # BUG FIX (#2652 shape, #2668): same gap as m4 above -- the `import`
+        # signal was counted but never became a DAG edge, leaving yacc in
+        # keyword-rosetta's `no-dependency-capture-languages` entry with a
+        # structurally empty graph. Captures the header out of the same
+        # preprocessor form the `import` rule matches (grammar files carry
+        # ordinary C `#include`s in their prologue); both delimiters and the
+        # quantifier are bounded (Engine Rule 14).
+        "_dependency_capture": re.compile(r'^[ \t]*#[ \t]*include[ \t]*[<"]([^>"\n]{1,200})[>"]', re.M),
         "ownership": re.compile(r"(?:@author|Author:|Created by:|Copyright)\s+(.*)", re.I),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         "planned_debt": GLOBAL_PLANNED_DEBT,

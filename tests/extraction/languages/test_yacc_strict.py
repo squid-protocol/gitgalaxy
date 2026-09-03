@@ -51,6 +51,7 @@ _YACC_SIMPLE_CASES = [
     ("generics", "%type <expr> assignment\n", "%type expr\n"),
     ("reflection_metaprogramming", "%%\n", "int x;\n"),
     ("import", '#include "parser.h"\n', "int x;\n"),
+    ("_dependency_capture", '#include "parser.h"\n', "int x;\n"),
     ("ownership", "// Author: Jane Doe\n", "// regular comment\n"),
     # --- PHASE 4 ---
     ("planned_debt", "// TODO: handle the error-recovery case\n", "// regular comment\n"),
@@ -536,3 +537,64 @@ def test_yacc_doc_redos_immunity():
     assert_redos_immune(pattern, "/**" + "z" * 200000, timeout_sec=3.0)
     # Sanity: still matches a real block after the adversarial run.
     assert pattern.search("/** @param x in\n * @return out\n */")
+
+
+# ==============================================================================
+# #2668 / #2652 shape: yacc gains a DAG capture (Batch C.2 of #2669)
+# ==============================================================================
+_YACC_DEPENDENCY_CAPTURE_CASES = [
+    # (source line, expected captured target or None)
+    ('#include "b.y"', "b.y"),
+    ("#include <stdio.h>", "stdio.h"),
+    ('#include "sub/b.y"', "sub/b.y"),
+    # The preprocessor allows whitespace after the hash and indentation before it.
+    ('#  include "b.y"', "b.y"),
+    ('  #include "b.y"', "b.y"),
+    # Negatives: a commented-out include is not a dependency, the directive is
+    # a whole word, and an empty target names nothing.
+    ('/* #include "b.y" */', None),
+    ("#includes <x>", None),
+    ('#include ""', None),
+    ("%token NUMBER", None),
+]
+
+
+@pytest.mark.parametrize("line,expected", _YACC_DEPENDENCY_CAPTURE_CASES)
+def test_yacc_dependency_capture_targets(line, expected):
+    """
+    #2668: yacc counted an `import` signal but had no `_dependency_capture`,
+    so a grammar's prologue includes never became DAG edges (keyword-rosetta
+    ledger entry `no-dependency-capture-languages`). Group 1 is what
+    galaxyscope hands the resolver: the header path, delimiters removed.
+    """
+    match = YACC_RULES["_dependency_capture"].search(line)
+    assert (match.group(1) if match else None) == expected
+
+
+def test_yacc_dependency_capture_matches_its_own_import_signal():
+    """
+    The capture must not be narrower than the signal it feeds: every line
+    yacc's `import` rule counts must also yield a resolvable target, or the
+    file reports dependency_links it can never turn into edges -- which is
+    the exact symptom #2668 was filed for.
+
+    The reverse asymmetry is deliberate and harmless: `import` requires the
+    hash and the directive to be adjacent, so it alone misses `#  include`,
+    which the C preprocessor accepts. Widening it would move yacc's `import`
+    signal count, a scoring-layer change that does not belong in this
+    graph-layer fix (#2669 stacking rule: one layer per PR).
+    """
+    for line in ('#include "b.y"', "#include <stdio.h>", '#include "sub/parser.h"'):
+        assert YACC_RULES["import"].search(line), line
+        assert YACC_RULES["_dependency_capture"].search(line), line
+
+    spaced = '#  include "parser.h"'
+    assert not YACC_RULES["import"].search(spaced)
+    assert YACC_RULES["_dependency_capture"].search(spaced)
+
+
+def test_yacc_dependency_capture_redos_immunity():
+    """Bounded delimiter class and bounded body (Engine Rule 14)."""
+    assert_redos_immune(YACC_RULES["_dependency_capture"], "#include <" + " " * 100000, timeout_sec=3.0)
+    assert_redos_immune(YACC_RULES["_dependency_capture"], "#" + " " * 100000 + "include", timeout_sec=3.0)
+    assert YACC_RULES["_dependency_capture"].search('#include "b.y"')

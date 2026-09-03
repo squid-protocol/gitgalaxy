@@ -134,6 +134,18 @@ DEFINITION: dict[str, Any] = {
         # 24. import (Dependency Inclusions)
         # File inclusions.
         "import": re.compile(r"^[ \t]*(?:include|sinclude|m4_include|m4_sinclude)\b", re.M),
+        # BUG FIX (#2652 shape, #2668): the `import` rule above counts the
+        # signal but produced no DAG edge, so m4 sat in keyword-rosetta's
+        # `no-dependency-capture-languages` ledger entry with popularity,
+        # betweenness and producer_ratio structurally 0 and orphan->api
+        # conversion unable to fire. Captures the included file out of all
+        # four spellings and past m4's own quoting -- `include(b.m4)`,
+        # ``include(`b.m4')``, `m4_include([build-aux/foo.m4])`. Both
+        # quantifiers are bounded (Engine Rule 14).
+        "_dependency_capture": re.compile(
+            r"^[ \t]*(?:m4_)?s?include\([ \t]*[\[`'\"]{0,2}([^\s\]`'\")]{1,200})",
+            re.M,
+        ),
         # 25. ownership (Authorship Metadata)
         # Same comment-style completeness fix as dead_code above (Engine Rule 12).
         "ownership": re.compile(

@@ -47,6 +47,7 @@ _M4_SIMPLE_CASES = [
     ("scientific", "m4_eval(1 + 2)", "AC_SUBST(FOO)"),
     ("reflection_metaprogramming", "patsubst(FOO, o, 0)", "AC_SUBST(FOO)"),
     ("import", "include(foo.m4)", "AC_SUBST(FOO)"),
+    ("_dependency_capture", "include(foo.m4)", "AC_SUBST(FOO)"),
     ("ownership", "dnl Author: Jane Doe", "dnl just a note"),
     ("planned_debt", "dnl TODO: fix this", "dnl done"),
     ("fragile_debt", "dnl HACK: workaround", "dnl clean"),
@@ -300,8 +301,57 @@ def test_m4_redos_immunity_sweep():
     assert_redos_immune(M4_RULES["spec_exposure"], "[SPEC-1" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(M4_RULES["import"], "include" + " " * 100000, timeout_sec=3.0)
     assert_redos_immune(M4_RULES["args"], "$" * 100000, timeout_sec=3.0)
+    assert_redos_immune(M4_RULES["_dependency_capture"], "include(" + " " * 100000, timeout_sec=3.0)
+    assert_redos_immune(M4_RULES["_dependency_capture"], "m4_include([" + "`" * 100000, timeout_sec=3.0)
 
     # sanity: all still match their real positive cases after the sweep
     assert M4_RULES["func_start"].search("AC_DEFUN([MY_MACRO], [")
     assert M4_RULES["dead_code"].search("dnl define(OLD_MACRO, [x])")
     assert M4_RULES["ownership"].search("dnl Author: Jane Doe")
+
+
+# ==============================================================================
+# #2668 / #2652 shape: m4 gains a DAG capture (Batch C.2 of #2669)
+# ==============================================================================
+_M4_DEPENDENCY_CAPTURE_CASES = [
+    # (source line, expected captured target or None)
+    ("include(b.m4)", "b.m4"),
+    ("sinclude(b.m4)", "b.m4"),
+    ("m4_include([build-aux/foo.m4])", "build-aux/foo.m4"),
+    ("m4_sinclude([foo])", "foo"),
+    # m4's own quoting characters are stripped, not captured.
+    ("include(`b.m4')", "b.m4"),
+    ('include("b.m4")', "b.m4"),
+    ("  include( b.m4 )", "b.m4"),
+    # Negatives: the four spellings are whole words at statement position,
+    # and a commented-out include is not a dependency.
+    ("dnl include(b.m4)", None),
+    ("includes(b.m4)", None),
+    ("m4_define(include, [x])", None),
+    ("AC_CONFIG_FILES([Makefile])", None),
+]
+
+
+@pytest.mark.parametrize("line,expected", _M4_DEPENDENCY_CAPTURE_CASES)
+def test_m4_dependency_capture_targets(line, expected):
+    """
+    #2668: m4 had an `import` signal but no `_dependency_capture`, so its
+    references never became DAG edges (keyword-rosetta ledger entry
+    `no-dependency-capture-languages`). Group 1 is what galaxyscope feeds to
+    the resolver, so it must be the bare included file, quoting removed.
+    """
+    match = M4_RULES["_dependency_capture"].search(line)
+    assert (match.group(1) if match else None) == expected
+
+
+def test_m4_dependency_capture_does_not_claim_embedded_c_includes():
+    """
+    autoconf routinely quotes C source inside its macros
+    (`AC_CHECK_TYPES([...], [[#include <signal.h>]])`). Those are C
+    preprocessor directives belonging to a compile test, not m4 file
+    inclusions -- capturing them would invent dependencies on system headers
+    for every configure.ac. All seven real .m4/.ac files in language-crucible
+    are this shape and must capture nothing.
+    """
+    embedded = "AC_CHECK_TYPES([sig_atomic_t], [], [], [[#include <signal.h>]])\n\t#include <gmp.h>\n"
+    assert not M4_RULES["_dependency_capture"].search(embedded)

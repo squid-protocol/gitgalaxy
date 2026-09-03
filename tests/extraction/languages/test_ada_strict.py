@@ -433,3 +433,37 @@ def test_ada_func_start_scaling_is_linear_not_quadratic():
     # would indicate real quadratic backtracking. Generous margin for CI
     # scheduling noise.
     assert timings[-1] < timings[0] * 8 + 0.05, f"suspicious scaling: {timings}"
+
+
+# ==============================================================================
+# #2692: A TYPED PARAMETER IS ONE ARGUMENT, NOT THREE
+# ==============================================================================
+def test_ada_typed_parameter_counts_as_one_argument():
+    """
+    detector.py's comma-free fallback whitespace-split `Env : Integer` into
+    ["Env", ":", "Integer"], so every ada probe function measured args = 3
+    against one planted parameter. Ada separates parameters with SEMICOLONS,
+    so the two-parameter form scored six.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    count = StructuralExtractor._count_space_separated_args
+    assert count("Env : Integer") == 1
+    assert count("X : Integer; Y : Integer") == 2
+    assert count("X, Y : Integer") == 1, "one shared-type segment, commas handled upstream"
+
+
+def test_ada_argument_fallback_does_not_regress_space_separated_languages():
+    """
+    The fallback exists for Lisp/Scheme/shell, whose parameters really are
+    space-separated -- and Scheme identifiers may legally contain a bare colon
+    (`foo:bar`), which must NOT read as a type annotation.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    count = StructuralExtractor._count_space_separated_args
+    assert count("arg1 arg2") == 2
+    assert count("a b c") == 3
+    assert count("foo:bar baz:qux") == 2
+    assert count("") == 0
+    assert count("self") == 1

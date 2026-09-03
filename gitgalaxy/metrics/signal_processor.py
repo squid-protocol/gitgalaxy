@@ -565,13 +565,23 @@ class SignalProcessor:
                     f"⚠️ FUNCTION ML SILENT BYPASS: Brain loaded? {bool(func_ml_brain)} | Centroids: {len(f_centroids)} | Arch Key: {f_arch_key}"
                 )
 
-            if functions:
-                complexities = [f.get("branch", 0) for f in functions]
+            # #2691: the slicer emits a synthetic bucket ("__global_context__" and
+            # friends) to hold a file's top-level statements, and it was counted as
+            # a function here -- so every per-function AVERAGE was taken over a
+            # population containing things that are not functions. Measured on the
+            # keyword-rosetta control corpus, five languages reported 16 functions
+            # against 13 planted, diluting each descriptor by ~3/16. The buckets
+            # keep their signals at file level (see file_mass below, which still
+            # sums every slice's impact); they are excluded only from the
+            # population that per-function statistics describe.
+            real_functions = [f for f in functions if not f.get("is_synthetic_slice")]
+            if real_functions:
+                complexities = [f.get("branch", 0) for f in real_functions]
                 max_func_comp = max(complexities)
-                avg_func_args = sum([f.get("args", 0) for f in functions]) / len(functions)
+                avg_func_args = sum([f.get("args", 0) for f in real_functions]) / len(real_functions)
 
                 # 1. Z-Scores Mathematics
-                func_count = len(functions)
+                func_count = len(real_functions)
                 mean_comp = statistics.mean(complexities) if func_count > 0 else 0.0
                 std_comp = statistics.pstdev(complexities) if func_count > 1 else 0.0
 

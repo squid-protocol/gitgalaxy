@@ -384,3 +384,160 @@ def test_scheme_debt_rules_ignore_hyphenated_symbols_regression():
     for text in ("(fix-me-later x)", "(define bug-tracker '())", "(hack-level 9)"):
         assert not fragile.search(text), f"fragile_debt matched inside symbol: {text!r}"
         assert not planned.search(text), f"planned_debt matched inside symbol: {text!r}"
+
+
+# ==============================================================================
+# #2674: globals -- body position, not indentation, decides scope
+# ==============================================================================
+# The `globals` regex matches every `(define name value)`; in Scheme the same
+# indented line is a LOCAL binding inside a lambda/let/procedure body and a
+# GLOBAL inside a file-wrapping `(let () ...)`. detector.py's coding_analysis
+# applies the registry-declared `lisp_body_position` scope filter, so these
+# tests go through the real extractor, not the bare regex.
+
+
+def _scheme_globals(code: str) -> int:
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    return StructuralExtractor("scheme", LANGUAGE_DEFINITIONS).splice(code, "")["equations"]["globals"]
+
+
+def test_scheme_scope_filter_is_declared_for_globals():
+    assert SCHEME_RULES["_scope_filters"] == {"globals": "lisp_body_position"}
+
+
+def test_scheme_globals_internal_define_inside_procedure_is_not_global():
+    """The issue's own example: identical indentation, opposite meaning."""
+    internal = "(define (f x)\n  (define y 5)\n  y)\n"
+    assert SCHEME_RULES["globals"].search(internal), "sanity: the bare regex still matches the internal define"
+    assert _scheme_globals(internal) == 0
+    assert _scheme_globals("(define counter 0)\n" + internal) == 1
+
+
+@pytest.mark.parametrize(
+    "body_form",
+    [
+        "(lambda (x)\n  (define y 5)\n  y)",
+        "(let ((a 1))\n  (define y 5)\n  y)",
+        "(let loop ((i 0))\n  (define y 5)\n  y)",
+        "(let* ([a 1])\n  (define y 5)\n  y)",
+        "(letrec ((a 1))\n  (define y 5)\n  y)",
+        "(when flag\n  (define y 5)\n  y)",
+        "(case-lambda\n  [(x) (define y 5) y])",
+        "(parameterize ([p 1])\n  (define y 5)\n  y)",
+        "(cond\n  [else (define y 5) y])",
+        "(do ((i 0 (+ i 1))) ((= i 3))\n  (define y 5))",
+        "(define-syntax m\n  (syntax-rules ()\n    [(_ n) (define y 5)]))",
+        "(define-record-type point\n  (define y 5))",
+    ],
+)
+def test_scheme_globals_body_forms_hide_internal_defines(body_form):
+    assert _scheme_globals(body_form) == 0
+
+
+def test_scheme_globals_file_wrapping_let_is_module_scope():
+    """
+    Chez's cpnanopass.ss puts its whole body inside `(let () ...)`; its 682
+    indented defines include every real global, and the #2651 column-0
+    anchor would have zeroed them all.
+    """
+    code = "(let ()\n  (define track-counts #f)\n  (define (g)\n    (define z 1)\n    z)\n  (define other 2))\n"
+    assert _scheme_globals(code) == 2
+
+
+def test_scheme_globals_nested_empty_let_is_a_block_scope():
+    """Only the OUTERMOST bindings-less let is the wrapper; syntax.ss's `(let () (define who ...))` runs are blocks."""
+    code = "(let ()\n  (define g 1)\n  (let ()\n    (define who 'x)\n    (define tls 2)))\n"
+    assert _scheme_globals(code) == 1
+
+
+def test_scheme_globals_begin_and_let_syntax_splice_into_the_wrapper():
+    """R7RS 5.6.1 `begin` and R6RS 11.18 `let-syntax` bodies splice into the enclosing context."""
+    code = "(let-syntax ([m (syntax-rules () [(_) 1])])\n  (let ()\n    (begin\n      (define hook 1))\n    (define k 2)))\n"
+    assert _scheme_globals(code) == 2
+
+
+def test_scheme_globals_library_and_module_forms_are_module_scope():
+    code = (
+        "(library (foo)\n  (export a)\n  (import (rnrs))\n  (define a 1))\n"
+        "(module bar racket\n  (define b 2))\n"
+        "(define-library (baz)\n  (begin\n    (define c 3)))\n"
+    )
+    assert _scheme_globals(code) == 3
+
+
+def test_scheme_globals_local_module_inside_a_body_is_internal():
+    """Chez allows `(module ...)` wherever a definition can appear; inside a procedure it is local."""
+    code = "(define (pass ir)\n  (module (helper)\n    (define helper 1))\n  helper)\n"
+    assert _scheme_globals(code) == 0
+    # ... but a module directly under the wrapper exports into file scope.
+    assert _scheme_globals("(let ()\n  (module (x)\n    (define x 1)))\n") == 1
+
+
+def test_scheme_globals_strings_and_char_literals_do_not_desync_the_walk():
+    code = (
+        '(define s "a ) ( (define q 1)")\n'
+        "(define c #\\( )\n"
+        "(define d #\\))\n"
+        "(define e #\\space)\n"
+        "(define (f)\n  (define local 1)\n  local)\n"
+        "(define after 1)\n"
+    )
+    # s, c, d, e, after -- not the string's fake define, not `local`.
+    assert _scheme_globals(code) == 5
+
+
+def test_scheme_globals_square_brackets_open_body_scope_too():
+    """Racket/R6RS `[` is a paren; a define inside a bracketed clause body is internal."""
+    assert _scheme_globals("(define (f x)\n  (cond\n    [x (define y 1) y]\n    [else 2]))\n") == 0
+    assert _scheme_globals("[define g 1]\n(define h 2)\n") == 1  # bracket form never matched the regex
+
+
+def test_scheme_globals_filter_keeps_counts_spatial_map_and_locations_consistent():
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    d = StructuralExtractor("scheme", LANGUAGE_DEFINITIONS)
+    code = "(define a 1)\n(define (f)\n  (define b 2)\n  b)\n(define c 3)\n"
+    counts, _mit, spatial_maps, _parents, locations = d.coding_analysis([("scheme", code, 0)])
+    assert counts["globals"] == 2
+    assert len(spatial_maps[0]["globals"]) == 2
+    assert locations["globals"] == [1, 5]
+
+
+def test_scheme_globals_unknown_scope_filter_name_is_ignored_not_zeroed():
+    import copy
+
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    defs = copy.deepcopy(LANGUAGE_DEFINITIONS)
+    defs["scheme"]["rules"]["_scope_filters"] = {"globals": "no-such-filter"}
+    code = "(define (f)\n  (define b 2)\n  b)\n"
+    assert StructuralExtractor("scheme", defs).splice(code, "")["equations"]["globals"] == 1
+
+
+def test_scheme_scope_walk_is_linear_on_pathological_input():
+    """
+    The scope pass is a tokenizer + stack, not a regex, so the strict
+    harness's regex timer doesn't apply; time it directly on the shapes
+    that would hurt a backtracking tokenizer.
+    """
+    import time
+
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    d = StructuralExtractor("scheme", LANGUAGE_DEFINITIONS)
+    payloads = [
+        '"' + "(define x 1)\n" * 20000,  # unterminated string then a real file
+        "(" * 200000,
+        '"' * 200000,
+        "(define (f)\n" * 20000 + "(define g 1)" + ")" * 20000,
+        "#\\( " * 100000,
+        "#| " + "(define x 1)\n" * 20000,
+        '"' + "\\" * 200000,
+    ]
+    for payload in payloads:
+        t0 = time.perf_counter()
+        d._lisp_module_level_define_offsets(payload)
+        assert time.perf_counter() - t0 < 3.0, f"scope walk too slow on {payload[:12]!r}..."
+    # unterminated string only blinds its own line
+    assert len(d._lisp_module_level_define_offsets(payloads[0])) == 19999

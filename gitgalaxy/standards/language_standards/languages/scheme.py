@@ -176,6 +176,21 @@ DEFINITION: dict[str, Any] = {
         # a top-level binding using the "X->Y" convention (e.g.
         # `default->value`) failed to match at all.
         "globals": re.compile(r"^[ \t]*\([ \t]*define\s+[a-zA-Z0-9_!?*+/<>=.~$%^&:-]+\s+[^(\s]", re.M),
+        # #2674: the regex above matches BOTH a module-level `(define x v)` (a
+        # real global) and an internal define inside a lambda/let/procedure
+        # body (a local binding, R7RS 5.3.2) -- and in Scheme indentation
+        # doesn't separate them: the whole of Chez's cpnanopass.ss sits inside
+        # a `(let () ...)` wrapper, so its 682 defines are ALL indented and
+        # the #2651 column-0 anchor would have zeroed them. Measured over the
+        # language-crucible Chez/Racket sources the bare regex is 42.7%
+        # precise (53 globals / 71 locals). The discriminator is the
+        # ENCLOSING FORM, which no flat pattern can see, so detector.py's
+        # coding_analysis runs a paren-depth scope pass over the segment and
+        # keeps only the matches whose define is module-level (top level,
+        # `library`/`module`/`define-library`, or a bindings-less let-family
+        # file wrapper). See `_lisp_module_level_define_offsets` in
+        # detector.py; on the same corpus it keeps 53 / drops 71.
+        "_scope_filters": {"globals": "lisp_body_position"},
         # 19. decorators
         "decorators": None,
         # 20. generics

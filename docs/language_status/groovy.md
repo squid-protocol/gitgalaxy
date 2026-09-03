@@ -444,3 +444,49 @@ in the tool itself, not evidence against GitGalaxy) — see
 longer goes through tree-sitter comparison at all. The verified counts (661/718 functions,
 222/222 classes) are recorded in `docs/self_scan/manual_verification.json` under `"groovy"`,
 following the same `**`-badge convention abap/dockerfile/jcl/livecode/yaml already use.
+
+---
+
+## 10. Rosetta cross-language consistency (control-corpus capstone)
+
+This section is the [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta)
+counterpart of §9: where §9 asks "is Groovy extraction *accurate* on real code?", the rosetta
+control corpus asks "does GitGalaxy measure *identical planted intent* the same in Groovy as in the
+other 45 languages?" Every deviation from the 46-language median is measured bias, tracked in
+[#2576](https://github.com/squid-protocol/gitgalaxy/issues/2576) (epic
+[#2560](https://github.com/squid-protocol/gitgalaxy/issues/2560)) and validated in the corpus's
+[deviation ledger](https://github.com/squid-protocol/keyword-rosetta/blob/main/deviation_ledger.json).
+
+**Summary (2026-09-03).** Groovy opened at **2🔴 / 2🟡** and closed at **0 unexplained**, with two
+metrics still out of band and both accounted for. Tracking issue
+[#2576](https://github.com/squid-protocol/gitgalaxy/issues/2576) closed under Batch E.4 of
+[#2669](https://github.com/squid-protocol/gitgalaxy/issues/2669).
+
+1. **Two real engine bugs** (both fixed): `func_start` let statement keywords through as *prefix*
+   tokens, so `throw new IllegalArgumentException(msg)` read as a declaration named
+   `IllegalArgumentException` and `return acceptOrReject(x)` as one named `acceptOrReject`
+   ([#2676](https://github.com/squid-protocol/gitgalaxy/issues/2676), fixed in
+   [#2677](https://github.com/squid-protocol/gitgalaxy/pull/2677) — measured over the 306
+   Groovy-language files in language-crucible, `func_start` 1121 → 1028, and every one of the 93
+   removals a genuine non-declaration). The doc-block double-count
+   ([#2672](https://github.com/squid-protocol/gitgalaxy/issues/2672)) scored a single Javadoc block
+   twice by pairing its `/**` opener with its `@param` tags; fixed in
+   [#2681](https://github.com/squid-protocol/gitgalaxy/pull/2681) across the 18-language family.
+2. **Intended morphology, ledgered** (`ts-callparen-args`, validated): `args` measures 19 against a
+   planted 13 (+46%) because Groovy's call-paren shapes are counted the way the shared
+   TypeScript/Apex/Objective-C entry describes. Bakes in as engine-semantic.
+3. **Not comparable by construction** (`control-flow-ratio-denominator-is-a-vocabulary-tally`,
+   validated): `control_flow_ratio` is `branch / (branch + structural_boundaries)`, and the corpus
+   pins the numerator at 3–4 in every language while never planting, gating or reporting the
+   denominator — which cannot be equalised by planting, because it is a per-language *keyword
+   vocabulary* tally rather than a structural count. The metric is sound for comparing files
+   *within* one repository, which is its actual use; only this corpus's cross-language comparison
+   is meaningless. See [#2689](https://github.com/squid-protocol/gitgalaxy/issues/2689) bucket B,
+   whose original recommendation to plant the denominator was withdrawn once the rule was read.
+
+**Remaining out-of-band: two metrics, both ledgered, neither actionable at the Groovy level.**
+
+**Reading the close criterion correctly.** `tools/language_deviations.py groovy` exiting 0 means
+every out-of-band cell is *accounted for* — **not** that nothing deviates. Groovy still deviates on
+two metrics; what changed is that each now carries a recorded reason it is not a defect. On a corpus
+whose entire purpose is measuring deviation, that distinction is the whole point.

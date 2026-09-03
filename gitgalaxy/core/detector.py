@@ -86,6 +86,13 @@ class FunctionNode(TypedDict, total=False):
     parent_class_name: str
     usage_status: int
 
+    # #2691: True for the slicer's synthetic buckets ("__global_context__" and
+    # friends), which hold a file's top-level statements. Their signals are real
+    # and still count at file level; the flag exists so per-function POPULATION
+    # statistics (functions_found, and every average taken over it) can leave out
+    # the entries that are not functions.
+    is_synthetic_slice: bool
+
     # Dual-Key mapping to ensure compatibility with all pipeline versions
     semantic_type: str
     texture: str
@@ -798,6 +805,11 @@ _SYNTHETIC_SATELLITE_NAMES = frozenset(
 )
 _SYNTHETIC_SATELLITE_SUFFIXES = ("_[Truncated]", "_[Unterminated]")
 
+# #2692: a colon with whitespace on either side marks a type annotation
+# (`Env : Integer`, `x: int`), i.e. ONE parameter -- as opposed to a bare colon
+# inside a Lisp identifier (`foo:bar`), which is just part of the name.
+_ANNOTATED_PARAMETER = re.compile(r"\s:|:\s")
+
 
 def _is_synthetic_satellite_name(name: str) -> bool:
     base = name
@@ -1327,6 +1339,17 @@ class StructuralExtractor:
             for func in functions:
                 func_name = func.get("name", "")
                 usage_status = 0  # 0 = Normal
+
+                # #2691: stamp the synthetic-slice verdict onto the record itself.
+                # This is the one place every function passes through with the test
+                # already computed, so downstream consumers can exclude these from
+                # the FUNCTION POPULATION -- "how many functions does this file
+                # have, and what is the average one like" -- without importing the
+                # detector or re-deriving the rule. The bucket keeps existing and
+                # its signals are still counted at file level: only its membership
+                # in the population was ever wrong. An unnamed slice is synthetic
+                # for the same reason, and the guard below already treats it so.
+                func["is_synthetic_slice"] = not func_name or _is_synthetic_satellite_name(func_name)
 
                 # #2547: synthetic slicer bucket names (Mode D's "__global_context__",
                 # Mode E's "<KEYWORD>_Statement"/"Declarative_Block", etc.) are never
@@ -5467,6 +5490,42 @@ class StructuralExtractor:
             i += 1
         return len(text)
 
+    @staticmethod
+    def _count_space_separated_args(args_str: str) -> int:
+        """
+        #2692: count a comma-free parameter list.
+
+        A plain whitespace split is right for the languages this fallback was
+        written for -- Scheme's `(define (f arg1 arg2)` and shell positionals
+        really do separate arguments with spaces. But it is reached by ANY
+        comma-free capture, and a single TYPED parameter is exactly that shape:
+        ada's `procedure P (Env : Integer)` was counted as three arguments, and
+        `X : Integer; Y : Integer` as six, because Ada separates parameters with
+        semicolons rather than commas.
+
+        Two discriminators, in order:
+
+        1. A semicolon is a parameter separator in the Ada/Pascal family and
+           never appears in a Lisp/shell parameter list, so splitting on it is
+           unambiguous here (commas never reach this branch -- the caller
+           handles those).
+        2. Within a segment, a colon ADJACENT TO WHITESPACE marks a type
+           annotation (`Env : Integer`, `x: int`), so the segment declares one
+           parameter. The whitespace requirement is what keeps Lisp identifiers
+           containing a bare colon (`foo:bar`, a legal Scheme symbol) counting
+           as the separate arguments they are.
+        """
+        stripped = args_str.strip()
+        if not stripped:
+            return 0
+        segments = [seg.strip() for seg in stripped.split(";")]
+        segments = [seg for seg in segments if seg]
+        if len(segments) > 1:
+            return sum(1 if _ANNOTATED_PARAMETER.search(seg) else len(seg.split()) for seg in segments)
+        if _ANNOTATED_PARAMETER.search(stripped):
+            return 1
+        return len(stripped.split())
+
     def _count_top_level_args(self, args_str: str, treat_as_body: bool = False) -> int:
         """
         Depth- and string-aware argument counter for a captured function signature.
@@ -6166,7 +6225,7 @@ class StructuralExtractor:
                             args_count = self._count_top_level_args(args_str)
                         else:
                             # Handle space-separated arguments (Lisp/Scheme/Shell)
-                            args_count = len(args_str.strip().split())
+                            args_count = self._count_space_separated_args(args_str)
                 elif args_search_text is not None and self.primary_lang_id in ("c", "cpp"):
                     # #2012: Pattern 1 - The cpp args regex rejects `operator()` syntax and
                     # out-of-class methods with non-whitelisted types (e.g. `mlir::ModuleOp`).

@@ -359,7 +359,9 @@ class SecurityAuditor:
                 logic_loc = max(int(round(coding_loc * cfr)), 1)
                 safe_denom = max(logic_loc, coding_loc, 1)
 
-                functions = artifact.get("functions", [])
+                # #2691: per-function statistics describe real functions, not the
+                # slicer's synthetic top-level buckets.
+                functions = [f for f in artifact.get("functions", []) if not f.get("is_synthetic_slice")]
                 max_func_comp = max([func.get("branch", 0) for func in functions] if functions else [0])
                 avg_func_args = sum([func.get("args", 0) for func in functions]) / max(len(functions), 1)
 

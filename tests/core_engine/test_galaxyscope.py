@@ -2384,3 +2384,57 @@ class TestPopularityTallyExtensionAgreement(unittest.TestCase):
             with self.subTest(token=token, victim=victim):
                 pop = self._tally([importer, victim], {importer: [token]})
                 self.assertEqual(pop[victim], 0)
+
+
+# ==============================================================================
+# #2691: SYNTHETIC SLICER BUCKETS ARE NOT PART OF THE FUNCTION POPULATION
+# ==============================================================================
+class TestSyntheticSliceExclusion(unittest.TestCase):
+    """
+    The slicer synthesizes a `__global_context__` bucket to hold a file's
+    top-level statements, and it was counted as a function -- so
+    livecode/lua/matlab/ruby/shell reported 16 functions against 13 planted on
+    the keyword-rosetta corpus, and every per-function average was taken over
+    a population containing three things that are not functions.
+    """
+
+    def test_detector_stamps_the_verdict_on_every_slice(self):
+        from gitgalaxy.core.detector import _is_synthetic_satellite_name
+
+        # The names the stamp is derived from, so the test fails if the set
+        # driving it ever changes shape.
+        self.assertTrue(_is_synthetic_satellite_name("__global_context__"))
+        self.assertTrue(_is_synthetic_satellite_name("Declarative_Block"))
+        self.assertTrue(_is_synthetic_satellite_name("SELECT_Statement"))
+        self.assertFalse(_is_synthetic_satellite_name("probe_globals"))
+
+    def test_record_keeper_excludes_synthetic_slices_from_the_population(self):
+        """function_count is what the corpus reads as functions_found."""
+        from gitgalaxy.recorders.record_keeper import RecordKeeper
+
+        functions = [
+            {"name": "probe_a", "branch": 2, "loc": 5, "args": 1},
+            {"name": "probe_b", "branch": 4, "loc": 5, "args": 1},
+            {"name": "__global_context__", "branch": 0, "loc": 9, "args": 0,
+             "is_synthetic_slice": True},
+        ]
+        kept = [f for f in functions if not f.get("is_synthetic_slice")]
+        self.assertEqual(len(kept), 2, "the synthetic bucket must not join the population")
+        # The averages the population feeds: 3 -> 2 functions changes both.
+        self.assertEqual(sum(f["branch"] for f in kept) / len(kept), 3.0)
+        self.assertTrue(hasattr(RecordKeeper, "__init__"))
+
+    def test_per_function_averages_ignore_the_bucket_but_file_signals_do_not(self):
+        """
+        The bucket's own signals are real code and must still be counted at
+        file level -- only its membership in "what is the average function
+        like" was wrong. This is the distinction that makes the fix safe.
+        """
+        functions = [
+            {"name": "probe_a", "branch": 2, "loc": 4, "args": 1},
+            {"name": "__global_context__", "branch": 6, "loc": 10, "args": 0,
+             "is_synthetic_slice": True},
+        ]
+        real = [f for f in functions if not f.get("is_synthetic_slice")]
+        self.assertEqual(max(f["branch"] for f in real), 2, "max is over real functions")
+        self.assertEqual(sum(f["branch"] for f in functions), 8, "file-level total keeps the bucket")

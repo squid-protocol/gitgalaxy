@@ -440,7 +440,14 @@ class RecordKeeper:
 
         for file_data in parsed_files:
             tel = file_data.get("telemetry", {})
-            functions = file_data.get("functions", [])
+            # #2691: exclude the slicer's synthetic top-level buckets from the
+            # function POPULATION. `function_count` here is what the keyword-rosetta
+            # corpus reads as `functions_found`, and it reported 16 against 13
+            # planted for livecode/lua/matlab/ruby/shell -- every per-function
+            # average below was then taken over three things that are not
+            # functions. The buckets keep their rows in `function_data`; only the
+            # aggregate population changes.
+            functions = [f for f in file_data.get("functions", []) if not f.get("is_synthetic_slice")]
 
             # Function Mathematics
             func_count = len(functions)

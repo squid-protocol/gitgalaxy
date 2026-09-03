@@ -167,7 +167,16 @@ DEFINITION: dict[str, Any] = {
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"//[ \t]*(?:let|var|func|class|struct|actor|extension|if|guard|return)\b"),
         # 13. doc (Structured Documentation)
-        "doc": re.compile(r"///|/\*\*|-\s*parameter|-\s*returns:|-\s*throws:|-\s*warning:"),
+        # BUG FIX #2672: `/**`, `///` and the markup tags (`- parameter`,
+        # `- returns:`, ...) were independent alternatives, so a `///`
+        # comment with a tag on the same line (e.g. `/// - parameter x:`)
+        # counted twice. Block form first (bounded 0,15000 chars
+        # non-greedy span, the #2658 shape), then the line-marker form so
+        # `///` swallows the rest of its line -- tag included -- as one
+        # hit; bare tags stay last so a tag outside any doc comment still
+        # counts. A run of consecutive `///` lines still counts once per
+        # line (unchanged, no corpus signal to fold that further).
+        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|-\s*parameter|-\s*returns:|-\s*throws:|-\s*warning:"),
         # 14. test (Testing & Assertions)
         "test": re.compile(
             r"\b(?:XCTest|XCTestCase|XCTAssert[A-Za-z]*|setUp|tearDown)\b|@(?:Test|Suite)\b|#(?:expect|require)\b"

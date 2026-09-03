@@ -122,36 +122,31 @@ _PHP_DEEP_CASES = [
     ("branch", "$x = $y ?: $w;", "<?php"),
     ("branch", "$x ??= $y;", "?>"),
     ("branch", "<?= $a ?? $b ?>", "<?= $name ?>"),
-
     # args
     ("args", 'function foo($a = ")\\"") {', "foo($a = array(1,2));"),
     ("args", "function foo($a = array(1,2)) {", "$function();"),
     ("args", "fn  &  ( $x )  => $x", "$obj->fn();"),
     ("args", "function ( $x ) use ($y)", "$foo->function();"),
     ("args", "function foo(array $x = [1, 2]) {", "$bar::function();"),
-
     # structural_boundaries
     ("structural_boundaries", "namespace App\\Http;", "$namespace = 'App';"),
     ("structural_boundaries", "$obj = new class {};", "$class = 'Foo';"),
     ("structural_boundaries", "use App\\Foo;", "$new = 1;"),
     ("structural_boundaries", "yield $x;", "$obj->yield();"),
     ("structural_boundaries", "return $x;", "Foo::return();"),
-
     # func_start
     ("func_start", '#[Route("/")] public function foo() {', "$function();"),
     ("func_start", '#[Route(\n"/")]\nfunction foo()', "->function foo()"),
     ("func_start", '#[Route(path: "/")] function foo()', "public function()"),
     ("func_start", "final public static function foo()", "Foo::function()"),
     ("func_start", "public function use()", "class Foo {"),
-
     # class_start
     ("class_start", "final readonly class Foo", "class_exists('Foo')"),
     ("class_start", "#[AllowDynamicProperties] class Foo", "$class = 'Foo';"),
     ("class_start", "class\nFoo\nextends\nBar", "Foo::class"),
-    ("class_start", "enum Foo", "class extends Foo"), # negative for anonymous class on its own line
+    ("class_start", "enum Foo", "class extends Foo"),  # negative for anonymous class on its own line
     ("class_start", "abstract class Foo", "class implements Foo"),
 ]
-
 
 
 @pytest.mark.parametrize("signature,positive,negative", _PHP_SIMPLE_CASES)
@@ -164,6 +159,7 @@ def test_php_signature_positive_and_negative(signature, positive, negative):
             f"php {signature!r} incorrectly matched an excluded/negative case: {negative!r}"
         )
 
+
 @pytest.mark.parametrize("signature,positive,negative", _PHP_DEEP_CASES)
 def test_php_signature_deep_cases(signature, positive, negative):
     pattern = PHP_RULES[signature]
@@ -175,9 +171,7 @@ def test_php_signature_deep_cases(signature, positive, negative):
 
     # Using re.search on the negative cases
     if negative is not None:
-        assert not pattern.search(negative), (
-            f"php {signature!r} incorrectly matched a deep negative case: {negative!r}"
-        )
+        assert not pattern.search(negative), f"php {signature!r} incorrectly matched a deep negative case: {negative!r}"
 
 
 def test_php_globals_superglobals_leading_boundary_regression():
@@ -395,3 +389,31 @@ def test_php_explicit_casts_and_pointers_no_false_collision():
     assert not casts.search('FFI::cast("int", $x);'), "explicit_casts incorrectly matched an FFI cast"
     assert pointers.search('FFI::cast("int", $x);')
     assert not pointers.search("(int) $x;"), "pointers incorrectly matched an explicit cast"
+
+
+def test_php_doc_block_counts_once_regression():
+    """
+    #2672: `/\\*\\*` and its tags (`@param`, `@return`, ...) were independent
+    alternatives, so one PHPDoc block counted doc=2 -- the #2658 shape. Pair
+    the block into a single bounded (0,15000 chars) non-greedy span so it
+    counts once, regardless of how many tags it carries.
+    """
+    doc = PHP_RULES["doc"]
+
+    block = "/**\n * @param $argv probe input\n */\n"
+    assert len(doc.findall(block)) == 1, "a single PHPDoc block must count once, not once per tag"
+
+    two_blocks = "/**\n * @param $argv probe input\n */\nfunction f() {}\n/**\n * @return again\n */\n"
+    assert len(doc.findall(two_blocks)) == 2, "two separate PHPDoc blocks must still count as 2"
+
+
+def test_php_doc_bare_tag_outside_block_still_counts_regression():
+    """#2672: a tag outside any PHPDoc block must still count."""
+    doc = PHP_RULES["doc"]
+    assert doc.search("@method foo() outside any doc block")
+    assert doc.search("@property $x outside any doc block")
+
+
+def test_php_doc_block_redos_immune_regression():
+    """#2672 ReDoS probe: an unterminated `/**` must fail closed quickly, not hang."""
+    assert_redos_immune(PHP_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)

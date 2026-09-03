@@ -44,6 +44,7 @@ _HTML_SIMPLE_CASES = [
     ("class_start", "<form>", "<div>"),
     ("safety", "<input required>", '<input type="text">'),
     ("safety_bypasses", 'href="javascript:alert(1)"', 'href="https://example.com"'),
+    ("high_risk_execution", '<iframe srcdoc="<script>eval(1)</script>">', '<iframe src="x.html">'),
     ("io", 'src="app.js"', "<div>plain text</div>"),
     ("api", 'id="main"', "<div>"),
     ("dead_code", '<!-- <div class="old"></div> -->', "<div>live content</div>"),
@@ -59,6 +60,7 @@ _HTML_SIMPLE_CASES = [
     ("reflection_metaprogramming", 'onclick="doThing()"', "<div>"),
     ("import", '<script type="module">', "<script>"),
     ("ownership", '<meta name="author" content="Jane Doe">', '<meta name="viewport">'),
+    ("high_risk_execution", '<iframe srcdoc="<p>fallback</p>">', "<div>plain content</div>"),
     ("planned_debt", "<!-- TODO: fix this -->", "<!-- done -->"),
     ("fragile_debt", "<!-- HACK: workaround -->", "<!-- clean -->"),
     ("spec_exposure", "<!-- [SPEC-123] compliance tag -->", "<!-- just a note -->"),
@@ -392,6 +394,8 @@ def test_html_redos_immunity_sweep():
     assert_redos_immune(HTML_RULES["spec_exposure"], "[SPEC-123 " + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(HTML_RULES["class_start"], "<" + ("a-" * 20000), timeout_sec=3.0)
     assert_redos_immune(HTML_RULES["_dependency_capture"], "<script " + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(HTML_RULES["high_risk_execution"], '<iframe srcdoc="' + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(HTML_RULES["high_risk_execution"], "<iframe srcdoc='" + "a" * 100000, timeout_sec=3.0)
 
     # sanity: all still match their real positive cases after the sweep
     assert HTML_RULES["args"].search('<input data-foo="bar">')
@@ -417,6 +421,7 @@ _HTML_SINGLE_QUOTE_TARGETS = [
     ("safety", "<input pattern='[0-9]+'>", '<input pattern="[0-9]+">'),
     ("safety_bypasses", "<a target='_blank'>", '<a target="_blank">'),
     ("io", "<img src='x.png'>", '<img src="x.png">'),
+    ("high_risk_execution", "<iframe srcdoc='<p>x</p>'>", '<iframe srcdoc="<p>x</p>">'),
     ("api", "<div id='main'>", '<div id="main">'),
     ("doc", "<meta name='description' content='hi'>", '<meta name="description" content="hi">'),
     ("concurrency", "<img loading='lazy'>", '<img loading="lazy">'),
@@ -559,17 +564,19 @@ def test_html_single_quote_fix_does_not_introduce_redos():
     assert_redos_immune(HTML_RULES["telemetry"], "<script src='" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(HTML_RULES["ownership"], "<meta name='author' content='" + "a" * 100000, timeout_sec=3.0)
 
+
 _HTML_ADVERSARIAL_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
     # Quotes containing opposite quotes (Issue: regex used `[\"\'][^\"\']*[\"\']` which stopped at the first nested quote)
-    ("branch", '<div v-if="a > \'b\'">', '<div class="x">'),
+    ("branch", "<div v-if=\"a > 'b'\">", '<div class="x">'),
     ("branch", "<div v-if='a > \"b\"'>", '<div class="x">'),
-    ("ui_framework", '<div class="flex w-full \'dark\'">', '<div class="x">'),
+    ("ui_framework", "<div class=\"flex w-full 'dark'\">", '<div class="x">'),
     ("ui_framework", "<div class='flex w-full \"dark\"'>", '<div class="x">'),
     ("safety", '<input pattern="[A-Z\'a-z]+">', '<input type="text">'),
     ("safety", "<input pattern='[A-Z\"a-z]+'>", '<input type="text">'),
-    ("io", '<a href="javascript:alert(\'hello\')">', '<div>plain text</div>'),
-
+    ("io", "<a href=\"javascript:alert('hello')\">", "<div>plain text</div>"),
+    # srcdoc quotes containing the opposite quote character
+    ("high_risk_execution", "<iframe srcdoc=\"<p>a > 'b'</p>\">", '<iframe src="x.html">'),
     # Web components / hyphenated tags avoiding false matches (Issue: `\\b` matched the hyphen in `<div-custom>`)
     ("structural_boundaries", "<div>", "<div-custom>"),
     ("ui_framework", "<b>", "<b-button>"),
@@ -579,11 +586,11 @@ _HTML_ADVERSARIAL_CASES = [
     ("generics", "<slot>", "<slot-custom>"),
     ("scientific", "<math>", "<math-custom>"),
     ("_dependency_capture", '<script src="a.js"></script>', '<script-custom src="a.js"></script>'),
-
     # Spaces before the `>`
     ("func_start", "<script >", "<div>"),
     ("class_start", "<form >", "<div>"),
 ]
+
 
 @pytest.mark.parametrize("signature,positive,negative", _HTML_ADVERSARIAL_CASES)
 def test_html_signature_adversarial(signature, positive, negative):
@@ -593,23 +600,22 @@ def test_html_signature_adversarial(signature, positive, negative):
     if negative is not None:
         assert not pattern.search(negative), f"html {signature!r} incorrectly matched an excluded case: {negative!r}"
 
+
 _HTML_DEEP_CASES = [
     # --- branch ---
-    ("branch", '<div v-if="a > \'b\'">', None),
+    ("branch", "<div v-if=\"a > 'b'\">", None),
     ("branch", "<div v-if='a > \"b\"'>", None),
     ("branch", "<details open>", "<details-custom>"),
     ("branch", "<summary\nclass='x'>", "<summary-panel>"),
     ("branch", "{% if x > 0 %}", "{% include x %}"),
     ("branch", "{{#if x}}", "{{x}}"),
-
     # --- args ---
     ("args", "<input data-custom='123'>", "<input type='text'>"),
-    ("args", "<input aria-hidden=\"true\">", "<input id='hidden'>"),
-    ("args", "<input data-foo=bar>", "<input data>"), # unquoted value
+    ("args", '<input aria-hidden="true">', "<input id='hidden'>"),
+    ("args", "<input data-foo=bar>", "<input data>"),  # unquoted value
     ("args", "<input\nname='email'>", "<input class='email'>"),
-    ("args", "<label for=\"email\">", "<label class=\"email\">"),
-    ("args", "<input placeholder=\"x y z\">", "<input class=\"x y z\">"),
-
+    ("args", '<label for="email">', '<label class="email">'),
+    ("args", '<input placeholder="x y z">', '<input class="x y z">'),
     # --- func_start ---
     ("func_start", "<script>", "<script-custom>"),
     ("func_start", "<style>", "<style-custom>"),
@@ -617,15 +623,13 @@ _HTML_DEEP_CASES = [
     ("func_start", "<style\nscoped>", "<div>"),
     ("func_start", "<script/>", "<div>"),
     ("func_start", "<style >", "<div>"),
-
     # --- class_start ---
     ("class_start", "<form>", "<div>"),
     ("class_start", "<svg>", "<div>"),
-    ("class_start", "<my-custom-element>", "<my_custom_element>"), # Web components require a hyphen
+    ("class_start", "<my-custom-element>", "<my_custom_element>"),  # Web components require a hyphen
     ("class_start", "<template\n>", "<div>"),
     ("class_start", "<picture>", "<div>"),
     ("class_start", "<dialog open>", "<div>"),
-
     # --- structural_boundaries ---
     ("structural_boundaries", "<div>", "<div-custom>"),
     ("structural_boundaries", "<main>", "<main-container>"),
@@ -634,6 +638,7 @@ _HTML_DEEP_CASES = [
     ("structural_boundaries", "<section>", "<section-header>"),
     ("structural_boundaries", "<header>", "<header-nav>"),
 ]
+
 
 @pytest.mark.parametrize("signature,positive,negative", _HTML_DEEP_CASES)
 def test_html_signature_deep(signature, positive, negative):
@@ -653,3 +658,88 @@ def test_html_ambiguity_doc_vs_ownership_author_no_collision():
     assert not HTML_RULES["doc"].search(header)
     m = HTML_RULES["ownership"].search(header)
     assert m and m.group(1) == "Jane Doe"
+
+
+# ==============================================================================
+# Issue #2645: srcdoc embeds a full inline document (incl. <script>) as a string
+# attribute value -- invisible to every structural signal (io's attribute list
+# omits it; HANDSHAKE_REGISTRY's script-tag trigger requires line-start, never
+# true for a token inside a quoted attribute value). Filled high_risk_execution
+# (previously None) to close the gap.
+# ==============================================================================
+
+
+def test_html_high_risk_execution_srcdoc_issue_2645():
+    """
+    The exact repro from the issue: a file consisting entirely of
+    `<iframe srcdoc="<script>eval(1)</script>">` must now score
+    `high_risk_execution`, and an ordinary `src=`-only iframe (no embedded
+    document) must not.
+    """
+    high_risk_execution = HTML_RULES["high_risk_execution"]
+    assert high_risk_execution.search('<iframe srcdoc="<script>eval(1)</script>">'), (
+        "srcdoc with an embedded <script> still didn't score high_risk_execution"
+    )
+    assert not high_risk_execution.search('<iframe src="x.html">'), (
+        "a plain src=-only iframe (no srcdoc) incorrectly scored high_risk_execution"
+    )
+
+
+def test_html_high_risk_execution_srcdoc_matches_on_attribute_presence_alone():
+    """
+    The rule matches presence of the `srcdoc` attribute itself, not specifically
+    dangerous content inside it -- same "the primitive itself is the risk"
+    philosophy other languages apply to bare `eval`/`exec` calls regardless of
+    their arguments. A srcdoc with entirely inert content (no nested tags, no
+    script) must still match; detecting script content specifically would
+    require actually parsing the embedded document, which is out of scope.
+    """
+    high_risk_execution = HTML_RULES["high_risk_execution"]
+    assert high_risk_execution.search('<iframe srcdoc="plain text, no markup at all"></iframe>')
+    assert high_risk_execution.search("<iframe srcdoc='plain text, no markup at all'></iframe>")
+
+
+def test_html_high_risk_execution_srcdoc_no_overlap_with_io_attribute_list():
+    """
+    Confirms the issue's root-cause claim directly against the live `io` rule:
+    `io`'s `src|href|action|poster|data` attribute alternation requires the
+    token to end right at `=` -- `srcdoc=` (the extra `doc` before the `=`)
+    never satisfies any alternative, so `io` cannot accidentally already be
+    covering this before the dedicated rule existed. Isolated to a bare
+    `srcdoc=` attribute with no enclosing `<iframe` tag, so a positive `io`
+    match here could only come from the attribute alternation itself.
+    """
+    io = HTML_RULES["io"]
+    assert not io.search('srcdoc="<p>x</p>"'), "io's attribute alternation unexpectedly matched a bare srcdoc="
+
+
+def test_html_srcdoc_iframe_is_not_io_but_is_high_risk_execution():
+    """
+    An `<iframe srcdoc="...">` fetches NOTHING: the document is inline, and
+    per the HTML spec `srcdoc` overrides `src` when both are present. So it
+    is not an I/O boundary, and `io`'s bare-tag alternative must not claim
+    it -- only `high_risk_execution` (the srcdoc attribute) should fire.
+
+    This deliberately supersedes an earlier framing of the overlap as an
+    intentional double-classification by analogy with yaml's `curl ... |
+    bash`. The analogy does not hold: there the curl really does fetch, so
+    both signals are true at once. Here the frame performs no I/O at all.
+
+    Concretely, it is also what lets the control corpus plant srcdoc: with
+    io claiming the tag, planting `high_risk_execution` would have pushed
+    html's io off its planted 3, trading one out-of-band cell for another.
+    """
+    inline = '<iframe srcdoc="fallback text"></iframe>'
+    assert not HTML_RULES["io"].search(inline), "a srcdoc-only iframe fetches nothing and must not count as io"
+    assert HTML_RULES["high_risk_execution"].search(inline), "high_risk_execution should see srcdoc="
+
+    # A real fetch is unaffected: the tag AND the src= attribute both count.
+    fetching = '<iframe src="child.html"></iframe>'
+    assert len(HTML_RULES["io"].findall(fetching)) == 2
+    assert not HTML_RULES["high_risk_execution"].search(fetching)
+
+    # srcdoc wins over src per spec, so the tag is excluded -- but an explicit
+    # src= attribute is still its own io surface and keeps counting.
+    both = '<iframe src="child.html" srcdoc="inline"></iframe>'
+    assert len(HTML_RULES["io"].findall(both)) == 1
+    assert HTML_RULES["high_risk_execution"].search(both)

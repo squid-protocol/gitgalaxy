@@ -75,7 +75,7 @@ _COBOL_SIMPLE_CASES = [
     ("api", "LINKAGE SECTION.", "MOVE X TO Y."),
     ("state_mutation", "MOVE X TO Y.", "IF X > 0"),
     ("dead_code", "      * MOVE X TO Y.", "      * just a note"),
-    ("doc", "       AUTHOR. Jane Doe.", "      * just a note"),
+    ("doc", "       DATE-WRITTEN. 2026-01-01.", "      * just a note"),
     ("test", "ASSERT X = Y", "MOVE X TO Y."),
     ("concurrency", "EXEC CICS ENQ END-EXEC", "MOVE X TO Y."),
     ("ui_framework", "SCREEN SECTION.", "MOVE X TO Y."),
@@ -282,8 +282,6 @@ def test_cobol_intentional_double_classification_sweep():
     Ambiguity sweep finding: several COBOL constructs legitimately fire
     two signatures representing different perspectives on the same
     underlying action -- intentional, not false collisions:
-    - `AUTHOR.` header -> doc + ownership (ownership additionally captures
-      the name)
     - `REDEFINES` -> explicit_casts (memory reinterpretation) +
       reflection_metaprogramming (memory aliasing)
     - `EXEC CICS DELAY` -> concurrency (async primitive) + thread_sleeps
@@ -304,10 +302,6 @@ def test_cobol_intentional_double_classification_sweep():
       ipc_rpc_bridges, ui_framework) -- a broad "this touches CICS/SQL"
       signal layered on top of the specific ones, not a bug.
     """
-    header = "       AUTHOR. Jane Doe."
-    assert COBOL_RULES["doc"].search(header)
-    assert COBOL_RULES["ownership"].search(header)
-
     redefines = "05 WS-ALT REDEFINES WS-ORIG."
     assert COBOL_RULES["explicit_casts"].search(redefines)
     assert COBOL_RULES["reflection_metaprogramming"].search(redefines)
@@ -431,3 +425,41 @@ def test_cobol_debt_rules_ignore_hyphenated_identifiers_regression():
     # Realistic mainframe identifier shapes from #2537's report.
     for text in ("MOVE 1 TO BUG-COUNT.", "05 WS-FIX-FLAG PIC X.", "ADD 1 TO HACK-TOTAL."):
         assert not fragile.search(text), f"fragile_debt matched inside identifier: {text!r}"
+
+
+def test_cobol_doc_excludes_author_regression():
+    """
+    #2672/#2661 step 2 (the #2659 shape): `AUTHOR.` was claimed by both
+    `doc` and `ownership`, so an IDENTIFICATION DIVISION with an AUTHOR
+    paragraph double-counted a single piece of metadata. `ownership`
+    already captures the author's name, so `doc` must no longer match
+    the AUTHOR paragraph at all -- only `ownership` should.
+    """
+    doc = COBOL_RULES["doc"]
+    ownership = COBOL_RULES["ownership"]
+
+    header = "       AUTHOR. Jane Doe."
+    assert not doc.search(header), "doc must no longer claim the AUTHOR paragraph (ownership owns it exclusively)"
+    assert ownership.search(header), "ownership must still capture the AUTHOR paragraph"
+
+    # The other doc header fields, and the inline `*>` tags, are unaffected.
+    assert doc.search("       DATE-WRITTEN. 2026-01-01.")
+    assert doc.search("       DATE-COMPILED. 2026-01-02.")
+    assert doc.search("       REMARKS. Some remark.")
+    assert doc.search("       INSTALLATION. Site X.")
+    assert doc.search("      *> @return something")
+    assert doc.search("      *> @author Joe"), "the inline `*> @author` tag is distinct from the AUTHOR paragraph"
+
+
+def test_cobol_doc_planted_construct_counts_once_regression():
+    """
+    #2672: the rosetta corpus plants exactly one `doc` construct per
+    language post-Batch A; cobol's planted shape is a DATE-WRITTEN header
+    plus one inline `*> @return` tag, which must count once each (2 total
+    for the two distinct constructs), not collapse or inflate further.
+    """
+    doc = COBOL_RULES["doc"]
+    corpus_shaped = "       IDENTIFICATION DIVISION.\n       DATE-WRITTEN. 2026-01-01.\n      *> @return something\n"
+    assert len(doc.findall(corpus_shaped)) == 2
+
+    assert_redos_immune(doc, "      *> @author" + " " * 200000, timeout_sec=3.0)

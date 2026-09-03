@@ -92,7 +92,6 @@ _TYPESCRIPT_SIMPLE_CASES = [
     ("llm_vector_store", "import { Client } from 'chromadb';", "const x = 1;"),
     ("ml_traditional", "import x from 'sklearn';", "const x = 1;"),
     ("dl_frameworks", "import * as tf from 'tensorflow';", "const x = 1;"),
-
     # --- ADVERSARIAL CASES FOR HIGH-AMBIGUITY SIGNATURES ---
     ("branch", "const result = (a ?? b) || c && d ? e : f;", None),
     ("branch", "switch(x){case 1:break;default:}", None),
@@ -100,28 +99,24 @@ _TYPESCRIPT_SIMPLE_CASES = [
     ("branch", "}else if(x){", None),
     ("branch", "for  ( let i = 0 ; i < 10 ; i++ )", None),
     ("branch", "do{foo()}while(x);", None),
-
     ("args", "  #myPrivateMethod<T extends Record<string, any>>(a: T, b: number) {", "  return (a + b);"),
     ("args", "const f = (x: { a: string, b: number }): void => {", "  throw (a);"),
     ("args", "public get [Symbol.iterator]() {", "  yield (x);"),
     ("args", "public async *myGenerator<T>(arg: T) {", "  await (p);"),
     ("args", "  *gen(a: number) {", "  typeof (x);"),
     ("args", "export function foo \n <T> \n (x: T) {", "void (0);"),
-
     ("func_start", "export const myFunc: React.FC<Props> = (props) => {", "type MyFunc = (a: number) => void;"),
     ("func_start", "public async *myGenerator<T>(arg: T) {", "  return foo();"),
     ("func_start", "const f = function <T>(x: T) {", "  typeof foo();"),
     ("func_start", "  #myPrivateMethod(a: number) {", None),
     ("func_start", "  [Symbol.iterator]() {", None),
     ("func_start", "  *  myGenerator () {", None),
-
     ("structural_boundaries", "export const a = 1;", "const a = b >= c;"),
     ("structural_boundaries", "class Foo implements Bar {", None),
     ("structural_boundaries", "const a = b satisfies T;", None),
     ("structural_boundaries", "using a = new Disposable();", None),
     ("structural_boundaries", "declare module A {}", None),
     ("structural_boundaries", "import type { A } from 'b';", None),
-
     ("class_start", "export abstract class Foo<T extends U> extends Bar<T> {", None),
     ("class_start", "export class Foo<T extends Record<K, V>> extends Bar<T> {", None),
     ("class_start", "class Foo <T> implements A, B {", None),
@@ -450,3 +445,34 @@ def test_typescript_redos_immunity_sweep():
     assert TYPESCRIPT_RULES["func_start"].search("function foo() {}")
     assert TYPESCRIPT_RULES["class_start"].search("class Foo {}")
     assert TYPESCRIPT_RULES["spec_exposure"].search("[SPEC-123]")
+
+
+def test_typescript_doc_block_counts_once_regression():
+    """
+    #2672: `/\\*\\*` and the JSDoc/TSDoc tags (`@param`, `@return`, ...)
+    were independent alternatives, so one doc block counted doc
+    proportional to its tag density -- the #2658 shape. Off-corpus only
+    (the rosetta corpus plants one of {marker, tag} for typescript, so this
+    does not move the corpus). Pair the block into a single bounded
+    (0,15000 chars) non-greedy span so it counts once, regardless of how
+    many tags it carries.
+    """
+    doc = TYPESCRIPT_RULES["doc"]
+
+    block = "/**\n * @param x in\n * @return out\n */\n"
+    assert len(doc.findall(block)) == 1, "a single doc block must count once, not once per tag"
+
+    two_blocks = "/**\n * @param x in\n */\nfunction f() {}\n/**\n * @return out\n */\n"
+    assert len(doc.findall(two_blocks)) == 2, "two separate doc blocks must still count as 2"
+
+
+def test_typescript_doc_bare_tag_outside_block_still_counts_regression():
+    """#2672: a doc tag outside any doc block must still count."""
+    doc = TYPESCRIPT_RULES["doc"]
+    assert doc.search("@callback leftover outside any doc block")
+    assert doc.search("@typedef leftover outside any doc block")
+
+
+def test_typescript_doc_block_redos_immune_regression():
+    """#2672 ReDoS probe: an unterminated `/**` must fail closed quickly, not hang."""
+    assert_redos_immune(TYPESCRIPT_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)

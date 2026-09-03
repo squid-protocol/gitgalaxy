@@ -577,6 +577,7 @@ def test_cpp_redos_immunity_sweep():
     assert CPP_RULES["class_start"].search("class Foo {")
     assert CPP_RULES["explicit_casts"].search("static_cast<int>(x);")
 
+
 def test_cpp_branch_deep_cases():
     """Adversarial/Deep cases for branch."""
     p = CPP_RULES["branch"]
@@ -599,6 +600,7 @@ def test_cpp_branch_deep_cases():
     assert not p.search("catch_error()")
     assert not p.search("default_value = 1")
 
+
 def test_cpp_args_deep_cases():
     """Adversarial/Deep cases for args."""
     p = CPP_RULES["args"]
@@ -616,6 +618,7 @@ def test_cpp_args_deep_cases():
     assert not p.search("(int)x")
     assert not p.search("std::vector<int> v(10);")
     assert not p.search("for (int i = 0; i < 10; ++i)")
+
 
 def test_cpp_func_start_deep_cases():
     """Adversarial/Deep cases for func_start."""
@@ -637,6 +640,7 @@ def test_cpp_func_start_deep_cases():
     assert not p.search("try {")
     assert not p.search("catch (const std::exception& e) {")
 
+
 def test_cpp_class_start_deep_cases():
     """Adversarial/Deep cases for class_start."""
     p = CPP_RULES["class_start"]
@@ -653,6 +657,7 @@ def test_cpp_class_start_deep_cases():
     assert not p.search("enum Color {")
     assert not p.search("class_name = 5;")
     assert not p.search("int x_class = 1;")
+
 
 def test_cpp_structural_boundaries_deep_cases():
     """Adversarial/Deep cases for structural_boundaries."""
@@ -672,3 +677,37 @@ def test_cpp_structural_boundaries_deep_cases():
     assert not p.search("my_return = 0;")
     assert not p.search("int export_val = 5;")
 
+
+def test_cpp_doc_block_and_line_marker_count_once_regression():
+    """
+    #2672: `/\\*\\*`/`///` and the Doxygen tags (`@param`, `\\param`, ...)
+    were independent alternatives, so one Doxygen comment counted doc
+    proportional to its tag density -- the #2658 shape. Off-corpus only
+    (the rosetta corpus plants one of {marker, tag} for cpp, so this does
+    not move the corpus). Block form pairs into a single bounded (0,15000
+    chars) non-greedy span; the line-marker form (`///`) now swallows the
+    rest of its line so a tag on the same line as the marker is one hit.
+    """
+    doc = CPP_RULES["doc"]
+
+    block = "/**\n * @brief do it\n * @param x in\n */\n"
+    assert len(doc.findall(block)) == 1, "a single Doxygen block must count once, not once per tag"
+
+    one_line = "/// @tparam T in\n"
+    assert len(doc.findall(one_line)) == 1, "a single `///` line with a tag must count once, not twice"
+
+    two_blocks = "/**\n * @brief one\n */\nvoid f();\n/**\n * @brief two\n */\n"
+    assert len(doc.findall(two_blocks)) == 2, "two separate Doxygen blocks must still count as 2"
+
+
+def test_cpp_doc_bare_tag_outside_block_still_counts_regression():
+    """#2672: a Doxygen tag outside any doc comment must still count."""
+    doc = CPP_RULES["doc"]
+    assert doc.search(r"\tparam T leftover outside any doc block")
+    assert doc.search("@details leftover outside any doc block")
+
+
+def test_cpp_doc_block_redos_immune_regression():
+    """#2672 ReDoS probes: unterminated `/**` and a very long unterminated `///` line must fail closed quickly."""
+    assert_redos_immune(CPP_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
+    assert_redos_immune(CPP_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)

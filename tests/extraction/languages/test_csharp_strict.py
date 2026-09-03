@@ -224,9 +224,12 @@ _CSHARP_SIMPLE_CASES = _CSHARP_SIMPLE_CASES[:-1] + [
     ("branch", "goto MyLabel;", "gotcha"),
     ("branch", "switch\n(", "switcher"),
     ("branch", "x ? y : z", "public int? Foo"),
-
     # args:
-    ("args", "public static async Task<Dictionary<string, List<Tuple<int, string>>>>\n    BrokenMethod(int a, string b)", "BrokenMethod(a, b);"),
+    (
+        "args",
+        "public static async Task<Dictionary<string, List<Tuple<int, string>>>>\n    BrokenMethod(int a, string b)",
+        "BrokenMethod(a, b);",
+    ),
     ("args", "public void Foo(ref int x, out string y, params int[] z)", "Foo(ref x, out y);"),
     ("args", "protected internal static readonly int[,,] Foo(int x)", "Foo(x);"),
     ("args", "[Attribute1, Attribute2(1, 2)]\npublic void Foo(int x)", "Foo(x);"),
@@ -237,7 +240,6 @@ _CSHARP_SIMPLE_CASES = _CSHARP_SIMPLE_CASES[:-1] + [
     ("args", "record Person(string Name, int Age);", "new Person();"),
     ("args", "public static Complex operator +(Complex a, Complex b)", "a + b;"),
     ("args", "public static implicit operator int(MyClass x)", "int x = 1;"),
-
     # func_start:
     ("func_start", "public async Task<List<string>> FetchData() {", "int x = 1;"),
     ("func_start", "[Obsolete]\n[return: MaybeNull]\npublic void Foo()", "int x = 1;"),
@@ -247,14 +249,12 @@ _CSHARP_SIMPLE_CASES = _CSHARP_SIMPLE_CASES[:-1] + [
     ("func_start", "static readonly ref readonly int Foo()", "int x = 1;"),
     ("func_start", "public static implicit operator int(MyClass x) {", "int x = 1;"),
     ("func_start", "public static Complex operator +(Complex a, Complex b) {", "public delegate void MyDelegate();"),
-
     # class_start:
     ("class_start", "public abstract partial class MyClass<T, U> : Base<T>, IMyInterface", "new MyClass();"),
     ("class_start", "internal file record struct MyRecord(int X, int Y) : IPoint;", "new MyRecord();"),
     ("class_start", "[Serializable]\npublic class Foo {", "Foo x;"),
     ("class_start", "class Foo<T> : Base<T> {", "Foo<int> x;"),
     ("class_start", "record struct Foo<T>(T Value) : Base<T>;", "Foo<int> x;"),
-
     # structural_boundaries:
     ("structural_boundaries", "namespace My.Name.Space;", "My.Name.Space x;"),
     ("structural_boundaries", "public enum Color", "Color.Red;"),
@@ -607,28 +607,73 @@ def test_csharp_redos_immunity_sweep():
     assert CSHARP_RULES["class_start"].search("class Foo {")
     assert CSHARP_RULES["args"].search("x => x + 1")
 
+
 def test_csharp_args_issue_2051_mechanisms():
     """
     Ensures C# args regex handles tuples and generic method signatures.
     References Issue #2051.
     """
     args_regex = CSHARP_RULES["args"]
-    
+
     # Mechanism 1: tuple return types
-    m1 = args_regex.search("internal (bool IsCandidate, bool IsTaskLike) HasEntryPointSignature(MethodSymbol method, BindingDiagnosticBag bag)\n{\n")
+    m1 = args_regex.search(
+        "internal (bool IsCandidate, bool IsTaskLike) HasEntryPointSignature(MethodSymbol method, BindingDiagnosticBag bag)\n{\n"
+    )
     assert m1 is not None, "Failed to match tuple return type"
     assert m1.group(2) == "(MethodSymbol method, BindingDiagnosticBag bag)"
-    
-    m1_generic = args_regex.search("public ValueTask<(bool updated, Solution newSolution)> SetCurrentSolutionAsync(Solution oldSolution)\n{\n")
+
+    m1_generic = args_regex.search(
+        "public ValueTask<(bool updated, Solution newSolution)> SetCurrentSolutionAsync(Solution oldSolution)\n{\n"
+    )
     assert m1_generic is not None, "Failed to match generic-wrapped tuple return type"
     assert m1_generic.group(2) == "(Solution oldSolution)"
-    
+
     # Mechanism 2: tuple-typed parameters
-    m2 = args_regex.search("public bool Equals((ImmutableArray<byte> ContentHash, int Position) x, (ImmutableArray<byte> ContentHash, int Position) y)\n{\n")
+    m2 = args_regex.search(
+        "public bool Equals((ImmutableArray<byte> ContentHash, int Position) x, (ImmutableArray<byte> ContentHash, int Position) y)\n{\n"
+    )
     assert m2 is not None, "Failed to match tuple-typed parameters"
-    assert m2.group(2) == "((ImmutableArray<byte> ContentHash, int Position) x, (ImmutableArray<byte> ContentHash, int Position) y)"
-    
+    assert (
+        m2.group(2)
+        == "((ImmutableArray<byte> ContentHash, int Position) x, (ImmutableArray<byte> ContentHash, int Position) y)"
+    )
+
     # Mechanism 3: generic type parameters on methods
-    m3 = args_regex.search("private void OnAnyDocumentTextChanged<TArg>(\n    DocumentId documentId,\n    int something\n)\n{\n")
+    m3 = args_regex.search(
+        "private void OnAnyDocumentTextChanged<TArg>(\n    DocumentId documentId,\n    int something\n)\n{\n"
+    )
     assert m3 is not None, "Failed to match generic method definition"
     assert m3.group(2) == "(\n    DocumentId documentId,\n    int something\n)"
+
+
+def test_csharp_doc_line_marker_swallows_line_regression():
+    """
+    #2672: family-wide `///` -> `///[^\n]*` line-marker fix (the #2658
+    shape). csharp's other alternatives (`///\\s*<summary>`, etc.) already
+    require the `///` prefix, so this was never a double-count vector here
+    -- confirm no corpus/behavior change: a single `///` doc-comment line
+    still counts once, and a run of consecutive `///` lines still counts
+    once per line (explicit non-goal, unchanged).
+    """
+    doc = CSHARP_RULES["doc"]
+
+    one_line = "/// <summary>does a thing</summary>\n"
+    assert len(doc.findall(one_line)) == 1, "a single `///` doc-comment line must count once"
+
+    # The count alone doesn't distinguish pre/post-fix here (csharp's more
+    # specific alternatives already required the `///` prefix, so it never
+    # double-counted) -- the observable change is that the match now spans
+    # the whole line instead of stopping at the bare 3-char `///` marker.
+    m = doc.search(one_line)
+    assert m is not None
+    assert m.group() == "/// <summary>does a thing</summary>", (
+        f"expected the match to swallow the whole line, got {m.group()!r}"
+    )
+
+    three_lines = "/// <summary>\n/// does a thing\n/// </summary>\n"
+    assert len(doc.findall(three_lines)) == 3, "three `///` lines still count once per line (explicit non-goal)"
+
+
+def test_csharp_doc_line_marker_redos_immune_regression():
+    """#2672 ReDoS probe: a very long unterminated `///` line must fail closed quickly, not hang."""
+    assert_redos_immune(CSHARP_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)

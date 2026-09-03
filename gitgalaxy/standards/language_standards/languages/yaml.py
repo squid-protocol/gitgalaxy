@@ -129,7 +129,26 @@ DEFINITION: dict[str, Any] = {
             r"(?:'([a-zA-Z0-9_./@:-]+)'|\"([a-zA-Z0-9_./@:-]+)\"|([a-zA-Z0-9_./@:-]+))",
             re.M | re.I,
         ),
-        "ownership": None,
+        # BUG FIX (#2646): the two ecosystems this language definition explicitly
+        # targets each carry a standard, single-key ownership field that no existing
+        # rule captured -- action.yml's top-level `author:` (sibling of `name:`/
+        # `description:`, which `doc` already matches) and OpenAPI's `info.contact:`
+        # block (bounded step-over to a nested `name:`/`email:` key, same shape as
+        # `api`/`args`/`class_start`'s bounded lookahead over intervening lines, capped
+        # at 10 to stay linear). Precedent: jcl's `Author:|Created by:|Maintainer:` and
+        # dockerfile's `MAINTAINER|LABEL maintainer=` ownership rules already treat this
+        # as real morphology for comparable languages.
+        # NOTE: the nested `name:`/`email:` key under a `contact:` block also
+        # legitimately satisfies `doc`'s generic `^[ \t]*name:[ \t]+.*` line-match --
+        # that's an intentional, expected double-classification (the field really is
+        # both a generic "name:" line AND part of an ownership/contact block), not a
+        # bug introduced here; `author:` itself has no such overlap since `doc` has no
+        # `author:` alternative.
+        "ownership": re.compile(
+            r"^[ \t]*author:[ \t]+.*"
+            r"|^[ \t]*contact:[ \t]*(?:#.*)?\n(?:[ \t]*(?:#.*)?\n){0,10}[ \t]+(?:name|email):",
+            re.M | re.I,
+        ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         # 26. planned_debt (Annotated Debt / TODOs)
         "planned_debt": GLOBAL_PLANNED_DEBT,
@@ -165,7 +184,37 @@ DEFINITION: dict[str, Any] = {
         "sync_locks": None,
         # Strict SHA-1 pinning for immutable security
         "immutability_locks": re.compile(r"@[a-f0-9]{40}\b", re.I),
-        "cleanup": None,
+        # BUG FIX (#2647): ordinary shell-level resource teardown embedded in `run:`/
+        # `script:` content -- `rm -rf <non-root-path>`, `docker rm`/`stop`/`down`
+        # (hyphenated `docker-compose` and modern space-separated `docker compose`
+        # both), bare `kill <pid>` -- matched no existing rule. `high_risk_execution`'s
+        # `rm -rf` stays deliberately root-only; `panics_and_aborts`'s `kill` stays
+        # deliberately numbered-signal-only (`kill -9 ...`) -- this rule is the
+        # non-root/non-numbered-signal complement, not a re-claim of either.
+        # BOUNDARY FIX vs. the issue's illustrative regex: its root-path exclusion
+        # (`(?!/(?:[ \t]|$))`) only excluded a bare trailing `/`, so a digit-suffixed
+        # root delete (`rm -rf /2`) would have matched BOTH this rule and
+        # `high_risk_execution` (which explicitly claims `/` unless followed by a
+        # letter -- see that rule's own regression test for the `/2` case). Widened
+        # the exclusion to `(?!/(?:[^A-Za-z]|$))` -- the exact complement of
+        # `high_risk_execution`'s letter-based split -- so a `/`-rooted path is cleanup's
+        # only when a letter follows (`/tmp`, `/var`, a real named directory); every
+        # `/`-rooted form `high_risk_execution` claims (bare `/`, `/2`, `/!`, ...) stays
+        # excluded here. Also added the `docker compose down` (space, no hyphen) form
+        # the issue names in prose but the illustrative regex didn't actually cover.
+        # No overlap with `after_script:` either: that keyword is intentionally left to
+        # `func_start`'s executable-logic anchor (already covered by existing test
+        # coverage) -- this rule keys off the shell verb itself, not the block keyword,
+        # so a teardown verb inside an `after_script:` block legitimately double-counts
+        # with `func_start` the same way any `run:`/`script:` shell content already
+        # double-counts with `branch`/`io`/`high_risk_execution` per this language's own
+        # documented philosophy (shell embedded in run:/script: counts like code).
+        "cleanup": re.compile(
+            r"\brm[ \t]+-rf?[ \t]+(?!/(?:[^A-Za-z]|$))\S{1,200}\b"
+            r"|\bdocker(?:[ \t]+compose|-compose)?[ \t]+(?:rm|stop|down)\b"
+            r"|\bkill[ \t]+(?!-[0-9])\S{1,64}\b",
+            re.M | re.I,
+        ),
         "encapsulation": None,
         "listeners": re.compile(r"^[ \t]*webhook:", re.M | re.I),
         "test_skip": re.compile(r"\|\|[ \t]*true\b|--passWithNoTests\b|\bskipTests\b|--no-audit\b", re.I),

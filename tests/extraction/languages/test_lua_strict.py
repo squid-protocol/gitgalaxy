@@ -87,28 +87,24 @@ _LUA_DEEP_CASES = [
     ("branch", "elseif\n  condition\nthen", "local if_true = 1"),
     ("branch", "for i, v in ipairs(t) do", "local format = 1"),
     ("branch", "repeat\nuntil x == 0", "local until_now = 0"),
-
     # --- args ---
     ("args", "function obj:method(x, y)", "obj:method(x, y)"),
     ("args", "function foo<T>(x: T)", "local function_pointer = foo"),
     ("args", "function foo<T, U = Array<T>>(x: T)", "foo<T>(x)"),
     ("args", "function \n foo \n ( \n x \n )", "function_name = 1"),
     ("args", "function(a, b, ...)", "if function_called then"),
-
     # --- func_start ---
     ("func_start", "export function my_api()", "local f = function() end"),
     ("func_start", "local\nfunction\nfoo\n()", "return function()"),
     ("func_start", "function tbl.foo:bar()", "function_name = 1"),
     ("func_start", "function generic_func<T>()", "generic_func<T>()"),
     ("func_start", "function deeply_nested<T, U = Array<T>>()", "deeply_nested()"),
-
     # --- class_start ---
     ("class_start", "export type User = {", "local lowercase_type = {}"),
     ("class_start", "type GameState = {", "type(GameState) == 'table'"),
     ("class_start", "export MyClass = {", "MyClass.foo = 1"),
     ("class_start", "local SomeObject\n = \n {", "local SomeObject = 1"),
     ("class_start", "---@class My_Class", "-- @class My_Class"),
-
     # --- structural_boundaries ---
     ("structural_boundaries", "export type", "exported = true"),
     ("structural_boundaries", "local x < const > = 1", "x = 1"),
@@ -116,6 +112,7 @@ _LUA_DEEP_CASES = [
     ("structural_boundaries", "module('mymod')", "module_name = 1"),
     ("structural_boundaries", "require  (  'mod'  )", "requires_auth = true"),
 ]
+
 
 @pytest.mark.parametrize("signature,positive,negative", _LUA_SIMPLE_CASES)
 def test_lua_signature_positive_and_negative(signature, positive, negative):
@@ -134,9 +131,7 @@ def test_lua_signature_deep_cases(signature, positive, negative):
     assert pattern is not None, f"lua's {signature!r} rule is unexpectedly None"
     assert pattern.search(positive), f"lua {signature!r} failed to match deep positive case: {positive!r}"
     if negative is not None:
-        assert not pattern.search(negative), (
-            f"lua {signature!r} incorrectly matched deep negative case: {negative!r}"
-        )
+        assert not pattern.search(negative), f"lua {signature!r} incorrectly matched deep negative case: {negative!r}"
 
 
 def test_lua_listeners_on_call_boundary_regression():
@@ -237,3 +232,30 @@ def test_lua_api_module_return_column_anchored_regression():
 
     assert api.search("return M"), "column-0 module-final return must still count as api"
     assert api.search("return MyModule"), "column-0 module-final return (named module) must still count as api"
+
+
+def test_lua_safety_bypasses_globals_and_cleanup_ownership_regression():
+    """#2675: `safety_bypasses` dropped `_G`/`_ENV` (owned by `globals`) and
+    `collectgarbage` (owned by `cleanup`). probe_globals in a.lua and
+    probe_cleanup in c.lua each contributed +1 of this rule's +2 over the
+    planted value.
+    """
+    safety_bypasses = LUA_RULES["safety_bypasses"]
+    globals_rule = LUA_RULES["globals"]
+    cleanup = LUA_RULES["cleanup"]
+
+    assert not safety_bypasses.search("_G"), "_G must NOT count as safety_bypasses"
+    assert not safety_bypasses.search("_ENV"), "_ENV must NOT count as safety_bypasses"
+    assert globals_rule.search("_G"), "_G must still count as globals"
+    assert globals_rule.search("_ENV"), "_ENV must still count as globals"
+
+    assert not safety_bypasses.search("collectgarbage()"), "collectgarbage must NOT count as safety_bypasses"
+    assert cleanup.search("collectgarbage()"), "collectgarbage must still count as cleanup"
+
+    # legitimate safety_bypasses tokens must still be counted
+    assert safety_bypasses.search("rawget(t, k)"), "rawget must still count as safety_bypasses"
+    assert safety_bypasses.search("rawset(t, k, v)"), "rawset must still count as safety_bypasses"
+    assert safety_bypasses.search("rawlen(t)"), "rawlen must still count as safety_bypasses"
+    assert safety_bypasses.search("debug.getinfo(1)"), "debug.* must still count as safety_bypasses"
+    assert safety_bypasses.search("getfenv(1)"), "getfenv must still count as safety_bypasses"
+    assert safety_bypasses.search("setfenv(1, t)"), "setfenv must still count as safety_bypasses"

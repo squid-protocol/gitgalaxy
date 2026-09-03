@@ -131,30 +131,30 @@ _SCALA_DEEP_CASES = [
     ("branch", "while (true) do \n  println(1)", "val whileRunning = true"),
     ("branch", "x match { case Some(y) => y }", "case_sensitive = false"),
     ("branch", "throw new IllegalArgumentException()", "val throwaway = 0"),
-
     # ------------------ args ------------------
     ("args", "def `weird-name with spaces!`(x: Int, y: String): Int =", "val foo = 1"),
     ("args", "def foo[T <: List[Int]](x: T): Int = {", "val fooT = 1"),
     ("args", "(f: (Int) => String) => f(1)", "val lambdaString = 1"),
-    ("args", "def foo(x: String = \"()\") = x", "val defaultParen = 1"),
+    ("args", 'def foo(x: String = "()") = x', "val defaultParen = 1"),
     ("args", "def config(\n  host: String,\n  port: Int\n) = {}", "val configHost = 1"),
     ("args", "x => x * 2", "val x = 2"),
-
     # ------------------ func_start ------------------
-    ("func_start", "@Target(Array(ElementType.METHOD))\n@Retention(RetentionPolicy.RUNTIME)\ndef foo() =", "val bar = 1"),
+    (
+        "func_start",
+        "@Target(Array(ElementType.METHOD))\n@Retention(RetentionPolicy.RUNTIME)\ndef foo() =",
+        "val bar = 1",
+    ),
     ("func_start", "inline\ntransparent\nprivate[this]\ndef foo() =", "inline val x = 5"),
     ("func_start", "override def `do something`[T]() =", "val do_something = 1"),
     ("func_start", "open lazy def bar() = {}", "open class Bar"),
     ("func_start", "def f[A](x: Int) =", "val fX = 1"),
-
     # ------------------ class_start ------------------
-    ("class_start", "@Entity\n@Table(name=\"users\")\nfinal case class User(id: Int)", "val classId = 1"),
+    ("class_start", '@Entity\n@Table(name="users")\nfinal case class User(id: Int)', "val classId = 1"),
     ("class_start", "sealed abstract class Foo[T] extends Bar", "val abstractClass = 5"),
     ("class_start", "transparent trait Foo", "transparent val x = 1"),
     ("class_start", "enum Color { case Red, Green, Blue }", "val enumColor = Red"),
     ("class_start", "private[this]\nfinal\nobject Singleton", "final val Singleton = 1"),
     ("class_start", "open class Base", "open val base = 1"),
-
     # ------------------ structural_boundaries ------------------
     ("structural_boundaries", "extension (s: String) def foo = 1", "val extensionData = 5"),
     ("structural_boundaries", "given intOrd: Ord[Int] with {", "val givenValue = 5"),
@@ -331,3 +331,31 @@ def test_scala_redos_immunity_sweep():
     assert_redos_immune(SCALA_RULES["args"], "def foo[" + "[" * 100000, timeout_sec=3.0)
     assert_redos_immune(SCALA_RULES["func_start"], "@a(" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(SCALA_RULES["class_start"], "@a(" + "a" * 100000, timeout_sec=3.0)
+
+
+def test_scala_doc_block_counts_once_regression():
+    """
+    #2672: `/\\*\\*` and its tags (`@param`, `@return`, ...) were independent
+    alternatives, so one Scaladoc block counted doc=2 -- the #2658 shape.
+    Pair the block into a single bounded (0,15000 chars) non-greedy span so
+    it counts once, regardless of how many tags it carries.
+    """
+    doc = SCALA_RULES["doc"]
+
+    block = "/**\n * @param argv probe input\n */\n"
+    assert len(doc.findall(block)) == 1, "a single Scaladoc block must count once, not once per tag"
+
+    two_blocks = "/**\n * @param argv probe input\n */\ndef f(): Unit = {}\n/**\n * @return again\n */\n"
+    assert len(doc.findall(two_blocks)) == 2, "two separate Scaladoc blocks must still count as 2"
+
+
+def test_scala_doc_bare_tag_outside_block_still_counts_regression():
+    """#2672: a tag outside any Scaladoc block must still count."""
+    doc = SCALA_RULES["doc"]
+    assert doc.search("@note outside any doc block")
+    assert doc.search("@tparam T outside any doc block")
+
+
+def test_scala_doc_block_redos_immune_regression():
+    """#2672 ReDoS probe: an unterminated `/**` must fail closed quickly, not hang."""
+    assert_redos_immune(SCALA_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)

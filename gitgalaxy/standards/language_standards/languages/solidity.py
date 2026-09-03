@@ -94,7 +94,13 @@ DEFINITION: dict[str, Any] = {
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out execution flow or structural definitions.
         "dead_code": re.compile(r"//[ \t]*(?:function|contract|if|require|uint|address)\b"),
         # 13. doc: Structured Documentation. NatSpec (Ethereum Natural Specification Format).
-        "doc": re.compile(r"///|/\*\*|@(?:param|return|dev|notice|custom|title|author)"),
+        # BUG FIX #2672: `/**`, `///` and the NatSpec tags (`@param`,
+        # `@notice`, ...) were independent alternatives, so one NatSpec
+        # comment counted doc=2. Block form first (bounded 0,15000 chars
+        # non-greedy span, the #2658 shape), then the line-marker form so
+        # `/// @param x` is one hit per line, not two; bare tags stay last
+        # so a tag outside any doc comment still counts.
+        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@(?:param|return|dev|notice|custom|title|author)"),
         # 14. test: Testing & Assertions. Foundry/Forge testing hooks and assertions.
         "test": re.compile(
             r"\b(?:setUp|test[A-Za-z0-9_]*|assertEq|assertTrue|assertFalse|assertGt|assertLt|vm\.expectRevert)\b"

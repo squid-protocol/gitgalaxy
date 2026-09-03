@@ -704,3 +704,22 @@ def test_livecode_pointers_redos_immune():
 def test_livecode_globals_redos_immune():
     pattern = LIVECODE_RULES["globals"]
     assert_redos_immune(pattern, "the " * 20000, timeout_sec=3.0)
+
+
+def test_livecode_safety_bypasses_global_ownership_regression():
+    """#2675: `safety_bypasses` dropped the `global\\s+` alternative -- it's a
+    scope declaration, not a bypass, and `globals` already owns it
+    exclusively. probe_globals in the corpus's a.lc was double-counted by
+    this rule for the entire +2 over the planted value.
+    """
+    safety_bypasses = LIVECODE_RULES["safety_bypasses"]
+    globals_rule = LIVECODE_RULES["globals"]
+
+    assert not safety_bypasses.search("global tMyVar"), "`global` declarations must NOT count as safety_bypasses"
+    assert globals_rule.search("global tMyVar"), "`global` declarations must still count as globals"
+
+    # legitimate safety_bypasses tokens must still be counted
+    assert safety_bypasses.search("disable messages"), "disable messages must still count as safety_bypasses"
+    assert safety_bypasses.search("unlock screen"), "unlock screen must still count as safety_bypasses"
+    assert safety_bypasses.search("unlock messages"), "unlock messages must still count as safety_bypasses"
+    assert safety_bypasses.search('do "put 1 into x"'), "dynamic do must still count as safety_bypasses"

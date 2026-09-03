@@ -285,3 +285,36 @@ def test_solidity_return_not_counted_as_branch_regression():
 
 def test_solidity_structural_boundaries_redos_immune_after_return_addition():
     assert_redos_immune(SOLIDITY_RULES["structural_boundaries"], "return " * 20000, timeout_sec=3.0)
+
+
+def test_solidity_doc_block_and_line_marker_count_once_regression():
+    """
+    #2672: `/\\*\\*`/`///` and the NatSpec tags (`@param`, `@notice`, ...)
+    were independent alternatives, so one NatSpec comment counted doc
+    proportional to its tag density -- the #2658 shape. Block form pairs
+    into a single bounded (0,15000 chars) non-greedy span; the line-marker
+    form (`///`) now swallows the rest of its line so a tag on the same
+    line as the marker is one hit, not two.
+    """
+    doc = SOLIDITY_RULES["doc"]
+
+    block = "/**\n * @param argv probe input\n */\n"
+    assert len(doc.findall(block)) == 1, "a single NatSpec block must count once, not once per tag"
+
+    one_line = "/// @param flag the probe input\n"
+    assert len(doc.findall(one_line)) == 1, "a single `///` line with a tag must count once, not twice"
+
+    two_lines = "/// @notice does a thing\n/// @param flag the probe input\n"
+    assert len(doc.findall(two_lines)) == 2, "two `///` lines still count once per line (explicit non-goal)"
+
+
+def test_solidity_doc_bare_tag_outside_marker_still_counts_regression():
+    """#2672: a NatSpec tag outside any `///`/`/**` marker must still count."""
+    doc = SOLIDITY_RULES["doc"]
+    assert doc.search("@dev standalone tag outside any doc comment")
+
+
+def test_solidity_doc_block_redos_immune_regression():
+    """#2672 ReDoS probes: unterminated `/**` and a very long unterminated `///` line must fail closed quickly."""
+    assert_redos_immune(SOLIDITY_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
+    assert_redos_immune(SOLIDITY_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)

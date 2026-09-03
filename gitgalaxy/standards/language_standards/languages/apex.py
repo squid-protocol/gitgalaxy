@@ -160,7 +160,12 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # 13. doc: Structured Documentation. ApexDoc annotations and metadata blocks.
-        "doc": re.compile(r"/\*\*|@description|@param|@return|@author|@date|@example", re.I),
+        # #2672: block form first (`/** ... */`, bounded/non-greedy, identical shape to
+        # #2658's python fix) so a whole ApexDoc comment -- markers plus every tag inside
+        # it -- counts once, not once per marker plus once per tag. `@author` removed from
+        # the bare-tag fallback entirely: it's owned by `ownership` (the #2659 shape); see
+        # that rule's own comment for the companion colon-optional relaxation this required.
+        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@description|@param|@return|@date|@example", re.I),
         # 14. test: Testing & Assertions. Salesforce test execution and assertion markers.
         "test": re.compile(
             r"@isTest|@TestSetup|@TestVisible|\b(?:Test\.startTest|Test\.stopTest|System\.assert|Assert\.(?:isTrue|isNotNull|areEqual)|Test\.setMock)\b",
@@ -209,8 +214,16 @@ DEFINITION: dict[str, Any] = {
         # 24. import: Dependency Inclusions.
         # Apex lacks a native import keyword. Cross-package dependencies are established via
         # reflection (Type.forName) or explicitly namespaced static invocations.
+        # #2671: the whole pattern was compiled with re.IGNORECASE (needed so
+        # `Type.forName`/`TYPE.FORNAME` both match), which also neutralised the `[A-Z]`
+        # guard meant to isolate a genuine type reference (lowercase receiver, capitalised
+        # member) -- under re.I, `[A-Z]` matches any letter, so the alternative degraded to
+        # "any word.word" and every ordinary method call (foo.bar, conn.clear, Logger.info)
+        # counted as an import. `(?-i:...)` locally turns case-insensitivity back OFF for
+        # just the member-name class, so the guard actually guards while `Type.forName` and
+        # the namespace-exclusion lookahead stay case-insensitive as before.
         "import": re.compile(
-            r"\bType\.forName\b|(?!(?:System|Database|Schema|Auth|Cache|Chatter|EventBus|Limits|Messaging|RestContext|Test)\b)\b[a-zA-Z_]\w*\.[A-Z]\w*\b",
+            r"\bType\.forName\b|(?!(?:System|Database|Schema|Auth|Cache|Chatter|EventBus|Limits|Messaging|RestContext|Test)\b)\b[a-zA-Z_]\w*\.(?-i:[A-Z]\w*)\b",
             re.I,
         ),
         "_dependency_capture": re.compile(
@@ -218,8 +231,16 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 25. ownership: Authorship indicators.
+        # #2672: `@author` requiring a colon (`@author:\s+`) meant idiomatic, colon-less
+        # ApexDoc (`@author Joe`) was never claimed by ownership at all -- it was
+        # doc-only (before this fix, double-counted there too). Now that `doc` drops
+        # `@author` entirely (see that rule's comment), the bare form would be lost with
+        # nowhere left to count it. Relaxed to colon-optional for just the `@author`
+        # alternative; the remaining prose-risky alternatives (Author|Created by|
+        # Maintainer|Copyright|Tim Berners-Lee) stay colon-required so ordinary prose
+        # ("the Author of this module") still can't false-positive.
         "ownership": re.compile(
-            r"(?:@author|Author|Created by|Maintainer|Copyright|Tim Berners-Lee):\s+([^\n]+)",
+            r"(?:@author:?\s+|(?:Author|Created by|Maintainer|Copyright|Tim Berners-Lee):\s+)([^\n]+)",
             re.I | re.M,
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---

@@ -282,3 +282,34 @@ def test_javascript_dependency_capture_multiline():
     m = pattern.search(text)
     assert m is not None
     assert "my-module" in m.groups()
+
+
+def test_javascript_doc_block_counts_once_regression():
+    """
+    #2672: `/\\*\\*` and the JSDoc tags (`@param`, `@return`, ...) were
+    independent alternatives, so one JSDoc block counted doc proportional
+    to its tag density -- the #2658 shape. Off-corpus only (the rosetta
+    corpus plants one of {marker, tag} for javascript, so this does not
+    move the corpus). Pair the block into a single bounded (0,15000 chars)
+    non-greedy span so it counts once, regardless of how many tags it
+    carries.
+    """
+    doc = JS_RULES["doc"]
+
+    block = "/**\n * @param x in\n * @return out\n */\n"
+    assert len(doc.findall(block)) == 1, "a single JSDoc block must count once, not once per tag"
+
+    two_blocks = "/**\n * @param x in\n */\nfunction f() {}\n/**\n * @return out\n */\n"
+    assert len(doc.findall(two_blocks)) == 2, "two separate JSDoc blocks must still count as 2"
+
+
+def test_javascript_doc_bare_tag_outside_block_still_counts_regression():
+    """#2672: a JSDoc tag outside any doc block must still count."""
+    doc = JS_RULES["doc"]
+    assert doc.search("@typedef leftover outside any doc block")
+    assert doc.search("@template T outside any doc block")
+
+
+def test_javascript_doc_block_redos_immune_regression():
+    """#2672 ReDoS probe: an unterminated `/**` must fail closed quickly, not hang."""
+    assert_redos_immune(JS_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)

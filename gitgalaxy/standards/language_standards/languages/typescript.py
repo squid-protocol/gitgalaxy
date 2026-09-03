@@ -518,7 +518,16 @@ DEFINITION: dict[str, Any] = {
         # function/class (`/* function foo() {} */`) was invisible.
         "dead_code": re.compile(r"(?://|/\*)[ \t]*(?:if|for|while|function|class|return|export|import)\b"),
         # 13. doc (Structured Documentation)
-        "doc": re.compile(r"/\*\*|@param|@return|@throws|@deprecated|@typedef|@type|@template|@callback"),
+        # BUG FIX #2672: `/**` and the JSDoc/TSDoc tags (`@param`,
+        # `@return`, ...) were independent alternatives, so one doc block
+        # counted doc proportional to its tag density. Block form first
+        # (bounded 0,15000 chars non-greedy span, the #2658 shape); bare
+        # tags stay last so a tag outside any doc block still counts. No
+        # corpus movement -- the rosetta corpus only plants one of
+        # {marker, tag} for this language.
+        "doc": re.compile(
+            r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@typedef|@type|@template|@callback"
+        ),
         # 14. test (Testing & Assertions)
         # CRITICAL FIX: Negative lookbehind (?<!\.) prevents matching 'regex.test()' as an assertion.
         "test": re.compile(

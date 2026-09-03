@@ -263,8 +263,14 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # 13. doc: Structured Documentation. Identification metadata and structured comments.
+        # BUG FIX #2672/#2661 step 2: `AUTHOR.` was claimed by both `doc`
+        # and `ownership`, so an IDENTIFICATION DIVISION with an AUTHOR
+        # paragraph double-counted (the #2659 shape). `ownership` already
+        # owns `AUTHOR` exclusively; drop it here and leave the other
+        # header fields and the `*>` tags (including `@author` inline
+        # comments, which are distinct from the AUTHOR paragraph) as-is.
         "doc": re.compile(
-            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:AUTHOR|DATE-WRITTEN|DATE-COMPILED|REMARKS|INSTALLATION)\.|\*>\s*@(?:param|return|author)",
+            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:DATE-WRITTEN|DATE-COMPILED|REMARKS|INSTALLATION)\.|\*>\s*@(?:param|return|author)",
             re.I | re.M,
         ),
         # 14. test: Testing & Assertions. Unit testing framework markers (ZUnit).

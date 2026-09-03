@@ -148,8 +148,13 @@ DEFINITION: dict[str, Any] = {
         # `do "put 1 into x"` and `do (tExpr)` both silently never
         # matched. Pulled "do\s+(?!...)" out of the group (the lookahead
         # already fully delimits it; no trailing \b needed).
+        # BUG FIX (#2675): dropped the `global\s+` alternative -- it's a scope
+        # declaration, not a safety bypass, and `globals` already owns it
+        # exclusively (`\b(global\s+|the\s+global|...)\b`). The corpus's
+        # probe_globals plants two `global` declarations in a.lc that this
+        # rule was double-counting, the entire +2 over the planted value.
         "safety_bypasses": re.compile(
-            r"\b(disable\s+messages|unlock\s+(?:screen|messages)|global\s+)\b|\bdo\s+(?![a-zA-Z_]\w*\b)",
+            r"\b(disable\s+messages|unlock\s+(?:screen|messages))\b|\bdo\s+(?![a-zA-Z_]\w*\b)",
             re.I,
         ),
         # 8. danger: High-Risk Execution. Process killers and blocking UI alerts in execution flow.

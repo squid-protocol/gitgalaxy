@@ -344,3 +344,31 @@ def test_kotlin_globals_const_val_redos_immunity():
     identifier following `const val` (with no terminating `=`, forcing the
     engine to scan the whole run without a match) must resolve quickly."""
     assert_redos_immune(KOTLIN_RULES["globals"], "const val " + "a" * 100000, timeout_sec=3.0)
+
+
+def test_kotlin_doc_block_counts_once_regression():
+    """
+    #2672: `/\\*\\*` and its tags (`@param`, `@return`, ...) were independent
+    alternatives, so one KDoc block counted doc=2 -- the #2658 shape. Pair
+    the block into a single bounded (0,15000 chars) non-greedy span so it
+    counts once, regardless of how many tags it carries.
+    """
+    doc = KOTLIN_RULES["doc"]
+
+    block = "/**\n * @param argv probe input\n */\n"
+    assert len(doc.findall(block)) == 1, "a single KDoc block must count once, not once per tag"
+
+    two_blocks = "/**\n * @param argv probe input\n */\nfun f() {}\n/**\n * @since again\n */\n"
+    assert len(doc.findall(two_blocks)) == 2, "two separate KDoc blocks must still count as 2"
+
+
+def test_kotlin_doc_bare_tag_outside_block_still_counts_regression():
+    """#2672: a tag outside any KDoc block must still count."""
+    doc = KOTLIN_RULES["doc"]
+    assert doc.search("@since 1.0 outside any doc block")
+    assert doc.search("@constructor outside any doc block")
+
+
+def test_kotlin_doc_block_redos_immune_regression():
+    """#2672 ReDoS probe: an unterminated `/**` must fail closed quickly, not hang."""
+    assert_redos_immune(KOTLIN_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)

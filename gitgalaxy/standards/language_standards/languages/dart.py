@@ -259,7 +259,15 @@ DEFINITION: dict[str, Any] = {
             r"//[ \t]*(?:class|mixin|void|if|for|while|print|Widget|return)\b|/\*[ \t]*(?:class|mixin|void|Widget|if|for)"
         ),
         # 13. doc: Structured Documentation. dartdoc annotations and structured comments.
-        "doc": re.compile(r"///|/\*\*|@param|@return"),
+        # BUG FIX #2672: `/**`, `///` and the doc tags (`@param`, `@return`)
+        # were independent alternatives, so one doc comment counted doc
+        # proportional to its tag density. Block form first (bounded
+        # 0,15000 chars non-greedy span, the #2658 shape), then the
+        # line-marker form so `/// @param x` is one hit per line, not two;
+        # bare tags stay last so a tag outside any doc comment still
+        # counts. No corpus movement -- the rosetta corpus only plants one
+        # of {marker, tag} for this language.
+        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@param|@return"),
         # 14. test: Testing & Assertions. Flutter test frameworks and standard expect/verify markers.
         "test": re.compile(
             r"\b(?:test|testWidgets|group|setUp|tearDown|pumpWidget|pumpAndSettle|find\.(?:byType|text|byKey))\b|\b(?:expect|verify|when)\s*\("

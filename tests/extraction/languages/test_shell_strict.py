@@ -102,7 +102,7 @@ _SHELL_SIMPLE_CASES = [
     ("globals", "echo $HOME", "echo $myvar"),
     ("comprehensions", "for i in {1..10}; do", "for i in 1 2 3; do"),
     ("scientific", "result=$(( 1 + 2 ))", "result=1"),
-    ("reflection_metaprogramming", "output=$(date)", "output=static"),
+    ("reflection_metaprogramming", 'eval "$cmd"', "output=$(date)"),
     ("import", "source ./lib.sh", "echo lib.sh"),
     ("ownership", "# Author: Jane Doe", "# just a note"),
     # --- PHASE 4 ---
@@ -188,8 +188,9 @@ def test_shell_lexical_family_no_block_terminator_state_to_confuse():
     payload -- there is nothing for a stray `}`/`fi` to falsely "close".
     The one place shell rules DO track a nesting depth is delimiter
     matching for `$(...)`, `<(...)`/`>(...)`, and `${...}` (safety,
-    concurrency, reflection_metaprogramming) -- covered by the dedicated
-    nested-delimiter regression tests below, not by comment-state tracking.
+    concurrency) -- covered by the dedicated nested-delimiter regression
+    tests below, not by comment-state tracking. (reflection_metaprogramming
+    used to be in that list; #2722 dropped command substitution from it.)
     """
     branch = SHELL_RULES["branch"]
     heredoc_body_with_fi = "cat <<EOF\nif true; then\n  echo hi\nfi\nEOF\n"
@@ -306,35 +307,76 @@ def test_shell_concurrency_process_substitution_redos_immunity():
     assert pattern.search("diff <(sort a) <(sort b)")
 
 
-def test_shell_reflection_metaprogramming_nested_command_substitution_regression():
+def test_shell_reflection_metaprogramming_is_dispatch_not_vocabulary():
     """
-    Nested-delimiter regression (Rule 11): `$(...)` (command substitution)
-    used a flat `[^)]+` delimiter matcher, which cannot represent one level
-    of nesting. A realistic nested command substitution -- e.g.
-    `DIR=$(cd "$(dirname "$0")" && pwd)`, the canonical "find my own script
-    directory" idiom -- truncated at the first (inner) `)` instead of
-    capturing the full outer substitution. Upgraded to the one-level-nesting
-    form.
+    Vocabulary-leak regression (#2722). The rule counted two pieces of
+    ordinary shell as metaprogramming:
+
+    * `\\$\\{!?[a-zA-Z0-9_]+\\}` made the indirection marker OPTIONAL, so plain
+      `${var}` matched. On the crucible that was 4,117 of 4,863 shell hits
+      (85%) -- while `${!var}`, the construct the alternative exists for,
+      never occurs in the corpus at all.
+    * `$(...)` and backticks counted every command substitution, one hit per
+      ~33 lines of real shell. Running a program yields data, not code, and
+      no other language's rule counts invocation (python's does not fire on
+      `subprocess.run`).
+
+    Since #2719 this count IS the file's dynamism, feeding documentation risk
+    and cognitive load, so the leak was structural. What remains is dispatch
+    decided at runtime by a name: `eval`, indirect expansion, namerefs,
+    `source`/`.` of a computed path, and inline sub-language programs.
+
+    A nested-delimiter regression used to live here: `$(...)` had a flat
+    `[^)]+` matcher that truncated `DIR=$(cd "$(dirname "$0")" && pwd)` at
+    the inner `)`. That alternative is gone, so the idiom is now asserted as
+    a NEGATIVE. `safety` and `concurrency` keep their own nesting-aware
+    delimiter matchers and their own regressions.
     """
     pattern = SHELL_RULES["reflection_metaprogramming"]
-    m = pattern.search('DIR=$(cd "$(dirname "$0")" && pwd)')
-    assert m and m.group() == '$(cd "$(dirname "$0")" && pwd)', (
-        f"nested command substitution truncated: {m.group() if m else None!r}"
-    )
-    assert pattern.search("echo $(date)"), "non-nested form regressed"
+    for src in (
+        'eval "$cmd"',
+        "eval :",
+        "echo ${!name}",
+        "declare -n ref=x",
+        "local -n out=$1",
+        'source "$dir/lib.sh"',
+        ". $HOME/.env",
+        "awk '{print $1}' file",
+    ):
+        assert pattern.search(src), f"runtime dispatch not counted: {src!r}"
+    for src in (
+        "echo ${var}",
+        'echo "${HOME}/bin"',
+        "output=$(date)",
+        'DIR=$(cd "$(dirname "$0")" && pwd)',
+        "files=`ls`",
+        "medieval=1",
+        "source ./lib.sh",
+    ):
+        m = pattern.search(src)
+        assert not m, f"shell vocabulary counted as dynamism: {src!r} -> {m.group()!r}"
 
 
-def test_shell_reflection_metaprogramming_command_substitution_redos_immunity():
+def test_shell_reflection_metaprogramming_redos_immunity():
     """
-    Regression test for a confirmed real O(n^2) ReDoS: `$(...)`'s flat
-    `[^)]+` was unbounded and unanchored -- quadratic on a long run of
-    unclosed `$(` (confirmed ~4x per doubling at n=2k/4k/8k/16k/32k, e.g.
-    0.006s/0.024s/0.094s/0.38s/1.5s) before being upgraded to the
-    one-level-nesting form, which is linear (~2x per doubling).
+    ReDoS coverage for the rule's surviving alternatives (#2722).
+
+    The historical bug was `$(...)`'s flat `[^)]+`: unbounded and unanchored,
+    quadratic on a long run of unclosed `$(` (confirmed ~4x per doubling at
+    n=2k/4k/8k/16k/32k, e.g. 0.006s/0.024s/0.094s/0.38s/1.5s). That
+    alternative no longer exists, so the input that provoked it is now
+    asserted to be immune *and* unmatched, and the check moves to the
+    alternatives that are still here: the unclosed indirect expansion
+    `${!`, the computed `source $`, and the inline sub-language program,
+    whose string run is bounded at {0,500}.
     """
     pattern = SHELL_RULES["reflection_metaprogramming"]
+    assert_redos_immune(pattern, "${!" * 20000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "source $" * 20000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "awk '" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(pattern, "$(" * 20000, timeout_sec=3.0)
-    assert pattern.search("echo $(date)")
+    assert pattern.search("echo ${!ref}")
+    assert not pattern.search("echo $(date)")
 
 
 def test_shell_spec_exposure_redos_immunity():

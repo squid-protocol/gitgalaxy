@@ -209,15 +209,28 @@ DEFINITION: dict[str, Any] = {
         # 22. scientific (Numerical / Compute Libraries)
         "scientific": re.compile(r"\b(bc|awk|dc|expr|jq|RANDOM|SRANDOM)\b|\$\(\("),
         # 23. heat_triggers (Metaprogramming & Reflection)
-        # Sub-languages and indirect expansion. (ReDoS Shielded)
-        # QUADRATIC BLOWUP + NESTING FIX: `$(...)`'s flat `[^)]+` was
-        # unbounded and unanchored -- O(n^2) on a long run of unclosed
-        # `$(` (confirmed ~4x slowdown per input-size doubling). Upgraded
-        # to the one-level-nesting form so the common nested command
-        # substitution idiom (e.g. `DIR=$(cd "$(dirname "$0")" && pwd)`)
-        # is captured in full instead of truncating at the inner `)`.
+        # Sub-languages and indirect expansion -- the code whose behaviour is
+        # decided at runtime by a name, not written in the file. (ReDoS Shielded)
+        # VOCABULARY LEAK FIX (#2722): two alternatives counted ordinary shell
+        # as dynamism. (a) `\$\{!?...\}` made the indirection marker OPTIONAL,
+        # so plain `${var}` matched -- 4,117 of the crucible's 4,863 shell hits
+        # (85%) were variable expansions, while `${!var}` itself never occurs.
+        # (b) `$(...)` and backticks counted every command substitution, one per
+        # 33 lines of real shell: running a program yields data, not code, and no
+        # other language's rule counts invocation (python's does not fire on
+        # `subprocess.run`). Both dropped. `eval` is now unanchored -- the old
+        # `\beval\s+\$` missed `eval "$cmd"` -- and namerefs plus `source`/`.`
+        # of a computed path are added, which is what dynamic dispatch in shell
+        # actually looks like. Since #2719 this count IS the file's dynamism,
+        # read by documentation risk and cognitive load, so the leak was
+        # structural rather than cosmetic.
         "reflection_metaprogramming": re.compile(
-            r'\$\((?:[^()]|\([^()]*\))+\)|`[^`]+`|\b(?:awk|sed|perl|python[23]?|ruby)\s+[\'"][^\'"]{0,500}|\beval\s+\$|\$\{!?[a-zA-Z0-9_]+\}'
+            r"\beval\b"
+            r"|\$\{![a-zA-Z0-9_]+\}"
+            r"|\b(?:declare|typeset|local)[ \t]+-n\b"
+            r"|(?:^|[ \t;|&])(?:source\b|\.(?=[ \t]))[ \t]+[\"']?\$"
+            r"|\b(?:awk|sed|perl|python[23]?|ruby)\s+['\"][^'\"]{0,500}",
+            re.M,
         ),
         # 24. import (Dependency Inclusions)
         "import": re.compile(r"(?:^|[ \t;|&])(?:source\b|\.(?=[ \t]))[ \t]+[^\s;]+", re.M),

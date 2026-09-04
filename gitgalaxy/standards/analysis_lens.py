@@ -11,7 +11,7 @@
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
 import re
-from typing import ClassVar, TypedDict
+from typing import ClassVar, Optional, TypedDict
 
 """
 analysis_lens.py
@@ -122,7 +122,7 @@ ENGINE_CONSTANTS = {
 
 STRICTNESS_COLUMNS = ("static_types", "enforced_errors", "memory_safe", "no_implicit_globals")
 
-LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
+LANGUAGE_STRICTNESS: dict[str, Optional[tuple[bool, bool, bool, bool]]] = {
     #                    static  enforced  memory  no-implicit
     #                    types   errors    safe    globals
     "abap": (True, False, True, True),  # class-based exceptions unenforced at call sites

@@ -40,7 +40,12 @@ Decide which of these you are in:
 2. **Intentional, corpus-visible improvement** (a rule fix or addition, a stripper change).
    The expected values live in the corpus repo, so:
    - add the **`rosetta:rebless-owed`** label to this PR — the audit reports the regressions
-     as warnings and goes green, with the languages still listed in the summary;
+     as warnings and goes green, with the languages still listed in the summary. Adding the
+     label re-runs the audit (the workflow listens for `labeled`), so an already-red run
+     turns green on its own; you do not need to push an empty commit. Note that
+     `gh pr create --label` attaches the label *after* the `opened` payload is built, so the
+     very first run of a new PR reads no labels and goes red — the `labeled` event that
+     follows is the one that counts;
    - merge;
    - open the re-bless PR in keyword-rosetta **against engine main** (manifests + ledger
      per its `docs/GATING.md`). Its `verify.yml` checks out engine main, so it is green by

@@ -541,3 +541,132 @@ def test_matlab_redos_immunity_sweep():
     assert MATLAB_RULES["func_start"].search("function y = foo(x)")
     assert MATLAB_RULES["class_start"].search("classdef Foo")
     assert MATLAB_RULES["state_mutation"].search("data(idx(1)) = value;")
+
+
+# ==============================================================================
+# #2654: state_mutation -- MATLAB's return channel is an assignment
+# ==============================================================================
+# MATLAB has no `return <value>` statement: a result is an assignment to a name
+# declared in `function [out] = f(...)`. The bare regex therefore charged every
+# function one state_mutation just for returning -- the only language in the
+# registry that pays for the statement c/go/java write as `return env;` for
+# free. The discriminator is not on the assignment's line but in the enclosing
+# function: a name the body never READS back is the return channel; one the
+# body works with (`out = out + 1`, `out(i) = x`, `y` in runica.m's ICA loop)
+# is genuine state. detector.py's coding_analysis applies the registry-declared
+# `matlab_return_channel` scope filter, so these go through the real extractor.
+
+
+def _matlab_state(code: str) -> int:
+    """
+    RAW state_mutation hits, straight out of coding_analysis. Deliberately not
+    `splice()["equations"]`, whose value has #2546's per-function x3 proximity
+    flux applied on top -- that weighting is what turns matlab's four surviving
+    rosetta hits into a cell value, and mixing it in here would hide which of
+    the two effects a regression came from.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    counts, *_ = StructuralExtractor("matlab", LANGUAGE_DEFINITIONS).coding_analysis([("matlab", code, 0)])
+    return counts["state_mutation"]
+
+
+def test_matlab_scope_filter_is_declared_for_state_mutation():
+    assert MATLAB_RULES["_scope_filters"] == {"state_mutation": "matlab_return_channel"}
+
+
+def test_matlab_return_convention_assignment_is_not_a_mutation():
+    """The issue's own example: `out = env;` IS `return env;`."""
+    code = "function out = probe_globals(env)\nout = env;\nend\n"
+    assert MATLAB_RULES["state_mutation"].search(code), "sanity: the bare regex still matches the binding"
+    assert _matlab_state(code) == 0
+
+
+def test_matlab_branch_exclusive_returns_are_all_return_channel():
+    """Three mutually exclusive `out = k` are three `return k`, not three mutations."""
+    code = "function out = probe_branch(flag)\nif flag > 0\nout = 1;\nelseif flag < 0\nout = 2;\nelse\nout = 3;\nend\nend\n"
+    assert _matlab_state(code) == 0
+
+
+def test_matlab_output_variable_read_back_is_working_state():
+    """runica.m's shape: an output used as the accumulator keeps every hit."""
+    accumulate = "function out = total(n)\nout = 0;\nfor i = 1:n\nout = out + i;\nend\nend\n"
+    assert _matlab_state(accumulate) == 2
+    indexed = "function out = fill(n)\nout = zeros(1, n);\nout(1) = 5;\nend\n"
+    assert _matlab_state(indexed) == 2
+    passed_along = "function out = wrap(x)\nout = x;\ndisp(out);\nend\n"
+    assert _matlab_state(passed_along) == 1
+
+
+def test_matlab_multiple_outputs_are_judged_independently():
+    """parsepluginname's shape: `name` is write-only, `vers` is read back."""
+    code = (
+        "function [name, vers] = parse(dirName)\n"
+        "name = dirName;\n"
+        "vers = '';\n"
+        "vers(vers == '_') = '.';\n"
+        "end\n"
+    )
+    # `name` drops; `vers`'s bare binding AND its indexed write both stay.
+    assert _matlab_state(code) == 2
+
+
+def test_matlab_non_output_locals_still_count():
+    code = "function out = probe_debt(level)\nhack_level = level;\nout = hack_level;\nend\n"
+    assert _matlab_state(code) == 1
+
+
+def test_matlab_script_level_and_void_functions_are_untouched():
+    """No declared output means nothing to drop; a void function opens its own span."""
+    assert _matlab_state("x = 5;\ny = 6;\n") == 2
+    # `out` here belongs to the void helper, not to the preceding function.
+    code = "function out = f(a)\nout = a;\nend\nfunction helper(b)\nout = b;\nend\n"
+    assert _matlab_state(code) == 1
+
+
+def test_matlab_clear_on_a_dropped_binding_line_keeps_its_own_hit():
+    """The `clear` alternative is unanchored; it must survive its line's binding being dropped."""
+    code = "function out = f(a)\nout = a; clear scratch\nend\n"
+    assert _matlab_state(code) == 1
+
+
+def test_matlab_return_channel_filter_keeps_counts_and_locations_consistent():
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    d = StructuralExtractor("matlab", LANGUAGE_DEFINITIONS)
+    code = "function out = f(a)\nout = a;\nend\nfunction out = g(b)\nnote = b;\nout = note;\nend\n"
+    counts, _mit, spatial_maps, _parents, locations = d.coding_analysis([("matlab", code, 0)])
+    assert counts["state_mutation"] == 1
+    assert len(spatial_maps[0]["state_mutation"]) == 1
+    assert locations["state_mutation"] == [5]
+
+
+def test_matlab_unknown_scope_filter_name_is_ignored_not_zeroed():
+    import copy
+
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    defs = copy.deepcopy(LANGUAGE_DEFINITIONS)
+    defs["matlab"]["rules"]["_scope_filters"] = {"state_mutation": "no-such-filter"}
+    code = "function out = f(a)\nout = a;\nend\n"
+    counts, *_ = StructuralExtractor("matlab", defs).coding_analysis([("matlab", code, 0)])
+    assert counts["state_mutation"] == 1
+
+
+def test_matlab_return_channel_scan_is_linear_on_pathological_input():
+    """The scan is a bounded declaration regex plus per-name passes, not backtracking."""
+    import time
+
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    d = StructuralExtractor("matlab", LANGUAGE_DEFINITIONS)
+    payloads = [
+        "function out = f(a)\n" + "out = a;\n" * 20000 + "end\n",
+        "function out = f(a)\n" + "out = out + a;\n" * 20000 + "end\n",
+        ("function out = f(a)\nout = a;\nend\n" * 5000),
+        "function [" + ",".join(f"o{i}" for i in range(40)) + "] = f(a)\n" + "o1 = a;\n" * 5000 + "end\n",
+    ]
+    for payload in payloads:
+        start = time.perf_counter()
+        d.coding_analysis([("matlab", payload, 0)])
+        assert time.perf_counter() - start < 10.0, "return-channel scan went superlinear"

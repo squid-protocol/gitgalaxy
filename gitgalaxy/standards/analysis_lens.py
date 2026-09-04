@@ -79,6 +79,16 @@ ENGINE_CONSTANTS = {
     # each other. 50 is the engine's existing unit of mass (file_impact = loc/50,
     # graveyard's safe_mass_floor) and the golden-master corpus median.
     "EVIDENCE_MASS_FLOOR": 50,
+    # Per-function analog (#2705): func_internal_density = avg_func_complexity /
+    # max(avg_func_loc, FUNC_EVIDENCE_MASS_FLOOR). Same derivation as the file
+    # floor -- 50 sits at the golden-master median coding_loc (51); 12 sits at the
+    # golden-master median avg_func_loc (12.0) and floors the same 49% of the
+    # population. Below it the column is an exact rescale of avg_func_complexity
+    # (branch structure), so functions that say the same thing in fewer lines stop
+    # reading as denser logic; at or above it the column is byte-identical to
+    # before. Only consumers: the file_data column and the reports -- the metric is
+    # in neither pre-trained vector (#2714 is why security_auditor never saw it).
+    "FUNC_EVIDENCE_MASS_FLOOR": 12,
 }
 
 FIDELITY_TIERS = {

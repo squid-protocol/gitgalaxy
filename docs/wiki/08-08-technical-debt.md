@@ -66,4 +66,4 @@ Currently, the system is strictly lexical and static. Future iterations plan to 
 ## Related Components
 - Static Analysis Engine
 - Path Modifier ($Mp$)
-- Implicit Risk Correction ($Irc$)
+- Implicit Risk Correction ($Irc$) — one point per strictness gap of the language ([08-03](08-03-transforming-regex-counts.md)), 0 for data and markup formats

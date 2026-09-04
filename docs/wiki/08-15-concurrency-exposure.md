@@ -19,7 +19,7 @@ The static analysis engine extracts concurrency keywords and synchronization pri
 | `raw_concurrency` | Keywords | **1.0x** | Asynchronous and threading constructs: `async`, `await`, `Promise`, `thread`, `spawn`, `go`, `chan`, `synchronized`. |
 | `sync_locks` | Mitigations | **-1.5x** | Synchronization primitives (mutexes, locks, semaphores). Each lock mitigates 1.5 thread spawns. |
 | `loc` | Denominator | **Base Density** | Meaningful lines of code, padded by `loc_padding` (default 150). |
-| `irc` | Language Modifier | **0.1x** | Implicit Risk Correction for dynamically typed or implicit concurrency models. |
+| `irc` | Language Modifier | **0.1x** | Implicit Risk Correction: the language's strictness-gap count (0–4) from `analysis_lens.LANGUAGE_STRICTNESS` ([08-03](08-03-transforming-regex-counts.md)); 0 for data and markup formats. |
 | `mp` | Path Modifier | **Threshold Modifier** | Context-specific modifier (e.g., `0.5` for UI components where race conditions trigger UI defects). |
 
 The calculation balances raw concurrency against synchronization locks and applies a sigmoid transformation.

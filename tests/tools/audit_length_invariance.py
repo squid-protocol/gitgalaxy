@@ -47,6 +47,7 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 from gitgalaxy.metrics.signal_processor import SignalProcessor
+from gitgalaxy.standards import analysis_lens
 
 # The keyword-rosetta SPEC probe files as the engine sees them after api inflation on
 # imported files (a/b/c: api = defs x 2; main: api = defs) -- see the corpus SPEC.md.
@@ -89,15 +90,20 @@ class EquationCase:
     call: Callable[[SignalProcessor, int, dict[str, int], dict[str, Any]], float]
 
 
+# #2718: the three tiers are gone; sweep three strictness profiles (0 / 2 / 4 gaps) at
+# full fidelity, the shape analysis_lens.strictness_constants() produces.
 def _tv(p: SignalProcessor, tier: str) -> dict[str, Any]:
-    return p.TIER_VARS[tier]
+    gaps = {"tier1": 0, "tier2": 2, "tier3": 4}[tier]
+    irc = gaps * analysis_lens.STRICTNESS_IRC_PER_GAP
+    fid = {"safety": 1.0, "test": 1.0, "doc": 1.0, "ownership": 1.0}
+    return {"irc": irc, "ot": 1.0 + gaps * analysis_lens.STRICTNESS_OT_PER_GAP, "fid": fid}
 
 
 EQUATION_CASES: list[EquationCase] = [
-    EquationCase("cog_load", lambda p, loc, s, tv: p._calc_cog_load(loc, s, tv["irc"], tv["fc"], 1.0, 0.0)[0]),
-    EquationCase("safety", lambda p, loc, s, tv: p._calc_safety(loc, s, tv["irc"], tv["fc"], 1.0)),
+    EquationCase("cog_load", lambda p, loc, s, tv: p._calc_cog_load(loc, s, tv["irc"], tv["fid"], 1.0, 0.0)[0]),
+    EquationCase("safety", lambda p, loc, s, tv: p._calc_safety(loc, s, tv["irc"], tv["fid"], 1.0)),
     EquationCase("tech_debt", lambda p, loc, s, tv: p._calc_tech_debt(loc, s, tv["irc"], 1.0)),
-    EquationCase("documentation", lambda p, loc, s, tv: p._calc_documentation(loc, 2, s, tv["fc"], tv["irc"], 1.0)),
+    EquationCase("documentation", lambda p, loc, s, tv: p._calc_documentation(loc, 2, s, tv["fid"], tv["irc"], 1.0)),
     EquationCase(
         "verification",
         lambda p, loc, s, tv: p._calc_verification(
@@ -105,7 +111,7 @@ EQUATION_CASES: list[EquationCase] = [
             False,
             s,
             tv.get("ot", 1.0),
-            tv["fc"],
+            tv["fid"],
             1.0,
             [{"name": "f", "impact": 60.0, "hit_vector": {}, "docstring": None}],
             {},

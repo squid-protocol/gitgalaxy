@@ -15,10 +15,10 @@ Before the age of global travel, some isolated languages lacked words for concep
 
 To ensure comparative fairness, we must normalize the "Material Properties" of the languages. We do not judge a Shell script for being "worse" than Go; we acknowledge that it is built from a more opaque material.
 
-* **The Steel Bridge (Go - Tier 1):** The structure is explicit. We can clearly see the bolts and the tension cables. If there are no visible cracks, we can be 99% sure the bridge is safe.
-* **The Stone Bridge (Shell - Tier 3):** The internal integrity is hidden inside the masonry. A visual inspection might show zero cracks, but the material might still be hiding faults.
+* **The Steel Bridge (Go — one strictness gap):** The structure is explicit. We can clearly see the bolts and the tension cables. If there are no visible cracks, we can be 99% sure the bridge is safe.
+* **The Stone Bridge (Shell — three strictness gaps):** The internal integrity is hidden inside the masonry. A visual inspection might show zero cracks, but the material might still be hiding faults.
 
-To make the comparison fair, GitGalaxy applies a Fidelity Tax (the Fidelity Coefficient $Fc$) and an Implicit Risk Correction ($Irc$). We assume a baseline level of hidden risk to correct for the opacity of the material. This ensures that a "Safe" rating in Shell requires significantly more defensive effort than in Go, reflecting the reality of the engineering challenge.
+To make the comparison fair, GitGalaxy applies two separate corrections (#2716). The Fidelity Coefficient $Fc$ is *measured*: keyword-rosetta plants identical defence in every language, and a rule that over-fires has each of its hits credited at the planted-to-measured ratio, so the same defence earns the same credit everywhere. The Implicit Risk Correction $Irc$ is *tabulated*: one point per thing the language lets you leave unsaid — static types, enforced error paths, memory safety, declared globals — from `analysis_lens.LANGUAGE_STRICTNESS`. A "Safe" rating in Shell still requires more defensive effort than in Go, but the amount is now written down per column rather than picked by bucket, and [08-03](08-03-transforming-regex-counts.md) renders both tables from the data the engine reads.
 
 ### 2.4.1.C. The Fidelity Matrix (40 Languages x 51 Signals)
 
@@ -33,7 +33,7 @@ This matrix maps the structural "Broadcast Power" of coding languages across his
 * 🟧 **I (Implicit):** The concept exists, but must be inferred from context, conventions, or secondary logic.
 * ⚪ **- (None):** The concept is not structurally applicable to the language.
 
-| Language (Year) | Tier | CF | Phys | Risk | Domain | Thermo |
+| Language (Year) | Tier (2025 buckets, retired by #2718 — see [08-03](08-03-transforming-regex-counts.md) for the live strictness rows) | CF | Phys | Risk | Domain | Thermo |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | MLIR (2019) | 1 | 🟦 **E** | 🟦 **E** | 🟦 **E** | ⚪ **-** | 🟦 **E** |
 | Zig (2016) | 1 | 🟦 **E** | 🟦 **E** | 🟦 **E** | 🟦 **E** | 🟦 **E** |
@@ -100,7 +100,7 @@ By trading the microscope of an AST for the telescope of blAST, we accept a 5% m
 
 ### 2.4.1.D. Conclusion: Design for Scannability
 
-The progression from Tier 3 (Implicit) to Tier 1 (Explicit) suggests that Scannability, the trending towards explicitness is increase. The younger the language, the louder it "screams" its intent. The blAST engine attempts normalize this variation in explicitiness by applying the Fidelity Coefficient ($Fc$) to account for the silence of the ancients/the fog of war/the opaqueness of the language.
+The progression from implicit to explicit suggests that scannability — the trend towards explicitness — is increasing. The younger the language, the louder it "screams" its intent. The blAST engine normalises what it can *measure* of that variation with the per-signal Fidelity Coefficient ($Fc$), and writes down what it cannot measure — the silence of the ancients — as the strictness table's $Irc$, one point per thing the language leaves unsaid.
 
 <br><br>
 

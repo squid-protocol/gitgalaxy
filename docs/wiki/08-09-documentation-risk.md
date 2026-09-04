@@ -30,14 +30,14 @@ Evaluates four contextual dimensions:
 **Mathematical Formulation**
 1. **Knowledge Shield Defense:**
 $$\text{UmbrellaDefense} = \text{doc\_umbrella} \times 50.0$$
-$$\text{DefenseHits} = \left( \text{InlineDocs} + (\text{Ownership} \times 0.5) + (\text{DocLOC} \times 0.33) + \text{UmbrellaDefense} \right) \times Fc$$
+$$\text{DefenseHits} = (\text{InlineDocs} \times Fc_{doc}) + (\text{Ownership} \times 0.5 \times Fc_{ownership}) + (\text{DocLOC} \times 0.33) + \text{UmbrellaDefense}$$
 2. **Undocumented Risk Calculation:**
 $$\text{UndocumentedRisk} = \sum_{\text{undocumented}} \left( 5.0 + \ln(\text{Impact}) \right)$$
 $$\text{RiskHits} = \text{UndocumentedRisk} + (\text{API\_Exposure} \times 2.0) + Irc$$
 3. **Net Exposure & Line Density:**
 $$\text{NetExposure} = \max\left(0, \text{RiskHits} - \frac{\text{DefenseHits}}{2.0}\right)$$
 $$\text{Density} = \left( \frac{\text{NetExposure}}{\max(\text{LOC}, 50) + 20} \right) \times 100.0$$
-The denominator is the UEF evidence-mass floor plus the equation's smoothing pad ([08-03](08-03-transforming-regex-counts.md)). $Irc$ corrects measured risk, it never creates it: when $\text{UndocumentedRisk} + \text{API\_Exposure} = 0$ the score is $0$ in every language tier (#2655).
+The denominator is the UEF evidence-mass floor plus the equation's smoothing pad ([08-03](08-03-transforming-regex-counts.md)). $Irc$ corrects measured risk, it never creates it: when $\text{UndocumentedRisk} + \text{API\_Exposure} = 0$ the score is $0$ in every language (#2655).
 4. **Systemic Multipliers & Mapping:**
 $$\text{FinalMultiplier} = \left(1.0 + \frac{\text{Pop}}{10}\right) \times \left(1.0 + \frac{\text{Silo}}{200}\right) \times Mp$$
 $$\text{RawRisk} = \frac{100.0}{1 + e^{-0.2 \times (\text{Density} - 10.0)}}$$
@@ -62,7 +62,7 @@ flowchart LR
 ## Limitations
 - Cannot semantically read comments to confirm they explain the code (a comment saying "stuff happens here" provides defense weight).
 - Network multipliers (popularity) only track internal repository imports and cannot measure external library consumers.
-- Implicit languages with less rigid docstring structures might receive lower fidelity coefficients ($Fc$), unfairly elevating risk in Python or JavaScript projects lacking explicit type tags.
+- $Fc_{doc}$ and $Fc_{ownership}$ are measured per language on the keyword-rosetta corpus ([08-03](08-03-transforming-regex-counts.md)); a language whose doc rule reads exactly on plant carries 1.0, so the old flat 0.60 for "implicit" languages no longer exists. $Irc$ comes from the strictness table.
 
 ## Performance Notes
 Calculating the undocumented risk loop requires iterating over all functions within the file ($O(F)$ where $F$ is function count). Since $F$ is typically small, execution remains exceptionally fast and bounded.

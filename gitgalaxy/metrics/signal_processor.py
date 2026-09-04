@@ -15,10 +15,12 @@ import logging
 import math
 import re
 import statistics
+from collections.abc import Mapping
 from typing import Any, Optional, TypedDict
 
 from gitgalaxy.standards import analysis_lens
 from gitgalaxy.standards import analysis_lens as config
+from gitgalaxy.standards.fidelity_table import FIDELITY_TABLE
 
 
 class DirectoryGroupData(TypedDict):
@@ -96,14 +98,10 @@ class SignalProcessor:
         physics = getattr(config, "ENGINE_CONSTANTS", {})
         self.WEIGHT_RISK = physics.get("WEIGHT_RISK", 2.5)
         self.WEIGHT_DEFENSE = physics.get("WEIGHT_DEFENSE", 1.0)
-        self.TIER_VARS = physics.get(
-            "TIER_VARS",
-            {
-                "tier1": {"fc": 1.0, "irc": 0},
-                "tier2": {"fc": 0.85, "irc": 2},
-                "tier3": {"fc": 0.60, "irc": 5},
-            },
-        )
+        # Per-language scoring constants (#2716 / #2718): Irc/Ot come from the
+        # language-strictness table, the per-signal Fidelity Coefficient from the
+        # corpus-generated fidelity table. See _language_constants().
+        self.FIDELITY_SIGNALS = ("safety", "test", "doc", "ownership")
         self.MASSIVE_FILE_THRESHOLD = physics.get("MASSIVE_FILE_THRESHOLD", 300)
         self.TESTING_RISK_FLOOR = physics.get("TESTING_RISK_FLOOR", 15.0)
         # Evidence-mass floor (#2655) -- see _mass_loc().
@@ -481,10 +479,7 @@ class SignalProcessor:
             # ==================================================================
             # 1. ACTIVE SIGNAL PROCESSING ENGINE (For normal executable code)
             # ==================================================================
-            tier = self._get_tier(lang_id)
-            fc = self.TIER_VARS[tier]["fc"]
-            irc = self.TIER_VARS[tier]["irc"]
-            ot = self.TIER_VARS[tier].get("ot", 1.0)
+            irc, ot, fid = self._language_constants(lang_id)
 
             # Environmental Context (Path-based overrides)
             mp_map = self._get_locational_multipliers(rel_path)
@@ -498,7 +493,8 @@ class SignalProcessor:
                 mp_map.setdefault(mp_key, mp_value)
 
             self.logger.debug(
-                f"[{rel_path}] Structural Calc | Lang: {lang_id} (Fc: {fc:.2f}, Irc: {irc}, Ot: {ot:.2f})"
+                f"[{rel_path}] Structural Calc | Lang: {lang_id} (Irc: {irc}, Ot: {ot:.2f}, "
+                f"Fc: {', '.join(f'{k}={v:.2f}' for k, v in fid.items())})"
             )
 
             hit_vector = [raw_signals.get(key, 0) for key in self.SIGNAL_SCHEMA]
@@ -719,9 +715,9 @@ class SignalProcessor:
             # The OOM Bomb heuristic has been phased out of the probabilistic model.
             # Spatial correlation is now handled natively upstream in detector.py.
 
-            cog_score, cog_raw = self._calc_cog_load(loc, raw_signals, irc, fc, mp_map.get("cog", 1.0), func_gini)
+            cog_score, cog_raw = self._calc_cog_load(loc, raw_signals, irc, fid, mp_map.get("cog", 1.0), func_gini)
             saf_score = self._calc_safety(
-                loc, raw_signals, irc, fc, mp_map.get("safety", 1.0), mp_map.get("memory", 1.0)
+                loc, raw_signals, irc, fid, mp_map.get("safety", 1.0), mp_map.get("memory", 1.0)
             )
             debt_score = self._calc_tech_debt(loc, raw_signals, irc, mp_map.get("debt", 1.0))
 
@@ -730,7 +726,7 @@ class SignalProcessor:
                 meta.get("is_protected", False),
                 raw_signals,
                 ot,
-                fc,
+                fid,
                 mp_map.get("test", 1.0),
                 functions,
                 meta.get("test_coverage_map", {}),
@@ -745,7 +741,7 @@ class SignalProcessor:
                 loc,
                 doc_lines,
                 raw_signals,
-                fc,
+                fid,
                 irc,
                 mp_map.get("doc", 1.0),
                 functions,
@@ -1352,7 +1348,7 @@ class SignalProcessor:
         loc: int,
         raw_signals: dict[str, int],
         irc: int,
-        fc: float,
+        fid: Mapping[str, float],
         mp: float,
         func_gini: float = 0.0,
     ) -> tuple[float, float]:
@@ -1397,12 +1393,18 @@ class SignalProcessor:
             raw_score = 100.0 if total_density > t.get("sigmoid_offset", 0.75) else 0.0
 
         doc_coverage = (raw_signals.get("doc", 0) * t.get("doc_mult", 10.0)) / mass_loc
-        cooling = max(0.5, 1.0 - (doc_coverage * fc))
+        cooling = max(0.5, 1.0 - (doc_coverage * fid.get("doc", 1.0)))
 
         return min(raw_score * cooling * mp, 100.0), total_density
 
     def _calc_safety(
-        self, loc: int, raw_signals: dict[str, int], irc: int, fc: float, mp: float, mem_mp: float = 1.0
+        self,
+        loc: int,
+        raw_signals: dict[str, int],
+        irc: int,
+        fid: Mapping[str, float],
+        mp: float,
+        mem_mp: float = 1.0,
     ) -> float:
         mass_loc = self._mass_loc(loc)
         t = self.risk_tuning.get("safety", {})
@@ -1412,10 +1414,12 @@ class SignalProcessor:
             + (raw_signals.get("safety_bypasses", 0) * t.get("safety_neg_weight", 1.5))
             + (raw_signals.get("state_mutation", 0) * t.get("flux_weight", 0.5))
         )
+        # Each defence signal is credited at its own measured fidelity (#2718): a rule
+        # that fires 3 times on 2 planted constructs credits each hit at 2/3.
         defense_hits = (
-            (raw_signals.get("safety", 0) * self.WEIGHT_DEFENSE)
-            + (raw_signals.get("test", 0) * t.get("test_weight", 0.5))
-            + (raw_signals.get("doc", 0) * t.get("doc_weight", 0.1))
+            (raw_signals.get("safety", 0) * self.WEIGHT_DEFENSE * fid.get("safety", 1.0))
+            + (raw_signals.get("test", 0) * t.get("test_weight", 0.5) * fid.get("test", 1.0))
+            + (raw_signals.get("doc", 0) * t.get("doc_weight", 0.1) * fid.get("doc", 1.0))
         )
 
         if attack_hits == 0:
@@ -1424,13 +1428,12 @@ class SignalProcessor:
         # Laplace padding is kept ON TOP of the evidence-mass floor so that files at
         # or above the floor score exactly as before (#2655).
         smoothed_loc = mass_loc + t.get("laplace_smoothing", 20.0)
-        # Tier2/tier3 languages (fc < 1.0) get a proportional discount on the
-        # attack signal rather than a flat subtraction: a flat subtraction of
-        # a value larger than net_exposure's typical range wipes out small-
-        # but-real attack density instead of merely tempering it (#1055).
-        systems_buffer_ratio = t.get("systems_buffer_ratio", 0.75) if fc < 1.0 else 1.0
-        attack = ((attack_hits + irc) / smoothed_loc) * mp * mem_mp * systems_buffer_ratio
-        defense = (defense_hits / smoothed_loc) * fc
+        # The #1055 `systems_buffer_ratio` (a 0.75 attack discount for every non-tier-1
+        # language) is gone (#2717): keyed on `fc < 1.0` it made tier-2/3 files score
+        # SAFER than tier 1 above 6/15 attack-weighted hits. The over-firing it was
+        # compensating for is now scaled at the source by the per-signal fidelity.
+        attack = ((attack_hits + irc) / smoothed_loc) * mp * mem_mp
+        defense = defense_hits / smoothed_loc
 
         net_exposure = attack - defense
 
@@ -1490,7 +1493,7 @@ class SignalProcessor:
         loc: int,
         doc_loc: int,
         raw_signals: dict[str, int],
-        fc: float,
+        fid: Mapping[str, float],
         irc: int,
         mp: float,
         functions: Optional[list[dict[str, Any]]] = None,
@@ -1504,12 +1507,14 @@ class SignalProcessor:
         # GuideStar Umbrella projection: 1.0 shield = 50 lines of virtual documentation
         umbrella_defense = doc_umbrella * 50.0
 
+        # Per-signal fidelity (#2718): doc_loc and the umbrella are structural, not
+        # rule hits, so they carry no coefficient.
         defense_hits = (
-            (raw_signals.get("doc", 0) * t.get("doc_weight", 1.0))
-            + (raw_signals.get("ownership", 0) * t.get("ownership_weight", 0.5))
+            (raw_signals.get("doc", 0) * t.get("doc_weight", 1.0) * fid.get("doc", 1.0))
+            + (raw_signals.get("ownership", 0) * t.get("ownership_weight", 0.5) * fid.get("ownership", 1.0))
             + (doc_loc * t.get("doc_loc_weight", 0.33))
             + umbrella_defense
-        ) * fc
+        )
 
         # 2. THE RISK (Opaque Execution Risk)
         opaque_execution = 0.0
@@ -1568,7 +1573,7 @@ class SignalProcessor:
         is_protected: bool,
         raw_signals: dict[str, int],
         ot: float,
-        fc: float,
+        fid: Mapping[str, float],
         mp: float,
         functions: list[dict[str, Any]],
         test_coverage_map: dict[str, list[dict[str, Any]]],
@@ -1600,7 +1605,9 @@ class SignalProcessor:
                 safety = float(hit_vector.get("safety", 0))
                 bypassed = float(hit_vector.get("test_skip", 0))
 
-                internal_defenses = (verification + safety - (bypassed * 2.0)) * fc
+                internal_defenses = (
+                    verification * fid.get("test", 1.0) + safety * fid.get("safety", 1.0) - (bypassed * 2.0)
+                )
                 base_impact = max(func_impact - internal_defenses, 0.0)
 
                 # Step B: The Defensive Ratio (Effective Mass)
@@ -2064,14 +2071,24 @@ class SignalProcessor:
             "lowest": all_funcs[-3:] if len(all_funcs) >= 3 else all_funcs,
         }
 
-    def _get_tier(self, lang_id: str) -> str:
-        explicit = {"rust", "go", "swift", "java", "typescript", "csharp", "dart"}
-        structured = {"python", "javascript", "cpp", "c", "ruby", "kotlin", "php"}
-        if lang_id in explicit:
-            return "tier1"
-        if lang_id in structured:
-            return "tier2"
-        return "tier3"
+    def _language_constants(self, lang_id: str) -> tuple[int, float, dict[str, float]]:
+        """(Irc, Ot, per-signal Fc) for a language (#2716 / #2718).
+
+        Irc and Ot come from `analysis_lens.LANGUAGE_STRICTNESS` (one Irc per strictness
+        gap, `None` rows and unknown languages get none); the Fidelity Coefficients from
+        the keyword-rosetta-generated `fidelity_table` (1.0 wherever the corpus has no
+        measurement). Dialects resolve through LANGUAGE_FAMILY first, so
+        `embedded_python` reads python's rows -- the fall-through to a harsh default
+        that opened #2653 no longer exists.
+        """
+        family = analysis_lens.resolve_language_family(lang_id)
+        irc, ot = analysis_lens.strictness_constants(family)
+        # Strictness is a property of the language family; fidelity is a property of
+        # the RULE SET, and a dialect with its own registry entry (embedded_python has
+        # 51 rules to python's 61) was measured on its own -- read its own row first.
+        row = FIDELITY_TABLE.get(lang_id) or FIDELITY_TABLE.get(family, {})
+        fid = {sig: float(row.get(sig, 1.0)) for sig in self.FIDELITY_SIGNALS}
+        return irc, ot, fid
 
     def _get_dominant_lang(self, composition: dict[str, dict[str, Any]]) -> str:
         if not composition:

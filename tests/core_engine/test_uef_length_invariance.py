@@ -23,8 +23,10 @@ LOC range with a different shape. This module pins the replacement property:
   2. CONTINUITY  -- the score at the floor equals the score just below it (no cliff).
   3. PARITY      -- at floor+1 and above, scores are byte-identical to the pre-#2655
                     engine (values pinned from origin/main before the change).
-  4. TIER ORDER  -- tier1 <= tier2 <= tier3 still holds in the count regime, so the
-                    floor did not invert the Irc direction audit_risk_equations.py guards.
+  4. STRICTNESS ORDER -- more strictness gaps never score lower for identical evidence
+                    in the count regime (#2718 replaced the three tiers with the
+                    language-strictness table; the direction rule is the same one
+                    audit_risk_equations.py guards, and since #2717 it holds for safety too).
 
 The swept vectors are the corpus SPEC's own four probe files as the engine sees them,
 so this is the engine-side regression fixture the issue asked for -- no scan, no
@@ -34,6 +36,7 @@ cross-repo checkout, deterministic.
 import pytest
 
 from gitgalaxy.metrics.signal_processor import SignalProcessor
+from gitgalaxy.standards import analysis_lens
 
 ROSETTA_VECTORS = {
     "main": {
@@ -64,6 +67,19 @@ ROSETTA_VECTORS = {
 
 EQUATIONS = ["cog", "safety", "debt", "doc", "verification", "api", "concurrency", "flux", "spec"]
 
+# The pre-#2718 tier constants, kept ONLY so the pre-#2655 density-regime pins below stay
+# reproducible: the equations are pure functions of (irc, ot, fc), and #2718 changed where
+# those come from, not (except safety, #2717) what the equations do with them.
+LEGACY_TIERS = {
+    "tier1": {"fc": 1.0, "irc": 0, "ot": 1.00},
+    "tier2": {"fc": 0.85, "irc": 2, "ot": 1.15},
+    "tier3": {"fc": 0.60, "irc": 5, "ot": 1.40},
+}
+
+
+def uniform_fid(fc: float) -> dict[str, float]:
+    return {"safety": fc, "test": fc, "doc": fc, "ownership": fc}
+
 
 @pytest.fixture(scope="module")
 def processor():
@@ -71,15 +87,15 @@ def processor():
 
 
 def score_all(p: SignalProcessor, sig: dict, loc: int, tier: str) -> dict[str, float]:
-    tv = p.TIER_VARS[tier]
-    fc, irc, ot = tv["fc"], tv["irc"], tv.get("ot", 1.0)
+    tv = LEGACY_TIERS[tier]
+    fid, irc, ot = uniform_fid(tv["fc"]), tv["irc"], tv["ot"]
     return {
-        "cog": p._calc_cog_load(loc, sig, irc, fc, 1.0, 0.0)[0],
-        "safety": p._calc_safety(loc, sig, irc, fc, 1.0),
+        "cog": p._calc_cog_load(loc, sig, irc, fid, 1.0, 0.0)[0],
+        "safety": p._calc_safety(loc, sig, irc, fid, 1.0),
         "debt": p._calc_tech_debt(loc, sig, irc, 1.0),
-        "doc": p._calc_documentation(loc, 2, sig, fc, irc, 1.0),
+        "doc": p._calc_documentation(loc, 2, sig, fid, irc, 1.0),
         "verification": p._calc_verification(
-            loc, False, sig, ot, fc, 1.0, [{"name": "f", "impact": 60.0, "hit_vector": {}, "docstring": None}], {}
+            loc, False, sig, ot, fid, 1.0, [{"name": "f", "impact": 60.0, "hit_vector": {}, "docstring": None}], {}
         ),
         "api": p._calc_api_exposure(sig, loc, 0),
         "concurrency": p._calc_concurrency(loc, {**sig, "concurrency": 2}, irc, 1.0),
@@ -201,35 +217,73 @@ def test_density_regime_unchanged_above_the_floor(processor, key):
     assert processor.EVIDENCE_MASS_FLOOR == 50, "pins below were taken at 51 LOC against a floor of 50"
     got = score_all(processor, ROSETTA_VECTORS[fname], 51, tier)
     for eq, expected in PRE_2655_AT_51[key].items():
+        if eq in ("safety", "doc") and LEGACY_TIERS[tier]["fc"] < 1.0:
+            # Two deliberate equation changes in #2718 make the fc<1.0 pins unreachable:
+            # #2717 retired the 0.75 systems_buffer_ratio in safety, and documentation
+            # now scales only the RULE hits (doc, ownership) by fidelity -- doc_loc and
+            # the umbrella are structural evidence, not rule hits, and no longer carry
+            # the coefficient. fc == 1.0 pins prove every other equation is unchanged.
+            continue
         assert got[eq] == pytest.approx(expected, abs=5e-5), f"{tier}/{fname}/{eq}: {got[eq]} != pre-#2655 {expected}"
 
 
+def strict_profile(gaps: int) -> dict:
+    """A strictness row with `gaps` False columns, at full fidelity -- the shape
+    analysis_lens.strictness_constants() produces (#2718)."""
+    irc = gaps * analysis_lens.STRICTNESS_IRC_PER_GAP
+    return {"fc": 1.0, "irc": irc, "ot": 1.0 + gaps * analysis_lens.STRICTNESS_OT_PER_GAP}
+
+
+def score_profile(p: SignalProcessor, sig: dict, loc: int, tv: dict) -> dict[str, float]:
+    fid, irc, ot = uniform_fid(tv["fc"]), tv["irc"], tv["ot"]
+    return {
+        "cog": p._calc_cog_load(loc, sig, irc, fid, 1.0, 0.0)[0],
+        "safety": p._calc_safety(loc, sig, irc, fid, 1.0),
+        "debt": p._calc_tech_debt(loc, sig, irc, 1.0),
+        "doc": p._calc_documentation(loc, 2, sig, fid, irc, 1.0),
+        "verification": p._calc_verification(
+            loc, False, sig, ot, fid, 1.0, [{"name": "f", "impact": 60.0, "hit_vector": {}, "docstring": None}], {}
+        ),
+        "concurrency": p._calc_concurrency(loc, {**sig, "concurrency": 2}, irc, 1.0),
+        "flux": p._calc_state_flux(loc, sig, irc, 1.0),
+    }
+
+
 @pytest.mark.parametrize("fname", sorted(ROSETTA_VECTORS))
-def test_tier_direction_holds_in_the_count_regime(processor, fname):
-    """Irc is an additive opacity baseline and Fc discounts defense credit, so for
-    identical evidence tier1 <= tier2 <= tier3 (the #1055 direction rule) must survive
-    the floor -- the floor bounds Irc, it does not reorder it."""
+def test_strictness_direction_holds_in_the_count_regime(processor, fname):
+    """Irc is an additive correction for what a language lets you leave unsaid, so for
+    identical evidence a language with more strictness gaps never scores LOWER. The
+    floor bounds Irc, it does not reorder it. Safety is included since #2717: the
+    retired systems_buffer_ratio was the one thing that used to invert it."""
     sig = ROSETTA_VECTORS[fname]
-    t1, t2, t3 = (score_all(processor, sig, 10, t) for t in ("tier1", "tier2", "tier3"))
-    # safety is deliberately absent: its tier2/tier3 systems_buffer_ratio (0.75, #1055)
-    # can discount an attack term by more than irc adds, so tier2 < tier1 there is
-    # pre-existing and length-independent -- audit_risk_equations.py owns that axis.
-    for eq in ("cog", "debt", "doc", "concurrency", "flux"):
-        assert t1[eq] <= t2[eq] + 1e-9 <= t3[eq] + 2e-9, (
-            f"{fname}/{eq} tier order inverted: {t1[eq]}, {t2[eq]}, {t3[eq]}"
+    s0, s2, s4 = (score_profile(processor, sig, 10, strict_profile(g)) for g in (0, 2, 4))
+    for eq in ("cog", "safety", "debt", "doc", "verification", "concurrency", "flux"):
+        assert s0[eq] <= s2[eq] + 1e-9 <= s4[eq] + 2e-9, (
+            f"{fname}/{eq} strictness order inverted: {s0[eq]}, {s2[eq]}, {s4[eq]}"
         )
 
 
-def test_zero_evidence_scores_zero_regardless_of_tier(processor):
+def test_safety_never_discounts_more_hits_into_a_lower_score(processor):
+    """#2717 regression guard: with the systems buffer gone, identical attack evidence at
+    zero defence scores monotonically in Irc at EVERY hit count -- the old buffer made
+    tier 2 cross below tier 1 at 6 attack-weighted hits and tier 3 at 15."""
+    fid = uniform_fid(1.0)
+    for hits in (1, 2, 6, 10, 15, 20, 40):
+        sig = {"safety_bypasses": hits}  # weight 1.5 -> attack_hits = 1.5 * hits
+        scores = [processor._calc_safety(200, sig, irc, fid, 1.0) for irc in (0, 2, 4)]
+        assert scores == sorted(scores), f"{hits} hits: {scores}"
+
+
+def test_zero_evidence_scores_zero_regardless_of_language(processor):
     """Irc corrects measured risk; it never creates it. A file with no public surface,
     no branches and no debt scores 0 on documentation, cognitive load and tech debt in
-    every tier -- tier-3 files used to carry 19-42 documentation risk on irc alone."""
-    for tier in ("tier1", "tier2", "tier3"):
-        tv = processor.TIER_VARS[tier]
+    every language -- tier-3 files used to carry 19-42 documentation risk on irc alone."""
+    for lang in ("rust", "python", "shell", "yacc", "yaml", "embedded_python", "not-a-language"):
+        irc, _ot, fid = processor._language_constants(lang)
         for loc in (3, 10, 49, 50, 200):
-            assert processor._calc_documentation(loc, 0, {}, tv["fc"], tv["irc"], 1.0) == 0.0
-            assert processor._calc_cog_load(loc, {"state_mutation": 4}, tv["irc"], tv["fc"], 1.0)[0] == 0.0
-            assert processor._calc_tech_debt(loc, {}, tv["irc"], 1.0) == 0.0
+            assert processor._calc_documentation(loc, 0, {}, fid, irc, 1.0) == 0.0
+            assert processor._calc_cog_load(loc, {"state_mutation": 4}, irc, fid, 1.0)[0] == 0.0
+            assert processor._calc_tech_debt(loc, {}, irc, 1.0) == 0.0
 
 
 def test_spec_alignment_needs_entities(processor):

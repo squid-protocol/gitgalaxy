@@ -61,12 +61,9 @@ class ThreatPolicy:
 ENGINE_CONSTANTS = {
     "WEIGHT_RISK": 2.5,
     "WEIGHT_DEFENSE": 1.0,
-    # Trust Dampeners & Opacity Taxes
-    "TIER_VARS": {
-        "tier1": {"fc": 1.0, "ot": 1.00, "irc": 0},  # Explicit (Rust, Go, Java)
-        "tier2": {"fc": 0.85, "ot": 1.15, "irc": 2},  # Structured (Python, TS)
-        "tier3": {"fc": 0.60, "ot": 1.40, "irc": 5},  # Implicit (Shell, Groovy)
-    },
+    # The per-language scoring constants (Irc / Ot / Fc) no longer live here: see
+    # LANGUAGE_STRICTNESS + strictness_constants() below for Irc/Ot, and the generated
+    # gitgalaxy/standards/fidelity_table.py for the per-signal Fc (#2716 / #2718).
     # Math constraints
     "TESTING_RISK_FLOOR": 15.0,
     "MASSIVE_FILE_THRESHOLD": 300,  # Lines of code where tests lose efficacy
@@ -91,46 +88,132 @@ ENGINE_CONSTANTS = {
     "FUNC_EVIDENCE_MASS_FLOOR": 12,
 }
 
-FIDELITY_TIERS = {
-    # Tier 1: Highly Explicit (0% Ambiguity Tax)
-    "java": 1,
-    "csharp": 1,
-    "go": 1,
-    "rust": 1,
-    "kotlin": 1,
-    "swift": 1,
-    "python": 1,
-    "sqlite": 1,
-    "micropython": 1,
-    "haskell": 1,
-    "apex": 1,
-    "abap": 1,
-    "scala": 1,
-    "zig": 1,
-    "dart": 1,
-    "powershell": 1,
-    "dockerfile": 1,
-    # Tier 2: Explicit with some Implicit (15% Ambiguity Tax)
-    "javascript": 2,
-    "typescript": 2,
-    "c": 2,
-    "cpp": 2,
-    "php": 2,
-    "objective-c": 2,
-    "lua": 2,
-    "cobol": 2,
-    "fortran": 2,
-    "matlab": 2,
-    # Tier 3: Mostly Implicit (40% Ambiguity Tax)
-    "shell": 3,
-    "ruby": 3,
-    "perl": 3,
-    "html": 3,
-    "css": 3,
-    "assembly": 3,
-    "agc_assembly": 3,
-    "livecode": 3,
+# ------------------------------------------------------------------------------
+# 2b. LANGUAGE STRICTNESS (#2716 / #2718 -- replaces the three-bucket language tiers)
+# Consumed by: signal_processor.py via strictness_constants()
+#
+# The old `_get_tier` picked fc/irc/ot per language from two inline hand lists, with 45
+# of 59 languages falling through to the harshest setting. That one lookup was doing
+# three separable jobs: how much of a language our RULES can see (now measured per
+# signal in fidelity_table.py), how much runtime-dynamic behaviour a FILE contains
+# (a per-file count, #2719), and what a LANGUAGE lets you leave unsaid. Only the last
+# is a property of the language, and this table is it: four yes/no columns, each
+# checkable against the language's own documentation.
+#
+#   static_types        the implementation rejects type-mismatched programs before they
+#                       run (gradual/optional typing that is off by default counts as no)
+#   enforced_errors     the caller is FORCED to acknowledge a failure path -- checked
+#                       exceptions, Result/Option that must be matched, Zig error unions,
+#                       Swift `try`. Merely having exceptions is not enforcement.
+#   memory_safe         no raw pointer arithmetic / manual free in the default dialect
+#   no_implicit_globals an undeclared name is an error, not a new global (shell, lua,
+#                       sloppy-mode JS, perl without `use strict`, COBOL WORKING-STORAGE
+#                       and Fortran implicit typing all say no)
+#
+# `None` = no runtime: data, markup and configuration formats carry no language-level
+# risk term at all. Dialects resolve through LANGUAGE_FAMILY (embedded_python -> python)
+# so a family member can never fall through to a default again.
+#
+# Irc = number of `False` columns (0-4); Ot = 1 + 0.1 * Irc. These weights are
+# provisional -- the magnitude of a language-level term is exactly what no fixture can
+# validate yet (#2720 is the pilot that will). #2655's invariant stays in force in every
+# equation that reads them: Irc corrects measured risk, it never creates it.
+# ------------------------------------------------------------------------------
+
+STRICTNESS_COLUMNS = ("static_types", "enforced_errors", "memory_safe", "no_implicit_globals")
+
+LANGUAGE_STRICTNESS: dict[str, tuple[bool, bool, bool, bool] | None] = {
+    #                    static  enforced  memory  no-implicit
+    #                    types   errors    safe    globals
+    "abap": (True, False, True, True),  # class-based exceptions unenforced at call sites
+    "ada": (True, False, True, True),  # runtime checks on by default; exceptions unchecked
+    "agc_assembly": (False, False, False, False),
+    "apex": (True, False, True, True),
+    "assembly": (False, False, False, False),
+    "batch": (False, False, True, False),  # every variable is the environment
+    "blp": None,  # Blueprint UI markup
+    "c": (True, False, False, True),
+    "cobol": (True, False, True, False),  # PIC-typed; WORKING-STORAGE is program-global by design
+    "cpp": (True, False, False, True),
+    "csharp": (True, False, True, True),  # `unsafe` is opt-in
+    "css": None,
+    "csv": None,
+    "dart": (True, False, True, True),
+    "dockerfile": (False, False, True, False),  # RUN lines are shell; ARG/ENV are global
+    "fortran": (True, False, False, False),  # IMPLICIT NONE is not the default; bounds unchecked
+    "glsl": (True, False, True, True),
+    "go": (True, False, True, True),  # errors are values; ignoring one is legal
+    "groovy": (False, False, True, False),  # dynamic by default; script bindings are implicit globals
+    "haskell": (True, True, True, True),
+    "hlo": None,
+    "html": None,
+    "java": (True, True, True, True),  # checked exceptions
+    "javascript": (False, False, True, False),  # sloppy mode is the default
+    "jcl": (False, False, True, False),  # DD names are job-global
+    "json": None,
+    "kotlin": (True, False, True, True),  # no checked exceptions
+    "livecode": (False, False, True, False),
+    "lua": (False, False, True, False),  # assignment without `local` is a global
+    "m4": (False, False, True, False),  # macro expansion is the definition of implicit
+    "makefile": (False, False, True, False),
+    "markdown": None,
+    "matlab": (False, False, True, True),  # `global` must be declared
+    "mlir": None,
+    "nix": (False, False, True, True),
+    "objective-c": (True, False, False, True),  # C memory model under dynamic dispatch
+    "pbtxt": None,
+    "perl": (False, False, True, False),  # `use strict` is not the default
+    "php": (False, False, True, True),  # function scope needs `global`
+    "plaintext": None,
+    "powershell": (False, False, True, True),  # non-terminating errors continue by default
+    "proto": None,
+    "python": (False, False, True, True),
+    "ruby": (False, False, True, True),
+    "rust": (True, True, True, True),
+    "scala": (True, False, True, True),
+    "scheme": (False, False, True, True),  # `set!` on an unbound name is an error
+    "shell": (False, False, True, False),
+    "solidity": (True, False, True, True),  # low-level `call` returns a bool that can be ignored
+    "sqlite": (False, False, True, True),  # type affinity, not types
+    "swift": (True, True, True, True),  # `throws` must be `try`-ed
+    "tcl": (False, False, True, True),  # procs need `global`
+    "td": None,  # TableGen
+    "typescript": (True, False, True, True),
+    "xml": None,
+    "yacc": (False, False, False, False),  # untyped $$/$N; actions are C; yylval/yytext are global
+    "yaml": None,
+    "zig": (True, True, False, True),  # error unions must be handled; manual memory
 }
+
+# Dialects: resolved before the strictness and fidelity lookups so a family member
+# takes its parent's row rather than a default (#2653 opened on embedded_python
+# landing tier 3 because it was not the literal string "python").
+LANGUAGE_FAMILY: dict[str, str] = {
+    "embedded_python": "python",
+    "micropython": "python",
+}
+
+STRICTNESS_IRC_PER_GAP = 1  # Irc = gaps * this
+STRICTNESS_OT_PER_GAP = 0.10  # Ot = 1 + gaps * this
+
+
+def resolve_language_family(lang_id: str) -> str:
+    """The row a language reads strictness and fidelity from (itself unless a dialect)."""
+    return LANGUAGE_FAMILY.get(lang_id, lang_id)
+
+
+def strictness_constants(lang_id: str) -> tuple[int, float]:
+    """(Irc, Ot) for a language: one Irc per `False` strictness column, Ot scaled with it.
+
+    No row, or an explicit `None` row (data / markup / config), yields (0, 1.0): an
+    unknown language gets NO language-level risk term, the opposite of the old
+    fall-through-to-tier-3 default.
+    """
+    row = LANGUAGE_STRICTNESS.get(resolve_language_family(lang_id))
+    if not row:
+        return 0, 1.0
+    gaps = sum(1 for flag in row if not flag)
+    return gaps * STRICTNESS_IRC_PER_GAP, 1.0 + gaps * STRICTNESS_OT_PER_GAP
 
 
 # ------------------------------------------------------------------------------
@@ -775,7 +858,6 @@ RISK_EQUATION_TUNING = {
         "test_weight": 0.5,
         "doc_weight": 0.1,
         "laplace_smoothing": 20.0,
-        "systems_buffer_ratio": 0.75,
         "sigmoid_slope": 12.0,
         "breach_density_min": 0.03,
         "breach_floor_mult": 500.0,

@@ -60,8 +60,9 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 from gitgalaxy.metrics.signal_processor import SignalProcessor
+from gitgalaxy.standards import analysis_lens
 
-TIER_PARAM_NAMES = {"fc", "irc", "ot"}
+TIER_PARAM_NAMES = {"fid", "irc", "ot"}
 # Small LOC values (10, 20) are deliberately included: #1055's systems_buffer bug was a
 # flat constant that dominated a small-file density denominator. Any equation with a
 # flat-additive tier constant (irc) divided by LOC is most exposed to that exact
@@ -88,6 +89,19 @@ class EquationCase:
     method_name: str
     scenarios: list[Scenario]
     notes: str = ""
+
+
+def _strictness_profile(tier: str) -> dict[str, Any]:
+    """#2718: the three tiers are gone. The sweep keeps its three points as strictness
+    profiles of 0 / 2 / 4 gaps at full fidelity -- the shape
+    analysis_lens.strictness_constants() produces -- so the direction check still reads
+    'more gaps never scores lower for identical evidence'."""
+    gaps = {"tier1": 0, "tier2": 2, "tier3": 4}[tier]
+    return {
+        "irc": gaps * analysis_lens.STRICTNESS_IRC_PER_GAP,
+        "ot": 1.0 + gaps * analysis_lens.STRICTNESS_OT_PER_GAP,
+        "fid": {"safety": 1.0, "test": 1.0, "doc": 1.0, "ownership": 1.0},
+    }
 
 
 def _mp1() -> float:
@@ -126,7 +140,7 @@ EQUATION_CASES: list[EquationCase] = [
                         "doc": 0,
                     },
                     irc=tv["irc"],
-                    fc=tv["fc"],
+                    fid=tv["fid"],
                     mp=_mp1(),
                     func_gini=0.0,
                 ),
@@ -145,7 +159,7 @@ EQUATION_CASES: list[EquationCase] = [
                         "doc": hits,
                     },
                     irc=tv["irc"],
-                    fc=tv["fc"],
+                    fid=tv["fid"],
                     mp=_mp1(),
                     func_gini=0.0,
                 ),
@@ -179,7 +193,7 @@ EQUATION_CASES: list[EquationCase] = [
                     loc=loc,
                     doc_loc=0,
                     raw_signals={"api": hits, "doc": 0, "ownership": 0},
-                    fc=tv["fc"],
+                    fid=tv["fid"],
                     irc=tv["irc"],
                     mp=_mp1(),
                     functions=None,
@@ -194,7 +208,7 @@ EQUATION_CASES: list[EquationCase] = [
                     loc=loc,
                     doc_loc=0,
                     raw_signals={"api": 0, "doc": hits, "ownership": 0},
-                    fc=tv["fc"],
+                    fid=tv["fid"],
                     irc=tv["irc"],
                     mp=_mp1(),
                     functions=None,
@@ -218,7 +232,7 @@ EQUATION_CASES: list[EquationCase] = [
                     is_protected=False,
                     raw_signals={"high_risk_execution": 0},
                     ot=tv["ot"],
-                    fc=tv["fc"],
+                    fid=tv["fid"],
                     mp=_mp1(),
                     functions=[{"name": "f", "impact": float(hits) * 10.0, "hit_vector": {}, "docstring": None}],
                     test_coverage_map={},
@@ -236,7 +250,7 @@ EQUATION_CASES: list[EquationCase] = [
                     is_protected=False,
                     raw_signals={"high_risk_execution": 0},
                     ot=tv["ot"],
-                    fc=tv["fc"],
+                    fid=tv["fid"],
                     mp=_mp1(),
                     functions=[
                         {"name": "f", "impact": 50.0, "hit_vector": {"safety": hits}, "docstring": "documented"}
@@ -306,7 +320,7 @@ def audit_scenario(
         for hits in HIT_SWEEP:
             scores = {}
             for tier in ("tier1", "tier2", "tier3"):
-                tier_vars = processor.TIER_VARS[tier]
+                tier_vars = _strictness_profile(tier)
                 kwargs = scenario.build_kwargs(loc, hits, tier_vars)
                 result = getattr(processor, case.method_name)(**kwargs)
                 score = result[0] if isinstance(result, tuple) else result

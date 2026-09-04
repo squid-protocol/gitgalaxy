@@ -125,9 +125,7 @@ def test_signal_processor_empty_tiny_file_scores_true_zero(processor):
     zero signals was still forced to 5.0.
     """
     meta, sig = create_synthetic_star(processor, "blank_init", 2)
-    meta["lang_id"] = "rust"  # tier1 (irc=0) -- tier2/3 languages carry a nonzero
-    # irc floor that keeps total_density above 0 even with no raw signals, so this
-    # carve-out can only ever fire for tier1 languages. See _get_tier().
+    meta["lang_id"] = "rust"  # zero strictness gaps (irc=0); see analysis_lens.LANGUAGE_STRICTNESS
     res = processor.calculate_risk_vector(meta, sig)
 
     idx_cog = processor.RISK_SCHEMA.index("cognitive_load")
@@ -1188,16 +1186,21 @@ def test_signal_processor_darkness_ratio(processor):
 # ==============================================================================
 # TEST 47: TIER 3 LANGUAGE FALLBACK
 # ==============================================================================
-def test_signal_processor_tier_3_language(processor):
-    """Ensures esoteric/unstructured languages trigger Tier 3 physics modifiers."""
-    m_t3, sig_t3 = create_synthetic_star(processor, "esoteric", 100, {"branch": 20})
-    # "haskell" is not in the Tier 1 or Tier 2 explicit sets
-    m_t3["lang_id"] = "haskell"
-
-    r_t3 = processor.calculate_risk_vector(m_t3, sig_t3)
-
-    # If it didn't crash, the _get_tier fallback successfully returned "tier3" and pulled the correct physics vars
-    assert r_t3 is not None, "Tier 3 language fallback crashed the physics engine!"
+def test_signal_processor_unknown_language_gets_no_language_term(processor):
+    """#2718: an unknown language is scored with NO language-level correction (irc 0,
+    ot 1.0, fidelity 1.0) -- the opposite of the old fall-through to the harshest tier.
+    haskell, which used to land there for not being in a hand list, resolves to its
+    own strictness row (all four columns True) and the same zero irc."""
+    for lang in ("haskell", "no-such-language"):
+        m, sig = create_synthetic_star(processor, "esoteric", 100, {"branch": 20})
+        m["lang_id"] = lang
+        assert processor.calculate_risk_vector(m, sig) is not None
+        irc, ot, fid = processor._language_constants(lang)
+        assert (irc, ot) == (0, 1.0), lang
+        if lang == "no-such-language":
+            # nothing measured -> nothing scaled; haskell, by contrast, carries the
+            # fidelity the corpus measured for its own rules (safety over-fires: 0.67)
+            assert all(v == 1.0 for v in fid.values()), lang
 
 
 # ==============================================================================

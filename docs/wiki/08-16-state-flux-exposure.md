@@ -19,7 +19,7 @@ The static analysis engine counts mutation keywords and immutability controls:
 | `raw_flux` | `state_mutation` | **1.0x** | Reassignment and mutation keywords: `let`, `var`, `mut`, `setState`, `push`, `pop`, `+=`, `=`. |
 | `freeze_hits` | `immutability_locks` | **-0.5x** | Immutability enforcements (`Object.freeze`, const locks). Subtracts 0.5 per hit from raw mutation. |
 | `loc` | Denominator | **Base Density** | Meaningful lines of code (`loc_padding` defaults to 0 to ensure mutations immediately impact density). |
-| `irc` | Language Modifier | **0.15x** | Implicit Risk Correction (accounts for implicit mutability defaults in languages like JavaScript or Python). |
+| `irc` | Language Modifier | **0.15x** | Implicit Risk Correction: the language's strictness-gap count (0–4) from `analysis_lens.LANGUAGE_STRICTNESS` ([08-03](08-03-transforming-regex-counts.md)); 0 for data and markup formats. |
 | `mp` | Path Modifier | **Threshold Modifier** | Context modifier (e.g., `0.8` for UI components where state spaghetti introduces UI state bugs). |
 
 ### 1. Net Volatility Calculation

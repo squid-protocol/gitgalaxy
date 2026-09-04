@@ -600,13 +600,7 @@ def test_matlab_output_variable_read_back_is_working_state():
 
 def test_matlab_multiple_outputs_are_judged_independently():
     """parsepluginname's shape: `name` is write-only, `vers` is read back."""
-    code = (
-        "function [name, vers] = parse(dirName)\n"
-        "name = dirName;\n"
-        "vers = '';\n"
-        "vers(vers == '_') = '.';\n"
-        "end\n"
-    )
+    code = "function [name, vers] = parse(dirName)\nname = dirName;\nvers = '';\nvers(vers == '_') = '.';\nend\n"
     # `name` drops; `vers`'s bare binding AND its indexed write both stay.
     assert _matlab_state(code) == 2
 

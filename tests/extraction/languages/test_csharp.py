@@ -430,7 +430,7 @@ def test_csharp_detector_issue_2237_nested_attributes_in_args():
     """
     from gitgalaxy.core.detector import StructuralExtractor
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-    
+
     code = """
     // (a) 2-level-nested per-parameter attribute (4 parameters)
     private void ParseNamespaceBody(
@@ -450,9 +450,13 @@ def test_csharp_detector_issue_2237_nested_attributes_in_args():
     """
     detector = StructuralExtractor("csharp", LANGUAGE_DEFINITIONS)
     results = detector.splice(code, "test.cs")
-    
+
     counts = {f["name"]: f.get("args") for f in results["functions"]}
-    
-    assert counts.get("ParseNamespaceBody") == 4, f"ParseNamespaceBody args: expected 4, got {counts.get('ParseNamespaceBody')}"
+
+    assert counts.get("ParseNamespaceBody") == 4, (
+        f"ParseNamespaceBody args: expected 4, got {counts.get('ParseNamespaceBody')}"
+    )
     assert counts.get("NormalMethod") == 3, f"NormalMethod args: expected 3, got {counts.get('NormalMethod')}"
-    assert counts.get("OneLevelAttrMethod") == 2, f"OneLevelAttrMethod args: expected 2, got {counts.get('OneLevelAttrMethod')}"
+    assert counts.get("OneLevelAttrMethod") == 2, (
+        f"OneLevelAttrMethod args: expected 2, got {counts.get('OneLevelAttrMethod')}"
+    )

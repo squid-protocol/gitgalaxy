@@ -38,17 +38,8 @@ _ASM_SIMPLE_CASES = [
     ("branch", "\tloop .retry", "\tmov eax, ebx"),
     ("branch", "\tblr x19", "\tmov eax, ebx"),
     ("branch", "\tjmp foo", "\tmov eax, ebx"),
-
     # args (deep)
-
-
-
-
-
-
-
     ("args", "\tmov edi, 5", "\tmov eax, ebx"),
-
     # func_start (deep)
     ("func_start", "_start:\n", "\tmov eax, ebx"),
     ("func_start", "@main_loop:\n", "\tmov eax, ebx"),
@@ -59,7 +50,6 @@ _ASM_SIMPLE_CASES = [
     ("func_start", "myFunc:\n\tret", "1:\n"),
     ("func_start", "myFunc:\n\tret", "\t.text:\n"),
     ("func_start", "myFunc:\n\tret", "\tret"),
-
     # class_start (deep)
     ("class_start", "my_struc struc", "\tmov eax, ebx"),
     ("class_start", "\t.struct my_struct", "\tmov eax, ebx"),
@@ -67,7 +57,6 @@ _ASM_SIMPLE_CASES = [
     ("class_start", "my_struct\tSTRUCT", "\tmov eax, ebx"),
     ("class_start", "my_struc struc", "my_struc\nstruc"),
     ("class_start", "\tstruc Point", "\tmov eax, ebx"),
-
     # structural_boundaries (deep)
     ("structural_boundaries", "\tmovabs rax, 0x123", "\tjmp foo"),
     ("structural_boundaries", "\tmovzx eax, byte ptr [ebx]", "\tjmp foo"),

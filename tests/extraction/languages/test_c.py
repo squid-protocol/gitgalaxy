@@ -136,6 +136,7 @@ def test_c_func_start_string_literal_concatenation_does_not_false_positive():
         "documents current (confirmed-safe) behavior: string concatenation does not false-positive"
     )
 
+
 def test_c_macro_shield_does_not_exclude_prior_function_definition():
     """
     Regression test for issue #2240: A real function definition followed by a

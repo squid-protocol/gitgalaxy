@@ -52,17 +52,21 @@ FUNC_START_PATHOLOGICAL = [
     ("METHOD \n TargetFunc \n .", "TargetFunc"),
 ]
 
+
 @pytest.mark.parametrize("payload,expected_name", FUNC_START_VALID)
 def test_abap_func_start_valid(payload, expected_name):
     assert_valid_match(ABAP_RULES["func_start"], payload, expected_name, "abap.func_start")
+
 
 @pytest.mark.parametrize("payload", FUNC_START_INVALID)
 def test_abap_func_start_invalid(payload):
     assert_invalid_no_match(ABAP_RULES["func_start"], payload, "abap.func_start")
 
+
 @pytest.mark.parametrize("payload,expected_name", FUNC_START_PATHOLOGICAL)
 def test_abap_func_start_pathological(payload, expected_name):
     assert_pathological_match(ABAP_RULES["func_start"], payload, expected_name, "abap.func_start")
+
 
 def test_abap_func_start_redos_immunity():
     assert_redos_immune(ABAP_RULES["func_start"], "METHOD " + " " * 1000 + " foo", timeout_sec=1.0)
@@ -96,17 +100,21 @@ ARGS_PATHOLOGICAL = [
     ("IMPORTING \n VALUE( \n p_name \n ) \n TYPE string", "IMPORTING"),
 ]
 
+
 @pytest.mark.parametrize("payload,expected_args", ARGS_VALID)
 def test_abap_args_valid(payload, expected_args):
     assert_valid_match(ABAP_RULES["args"], payload, expected_args, "abap.args")
+
 
 @pytest.mark.parametrize("payload", ARGS_INVALID)
 def test_abap_args_invalid(payload):
     assert_invalid_no_match(ABAP_RULES["args"], payload, "abap.args")
 
+
 @pytest.mark.parametrize("payload,expected_args", ARGS_PATHOLOGICAL)
 def test_abap_args_pathological(payload, expected_args):
     assert_pathological_match(ABAP_RULES["args"], payload, expected_args, "abap.args")
+
 
 def test_abap_args_value_clause_does_not_swallow_trailing_type_keyword():
     """BUG FIX regression: `VALUE(...)` used to be an optional PREFIX before a still-
@@ -144,13 +152,16 @@ CLASS_START_PATHOLOGICAL = [
     ("DEFINE \n ROOT \n VIEW \n ENTITY \n TargetEntity", "TargetEntity"),
 ]
 
+
 @pytest.mark.parametrize("payload,expected_name", CLASS_START_VALID)
 def test_abap_class_start_valid(payload, expected_name):
     assert_valid_match(ABAP_RULES["class_start"], payload, expected_name, "abap.class_start")
 
+
 @pytest.mark.parametrize("payload", CLASS_START_INVALID)
 def test_abap_class_start_invalid(payload):
     assert_invalid_no_match(ABAP_RULES["class_start"], payload, "abap.class_start")
+
 
 @pytest.mark.parametrize("payload,expected_name", CLASS_START_PATHOLOGICAL)
 def test_abap_class_start_pathological(payload, expected_name):
@@ -174,13 +185,16 @@ DEPENDENCY_PATHOLOGICAL = [
     ("TYPE-POOLS \n slis \n .", "slis"),
 ]
 
+
 @pytest.mark.parametrize("payload,expected_name", DEPENDENCY_VALID)
 def test_abap_dependency_valid(payload, expected_name):
     assert_valid_dependency_match(ABAP_RULES["_dependency_capture"], payload, expected_name, "abap.dependency")
 
+
 @pytest.mark.parametrize("payload", DEPENDENCY_INVALID)
 def test_abap_dependency_invalid(payload):
     assert_invalid_no_match(ABAP_RULES["_dependency_capture"], payload, "abap.dependency")
+
 
 @pytest.mark.parametrize("payload,expected_name", DEPENDENCY_PATHOLOGICAL)
 def test_abap_dependency_pathological(payload, expected_name):

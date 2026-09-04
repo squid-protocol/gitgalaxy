@@ -882,7 +882,7 @@ RISK_EQUATION_TUNING = {
         "sibling_bonus": 30.0,
         "internal_test_mult": 5.0,
         "threshold_base": 15.0,
-        "irc_mult": 3.0,
+        "dynamism_weight": 1.0,  # per-file eval/reflection hits added to the risk side (#2719)
         "sigmoid_slope": 0.25,
         "mass_penalty_div": 20.0,
         "mass_penalty_max": 40.0,
@@ -897,12 +897,10 @@ RISK_EQUATION_TUNING = {
     "api_exposure": {"log_divisor": 1.5, "ratio_weight": 0.4, "volume_weight": 0.6},
     "concurrency": {
         "loc_padding": 25,  # Override the massive 150 padding in the processor
-        "irc_mult": 0.1,
         "threshold_base": 2.5,  # Lowered from 4.0
         "sigmoid_slope": 0.8,  # Steeper slope to accelerate the score once crossed
     },
     "state_flux": {
-        "irc_mult": 0.15,
         "threshold_base": 6.0,  # Lowered from 15.0 (6% mutation density is much more realistic)
         "sigmoid_slope": 0.40,  # Increased from 0.20 to stretch the curve
     },

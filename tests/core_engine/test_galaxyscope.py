@@ -1308,15 +1308,18 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         test_args = ["galaxyscope", "/fake/chameleon_project"]
 
         # Inject our fake project into the global overrides
-        with patch.dict(
-            "gitgalaxy.galaxyscope.PROJECT_OVERRIDES",
-            {
-                "chameleon_project": {
-                    "_shield_": {"exclude_dirs": ["weird_build_dir"]},
-                    "python": {"extensions": [".chameleon"]},
-                }
-            },
-        ), patch.object(sys, "argv", test_args):
+        with (
+            patch.dict(
+                "gitgalaxy.galaxyscope.PROJECT_OVERRIDES",
+                {
+                    "chameleon_project": {
+                        "_shield_": {"exclude_dirs": ["weird_build_dir"]},
+                        "python": {"extensions": [".chameleon"]},
+                    }
+                },
+            ),
+            patch.object(sys, "argv", test_args),
+        ):
             # Force the mock to simulate a clean run
             mock_orchestrator.return_value.policy_failed = False
             main()
@@ -1376,7 +1379,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 
         risk_schema = RECORDING_SCHEMAS.get("RISK_SCHEMA", [])
-        self.assertEqual(len(leak_node["risk_vector"]), len(risk_schema), "risk_vector length drifted from RISK_SCHEMA!")
+        self.assertEqual(
+            len(leak_node["risk_vector"]), len(risk_schema), "risk_vector length drifted from RISK_SCHEMA!"
+        )
         self.assertEqual(
             leak_node["risk_vector"][risk_schema.index("secrets_risk")],
             100.0,
@@ -2436,8 +2441,7 @@ class TestSyntheticSliceExclusion(unittest.TestCase):
         functions = [
             {"name": "probe_a", "branch": 2, "loc": 5, "args": 1},
             {"name": "probe_b", "branch": 4, "loc": 5, "args": 1},
-            {"name": "__global_context__", "branch": 0, "loc": 9, "args": 0,
-             "is_synthetic_slice": True},
+            {"name": "__global_context__", "branch": 0, "loc": 9, "args": 0, "is_synthetic_slice": True},
         ]
         kept = [f for f in functions if not f.get("is_synthetic_slice")]
         self.assertEqual(len(kept), 2, "the synthetic bucket must not join the population")
@@ -2453,8 +2457,7 @@ class TestSyntheticSliceExclusion(unittest.TestCase):
         """
         functions = [
             {"name": "probe_a", "branch": 2, "loc": 4, "args": 1},
-            {"name": "__global_context__", "branch": 6, "loc": 10, "args": 0,
-             "is_synthetic_slice": True},
+            {"name": "__global_context__", "branch": 6, "loc": 10, "args": 0, "is_synthetic_slice": True},
         ]
         real = [f for f in functions if not f.get("is_synthetic_slice")]
         self.assertEqual(max(f["branch"] for f in real), 2, "max is over real functions")

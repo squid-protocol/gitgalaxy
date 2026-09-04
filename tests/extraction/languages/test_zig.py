@@ -120,8 +120,14 @@ ARGS_VALID = [
 ]
 
 ARGS_INVALID = [
-    pytest.param('"fn (a: i32, b: i32)"', marks=pytest.mark.xfail(reason="Known limitation: No block shielding for args inside strings")),
-    pytest.param("// fn (a: i32, b: i32)", marks=pytest.mark.xfail(reason="Known limitation: No block shielding for args inside comments")),
+    pytest.param(
+        '"fn (a: i32, b: i32)"',
+        marks=pytest.mark.xfail(reason="Known limitation: No block shielding for args inside strings"),
+    ),
+    pytest.param(
+        "// fn (a: i32, b: i32)",
+        marks=pytest.mark.xfail(reason="Known limitation: No block shielding for args inside comments"),
+    ),
 ]
 
 

@@ -81,7 +81,6 @@ EXTRACTION_CASES = {
             )
         ],
     },
-
     "dockerfile": {
         "valid": [
             ("RUN apt-get update", "RUN"),

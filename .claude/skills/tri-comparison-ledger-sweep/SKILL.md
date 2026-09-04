@@ -64,6 +64,7 @@ has anything to act on) and do a **manual verification** instead:
    correctly extracts this," and step 2b below is not optional:**
    ```python
    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
    rules = LANGUAGE_DEFINITIONS["<lang>"]["rules"]
    text = open(path, encoding="utf-8", errors="replace").read()
    for m in rules["func_start"].finditer(text):
@@ -241,11 +242,12 @@ against the same corpus file outside the pipeline (31/31 hits on one scheme file
 every time, before writing down a granularity classification:
 ```python
 import json
+
 d = json.load(open("docs/self_scan/tri_comparison_ledger.json"))["entries"]
 for k, e in d.items():
     if k.startswith(f"{lang}/function/existence/") and e["still_reproduces"]:
         print(k, e["status"], e["last_seen_count"])  # a real, unaddressed shape here means
-                                                        # investigate THAT first, not args
+        # investigate THAT first, not args
 ```
 A language with a real unvalidated existence-recall gap can't tell you anything meaningful about
 its args granularity -- there aren't enough correctly-found functions to judge the shape of their
@@ -286,11 +288,9 @@ separately.
 
 ```python
 import json
+
 d = json.load(open("docs/self_scan/tri_comparison_ledger.json"))["entries"]
-open_qs = [
-    (k, e) for k, e in d.items()
-    if e["still_reproduces"] and e["status"] != "validated"
-]
+open_qs = [(k, e) for k, e in d.items() if e["still_reproduces"] and e["status"] != "validated"]
 open_qs.sort(key=lambda kv: -kv[1]["last_seen_count"])
 ```
 Prioritize within that sorted list:
@@ -330,15 +330,17 @@ that could plausibly be affected -- functions, classes, and per-name args counts
 one the ledger flagged:
 
 ```python
-import sys; sys.path.insert(0, "tests/tools")
+import sys
+
+sys.path.insert(0, "tests/tools")
 from tri_comparison_gatherer import gather_language
 
 readings = gather_language("<lang>")  # resolves the corpus the SAME way crucible_check.py does
 for fr in readings:
     gg_names = {o.name for o in fr.gg_funcs}
     ts_names = {o.name for o in fr.ts_funcs}
-    missing = ts_names - gg_names   # tree-sitter found, GitGalaxy MISSED -- a real recall gap
-    extra = gg_names - ts_names     # GitGalaxy found, tree-sitter didn't -- over-detection
+    missing = ts_names - gg_names  # tree-sitter found, GitGalaxy MISSED -- a real recall gap
+    extra = gg_names - ts_names  # GitGalaxy found, tree-sitter didn't -- over-detection
     if missing or extra:
         print(fr.file_path, "missing_from_gg=", missing, "extra_in_gg=", extra)
     # repeat the same set-diff for fr.gg_classes/fr.ts_classes, and diff .args per matched name

@@ -98,6 +98,7 @@ DEPENDENCY_CASES = {
     ],
 }
 
+
 class TestSchemeExtraction:
     @pytest.mark.parametrize("payload, expected_name", FUNCTION_CASES.get("valid", []))
     def test_positive_function_extraction(self, payload, expected_name):

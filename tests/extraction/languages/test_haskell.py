@@ -62,7 +62,10 @@ FUNCTION_CASES: dict[str, Any] = {
         # #1616: guard-only equations (no `=` on the same line, immediately followed
         # by an indented `|` guard on the next line)
         ("  isAllowedPunct c\n    | extensionEnabled Ext_gfm_auto_identifiers exts = c == '-'", "isAllowedPunct"),
-        ("  isAllowedPunct c\n    | extensionEnabled Ext_gfm_auto_identifiers exts = c == '-'\n    | otherwise = c == '_'", "isAllowedPunct"),
+        (
+            "  isAllowedPunct c\n    | extensionEnabled Ext_gfm_auto_identifiers exts = c == '-'\n    | otherwise = c == '_'",
+            "isAllowedPunct",
+        ),
     ],
     "invalid": [
         "data TargetFunc",

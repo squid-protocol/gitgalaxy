@@ -61,7 +61,8 @@ def test_licensing_env_loader_exception(mock_exists, monkeypatch):
 
     # Force a permission error when opening the .env file
     with (
-        patch("builtins.open", side_effect=PermissionError("Locked")), patch("builtins.print"),
+        patch("builtins.open", side_effect=PermissionError("Locked")),
+        patch("builtins.print"),
         patch("gitgalaxy.licensing.time.sleep") as mock_sleep,
     ):
         # It should fail to read the file, drop to the MISSING trap, and sleep for 5 seconds

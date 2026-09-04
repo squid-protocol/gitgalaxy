@@ -223,10 +223,7 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
                 and not (
                     lang == "javascript"
                     and node.type == "method_definition"
-                    and (
-                        name in tsaa._JS_RESERVED_STATEMENT_KEYWORDS
-                        or name in tsaa._JS_KNOWN_FLOW_HALLUCINATIONS
-                    )
+                    and (name in tsaa._JS_RESERVED_STATEMENT_KEYWORDS or name in tsaa._JS_KNOWN_FLOW_HALLUCINATIONS)
                 )
             ):
                 funcs.append(
@@ -236,9 +233,11 @@ def _walk_tree_sitter(root, func_node_types: set[str], class_node_types: set[str
                         args=tsaa._get_param_count(node, lang),
                     )
                 )
-        if node.type in class_node_types and not (
-            lang in ("c", "cpp") and node.child_by_field_name("body") is None
-        ) and not (lang == "cpp" and _is_cpp_unscoped_enum(node)):
+        if (
+            node.type in class_node_types
+            and not (lang in ("c", "cpp") and node.child_by_field_name("body") is None)
+            and not (lang == "cpp" and _is_cpp_unscoped_enum(node))
+        ):
             name = tsaa._get_node_name(node)
             if name:
                 classes.append(Occurrence(name=name, line=node.start_point[0] + 1, args=None))

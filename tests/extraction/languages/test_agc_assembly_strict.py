@@ -38,7 +38,6 @@ _AGC_SIMPLE_CASES = [
     ("branch", "GOTO\tLBL", "GOTOO"),
     ("branch", "\tBZMF\tFOO", "BZMF_VAR"),
     ("branch", "BMI\tBAR", "BMIS"),
-
     # --- DEEP CASES: args ---
     ("args", "\tCA\tA", "\tCA\tBAR"),
     ("args", "\tEBANK= 4", "XEBANK="),
@@ -50,7 +49,6 @@ _AGC_SIMPLE_CASES = [
     ("args", "INCR Z", "AD_Z"),
     ("args", "\tCCS\tA", "CCS_A"),
     ("args", "DXCH\tZ", "DXCH_ZZ"),
-
     # --- DEEP CASES: structural_boundaries ---
     ("structural_boundaries", "\tCA\tBAR", "\tTCF\tFOO"),
     ("structural_boundaries", "  2OCT  ", "2OCTAL"),
@@ -61,7 +59,6 @@ _AGC_SIMPLE_CASES = [
     ("structural_boundaries", "\tCAF\tFOO", "CAFFEIN"),
     ("structural_boundaries", "CCS\tBAR", "CCSS"),
     ("structural_boundaries", "DXCH\tFOO", "DXCH_VAR"),
-
     # --- DEEP CASES: func_start ---
     ("func_start", "MYLABEL\tTC\tFOO", "\tTC\tFOO"),
     ("func_start", "MY_SUB1\tCAF\tFOO", "LBL\n\tTC"),

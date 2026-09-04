@@ -279,11 +279,5 @@ def test_html_shader_script_yields_no_function():
 
 
 def test_html_real_module_script_still_yields_functions():
-    src = (
-        '<script type="module">\n'
-        "  function boot() {\n"
-        "    return 42;\n"
-        "  }\n"
-        "</script>\n"
-    )
+    src = '<script type="module">\n  function boot() {\n    return 42;\n  }\n</script>\n'
     assert "boot" in _html_func_names(src)

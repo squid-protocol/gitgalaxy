@@ -3822,15 +3822,7 @@ def test_detector_yaml_single_line_step_survives_two_line_floor():
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     yaml_detector = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS)
-    code = (
-        "jobs:\n"
-        "  build:\n"
-        "    steps:\n"
-        "      - run: pytest\n"
-        "      - run: |\n"
-        "          echo one\n"
-        "          echo two\n"
-    )
+    code = "jobs:\n  build:\n    steps:\n      - run: pytest\n      - run: |\n          echo one\n          echo two\n"
 
     result = yaml_detector.splice(code_stream=code, comment_stream="", confidence=1.0)
     names = [f["name"] for f in result["functions"]]

@@ -159,7 +159,9 @@ CHART_PATH = Path(__file__).resolve().parent.parent.parent / "docs" / "self_scan
 # (ledger_mod's "unvalidated cross-tool disagreement") -- this is a different evidentiary category
 # (single-source manual review, not multi-tool corroboration), not a stronger or weaker version of
 # the same claim, and the chart must never blur the two together.
-MANUAL_VERIFICATION_PATH = Path(__file__).resolve().parent.parent.parent / "docs" / "self_scan" / "manual_verification.json"
+MANUAL_VERIFICATION_PATH = (
+    Path(__file__).resolve().parent.parent.parent / "docs" / "self_scan" / "manual_verification.json"
+)
 
 
 def _load_manual_verification() -> dict:
@@ -176,6 +178,7 @@ def _manual_verification_entry(manual_verification: dict, lang: str, symbol_type
     longer matches what the tool actually reports today. Never inferred/auto-refreshed here --
     staleness is a signal to go re-verify and update the file by hand, not to guess."""
     return manual_verification.get(lang, {}).get(symbol_type)
+
 
 # The 45 languages with real structural signatures (see docs/language_status/README.md) --
 # NODE_MAPS's 30 tree-sitter-baselined languages plus the 15 GitGalaxy extracts from but
@@ -848,7 +851,9 @@ def render_chart(data_by_lang: dict[str, LanguageChartData]) -> str:
                     live_total = (
                         (gg_score.total_slots if gg_score is not None else None) if ranked else data.gg_args_found
                     )
-                    winner = _manual_verification_winner(manual_verification, lang, mv_key, live_total, data.available_tools)
+                    winner = _manual_verification_winner(
+                        manual_verification, lang, mv_key, live_total, data.available_tools
+                    )
                 if winner is None and ranked:
                     winner = _ledger_credited_lone_claimant_winner(
                         scores, data.available_tools, lang, symbol_type, ledger_metric
@@ -975,7 +980,9 @@ def run_ci_check(lang: str, verbose: bool = True) -> int:
     current = _extract_precision(data)
     baseline = load_baseline(lang)
     if not baseline:
-        print(f"tri_comparison_chart: no baseline committed for {lang} -- run with --regenerate to create one, failing closed.")
+        print(
+            f"tri_comparison_chart: no baseline committed for {lang} -- run with --regenerate to create one, failing closed."
+        )
         return 1
 
     regressions = _regressions(current, baseline)
@@ -987,7 +994,9 @@ def run_ci_check(lang: str, verbose: bool = True) -> int:
 
     improved = [k for k in _GATED_METRICS if k in current and k in baseline and current[k] > baseline[k]]
     if improved:
-        print(f"tri_comparison_chart: {lang} -- OK, improved on {', '.join(improved)} (consider --regenerate to lock it in).")
+        print(
+            f"tri_comparison_chart: {lang} -- OK, improved on {', '.join(improved)} (consider --regenerate to lock it in)."
+        )
     else:
         print(f"tri_comparison_chart: {lang} -- OK, matches committed baseline, no regressions.")
     return 0
@@ -1001,7 +1010,9 @@ def run_regenerate(lang: str, verbose: bool = True) -> int:
 
     current = _extract_precision(data)
     if not current:
-        print(f"tri_comparison_chart: {lang} -- no gated precision metric available (no GitGalaxy score), nothing to write.")
+        print(
+            f"tri_comparison_chart: {lang} -- no gated precision metric available (no GitGalaxy score), nothing to write."
+        )
         return 1
 
     path = _get_baseline_path(lang)

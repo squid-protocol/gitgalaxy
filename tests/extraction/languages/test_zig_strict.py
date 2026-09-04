@@ -468,4 +468,3 @@ def test_zig_globals_anchor_bug_regression():
 
     assert not globals_rule.search("    const local_var = 1;"), "indented const must NOT count as global"
     assert not globals_rule.search("\tvar local_var: i32 = 0;"), "tab-indented var must NOT count as global"
-

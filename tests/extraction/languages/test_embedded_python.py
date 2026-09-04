@@ -296,7 +296,9 @@ def test_embedded_python_class_start_invalid(payload):
 
 @pytest.mark.parametrize("payload,expected_name", CLASS_CASES["pathological"])
 def test_embedded_python_class_start_pathological(payload, expected_name):
-    assert_pathological_match(EMBEDDED_PYTHON_RULES["class_start"], payload, expected_name, "embedded_python.class_start")
+    assert_pathological_match(
+        EMBEDDED_PYTHON_RULES["class_start"], payload, expected_name, "embedded_python.class_start"
+    )
 
 
 def test_embedded_python_class_start_pep695_nested_bracket_base_capture_regression():
@@ -339,8 +341,8 @@ DEPENDENCY_CASES: dict[str, Any] = {
         ("from ..pkg import foo", "..pkg"),  # relative import, up-level
         ("from __future__ import annotations", "__future__"),  # future import
         ("from os import *", "os"),  # star import
-        ("import machine", "machine"), # MicroPython hardware import
-        ("from network import WLAN", "network"), # MicroPython network import
+        ("import machine", "machine"),  # MicroPython hardware import
+        ("from network import WLAN", "network"),  # MicroPython network import
     ],
     "invalid": [
         "import_path = 'foo'",
@@ -368,7 +370,9 @@ def test_embedded_python_dependency_capture_valid(payload, expected_path):
 
 @pytest.mark.parametrize("payload", DEPENDENCY_CASES["invalid"])
 def test_embedded_python_dependency_capture_invalid(payload):
-    assert_invalid_no_match(EMBEDDED_PYTHON_RULES["_dependency_capture"], payload, "embedded_python._dependency_capture")
+    assert_invalid_no_match(
+        EMBEDDED_PYTHON_RULES["_dependency_capture"], payload, "embedded_python._dependency_capture"
+    )
 
 
 @pytest.mark.parametrize("payload,expected_path", DEPENDENCY_CASES["pathological"])

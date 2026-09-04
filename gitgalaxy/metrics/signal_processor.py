@@ -715,7 +715,7 @@ class SignalProcessor:
             # The OOM Bomb heuristic has been phased out of the probabilistic model.
             # Spatial correlation is now handled natively upstream in detector.py.
 
-            cog_score, cog_raw = self._calc_cog_load(loc, raw_signals, irc, fid, mp_map.get("cog", 1.0), func_gini)
+            cog_score, cog_raw = self._calc_cog_load(loc, raw_signals, fid, mp_map.get("cog", 1.0), func_gini)
             saf_score = self._calc_safety(
                 loc, raw_signals, irc, fid, mp_map.get("safety", 1.0), mp_map.get("memory", 1.0)
             )
@@ -742,7 +742,6 @@ class SignalProcessor:
                 doc_lines,
                 raw_signals,
                 fid,
-                irc,
                 mp_map.get("doc", 1.0),
                 functions,
                 doc_umbrella=ghost_meta.get("doc_umbrella", 0.0),
@@ -763,8 +762,8 @@ class SignalProcessor:
                 "tech_debt": debt_score,
                 "verification": test_score,
                 "api_exposure": self._calc_api_exposure(raw_signals, total_loc, popularity),
-                "concurrency": self._calc_concurrency(loc, raw_signals, irc, mp_map.get("async", 1.0)),
-                "state_flux": self._calc_state_flux(loc, raw_signals, irc, mp_map.get("state_mutation", 1.0)),
+                "concurrency": self._calc_concurrency(loc, raw_signals, mp_map.get("async", 1.0)),
+                "state_flux": self._calc_state_flux(loc, raw_signals, mp_map.get("state_mutation", 1.0)),
                 "dead_code": self._calc_graveyard(total_loc, raw_signals, mp_map.get("dead", 1.0)),
                 "spec_match": spec_score,
                 "stability": stability_score,
@@ -1343,11 +1342,26 @@ class SignalProcessor:
         """
         return max(float(loc), 1.0, self.EVIDENCE_MASS_FLOOR)
 
+    @staticmethod
+    def _dynamism(raw_signals: Mapping[str, int]) -> int:
+        """Runtime-decided behaviour a regex cannot follow, counted in THIS file (#2719):
+        reflection, metaprogramming and dynamic dispatch (`reflection_metaprogramming` --
+        getattr, Reflect/Proxy, method_missing, AUTOLOAD, Class.forName, transmute,
+        macro_rules!). One definition, read by every equation that used to read the
+        per-language `irc` as a stand-in for it.
+
+        `high_risk_execution` is deliberately NOT part of it: across the registry that
+        signal is the safety attack vocabulary -- panic!/todo!, os.Exit/log.Fatal,
+        System.exit, STOP RUN, rm -rf/sudo -- and carries eval/exec only in the
+        dynamic languages. It is already read at 4x by _calc_safety, where it belongs.
+        Pointer arithmetic, macros and type bypasses are visible constructs with their
+        own meaning and stay in their own equations."""
+        return int(raw_signals.get("reflection_metaprogramming", 0))
+
     def _calc_cog_load(
         self,
         loc: int,
         raw_signals: dict[str, int],
-        irc: int,
         fid: Mapping[str, float],
         mp: float,
         func_gini: float = 0.0,
@@ -1367,7 +1381,9 @@ class SignalProcessor:
         branch_density = branches / mass_loc
         flux_density = raw_signals.get("state_mutation", 0) / mass_loc
         concurrency_density = raw_signals.get("concurrency", 0) / mass_loc
-        heat_density = raw_signals.get("reflection_metaprogramming", 0) / mass_loc
+        # Runtime-decided behaviour a reader cannot follow, per file -- one definition
+        # shared with _calc_documentation (#2719).
+        heat_density = self._dynamism(raw_signals) / mass_loc
 
         clamped_branch = min(branch_density * 1.0, t.get("branch_clamp", 0.5))
         clamped_flux = min(flux_density * t.get("flux_mult", 2.0), t.get("flux_clamp", 0.75))
@@ -1380,10 +1396,10 @@ class SignalProcessor:
         if func_gini > 0.7:
             gini_multiplier = 1.0 + (func_gini * 0.5)
 
-        # irc stays a pseudo-hit here (not a density offset) so >=50-LOC tier
-        # semantics are unchanged; the floor bounds it at irc/EVIDENCE_MASS_FLOOR
-        # instead of letting it grow without limit as the file shrinks.
-        total_density = (clamped_branch + clamped_flux + heavy_logic + (irc / mass_loc)) * gini_multiplier
+        # The flat per-language `irc / mass_loc` pseudo-hit is gone (#2719): what it
+        # stood in for -- code a reader cannot follow -- is now measured per file in
+        # heat_density above.
+        total_density = (clamped_branch + clamped_flux + heavy_logic) * gini_multiplier
 
         try:
             raw_score = 100.0 / (
@@ -1494,7 +1510,6 @@ class SignalProcessor:
         doc_loc: int,
         raw_signals: dict[str, int],
         fid: Mapping[str, float],
-        irc: int,
         mp: float,
         functions: Optional[list[dict[str, Any]]] = None,
         doc_umbrella: float = 0.0,
@@ -1528,18 +1543,21 @@ class SignalProcessor:
                 if impact > 50.0 and not func.get("docstring"):
                     opaque_execution += 5.0 + math.log1p(impact)
 
-        # Irc CORRECTS measured risk; it never creates it (#2655). A file with no
+        # Dynamism corrects measured risk; it never creates it (#2655). A file with no
         # public surface and no load-bearing undocumented block has nothing to
-        # document, whatever its language tier -- the same zero-evidence convention
-        # _calc_safety, _calc_tech_debt, _calc_concurrency and _calc_state_flux
-        # already follow. Before this, tier-3 files with api=0 scored 19-42 on irc
-        # alone (html/css a/b/c in the rosetta corpus).
+        # document, whatever it does at runtime -- the same zero-evidence convention
+        # _calc_safety and _calc_tech_debt follow. Before this, tier-3 files with
+        # api=0 scored 19-42 on the language constant alone (html/css a/b/c in the
+        # rosetta corpus).
         measured_risk = opaque_execution + api_exposure
         if measured_risk == 0:
             return 0.0
 
-        # Add Implicit Risk Correction (Maintenance Overhead) to the risk
-        risk_hits = measured_risk + irc
+        # Runtime-decided behaviour is what most needs documenting and what a reader
+        # cannot recover from the text: reflection and dynamic dispatch, counted in
+        # THIS file (#2719). This replaces the flat per-language `irc`, which stood
+        # in for the same thing without measuring it.
+        risk_hits = measured_risk + self._dynamism(raw_signals) * t.get("dynamism_weight", 1.0)
 
         # 3. UNIVERSAL DENSITY EQUATION
         # loc_smoothing is kept ON TOP of the evidence-mass floor so files at or
@@ -1725,7 +1743,6 @@ class SignalProcessor:
         self,
         loc: int,
         raw_signals: dict[str, int],
-        irc: int,
         mp: float,
     ) -> float:
         """
@@ -1744,15 +1761,16 @@ class SignalProcessor:
         if net_concurrency == 0:
             return 0.0
 
+        # No language term (#2719): neither a strictness column nor per-file dynamism
+        # describes concurrency; the inputs are the file's own spawns and locks.
         density = (net_concurrency / (self._mass_loc(loc) + loc_padding)) * 100.0
-        density += irc * tuning.get("irc_mult", 0.1)
 
         threshold = tuning.get("threshold_base", 4.0)  # Matches your config!
         slope = tuning.get("sigmoid_slope", 0.4)
 
         return min(self._sigmoid(density, threshold, slope) * 100.0 * mp, 100.0)
 
-    def _calc_state_flux(self, loc: int, raw_signals: dict[str, int], irc: int, mp: float) -> float:
+    def _calc_state_flux(self, loc: int, raw_signals: dict[str, int], mp: float) -> float:
         """
         RISK: State mutation (flux).
         MITIGATION: Immutability enforcements (freeze_hits).
@@ -1771,8 +1789,9 @@ class SignalProcessor:
         if net_volatility == 0:
             return 0.0
 
+        # No language term (#2719): mutability-by-default is not a strictness column
+        # and dynamism is not mutation; the inputs are the file's own writes and locks.
         density = (net_volatility / (self._mass_loc(loc) + loc_padding)) * 100.0
-        density += irc * tuning.get("irc_mult", 0.15)
 
         threshold = tuning.get("threshold_base", 15.0)
         slope = tuning.get("sigmoid_slope", 0.2)

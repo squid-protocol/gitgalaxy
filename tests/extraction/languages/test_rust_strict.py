@@ -376,6 +376,7 @@ def test_rust_redos_immunity_sweep():
     assert RUST_RULES["class_start"].search("struct Foo {}")
     assert RUST_RULES["debug_prints"].search('println!("hi")')
 
+
 def test_rust_branch_deep_cases():
     """Deep case variants for 'branch' structural signature."""
     branch = RUST_RULES["branch"]
@@ -390,8 +391,9 @@ def test_rust_branch_deep_cases():
     # Negative deep cases (bugs we fixed)
     assert not branch.search("let r#match = 1;")
     assert not branch.search("let r#if = true;")
-    assert not branch.search("'loop: {") # The 'loop itself shouldn't trigger branch
+    assert not branch.search("'loop: {")  # The 'loop itself shouldn't trigger branch
     assert not branch.search("T: ?Sized")
+
 
 def test_rust_args_deep_cases():
     """Deep case variants for 'args' structural signature."""
@@ -407,18 +409,20 @@ def test_rust_args_deep_cases():
     assert not args.search("let x = a | b | c;")
     assert not args.search("if a | b | c {")
 
+
 def test_rust_func_start_deep_cases():
     """Deep case variants for 'func_start' structural signature."""
     func_start = RUST_RULES["func_start"]
     # Positive deep cases
-    assert func_start.search("pub(crate) async unsafe extern \"C\" fn do_stuff() {")
+    assert func_start.search('pub(crate) async unsafe extern "C" fn do_stuff() {')
     assert func_start.search("#[inline(always)]\n#[no_mangle]\nfn foo() {")
     assert func_start.search("fn r#do() {")
     assert func_start.search("fn generic<T: Trait<Associated = <Type as Trait>::Assoc>>() {")
-    assert func_start.search("extern \"system\" fn sys_call() {")
+    assert func_start.search('extern "system" fn sys_call() {')
     # Negative deep cases
     assert not func_start.search("let fn_ptr = 1;")
     assert not func_start.search("struct fn_struct {}")
+
 
 def test_rust_class_start_deep_cases():
     """Deep case variants for 'class_start' structural signature."""
@@ -432,6 +436,7 @@ def test_rust_class_start_deep_cases():
     # Negative deep cases
     assert not class_start.search("let struct_name = 1;")
     assert not class_start.search("let trait_name = 1;")
+
 
 def test_rust_structural_boundaries_deep_cases():
     """Deep case variants for 'structural_boundaries' structural signature."""

@@ -16,6 +16,7 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 PHP_RULES = LANGUAGE_DEFINITIONS["php"]["rules"]
 
+
 def test_php_func_start():
     valid = [
         ("function foo()", "foo"),
@@ -34,18 +35,18 @@ def test_php_func_start():
             "#[Attr]\n    public static fUnCtIoN /* case insensitivity test */ extract_me (\n"
             "        #[Inject] \n"
             "        public readonly (A&B)|C &$var1 = new DefaultClass(\n"
-            "            \"string with ) and , inside\", \n"
+            '            "string with ) and , inside", \n'
             "            ['array', 'with', 'function() {}']\n"
             "        ),\n"
             "        int|float $var2 = (1 + (2 * 3)),\n"
             "        ...$variadic,\n"
             "    ) : (X&Y)|Z {",
-            "extract_me"
+            "extract_me",
         ),
         (
             "function\n    \n        spaced_out_func\n    (\n        \n        $arg1\n        ,\n        $arg2\n        \n    )\n    :\n    void",
-            "spaced_out_func"
-        )
+            "spaced_out_func",
+        ),
     ]
 
     invalid = [
@@ -108,12 +109,9 @@ def test_php_class_start():
             "implements \n"
             "    \\Interface1, \n"
             "    \\Interface2",
-            "DeviousClass"
+            "DeviousClass",
         ),
-        (
-            "class\n    \n    SpacedOutClass",
-            "SpacedOutClass"
-        )
+        ("class\n    \n    SpacedOutClass", "SpacedOutClass"),
     ]
 
     invalid = [
@@ -123,7 +121,7 @@ def test_php_class_start():
 
     xfail_invalid = [
         ("// class Foo", None),
-        ("$obj = new class extends Base {};", None), # Can't name anonymous classes
+        ("$obj = new class extends Base {};", None),  # Can't name anonymous classes
         ("$obj = new class($a) implements Foo {};", None),
         ("class /* evil */ Foo /* extends */ extends Bar", None),
         ("$s = 'class Foo {}';", None),
@@ -156,9 +154,18 @@ def test_php_args():
         ("function foo($param = self::DEFAULT_VALUE)", "($param = self::DEFAULT_VALUE)"),
         ("function foo(string ...$strings)", "(string ...$strings)"),
         ("function foo(array &$data, &$flag)", "(array &$data, &$flag)"),
-        ("function foo(public int $id, private readonly string $name, protected ?float $val = null)", "(public int $id, private readonly string $name, protected ?float $val = null)"),
-        ("function foo(#[SensitiveParameter] string $password, #[Attr('val')] int $x)", "(#[SensitiveParameter] string $password, #[Attr('val')] int $x)"),
-        ("function foo(\n    int $x,\n    // some comment\n    /* inline */ string $y = \n    'default'\n)", "(\n    int $x,\n    // some comment\n    /* inline */ string $y = \n    'default'\n)"),
+        (
+            "function foo(public int $id, private readonly string $name, protected ?float $val = null)",
+            "(public int $id, private readonly string $name, protected ?float $val = null)",
+        ),
+        (
+            "function foo(#[SensitiveParameter] string $password, #[Attr('val')] int $x)",
+            "(#[SensitiveParameter] string $password, #[Attr('val')] int $x)",
+        ),
+        (
+            "function foo(\n    int $x,\n    // some comment\n    /* inline */ string $y = \n    'default'\n)",
+            "(\n    int $x,\n    // some comment\n    /* inline */ string $y = \n    'default'\n)",
+        ),
         ("function foo($arr = [1, [2, 3], 'foo' => ['bar']])", "($arr = [1, [2, 3], 'foo' => ['bar']])"),
         ("function foo($callback = function($x) { return $x; })", "($callback = function($x) { return $x; })"),
         ("function foo(int $a, string $b,)", "(int $a, string $b,)"),
@@ -167,7 +174,7 @@ def test_php_args():
             "function extract_me (\n"
             "        #[Inject] \n"
             "        public readonly (A&B)|C &$var1 = new DefaultClass(\n"
-            "            \"string with ) and , inside\", \n"
+            '            "string with ) and , inside", \n'
             "            ['array', 'with', 'function() {}']\n"
             "        ),\n"
             "        int|float $var2 = (1 + (2 * 3)),\n"
@@ -176,12 +183,12 @@ def test_php_args():
             "(\n"
             "        #[Inject] \n"
             "        public readonly (A&B)|C &$var1 = new DefaultClass(\n"
-            "            \"string with ) and , inside\", \n"
+            '            "string with ) and , inside", \n'
             "            ['array', 'with', 'function() {}']\n"
             "        ),\n"
             "        int|float $var2 = (1 + (2 * 3)),\n"
             "        ...$variadic,\n"
-            "    )"
+            "    )",
         ),
     ]
 
@@ -198,8 +205,9 @@ def test_php_args():
             "    $a = [[[['function func_in_array() {}', \"class ClassInArray {}\"]]]],\n"
             "    $b = array(array(array('use Deep\\Dep;'))),\n"
             "    $c = fn($x) => (fn($y) => $y)($x)\n"
-            ")", None
-        )
+            ")",
+            None,
+        ),
     ]
 
     for payload, expected in valid:
@@ -217,7 +225,7 @@ def test_php_dependency_capture():
         ("require 'vendor/autoload.php';", "vendor/autoload.php"),
         ("require('file.php');", "file.php"),
         ("require_once $configFile;", "$configFile"),
-        ("include \"templates/header.php\";", "templates/header.php"),
+        ('include "templates/header.php";', "templates/header.php"),
         ("include_once(__DIR__ . '/config.php');", "__DIR__ . '/config.php'"),
         ("use App\\Services\\UserService;", "App\\Services\\UserService"),
         ("use App\\Models\\User as UserModel;", "App\\Models\\User"),
@@ -227,7 +235,10 @@ def test_php_dependency_capture():
         ("use App\\Helpers\\{function debug, const DEBUG_MODE};", "App\\Helpers\\{function debug, const DEBUG_MODE}"),
         ("use Notifiable, HasFactory;", "Notifiable, HasFactory"),
         ("require dirname(__FILE__) . '/../bootstrap.php';", "dirname(__FILE__) . '/../bootstrap.php'"),
-        ("use App\\Models\\\n    {\n        User,\n        Post\n    };", "App\\Models\\\n    {\n        User,\n        Post\n    }"),
+        (
+            "use App\\Models\\\n    {\n        User,\n        Post\n    };",
+            "App\\Models\\\n    {\n        User,\n        Post\n    }",
+        ),
         ("require_once /* load it */ 'file.php';", "file.php"),
         (
             "uSe \\Vendor\\Package\\{\n"
@@ -241,7 +252,7 @@ def test_php_dependency_capture():
             "    SubNamespace\\ClassB as AliasB,\n"
             "    fUnCtIoN func_c,\n"
             "    const CONST_D,\n"
-            "}"
+            "}",
         ),
     ]
 

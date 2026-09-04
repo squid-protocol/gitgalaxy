@@ -259,23 +259,6 @@ EQUATION_CASES: list[EquationCase] = [
         ],
     ),
     EquationCase(
-        name="concurrency",
-        method_name="_calc_concurrency",
-        notes="irc adds to density (risk axis only) -- sync_locks mitigation is flat-subtracted, "
-        "not fc-weighted, so no defense-credit direction to check.",
-        scenarios=[
-            Scenario(
-                "risk",
-                lambda loc, hits, tv: dict(
-                    loc=loc,
-                    raw_signals={"concurrency": hits, "sync_locks": 0},
-                    irc=tv["irc"],
-                    mp=_mp1(),
-                ),
-            ),
-        ],
-    ),
-    EquationCase(
         name="state_flux",
         method_name="_calc_state_flux",
         notes="irc adds to density (risk axis only) -- immutability_locks mitigation is "
@@ -301,6 +284,7 @@ EQUATION_CASES: list[EquationCase] = [
 # audit above already establishes is NOT tier-derived (path-only). Included so the N/A
 # classification is reported explicitly per-equation instead of just "everything else".
 NOT_TIER_PARAMETERIZED = [
+    "_calc_concurrency",  # #2719: language term removed
     "_calc_graveyard",
     "_calc_api_exposure",
     "_calc_spec_alignment",

@@ -762,7 +762,7 @@ class SignalProcessor:
                 "tech_debt": debt_score,
                 "verification": test_score,
                 "api_exposure": self._calc_api_exposure(raw_signals, total_loc, popularity),
-                "concurrency": self._calc_concurrency(loc, raw_signals, irc, mp_map.get("async", 1.0)),
+                "concurrency": self._calc_concurrency(loc, raw_signals, mp_map.get("async", 1.0)),
                 "state_flux": self._calc_state_flux(loc, raw_signals, irc, mp_map.get("state_mutation", 1.0)),
                 "dead_code": self._calc_graveyard(total_loc, raw_signals, mp_map.get("dead", 1.0)),
                 "spec_match": spec_score,
@@ -1737,7 +1737,6 @@ class SignalProcessor:
         self,
         loc: int,
         raw_signals: dict[str, int],
-        irc: int,
         mp: float,
     ) -> float:
         """
@@ -1756,8 +1755,9 @@ class SignalProcessor:
         if net_concurrency == 0:
             return 0.0
 
+        # No language term (#2719): neither a strictness column nor per-file dynamism
+        # describes concurrency; the inputs are the file's own spawns and locks.
         density = (net_concurrency / (self._mass_loc(loc) + loc_padding)) * 100.0
-        density += irc * tuning.get("irc_mult", 0.1)
 
         threshold = tuning.get("threshold_base", 4.0)  # Matches your config!
         slope = tuning.get("sigmoid_slope", 0.4)

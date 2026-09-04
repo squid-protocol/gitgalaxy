@@ -897,7 +897,6 @@ RISK_EQUATION_TUNING = {
     "api_exposure": {"log_divisor": 1.5, "ratio_weight": 0.4, "volume_weight": 0.6},
     "concurrency": {
         "loc_padding": 25,  # Override the massive 150 padding in the processor
-        "irc_mult": 0.1,
         "threshold_base": 2.5,  # Lowered from 4.0
         "sigmoid_slope": 0.8,  # Steeper slope to accelerate the score once crossed
     },

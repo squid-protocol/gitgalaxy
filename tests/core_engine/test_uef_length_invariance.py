@@ -98,7 +98,7 @@ def score_all(p: SignalProcessor, sig: dict, loc: int, tier: str) -> dict[str, f
             loc, False, sig, ot, fid, 1.0, [{"name": "f", "impact": 60.0, "hit_vector": {}, "docstring": None}], {}
         ),
         "api": p._calc_api_exposure(sig, loc, 0),
-        "concurrency": p._calc_concurrency(loc, {**sig, "concurrency": 2}, irc, 1.0),
+        "concurrency": p._calc_concurrency(loc, {**sig, "concurrency": 2}, 1.0),
         "flux": p._calc_state_flux(loc, sig, irc, 1.0),
         "spec": p._calc_spec_alignment(sig, 1.0),
     }
@@ -242,7 +242,7 @@ def score_profile(p: SignalProcessor, sig: dict, loc: int, tv: dict) -> dict[str
         "verification": p._calc_verification(
             loc, False, sig, ot, fid, 1.0, [{"name": "f", "impact": 60.0, "hit_vector": {}, "docstring": None}], {}
         ),
-        "concurrency": p._calc_concurrency(loc, {**sig, "concurrency": 2}, irc, 1.0),
+        "concurrency": p._calc_concurrency(loc, {**sig, "concurrency": 2}, 1.0),
         "flux": p._calc_state_flux(loc, sig, irc, 1.0),
     }
 

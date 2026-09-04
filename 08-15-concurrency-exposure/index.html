@@ -12172,12 +12172,6 @@
 <td style="text-align: left;">Meaningful lines of code, padded by <code>loc_padding</code> (default 150).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>irc</code></td>
-<td style="text-align: left;">Language Modifier</td>
-<td style="text-align: left;"><strong>0.1x</strong></td>
-<td style="text-align: left;">Implicit Risk Correction: the language's strictness-gap count (0–4) from <code>analysis_lens.LANGUAGE_STRICTNESS</code> (<a href="../08-03-transforming-regex-counts/">08-03</a>); 0 for data and markup formats.</td>
-</tr>
-<tr>
 <td style="text-align: left;"><code>mp</code></td>
 <td style="text-align: left;">Path Modifier</td>
 <td style="text-align: left;"><strong>Threshold Modifier</strong></td>
@@ -12191,8 +12185,8 @@
 <div class="arithmatex">\[\text{net\_concurrency} = \max(0.0, \text{raw\_concurrency} - (\text{sync\_locks} \times 1.5))\]</div>
 <p>If <span class="arithmatex">\(\text{net\_concurrency} = 0\)</span>, the metric immediately returns <span class="arithmatex">\(0.0\)</span>.</p>
 <h3 id="2-density-calculation">2. Density Calculation</h3>
-<p>Density measures concurrent logic per line of code, factoring in implicit language risk (<span class="arithmatex">\(\text{IRC} \times 0.1\)</span>):</p>
-<div class="arithmatex">\[\text{Density} = \left( \frac{\text{net\_concurrency}}{\max(\text{LOC} + \text{loc\_padding}, 1)} \right) \times 100.0 + (\text{IRC} \times 0.1)\]</div>
+<p>Density measures concurrent logic per line of code. There is no language term (#2719): no strictness column is about concurrency and per-file dynamism is not concurrency -- the inputs are the file's own spawns and locks.</p>
+<div class="arithmatex">\[\text{Density} = \left( \frac{\text{net\_concurrency}}{\max(\text{LOC} + \text{loc\_padding}, 1)} \right) \times 100.0\]</div>
 <h3 id="3-sigmoid-transformation">3. Sigmoid Transformation</h3>
 <p>Maps density to a 0–100 score using a base threshold of <span class="arithmatex">\(4.0\)</span> and slope of <span class="arithmatex">\(0.4\)</span>, scaled by the path modifier (<span class="arithmatex">\(Mp\)</span>):</p>
 <div class="arithmatex">\[\text{RawScore} = \frac{1.0}{1.0 + e^{-0.4 \times (\text{Density} - 4.0)}}$$
@@ -12201,32 +12195,30 @@ $$\text{FinalScore} = \min(\text{RawScore} \times 100.0 \times Mp, 100.0)\]</div
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="bp">self</span><span class="p">,</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">loc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">raw_signals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">irc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">mp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="sd">"""</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="sd">    RISK: Threads/Async execution.</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="sd">    MITIGATION: Mutex/Locks/Semaphores (sync_locks).</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="sd">    """</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">tuning</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"concurrency"</span><span class="p">,</span> <span class="p">{})</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">loc_padding</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"loc_padding"</span><span class="p">,</span> <span class="mi">150</span><span class="p">)</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">raw_concurrency</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"concurrency"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">sync_locks</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sync_locks"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="c1"># Balance concurrency with synchronization locks</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">net_concurrency</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">raw_concurrency</span> <span class="o">-</span> <span class="p">(</span><span class="n">sync_locks</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">))</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="k">if</span> <span class="n">net_concurrency</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        <span class="k">return</span> <span class="mf">0.0</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">density</span> <span class="o">=</span> <span class="p">(</span><span class="n">net_concurrency</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">loc</span> <span class="o">+</span> <span class="n">loc_padding</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="mf">100.0</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">density</span> <span class="o">+=</span> <span class="n">irc</span> <span class="o">*</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"irc_mult"</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="n">threshold</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"threshold_base"</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="n">slope</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sigmoid_slope"</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigmoid</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">slope</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">mp</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">mp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="sd">"""</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="sd">    RISK: Threads/Async execution.</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="sd">    MITIGATION: Mutex/Locks/Semaphores (sync_locks).</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="sd">    """</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">tuning</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">risk_tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"concurrency"</span><span class="p">,</span> <span class="p">{})</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">loc_padding</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"loc_padding"</span><span class="p">,</span> <span class="mi">150</span><span class="p">)</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">raw_concurrency</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"concurrency"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">sync_locks</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw_signals</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sync_locks"</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="c1"># Balance concurrency with synchronization locks</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">net_concurrency</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">raw_concurrency</span> <span class="o">-</span> <span class="p">(</span><span class="n">sync_locks</span> <span class="o">*</span> <span class="mf">1.5</span><span class="p">))</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="k">if</span> <span class="n">net_concurrency</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="k">return</span> <span class="mf">0.0</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">density</span> <span class="o">=</span> <span class="p">(</span><span class="n">net_concurrency</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">loc</span> <span class="o">+</span> <span class="n">loc_padding</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="mf">100.0</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">threshold</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"threshold_base"</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">slope</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sigmoid_slope"</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigmoid</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">slope</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">mp</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Risk Classification:</strong>
 * 🟦 <strong>LOW (Score 0–19):</strong> Sequential execution. Logic runs deterministically with minimal or no asynchronous branching.

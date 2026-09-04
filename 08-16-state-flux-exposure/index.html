@@ -12172,12 +12172,6 @@
 <td style="text-align: left;">Meaningful lines of code (<code>loc_padding</code> defaults to 0 to ensure mutations immediately impact density).</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>irc</code></td>
-<td style="text-align: left;">Language Modifier</td>
-<td style="text-align: left;"><strong>0.15x</strong></td>
-<td style="text-align: left;">Implicit Risk Correction: the language's strictness-gap count (0–4) from <code>analysis_lens.LANGUAGE_STRICTNESS</code> (<a href="../08-03-transforming-regex-counts/">08-03</a>); 0 for data and markup formats.</td>
-</tr>
-<tr>
 <td style="text-align: left;"><code>mp</code></td>
 <td style="text-align: left;">Path Modifier</td>
 <td style="text-align: left;"><strong>Threshold Modifier</strong></td>
@@ -12190,14 +12184,14 @@
 <div class="arithmatex">\[\text{net\_volatility} = \max(0.0, \text{raw\_flux} - (\text{freeze\_hits} \times 0.5))\]</div>
 <p>If <span class="arithmatex">\(\text{net\_volatility} = 0\)</span>, the function returns <span class="arithmatex">\(0.0\)</span>.</p>
 <h3 id="2-volatility-density">2. Volatility Density</h3>
-<p>Calculate mutation density per line of code, adding the dampened language risk (<span class="arithmatex">\(\text{IRC} \times 0.15\)</span>):</p>
-<p>$<span class="arithmatex">\(\text{Density} = \left( \frac{\text{net\_volatility}}{\max(\text{LOC}, 50) + \text{loc\_padding}} \right) \times 100.0 + (\text{IRC} \times 0.15)\)</span>$
+<p>Calculate mutation density per line of code. There is no language term (#2719): "implicit mutability defaults" is not a strictness column and dynamism is not mutation -- the inputs are the file's own writes and immutability locks.</p>
+<p>$<span class="arithmatex">\(\text{Density} = \left( \frac{\text{net\_volatility}}{\max(\text{LOC}, 50) + \text{loc\_padding}} \right) \times 100.0\)</span>$
 <span class="arithmatex">\(\max(\text{LOC}, 50)\)</span> is the UEF evidence-mass floor (<a href="../08-03-transforming-regex-counts/">08-03</a>): two mutations in a 10-line file no longer read as 20% volatility (#2655).</p>
 <h3 id="3-sigmoid-normalization">3. Sigmoid Normalization</h3>
 <p>Map density using a base threshold of <span class="arithmatex">\(15.0\)</span> and slope of <span class="arithmatex">\(0.2\)</span>, scaled by the path modifier (<span class="arithmatex">\(Mp\)</span>):</p>
 <div class="arithmatex">\[\text{RawScore} = \frac{1.0}{1.0 + e^{-0.2 \times (\text{Density} - 15.0)}}$$
 $$\text{FinalScore} = \min(\text{RawScore} \times 100.0 \times Mp, 100.0)\]</div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_calc_state_flux</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">raw_signals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">irc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">mp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_calc_state_flux</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">raw_signals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">mp</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span><span class="sd">"""</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="sd">    Calculates State Flux Exposure &amp; Mutation Volatility.</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="sd">    """</span>
@@ -12214,12 +12208,11 @@ $$\text{FinalScore} = \min(\text{RawScore} \times 100.0 \times Mp, 100.0)\]</div
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="k">return</span> <span class="mf">0.0</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">density</span> <span class="o">=</span> <span class="p">(</span><span class="n">net_volatility</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">loc</span> <span class="o">+</span> <span class="n">loc_padding</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="mf">100.0</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">density</span> <span class="o">+=</span> <span class="n">irc</span> <span class="o">*</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"irc_mult"</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">)</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">threshold</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"threshold_base"</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">)</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="n">slope</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sigmoid_slope"</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigmoid</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">slope</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">mp</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">threshold</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"threshold_base"</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">)</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">slope</span> <span class="o">=</span> <span class="n">tuning</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"sigmoid_slope"</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">)</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_sigmoid</span><span class="p">(</span><span class="n">density</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">slope</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span> <span class="o">*</span> <span class="n">mp</span><span class="p">,</span> <span class="mf">100.0</span><span class="p">)</span>
 </code></pre></div>
 <p><strong>Risk Classification:</strong>
 * 🟦 <strong>VERY LOW (Score 0–19):</strong> Immutable or referentially transparent logic. Variables are initialized once and rarely modified.

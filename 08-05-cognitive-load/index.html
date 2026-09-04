@@ -12120,8 +12120,10 @@ $<span class="arithmatex">\(\text{FluxDensity} = \min\left(\frac{\text{state\_mu
 <ol>
 <li>
 <p><strong>Sum Heavy Logic &amp; Apply Gini Coefficient:</strong>
-$<span class="arithmatex">\(\text{HeavyLogic} = (\text{concurrency} \times 3.0) + (\text{reflection} \times 5.0) + (\text{unsafe} \times 5.0)\)</span>$
-$<span class="arithmatex">\(\text{TotalDensity} = \left(\text{BranchDensity} + \text{FluxDensity} + \frac{\text{HeavyLogic}}{M} + \frac{Irc}{M}\right) \times \text{GiniMultiplier}\)</span>$</p>
+$<span class="arithmatex">\(\text{HeavyLogic} = (\text{concurrency} \times 3.0) + (\text{dynamism} \times 5.0)\)</span>$
+where <span class="arithmatex">\(\text{dynamism}\)</span> is the file's <code>reflection_metaprogramming</code> count (#2719) -- reflection, metaprogramming and dynamic dispatch, the code a reader cannot follow. <code>high_risk_execution</code> is not part of it: across the registry that signal is the safety attack vocabulary (<code>panic!</code>, <code>System.exit</code>, <code>STOP RUN</code>, <code>rm -rf</code>) and is read by <a href="../08-07-structural-fortification/">08-07</a>.
+$<span class="arithmatex">\(\text{TotalDensity} = \left(\text{BranchDensity} + \text{FluxDensity} + \frac{\text{HeavyLogic}}{M}\right) \times \text{GiniMultiplier}\)</span>$
+The flat per-language <span class="arithmatex">\(Irc / M\)</span> pseudo-hit is gone (#2719): what it stood in for is the dynamism term above, measured per file.</p>
 </li>
 <li>
 <p><strong>Map Through Sigmoid Curve:</strong>
@@ -12164,7 +12166,7 @@ $<span class="arithmatex">\(\text{FinalScore} = \min(\text{RawScore} \times \tex
 <ul>
 <li>Static Analysis Engine</li>
 <li>Path Modifier (<span class="arithmatex">\(Mp\)</span>)</li>
-<li>Universal Framework Parameters (<span class="arithmatex">\(Irc\)</span>, <span class="arithmatex">\(Fc\)</span>)</li>
+<li>Universal Framework Parameters (<span class="arithmatex">\(Fc_{doc}\)</span> for the documentation cooling; no language-level <span class="arithmatex">\(Irc\)</span> since #2719)</li>
 </ul>
 
 

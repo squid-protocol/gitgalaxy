@@ -742,7 +742,6 @@ class SignalProcessor:
                 doc_lines,
                 raw_signals,
                 fid,
-                irc,
                 mp_map.get("doc", 1.0),
                 functions,
                 doc_umbrella=ghost_meta.get("doc_umbrella", 0.0),
@@ -1343,6 +1342,16 @@ class SignalProcessor:
         """
         return max(float(loc), 1.0, self.EVIDENCE_MASS_FLOOR)
 
+    @staticmethod
+    def _dynamism(raw_signals: Mapping[str, int]) -> int:
+        """Runtime-decided behaviour a regex cannot follow, counted in THIS file (#2719):
+        eval / exec / system calls (`high_risk_execution`) and reflection or dynamic
+        dispatch (`reflection_metaprogramming`). One definition, read by every equation
+        that used to read the per-language `irc` as a stand-in for it. Pointer
+        arithmetic, macros and type bypasses are visible constructs with their own
+        meaning and stay in their own equations."""
+        return int(raw_signals.get("high_risk_execution", 0)) + int(raw_signals.get("reflection_metaprogramming", 0))
+
     def _calc_cog_load(
         self,
         loc: int,
@@ -1494,7 +1503,6 @@ class SignalProcessor:
         doc_loc: int,
         raw_signals: dict[str, int],
         fid: Mapping[str, float],
-        irc: int,
         mp: float,
         functions: Optional[list[dict[str, Any]]] = None,
         doc_umbrella: float = 0.0,
@@ -1528,18 +1536,21 @@ class SignalProcessor:
                 if impact > 50.0 and not func.get("docstring"):
                     opaque_execution += 5.0 + math.log1p(impact)
 
-        # Irc CORRECTS measured risk; it never creates it (#2655). A file with no
+        # Dynamism corrects measured risk; it never creates it (#2655). A file with no
         # public surface and no load-bearing undocumented block has nothing to
-        # document, whatever its language tier -- the same zero-evidence convention
-        # _calc_safety, _calc_tech_debt, _calc_concurrency and _calc_state_flux
-        # already follow. Before this, tier-3 files with api=0 scored 19-42 on irc
-        # alone (html/css a/b/c in the rosetta corpus).
+        # document, whatever it does at runtime -- the same zero-evidence convention
+        # _calc_safety and _calc_tech_debt follow. Before this, tier-3 files with
+        # api=0 scored 19-42 on the language constant alone (html/css a/b/c in the
+        # rosetta corpus).
         measured_risk = opaque_execution + api_exposure
         if measured_risk == 0:
             return 0.0
 
-        # Add Implicit Risk Correction (Maintenance Overhead) to the risk
-        risk_hits = measured_risk + irc
+        # Runtime-decided behaviour is what most needs documenting and what a reader
+        # cannot recover from the text: eval/exec and reflection, counted in THIS
+        # file (#2719). This replaces the flat per-language `irc`, which stood in
+        # for the same thing without measuring it.
+        risk_hits = measured_risk + self._dynamism(raw_signals) * t.get("dynamism_weight", 1.0)
 
         # 3. UNIVERSAL DENSITY EQUATION
         # loc_smoothing is kept ON TOP of the evidence-mass floor so files at or

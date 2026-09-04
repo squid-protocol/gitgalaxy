@@ -103,7 +103,7 @@ EQUATION_CASES: list[EquationCase] = [
     EquationCase("cog_load", lambda p, loc, s, tv: p._calc_cog_load(loc, s, tv["irc"], tv["fid"], 1.0, 0.0)[0]),
     EquationCase("safety", lambda p, loc, s, tv: p._calc_safety(loc, s, tv["irc"], tv["fid"], 1.0)),
     EquationCase("tech_debt", lambda p, loc, s, tv: p._calc_tech_debt(loc, s, tv["irc"], 1.0)),
-    EquationCase("documentation", lambda p, loc, s, tv: p._calc_documentation(loc, 2, s, tv["fid"], tv["irc"], 1.0)),
+    EquationCase("documentation", lambda p, loc, s, tv: p._calc_documentation(loc, 2, s, tv["fid"], 1.0)),
     EquationCase(
         "verification",
         lambda p, loc, s, tv: p._calc_verification(

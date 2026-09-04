@@ -882,7 +882,7 @@ RISK_EQUATION_TUNING = {
         "sibling_bonus": 30.0,
         "internal_test_mult": 5.0,
         "threshold_base": 15.0,
-        "irc_mult": 3.0,
+        "dynamism_weight": 1.0,  # per-file eval/reflection hits added to the risk side (#2719)
         "sigmoid_slope": 0.25,
         "mass_penalty_div": 20.0,
         "mass_penalty_max": 40.0,

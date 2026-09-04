@@ -93,7 +93,7 @@ def score_all(p: SignalProcessor, sig: dict, loc: int, tier: str) -> dict[str, f
         "cog": p._calc_cog_load(loc, sig, irc, fid, 1.0, 0.0)[0],
         "safety": p._calc_safety(loc, sig, irc, fid, 1.0),
         "debt": p._calc_tech_debt(loc, sig, irc, 1.0),
-        "doc": p._calc_documentation(loc, 2, sig, fid, irc, 1.0),
+        "doc": p._calc_documentation(loc, 2, sig, fid, 1.0),
         "verification": p._calc_verification(
             loc, False, sig, ot, fid, 1.0, [{"name": "f", "impact": 60.0, "hit_vector": {}, "docstring": None}], {}
         ),
@@ -133,14 +133,19 @@ def test_no_cliff_at_the_floor(processor, fname, tier):
         assert abs(at[eq] - above[eq]) < 2.5, f"{fname}/{tier}/{eq} cliff at the floor: {at[eq]} -> {above[eq]}"
 
 
-# Pinned from origin/main (pre-#2655 engine) at 51 coding LOC, popularity 0, doc_loc 2,
-# mp 1.0 -- the density regime must not have moved by a single rounding step.
+# Pinned at 51 coding LOC, popularity 0, doc_loc 2, mp 1.0 -- one line past the
+# evidence-mass floor, where the density regime must not move by a rounding step.
+# Provenance: taken from origin/main before #2655; safety re-pinned in #2718 (the
+# 0.75 systems buffer retired, #2717) and documentation in #2718/#2719 (rule hits
+# alone carry fidelity; per-file dynamism replaced the language irc); cognitive
+# load, concurrency and state flux re-pinned in #2719 (dynamism in heat_density,
+# language irc term removed). Every other equation still equals the pre-#2655 engine.
 PRE_2655_AT_51 = {
     ("tier1", "main"): {
         "cog": 4.7642,
         "safety": 79.1701,
         "debt": 0.0,
-        "doc": 48.7327,
+        "doc": 62.5434,
         "api": 6.5172,
         "flux": 0.0,
         "spec": 100.0,
@@ -149,7 +154,7 @@ PRE_2655_AT_51 = {
         "cog": 0.0,
         "safety": 54.2153,
         "debt": 0.0,
-        "doc": 78.3694,
+        "doc": 82.7643,
         "api": 9.8496,
         "flux": 0.0,
         "spec": 100.0,
@@ -174,27 +179,27 @@ PRE_2655_AT_51 = {
     },
     ("tier3", "main"): {
         "cog": 7.5256,
-        "safety": 83.7228,
+        "safety": 89.908,
         "debt": 0.0,
-        "doc": 81.4487,
+        "doc": 64.5012,
         "api": 6.5172,
         "flux": 0.0,
         "spec": 100.0,
     },
     ("tier3", "a"): {
         "cog": 0.0,
-        "safety": 69.7753,
+        "safety": 77.1518,
         "debt": 0.0,
-        "doc": 93.8944,
+        "doc": 82.7643,
         "api": 9.8496,
         "flux": 0.0,
         "spec": 100.0,
     },
     ("tier3", "b"): {
         "cog": 0.0,
-        "safety": 75.7835,
+        "safety": 82.0704,
         "debt": 0.0,
-        "doc": 93.8944,
+        "doc": 78.3694,
         "api": 9.8496,
         "flux": 37.0197,
         "spec": 100.0,
@@ -203,7 +208,7 @@ PRE_2655_AT_51 = {
         "cog": 0.0,
         "safety": 0.0,
         "debt": 97.9619,
-        "doc": 93.8944,
+        "doc": 78.3694,
         "api": 9.8496,
         "flux": 0.0,
         "spec": 100.0,
@@ -217,13 +222,6 @@ def test_density_regime_unchanged_above_the_floor(processor, key):
     assert processor.EVIDENCE_MASS_FLOOR == 50, "pins below were taken at 51 LOC against a floor of 50"
     got = score_all(processor, ROSETTA_VECTORS[fname], 51, tier)
     for eq, expected in PRE_2655_AT_51[key].items():
-        if eq in ("safety", "doc") and LEGACY_TIERS[tier]["fc"] < 1.0:
-            # Two deliberate equation changes in #2718 make the fc<1.0 pins unreachable:
-            # #2717 retired the 0.75 systems_buffer_ratio in safety, and documentation
-            # now scales only the RULE hits (doc, ownership) by fidelity -- doc_loc and
-            # the umbrella are structural evidence, not rule hits, and no longer carry
-            # the coefficient. fc == 1.0 pins prove every other equation is unchanged.
-            continue
         assert got[eq] == pytest.approx(expected, abs=5e-5), f"{tier}/{fname}/{eq}: {got[eq]} != pre-#2655 {expected}"
 
 
@@ -240,7 +238,7 @@ def score_profile(p: SignalProcessor, sig: dict, loc: int, tv: dict) -> dict[str
         "cog": p._calc_cog_load(loc, sig, irc, fid, 1.0, 0.0)[0],
         "safety": p._calc_safety(loc, sig, irc, fid, 1.0),
         "debt": p._calc_tech_debt(loc, sig, irc, 1.0),
-        "doc": p._calc_documentation(loc, 2, sig, fid, irc, 1.0),
+        "doc": p._calc_documentation(loc, 2, sig, fid, 1.0),
         "verification": p._calc_verification(
             loc, False, sig, ot, fid, 1.0, [{"name": "f", "impact": 60.0, "hit_vector": {}, "docstring": None}], {}
         ),
@@ -281,7 +279,7 @@ def test_zero_evidence_scores_zero_regardless_of_language(processor):
     for lang in ("rust", "python", "shell", "yacc", "yaml", "embedded_python", "not-a-language"):
         irc, _ot, fid = processor._language_constants(lang)
         for loc in (3, 10, 49, 50, 200):
-            assert processor._calc_documentation(loc, 0, {}, fid, irc, 1.0) == 0.0
+            assert processor._calc_documentation(loc, 0, {}, fid, 1.0) == 0.0
             assert processor._calc_cog_load(loc, {"state_mutation": 4}, irc, fid, 1.0)[0] == 0.0
             assert processor._calc_tech_debt(loc, {}, irc, 1.0) == 0.0
 

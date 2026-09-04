@@ -99,7 +99,7 @@ def score_all(p: SignalProcessor, sig: dict, loc: int, tier: str) -> dict[str, f
         ),
         "api": p._calc_api_exposure(sig, loc, 0),
         "concurrency": p._calc_concurrency(loc, {**sig, "concurrency": 2}, 1.0),
-        "flux": p._calc_state_flux(loc, sig, irc, 1.0),
+        "flux": p._calc_state_flux(loc, sig, 1.0),
         "spec": p._calc_spec_alignment(sig, 1.0),
     }
 
@@ -201,7 +201,7 @@ PRE_2655_AT_51 = {
         "debt": 0.0,
         "doc": 78.3694,
         "api": 9.8496,
-        "flux": 37.0197,
+        "flux": 30.3355,
         "spec": 100.0,
     },
     ("tier3", "c"): {
@@ -243,7 +243,7 @@ def score_profile(p: SignalProcessor, sig: dict, loc: int, tv: dict) -> dict[str
             loc, False, sig, ot, fid, 1.0, [{"name": "f", "impact": 60.0, "hit_vector": {}, "docstring": None}], {}
         ),
         "concurrency": p._calc_concurrency(loc, {**sig, "concurrency": 2}, 1.0),
-        "flux": p._calc_state_flux(loc, sig, irc, 1.0),
+        "flux": p._calc_state_flux(loc, sig, 1.0),
     }
 
 

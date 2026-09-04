@@ -901,7 +901,6 @@ RISK_EQUATION_TUNING = {
         "sigmoid_slope": 0.8,  # Steeper slope to accelerate the score once crossed
     },
     "state_flux": {
-        "irc_mult": 0.15,
         "threshold_base": 6.0,  # Lowered from 15.0 (6% mutation density is much more realistic)
         "sigmoid_slope": 0.40,  # Increased from 0.20 to stretch the curve
     },

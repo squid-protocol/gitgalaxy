@@ -258,32 +258,13 @@ EQUATION_CASES: list[EquationCase] = [
             ),
         ],
     ),
-    EquationCase(
-        name="state_flux",
-        method_name="_calc_state_flux",
-        notes="irc adds to density (risk axis only) -- immutability_locks mitigation is "
-        "flat-subtracted, not fc-weighted, so no defense-credit direction to check.",
-        scenarios=[
-            Scenario(
-                "risk",
-                lambda loc, hits, tv: dict(
-                    loc=loc,
-                    raw_signals={"state_mutation": hits, "immutability_locks": 0},
-                    irc=tv["irc"],
-                    mp=_mp1(),
-                ),
-            ),
-        ],
-    ),
-    # --- Remaining in-scope equations take no fc/irc/ot at all (verified by reading
-    # signal_processor.py directly, not assumed from the epic's approximate scope
-    # table) -- auto-classified as N/A below rather than hand-listed here.
 ]
 
 # Equations listed in epic #1056 whose *only* tier-shaped parameter is `mp`, which the
 # audit above already establishes is NOT tier-derived (path-only). Included so the N/A
 # classification is reported explicitly per-equation instead of just "everything else".
 NOT_TIER_PARAMETERIZED = [
+    "_calc_state_flux",  # #2719: language term removed
     "_calc_concurrency",  # #2719: language term removed
     "_calc_graveyard",
     "_calc_api_exposure",

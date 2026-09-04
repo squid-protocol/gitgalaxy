@@ -763,7 +763,7 @@ class SignalProcessor:
                 "verification": test_score,
                 "api_exposure": self._calc_api_exposure(raw_signals, total_loc, popularity),
                 "concurrency": self._calc_concurrency(loc, raw_signals, mp_map.get("async", 1.0)),
-                "state_flux": self._calc_state_flux(loc, raw_signals, irc, mp_map.get("state_mutation", 1.0)),
+                "state_flux": self._calc_state_flux(loc, raw_signals, mp_map.get("state_mutation", 1.0)),
                 "dead_code": self._calc_graveyard(total_loc, raw_signals, mp_map.get("dead", 1.0)),
                 "spec_match": spec_score,
                 "stability": stability_score,
@@ -1764,7 +1764,7 @@ class SignalProcessor:
 
         return min(self._sigmoid(density, threshold, slope) * 100.0 * mp, 100.0)
 
-    def _calc_state_flux(self, loc: int, raw_signals: dict[str, int], irc: int, mp: float) -> float:
+    def _calc_state_flux(self, loc: int, raw_signals: dict[str, int], mp: float) -> float:
         """
         RISK: State mutation (flux).
         MITIGATION: Immutability enforcements (freeze_hits).
@@ -1783,8 +1783,9 @@ class SignalProcessor:
         if net_volatility == 0:
             return 0.0
 
+        # No language term (#2719): mutability-by-default is not a strictness column
+        # and dynamism is not mutation; the inputs are the file's own writes and locks.
         density = (net_volatility / (self._mass_loc(loc) + loc_padding)) * 100.0
-        density += irc * tuning.get("irc_mult", 0.15)
 
         threshold = tuning.get("threshold_base", 15.0)
         slope = tuning.get("sigmoid_slope", 0.2)

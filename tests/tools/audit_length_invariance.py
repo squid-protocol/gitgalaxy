@@ -121,7 +121,7 @@ EQUATION_CASES: list[EquationCase] = [
     # axis single-valued.
     EquationCase("api_exposure", lambda p, loc, s, tv: p._calc_api_exposure(s, loc, 0)),
     EquationCase("concurrency", lambda p, loc, s, tv: p._calc_concurrency(loc, {**s, "concurrency": 2}, 1.0)),
-    EquationCase("state_flux", lambda p, loc, s, tv: p._calc_state_flux(loc, s, tv["irc"], 1.0)),
+    EquationCase("state_flux", lambda p, loc, s, tv: p._calc_state_flux(loc, s, 1.0)),
 ]
 
 

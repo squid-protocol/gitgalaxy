@@ -19,9 +19,12 @@ import logging
 import sqlite3
 import statistics
 from pathlib import Path
-from typing import Optional, TypedDict
+from typing import Optional, TypedDict, cast
 
-from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+from gitgalaxy.standards.analysis_lens import ENGINE_CONSTANTS, RECORDING_SCHEMAS
+
+# #2705: per-function evidence-mass floor (see analysis_lens.ENGINE_CONSTANTS).
+FUNC_EVIDENCE_MASS_FLOOR = float(cast("int", ENGINE_CONSTANTS["FUNC_EVIDENCE_MASS_FLOOR"]))
 
 
 class FolderStats(TypedDict):
@@ -484,7 +487,13 @@ class RecordKeeper:
                     pct_z_above_5 = (sum(1 for c in complexities if c >= 5) / func_count) * 100.0
                     pct_z_above_15 = (sum(1 for c in complexities if c >= 15) / func_count) * 100.0
 
-            func_internal_density = (avg_comp / avg_loc) if avg_loc > 0 else 0.0
+            # #2705: evidence-mass floor on the per-function denominator, the
+            # analog of signal_processor._mass_loc. Without it a file whose
+            # functions average one line and one branch each read 1.00, and the
+            # rosetta corpus measured the column as file length (rho -0.96 with
+            # coding_loc, content held equal). The max() also absorbs the old
+            # avg_loc > 0 guard: no functions -> avg_comp 0 -> density 0.
+            func_internal_density = avg_comp / max(avg_loc, FUNC_EVIDENCE_MASS_FLOOR)
 
             logic_loc_denom = max(
                 int(file_data.get("coding_loc", 1) * tel.get("control_flow_ratio", 0.0)),

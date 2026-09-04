@@ -715,7 +715,7 @@ class SignalProcessor:
             # The OOM Bomb heuristic has been phased out of the probabilistic model.
             # Spatial correlation is now handled natively upstream in detector.py.
 
-            cog_score, cog_raw = self._calc_cog_load(loc, raw_signals, irc, fid, mp_map.get("cog", 1.0), func_gini)
+            cog_score, cog_raw = self._calc_cog_load(loc, raw_signals, fid, mp_map.get("cog", 1.0), func_gini)
             saf_score = self._calc_safety(
                 loc, raw_signals, irc, fid, mp_map.get("safety", 1.0), mp_map.get("memory", 1.0)
             )
@@ -1356,7 +1356,6 @@ class SignalProcessor:
         self,
         loc: int,
         raw_signals: dict[str, int],
-        irc: int,
         fid: Mapping[str, float],
         mp: float,
         func_gini: float = 0.0,
@@ -1376,7 +1375,9 @@ class SignalProcessor:
         branch_density = branches / mass_loc
         flux_density = raw_signals.get("state_mutation", 0) / mass_loc
         concurrency_density = raw_signals.get("concurrency", 0) / mass_loc
-        heat_density = raw_signals.get("reflection_metaprogramming", 0) / mass_loc
+        # Runtime-decided behaviour is the same opacity to a reader whether it is
+        # reflection or eval: you cannot follow what runs. One definition (#2719).
+        heat_density = self._dynamism(raw_signals) / mass_loc
 
         clamped_branch = min(branch_density * 1.0, t.get("branch_clamp", 0.5))
         clamped_flux = min(flux_density * t.get("flux_mult", 2.0), t.get("flux_clamp", 0.75))
@@ -1389,10 +1390,10 @@ class SignalProcessor:
         if func_gini > 0.7:
             gini_multiplier = 1.0 + (func_gini * 0.5)
 
-        # irc stays a pseudo-hit here (not a density offset) so >=50-LOC tier
-        # semantics are unchanged; the floor bounds it at irc/EVIDENCE_MASS_FLOOR
-        # instead of letting it grow without limit as the file shrinks.
-        total_density = (clamped_branch + clamped_flux + heavy_logic + (irc / mass_loc)) * gini_multiplier
+        # The flat per-language `irc / mass_loc` pseudo-hit is gone (#2719): what it
+        # stood in for -- code a reader cannot follow -- is now measured per file in
+        # heat_density above.
+        total_density = (clamped_branch + clamped_flux + heavy_logic) * gini_multiplier
 
         try:
             raw_score = 100.0 / (

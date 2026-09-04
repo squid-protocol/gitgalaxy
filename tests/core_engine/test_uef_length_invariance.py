@@ -90,7 +90,7 @@ def score_all(p: SignalProcessor, sig: dict, loc: int, tier: str) -> dict[str, f
     tv = LEGACY_TIERS[tier]
     fid, irc, ot = uniform_fid(tv["fc"]), tv["irc"], tv["ot"]
     return {
-        "cog": p._calc_cog_load(loc, sig, irc, fid, 1.0, 0.0)[0],
+        "cog": p._calc_cog_load(loc, sig, fid, 1.0, 0.0)[0],
         "safety": p._calc_safety(loc, sig, irc, fid, 1.0),
         "debt": p._calc_tech_debt(loc, sig, irc, 1.0),
         "doc": p._calc_documentation(loc, 2, sig, fid, 1.0),
@@ -142,7 +142,7 @@ def test_no_cliff_at_the_floor(processor, fname, tier):
 # language irc term removed). Every other equation still equals the pre-#2655 engine.
 PRE_2655_AT_51 = {
     ("tier1", "main"): {
-        "cog": 4.7642,
+        "cog": 9.7497,
         "safety": 79.1701,
         "debt": 0.0,
         "doc": 62.5434,
@@ -178,7 +178,7 @@ PRE_2655_AT_51 = {
         "spec": 100.0,
     },
     ("tier3", "main"): {
-        "cog": 7.5256,
+        "cog": 10.7009,
         "safety": 89.908,
         "debt": 0.0,
         "doc": 64.5012,
@@ -235,7 +235,7 @@ def strict_profile(gaps: int) -> dict:
 def score_profile(p: SignalProcessor, sig: dict, loc: int, tv: dict) -> dict[str, float]:
     fid, irc, ot = uniform_fid(tv["fc"]), tv["irc"], tv["ot"]
     return {
-        "cog": p._calc_cog_load(loc, sig, irc, fid, 1.0, 0.0)[0],
+        "cog": p._calc_cog_load(loc, sig, fid, 1.0, 0.0)[0],
         "safety": p._calc_safety(loc, sig, irc, fid, 1.0),
         "debt": p._calc_tech_debt(loc, sig, irc, 1.0),
         "doc": p._calc_documentation(loc, 2, sig, fid, 1.0),
@@ -280,7 +280,7 @@ def test_zero_evidence_scores_zero_regardless_of_language(processor):
         irc, _ot, fid = processor._language_constants(lang)
         for loc in (3, 10, 49, 50, 200):
             assert processor._calc_documentation(loc, 0, {}, fid, 1.0) == 0.0
-            assert processor._calc_cog_load(loc, {"state_mutation": 4}, irc, fid, 1.0)[0] == 0.0
+            assert processor._calc_cog_load(loc, {"state_mutation": 4}, fid, 1.0)[0] == 0.0
             assert processor._calc_tech_debt(loc, {}, irc, 1.0) == 0.0
 
 

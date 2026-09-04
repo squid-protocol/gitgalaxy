@@ -18,6 +18,14 @@ name: rosetta-audit
 
 on:
   pull_request:
+    # `labeled` matters: `rosetta:rebless-owed` is what turns an intentional
+    # corpus-visible change's regressions into warnings, and without this type
+    # the audit only ever runs on the event that OPENED the PR. gh's
+    # `pr create --label` attaches the label after that payload is built, so
+    # the first run of #2703 read zero labels and failed red on a regression
+    # the author had already declared -- and no later label change could
+    # re-trigger it. `unlabeled` is here for the same reason in reverse.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
     branches: [main, v6-dev]
     paths:
       - "gitgalaxy/**"

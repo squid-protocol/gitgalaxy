@@ -33,11 +33,12 @@ $$\text{UmbrellaDefense} = \text{doc\_umbrella} \times 50.0$$
 $$\text{DefenseHits} = (\text{InlineDocs} \times Fc_{doc}) + (\text{Ownership} \times 0.5 \times Fc_{ownership}) + (\text{DocLOC} \times 0.33) + \text{UmbrellaDefense}$$
 2. **Undocumented Risk Calculation:**
 $$\text{UndocumentedRisk} = \sum_{\text{undocumented}} \left( 5.0 + \ln(\text{Impact}) \right)$$
-$$\text{RiskHits} = \text{UndocumentedRisk} + (\text{API\_Exposure} \times 2.0) + Irc$$
+$$\text{RiskHits} = \text{UndocumentedRisk} + (\text{API\_Exposure} \times 2.0) + \text{Dynamism}$$
+$\text{Dynamism} = \text{reflection} + \text{high\_risk\_execution}$ counted in the file (`documentation.dynamism_weight`, 1.0): runtime-decided behaviour is what most needs documenting and what a reader cannot recover from the text. It replaces the flat per-language $Irc$ (#2719).
 3. **Net Exposure & Line Density:**
 $$\text{NetExposure} = \max\left(0, \text{RiskHits} - \frac{\text{DefenseHits}}{2.0}\right)$$
 $$\text{Density} = \left( \frac{\text{NetExposure}}{\max(\text{LOC}, 50) + 20} \right) \times 100.0$$
-The denominator is the UEF evidence-mass floor plus the equation's smoothing pad ([08-03](08-03-transforming-regex-counts.md)). $Irc$ corrects measured risk, it never creates it: when $\text{UndocumentedRisk} + \text{API\_Exposure} = 0$ the score is $0$ in every language (#2655).
+The denominator is the UEF evidence-mass floor plus the equation's smoothing pad ([08-03](08-03-transforming-regex-counts.md)). Dynamism corrects measured risk, it never creates it: when $\text{UndocumentedRisk} + \text{API\_Exposure} = 0$ the score is $0$ whatever the file does at runtime (#2655).
 4. **Systemic Multipliers & Mapping:**
 $$\text{FinalMultiplier} = \left(1.0 + \frac{\text{Pop}}{10}\right) \times \left(1.0 + \frac{\text{Silo}}{200}\right) \times Mp$$
 $$\text{RawRisk} = \frac{100.0}{1 + e^{-0.2 \times (\text{Density} - 10.0)}}$$

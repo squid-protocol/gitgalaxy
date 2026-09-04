@@ -32,8 +32,10 @@ $$\text{BranchDensity} = \min\left(\frac{\text{branch}}{M}, 0.5\right)$$
 $$\text{FluxDensity} = \min\left(\frac{\text{state\_mutation}}{M} \times 2.0, 0.75\right)$$
 
 2. **Sum Heavy Logic & Apply Gini Coefficient:**
-$$\text{HeavyLogic} = (\text{concurrency} \times 3.0) + (\text{reflection} \times 5.0) + (\text{unsafe} \times 5.0)$$
-$$\text{TotalDensity} = \left(\text{BranchDensity} + \text{FluxDensity} + \frac{\text{HeavyLogic}}{M} + \frac{Irc}{M}\right) \times \text{GiniMultiplier}$$
+$$\text{HeavyLogic} = (\text{concurrency} \times 3.0) + (\text{dynamism} \times 5.0)$$
+where $\text{dynamism} = \text{reflection} + \text{high\_risk\_execution}$, counted in the file (#2719): reflection and `eval` are the same opacity to a reader -- you cannot follow what runs.
+$$\text{TotalDensity} = \left(\text{BranchDensity} + \text{FluxDensity} + \frac{\text{HeavyLogic}}{M}\right) \times \text{GiniMultiplier}$$
+The flat per-language $Irc / M$ pseudo-hit is gone (#2719): what it stood in for is the dynamism term above, measured per file.
 
 3. **Map Through Sigmoid Curve:**
 $$\text{RawScore} = \frac{100}{1 + e^{-4.0 \times (\text{TotalDensity} - 0.75)}}$$
@@ -74,4 +76,4 @@ Currently, the system relies on fixed heuristic weights and limits documentation
 ## Related Components
 - Static Analysis Engine
 - Path Modifier ($Mp$)
-- Universal Framework Parameters ($Irc$, $Fc$)
+- Universal Framework Parameters ($Fc_{doc}$ for the documentation cooling; no language-level $Irc$ since #2719)

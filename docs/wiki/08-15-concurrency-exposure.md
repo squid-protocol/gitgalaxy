@@ -19,7 +19,6 @@ The static analysis engine extracts concurrency keywords and synchronization pri
 | `raw_concurrency` | Keywords | **1.0x** | Asynchronous and threading constructs: `async`, `await`, `Promise`, `thread`, `spawn`, `go`, `chan`, `synchronized`. |
 | `sync_locks` | Mitigations | **-1.5x** | Synchronization primitives (mutexes, locks, semaphores). Each lock mitigates 1.5 thread spawns. |
 | `loc` | Denominator | **Base Density** | Meaningful lines of code, padded by `loc_padding` (default 150). |
-| `irc` | Language Modifier | **0.1x** | Implicit Risk Correction: the language's strictness-gap count (0–4) from `analysis_lens.LANGUAGE_STRICTNESS` ([08-03](08-03-transforming-regex-counts.md)); 0 for data and markup formats. |
 | `mp` | Path Modifier | **Threshold Modifier** | Context-specific modifier (e.g., `0.5` for UI components where race conditions trigger UI defects). |
 
 The calculation balances raw concurrency against synchronization locks and applies a sigmoid transformation.
@@ -32,9 +31,9 @@ $$\text{net\_concurrency} = \max(0.0, \text{raw\_concurrency} - (\text{sync\_loc
 If $\text{net\_concurrency} = 0$, the metric immediately returns $0.0$.
 
 ### 2. Density Calculation
-Density measures concurrent logic per line of code, factoring in implicit language risk ($\text{IRC} \times 0.1$):
+Density measures concurrent logic per line of code. There is no language term (#2719): no strictness column is about concurrency and per-file dynamism is not concurrency -- the inputs are the file's own spawns and locks.
 
-$$\text{Density} = \left( \frac{\text{net\_concurrency}}{\max(\text{LOC} + \text{loc\_padding}, 1)} \right) \times 100.0 + (\text{IRC} \times 0.1)$$
+$$\text{Density} = \left( \frac{\text{net\_concurrency}}{\max(\text{LOC} + \text{loc\_padding}, 1)} \right) \times 100.0$$
 
 ### 3. Sigmoid Transformation
 Maps density to a 0–100 score using a base threshold of $4.0$ and slope of $0.4$, scaled by the path modifier ($Mp$):
@@ -47,7 +46,6 @@ def _calc_concurrency(
     self,
     loc: int,
     raw_signals: dict[str, int],
-    irc: int,
     mp: float,
 ) -> float:
     """
@@ -67,7 +65,6 @@ def _calc_concurrency(
         return 0.0
 
     density = (net_concurrency / max(loc + loc_padding, 1)) * 100.0
-    density += irc * tuning.get("irc_mult", 0.1)
 
     threshold = tuning.get("threshold_base", 4.0)
     slope = tuning.get("sigmoid_slope", 0.4)

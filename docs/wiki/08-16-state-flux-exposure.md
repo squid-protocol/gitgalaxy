@@ -19,7 +19,6 @@ The static analysis engine counts mutation keywords and immutability controls:
 | `raw_flux` | `state_mutation` | **1.0x** | Reassignment and mutation keywords: `let`, `var`, `mut`, `setState`, `push`, `pop`, `+=`, `=`. |
 | `freeze_hits` | `immutability_locks` | **-0.5x** | Immutability enforcements (`Object.freeze`, const locks). Subtracts 0.5 per hit from raw mutation. |
 | `loc` | Denominator | **Base Density** | Meaningful lines of code (`loc_padding` defaults to 0 to ensure mutations immediately impact density). |
-| `irc` | Language Modifier | **0.15x** | Implicit Risk Correction: the language's strictness-gap count (0–4) from `analysis_lens.LANGUAGE_STRICTNESS` ([08-03](08-03-transforming-regex-counts.md)); 0 for data and markup formats. |
 | `mp` | Path Modifier | **Threshold Modifier** | Context modifier (e.g., `0.8` for UI components where state spaghetti introduces UI state bugs). |
 
 ### 1. Net Volatility Calculation
@@ -30,9 +29,9 @@ $$\text{net\_volatility} = \max(0.0, \text{raw\_flux} - (\text{freeze\_hits} \ti
 If $\text{net\_volatility} = 0$, the function returns $0.0$.
 
 ### 2. Volatility Density
-Calculate mutation density per line of code, adding the dampened language risk ($\text{IRC} \times 0.15$):
+Calculate mutation density per line of code. There is no language term (#2719): "implicit mutability defaults" is not a strictness column and dynamism is not mutation -- the inputs are the file's own writes and immutability locks.
 
-$$\text{Density} = \left( \frac{\text{net\_volatility}}{\max(\text{LOC}, 50) + \text{loc\_padding}} \right) \times 100.0 + (\text{IRC} \times 0.15)$$
+$$\text{Density} = \left( \frac{\text{net\_volatility}}{\max(\text{LOC}, 50) + \text{loc\_padding}} \right) \times 100.0$$
 $\max(\text{LOC}, 50)$ is the UEF evidence-mass floor ([08-03](08-03-transforming-regex-counts.md)): two mutations in a 10-line file no longer read as 20% volatility (#2655).
 
 ### 3. Sigmoid Normalization
@@ -42,7 +41,7 @@ $$\text{RawScore} = \frac{1.0}{1.0 + e^{-0.2 \times (\text{Density} - 15.0)}}$$
 $$\text{FinalScore} = \min(\text{RawScore} \times 100.0 \times Mp, 100.0)$$
 
 ```python
-def _calc_state_flux(self, loc: int, raw_signals: dict[str, int], irc: int, mp: float) -> float:
+def _calc_state_flux(self, loc: int, raw_signals: dict[str, int], mp: float) -> float:
     """
     Calculates State Flux Exposure & Mutation Volatility.
     """
@@ -59,7 +58,6 @@ def _calc_state_flux(self, loc: int, raw_signals: dict[str, int], irc: int, mp: 
         return 0.0
 
     density = (net_volatility / max(loc + loc_padding, 1)) * 100.0
-    density += irc * tuning.get("irc_mult", 0.15)
 
     threshold = tuning.get("threshold_base", 15.0)
     slope = tuning.get("sigmoid_slope", 0.2)

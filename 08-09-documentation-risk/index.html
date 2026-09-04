@@ -12117,14 +12117,14 @@
 <p><strong>Mathematical Formulation</strong>
 1. <strong>Knowledge Shield Defense:</strong>
 $<span class="arithmatex">\(\text{UmbrellaDefense} = \text{doc\_umbrella} \times 50.0\)</span>$
-$<span class="arithmatex">\(\text{DefenseHits} = \left( \text{InlineDocs} + (\text{Ownership} \times 0.5) + (\text{DocLOC} \times 0.33) + \text{UmbrellaDefense} \right) \times Fc\)</span>$
+$<span class="arithmatex">\(\text{DefenseHits} = (\text{InlineDocs} \times Fc_{doc}) + (\text{Ownership} \times 0.5 \times Fc_{ownership}) + (\text{DocLOC} \times 0.33) + \text{UmbrellaDefense}\)</span>$
 2. <strong>Undocumented Risk Calculation:</strong>
 $<span class="arithmatex">\(\text{UndocumentedRisk} = \sum_{\text{undocumented}} \left( 5.0 + \ln(\text{Impact}) \right)\)</span>$
 $<span class="arithmatex">\(\text{RiskHits} = \text{UndocumentedRisk} + (\text{API\_Exposure} \times 2.0) + Irc\)</span>$
 3. <strong>Net Exposure &amp; Line Density:</strong>
 $<span class="arithmatex">\(\text{NetExposure} = \max\left(0, \text{RiskHits} - \frac{\text{DefenseHits}}{2.0}\right)\)</span>$
 $<span class="arithmatex">\(\text{Density} = \left( \frac{\text{NetExposure}}{\max(\text{LOC}, 50) + 20} \right) \times 100.0\)</span>$
-The denominator is the UEF evidence-mass floor plus the equation's smoothing pad (<a href="../08-03-transforming-regex-counts/">08-03</a>). <span class="arithmatex">\(Irc\)</span> corrects measured risk, it never creates it: when <span class="arithmatex">\(\text{UndocumentedRisk} + \text{API\_Exposure} = 0\)</span> the score is <span class="arithmatex">\(0\)</span> in every language tier (#2655).
+The denominator is the UEF evidence-mass floor plus the equation's smoothing pad (<a href="../08-03-transforming-regex-counts/">08-03</a>). <span class="arithmatex">\(Irc\)</span> corrects measured risk, it never creates it: when <span class="arithmatex">\(\text{UndocumentedRisk} + \text{API\_Exposure} = 0\)</span> the score is <span class="arithmatex">\(0\)</span> in every language (#2655).
 4. <strong>Systemic Multipliers &amp; Mapping:</strong>
 $<span class="arithmatex">\(\text{FinalMultiplier} = \left(1.0 + \frac{\text{Pop}}{10}\right) \times \left(1.0 + \frac{\text{Silo}}{200}\right) \times Mp\)</span>$
 $<span class="arithmatex">\(\text{RawRisk} = \frac{100.0}{1 + e^{-0.2 \times (\text{Density} - 10.0)}}\)</span>$</p>
@@ -12148,7 +12148,7 @@ $<span class="arithmatex">\(\text{RawRisk} = \frac{100.0}{1 + e^{-0.2 \times (\t
 <ul>
 <li>Cannot semantically read comments to confirm they explain the code (a comment saying "stuff happens here" provides defense weight).</li>
 <li>Network multipliers (popularity) only track internal repository imports and cannot measure external library consumers.</li>
-<li>Implicit languages with less rigid docstring structures might receive lower fidelity coefficients (<span class="arithmatex">\(Fc\)</span>), unfairly elevating risk in Python or JavaScript projects lacking explicit type tags.</li>
+<li><span class="arithmatex">\(Fc_{doc}\)</span> and <span class="arithmatex">\(Fc_{ownership}\)</span> are measured per language on the keyword-rosetta corpus (<a href="../08-03-transforming-regex-counts/">08-03</a>); a language whose doc rule reads exactly on plant carries 1.0, so the old flat 0.60 for "implicit" languages no longer exists. <span class="arithmatex">\(Irc\)</span> comes from the strictness table.</li>
 </ul>
 <h2 id="performance-notes">Performance Notes</h2>
 <p>Calculating the undocumented risk loop requires iterating over all functions within the file (<span class="arithmatex">\(O(F)\)</span> where <span class="arithmatex">\(F\)</span> is function count). Since <span class="arithmatex">\(F\)</span> is typically small, execution remains exceptionally fast and bounded.</p>

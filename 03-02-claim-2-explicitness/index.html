@@ -12097,10 +12097,10 @@
 <h3 id="241b-normalizing-the-material-the-steel-vs-stone-bridge">2.4.1.B. Normalizing the "Material" (The Steel vs. Stone Bridge)</h3>
 <p>To ensure comparative fairness, we must normalize the "Material Properties" of the languages. We do not judge a Shell script for being "worse" than Go; we acknowledge that it is built from a more opaque material.</p>
 <ul>
-<li><strong>The Steel Bridge (Go - Tier 1):</strong> The structure is explicit. We can clearly see the bolts and the tension cables. If there are no visible cracks, we can be 99% sure the bridge is safe.</li>
-<li><strong>The Stone Bridge (Shell - Tier 3):</strong> The internal integrity is hidden inside the masonry. A visual inspection might show zero cracks, but the material might still be hiding faults.</li>
+<li><strong>The Steel Bridge (Go — one strictness gap):</strong> The structure is explicit. We can clearly see the bolts and the tension cables. If there are no visible cracks, we can be 99% sure the bridge is safe.</li>
+<li><strong>The Stone Bridge (Shell — three strictness gaps):</strong> The internal integrity is hidden inside the masonry. A visual inspection might show zero cracks, but the material might still be hiding faults.</li>
 </ul>
-<p>To make the comparison fair, GitGalaxy applies a Fidelity Tax (the Fidelity Coefficient <span class="arithmatex">\(Fc\)</span>) and an Implicit Risk Correction (<span class="arithmatex">\(Irc\)</span>). We assume a baseline level of hidden risk to correct for the opacity of the material. This ensures that a "Safe" rating in Shell requires significantly more defensive effort than in Go, reflecting the reality of the engineering challenge.</p>
+<p>To make the comparison fair, GitGalaxy applies two separate corrections (#2716). The Fidelity Coefficient <span class="arithmatex">\(Fc\)</span> is <em>measured</em>: keyword-rosetta plants identical defence in every language, and a rule that over-fires has each of its hits credited at the planted-to-measured ratio, so the same defence earns the same credit everywhere. The Implicit Risk Correction <span class="arithmatex">\(Irc\)</span> is <em>tabulated</em>: one point per thing the language lets you leave unsaid — static types, enforced error paths, memory safety, declared globals — from <code>analysis_lens.LANGUAGE_STRICTNESS</code>. A "Safe" rating in Shell still requires more defensive effort than in Go, but the amount is now written down per column rather than picked by bucket, and <a href="../08-03-transforming-regex-counts/">08-03</a> renders both tables from the data the engine reads.</p>
 <h3 id="241c-the-fidelity-matrix-40-languages-x-51-signals">2.4.1.C. The Fidelity Matrix (40 Languages x 51 Signals)</h3>
 <p>This matrix maps the structural "Broadcast Power" of coding languages across history. Signals are clustered into logical processors to visualize the transition from Implicit (I) to Explicit (E) physics.</p>
 <h3 id="241c-the-fidelity-matrix-40-languages-x-51-signals_1">2.4.1.C. The Fidelity Matrix (40 Languages x 51 Signals)</h3>
@@ -12113,7 +12113,7 @@
 <thead>
 <tr>
 <th style="text-align: left;">Language (Year)</th>
-<th style="text-align: center;">Tier</th>
+<th style="text-align: center;">Tier (2025 buckets, retired by #2718 — see <a href="../08-03-transforming-regex-counts/">08-03</a> for the live strictness rows)</th>
 <th style="text-align: center;">CF</th>
 <th style="text-align: center;">Phys</th>
 <th style="text-align: center;">Risk</th>
@@ -12508,7 +12508,7 @@
 <li><strong>Heat Error Direction (Macro Ambiguity):</strong> C/C++ Macros that wrap simple loops can be missed, leading to a "False Cold" reading. Conversely, complex macros that wrap definitions can look like branching. Direction: Contextual Noise.</li>
 </ul>
 <h3 id="241d-conclusion-design-for-scannability">2.4.1.D. Conclusion: Design for Scannability</h3>
-<p>The progression from Tier 3 (Implicit) to Tier 1 (Explicit) suggests that Scannability, the trending towards explicitness is increase. The younger the language, the louder it "screams" its intent. The blAST engine attempts normalize this variation in explicitiness by applying the Fidelity Coefficient (<span class="arithmatex">\(Fc\)</span>) to account for the silence of the ancients/the fog of war/the opaqueness of the language.</p>
+<p>The progression from implicit to explicit suggests that scannability — the trend towards explicitness — is increasing. The younger the language, the louder it "screams" its intent. The blAST engine normalises what it can <em>measure</em> of that variation with the per-signal Fidelity Coefficient (<span class="arithmatex">\(Fc\)</span>), and writes down what it cannot measure — the silence of the ancients — as the strictness table's <span class="arithmatex">\(Irc\)</span>, one point per thing the language leaves unsaid.</p>
 <p><br><br></p>
 <hr />
 <h3 id="powered-by-the-blast-engine">🌌 Powered by the blAST Engine</h3>

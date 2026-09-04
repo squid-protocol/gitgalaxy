@@ -11476,6 +11476,51 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Design">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#language-corrections-three-inputs-not-one-dial-2716" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Language corrections: three inputs, not one dial (#2716)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Language corrections: three inputs, not one dial (#2716)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#language-strictness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Language strictness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fidelity-coefficients-the-engine-reads-signals-below-100-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fidelity coefficients the engine reads (signals below 1.00 only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -12110,9 +12155,644 @@
 4. <strong>Quantized Tiering:</strong> Scores are binned into qualitative tiers (Unshielded to Fortified).
 5. <strong>Evidence-Mass Floor:</strong> Every per-file density divides by <span class="arithmatex">\(\max(LOC, 50)\)</span>, never by raw LOC. Below 50 coding lines a file is scored on its <em>counts</em> (a two-hit file is a two-hit file whether it is 5 or 49 lines long), so identical intent scores identically regardless of file length; at or above the floor the density regime is untouched. This is the per-file analog of the mass-weighted averaging used at directory scope, and it is the <em>only</em> small-file mechanism -- it replaced six independent guards (a <code>&lt;15 LOC</code> cognitive-load cliff, two <code>+20</code> paddings, a <code>loc/15</code> dampener, an unbounded <span class="arithmatex">\(Irc/LOC\)</span> floor, a <code>max(total_loc, 10)</code> API guard) that each fired on a different LOC range and fought each other (#2655). Files below the floor carry <code>mass_floored: true</code> and their <code>evidence_mass</code> in telemetry. Two consistency rules follow from it: <span class="arithmatex">\(Irc\)</span> <em>corrects</em> measured risk and never creates it (zero measured evidence scores zero in every tier), and a file with no branches carries no cognitive load at any length.
    The per-function descriptor has the same floor, derived the same way (#2705): <code>func_internal_density</code> <span class="arithmatex">\(= \text{avg\_func\_complexity} / \max(\text{avg\_func\_loc},\ 12)\)</span>, where 12 is the golden-master median lines-per-function exactly as 50 is the median coding LOC per file. Below the floor the column is a pure rescale of <code>avg_func_complexity</code> -- it reports branch structure, and two files with the same branches per function read the same density however tersely one of them is written; at or above it the column is unchanged. That means for roughly half of real files the two columns say the same thing, by design.</p>
-<p>Language Confidence Tiers (1 to 3) apply Fidelity Coefficients (<span class="arithmatex">\(Fc\)</span>) and Implicit Risk Corrections (<span class="arithmatex">\(Irc\)</span>) based on language strictness.
-General Risk Equation:
-$<span class="arithmatex">\(RiskExposure = \left( \frac{((RiskHits + Irc) \times Weight) - (DefenseHits \times Fc)}{\max(LOC,\ 50)} \right) \times Mp\)</span>$</p>
+<p>General Risk Equation:
+$<span class="arithmatex">\(RiskExposure = \left( \frac{((RiskHits + Irc) \times Weight) - \sum_{s}(DefenseHits_s \times Fc_s)}{\max(LOC,\ 50)} \right) \times Mp\)</span>$</p>
+<h3 id="language-corrections-three-inputs-not-one-dial-2716">Language corrections: three inputs, not one dial (#2716)</h3>
+<p>A regex sees different amounts in different languages, so a raw count is not comparable across them and something has to correct for it. Until #2718 that "something" was one lookup on the language's name: two inline hand lists picked <span class="arithmatex">\(Fc\)</span> / <span class="arithmatex">\(Irc\)</span> / <span class="arithmatex">\(Ot\)</span> per language, with 45 of 59 defined languages falling through to the harshest setting. Measured on the language-crucible corpus that single term moved 78% of files and 18% of them by 25 points or more; it inverted the safety ordering above 6 attack hits (#2717); and <code>embedded_python</code> paid a tier-3 penalty for not being the literal string <code>"python"</code> (#2653). The lookup was doing three separable jobs, and each now has its own input sourced from where the truth about it lives:</p>
+<table>
+<thead>
+<tr>
+<th>what it corrects for</th>
+<th>where the truth lives</th>
+<th>the input</th>
+<th>replaces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Our rules catch less in some languages.</strong> A <code>safety</code> rule that fires 3 times on 2 planted constructs over-credits every hit.</td>
+<td>Measured. keyword-rosetta plants identical defence in every language and records what each rule found.</td>
+<td><span class="arithmatex">\(Fc_s = \min(1,\ planted_s / measured_s)\)</span> per language <strong>and per signal</strong>, generated into <code>gitgalaxy/standards/fidelity_table.py</code>. Under-firing stays at 1.0 — that is a rule to fix, and a coefficient that compensates for a fixable gap is a way to stop fixing it.</td>
+<td>the single per-language <span class="arithmatex">\(Fc\)</span>, and <code>_calc_safety</code>'s <code>systems_buffer_ratio</code></td>
+</tr>
+<tr>
+<td><strong>This language lets you leave things unsaid.</strong> Unenforced error paths, implicit globals, no memory safety, no static types.</td>
+<td>The language specification — objective yes/no columns, checkable against documentation.</td>
+<td><code>analysis_lens.LANGUAGE_STRICTNESS</code>: one row per language; <span class="arithmatex">\(Irc\)</span> = number of gaps (0–4), <span class="arithmatex">\(Ot = 1 + 0.1 \cdot Irc\)</span>. Data, markup and configuration formats have no runtime and carry <strong>no</strong> term. Dialects resolve through <code>LANGUAGE_FAMILY</code>.</td>
+<td>the tier lists</td>
+</tr>
+<tr>
+<td><strong>This file does runtime-dynamic things a regex cannot follow.</strong> <code>eval</code>, reflection, dynamic dispatch.</td>
+<td>The file — these are already registry signals, counted per file.</td>
+<td>Per-file dynamism replaces the flat <span class="arithmatex">\(Irc\)</span> term in the six equations that read it (#2719, in progress).</td>
+<td>the flat <span class="arithmatex">\(Irc\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Two invariants bound the mechanism. <span class="arithmatex">\(Irc\)</span> <em>corrects</em> measured risk and never creates it: zero measured evidence scores zero in every language (#2655). And the weight on the strictness term is provisional — nothing in the system can validate a language-level shift yet (keyword-rosetta's null hypothesis <em>is</em> "no correction", the crucible has no risk labels), so #2720 pilots an outcome fixture before that weight is trusted with more than it carries now.</p>
+<p>The tables the engine actually reads are rendered below from the data files, never typed by hand — a hand-written copy is how the repo once carried two tier tables that disagreed for twenty languages.</p>
+<h4 id="language-strictness">Language strictness</h4>
+<!-- generated:strictness -->
+<table>
+<thead>
+<tr>
+<th>language</th>
+<th>static types</th>
+<th>enforced errors</th>
+<th>memory safe</th>
+<th>no implicit globals</th>
+<th>Irc</th>
+<th>Ot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>abap</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td><code>ada</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td><code>agc_assembly</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>4</td>
+<td>1.40</td>
+</tr>
+<tr>
+<td><code>apex</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td><code>assembly</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>4</td>
+<td>1.40</td>
+</tr>
+<tr>
+<td><code>batch</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>blp</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>c</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>cobol</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>cpp</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>csharp</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td><code>css</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>csv</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>dart</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td><code>dockerfile</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>fortran</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>glsl</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td><code>go</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td><code>groovy</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>haskell</code></td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>hlo</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>html</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>java</code></td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>javascript</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>jcl</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>json</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>kotlin</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td><code>livecode</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>lua</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>m4</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>makefile</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>markdown</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>matlab</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>mlir</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>nix</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>objective-c</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>pbtxt</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>perl</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>php</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>plaintext</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>powershell</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>proto</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>python</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>ruby</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>rust</code></td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>scala</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td><code>scheme</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>shell</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>3</td>
+<td>1.30</td>
+</tr>
+<tr>
+<td><code>solidity</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td><code>sqlite</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>swift</code></td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>tcl</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>2</td>
+<td>1.20</td>
+</tr>
+<tr>
+<td><code>td</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>typescript</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+<tr>
+<td><code>xml</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>yacc</code></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+<td>4</td>
+<td>1.40</td>
+</tr>
+<tr>
+<td><code>yaml</code> <em>(no runtime)</em></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>0</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>zig</code></td>
+<td>yes</td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>1</td>
+<td>1.10</td>
+</tr>
+</tbody>
+</table>
+<p>Dialects read their family's row: <code>embedded_python</code> → <code>python</code>, <code>micropython</code> → <code>python</code>.</p>
+<!-- /generated:strictness -->
+
+<h4 id="fidelity-coefficients-the-engine-reads-signals-below-100-only">Fidelity coefficients the engine reads (signals below 1.00 only)</h4>
+<!-- generated:fidelity -->
+<table>
+<thead>
+<tr>
+<th>language</th>
+<th><code>safety</code></th>
+<th><code>test</code></th>
+<th><code>doc</code></th>
+<th><code>ownership</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>c</code></td>
+<td>1.00</td>
+<td><strong>0.67</strong></td>
+<td>1.00</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>embedded_python</code></td>
+<td><strong>0.50</strong></td>
+<td><strong>0.67</strong></td>
+<td>1.00</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>haskell</code></td>
+<td><strong>0.67</strong></td>
+<td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>perl</code></td>
+<td>1.00</td>
+<td><strong>0.67</strong></td>
+<td>1.00</td>
+<td>1.00</td>
+</tr>
+<tr>
+<td><code>solidity</code></td>
+<td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
+<td><strong>0.25</strong></td>
+</tr>
+<tr>
+<td><code>typescript</code></td>
+<td><strong>0.67</strong></td>
+<td>1.00</td>
+<td>1.00</td>
+<td>1.00</td>
+</tr>
+</tbody>
+</table>
+<p>Every language and signal not listed reads 1.00. Source: keyword-rosetta <code>6377eb59</code> (46 languages), regenerated by <code>tests/tools/fidelity_table.py</code>.</p>
+<!-- /generated:fidelity -->
+
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <ul>
 <li><strong>Inputs:</strong> Raw regex counts, LOC, language metadata.</li>
@@ -12121,7 +12801,7 @@ $<span class="arithmatex">\(RiskExposure = \left( \frac{((RiskHits + Irc) \times
 </ul>
 <p>Scanner Extraction -&gt; Universal Exposure Framework -&gt; Quantized Tier Output</p>
 <h2 id="tradeoffs">Tradeoffs</h2>
-<p>The sigmoid gating principle aggressively suppresses minor risks in large files, intentionally sacrificing micro-level visibility to prevent "alert fatigue" on the macro level. Language confidence tiers generalize thousands of languages into three buckets, reducing precision for niche languages.</p>
+<p>The sigmoid gating principle aggressively suppresses minor risks in large files, intentionally sacrificing micro-level visibility to prevent "alert fatigue" on the macro level. The strictness table is four yes/no columns per language: enough to be reviewable, too coarse to rank two languages that share a row. That coarseness is deliberate until #2720 can say what finer resolution would be measuring.</p>
 <h2 id="limitations">Limitations</h2>
 <ul>
 <li>The 2.5x defensive multiplier is empirically derived and may not perfectly align with specific internal security postures.</li>
@@ -12131,7 +12811,7 @@ $<span class="arithmatex">\(RiskExposure = \left( \frac{((RiskHits + Irc) \times
 <p>Processing utilizes constant-time floating-point math per file component, resulting in <span class="arithmatex">\(O(1)\)</span> metric transformation time per unit post-extraction.</p>
 <h2 id="future-work">Future Work</h2>
 <ul>
-<li>Machine learning parameter tuning for Fidelity Coefficients based on historical vulnerability tracking.</li>
+<li>Outcome calibration of the strictness weight against fix-commit history (#2720); the fidelity coefficients are already measured, not tuned.</li>
 <li>Configurable Breach Cap thresholds per repository.</li>
 </ul>
 <h2 id="related-components">Related Components</h2>

@@ -2514,9 +2514,7 @@ def measure(lang: str, verbose: bool = False) -> dict:
                                     and name not in macro_hallucinations
                                     and not (
                                         dead_preproc_ranges
-                                        and any(
-                                            s <= node.start_point[0] + 1 <= e for s, e in dead_preproc_ranges
-                                        )
+                                        and any(s <= node.start_point[0] + 1 <= e for s, e in dead_preproc_ranges)
                                     )
                                 ):
                                     start_line = node.start_point[0] + 1

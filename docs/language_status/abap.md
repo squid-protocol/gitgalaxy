@@ -335,9 +335,10 @@ line into the comment stream before `detector.py` ever sees it. Isolated repro:
 ```python
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.standards.language_standards import LENS_CONFIG, LANGUAGE_DEFINITIONS
+
 p = Prism(LENS_CONFIG.get("COMMENT_DEFINITIONS", {}), LANGUAGE_DEFINITIONS)
 result = p.split_streams("CLASS zcl_foo DEFINITION\n  PUBLIC\n  CREATE PUBLIC .\nENDCLASS.\n", "abap")
-print(result["code_stream"])     # '\n  PUBLIC\n  CREATE PUBLIC .\nENDCLASS.\n' -- header line GONE
+print(result["code_stream"])  # '\n  PUBLIC\n  CREATE PUBLIC .\nENDCLASS.\n' -- header line GONE
 print(result["comment_stream"])  # 'CLASS zcl_foo DEFINITION' -- misclassified as a comment
 ```
 

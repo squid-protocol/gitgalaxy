@@ -38,42 +38,41 @@ _JCL_SIMPLE_CASES = [
     ("state_mutation", "//         SET SYMVAR=VALUE", "//STEP1   EXEC PGM=IEFBR14"),
     ("import", "//         INCLUDE MEMBER=STDPROC1", "//STEP1   EXEC PGM=IEFBR14"),
     ("ownership", "//*Author: Jane Doe", "//* just a routine comment"),
-
-# --- ADVERSARIAL CASES ---
+    # --- ADVERSARIAL CASES ---
     # branch: anchored properly vs inline data
     ("branch", "//IF1     IF (STEP1.RC=0) THEN", "IF (STEP1.RC=0) THEN"),
     ("branch", "//        ELSE", "ELSE inside some text"),
     ("branch", "//ENDIF1  ENDIF", "//* ENDIF in a comment"),
     ("branch", "//$IF     IF (RC > 0) THEN", "    IF  "),
     ("branch", "//#IF_A   ELSE", "//* IF"),
-    ("branch", "//@123    ENDIF", "//STEP IFX"), # IFX is not IF
-
+    ("branch", "//@123    ENDIF", "//STEP IFX"),  # IFX is not IF
     # args: unnamed procs, spaces, etc
-    ("args", "//PROC1   PROC A=1,B=2", "//PROC1   PROC"), # no parm/proc args
+    ("args", "//PROC1   PROC A=1,B=2", "//PROC1   PROC"),  # no parm/proc args
     ("args", "//        EXEC PGM=FOO,PARM='A,B,C'", "//        EXEC PGM=FOO"),
     ("args", "//STEP1   EXEC PGM=FOO, PARM='A,B,C'", "//STEP1   EXEC PGM=FOO, COND=(0,NE)"),
     ("args", "//STEP1   EXEC PGM=FOO,PARM=(A,B,C)", "//* STEP1 EXEC PGM=FOO,PARM=A"),
     ("args", "//STEP1   EXEC PGM=FOO,PARM=A", "//* EXEC PGM=FOO,PARM=A"),
-    ("args", "//STEP1   EXEC PGM=FOO,  PARM='FOO,BAR'", "//STEP EXEC PGM=FOO,PARM="), # PARM is empty
-    ("args", "//$TEP    EXEC PGM=F,PARM='  '", "//STEP PARM='A'"), # PARM without EXEC
-    ("args", "//A       PROC ARG=1", "//A       PROC  "), # trailing spaces but no args
-
+    ("args", "//STEP1   EXEC PGM=FOO,  PARM='FOO,BAR'", "//STEP EXEC PGM=FOO,PARM="),  # PARM is empty
+    ("args", "//$TEP    EXEC PGM=F,PARM='  '", "//STEP PARM='A'"),  # PARM without EXEC
+    ("args", "//A       PROC ARG=1", "//A       PROC  "),  # trailing spaces but no args
     # func_start: unnamed steps, trailing strings
     ("func_start", "//        EXEC PGM=FOO", "EXEC PGM=FOO"),
     ("func_start", "//$TEP#@  EXEC PGM=FOO", "//STEP EXECUTING"),
     ("func_start", "//STEP123 EXEC PGM=FOO", "//* EXEC PGM=FOO"),
     ("func_start", "//STEP_1  EXEC PGM=FOO", "//STEP_1 EXECUTING"),
     ("func_start", "//123456  EXEC PGM=FOO", "//*123456 EXEC PGM=FOO"),
-    ("func_start", "//@@@@    EXEC PGM=FOO", "//EXEC PGM=FOO"), # No space between // and EXEC is actually an unnamed step with EXEC as operation? No, if no space it's name=EXEC. Operation follows.
-    ("func_start", "//        EXEC", "EXEC "), # just EXEC
-
+    (
+        "func_start",
+        "//@@@@    EXEC PGM=FOO",
+        "//EXEC PGM=FOO",
+    ),  # No space between // and EXEC is actually an unnamed step with EXEC as operation? No, if no space it's name=EXEC. Operation follows.
+    ("func_start", "//        EXEC", "EXEC "),  # just EXEC
     # class_start: symbols in job name, but not empty
     ("class_start", "//#JOB@$  JOB (123),'TEST'", "JOB (123),'TEST'"),
-    ("class_start", "//JOB1    JOB (123),'TEST'", "// JOB (123),'TEST'"), # Job must have name
+    ("class_start", "//JOB1    JOB (123),'TEST'", "// JOB (123),'TEST'"),  # Job must have name
     ("class_start", "//A       JOB", "//*JOB1 JOB"),
     ("class_start", "//$1      JOB CLASS=A", "JOB CLASS=A"),
     ("class_start", "//_JOB    JOB (0000)", "//_JOB JOBS"),
-
     # structural_boundaries: unnamed boundaries, etc
     ("structural_boundaries", "//        DD DSN=...", "//DD1 DATA"),
     ("structural_boundaries", "//        INCLUDE MEMBER=...", "//* INCLUDE MEMBER=..."),
@@ -83,22 +82,18 @@ _JCL_SIMPLE_CASES = [
     ("structural_boundaries", "//$DD     DD DUMMY", "// DUMMY"),
     ("structural_boundaries", "//INC     INCLUDE MEMBER=A", "INCLUDE MEMBER=A"),
     ("structural_boundaries", "//@SET    SET X=Y", "SET X=Y"),
-
     # #2610: safety = COND= return-code tests; the bare bypass forms are
     # excluded (they belong to safety_bypasses, not safety)
     ("safety", "//S1      EXEC PGM=X,COND=(4,LT)", "//S2      EXEC PGM=Y,COND=EVEN"),
     ("safety", "//        COND=(0,NE,STEP1)", "//S2      EXEC PGM=Y,COND=ONLY"),
     ("safety", "//S3      EXEC PGM=Z,COND=((4,LT),EVEN)", "//S4      EXEC PGM=W,CONDX=(4,LT)"),
-
     # #2610: safety_bypasses = COND=EVEN / COND=ONLY (run despite abend)
     ("safety_bypasses", "//S2      EXEC PGM=Y,COND=EVEN", "//S1      EXEC PGM=X,COND=(4,LT)"),
     ("safety_bypasses", "//S2      EXEC PGM=Y,COND=ONLY", "//S1      EXEC PGM=X,COND=(4,LT,STEP1)"),
     ("safety_bypasses", "//S3      EXEC PGM=Z,COND=((4,LT),EVEN)", "//S4      EXEC PGM=W,COND=(4,LT),PARM='EVENT'"),
-
     # #2610: telemetry = job-log verbosity/routing operands
     ("telemetry", "//J       JOB 1,MSGLEVEL=(1,1)", "//S1      EXEC PGM=X"),
     ("telemetry", "//J       JOB 1,MSGCLASS=H", "//J       JOB 1,CLASS=A"),
-
     # #2610: comment-anchored debt markers (shared GLOBAL_* patterns; only
     # meaningful now that prism routes //* lines to the comment stream)
     ("planned_debt", "//* TODO wire the FTP step", "//* all wired up here"),

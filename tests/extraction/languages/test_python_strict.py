@@ -91,7 +91,6 @@ _PY_SIMPLE_CASES = [
     ("test", "def test_addition():\n    assert 1 + 1 == 2", "def calculate_addition(a, b):\n    return a + b"),
     ("test", "unittest.TestCase", "assert isinstance(value, int)"),
     ("vectorized_math", "result = A @ B", "result = a * b"),
-
     # === DEEP/ADVERSARIAL CASES FOR HIGH-AMBIGUITY SIGNATURES ===
     # branch (match/case, walrus, strings/suffixes)
     ("branch", "if (x := 1):", "iffy = True"),
@@ -99,28 +98,24 @@ _PY_SIMPLE_CASES = [
     ("branch", "while True:", "while_loop = False"),
     ("branch", "with open('f.txt') as f:", "without = True"),
     ("branch", "for i in range(10):", "format_string"),
-
     # args (generics, newlines, edge-case lambdas)
     ("args", "def foo[T, U](x, y):", "define_foo = 1"),
     ("args", "def foo(\n    a,\n    b\n):", "definition = True"),
     ("args", "lambda: 1", "lambda_function = True"),
     ("args", "lambda x, y=1: x + y", "lambda_function_2 = True"),
     ("args", "async def _private_func(x):", "async_def_func = False"),
-
     # func_start (async, generics, newlines, decorators)
     ("func_start", "    def foo():", "def_func_not_anchor = True"),
     ("func_start", "async def foo():", "async_def = False"),
     ("func_start", "def foo[T, U](x):", "def_foo_T_U = 1"),
     ("func_start", "@decorator\ndef foo():", "def_not_here = False"),
     ("func_start", "def _private_method(self):", "_private = True"),
-
     # class_start (generics, multiline bases)
     ("class_start", "class Foo(Generic[T]):", "class_not_start = False"),
     ("class_start", "class Foo(\n    Base1,\n    Base2\n):", "class_not = False"),
     ("class_start", "class Foo[T, U](Base):", "class_T = False"),
     ("class_start", "class Foo:", "classy = False"),
     ("class_start", "class _Private:", "PrivateClass = False"),
-
     # structural_boundaries (keywords, encapsulation bypass)
     ("structural_boundaries", "await asyncio.sleep(1)", "awaiting = True"),
     ("structural_boundaries", "type Point = tuple[float, float]", "typedef = True"),
@@ -249,7 +244,6 @@ def test_python_class_start_captures_name_and_bases():
     assert m3.group(2) == "Generic[T]"
 
 
-
 def test_python_api_excludes_underscore_prefixed_definitions():
     """api captures implicit-public root defs/classes; a leading underscore is explicitly private."""
     pattern = PY_RULES["api"]
@@ -349,9 +343,7 @@ def test_python_doc_docstring_counts_once_regression():
     doc = PY_RULES["doc"]
 
     assert len(doc.findall('"""one docstring"""')) == 1, "a single docstring must count once, not twice"
-    assert (
-        len(doc.findall("'''one docstring'''")) == 1
-    ), "a single '''-delimited docstring must count once, not twice"
+    assert len(doc.findall("'''one docstring'''")) == 1, "a single '''-delimited docstring must count once, not twice"
 
     two = '"""first"""\ndef f():\n    """second"""\n'
     assert len(doc.findall(two)) == 2, "two separate docstrings must count as 2"

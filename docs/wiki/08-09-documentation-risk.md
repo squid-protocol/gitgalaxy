@@ -34,7 +34,7 @@ $$\text{DefenseHits} = (\text{InlineDocs} \times Fc_{doc}) + (\text{Ownership} \
 2. **Undocumented Risk Calculation:**
 $$\text{UndocumentedRisk} = \sum_{\text{undocumented}} \left( 5.0 + \ln(\text{Impact}) \right)$$
 $$\text{RiskHits} = \text{UndocumentedRisk} + (\text{API\_Exposure} \times 2.0) + \text{Dynamism}$$
-$\text{Dynamism} = \text{reflection} + \text{high\_risk\_execution}$ counted in the file (`documentation.dynamism_weight`, 1.0): runtime-decided behaviour is what most needs documenting and what a reader cannot recover from the text. It replaces the flat per-language $Irc$ (#2719).
+$\text{Dynamism}$ = the file's `reflection_metaprogramming` count (`documentation.dynamism_weight`, 1.0): runtime-decided behaviour is what most needs documenting and what a reader cannot recover from the text. It replaces the flat per-language $Irc$ (#2719).
 3. **Net Exposure & Line Density:**
 $$\text{NetExposure} = \max\left(0, \text{RiskHits} - \frac{\text{DefenseHits}}{2.0}\right)$$
 $$\text{Density} = \left( \frac{\text{NetExposure}}{\max(\text{LOC}, 50) + 20} \right) \times 100.0$$

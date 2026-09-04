@@ -10,11 +10,28 @@ an allowlist so the fix only applies where it's been verified safe:
 
 ```python
 # gitgalaxy/core/detector.py
-_CLASS_START_NAMED_EXTRACTION_LANGS = frozenset({
-    "apex", "cpp", "csharp", "fortran", "groovy", "java", "javascript",
-    "lua", "makefile", "matlab", "php", "powershell", "python", "scala",
-    "shell", "solidity", "tcl", "typescript",
-})
+_CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
+    {
+        "apex",
+        "cpp",
+        "csharp",
+        "fortran",
+        "groovy",
+        "java",
+        "javascript",
+        "lua",
+        "makefile",
+        "matlab",
+        "php",
+        "powershell",
+        "python",
+        "scala",
+        "shell",
+        "solidity",
+        "tcl",
+        "typescript",
+    }
+)
 ```
 
 13 more languages regressed when tried the same way and were left on the legacy fallback:

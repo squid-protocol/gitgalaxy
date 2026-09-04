@@ -88,7 +88,7 @@ FUNCTION_CASES: dict[str, Any] = {
         "TargetFunc = 5",  # assignment lookalike
         "if TargetFunc():",  # call inside condition
         "cdef class TargetFunc:",  # Cython class decl, not a function -- class_start's job
-        "cdef extern from \"header.h\":",  # Cython extern block, not a function
+        'cdef extern from "header.h":',  # Cython extern block, not a function
         "cdef bint TargetFunc",  # Cython variable/attribute decl, no trailing "(" on this line
         "cdef int TargetFunc[128]",  # Cython array decl, "[" not "("
     ],
@@ -441,21 +441,22 @@ def test_python_dependency_capture_known_limitation_triple_quoted_string_lookali
     triple_quoted = 'x = """\nimport os\n"""'
     assert dependency_capture.search(triple_quoted), "documents current (accepted, unfixed) regex behavior"
 
+
 def test_python_cython_args_count_regression():
     from gitgalaxy.core.detector import StructuralExtractor
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-    
+
     detector = StructuralExtractor("python", LANGUAGE_DEFINITIONS)
     rules = LANGUAGE_DEFINITIONS["python"]["rules"]
-    
+
     cases = [
         ("cdef char *get_item_pointer(memoryview self, index: tuple) except NULL", "get_item_pointer", 2),
         ("cdef name(self, obj)", "name", 2),
         ("cdef void *copy_data_to_temp({{memviewslice_name}} *src, Py_ssize_t *shape)", "copy_data_to_temp", 2),
         ("def foo(a, b):", "foo", 2),
-        ("lambda x, y: x+y", "lambda", 2)
+        ("lambda x, y: x+y", "lambda", 2),
     ]
-    
+
     for block, name, expected_args in cases:
         # We test the counting mechanism specifically
         fn, _ = detector._calculate_block_metrics(name, block, block.count("\n") + 1, 1, 2, rules)

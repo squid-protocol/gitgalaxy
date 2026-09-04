@@ -62,7 +62,7 @@ FUNCTION_CASES: dict[str, Any] = {
         'div(class: "empty-state-block") {',
         'button(name: "clear", type: "submit") {',
         "timeout(time: 6, unit: 'HOURS') {",
-        "a(href: \"newJob\", class: \"content-block__link\") {",
+        'a(href: "newJob", class: "content-block__link") {',
     ],
     "pathological": [
         ("public \n void \n weirdSpacing \n ( \n ) \n {", "weirdSpacing"),

@@ -33,7 +33,7 @@ $$\text{FluxDensity} = \min\left(\frac{\text{state\_mutation}}{M} \times 2.0, 0.
 
 2. **Sum Heavy Logic & Apply Gini Coefficient:**
 $$\text{HeavyLogic} = (\text{concurrency} \times 3.0) + (\text{dynamism} \times 5.0)$$
-where $\text{dynamism} = \text{reflection} + \text{high\_risk\_execution}$, counted in the file (#2719): reflection and `eval` are the same opacity to a reader -- you cannot follow what runs.
+where $\text{dynamism}$ is the file's `reflection_metaprogramming` count (#2719) -- reflection, metaprogramming and dynamic dispatch, the code a reader cannot follow. `high_risk_execution` is not part of it: across the registry that signal is the safety attack vocabulary (`panic!`, `System.exit`, `STOP RUN`, `rm -rf`) and is read by [08-07](08-07-structural-fortification.md).
 $$\text{TotalDensity} = \left(\text{BranchDensity} + \text{FluxDensity} + \frac{\text{HeavyLogic}}{M}\right) \times \text{GiniMultiplier}$$
 The flat per-language $Irc / M$ pseudo-hit is gone (#2719): what it stood in for is the dynamism term above, measured per file.
 

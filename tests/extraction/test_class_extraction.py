@@ -53,7 +53,6 @@ CLASS_EXTRACTION_CASES = {
             )
         ],
     },
-
 }
 
 

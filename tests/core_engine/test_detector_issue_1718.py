@@ -10,6 +10,7 @@ functions after the separator were dropped entirely. The digit separator must be
 consumed as its own alternative and the char-literal branch bounded to 64 chars,
 matching the bound #1302/#1426 already apply to rust/zig and prism.py.
 """
+
 from gitgalaxy.core.detector import StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 

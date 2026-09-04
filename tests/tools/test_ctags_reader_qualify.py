@@ -63,11 +63,7 @@ def test_bare_proc_inside_namespace_eval_stays_unqualified(tmp_path):
     match."""
     tcl_file = tmp_path / "namespaced.tcl"
     tcl_file.write_text(
-        "namespace eval myns {\n"
-        "    proc helper {x} {\n"
-        "        return $x\n"
-        "    }\n"
-        "}\n",
+        "namespace eval myns {\n    proc helper {x} {\n        return $x\n    }\n}\n",
         encoding="utf-8",
     )
     symbols = ctags_reader.read_ctags_symbols(tcl_file, "tcl")

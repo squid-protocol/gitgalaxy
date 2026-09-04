@@ -251,27 +251,20 @@ def test_ada_import_excludes_aspect_specifications_regression():
         assert not import_rule.search(payload), f"import incorrectly matched aspect clause: {payload!r}"
     assert import_rule.search("   with Ada.Text_IO;"), "plain context clause must still match"
 
+
 def test_ada_mode_a_braceless_extraction_regression():
     """
     Pipeline-level regression for #2648: Ada procedures use `is ... begin ... end;`,
     never `{`/`}`. They must be extracted via Mode A.
     """
     from gitgalaxy.core.detector import StructuralExtractor
+
     extractor = StructuralExtractor("ada", LANGUAGE_DEFINITIONS)
-    
-    code = (
-        "procedure X is\n"
-        "begin\n"
-        "   Do_Something;\n"
-        "end X;\n"
-        "procedure Y is\n"
-        "begin\n"
-        "   Do_Something_Else;\n"
-        "end Y;\n"
-    )
+
+    code = "procedure X is\nbegin\n   Do_Something;\nend X;\nprocedure Y is\nbegin\n   Do_Something_Else;\nend Y;\n"
     segments = extractor._partition_segments(code, "ada")
     functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
-    
+
     names = [f["name"] for f in functions]
     assert "X" in names, "Failed to extract X"
     assert "Y" in names, "Failed to extract Y"

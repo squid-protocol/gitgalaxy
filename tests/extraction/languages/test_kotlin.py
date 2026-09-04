@@ -328,7 +328,7 @@ def test_kotlin_structural_extraction_body_shapes():
     )
     result = opt_detector.splice(code, "")
 
-    extracted = {f["name"]: code[f["start_idx"]:f["end_idx"]] for f in result["functions"]}
+    extracted = {f["name"]: code[f["start_idx"] : f["end_idx"]] for f in result["functions"]}
 
     # Assert all expected functions were extracted
     assert "normalFunc" in extracted

@@ -329,6 +329,7 @@ def test_makefile_dependency_capture_redos_immunity():
     assert_redos_immune(dep, " " * 200000 + "include x.mk", timeout_sec=3.0)
     assert dep.search("include x.mk")
 
+
 def test_makefile_mode_a_braceless_extraction_regression():
     """
     Pipeline-level regression for #2648: Makefile targets are tab-indented,
@@ -336,17 +337,13 @@ def test_makefile_mode_a_braceless_extraction_regression():
     recipe block.
     """
     from gitgalaxy.core.detector import StructuralExtractor
+
     extractor = StructuralExtractor("makefile", LANGUAGE_DEFINITIONS)
-    
-    code = (
-        "target1: dep1\n"
-        "\techo 'recipe 1'\n"
-        "target2: dep2\n"
-        "\techo 'recipe 2'\n"
-    )
+
+    code = "target1: dep1\n\techo 'recipe 1'\ntarget2: dep2\n\techo 'recipe 2'\n"
     segments = extractor._partition_segments(code, "makefile")
     functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
-    
+
     names = [f["name"] for f in functions]
     assert "target1" in names, "Failed to extract target1"
     assert "target2" in names, "Failed to extract target2"

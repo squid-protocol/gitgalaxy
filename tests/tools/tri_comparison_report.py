@@ -142,9 +142,7 @@ def generate_report(ledger_path: Path = LEDGER_PATH) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--write", action="store_true", help=f"Write to {REPORT_PATH} instead of stdout."
-    )
+    parser.add_argument("--write", action="store_true", help=f"Write to {REPORT_PATH} instead of stdout.")
     args = parser.parse_args()
 
     report = generate_report()

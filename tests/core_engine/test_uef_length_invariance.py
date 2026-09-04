@@ -142,10 +142,10 @@ def test_no_cliff_at_the_floor(processor, fname, tier):
 # language irc term removed). Every other equation still equals the pre-#2655 engine.
 PRE_2655_AT_51 = {
     ("tier1", "main"): {
-        "cog": 9.7497,
+        "cog": 4.7642,
         "safety": 79.1701,
         "debt": 0.0,
-        "doc": 62.5434,
+        "doc": 48.7327,
         "api": 6.5172,
         "flux": 0.0,
         "spec": 100.0,
@@ -154,7 +154,7 @@ PRE_2655_AT_51 = {
         "cog": 0.0,
         "safety": 54.2153,
         "debt": 0.0,
-        "doc": 82.7643,
+        "doc": 78.3694,
         "api": 9.8496,
         "flux": 0.0,
         "spec": 100.0,
@@ -178,10 +178,10 @@ PRE_2655_AT_51 = {
         "spec": 100.0,
     },
     ("tier3", "main"): {
-        "cog": 10.7009,
+        "cog": 5.229,
         "safety": 89.908,
         "debt": 0.0,
-        "doc": 64.5012,
+        "doc": 50.845,
         "api": 6.5172,
         "flux": 0.0,
         "spec": 100.0,
@@ -190,7 +190,7 @@ PRE_2655_AT_51 = {
         "cog": 0.0,
         "safety": 77.1518,
         "debt": 0.0,
-        "doc": 82.7643,
+        "doc": 78.3694,
         "api": 9.8496,
         "flux": 0.0,
         "spec": 100.0,

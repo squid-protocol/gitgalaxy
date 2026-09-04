@@ -59,7 +59,7 @@ _SHELL_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
     # --- PHASE 1 ---
     ("branch", "if [[ $x -gt 5 ]]; then", "x=5"),
-    ("branch", "[ \"$x\" = \"y\" ]", "arr[0]=1"),
+    ("branch", '[ "$x" = "y" ]', "arr[0]=1"),
     ("branch", "  [ -z x ]", "echo '[]'"),
     ("branch", "if true; [ -z x ]; then", "echo '[text]'"),
     ("branch", "for i in {1..5}; do", "for_loop=1"),

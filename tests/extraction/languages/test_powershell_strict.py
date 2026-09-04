@@ -484,10 +484,11 @@ def test_powershell_return_not_counted_as_branch_regression():
     assert len(branch.findall("if ($x) { return 1 }")) == 1, "only the if should match, not the return"
     assert structural.search("return $x"), "return must still be tracked via structural_boundaries"
 
+
 def test_powershell_api_no_control_flow_false_positives():
     """#2656: the api rule's bare-identifier alternative lacked keyword exclusions,
     causing control-flow lines ('param(', 'if (', 'switch (') to miscount as API
-    surface. It must not match control-flow; a real exported function or 
+    surface. It must not match control-flow; a real exported function or
     Export-ModuleMember must still match."""
     api = POWERSHELL_RULES["api"]
 

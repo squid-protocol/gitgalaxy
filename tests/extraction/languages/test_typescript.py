@@ -97,7 +97,7 @@ FUNCTION_CASES: dict[str, Any] = {
         "interface TargetFunc",
         "type Foo = (a: T) => R;",  # type alias -- was a real bug, now fixed
         "export type Foo = (a: T) => R;",
-        "f: (...a: A) => B,", # arrow function type annotation defined at the start of a line
+        "f: (...a: A) => B,",  # arrow function type annotation defined at the start of a line
         "class Foo {\n  @Input() TargetFunc: string;\n}",  # decorated field, not a method
         "type TargetFunc = () => void;",
         "if (this.TargetFunc as unknown as boolean) {",

@@ -1345,12 +1345,18 @@ class SignalProcessor:
     @staticmethod
     def _dynamism(raw_signals: Mapping[str, int]) -> int:
         """Runtime-decided behaviour a regex cannot follow, counted in THIS file (#2719):
-        eval / exec / system calls (`high_risk_execution`) and reflection or dynamic
-        dispatch (`reflection_metaprogramming`). One definition, read by every equation
-        that used to read the per-language `irc` as a stand-in for it. Pointer
-        arithmetic, macros and type bypasses are visible constructs with their own
-        meaning and stay in their own equations."""
-        return int(raw_signals.get("high_risk_execution", 0)) + int(raw_signals.get("reflection_metaprogramming", 0))
+        reflection, metaprogramming and dynamic dispatch (`reflection_metaprogramming` --
+        getattr, Reflect/Proxy, method_missing, AUTOLOAD, Class.forName, transmute,
+        macro_rules!). One definition, read by every equation that used to read the
+        per-language `irc` as a stand-in for it.
+
+        `high_risk_execution` is deliberately NOT part of it: across the registry that
+        signal is the safety attack vocabulary -- panic!/todo!, os.Exit/log.Fatal,
+        System.exit, STOP RUN, rm -rf/sudo -- and carries eval/exec only in the
+        dynamic languages. It is already read at 4x by _calc_safety, where it belongs.
+        Pointer arithmetic, macros and type bypasses are visible constructs with their
+        own meaning and stay in their own equations."""
+        return int(raw_signals.get("reflection_metaprogramming", 0))
 
     def _calc_cog_load(
         self,
@@ -1375,8 +1381,8 @@ class SignalProcessor:
         branch_density = branches / mass_loc
         flux_density = raw_signals.get("state_mutation", 0) / mass_loc
         concurrency_density = raw_signals.get("concurrency", 0) / mass_loc
-        # Runtime-decided behaviour is the same opacity to a reader whether it is
-        # reflection or eval: you cannot follow what runs. One definition (#2719).
+        # Runtime-decided behaviour a reader cannot follow, per file -- one definition
+        # shared with _calc_documentation (#2719).
         heat_density = self._dynamism(raw_signals) / mass_loc
 
         clamped_branch = min(branch_density * 1.0, t.get("branch_clamp", 0.5))
@@ -1548,9 +1554,9 @@ class SignalProcessor:
             return 0.0
 
         # Runtime-decided behaviour is what most needs documenting and what a reader
-        # cannot recover from the text: eval/exec and reflection, counted in THIS
-        # file (#2719). This replaces the flat per-language `irc`, which stood in
-        # for the same thing without measuring it.
+        # cannot recover from the text: reflection and dynamic dispatch, counted in
+        # THIS file (#2719). This replaces the flat per-language `irc`, which stood
+        # in for the same thing without measuring it.
         risk_hits = measured_risk + self._dynamism(raw_signals) * t.get("dynamism_weight", 1.0)
 
         # 3. UNIVERSAL DENSITY EQUATION

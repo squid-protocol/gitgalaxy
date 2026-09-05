@@ -382,7 +382,22 @@ class SecurityAuditor:
                     "log_max_func_complexity": np.log1p(np.maximum(max_func_comp, 0)),
                     "log_avg_func_args": np.log1p(np.maximum(avg_func_args, 0)),
                     "func_complexity_gini": float(tel.get("func_complexity_gini", 0.0)),
-                    "func_internal_density": float(tel.get("func_internal_density", 0.0)),
+                    # func_internal_density (#2714): a permanent 0.0 placeholder,
+                    # not a live feature. No telemetry writer has ever emitted
+                    # this key -- signal_processor's telemetry_payload, the
+                    # galaxyscope augmentation block and the ecosystem pass all
+                    # skip it, and the density is computed only inside
+                    # record_keeper.py (~L496) while the file_data row is
+                    # written. The old tel.get(...) read therefore took its 0.0
+                    # default for every file, every scan, exactly like the
+                    # prompt_injection/agentic_rce placeholders documented in
+                    # analysis_lens.py. The column is frozen rather than deleted
+                    # because audit_repository aligns the frame by name via
+                    # df.reindex(columns=self.feature_names, fill_value=np.nan):
+                    # dropping it would feed a trained model NaN where it has
+                    # always seen 0.0. Populating it for real is a scored-model
+                    # input change that needs a retrain, not this fix.
+                    "func_internal_density": 0.0,
                     "orphaned_logic": float(hit_dict.get("orphaned_logic", 0)),
                     "duplicate_logic": float(hit_dict.get("duplicate_logic", 0)),
                     "log_direct_upstream": np.log1p(np.maximum(dep.get("direct_upstream", 0), 0)),

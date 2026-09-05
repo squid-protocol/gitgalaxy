@@ -73,8 +73,34 @@ DEFINITION: dict[str, Any] = {
         "_scope_filters": {"args": "yaml_parameter_block"},
         "structural_boundaries": re.compile(r"^[ \t]*(?:env|needs|runs-on|steps|strategy|matrix):", re.M | re.I),
         # Executable Logic Anchors: Explicit execution blocks
+        # BUG FIX #2767: this rule had no capture group, so `_extract_name` fell
+        # back to the matched keyword and EVERY extracted step in every scanned
+        # workflow was named `run` -- thirteen identically-named slices in the
+        # rosetta shells alone. That kills three things at once: the orphan
+        # census (`raw_state_slop_orphans` 0.00 against a 2.50 median), the
+        # duplicate census (only #1498's body_hash guard stopped thirteen false
+        # duplicates), and per-step identity everywhere downstream, where every
+        # CI step in `function_data` was a row called `run`.
+        #
+        # Both major dialects name the step one line above the `run:`, so the
+        # name is captured from the adjacent `name:` key when there is one, with
+        # a bounded 10-line step-over for the intervening `id:`/`if:`/`env:`/
+        # `working-directory:` keys that real steps carry -- the same shape, and
+        # the same bound, as the `class_start` rule below.
+        #
+        # The keyword alternation is capture group 1 and EXCLUDES its own colon:
+        # `_closed_literal_capture` only recognises a bare literal alternation
+        # (`_ALTERNATION_ONLY` has no `:`), so `(run:|...)` would yield the empty
+        # set and quietly drop yaml out of #2728's keyword-bucket exclusion.
+        # With the colon outside, an unnamed step still names itself `run` and
+        # is now censused consistently with dockerfile's `RUN` -- by derivation
+        # from this rule, rather than by accident of the `len(name) > 3` guard
+        # that #2768 just removed.
         "func_start": re.compile(
-            r"^[ \t]*(?:-?[ \t]*run:|script:|before_script:|after_script:)[ \t]*[|>]*",
+            r"^[ \t]*-?[ \t]*(?:(run|script|before_script|after_script):[ \t]*[|>]*"
+            r"|name:[ \t]*([^\n]+?)(?:[ \t]+#.*)?\n"
+            r"(?:(?:[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*|[ \t]*(?:#.*)?)\n){0,10}"
+            r"[ \t]*(?:run|script|before_script|after_script):[ \t]*[|>]*)",
             re.M | re.I,
         ),
         # MISSING-DECLARATION-SHAPE FIX (epic #813/#843): the reusable-workflow-call/

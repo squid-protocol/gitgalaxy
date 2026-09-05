@@ -765,7 +765,16 @@ PATH_MODIFIERS = {
         # Dampens UI components that are purely exported SVG path data (e.g., Icon.jsx).
         # Prevents raw vector math from artificially inflating UI framework density.
         (
-            re.compile(r"(?:^|/)(?:icons?|illustrations?|logos?|assets?)/.*\.jsx?|tsx?$", re.I),
+            # BUG FIX #2769: the extension alternation was missing its group, so
+            # `|` bound at the TOP level and the second alternative was a bare
+            # `tsx?$` -- unanchored to any directory, it matched every path
+            # ending in `ts`/`tsx` (and `.mts`, `.cts`, `foo.d.ts`, and
+            # extensionless names like `scripts/run_tests`). Every TypeScript
+            # file in every scan took this 0.1 dampener, so `structural_mass`
+            # read 10x light for one of the most commonly scanned language
+            # families. The intent is legible from the token list and is
+            # directory-scoped: an icon/logo/asset that happens to be code.
+            re.compile(r"(?:^|/)(?:icons?|illustrations?|logos?|assets?)/.*\.(?:jsx?|tsx?)$", re.I),
             0.10,
         ),
         # ---> NEW: The Test Snapshot & Fixture Dampener <---

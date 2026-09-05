@@ -157,6 +157,25 @@ DEFINITION: dict[str, Any] = {
         # bounded to one token each so it cannot chew through an argument
         # list.
         "api": re.compile(r"^[ \t]*export[ \t]+(?:-[a-zA-Z]+[ \t]+)*[a-zA-Z_]\w*", re.M),
+        # #2774: the ORPHAN-CENSUS EXEMPTION. `_is_orphan` is a textual
+        # name-recurrence test, so naming a function in an export statement --
+        # the one place a library is *guaranteed* to name a function it never
+        # calls itself -- counted as a use and cleared its orphan flag. Measured
+        # on keyword-rosetta/data/shell: 3 orphans per file without the export
+        # lines, 0 with them. Five languages publish a FUNCTION (rather than a
+        # variable) by naming it, and all five sat at `raw_state_slop_orphans`
+        # 0.25 against a 2.50 median because of it.
+        #
+        # This is deliberately NOT the `api` rule, though it overlaps it. `api`
+        # matches broad visibility MODIFIERS in most languages (javascript's is
+        # a bare `export`, java's a bare `public`), so discounting every line it
+        # matched would silently swallow a genuine call in
+        # `export const x = foo();`. This rule instead captures the exported
+        # NAME, and only that capture's own span is discounted -- so a language
+        # opts in by declaring it, and the other 41 are unchanged by
+        # construction. Leading `_` keeps it out of `coding_analysis`'s rule
+        # loop and the counts schema, the same way `_scope_filters` does.
+        "_visibility_export": re.compile(r"^[ \t]*export[ \t]+-f[ \t]+([a-zA-Z_]\w*)", re.M),
         # 11. flux (State Mutation)
         # Mutation of state via assignment or arithmetic.
         # QUADRATIC BLOWUP FIX: the arithmetic-expansion branch's two

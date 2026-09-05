@@ -5181,8 +5181,12 @@ class StructuralExtractor:
             if stack_depth == 0:
                 if net_change > 0:
                     satellite_name = self._extract_semantic_name(safe_line, lang_key)
+                    # #2758: index of the line the name was recovered FROM, when
+                    # that is not the opener line itself.
+                    decl_line_idx = None
                     if satellite_name == "Anonymous_Block":
-                        for past_safe in reversed(past_safe_lines):
+                        for past_idx in range(len(past_safe_lines) - 1, -1, -1):
+                            past_safe = past_safe_lines[past_idx]
                             if past_safe.strip():
                                 # #2438: skip a self-contained one-liner
                                 # declaration -- its name belongs to its own node.
@@ -5195,13 +5199,43 @@ class StructuralExtractor:
                                 fallback = self._extract_semantic_name(past_safe, lang_key)
                                 if fallback != "Anonymous_Block":
                                     satellite_name = fallback
+                                    decl_line_idx = past_idx
                                 break
                     current_satellite = [orig_line]
                     is_current_satellite_class = (
                         bool(class_opener_pattern.search(safe_line)) if class_opener_pattern else False
                     )
                     stack_depth += net_change
-                    sat_start_line = current_line_offset + 1
+                    # #2758: anchor the node where it is DECLARED, not where its
+                    # body happens to open. Mode D's openers include the bare
+                    # brace, so a K&R-style declaration (`f_create_role()` on one
+                    # line, `{` on the next -- how curl's own initscript.sh is
+                    # written throughout) reported start_line on the brace. The
+                    # lookback above already had to walk back to find the name;
+                    # it recovered the name and left the position behind.
+                    #
+                    # This moves only the ANCHOR, never the satellite's text:
+                    # `current_satellite` still begins at the opener, so `loc`,
+                    # `args` and the per-function hit_vector are untouched, and
+                    # the declaration line's own keywords stay where they are.
+                    # Safe here specifically because Mode D computes
+                    # `sat_end_line` independently (see below) rather than as
+                    # `start_line + loc - 1` the way the brace/label modes do --
+                    # so the span EXTENDS backwards over the declaration instead
+                    # of sliding one line earlier.
+                    sat_start_line = (
+                        offset + decl_line_idx + 1 if decl_line_idx is not None else current_line_offset + 1
+                    )
+                    # `sat_start_char` deliberately does NOT follow it. The char
+                    # pair is not metadata: `_calculate_block_metrics` slices the
+                    # file's `spatial_map` with `bisect(indices, start_char)`, so
+                    # moving it re-attributes every signal between the
+                    # declaration and the opener into this function. Measured
+                    # when this fix first moved both: `versioned_copy` in
+                    # curl/initscript.sh went from 0 to 36 control-flow branches.
+                    # The line anchor is what the recorders and SARIF report and
+                    # what `spatial_correlation` scopes on; the char pair stays
+                    # the block's own coordinates.
                     sat_start_char = current_char_offset
                 else:
                     global_dust.append(orig_line)

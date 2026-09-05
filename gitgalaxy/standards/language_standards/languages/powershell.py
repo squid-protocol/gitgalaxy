@@ -182,6 +182,13 @@ DEFINITION: dict[str, Any] = {
         # the `New-Alias`/`CmdletBinding` markers), which the first
         # alternative already owns.
         "api": re.compile(r"\b(Export-ModuleMember|New-Alias|CmdletBinding)\b", re.I),
+        # #2774: the ORPHAN-CENSUS EXEMPTION -- see the matching note in
+        # shell.py. This rule captures the exported NAME (not the visibility
+        # modifier the `api` rule matches), and `_is_orphan` discounts only that
+        # capture's own span, so naming a function in an export statement stops
+        # counting as a use. Leading `_` keeps it out of `coding_analysis`'s
+        # rule loop and the counts schema, the same way `_scope_filters` does.
+        "_visibility_export": re.compile(r"\bExport-ModuleMember[ \t]+-Function[ \t]+([a-zA-Z_]\w*)", re.I),
         # 11. flux (State Mutation)
         # Mutation of state. Captures assignments, scoped variables, array indexing, and anchored increments.
         "state_mutation": re.compile(

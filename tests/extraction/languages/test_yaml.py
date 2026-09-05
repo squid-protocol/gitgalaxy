@@ -56,15 +56,24 @@ YAML_RULES = LANGUAGE_DEFINITIONS["yaml"]["rules"]
 # FUNC_START (func_start) -- a step's run:/script: execution block
 # ==============================================================================
 FUNCTION_CASES: dict[str, Any] = {
+    # #2767: the captured group is now the keyword WITHOUT its colon, and a
+    # named step captures the step's name instead. Both are deliberate. The
+    # colon sits outside the capture because `_closed_literal_capture` only
+    # recognises a bare literal alternation (`_ALTERNATION_ONLY` has no `:`), so
+    # `(run:|script:)` would yield the empty set and drop yaml out of #2728's
+    # keyword-bucket exclusion -- which is the whole reason an unnamed step's
+    # fallback name needs to be a recognisable keyword in the first place.
     "valid": [
         # Modern idiom (carried forward)
-        ("- run: echo hello", "run:"),
-        ("script:", "script:"),
+        ("- run: echo hello", "run"),
+        ("script:", "script"),
         # Syntax-era / dialect coverage
-        ("- run: |\n    npm ci\n    npm test", "run:"),  # GH Actions block-scalar multi-line run
-        ("before_script:\n  - npm ci", "before_script:"),  # GitLab CI
-        ("after_script:\n  - cleanup.sh", "after_script:"),  # GitLab CI
-        ("- name: Build\n  run: make", "run:"),  # run: as the second key under a named step
+        ("- run: |\n    npm ci\n    npm test", "run"),  # GH Actions block-scalar multi-line run
+        ("before_script:\n  - npm ci", "before_script"),  # GitLab CI
+        ("after_script:\n  - cleanup.sh", "after_script"),  # GitLab CI
+        # #2767: a named step now takes the step's OWN name, not the keyword --
+        # this is the case the whole fix exists for.
+        ("- name: Build\n  run: make", "Build"),
     ],
     "invalid": [
         "TargetFunc:",  # carried-forward: unrelated key lookalike
@@ -74,9 +83,9 @@ FUNCTION_CASES: dict[str, Any] = {
         "my-run: foo",  # `run:` substring lookalike inside a longer key name
     ],
     "pathological": [
-        ("- \t run: \n", "run:"),  # carried-forward
-        ("-   run:   |\n  npm test", "run:"),  # extreme horizontal spacing before block scalar
-        ("  -\trun:\t>\n    echo hi", "run:"),  # tab spacing, folded-scalar indicator
+        ("- \t run: \n", "run"),  # carried-forward
+        ("-   run:   |\n  npm test", "run"),  # extreme horizontal spacing before block scalar
+        ("  -\trun:\t>\n    echo hi", "run"),  # tab spacing, folded-scalar indicator
     ],
 }
 

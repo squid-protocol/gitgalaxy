@@ -116,6 +116,36 @@ DEFINITION: dict[str, Any] = {
         # both `\s+` gaps bounded to `[ \t]+` for the same cross-line reason.
         "state_mutation": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+SET[ \t]+[A-Za-z0-9_#$@]+=", re.M | re.I),
         "concurrency": None,
+        # #2733: dataset disposition IS z/OS's serialization primitive.
+        # `DISP=OLD` and `DISP=MOD` request an exclusive system ENQ on the
+        # dataset; `DISP=SHR` requests shared access. In a batch shop that is
+        # the construct engineers reason about when two jobs contend for a
+        # resource -- a lock acquisition declared in the job deck -- which is
+        # what sync_locks measures through each language's own idiom elsewhere
+        # (cobol's `EXEC CICS ENQ`, abap's `ENQUEUE_`/`DEQUEUE_`, solidity's
+        # `nonReentrant`).
+        # Narrowed to OLD/MOD deliberately: SHR is the shared-access default
+        # every job asks for, and NEW is an allocation rather than contention
+        # over an already-existing resource -- neither declares a
+        # serialization decision. On the language-crucible corpus that is 48
+        # hits across 15 of 186 files, ~9% of the 525 `DISP=` occurrences; of
+        # the remaining 477, 429 are `DISP=SHR` and 48 allocate (`DISP=(NEW,`,
+        # or an omitted first positional -- `DISP=(,PASS)` -- that defaults to
+        # it).
+        # The residual overlap with `io` (which counts the bare `DISP=`
+        # keyword) is accepted, not avoided. #2610 rejected a `cleanup` rule on
+        # `DISP=(...,DELETE/CATLG)` because a second-positional disposition
+        # rides along on essentially every `DISP=`, so that rule would have
+        # re-counted the whole operand; this shape is a small, semantically
+        # distinct subset instead. The engine already tolerates deliberate
+        # overlaps where the meanings genuinely differ -- jcl's own
+        # `COND=((4,LT),EVEN)` counts safety AND safety_bypasses, and haskell's
+        # `finally` counts cleanup and safety.
+        # Unanchored like the other operand rules (io/safety/telemetry): a DD
+        # statement's DISP= routinely sits on a `//` continuation line rather
+        # than the line carrying the ddname, the same real-corpus shape the
+        # args rule's #2482 note documents.
+        "sync_locks": re.compile(r"\bDISP=\(?(?:OLD|MOD)\b", re.I),
         "ui_framework": None,
         "closures": None,
         "globals": None,

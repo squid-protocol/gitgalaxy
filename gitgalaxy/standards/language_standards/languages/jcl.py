@@ -157,5 +157,43 @@ DEFINITION: dict[str, Any] = {
         # same as cobol.py.
         "planned_debt": GLOBAL_PLANNED_DEBT,
         "fragile_debt": GLOBAL_FRAGILE_DEBT,
+        # #2732: the other half of the #2610 leftover. Turning a statement's `//`
+        # into `//*` is THE way JCL comments a step out -- 13 of the 443 licensed
+        # .jcl/.prc files in the pool do it (16 occurrences), including whole JOB
+        # cards -- but until #2610 routed `//*` lines into comment_analysis the
+        # stream was structurally empty, so #2610 added the debt/ownership rules
+        # and never came back for this one.
+        # The operand guard (a keyword must be followed by operand-shaped text,
+        # not prose) is load-bearing, not decoration: banner comments in real
+        # decks open with these same keywords as English words. Measured in
+        # cics-genapp's CICSTS56.jcl, which contains BOTH shapes -- `//* SET THE
+        # RETURN CODE TO CONTROL...` and `//* EXECUTE DUMP UTILITY PROGRAM...`
+        # (prose, excluded: "THE" is not `NAME=` and "EXECUTE" leaves no space
+        # after `EXEC`) sitting a few lines from `//*        DD DSN=CSQ901.
+        # SCSQLOAD,DISP=SHR` (a genuinely commented-out DD, matched). A bare
+        # `(?:EXEC|DD|JOB|SET|INCLUDE)\b` would have counted all of them.
+        # ReDoS: the name class excludes space/tab, so `[A-Za-z0-9_#$@]*[ \t]+`
+        # partitions at exactly one position -- no ambiguity to backtrack over.
+        "dead_code": re.compile(
+            r"^//\*[A-Za-z0-9_#$@]*[ \t]+"
+            r"(?:EXEC[ \t]+\S|DD[ \t]+\S|JOB[ \t]*[,(]|SET[ \t]+[A-Za-z0-9_#$@]+=|INCLUDE[ \t]+MEMBER=)",
+            re.M | re.I,
+        ),
+        # #2732: the generic `[SPEC-n]`/`[spec]`/`[audit]` traceability tag, but
+        # anchored to `//*` rather than copied bare from python/go/java/js.
+        # Anchoring matters because comment rules are NOT comment-stream-only:
+        # coding_analysis applies every non-underscore rule to the code stream
+        # and comment_analysis then adds a second pass over the comments, so an
+        # unanchored bracket rule also scores brackets in code -- here, whatever
+        # sits in an inline `//SYSIN DD *` payload, which is arbitrary non-JCL
+        # text. `//*` can never appear in jcl's code stream (prism strips those
+        # lines out), so the anchor makes the rule structurally comment-only.
+        # Same anchoring precedent as this file's own `ownership` rule.
+        # `\b` after the alternation keeps the bare `spec` branch off "specified"
+        # / "species" -- see yaml.py's copy of this rule for the pool evidence.
+        "spec_exposure": re.compile(
+            r"^//\*[^\n\[]{0,200}\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|spec|audit)\b[^\]\n]{0,300}\]",
+            re.M | re.I,
+        ),
     },
 }

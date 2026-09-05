@@ -158,7 +158,34 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:password|secret|token|api[_-]?key|client[_-]?secret|private[_-]?key)[ \t]*:[ \t]*[\"'][A-Za-z0-9\-_+/=]{16,}[\"']",
             re.I,
         ),
-        "spec_exposure": None,
+        # 29. spec_exposure (Spec / Audit Traceability)
+        # #2732 asked for the generic bracket-tag rule python/go/java/js share,
+        # verbatim, on the reasoning that "spec_exposure never sees the code
+        # stream, so YAML's [a, b] flow-sequence syntax cannot FP against it."
+        # That premise is wrong, and measuring it is what produced this shape:
+        # coding_analysis applies EVERY non-underscore rule to the code stream,
+        # and comment_analysis then adds a second pass over the comments -- it
+        # supplements the code-stream pass, it does not replace it. Dropped in
+        # verbatim, the generic rule scores spec_exposure=1 on a workflow with
+        # no comments at all, off `needs: [audit, lint]` alone.
+        # YAML is the language where that actually bites: a bracket holding bare
+        # unquoted words is ordinary syntax here (flow sequences), not a tag, so
+        # the absence was never as arbitrary as it looked. Anchored instead to
+        # the comment marker, exactly as this file's own `dead_code` rule is --
+        # prism strips `#` comments out of the code stream, so the anchor makes
+        # the rule structurally comment-only and the flow-sequence FP impossible.
+        # The `\b` after the alternation is a second measured fix: bare `spec`
+        # has no boundary in the generic rule, so it matches "specified" and
+        # "species" -- 2 of the 3 code-stream hits across 41,815 pool .yml/.yaml
+        # files were exactly that (`[specified\n per-machine]` in meson's docs,
+        # `[species]` in an elasticsearch test fixture).
+        # ReDoS: the prefix class excludes `[` and the body class excludes `]`,
+        # so each bounded run has exactly one landing site -- nothing to
+        # backtrack over.
+        "spec_exposure": re.compile(
+            r"^[ \t]*#[^\n\[]{0,200}\[(?:[ \t]*SPEC[ \t]*-[ \t]*\d{1,10}|spec|audit)\b[^\]\n]{0,300}\]",
+            re.M | re.I,
+        ),
         "ssr_boundaries": None,
         "events": re.compile(
             r"^[ \t]*repository_dispatch:|^[ \t]*schedule:|^[ \t]*-?[ \t]*cron:",

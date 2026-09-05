@@ -33,7 +33,7 @@ _JCL_SIMPLE_CASES = [
     ("structural_boundaries", "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR", "//STEP1   EXEC PGM=IEFBR14"),
     ("func_start", "//STEP1   EXEC PGM=IEFBR14", "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR"),
     ("class_start", "//MYJOB   JOB (ACCT),'PROGRAMMER'", "//STEP1   EXEC PGM=IEFBR14"),
-    ("high_risk_execution", "//STEP1   EXEC PGM=IEFBR14", "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR"),
+    ("high_risk_execution", "//STEP1   EXEC PGM=IKJEFT01,DYNAMNBR=20", "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR"),
     ("io", "//SYSPRINT DD SYSOUT=*", "//STEP1   EXEC PGM=IEFBR14"),
     ("state_mutation", "//         SET SYMVAR=VALUE", "//STEP1   EXEC PGM=IEFBR14"),
     ("import", "//         INCLUDE MEMBER=STDPROC1", "//STEP1   EXEC PGM=IEFBR14"),
@@ -109,11 +109,39 @@ _JCL_SIMPLE_CASES = [
     # #2733: sync_locks = the exclusive-ENQ dispositions. DISP=SHR (shared
     # access, the default request) and DISP=NEW (allocation) are excluded.
     ("sync_locks", "//SYSLIN   DD DISP=OLD,DSN=HLQ.SAMPLE.OBJ(SAM1)", "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR"),
-    ("sync_locks", "//DD1      DD DSN=HLQ.CUSTRPT,DISP=(MOD,DELETE,DELETE),", "//SYSUT2   DD DISP=(NEW,CATLG),DSN=HLQ.OUT"),
+    (
+        "sync_locks",
+        "//DD1      DD DSN=HLQ.CUSTRPT,DISP=(MOD,DELETE,DELETE),",
+        "//SYSUT2   DD DISP=(NEW,CATLG),DSN=HLQ.OUT",
+    ),
     ("sync_locks", "//SYSLIN   DD  DSNAME=&&LOADSET,DISP=(OLD,DELETE)", "//S1      EXEC PGM=IEBGENER,PARM='OLDMODE'"),
     # #2732: spec_exposure = the generic traceability tag, `//*`-anchored
     ("spec_exposure", "//* [SPEC-4412] see the change request", "//* nothing traceable here"),
     ("spec_exposure", "//* raised under [audit] last quarter", "//* the behaviour is [specified] upstream"),
+    # #2748: api = the PROC statement (the callable surface `EXEC name` invokes)
+    ("api", "//IGYWCLG PROC LNGPRFX='IGY630',LIBPRFX='CEE',SRC=COBOL", "//CBL0001  EXEC IGYWCLG"),
+    ("api", "//DB2JCL   PROC", "//STEP1    EXEC PROC=DB2JCL"),
+    ("api", "//         PROC", "//SYSPROC  DD DSN=SYS1.SYSPROC,DISP=SHR"),
+    # #2749: cleanup = DELETE as the normal-termination disposition
+    (
+        "cleanup",
+        "//DD1      DD DSN=HLQ.CUSTRPT,DISP=(MOD,DELETE,DELETE),",
+        "//SYSUT2   DD DISP=(NEW,CATLG,DELETE),DSN=HLQ.OUT",
+    ),
+    ("cleanup", "//SYSLIN   DD DISP=(OLD,DELETE),DSN=&&LOADSET", "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR"),
+    (
+        "cleanup",
+        "//TEMP     DD DISP=(,DELETE),UNIT=SYSDA,SPACE=(TRK,1)",
+        "//SYSIN    DD *\n  DELETE HLQ.OLD.CLUSTER CLUSTER",
+    ),
+    # #2750: globals = the job-scoped declarations (JOBLIB, SET, EXPORT SYMLIST)
+    ("globals", "//JOBLIB   DD DSN=DSNC10.SDSNLOAD,DISP=SHR", "//STEPLIB  DD DSN=DSNC10.SDSNLOAD,DISP=SHR"),
+    ("globals", "//    SET HLQ='IBMUSER'       *TSO USER ID", "//IGYWCLG PROC LNGPRFX='IGY630'"),
+    ("globals", "// EXPORT SYMLIST=*", "//JOBLIBX  DD DSN=MY.LOAD,DISP=SHR"),
+    # #2751: high_risk_execution = the command executors only, not every PGM=
+    ("high_risk_execution", "//GRANT    EXEC PGM=IKJEFT01,DYNAMNBR=20", "//STEP1    EXEC PGM=IEFBR14"),
+    ("high_risk_execution", "//SH       EXEC PGM=BPXBATCH,PARM='SH ls /tmp'", "//COBOL    EXEC PGM=IGYCRCTL,REGION=0M"),
+    ("high_risk_execution", "//REXX     EXEC PGM=IRXJCL,PARM='MYEXEC'", "//DEL      EXEC PGM=IDCAMS"),
 ]
 
 
@@ -501,6 +529,286 @@ def test_jcl_new_comment_rules_redos_immunity():
 
     assert JCL_RULES["dead_code"].search("//*STEP1   EXEC PGM=IEFBR14")
     assert JCL_RULES["spec_exposure"].search("//* [SPEC-4412] traceable")
+
+
+def test_jcl_api_proc_declaration_not_the_call_site():
+    """
+    #2748: `//name PROC` is JCL's callable surface -- what `EXEC name` and
+    `EXEC PROC=name` in other members invoke -- so it is the api rule under
+    the #2730 contract's fallback family. Corollary 1 (a reference is not a
+    declaration) is the substance: the call sites must stay out, and so must
+    every other statement that merely contains the letters PROC.
+    """
+    api = JCL_RULES["api"]
+    assert api is not None, "jcl's api rule is None again (#2748)"
+
+    for declaration, name in (
+        ("//IGYWCLG PROC LNGPRFX='IGY630',LIBPRFX='CEE',SRC=COBOL", "IGYWCLG"),
+        ("//BATCH  PROC MEMBER=", "BATCH"),
+        ("//DB2JCL   PROC                   ", "DB2JCL"),
+        ("//COMPROC  PROC", "COMPROC"),
+        ("//         PROC", ""),  # a cataloged PROC statement may be unnamed
+        ("//$PROC#@  PROC A=1", "$PROC#@"),
+    ):
+        m = api.search(declaration)
+        assert m, f"missed a procedure declaration: {declaration!r}"
+        assert m.group(1) == name
+
+    for reference_or_lookalike in (
+        "//CBL0001  EXEC IGYWCLG",  # the call site
+        "//STEP1    EXEC PROC=DB2JCL",  # the explicit call-site form
+        "//SYSPROC  DD DSN=SYS1.SYSPROC,DISP=SHR",  # a ddname ending in PROC
+        "//PROCLIB  DD DSN=SYS1.PROCLIB,DISP=SHR",  # a ddname starting with PROC
+        "//         PEND",  # closes an in-stream proc; not a second declaration
+        "//         PROCESS",  # keyword prefix
+        "//* PROC statements are documented in the runbook",  # a comment
+        "PROC",  # bare token, no statement prefix
+    ):
+        assert not api.search(reference_or_lookalike), f"false positive: {reference_or_lookalike!r}"
+
+    # One declaration, one hit, however many parameters it carries across
+    # continuation lines.
+    multi = (
+        "//DSNUPROC PROC LIB='DSNC10.SDSNLOAD',SYSTEM=DBCG,\n//         UID='',UTPROC=''\n//DSNUPROC EXEC PGM=DSNUTILB"
+    )
+    assert len(api.findall(multi)) == 1
+
+
+def test_jcl_cleanup_only_the_normal_termination_delete():
+    """
+    #2749: DELETE as a dataset's normal-termination disposition is JCL's
+    teardown idiom (IEFBR14 + DISP=(MOD,DELETE,DELETE) is how a batch job
+    deletes a dataset). The rule is deliberately narrower than "DELETE appears
+    in a DISP=": the abnormal-termination positional of an allocation,
+    `DISP=(NEW,CATLG,DELETE)`, is a conditional disposition on a CREATE and
+    stays out, the way DISP=SHR/NEW stay out of sync_locks (#2733). As there,
+    the exclusions are the design, so assert them directly.
+    """
+    cleanup = JCL_RULES["cleanup"]
+    assert cleanup is not None, "jcl's cleanup rule is None again (#2749)"
+
+    for teardown in (
+        "//DD1      DD DSN=&HLQ..SAMPLE.CUSTRPT,DISP=(MOD,DELETE,DELETE),",
+        "//SYSLIN   DD DISP=(OLD,DELETE),DSN=&&LOADSET",
+        "//SYSIN    DD DSN=&&TEMPM,DISP=(OLD,DELETE)",
+        "//TEMP     DD DISP=(,DELETE),UNIT=SYSDA,SPACE=(TRK,1)",  # omitted status = NEW, scratch dataset
+        "//X        DD DISP=( OLD , DELETE )",  # blank-padded positionals
+    ):
+        assert cleanup.search(teardown), f"missed a teardown disposition: {teardown!r}"
+
+    for not_teardown in (
+        "//SYSUT2   DD DISP=(NEW,CATLG,DELETE),DSN=HLQ.OUT",  # abend-only DELETE on an allocation
+        "//SYSUT2   DD DISP=(NEW,KEEP,DELETE),DSN=HLQ.OUT",
+        "//SYSUT3   DD DISP=(,PASS),UNIT=SYSDA",
+        "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR",
+        "//SYSUT1   DD DISP=(OLD,KEEP),DSN=HLQ.KEEP",
+        "//SYSUT1   DD DISP=OLD,DSN=HLQ.DELETE.ME",  # DELETE in a dataset name
+        "//S1       EXEC PGM=IDCAMS,PARM='DELETE'",  # a PARM value
+        "//SYSIN    DD *\n  DELETE HLQ.OLD.CLUSTER CLUSTER\n/*",  # IDCAMS command in SYSIN payload
+        "//X        DD DISPOSITION=(OLD,DELETE)",
+    ):
+        assert not cleanup.search(not_teardown), f"counted a non-teardown: {not_teardown!r}"
+
+    # Operand-anchored, not line-anchored: DISP= routinely sits on a `//`
+    # continuation line (the #2482 shape), as io/sync_locks already assume.
+    continuation = "//SYSUT1   DD DSN=HLQ.WORK,\n//            DISP=(MOD,DELETE,DELETE),\n//            UNIT=SYSDA"
+    assert cleanup.search(continuation)
+
+    # The status positional cannot cross a paren or a newline: a DELETE in the
+    # NEXT statement's DISP= is not this statement's disposition.
+    two_statements = "//A        DD DISP=(NEW,CATLG),DSN=HLQ.A\n//B        DD DISP=(OLD,DELETE),DSN=HLQ.B"
+    assert len(cleanup.findall(two_statements)) == 1
+
+
+def test_jcl_cleanup_overlaps_io_and_sync_locks_by_design():
+    """
+    #2749: the overlap #2610 declined is accepted on #2742's terms -- a narrow,
+    semantically distinct subset of an operand io already counts. Every
+    cleanup hit is also an `io` hit (the DD's DSN=), and the OLD/MOD forms are
+    also `sync_locks` hits: the step holds an exclusive ENQ on the dataset it
+    then drops. Pin all three so a later change re-makes the decision rather
+    than drifting.
+    """
+    cleanup, io, sync_locks = JCL_RULES["cleanup"], JCL_RULES["io"], JCL_RULES["sync_locks"]
+
+    exclusive_then_dropped = "//SYSLIN   DD DISP=(OLD,DELETE),DSN=&&LOADSET"
+    assert cleanup.search(exclusive_then_dropped)
+    assert io.search(exclusive_then_dropped)
+    assert sync_locks.search(exclusive_then_dropped)
+
+    # ...and the converse does not hold in either direction.
+    shared = "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR"
+    assert io.search(shared) and not cleanup.search(shared)
+    held_and_kept = "//SYSUT1   DD DISP=(OLD,KEEP),DSN=HLQ.KEEP"
+    assert sync_locks.search(held_and_kept) and not cleanup.search(held_and_kept)
+
+
+def test_jcl_globals_job_scoped_declarations():
+    """
+    #2750: JCL's scoped-vs-global distinction is JOBLIB (every step) vs STEPLIB
+    (one step), a SET symbol (every later statement) vs a PROC parameter (the
+    procedure), and EXPORT SYMLIST (symbols reaching in-stream data). The rule
+    counts the job-scoped side of each pair and nothing else -- STEPLIB is the
+    negative that matters, and `SET` must stay statement-anchored so an inline
+    SYSIN payload containing "SET X=1" does not count (the state_mutation
+    precedent).
+    """
+    globals_ = JCL_RULES["globals"]
+    assert globals_ is not None, "jcl's globals rule is None again (#2750)"
+
+    for job_scoped in (
+        "//JOBLIB   DD DSN=DSNC10.SDSNLOAD,DISP=SHR",
+        "//JOBLIB  DD  DISP=SHR,DSN=DSNC10.SDSNLOAD",
+        "//    SET HLQ='IBMUSER'       *TSO USER ID",
+        "// SET DB2HLQ=@DB2_HLQ@",
+        "//SET1     SET COUNTER=1",
+        "// EXPORT SYMLIST=*",
+        "//         EXPORT SYMLIST=(HLQ,DB2HLQ)",
+    ):
+        assert globals_.search(job_scoped), f"missed a job-scoped declaration: {job_scoped!r}"
+
+    for step_scoped_or_lookalike in (
+        "//STEPLIB  DD DSN=DSNC10.SDSNLOAD,DISP=SHR",  # step-scoped twin
+        "//         DD DSN=CEE.SCEERUN,DISP=SHR",  # a JOBLIB concatenation line is not a second JOBLIB
+        "//JOBLIBX  DD DSN=MY.LOAD,DISP=SHR",  # ddname merely starting with JOBLIB
+        "//JOBLIB   DISP=SHR",  # not a DD statement
+        "//IGYWCLG PROC LNGPRFX='IGY630'",  # a PROC parameter is the scoped twin of SET
+        "//SYSIN    DD *\nSET X=1\n/*",  # payload, not a statement
+        "//S1       EXEC PGM=X,PARM='SET A=1'",
+        "//         SETX A=1",
+        "//         EXPORT",  # EXPORT without SYMLIST is not a JCL statement
+        "//* SET THE RETURN CODE TO CONTROL IF CICS SHOULD BE",
+    ):
+        assert not globals_.search(step_scoped_or_lookalike), f"false positive: {step_scoped_or_lookalike!r}"
+
+
+def test_jcl_globals_set_is_also_state_mutation_by_design():
+    """
+    #2750: a `// SET` creates a job-wide symbol AND assigns it, so it is both
+    `globals` and `state_mutation` -- dockerfile's `ENV` shape exactly (dual
+    globals + state_mutation, ledgered in the rosetta corpus). JOBLIB is also
+    an `io` hit through its DSN=, which is correct: a JOBLIB is a dependency
+    of every step. Pin both so the overlap stays a decision.
+    """
+    globals_, state, io = JCL_RULES["globals"], JCL_RULES["state_mutation"], JCL_RULES["io"]
+    assert globals_.search("//    SET HLQ='IBMUSER'") and state.search("//    SET HLQ='IBMUSER'")
+    assert globals_.search("//JOBLIB   DD DSN=X.LOAD,DISP=SHR") and io.search("//JOBLIB   DD DSN=X.LOAD,DISP=SHR")
+    # EXPORT SYMLIST is the one alternative with no overlap at all.
+    assert globals_.search("// EXPORT SYMLIST=*") and not state.search("// EXPORT SYMLIST=*")
+
+
+def test_jcl_high_risk_execution_counts_executors_not_every_step():
+    """
+    #2751: the rule was a bare `PGM=<anything>`, which counted every step --
+    running a program is what a JCL step IS -- so a compile-link-go job scored
+    three high-risk executions for compiling and IEFBR14 (a program that does
+    nothing) counted the same as a TSO batch step that executes whatever
+    SYSTSIN carries. Narrowed to the programs whose purpose is to execute
+    caller-supplied commands; the negatives are the crucible's most frequent
+    PGM= values, which are exactly what must NOT count.
+    """
+    danger = JCL_RULES["high_risk_execution"]
+
+    for executor in (
+        "//GRANT    EXEC PGM=IKJEFT01,DYNAMNBR=20",
+        "//TSO      EXEC PGM=IKJEFT1B",
+        "//SH       EXEC PGM=BPXBATCH,PARM='SH ls /tmp'",
+        "//SHL      EXEC PGM=BPXBATSL",
+        "//UNIX     EXEC PGM=AOPBATCH",
+        "//REXX     EXEC PGM=IRXJCL,PARM='MYEXEC'",
+        "//OPER     EXEC PGM=SDSF",
+        "//lower    exec pgm=ikjeft01",
+    ):
+        assert danger.search(executor), f"missed an executor: {executor!r}"
+
+    for a_step_not_an_execution in (
+        "//STEP1    EXEC PGM=IEFBR14",  # no-op, run for its DD side effects
+        "//COBOL    EXEC PGM=IGYCRCTL,REGION=0M",  # compiler
+        "//LKED     EXEC PGM=IEWL",  # linker
+        "//DEL      EXEC PGM=IDCAMS",  # catalog utility: a fixed command language
+        "//COPY     EXEC PGM=IEBGENER",
+        "//SORT     EXEC PGM=ICEGENER",
+        "//RUN      EXEC PGM=CBL0001",  # the job's own application program
+        "//X        EXEC PGM=IKJEFT01X",  # not the executor, a longer name
+        "//X        EXEC PGM=MYIKJEFT01",
+        "//X        EXEC PGM=X,PARM='IKJEFT01'",  # the name as a PARM value
+        "//X        EXEC IKJEFT01",  # a procedure named like the program
+    ):
+        assert not danger.search(a_step_not_an_execution), f"counted a step as execution: {a_step_not_an_execution!r}"
+
+    # PGM= on a continuation line (the #2482 shape) still counts.
+    assert danger.search("//STEP0001 EXEC TIME=1440,REGION=0M,\n//             PGM=IKJEFT01")
+
+
+def test_jcl_new_rules_count_through_the_real_pipeline():
+    """
+    #2748/#2749/#2750/#2751 end to end: the four rules score through
+    prism + StructuralExtractor.splice, not just as regexes on a string. The
+    deck is a cut-down real shape -- a cataloged proc header, a JOBLIB, two
+    SETs, an IEFBR14 delete step, a TSO batch step, and the call site that
+    invokes the proc -- and the SYSIN payload carries the lookalikes every
+    rule must ignore.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    sample = (
+        "//DB2JCL   PROC\n"
+        "//* SET THE RETURN CODE TO CONTROL IF CICS SHOULD BE\n"
+        "//JOBLIB   DD DSN=DSNC10.SDSNLOAD,DISP=SHR\n"
+        "//         DD DSN=CEE.SCEERUN,DISP=SHR\n"
+        "//    SET HLQ='IBMUSER'\n"
+        "//    SET DB2SYS=DBCG\n"
+        "//DELETE   EXEC PGM=IEFBR14\n"
+        "//DD1      DD DSN=&HLQ..CUSTRPT,DISP=(MOD,DELETE,DELETE),\n"
+        "//            UNIT=SYSDA,SPACE=(CYL,(0))\n"
+        "//SYSUT2   DD DISP=(NEW,CATLG,DELETE),DSN=&HLQ..OUT\n"
+        "//GRANT    EXEC PGM=IKJEFT01,DYNAMNBR=20\n"
+        "//SYSTSIN  DD *\n"
+        "  DSN SYSTEM(DBCG)\n"
+        "  SET X=1\n"
+        "  DELETE HLQ.OLD.CLUSTER CLUSTER\n"
+        "/*\n"
+        "//CALL     EXEC DB2JCL\n"
+        "//STEPLIB  DD DSN=DSNC10.SDSNLOAD,DISP=SHR\n"
+        "//         PEND\n"
+    )
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    streams = prism.split_streams(sample, "jcl")
+    equations = StructuralExtractor("jcl", LANGUAGE_DEFINITIONS).splice(
+        streams["code_stream"], streams["comment_stream"], raw_content=sample
+    )["equations"]
+
+    assert equations.get("api", 0) == 1, "the PROC statement, not the EXEC that calls it"
+    assert equations.get("cleanup", 0) == 1, "the (MOD,DELETE,DELETE), not the (NEW,CATLG,DELETE)"
+    assert equations.get("globals", 0) == 3, "JOBLIB + two SETs; not the concatenation, STEPLIB or the SYSIN SET"
+    assert equations.get("high_risk_execution", 0) == 1, "IKJEFT01 only; IEFBR14 is a step"
+
+
+def test_jcl_new_rules_redos_immunity():
+    """
+    #2748-#2751: every new alternation is a literal keyword behind a bounded
+    name/whitespace gap or a single negated class that excludes its own
+    terminator (`[^,()\\n]*` then `,`), so each quantifier has one landing
+    site. Hold the line on it with the same detonations the other rules get.
+    """
+    assert_redos_immune(JCL_RULES["api"], "//" + "A" * 50000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["api"], "//" + " " * 50000 + "PROC", timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["cleanup"], "DISP=(" + "A" * 50000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["cleanup"], "DISP=(" + ", " * 25000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["cleanup"], "//X DD " + "DISP=(" * 20000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["globals"], "//" + "A" * 50000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["globals"], "//JOBLIB" + " " * 50000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["globals"], "// SET " + "A" * 50000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["high_risk_execution"], "PGM=" + "IKJEFT0" * 10000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["high_risk_execution"], "PGM=IKJEFT01" * 10000, timeout_sec=3.0)
+
+    assert JCL_RULES["api"].search("//DB2JCL   PROC")
+    assert JCL_RULES["cleanup"].search("//SYSLIN   DD DISP=(OLD,DELETE),DSN=&&LOADSET")
+    assert JCL_RULES["globals"].search("//JOBLIB   DD DSN=X,DISP=SHR")
+    assert JCL_RULES["high_risk_execution"].search("//GRANT    EXEC PGM=IKJEFT01")
 
 
 def test_jcl_lexical_family_no_block_terminator_state_to_confuse():

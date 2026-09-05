@@ -7,9 +7,9 @@
 | **Status** | production |
 | **Target Version** | IBM z/OS JCL |
 | **Lexical Family** | line_exclusive (with a dedicated `//*` whole-line stripper — see §10) |
-| **Rules Wired** | 16 / 27 |
+| **Rules Wired** | 21 / 30 |
 | **Extraction tests** | 42 |
-| **Strict tests** | 65 |
+| **Strict tests** | 100 |
 
 ## 2. Identification surface
 
@@ -28,18 +28,21 @@
 - `class_start`: Matches JCL JOB cards.
 
 **Safety & Risk**
-- `high_risk_execution`: Matches execution of specific programs via `PGM=`.
+- `high_risk_execution`: Matches `PGM=` naming a program whose purpose is to execute **caller-supplied commands** — TSO/E batch (`IKJEFT01`/`IKJEFT1A`/`IKJEFT1B`), the z/OS UNIX launchers (`BPXBATCH`/`BPXBATSL`/`BPXBATA2`/`BPXBATA8`/`AOPBATCH`), the REXX interpreter (`IRXJCL`) and batch `SDSF`. Narrowed by [#2751](https://github.com/squid-protocol/gitgalaxy/issues/2751) from a bare `PGM=<anything>`, which counted every step (188 of the corpus's 376 `EXEC` statements: `IEFBR14` 26, compilers and the linker 26, copy/catalog utilities 28) — running a program is what a step *is*, and no other language's rule counts "runs a command". Now 61 hits in 48 files, all `IKJEFT01` on this corpus.
 - `safety`: Matches `COND=` return-code tests (JCL's step error-handling); the bare bypass forms are excluded by lookahead. Added by [#2610](https://github.com/squid-protocol/gitgalaxy/issues/2610).
 - `safety_bypasses`: Matches `COND=EVEN` / `COND=ONLY` (run the step despite a prior abend — JCL's native ignore-the-error idiom). The combined form `COND=((4,LT),EVEN)` deliberately counts **both** safety and bypass: it carries a real RC test and a run-after-abend bypass at once. Added by #2610.
 
 **Resource Management**
 - `io`: Matches dataset definitions and I/O routing such as `DSN`, `DSNAME`, `SYSOUT`, `SYSPRINT`, `DISP=`.
-- `sync_locks`: Matches `DISP=OLD` / `DISP=MOD` — the dispositions that request an **exclusive system ENQ** on a dataset, z/OS's native serialization idiom (`DISP=SHR` requests shared access and `DISP=NEW` allocates, so neither counts). Added by [#2733](https://github.com/squid-protocol/gitgalaxy/issues/2733). Every hit is also an `io` hit, since `io` counts the bare `DISP=` keyword; that overlap is accepted deliberately because the shape is narrow (48 hits in 15 of the corpus's 186 `.jcl`/`.prc`/`.bms` files, ~9% of its 525 `DISP=` occurrences; 429 of the remaining 477 are `DISP=SHR` and the other 48 allocate — `DISP=(NEW,…)`, or an omitted first positional that defaults to it) and the two meanings genuinely differ, the same way `COND=((4,LT),EVEN)` counts both `safety` and `safety_bypasses`. Contrast §4's `cleanup`, where the overlap would have covered essentially every disposition.
+- `cleanup`: Matches `DELETE` as a dataset's **normal-termination** disposition — `DISP=(MOD,DELETE,DELETE)`, `DISP=(OLD,DELETE)`, `DISP=(,DELETE)` — JCL's teardown idiom (`IEFBR14` + `DISP=(MOD,DELETE,DELETE)` is how a batch job deletes a dataset). Added by [#2749](https://github.com/squid-protocol/gitgalaxy/issues/2749), reversing #2610's rejection on the terms #2733 set for `sync_locks`: a narrow subset (36 of the corpus's 533 `DISP=` occurrences, 13 of 186 files) with an accepted, test-pinned overlap — every hit is also an `io` hit, and the OLD/MOD forms are `sync_locks` hits too. The abnormal-termination positional of an allocation (`DISP=(NEW,CATLG,DELETE)`, 12 more) is excluded: a conditional disposition on a *create* is not teardown.
+- `sync_locks`: Matches `DISP=OLD` / `DISP=MOD` — the dispositions that request an **exclusive system ENQ** on a dataset, z/OS's native serialization idiom (`DISP=SHR` requests shared access and `DISP=NEW` allocates, so neither counts). Added by [#2733](https://github.com/squid-protocol/gitgalaxy/issues/2733). Every hit is also an `io` hit, since `io` counts the bare `DISP=` keyword; that overlap is accepted deliberately because the shape is narrow (48 hits in 15 of the corpus's 186 `.jcl`/`.prc`/`.bms` files, ~9% of its 525 `DISP=` occurrences; 429 of the remaining 477 are `DISP=SHR` and the other 48 allocate — `DISP=(NEW,…)`, or an omitted first positional that defaults to it) and the two meanings genuinely differ, the same way `COND=((4,LT),EVEN)` counts both `safety` and `safety_bypasses`. #2749 later took the same route for `cleanup`'s DELETE subset.
 
 **State Mutation**
 - `state_mutation`: Matches JCL symbolic variable assignments via `SET`.
+- `globals`: Matches the job-scoped declarations — `//JOBLIB DD` (the program search library for every step; its step-scoped twin `STEPLIB` does not count), a `// SET` symbol (readable by every later statement; its scoped twin is a `PROC` parameter) and `// EXPORT SYMLIST=`. Added by [#2750](https://github.com/squid-protocol/gitgalaxy/issues/2750). `SET` is also `state_mutation`, the same dual dockerfile's `ENV` carries; `JOBLIB` is also an `io` hit and a dependency edge, which is right — a JOBLIB is a dependency of every step. 73 hits in 45 corpus files (JOBLIB 32, SET 39, EXPORT 2).
 
 **Architecture & Domain Sensors**
+- `api`: Matches `//name PROC` — a cataloged or in-stream procedure, the callable surface that `EXEC name` / `EXEC PROC=name` in other members invoke (the [api contract](../api_rule_contract.md)'s fallback family; the call site is a reference and does not count). Added by [#2748](https://github.com/squid-protocol/gitgalaxy/issues/2748). 13 declarations in 13 corpus files, invoked by 185 of its 376 `EXEC` statements.
 - `import`: Matches JCL includes (`INCLUDE`).
 - `_dependency_capture`: Captures the `MEMBER=` name for the dependency graph, as well as dataset names in `DD` statements and `JCLLIB` orders.
 - `ownership`: Matches ownership/maintainer comments like `//* Author:` (counted on the comment stream since #2610 — previously it only worked by accident on the code stream, see §10).
@@ -50,17 +53,7 @@
 
 ## 4. What GitGalaxy explicitly does not track
 
-- `api`: None (JCL has no api rule; in practice `api` still appears on scanned JCL via the
-  orphan-conversion mechanism — see the keyword-rosetta ledger's `api-contextual-baseline-fix`).
-- `cleanup`: None — **a deliberate decision, not an oversight** (#2610): the honest JCL cleanup
-  idiom is `DISP=(...,DELETE)`, but `DISP=` already feeds the `io` rule, so a cleanup rule would
-  double-count every disposition. Recorded in the keyword-rosetta deviation ledger
-  (`jcl-2610-rebaseline-residual-morphology`) as intended morphology. #2733 revisited the same
-  overlap for `sync_locks` and decided the other way — see §3 for why the two dispositions split.
-- `globals`: None — JCL has no scoped-vs-global variable distinction (`SET` symbolics are already
-  `state_mutation`; a `JOBLIB`/`STEPLIB` rule was considered and rejected because those DD
-  statements would inflate `io` and `dependency_links`).
-- `concurrency`: None.
+- `concurrency`: None — steps within a job execute strictly sequentially; parallelism lives in JES scheduling, outside the language's own syntax.
 - `ui_framework`: None.
 - `closures`: None.
 - `decorators`: None.
@@ -69,6 +62,7 @@
 - `scientific`: None.
 - `reflection_metaprogramming`: None.
 - `debug_prints`: None.
+- `doc`: None — no structured header-comment idiom is attested in the corpus (0 of its 1,610 `//*` lines carry a `Description:`/`Purpose:`-style key; the structured lines are copyright/SPDX banners). `test`: None — no native testing concept (`TYPRUN=SCAN`/`IEBCOMPR` do not appear in real decks either). Both re-checked 2026-09-05.
 
 ## 5. Known limitations (accepted, not fixed)
 
@@ -80,10 +74,12 @@ None currently. ([#2415](https://github.com/squid-protocol/gitgalaxy/issues/2415
 ## 6. Test depth
 
 - **Extraction-gauntlet tests**: 42 cases in `tests/extraction/languages/test_jcl.py`
-- **Strict-signature tests**: 80 cases in `tests/extraction/languages/test_jcl_strict.py`
+- **Strict-signature tests**: 100 cases in `tests/extraction/languages/test_jcl_strict.py`
   (51 → 65 with #2610's COND-partition semantics, JES3-guard and ReDoS detonation cases;
   65 → 74 with #2732's `dead_code`/`spec_exposure` rules; 74 → 80 with #2733's `sync_locks`
-  disposition partition, io-overlap pin and ReDoS case)
+  disposition partition, io-overlap pin and ReDoS case; 80 → 100 with #2748–#2751's `api`,
+  `cleanup`, `globals` and narrowed `high_risk_execution` — per-rule partitions, overlap pins,
+  one end-to-end deck through prism + splice, and ReDoS detonations)
 
 ## 7. Relevant closed work
 
@@ -255,6 +251,19 @@ decomposed into exactly five causes, each with a different fix path — recorded
    return-counts-as-branch family ([#2545](https://github.com/squid-protocol/gitgalaxy/issues/2545))
    and the ×3 flux weighting ([#2546](https://github.com/squid-protocol/gitgalaxy/issues/2546))
    inflating the cross-language median. No JCL action; re-baselines when those land.
+
+**2026-09-05 revisit (#2748–#2751).** The second-look pass over every non-green rosetta cell
+re-read bucket 4's zeros against the live rules and the crucible corpus and found that three of
+them were rule gaps after all, plus one over-count: `api` (`//name PROC` — 185 of the corpus's
+376 EXEC steps invoke a procedure), `cleanup` (`DISP=(…,DELETE)` — #2610's io-overlap rejection
+no longer held once #2733 accepted the same overlap for `sync_locks`), `globals` (JOBLIB vs
+STEPLIB, SET vs PROC parameters, EXPORT SYMLIST — the scoped-vs-global distinction bucket 4 said
+did not exist) and `high_risk_execution` (a bare `PGM=` counted every step, so the corpus had
+been dodging the rule with `EXEC <proc>` steps rather than measuring it). §3/§4 carry the rules
+and the reasoning; `doc` and `test` were re-checked and stay `None` with corpus evidence. The
+corpus pairing (a PROC wrapper, a `DISP=(OLD,DELETE)` DD that also pays #2742's owed
+`DISP=OLD` plant, no new plant for `globals` since `b.jcl`'s two `SET` lines already read 2,
+and `PGM=IKJEFT01`/`BPXBATCH` in place of `IEFBR14`) is keyword-rosetta#59.
 
 **Remaining out-of-band** (all accounted, none actionable at the JCL level): the bucket-4
 morphology zeros (final disposition is the epic's scoring-side "absent morphology = incomparable"

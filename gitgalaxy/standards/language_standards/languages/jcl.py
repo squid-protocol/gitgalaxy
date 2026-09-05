@@ -78,8 +78,34 @@ DEFINITION: dict[str, Any] = {
         "func_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]*)[ \t]+EXEC\b", re.M | re.I),
         # Classes/Entities (JOB cards). Same `\s+` -> `[ \t]+` cross-line fix as above.
         "class_start": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]+)[ \t]+JOB\b", re.M | re.I),
-        # Danger (Execution of arbitrary programs)
-        "high_risk_execution": re.compile(r"\bPGM=[A-Za-z0-9_#$@]+\b", re.I),
+        # Danger (execution of arbitrary programs). #2751: the rule used to be a
+        # bare `PGM=<anything>`, which counted every step -- running a program
+        # is what a JCL step IS, so the metric read "how many steps name a
+        # program" rather than "how many steps execute something arbitrary".
+        # On the language-crucible corpus that was 188 hits over 376 EXEC
+        # statements: IKJEFT01 60, IEFBR14 26 (a program that does NOTHING --
+        # run only for its DD allocation/deletion side effects), IDCAMS 16,
+        # compilers and the linker 26, copy utilities 12, application programs
+        # 38. A compile-link-go job scored three high-risk executions for
+        # compiling. No other language's high_risk_execution counts "runs a
+        # command" (shell/dockerfile/python count eval/exec/os.system, not every
+        # command line), so the same planted intent read differently in JCL.
+        # Narrowed to the programs whose purpose is to execute CALLER-SUPPLIED
+        # commands: TSO/E batch (IKJEFT01 and its IKJEFT1A/IKJEFT1B variants,
+        # which run whatever SYSTSIN carries -- TSO commands, CLISTs, REXX, DB2
+        # DSN RUN PROGRAM), the z/OS UNIX shell and program launchers
+        # (BPXBATCH/BPXBATSL/BPXBATA2/BPXBATA8, AOPBATCH), the REXX
+        # interpreter (IRXJCL) and batch SDSF (its ISFIN stream issues MVS
+        # operator commands). Compilers, copy/catalog utilities and IEFBR14 are
+        # steps, not arbitrary execution; IDCAMS/IEHPROGM/ADRDSSU are
+        # destructive-capable utilities but execute a fixed command language,
+        # so they are left out on the same reasoning that keeps `rm` (not
+        # `rm -rf /`) out of shell's rule. Unanchored like the other operand
+        # rules: PGM= can sit on a `//` continuation line (the #2482 shape).
+        "high_risk_execution": re.compile(
+            r"\bPGM=(?:IKJEFT01|IKJEFT1[AB]|BPXBATCH|BPXBATSL|BPXBATA[28]|AOPBATCH|IRXJCL|SDSF)\b",
+            re.I,
+        ),
         # I/O (Data Set Names and Sysouts)
         "io": re.compile(r"\b(DSN|DSNAME|SYSOUT|SYSPRINT|DISP=)\b", re.I),
         # #2610: JCL's error handling is the COND= operand -- a return-code
@@ -93,7 +119,21 @@ DEFINITION: dict[str, Any] = {
         # deliberately counts BOTH -- it carries a real RC test and a run-even-
         # after-abend bypass at once.
         "safety": re.compile(r"\bCOND=(?!(?:EVEN|ONLY)\b)", re.I),
-        "api": None,
+        # #2748: a cataloged or in-stream procedure is JCL's callable surface --
+        # `//name PROC` declares what `EXEC name` / `EXEC PROC=name` in other
+        # members invoke, which is the api contract's definition (a declaration
+        # that makes a named unit visible outside the file it is declared in;
+        # docs/api_rule_contract.md, fallback family). On the language-crucible
+        # corpus 185 of the 376 EXEC statements invoke a procedure and 13
+        # members declare one (10 of them in the member's first seven lines --
+        # the member IS the procedure). Corollary 1 keeps the call site out:
+        # `EXEC name` is a reference. Name optional like the other statement
+        # rules (a cataloged PROC statement may be unnamed); `PEND` only closes
+        # an in-stream proc and is not a second declaration. A PROC that carries
+        # parameter defaults (`//BATCH PROC MEMBER=`) also matches args' `PROC`
+        # alternative -- a declaration with its parameter list, the same
+        # api+args pair every `def f(x)` produces.
+        "api": re.compile(r"^[ \t]*//([A-Za-z0-9_#$@]*)[ \t]+PROC\b", re.M | re.I),
         # #2610: COND=EVEN ("run even if a prior step abended") and COND=ONLY
         # ("run only after an abend") execute a step in spite of upstream
         # failure -- JCL's native ignore-the-error idiom. Two alternatives:
@@ -146,9 +186,61 @@ DEFINITION: dict[str, Any] = {
         # than the line carrying the ddname, the same real-corpus shape the
         # args rule's #2482 note documents.
         "sync_locks": re.compile(r"\bDISP=\(?(?:OLD|MOD)\b", re.I),
+        # #2749: DELETE as a dataset's normal-termination disposition is JCL's
+        # teardown idiom -- `//S EXEC PGM=IEFBR14` + `DD DSN=X,DISP=(MOD,DELETE,
+        # DELETE)` is THE way a batch job deletes a dataset (a no-op program run
+        # purely for the allocation side effect), and `DISP=(OLD,DELETE)` on a
+        # `&&TEMP` dataset frees it once the step is done. That is what cleanup
+        # measures through each language's own idiom elsewhere (shell's `rm -f`
+        # / `trap ... EXIT`, dockerfile's `apt-get clean`, yaml's `docker
+        # compose down`, #2647).
+        # #2610 declined this for the `io` overlap; #2733 (PR #2742) reversed
+        # that posture for the same operand's OLD/MOD subset, and the same
+        # measurement applies here: on the language-crucible corpus 36 of 533
+        # `DISP=` occurrences (13 of 186 files) carry DELETE in the
+        # normal-termination position. Narrowed to that position deliberately:
+        # the abnormal-termination positional (`DISP=(NEW,CATLG,DELETE)`, 12
+        # more) is a conditional disposition on an ALLOCATION -- the step's
+        # intent is to create the dataset and keep it, and only discard it if
+        # the step abends -- so it is excluded, the way `DISP=SHR`/`NEW` stay
+        # out of sync_locks. `[^,()\n]*` for the status positional accepts the
+        # omitted form `DISP=(,DELETE)` (a scratch dataset created and dropped
+        # in one step) and cannot cross a newline or a paren, so the scan is
+        # bounded to one operand (ReDoS-safe: the class excludes `,`, so the
+        # comma partitions at exactly one position).
+        # The overlap is accepted, not avoided, on #2742's terms: every hit is
+        # also an `io` hit (the DD's `DSN=`; `DISP=(` itself does not match
+        # io's `\bDISP=\b` -- no word boundary between `=` and `(`), and the
+        # `(OLD,DELETE)` / `(MOD,DELETE,DELETE)` forms are also sync_locks hits,
+        # because they hold an exclusive ENQ on the dataset they then drop.
+        # Pinned by test_jcl_cleanup_overlaps_io_and_sync_locks_by_design.
+        "cleanup": re.compile(r"\bDISP=\([^,()\n]*,[ \t]*DELETE\b", re.I),
         "ui_framework": None,
         "closures": None,
-        "globals": None,
+        # #2750: JCL does have a scoped-vs-global distinction, in three places:
+        # `//JOBLIB DD` is the program search library for EVERY step of the job
+        # (its step-scoped twin, `//STEPLIB DD`, applies to one step and is not
+        # counted -- crucible: JOBLIB in 32 files, STEPLIB 70 lines in 59); a
+        # `// SET SYM=value` symbol is readable by every later statement in the
+        # job (its scoped twin is a `PROC` parameter -- SET 39 lines in 12
+        # files); `// EXPORT SYMLIST=` makes symbols visible inside in-stream
+        # data (2). That is the global-vs-local pair globals measures elsewhere
+        # (a python module-level name vs a def-local, dockerfile's image-wide
+        # `ENV` vs a RUN-local export, yaml's `${{ env.X }}`).
+        # SET is also `state_mutation`, and that is dockerfile's `ENV` shape
+        # exactly -- dual globals + state_mutation, ledgered in the rosetta
+        # corpus as batch4-dual-keyword-overlaps: a declaration that creates a
+        # job-wide symbol is both the creation of global state and a mutation
+        # of it. JOBLIB's DD line is also an `io` hit (its DSN) and a
+        # `_dependency_capture` edge, which is right -- a JOBLIB is a dependency
+        # of every step. Same anchoring as state_mutation (a real statement
+        # line, never inline SYSIN payload); the JOBLIB alternative is named
+        # exactly so a `//JOBLIBX` or `//SYSPROC` ddname cannot match.
+        "globals": re.compile(
+            r"^[ \t]*//JOBLIB[ \t]+DD\b"
+            r"|^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:SET[ \t]+[A-Za-z0-9_#$@]+=|EXPORT[ \t]+SYMLIST\b)",
+            re.M | re.I,
+        ),
         "decorators": None,
         "generics": None,
         "comprehensions": None,

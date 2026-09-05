@@ -106,6 +106,11 @@ _JCL_SIMPLE_CASES = [
     ("dead_code", "//*CREL005 JOB ,,CLASS=A,MSGCLASS=H,", "//* PROC statements are documented in the runbook"),
     ("dead_code", "//*        SET COUNTER=1", "//* JOB scheduling notes live in the runbook"),
     ("dead_code", "//*        INCLUDE MEMBER=OLDPROC", "//* INCLUDE the operations team on any change"),
+    # #2733: sync_locks = the exclusive-ENQ dispositions. DISP=SHR (shared
+    # access, the default request) and DISP=NEW (allocation) are excluded.
+    ("sync_locks", "//SYSLIN   DD DISP=OLD,DSN=HLQ.SAMPLE.OBJ(SAM1)", "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR"),
+    ("sync_locks", "//DD1      DD DSN=HLQ.CUSTRPT,DISP=(MOD,DELETE,DELETE),", "//SYSUT2   DD DISP=(NEW,CATLG),DSN=HLQ.OUT"),
+    ("sync_locks", "//SYSLIN   DD  DSNAME=&&LOADSET,DISP=(OLD,DELETE)", "//S1      EXEC PGM=IEBGENER,PARM='OLDMODE'"),
     # #2732: spec_exposure = the generic traceability tag, `//*`-anchored
     ("spec_exposure", "//* [SPEC-4412] see the change request", "//* nothing traceable here"),
     ("spec_exposure", "//* raised under [audit] last quarter", "//* the behaviour is [specified] upstream"),
@@ -361,6 +366,76 @@ def test_jcl_cond_bypass_redos_immunity():
     pattern = JCL_RULES["safety_bypasses"]
     assert_redos_immune(pattern, "//X EXEC PGM=Y,COND=(" + "(A)," * 20000, timeout_sec=3.0)
     assert_redos_immune(pattern, "//X EXEC PGM=Y,COND=(" + "A" * 100000, timeout_sec=3.0)
+
+
+def test_jcl_sync_locks_only_the_exclusive_enq_dispositions():
+    """
+    #2733: DISP=OLD/MOD request an exclusive system ENQ on the dataset; DISP=SHR
+    and DISP=NEW do not declare contention over an existing resource and must
+    stay out of the lock signal. The rule is a deliberately narrow subset of the
+    `DISP=` operand `io` already counts (~9% of corpus occurrences), so the
+    exclusions are the substance of the design -- assert them directly rather
+    than trusting the positive cases alone.
+    """
+    sync_locks = JCL_RULES["sync_locks"]
+
+    for exclusive in (
+        "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=OLD",
+        "//SYSLIN   DD DISP=(OLD,DELETE),DSN=&&LOADSET",
+        "//DD1      DD DSN=HLQ.CUSTRPT,DISP=(MOD,DELETE,DELETE),",
+        "//SYSUT1   DD DISP=(MOD,PASS),SPACE=(CYL,(1,1))",
+    ):
+        assert sync_locks.search(exclusive), f"missed an exclusive-ENQ disposition: {exclusive!r}"
+
+    for shared_or_new in (
+        "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR",
+        "//SYSUT2   DD DISP=(NEW,CATLG,DELETE),DSN=HLQ.OUT",
+        "//SYSUT3   DD DISP=(,PASS),UNIT=SYSDA",
+    ):
+        assert not sync_locks.search(shared_or_new), f"counted a non-exclusive disposition: {shared_or_new!r}"
+
+    # The disposition keyword itself is required -- a bare OLD/MOD token
+    # elsewhere on the statement (a PARM value, a dataset name) is not a lock.
+    for not_a_disposition in (
+        "//S1      EXEC PGM=IEBGENER,PARM='OLDMODE'",
+        "//SYSUT1   DD DSN=HLQ.OLD.BACKUP,DISP=SHR",
+        "//SYSUT1   DD DISP=OLDER",
+        "//SYSUT1   DD DISPOSITION=OLD",
+    ):
+        assert not sync_locks.search(not_a_disposition), f"false positive: {not_a_disposition!r}"
+
+    # Operand-anchored, not line-anchored: DISP= routinely sits on a `//`
+    # continuation line rather than the line carrying the ddname (the #2482
+    # shape), exactly as io/safety/telemetry already assume.
+    continuation = "//SYSUT1   DD DSN=HLQ.WORK,\n//            DISP=(MOD,DELETE,DELETE),\n//            UNIT=SYSDA"
+    assert sync_locks.search(continuation)
+
+
+def test_jcl_sync_locks_overlaps_io_by_design():
+    """
+    #2733: every sync_locks hit is also an `io` hit, because `io` counts the
+    bare `DISP=` keyword. That overlap is the design decision the issue records
+    (accepted for a narrow OLD/MOD subset, unlike the broad `cleanup` rule
+    #2610 rejected), so pin it as intended behaviour -- if a later change makes
+    the two rules disjoint, that is a decision to re-make, not a silent drift.
+    """
+    sync_locks = JCL_RULES["sync_locks"]
+    io = JCL_RULES["io"]
+
+    exclusive = "//SYSLIN   DD DISP=(OLD,DELETE),DSN=&&LOADSET"
+    assert sync_locks.search(exclusive) and io.search(exclusive)
+
+    # ...but the converse does not hold: the overwhelming majority of DISP=
+    # occurrences (427 of 525 in the corpus) are DISP=SHR, io-only.
+    shared = "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR"
+    assert io.search(shared) and not sync_locks.search(shared)
+
+
+def test_jcl_sync_locks_redos_immunity():
+    """#2733: no nesting and no unbounded repetition, but hold the line on it."""
+    pattern = JCL_RULES["sync_locks"]
+    assert_redos_immune(pattern, "//X DD " + "DISP=(" * 20000, timeout_sec=3.0)
+    assert_redos_immune(pattern, "//X DD DISP=(" + "OLD" * 50000, timeout_sec=3.0)
 
 
 def test_jcl_dead_code_counts_through_the_real_comment_stream():

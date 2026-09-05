@@ -106,6 +106,7 @@ _CSS_SIMPLE_CASES = [
     ("safety_bypasses", "* { box-sizing: border-box; }", ".foo { color: red; }"),
     ("high_risk_execution", "width: expression(body.scrollTop);", "width: 100%;"),
     ("api", ":root { --main-color: blue; }", ".foo { color: blue; }"),
+    ("io", "background-image: url('hero.png');", "color: red;"),
     ("dead_code", "/* .old-class { display: none; } */", ".live-class { display: block; }"),
     ("doc", "/** @param --color The theme color */", "/* just a note */"),
     ("test", "[data-testid='submit'] { color: red; }", ".foo { color: red; }"),
@@ -139,6 +140,11 @@ _CSS_SIMPLE_CASES = [
     ("args", "clamp(0.5rem, calc(1rem + 2vw), 1.5rem)", ".min-width-class { }"),
     ("args", "color: lch(from var(--color) l c h / calc(alpha * 0.8));", None),
     ("args", 'background: url("data:image/svg+xml;utf8,<svg...</svg>");', None),
+    ("io", "  src: url(icomoon.woff2) format('woff2');", "@import url('base.css');"),
+    ("io", "background: #fff url(/img/refresh.svg) 5px 3px no-repeat;", 'background: url("data:image/svg+xml,%3Csvg/%3E");'),
+    ("io", "--icon-token: url('../img/logo.svg');", "--icon-token: url(\"data:image/png;base64,iVBOR\");"),
+    ("io", "src: local('Open Sans'), local('OpenSans'), url('OpenSans.ttf') format('truetype');", "clip-path: url(#clip0);"),
+    ("io", "cursor: url(grab.cur), pointer;", "mask-image: url( #mask );"),
     ("func_start", "@media screen and (min-width: 900px), \\n print {", "@import url('foo.css');"),
     ("func_start", "  @keyframes slide-in {", 'content: "@media";'),
     ("func_start", "@supports not (display: grid) {", None),
@@ -191,6 +197,127 @@ def test_css_dependency_capture_extracts_import_path():
     assert m and m.group(1) == "base.css"
     m2 = pattern.search('@import "theme.css";')
     assert m2 and m2.group(1) == "theme.css"
+
+
+# ==============================================================================
+# Issue #2752: css `io` was `None`; url() resource fetches were invisible
+# ==============================================================================
+# `io` was wired to None under the rationale that a `url()`/`@import` fetch
+# "does not block a computational thread". html's own `io` rule counts
+# `src=`/`href=`/`<img>`/`<iframe>` -- the same non-blocking, paint-time
+# loads -- so blocking-ness is not what separates io from not-io; a resource
+# boundary is. The three exclusions below are what the old caution actually
+# bought, and each is pinned here.
+
+
+def test_css_io_counts_resource_fetching_declarations():
+    """The positive surface: a declaration whose value loads an external file."""
+    io = CSS_RULES["io"]
+    assert io is not None, "css io was re-wired to None; #2752 made it a rule"
+    for positive in (
+        "background-image: url('hero.png');",
+        "background:#fff url(/img/refresh.svg) 5px 3px no-repeat;",
+        "  src: url('icomoon.eot?h6xgdm#iefix') format('embedded-opentype');",
+        "list-style-image: url(bullet.svg);",
+        "border-image-source: url(../frame.png);",
+        "--brand-logo: url('../img/logo.svg');",
+        "background : url(spaced-colon.png);",
+        "BACKGROUND-IMAGE: URL(UPPER.PNG);",
+    ):
+        assert io.search(positive), f"css io missed a real resource fetch: {positive!r}"
+
+
+def test_css_io_does_not_re_count_the_import_already_counted_twice():
+    """
+    Exclusion 1 (keyword-rosetta ledger `css-import-url-io-triple-overlap`):
+    `@import url("a.css")` already produces `args` + `import` +
+    `_dependency_capture`. io is anchored on a declaration's `:`, and an
+    at-rule prelude has none, so it stays at those hits rather than a fourth.
+    """
+    io = CSS_RULES["io"]
+    for at_rule in (
+        '@import url("a.css");',
+        "@import url('base.css') layer(base);",
+        '@import "theme.css";',
+    ):
+        assert not io.search(at_rule), f"css io double-counted an @import: {at_rule!r}"
+        assert CSS_RULES["import"].search(at_rule), "sanity: import must still own the @import"
+
+    # ... and `@` is excluded from the value span, so a preceding declaration's
+    # colon cannot bridge forward into the at-rule prelude either.
+    assert not io.search('color: red\n@import url("a.css")')
+
+
+def test_css_io_excludes_data_uris_and_in_document_fragments():
+    """
+    Exclusions 2 and 3. A `data:` URI is an inline payload and a `url(#id)`
+    is a same-document reference -- neither crosses an I/O boundary. 59 of
+    language-crucible's 117 `url(` tokens are data URIs, so this is the
+    majority construct, not an edge case.
+    """
+    io = CSS_RULES["io"]
+    for inline in (
+        'background-image: url("data:image/svg+xml,%3Csvg/%3E");',
+        "--bs-form-switch-bg: url(data:image/svg+xml,%3csvg%3e);",
+        'background: url("data:image/png;base64,iVBORw0KGgo=");',
+        "clip-path: url(#clip0_6958);",
+        "mask-image: url( '#mask' );",
+        "filter: url(#blur);",
+    ):
+        assert not io.search(inline), f"css io hallucinated a fetch on an inline payload: {inline!r}"
+
+
+def test_css_io_does_not_walk_into_an_inlined_svg_payload():
+    """
+    The trap the `%`/`<>` value-span exclusions exist for: a
+    `data:image/svg+xml` value is an entire SVG document inlined as text,
+    carrying its OWN `url(#...)` references and `xmlns='http:`-shaped
+    colons. Without the guard, the scan resumes inside the payload and
+    scores one "fetch" per embedded icon -- measured 70 hits instead of 14
+    across language-crucible's css corpus, 50 of them from this one file
+    shape. Both the percent-escaped and the raw inlining styles are covered.
+    """
+    io = CSS_RULES["io"]
+    escaped = (
+        "background-image: url(\"data:image/svg+xml,%3Csvg width='1000' fill='none' "
+        "xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-path='url(%23clip0_6958)'%3E%3C/g%3E%3C/svg%3E\");"
+    )
+    raw = (
+        "background-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\">"
+        "<g fill=\"url(#grad)\"/></svg>');"
+    )
+    assert not io.search(escaped), "css io walked into a percent-escaped SVG data URI"
+    assert not io.search(raw), "css io walked into a raw SVG data URI"
+
+    # the guard must not cost the fetch that follows one in the next declaration
+    assert io.search(escaped + "\nbackground-image: url(../img/real.png);")
+
+
+def test_css_io_property_anchor_is_a_lookbehind_not_a_match_redos_regression():
+    """
+    Rule 14 regression. Spelling the property anchor as a match --
+    `[-a-zA-Z_][-\\w]*[ \\t]*:` -- puts an unbounded `[-\\w]*` adjacent to a
+    required `:`, so every identifier character becomes a start position
+    that backtracks the entire identifier run. Measured quadratic before
+    the fix (1.3s / 5.5s / 13.5s / 54s at 10k / 20k / 40k / 80k chars); the
+    fixed-width lookbehind the rule ships is linear on the same inputs.
+    """
+    quadratic = re.compile(r"[-a-zA-Z_][-\w]*[ \t]*:[^;{}@%<>]{0,200}?\burl\s*\(", re.I)
+    small = "background:" + "a" * 4000
+    large = "background:" + "a" * 8000
+    small_duration = _best_of_timing(quadratic, small)
+    large_duration = _best_of_timing(quadratic, large)
+    ratio = large_duration / small_duration if small_duration > 0 else 0
+    assert ratio > 2.2, (
+        f"sanity check: the match-anchored spelling was expected to show quadratic (~4x) scaling "
+        f"on a payload doubling, but only scaled {ratio:.2f}x "
+        f"({small_duration:.4f}s -> {large_duration:.4f}s)"
+    )
+
+    assert_redos_immune(CSS_RULES["io"], "background:" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(CSS_RULES["io"], "background:" + "a" * 100000 + "url(data:x)", timeout_sec=3.0)
+    assert_redos_immune(CSS_RULES["io"], "x:" * 50000, timeout_sec=3.0)
+    assert CSS_RULES["io"].search("background-image: url(real.png);")
 
 
 def test_css_args_and_scientific_nested_call_regression():

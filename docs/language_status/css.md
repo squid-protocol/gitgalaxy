@@ -1,6 +1,7 @@
 # CSS — Structural Signature Coverage
 
-Snapshot generated 2026-08-30 against `feature/tri-comparison-css-precision-recall`. Source:
+Snapshot generated 2026-08-30 against `feature/tri-comparison-css-precision-recall`, amended
+2026-09-05 for #2752 (`io`). Source:
 `LANGUAGE_DEFINITIONS["css"]` in `gitgalaxy/standards/language_standards.py`,
 `tests/extraction/languages/test_css.py` / `test_css_strict.py`, closed GitHub issues, and
 [`gitgalaxy-raw-output`](https://github.com/squid-protocol/gitgalaxy-raw-output). Re-run the
@@ -16,10 +17,10 @@ old relative to `last_updated` below.
 | `_meta.blueprint_version` | v5.0 |
 | `_meta.last_updated` | 2026-02-18 |
 | `lexical_family` | `standard_block` (`/* */` block comments; the SCSS/Less/Stylus dialects sharing this entry also use `//` line comments — not modelled, see §5) |
-| Structural signature keys wired | 30 / 48 (18 explicit `None`, see §4) |
+| Structural signature keys wired | 31 / 48 (17 explicit `None`, see §4) |
 | Extraction-gauntlet tests (`test_css.py`) | 18 |
-| Strict-signature tests (`test_css_strict.py`) | 74 |
-| Total dedicated CSS test cases | 92 |
+| Strict-signature tests (`test_css_strict.py`) | 85 |
+| Total dedicated CSS test cases | 103 |
 
 CSS is a declarative stylesheet language, so its rule set is deliberately smaller than a
 Turing-complete language's: nearly every `None` below is a documented refusal to hallucinate an
@@ -58,7 +59,7 @@ Grouped by the phase headers `language_standards.py` uses for CSS. Description i
 | `safety` | `@supports` feature queries, `var(--x, <fallback>)` with a fallback value present, `minmax()` / `clamp()` bounded ranges, and `contain: strict\|content\|paint\|layout` — CSS's defensive-fallback and containment constructs |
 | `safety_bypasses` | A line-start universal selector `*`, and a line-start high-specificity `#id { ... }` override block |
 | `high_risk_execution` | Legacy IE script-in-CSS and engine-thrash constructs: `expression(...)`, `behavior`, `-ms-filter` |
-| `io` | `None` — see §4 |
+| `io` | A declaration whose value fetches an external resource — a `url()` reached from a property's `:`. Excludes `@import url(...)` (an at-rule prelude has no colon, so the import keeps its existing `import` + `_dependency_capture` pair rather than a third hit), `url(data:...)` inline payloads, and `url(#id)` same-document references. Wired by #2752; the old `None` rested on url()/@import being non-blocking, which html's own `io` rule (`src=` / `href=` / `<img>`) shows is not the deciding factor |
 | `api` | Design-token / exposed-surface markers: `:root`, `@property`, a custom-property *definition* (`--name:`), and `::part(...)` |
 | `state_mutation` | `None` — see §4 |
 | `dead_code` | Commented-out (`/* ... */`) at-rules, class / ID selectors, or a `tag {`-style rule opener |
@@ -104,14 +105,17 @@ Two pairs above are **deliberate double-classifications**, asserted as intention
 
 ## 4. What GitGalaxy explicitly does not track
 
-Eighteen keys are hard-set to `None` in CSS's `rules` dict. Five carry a substantial inline
+Seventeen keys are hard-set to `None` in CSS's `rules` dict. Four carry a substantial inline
 rationale in `language_standards.py` (CSS is declarative — forcing an imperative regex onto it
 produces confident nonsense); the rest are constructs the language simply has no syntax for.
 
+`io` used to be a fifth. It was re-wired to a rule by #2752: the "declarative fetches don't block
+a compute thread" rationale is true but is not what separates `io` from not-`io` — html's `io`
+counts `src=` / `href=` / `<img>` / `<iframe>`, the same paint-time non-blocking loads. What the
+old `None` was really buying is now three explicit exclusions in the rule itself (`@import`,
+`url(data:...)`, `url(#fragment)`); see §3 and the inline comment.
+
 **`None` with an explicit "declarative hallucination" rationale in source:**
-- **`io`** — `url()` / `@import` fetch a visual asset during browser paint; they do not block a
-  compute thread on a database read or file write. A regex here would hallucinate severe I/O
-  bottlenecks on ordinary stylesheets.
 - **`state_mutation`** — defining a custom property (`--color: red;`) is a static declaration, not
   a sequential mutation like `x = x + 1`. Treating it as flux makes stylesheets mathematically
   outrank complex controllers in volatility.
@@ -162,12 +166,12 @@ accepted gaps are nonetheless documented in the test suite / closing PRs rather 
   `@keyframes` valid, `.x {` / `#x {` invalid) and `test_dependency_extraction.py` (`@import
   url(...)` / `@import "..."`). No CSS cases remain in `test_args_extraction.py` or
   `test_class_extraction.py`.
-- **Strict signature suite** (all other wired keys): 74 tests in
+- **Strict signature suite** (all other wired keys): 85 tests in
   `tests/extraction/languages/test_css_strict.py` (epic #518, issue #577) — a positive/negative
-  table across all 30 wired signatures plus adversarial cases for the high-ambiguity ones
+  table across all 31 wired signatures plus adversarial cases for the high-ambiguity ones
   (`branch`, `args`, `func_start`, `class_start`, `structural_boundaries`, `safety`,
   `reflection_metaprogramming`), the `@`-boundary leading-`\b` regression, dedicated ReDoS
-  regressions for `class_start`, `args`/`scientific`, and `spec_exposure`, the
+  regressions for `class_start`, `args`/`scientific`, `io`, and `spec_exposure`, the
   `class_start`-vs-`func_start` no-collision check, the two intentional-double-classification
   assertions from §3, the dual-comment-style audit from §5, and a full ReDoS-immunity sweep over
   every compiled CSS pattern.
@@ -198,6 +202,21 @@ accepted gaps are nonetheless documented in the test suite / closing PRs rather 
   (`.\31 23-number` was fully blocked by the old `[a-zA-Z_]` class), added the `@-webkit-keyframes`
   vendor prefix to `func_start`, and migrated the 18-case gauntlet into
   `tests/extraction/languages/test_css.py`.
+
+**Signature-coverage additions:**
+- [#2752](https://github.com/squid-protocol/gitgalaxy/issues/2752) — `io` was `None`, so a
+  stylesheet's resource fetches were invisible to every signal except `args` (which sees `url(`
+  only because CSS functional notation matches its call-shaped alternation, not as I/O). Found by
+  the [#2669](https://github.com/squid-protocol/gitgalaxy/issues/2669) pass over every non-green
+  cell of the keyword-rosetta bias report. The in-code rationale ("a `url()` fetch does not block
+  a computational thread") does not survive comparison with html's own `io` rule, which counts
+  `src=` / `href=` / `<img>` / `<iframe>` — the same paint-time, non-blocking loads. What the
+  `None` was actually buying became three explicit exclusions: `@import` (already counted twice,
+  keyword-rosetta ledger `css-import-url-io-triple-overlap`), `url(data:...)`, and `url(#id)`.
+  Measured against a quote-aware oracle over 136 real stylesheets (185 fetches, zero
+  disagreement); on `language-crucible`'s css corpus, 14 fetching declarations — 18 of its 117
+  `url(` tokens are real fetches, the other 99 are data URIs and the `url(#...)` references
+  *inside* those inlined SVG payloads.
 
 **Cross-language fixes that touched CSS along the way:**
 - [#645](https://github.com/squid-protocol/gitgalaxy/pull/645) (closing dart issue #578) — the

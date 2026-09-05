@@ -99,14 +99,57 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(?:expression|behavior|-ms-filter)\b"),
         # 9. io (I/O & Network Boundaries)
         # =====================================================================
-        # THE FIX: Prevent False I/O Latency Flags.
-        # HISTORICAL CONTEXT FOR FUTURE LLMS: CSS is a declarative language.
-        # Using `url()` or `@import` fetches a visual asset during browser paint;
-        # it does NOT block a computational thread to read from a database or
-        # write to a file system. If given a regex, the engine will hallucinate
-        # severe I/O bottlenecks on standard stylesheets. Must remain `None`.
+        # A DECLARATION WHOSE VALUE FETCHES AN EXTERNAL RESOURCE (#2752).
+        # HISTORICAL CONTEXT FOR FUTURE LLMS: this was `None` under the
+        # rationale that a `url()`/`@import` fetch "happens during browser
+        # paint and does not block a computational thread". That is true and
+        # is NOT the deciding factor: html's own `io` rule counts `src=` /
+        # `href=` / `<img>` / `<iframe>`, which are the same non-blocking,
+        # paint-time loads, and counts them as I/O. A resource boundary is
+        # what `io` measures; blocking-ness is not.
+        #
+        # Three exclusions carry the rest of the old caution, and each is
+        # load-bearing (all three were measured against a quote-aware
+        # oracle over 136 real stylesheets, 185 fetches, zero disagreement):
+        #
+        #  1. `@import` is NOT counted. The rule is anchored on a
+        #     declaration's `:` (with `(?<=[-\w])` for the property name it
+        #     terminates), and an at-rule prelude has no colon, so
+        #     `@import url("a.css")` keeps exactly the two hits it has today
+        #     (`import` + `_dependency_capture`) instead of a third. `@` is
+        #     excluded from the value span so no earlier declaration's colon
+        #     can bridge into an at-rule either. (keyword-rosetta ledger
+        #     `css-import-url-io-triple-overlap`.)
+        #  2. `url(data:...)` is NOT counted. A data URI is an inline
+        #     payload, not a boundary -- nothing is fetched. This is the
+        #     majority construct in the wild: 59 of language-crucible's 117
+        #     `url(` tokens are data URIs, and only 18 are real fetches.
+        #  3. `url(#fragment)` is NOT counted -- `clip-path: url(#mask)`
+        #     references an element in the same document.
+        #
+        # `%` and `<>` are excluded from the value span for exclusion 2's
+        # sake: a `data:image/svg+xml` payload is a whole SVG document
+        # inlined as text, and it contains its own `url(#...)` references
+        # plus `xmlns='http:`-shaped colons. Without that guard the scan
+        # walks INTO the payload and hallucinates a fetch per embedded icon
+        # (measured: 70 hits instead of 14 on the crucible corpus). Both the
+        # percent-escaped (`%3Csvg`) and raw (`<svg`) inlining styles are
+        # covered. Cost: a value that writes a percentage before its url
+        # (`background: 50% 50% url(x.png)`) is missed -- zero occurrences
+        # in the 136-file sample.
+        #
+        # Rule 14: the property name is a fixed-width LOOKBEHIND, not a
+        # match. Spelling it `[-a-zA-Z_][-\w]*[ \t]*:` puts an unbounded
+        # `[-\w]*` adjacent to a required `:`, and every identifier char in
+        # the file becomes a start position that backtracks the whole run --
+        # measured quadratic (1.3s / 5.5s / 13.5s / 54s over 10k-80k chars
+        # of `background:aaaa...`). The lookbehind form is linear on the
+        # same inputs (0.5 / 0.8 / 1.7 / 3.2 ms).
         # =====================================================================
-        "io": None,
+        "io": re.compile(
+            r"(?<=[-\w])[ \t]*:[^;{}@%<>]{0,200}?\burl\s*\((?!\s*['\"]?\s*(?:data:|#))",
+            re.I,
+        ),
         # 10. api (Public Surface Area)
         # Design Tokens and global properties exposed for script/component consumption.
         "api": re.compile(r":root\b|@property\b|--[a-zA-Z0-9_-]+\s*:|::part\s*\([^)]*\)", re.I),

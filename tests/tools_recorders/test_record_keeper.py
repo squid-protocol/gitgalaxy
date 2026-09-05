@@ -366,6 +366,16 @@ def test_record_keeper_persists_doc_loc(keeper, mock_pipeline_state, tmp_path):
 # state_slop_orphans only ever carry the adjusted values. The raw
 # pre-adjustment counts must round-trip via file_data["raw_pre_adjustment"]
 # into the additive raw_arch_api / raw_state_slop_orphans columns.
+#
+# #2729 asked for the split between the two to be explicit somewhere the test
+# surface can see it, because `api` in the risk equations is not the `api`
+# rule. These tests are the recorder half of that: they pin the round-trip
+# only. What the ADJUSTED value should be is galaxyscope.py's decision and is
+# pinned in tests/core_engine/test_galaxyscope.py; how much of it the api rule
+# already declared is detector.py's and is pinned in test_detector.py
+# (`api_declared_orphans`, #2731). Do not re-derive the conversion here from
+# the raw columns -- see the note on the arithmetic in
+# test_raw_columns_persist_pre_adjustment_values.
 # ==============================================================================
 @pytest.fixture
 def baseline_keeper():
@@ -409,9 +419,21 @@ def _fetch_raw_row(db_path):
 
 def test_raw_columns_persist_pre_adjustment_values(baseline_keeper, tmp_path):
     """An imported file with uncalled defs: the Contextual Baseline Fix folded
-    raw orphaned_logic=3 into api (2 -> 5), so the adjusted hit_vector is
-    [5, 0] -- but the raw snapshot must survive verbatim, with the invariant
-    adjusted api == raw_api + raw_orphaned_logic."""
+    the raw orphans into api (2 -> 5), so the adjusted hit_vector is [5, 0] --
+    but the raw snapshot must survive verbatim alongside it, which is the only
+    thing that makes the rule's own count recoverable downstream.
+
+    #2729/#2731 correction: `adjusted == raw_api + raw_orphans` is NOT an
+    invariant of the engine and this test never proved it was one -- both
+    numbers are fed in as literals here. Since #2731 (shipped in #2734) the
+    conversion credits `orphans - api_declared_orphans`, so a file whose api
+    rule already declared some of its orphans records an adjusted value BELOW
+    that sum; total overlap (every public function uncalled, the library case)
+    makes it `raw_api` exactly. This fixture is the no-overlap case, which is
+    why 2 + 3 == 5 holds in it. Asserting the sum as a general law here would
+    re-introduce the double count as an expectation -- the arithmetic is
+    galaxyscope.py's, and test_galaxyscope.py's
+    test_contextual_baseline_fix_* own it."""
     db_path = tmp_path / "test_raw_adjusted.sqlite"
     parsed, unparsable, summary, session = _baseline_state(
         hit_vector=[5, 0], raw_pre_adjustment={"api": 2, "orphaned_logic": 3}
@@ -424,8 +446,35 @@ def test_raw_columns_persist_pre_adjustment_values(baseline_keeper, tmp_path):
     assert row["state_slop_orphans"] == 0, "Adjusted orphaned_logic must persist unchanged"
     assert row["raw_arch_api"] == 2, "Raw pre-adjustment api was not preserved"
     assert row["raw_state_slop_orphans"] == 3, "Raw pre-adjustment orphaned_logic was not preserved"
-    assert row["arch_api"] == row["raw_arch_api"] + row["raw_state_slop_orphans"], (
-        "Contextual Baseline Fix invariant broken: adjusted api must equal raw api + raw orphans"
+    # The point of the raw columns: the conversion is recoverable as
+    # adjusted - raw, WITHOUT assuming it equals the raw orphan count.
+    # keyword-rosetta's gate reads exactly this subtraction as
+    # `api_orphan_credit` (gitgalaxy#2729).
+    assert row["arch_api"] - row["raw_arch_api"] == 3, "the converted-orphan credit is not recoverable"
+
+
+def test_raw_columns_recover_a_partial_conversion_credit(baseline_keeper, tmp_path):
+    """#2731's shape, which the sum-based assertion above used to exclude by
+    construction: three orphans, two of them ALREADY declared public by the
+    language's api rule, so the fix credits only the third. Adjusted api is
+    raw 4 + 1 = 5, not raw 4 + orphans 3 = 7 -- and the credit the corpus gate
+    reads (adjusted - raw) is 1, the number of orphans that were genuinely new
+    surface. Recording the raw column is what keeps those two readings
+    distinguishable at all; before #2536 only the 5 survived."""
+    db_path = tmp_path / "test_raw_partial.sqlite"
+    parsed, unparsable, summary, session = _baseline_state(
+        hit_vector=[5, 0], raw_pre_adjustment={"api": 4, "orphaned_logic": 3}
+    )
+
+    baseline_keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    row = _fetch_raw_row(db_path)
+    assert row["raw_arch_api"] == 4
+    assert row["raw_state_slop_orphans"] == 3
+    assert row["arch_api"] == 5, "the adjusted value must round-trip as given, partial credit included"
+    assert row["arch_api"] - row["raw_arch_api"] == 1, "partial conversion credit was not recoverable"
+    assert row["arch_api"] != row["raw_arch_api"] + row["raw_state_slop_orphans"], (
+        "a partial credit must NOT satisfy the pre-#2731 sum -- that sum was the double count"
     )
 
 

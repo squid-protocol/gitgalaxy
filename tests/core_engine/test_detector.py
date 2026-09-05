@@ -3985,3 +3985,121 @@ def test_detector_yacc_grammar_without_a_union_declares_no_class():
 
     assert result.get("classes") == [], f"a grammar with no %union must declare no class, got {result.get('classes')}"
     assert not result["equations"].get("class_start"), "no %union directive means no class_start signal"
+
+
+# ==============================================================================
+# #2727 / #2728: THE ORPHAN & DUPLICATE CENSUS
+# ==============================================================================
+def test_orphan_test_is_scoped_to_the_function_own_span():
+    """#2727: an orphan is a function nothing outside its own definition names.
+
+    The old test counted the name over the WHOLE code stream, so whether a
+    function read as orphaned depended on how many times the language's syntax
+    writes it. Ada closes with `end Probe_Globals;` and LiveCode ends a handler
+    by name -- count 2 before anything calls it, so neither language could ever
+    report an orphan (measured: livecode reported 3 across the crucible where
+    the scoped test finds 127).
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    ada = StructuralExtractor("ada", LANGUAGE_DEFINITIONS)
+    uncalled = "procedure Probe_Globals (Env : Integer) is\nbegin\n   null;\nend Probe_Globals;\n"
+    assert ada.splice(uncalled, "")["equations"].get("orphaned_logic", 0) == 1, (
+        "a procedure whose only other mention is its own `end Name;` is an orphan"
+    )
+
+    called = uncalled + "procedure Caller is\nbegin\n   Probe_Globals (1);\nend Caller;\n"
+    eq = ada.splice(called, "")["equations"]
+    assert eq.get("orphaned_logic", 0) == 1, (
+        "a real call from another procedure must clear the flag -- only Caller stays orphaned"
+    )
+
+
+def test_orphan_test_discounts_a_declaration_that_falls_outside_the_span():
+    """#2727, the correction the issue's own fix shape missed.
+
+    The span does not reliably contain the function's declaration: shell's
+    Mode-B spans start at the `{`, so a K&R `make_module()` on the PREVIOUS line
+    sits outside its own body. Counting outside the span naively makes the
+    declaration itself read as a reference and clears the flag -- measured on
+    the crucible, ruby fell 51 -> 44 orphans that way, html 5 -> 2, shell 8 -> 3,
+    all real ones lost. When the span holds no occurrence of the name, the
+    definition site is outside it by construction, so exactly one outside
+    occurrence is that declaration and is discounted.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    shell = StructuralExtractor("shell", LANGUAGE_DEFINITIONS)
+    kr_style = 'make_module()\n{\n        MODULES="${MODULES} ${1}"\n}\n'
+    assert shell.splice(kr_style, "")["equations"].get("orphaned_logic", 0) == 1, (
+        "K&R shell function, never called: its own declaration line must not count as a reference"
+    )
+
+    called = kr_style + "make_module foo\n"
+    assert shell.splice(called, "")["equations"].get("orphaned_logic", 0) == 0, (
+        "a real invocation outside the body must still clear the flag"
+    )
+
+
+def test_orphan_test_finds_names_containing_non_word_characters():
+    """#2727 fixes a third defect neither issue named.
+
+    The old whole-file counter tokenized with `\\b\\w+\\b`, which cannot produce a
+    token containing `-`, `:` or `.`. A name holding any of them therefore had a
+    count of ZERO and satisfied `<= 1` unconditionally -- every C++ `Class::method`,
+    PowerShell `Verb-Noun`, Tcl `::ns::proc`, Scheme/Lisp hyphenated define and
+    COBOL paragraph in the corpus was classified as an orphan no matter how many
+    times it was called. Measured on the language-crucible: cpp 1054 -> 720
+    orphans, tcl 210 -> 148, powershell 56 -> 3, scheme 60 -> 10, abap 41 -> 8.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    scheme = StructuralExtractor("scheme", LANGUAGE_DEFINITIONS)
+    code = "(define (probe-globals env) env)\n(export probe-globals)\n"
+    assert scheme.splice(code, "")["equations"].get("orphaned_logic", 0) == 0, (
+        "a hyphenated name named again elsewhere in the file is not an orphan"
+    )
+
+    uncalled = "(define (probe-globals env) env)\n"
+    assert scheme.splice(uncalled, "")["equations"].get("orphaned_logic", 0) == 1, (
+        "the same hyphenated name with nothing else naming it still is one"
+    )
+
+
+def test_closed_literal_capture_is_generated_not_hand_listed():
+    """#2728: the igniter-keyword bucket set is derived from each language's own
+    `func_start`, so it cannot drift away from what the slicer emits.
+
+    A rule whose capture can produce an author-written identifier must yield the
+    empty set -- that is what keeps the mechanism from swallowing real functions.
+    """
+    from gitgalaxy.core.detector import _closed_literal_capture
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    closed = {
+        lang: _closed_literal_capture(rules["rules"]["func_start"].pattern)
+        for lang, rules in LANGUAGE_DEFINITIONS.items()
+        if rules.get("rules", {}).get("func_start") is not None
+    }
+    assert {lang for lang, names in closed.items() if names} == {"css", "dockerfile", "html"}, (
+        "exactly three languages have a func_start capture that is a closed keyword set"
+    )
+    assert {"RUN", "CMD", "ENTRYPOINT", "HEALTHCHECK"} <= closed["dockerfile"]
+    assert {"keyframes", "media", "supports", "container", "layer"} <= closed["css"]
+    assert {"script", "style"} <= closed["html"]
+    for lang in ("python", "go", "cobol", "assembly", "jcl", "yaml"):
+        assert not closed.get(lang, frozenset()), f"{lang} captures real identifiers -- must opt out"
+
+
+def test_keyword_buckets_are_neither_duplicates_nor_orphans():
+    """#2728: four same-bodied `RUN` instructions are one Dockerfile, not
+    copy-pasted logic. `state_slop_duplicates` = 1 for dockerfile was the only
+    nonzero duplicate cell across 46 corpus languages, and it was a phantom.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    docker = StructuralExtractor("dockerfile", LANGUAGE_DEFINITIONS)
+    code = "FROM debian\nRUN apt-get update\nRUN apt-get update\nRUN apt-get update\nRUN apt-get update\n"
+    eq = docker.splice(code, "")["equations"]
+    assert not eq.get("duplicate_logic"), "identical RUN instructions are not duplicated functions"
+    assert not eq.get("orphaned_logic"), "a RUN bucket is a keyword, and a keyword cannot be orphaned"

@@ -3828,3 +3828,84 @@ def test_detector_yaml_single_line_step_survives_two_line_floor():
     names = [f["name"] for f in result["functions"]]
 
     assert len(names) == 2, f"expected both the single-line and multi-line run: steps, got {names}"
+
+
+# ==============================================================================
+# TEST: WHICH ORPHANS THE api RULE ALREADY COUNTED (#2731)
+# ==============================================================================
+def test_detector_counts_orphans_the_api_rule_already_declared():
+    """
+    Regression for #2731: galaxyscope.py's Contextual Baseline Fix converts an
+    imported file's orphans into API exposure, but had no way to ask whether the
+    language's own `api` rule had already counted those same declarations -- so
+    a function that is both declared public and uncalled was counted twice
+    (keyword-rosetta's `data/go/a.go`: 3 exported, uncalled functions, api 6).
+
+    `api_declared_orphans` is that missing number. Uses the REAL definitions:
+    the whole point is the interaction with a language's actual api rule.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    go_detector = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
+    code = (
+        "package main\n"
+        "\n"
+        "func ProbeGlobals(env int) int {\n"
+        "    os.Getenv(env)\n"
+        "    return env\n"
+        "}\n"
+        "\n"
+        "func ProbeSafety(value int) int {\n"
+        "    context.Context(value)\n"
+        "    return value\n"
+        "}\n"
+    )
+
+    result = go_detector.splice(code, "")
+
+    assert result["equations"].get("orphaned_logic", 0) == 2, "both exported functions must census as orphans"
+    assert result["equations"].get("api", 0) >= 2, "go's api rule must count both exported declarations"
+    assert result["api_declared_orphans"] == 2, (
+        "both orphans are declared public -- converting them again would double-count the same identifiers"
+    )
+
+
+def test_detector_api_declared_orphans_ignores_hits_outside_the_declaration():
+    """
+    #2731's overlap test is by NAME, not by span: an api hit that is not on the
+    orphan's own declaration line is somebody else's public surface and must not
+    suppress that orphan's conversion.
+
+    C is the sharp case. Its api rule matches any non-`static` declaration-shaped
+    line, including the local variable declarations inside a function body, so a
+    span-containment test would call every orphan already-public. A `static`
+    (file-local) function is not public surface at all: its conversion is the
+    Contextual Baseline Fix's own business, and #2731 must leave it alone.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    c_detector = StructuralExtractor("c", LANGUAGE_DEFINITIONS)
+    code = (
+        "static void hidden_helper(void)\n"
+        "{\n"
+        "    int counter = 0;\n"
+        "    counter++;\n"
+        "}\n"
+        "\n"
+        "void exported_entry(void)\n"
+        "{\n"
+        "    int scratch = 0;\n"
+        "    scratch++;\n"
+        "}\n"
+    )
+
+    result = c_detector.splice(code, "")
+
+    orphans = {f["name"] for f in result["functions"] if f.get("usage_status") == 1}
+    assert orphans == {"hidden_helper", "exported_entry"}, (
+        f"expected both functions to census as orphans, got {orphans}"
+    )
+    assert result["api_declared_orphans"] == 1, (
+        "only the non-static declaration is public surface the api rule already counted -- "
+        "the static one's body-local `int counter = 0;` api hit must not suppress it"
+    )

@@ -1456,6 +1456,103 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertEqual(island["equations"]["orphaned_logic"], 4)
 
     # ==============================================================================
+    # TEST 17c: #2731 -- THE CONTEXTUAL BASELINE FIX CREDITS ONLY NEW SURFACE
+    # ==============================================================================
+    def test_contextual_baseline_fix_skips_already_declared_orphans(self):
+        """
+        #2731: a function that is both declared public and uncalled used to be
+        counted twice by the Contextual Baseline Fix -- once by the language's
+        own api rule at its declaration, once as a converted orphan (go: three
+        exported, uncalled functions recorded api 6). Only the orphans the api
+        rule did NOT already count are new public surface.
+
+        detector.py supplies the overlap as meta["api_declared_orphans"]; the
+        conversion has to subtract it, and has to stay clamped -- the two numbers
+        are counted in different passes over the file.
+        """
+        scope = Orchestrator(".", self.mock_config)
+
+        scope.ram_cache = {
+            # go/a.go's shape: 3 exported functions, none called in-file, all 3
+            # already counted by the api rule. Nothing new to credit.
+            "src/all_exported.go": {
+                "path": "src/all_exported.go",
+                "coding_loc": 100,
+                "lang_id": "go",
+                "equations": {"api": 3, "orphaned_logic": 3},
+                "api_declared_orphans": 3,
+            },
+            # Mixed: 3 orphans, 1 of them already public -> credit the other 2.
+            "src/mixed.go": {
+                "path": "src/mixed.go",
+                "coding_loc": 100,
+                "lang_id": "go",
+                "equations": {"api": 1, "orphaned_logic": 3},
+                "api_declared_orphans": 1,
+            },
+            # No overlap reported (the pre-#2731 shape, and every language whose
+            # api rule marks something other than function declarations): the
+            # original conversion is unchanged.
+            "src/no_overlap.py": {
+                "path": "src/no_overlap.py",
+                "coding_loc": 100,
+                "lang_id": "python",
+                "equations": {"api": 2, "orphaned_logic": 3},
+            },
+            # Defensive: an overlap larger than the orphan count must not
+            # subtract public surface the api rule genuinely measured.
+            "src/overclaimed.go": {
+                "path": "src/overclaimed.go",
+                "coding_loc": 100,
+                "lang_id": "go",
+                "equations": {"api": 4, "orphaned_logic": 2},
+                "api_declared_orphans": 5,
+            },
+        }
+        scope.popularity_scores = dict.fromkeys(scope.ram_cache, 2)
+
+        scope._calculate_risk_exposures()
+        by_path = {f.get("path"): f for f in scope.parsed_files}
+
+        self.assertEqual(
+            by_path["src/all_exported.go"]["equations"]["api"],
+            3,
+            "3 exported, uncalled functions must record 3 units of public surface, not 6!",
+        )
+        self.assertEqual(
+            by_path["src/mixed.go"]["equations"]["api"], 3, "only the un-declared orphans are new surface!"
+        )
+        self.assertEqual(
+            by_path["src/no_overlap.py"]["equations"]["api"],
+            5,
+            "a file with no reported overlap must convert as before!",
+        )
+        self.assertEqual(
+            by_path["src/overclaimed.go"]["equations"]["api"],
+            4,
+            "the overlap subtraction is clamped to the orphan count!",
+        )
+
+        # The debt wipe is unconditional either way: the file is imported, so
+        # none of its orphans are dead weight -- an already-declared orphan is
+        # surface the api rule had counted already, not debt. #2536's raw
+        # snapshot still carries the pre-adjustment counts.
+        for path, raw_orphans in (
+            ("src/all_exported.go", 3),
+            ("src/mixed.go", 3),
+            ("src/no_overlap.py", 3),
+            ("src/overclaimed.go", 2),
+        ):
+            self.assertEqual(
+                by_path[path]["equations"]["orphaned_logic"], 0, f"{path}: imported file kept its orphan debt!"
+            )
+            self.assertEqual(
+                by_path[path]["raw_pre_adjustment"]["orphaned_logic"],
+                raw_orphans,
+                f"{path}: #2536's raw snapshot must still hold the pre-adjustment orphan count",
+            )
+
+    # ==============================================================================
     # TEST 18: WORKER I/O ERRORS & BINARY THREAT ESCALATION
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)

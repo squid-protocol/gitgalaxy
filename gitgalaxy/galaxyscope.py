@@ -2227,9 +2227,34 @@ class Orchestrator:
             if popularity > 0 and "equations" in meta:
                 orphans = meta["equations"].get("orphaned_logic", 0)
                 if orphans > 0:
+                    # #2731: credit only the orphans the language's own `api`
+                    # rule did NOT already count. A function that is both
+                    # declared public and uncalled used to contribute twice --
+                    # keyword-rosetta's `data/go/a.go` has three exported,
+                    # uncalled functions and recorded raw_arch_api 3 + orphans 3
+                    # = api 6, three functions for six units of public surface.
+                    # The overlap is the common case, not the exception: a
+                    # library's public functions are exactly the ones with no
+                    # in-repo caller, so `risk_api_exposure` and
+                    # `risk_documentation` (both read the adjusted `api`) were
+                    # inflated most for the most library-shaped code.
+                    #
+                    # detector.py owns the overlap count -- it is a per-function
+                    # name test against the api rule's own match lines, and the
+                    # code text it needs is gone by the time we get here. A
+                    # file-level `orphans - raw_api` subtraction would be wrong:
+                    # a file's api hits also land on public classes, fields and
+                    # grouped constants that are not functions at all, and would
+                    # erase orphans the rule never saw.
+                    already_public = min(meta.get("api_declared_orphans", 0), orphans)
+
                     # 1. Convert the dead weight into API Exposure
-                    meta["equations"]["api"] = meta["equations"].get("api", 0) + orphans
+                    meta["equations"]["api"] = meta["equations"].get("api", 0) + (orphans - already_public)
                     # 2. Wipe the Technical Debt
+                    #    Unconditional, and independent of the credit above: the
+                    #    file is imported, so none of its orphans are dead weight
+                    #    -- the already-public ones are simply surface the api
+                    #    rule had counted already.
                     meta["equations"]["orphaned_logic"] = 0
 
                     # 3. Heal the function metadata

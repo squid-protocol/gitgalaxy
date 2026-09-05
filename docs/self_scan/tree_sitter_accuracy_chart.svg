@@ -646,7 +646,8 @@
 <text class="value-label" x="642.0" y="1358.5">842/842</text>
 <rect x="545" y="1361.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="642.0" y="1368.5">842/842</text>
-<text class="na-dash" x="551" y="1386.5">n/a</text>
+<rect x="545" y="1379.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="642.0" y="1386.5">0 found</text>
 <text class="na-dash" x="551" y="1396.5">n/a</text>
 <rect x="545" y="1407.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="642.0" y="1414.5">0 found</text>

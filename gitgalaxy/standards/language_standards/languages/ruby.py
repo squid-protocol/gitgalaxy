@@ -139,6 +139,16 @@ DEFINITION: dict[str, Any] = {
             r'^[ \t]*public(?:_class_method)?[ \t]+[:&\'"]',
             re.M,
         ),
+        # #2774: the ORPHAN-CENSUS EXEMPTION -- see the matching note in
+        # shell.py. This rule captures the exported NAME (not the visibility
+        # modifier the `api` rule matches), and `_is_orphan` discounts only that
+        # capture's own span, so naming a function in an export statement stops
+        # counting as a use. Leading `_` keeps it out of `coding_analysis`'s
+        # rule loop and the counts schema, the same way `_scope_filters` does.
+        "_visibility_export": re.compile(
+            r"^[ \t]*(?:module_function|public(?:_class_method)?|private|protected)[ \t]+:([a-zA-Z_]\w*[?!=]?)",
+            re.M,
+        ),
         # 11. flux (State Mutation)
         # Mutation of state. EXCLUDES const (freeze_hits).
         # BUG FIX: the 6 bang-method alternatives (`merge!`, `update!`,

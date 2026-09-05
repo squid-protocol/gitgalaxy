@@ -912,6 +912,26 @@ def _closed_literal_capture(pattern: str) -> frozenset[str]:
     return frozenset(names | {"@" + n for n in names})
 
 
+def _name_boundary_pattern(func_name: str) -> str:
+    r"""`func_name` with no adjacent word character on either side.
+
+    BUG FIX #2777: this was `r"\b" + re.escape(name) + r"\b"`, and `\b`
+    asserts a `\w`<->`\W` TRANSITION, not "no adjacent word character". When
+    the name itself ends in a non-word character -- ruby `empty?`/`save!`/
+    `name=`, C++ `operator==`, scheme `set!` -- the trailing `\b` demanded that
+    the NEXT character be a word character, which it never is (the name is
+    followed by `(`, `;`, whitespace or EOL). The pattern therefore matched
+    NOTHING, not even the declaration, so `_is_orphan` saw `inside == 0` and
+    `outside == 0`, applied the declaration discount, and returned True
+    unconditionally: 32 of 32 such ruby functions and 12 of 12 such C++ ones
+    were reported dead code in the crucible regardless of use.
+
+    Lookarounds assert the intended thing directly and are exactly equivalent
+    to `\b` for an all-`\w` name, so no currently-correct language moves.
+    """
+    return r"(?<!\w)" + re.escape(func_name) + r"(?!\w)"
+
+
 # #2692: a colon with whitespace on either side marks a type annotation
 # (`Env : Integer`, `x: int`), i.e. ONE parameter -- as opposed to a bare colon
 # inside a Lisp identifier (`foo:bar`), which is just part of the name.
@@ -1178,6 +1198,17 @@ class StructuralExtractor:
 
         try:
             line_count = sum(1 for l in code_stream.splitlines() if l.strip())
+
+            # #2774: offsets of every function name a `_visibility_export` rule
+            # captures, computed once per file. `_is_orphan` discounts these so
+            # an export statement stops reading as a call. Languages that do not
+            # declare the rule get an empty set and behave exactly as before.
+            _vis_export = self.primary_rules.get("_visibility_export")
+            export_name_starts: frozenset[int] = (
+                frozenset(m.start(1) for m in _vis_export.finditer(code_stream) if m.group(1))
+                if _vis_export is not None
+                else frozenset()
+            )
 
             # --- EXISTING STRUCTURAL PIPELINE ---
             segments = self._partition_segments(code_stream, self.primary_lang_id)
@@ -1493,8 +1524,21 @@ class StructuralExtractor:
                     ):
                         usage_status = 2  # 2 = Duplicate
                         duplicate_count += 1
-                    elif len(func_name) > 3 and self._is_orphan(code_stream, func, func_name):
+                    elif self._is_orphan(code_stream, func, func_name, export_name_starts):
                         # Nothing outside the function's own definition names it.
+                        #
+                        # BUG FIX #2768: a `len(func_name) > 3` conjunct used to
+                        # stand in front of this test. It was a proxy from the
+                        # pre-#2727 implementation, when the test was a
+                        # whole-file token-frequency count and a short name
+                        # (`get`, `run`, `id`) was likely to collide with
+                        # unrelated text. #2754's test is span-scoped and
+                        # boundary-anchored, so a three-character name is
+                        # answered as reliably as a thirty-character one --
+                        # while the guard, being unconditional, meant a function
+                        # named in three characters or fewer could never be
+                        # reported unused in any language: 3.6% of all extracted
+                        # functions corpus-wide, and 29.4% of lua's.
                         orphan_count += 1
                         orphan_names.append(func_name)
                         usage_status = 1  # 1 = Orphan / Unused
@@ -6992,7 +7036,12 @@ class StructuralExtractor:
         return sat, magnitude
 
     @staticmethod
-    def _is_orphan(code_stream: str, func: "FunctionNode", func_name: str) -> bool:
+    def _is_orphan(
+        code_stream: str,
+        func: "FunctionNode",
+        func_name: str,
+        export_name_starts: frozenset[int] = frozenset(),
+    ) -> bool:
         """Does `func_name` occur anywhere outside its own definition?
 
         #2727: the old test was `token_counts[func_name] <= 1` over the WHOLE
@@ -7019,12 +7068,28 @@ class StructuralExtractor:
         A recursive self-call stays inside the span, so a recursive-but-uncalled
         function still reads as unused. A call from anywhere else in the file is
         outside, and clears the flag exactly as before.
+
+        #2774: `export_name_starts` holds the start offsets of the names
+        captured by a language's `_visibility_export` rule -- `export -f foo`,
+        `namespace export foo`, `Export-ModuleMember -Function foo`,
+        `module_function :foo`, `global foo`. Naming a function in an export
+        statement is a visibility declaration, not a use, and it is the ONE
+        mention a library is guaranteed to make of a function it never calls
+        itself, so counting it cleared the orphan flag on exactly the population
+        the census exists to find: shell read 0 orphans per file with its export
+        lines and 3 without. Only the captured name's own offset is discounted,
+        never the whole line -- so a genuine call that happens to share a line
+        with an export still counts.
         """
         start_idx = func.get("start_idx", 0)
         end_idx = func.get("end_idx", start_idx)
-        word = re.compile(r"\b" + re.escape(func_name) + r"\b")
-        inside = len(word.findall(code_stream[start_idx:end_idx]))
-        outside = len(word.findall(code_stream[:start_idx])) + len(word.findall(code_stream[end_idx:]))
+        word = re.compile(_name_boundary_pattern(func_name))
+        inside = outside = 0
+        for m in word.finditer(code_stream):
+            if start_idx <= m.start() < end_idx:
+                inside += 1
+            elif m.start() not in export_name_starts:
+                outside += 1
         if inside == 0:
             outside -= 1  # the declaration itself, which fell outside the span
         return outside <= 0
@@ -7055,6 +7120,18 @@ class StructuralExtractor:
         # (quotes included) for exactly this shape -- this preserves that same value
         # through to the stored name instead of truncating it afterward.
         if len(match_strip) >= 2 and match_strip[0] in "\"'" and match_strip[-1] == match_strip[0]:
+            return match_strip
+
+        # #2767: a yaml step's name is free prose from an adjacent `name:` key
+        # ("Install dependencies", "Run the test suite"), not an identifier. The
+        # generic word-extraction below is built for identifiers and keeps only
+        # `words[-1]`, which truncated those to `dependencies` and `suite` --
+        # and would collide "Build the wheel" with "Publish the wheel" on
+        # `wheel`, manufacturing exactly the false duplicates #1498's body_hash
+        # guard exists to prevent. Same argument as the groovy branch above:
+        # what the rule captured IS the whole name. An unnamed step captures the
+        # bare keyword (`run`) instead and passes through this branch unchanged.
+        if self.primary_lang_id == "yaml":
             return match_strip
 
         # 1.2 Python Decorator Stripping

@@ -4081,13 +4081,21 @@ def test_closed_literal_capture_is_generated_not_hand_listed():
         for lang, rules in LANGUAGE_DEFINITIONS.items()
         if rules.get("rules", {}).get("func_start") is not None
     }
-    assert {lang for lang, names in closed.items() if names} == {"css", "dockerfile", "html"}, (
-        "exactly three languages have a func_start capture that is a closed keyword set"
+    assert {lang for lang, names in closed.items() if names} == {"css", "dockerfile", "html", "yaml"}, (
+        "exactly four languages have a func_start capture that is a closed keyword set"
     )
     assert {"RUN", "CMD", "ENTRYPOINT", "HEALTHCHECK"} <= closed["dockerfile"]
     assert {"keyframes", "media", "supports", "container", "layer"} <= closed["css"]
     assert {"script", "style"} <= closed["html"]
-    for lang in ("python", "go", "cobol", "assembly", "jcl", "yaml"):
+    # #2767: yaml joined this set deliberately. Its `func_start` keyword arm is
+    # capture group 1 and excludes its own colon, precisely so an UNNAMED step
+    # -- which still names itself after the matched keyword -- is censused the
+    # way dockerfile's `RUN` is: by derivation from the rule. Before #2767 the
+    # rule had no capture group at all, so yaml yielded the empty set here and
+    # its thirteen identically-named `run` slices reached both censuses, to be
+    # dropped only by the `len(func_name) > 3` guard #2768 removed.
+    assert {"run", "script", "before_script", "after_script"} <= closed["yaml"]
+    for lang in ("python", "go", "cobol", "assembly", "jcl"):
         assert not closed.get(lang, frozenset()), f"{lang} captures real identifiers -- must opt out"
 
 
@@ -4152,3 +4160,169 @@ def test_mode_d_anchor_does_not_move_when_the_name_is_on_the_opener():
     code = 'function f_named {\n    : "$1"\n}\n'
     funcs = [f for f in shell.splice(code, "").get("functions", []) if f["name"] == "f_named"]
     assert funcs and funcs[0]["start_line"] == 1
+
+
+# ==============================================================================
+# #2777 / #2768 / #2774 / #2767: THE ORPHAN CENSUS, SECOND PASS
+# ==============================================================================
+def test_orphan_name_match_is_not_anchored_by_word_boundaries():
+    """#2777: `\\b` asserts a `\\w`<->`\\W` TRANSITION, not "no adjacent word char".
+
+    For a name that itself ends in a non-word character -- ruby `empty?`,
+    `save!`, `name=`, C++ `operator==` -- the trailing `\\b` demanded that the
+    NEXT character be a word character, which it never is. The pattern matched
+    NOTHING, not even the declaration, so `_is_orphan` saw `inside == 0` and
+    `outside == 0`, applied the declaration discount and returned True
+    unconditionally: 32 of 32 such ruby functions and 12 of 12 such C++ ones in
+    the crucible were reported dead code regardless of use.
+    """
+    from gitgalaxy.core.detector import _name_boundary_pattern
+
+    # The exact shape that failed: a name ending in a non-word character,
+    # followed by a call paren.
+    used = re.compile(_name_boundary_pattern("empty?"))
+    assert len(used.findall("x.empty?()\ndef empty?\n")) == 2, (
+        "a name ending in `?` must match both its call and its declaration"
+    )
+    assert re.compile(_name_boundary_pattern("operator==")).search("if (a operator==(b))"), (
+        "a C++ operator overload name must be matchable"
+    )
+
+    # Equivalence for an ordinary all-word name -- no currently-correct language moves.
+    for name, hay in (("probe", "probe()"), ("B", "B()"), ("probe_globals", "probe_globals()")):
+        assert re.compile(_name_boundary_pattern(name)).findall(hay) == re.compile(
+            r"\b" + re.escape(name) + r"\b"
+        ).findall(hay), f"{name}: lookarounds must be equivalent to \\b for an all-word name"
+
+    # And the boundary must still BE a boundary -- a prefix is not a match.
+    assert not re.compile(_name_boundary_pattern("probe")).search("probe_globals()"), (
+        "the lookarounds must not widen the test into a prefix match"
+    )
+
+
+def test_ruby_predicate_method_is_orphaned_only_when_actually_uncalled():
+    """#2777, end to end: the population is a whole language idiom, not a fringe."""
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    ruby = StructuralExtractor("ruby", LANGUAGE_DEFINITIONS)
+
+    called = "def image?\n  true\nend\n\ndef render\n  image?\nend\n"
+    orphans = [f["name"] for f in ruby.splice(called, "").get("functions", []) if f.get("usage_status") == 1]
+    assert "image?" not in orphans, "a predicate method with a real caller is not an orphan"
+
+    uncalled = "def image?\n  true\nend\n\ndef render\n  true\nend\n"
+    orphans = [f["name"] for f in ruby.splice(uncalled, "").get("functions", []) if f.get("usage_status") == 1]
+    assert "image?" in orphans, "a predicate method nothing calls still is one"
+
+
+def test_short_function_names_are_eligible_for_the_orphan_census():
+    """#2768: `len(func_name) > 3` meant a function named in three characters or
+    fewer could never be reported unused, in any language, under any
+    circumstances -- 3.6% of extracted functions corpus-wide, 29.4% of lua's.
+
+    It was a proxy from the pre-#2727 whole-file token-frequency test, where a
+    short name was likely to collide with unrelated text. #2754's test is
+    span-scoped and boundary-anchored, so it answers a three-character name as
+    reliably as a thirty-character one.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    py = StructuralExtractor("python", LANGUAGE_DEFINITIONS)
+
+    code = "def add(a, b):\n    return a + b\n\n\ndef run():\n    return add(1, 2)\n"
+    funcs = py.splice(code, "").get("functions", [])
+    orphans = [f["name"] for f in funcs if f.get("usage_status") == 1]
+    assert "add" in [f["name"] for f in funcs], "sanity: the short function was extracted"
+    assert "add" not in orphans, "a short name with a real caller is not an orphan"
+    assert "run" in orphans, "a short name nothing calls is an orphan -- it was exempt before #2768"
+
+
+def test_export_statement_is_a_visibility_declaration_not_a_use():
+    """#2774: naming a function in an export statement cleared its orphan flag.
+
+    That is the ONE mention a library is guaranteed to make of a function it
+    never calls itself, so the census was blind to exactly the population it is
+    asked about: a library whose every function is exported and none called
+    internally reported zero dead code. Measured on keyword-rosetta/data/shell,
+    3 orphans per file without the `export -f` lines and 0 with them.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    shell = StructuralExtractor("shell", LANGUAGE_DEFINITIONS)
+
+    exported = "probe_globals() {\n    : \"$1\"\n}\n\nexport -f probe_globals\n"
+    orphans = [f["name"] for f in shell.splice(exported, "").get("functions", []) if f.get("usage_status") == 1]
+    assert "probe_globals" in orphans, "an exported, never-called function is dead code, not a use"
+
+    # The negative that rules out the whole-line approach: a GENUINE call must
+    # still count even when it shares a line with an export statement.
+    called = 'probe_globals() {\n    : "$1"\n}\n\nexport RESULT="$(probe_globals)"\n'
+    orphans = [f["name"] for f in shell.splice(called, "").get("functions", []) if f.get("usage_status") == 1]
+    assert "probe_globals" not in orphans, (
+        "only the exported NAME's own span is discounted -- a real call on an export line still counts"
+    )
+
+
+def test_visibility_export_rules_capture_a_name():
+    """#2774: the opt-in contract. A language joins the exemption by declaring a
+    `_visibility_export` rule whose group 1 is the exported NAME -- deliberately
+    not the `api` rule, whose broad visibility MODIFIERS (javascript's bare
+    `export`, java's bare `public`) would swallow genuine calls.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    expected = {
+        "shell": ("export -f probe_globals", "probe_globals"),
+        "tcl": ("namespace export probe_globals", "probe_globals"),
+        "ruby": ("module_function :probe_globals", "probe_globals"),
+        "powershell": ("Export-ModuleMember -Function probe_globals", "probe_globals"),
+        "assembly": ("global probe_globals", "probe_globals"),
+    }
+    declared = {
+        lang
+        for lang, cfg in LANGUAGE_DEFINITIONS.items()
+        if cfg.get("rules", {}).get("_visibility_export") is not None
+    }
+    assert declared == set(expected), f"exactly the five export-by-name languages opt in, got {declared}"
+
+    for lang, (line, name) in expected.items():
+        rule = LANGUAGE_DEFINITIONS[lang]["rules"]["_visibility_export"]
+        m = rule.search(line)
+        assert m is not None, f"{lang}: `{line}` must match its own export idiom"
+        assert m.group(1) == name, f"{lang}: group 1 must be the exported NAME, got {m.group(1)!r}"
+
+
+def test_yaml_steps_take_their_name_from_the_adjacent_name_key():
+    """#2767: every extracted yaml step was named `run`, so the orphan census,
+    the duplicate census and per-step identity were all dead -- in a scanned
+    repo, every CI step in `function_data` was a row called `run`.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    yml = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS)
+
+    workflow = (
+        "jobs:\n"
+        "  build:\n"
+        "    name: My Job\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps:\n"
+        "      - name: Install dependencies\n"
+        "        run: pip install -e .\n"
+        "      - name: Run the test suite\n"
+        "        id: tests\n"
+        "        env:\n"
+        '          CI: "1"\n'
+        "        run: pytest tests/\n"
+        "      - run: echo unnamed\n"
+    )
+    names = [f["name"] for f in yml.splice(workflow, "").get("functions", [])]
+
+    # The whole name, not its last word: `words[-1]` truncation would collide
+    # "Build the wheel" with "Publish the wheel" and manufacture false duplicates.
+    assert "Install dependencies" in names, "a named step takes its whole name"
+    assert "Run the test suite" in names, "a bounded step-over reaches past `id:`/`env:` keys"
+    assert "run" in names, "an unnamed step still falls back to the keyword"
+
+    # The job-level `name:` belongs to the job, not to any step.
+    assert "My Job" not in names, "a job-level name: must not be captured as a step name"

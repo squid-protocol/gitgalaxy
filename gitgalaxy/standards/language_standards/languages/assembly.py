@@ -140,6 +140,16 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*(?:\.global|\.globl|global|EXPORT|PUBLIC)\b",
             re.M | re.I,
         ),
+        # #2774: the ORPHAN-CENSUS EXEMPTION -- see the matching note in
+        # shell.py. This rule captures the exported NAME (not the visibility
+        # modifier the `api` rule matches), and `_is_orphan` discounts only that
+        # capture's own span, so naming a function in an export statement stops
+        # counting as a use. Leading `_` keeps it out of `coding_analysis`'s
+        # rule loop and the counts schema, the same way `_scope_filters` does.
+        "_visibility_export": re.compile(
+            r"^[ \t]*(?:\.global|\.globl|global|EXPORT|PUBLIC)[ \t]+([a-zA-Z_.$][\w.$]*)",
+            re.M | re.I,
+        ),
         # 11. flux (State Mutation)
         # Explicit memory/register swaps and atomic increments.
         "state_mutation": re.compile(r"\b(xchg|cmpxchg|inc|dec)\b", re.I),

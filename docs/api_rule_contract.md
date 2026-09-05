@@ -45,6 +45,7 @@ not a defect:
 | `makefile` | `.PHONY`, `export`, the conventional public targets |
 | `sqlite` | `CREATE [TEMP] VIEW` / `CREATE VIRTUAL TABLE` |
 | `matlab` | a column-0 `function` declaration (a function file's callable surface) |
+| `jcl` | `//name PROC` — a cataloged or in-stream procedure, what `EXEC name` in other members invokes ([#2748](https://github.com/squid-protocol/gitgalaxy/issues/2748)) |
 
 `matlab` is the one place where the fallback is knowingly approximate: a `.m` function file
 publishes only its *leading* function, and local functions after it are file-private, but nothing
@@ -91,7 +92,7 @@ untouched.
 | `html` | 514 | 5 |
 | `java` | 220 | 12 |
 | `javascript` | 267 | 12 |
-| `jcl` | rule is `None` | n/a |
+| `jcl` | `None` → 13 | n/a → 1 (#2748) |
 | `kotlin` | 17 → 5 | 12 |
 | `livecode` | 607 | 13 |
 | `lua` | 288 → 272 | 13 |
@@ -161,7 +162,7 @@ answer to "why did a real fix produce no diff" for those two — the strict test
 (`test_java_api_contract_2730`, `test_csharp_api_contract_2730`) hold the guard in place.
 
 **Already inside the contract (23, untouched):** `apex`, `cpp`, `css`, `dockerfile`,
-`embedded_python`, `fortran`, `haskell`, `html`, `javascript`, `jcl` (`None`), `livecode`, `m4`,
+`embedded_python`, `fortran`, `haskell`, `html`, `javascript`, `jcl` (`None` at the time; #2748 later gave it the PROC statement, fallback family), `livecode`, `m4`,
 `makefile`, `markdown` (`None`), `python`, `rust`, `scala`, `scheme`, `solidity`, `sqlite`, `tcl`,
 `yacc`, `zig`.
 

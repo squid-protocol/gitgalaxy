@@ -841,6 +841,77 @@ _SYNTHETIC_SATELLITE_SUFFIXES = ("_[Truncated]", "_[Unterminated]")
 # the identical call for the identical reason; this is that list, in the engine.
 _UNCOUNTABLE_SLICE_NAMES = frozenset({"Anonymous_Block", "__global_context__"})
 
+# #2728: a THIRD family of slicer-synthesized names, distinct from both sets
+# above. Where a language's `func_start` capture group is a closed set of
+# literal keywords -- css `@(media|supports|container|layer|keyframes|
+# -webkit-keyframes)`, dockerfile `(RUN|CMD|ENTRYPOINT|HEALTHCHECK)`, html
+# `(script|style)` -- the "name" the slicer stores is the language's own
+# keyword, not an identifier anyone wrote. Two consequences were measured on the
+# corpus before this existed: dockerfile's four same-bodied `RUN` slices scored
+# `state_slop_duplicates` 1 -- the ONLY nonzero duplicate cell in 46 languages,
+# and a phantom -- and css's three `keyframes` slices cleared each other's
+# orphan flag purely by repeating the keyword.
+#
+# DERIVED from each rule, never hand-listed, so the two cannot drift: a
+# hand-written list would silently rot the moment a language's `func_start`
+# alternation gained a keyword. `_closed_literal_capture` returns the empty set
+# for any rule whose capture can produce an author-written identifier (a
+# character class, a quantifier, anything but a fixed alternation), so a
+# language only opts in by having a rule that provably cannot.
+#
+# Deliberately NOT added to `_UNCOUNTABLE_SLICE_NAMES`: that set governs the
+# FUNCTION POPULATION (#2691), and removing css's ~150 at-rule slices from it
+# would take `functions_found` to 0 and make every per-function descriptor
+# undefined for the language -- the markdown/html shape from #2689's bucket A.
+# That is a real question (keyword-rosetta's `slicer-segments-statements-not-
+# functions` ledger entry owns it) and it is NOT this issue's: #2728's measured
+# harm is entirely in the duplicate/orphan classification, so that is all this
+# changes.
+_ALTERNATION_ONLY = re.compile(r"[\w@.\-]+(?:\|[\w@.\-]+)*")
+
+
+def _first_capture_source(pattern: str) -> Optional[str]:
+    """Raw source text of `pattern`'s first *capturing* group, or None."""
+    i = 0
+    while i < len(pattern):
+        if pattern[i] == "\\":
+            i += 2
+            continue
+        if pattern[i] == "(" and not pattern.startswith("(?", i):
+            depth, j = 1, i + 1
+            while j < len(pattern) and depth:
+                if pattern[j] == "\\":
+                    j += 2
+                    continue
+                if pattern[j] == "(":
+                    depth += 1
+                elif pattern[j] == ")":
+                    depth -= 1
+                j += 1
+            return pattern[i + 1 : j - 1]
+        i += 1
+    return None
+
+
+def _closed_literal_capture(pattern: str) -> frozenset[str]:
+    """Every name a `func_start` capture can yield, when that set is finite.
+
+    Empty (the safe default) unless the capture is a bare alternation of
+    literals -- one leading `@` and a trailing `\\b` tolerated, since that is
+    how css spells its at-rules. `_extract_name` strips the `@` before storing,
+    so both spellings are returned.
+    """
+    group = _first_capture_source(pattern)
+    if group is None:
+        return frozenset()
+    body = group[1:] if group.startswith("@") else group
+    body = body.replace("(?:", "").replace(")", "").replace("\\b", "")
+    if not _ALTERNATION_ONLY.fullmatch(body):
+        return frozenset()
+    names = set(body.split("|"))
+    return frozenset(names | {"@" + n for n in names})
+
+
 # #2692: a colon with whitespace on either side marks a type annotation
 # (`Env : Integer`, `x: int`), i.e. ONE parameter -- as opposed to a bare colon
 # inside a Lisp identifier (`foo:bar`), which is just part of the name.
@@ -930,6 +1001,15 @@ class StructuralExtractor:
         lang_config: dict[str, Any] = self.languages.get(self.primary_lang_id, {})
         self.primary_rules: dict[str, Any] = lang_config.get("rules", {})
         self.primary_family = lang_config.get("lexical_family", "c_style_comment")
+
+        # #2728: the names this language's own `func_start` can synthesize from a
+        # closed keyword alternation rather than capture from source. Empty for
+        # every language whose rule can produce a real identifier -- see
+        # `_closed_literal_capture`. Computed once here rather than per function.
+        _fs = self.primary_rules.get("func_start")
+        self._keyword_bucket_names: frozenset[str] = (
+            _closed_literal_capture(_fs.pattern) if _fs is not None else frozenset()
+        )
 
         # #1949: `END-PERFORM`/`END-IF` were removed entirely -- both are block
         # *closers*, never a real function/paragraph-terminating statement in
@@ -1343,9 +1423,10 @@ class StructuralExtractor:
             import collections
             import hashlib
 
-            # Fast, C-backed word frequency counter for the entire file
-            token_counts = collections.Counter(re.findall(r"\b\w+\b", code_stream))
-
+            # #2727 retired the file-wide token counter that used to live here:
+            # the orphan test is now scoped to each function's own span (see
+            # `_is_orphan`), so a single whole-file frequency table can no longer
+            # answer it.
             orphan_count = 0
             duplicate_count = 0
             orphan_names: list[str] = []
@@ -1392,7 +1473,18 @@ class StructuralExtractor:
                 # Mode E's "<KEYWORD>_Statement"/"Declarative_Block", etc.) are never
                 # real callable identifiers -- skip them for BOTH the duplicate and
                 # orphan checks below, not just the orphan one.
-                if func_name and not _is_synthetic_satellite_name(func_name):
+                # #2728 extends that to the igniter-keyword buckets the slicer names
+                # after the matched keyword itself (dockerfile `RUN`, css
+                # `keyframes`, html `script`). Same argument, different family: a
+                # keyword cannot be orphaned or duplicated, and counting it as
+                # either measures the slicer's bucketing, not the code. The set is
+                # derived from this language's own `func_start`, so it cannot drift
+                # away from what the slicer actually emits.
+                if (
+                    func_name
+                    and not _is_synthetic_satellite_name(func_name)
+                    and func_name not in self._keyword_bucket_names
+                ):
                     # Check for Duplicates: same name AND materially the same body,
                     # defined multiple times in the same file.
                     if (
@@ -1401,8 +1493,8 @@ class StructuralExtractor:
                     ):
                         usage_status = 2  # 2 = Duplicate
                         duplicate_count += 1
-                    elif len(func_name) > 3 and token_counts[func_name] <= 1:
-                        # If the function name only exists where it was defined, it's an orphan
+                    elif len(func_name) > 3 and self._is_orphan(code_stream, func, func_name):
+                        # Nothing outside the function's own definition names it.
                         orphan_count += 1
                         orphan_names.append(func_name)
                         usage_status = 1  # 1 = Orphan / Unused
@@ -6759,6 +6851,44 @@ class StructuralExtractor:
             "token_mass": get_token_mass(block),
         }
         return sat, magnitude
+
+    @staticmethod
+    def _is_orphan(code_stream: str, func: "FunctionNode", func_name: str) -> bool:
+        """Does `func_name` occur anywhere outside its own definition?
+
+        #2727: the old test was `token_counts[func_name] <= 1` over the WHOLE
+        code stream, so whether a function read as orphaned depended on how many
+        times the language's syntax writes the name, not on whether anything
+        calls it. Ada closes with `end Probe_Globals;`, LiveCode ends a handler
+        by name, Haskell writes `probeGlobals :: Int -> Int` above the equation:
+        the count is already 2 before anything calls it, and the function can
+        never be orphaned. Measured across the language-crucible: livecode
+        reported 3 orphans where the span-scoped test finds 127.
+
+        Counting outside `[start_idx, end_idx)` is the fix, with one correction
+        the issue's own fix shape missed. The span does NOT reliably contain the
+        function's declaration -- shell's Mode-B spans start at the `{`, so a
+        K&R `make_module()` on the previous line sits outside its own body, and
+        ruby's spans are offset outright (66 of 132 sampled functions). Counting
+        naively there makes the DECLARATION read as a reference and clears the
+        flag: ruby fell 51 -> 44 orphans, html 5 -> 2, shell 8 -> 3, losing real
+        ones. So when the span contains no occurrence of the name at all, the
+        definition site is outside it by construction and exactly one outside
+        occurrence is that declaration -- discount it. With the correction no
+        language decreases; the crucible total moves 7397 -> 8385.
+
+        A recursive self-call stays inside the span, so a recursive-but-uncalled
+        function still reads as unused. A call from anywhere else in the file is
+        outside, and clears the flag exactly as before.
+        """
+        start_idx = func.get("start_idx", 0)
+        end_idx = func.get("end_idx", start_idx)
+        word = re.compile(r"\b" + re.escape(func_name) + r"\b")
+        inside = len(word.findall(code_stream[start_idx:end_idx]))
+        outside = len(word.findall(code_stream[:start_idx])) + len(word.findall(code_stream[end_idx:]))
+        if inside == 0:
+            outside -= 1  # the declaration itself, which fell outside the span
+        return outside <= 0
 
     def _extract_name(self, raw_match: str) -> str:
         """

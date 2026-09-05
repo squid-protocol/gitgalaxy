@@ -79,7 +79,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # Webhook/Workflow triggers
         "api": re.compile(
-            r"^[ \t]*on:[ \t]*(?:#.*)?\n(?:[ \t]*(?:#.*)?\n){0,10}[ \t]+(?:push|pull_request|workflow_dispatch|issues):",
+            # BUG FIX #2730 (api contract): `workflow_call` -- the trigger that
+            # makes a workflow callable BY ANOTHER REPOSITORY, i.e. the only
+            # one of these that is literally a published interface -- was
+            # missing from the trigger set.
+            r"^[ \t]*on:[ \t]*(?:#.*)?\n(?:[ \t]*(?:#.*)?\n){0,10}[ \t]+(?:push|pull_request|workflow_dispatch|workflow_call|issues):",
             re.M | re.I,
         ),
         "state_mutation": re.compile(

@@ -486,10 +486,20 @@ def test_powershell_return_not_counted_as_branch_regression():
 
 
 def test_powershell_api_no_control_flow_false_positives():
-    """#2656: the api rule's bare-identifier alternative lacked keyword exclusions,
-    causing control-flow lines ('param(', 'if (', 'switch (') to miscount as API
-    surface. It must not match control-flow; a real exported function or
-    Export-ModuleMember must still match."""
+    """#2656, superseded by #2730: the api rule's bare-identifier alternative
+    (`^<name>(`) lacked keyword exclusions, so control-flow lines ('param(',
+    'if (', 'switch (') miscounted as API surface. #2656 added an exclusion
+    set; #2730 removed the alternative outright, because `<name>(` at the
+    start of a PowerShell line is a .NET method CALL or a statement -- a
+    reference to a name, never a declaration that publishes one (a function
+    is declared `function Name`, a class method `[type] Name(`). #2656's
+    exclusion set could not even hold its own line: it is lowercase while
+    the pattern is `re.I`, so `If (` and `Param(` matched anyway. All 61 of
+    its matches across the language-crucible corpus were statements.
+
+    The control-flow cases below must therefore still not match, and now
+    neither may a bare call. `Export-ModuleMember` -- PowerShell's actual
+    published surface -- must still match."""
     api = POWERSHELL_RULES["api"]
 
     # Must NOT count as API
@@ -497,10 +507,15 @@ def test_powershell_api_no_control_flow_false_positives():
     assert not api.search("if ($x) {"), "if ( must not count as API"
     assert not api.search("switch ($x) {"), "switch ( must not count as API"
     assert not api.search("while ($true) {"), "while ( must not count as API"
+    # #2656's exclusion set was case-mismatched against its own re.I pattern.
+    assert not api.search("If ("), "If ( must not count as API"
+    assert not api.search("Param("), "Param( must not count as API"
+    # #2730: a bare call is a reference, not a declaration.
+    assert not api.search("GetFoo ("), "a bare call must not count as API"
+    assert not api.search("return (Get-PSOptions).Output"), "return ( must not count as API"
+    assert not api.search("throw ($packages | Out-String)"), "throw ( must not count as API"
 
     # Must STILL count as API
     assert api.search("Export-ModuleMember -Function 'Get-Foo'"), "Export-ModuleMember must count as API"
-    # NB: the bare-identifier alternative's [a-zA-Z_]\w* never matched hyphenated
-    # Verb-Noun cmdlet names (pre-existing, unrelated to #2656) -- use a plain
-    # identifier here to test the exclusion fix in isolation.
-    assert api.search("GetFoo ("), "Real bare-identifier function call should count as API"
+    assert api.search("New-Alias -Name gf -Value Get-Foo"), "New-Alias must count as API"
+    assert api.search("[CmdletBinding()]"), "CmdletBinding must count as API"

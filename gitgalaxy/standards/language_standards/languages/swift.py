@@ -151,12 +151,20 @@ DEFINITION: dict[str, Any] = {
         # modifier and declaration lists on purpose; backtracking resolves it. The
         # stepper is `{0,4}` not `*` -- an unbounded nested quantifier over a
         # `[ \t]+`-separated alternation is a ReDoS shape (see
-        # test_swift_api_open_redos_immunity). `public`/`package` are untouched.
+        # test_swift_api_open_redos_immunity).
+        # BUG FIX #2730 (api contract): `public`/`package` were the two
+        # alternatives this rule did NOT anchor, so they counted the bare
+        # token anywhere -- including `let package = Package(...)` in a
+        # SwiftPM manifest and the word inside a diagnostic string. Folded
+        # into `open`'s alternative, which was already written to exactly the
+        # contract's shape (a modifier followed by the declaration it
+        # modifies); `typealias`/`associatedtype`/`case`/`operator`/
+        # `precedencegroup` join the declaration set, all of which take an
+        # access modifier in Swift.
         "api": re.compile(
-            r"\b(?:public|package)\b"
-            r"|\bopen\b[ \t]+"
+            r"\b(?:public|package|open)\b[ \t]+"
             r"(?:(?:final|override|weak|unowned|lazy|static|class|mutating|nonmutating|convenience|required|dynamic|indirect|(?:private|internal|fileprivate|public)\(set\))[ \t]+){0,4}"
-            r"(?:class|func|var|let|subscript|init\??|actor|struct|enum|protocol|extension)\b"
+            r"(?:class|func|var|let|subscript|init\??|actor|struct|enum|protocol|extension|typealias|associatedtype|case|operator|precedencegroup)\b"
             r"|@usableFromInline|@objc|@objcMembers|@_exported|@IBAction|@IBOutlet|@Published"
         ),
         # 11. flux (State Mutation)

@@ -212,6 +212,16 @@ def test_go_api_and_encapsulation_column_zero_and_keyword_regression():
        `\\b` before that final lookahead, since plain greedy `\\w+`
        backtracking can otherwise dodge the `(?!\\()` check by matching one
        character short of the true identifier end.
+    4. #2730 (api contract): excluding a following `(` was not enough --
+       ANY line starting with an exported identifier counted, so a
+       struct-literal field key (`Group: "apps",`) and a method call on an
+       exported package var (`DefaultServeMux.register(...)`) both scored as
+       public surface. Those are references to an exported name, not
+       declarations of one. The indented alternative now requires what a
+       grouped `var`/`const` member or a struct field actually looks like
+       (`Name = value`, `Name Type`, or a bare embedded type alone on its
+       line), which is why the struct-literal assertion below is now
+       negative.
     """
     api = GO_RULES["api"]
     encap = GO_RULES["encapsulation"]
@@ -238,7 +248,23 @@ def test_go_api_and_encapsulation_column_zero_and_keyword_regression():
     assert not encap.search("\tBurstReplicas = 500")
     assert encap.search("\tenableFoo = true"), "encapsulation failed on an indented grouped-var member"
     assert not api.search("\tenableFoo = true")
-    assert api.search('\t\tGroup:    "apps",'), "api failed on an indented struct-literal field"
+    # Struct TYPE fields and embedded types are declarations -- they stay.
+    assert api.search("\tName string"), "api failed on an indented exported struct field"
+    assert api.search("\tItems []Thing"), "api failed on an indented exported slice field"
+    assert api.search("\tMaxSize, MinSize int"), "api failed on a multi-name field declaration"
+    assert api.search("\tReader"), "api failed on a bare embedded exported type"
+
+    # #2730: references to an exported name are not declarations.
+    assert not api.search('\t\tGroup:    "apps",'), "api counted a struct-literal field key"
+    assert not api.search("\tDefaultServeMux.register(pattern, handler)"), (
+        "api counted a method call on an exported package var"
+    )
+    assert not api.search("\tAlpha,"), "api counted a composite-literal element"
+
+    # The new multi-name run (`Name, Name, ... Type`) repeats an alternation
+    # that needs a literal comma per step, so it cannot backtrack ambiguously.
+    # Detonated on a run that never reaches a type or an `=`.
+    assert_redos_immune(api, "\tA" + ", A" * 40000, timeout_sec=3.0)
 
 
 def test_go_closures_redos_immunity_and_bare_return_type():

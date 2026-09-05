@@ -110,9 +110,19 @@ DEFINITION: dict[str, Any] = {
         # leading \b could only fire when a word char immediately
         # preceded the `@`, never true for how this annotation is
         # actually written. Never matched at all.
+        # BUG FIX #2730 (api contract): every alternative above needs a
+        # CLASS, RFC metadata or a CDS definition, so a classic ABAP report
+        # -- whose public surface is its `FORM` subroutines (callable from
+        # any program via `PERFORM ... IN PROGRAM`) and its function-module
+        # `FUNCTION` blocks -- measured 0. Both are public by default, which
+        # puts ABAP in the same family as python/lua/scala: the declaration
+        # itself IS the visibility marker. Anchored to the start of a line so
+        # `CALL FUNCTION 'RFC_PING'` (a call site, not a declaration) cannot
+        # match. Needs re.M for that anchor (Rule 13).
         "api": re.compile(
-            r"\b(?:REMOTE\s+FUNCTION|DEFINE\s+VIEW|DEFINE\s+SERVICE|EXPOSED|PUBLIC\s+SECTION)\b|@OData\.publish",
-            re.I,
+            r"\b(?:REMOTE\s+FUNCTION|DEFINE\s+VIEW|DEFINE\s+SERVICE|EXPOSED|PUBLIC\s+SECTION)\b|@OData\.publish|"
+            r"^[ \t]*(?:FORM|FUNCTION)[ \t]+[A-Za-z_]",
+            re.M | re.I,
         ),
         # 11. flux: State Mutation. State mutation (The core of ABAP data manipulation).
         "state_mutation": re.compile(

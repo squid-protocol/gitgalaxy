@@ -494,8 +494,27 @@ DEFINITION: dict[str, Any] = {
         ),
         # 10. api (Public Surface Area)
         # Captures explicit exports and public visibility.
+        # BUG FIX #2730 (api contract): a bare `\bexport|public|module.exports|exports.\b` counted the
+        # access modifier ANYWHERE in the code stream -- inside a string
+        # literal, a `switch` case, a dotted name -- not only where it
+        # declares something. The alternatives below anchor it to the
+        # declaration it modifies, per docs/api_rule_contract.md ("a
+        # declaration that makes a named function or type visible outside
+        # this file"). Every quantifier is bounded (Rule 5) and the modifier
+        # stepper is `{0,5}`, not `*`, so the `[ \t\n]+`-separated
+        # alternation cannot nest unboundedly (the ReDoS shape swift's `open`
+        # alternative was already written against).
+        # `export` stays bare -- it is a declaration keyword in its own
+        # right and cannot appear anywhere else -- while `public` (a class
+        # member / parameter-property modifier, and a legal property name)
+        # gets the anchor. Measured: 3730 crucible matches before, 3726
+        # after; the four dropped were the string `"public"` and a
+        # `case "public":` in a compiler that parses the keyword.
         "api": re.compile(
-            r"\b(export|public|module\.exports|exports\.)\b|@(Controller|Resolver|Get|Post|Put|Delete)\b"
+            r"\b(?:export|module\.exports|exports\.)\b"
+            r"|\bpublic[ \t\n]+(?:(?:static|readonly|abstract|override|async)[ \t\n]+){0,4}"
+            r"(?:get\b|set\b|[A-Za-z_$#][\w$]*[ \t\n]*[(:?<=;,])"
+            r"|@(Controller|Resolver|Get|Post|Put|Delete)\b"
         ),
         # 11. flux (State Mutation)
         # Mutation of state. EXCLUDES const (freeze_hits).

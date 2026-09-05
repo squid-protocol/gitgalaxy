@@ -169,10 +169,19 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: Issue #2656. The bare-identifier alternative lacked the keyword-exclusion
         # negative lookahead that func_start and args carry, causing 'param(', 'if (',
         # and 'switch (' lines to miscount as API surface. Added the exclusion set.
-        "api": re.compile(
-            r"\b(Export-ModuleMember|New-Alias|CmdletBinding)\b|^[ \t]*(?!hidden\s+)(?!(?:if|elseif|switch|while|for|foreach|until|trap|catch|param)\b)[a-zA-Z_]\w*\s*\(",
-            re.I | re.M,
-        ),
+        # BUG FIX #2730 (api contract): the bare-identifier alternative
+        # matched `<name>(` at the start of a line, which in PowerShell is a
+        # .NET method CALL or a control-flow statement -- a reference, never
+        # a declaration (a PowerShell function is declared `function Name`,
+        # a class method `[type] Name(`). #2656's keyword exclusion could not
+        # fix that, and could not even hold the line it was written for: the
+        # exclusion set is lowercase while the pattern is `re.I`, so `If (`
+        # and `Param(` matched anyway. All 61 of its crucible matches were
+        # statements (`return (`, `throw (`, `Param(`, `If (`). Removed;
+        # PowerShell's real published surface is `Export-ModuleMember` (and
+        # the `New-Alias`/`CmdletBinding` markers), which the first
+        # alternative already owns.
+        "api": re.compile(r"\b(Export-ModuleMember|New-Alias|CmdletBinding)\b", re.I),
         # 11. flux (State Mutation)
         # Mutation of state. Captures assignments, scoped variables, array indexing, and anchored increments.
         "state_mutation": re.compile(

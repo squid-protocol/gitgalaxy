@@ -463,3 +463,28 @@ def test_cobol_doc_planted_construct_counts_once_regression():
     assert len(doc.findall(corpus_shaped)) == 2
 
     assert_redos_immune(doc, "      *> @author" + " " * 200000, timeout_sec=3.0)
+
+
+def test_cobol_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    `CALL`/`INVOKE` are call sites, not declarations, and swept up
+    `END-CALL` as well (108 crucible matches on their own).
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = COBOL_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search("       ENTRY 'SUBPROG'."), 'secondary entry point'
+    assert api.search('       LINKAGE SECTION.'), 'linkage section'
+
+    # Not declarations -- must not match.
+    assert not api.search('           END-CALL.'), 'END-CALL scope terminator'
+    assert not api.search("           CALL 'CEE3ABD'."), 'CALL is a call site'

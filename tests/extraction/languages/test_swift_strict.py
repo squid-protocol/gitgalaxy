@@ -440,3 +440,29 @@ def test_swift_doc_block_redos_immune_regression():
     """#2672 ReDoS probes: unterminated `/**` and a very long unterminated `///` line must fail closed quickly."""
     assert_redos_immune(SWIFT_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
     assert_redos_immune(SWIFT_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)
+
+
+def test_swift_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    `public`/`package` were the two alternatives this rule did not anchor,
+    so they matched `let package = Package(...)` and the word in a string.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = SWIFT_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('public var description: String {'), 'public property'
+    assert api.search('package func helper() {}'), 'package-level function'
+    assert api.search('open class Foo {'), 'open class (kept)'
+
+    # Not declarations -- must not match.
+    assert not api.search('let package = Package(name: "Alamofire",'), 'variable named package'
+    assert not api.search('"No public keys were found."'), 'keyword in a string literal'

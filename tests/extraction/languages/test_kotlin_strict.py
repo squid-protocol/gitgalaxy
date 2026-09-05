@@ -372,3 +372,31 @@ def test_kotlin_doc_bare_tag_outside_block_still_counts_regression():
 def test_kotlin_doc_block_redos_immune_regression():
     """#2672 ReDoS probe: an unterminated `/**` must fail closed quickly, not hang."""
     assert_redos_immune(KOTLIN_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
+
+
+def test_kotlin_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    A bare `internal` matched the package segment of
+    `import okhttp3.internal.<name>` -- a reference to another module's
+    internals, the exact opposite of a public declaration.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = KOTLIN_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('public override fun clone(): Call'), 'public override fun'
+    assert api.search('internal val lock = Any()'), 'internal val'
+
+    # Not declarations -- must not match.
+    assert not api.search('import okhttp3.internal.CONST_VERSION'), '`internal` inside an import path'
+
+    # ReDoS detonation on a modifier run that never reaches a declaration.
+    assert_redos_immune(api, "public " + "open " * 20000 + "@", timeout_sec=3.0)

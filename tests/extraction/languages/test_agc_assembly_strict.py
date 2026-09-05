@@ -245,3 +245,27 @@ def test_agc_assembly_ambiguity_doc_vs_ownership_author_no_collision():
     assert not AGC_RULES["doc"].search(header)
     m = AGC_RULES["ownership"].search(header)
     assert m and m.group(1) == "Jane Doe"
+
+
+def test_agc_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    `EXTEND`/`BEXT` are AGC instructions, not declarations -- 323 of the
+    crucible corpus's 367 matches were the bare `EXTEND` opcode.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = AGC_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('SBIT1\t\tEQUALS\tBIT1'), 'EQUALS symbol equate'
+
+    # Not declarations -- must not match.
+    assert not api.search('\tEXTEND'), 'EXTEND is an instruction'
+    assert not api.search('EXTEND'), 'EXTEND at column 0'

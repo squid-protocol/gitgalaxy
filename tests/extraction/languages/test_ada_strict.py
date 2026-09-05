@@ -467,3 +467,30 @@ def test_ada_argument_fallback_does_not_regress_space_separated_languages():
     assert count("foo:bar baz:qux") == 2
     assert count("") == 0
     assert count("self") == 1
+
+
+def test_ada_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    A subprogram declared at column 0 is a library-level compilation unit,
+    visible to anything that `with`s it; the old rule could only see a package
+    spec, which lives in a separate `.ads` file.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = ADA_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('procedure Probe_Globals (Env : Integer) is'), 'library-level procedure'
+    assert api.search('function Compute (X : Integer) return Integer is'), 'library-level function'
+    assert api.search('package Foo is'), 'package spec (kept)'
+
+    # Not declarations -- must not match.
+    assert not api.search('   procedure Helper (X : Integer) is'), 'nested (body-local) procedure'
+    assert not api.search('package body Foo is'), 'package body'

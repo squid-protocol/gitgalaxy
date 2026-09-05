@@ -476,3 +476,32 @@ def test_typescript_doc_bare_tag_outside_block_still_counts_regression():
 def test_typescript_doc_block_redos_immune_regression():
     """#2672 ReDoS probe: an unterminated `/**` must fail closed quickly, not hang."""
     assert_redos_immune(TYPESCRIPT_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
+
+
+def test_typescript_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    A bare `public` matched the string `"public"` in a compiler that parses
+    the keyword.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = TYPESCRIPT_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('public dispose(): void {'), 'public method'
+    assert api.search('public expression: Expression,'), 'parameter property'
+    assert api.search('export function f() {}'), 'export (kept)'
+
+    # Not declarations -- must not match.
+    assert not api.search('return "public";'), 'keyword in a string literal'
+    assert not api.search('case "public":'), 'keyword in a switch case'
+
+    # ReDoS detonation on a modifier run that never reaches a declaration.
+    assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)

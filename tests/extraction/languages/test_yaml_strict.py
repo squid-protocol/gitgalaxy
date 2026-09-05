@@ -698,3 +698,25 @@ def test_yaml_spec_exposure_redos_immunity():
     assert_redos_immune(spec_exposure, "# " + "[" * 100000, timeout_sec=3.0)
 
     assert spec_exposure.search("# [SPEC-4412] traceable")
+
+
+def test_yaml_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    `workflow_call` -- the trigger that makes a workflow callable by another
+    repository -- was missing from the trigger set.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = YAML_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('on:\n  workflow_call:\n'), 'reusable-workflow trigger'
+    assert api.search('on:\n  push:\n'), 'push trigger (kept)'
+

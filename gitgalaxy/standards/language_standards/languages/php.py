@@ -132,7 +132,26 @@ DEFINITION: dict[str, Any] = {
         ),
         # 10. api (Public Surface Area)
         # Exposed surface. Explicit public markers + attribute routes.
-        "api": re.compile(r"\b(public)\b|#\[(?:ApiResource|Route|Get|Post|Put|Delete|Patch)[^\]]*\]"),
+        # BUG FIX #2730 (api contract): a bare `\bpublic\b` counted the
+        # access modifier ANYWHERE in the code stream -- inside a string
+        # literal, a `switch` case, a dotted name -- not only where it
+        # declares something. The alternatives below anchor it to the
+        # declaration it modifies, per docs/api_rule_contract.md ("a
+        # declaration that makes a named function or type visible outside
+        # this file"). Every quantifier is bounded (Rule 5) and the modifier
+        # stepper is `{0,5}`, not `*`, so the `[ \t\n]+`-separated
+        # alternation cannot nest unboundedly (the ReDoS shape swift's `open`
+        # alternative was already written against).
+        # PHP always follows the modifier with `function`, `const`, a `$`
+        # property (optionally typed), or another modifier. Measured: 1153
+        # crucible matches before, 1146 after -- the seven dropped were a
+        # `$public` variable, a `'path.public'` container key and a
+        # `->public` property read.
+        "api": re.compile(
+            r"\bpublic[ \t\n]+(?:(?:static|final|abstract|readonly)[ \t\n]+){0,4}"
+            r"(?:function\b|const\b|\$[a-zA-Z_]|\??[\\A-Za-z_][\w\\|]*[ \t\n]+\$[a-zA-Z_])"
+            r"|#\[(?:ApiResource|Route|Get|Post|Put|Delete|Patch)[^\]]*\]"
+        ),
         # 11. flux (State Mutation)
         # Mutation of state. Variable reassignments and array mutators.
         # QUADRATIC BLOWUP FIX: the optional `(?:\w+)?` before the

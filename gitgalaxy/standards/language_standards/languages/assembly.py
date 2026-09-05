@@ -130,8 +130,14 @@ DEFINITION: dict[str, Any] = {
         ),
         # 10. api (Public Surface Area)
         # Linker-visible global exports.
+        # BUG FIX #2730 (api contract): `EXTERN`/`IMPORT` declare a symbol
+        # defined in *another* translation unit -- they make an outside name
+        # visible HERE, the opposite direction from the contract ("a
+        # declaration that makes a named function or type visible outside
+        # this file"). Dropped; the remaining directives all publish a local
+        # symbol to the linker.
         "api": re.compile(
-            r"^[ \t]*(?:\.global|\.globl|global|EXPORT|PUBLIC|EXTERN|IMPORT)\b",
+            r"^[ \t]*(?:\.global|\.globl|global|EXPORT|PUBLIC)\b",
             re.M | re.I,
         ),
         # 11. flux (State Mutation)

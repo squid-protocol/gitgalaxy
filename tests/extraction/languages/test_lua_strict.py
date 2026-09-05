@@ -259,3 +259,27 @@ def test_lua_safety_bypasses_globals_and_cleanup_ownership_regression():
     assert safety_bypasses.search("debug.getinfo(1)"), "debug.* must still count as safety_bypasses"
     assert safety_bypasses.search("getfenv(1)"), "getfenv must still count as safety_bypasses"
     assert safety_bypasses.search("setfenv(1, t)"), "setfenv must still count as safety_bypasses"
+
+
+def test_lua_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    `[^_]` accepted any non-underscore character, so `function ()` -- an
+    anonymous function, which declares no name -- counted.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = LUA_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('function Writer(doc, opts)'), 'named global function'
+
+    # Not declarations -- must not match.
+    assert not api.search('function ()'), 'anonymous function'
+    assert not api.search('local function helper()'), 'local function'

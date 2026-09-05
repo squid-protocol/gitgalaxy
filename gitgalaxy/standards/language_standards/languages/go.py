@@ -145,8 +145,23 @@ DEFINITION: dict[str, Any] = {
         # `DoSomething(`) -- `\b` forces the lookahead to apply at the
         # true word boundary, where backtracking can't produce a
         # second valid stopping point.
+        # BUG FIX #2730 (api contract): the indented alternative only
+        # excluded a following `(`, so any line STARTING with an exported
+        # identifier counted -- a struct-literal field key (`Protocol:
+        # protocol,`), a method call on an exported package var
+        # (`DefaultServeMux.register(...)`). Those are references to an
+        # exported name, not declarations of one; 176 of the crucible
+        # corpus's 614 matches were exactly that. The alternative now
+        # requires what a grouped `var (...)`/`const (...)` member or a
+        # struct field actually looks like -- `Name = value`, `Name Type`, or
+        # a bare embedded type on its own line -- which keeps every real
+        # top-level declaration the #2651 fix was written to preserve
+        # (`\tBurstReplicas = 500`) and drops the references. The optional
+        # `, Name` run needs a literal comma per step, so it cannot backtrack
+        # ambiguously.
         "api": re.compile(
-            r"^func\s+(?:\([^)]*\)[ \t]+)?[A-Z]\w+|^(?:type|var|const)\s+[A-Z]\w+|^[ \t]+\b[A-Z]\w+\b(?!\()",
+            r"^func\s+(?:\([^)]*\)[ \t]+)?[A-Z]\w+|^(?:type|var|const)\s+[A-Z]\w+|"
+            r"^[ \t]+[A-Z]\w*(?:[ \t]*,[ \t]*[A-Z]\w*)*(?:[ \t]*=[^=]|[ \t]+[\w\[\*\.]|[ \t]*$)",
             re.M,
         ),
         # 11. flux (State Mutation)

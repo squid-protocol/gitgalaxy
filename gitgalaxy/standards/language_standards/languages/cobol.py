@@ -251,7 +251,14 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 10. api: Public Surface Area. Exposed linkage points and external entries.
-        "api": re.compile(r"\b(ENTRY|LINKAGE\s+SECTION|CALL|INVOKE|EXPORT)\b", re.I),
+        # BUG FIX #2730 (api contract): `CALL`/`INVOKE` are call SITES -- a
+        # reference to a name declared elsewhere, not a declaration that
+        # publishes one. They also swept up `END-CALL` (`\b` fires after the
+        # hyphen), which alone was 108 of the crucible corpus's 1396 matches;
+        # 843 of the 1396 came from this pair. `ENTRY` (a secondary entry
+        # point) and `LINKAGE SECTION` (the called program's parameter
+        # contract) are COBOL's real published surface.
+        "api": re.compile(r"\b(ENTRY|LINKAGE\s+SECTION|EXPORT)\b", re.I),
         # 11. flux: State Mutation. State mutation (The core of COBOL data manipulation).
         "state_mutation": re.compile(
             r"\b(MOVE|COMPUTE|ADD|SUBTRACT|MULTIPLY|DIVIDE|SET|INITIALIZE|REPLACE|STRING|UNSTRING)\b",

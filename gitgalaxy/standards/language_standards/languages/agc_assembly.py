@@ -35,9 +35,22 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
-        # Decisions and logical jumps. EXCLUDES fatal alarms (bailout_hits).
+        # Decisions only. EXCLUDES fatal alarms (bailout_hits) and, since #2764,
+        # every UNCONDITIONAL control transfer.
+        #
+        # BUG FIX #2764 (sibling of assembly's, same issue): this alternation used
+        # to carry `TC|TCF|TCR|CALL|GOTO` (unconditional transfers -- TC is the
+        # AGC's subroutine call) and `RESUME|RETURN` (returns) next to the real
+        # conditionals. Only BZF/BZMF/BZE/BMN/BPL/BMI/CCS/BVBZ/OVSK test anything.
+        # `branch` feeds the decision-density metrics (avg_func_complexity,
+        # func_internal_density, cog_raw, control_flow_ratio, risk_cognitive_load)
+        # plus #2546's x3 cascading-flux amplifier, so counting calls and returns
+        # inflated all of them with subroutine count. Relocated to
+        # `structural_boundaries` (Rule 3) per #2545's "relocate, not delete".
+        # CCS (Count, Compare and Skip -- the AGC's one real multi-way test) was
+        # double-counted in BOTH rules and is now claimed by `branch` alone.
         "branch": re.compile(
-            r"\b(TC|TCF|BZF|BZMF|BZE|BMN|BPL|BMI|CCS|RESUME|RETURN|TCR|OVSK|BVBZ|CALL|GOTO)\b",
+            r"\b(BZF|BZMF|BZE|BMN|BPL|BMI|CCS|OVSK|BVBZ)\b",
             re.I,
         ),
         # 2. args (Parameters / Coupling)
@@ -56,9 +69,15 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 3. linear (Sequential Boundaries)
-        # Standard instruction flow and data markers.
+        # Standard instruction flow, data markers, and unconditional control
+        # transfer (#2764: TC/TCF/TCR/CALL/GOTO calls-and-jumps and
+        # RESUME/RETURN returns moved here out of `branch` -- structure, not
+        # decisions). CCS left `structural_boundaries` in the same change: it is a
+        # real conditional and was the one token counted by both rules.
+        # Longest-first on TCF|TCR|TC so the alternation does not backtrack.
         "structural_boundaries": re.compile(
-            r"\b(CA|CAF|CS|TS|DXCH|LXCH|QXCH|XCH|AD|SU|MULT|DV|MASK|CCS|SETLOC|BANK|COUNT|ADRES|OCTAL|2OCT|DEC|2DEC|BLOCK|ERASE)\b",
+            r"\b(CA|CAF|CS|TS|DXCH|LXCH|QXCH|XCH|AD|SU|MULT|DV|MASK|SETLOC|BANK|COUNT|ADRES|OCTAL|2OCT|DEC|2DEC|BLOCK|ERASE"
+            r"|TCF|TCR|TC|CALL|GOTO|RESUME|RETURN)\b",
             re.I,
         ),
         # 4. func_start (Executable Logic Anchors)

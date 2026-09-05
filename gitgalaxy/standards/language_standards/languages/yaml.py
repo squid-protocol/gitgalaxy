@@ -37,13 +37,40 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         "branch": re.compile(r"\b(?:if|else|elif|fi|case|esac|for|while|do|done)\b|&&|\|\|", re.I),
-        # BUG FIX (epic #813/#843): required `with:` to be immediately followed by a newline,
-        # so a trailing same-line comment (`with: # inputs for this action`, a real authoring
-        # style) broke the match entirely -- the block's own header line has to tolerate a
-        # comment the same way a job/step name line would.
-        "args": re.compile(
-            r"^[ \t]*with:[ \t]*(?:#.*)?\n(?:[ \t]*(?:#.*)?\n){0,10}[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*", re.M | re.I
-        ),
+        # BUG FIX (#2753): the rule was narrower than the language on two axes.
+        #  1. `with:` is the CALL-SITE argument block (it binds to `uses:`); the
+        #     parameter surface a YAML file DECLARES -- the thing every other
+        #     language's `args` reads off a `def`/`function`/`sub` line -- is
+        #     `inputs:`: `on: workflow_dispatch:`/`workflow_call:` inputs (the
+        #     latter being the signature of the reusable-workflow API #2743 added
+        #     to the `api` trigger set) and action.yml's top-level `inputs:`.
+        #     Neither matched, so a composite action declaring 24 inputs read 0.
+        #  2. It counted BLOCKS, not parameters: the old regex consumed the header
+        #     through its FIRST key as one match, so a `with:` carrying five inputs
+        #     read `args` 1 while every other language records one hit per
+        #     parameter.
+        # Both are fixed by inverting the shape. A YAML key line means "parameter"
+        # or "ordinary config key" purely by what it is nested UNDER (`fetch-depth:
+        # 0` is an argument beneath `with:` and a plain setting anywhere else), and
+        # that is the enclosing FORM, which no flat pattern can see -- so the rule
+        # matches every indented mapping key and the registry-declared
+        # `yaml_parameter_block` scope filter (#2674's mechanism, see
+        # `_scope_filters` below and detector.py's `_apply_scope_filter`) keeps only
+        # the ones whose immediate parent is a parameter block. The epic #813/#843
+        # fix this replaces -- tolerating a trailing comment on the block header
+        # (`with: # inputs for this action`) -- is preserved inside that filter,
+        # which strips a comment before deciding whether a header carries a value.
+        "args": re.compile(r"^[ \t]+(?:-[ \t]+)*([a-zA-Z0-9_.-]{1,64}):(?=[ \t]|$)", re.M),
+        # #2753: the `args` rule above deliberately matches every indented mapping
+        # key; `yaml_parameter_block` is what makes it an argument counter. It walks
+        # the file's indentation, skipping block-scalar bodies (a `run: |` shell
+        # heredoc that itself contains `with:`/`key: value` lines is text, not
+        # structure), and keeps only the keys whose IMMEDIATE parent is a valueless
+        # `with:` / `inputs:` / `args:` header -- direct children only, because under
+        # `inputs:` the direct children are the parameter NAMES and their own
+        # `description:`/`required:`/`default:` keys are that parameter's attributes,
+        # not further parameters. See `_yaml_parameter_child_offsets` in detector.py.
+        "_scope_filters": {"args": "yaml_parameter_block"},
         "structural_boundaries": re.compile(r"^[ \t]*(?:env|needs|runs-on|steps|strategy|matrix):", re.M | re.I),
         # Executable Logic Anchors: Explicit execution blocks
         "func_start": re.compile(

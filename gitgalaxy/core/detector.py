@@ -5707,8 +5707,10 @@ class StructuralExtractor:
 
     # ------------------------------------------------------------------
     # #2674: registry-declared scope filters (see `_scope_filters` in
-    # coding_analysis). One filter exists today; add new ones here, keyed
-    # by the name a language definition uses, so the registry stays data.
+    # coding_analysis). Three exist today -- `lisp_body_position` (scheme),
+    # `matlab_return_channel` and `yaml_parameter_block` (#2753); add new ones
+    # here, keyed by the name a language definition uses, so the registry stays
+    # data.
     # ------------------------------------------------------------------
 
     # Forms whose body is a LOCAL scope: a `(define ...)` whose nearest
@@ -5787,6 +5789,83 @@ class StructuralExtractor:
         re.M,
     )
 
+    # #2753: YAML parameter surfaces. A YAML key line means "parameter" or
+    # "ordinary config key" purely by what it is nested under -- `fetch-depth: 0`
+    # is an argument beneath `with:` and a plain setting anywhere else -- so
+    # yaml's `args` rule matches EVERY indented mapping key and this filter keeps
+    # only the ones whose immediate parent is a parameter block:
+    #   * `inputs:` -- DECLARED parameters (`on: workflow_dispatch:` /
+    #     `workflow_call:` inputs, action.yml's top-level `inputs:`);
+    #   * `with:`   -- arguments SUPPLIED to a `uses:` action;
+    #   * `args:`   -- arguments supplied to a module / container entrypoint.
+    # Ansible's own module-parameter surface (the mapping under a bare module
+    # name, `fail:\n  msg: ...`) is deliberately NOT here: it has an unbounded
+    # key vocabulary -- every module name in every collection -- so recognising
+    # it would mean treating "any nested mapping" as a parameter block, which is
+    # the over-claim this rule already had in the other direction. `vars:` is
+    # likewise left out: it is Ansible's variable block (the analogue of yaml's
+    # own `env:`, which `state_mutation` claims), and while `vars:` on
+    # `include_role`/`include_tasks` does pass parameters, nothing on the block
+    # itself distinguishes the two uses.
+    _YAML_PARAMETER_BLOCKS: ClassVar[frozenset[str]] = frozenset({"with", "inputs", "args"})
+    # One mapping-key line. `lead` absorbs any sequence indicators (`- - key:`),
+    # so a key introduced by a dash is measured at its own column exactly as YAML
+    # scopes it. Every quantifier is bounded and anchored on a distinct character
+    # class, so the match is linear in the line length.
+    _YAML_KEY_LINE: ClassVar[re.Pattern[str]] = re.compile(
+        r"^(?P<lead>[ \t]*(?:-[ \t]+)*)(?P<key>[A-Za-z0-9_.-]{1,64}):(?P<value>[ \t].*|)$"
+    )
+
+    def _yaml_parameter_child_offsets(self, code: str) -> set[int]:
+        """
+        Line-start offsets of the mapping keys whose immediate parent is a
+        `with:` / `inputs:` / `args:` block header. One indentation walk, O(lines).
+
+        Block-scalar bodies are skipped wholesale: a `run: |` step whose shell
+        text happens to contain `with:` and `key: value` lines is text, not
+        structure, and letting it push scopes would invent a parameter block
+        (and then count its "children") out of a heredoc.
+        """
+        keep: set[int] = set()
+        # (indent, opens_a_parameter_block)
+        stack: list[tuple[int, bool]] = []
+        scalar_indent: Optional[int] = None
+        offset = 0
+        for line in code.splitlines(keepends=True):
+            stripped = line.rstrip("\r\n")
+            if not stripped.strip():
+                offset += len(line)
+                continue
+            leading = stripped[: len(stripped) - len(stripped.lstrip(" \t"))]
+            raw_indent = len(leading.expandtabs(8))
+            if scalar_indent is not None:
+                if raw_indent > scalar_indent:
+                    offset += len(line)
+                    continue
+                scalar_indent = None
+            match = self._YAML_KEY_LINE.match(stripped)
+            if match:
+                indent = len(match.group("lead").expandtabs(8))
+                while stack and stack[-1][0] >= indent:
+                    stack.pop()
+                if stack and stack[-1][1]:
+                    keep.add(offset)
+                # A trailing comment is not a value: `with: # inputs for this
+                # action` is still a block header (the authoring style epic
+                # #813/#843 fixed for the old regex). Prism already strips
+                # comments out of the code stream, so this only matters when the
+                # walk is run over raw source.
+                value = match.group("value")
+                hash_idx = value.find("#")
+                if hash_idx != -1:
+                    value = value[:hash_idx]
+                value = value.strip()
+                stack.append((indent, not value and match.group("key").lower() in self._YAML_PARAMETER_BLOCKS))
+                if value[:1] in ("|", ">"):
+                    scalar_indent = indent
+            offset += len(line)
+        return keep
+
     def _apply_scope_filter(
         self,
         filter_name: str,
@@ -5812,6 +5891,17 @@ class StructuralExtractor:
                 # inside the match is the define's own opening paren.
                 paren = code.find("(", m.start(), m.end())
                 if paren != -1 and paren in keep:
+                    kept.append(m)
+            return kept
+        if filter_name == "yaml_parameter_block":
+            if filter_name not in cache:
+                cache[filter_name] = self._yaml_parameter_child_offsets(code)
+            keep = cache[filter_name]
+            kept = []
+            for m in matches:
+                # The rule that opts in is `^`-anchored, so a match starts at its
+                # own line's first character -- the same offset the walk keys on.
+                if m.start() in keep:
                     kept.append(m)
             return kept
         if filter_name == "matlab_return_channel":
@@ -6520,7 +6610,22 @@ class StructuralExtractor:
         keyword_density = total_keyword_hits / max(loc, 1)
 
         args_count = 0
-        if args_pattern and hasattr(args_pattern, "search"):
+        # #2753: a rule with a registry-declared scope filter matches a SUPERSET
+        # of what it counts on purpose -- yaml's `args` matches every indented
+        # mapping key and the `yaml_parameter_block` filter keeps only the ones
+        # nested under a parameter block. The generic derivation below re-runs the
+        # raw pattern against this block with no filter in sight, so for such a
+        # rule it reads the superset: every `- run: ...` step would "declare" one
+        # argument (its own `run:` key), which is a measurement artefact, not a
+        # parameter. `hit_vector` is bisected out of the spatial map that
+        # coding_analysis already filtered, so its `args` entry is exactly this
+        # block's kept parameter keys -- take it directly. Without a spatial map
+        # (the untested-manual-call fallback above) the filter's segment context
+        # doesn't exist, and 0 is the honest answer rather than the superset.
+        scoped_args_filter = (rules.get("_scope_filters") or {}).get("args")
+        if scoped_args_filter:
+            args_count = hit_vector.get("args", 0)
+        elif args_pattern and hasattr(args_pattern, "search"):
             try:
                 arg_match = args_pattern.search(args_search_text if args_search_text is not None else block)
                 if arg_match:

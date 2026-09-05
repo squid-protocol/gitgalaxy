@@ -4103,3 +4103,52 @@ def test_keyword_buckets_are_neither_duplicates_nor_orphans():
     eq = docker.splice(code, "")["equations"]
     assert not eq.get("duplicate_logic"), "identical RUN instructions are not duplicated functions"
     assert not eq.get("orphaned_logic"), "a RUN bucket is a keyword, and a keyword cannot be orphaned"
+
+
+def test_mode_d_anchors_a_function_at_its_declaration_not_its_opening_brace():
+    """#2758: Mode D's openers include the bare `{`, so a K&R-style shell
+    function -- declaration on one line, brace on the next, which is how curl's
+    own `initscript.sh` is written throughout -- reported `start_line` on the
+    BRACE. The lookback at `_slice_by_keywords` already had to walk back a line
+    to find the name; it recovered the name and left the position behind.
+
+    `start_line` is not diagnostic-only: `sarif_recorder.py` uses it as the
+    `locations` line of every SARIF result, and `spatial_correlation.py` builds
+    each function's dampener window as `(start_line, end_line + 1)`, so a window
+    starting one line late can miss a signal sitting on the declaration itself.
+
+    Only the ANCHOR moves. The satellite's text still begins at the opener, so
+    `loc` is unchanged -- asserted below, because that is what keeps the span
+    extending backwards over the declaration rather than sliding a line earlier.
+    Mode D can do that safely only because it computes `sat_end_line`
+    independently, unlike the brace/label modes' `start_line + loc - 1`.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    shell = StructuralExtractor("shell", LANGUAGE_DEFINITIONS)
+    code = 'f_create_role()\n{\n    : "$1"\n}\n\nf_inline() {\n    : "$1"\n}\n'
+    by_name = {f["name"]: f for f in shell.splice(code, "").get("functions", [])}
+
+    kr = by_name["f_create_role"]
+    assert kr["start_line"] == 1, "the K&R declaration is on line 1, not the brace on line 2"
+    assert kr["end_line"] == 4, "the end must not move with the start -- the span extends, not slides"
+    assert kr["loc"] == 3, "the satellite's own text is untouched; only the anchor moved"
+
+    same_line = by_name["f_inline"]
+    assert same_line["start_line"] == 6, "the same-line brace form was already correct and must not move"
+    assert same_line["end_line"] == 8
+    assert same_line["loc"] == 3
+
+
+def test_mode_d_anchor_does_not_move_when_the_name_is_on_the_opener():
+    """#2758's guard: the anchor only follows a name the lookback had to recover
+    from an earlier line. When `_extract_semantic_name` finds the name on the
+    opener line itself -- the common case in every Mode D language -- nothing
+    about the position changes.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    shell = StructuralExtractor("shell", LANGUAGE_DEFINITIONS)
+    code = 'function f_named {\n    : "$1"\n}\n'
+    funcs = [f for f in shell.splice(code, "").get("functions", []) if f["name"] == "f_named"]
+    assert funcs and funcs[0]["start_line"] == 1

@@ -51,7 +51,12 @@ YAML_RULES = LANGUAGE_DEFINITIONS["yaml"]["rules"]
 _YAML_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
     ("branch", "run: if [ -f file ]; then echo hi; fi", "run: echo hi"),
-    ("args", "      with:\n        node-version: 18\n", "      run: npm install\n"),
+    # #2753: `args` now matches an indented mapping key -- the parameter unit --
+    # and detector.py's `yaml_parameter_block` filter decides which of those keys
+    # is nested under a `with:`/`inputs:`/`args:` header. A top-level key is
+    # never a parameter, which is what the bare regex can still prove on its own;
+    # the scope decision is exercised through the real pipeline further down.
+    ("args", "      with:\n        node-version: 18\n", "run: npm install\n"),
     ("structural_boundaries", "    needs: build", "    name: My Job"),
     ("func_start", "      - run: npm test", "      - name: Run tests"),
     ("class_start", "jobs:\n", "on:\n  push:\n"),
@@ -100,10 +105,6 @@ _YAML_SIMPLE_CASES = [
     ("spec_exposure", "# raised in [spec] review", "  # the value is [specified per-machine]"),
     ("test_skip", "run: npm test -- --passWithNoTests", "run: npm test"),
     # --- DEEP ADVERSARIAL CASES FOR HIGH-AMBIGUITY SIGNATURES ---
-    # args: tolerating comments and blank lines between 'with:' and args
-    ("args", "with:\n  # comment\n  foo: bar", "without:\n  foo: bar"),
-    ("args", "with:\n\n  foo: bar", "without:\n  foo: bar"),
-    ("args", "  with:\n    # comment\n    foo: bar", "without:\n  foo: bar"),
     # api: tolerating comments and blank lines between 'on:' and events
     ("api", "on:\n  # comment\n  push:", "on:\n  # comment\n  release:"),
     ("api", "on:\n\n  push:", "on:\n\n  release:"),
@@ -121,10 +122,6 @@ _YAML_SIMPLE_CASES = [
     ("import", "uses:\n  # comment\n  actions/checkout@v4", "uses:\n  # comment\n"),
     ("import", "uses:\n\n  actions/checkout@v4", "uses:\n\n"),
     ("import", "uses:   \n  actions/checkout@v4", "uses:   \n"),
-    # args (more)
-    ("args", "with:\n  # comment 1\n  # comment 2\n  foo: bar", "without:\n  foo: bar"),
-    ("args", "with:  # inline\n\n  # block\n  foo: bar", "without:\n  foo: bar"),
-    ("args", "  with:\n    # comment 1\n    # comment 2\n    foo: bar", "without:\n  foo: bar"),
     # api (more)
     ("api", "on:\n  # trigger 1\n  # trigger 2\n  push:", "on:\n  # comment\n  release:"),
     ("api", "on:  # trigger\n\n  # trigger 2\n  push:", "on:\n\n  release:"),
@@ -720,3 +717,212 @@ def test_yaml_api_contract_2730():
     assert api.search('on:\n  workflow_call:\n'), 'reusable-workflow trigger'
     assert api.search('on:\n  push:\n'), 'push trigger (kept)'
 
+
+
+# ==============================================================================
+# ARGS: PARAMETER-BLOCK SCOPE (#2753)
+# ==============================================================================
+# The `args` rule matches every indented mapping key on purpose -- a YAML key
+# line means "parameter" or "ordinary config key" purely by what it is nested
+# under -- and coding_analysis applies the registry-declared
+# `yaml_parameter_block` scope filter, so these tests go through the real
+# pipeline (prism + extractor), not the bare regex.
+
+
+def _yaml_args(code: str) -> int:
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    stream = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS).split_streams(code, "yaml")["code_stream"]
+    counts, _mit, _maps, _parents, _locs = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS).coding_analysis(
+        [("yaml", stream, 0)]
+    )
+    return counts["args"]
+
+
+def test_yaml_scope_filter_is_declared_for_args():
+    assert YAML_RULES["_scope_filters"] == {"args": "yaml_parameter_block"}
+
+
+_YAML_ARGS_SCOPE_CASES = [
+    # (name, source, expected args)
+    # --- axis 2 of #2753: one hit per parameter, not one per block ---
+    (
+        "with block counts every key, not the block",
+        "jobs:\n  b:\n    steps:\n      - uses: actions/checkout@v4\n"
+        "        with:\n          fetch-depth: 0\n          ref: main\n          path: src\n",
+        3,
+    ),
+    (
+        "two sibling with blocks",
+        "steps:\n  - uses: a\n    with:\n      x: 1\n  - uses: b\n    with:\n      y: 1\n      z: 2\n",
+        3,
+    ),
+    # --- axis 1 of #2753: `inputs:` is the DECLARED parameter surface ---
+    (
+        "workflow_dispatch inputs, attributes are not parameters",
+        "on:\n  workflow_dispatch:\n    inputs:\n      env_name:\n        description: 'target'\n"
+        "        required: true\n        default: dev\n      dry_run:\n        type: boolean\n",
+        2,
+    ),
+    (
+        "workflow_call inputs (the reusable-workflow API's signature, #2743)",
+        "on:\n  workflow_call:\n    inputs:\n      ref:\n        type: string\n",
+        1,
+    ),
+    (
+        "action.yml top-level inputs, outputs are not parameters",
+        "name: a\ninputs:\n  token:\n    default: x\n  path:\n    required: false\noutputs:\n  url:\n    value: y\n",
+        2,
+    ),
+    (
+        "ansible module args block",
+        "- command: /bin/foo\n  args:\n    chdir: /tmp\n    creates: /tmp/foo\n",
+        2,
+    ),
+    # --- the epic #813/#843 authoring styles, preserved through the filter ---
+    (
+        "trailing comment on the block header",
+        "jobs:\n  b:\n    steps:\n      - uses: x\n        with: # inputs for this action\n"
+        "          a: 1\n          b: 2\n",
+        2,
+    ),
+    (
+        "comment-only and blank lines before the first key",
+        "jobs:\n  b:\n    steps:\n      - uses: x\n        with:\n\n          # first input\n"
+        "          node-version: '18'\n",
+        1,
+    ),
+    (
+        "an arbitrarily long comment run before the first key (the old {0,10} cap)",
+        "jobs:\n  b:\n    steps:\n      - uses: x\n        with:\n" + "          # note\n" * 25 + "          a: 1\n",
+        1,
+    ),
+    # --- what must NOT count ---
+    (
+        "block scalar forging a with: block out of heredoc text",
+        "jobs:\n  b:\n    steps:\n      - run: |\n          cat > w.yml <<EOF\n          with:\n"
+        "            evil: 1\n            worse: 2\n          EOF\n",
+        0,
+    ),
+    (
+        "a scalar under a real with: key is one argument, its text is not",
+        "jobs:\n  b:\n    steps:\n      - uses: actions/github-script@v7\n        with:\n"
+        "          script: |\n            core.setOutput('k')\n            foo: bar\n",
+        1,
+    ),
+    (
+        "commented-out with block",
+        "jobs:\n  b:\n    steps:\n#      - uses: x\n#        with:\n#          a: 1\n      - run: ':'\n",
+        0,
+    ),
+    (
+        "ordinary workflow config keys are not parameters",
+        "on:\n  push:\njobs:\n  b:\n    runs-on: ubuntu-latest\n    env:\n      FOO: bar\n"
+        "    steps:\n      - run: pytest\n",
+        0,
+    ),
+    (
+        "empty with block",
+        "jobs:\n  b:\n    steps:\n      - uses: x\n        with:\n      - run: ':'\n",
+        0,
+    ),
+    (
+        "flow-style with: is a value, not a block header",
+        "jobs:\n  b:\n    steps:\n      - uses: x\n        with: {a: 1, b: 2}\n",
+        0,
+    ),
+    (
+        "sequence-form args: (k8s/compose) declares no keys",
+        "spec:\n  containers:\n    - name: app\n      args:\n        - --verbose\n        - --port=8080\n",
+        0,
+    ),
+    (
+        "a dash-introduced with: key is scoped at its own column",
+        "steps:\n  - with:\n      a: 1\n      b: 2\n",
+        2,
+    ),
+    (
+        "tab-indented block children",
+        "jobs:\n  b:\n    steps:\n      - uses: x\n        with:\n\t  a: 1\n\t  b: 2\n",
+        2,
+    ),
+]
+
+
+@pytest.mark.parametrize("name,source,expected", _YAML_ARGS_SCOPE_CASES, ids=[c[0] for c in _YAML_ARGS_SCOPE_CASES])
+def test_yaml_args_parameter_block_scope(name, source, expected):
+    assert _yaml_args(source) == expected, name
+
+
+def test_yaml_args_filter_keeps_counts_spatial_map_and_locations_consistent():
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    code = "steps:\n  - uses: a\n    with:\n      x: 1\n      y: 2\n  - run: pytest\n"
+    counts, _mit, spatial_maps, _parents, locations = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS).coding_analysis(
+        [("yaml", code, 0)]
+    )
+    assert counts["args"] == 2
+    assert len(spatial_maps[0]["args"]) == 2
+    assert locations["args"] == [4, 5]
+
+
+def test_yaml_args_unknown_scope_filter_name_is_ignored_not_zeroed():
+    """A registry typo can only ever restore the pre-filter count, never zero it."""
+    import copy
+
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    defs = copy.deepcopy(LANGUAGE_DEFINITIONS)
+    defs["yaml"]["rules"]["_scope_filters"] = {"args": "no-such-filter"}
+    code = "steps:\n  - uses: a\n    with:\n      x: 1\n"
+    counts, _mit, _maps, _parents, _locs = StructuralExtractor("yaml", defs).coding_analysis([("yaml", code, 0)])
+    # Unfiltered: every indented mapping key, i.e. the superset the filter exists to trim.
+    assert counts["args"] == 3
+
+
+def test_yaml_per_function_args_reads_the_filtered_hits_not_the_raw_pattern():
+    """
+    #2753: a rule with a declared scope filter matches a superset on purpose, so
+    `_calculate_block_metrics`' generic single-`.search()` derivation would read
+    that superset -- every `- run:` step would "declare" one argument (its own
+    `run:` key). The per-function count comes off the already-filtered spatial
+    map instead.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    code = "steps:\n  - run: pytest\n  - run: ruff check .\n"
+    functions = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    assert functions, "sanity: yaml's run: steps are the function unit"
+    assert [f["args_count"] for f in functions] == [0] * len(functions)
+
+
+def test_yaml_parameter_walk_is_linear_on_pathological_input():
+    """
+    The scope pass is an indentation walk, not a regex, so the strict harness's
+    regex timer doesn't apply; time it directly on the shapes that would hurt a
+    walk that rescanned or backtracked.
+    """
+    import time
+
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    d = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS)
+    payloads = [
+        "with:\n" + "  key: val\n" * 20000,  # one enormous parameter block
+        "".join(f"{' ' * (i % 60)}k{i}: v\n" for i in range(20000)),  # 20k indentation changes
+        "- run: |\n" + "    text: not structure\n" * 20000,  # one enormous block scalar
+    ]
+    for payload in payloads:
+        start = time.perf_counter()
+        d._yaml_parameter_child_offsets(payload)
+        assert time.perf_counter() - start < 3.0, "yaml parameter walk is not linear"
+
+
+def test_yaml_args_redos_immunity_on_the_key_pattern():
+    args = YAML_RULES["args"]
+    assert_redos_immune(args, " " + "-" * 100000, timeout_sec=3.0)
+    assert_redos_immune(args, "  " + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(args, ("  - " * 50000) + "key:", timeout_sec=3.0)
+    assert args.search("  node-version: '18'")

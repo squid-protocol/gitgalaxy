@@ -249,8 +249,12 @@ def test_yacc_redos_immunity():
     assert_redos_immune(YACC_RULES["dead_code"], "//" + " " * 100000, timeout_sec=2.0)
     assert_redos_immune(YACC_RULES["structural_boundaries"], "%token " * 20000, timeout_sec=2.0)
     assert_redos_immune(YACC_RULES["api"], "%define " * 20000, timeout_sec=2.0)
+    # #2644: the `[ \t]+` before the optional named tag is the only quantifier
+    # in class_start -- fired against a directive whose tag never arrives.
+    assert_redos_immune(YACC_RULES["class_start"], "%union" + " \t" * 50000, timeout_sec=2.0)
 
     # Realistic-but-large inputs must still match after any bounding.
+    assert YACC_RULES["class_start"].search("%union {")
     assert YACC_RULES["ownership"].search("// Author: Jane Doe")
     assert YACC_RULES["import"].search('#include "parser.h"')
     assert YACC_RULES["spec_exposure"].search("[SPEC-123] audit trail")

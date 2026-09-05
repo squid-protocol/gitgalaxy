@@ -69,7 +69,29 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*(?!(?:case|default|public|private|protected)\b)([a-zA-Z_]\w*)(?=(?:[ \t\n]|/\*(?:[^*]|\*[^/])*\*/|//[^\n]*)*:)",
             re.M,
         ),
-        "class_start": None,
+        # #2644: Bison/Yacc's `%union` directive declares a real compound type --
+        # the C union spanning every rule's semantic value (`$$`/`$1`, already
+        # counted by `args`). Same "non-OOP language's struct/class equivalent"
+        # mapping the engine already makes for Fortran's `TYPE ... END TYPE`,
+        # COBOL's `PROGRAM-ID` and assembly's `struc` macros -- and core grammar
+        # syntax, not embedded C: `internal_discriminator` above already lists
+        # `union` among the `%`-directives that IDENTIFY a file as yacc.
+        #
+        # Optional group 1 captures bison's rarer named-tag form (`%union name {`);
+        # the common anonymous form leaves it unset and resolves to
+        # "Anonymous_Class" through `_resolve_class_start_match`, the same path
+        # assembly's own no-name `class_start` takes. Deliberately no group 2 --
+        # a union has no inheritance parent for detector.py's group-2-is-parent
+        # convention to misread.
+        #
+        # NOTE: this rule is only reachable for named extraction because yacc is
+        # in detector.py's `_CLASS_START_NAMED_EXTRACTION_LANGS`. Removing it
+        # there does not restore the old behavior -- it drops yacc onto the
+        # legacy generic fallback (`class|struct|interface|trait|enum`), which
+        # reads every `struct foo` declaration in a grammar's embedded C actions
+        # as a class: 17 and 9 on the two real corpus grammars where the honest
+        # answer is 1 each. The two changes only make sense together.
+        "class_start": re.compile(r"^[ \t]*%union\b(?:[ \t]+([a-zA-Z_]\w*))?", re.M),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         "safety": re.compile(r"\b(assert|YYABORT|YYACCEPT|YYERROR)\b"),
         "safety_bypasses": re.compile(r"\bgoto\b|\bvoid\s*\*"),

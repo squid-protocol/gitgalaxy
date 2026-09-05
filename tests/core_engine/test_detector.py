@@ -3909,3 +3909,79 @@ def test_detector_api_declared_orphans_ignores_hits_outside_the_declaration():
         "only the non-static declaration is public surface the api rule already counted -- "
         "the static one's body-local `int counter = 0;` api hit must not suppress it"
     )
+
+
+# ==============================================================================
+# TEST: YACC NAMED-CLASS EXTRACTION USES %union, NOT THE GENERIC FALLBACK (#2644)
+# ==============================================================================
+def test_detector_yacc_class_extraction_ignores_embedded_c_structs():
+    """
+    Regression for #2644. yacc's `class_start` was `None`, so a grammar's one
+    real compound type -- bison's `%union`, the C union spanning every rule's
+    semantic value -- was invisible. Wiring that rule is only half the change:
+    the named-class extractor consults a language's own `class_start` ONLY if
+    the language is in `_CLASS_START_NAMED_EXTRACTION_LANGS`, otherwise it falls
+    through to the legacy generic regex (`class|struct|interface|trait|enum`),
+    which reads every `struct foo` declaration in a grammar's embedded C action
+    code as a class -- 17 and 9 on the two real corpus grammars where the honest
+    answer is 1 each.
+
+    So this test pins the pair together: one `%union`, several ordinary C
+    `struct` declarations around it, exactly one extracted class.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    yacc_detector = StructuralExtractor("yacc", LANGUAGE_DEFINITIONS)
+    code = (
+        "%union {\n"
+        "\tchar\t*str;\n"
+        "\tstruct\tfile_list *file;\n"
+        "}\n"
+        "%%\n"
+        "file_spec:\n"
+        "\tNAME {\n"
+        "\t\tstruct file_list *fl;\n"
+        "\t\tstruct device dev;\n"
+        "\t\tnewfile($1);\n"
+        "\t}\n"
+        "\t;\n"
+    )
+
+    result = yacc_detector.splice(code, "")
+
+    names = [c.get("name") for c in result.get("classes", [])]
+    assert names == ["Anonymous_Class"], (
+        f"expected exactly the %union block as the file's one class, got {names} -- "
+        "yacc dropped off _CLASS_START_NAMED_EXTRACTION_LANGS and the generic "
+        "fallback is reading embedded C structs as classes again"
+    )
+    assert result["equations"].get("class_start") == 1, "the %union directive must count once as a class_start signal"
+
+
+def test_detector_yacc_grammar_without_a_union_declares_no_class():
+    """
+    #2644's other half: a grammar that uses `%define api.value.type` instead of
+    `%union` (gnucobol's 18k-line parser.y does) genuinely has no compound type
+    to declare. Its embedded C is still full of `struct` declarations -- 56 of
+    them would surface as classes on the generic fallback -- so an honest zero
+    here is what proves the language's own rule is the one being consulted.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    yacc_detector = StructuralExtractor("yacc", LANGUAGE_DEFINITIONS)
+    code = (
+        "%define api.value.type union\n"
+        "%%\n"
+        "statement:\n"
+        "\tWORD {\n"
+        "\t\tstruct cb_field *f;\n"
+        "\t\tstruct cb_tree_common *x;\n"
+        "\t\temit($1);\n"
+        "\t}\n"
+        "\t;\n"
+    )
+
+    result = yacc_detector.splice(code, "")
+
+    assert result.get("classes") == [], f"a grammar with no %union must declare no class, got {result.get('classes')}"
+    assert not result["equations"].get("class_start"), "no %union directive means no class_start signal"

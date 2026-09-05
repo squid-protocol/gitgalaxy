@@ -20,9 +20,9 @@ part of this doc with the most recent, most detailed investigation behind it.
 | `_meta.blueprint_version` | v5.1 |
 | `_meta.last_updated` | 2026-03-11 |
 | `lexical_family` | `standard_block` |
-| Structural signature keys wired | 31 / 47 (16 explicit `None`, incl. `class_start` — a grammar file has no object/type concept) |
+| Structural signature keys wired | 33 / 48 (15 explicit `None`) — `class_start` joined the wired set in [#2644](https://github.com/squid-protocol/gitgalaxy/issues/2644) |
 | Function-slicing integration mode | **Mode A (label-greedy)** since 2026-08-27 (was Mode B / brace-based — see §9) |
-| Extraction-gauntlet + strict test files | `test_yacc.py`, `test_yacc_strict.py` (68 passing, 1 skipped) |
+| Extraction-gauntlet + strict test files | `test_yacc.py`, `test_yacc_strict.py` (98 passing, 1 skipped) |
 
 ## 2. Identification surface
 
@@ -40,13 +40,23 @@ whitespace/comments before the `:`) — the closest function-analog the cross-la
 for a grammar language, the same design decision behind `makefile` targets and `assembly` labels.
 `args` counts `$1`/`$2`/`$$` positional value references inside a rule's action as a per-rule
 argument-count proxy (the same spirit as the documented bash/Perl `$1`/`$2` precedent in
-`docs/why_gitgalaxy_beats_ast_here.md`). `class_start` is `None`. The remaining 29 wired keys
-(branch, io, safety, memory_alloc, macros, pointers, …) run against the embedded C/C++ action and
-prologue/epilogue code.
+`docs/why_gitgalaxy_beats_ast_here.md`).
+
+`class_start` targets the **`%union` directive** (#2644) — the C union spanning every rule's
+semantic value (`$$`/`$1`, which `args` already counts), and the one real compound type a grammar
+declares. That is the same "non-OOP language's struct/class equivalent" mapping the engine already
+makes for Fortran's `TYPE … END TYPE`, COBOL's `PROGRAM-ID` and assembly's `struc` macros, and it
+is core grammar syntax rather than incidentally-embedded C: `internal_discriminator` already lists
+`union` among the `%`-directives used to identify a file as yacc in the first place. Bison's rarer
+named-tag form (`%union name {`) captures the tag; the common anonymous form resolves to
+`Anonymous_Class`, the same path assembly's own no-name `class_start` takes.
+
+The remaining wired keys (branch, io, safety, memory_alloc, macros, pointers, …) run against the
+embedded C/C++ action and prologue/epilogue code.
 
 ## 4. What GitGalaxy explicitly does not track
 
-`class_start` and 15 other keys are wired to `None`: `test`, `concurrency`, `ui_framework`,
+15 keys are wired to `None`: `test`, `concurrency`, `ui_framework`,
 `closures`, `decorators`, `comprehensions`, `scientific`, `ssr_boundaries`, `events`,
 `dependency_injection`, `inline_asm`, `thread_sleeps`, `sync_locks`, `listeners`, `test_skip` —
 none have a meaningful analog in a grammar-definition file.
@@ -67,7 +77,8 @@ none have a meaningful analog in a grammar-definition file.
 ## 6. Test depth
 
 `tests/extraction/languages/test_yacc.py` (extraction gauntlet) and `test_yacc_strict.py` (ReDoS /
-boundary correctness, scaling-ratio methodology). 68 passing, 1 skipped as of this snapshot.
+boundary correctness, scaling-ratio methodology). 98 passing, 1 skipped as of this snapshot — the
+`class_start` / `%union` cases landed with #2644.
 
 ## 7. Relevant closed work
 
@@ -76,6 +87,9 @@ boundary correctness, scaling-ratio methodology). 68 passing, 1 skipped as of th
 - [#846](https://github.com/squid-protocol/gitgalaxy/issues/846) — extraction hardening for yacc.
 - [#713](https://github.com/squid-protocol/gitgalaxy/issues/713) — `spec_exposure` unbounded-`[^\]]*`
   ReDoS fix, applied across 28 languages including yacc.
+- [#2644](https://github.com/squid-protocol/gitgalaxy/issues/2644) — `%union` wired as
+  `class_start`, together with yacc's entry in `detector.py`'s
+  `_CLASS_START_NAMED_EXTRACTION_LANGS` (see §8).
 - [#1926](https://github.com/squid-protocol/gitgalaxy/issues/1926) — both real `.y` corpus files
   were silently excluded from `file_data` by `statistical_auditor.py`; fixing it is what first
   made yacc visible to the tri-comparison tool at all (the §9 ledger shape was `first_seen` the
@@ -86,6 +100,32 @@ boundary correctness, scaling-ratio methodology). 68 passing, 1 skipped as of th
 The comparison corpus is small (`language-crucible/data/yacc/freebsd/` — FreeBSD's `config.y` and
 `jailparse.y`), plus `.y`/`.l` files that live inside other language corpora
 (`cobol/gnucobol_internals/parser.y` + `scanner.l`, an 18k-line real Bison grammar).
+
+**`class_start` / `%union` precision (#2644).** yacc is tree-sitter-blind, so the rule was verified
+by direct source cross-check against those four real grammar files rather than by
+`tree_sitter_accuracy_audit.py` — the same position abap, cobol, jcl and sqlite are in on
+`_CLASS_START_NAMED_EXTRACTION_LANGS`. ctags cannot corroborate it either: `ctags
+--list-kinds-full=YACC` exposes exactly one kind, `l` (label), which is why
+`CTAGS_CLASS_KINDS["yacc"]` is empty on purpose and §9's comparison covers functions only. So a
+direct read of the four grammar files is the only external check there is, and it is the one that
+was done:
+
+| file | `%union` | `class_count` | note |
+|---|---|---|---|
+| `yacc/freebsd/config.y` | 1 (line 1) | 1 | anonymous union → `Anonymous_Class` |
+| `yacc/freebsd/jailparse.y` | 1 (line 45) | 1 | same shape |
+| `cobol/gnucobol_internals/parser.y` | 0 | 0 | uses `%define api.value.type`, declares no union |
+| `cobol/gnucobol_internals/scanner.l` | 0 | 0 | a lex scanner: no semantic-value union |
+
+100% precision, no false positives, and an honest zero where a grammar has no union.
+
+**Why the `_CLASS_START_NAMED_EXTRACTION_LANGS` entry is not optional.** The named-class extractor
+only consults a language's own `class_start` for allowlisted languages; everyone else falls through
+to a legacy generic regex (`class|struct|interface|trait|enum`). A grammar's embedded C action code
+is full of ordinary `struct` declarations, so leaving yacc off the allowlist while wiring the rule
+reports **17** classes on `config.y`, **9** on `jailparse.y` and **109** across all four files —
+where the honest answers are 1, 1 and 2. Wiring the rule alone would have been worse than the
+`None` it replaced; the two changes only make sense together.
 
 ## 9. Tri-comparison: GitGalaxy vs. ctags (no privileged ground truth)
 

@@ -532,6 +532,26 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "swift",
         "tcl",
         "typescript",
+        # #2644: yacc gets its own `class_start` (`%union`, a grammar's one real
+        # compound-type declaration) in the SAME change that adds this entry, and
+        # the entry is the load-bearing half. A grammar file's embedded C action
+        # code is full of ordinary `struct foo` declarations, so the legacy
+        # generic fallback (`class|struct|interface|trait|enum`) reads them all as
+        # classes: 17 on config.y and 9 on jailparse.y where the honest answer is
+        # 1 each, and 109 across all four real grammar files in the crucible
+        # corpus (gnucobol's 18k-line parser.y alone contributes 56, with no
+        # `%union` and therefore no real class at all). Wiring the rule without
+        # this entry would make yacc WORSE than the `None` it replaced.
+        #
+        # Verified by direct source cross-check rather than
+        # tree_sitter_accuracy_audit.py: yacc is one of the tree-sitter-blind
+        # languages (no grammar available to this repo's tooling), the same
+        # position abap/cobol/jcl/sqlite are in above. Measured: `%union` fires
+        # exactly once in each grammar that has one (config.y:1, jailparse.y:45),
+        # zero times in the two that don't (gnucobol's parser.y/scanner.l use
+        # `%define api.value.type` instead) -- 100% precision, no false positives,
+        # documented in docs/language_status/yacc.md §8.
+        "yacc",
         "zig",
     }
 )

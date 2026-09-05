@@ -1328,6 +1328,7 @@ class StructuralExtractor:
 
             orphan_count = 0
             duplicate_count = 0
+            orphan_names: list[str] = []
             func_names = [f.get("name", "") for f in functions]
             func_name_counts = collections.Counter(func_names)
 
@@ -1383,9 +1384,39 @@ class StructuralExtractor:
                     elif len(func_name) > 3 and token_counts[func_name] <= 1:
                         # If the function name only exists where it was defined, it's an orphan
                         orphan_count += 1
+                        orphan_names.append(func_name)
                         usage_status = 1  # 1 = Orphan / Unused
 
                 func["usage_status"] = usage_status
+
+            # --- #2731: WHICH ORPHANS DID THE api RULE ALREADY COUNT? ---
+            # galaxyscope.py's Contextual Baseline Fix converts an imported
+            # file's orphans into API exposure. A function that is BOTH declared
+            # public AND uncalled was counted twice by that conversion -- once by
+            # the language's own `api` rule at its declaration, once as a
+            # converted orphan -- which is the common shape in library code,
+            # where the exported functions are exactly the ones with no in-repo
+            # caller. Count the overlap here (the orchestrator has no code text)
+            # and let the conversion credit only the remainder.
+            #
+            # The test is by NAME, not by span: an orphan's name occurs exactly
+            # once in the whole file (that is what the census above just proved),
+            # so a name appearing on a line the api rule matched can only be its
+            # own declaration -- no false positives are possible. Span
+            # containment would be both looser and tighter than that: looser
+            # because a long body can hold an unrelated api hit (C matches every
+            # non-static local declaration), tighter because the marker can sit
+            # outside the slicer's own span (JS/TS `export` precedes start_idx,
+            # php's span starts a line early, a java `@Test` line pulls start_line
+            # a line back off the `public` one).
+            api_declared_orphans = 0
+            if orphan_names and threat_locations.get("api"):
+                code_lines = code_stream.splitlines()
+                api_line_tokens: set[str] = set()
+                for line_no in set(threat_locations["api"]):
+                    if 0 < line_no <= len(code_lines):
+                        api_line_tokens.update(re.findall(r"\b\w+\b", code_lines[line_no - 1]))
+                api_declared_orphans = sum(1 for name in orphan_names if name in api_line_tokens)
 
             if orphan_count > 0:
                 equations["orphaned_logic"] = orphan_count
@@ -1429,6 +1460,10 @@ class StructuralExtractor:
                     round((file_token_mass / 1000000) * 3.00, 5) if file_token_mass is not None else None
                 ),
                 "threat_locations": threat_locations,
+                # #2731: how many of `orphaned_logic`'s functions the `api` rule
+                # already counted as public surface. Consumed by galaxyscope.py's
+                # Contextual Baseline Fix; never a signal in its own right.
+                "api_declared_orphans": api_declared_orphans,
             }
             if profile_regex:
                 result_payload["regex_telemetry"] = regex_telemetry

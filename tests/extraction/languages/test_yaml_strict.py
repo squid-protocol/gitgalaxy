@@ -92,6 +92,12 @@ _YAML_SIMPLE_CASES = [
         "uses: actions/checkout@v4",
     ),
     ("listeners", "webhook: http://example.com/hook", "endpoint: http://example.com/hook"),
+    # #2732: spec_exposure, comment-anchored. Every negative is a bare flow
+    # sequence -- the shape that makes YAML different from the languages
+    # sharing the unanchored generic rule (see the dedicated test below).
+    ("spec_exposure", "  # [SPEC-4412] pinned per the release spec", "    needs: [audit, lint]"),
+    ("spec_exposure", "      # see [audit] trail", "    branches: [spec, main]"),
+    ("spec_exposure", "# raised in [spec] review", "  # the value is [specified per-machine]"),
     ("test_skip", "run: npm test -- --passWithNoTests", "run: npm test"),
     # --- DEEP ADVERSARIAL CASES FOR HIGH-AMBIGUITY SIGNATURES ---
     # args: tolerating comments and blank lines between 'with:' and args
@@ -597,3 +603,98 @@ def test_yaml_cleanup_redos_immunity():
     assert cleanup.search("run: rm -rf /tmp/cache")
     assert cleanup.search("run: docker-compose down")
     assert cleanup.search("run: kill 1234")
+
+
+def test_yaml_spec_exposure_is_comment_anchored_not_the_generic_bracket_rule():
+    """
+    #2732 proposed giving yaml the generic `[SPEC-n]|[spec]|[audit]` bracket
+    rule verbatim from python/go/java/js, arguing that "spec_exposure never
+    sees the code stream, so YAML's [a, b] flow-sequence syntax cannot FP
+    against it."
+
+    The premise is false, and this test pins the correction. `coding_analysis`
+    applies EVERY non-underscore rule to the code stream; `comment_analysis`
+    then runs the comment-stream rules a SECOND time over the comments. It
+    supplements the code-stream pass rather than replacing it -- so an
+    unanchored bracket rule scores YAML flow sequences, which is ordinary
+    syntax in this language rather than a traceability tag.
+
+    Measured before anchoring: the workflow below has no comments at all and
+    still scored spec_exposure=1, entirely from `needs: [audit, lint]`.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    generic_rule = re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I)
+    comment_free_workflow = (
+        "name: CI\non:\n  push:\njobs:\n"
+        "  audit:\n    steps:\n      - run: npm audit\n"
+        "  build:\n    needs: [audit, lint]\n    steps:\n      - run: npm run build\n"
+    )
+
+    # the rule that was asked for would have counted the flow sequence ...
+    assert generic_rule.search(comment_free_workflow)
+    # ... the rule that shipped cannot, because `#` never survives into code
+    assert not YAML_RULES["spec_exposure"].search(comment_free_workflow)
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    streams = prism.split_streams(comment_free_workflow, "yaml")
+    assert streams["comment_stream"] == ""
+    equations = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS).splice(
+        streams["code_stream"], streams["comment_stream"], raw_content=comment_free_workflow
+    )["equations"]
+    assert equations["spec_exposure"] == 0
+
+    # and a real tagged comment still counts, via the comment stream
+    tagged = "# [SPEC-4412] pinned per the release spec\njobs:\n  build:\n    needs: [audit, lint]\n"
+    streams = prism.split_streams(tagged, "yaml")
+    equations = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS).splice(
+        streams["code_stream"], streams["comment_stream"], raw_content=tagged
+    )["equations"]
+    assert equations["spec_exposure"] == 1
+
+    # ... including a TRAILING tag, which the `^[ \t]*#` anchor only reaches
+    # because prism re-emits an end-of-line comment on its own `#`-led line.
+    # That normalization is why the anchor costs no recall (yaml's own
+    # `dead_code` rule relies on exactly the same thing).
+    trailing = "jobs:\n  build:\n    steps:\n      - run: npm ci  # see [audit] trail\n"
+    streams = prism.split_streams(trailing, "yaml")
+    assert streams["comment_stream"] == "# see [audit] trail"
+    equations = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS).splice(
+        streams["code_stream"], streams["comment_stream"], raw_content=trailing
+    )["equations"]
+    assert equations["spec_exposure"] == 1
+
+
+def test_yaml_spec_exposure_bare_spec_branch_is_word_bounded():
+    """
+    #2732: the generic rule's bare `spec` alternative has no trailing
+    boundary, so it matches any word starting "spec". That was not
+    hypothetical -- 2 of the 3 code-stream hits across the 41,815 .yml/.yaml
+    files in the pool corpus were `[specified\\n  per-machine]` (meson's docs)
+    and `[species]` (an elasticsearch test fixture), not tags at all.
+    """
+    spec_exposure = YAML_RULES["spec_exposure"]
+    assert not spec_exposure.search("# the value is [specified per-machine]")
+    assert not spec_exposure.search("# see the [species] list")
+    assert not spec_exposure.search("# the [auditor] signs off")
+
+    assert spec_exposure.search("# [spec] review pending")
+    assert spec_exposure.search("# [SPEC-77] change request")
+    assert spec_exposure.search("# [audit] trail retained")
+
+
+def test_yaml_spec_exposure_redos_immunity():
+    """
+    #2732: `[^\\n\\[]{0,200}` must be followed by a literal `[` and
+    `[^\\]\\n]{0,300}` by a literal `]`, so each bounded run has exactly one
+    landing site -- no ambiguous partition to backtrack over. Payloads are
+    long unterminated runs of exactly what each class accepts.
+    """
+    spec_exposure = YAML_RULES["spec_exposure"]
+    assert_redos_immune(spec_exposure, "# " + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(spec_exposure, "# [spec" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(spec_exposure, "# " + "[" * 100000, timeout_sec=3.0)
+
+    assert spec_exposure.search("# [SPEC-4412] traceable")

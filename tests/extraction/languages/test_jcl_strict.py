@@ -98,6 +98,17 @@ _JCL_SIMPLE_CASES = [
     # meaningful now that prism routes //* lines to the comment stream)
     ("planned_debt", "//* TODO wire the FTP step", "//* all wired up here"),
     ("fragile_debt", "//* HACK: overrides the region size", "//* routine banner comment"),
+    # #2732: dead_code = a statement commented out by turning `//` into `//*`.
+    # Each negative is a real prose-banner shape from the pool corpus that a
+    # bare `(?:EXEC|DD|JOB|SET|INCLUDE)\b` keyword rule would have counted.
+    ("dead_code", "//*STEP1   EXEC PGM=IEFBR14", "//* EXECUTE DUMP UTILITY PROGRAM TO PRINT THE"),
+    ("dead_code", "//*        DD DSN=OLD.FILE,DISP=SHR", "//* SET THE RETURN CODE TO CONTROL IF CICS"),
+    ("dead_code", "//*CREL005 JOB ,,CLASS=A,MSGCLASS=H,", "//* PROC statements are documented in the runbook"),
+    ("dead_code", "//*        SET COUNTER=1", "//* JOB scheduling notes live in the runbook"),
+    ("dead_code", "//*        INCLUDE MEMBER=OLDPROC", "//* INCLUDE the operations team on any change"),
+    # #2732: spec_exposure = the generic traceability tag, `//*`-anchored
+    ("spec_exposure", "//* [SPEC-4412] see the change request", "//* nothing traceable here"),
+    ("spec_exposure", "//* raised under [audit] last quarter", "//* the behaviour is [specified] upstream"),
 ]
 
 
@@ -350,6 +361,71 @@ def test_jcl_cond_bypass_redos_immunity():
     pattern = JCL_RULES["safety_bypasses"]
     assert_redos_immune(pattern, "//X EXEC PGM=Y,COND=(" + "(A)," * 20000, timeout_sec=3.0)
     assert_redos_immune(pattern, "//X EXEC PGM=Y,COND=(" + "A" * 100000, timeout_sec=3.0)
+
+
+def test_jcl_dead_code_counts_through_the_real_comment_stream():
+    """
+    #2732: end-to-end proof that jcl's two new comment-stream rules actually
+    reach counts, not just that the regexes match a string.
+
+    This is the shape #2610 fixed for the debt rules and left half-done: a
+    `//*` line is stripped OUT of the code stream by prism._strip_jcl_comments,
+    so a rule anchored to `//*` can ONLY ever score via comment_analysis. The
+    sample interleaves the three real pool shapes -- commented-out statements,
+    English prose banners opening on the same keywords, and a JES3 control verb
+    (`//*MAIN`, which JCL_COMMENT_LINE_PATTERN deliberately leaves in the CODE
+    stream) -- so a regression in either direction shows up as a count change.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    sample = (
+        "//CREL005  JOB ,,CLASS=A,MSGCLASS=H\n"
+        "//*CREL005 JOB ,,CLASS=A,MSGCLASS=H,\n"  # commented-out JOB card
+        "//*STEP1   EXEC PGM=IEFBR14\n"  # commented-out EXEC
+        "//*        DD DSN=OLD.FILE,DISP=SHR\n"  # commented-out DD
+        "//*        SET COUNTER=1\n"  # commented-out SET
+        "//*        INCLUDE MEMBER=OLDPROC\n"  # commented-out INCLUDE
+        "//* SET THE RETURN CODE TO CONTROL IF CICS SHOULD BE\n"  # prose
+        "//* EXECUTE DUMP UTILITY PROGRAM TO PRINT THE\n"  # prose
+        "//* [SPEC-77] see change request\n"
+        "//*MAIN SYSTEM=SY1\n"  # JES3 verb: stays in the code stream
+        "//STEP1    EXEC PGM=IEFBR14\n"
+    )
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    streams = prism.split_streams(sample, "jcl")
+
+    # the anchor is only meaningful because `//*` never survives into code
+    assert "//*CREL005" not in streams["code_stream"]
+    assert "//*MAIN SYSTEM=SY1" in streams["code_stream"]
+    assert not JCL_RULES["dead_code"].search(streams["code_stream"])
+
+    equations = StructuralExtractor("jcl", LANGUAGE_DEFINITIONS).splice(
+        streams["code_stream"], streams["comment_stream"], raw_content=sample
+    )["equations"]
+
+    assert equations["dead_code"] == 5, "one per commented-out statement, no prose banners"
+    assert equations["spec_exposure"] == 1
+
+
+def test_jcl_new_comment_rules_redos_immunity():
+    """
+    #2732: both new rules use bounded runs whose character class excludes the
+    delimiter that must follow it (`[^\\n\\[]{0,200}` before a literal `[`,
+    `[^\\]\\n]{0,300}` before a literal `]`, the name charset before `[ \\t]+`),
+    so each quantifier has exactly one landing site and there is no ambiguous
+    partition to backtrack over. Payloads are long unterminated runs of exactly
+    the character each bounded class accepts.
+    """
+    assert_redos_immune(JCL_RULES["dead_code"], "//*" + "A" * 100000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["dead_code"], "//*" + "A \t" * 40000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["spec_exposure"], "//*" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["spec_exposure"], "//* [spec" + "a" * 100000, timeout_sec=3.0)
+
+    assert JCL_RULES["dead_code"].search("//*STEP1   EXEC PGM=IEFBR14")
+    assert JCL_RULES["spec_exposure"].search("//* [SPEC-4412] traceable")
 
 
 def test_jcl_lexical_family_no_block_terminator_state_to_confuse():

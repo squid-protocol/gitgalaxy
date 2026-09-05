@@ -7491,7 +7491,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-09-05T13:22:21Z",
+      "last_reconciled_at": "2026-09-05T15:43:36Z",
       "last_seen_count": 93,
       "last_seen_examples": [
         {
@@ -7605,7 +7605,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-09-05T13:22:21Z",
+      "last_reconciled_at": "2026-09-05T15:43:36Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -7692,7 +7692,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-09-05T13:22:21Z",
+      "last_reconciled_at": "2026-09-05T15:43:36Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -7732,7 +7732,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-09-05T13:22:21Z",
+      "last_reconciled_at": "2026-09-05T15:43:36Z",
       "last_seen_count": 45,
       "last_seen_examples": [
         {
@@ -7836,7 +7836,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-09-05T13:22:21Z",
+      "last_reconciled_at": "2026-09-05T15:43:36Z",
       "last_seen_count": 13,
       "last_seen_examples": [
         {
@@ -7950,7 +7950,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-09-05T13:22:21Z",
+      "last_reconciled_at": "2026-09-05T15:43:36Z",
       "last_seen_count": 6,
       "last_seen_examples": [
         {
@@ -8028,7 +8028,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-09-05T13:22:21Z",
+      "last_reconciled_at": "2026-09-05T15:43:36Z",
       "last_seen_count": 265,
       "last_seen_examples": [
         {
@@ -8144,7 +8144,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-09-05T13:22:21Z",
+      "last_reconciled_at": "2026-09-05T15:43:36Z",
       "last_seen_count": 189,
       "last_seen_examples": [
         {
@@ -8257,7 +8257,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-09-05T13:22:21Z",
+      "last_reconciled_at": "2026-09-05T15:43:36Z",
       "last_seen_count": 194,
       "last_seen_examples": [
         {
@@ -8361,7 +8361,7 @@
       "investigated_at": "2026-08-21",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "javascript",
-      "last_reconciled_at": "2026-09-05T13:22:21Z",
+      "last_reconciled_at": "2026-09-05T15:43:36Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -14915,7 +14915,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-09-05T13:23:36Z",
+      "last_reconciled_at": "2026-09-05T15:43:40Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -14957,7 +14957,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-09-05T13:23:36Z",
+      "last_reconciled_at": "2026-09-05T15:43:40Z",
       "last_seen_count": 501,
       "last_seen_examples": [
         {
@@ -15069,7 +15069,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-09-05T13:23:36Z",
+      "last_reconciled_at": "2026-09-05T15:43:40Z",
       "last_seen_count": 4,
       "last_seen_examples": [
         {
@@ -15129,7 +15129,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
-      "last_reconciled_at": "2026-09-05T13:23:36Z",
+      "last_reconciled_at": "2026-09-05T15:43:40Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -15162,7 +15162,7 @@
       "investigated_at": "2026-08-26T16:02:21Z",
       "investigated_by": "Claude (Sonnet 5), tri-comparison-ledger-sweep skill",
       "language": "typescript",
-      "last_reconciled_at": "2026-09-05T13:23:36Z",
+      "last_reconciled_at": "2026-09-05T15:43:40Z",
       "last_seen_count": 7,
       "last_seen_examples": [
         {
@@ -15249,7 +15249,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-09-05T13:23:36Z",
+      "last_reconciled_at": "2026-09-05T15:43:40Z",
       "last_seen_count": 204,
       "last_seen_examples": [
         {
@@ -15363,7 +15363,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-09-05T13:23:36Z",
+      "last_reconciled_at": "2026-09-05T15:43:40Z",
       "last_seen_count": 2226,
       "last_seen_examples": [
         {
@@ -15479,7 +15479,7 @@
       "investigated_at": "2026-08-24T04:14:26Z",
       "investigated_by": "Antigravity (direct sweep)",
       "language": "typescript",
-      "last_reconciled_at": "2026-09-05T13:23:36Z",
+      "last_reconciled_at": "2026-09-05T15:43:40Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -15520,7 +15520,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
-      "last_reconciled_at": "2026-09-05T13:23:36Z",
+      "last_reconciled_at": "2026-09-05T15:43:40Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -15562,7 +15562,7 @@
       "investigated_at": "2026-08-26T16:02:21Z",
       "investigated_by": "Claude (Sonnet 5), tri-comparison-ledger-sweep skill",
       "language": "typescript",
-      "last_reconciled_at": "2026-09-05T13:23:36Z",
+      "last_reconciled_at": "2026-09-05T15:43:40Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -15605,7 +15605,7 @@
       "investigated_at": "2026-08-26T00:00:00Z",
       "investigated_by": "Claude (Sonnet 5), dispatched via tri-comparison-ledger-sweep",
       "language": "typescript",
-      "last_reconciled_at": "2026-09-05T13:23:36Z",
+      "last_reconciled_at": "2026-09-05T15:43:40Z",
       "last_seen_count": 183,
       "last_seen_examples": [
         {
@@ -15815,7 +15815,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-09-05T13:23:46Z",
+      "last_reconciled_at": "2026-09-05T15:43:45Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {
@@ -15850,7 +15850,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-09-05T13:23:46Z",
+      "last_reconciled_at": "2026-09-05T15:43:45Z",
       "last_seen_count": 2,
       "last_seen_examples": [
         {
@@ -15893,7 +15893,7 @@
       "investigated_at": "2026-08-23T18:02:16Z",
       "investigated_by": "Antigravity",
       "language": "zig",
-      "last_reconciled_at": "2026-09-05T13:23:46Z",
+      "last_reconciled_at": "2026-09-05T15:43:45Z",
       "last_seen_count": 1,
       "last_seen_examples": [
         {

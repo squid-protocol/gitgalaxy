@@ -29,15 +29,21 @@ AGC_RULES = LANGUAGE_DEFINITIONS["agc_assembly"]["rules"]
 
 _AGC_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
-    # --- DEEP CASES: branch ---
-    ("branch", "\tTCF\tFOO", "\tCA\tBAR"),
-    ("branch", "  tcf  LBL", "TC_ALARM"),
-    ("branch", "BZF\tTARGET", "BATCH_TCF"),
-    ("branch", "\tRESUME\t", "MYCALL"),
-    ("branch", "  CALL  ", "RETURN_VAL"),
-    ("branch", "GOTO\tLBL", "GOTOO"),
-    ("branch", "\tBZMF\tFOO", "BZMF_VAR"),
+    # --- DEEP CASES: branch --- CONDITIONAL transfers only, #2764
+    ("branch", "\tBZF\tTARGET", "BATCH_BZF"),
+    ("branch", "  bzmf  LBL", "BZMF_VAR"),
     ("branch", "BMI\tBAR", "BMIS"),
+    ("branch", "\tCCS\tTEMP", "CCSS"),
+    ("branch", "\tBPL\tFOO", "BPLUS"),
+    ("branch", "\tOVSK\t", "OVSKIP"),
+    # #2764: unconditional transfers and returns are structure, not decisions.
+    ("branch", "\tBZF\tTARGET", "\tTCF\tFOO"),
+    ("branch", "\tBZF\tTARGET", "\tTC\tFOO"),
+    ("branch", "\tBZF\tTARGET", "\tTCR\tFOO"),
+    ("branch", "\tBZF\tTARGET", "  CALL  "),
+    ("branch", "\tBZF\tTARGET", "GOTO\tLBL"),
+    ("branch", "\tBZF\tTARGET", "\tRESUME\t"),
+    ("branch", "\tBZF\tTARGET", "\tRETURN\t"),
     # --- DEEP CASES: args ---
     ("args", "\tCA\tA", "\tCA\tBAR"),
     ("args", "\tEBANK= 4", "XEBANK="),
@@ -50,15 +56,25 @@ _AGC_SIMPLE_CASES = [
     ("args", "\tCCS\tA", "CCS_A"),
     ("args", "DXCH\tZ", "DXCH_ZZ"),
     # --- DEEP CASES: structural_boundaries ---
-    ("structural_boundaries", "\tCA\tBAR", "\tTCF\tFOO"),
+    # `\tTCF\tFOO` stopped being a usable negative in #2764, which relocated
+    # the unconditional-transfer family into this rule; a real conditional
+    # (`\tBZF\tFOO`) is the negative now, and CCS left this rule for `branch`.
+    ("structural_boundaries", "\tCA\tBAR", "\tBZF\tFOO"),
     ("structural_boundaries", "  2OCT  ", "2OCTAL"),
     ("structural_boundaries", "XCH", "DECIMAL"),
     ("structural_boundaries", "COUNT\t", "MY_CA"),
     ("structural_boundaries", "SETLOC", "SETLOC_VAR"),
     ("structural_boundaries", "ERASE", "ERASED"),
     ("structural_boundaries", "\tCAF\tFOO", "CAFFEIN"),
-    ("structural_boundaries", "CCS\tBAR", "CCSS"),
     ("structural_boundaries", "DXCH\tFOO", "DXCH_VAR"),
+    # the relocated family (#2764)
+    ("structural_boundaries", "\tTCF\tFOO", "\tBZF\tFOO"),
+    ("structural_boundaries", "\tTC\tFOO", "\tBZF\tFOO"),
+    ("structural_boundaries", "\tTCR\tFOO", "\tBZF\tFOO"),
+    ("structural_boundaries", "  CALL  ", "\tBZF\tFOO"),
+    ("structural_boundaries", "GOTO\tLBL", "\tBZF\tFOO"),
+    ("structural_boundaries", "\tRESUME\t", "\tBZF\tFOO"),
+    ("structural_boundaries", "\tRETURN\t", "\tBZF\tFOO"),
     # --- DEEP CASES: func_start ---
     ("func_start", "MYLABEL\tTC\tFOO", "\tTC\tFOO"),
     ("func_start", "MY_SUB1\tCAF\tFOO", "LBL\n\tTC"),
@@ -214,8 +230,8 @@ def test_agc_assembly_lexical_family_no_block_terminator_state_to_confuse():
     comment-like token doesn't fool any rule into a false structural match.
     """
     branch = AGC_RULES["branch"]
-    stray = "some text # not real code\n\tTCF\tFOO"
-    assert branch.search(stray), "branch should still see TCF regardless of the preceding comment line"
+    stray = "some text # not real code\n\tBZF\tFOO"
+    assert branch.search(stray), "branch should still see BZF regardless of the preceding comment line"
 
 
 def test_agc_assembly_redos_immunity_sweep():
@@ -269,3 +285,56 @@ def test_agc_api_contract_2730():
     # Not declarations -- must not match.
     assert not api.search('\tEXTEND'), 'EXTEND is an instruction'
     assert not api.search('EXTEND'), 'EXTEND at column 0'
+
+
+def test_agc_branch_counts_decisions_not_transfers_2764():
+    """
+    #2764 (sibling of assembly's, same issue): `branch` carried
+    `TC|TCF|TCR|CALL|GOTO` -- unconditional transfers, `TC` being the
+    AGC's subroutine call -- and `RESUME|RETURN`, its returns, alongside
+    the real conditionals. Only BZF/BZMF/BZE/BMN/BPL/BMI/CCS/BVBZ/OVSK
+    test anything, and `branch` feeds the decision-density metrics plus
+    #2546's x3 cascading-flux amplifier.
+
+    Relocated to `structural_boundaries` per #2545's "relocate, not
+    delete", so `control_flow_ratio`'s denominator is unchanged. CCS --
+    Count, Compare and Skip, the AGC's one real multi-way test -- was
+    counted by BOTH rules and is now claimed by `branch` alone.
+    """
+    branch = AGC_RULES["branch"]
+    linear = AGC_RULES["structural_boundaries"]
+
+    for decision in ("\tBZF\tTARGET", "\tBZMF\tTARGET", "\tBZE\tTARGET", "\tBMN\tTARGET",
+                     "\tBPL\tTARGET", "\tBMI\tTARGET", "\tCCS\tTEMP", "\tBVBZ\tTARGET",
+                     "\tOVSK\t"):
+        assert branch.search(decision), f"{decision!r} is a decision"
+        assert not linear.search(decision), f"{decision!r} must not double-count as linear"
+
+    for transfer in ("\tTC\tPROBEIO", "\tTCF\tPROBEIO", "\tTCR\tPROBEIO", "\tCALL\tPROBEIO",
+                     "\tGOTO\tPROBEIO", "\tRESUME\t", "\tRETURN\t"):
+        assert not branch.search(transfer), f"{transfer!r} is not a decision (#2764)"
+        assert linear.search(transfer), f"{transfer!r} must stay measured as structure"
+
+    # A real probe body: the dispatch call and the fall-through transfer
+    # contribute zero decisions; the one conditional contributes one.
+    body = "DISPATCH\tTC\tPROBEBR\n\t\tCA\tA\nPROBEBR\t\tBZF\tPROBEIO\n"
+    assert len(branch.findall(body)) == 1
+    assert sorted(m.group(0) for m in linear.finditer(body)) == ["CA", "TC"]
+
+
+def test_agc_resume_stays_cleanup_after_2764():
+    """
+    #2764 moved `RESUME` out of `branch`; `cleanup` (ENDOFJOB|RESUME|EXIT)
+    is untouched, so the AGC's interrupt return keeps its Phase-4 reading
+    and only stops claiming to be a decision.
+    """
+    resume = "\tRESUME\t"
+    assert AGC_RULES["cleanup"].search(resume)
+    assert AGC_RULES["structural_boundaries"].search(resume)
+    assert not AGC_RULES["branch"].search(resume)
+
+
+def test_agc_structural_boundaries_redos_immunity_2764():
+    """ReDoS detonation for the alternation widened by #2764."""
+    assert_redos_immune(AGC_RULES["structural_boundaries"], "TC" * 50000, timeout_sec=3.0)
+    assert_redos_immune(AGC_RULES["branch"], "B" * 100000, timeout_sec=3.0)

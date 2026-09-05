@@ -53,9 +53,31 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
-        # Decisions and logical jumps. EXCLUDES system exits/halts (bailout_hits).
+        # Decisions only. EXCLUDES system exits/halts (bailout_hits) and, since
+        # #2764, every UNCONDITIONAL control transfer.
+        #
+        # BUG FIX #2764: this alternation used to carry `jmp|call|ret|b|bl|bx|blr`
+        # alongside the conditional jumps. None of those is a decision -- `call` is
+        # a call, `ret` is a return, `jmp`/`b`/`bl`/`bx`/`blr` are unconditional
+        # transfers -- yet `branch` feeds avg_func_complexity, max_func_complexity,
+        # func_internal_density, cog_raw, control_flow_ratio and
+        # risk_cognitive_load, all of which are decision-DENSITY measures. Counting
+        # calls and returns made cognitive load track how many subroutines a file
+        # has, which `functions_found` already measures (measured against the
+        # keyword-rosetta control corpus: 23 of 25 branch hits were call/ret/jmp,
+        # avg_func_complexity +811% over the cross-language median).
+        # #2545 already settled the same question for high-level languages when it
+        # took bare `return` out of `branch` in kotlin/apex/objective-c/
+        # powershell/solidity/zig; `ret` IS `return`, and no other language's
+        # `branch` rule counts its call syntax. Per that precedent the tokens are
+        # RELOCATED to `structural_boundaries` (Rule 3), not deleted -- so
+        # control_flow_ratio's denominator is unchanged and no signal is lost.
+        # Side effect: ARM's single-letter `b` mnemonic no longer inflates `branch`
+        # from prose/paths (the filename inside `%include "b.asm"` matched
+        # `\bb\b`); that false positive moves with the token to the bulk
+        # structural signal, where it is not a decision claim.
         "branch": re.compile(
-            r"\b(jmp|je|jne|jz|jnz|ja|jb|jl|jg|jge|jle|jae|jbe|call|ret|b|bl|bx|blr|cbz|cbnz|tbz|tbnz|beq|bne|loop)\b",
+            r"\b(je|jne|jz|jnz|ja|jb|jl|jg|jge|jle|jae|jbe|cbz|cbnz|tbz|tbnz|beq|bne|loop)\b",
             re.I,
         ),
         # 2. args (Parameters / Coupling)
@@ -74,9 +96,16 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 3. linear (Sequential Boundaries)
-        # Data movement and arithmetic primitives. EXCLUDES: Linker visibility (api) and sections (globals).
+        # Data movement, arithmetic primitives, and unconditional control transfer
+        # (calls, returns and unconditional jumps -- structure, not decisions;
+        # #2764 relocated those here out of `branch`, the same "relocate, not
+        # delete" branch #2545 took for objective-c/solidity `return`).
+        # EXCLUDES: Linker visibility (api) and sections (globals).
+        # Longest-first ordering on the `blr|bl|bx|b` family keeps the alternation
+        # from having to backtrack off the single-letter ARM mnemonic.
         "structural_boundaries": re.compile(
-            r"\b(mov(?:abs|[sz]x|[bwlq]|aps|ups|dqu)?|vmov[a-z]+|lea|ldr[s]?[bhw]?|str[bhw]?|push|pop|add|sub|inc|dec|mul|imul|div|idiv|nop|ldp|stp)\b",
+            r"\b(mov(?:abs|[sz]x|[bwlq]|aps|ups|dqu)?|vmov[a-z]+|lea|ldr[s]?[bhw]?|str[bhw]?|push|pop|add|sub|inc|dec|mul|imul|div|idiv|nop|ldp|stp"
+            r"|jmp|call|ret|blr|bl|bx|b)\b",
             re.I,
         ),
         # 4. func_start (Executable Logic Anchors)

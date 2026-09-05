@@ -93,6 +93,29 @@ def test_construct_feature_matrix(mock_artifacts):
     assert "log_logic_loc" in df.columns
 
 
+def test_func_internal_density_is_a_frozen_placeholder(mock_artifacts):
+    """#2714: the frame's func_internal_density column is a permanent 0.0.
+
+    Nothing ever writes that key into artifact telemetry -- the density is
+    computed only inside record_keeper.py while the file_data row is written --
+    so the column has been a constant 0.0 in every frame the model was ever
+    scored or trained against. Making it vary is a scored-model input change
+    that needs a retrain, so this pins the constant: if some future pass does
+    start emitting the telemetry key, the security frame must not silently
+    start moving with it.
+    """
+    auditor = SecurityAuditor()
+    auditor.SIGNAL_SCHEMA = ["high_risk_execution", "io", "state_mutation", "safety", "dead_code"]
+
+    mock_artifacts[0]["telemetry"]["func_internal_density"] = 0.87
+
+    auditor._resolve_dependency_graph(mock_artifacts)
+    df = auditor._construct_feature_matrix(mock_artifacts)
+
+    assert "func_internal_density" in df.columns
+    assert (df["func_internal_density"] == 0.0).all()
+
+
 def test_construct_feature_matrix_exception_fallback():
     """Proves a corrupted artifact payload generates a safe, empty fallback row."""
     auditor = SecurityAuditor()

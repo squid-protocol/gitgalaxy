@@ -407,3 +407,28 @@ def test_abap_redos_immunity_sweep():
     assert ABAP_RULES["func_start"].search("METHOD do_thing.")
     assert ABAP_RULES["class_start"].search("CLASS zcl_foo DEFINITION.")
     assert ABAP_RULES["concurrency"].search("CALL FUNCTION 'ENQUEUE_FOO'.")
+
+
+def test_abap_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    FORM subroutines and function modules are public by default and were
+    invisible to a rule that needed a CLASS, RFC metadata or a CDS definition.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = ABAP_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('FORM probe_globals CHANGING cv_env.'), 'FORM subroutine (public by default)'
+    assert api.search('FUNCTION z_get_flight.'), 'function module'
+    assert api.search('PUBLIC SECTION.'), 'class public section (kept)'
+
+    # Not declarations -- must not match.
+    assert not api.search("  CALL FUNCTION 'RFC_PING'."), 'CALL FUNCTION is a call site'

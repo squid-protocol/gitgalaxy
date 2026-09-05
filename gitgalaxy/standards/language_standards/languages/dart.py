@@ -245,8 +245,25 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 10. api: Public Surface Area. Exposed visibility (Lack of _ prefix) and routing decorators.
+        # BUG FIX #2730 (api contract), two halves:
+        #  * `@pragma` is a compiler hint (`@pragma('vm:prefer-inline')`),
+        #    not a visibility marker -- 34 of the crucible corpus's 174
+        #    matches were pragmas. Dropped.
+        #  * Dart's primary public surface is a TOP-LEVEL function whose name
+        #    does not start with `_`, which none of the remaining
+        #    alternatives could see (they count class-like declarations and
+        #    `export` directives), so a library of free functions measured 0.
+        #    Added at column 0: a top-level declaration is unindented, while
+        #    every method and nested function sits inside a body. The leading
+        #    negative lookahead keeps statement and declaration keywords out
+        #    of the return-type slot, and `[A-Za-z]` on the name keeps Dart's
+        #    `_`-prefixed private convention excluded.
         "api": re.compile(
-            r"\b(export|part\s+of)\b|@(Route|Get|Post|Mapping|visibleForTesting|pragma)\b|^[ \t]*(?:class|mixin|enum|extension|typedef)\s+(?![_])[A-Za-z]\w*",
+            r"\b(export|part\s+of)\b|@(Route|Get|Post|Mapping|visibleForTesting)\b|"
+            r"^[ \t]*(?:class|mixin|enum|extension|typedef)\s+(?![_])[A-Za-z]\w*|"
+            r"^(?!(?:import|export|part|library|class|mixin|enum|extension|typedef|abstract|final|const|var|late|external|covariant|static|return|if|for|while|switch|do|try|catch|throw|new|assert|case|default|break|continue|yield|await|async|with|implements|extends|on|in|is|as|super|this|null|true|false)\b)"
+            r"(?:void|[A-Za-z_$][\w$]*(?:<(?:[^<>]|<[^<>]*>){0,100}>)?\??(?:\[\])?)[ \t]+"
+            r"(?:get[ \t]+|set[ \t]+)?[A-Za-z]\w*[ \t]*[(<]",
             re.I | re.M,
         ),
         # 11. flux: State Mutation. State mutation (setState and reactive collection mutators).

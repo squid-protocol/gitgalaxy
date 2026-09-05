@@ -155,7 +155,7 @@ Generate a valid Python dictionary matching this exact structure.
         "high_risk_execution": re.compile(r""), 
         # io: Interaction with the disk, network, or external systems. Includes: File writing/reading, HTTP clients, sockets. EXCLUDES: Logging/printing.
         "io": re.compile(r""), 
-        # api: Code exposed to the outside world. Captures explicit visibility markers (export, public) AND implicit architectural defaults.
+        # api: A DECLARATION THAT MAKES A NAMED FUNCTION OR TYPE VISIBLE OUTSIDE THIS FILE. Anchor an explicit visibility marker (export, public) to the declaration it modifies -- never `\bpublic\b` on its own, which counts the word, not the surface. Where the language is public-by-default, match the declaration itself; where it has no per-function visibility concept, match the file-level declaration that exposes the file and record it in the fallback table. EXCLUDES call sites, imports, and references to an exported name. Full contract, corollaries and the 46-language audit: docs/api_rule_contract.md (#2730).
         "api": re.compile(r""), 
         # state_mutation: Reassignment of variables or modifying collections. Includes: let, mut, volatile, .push(), .set().
         "state_mutation": re.compile(r""), 

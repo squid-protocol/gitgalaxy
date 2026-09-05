@@ -201,8 +201,29 @@ DEFINITION: dict[str, Any] = {
         ),
         # 10. api (Public Surface Area)
         # Groovy classes/methods are implicitly public by default, making the whole file highly exposed.
+        # BUG FIX #2730 (api contract): a bare `\bpublic\b` counted the
+        # access modifier ANYWHERE in the code stream -- inside a string
+        # literal, a `switch` case, a dotted name -- not only where it
+        # declares something. The alternatives below anchor it to the
+        # declaration it modifies, per docs/api_rule_contract.md ("a
+        # declaration that makes a named function or type visible outside
+        # this file"). Every quantifier is bounded (Rule 5) and the modifier
+        # stepper is `{0,5}`, not `*`, so the `[ \t\n]+`-separated
+        # alternation cannot nest unboundedly (the ReDoS shape swift's `open`
+        # alternative was already written against).
+        # Measured: 16 crucible matches before, 12 after -- the four dropped
+        # were prose and string literals ("Could not open the public key
+        # ring.", `accepted-public-api-changes.json`, a `website/public/3.x`
+        # path). Groovy declarations are implicitly public, so this rule's
+        # own docstring still holds: the explicit modifier is the exception,
+        # not the measure.
         "api": re.compile(
-            r"\b(public)\b|@(RestController|Controller|Service|Component|Bean|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping)\b"
+            r"\bpublic[ \t\n]+"
+            r"(?:(?:static|final|abstract|synchronized|native|strictfp|transient|volatile|@[\w.]+(?:\([^)\n]{0,200}\))?)[ \t\n]+){0,5}"
+            r"(?:class|interface|trait|enum|@interface|void\b|def\b"
+            r"|[A-Za-z_$][\w$.]*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?(?:\[[ \t\n]*\])*[ \t\n]+[A-Za-z_$][\w$]*[ \t\n]*[({=;,]"
+            r"|[A-Za-z_$][\w$]*[ \t\n]*\()"
+            r"|@(RestController|Controller|Service|Component|Bean|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping)\b"
         ),
         # 11. flux (State Mutation)
         # BUG FIX: the trailing bare `=` matched the first `=` of `==`,

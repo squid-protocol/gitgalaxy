@@ -152,9 +152,20 @@ DEFINITION: dict[str, Any] = {
         # "package X is new ..." (generic package instantiation, not a
         # spec declaration -- both use negative lookaheads, not an
         # optional group, per Rule 15).
+        # BUG FIX #2730 (api contract): a package spec is a separate `.ads`
+        # compilation unit, so a corpus of `.adb` bodies measured 0 even when
+        # every subprogram in it is a library-level unit. Added the
+        # library-level subprogram declaration: a `procedure`/`function` at
+        # COLUMN 0 is a compilation unit of its own, visible to any unit that
+        # `with`s it, while every nested (package-body-local, therefore
+        # private) subprogram is indented under its enclosing declarative
+        # part. Column-0 anchoring is the same shape go's rule already uses;
+        # `^[ \t]*` here would count the private ones too. Needs re.M
+        # (Rule 13).
         "api": re.compile(
-            r"\bpackage[ \t]+(?!body\b)(?:private[ \t]+)?([A-Za-z_][A-Za-z0-9_.]*)[ \t\n]+is\b(?![ \t\n]*new\b)",
-            re.I,
+            r"\bpackage[ \t]+(?!body\b)(?:private[ \t]+)?([A-Za-z_][A-Za-z0-9_.]*)[ \t\n]+is\b(?![ \t\n]*new\b)|"
+            r"^(?:procedure|function)[ \t]+[A-Za-z_]",
+            re.M | re.I,
         ),
         # state_mutation: Ada's assignment operator `:=` is lexically
         # distinct from `=` (equality) -- no ambiguity to guard against.

@@ -241,3 +241,28 @@ def test_ruby_redos_immunity_sweep():
     assert_redos_immune(RUBY_RULES["args"], "def foo('" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(RUBY_RULES["args"], 'def foo("' + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(RUBY_RULES["spec_exposure"], "[SPEC-" + "1" * 100000, timeout_sec=3.0)
+
+
+def test_ruby_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    A top-level `def` is a PRIVATE method on Object; the idiom that
+    publishes one by name is `public :name`, which was unreachable.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = RUBY_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('public :probe_globals'), 'public :name'
+    assert api.search('public_class_method :new'), 'public_class_method :name'
+    assert api.search('module_function :probe_io'), 'module_function (kept)'
+
+    # Not declarations -- must not match.
+    assert not api.search('def probe_globals(env)'), 'top-level def is private on Object'

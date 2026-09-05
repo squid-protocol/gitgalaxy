@@ -279,8 +279,28 @@ DEFINITION: dict[str, Any] = {
         ),
         # 10. api (Public Surface Area)
         # Public exposure surface. Explicit visibility + Controller mapping.
+        # BUG FIX #2730 (api contract): a bare `\bpublic|internal\b` counted the
+        # access modifier ANYWHERE in the code stream -- inside a string
+        # literal, a `switch` case, a dotted name -- not only where it
+        # declares something. The alternatives below anchor it to the
+        # declaration it modifies, per docs/api_rule_contract.md ("a
+        # declaration that makes a named function or type visible outside
+        # this file"). Every quantifier is bounded (Rule 5) and the modifier
+        # stepper is `{0,5}`, not `*`, so the `[ \t\n]+`-separated
+        # alternation cannot nest unboundedly (the ReDoS shape swift's `open`
+        # alternative was already written against).
+        # The type slot also accepts a tuple type (`(bool ok, int n)?`) and
+        # the name slot a generic argument list, both of which real Roslyn
+        # source puts between the modifier and the `(`. Measured: 387
+        # crucible matches before, 387 after.
         "api": re.compile(
-            r"\b(public|internal)\b|\[(?:HttpGet|HttpPost|HttpPut|HttpDelete|Route|ApiController|HubMethodName)\]|\bapp\.Map(?:Get|Post|Put|Delete|Group)\b"
+            r"\b(?:public|internal)[ \t\n]+"
+            r"(?:(?:static|virtual|override|abstract|sealed|async|unsafe|partial|new|extern|readonly|const|volatile|required|ref|event|delegate|implicit|explicit|file)[ \t\n]+){0,5}"
+            r"(?:class|interface|struct|record|enum|delegate|event|void\b"
+            r"|(?:\((?:[^()\n]|\([^()\n]*\))*\)\??|[@A-Za-z_][\w.]*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?\??(?:\[[ \t\n,]*\])*)"
+            r"[ \t\n]+[@A-Za-z_]\w*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?[ \t\n]*[({=;,]"
+            r"|[@A-Za-z_]\w*[ \t\n]*\()"
+            r"|\[(?:HttpGet|HttpPost|HttpPut|HttpDelete|Route|ApiController|HubMethodName)\]|\bapp\.Map(?:Get|Post|Put|Delete|Group)\b"
         ),
         # 11. flux (State Mutation)
         # Mutation of state. EXCLUDES const/readonly (freeze_hits).

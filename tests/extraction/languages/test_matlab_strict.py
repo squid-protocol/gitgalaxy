@@ -664,3 +664,27 @@ def test_matlab_return_channel_scan_is_linear_on_pathological_input():
         start = time.perf_counter()
         d.coding_analysis([("matlab", payload, 0)])
         assert time.perf_counter() - start < 10.0, "return-channel scan went superlinear"
+
+
+def test_matlab_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    A MATLAB function file has no visibility syntax; the rule could only see
+    a `classdef` methods block, so a corpus of function files measured 0.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = MATLAB_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('function out = probe_globals(env)'), 'column-0 function file entry'
+    assert api.search('    methods'), 'public methods block (kept)'
+
+    # Not declarations -- must not match.
+    assert not api.search('        function y = helper(x)'), 'indented classdef method'

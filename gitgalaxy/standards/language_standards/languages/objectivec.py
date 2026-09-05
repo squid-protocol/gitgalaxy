@@ -206,7 +206,19 @@ DEFINITION: dict[str, Any] = {
             r"\b(NSFileHandle|NSFileManager|NSURLSession|NSURLConnection|NSData|NXNetPath|NXSocket|NXStream|NXFile|HTLoad|HyperText|HTGet|socket|connect|send|recv)\b"
         ),
         # 10. api: Public Surface Area. Exposed interface/C-level exports and Interface Builder hooks.
-        "api": re.compile(r"\b(FOUNDATION_EXPORT|UIKIT_EXTERN|OBJC_EXPORT|extern)\b|@(property)\b|IBOutlet|IBAction"),
+        # BUG FIX #2730 (api contract): Objective-C's primary way of making a
+        # method visible outside its file is declaring it in an `@interface`
+        # -- a `-`/`+` method line terminated by `;` rather than a `{` body.
+        # None of the C-level export macros above can see it, so a header's
+        # entire published method list measured 0. The type-cast shape
+        # (`\([ \t]*[A-Za-z_]...\)` then an identifier) is required so a
+        # wrapped arithmetic continuation line (`+ ((slot/10)%3)* 40;`) cannot
+        # match. Needs re.M for the new `^` anchor (Rule 13).
+        "api": re.compile(
+            r"\b(FOUNDATION_EXPORT|UIKIT_EXTERN|OBJC_EXPORT|extern)\b|@(property)\b|IBOutlet|IBAction|"
+            r"^[ \t]*[-+][ \t]*\([ \t]*[A-Za-z_][\w \t*<>,]{0,120}\)[ \t]*[A-Za-z_]\w*[^;{\n]{0,300};",
+            re.M,
+        ),
         # 11. flux: State Mutation. State mutation (Property setters and raw assignments).
         "state_mutation": re.compile(r"\b(?:self\.)?[a-zA-Z_]\w*[ \t]*=|\[self\s+set[A-Z]\w*:|(?:\+\+|--)"),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code.

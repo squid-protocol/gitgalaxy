@@ -546,3 +546,30 @@ def test_shell_ambiguity_sweep_shared_literals_are_not_bugs():
     kill_call = "kill -HUP $pid"
     assert high_risk_execution.search(kill_call)
     assert panics_and_aborts.search(kill_call)
+
+
+def test_shell_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    `export -f name` -- the way a shell publishes a FUNCTION -- could never
+    match, so the rule only ever saw exported variables.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = SHELL_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('export -f probe_globals'), 'exported function'
+    assert api.search('export PROBE_GLOBALS=1'), 'exported variable (kept)'
+
+    # Not declarations -- must not match.
+    assert not api.search('exported=1'), 'identifier starting with export'
+
+    # ReDoS detonation on an unterminated flag run.
+    assert_redos_immune(api, "export " + "-f " * 40000, timeout_sec=3.0)

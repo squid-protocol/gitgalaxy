@@ -119,8 +119,19 @@ DEFINITION: dict[str, Any] = {
         # anywhere in a (possibly multi-attribute) attribute list, while still
         # matching bare `methods` (implicitly public by MATLAB default) and
         # explicit `Access = public`. Bounded to 200 chars per Rule 5.
+        # BUG FIX #2730 (api contract): a MATLAB *function file* has no
+        # visibility syntax at all -- the function it declares is callable by
+        # name from anywhere on the path -- so a corpus of function files
+        # measured 0 against a rule that could only see a `classdef` methods
+        # block. Added the column-0 `function` declaration as MATLAB's
+        # file-level surface (the documented fallback family, see
+        # docs/api_rule_contract.md). Column 0 deliberately: a `function`
+        # inside a `classdef` is indented under its `methods` block and is
+        # already counted by the alternative above, so the two cannot
+        # double-count the same declaration.
         "api": re.compile(
-            r"^[ \t]*methods\b(?![ \t]*\([^)]{0,200}\bAccess[ \t]*=[ \t]*(?:private|protected)\b)",
+            r"^[ \t]*methods\b(?![ \t]*\([^)]{0,200}\bAccess[ \t]*=[ \t]*(?:private|protected)\b)|"
+            r"^function\b",
             re.M | re.I,
         ),
         # flux: Mutation of state via assignment.

@@ -862,3 +862,28 @@ def test_groovy_doc_bare_tag_outside_block_still_counts_regression():
 def test_groovy_doc_block_redos_immune_regression():
     """#2672 ReDoS probe: an unterminated `/**` must fail closed quickly, not hang."""
     assert_redos_immune(GROOVY_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
+
+
+def test_groovy_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    A bare `public` counted the word in prose and string literals.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = GROOVY_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('public static void setText(Element e, String v) {'), 'public method'
+
+    # Not declarations -- must not match.
+    assert not api.search('log.warn("Could not open the public key ring.")'), 'keyword in a string'
+
+    # ReDoS detonation on a modifier run that never reaches a declaration.
+    assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)

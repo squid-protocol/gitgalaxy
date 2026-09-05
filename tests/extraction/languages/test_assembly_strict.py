@@ -394,3 +394,28 @@ def test_assembly_redos_immunity_sweep():
     assert ASM_RULES["func_start"].search("myFunc:\n\tret")
     assert ASM_RULES["api"].search("\tglobal main")
     assert ASM_RULES["encapsulation"].search("\t.local myVar")
+
+
+def test_assembly_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    `EXTERN`/`IMPORT` declare a name defined ELSEWHERE -- the opposite
+    direction from the contract.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = ASM_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('\t.globl\tmain'), 'GAS .globl'
+    assert api.search('GLOBAL _greet:function'), 'NASM GLOBAL'
+
+    # Not declarations -- must not match.
+    assert not api.search('EXTERN _printf'), 'EXTERN imports a name'
+    assert not api.search('\tIMPORT foo'), 'IMPORT imports a name'

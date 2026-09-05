@@ -677,3 +677,33 @@ def test_csharp_doc_line_marker_swallows_line_regression():
 def test_csharp_doc_line_marker_redos_immune_regression():
     """#2672 ReDoS probe: a very long unterminated `///` line must fail closed quickly, not hang."""
     assert_redos_immune(CSHARP_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)
+
+
+def test_csharp_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    A bare `public`/`internal` counted the modifier anywhere in the code
+    stream, including inside a string literal and a `switch` case.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = CSHARP_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('public static SyntaxTree ParseText('), 'public static method'
+    assert api.search('public sealed partial class CSharpCompilation : Compilation'), 'public class'
+    assert api.search('internal (bool ok, int n)? TryGet(SimpleNameSyntax x)'), 'tuple return type'
+    assert api.search('internal TNode ParseWithStackGuard<TNode>(Func<int> f)'), 'generic method name'
+
+    # Not declarations -- must not match.
+    assert not api.search('case "public":'), 'keyword in a switch case'
+    assert not api.search('return "public";'), 'keyword in a string literal'
+
+    # ReDoS detonation on a modifier run that never reaches a declaration.
+    assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)

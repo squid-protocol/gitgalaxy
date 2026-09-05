@@ -199,8 +199,27 @@ DEFINITION: dict[str, Any] = {
             r"\b(File|InputStream|OutputStream|Reader|Writer|Scanner|Files\.|Path|Socket|RestTemplate|WebClient|RestClient|HttpClient|Connection|ResultSet|Statement|EntityManager|DataSource|Repository)\b"
         ),
         # 10. api (Public Surface Area)
+        # BUG FIX #2730 (api contract): a bare `\bpublic|protected\b` counted the
+        # access modifier ANYWHERE in the code stream -- inside a string
+        # literal, a `switch` case, a dotted name -- not only where it
+        # declares something. The alternatives below anchor it to the
+        # declaration it modifies, per docs/api_rule_contract.md ("a
+        # declaration that makes a named function or type visible outside
+        # this file"). Every quantifier is bounded (Rule 5) and the modifier
+        # stepper is `{0,5}`, not `*`, so the `[ \t\n]+`-separated
+        # alternation cannot nest unboundedly (the ReDoS shape swift's `open`
+        # alternative was already written against).
+        # Measured on the language-crucible corpus: 220 matches before, 220
+        # after -- real Java writes `public` almost only in front of a
+        # declaration, so this is a precision guard, not a recount.
         "api": re.compile(
-            r"\b(public|protected)\b|@(RestController|Controller|Service|Component|Bean|Produces|Consumes|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping|Endpoint|WebFilter)\b"
+            r"\b(?:public|protected)[ \t\n]+"
+            r"(?:(?:static|final|abstract|synchronized|native|strictfp|default|sealed|non-sealed|transient|volatile|@[\w.]+(?:\([^)\n]{0,200}\))?)[ \t\n]+){0,5}"
+            r"(?:<(?:[^<>]|<[^<>]*>){0,200}>[ \t\n]*)?"
+            r"(?:class|interface|enum|record|@interface|void\b"
+            r"|[A-Za-z_$][\w$.]*(?:[ \t\n]*<(?:[^<>]|<[^<>]*>){0,200}>)?(?:\[[ \t\n]*\])*[ \t\n]+[A-Za-z_$][\w$]*[ \t\n]*[({=;,]"
+            r"|[A-Za-z_$][\w$]*[ \t\n]*\()"
+            r"|@(RestController|Controller|Service|Component|Bean|Produces|Consumes|RequestMapping|GetMapping|PostMapping|PutMapping|DeleteMapping|PatchMapping|Endpoint|WebFilter)\b"
         ),
         # 11. flux (State Mutation)
         # Mutation of state. EXCLUDES final (freeze_hits).

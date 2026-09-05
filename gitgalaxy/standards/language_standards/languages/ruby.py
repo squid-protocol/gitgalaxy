@@ -128,8 +128,15 @@ DEFINITION: dict[str, Any] = {
         ),
         # 10. api (Public Surface Area)
         # Implicit public defaults (undercased defs) + explicit module functions.
+        # BUG FIX #2730 (api contract): a top-level `def` in Ruby becomes a
+        # PRIVATE method on Object, so the declaration alone publishes
+        # nothing; the idiom that publishes one by name is `public :name`
+        # (and `public_class_method :name` for singleton methods). Neither
+        # was reachable -- `module_function` was the only per-method export
+        # form the rule could see.
         "api": re.compile(
-            r'\b(module_function)\b|^[ \t]*(?:get|post|put|patch|delete|resources?)\s+[:\'"]',
+            r'\b(module_function)\b|^[ \t]*(?:get|post|put|patch|delete|resources?)\s+[:\'"]|'
+            r'^[ \t]*public(?:_class_method)?[ \t]+[:&\'"]',
             re.M,
         ),
         # 11. flux (State Mutation)

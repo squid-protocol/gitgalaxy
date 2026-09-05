@@ -195,8 +195,20 @@ DEFINITION: dict[str, Any] = {
             r"\b(open|close|sysopen|sysread|syswrite|opendir|closedir|DBI->connect|Mojo::UserAgent|HTTP::Tiny|LWP::UserAgent|socket|connect|bind)\b|<[A-Z_0-9]+>|<>"
         ),
         # 10. api: Public Surface Area. Exposed surface area (Exports and modern routing).
+        # BUG FIX #2730 (api contract): every alternative above is a
+        # module-level export *list*, and each one also lands on a rule that
+        # already owns it (`@EXPORT_OK = (...)` is a state_mutation, `use
+        # Exporter|parent|base` an import), so the only way to move `api` was
+        # to move another planted count with it. A Perl `sub` is
+        # package-scoped and callable as `Pkg::name` from anywhere -- public
+        # by default, the same family as python/lua/scala -- so the
+        # declaration itself is the visibility marker. Leading letter
+        # required, which keeps the `_`-prefixed private-by-convention
+        # exclusion python's rule uses. Needs re.M for the `^` (Rule 13).
         "api": re.compile(
-            r'\b(?:get|post|put|del|any|patch)\s+[\'"]/[^\'"]*[\'"]|@(?:EXPORT|EXPORT_OK|EXPORT_TAGS|ISA)\b|use\s+(?:Exporter|parent|base)\b|:\s*(?:reader|writer|param)\b'
+            r'\b(?:get|post|put|del|any|patch)\s+[\'"]/[^\'"]*[\'"]|@(?:EXPORT|EXPORT_OK|EXPORT_TAGS|ISA)\b|use\s+(?:Exporter|parent|base)\b|:\s*(?:reader|writer|param)\b|'
+            r"^[ \t]*sub[ \t]+[A-Za-z]\w*",
+            re.M,
         ),
         # 11. flux: State Mutation. State mutation (assignments, array mutators, substitutions).
         # UPDATED: Removed '.=' and '=~' / '!~' to prevent massive string-builder false positives.

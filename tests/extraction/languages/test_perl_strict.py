@@ -594,3 +594,28 @@ def test_perl_doc_unterminated_opener_still_counts_regression():
 def test_perl_doc_pod_block_redos_immune_regression():
     """#2672 ReDoS probe: an unterminated `=pod` must fail closed quickly, not hang."""
     assert_redos_immune(PERL_RULES["doc"], "=pod\n" + "x" * 200000, timeout_sec=3.0)
+
+
+def test_perl_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    Every alternative was a module-level export list that also lands on a
+    rule which already owns it, so `api` could only move by moving another
+    planted count. A Perl `sub` is package-public by default.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = PERL_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('sub probe_globals {'), 'package-public sub'
+    assert api.search('@EXPORT_OK = qw(foo);'), 'export list (kept)'
+
+    # Not declarations -- must not match.
+    assert not api.search('sub _private_helper {'), 'underscore-private sub'

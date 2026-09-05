@@ -149,7 +149,14 @@ DEFINITION: dict[str, Any] = {
         "io": re.compile(r">|>>|<|\|(?:&)?|\b(curl|wget|nc|ssh|scp|ftp|rsync|cat|tail|grep|find|xargs|jq)\b"),
         # 10. api (Public Surface Area)
         # Exported variables and identifiers modifying the global environment.
-        "api": re.compile(r"^[ \t]*export\s+[a-zA-Z_]\w*", re.M),
+        # BUG FIX #2730 (api contract): the way a shell script makes a
+        # FUNCTION visible to its children is `export -f name`; the old
+        # pattern demanded a bare identifier straight after `export`, so the
+        # `-f` form (and every other flag spelling) never matched and the
+        # rule could only ever see exported variables. The flag run is
+        # bounded to one token each so it cannot chew through an argument
+        # list.
+        "api": re.compile(r"^[ \t]*export[ \t]+(?:-[a-zA-Z]+[ \t]+)*[a-zA-Z_]\w*", re.M),
         # 11. flux (State Mutation)
         # Mutation of state via assignment or arithmetic.
         # QUADRATIC BLOWUP FIX: the arithmetic-expansion branch's two

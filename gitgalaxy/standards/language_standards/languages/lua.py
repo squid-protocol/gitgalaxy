@@ -97,8 +97,14 @@ DEFINITION: dict[str, Any] = {
         # 10. api: Public Surface Area. Functions NOT marked local or explicit module returns.
         # BUG FIX #2657: The 'return M' module-export idiom is anchored to column 0 (^return)
         # to avoid false positives on indented function-body returns, which spiked risk_api_exposure.
+        # BUG FIX #2730 (api contract): `[^_]` accepted ANY non-underscore
+        # character, so `function ()` -- an anonymous function, which
+        # declares no name at all -- counted as a public declaration (16 of
+        # the crucible corpus's 288 matches). Requiring a letter keeps the
+        # `_`-prefixed private-by-convention exclusion the class was written
+        # for while demanding a real name.
         "api": re.compile(
-            r"^[ \t]*function\s+[^_][\w.:]*|^return[ \t]+[a-zA-Z_]\w*[ \t]*$|---@public|\bexport\b",
+            r"^[ \t]*function\s+[A-Za-z][\w.:]*|^return[ \t]+[a-zA-Z_]\w*[ \t]*$|---@public|\bexport\b",
             re.M,
         ),
         # 11. flux: State Mutation. State mutation (assignments and table mutators).

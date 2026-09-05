@@ -117,10 +117,16 @@ DEFINITION: dict[str, Any] = {
         "io": re.compile(r"\b(DSKY|CHANNEL|READ|WRITE|V\d+N\d+|OUT\d+|IN\d+)\b", re.I),
         # 10. api (Public Surface Area)
         # Global labels and externally visible entry points.
-        "api": re.compile(
-            r"^[A-Z0-9_-]+\s+EQUALS|^[ \t]*(?:SUBROUTINE|BEXT|EXTEND)\b",
-            re.M | re.I,
-        ),
+        # BUG FIX #2730 (api contract): the second alternative counted
+        # `EXTEND` and `BEXT`, which are AGC *instructions* (the extracode
+        # prefix and a bank-extended branch), not declarations that make a
+        # name visible outside the file -- 323 of the crucible corpus's 367
+        # matches were the bare `EXTEND` opcode. `SUBROUTINE` never fired
+        # at all (0 occurrences corpus-wide). Removed the whole alternative;
+        # `EQUALS` (the erasable/symbol equate that publishes a label) is
+        # AGC assembly's real named-surface declaration and is what
+        # docs/api_rule_contract.md records for this language.
+        "api": re.compile(r"^[A-Z0-9_-]+\s+EQUALS", re.M | re.I),
         # 11. flux (State Mutation)
         # Direct state mutation and register storage.
         "state_mutation": re.compile(

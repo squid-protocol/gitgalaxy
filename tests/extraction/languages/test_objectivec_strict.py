@@ -317,3 +317,32 @@ def test_objectivec_doc_block_redos_immune_regression():
     assert_redos_immune(OBJC_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
     assert_redos_immune(OBJC_RULES["doc"], "/*!" + "x" * 200000, timeout_sec=3.0)
     assert_redos_immune(OBJC_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)
+
+
+def test_objectivec_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    A method declared in an `@interface` -- Objective-C's primary public
+    surface -- was invisible to the C-level export macros.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = OBJC_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('- (void) linkTo:(Anchor *)destination;'), '@interface method declaration'
+    assert api.search('+ (BOOL) follow;'), 'class method declaration'
+    assert api.search('extern int HTAccMgr;'), 'extern declaration (kept)'
+
+    # Not declarations -- must not match.
+    assert not api.search('+ ((slotNumber/10)%3)* 40;'), 'wrapped arithmetic continuation'
+    assert not api.search('- (void) doWork {'), '@implementation method body'
+
+    # ReDoS detonation on an unclosed method type cast.
+    assert_redos_immune(api, "- (" + "a " * 40000, timeout_sec=3.0)

@@ -151,8 +151,26 @@ DEFINITION: dict[str, Any] = {
         ),
         # 10. api (Public Surface Area)
         # Exposed surface. Implicit public/internal defaults + Ktor/Spring routes.
+        # BUG FIX #2730 (api contract): a bare `\bpublic|internal\b` counted the
+        # access modifier ANYWHERE in the code stream -- inside a string
+        # literal, a `switch` case, a dotted name -- not only where it
+        # declares something. The alternatives below anchor it to the
+        # declaration it modifies, per docs/api_rule_contract.md ("a
+        # declaration that makes a named function or type visible outside
+        # this file"). Every quantifier is bounded (Rule 5) and the modifier
+        # stepper is `{0,5}`, not `*`, so the `[ \t\n]+`-separated
+        # alternation cannot nest unboundedly (the ReDoS shape swift's `open`
+        # alternative was already written against).
+        # Kotlin always spells the declaration out with a keyword, so the
+        # anchor is just that keyword set. Measured: 17 crucible matches
+        # before, 5 after -- the 12 dropped were all the package segment in
+        # `import okhttp3.internal.<name>`, i.e. a reference to another
+        # module's internals, the exact opposite of a public declaration.
         "api": re.compile(
-            r"\b(public|internal)\b|@(RestController|Controller|Service|Component|RequestMapping|GetMapping|PostMapping|Route)\b"
+            r"\b(?:public|internal)[ \t\n]+"
+            r"(?:(?:open|abstract|final|override|suspend|inline|tailrec|infix|operator|external|expect|actual|data|sealed|enum|annotation|inner|companion|lateinit|const|value|vararg|@[\w.]+(?:\([^)\n]{0,200}\))?)[ \t\n]+){0,5}"
+            r"(?:class|interface|object|fun|val|var|typealias|constructor)\b"
+            r"|@(RestController|Controller|Service|Component|RequestMapping|GetMapping|PostMapping|Route)\b"
         ),
         # 11. flux (State Mutation)
         # CRITICAL FIX: Added re.M so it scans every line, not just the first line of the file!

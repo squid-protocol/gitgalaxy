@@ -411,3 +411,34 @@ def test_dart_doc_block_redos_immune_regression():
     """#2672 ReDoS probes: unterminated `/**` and a very long unterminated `///` line must fail closed quickly."""
     assert_redos_immune(DART_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
     assert_redos_immune(DART_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)
+
+
+def test_dart_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    `@pragma` is a compiler hint, not a visibility marker, and Dart's real
+    public surface -- a top-level function without a leading underscore -- was
+    invisible.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = DART_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('int probeGlobals(int env) {'), 'top-level public function'
+    assert api.search('Future<void> main() async {'), 'generic return type'
+    assert api.search("export 'src/foo.dart';"), 'export directive (kept)'
+
+    # Not declarations -- must not match.
+    assert not api.search("@pragma('vm:prefer-inline')"), 'compiler pragma'
+    assert not api.search('  int helper(int x) {'), 'indented method'
+    assert not api.search('int _private(int x) {'), 'underscore-private top-level function'
+
+    # ReDoS detonation on an unclosed generic argument list.
+    assert_redos_immune(api, "int " + "<" * 40000, timeout_sec=3.0)

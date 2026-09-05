@@ -481,3 +481,37 @@ def test_c_doc_block_redos_immune_regression():
     """#2672 ReDoS probes: unterminated `/**` and a very long unterminated `///` line must fail closed quickly."""
     assert_redos_immune(C_RULES["doc"], "/**" + "x" * 200000, timeout_sec=3.0)
     assert_redos_immune(C_RULES["doc"], "///" + "x" * 200000, timeout_sec=3.0)
+
+
+def test_c_api_contract_2730():
+    """
+    #2730: the api rule's stated contract is *a declaration that makes a
+    named function or type visible outside this file* (see
+    docs/api_rule_contract.md). Two failure directions are in scope: a
+    declaration the rule cannot see, and a token the rule counts where no
+    declaration exists.
+
+    The declaration-shaped alternatives allowed indentation, so body-local
+    declarations and two-word statements counted: 7534 of the crucible corpus's
+    8675 matches were not file-scope declarations at all.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = C_RULES["api"]
+
+    # Declarations that publish a name -- must match.
+    assert api.search('int main(int argc, char **argv)'), 'file-scope definition'
+    assert api.search('PyObject *\nfoo(void)'), 'K&R two-line return type'
+    assert api.search('void write_rtf_header(NXStream *s);'), 'file-scope prototype'
+    assert api.search('extern int errno;'), 'extern declaration (kept)'
+
+    # Not declarations -- must not match.
+    assert not api.search('    return NULL;'), 'indented return statement'
+    assert not api.search('return NULL;'), 'column-0 return statement'
+    assert not api.search('\tgoto error;'), 'indented goto'
+    assert not api.search('    PyObject *value;'), 'body-local declaration'
+    assert not api.search('static int helper(void)'), 'static definition'
+
+    # ReDoS detonation on an unterminated declaration-shaped run.
+    assert_redos_immune(api, "a" * 40000 + " " + "*" * 40000, timeout_sec=3.0)

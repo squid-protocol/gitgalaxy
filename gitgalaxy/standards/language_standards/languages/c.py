@@ -187,10 +187,25 @@ DEFINITION: dict[str, Any] = {
             # is a word character, never true for the realistic form
             # (whitespace/newline before the return type follows). Pulled
             # both out of the shared boundary group.
+            # BUG FIX #2730 (api contract): the two declaration-shaped
+            # alternatives allowed leading indentation, so every BODY-LOCAL
+            # declaration and every two-word statement counted as public
+            # surface -- `return NULL;` alone was 513 of the crucible
+            # corpus's 8675 matches, with `goto error;`, `int i;` and
+            # `PyObject *value;` behind it; 7534 of the 8675 were not
+            # file-scope declarations at all. (#2734 documented this shape
+            # from the other side, where the span form suppressed all 73
+            # orphans in `ceval.c`.) Anchored to column 0 -- C puts
+            # file-scope declarations there and indents everything inside a
+            # function -- and excluded the statement keywords that can
+            # legitimately start a line. `[ \t\n]` rather than `\s` keeps
+            # the K&R two-line form (`PyObject *\nfoo(void)`) matching, which
+            # is the reason the separator was allowed to span lines at all.
             r"\bextern\b|__declspec\(dllexport\)|"
             r'__attribute__\(\(visibility\("default"\)\)\)|'
-            r"^[ \t]*(?!static\b)[a-zA-Z_]\w*(?:\s*[*&]+\s*|\s+)[a-zA-Z_]\w*(?:\[[^\]]*\])?\s*=?|"
-            r"^[ \t]*[a-zA-Z_]\w*(?:\s*[*&]+\s*|\s+)[a-zA-Z_]\w*\s*\([^)]*\)\s*;",
+            r"^(?!static\b)(?!(?:return|goto|else|case|break|continue|do|while|if|for|switch|sizeof)\b)"
+            r"[a-zA-Z_]\w*(?:[ \t]*[*&]+[ \t\n]*|[ \t\n]+)[a-zA-Z_]\w*(?:\[[^\]\n]*\])?[ \t]*=?|"
+            r"^[a-zA-Z_]\w*(?:[ \t]*[*&]+[ \t]*|[ \t]+)[a-zA-Z_]\w*[ \t]*\([^)\n]*\)[ \t]*;",
             re.M,
         ),
         # 11. flux (State Mutation)

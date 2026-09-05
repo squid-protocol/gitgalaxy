@@ -34,6 +34,7 @@
 
 **Resource Management**
 - `io`: Matches dataset definitions and I/O routing such as `DSN`, `DSNAME`, `SYSOUT`, `SYSPRINT`, `DISP=`.
+- `sync_locks`: Matches `DISP=OLD` / `DISP=MOD` — the dispositions that request an **exclusive system ENQ** on a dataset, z/OS's native serialization idiom (`DISP=SHR` requests shared access and `DISP=NEW` allocates, so neither counts). Added by [#2733](https://github.com/squid-protocol/gitgalaxy/issues/2733). Every hit is also an `io` hit, since `io` counts the bare `DISP=` keyword; that overlap is accepted deliberately because the shape is narrow (48 hits in 15 of the corpus's 186 `.jcl`/`.prc`/`.bms` files, ~9% of its 525 `DISP=` occurrences; 429 of the remaining 477 are `DISP=SHR` and the other 48 allocate — `DISP=(NEW,…)`, or an omitted first positional that defaults to it) and the two meanings genuinely differ, the same way `COND=((4,LT),EVEN)` counts both `safety` and `safety_bypasses`. Contrast §4's `cleanup`, where the overlap would have covered essentially every disposition.
 
 **State Mutation**
 - `state_mutation`: Matches JCL symbolic variable assignments via `SET`.
@@ -44,6 +45,8 @@
 - `ownership`: Matches ownership/maintainer comments like `//* Author:` (counted on the comment stream since #2610 — previously it only worked by accident on the code stream, see §10).
 - `telemetry`: Matches `MSGLEVEL=` / `MSGCLASS=` (job-log verbosity and routing — JCL's observability dials). Added by #2610.
 - `planned_debt` / `fragile_debt`: The shared `GLOBAL_PLANNED_DEBT` / `GLOBAL_FRAGILE_DEBT` comment-anchored patterns (same wiring as cobol) — a `//* TODO ...` / `//* HACK ...` banner in a job deck now counts. Added by #2610; structurally dead before it because JCL's comment stream was always empty (§10).
+- `dead_code`: Matches a JCL statement commented out by turning `//` into `//*` (`//*STEP1   EXEC PGM=IEFBR14`), distinguished from an ordinary prose banner that merely contains the keyword. Added by [#2732](https://github.com/squid-protocol/gitgalaxy/issues/2732).
+- `spec_exposure`: Matches the generic traceability tag in a `//*` comment (`//* [SPEC-4412] ...`). Added by #2732.
 
 ## 4. What GitGalaxy explicitly does not track
 
@@ -52,7 +55,8 @@
 - `cleanup`: None — **a deliberate decision, not an oversight** (#2610): the honest JCL cleanup
   idiom is `DISP=(...,DELETE)`, but `DISP=` already feeds the `io` rule, so a cleanup rule would
   double-count every disposition. Recorded in the keyword-rosetta deviation ledger
-  (`jcl-2610-rebaseline-residual-morphology`) as intended morphology.
+  (`jcl-2610-rebaseline-residual-morphology`) as intended morphology. #2733 revisited the same
+  overlap for `sync_locks` and decided the other way — see §3 for why the two dispositions split.
 - `globals`: None — JCL has no scoped-vs-global variable distinction (`SET` symbolics are already
   `state_mutation`; a `JOBLIB`/`STEPLIB` rule was considered and rejected because those DD
   statements would inflate `io` and `dependency_links`).
@@ -76,8 +80,10 @@ None currently. ([#2415](https://github.com/squid-protocol/gitgalaxy/issues/2415
 ## 6. Test depth
 
 - **Extraction-gauntlet tests**: 42 cases in `tests/extraction/languages/test_jcl.py`
-- **Strict-signature tests**: 65 cases in `tests/extraction/languages/test_jcl_strict.py`
-  (grew 51 → 65 with #2610's COND-partition semantics, JES3-guard, and ReDoS detonation cases)
+- **Strict-signature tests**: 80 cases in `tests/extraction/languages/test_jcl_strict.py`
+  (51 → 65 with #2610's COND-partition semantics, JES3-guard and ReDoS detonation cases;
+  65 → 74 with #2732's `dead_code`/`spec_exposure` rules; 74 → 80 with #2733's `sync_locks`
+  disposition partition, io-overlap pin and ReDoS case)
 
 ## 7. Relevant closed work
 

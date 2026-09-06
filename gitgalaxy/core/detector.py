@@ -1226,7 +1226,6 @@ class StructuralExtractor:
             functions, sum_fxn_impact = self._function_slice(
                 segments,
                 segment_spatial_maps,
-                equations,
                 mitigation_telemetry,
                 regex_telemetry if profile_regex else None,
             )
@@ -1990,12 +1989,16 @@ class StructuralExtractor:
             if appsec_key not in counts:
                 counts[appsec_key] = 0
 
+        # The proximity tally (#2813): the six spatial_correlation.py pairs write
+        # ONLY here; the recorded counts stay raw and the score layer applies
+        # these through PROXIMITY_WEIGHTS / weighted_count().
         mitigations: dict[str, int] = {
             "mitigated_danger": 0,
             "mitigated_memory_allocs": 0,
             "amplified_rce": 0,
             "amplified_race_conditions": 0,
-            "amplified_leaks": 0,
+            "amplified_exfiltration": 0,
+            "amplified_cascading_flux": 0,
         }
         segment_spatial_maps = []
         extracted_parents: list[str] = []
@@ -2525,11 +2528,14 @@ class StructuralExtractor:
         self,
         segments: list[tuple[str, str, int]],
         segment_spatial_maps: list[dict[str, list[int]]],
-        counts: dict[str, int],
         mitigations: dict[str, int],
         regex_telemetry: Optional[dict] = None,
     ) -> tuple[list[FunctionNode], float]:
-        """The Master Routing Dispatcher: Directs the structural signal into the correct integration mode."""
+        """The Master Routing Dispatcher: Directs the structural signal into the correct integration mode.
+
+        Also runs the satellite-scoped proximity correlations once real function
+        boundaries exist. Since #2813 they only tally into `mitigations`; the
+        recorded counts are never edited here."""
         all_satellites: list[FunctionNode] = []
         global_impact = 0.0
 
@@ -2713,8 +2719,8 @@ class StructuralExtractor:
             sat_ranges = sorted(
                 (sat["start_idx"], sat["end_idx"]) for sat in sats if "start_idx" in sat and "end_idx" in sat
             )
-            apply_dampener_correlations(spatial_map, sat_ranges, counts, mitigations)
-            apply_amplifier_correlations(spatial_map, sat_ranges, counts, mitigations)
+            apply_dampener_correlations(spatial_map, sat_ranges, mitigations)
+            apply_amplifier_correlations(spatial_map, sat_ranges, mitigations)
 
             all_satellites.extend(sats)
             global_impact += impact

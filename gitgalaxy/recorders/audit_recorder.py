@@ -225,6 +225,10 @@ class AuditRecorder:
             formatted_mitigations = {
                 key.replace("_", " ").title(): f"{val} instances" for key, val in mitigation_data.items() if val > 0
             }
+            # #2813: section 7 below carries raw counts; the proximity-weighted figure
+            # each of those counts used to carry is shown here, beside its tally.
+            for key, val in (telemetry.get("weighted_signals") or {}).items():
+                formatted_mitigations[f"{self.format_label(key)} (Weighted View)"] = val
 
             # Assemble the individual artifact profile
             file_profile = {

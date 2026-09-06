@@ -474,6 +474,78 @@ def test_signal_processor_doc_and_secrets_churn_survives_normalization(processor
 
 
 # ==============================================================================
+# TEST 12.5: RAW COUNTS ARE COUNTS (#2813, contract roadmap Phase 2 / D1)
+# The proximity weights moved out of the recorded counts into the per-file
+# tally; the score layer must reproduce the old figures from raw + tally.
+# ==============================================================================
+def test_signal_processor_weighted_view_is_score_neutral(processor):
+    """A file scored from raw counts + the proximity tally must produce byte-identical
+    risk_vector and file_impact to the same file scored from the old in-place
+    weighted counts -- while hit_vector now carries the raw counts and the telemetry
+    carries the tally and the weighted figures under their own key."""
+    raw = {
+        "branch": 6,
+        "state_mutation": 3,
+        "high_risk_execution": 2,
+        "concurrency": 1,
+        "memory_alloc": 2,
+        "safety": 1,
+        "func_start": 2,
+    }
+    tally = {
+        "amplified_cascading_flux": 2,  # x3 on two of the three mutations
+        "mitigated_danger": 1,  # one of the two danger hits silenced
+        "amplified_race_conditions": 1,  # +5
+        "mitigated_memory_allocs": 1,  # one alloc cleaned up
+    }
+    old_weighted = dict(raw)
+    old_weighted["state_mutation"] = 3 + 2 * 2
+    old_weighted["high_risk_execution"] = 2 - 1
+    old_weighted["concurrency"] = 1 + 5
+    old_weighted["memory_alloc"] = 2 - 1
+
+    meta_new, sig_new = create_synthetic_star(processor, "raw_counts", 120, raw)
+    meta_new["mitigation_telemetry"] = tally
+    meta_old, sig_old = create_synthetic_star(processor, "raw_counts", 120, old_weighted)
+
+    res_new = processor.calculate_risk_vector(meta_new, sig_new)
+    res_old = processor.calculate_risk_vector(meta_old, sig_old)
+
+    assert res_new["risk_vector"] == res_old["risk_vector"], "Every risk score must be unchanged by construction"
+    assert res_new["file_impact"] == res_old["file_impact"], "Structural magnitude reads the weighted flux/concurrency"
+    assert res_new["telemetry"]["archetype_fingerprint"] == res_old["telemetry"]["archetype_fingerprint"]
+
+    idx = {k: processor.SIGNAL_SCHEMA.index(k) for k in ("state_mutation", "high_risk_execution", "concurrency")}
+    assert res_new["hit_vector"][idx["state_mutation"]] == 3, "hit_vector carries the raw count"
+    assert res_new["hit_vector"][idx["high_risk_execution"]] == 2
+    assert res_new["hit_vector"][idx["concurrency"]] == 1
+    assert res_old["hit_vector"][idx["state_mutation"]] == 7, "the old star really was weighted"
+
+    tel = res_new["telemetry"]
+    assert tel["mitigation_telemetry"] == tally, "the detector's tally reaches the recorders"
+    assert tel["weighted_signals"] == {
+        "state_mutation": 7,
+        "high_risk_execution": 1,
+        "concurrency": 6,
+        "memory_alloc": 1,
+    }, "the weighted figures the counts used to carry, under their own key"
+    assert res_old["telemetry"]["weighted_signals"] == {}, "no tally, nothing weighted"
+
+
+def test_signal_processor_weighted_view_tolerates_missing_or_list_tally(processor):
+    """Minified / inert files never ran the correlation pass; a legacy list in the slot
+    (the galaxyscope:ignore suppressions) must not break scoring either."""
+    meta, sig = create_synthetic_star(processor, "no_tally", 50, {"state_mutation": 4, "branch": 2})
+    res_plain = processor.calculate_risk_vector(meta, sig)
+
+    meta["mitigation_telemetry"] = ["state_flux"]
+    res_list = processor.calculate_risk_vector(meta, sig)
+
+    assert res_plain["risk_vector"] == res_list["risk_vector"]
+    assert res_plain["telemetry"]["weighted_signals"] == {}
+
+
+# ==============================================================================
 # TEST 13: SPATIALLY VERIFIED MEMORY EXHAUSTION (Cascading Flux)
 # ==============================================================================
 def test_signal_processor_memory_exhaustion_spatial(processor):

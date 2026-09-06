@@ -342,7 +342,7 @@ def test_makefile_mode_a_braceless_extraction_regression():
 
     code = "target1: dep1\n\techo 'recipe 1'\ntarget2: dep2\n\techo 'recipe 2'\n"
     segments = extractor._partition_segments(code, "makefile")
-    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, None)
 
     names = [f["name"] for f in functions]
     assert "target1" in names, "Failed to extract target1"

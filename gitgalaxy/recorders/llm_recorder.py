@@ -889,11 +889,16 @@ class LLMRecorder:
                 mitigations = dict.fromkeys(mitigations, 1)
 
             active_mitigations = {k: v for k, v in mitigations.items() if v > 0}
-            if active_mitigations:
+            weighted = tel.get("weighted_signals", {}) or {}
+            if active_mitigations or weighted:
                 lines.append("**Contextual Mitigations & Amplifications:**")
                 for m_key, m_val in active_mitigations.items():
                     clean_key = m_key.replace("_", " ").title()
                     lines.append(f"* *{clean_key}:* {m_val} instances")
+                # #2813: the signature lines below are raw counts; the proximity-weighted
+                # figure they used to carry is listed here beside its tally.
+                for w_key, w_val in weighted.items():
+                    lines.append(f"* *{w_key.replace('_', ' ').title()} (weighted view):* {w_val}")
 
             lines.append("**Structural Signatures (Net Mitigated Signals):**")
             lines.append(f"* *Structure:* {', '.join(struct_hits) if struct_hits else 'None'}")

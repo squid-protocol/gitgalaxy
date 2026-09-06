@@ -36,30 +36,43 @@ This file categorizes different keyword terms into structural signature counts. 
 
 #### Proximity correlations (`spatial_correlation.py`) — the dampener/amplifier pairs
 
-After raw counting, six signal-pair correlations adjust the recorded counts based on *where*
-hits sit relative to each other — within a character radius **and** (post-#346/#348) inside the
-same detected function. These were previously invisible outside the source (#2546 — the #1096
-keyword-rosetta control corpus had to rediscover the flux weighting by micro-repro), so the
-full set is documented here. Every adjustment is tallied in the per-file
-`mitigation_telemetry`, surfaced in the audit report as "Contextual Mitigations &
-Amplifications", so raw counts stay recoverable.
+After raw counting, six signal-pair correlations look at *where* hits sit relative to each
+other — within a character radius **and** (post-#346/#348) inside the same detected function —
+and tally the pairings in the per-file `mitigation_telemetry`. These were previously invisible
+outside the source (#2546 — the #1096 keyword-rosetta control corpus had to rediscover the flux
+weighting by micro-repro), so the full set is documented here.
 
-| Pair (targets ← context) | Radius | Effect on recorded counts | Telemetry key |
+**A recorded count is a count (#2813, contract roadmap Phase 2 / decision D1).** The pairs
+used to add their weights into the recorded counts in place, so `state_mutation` in every
+recorder, golden master and corpus manifest was `raw + 2 × cascading`. They now write only
+the tally; the score layer (`signal_processor.py`, the ML feature frame, the statistical
+gates) reads the **weighted view** — `core.spatial_correlation.weighted_count()`, driven by
+the `PROXIMITY_WEIGHTS` table — which is exactly the figure the recorded count used to carry,
+so every risk score is unchanged by construction. The audit report shows the tally and the
+weighted figure side by side in "6. Contextual Mitigations & Amplifications"; the
+`file_data` / SARIF / SQLite / corpus numbers are the raw counts.
+
+| Pair (targets ← context) | Radius | Telemetry key (tally) | Weighted view = raw + … |
 |---|---|---|---|
-| `high_risk_execution` ← `safety` | 500 | −1 per mitigated hit (the "Silencer Region") | `mitigated_danger` |
-| `concurrency` ← `state_mutation` (unless `sync_locks` ≤300 away) | 150 | +5 per race-condition pairing | `amplified_race_conditions` |
-| `memory_alloc` ← `cleanup` | 800 | count reduced to unmitigated allocs | `mitigated_memory_allocs` |
-| `memory_scraping` ← `exfiltration_camouflage` | 200 | +100 per confirmed pairing | `amplified_leaks` |
-| `high_risk_execution` ← `io` | 250 | +1 `sec_tainted_injection` per corroborated RCE | `amplified_rce` |
-| `state_mutation` ← `branch` | 150 | **+2 per cascading hit → ×3 net** (the flux weighting, #2546) | `amplified_cascading_flux` |
+| `high_risk_execution` ← `safety` | 500 | `mitigated_danger` | −1 per mitigated hit (the "Silencer Region") |
+| `concurrency` ← `state_mutation` (unless `sync_locks` ≤300 away) | 150 | `amplified_race_conditions` | +5 per race-condition pairing |
+| `memory_alloc` ← `cleanup` | 800 | `mitigated_memory_allocs` | −1 per alloc with a same-function cleanup |
+| `memory_scraping` ← `exfiltration_camouflage` | 200 | `amplified_exfiltration` | +100 per confirmed pairing |
+| `high_risk_execution` ← `io` | 250 | `amplified_rce` | +1 `sec_tainted_injection` per corroborated RCE |
+| `state_mutation` ← `branch` | 150 | `amplified_cascading_flux` | **+2 per cascading hit → ×3 net** (the flux weighting, #2546) |
 
 The flux row deserves the detail: state mutated near control flow is deliberately weighted ×3
 (feeding `risk_state_flux` / cognitive-load scoring), scoped per mutation to a 150-char radius
-within the same function — **not** a blanket per-function toggle. Raw count =
-`recorded − 2 × amplified_cascading_flux`. Known amplifier FP: in languages whose branch rules
-don't shield string literals (#2535), a branch keyword inside a string creates phantom branch
-context and triples real nearby mutations — that fix belongs to #2535. Semantics are pinned by
+within the same function — **not** a blanket per-function toggle. Known amplifier FP: in
+languages whose branch rules don't shield string literals (#2535), a branch keyword inside a
+string creates phantom branch context and triples real nearby mutations in the weighted view —
+that fix belongs to #2535. Semantics are pinned by
 `tests/core_engine/test_spatial_correlation.py`'s flux micro-repros.
+
+Two same-shaped adjustments live outside this table and still edit a recorded value in place:
+the `rce_funnel` ×50 in `detector.py`'s `coding_analysis()` and the Active Hemorrhage
+(`sec_hardcoded_secrets` +50 per leak near a telemetry sink, tallied as `amplified_leaks`) in
+`galaxyscope.py`'s Phase 5.5.
 
 ### 5. `network_risk_sensor.py` (The Topology Mapper)
 **Role:** Dependency Graphing.

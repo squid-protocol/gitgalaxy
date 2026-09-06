@@ -6,6 +6,7 @@ from unittest.mock import patch
 import pytest
 
 from gitgalaxy.core.detector import StructuralExtractor
+from gitgalaxy.core.spatial_correlation import weighted_count
 from gitgalaxy.core.spatial_mapper import SpatialMapper
 
 # ==============================================================================
@@ -93,10 +94,13 @@ def test_detector_spatial_appsec_correlation():
 
     result = opt_detector.splice(code, "")
 
-    # A single memory_scraping hit normally = 1.
-    # The AppSec multiplier adds 100 if correlated. Total should be >= 100.
-    assert result["equations"]["memory_scraping"] >= 100, "Spatial correlation failed to multiply the threat penalty!"
-    assert result["mitigation_telemetry"]["amplified_leaks"] == 1, "Failed to log the active leak mitigation stat!"
+    # A single memory_scraping hit is recorded as 1 (#2813: a count is a count).
+    # The AppSec x100 multiplier lives in the weighted view: >= 100 there.
+    assert result["equations"]["memory_scraping"] == 1, "Recorded memory_scraping must be the raw hit count (#2813)"
+    assert result["mitigation_telemetry"]["amplified_exfiltration"] == 1, "Failed to log the exfiltration tally!"
+    assert weighted_count(result["equations"], result["mitigation_telemetry"], "memory_scraping") >= 100, (
+        "Spatial correlation failed to multiply the threat penalty in the weighted view!"
+    )
 
 
 def test_detector_exfiltration_check_does_not_cross_function_boundaries():
@@ -125,7 +129,7 @@ def test_detector_exfiltration_check_does_not_cross_function_boundaries():
         "A socket send in a DIFFERENT function must not amplify this memory read -- "
         "cross-function exfiltration correlation regressed!"
     )
-    assert result["mitigation_telemetry"].get("amplified_leaks", 0) == 0
+    assert result["mitigation_telemetry"].get("amplified_exfiltration", 0) == 0
 
 
 def test_detector_silencer_region():
@@ -143,9 +147,13 @@ def test_detector_silencer_region():
 
     result = opt_detector.splice(code, "")
     # The raw string "strcpy" is inside "strncpy", so both trigger in a naive regex.
-    # The spatial math should subtract the danger hit.
-    assert result["equations"]["high_risk_execution"] == 0, "Silencer region failed to dampen the danger signal!"
-    assert result["mitigation_telemetry"]["mitigated_danger"] >= 1
+    # The spatial math tallies the mitigation; the recorded count stays the raw hit
+    # (#2813) and the score layer nets it out through weighted_count().
+    assert result["equations"]["high_risk_execution"] == 1, "Recorded count must stay the raw hit (#2813)"
+    assert result["mitigation_telemetry"]["mitigated_danger"] >= 1, "Silencer region failed to tally the mitigation!"
+    assert weighted_count(result["equations"], result["mitigation_telemetry"], "high_risk_execution") == 0, (
+        "Silencer region failed to dampen the danger signal in the weighted view!"
+    )
 
 
 # ==============================================================================
@@ -496,25 +504,47 @@ def test_detector_orphan_census_excludes_synthetic_slicer_names():
 
 def test_detector_c_macro_dead_branch_shield():
     """
-    Proves the Mode B Preprocessor Shield successfully blanks out dead
-    #ifdef branches and multi-line macro continuations.
+    Pins what the C-family macro shield does and does not do (#2814).
+
+    `_build_brace_safe_stream`'s `#if 1` / `#if 0` policy stack (#1720) only
+    produces the brace-safe stream used to find function boundaries. Neither
+    the file-level counts nor the per-function hit_vector read it, so a
+    `strcpy` inside a statically dead `#if 0` branch is COUNTED, exactly like
+    one under an unknown `#if defined(X)`.
+
+    This test used to assert a recorded count of 0 here and passed for the
+    wrong reason: the `strncpy` in the #else, 500 chars away in the same
+    function, tallied one `mitigated_danger` and the Silencer Region
+    subtracted it from the count in place. Since #2813 the recorded count is
+    the raw hit, so the dampener and the (absent) scrub are told apart.
+    Whether the dead branch SHOULD be counted is the stream-contract question
+    #2814 tracks; change this test with that decision, not before.
     """
     opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
-    code = (
+    code_dead = (
         "void system_init() {\n"
-        "#if defined(DEBUG_MODE)\n"
+        "#if 0\n"
         "    int fake_danger = strcpy(dest, src);\n"
         "#else\n"
         "    int safe_ops = strncpy(dest, src, 10);\n"
         "#endif\n"
         "}\n"
     )
+    code_unknown = code_dead.replace("#if 0", "#if defined(DEBUG_MODE)")
 
-    result = opt_detector.splice(code, "")
-
-    # Because 'high_risk_execution' is in the dead branch, it should be scrubbed by the preprocessor shield
-    # before the regex engine even sees it.
-    assert result["equations"]["high_risk_execution"] == 0, "Failed to scrub dead preprocessor branches!"
+    for label, code in (("#if 0", code_dead), ("#if defined", code_unknown)):
+        result = opt_detector.splice(code, "")
+        assert result["equations"]["high_risk_execution"] == 1, (
+            f"{label}: the recorded count is the raw hit -- the dead branch is counted (#2814)"
+        )
+        assert result["threat_locations"]["high_risk_execution"] == [3], f"{label}: the hit is the strcpy on line 3"
+        assert result["functions"][0]["hit_vector"].get("high_risk_execution", 0) == 1, (
+            f"{label}: the per-function hit_vector does not read the brace-safe stream either"
+        )
+        assert result["mitigation_telemetry"]["mitigated_danger"] == 1, f"{label}: same-function strncpy silences it"
+        assert weighted_count(result["equations"], result["mitigation_telemetry"], "high_risk_execution") == 0, (
+            f"{label}: the weighted view is what the old recorded 0 actually was"
+        )
 
 
 def test_detector_c_macro_else_branch_is_scanned_issue_1720():
@@ -1116,15 +1146,22 @@ def test_detector_advanced_appsec_sensors():
     eqs = result["equations"]
     mits = result["mitigation_telemetry"]
 
-    # 1. RCE Weaponization: high_risk_execution spatially overlapping with io (#344)
-    assert eqs.get("sec_tainted_injection", 0) >= 1, "Failed to spatially correlate Tainted RCE Injection!"
+    # Since #2813 the recorded counts are raw; the corroborations and amplifiers
+    # are tallies applied in the weighted view.
 
-    # 2. Race Conditions: concurrency overlapping with unlocked flux (multiplies by 5)
-    assert eqs.get("concurrency", 0) >= 5, "Failed to detect and amplify the Race Condition penalty!"
+    # 1. RCE Weaponization: high_risk_execution spatially overlapping with io (#344)
+    assert eqs.get("sec_tainted_injection", 0) == 0, "detector.py records no sec_tainted_injection of its own (#2813)"
+    assert mits.get("amplified_rce", 0) >= 1, "Failed to spatially correlate Tainted RCE Injection!"
+    assert weighted_count(eqs, mits, "sec_tainted_injection") >= 1
+
+    # 2. Race Conditions: concurrency overlapping with unlocked flux (+5 per pairing)
+    assert eqs.get("concurrency", 0) == 1, "Recorded concurrency must be the raw hit count (#2813)"
     assert mits.get("amplified_race_conditions", 0) >= 1, "Failed to log the Race Condition telemetry!"
+    assert weighted_count(eqs, mits, "concurrency") >= 6, "Failed to amplify the Race Condition penalty!"
 
     # 3. Memory Leaks: unmitigated alloc
     assert eqs.get("memory_alloc", 0) >= 1, "Failed to flag the unmitigated Memory Leak!"
+    assert mits.get("mitigated_memory_allocs", 0) == 0
 
 
 # ==============================================================================
@@ -1147,7 +1184,7 @@ def test_detector_dampeners_do_not_cross_function_boundaries():
     eqs = result["equations"]
     mits = result["mitigation_telemetry"]
 
-    assert eqs.get("high_risk_execution", 0) == 1, (
+    assert weighted_count(eqs, mits, "high_risk_execution") == 1, (
         "A safety call in a DIFFERENT function must not mitigate this danger signal -- "
         "cross-function dampening regressed!"
     )
@@ -1165,8 +1202,11 @@ def test_detector_dampeners_still_apply_within_same_function():
     eqs = result["equations"]
     mits = result["mitigation_telemetry"]
 
-    assert eqs.get("high_risk_execution", 0) == 0, "Same-function safety call should still mitigate this danger signal"
+    assert eqs.get("high_risk_execution", 0) == 1, "Recorded count stays the raw hit (#2813)"
     assert mits.get("mitigated_danger", 0) == 1
+    assert weighted_count(eqs, mits, "high_risk_execution") == 0, (
+        "Same-function safety call should still mitigate this danger signal in the weighted view"
+    )
 
 
 # ==============================================================================
@@ -2117,13 +2157,16 @@ def test_detector_spatial_oom_bomb_correlation():
     )
     res_oom = opt_oom.splice(code_oom, "")
 
-    # A single state_mutation hit normally = 1.
-    # The AppSec multiplier adds (cascading_flux * 2). Total should be >= 3.
-    assert res_oom["equations"].get("state_mutation", 0) >= 3, (
-        "Spatial correlation failed to amplify the OOM Bomb (Cascading Flux)!"
+    # A single state_mutation hit is recorded as 1 (#2813: a count is a count).
+    # The AppSec multiplier (cascading_flux * 2) lives in the weighted view: >= 3.
+    assert res_oom["equations"].get("state_mutation", 0) == 1, (
+        "Recorded state_mutation must be the raw hit count, not the amplified figure (#2813)"
     )
     assert res_oom["mitigation_telemetry"].get("amplified_cascading_flux", 0) >= 1, (
         "Failed to log the OOM Bomb telemetry!"
+    )
+    assert weighted_count(res_oom["equations"], res_oom["mitigation_telemetry"], "state_mutation") >= 3, (
+        "Spatial correlation failed to amplify the OOM Bomb (Cascading Flux) in the weighted view!"
     )
 
     # 2. Unhappy Path: Mutation far away from the loop (Should NOT Amplify)
@@ -4250,7 +4293,7 @@ def test_export_statement_is_a_visibility_declaration_not_a_use():
 
     shell = StructuralExtractor("shell", LANGUAGE_DEFINITIONS)
 
-    exported = "probe_globals() {\n    : \"$1\"\n}\n\nexport -f probe_globals\n"
+    exported = 'probe_globals() {\n    : "$1"\n}\n\nexport -f probe_globals\n'
     orphans = [f["name"] for f in shell.splice(exported, "").get("functions", []) if f.get("usage_status") == 1]
     assert "probe_globals" in orphans, "an exported, never-called function is dead code, not a use"
 
@@ -4279,9 +4322,7 @@ def test_visibility_export_rules_capture_a_name():
         "assembly": ("global probe_globals", "probe_globals"),
     }
     declared = {
-        lang
-        for lang, cfg in LANGUAGE_DEFINITIONS.items()
-        if cfg.get("rules", {}).get("_visibility_export") is not None
+        lang for lang, cfg in LANGUAGE_DEFINITIONS.items() if cfg.get("rules", {}).get("_visibility_export") is not None
     }
     assert declared == set(expected), f"exactly the five export-by-name languages opt in, got {declared}"
 

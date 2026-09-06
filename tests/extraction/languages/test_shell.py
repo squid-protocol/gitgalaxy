@@ -278,7 +278,7 @@ def test_shell_args_findall_max_multiple_positional_params():
     extractor = StructuralExtractor("shell", LANGUAGE_DEFINITIONS)
     payload = 'two_args() {\n  local x="$1"\n  local y="$2"\n}\n'
     segments = extractor._partition_segments(payload, "shell")
-    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, None)
     fn = next(f for f in functions if f["name"] == "two_args")
     assert fn["args"] == 2, f"expected max($1, $2) == 2, got {fn['args']}"
 

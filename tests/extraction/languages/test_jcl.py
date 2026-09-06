@@ -157,7 +157,7 @@ def test_jcl_args_mode_a_window_bounded_no_over_count():
     # second step's PARM=.
     two_steps = "//STEP1   EXEC PGM=FOO\n//STEP2   EXEC PGM=BAR,PARM='SHOULDNOTBLEED'\n"
     segments = extractor._partition_segments(two_steps, "jcl")
-    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, None)
     step1 = next(f for f in functions if f["name"] == "STEP1")
     step2 = next(f for f in functions if f["name"] == "STEP2")
     assert step1["args"] == 0, f"STEP1 must not borrow STEP2's PARM=, got args={step1['args']}"
@@ -167,7 +167,7 @@ def test_jcl_args_mode_a_window_bounded_no_over_count():
     # now spans a multi-line continuation -- one PARM= is still one value.
     continued = "//CICS    EXEC PGM=DFHSIP,REGION=&REG,TIME=1440,\n// COND=(1,NE,CICSCNTL),\n// PARM='START=&START,SYSIN',MEMLIMIT=16G\n//NEXT     EXEC PGM=OTHER\n"
     segments2 = extractor._partition_segments(continued, "jcl")
-    functions2, _ = extractor._function_slice(segments2, [{} for _ in segments2], {}, {}, None)
+    functions2, _ = extractor._function_slice(segments2, [{} for _ in segments2], {}, None)
     cics_step = next(f for f in functions2 if f["name"] == "CICS")
     assert cics_step["args"] == 1, f"a single PARM= value must count as 1, got args={cics_step['args']}"
 

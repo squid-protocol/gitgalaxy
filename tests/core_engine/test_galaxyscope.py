@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 # Adjust imports to match your architecture
+from gitgalaxy.core.spatial_correlation import weighted_count
 from gitgalaxy.galaxyscope import Orchestrator, _process_file_worker, _worker_state
 
 
@@ -838,12 +839,23 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             result = _process_file_worker("src/main.py")
 
         self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
+        # #2813: the recorded count is security_lens.py's own finding (3); detector.py's
+        # proximity corroboration is tallied as amplified_rce and the score layer adds it
+        # back through weighted_count() (1 + 3 = 4).
         self.assertEqual(
             result["data"]["equations"]["sec_tainted_injection"],
+            3,
+            "Additive merge regressed: security_lens.py's independent finding (3) must "
+            "survive as the recorded count, not be overwritten by whichever system ran last.",
+        )
+        self.assertEqual(result["data"]["mitigation_telemetry"].get("amplified_rce", 0), 1)
+        self.assertEqual(
+            weighted_count(
+                result["data"]["equations"], result["data"]["mitigation_telemetry"], "sec_tainted_injection"
+            ),
             4,
-            "Additive merge regressed: detector.py's own corroboration (1) and "
-            "security_lens.py's independent finding (3) must both survive (1 + 3 = 4), "
-            "not just whichever system ran last.",
+            "detector.py's own corroboration (1) and security_lens.py's finding (3) must both "
+            "survive in the weighted view (1 + 3 = 4).",
         )
 
     # ==============================================================================

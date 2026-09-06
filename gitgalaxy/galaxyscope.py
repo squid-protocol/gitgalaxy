@@ -2204,7 +2204,7 @@ class Orchestrator:
 
             # =================================================================
             # ---> #2536: RAW PRE-ADJUSTMENT SNAPSHOT <---
-            # The Contextual Baseline Fix below rewrites api/orphaned_logic
+            # The Contextual Baseline Fix below rewrites api/unreferenced_by_name
             # IN PLACE for any imported file, which made the raw extraction
             # counts unrecoverable from the recorder DB (the #1096
             # cross-language control corpus needs them). Snapshot the affected
@@ -2215,7 +2215,7 @@ class Orchestrator:
             pre_adjust_eq = meta.get("equations", {})
             meta["raw_pre_adjustment"] = {
                 "api": pre_adjust_eq.get("api", 0),
-                "orphaned_logic": pre_adjust_eq.get("orphaned_logic", 0),
+                "unreferenced_by_name": pre_adjust_eq.get("unreferenced_by_name", 0),
             }
             # =================================================================
 
@@ -2225,7 +2225,7 @@ class Orchestrator:
             # =================================================================
             popularity = self.popularity_scores.get(rel_path, 0)
             if popularity > 0 and "equations" in meta:
-                orphans = meta["equations"].get("orphaned_logic", 0)
+                orphans = meta["equations"].get("unreferenced_by_name", 0)
                 if orphans > 0:
                     # #2731: credit only the orphans the language's own `api`
                     # rule did NOT already count. A function that is both
@@ -2255,7 +2255,7 @@ class Orchestrator:
                     #    file is imported, so none of its orphans are dead weight
                     #    -- the already-public ones are simply surface the api
                     #    rule had counted already.
-                    meta["equations"]["orphaned_logic"] = 0
+                    meta["equations"]["unreferenced_by_name"] = 0
 
                     # 3. Heal the function metadata
                     for func in meta.get("functions", []):

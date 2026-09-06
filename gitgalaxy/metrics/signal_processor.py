@@ -1515,7 +1515,7 @@ class SignalProcessor:
         bad_debt = raw_signals.get("fragile_debt", 0)
 
         # --- NEW: UNTRACKED COMPLEXITY (SLOP) ---
-        orphans = raw_signals.get("orphaned_logic", 0)
+        orphans = raw_signals.get("unreferenced_by_name", 0)
         duplicates = raw_signals.get("duplicate_logic", 0)
 
         if good_debt == 0 and bad_debt == 0 and orphans == 0 and duplicates == 0:

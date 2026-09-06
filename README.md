@@ -157,7 +157,7 @@ a count); grey is a documented variation the ledger has validated — the langua
 cannot express the construct, a deliberate scoring choice, or an echo of another
 row. Current answer: 90% of language × metric cells sit within ±25% of the
 cross-language median across 48 gated metrics, and **2.7% (62 of 2,303) are
-open defects** — concentrated in the orphan census (`raw_state_slop_orphans`,
+open defects** — concentrated in the orphan census (`raw_state_unreferenced`,
 28% of its cells) and `branch` (27%), named on the chart rather than hidden.
 Every deviation is recorded in a validated ledger, the open defects are worked
 by cause family under the [contract roadmap](docs/contract_roadmap.md), and

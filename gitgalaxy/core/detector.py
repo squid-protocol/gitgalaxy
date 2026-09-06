@@ -841,6 +841,20 @@ _SYNTHETIC_SATELLITE_SUFFIXES = ("_[Truncated]", "_[Unterminated]")
 # the identical call for the identical reason; this is that list, in the engine.
 _UNCOUNTABLE_SLICE_NAMES = frozenset({"Anonymous_Block", "__global_context__"})
 
+# #2806: the two invocation models a registry may declare through the
+# top-level `invocation_model` key. `by_name` is the default and needs no declaration: the
+# language reaches a callable unit by writing its name, so "no other text names
+# this function" is a question about the code. `positional` says the language
+# has no invoke-by-name form for the units its `func_start` extracts -- JCL's
+# job steps execute in the order they are written and nothing in the language
+# can reference one -- so the `unreferenced_by_name` census is not computed
+# there at all. The set is closed and asserted by
+# `tests/extraction/test_unreferenced_by_name_contract_2806.py`, so a typo in a
+# registry cannot silently mean "by name".
+INVOCATION_BY_NAME = "by_name"
+INVOCATION_POSITIONAL = "positional"
+INVOCATION_MODELS = frozenset({INVOCATION_BY_NAME, INVOCATION_POSITIONAL})
+
 # #2728: a THIRD family of slicer-synthesized names, distinct from both sets
 # above. Where a language's `func_start` capture group is a closed set of
 # literal keywords -- css `@(media|supports|container|layer|keyframes|
@@ -1210,6 +1224,20 @@ class StructuralExtractor:
                 else frozenset()
             )
 
+            # #2806: does this language reach its callable units BY NAME? The
+            # census below is a name-reference test and nothing else can be
+            # built from a single file's text -- so where the language has no
+            # invoke-by-name form at all, the question it answers is not the
+            # question it is read as answering, and the honest count is no
+            # count. A registry declares that with
+            # `invocation_model: "positional"`; every other language keeps the
+            # default and is unchanged by construction. See
+            # `docs/unreferenced_by_name_contract.md`, corollary 4.
+            names_its_callees = (
+                self.languages.get(self.primary_lang_id, {}).get("invocation_model", INVOCATION_BY_NAME)
+                != INVOCATION_POSITIONAL
+            )
+
             # --- EXISTING STRUCTURAL PIPELINE ---
             segments = self._partition_segments(code_stream, self.primary_lang_id)
 
@@ -1523,7 +1551,7 @@ class StructuralExtractor:
                     ):
                         usage_status = 2  # 2 = Duplicate
                         duplicate_count += 1
-                    elif self._is_orphan(code_stream, func, func_name, export_name_starts):
+                    elif names_its_callees and self._is_orphan(code_stream, func, func_name, export_name_starts):
                         # Nothing outside the function's own definition names it.
                         #
                         # BUG FIX #2768: a `len(func_name) > 3` conjunct used to
@@ -1574,7 +1602,7 @@ class StructuralExtractor:
                 api_declared_orphans = sum(1 for name in orphan_names if name in api_line_tokens)
 
             if orphan_count > 0:
-                equations["orphaned_logic"] = orphan_count
+                equations["unreferenced_by_name"] = orphan_count
             if duplicate_count > 0:
                 equations["duplicate_logic"] = duplicate_count
 
@@ -1615,7 +1643,7 @@ class StructuralExtractor:
                     round((file_token_mass / 1000000) * 3.00, 5) if file_token_mass is not None else None
                 ),
                 "threat_locations": threat_locations,
-                # #2731: how many of `orphaned_logic`'s functions the `api` rule
+                # #2731: how many of `unreferenced_by_name`'s functions the `api` rule
                 # already counted as public surface. Consumed by galaxyscope.py's
                 # Contextual Baseline Fix; never a signal in its own right.
                 "api_declared_orphans": api_declared_orphans,

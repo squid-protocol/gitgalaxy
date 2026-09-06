@@ -173,7 +173,7 @@ EQUATION_CASES: list[EquationCase] = [
                 "risk",
                 lambda loc, hits, tv: dict(
                     loc=loc,
-                    raw_signals={"fragile_debt": hits, "planned_debt": 0, "orphaned_logic": 0, "duplicate_logic": 0},
+                    raw_signals={"fragile_debt": hits, "planned_debt": 0, "unreferenced_by_name": 0, "duplicate_logic": 0},
                     irc=tv["irc"],
                     mp=_mp1(),
                 ),

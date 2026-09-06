@@ -22,6 +22,26 @@ DEFINITION: dict[str, Any] = {
     "exact_matches": [],
     "discriminators": [".cbl", ".cob", ".cpy"],
     "shebangs": [],
+    # #2806: JCL is the one corpus language whose callable units cannot be
+    # invoked by name. A job's EXEC steps -- what `func_start` above extracts
+    # -- run in the order they are written, top to bottom, on every
+    # submission; the language has no syntax that references a step to make
+    # it run. (The unit that CAN be named is the PROC, which the `api` rule
+    # counts and the slicer does not extract as a function.) So the
+    # `unreferenced_by_name` census, which is a name-reference test and can
+    # be nothing else from one file's text, is unanswerable here and is not
+    # computed. Measured on the language-crucible before the declaration:
+    # 334 of 376 steps (89%) read unreferenced, and the 42 that cleared did
+    # so by ACCIDENT rather than by being invoked -- a step named CREATE
+    # beside inline SQL, COBOL beside the word in a DSN, CRTABS repeated
+    # seven times in one job. Both the 89% and the 11% were noise.
+    #
+    # This is a TOP-LEVEL language property, not a rule: `language_lens.py`'s
+    # regex pre-compiler compiles every STRING value inside `rules` (a
+    # defensive guard for definitions loaded from external JSON), so
+    # "positional" would arrive at the detector as `re.compile("positional")`
+    # and silently read as "not positional".
+    "invocation_model": "positional",
     "lexical_family": "line_exclusive",
     "rules": {
         # Control flow in JCL (IF/THEN/ELSE/ENDIF)

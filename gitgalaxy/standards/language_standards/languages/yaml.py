@@ -77,7 +77,7 @@ DEFINITION: dict[str, Any] = {
         # back to the matched keyword and EVERY extracted step in every scanned
         # workflow was named `run` -- thirteen identically-named slices in the
         # rosetta shells alone. That kills three things at once: the orphan
-        # census (`raw_state_slop_orphans` 0.00 against a 2.50 median), the
+        # census (`raw_state_unreferenced` 0.00 against a 2.50 median), the
         # duplicate census (only #1498's body_hash guard stopped thirteen false
         # duplicates), and per-step identity everywhere downstream, where every
         # CI step in `function_data` was a row called `run`.

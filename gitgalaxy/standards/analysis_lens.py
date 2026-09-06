@@ -1172,7 +1172,7 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "design_short_vars",
         "design_long_vars",
         "duplicate_logic",
-        "orphaned_logic",
+        "unreferenced_by_name",
         # --- NEW: INSTRUCTIONAL PROOF SENSORS (LITERATURE) ---
         "lit_code_blocks",
         "lit_diagrams",

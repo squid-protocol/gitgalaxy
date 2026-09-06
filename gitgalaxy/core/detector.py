@@ -946,6 +946,18 @@ def _name_boundary_pattern(func_name: str) -> str:
     return r"(?<!\w)" + re.escape(func_name) + r"(?!\w)"
 
 
+# #2823: one name inside a `_visibility_export_list` region. The region is the
+# text between the export construct's own delimiters, so what separates two
+# names in it is whitespace, a comma, or a nested bracket -- a Haskell list
+# writes `convertWithOpts, handleOptInfo, Opt(..)` and a Scheme one writes
+# `probe-globals probe-test`. Everything else is name, deliberately: only the
+# token's START offset is used, and `_is_orphan` matches the function's real
+# name at that offset itself, so an over-wide token (`Opt(..)`'s `..`, a
+# Haskell `pattern` keyword) costs nothing while an under-wide one would move
+# the offset and stop discounting the export.
+_EXPORT_LIST_NAME = re.compile(r"[^\s,()\[\]{}]+")
+
+
 # #2692: a colon with whitespace on either side marks a type annotation
 # (`Env : Integer`, `x: int`), i.e. ONE parameter -- as opposed to a bare colon
 # inside a Lisp identifier (`foo:bar`), which is just part of the name.
@@ -1216,13 +1228,20 @@ class StructuralExtractor:
             # #2774: offsets of every function name a `_visibility_export` rule
             # captures, computed once per file. `_is_orphan` discounts these so
             # an export statement stops reading as a call. Languages that do not
-            # declare the rule get an empty set and behave exactly as before.
-            _vis_export = self.primary_rules.get("_visibility_export")
-            export_name_starts: frozenset[int] = (
-                frozenset(m.start(1) for m in _vis_export.finditer(code_stream) if m.group(1))
-                if _vis_export is not None
-                else frozenset()
-            )
+            # declare either rule get an empty set and behave exactly as before.
+            #
+            # #2823: `_visibility_export` captures ONE name per match, which is
+            # the whole export statement for `export -f foo` and its four
+            # siblings but cannot express a Haskell module header, where a
+            # single pair of parens holds an arbitrary number of exported names.
+            # `_visibility_export_list` is the plural form: every capture group
+            # is a REGION holding exported names, and the engine records the
+            # start offset of each name token inside it. Splitting the two keys
+            # rather than generalising the first keeps the exact-capture
+            # languages byte-identical -- assembly's `.global .foo` and ruby's
+            # `module_function :save!` name functions whose first character a
+            # generic tokenizer would not treat as a name start.
+            export_name_starts = frozenset(self._export_declaration_offsets(code_stream))
 
             # #2806: does this language reach its callable units BY NAME? The
             # census below is a name-reference test and nothing else can be
@@ -7129,6 +7148,43 @@ class StructuralExtractor:
         }
         return sat, magnitude
 
+    def _export_declaration_offsets(self, code_stream: str) -> set[int]:
+        """Start offsets of every function name this file DECLARES exported.
+
+        #2774 built the singular form: `_visibility_export`'s group 1 is one
+        exported name, and `_is_orphan` discounts that offset so an export
+        statement stops reading as a call. #2823 adds the plural form for the
+        languages whose export syntax names many functions in one construct:
+        `_visibility_export_list`'s capture groups are REGIONS holding exported
+        names -- a Haskell module header's parenthesised list, a Scheme
+        `(export a b c)` clause -- and every name token inside a region is
+        discounted.
+
+        Both keys are honoured, and a language may declare either or both. The
+        singular form records the group's own start offset verbatim, which is
+        why it stays: assembly exports `.foo` and ruby exports `save!`, whose
+        first and last characters the region tokenizer below does not treat as
+        part of a name, so tokenizing those captures would record the wrong
+        offset (`.foo` + 1) and silently stop discounting them.
+        """
+        offsets: set[int] = set()
+
+        exact = self.primary_rules.get("_visibility_export")
+        if exact is not None:
+            offsets.update(m.start(1) for m in exact.finditer(code_stream) if m.group(1))
+
+        listed = self.primary_rules.get("_visibility_export_list")
+        if listed is not None:
+            for m in listed.finditer(code_stream):
+                for group in range(1, (m.re.groups or 0) + 1):
+                    region = m.group(group)
+                    if not region:
+                        continue
+                    base = m.start(group)
+                    offsets.update(base + t.start() for t in _EXPORT_LIST_NAME.finditer(region))
+
+        return offsets
+
     @staticmethod
     def _is_orphan(
         code_stream: str,
@@ -7174,6 +7230,14 @@ class StructuralExtractor:
         lines and 3 without. Only the captured name's own offset is discounted,
         never the whole line -- so a genuine call that happens to share a line
         with an export still counts.
+
+        #2823: `_visibility_export_list` fills the same set from export
+        constructs that name MANY functions at once -- Haskell's
+        `module A (probeGlobals, probeTest, probeSafety) where`, Scheme's
+        `(export probe-globals)`. Both languages read 0.25 unreferenced per
+        corpus file against a 2.50 median before this: 12 of 13 probe functions
+        cleared the flag on their own export declaration while nothing called
+        them. See `_export_declaration_offsets`.
         """
         start_idx = func.get("start_idx", 0)
         end_idx = func.get("end_idx", start_idx)

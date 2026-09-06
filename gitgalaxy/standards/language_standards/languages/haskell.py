@@ -248,6 +248,33 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*module\s+[A-Z][a-zA-Z0-9_.]*(?:\s*\([^)]*\))?\s*where|\bforeign\s+export\b",
             re.M,
         ),
+        # #2823: the plural form of #2774's `_visibility_export`. Naming a
+        # function in an export statement is a visibility DECLARATION, not a
+        # use, and `unreferenced_by_name`'s corollary 2 says a declaration must
+        # not clear the flag -- but a Haskell module header names every exported
+        # function at once inside one pair of parens, which no single-capture
+        # rule can express. Group 1 is the whole list; detector.py records the
+        # start offset of each name token in it. Measured on keyword-rosetta:
+        # 12 of haskell's 13 probe functions read as REFERENCED with nothing
+        # calling any of them (0.25 unreferenced per file against a 2.50 corpus
+        # median), every one of them cleared by its own export list.
+        #
+        # The type signature above each equation is the language's other
+        # declaration-shaped repetition of the name and needs no rule: the
+        # slicer's span starts AT the signature, so it already reads as inside
+        # the function's own definition rather than outside it.
+        #
+        # The `where` anchor is what bounds the list: `[^)]*` (which the `api`
+        # rule above can afford, since it only needs to know a header is there)
+        # stops at the first inner paren, and real export lists are full of
+        # them -- `Opt(..)`, `HTMLMathMethod (..)`. The length cap is a
+        # backtracking bound, ~3x the longest list in the crucible (Parsing.hs,
+        # 7183 chars). A header with no export list (`module Main where`) has no
+        # `(` to match and is skipped.
+        "_visibility_export_list": re.compile(
+            r"^module[ \t]+[A-Z][\w.']*\s*\(([\s\S]{0,20000}?)\)\s*where",
+            re.M,
+        ),
         # flux: State Mutation. State mutation (IORef/MVar) and monadic binds (<-).
         "state_mutation": re.compile(
             # #2765 contract: one hit is a statement that writes a new value into state

@@ -356,8 +356,24 @@ class SecurityAuditor:
                 # 1. Base Variables
                 cfr = tel.get("control_flow_ratio", 0.0)
                 coding_loc = artifact.get("coding_loc", 0)
+
+                # #2770: `logic_loc` is `coding_loc * control_flow_ratio`, the same
+                # idiom record_keeper.py used for dependency_density until #2770
+                # retired it there. It is kept HERE, unchanged, for one reason only:
+                # `log_logic_loc` below is an input to the pre-trained model, and
+                # redefining a trained input is a retrain, not a bug fix -- the same
+                # call the frozen `func_internal_density: 0.0` placeholder documents
+                # further down. Its known defect, recorded so the retrain can price
+                # it: control_flow_ratio is 0 for any branchless file, so logic_loc
+                # collapses onto the max(..., 1) floor and the feature reads 1 for a
+                # 500-line config as readily as for a 5-line one.
                 logic_loc = max(int(round(coding_loc * cfr)), 1)
-                safe_denom = max(logic_loc, coding_loc, 1)
+
+                # control_flow_ratio is bounded [0, 1] by construction (branch over
+                # branch + structural_boundaries), so logic_loc <= coding_loc always
+                # and the old `max(logic_loc, coding_loc, 1)` could never select
+                # logic_loc. Written as what it always computed.
+                safe_denom = max(coding_loc, 1)
 
                 # #2691: per-function statistics describe real functions, not the
                 # slicer's synthetic top-level buckets.

@@ -315,6 +315,7 @@ HELPER_KEYS: dict[str, str] = {
     "_named_token_capture": "capture group(s) = the exact imported symbol names (AI/ML pack)",
     "_scope_filters": "{rule: filter_name} -- a structural filter detector.py applies after the regex (CRITICAL ENGINE RULE 17)",
     "_visibility_export": "per-function export-statement form, for the api orphan census (#2727/#2729)",
+    "_visibility_export_list": "capture group(s) = a region holding MANY exported names, same census (#2823)",
     "_args_arrow_count_groups": "args strategy: arrow-function parameter groups",
     "_args_bare_body_groups": "args strategy: bare-body parameter groups",
     "_args_colon_selector_groups": "args strategy: colon-selector parameter groups (objective-c)",

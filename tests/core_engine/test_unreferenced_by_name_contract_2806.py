@@ -103,10 +103,94 @@ def test_one_unit_is_one_hit_however_often_the_name_recurs():
             "proc probe_globals {env} {\n    return $env\n}\nnamespace export probe_globals\n",
             "an export statement is a visibility declaration, not a call (#2774)",
         ),
+        (
+            "scheme",
+            "(export probe-globals)\n\n(define (probe-globals env)\n  env)\n",
+            "a Scheme export clause is a declaration too (#2823)",
+        ),
+        (
+            "haskell",
+            "module A (probeGlobals) where\n\nprobeGlobals :: Int -> Int\nprobeGlobals env = env\n",
+            "a Haskell module export list is a declaration too (#2823)",
+        ),
     ],
 )
 def test_a_declaration_of_the_name_does_not_clear_the_flag(lang: str, code: str, why: str):
     assert _census(lang, code) == 1, why
+
+
+# --- corollary 2, the plural form: one construct, many declared names (#2823) --
+
+
+def test_an_export_construct_declaring_many_names_covers_all_of_them():
+    """#2774's `_visibility_export` captures ONE name per match, which is the
+    whole statement for `export -f foo` and its four siblings and cannot express
+    a construct that names every exported function at once.
+
+    Both of #2823's languages write exactly that, and both read 0.25 unreferenced
+    per keyword-rosetta file against a 2.50 corpus median before
+    `_visibility_export_list`: 12 of 13 probe functions cleared the flag on their
+    own export declaration while nothing called any of them.
+    """
+    haskell = (
+        "module A (probeGlobals, probeTest, probeSafety) where\n"
+        "\n"
+        "probeGlobals :: Int -> Int\n"
+        "probeGlobals env = env\n"
+        "\n"
+        "probeTest :: Int -> Int\n"
+        "probeTest kit = kit\n"
+        "\n"
+        "probeSafety :: Int -> Int\n"
+        "probeSafety value = value\n"
+    )
+    assert _census("haskell", haskell) == 3, "every name in the list is declared, not referenced"
+
+    scheme = (
+        "(export probe-globals probe-test)\n"
+        "\n"
+        "(define (probe-globals env)\n  env)\n"
+        "\n"
+        "(define (probe-test kit)\n  kit)\n"
+    )
+    assert _census("scheme", scheme) == 2, "one clause, two declared names, two hits"
+
+
+def test_the_plural_export_form_still_lets_a_real_call_clear_the_flag():
+    """The discount is per NAME OFFSET, never per line or per construct: only the
+    occurrences inside the export region stop counting, so an ordinary call
+    elsewhere in the file clears the flag exactly as it always did.
+    """
+    called = (
+        "module A (probeGlobals, probeTest) where\n"
+        "\n"
+        "probeTest :: Int -> Int\n"
+        "probeTest kit = probeGlobals kit\n"
+        "\n"
+        "probeGlobals :: Int -> Int\n"
+        "probeGlobals env = env\n"
+    )
+    assert _census("haskell", called) == 1, "probeGlobals is called by probeTest; only probeTest is unreferenced"
+
+    scheme_called = (
+        "(export probe-globals probe-test)\n"
+        "\n"
+        "(define (probe-test kit)\n  (probe-globals kit))\n"
+        "\n"
+        "(define (probe-globals env)\n  env)\n"
+    )
+    assert _census("scheme", scheme_called) == 1
+
+
+def test_a_haskell_module_header_with_no_export_list_declares_nothing():
+    """`module Main where` exports everything implicitly and names nobody, so the
+    rule must not match it -- and the census must go on answering normally.
+    """
+    code = "module Main where\n\nprobeGlobals :: Int -> Int\nprobeGlobals env = env\n"
+    assert _census("haskell", code) == 1, "nothing names it, and the header does not either"
+
+    code_called = code + "\nprobeTest :: Int -> Int\nprobeTest kit = probeGlobals kit\n"
+    assert _census("haskell", code_called) == 1, "probeGlobals is called; probeTest is the one left"
 
 
 # --- corollary 3: any other occurrence clears it, and that is the whole claim --

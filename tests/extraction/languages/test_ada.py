@@ -263,7 +263,7 @@ def test_ada_mode_a_braceless_extraction_regression():
 
     code = "procedure X is\nbegin\n   Do_Something;\nend X;\nprocedure Y is\nbegin\n   Do_Something_Else;\nend Y;\n"
     segments = extractor._partition_segments(code, "ada")
-    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, None)
 
     names = [f["name"] for f in functions]
     assert "X" in names, "Failed to extract X"

@@ -284,14 +284,12 @@ def test_haskell_func_start_point_free_value_binding_rejected():
     # We call coding_analysis directly to exercise _slice_by_indentation.
     segments = extractor._partition_segments(payload, "haskell")
 
-    equations = {}
     mitigation_telemetry = {}
     segment_spatial_maps = [{}]
 
     functions, _ = extractor._function_slice(
         segments,
         segment_spatial_maps,
-        equations,
         mitigation_telemetry,
         None,
     )
@@ -310,14 +308,12 @@ def test_haskell_func_start_point_free_function_accepted():
     payload = "htmlFormat :: Text -> Bool\nhtmlFormat = (`elem` [...])\n"
 
     segments = extractor._partition_segments(payload, "haskell")
-    equations = {}
     mitigation_telemetry = {}
     segment_spatial_maps = [{}]
 
     functions, _ = extractor._function_slice(
         segments,
         segment_spatial_maps,
-        equations,
         mitigation_telemetry,
         None,
     )
@@ -336,14 +332,12 @@ def test_haskell_func_start_wrapped_multiline_signature_accepted():
     payload = "myFunc :: Int\n  -> Int\nmyFunc = (+ 1)\n"
 
     segments = extractor._partition_segments(payload, "haskell")
-    equations = {}
     mitigation_telemetry = {}
     segment_spatial_maps = [{}]
 
     functions, _ = extractor._function_slice(
         segments,
         segment_spatial_maps,
-        equations,
         mitigation_telemetry,
         None,
     )
@@ -361,14 +355,12 @@ def test_haskell_func_start_abstract_method_accepted():
     payload = "class HasSyntaxExtensions a where\n  getExtensions :: a -> Extensions\n"
 
     segments = extractor._partition_segments(payload, "haskell")
-    equations = {}
     mitigation_telemetry = {}
     segment_spatial_maps = [{}]
 
     functions, _ = extractor._function_slice(
         segments,
         segment_spatial_maps,
-        equations,
         mitigation_telemetry,
         None,
     )
@@ -383,7 +375,7 @@ def _extract_function_names(payload: str) -> list[str]:
 
     extractor = StructuralExtractor("haskell", LANGUAGE_DEFINITIONS)
     segments = extractor._partition_segments(payload, "haskell")
-    functions, _ = extractor._function_slice(segments, [{}], {}, {}, None)
+    functions, _ = extractor._function_slice(segments, [{}], {}, None)
     return [f["name"] for f in functions]
 
 

@@ -24,7 +24,7 @@ does versus security_lens.py's actual variable-identity echo check.
 """
 
 import bisect
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import Optional
 
 
@@ -126,10 +126,73 @@ def correlate_scoped(
     return total_unmitigated, total_mitigated
 
 
+# ==============================================================================
+# THE PROXIMITY WEIGHT TABLE (#2813, contract roadmap Phase 2 / decision D1)
+#
+# A recorded signal count is a COUNT: the number of rule hits in the file. The
+# six proximity pairs below used to add their weights into `counts[...]` in
+# place (the x3 cascading flux, the silencer dampener, the x5 / x100 / +1
+# amplifiers), so `state_mutation` in every recorder, golden master and
+# keyword-rosetta manifest was `raw + 2 * cascading` -- a score wearing a
+# count's name (#2546/#2631 documented it and made the raw count recoverable;
+# this table finishes the move). The pairs now write ONLY to the per-file
+# `mitigation_telemetry` tally, and the score layer reads
+# `weighted_count()` -- exactly the figure the recorded count used to carry --
+# so every risk formula is unchanged by construction while the count is a count.
+#
+#   signal -> ((telemetry key, weight per tallied pairing), ...)
+#   weighted = raw + sum(weight * mitigations[telemetry key])
+# ==============================================================================
+PROXIMITY_WEIGHTS: dict[str, tuple[tuple[str, int], ...]] = {
+    # Block 2, The Silencer Region: a same-function safety net cancels one danger hit.
+    "high_risk_execution": (("mitigated_danger", -1),),
+    # Block 3, The Race Condition Radar: +5 per concurrency hit near unsynchronised flux.
+    "concurrency": (("amplified_race_conditions", 5),),
+    # Block 5, The Memory Leak / UAF Tracker: an alloc with a same-function cleanup is mitigated.
+    "memory_alloc": (("mitigated_memory_allocs", -1),),
+    # Block 0, The Exfiltration Distance Check: +100 per memory read paired with an outbound socket.
+    "memory_scraping": (("amplified_exfiltration", 100),),
+    # Block 1, Taint Tracking: +1 per danger hit corroborated by nearby io. The raw count here is
+    # security_lens.py's own variable-echo finding, merged additively in galaxyscope.py (#344).
+    "sec_tainted_injection": (("amplified_rce", 1),),
+    # Block 6, The OOM Bomb: +2 per cascading mutation = x3 net (the flux weighting, #2546).
+    "state_mutation": (("amplified_cascading_flux", 2),),
+}
+
+WEIGHTED_SIGNALS: tuple[str, ...] = tuple(PROXIMITY_WEIGHTS)
+
+
+def weighted_count(raw_signals: Mapping[str, int], mitigations: Mapping[str, int], key: str) -> int:
+    """
+    The score-layer view of one signal: the raw count plus every proximity
+    weight the correlation pass tallied for it. For a signal with no entry in
+    PROXIMITY_WEIGHTS this is the raw count itself. Never below zero: a
+    dampener can cancel at most the hits it mitigated.
+    """
+    value = int(raw_signals.get(key, 0) or 0)
+    for telemetry_key, weight in PROXIMITY_WEIGHTS.get(key, ()):
+        value += weight * int(mitigations.get(telemetry_key, 0) or 0)
+    return max(value, 0)
+
+
+def weighted_view(raw_signals: Mapping[str, int], mitigations: Mapping[str, int]) -> dict[str, int]:
+    """
+    A copy of `raw_signals` with every PROXIMITY_WEIGHTS signal replaced by its
+    weighted_count(). Consumers that combine signals into a score (the risk
+    formulas, the archetype fingerprint, the ML feature frame, the statistical
+    gates) read this so they see exactly what the recorded count used to be;
+    recorders and the corpus read `raw_signals` itself.
+    """
+    view = dict(raw_signals)
+    for key in WEIGHTED_SIGNALS:
+        if key in view or any(mitigations.get(tk, 0) for tk, _ in PROXIMITY_WEIGHTS[key]):
+            view[key] = weighted_count(raw_signals, mitigations, key)
+    return view
+
+
 def apply_dampener_correlations(
     spatial_map: dict[str, list[int]],
     satellite_ranges: list[tuple[int, int]],
-    counts: dict[str, int],
     mitigations: dict[str, int],
 ) -> None:
     """
@@ -144,8 +207,9 @@ def apply_dampener_correlations(
     detected function just gets the stricter, same-function requirement these
     dampeners always should have had.
 
-    Mutates `counts`/`mitigations` in place, matching the style
-    detector.py's coding_analysis() already uses throughout.
+    Mutates `mitigations` in place and nothing else (#2813): the recorded
+    signal counts stay raw, and the score layer applies these tallies through
+    weighted_count() / PROXIMITY_WEIGHTS above.
     """
     # 2. The Silencer Region (True Safety)
     if "high_risk_execution" in spatial_map and "safety" in spatial_map:
@@ -155,8 +219,7 @@ def apply_dampener_correlations(
             satellite_ranges=satellite_ranges,
             max_distance=500,
         )
-        counts["high_risk_execution"] -= mitigated_danger
-        mitigations["mitigated_danger"] += mitigated_danger
+        mitigations["mitigated_danger"] = mitigations.get("mitigated_danger", 0) + mitigated_danger
 
     # 3. The Race Condition Radar (both halves now scoped, #348: the sync_locks
     # dampener check first, then the concurrency amplifier check only against
@@ -175,8 +238,7 @@ def apply_dampener_correlations(
                 satellite_ranges=satellite_ranges,
                 max_distance=150,
             )
-            counts["concurrency"] += race_conditions * 5
-            mitigations["amplified_race_conditions"] += race_conditions
+            mitigations["amplified_race_conditions"] = mitigations.get("amplified_race_conditions", 0) + race_conditions
 
     # 5. The Memory Leak / UAF Tracker
     if "memory_alloc" in spatial_map:
@@ -188,15 +250,12 @@ def apply_dampener_correlations(
         )
         original_allocs = len(spatial_map["memory_alloc"])
         mitigated = original_allocs - unmitigated_allocs
-
-        counts["memory_alloc"] = unmitigated_allocs
-        mitigations["mitigated_memory_allocs"] += mitigated
+        mitigations["mitigated_memory_allocs"] = mitigations.get("mitigated_memory_allocs", 0) + mitigated
 
 
 def apply_amplifier_correlations(
     spatial_map: dict[str, list[int]],
     satellite_ranges: list[tuple[int, int]],
-    counts: dict[str, int],
     mitigations: dict[str, int],
 ) -> None:
     """
@@ -210,12 +269,17 @@ def apply_amplifier_correlations(
     every correlate() call in the pipeline shares the same scoping semantics,
     not because the flat radius was actively harmful the way the dampeners were.
 
-    Mutates `counts`/`mitigations` in place, matching apply_dampener_correlations().
+    Mutates `mitigations` in place and nothing else (#2813), matching
+    apply_dampener_correlations(); the multipliers live in PROXIMITY_WEIGHTS.
     """
     # 0. The Exfiltration Distance Check (memory read -> outbound socket).
     # The one correlate() pair #346/#348 missed when they enumerated and
     # migrated the other six -- it kept running flat/unscoped in
     # coding_analysis() until #102 closed out the last "sporadic" gap.
+    # Tallied under its own key (#2813): `amplified_leaks` is the Active
+    # Hemorrhage's key (galaxyscope.py Phase 5.5, sec_hardcoded_secrets near a
+    # telemetry sink) and the two used to share it, so a weighted
+    # memory_scraping could not be told apart from a hemorrhaging secret.
     if "memory_scraping" in spatial_map and "exfiltration_camouflage" in spatial_map:
         _, confirmed_exfiltration = correlate_scoped(
             targets=spatial_map["memory_scraping"],
@@ -223,8 +287,7 @@ def apply_amplifier_correlations(
             satellite_ranges=satellite_ranges,
             max_distance=200,  # If they happen within 200 chars of each other, it's a confirmed attack
         )
-        counts["memory_scraping"] += confirmed_exfiltration * 100  # Massive penalty multiplier
-        mitigations["amplified_leaks"] += confirmed_exfiltration
+        mitigations["amplified_exfiltration"] = mitigations.get("amplified_exfiltration", 0) + confirmed_exfiltration
 
     # 1. Taint Tracking (RCE Weaponization)
     if "high_risk_execution" in spatial_map and "io" in spatial_map:
@@ -234,8 +297,7 @@ def apply_amplifier_correlations(
             satellite_ranges=satellite_ranges,
             max_distance=250,
         )
-        counts["sec_tainted_injection"] += corroborated_rce
-        mitigations["amplified_rce"] += corroborated_rce
+        mitigations["amplified_rce"] = mitigations.get("amplified_rce", 0) + corroborated_rce
 
     # 6. The OOM Bomb (Cascading State Flux) -- the x3 flux weighting (#2546).
     #
@@ -243,11 +305,11 @@ def apply_amplifier_correlations(
     # control corpus, ledger entry `state-flux-branch-weighting`): every
     # state_mutation hit with a branch hit within 150 CHARACTERS *and* inside
     # the SAME function (correlate_scoped; flat-radius fallback for
-    # module-level code) is "cascading" and gains +2 here -- so it counts x3
-    # net in the recorded state_mutation total. State mutated under nearby
-    # control flow is deliberately weighted as riskier than straight-line
-    # mutation; this feeds risk_state_flux / cognitive-load scoring
-    # downstream.
+    # module-level code) is "cascading" and is tallied here; the score layer
+    # weights it +2 on top of the raw hit -- x3 net -- through
+    # PROXIMITY_WEIGHTS. State mutated under nearby control flow is
+    # deliberately weighted as riskier than straight-line mutation; this feeds
+    # risk_state_flux / cognitive-load scoring downstream.
     #
     # NOT a blanket per-function toggle: the corpus first described this as
     # "branch context anywhere in the function triples every mutation", which
@@ -255,11 +317,11 @@ def apply_amplifier_correlations(
     # 150-char radius. A mutation >150 chars from every branch in its
     # function stays x1.
     #
-    # OBSERVABILITY: the amplified count is tallied below as
-    # `amplified_cascading_flux` in mitigation_telemetry, surfaced per file
-    # in the audit report ("6. Contextual Mitigations & Amplifications"), so
-    # the raw hit count is always recoverable:
-    #     raw = recorded_state_mutation - 2 * amplified_cascading_flux.
+    # OBSERVABILITY (#2813): the recorded `state_mutation` IS the raw hit
+    # count. The tally below is `amplified_cascading_flux` in
+    # mitigation_telemetry, surfaced per file in the audit report ("6.
+    # Contextual Mitigations & Amplifications") next to the weighted view:
+    #     weighted = recorded_state_mutation + 2 * amplified_cascading_flux.
     #
     # KNOWN AMPLIFIER FP (#2535, deliberately NOT fixed here): languages
     # whose branch rules aren't literal-shielded let a branch keyword inside
@@ -277,7 +339,6 @@ def apply_amplifier_correlations(
             satellite_ranges=satellite_ranges,
             max_distance=150,  # If state is mutated near heavy branching
         )
-        counts["state_mutation"] += cascading_flux * 2  # +2 on top of the raw hit = x3 net
         mitigations["amplified_cascading_flux"] = mitigations.get("amplified_cascading_flux", 0) + cascading_flux
 
 

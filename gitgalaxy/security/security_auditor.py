@@ -23,6 +23,7 @@ try:
 except ImportError:
     HAS_NETWORKX = False
 
+from gitgalaxy.core.spatial_correlation import weighted_view
 from gitgalaxy.standards.analysis_lens import AI_THREAT_THRESHOLD, RECORDING_SCHEMAS
 
 
@@ -382,6 +383,10 @@ class SecurityAuditor:
                 avg_func_args = sum([func.get("args", 0) for func in functions]) / max(len(functions), 1)
 
                 hit_dict = {self.SIGNAL_SCHEMA[i]: hits[i] for i in range(len(self.SIGNAL_SCHEMA)) if i < len(hits)}
+                # #2813: hit_vector now carries raw counts; the trained model saw the
+                # proximity-weighted figures, so the feature frame reads the weighted
+                # view from the per-file tally (a retrain, not this fix, may drop it).
+                hit_dict = weighted_view(hit_dict, artifact.get("mitigation_telemetry") or {})
 
                 # 2. Build the Row Dictionary
                 row = {

@@ -18,6 +18,8 @@ import logging
 import statistics
 from typing import Any, Optional
 
+from gitgalaxy.core.spatial_correlation import weighted_view
+
 # ==============================================================================
 
 # galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io
@@ -103,6 +105,14 @@ class StatisticalAuditor:
             "memory_alloc",
             "inline_asm",
         ]
+
+    @staticmethod
+    def _scored_equations(artifact: dict[str, Any]) -> dict[str, Any]:
+        """The score-layer view of an artifact's recorded counts (#2813): the proximity
+        weights the correlation pass used to bake into `equations` are re-applied from
+        the per-file tally, so every gate below sees exactly the figures it always saw."""
+        tally = artifact.get("mitigation_telemetry")
+        return weighted_view(artifact.get("equations", {}), tally if isinstance(tally, dict) else {})
 
     def audit(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         """Executes statistical gating to identify data-dumps and structural outliers."""
@@ -235,7 +245,7 @@ class StatisticalAuditor:
             # a degenerate lang_id, or zero extracted structure -- is still banished.
             proof_str = artifact.get("telemetry", {}).get("identity_source_proof", artifact.get("source_proof", ""))
             confidence = artifact.get("telemetry", {}).get("identity_confidence", artifact.get("intensity", 0.0))
-            equations = artifact.get("equations", {})
+            equations = self._scored_equations(artifact)
             signal_hits = sum(v for k, v in equations.items() if k in self.SIGNAL_KEYS and isinstance(v, (int, float)))
             named_structure = len(artifact.get("functions", [])) + len(artifact.get("classes", []))
             is_collision = "Collision" in proof_str
@@ -343,7 +353,7 @@ class StatisticalAuditor:
             # Calculate logic density (rho) for all artifacts in this language
             for artifact in group:
                 try:
-                    equations = artifact.get("equations", {})
+                    equations = self._scored_equations(artifact)
                     signal_hits = sum(equations.get(k, 0) for k in self.SIGNAL_KEYS)
                     # Denominator MUST be total physical lines to detect 'hollowness'
                     total_physical_loc = max(artifact.get("total_loc", artifact.get("coding_loc", 1)), 1)
@@ -526,7 +536,7 @@ class StatisticalAuditor:
             if doc_loc > (coding_loc * 5):
                 return True
 
-            equations = artifact.get("equations", {})
+            equations = self._scored_equations(artifact)
             total_signals = sum(equations.values())
 
             # Condition 2: Over 50% of the active signals are commented-out structural logic
@@ -563,7 +573,7 @@ class StatisticalAuditor:
         using its low structural density to hide in the Noise Exclusion Queue.
         """
         try:
-            equations = artifact.get("equations", {})
+            equations = self._scored_equations(artifact)
 
             # Sum the mass of all keys starting with 'sec_'
             threat_mass = sum(val for key, val in equations.items() if key.startswith("sec_"))

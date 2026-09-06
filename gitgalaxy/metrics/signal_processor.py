@@ -18,6 +18,7 @@ import statistics
 from collections.abc import Mapping
 from typing import Any, Optional, TypedDict
 
+from gitgalaxy.core.spatial_correlation import WEIGHTED_SIGNALS, weighted_view
 from gitgalaxy.standards import analysis_lens
 from gitgalaxy.standards import analysis_lens as config
 from gitgalaxy.standards.fidelity_table import FIDELITY_TABLE
@@ -499,6 +500,17 @@ class SignalProcessor:
 
             hit_vector = [raw_signals.get(key, 0) for key in self.SIGNAL_SCHEMA]
 
+            # ---> THE WEIGHTED VIEW (#2813, contract roadmap Phase 2 / D1) <---
+            # `raw_signals` is what the rules counted, and that is what hit_vector,
+            # every recorder and the corpus record. The proximity weights the
+            # correlation pass used to add into those counts in place (x3
+            # cascading flux, the silencer dampener, the race / exfiltration / RCE
+            # amplifiers) are applied HERE, once, from the per-file tally, so every
+            # formula below reads exactly the figure it always read while the
+            # recorded count is a count.
+            proximity_tally = self._proximity_tally(meta)
+            signals = self._weighted(raw_signals, proximity_tally)
+
             # ------------------------------------------------------------------
             # 1. TEMPORAL PRE-PROCESSING (Raw Extraction)
             # ------------------------------------------------------------------
@@ -512,8 +524,8 @@ class SignalProcessor:
 
             # ---> NEW: THE ENCAPSULATION RATIO <---
             # How much of the file's data is safely locked inside functions?
-            total_vars = raw_signals.get("core_var_decl", 0)
-            global_vars = raw_signals.get("globals", 0)
+            total_vars = signals.get("core_var_decl", 0)
+            global_vars = signals.get("globals", 0)
 
             if total_vars == 0 and global_vars == 0:
                 encapsulation_ratio = 1.0  # Safe by default if no state exists
@@ -653,7 +665,7 @@ class SignalProcessor:
                     "cryptography",
                 } or key.startswith("sec_"):
                     continue
-                raw_hit = raw_signals.get(key, 0)
+                raw_hit = signals.get(key, 0)
                 raw_density = (raw_hit / safe_denom) * 100.0
                 raw_vector.append(math.log1p(raw_density))
 
@@ -715,16 +727,14 @@ class SignalProcessor:
             # The OOM Bomb heuristic has been phased out of the probabilistic model.
             # Spatial correlation is now handled natively upstream in detector.py.
 
-            cog_score, cog_raw = self._calc_cog_load(loc, raw_signals, fid, mp_map.get("cog", 1.0), func_gini)
-            saf_score = self._calc_safety(
-                loc, raw_signals, irc, fid, mp_map.get("safety", 1.0), mp_map.get("memory", 1.0)
-            )
-            debt_score = self._calc_tech_debt(loc, raw_signals, irc, mp_map.get("debt", 1.0))
+            cog_score, cog_raw = self._calc_cog_load(loc, signals, fid, mp_map.get("cog", 1.0), func_gini)
+            saf_score = self._calc_safety(loc, signals, irc, fid, mp_map.get("safety", 1.0), mp_map.get("memory", 1.0))
+            debt_score = self._calc_tech_debt(loc, signals, irc, mp_map.get("debt", 1.0))
 
             test_score = self._calc_verification(
                 loc,
                 meta.get("is_protected", False),
-                raw_signals,
+                signals,
                 ot,
                 fid,
                 mp_map.get("test", 1.0),
@@ -740,7 +750,7 @@ class SignalProcessor:
             doc_score = self._calc_documentation(
                 loc,
                 doc_lines,
-                raw_signals,
+                signals,
                 fid,
                 mp_map.get("doc", 1.0),
                 functions,
@@ -748,7 +758,7 @@ class SignalProcessor:
                 popularity=popularity,
                 silo_exposure=silo_exposure,
             )
-            spec_score = self._calc_spec_alignment(raw_signals, mp_map.get("spec", 1.0))
+            spec_score = self._calc_spec_alignment(signals, mp_map.get("spec", 1.0))
 
             # The old `bureaucracy_dampener = min(loc / 15, 1)` that scaled the
             # doc/test/spec scores of sub-15-LOC files is gone (#2655): it stacked a
@@ -761,15 +771,15 @@ class SignalProcessor:
                 "safety_score": saf_score,
                 "tech_debt": debt_score,
                 "verification": test_score,
-                "api_exposure": self._calc_api_exposure(raw_signals, total_loc, popularity),
-                "concurrency": self._calc_concurrency(loc, raw_signals, mp_map.get("async", 1.0)),
-                "state_flux": self._calc_state_flux(loc, raw_signals, mp_map.get("state_mutation", 1.0)),
-                "dead_code": self._calc_graveyard(total_loc, raw_signals, mp_map.get("dead", 1.0)),
+                "api_exposure": self._calc_api_exposure(signals, total_loc, popularity),
+                "concurrency": self._calc_concurrency(loc, signals, mp_map.get("async", 1.0)),
+                "state_flux": self._calc_state_flux(loc, signals, mp_map.get("state_mutation", 1.0)),
+                "dead_code": self._calc_graveyard(total_loc, signals, mp_map.get("dead", 1.0)),
                 "spec_match": spec_score,
                 "stability": stability_score,
                 "churn": 0.0,
                 "documentation": doc_score,
-                "secrets_risk": self._calc_secrets_risk(loc, raw_signals, mp_map.get("secrets", 1.0)),
+                "secrets_risk": self._calc_secrets_risk(loc, signals, mp_map.get("secrets", 1.0)),
             }
 
             # ==================================================================
@@ -790,7 +800,7 @@ class SignalProcessor:
             # 4. CALCULATE FILE IMPACT (Structural Magnitude)
             # ------------------------------------------------------------------
             functions = meta.get("functions", [])
-            func_start = raw_signals.get("func_start", 0)
+            func_start = signals.get("func_start", 0)
 
             if functions:
                 sum_function_impacts = sum(f.get("impact", 0) for f in functions)
@@ -799,8 +809,8 @@ class SignalProcessor:
                     temp_branches = 0
                     temp_args = 0
                 else:
-                    temp_branches = raw_signals.get("branch", 0)
-                    temp_args = raw_signals.get("args", 0)
+                    temp_branches = signals.get("branch", 0)
+                    temp_args = signals.get("args", 0)
 
                 temp_signals = temp_branches + temp_args
                 temp_effective_loc = min(loc, (temp_signals + 1) * 10)
@@ -808,9 +818,9 @@ class SignalProcessor:
 
                 sum_function_impacts = ((temp_branches + 1) * temp_arg_multiplier + (0.05 * temp_effective_loc)) * 10
 
-            api_exposure = raw_signals.get("api", 0)
-            concurrency = raw_signals.get("concurrency", 0)
-            flux = raw_signals.get("state_mutation", 0)
+            api_exposure = signals.get("api", 0)
+            concurrency = signals.get("concurrency", 0)
+            flux = signals.get("state_mutation", 0)
 
             file_mass = sum_function_impacts + api_exposure + concurrency + flux + (loc / 50.0)
 
@@ -845,9 +855,22 @@ class SignalProcessor:
                 "ownership_entropy": ownership_score,
                 "author_distribution": silo_exposure,
                 "ownership": dominant_author,
-                "indentation_style": self._calc_indentation_style(raw_signals),
+                "indentation_style": self._calc_indentation_style(signals),
                 "domain_context": ghost_meta,
-                "mitigation_telemetry": meta.get("mitigations", []),
+                # The proximity tally (#2813): the detector's per-file dict, which the
+                # audit / LLM recorders render as "Contextual Mitigations &
+                # Amplifications". It used to carry the galaxyscope:ignore list here
+                # instead, so the tally never reached the report; the suppressions
+                # are folded in as 1-tallies, the shape the recorders already accept.
+                "mitigation_telemetry": {
+                    **dict.fromkeys(mitigations, 1),
+                    **proximity_tally,
+                },
+                # The weighted figures the recorded counts used to carry, under their
+                # own key (#2813 item 3) so user-facing numbers change name, not meaning.
+                "weighted_signals": {
+                    key: signals[key] for key in WEIGHTED_SIGNALS if signals.get(key, 0) != raw_signals.get(key, 0)
+                },
                 "threat_locations": meta.get("threat_locations", {}),
             }
 
@@ -1341,6 +1364,24 @@ class SignalProcessor:
         floor, ...) that each fired on a different LOC range and fought each other.
         """
         return max(float(loc), 1.0, self.EVIDENCE_MASS_FLOOR)
+
+    @staticmethod
+    def _proximity_tally(meta: Mapping[str, Any]) -> dict[str, int]:
+        """The detector's per-file proximity tally (`mitigation_telemetry`: mitigated_danger,
+        amplified_cascading_flux, ...) as a dict of ints, or empty when the file never went
+        through the correlation pass (minified / inert / synthetic stars)."""
+        tally = meta.get("mitigation_telemetry")
+        if not isinstance(tally, Mapping):
+            return {}
+        return {k: int(v) for k, v in tally.items() if isinstance(v, (int, float))}
+
+    @staticmethod
+    def _weighted(raw_signals: Mapping[str, int], mitigations: Mapping[str, int]) -> dict[str, int]:
+        """The score layer's view of the recorded counts (#2813, D1): `raw_signals` with each
+        signal in core.spatial_correlation.PROXIMITY_WEIGHTS replaced by its weighted_count()
+        -- exactly what the recorded count carried before the proximity weights moved out of
+        it. Every `_calc_*` formula reads this; nothing here is ever recorded as a count."""
+        return weighted_view(raw_signals, mitigations)
 
     @staticmethod
     def _dynamism(raw_signals: Mapping[str, int]) -> int:

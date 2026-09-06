@@ -184,7 +184,7 @@ def test_perl_args_findall_sum_multi_statement_arity():
     extractor = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
     payload = "sub check {\n  my $class = shift;\n  my ($param, $field) = @_;\n  return 1;\n}\n"
     segments = extractor._partition_segments(payload, "perl")
-    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, None)
     check_fn = next(f for f in functions if f["name"] == "check")
     assert check_fn["args"] == 3, f"expected 3 (1 shift + 2-tuple), got {check_fn['args']}"
 
@@ -220,13 +220,13 @@ def test_perl_args_prototype_falls_through_to_body_idiom_scan():
     extractor = StructuralExtractor("perl", LANGUAGE_DEFINITIONS)
     payload = "sub Options($$;@)\n{\n  my $self = shift;\n  my $param = shift;\n  my $newVal = shift;\n}\n"
     segments = extractor._partition_segments(payload, "perl")
-    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, None)
     fn = next(f for f in functions if f["name"] == "Options")
     assert fn["args"] == 3, f"expected 3 (three sequential shifts), got {fn['args']}"
 
     zero_arg_payload = "sub Get8u($$) { return DoUnpackStd('C', @_); }\n"
     segments2 = extractor._partition_segments(zero_arg_payload, "perl")
-    functions2, _ = extractor._function_slice(segments2, [{} for _ in segments2], {}, {}, None)
+    functions2, _ = extractor._function_slice(segments2, [{} for _ in segments2], {}, None)
     fn2 = next(f for f in functions2 if f["name"] == "Get8u")
     assert fn2["args"] == 0, f"expected 0 (no shift/my-unpack in body), got {fn2['args']}"
 
@@ -234,7 +234,7 @@ def test_perl_args_prototype_falls_through_to_body_idiom_scan():
     # #1199 comma-count heuristic, unaffected by the prototype fallthrough.
     real_sig_payload = "sub add($a, $b) {\n  return $a + $b;\n}\n"
     segments3 = extractor._partition_segments(real_sig_payload, "perl")
-    functions3, _ = extractor._function_slice(segments3, [{} for _ in segments3], {}, {}, None)
+    functions3, _ = extractor._function_slice(segments3, [{} for _ in segments3], {}, None)
     fn3 = next(f for f in functions3 if f["name"] == "add")
     assert fn3["args"] == 2, f"expected 2 (real named signature), got {fn3['args']}"
 
@@ -266,7 +266,7 @@ def test_perl_brace_safe_stream_escaped_brace_in_regex_does_not_desync():
         "}\n"
     )
     segments = extractor._partition_segments(payload, "perl")
-    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, None)
     names = [f["name"] for f in functions]
     assert "After" in names, f"escaped brace in regex swallowed the following sub; found {names}"
     detect_fn = next(f for f in functions if f["name"] == "Detect")
@@ -291,7 +291,7 @@ def test_perl_brace_safe_stream_slash_delimited_quote_op_stray_quote_does_not_de
         'sub clean {\n  my $name = shift;\n  $name =~ y/"//d;\n  return $name;\n}\n\nsub After {\n  return 1;\n}\n'
     )
     segments = extractor._partition_segments(payload, "perl")
-    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, None)
     names = [f["name"] for f in functions]
     assert "After" in names, f'stray quote inside y/"//d desynced the shield; found {names}'
 
@@ -321,7 +321,7 @@ def test_perl_pod_contraction_apostrophe_does_not_swallow_following_sub():
         "}\n"
     )
     segments = extractor._partition_segments(payload, "perl")
-    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, {}, None)
+    functions, _ = extractor._function_slice(segments, [{} for _ in segments], {}, None)
     names = [f["name"] for f in functions]
     assert "parse_body" in names, f"POD contraction apostrophe swallowed the following sub; found {names}"
 
@@ -614,8 +614,8 @@ def test_perl_api_contract_2730():
     api = PERL_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('sub probe_globals {'), 'package-public sub'
-    assert api.search('@EXPORT_OK = qw(foo);'), 'export list (kept)'
+    assert api.search("sub probe_globals {"), "package-public sub"
+    assert api.search("@EXPORT_OK = qw(foo);"), "export list (kept)"
 
     # Not declarations -- must not match.
-    assert not api.search('sub _private_helper {'), 'underscore-private sub'
+    assert not api.search("sub _private_helper {"), "underscore-private sub"

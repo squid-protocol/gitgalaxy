@@ -18,12 +18,12 @@ there is no shielding mechanism). Corollaries:
 2. Comment-stream rules (`dead_code`, `doc`, `ownership`, `planned_debt`, `fragile_debt`,
    `spec_exposure`) read the comment surface instead; a language whose comment syntax
    `prism.py` does not know sends its comments into the code stream (gitgalaxy#2610, jcl).
-3. The recorded count of a few signals is not the raw hit count: `core/spatial_correlation.py`
-   adds proximity adjustments in place (the x3 cascading flux on `state_mutation`, the
-   silencer dampener on `high_risk_execution`, the race and exfiltration amplifiers; see
-   `core/README.md`'s proximity table, gitgalaxy#2546/#2631). The raw count is recoverable
-   from `mitigation_telemetry`. docs/contract_roadmap.md Phase 2 moves these adjustments
-   out of the recorded count so that a count is a count.
+3. The recorded count is the raw hit count, for every signal (gitgalaxy#2813). The
+   proximity pairs in `core/spatial_correlation.py` (the x3 cascading flux on
+   `state_mutation`, the silencer dampener on `high_risk_execution`, the race and
+   exfiltration amplifiers; see `core/README.md`'s proximity table) tally into the per-file
+   `mitigation_telemetry` and are applied only in the score layer's weighted view
+   (`weighted_count()`); a corpus, recorder or manifest never sees them in a count.
 
 ## The count contract (what every row below promises)
 

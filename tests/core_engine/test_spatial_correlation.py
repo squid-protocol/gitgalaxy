@@ -1,10 +1,14 @@
 from gitgalaxy.core.spatial_correlation import (
+    PROXIMITY_WEIGHTS,
+    WEIGHTED_SIGNALS,
     apply_amplifier_correlations,
     apply_dampener_correlations,
     correlate_against_ledger,
     correlate_scoped,
     correlate_signals,
     filter_positions_in_range,
+    weighted_count,
+    weighted_view,
 )
 
 
@@ -120,6 +124,10 @@ def test_correlate_scoped_mixed_covered_and_uncovered_targets():
 
 # ==============================================================================
 # TEST 4: apply_dampener_correlations (the three relocated blocks, #346)
+#
+# Since #2813 (contract roadmap Phase 2, D1) the pairs tally into `mitigations`
+# ONLY: the recorded counts are raw, and weighted_count() is the score layer's
+# view -- exactly the figure the recorded count used to carry.
 # ==============================================================================
 def _fresh_mitigations():
     return {
@@ -127,7 +135,8 @@ def _fresh_mitigations():
         "mitigated_memory_allocs": 0,
         "amplified_rce": 0,
         "amplified_race_conditions": 0,
-        "amplified_leaks": 0,
+        "amplified_exfiltration": 0,
+        "amplified_cascading_flux": 0,
     }
 
 
@@ -141,25 +150,29 @@ def test_apply_dampener_correlations_silencer_region_respects_scope():
     counts = {"high_risk_execution": 1}
     mitigations = _fresh_mitigations()
 
-    apply_dampener_correlations(spatial_map, satellite_ranges, counts, mitigations)
+    apply_dampener_correlations(spatial_map, satellite_ranges, mitigations)
 
-    assert counts["high_risk_execution"] == 1, (
+    assert mitigations["mitigated_danger"] == 0
+    assert weighted_count(counts, mitigations, "high_risk_execution") == 1, (
         "Cross-function safety check must not silently mitigate this danger signal"
     )
-    assert mitigations["mitigated_danger"] == 0
 
 
 def test_apply_dampener_correlations_silencer_region_same_function():
-    """A safety check in the SAME function still mitigates, as before."""
+    """A safety check in the SAME function still mitigates, as before -- in the
+    weighted view; the recorded count is untouched."""
     satellite_ranges = [(0, 200)]
     spatial_map = {"high_risk_execution": [50], "safety": [60]}
     counts = {"high_risk_execution": 1}
     mitigations = _fresh_mitigations()
 
-    apply_dampener_correlations(spatial_map, satellite_ranges, counts, mitigations)
+    apply_dampener_correlations(spatial_map, satellite_ranges, mitigations)
 
-    assert counts["high_risk_execution"] == 0, "Same-function safety check should still mitigate"
+    assert counts == {"high_risk_execution": 1}, "The correlation pass must never edit a recorded count (#2813)"
     assert mitigations["mitigated_danger"] == 1
+    assert weighted_count(counts, mitigations, "high_risk_execution") == 0, (
+        "Same-function safety check should still mitigate in the weighted view"
+    )
 
 
 def test_apply_dampener_correlations_memory_leak_scoped():
@@ -169,26 +182,30 @@ def test_apply_dampener_correlations_memory_leak_scoped():
     counts = {"memory_alloc": 1}
     mitigations = _fresh_mitigations()
 
-    apply_dampener_correlations(spatial_map, satellite_ranges, counts, mitigations)
+    apply_dampener_correlations(spatial_map, satellite_ranges, mitigations)
 
-    assert counts["memory_alloc"] == 1, "Cross-function cleanup() must not hide this leak"
     assert mitigations["mitigated_memory_allocs"] == 0
+    assert weighted_count(counts, mitigations, "memory_alloc") == 1, "Cross-function cleanup() must not hide this leak"
 
 
 def test_apply_dampener_correlations_race_condition_still_amplifies():
     """
     Block 3: unmitigated state flux (no sync_lock nearby, scoped) should
-    still trigger the (unscoped, phase-1-deferred) race condition amplifier.
+    still trigger the race condition amplifier -- +5 per pairing, in the
+    weighted view.
     """
     satellite_ranges = [(0, 500)]
     spatial_map = {"concurrency": [40], "state_mutation": [50]}  # no sync_locks at all
-    counts = {"concurrency": 0}
+    counts = {"concurrency": 1, "state_mutation": 1}
     mitigations = _fresh_mitigations()
 
-    apply_dampener_correlations(spatial_map, satellite_ranges, counts, mitigations)
+    apply_dampener_correlations(spatial_map, satellite_ranges, mitigations)
 
-    assert counts["concurrency"] == 5, "Race condition amplifier should have fired (unmitigated flux)"
     assert mitigations["amplified_race_conditions"] == 1
+    assert counts["concurrency"] == 1, "Recorded concurrency stays the raw hit (#2813)"
+    assert weighted_count(counts, mitigations, "concurrency") == 6, (
+        "Race condition amplifier should have fired (unmitigated flux): raw 1 + 5"
+    )
 
 
 def test_apply_dampener_correlations_no_satellites_matches_pre_scoping_behavior():
@@ -197,12 +214,39 @@ def test_apply_dampener_correlations_no_satellites_matches_pre_scoping_behavior(
     counts = {"high_risk_execution": 1, "memory_alloc": 1}
     mitigations = _fresh_mitigations()
 
-    apply_dampener_correlations(spatial_map, [], counts, mitigations)
+    apply_dampener_correlations(spatial_map, [], mitigations)
 
-    assert counts["high_risk_execution"] == 0, "Flat fallback should still mitigate a nearby danger"
     assert mitigations["mitigated_danger"] == 1
-    assert counts["memory_alloc"] == 0, "Flat fallback should still mitigate a nearby leak"
+    assert weighted_count(counts, mitigations, "high_risk_execution") == 0, (
+        "Flat fallback should still mitigate a nearby danger"
+    )
     assert mitigations["mitigated_memory_allocs"] == 1
+    assert weighted_count(counts, mitigations, "memory_alloc") == 0, "Flat fallback should still mitigate a nearby leak"
+
+
+def test_apply_amplifier_correlations_exfiltration_and_rce_tally_only():
+    """Blocks 0 and 1: the x100 exfiltration and +1 RCE corroboration are tallies
+    under their own keys; the recorded counts do not move. `amplified_exfiltration`
+    is deliberately NOT `amplified_leaks`, which galaxyscope.py's Active Hemorrhage
+    owns (#2813)."""
+    satellite_ranges = [(0, 500)]
+    spatial_map = {
+        "memory_scraping": [10],
+        "exfiltration_camouflage": [40],
+        "high_risk_execution": [100],
+        "io": [150],
+    }
+    counts = {"memory_scraping": 1, "high_risk_execution": 1, "sec_tainted_injection": 0}
+    mitigations = _fresh_mitigations()
+
+    apply_amplifier_correlations(spatial_map, satellite_ranges, mitigations)
+
+    assert counts == {"memory_scraping": 1, "high_risk_execution": 1, "sec_tainted_injection": 0}
+    assert mitigations["amplified_exfiltration"] == 1
+    assert mitigations["amplified_rce"] == 1
+    assert "amplified_leaks" not in mitigations
+    assert weighted_count(counts, mitigations, "memory_scraping") == 101
+    assert weighted_count(counts, mitigations, "sec_tainted_injection") == 1
 
 
 # ==============================================================================
@@ -263,33 +307,39 @@ def test_correlate_against_ledger_corroboration_style_reads_mitigated():
 # Pins Block 6 (The OOM Bomb / Cascading State Flux) exactly as documented in
 # spatial_correlation.py -- these encode the deliberate semantics the #1096
 # control corpus had to discover by micro-repro. Change them on purpose or
-# not at all.
+# not at all. Since #2813 the recorded count is the raw hit count and the x3
+# lives in weighted_count(); the semantics of WHICH mutation cascades are
+# unchanged.
 # ==============================================================================
 def test_flux_weighting_branch_within_radius_same_function_triples():
     """One mutation + one branch within 150 chars in the SAME function:
-    +2 on top of the raw hit = x3 net, tallied as amplified_cascading_flux."""
+    tallied as amplified_cascading_flux; +2 on top of the raw hit = x3 net in
+    the weighted view, while the recorded count stays 1."""
     satellite_ranges = [(0, 400)]
     spatial_map = {"state_mutation": [100], "branch": [180]}
     counts = {"state_mutation": 1}
     mitigations = _fresh_mitigations()
 
-    apply_amplifier_correlations(spatial_map, satellite_ranges, counts, mitigations)
+    apply_amplifier_correlations(spatial_map, satellite_ranges, mitigations)
 
-    assert counts["state_mutation"] == 3, "Mutation near a same-function branch must count x3 net"
+    assert counts["state_mutation"] == 1, "The recorded count is the raw hit count (#2813)"
     assert mitigations["amplified_cascading_flux"] == 1
+    assert weighted_count(counts, mitigations, "state_mutation") == 3, (
+        "Mutation near a same-function branch must count x3 net in the weighted view"
+    )
 
 
 def test_flux_weighting_no_branch_stays_raw():
-    """No branch signal at all: the raw count is untouched (x1)."""
+    """No branch signal at all: nothing is tallied and the weighted view is the raw count (x1)."""
     satellite_ranges = [(0, 400)]
     spatial_map = {"state_mutation": [100]}
     counts = {"state_mutation": 1}
     mitigations = _fresh_mitigations()
 
-    apply_amplifier_correlations(spatial_map, satellite_ranges, counts, mitigations)
+    apply_amplifier_correlations(spatial_map, satellite_ranges, mitigations)
 
-    assert counts["state_mutation"] == 1, "Mutation with no branch context must stay x1"
-    assert "amplified_cascading_flux" not in mitigations or mitigations["amplified_cascading_flux"] == 0
+    assert mitigations["amplified_cascading_flux"] == 0
+    assert weighted_count(counts, mitigations, "state_mutation") == 1, "Mutation with no branch context must stay x1"
 
 
 def test_flux_weighting_branch_beyond_150_chars_stays_raw():
@@ -301,10 +351,12 @@ def test_flux_weighting_branch_beyond_150_chars_stays_raw():
     counts = {"state_mutation": 1}
     mitigations = _fresh_mitigations()
 
-    apply_amplifier_correlations(spatial_map, satellite_ranges, counts, mitigations)
+    apply_amplifier_correlations(spatial_map, satellite_ranges, mitigations)
 
-    assert counts["state_mutation"] == 1, "Branch beyond the 150-char radius must not amplify"
     assert mitigations.get("amplified_cascading_flux", 0) == 0
+    assert weighted_count(counts, mitigations, "state_mutation") == 1, (
+        "Branch beyond the 150-char radius must not amplify"
+    )
 
 
 def test_flux_weighting_branch_in_other_function_stays_raw():
@@ -316,24 +368,72 @@ def test_flux_weighting_branch_in_other_function_stays_raw():
     counts = {"state_mutation": 1}
     mitigations = _fresh_mitigations()
 
-    apply_amplifier_correlations(spatial_map, satellite_ranges, counts, mitigations)
+    apply_amplifier_correlations(spatial_map, satellite_ranges, mitigations)
 
-    assert counts["state_mutation"] == 1, "Cross-function branch must not amplify this mutation"
     assert mitigations.get("amplified_cascading_flux", 0) == 0
+    assert weighted_count(counts, mitigations, "state_mutation") == 1, (
+        "Cross-function branch must not amplify this mutation"
+    )
 
 
 def test_flux_weighting_per_mutation_accounting():
     """Two mutations near branches + one isolated mutation in the same
-    function: 2 amplified (x3 each) + 1 raw = 3 raw hits -> 7 net, and the
-    raw count stays recoverable as net - 2 * amplified_cascading_flux."""
+    function: 2 tallied; the weighted view is 2 x3 + 1 raw = 7 while the
+    recorded count is the 3 raw hits."""
     satellite_ranges = [(0, 1000)]
     spatial_map = {"state_mutation": [100, 200, 900], "branch": [150]}
     counts = {"state_mutation": 3}
     mitigations = _fresh_mitigations()
 
-    apply_amplifier_correlations(spatial_map, satellite_ranges, counts, mitigations)
+    apply_amplifier_correlations(spatial_map, satellite_ranges, mitigations)
 
-    assert counts["state_mutation"] == 7, "2 amplified (+2 each) + 1 raw should net 7"
+    assert counts["state_mutation"] == 3, "The recorded count is the raw hit count (#2813)"
     assert mitigations["amplified_cascading_flux"] == 2
-    raw = counts["state_mutation"] - 2 * mitigations["amplified_cascading_flux"]
-    assert raw == 3, "Raw hit count must be recoverable from the telemetry"
+    assert weighted_count(counts, mitigations, "state_mutation") == 7, "2 amplified (+2 each) + 1 raw should net 7"
+
+
+# ==============================================================================
+# TEST: THE WEIGHT TABLE (#2813) -- weighted_count() reproduces what the
+# recorded counts used to carry, per pair, and weighted_view() leaves every
+# other signal alone.
+# ==============================================================================
+def test_weighted_count_reproduces_the_old_recorded_values():
+    counts = {
+        "high_risk_execution": 4,
+        "concurrency": 2,
+        "memory_alloc": 5,
+        "memory_scraping": 1,
+        "sec_tainted_injection": 3,
+        "state_mutation": 3,
+        "branch": 9,
+    }
+    mitigations = {
+        "mitigated_danger": 1,
+        "amplified_race_conditions": 1,
+        "mitigated_memory_allocs": 2,
+        "amplified_exfiltration": 1,
+        "amplified_rce": 1,
+        "amplified_cascading_flux": 2,
+    }
+    # The old in-place edits, pair by pair (core/README.md's proximity table before #2813).
+    assert weighted_count(counts, mitigations, "high_risk_execution") == 4 - 1
+    assert weighted_count(counts, mitigations, "concurrency") == 2 + 5 * 1
+    assert weighted_count(counts, mitigations, "memory_alloc") == 5 - 2
+    assert weighted_count(counts, mitigations, "memory_scraping") == 1 + 100 * 1
+    assert weighted_count(counts, mitigations, "sec_tainted_injection") == 3 + 1
+    assert weighted_count(counts, mitigations, "state_mutation") == 3 + 2 * 2
+    # A signal with no proximity pair is its raw count.
+    assert weighted_count(counts, mitigations, "branch") == 9
+    assert weighted_count(counts, mitigations, "absent") == 0
+
+    view = weighted_view(counts, mitigations)
+    assert view["branch"] == 9 and view["state_mutation"] == 7 and view["high_risk_execution"] == 3
+    assert counts["state_mutation"] == 3, "weighted_view must copy, never edit, the recorded counts"
+    assert set(PROXIMITY_WEIGHTS) == set(WEIGHTED_SIGNALS)
+
+
+def test_weighted_count_never_goes_below_zero_and_ignores_missing_tally():
+    """A dampener can cancel at most the hits it mitigated; an empty tally is the raw count."""
+    assert weighted_count({"high_risk_execution": 1}, {"mitigated_danger": 5}, "high_risk_execution") == 0
+    assert weighted_count({"state_mutation": 2}, {}, "state_mutation") == 2
+    assert weighted_view({"state_mutation": 2}, {}) == {"state_mutation": 2}

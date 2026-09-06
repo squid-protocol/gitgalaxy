@@ -25,6 +25,9 @@ from gitgalaxy.standards.analysis_lens import ENGINE_CONSTANTS, RECORDING_SCHEMA
 
 # #2705: per-function evidence-mass floor (see analysis_lens.ENGINE_CONSTANTS).
 FUNC_EVIDENCE_MASS_FLOOR = float(cast("int", ENGINE_CONSTANTS["FUNC_EVIDENCE_MASS_FLOOR"]))
+# #2655: per-file evidence-mass floor, the denominator every per-file density
+# equation divides by. #2770 brought dependency_density under it.
+EVIDENCE_MASS_FLOOR = float(cast("int", ENGINE_CONSTANTS["EVIDENCE_MASS_FLOOR"]))
 
 
 class FolderStats(TypedDict):
@@ -495,12 +498,22 @@ class RecordKeeper:
             # avg_loc > 0 guard: no functions -> avg_comp 0 -> density 0.
             func_internal_density = avg_comp / max(avg_loc, FUNC_EVIDENCE_MASS_FLOOR)
 
-            logic_loc_denom = max(
-                int(file_data.get("coding_loc", 1) * tel.get("control_flow_ratio", 0.0)),
-                1,
-            )
+            # #2770: coupling per line of code, over the same evidence-mass floor
+            # every other per-file density uses (analysis_lens' EVIDENCE_MASS_FLOOR
+            # doctrine, #2655). The old denominator was
+            # `max(int(coding_loc * control_flow_ratio), 1)`, which failed three ways
+            # at once: (1) control_flow_ratio is 0 for any file with no branches --
+            # config, constants modules, data classes, most yaml/dockerfile -- so the
+            # denominator collapsed onto the max(..., 1) floor and the column reported
+            # the raw import COUNT, up to 20x the value the same file got after adding
+            # one `if`; (2) the int() truncated the product before the floor, so
+            # anything under 2.0 also landed on 1; (3) where a language's
+            # structural_boundaries rule never fires, control_flow_ratio is 1.0 and the
+            # denominator silently became coding_loc -- the right answer, reached by
+            # accident. A coupling measure has no reason to read a control-flow ratio
+            # in the first place; `import / coding_loc` is what the name describes.
             import_count = len(file_data.get("raw_imports", []))
-            dependency_density = import_count / float(logic_loc_denom)
+            dependency_density = import_count / max(float(file_data.get("coding_loc", 0) or 0), EVIDENCE_MASS_FLOOR)
 
             # #364: security_auditor.py writes "AI Threat Score" -- "AI Threat
             # Confidence" was never a real producer key here, just a dead primary

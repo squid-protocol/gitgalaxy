@@ -102,6 +102,8 @@ This dictionary defines the **Structural Signatures** used by an AST-free parsin
     * ✅ `"_scope_filters": {"globals": "lisp_body_position"}` — the `lisp_body_position` filter walks the paren structure and keeps only defines whose nearest classifying enclosing form is module scope. Measure any such filter against real files with a hand-checkable oracle before shipping it; the rosetta corpus plants at top level and cannot see this class of defect.
     * ✅ `"_scope_filters": {"args": "yaml_parameter_block"}` (#2753) — the same shape in the *widening* direction: yaml's `args` used to anchor on a `with:` header and count the whole block as one argument. A YAML key line is a parameter or an ordinary config key purely by what it is nested under, so the rule now matches every indented mapping key and the filter keeps the ones whose immediate parent is a `with:`/`inputs:`/`args:` header. Deliberately matching a superset is only safe *with* the filter — check every other consumer of the rule before you do it (`_calculate_block_metrics`' per-function args count had to be re-pointed at the already-filtered spatial map, or every `- run:` step would have "declared" one argument off its own key).
 
+18. **The Stream Contract (what text a rule sees):** every rule runs over the file's *code stream* — the text left after `prism.py` removes the comment surface for the language's `lexical_family`. **String literals are never masked** (gitgalaxy#2535 traced this to ground: there is no shielding mechanism, for any rule, in any language), so a keyword inside a string is a real hit for every rule, and a rule that must not count one has to exclude it itself. Recorded counts for a few signals additionally carry proximity adjustments from `core/spatial_correlation.py` (the ×3 cascading flux on `state_mutation`, the silencer dampener on `high_risk_execution`; see `core/README.md`'s proximity table) — the raw hit count is always recoverable from `mitigation_telemetry`. The full statement, and the one-sentence **count contract** every rule below must satisfy, live in `gitgalaxy/standards/signal_contracts.py` (rendered at `docs/signal_contracts.md`); the comment line above each key in the schema below is that sentence in prompt form, and `tests/signal_contract_audit.py` fails a PR where the two disagree.
+
 ### THE LEXICAL PARSING FAMILIES
 You must assign the language to one of these 5 lexical parsing families based on how it handles comments and non-executable text:
 * `standard_block`: The language uses both line and block delimiters, but blocks CANNOT be nested. Examples: C, C++, Java, JavaScript, PHP, SQL, Go, Ruby, Lua.
@@ -112,6 +114,14 @@ You must assign the language to one of these 5 lexical parsing families based on
 
 ### OUTPUT SCHEMA & DEFINITIONS
 Generate a valid Python dictionary matching this exact structure. 
+
+> Each `# key: sentence` comment below is that signal's **contract** — what one hit is, stated
+> once for every language — in the form this prompt needs. The source of truth is
+> `gitgalaxy/standards/signal_contracts.py` (kind, unit, status, contract doc per signal);
+> `tests/signal_contract_audit.py --ci` fails when a comment here stops containing its contract
+> sentence, and `docs/signal_contracts.md` is the rendered table. A signal marked *stated* there
+> has been audited across the corpus languages and has a `docs/<signal>_rule_contract.md`;
+> a *draft* has only this comment. Taking one from draft to stated: the `rule-contract-audit` skill.
 
 ```python
 "[TARGET LANGUAGE]": {

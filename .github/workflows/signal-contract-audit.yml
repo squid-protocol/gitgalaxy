@@ -1,0 +1,33 @@
+name: Signal Contract Audit
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "gitgalaxy/standards/**"
+      - "tests/signal_contract_audit.py"
+      - "tests/signal_contract_audit_baseline.json"
+
+permissions:
+  contents: read
+
+jobs:
+  signal-contract-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.12"
+
+      # No pip install: the audit imports only the registry and the contracts
+      # module, both stdlib-only, so this check stays fast and dependency-free.
+      - name: Run baseline-gated contract check (docs/contract_roadmap.md Phase 1)
+        run: python tests/signal_contract_audit.py --ci

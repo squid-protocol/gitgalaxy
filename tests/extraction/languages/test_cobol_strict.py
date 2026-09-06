@@ -79,7 +79,10 @@ _COBOL_SIMPLE_CASES = [
     ("test", "ASSERT X = Y", "MOVE X TO Y."),
     ("concurrency", "EXEC CICS ENQ END-EXEC", "MOVE X TO Y."),
     ("ui_framework", "SCREEN SECTION.", "MOVE X TO Y."),
-    ("globals", "WORKING-STORAGE SECTION.", "MOVE X TO Y."),
+    # #2805: item-level GLOBAL/EXTERNAL/COMMON are the real shared-state surface;
+    # the WORKING-STORAGE SECTION region header (now the negative) is program-
+    # private static storage and no longer counts as globals.
+    ("globals", "01 WS-SHARED PIC 9 GLOBAL.", "WORKING-STORAGE SECTION."),
     ("decorators", "      >>DEFINE VAR", "MOVE X TO Y."),
     ("generics", "CLASS-ID. FOO USING BAR", "MOVE X TO Y."),
     ("scientific", "FUNCTION SQRT(X)", "MOVE X TO Y."),
@@ -559,3 +562,60 @@ def test_cobol_api_contract_2730():
     # Not declarations -- must not match.
     assert not api.search("           END-CALL."), "END-CALL scope terminator"
     assert not api.search("           CALL 'CEE3ABD'."), "CALL is a call site"
+
+
+# ==============================================================================
+# #2804: args counts declared PARAMETERS, not USING/RETURNING clauses.
+# ==============================================================================
+@pytest.mark.parametrize(
+    "clause,expected_operands",
+    [
+        # comma-SPACE separated -- the dominant real formatting. Before #2804
+        # the regex captured only `WS-A,` and the whole list read as 1 operand.
+        ("PROCEDURE DIVISION USING WS-A, WS-B, WS-C.", 3),
+        # space separated (no commas) -- already captured, still 3.
+        ("PROCEDURE DIVISION USING WS-A WS-B WS-C.", 3),
+        # comma, no space.
+        ("PROCEDURE DIVISION USING WS-A,WS-B,WS-C.", 3),
+        # leading-comma continuation across lines (how carddemo wraps its
+        # USING lists) -- crosses newlines because operands are comma-joined.
+        ("CALL 'SUB' USING WS-A\n    , WS-B\n    , WS-C", 3),
+        # over-capture guard (carddemo CSUTLDPY.cpy): a comma-continued list
+        # with NO closing period, followed by a blank line and an IF verb,
+        # must stop at the last operand and NOT swallow `IF WS-SEVERITY-N`.
+        ("USING WS-A\n    , WS-B\n    , WS-C\n\n    IF WS-SEVERITY-N = 0", 3),
+        # fixed-format col-73 guard (NIST CCVS IC2014.2.cbl): a space-
+        # separated list with no terminating period must not bridge the wide
+        # gap to the columns-73-80 program identifier (`IC2014`) and count it.
+        ("CALL ID1 USING DN1 DN2 DN3 DN4" + " " * 31 + "IC2014", 4),
+        # BY REFERENCE/CONTENT/VALUE are passing-mode phrases, not operands.
+        ("CALL 'SUB' USING BY REFERENCE WS-A BY CONTENT WS-B.", 2),
+        ("CALL 'SUB' USING BY VALUE WS-A.", 1),
+        # single operand.
+        ("PROCEDURE DIVISION USING ARGV-BLOCK.", 1),
+        # USING + RETURNING is two clauses -> two matches -> 1 param + 1 return.
+        ("PROCEDURE DIVISION USING WS-A, WS-B RETURNING WS-R.", 3),
+    ],
+)
+def test_cobol_args_counts_operands_not_clauses(clause, expected_operands):
+    """The file-level `args` signal must count the DECLARED PARAMETERS a
+    USING/RETURNING list contains, not the number of clauses. The regex
+    captures the whole operand list per clause (#2804 regex fix) and
+    `_count_cobol_using_operands` turns each capture into an operand count,
+    dropping the BY REFERENCE/CONTENT/VALUE passing-mode phrase words."""
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    counter = StructuralExtractor.__new__(StructuralExtractor)
+    args_pattern = COBOL_RULES["args"]
+    total = sum(
+        counter._count_cobol_using_operands(m.group(1) if m.lastindex else m.group(0))
+        for m in args_pattern.finditer(clause)
+    )
+    assert total == expected_operands, f"{clause!r}: expected {expected_operands} operands, got {total}"
+
+
+def test_cobol_args_regex_is_redos_immune():
+    """The widened inter-operand separator (`[\\s,]*`, #2804) keeps the two
+    character classes disjoint and the repetition `{0,20}`-bounded, so no
+    overlapping-quantifier ambiguity is introduced."""
+    assert_redos_immune(COBOL_RULES["args"], "USING " + "WS-A, " * 40)

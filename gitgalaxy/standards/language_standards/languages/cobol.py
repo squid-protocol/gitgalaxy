@@ -54,8 +54,63 @@ DEFINITION: dict[str, Any] = {
         # with a negative lookahead excluding "RETURNING" from the
         # parameter-name alternative, so `finditer` now correctly yields
         # two separate matches (USING -> WS-A, RETURNING -> WS-B).
+        # BUG FIX #2804: the inter-operand separator was `\s*,?`, which
+        # consumes trailing space THEN an optional comma -- so after
+        # `WS-A,` the next operand iteration began on the space in
+        # `WS-A, WS-B` and its leading `[A-Z0-9_-]+` failed immediately,
+        # stopping the capture at the first operand. `USING WS-A, WS-B,
+        # WS-C` (comma-SPACE separated -- the dominant real formatting)
+        # captured only `WS-A,` and read as one parameter, silently
+        # dropping WS-B/WS-C (they carry no USING/RETURNING anchor of
+        # their own, so `finditer` never sees them either).
+        #
+        # The separator is `(?:[ \t\r\n]*,[ \t\r\n]*|[ \t]+)?`: an operand
+        # list may cross a newline ONLY when the operands are joined by a
+        # comma (COBOL's optional separator comma), and may otherwise be
+        # separated by inline horizontal whitespace on the same line. This
+        # is deliberate. A COBOL statement is terminated by a period, not a
+        # newline, and a period is frequently omitted until the end of a
+        # sentence -- so `CALL 'X' USING A , B , C` (no closing period)
+        # followed by a blank line and an `IF ...` statement has no lexical
+        # boundary a flat pattern can see. An earlier `[\s,]*` separator
+        # that crossed newlines unconditionally swept that trailing `IF
+        # WS-SEVERITY-N` straight into the operand list (real regression:
+        # carddemo CSUTLDPY.cpy read 5 operands for a 3-operand CALL).
+        # Requiring a comma to cross a line stops at the real list end for
+        # the common continued form (leading-comma continuation, which is
+        # exactly how carddemo wraps its USING lists) without over-reading
+        # into the next statement; a rarer newline-separated list with NO
+        # commas at all is conservatively counted from its first operand
+        # rather than risk swallowing the following verb.
+        #
+        # The same-line branch is `[ \t]{1,4}`, not `[ \t]+`, on purpose.
+        # Fixed-format COBOL carries an 8-char program identifier in
+        # columns 73-80 of every line (e.g. NIST CCVS `IC2014.2`), and a
+        # space-separated `USING DN1 DN2 DN3 DN4` with no terminating
+        # period runs a long whitespace gap straight to that column -- an
+        # unbounded `[ \t]+` bridged it and captured the sequence id as a
+        # bogus extra operand (real regression: IC2014.2.cbl read 45 for a
+        # 44-operand file). A real inter-operand gap on one physical line
+        # is one space (occasionally a few); capping the same-line run at 4
+        # blocks the ~30-space identification-area bridge while leaving
+        # normal spacing untouched. Wider single-line alignment (rare for a
+        # USING list -- multi-operand lists wrap with commas) is
+        # conservatively counted short, never over-read. Column-73 blanking
+        # is not done here because it is unsafe without fixed/free-format
+        # detection (free-format lines legitimately run past column 72).
+        #
+        # Both branches of the separator are disjoint from the operand's
+        # own `[A-Z0-9_-]+`, the operand is non-nullable, and the
+        # repetition stays `{0,20}`-bounded -- so this is still ReDoS-proof
+        # (no overlapping-quantifier ambiguity). The `(?!RETURNING\b)`
+        # boundary is unchanged, so `USING A RETURNING B` still yields two
+        # separate matches. The captured list is turned into a real
+        # parameter COUNT (operands, not clauses) by detector.py's
+        # `_count_cobol_using_operands`.
         "args": re.compile(
-            r"\b(?:USING|RETURNING)\s+((?:(?:BY\s+(?:REFERENCE|CONTENT|VALUE)\s+)?(?!RETURNING\b)[A-Z0-9_-]+\s*,?){0,20})",
+            r"\b(?:USING|RETURNING)\s+"
+            r"((?:(?:BY\s+(?:REFERENCE|CONTENT|VALUE)\s+)?(?!RETURNING\b)"
+            r"[A-Z0-9_-]+(?:[ \t\r\n]*,[ \t\r\n]*|[ \t]{1,4})?){0,20})",
             re.I,
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining straight-line execution flow.
@@ -323,7 +378,21 @@ DEFINITION: dict[str, Any] = {
         # 17. closures: Closures / Anonymous Functions. (COBOL lacks native lambdas).
         "closures": None,
         # 18. globals: Global / Shared State. Global storage and external linkages.
-        "globals": re.compile(r"\b(WORKING-STORAGE\s+SECTION|COMMON|GLOBAL|EXTERNAL)\b", re.I),
+        # BUG FIX #2805: dropped `WORKING-STORAGE SECTION` from this rule. The
+        # item-level clauses (`GLOBAL`, `EXTERNAL`, `COMMON`) are what mark shared
+        # state -- `GLOBAL`/`EXTERNAL` publish one data item outside the program,
+        # `COMMON` a program to its siblings. `WORKING-STORAGE SECTION` is a REGION
+        # HEADER: it opens the area where a program declares its own state, and it
+        # is mandatory in every COBOL program that declares any. Counting it stacked
+        # a phantom `globals >= 1` on every real COBOL file with a working-storage
+        # section whether or not it shares anything -- an unconditional per-file +1
+        # (a program with a working-storage section and five `GLOBAL` items scored 6,
+        # one with a section and nothing global scored 1). It also inflated the
+        # `encapsulation_ratio` numerator (`1 - globals / (core_var_decl + globals)`)
+        # on that same file. Working-storage is program-private static storage, not
+        # global surface; `SECTION` still counts as a structural boundary via the
+        # `structural_boundaries` rule above, so no structural signal is lost.
+        "globals": re.compile(r"\b(COMMON|GLOBAL|EXTERNAL)\b", re.I),
         # 19. decorators: Decorators / Annotations. (COBOL uses compiler directives).
         "decorators": re.compile(
             r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*>>\s*(?:IF|ELSE|END-IF|DEFINE|CALL-CONVENTION)",

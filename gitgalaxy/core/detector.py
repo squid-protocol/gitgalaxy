@@ -2116,6 +2116,19 @@ class StructuralExtractor:
 
                     c = len(hit_indices)
 
+                    # #2804: COBOL's `args` rule captures a whole USING/RETURNING
+                    # operand list in one group, so a bare match count reads
+                    # CLAUSES, not declared parameters -- `USING A, B, C` scored 1,
+                    # the same as `USING A`. Count the operands the clauses actually
+                    # declare instead (a real linkage section passes several). The
+                    # per-clause `hit_indices`/`spatial_map` entries are left as-is
+                    # (they mark WHERE the clauses are, for line locations); only the
+                    # tallied magnitude switches from clause-count to operand-count.
+                    if seg_lang == "cobol" and rule_name == "args" and matches:
+                        c = sum(
+                            self._count_cobol_using_operands(m.group(1) if m.lastindex else m.group(0)) for m in matches
+                        )
+
                     t_elapsed = time.perf_counter() - t_rule_start
 
                     if regex_telemetry is not None:
@@ -2852,6 +2865,37 @@ class StructuralExtractor:
             elif m.group(4):
                 registers.add(m.group(4).lower() + "x")
         return len(registers)
+
+    # #2804: the phrase words a COBOL `USING`/`RETURNING` operand list can carry
+    # BETWEEN the clause keyword and each data-name -- `BY REFERENCE`/`BY CONTENT`/
+    # `BY VALUE` passing-mode prefixes. They are not operands and must not be counted
+    # as parameters. See `_count_cobol_using_operands`.
+    _COBOL_ARG_PHRASE_WORDS: ClassVar[frozenset[str]] = frozenset({"BY", "REFERENCE", "CONTENT", "VALUE"})
+
+    def _count_cobol_using_operands(self, captured: str) -> int:
+        """Count the DECLARED PARAMETERS in one COBOL `USING`/`RETURNING` operand
+        list, not the clause itself. COBOL's `args` rule captures the whole
+        comma-or-space-separated operand list of a clause in a single group
+        (`PROCEDURE DIVISION USING A, B, C` and `PROCEDURE DIVISION USING A` both
+        yield exactly one `finditer` match), so the file-level signal -- a bare
+        `len(finditer(...))` -- counted CLAUSES and read a 3-operand linkage the
+        same as a 1-operand one (#2804 Ground 2). Splits the captured list on
+        commas and whitespace and counts the data-name tokens, dropping the
+        `BY REFERENCE`/`BY CONTENT`/`BY VALUE` passing-mode phrase words
+        (`_COBOL_ARG_PHRASE_WORDS`) which sit between the clause keyword and each
+        operand but are not themselves parameters. `USING A, B, C` -> 3,
+        `USING BY REFERENCE A BY CONTENT B` -> 2, `USING ARGV-BLOCK` -> 1, an empty
+        capture -> 0. This is the same "one match, real operand count" shape as
+        `_count_agc_register_args`/`_count_assembly_register_args`, and generalises
+        to real Enterprise COBOL, whose linkage sections routinely pass several
+        operands and previously scored 1."""
+        if not captured:
+            return 0
+        count = 0
+        for token in re.split(r"[,\s]+", captured.strip()):
+            if token and token.upper() not in self._COBOL_ARG_PHRASE_WORDS:
+                count += 1
+        return count
 
     # galaxyscope:ignore sec_high_risk_execution
 

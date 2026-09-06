@@ -66,8 +66,8 @@ to the same directory so non-Claude agents find them at a vendor-neutral path.
 
 | Repo | Skills |
 |---|---|
-| gitgalaxy | `harden-language-extraction`, `harden-strict-signatures`, `harden-class-start-extraction`, `tri-comparison-ledger-sweep`, `tree-sitter-accuracy-sweep`, `language-status`, `ci-push-checklist`, `self-scan-query`, `issue-generation`, `pipeline-check`, `readme-maintenance`, `release-notes` |
-| keyword-rosetta | `rosetta-language-sweep` (work one language's cross-language-consistency tracking issue end to end) |
+| gitgalaxy | `harden-language-extraction`, `harden-strict-signatures`, `harden-class-start-extraction`, `tri-comparison-ledger-sweep`, `tree-sitter-accuracy-sweep`, `language-status`, `ci-push-checklist`, `self-scan-query`, `issue-generation`, `pipeline-check`, `readme-maintenance`, `release-notes`, `rule-contract-audit` (take one signal's contract from draft to stated across all corpus languages) |
+| keyword-rosetta | `rosetta-language-sweep` (classify one language's out-of-band cells by cause; the per-language instrument a family audit calls -- the per-language tracking issues were closed 2026-09-06) |
 | language-crucible | `expand-language-coverage` (fill a `data/<lang>/` category from the source pool) |
 
 gitgalaxy additionally has `.claude/rules/` (always-on constraints: planning approval,
@@ -80,7 +80,7 @@ rule, sync all three.
 | Workflow | Repos touched (in merge order) | Documented in |
 |---|---|---|
 | **Crucible corpus growth → release → pin bump** | language-crucible (data PRs, tag per `RELEASING.md`) → gitgalaxy (`docs/self_scan/BUMPING_THE_CRUCIBLE_PIN.md`: regen golden masters + tri-comparison + tree-sitter artifacts, bump `LANGUAGE_CRUCIBLE_REF` + `PINNED_TAG`) | crucible `RELEASING.md`; gitgalaxy `BUMPING_THE_CRUCIBLE_PIN.md` |
-| **Rosetta sweep** (work one language's bias issue) | gitgalaxy engine PR first (its `rosetta-audit` lists the languages it moves; add the `rosetta:rebless-owed` label if that is intended) → merge → keyword-rosetta corpus re-bless PR against engine main (green by construction; manifests + ledger) → merge; its `bias-history.yml` regenerates the chart. Capstone lands back in gitgalaxy `docs/language_status/<lang>.md` §10. | keyword-rosetta `rosetta-language-sweep` skill; gitgalaxy `docs/self_scan/ROSETTA_AUDIT.md` |
+| **Rosetta contract audit** (work one signal's cause family, not one language) | gitgalaxy engine PR first (rule fixes for every language the contract audit found, the signal's row in `standards/signal_contracts.py` → `stated`, `docs/<signal>_rule_contract.md`; its `rosetta-audit` lists the languages it moves — add `rosetta:rebless-owed`) → merge → keyword-rosetta corpus PR against engine main (plants, contract-level absences ledgered, manifests re-blessed) → merge; `bias-history.yml` regenerates the chart and the cause table. Capstones land in `docs/language_status/<lang>.md` §10 whenever a language reads clean by `language_deviations.py`. Roadmap and phase order: gitgalaxy `docs/contract_roadmap.md`. | gitgalaxy `rule-contract-audit` skill; keyword-rosetta `rosetta-language-sweep` (per-language classification); gitgalaxy `docs/self_scan/ROSETTA_AUDIT.md` |
 | **Adding a language to the engine** | gitgalaxy (`standards/how_to_add_a_language.md`, includes authoring the rosetta control folder) → keyword-rosetta (`SPEC.md` shell + manifest) → optionally language-crucible (`expand-language-coverage`) | those three docs |
 | **Tri-comparison / accuracy verification** | gitgalaxy only (ledger, chart, `manual_verification.json`), but reads the pinned crucible corpus | gitgalaxy `docs/self_scan/tri_comparison_README.md` |
 | **README / evidence claims** | gitgalaxy README cites gitgalaxy-raw-output artifacts and the keyword-rosetta chart (embedded from that repo's raw main URL — it self-updates when rosetta main moves) | gitgalaxy `readme-maintenance` skill |

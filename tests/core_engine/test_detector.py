@@ -4339,6 +4339,57 @@ def test_visibility_export_rules_capture_a_name():
         assert m.group(1) == name, f"{lang}: group 1 must be the exported NAME, got {m.group(1)!r}"
 
 
+def test_visibility_export_list_rules_capture_a_region_of_names():
+    """#2823: the plural half of the same opt-in contract. A language whose
+    export construct names MANY functions at once declares
+    `_visibility_export_list` instead, and its capture groups are REGIONS whose
+    name tokens `detector.py` discounts one offset at a time.
+
+    Two keys rather than one generalised key, because the singular form records
+    a group's own start offset verbatim: assembly exports `.foo` and ruby
+    exports `save!`, and a region tokenizer would put those offsets one
+    character off (`.foo` -> `foo`) and silently stop discounting them.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    expected = {
+        "haskell": ("module A (probeGlobals, probeTest) where", ["probeGlobals", "probeTest"]),
+        "scheme": ("(export probe-globals probe-test)", ["probe-globals", "probe-test"]),
+    }
+    declared = {
+        lang
+        for lang, cfg in LANGUAGE_DEFINITIONS.items()
+        if cfg.get("rules", {}).get("_visibility_export_list") is not None
+    }
+    assert declared == set(expected), f"exactly the two export-a-list languages opt in, got {declared}"
+
+    for lang, (line, names) in expected.items():
+        rule = LANGUAGE_DEFINITIONS[lang]["rules"]["_visibility_export_list"]
+        m = rule.search(line)
+        assert m is not None, f"{lang}: `{line}` must match its own export idiom"
+        region = next((g for g in m.groups() if g), None)
+        assert region is not None, f"{lang}: some capture group must hold the exported names"
+        for name in names:
+            assert name in region, f"{lang}: the captured region must hold {name!r}, got {region!r}"
+
+
+def test_the_two_export_keys_never_disagree_about_a_language():
+    """A language declares the singular form or the plural one, not both: the
+    two build the same set of discounted offsets, and a language holding both
+    would be saying its export statement is simultaneously one name and a list
+    of them. Nothing in the engine forbids it -- this is the review gate.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    both = {
+        lang
+        for lang, cfg in LANGUAGE_DEFINITIONS.items()
+        if cfg.get("rules", {}).get("_visibility_export") is not None
+        and cfg.get("rules", {}).get("_visibility_export_list") is not None
+    }
+    assert not both, f"a language declares one export form or the other, not both: {both}"
+
+
 def test_yaml_steps_take_their_name_from_the_adjacent_name_key():
     """#2767: every extracted yaml step was named `run`, so the orphan census,
     the duplicate census and per-step identity were all dead -- in a scanned

@@ -24,7 +24,13 @@ Six corollaries, each pinned by a test in
    LiveCode's closing handler name, a K&R shell declaration that falls outside the slicer's own
    span (discounted implicitly when the span contains no occurrence, #2727), and any form a
    registry declares through `_visibility_export` — `export -f foo`, `namespace export foo`,
-   `Export-ModuleMember -Function foo`, `module_function :foo`, `global foo` (#2774).
+   `Export-ModuleMember -Function foo`, `module_function :foo`, `global foo` (#2774) — or
+   through `_visibility_export_list`, its plural form, for the constructs that name every
+   exported function at once: a Haskell module header's parenthesised list, a Scheme
+   `(export a b c)` clause (#2823). The two keys build one set of discounted name offsets and a
+   language declares one of them, not both; `detector.py::_export_declaration_offsets` is where
+   they meet. The discount is per name OFFSET, never per line or per construct, so a genuine
+   call that shares a line with an export still counts.
 3. **A reference is not an invocation, and this census cannot tell them apart.** Any other
    occurrence of the name clears the flag — a call, a mention in a comment the prism left in the
    stream, a name inside a string literal (nothing shields string literals for any signal,
@@ -133,7 +139,7 @@ across a file boundary the census deliberately cannot see — corollary 5).
 | `agc_assembly` | 2.75 | 2.75 | in band. Same shape as the four plant gaps and left alone deliberately: `DISPATCH TC PROBEBR` and `PROBEBR`'s branches reach `PROBEIO`, so only `PROBERISK` is unreached, and planting a `TC PROBERISK` would add a control-flow hit to a gated cell to fix a cell that is already in band |
 | `yacc` | 3.00 | 3.00 | in band, same shape: `dispatch : probe_branch ;` names one of the three nonterminals |
 | `css` `dockerfile` `html` `markdown` `sqlite` `yaml` | 0.00 | 0.00 | no callable units to census — either nothing is extracted (html, markdown) or every extracted unit is a synthetic bucket (corollary 6). This is the *undefined* family of #2549, not this contract's |
-| `haskell` `scheme` | 0.25 | 0.25 | **open defect, filed as #2823.** The opposite sign: a Haskell module export list and type signature, and a Scheme `(export name)` with no `_visibility_export` declared, are declarations that corollary 2 says must not clear the flag, and they do. Scheme also carries the same plant gap as the four above, hidden behind it |
+| `haskell` `scheme` | 0.25 | 2.50 | **#2823, fixed after this audit — see "The two languages that read the flag backwards" below.** Engine: both declare `_visibility_export_list`, so their export construct stops clearing the flag (0.25 → 3.00). Corpus: `main`'s `entry` dispatched one of its three probes, the same plant gap as the four above (3.00 → 2.50) |
 
 ### What the audit found
 
@@ -148,6 +154,81 @@ across a file boundary the census deliberately cannot see — corollary 5).
    whole-file token count, #2774 fixed export statements for five languages, this issue fixes
    the no-invocation case, and #2823 is the same shape once more for the two languages whose
    declaration syntax names a function twice before anything uses it.
+
+## The two languages that read the flag backwards (#2823)
+
+The audit above closes with haskell and scheme at **0.25 unreferenced per corpus file against a
+2.50 median** — 12 of each language's 13 probe functions reading as *referenced* while nothing
+called any of them. That is #2806's defect with the sign flipped: there the census called a
+function unreferenced that the language reaches without naming it; here it called a function
+referenced on an occurrence that is a declaration.
+
+**One outside occurrence each, and it is the export.** Both languages write the name three times
+before anything uses it, but only one of the three sits outside the slicer's span:
+
+```haskell
+module A (probeGlobals, probeTest, probeSafety) where   -- outside the span: the export list
+probeGlobals :: Int -> Int                              -- INSIDE: haskell's span starts here
+probeGlobals env = env                                  -- INSIDE: the equation
+```
+
+```scheme
+(export probe-globals)          ;; outside the span
+(define (probe-globals env) env)
+```
+
+So the Haskell type signature needs no rule of its own — the span already contains it, which is
+why declaring `^([a-z]\w*)[ \t]*::` as an export form was measured and found to move nothing.
+What was missing in both cases is the export declaration, and corollary 2 already says what to do
+with it.
+
+**Why a second registry key rather than a wider first one.** `_visibility_export` records
+`m.start(1)` verbatim — the offset of its one captured name — and that is exactly right for the
+five languages that have it: assembly exports `.foo` and ruby exports `save!`, whose first and
+last characters a generic name tokenizer would not treat as part of a name, so tokenizing those
+captures would record an offset one character off and silently stop discounting them. A Haskell
+module export list holds an arbitrary number of names inside one pair of parens and cannot be a
+single capture at all. `_visibility_export_list` is therefore the plural key: its capture groups
+are *regions*, and `_export_declaration_offsets` records the start offset of every name token
+inside a region. Both keys feed one set, a language declares one of them, and
+`tests/core_engine/test_detector.py::test_the_two_export_keys_never_disagree_about_a_language`
+is the gate on that.
+
+**Both halves had to land together.** The engine change alone moves both languages to **3.00**,
+not 2.50 — past the median, not onto it — because scheme and haskell *also* carry the same plant
+gap the four languages above had, hidden until now behind the export false-negative: `main`'s
+`entry` dispatched one of its three probes instead of all three. Planting the missing calls
+(`entry argv = probeRisk (probeIo (probeBranch argv))`, and scheme's three-form body) takes both
+to 2.50, on the median.
+
+| language | main | + engine (`_visibility_export_list`) | + corpus plant |
+| --- | --- | --- | --- |
+| `haskell` | 0.25 | 3.00 | **2.50** |
+| `scheme` | 0.25 | 3.00 | **2.50** |
+
+**What the real corpus says.** haskell moves 1.4% → 27.9% unreferenced across the crucible (2 of
+147 units → 41), and every one of the 39 new hits is a pandoc utility function whose name occurs
+exactly three times in its own file — export list, type signature, equation — with no caller
+there. That is corollary 5 working as designed, not a regression: `Text.Pandoc.Shared` is a
+library module of 100 exported helpers, 36 of which nothing in that file calls, and saying so is
+the input `galaxyscope.py`'s orphan → api conversion needs. Real-world scheme does not move at
+all: neither crucible file uses an export clause outside a macro template.
+
+**One neighbour moved, and it is a pre-existing defect this made visible.** With scheme finally
+producing orphans, its `api_orphan_credit` went 0 → 3 in a/b/c — the double count #2731/#2734
+exists to prevent. `detector.py`'s `api_declared_orphans` decides whether the `api` rule already
+counted an orphan by tokenizing the api-matched line with `\b\w+\b`, and that tokenizer cannot
+produce a token containing `-`, so `probe-globals` is never recognised in `(export
+probe-globals)`. Haskell, whose names are all `\w`, demonstrates the mechanism working: its
+`api_declared_orphans` reads 3 and its credit correctly stays 0. This is the same tokenizer
+family as #2754 and it is not new — cobol carries it on main today (9 hyphenated paragraph names
+across a/b/c), and the crucible makes it much larger than the control corpus does: 4,983 → 5,122
+`api_declared_orphans` over the real corpus, +139 across zig (`@"..."` quoted identifiers), lua
+(`bit.bor`, `M.start`) and powershell, whose count is **0 for the entire language** because a
+`Verb-Noun` name always contains a hyphen. Filed as **#2827** rather than fixed here: it moves
+five languages, needs its own golden-master bless and its own cobol re-bless. The scheme cell is
+re-blessed against a keyword-rosetta ledger entry meanwhile, and comes back to 0 when #2827
+lands.
 
 ## What the golden masters moved
 
@@ -166,6 +247,25 @@ Both fixtures were re-blessed (`crucible_check.py --update --yes`, scoped with
 
 No other language moved in either fixture, which is corollary 4's "unchanged by construction"
 stated as a measurement.
+
+### #2823's bless
+
+Nine value differences, identical in both fixtures, **every one of them `haskell/pandoc`** and
+nothing else in the ~80-repo corpus:
+
+| what | was | is |
+| --- | --- | --- |
+| `Shared.hs` Unreferenced By Name | 0 | 36 |
+| `Filter.hs` Unreferenced By Name | 2 | 4 |
+| `Options.hs` Unreferenced By Name | 0 | 1 |
+| those three files' Tech Debt Exposure | 0.0% / 41.35% / 0.0% | 97.04% / 85.83% / 9.7% |
+| `haskell/pandoc` avg tech debt | 3.76 | 17.51 |
+| global `avg_tech_debt` | 27.332 | 27.386 |
+
+The tech-debt rows are the census's own weight arriving downstream (`slop_stress` counts each
+unit at 2.0), and the two averages are the same change summed. **No topological `X`/`Y`/`Z`
+coordinates moved at all** — unusual for a bless, and the reason is that no node's structural
+mass changed: the census is a property of the extracted population, not of it.
 
 ## Notes for the next session
 
@@ -187,5 +287,17 @@ stated as a measurement.
   "slop" vocabulary. It was left alone deliberately: a duplicate really is what its name says
   (same name *and* materially the same body, #1498), so the name makes a claim the measurement
   supports.
-- The next family in the roadmap order is #2822 (`branch`). #2823 is this one's own successor
-  and needs a corpus plant in the same wave, so it is cheapest run as a pair.
+- The next family in the roadmap order is #2822 (`branch`). #2823 was this one's own successor
+  and did need its corpus plant in the same wave, exactly as predicted -- run as a pair, engine
+  first, and the engine half on its own would have read 3.00 and looked like an over-correction.
+- **The remaining family.** After #2823 the census's open population is the *undefined* one:
+  css, dockerfile, html, markdown, sqlite and yaml, none of which have a callable unit to census
+  (#2549). agc_assembly, yacc and cobol are the knowingly-loose plants -- all three in band, all
+  three deliberately unplanted because the plant would move a gated neighbour, and cobol's is
+  free to make once #2822 lands.
+- **When a fix creates orphans where there were none, re-screen every consumer of the census,
+  not just the census cell.** #2823's engine half moved no signal but its own; what moved was
+  `api_orphan_credit`, two layers downstream in `galaxyscope.py`, because scheme suddenly had
+  orphans to convert and `api_declared_orphans` could not match a hyphenated name. `rosetta_audit.py
+  --baseline-bin` is what found it -- a per-file `splice()` probe cannot, because the conversion
+  is cross-file by construction (corollary 5).

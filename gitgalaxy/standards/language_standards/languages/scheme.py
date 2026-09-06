@@ -140,6 +140,26 @@ DEFINITION: dict[str, Any] = {
         # 10. api (Public Surface Area)
         # Module exports defining the public surface.
         "api": re.compile(r"^[ \t]*\([ \t]*(?:export|define-public)(?![^ \t)\]\n\r])", re.M),
+        # #2823: the plural form of #2774's `_visibility_export`. Naming a
+        # function in an export statement is a visibility DECLARATION, not a
+        # use, and `unreferenced_by_name`'s corollary 2 says a declaration must
+        # not clear the flag. Scheme never got one of #2774's five rules, so 12
+        # of its 13 keyword-rosetta probe functions read as REFERENCED with
+        # nothing calling any of them (0.25 unreferenced per file against a 2.50
+        # corpus median), each cleared by its own `(export probe-globals)`.
+        #
+        # The list form rather than the singular one because both of Scheme's
+        # export constructs take an arbitrary number of names in one clause: the
+        # R7RS `(export a b c)` inside a `define-library`, and Guile's
+        # `#:export (a b c)` inside a `define-module`. Group 1 or group 2 is the
+        # clause's contents; detector.py records the start offset of each name
+        # token in it. Both arms exclude nested parens, so a renaming export
+        # (`(export (rename internal external))`) is deliberately not matched --
+        # the name in it is not the one the definition writes.
+        "_visibility_export_list": re.compile(
+            r"\([ \t]*export[ \t\r\n]+([^()]*)\)|#:export[ \t\r\n]*\(([^()]*)\)",
+            re.M,
+        ),
         # 11. flux (State Mutation)
         # Mutation of state. In Scheme, all mutating functions end with a bang (!).
         "state_mutation": re.compile(

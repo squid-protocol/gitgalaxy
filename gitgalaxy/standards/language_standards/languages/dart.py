@@ -268,8 +268,20 @@ DEFINITION: dict[str, Any] = {
         ),
         # 11. flux: State Mutation. State mutation (setState and reactive collection mutators).
         "state_mutation": re.compile(
-            r"\b(setState|notifyListeners|markNeedsBuild|StreamController\.add)\b|[^!=<>\+\-\*\/%&\|\s]=\s*[^=]|(?:\+\+|--)|\.(?:add|addAll|remove|insert|clear|update)\s*\(",
-            re.I,
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `setState`/`notifyListeners`/`markNeedsBuild` are the framework's write sites.
+            r"(?:^|[;{}])[ \t]*[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\[[^\]\n]{0,80}\])*"
+            r"[ \t]*(?:[-+*/%&|^~]|<<|>>>?|\?\?)?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"|\b(?:setState|notifyListeners|markNeedsBuild)\s*\("
+            r"|\.(?:add|addAll|addEntries|remove|removeWhere|removeAt|insert|clear|update|sort|fillRange|setAll)\s*\(",
+            re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code or dead widgets.
         "dead_code": re.compile(

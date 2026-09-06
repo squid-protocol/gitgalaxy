@@ -213,7 +213,20 @@ DEFINITION: dict[str, Any] = {
         # 11. flux: State Mutation. State mutation (assignments, array mutators, substitutions).
         # UPDATED: Removed '.=' and '=~' / '!~' to prevent massive string-builder false positives.
         "state_mutation": re.compile(
-            r"\b(?:push|pop|shift|unshift|splice|delete)\b|[\$@%][a-zA-Z_]\w*(?:->|\[|\{){0,5}\s*(?:\+|-|\*|/|\||&|\^|%|x)?=(?!=)|(?:\+\+|--)|\bs/"
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `my`/`our`/`local $x = v` declares (corollary 1). A bare `shift`/`pop` is
+            # argument unpacking (`my $self = shift`), a read of @_ (corollary 3): the
+            # list mutators count only with an explicit array/hash operand.
+            r"(?<!my )(?<!my\t)(?<!our )(?<!local )(?<!state )"
+            r"[\$@%]\$?[a-zA-Z_]\w*(?:->|\[[^\]\n]{0,60}\]|\{[^}\n]{0,60}\}){0,5}[ \t]*(?:\+|-|\*|/|\||&|\^|%|x|\.|\*\*|<<|>>|&&|\|\||//)?=(?![=>~])"
+            r"|\b(?:push|unshift|splice)\s*\(?[ \t]*[@$]|\b(?:pop|shift)\s*\(?[ \t]*@|\bdelete\s*\(?[ \t]*\$"
+            r"|[\w)\]}][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[\$@]|\bs/"
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural logic.
         "dead_code": re.compile(

@@ -45,7 +45,7 @@ _TYPESCRIPT_SIMPLE_CASES = [
     ("high_risk_execution", "eval(code)", "const x = 1;"),
     ("io", "fetch(url)", "const x = 1;"),
     ("api", "export function foo() {}", "const x = 1;"),
-    ("state_mutation", "let x = 1;", "const x = 1;"),
+    ("state_mutation", "x = 1;", "let x = 1;"),  # #2765: a declaration is not a write
     ("dead_code", "// if (x) foo();", "// just a note"),
     ("doc", "/** doc */", "// just a note"),
     ("test", "it('works', () => {})", "myRegex.test('x')"),
@@ -182,8 +182,9 @@ def test_typescript_state_mutation_boundary_regression():
     assert state_mutation.search("mySet.delete();")
     assert state_mutation.search("mySet.add(item);")
     # already-working forms must still work
-    assert state_mutation.search("let x = 1;")
     assert state_mutation.search("myMap.set(1, 2);")
+    # #2765: `let x = 1;` declares -- it is no longer a write (see the contract test module)
+    assert not state_mutation.search("let x = 1;")
 
 
 def test_typescript_dead_code_comment_style_completeness_regression():
@@ -495,13 +496,13 @@ def test_typescript_api_contract_2730():
     api = TYPESCRIPT_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('public dispose(): void {'), 'public method'
-    assert api.search('public expression: Expression,'), 'parameter property'
-    assert api.search('export function f() {}'), 'export (kept)'
+    assert api.search("public dispose(): void {"), "public method"
+    assert api.search("public expression: Expression,"), "parameter property"
+    assert api.search("export function f() {}"), "export (kept)"
 
     # Not declarations -- must not match.
-    assert not api.search('return "public";'), 'keyword in a string literal'
-    assert not api.search('case "public":'), 'keyword in a switch case'
+    assert not api.search('return "public";'), "keyword in a string literal"
+    assert not api.search('case "public":'), "keyword in a switch case"
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)

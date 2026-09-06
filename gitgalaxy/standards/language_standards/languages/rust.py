@@ -136,7 +136,23 @@ DEFINITION: dict[str, Any] = {
         "api": re.compile(r"\bpub(?:\([^)]*\))?\b"),
         # 11. flux (State Mutation)
         # Mutation of state. EXCLUDES const (freeze_hits).
-        "state_mutation": re.compile(r"\bmut\b|\.borrow_mut\(\)|\.write\(\)|Cell::|RefCell::|Atomic[A-Za-z0-9]+"),
+        "state_mutation": re.compile(
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `mut` marks a binding or borrow as writable and `Cell::`/`RefCell::`/`Atomic*`
+            # name mutable state (corollaries 1 and 2); the write is `x = v`, `*p = v`,
+            # `x += 1`, a container mutator, or a mutable borrow being taken.
+            r"(?:^|[;{}])[ \t]*\**[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
+            r"|\.(?:push|push_str|push_back|push_front|pop|pop_back|pop_front|insert|remove|clear|extend|truncate|retain|drain|append|swap|sort|sort_by|sort_unstable|reverse|resize|fill)\s*\("
+            r"|\.borrow_mut\(\)|\bstd::mem::(?:swap|replace|take)\s*\(|\.(?:store|swap|fetch_add|fetch_sub|compare_exchange)\s*\(",
+            re.M,
+        ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # BUG FIX (Engine Rule 12, Comment-Style Completeness): rust is
         # `recursive_block` (both `//` and nested `/* */` are real

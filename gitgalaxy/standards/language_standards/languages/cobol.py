@@ -287,7 +287,10 @@ DEFINITION: dict[str, Any] = {
         # (`MOVE CONTAINER` already reaches this rule through the bare `MOVE`
         # alternative, which is why it is not listed again.)
         "state_mutation": re.compile(
-            r"\b(MOVE|COMPUTE|ADD|SUBTRACT|MULTIPLY|DIVIDE|SET|INITIALIZE|REPLACE|STRING|UNSTRING"
+            # #2765 contract: the verb that performs the write, once per statement. The
+            # scope terminators (`END-STRING`, `END-ADD`, `END-COMPUTE`...) are excluded by
+            # the hyphen guard; `REPLACE` is a compiler directive, not a write.
+            r"(?<![-\w])(?:MOVE|COMPUTE|ADD|SUBTRACT|MULTIPLY|DIVIDE|SET|INITIALIZE|STRING|UNSTRING"
             r"|EXEC\s+CICS\s+PUT\s+CONTAINER)\b",
             re.I,
         ),

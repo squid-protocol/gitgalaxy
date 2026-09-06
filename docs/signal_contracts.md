@@ -60,7 +60,7 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-2 stated, 66 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+3 stated, 65 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
@@ -76,7 +76,7 @@ written.** Corollaries every audited contract has needed so far:
 | `io` | safety | `site` | draft | yes | Interaction with the disk, network, or external systems |  |
 | `safety` | safety | `site` | draft | yes | Defensive programming constructs that prevent crashes at runtime |  |
 | `safety_bypasses` | safety | `site` | draft | yes | Syntax that actively bypasses type safety, swallows errors, or relies on unpredictable state |  |
-| `state_mutation` | safety | `site` | draft | yes | Reassignment of variables or modifying collections | #2765 |
+| `state_mutation` | safety | `site` | stated | yes | A statement that writes a new value into state that already exists | [state_mutation_rule_contract.md](../docs/state_mutation_rule_contract.md) #2765 |
 | `test` | safety | `site` | draft | yes | Assertions and unit testing framework keywords |  |
 | `closures` | architecture | `declaration` | draft |  | Anonymous functions, lambdas, inline callbacks |  |
 | `comprehensions` | architecture | `site` | draft |  | Collection iterators or inline looping |  |

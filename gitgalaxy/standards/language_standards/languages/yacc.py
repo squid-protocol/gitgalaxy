@@ -98,7 +98,20 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(abort|exit|YYNOMEM)\b"),
         "io": re.compile(r"\b(fopen|fclose|fread|fwrite|yyin|yyout|fprintf)\b"),
         "api": re.compile(r"%define\b|%code\b|%provides\b|%requires\b"),
-        "state_mutation": re.compile(r"(?<![=!<>])=(?![=])|\+\+|--"),
+        "state_mutation": re.compile(
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `$$` / `$1` are the semantic-value lvalues of an action block.
+            r"(?:^|[;{}(),])[ \t]*\**(?:\$\$|\$\d{1,3}|[A-Za-z_]\w*)(?:(?:\.|->)[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]$][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*$]",
+            re.M,
+        ),
         "dead_code": re.compile(r"//[ \t]*(?:if|for|while|return|%token)\b|/\*[ \t]*(?:if|for|while|return|%token)"),
         # #2672: doc-family fix -- block form first (bounded, non-greedy, same
         # shape/bound as #2658) so a whole /** ... */ doc comment counts once

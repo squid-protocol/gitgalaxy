@@ -300,7 +300,22 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: the trailing bare `=` matched the first `=` of `==`,
         # miscounting every equality comparison (`result == expected`) as
         # an assignment. Added a negative lookahead to exclude `==`.
-        "state_mutation": re.compile(r"^[ \t]*\w+(?:\.\w+)*[ \t]*=(?!=)|@(?:Setter|Data)\b", re.M),
+        "state_mutation": re.compile(
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `@Setter`/`@Data` generate accessors (corollary 2). `=~`/`==~` are regex
+            # operators, not writes.
+            r"(?:^|[;{}])[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"[ \t]*(?:[-+*/%&|^]|<<|>>|\*\*|\?)?=(?![=~>])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"|\.(?:add|addAll|put|putAll|remove|clear|push|pop|set)\s*\(",
+            re.M,
+        ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # Tuned to catch dead Gradle definitions and Groovy logic.
         # BUG FIX (Rule 12): groovy is `standard_block` (both `//` and

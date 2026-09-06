@@ -109,7 +109,20 @@ DEFINITION: dict[str, Any] = {
         ),
         # 11. flux: State Mutation. State mutation (assignments and table mutators).
         "state_mutation": re.compile(
-            r"\b[a-zA-Z_]\w*(?:\[[^\]]+\]|\.[a-zA-Z_]\w*)?\s*(?<![=<>~])=(?![=])|\btable\.(?:insert|remove|move|sort|concat)\b"
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `local x = v` declares (corollary 1); a bare `x = v` writes (a global, an
+            # upvalue, or a re-assignment). A `{ key = value, }` line is a table
+            # constructor field, not a statement. `table.concat` reads.
+            r"(?:^|;)[ \t]*(?!local\b)[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"[ \t]*=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|\btable\.(?:insert|remove|move|sort)\b",
+            re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code trails.
         "dead_code": re.compile(

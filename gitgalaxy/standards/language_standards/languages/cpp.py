@@ -290,7 +290,21 @@ DEFINITION: dict[str, Any] = {
         # 11. flux (State Mutation)
         # Mutation of state. Includes moves and increments.
         "state_mutation": re.compile(
-            r"\b(mutable|std::move|std::exchange|std::swap|std::atomic)\b|(?<![=!<>])=(?![=])|&(?!\s*const)|\+\+|--|(?:\+=|-=|\*=|/=|%=|<<=|>>=|&=|\|=|\^=)"
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `mutable` / `std::atomic` name mutable state (contract corollary 2), `std::move`
+            # is a cast and `&` a borrow (corollary 3): none of them writes anything.
+            # `std::swap`/`std::exchange` and the container mutators do.
+            r"(?:^|[;{}(),])[ \t]*\**[A-Za-z_]\w*(?:(?:\.|->)[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"|\bstd::(?:swap|exchange)\s*\(|\bstd::mem::(?:swap|replace)\s*\("
+            r"|\.(?:push_back|emplace_back|emplace|insert|erase|clear|pop_back|pop_front|push_front|resize|assign|swap)\s*\(",
+            re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # Commented-out execution logic indicating dead features. MUST enforce that the structural keyword immediately follows the comment token.

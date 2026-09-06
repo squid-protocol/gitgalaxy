@@ -564,8 +564,21 @@ DEFINITION: dict[str, Any] = {
         # already self-delimited by their leading `.`, so pulled out of
         # the shared boundary group entirely.
         "state_mutation": re.compile(
-            r"\b(?:let|var|this\.|setState|push|pop|shift|unshift|splice|sort|reverse)\b"
-            r"|\.current[ \t]*=|\.set\(|\.delete\(|\.add\("
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # Same shape as javascript: `let`/`var`/`const` declare, a bare `this.` reads,
+            # `=` directly followed by `{`/quote is a TSX attribute.
+            r"(?:^|[;{})])[ \t]*[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\?\.[A-Za-z_$][\w$]*|\[[^\]\n]{0,80}\])*"
+            r"[ \t]*(?:[-+*/%&|^]|\*\*|<<|>>>?|&&|\|\||\?\?)?=(?![=>{\"'`])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_$(]"
+            r"|\bsetState\s*\("
+            r"|\.(?:push|pop|shift|unshift|splice|sort|reverse|fill|copyWithin|set|delete|add|clear)\s*\(",
+            re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # BUG FIX (Engine Rule 12, Comment-Style Completeness): typescript

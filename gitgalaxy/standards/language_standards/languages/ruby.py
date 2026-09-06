@@ -158,9 +158,14 @@ DEFINITION: dict[str, Any] = {
         # newline, another `.method`) is never a word character. None
         # of Ruby's canonical in-place-mutation methods ever matched.
         "state_mutation": re.compile(
-            r"@[a-zA-Z_]\w*\s*(?:\+|-|\*|/)?=|@@[a-zA-Z_]\w*\s*(?:\+|-|\*|/)?="
-            r"|\b(?:push|pop|shift|unshift|delete|clear)\b|<<"
-            r"|\bmerge!|\bupdate!|\bgsub!|\bmap!|\bselect!|\breject!"
+            # #2765 contract: an instance/class-variable write, an in-place mutator on a
+            # receiver (`.push(` -- a bare `def delete` is a declaration, corollary 1),
+            # a bang method, or `<<` append (`class << self` opens a singleton class and
+            # `<<~EOS` a heredoc: neither writes).
+            r"@@?[a-zA-Z_]\w*\s*(?:\+|-|\*|/|\|\||&&)?=(?![=~>])"
+            r"|\.(?:push|pop|shift|unshift|delete|delete_at|delete_if|clear|concat|insert|store|replace|prepend|append)\b(?![?!])"
+            r"|(?<!class)(?<!class )[ \t]<<(?![~\-]?[A-Z_\"'])"
+            r"|\b(?:merge!|update!|gsub!|sub!|map!|select!|reject!|sort!|sort_by!|uniq!|compact!|flatten!|reverse!|strip!|chomp!|squeeze!|slice!|shuffle!)"
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"#[ \t]*(?:def|class|module|if|unless|while|puts|p)\b"),

@@ -90,7 +90,20 @@ DEFINITION: dict[str, Any] = {
         # 10. api: Public Surface Area. Exposed boundaries to external wallets or contracts.
         "api": re.compile(r"\b(external|public)\b"),
         # 11. flux: State Mutation. State mutation. Captures array mutators, payable states, and explicit assignment.
-        "state_mutation": re.compile(r"\b(payable|push|pop)\b|(?<![=<>!])=(?![=])|\+\+|--|\+=|-=|\*=|/="),
+        "state_mutation": re.compile(
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `payable(x)` is a cast (corollary 3); `.push(`/`.pop(` write a storage array.
+            r"(?:^|[;{}(),])[ \t]*\**[A-Za-z_]\w*(?:(?:\.|->)[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"|\.(?:push|pop)\s*\(",
+            re.M,
+        ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out execution flow or structural definitions.
         "dead_code": re.compile(r"//[ \t]*(?:function|contract|if|require|uint|address)\b"),
         # 13. doc: Structured Documentation. NatSpec (Ethereum Natural Specification Format).

@@ -175,7 +175,20 @@ DEFINITION: dict[str, Any] = {
         # 11. flux (State Mutation)
         # CRITICAL FIX: Added re.M so it scans every line, not just the first line of the file!
         "state_mutation": re.compile(
-            r"\b(var|MutableList|MutableMap|MutableSet|MutableState|MutableStateFlow|Atomic[A-Za-z0-9]+)\b|^[ \t]*(?:this\.)?[a-zA-Z_]\w*(?:\.[a-zA-Z_]\w*)*\s*[-+*/%]?=|\.(?:add|addAll|remove|put|set|update)\(",
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `var x = v` declares and `Mutable*`/`Atomic*` name mutable state (corollaries
+            # 1 and 2); `x = v`, `x++`, `.add(`... are the writes. `=>` never appears in
+            # kotlin but `==`/`===` do; a trailing-comma line is a named argument.
+            r"(?:^|[;{}])[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"[ \t]*(?:[-+*/%])?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"|\.(?:add|addAll|remove|removeAt|put|putAll|set|update|clear|getAndSet|compareAndSet|incrementAndGet|decrementAndGet)\s*\(",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)

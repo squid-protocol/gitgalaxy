@@ -69,7 +69,7 @@ _SCALA_SIMPLE_CASES = [
     ("high_risk_execution", "System.exit(1)", "System.currentTimeMillis()"),
     ("io", "Source.fromFile(path)", "sourceMap = generate()"),
     ("api", "export Foo._", "private def foo() = {}"),
-    ("state_mutation", "var count = 0", "println(count)"),
+    ("state_mutation", "count = 1", "var count = 0"),  # #2765: a declaration is not a write
     ("dead_code", "// def foo() = {}", "// just a note"),
     ("doc", "/** A doc comment */", "/* regular block comment */"),
     ("test", "assertEquals(1, 1)", "musty_old_code = true"),

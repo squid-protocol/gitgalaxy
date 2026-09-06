@@ -451,8 +451,9 @@ def test_matlab_resource_action_dual_classification_sweep():
     legitimately fire two signatures representing different perspectives
     on the same underlying action -- intentional, not false collisions:
     - `try`/`catch` -> branch (decision point) + safety (defensive programming)
-    - `clear all` -> high_risk_execution (destructive wipe) + state_mutation
-      (workspace mutation) + cleanup (resource release)
+    - `clear all` -> high_risk_execution (destructive wipe) + cleanup
+      (resource release); NOT state_mutation since #2765 (count contract
+      corollary 4: `clear` is cleanup's token, the write is the assignment)
     - `fclose(fid)` -> io (file operation) + cleanup (handle release)
     - `system(...)` -> high_risk_execution (OS bypass) + ipc_rpc_bridges
       (inter-process bridge)
@@ -466,7 +467,7 @@ def test_matlab_resource_action_dual_classification_sweep():
 
     clear_all = "clear all"
     assert MATLAB_RULES["high_risk_execution"].search(clear_all)
-    assert MATLAB_RULES["state_mutation"].search(clear_all)
+    assert not MATLAB_RULES["state_mutation"].search(clear_all)
     assert MATLAB_RULES["cleanup"].search(clear_all)
 
     fclose_call = "fclose(fid)"
@@ -618,10 +619,15 @@ def test_matlab_script_level_and_void_functions_are_untouched():
     assert _matlab_state(code) == 1
 
 
-def test_matlab_clear_on_a_dropped_binding_line_keeps_its_own_hit():
-    """The `clear` alternative is unanchored; it must survive its line's binding being dropped."""
-    code = "function out = f(a)\nout = a; clear scratch\nend\n"
-    assert _matlab_state(code) == 1
+def test_matlab_dropped_binding_line_contributes_nothing_but_a_real_write_survives():
+    """
+    The return-channel filter drops the `out = a` binding by offset, not by line.
+    Since #2765 `clear` is the cleanup rule's token and no longer a state_mutation
+    hit, so the dropped line contributes 0 -- and a real write elsewhere in the
+    same function still counts.
+    """
+    assert _matlab_state("function out = f(a)\nout = a; clear scratch\nend\n") == 0
+    assert _matlab_state("function out = f(a)\nout = a; clear scratch\ncount = 1;\nend\n") == 1
 
 
 def test_matlab_return_channel_filter_keeps_counts_and_locations_consistent():
@@ -683,8 +689,8 @@ def test_matlab_api_contract_2730():
     api = MATLAB_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('function out = probe_globals(env)'), 'column-0 function file entry'
-    assert api.search('    methods'), 'public methods block (kept)'
+    assert api.search("function out = probe_globals(env)"), "column-0 function file entry"
+    assert api.search("    methods"), "public methods block (kept)"
 
     # Not declarations -- must not match.
-    assert not api.search('        function y = helper(x)'), 'indented classdef method'
+    assert not api.search("        function y = helper(x)"), "indented classdef method"

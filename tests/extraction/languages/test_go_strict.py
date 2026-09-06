@@ -90,7 +90,7 @@ _GO_SIMPLE_CASES = [
     ("serialization_parsing", "json.Unmarshal(data, &v)", "json.Marshaled = true"),
     ("spec_exposure", "// [SPEC-123] implements the contract", "// spec sheet"),
     ("ssr_boundaries", "var w http.ResponseWriter", "var w foo.ResponseWriter"),
-    ("state_mutation", "x := 5", "x == 5"),
+    ("state_mutation", "x = 5", "x := 5"),  # #2765: `:=` declares; the re-assignment is the write
     ("structural_boundaries", "package main", "packaged = true"),
     ("structural_boundaries", "map[string]int", "map_name"),
     ("structural_boundaries", "<-chan int", "channel"),

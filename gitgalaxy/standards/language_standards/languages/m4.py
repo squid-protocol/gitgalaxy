@@ -107,7 +107,9 @@ DEFINITION: dict[str, Any] = {
         # 11. flux (State Mutation)
         # Stack-based macro overriding and list appending.
         "state_mutation": re.compile(
-            r"\b(?:pushdef|popdef|m4_pushdef|m4_popdef|m4_append|m4_append_uniq|m4_combine)\b"
+            # #2765 contract: `popdef` restores a definition and is the `cleanup` rule's
+            # token (count contract corollary 4); `pushdef`/`m4_append` write one.
+            r"\b(?:pushdef|m4_pushdef|m4_append|m4_append_uniq|m4_combine|m4_set_add|m4_set_add_all|m4_list_append)\b"
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # Commented-out macro definitions.

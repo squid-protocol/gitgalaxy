@@ -159,7 +159,20 @@ DEFINITION: dict[str, Any] = {
         # preceding \b anchor -- O(n^2) on a long run of word characters
         # with neither token present. Bounded to {1,100}.
         "state_mutation": re.compile(
-            r"\$[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*\s*(?:[-+*./%&|])?=|&\$|\bglobal\s+\$|(?:\w{1,100})?(?:->|::)[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*[ \t]*=|array_(?:push|pop|shift|unshift|splice)\b|(?:\+\+|--)"
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # PHP has no declaration syntax, so every assignment statement is a write
+            # (contract corollary 1's fallback). `global $x` is the `globals` rule's token
+            # (corollary 4) and `&$x` a reference declaration -- neither writes. `==`,
+            # `===` and `=>` are excluded.
+            r"\$[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*(?:\[[^\]\n]{0,80}\])*\s*(?:[-+*./%&|^]|\*\*|<<|>>|\?\?)?=(?![=>])"
+            r"|(?:\w{1,100})?(?:->|::)\$?[a-zA-Z_\x80-\xff][a-zA-Z0-9_\x80-\xff]*(?:\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*./%&|^]|\?\?)?=(?![=>])"
+            r"|\barray_(?:push|pop|shift|unshift|splice)\b|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*\$"
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # BUG FIX: the `function|class|namespace|use|if|foreach`

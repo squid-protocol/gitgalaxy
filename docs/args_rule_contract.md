@@ -27,9 +27,11 @@ Three corollaries, each of which the audit below found a language violating:
    In a language with no formal parameter list, `$1`/`$@` in a body is the only parameter surface
    there is, and at file level counting each occurrence is the language's own morphology, not a
    defect (keyword-rosetta ledgers this for `m4` as `m4-parameters-are-use-sites`). But
-   `avg_func_args` is an *arity*, and `$1 … $1` is one parameter referenced twice under any
-   reading. Counting distinct positions is the fix there; `shell` does this
-   (`_args_findall_max_groups`), `m4` does not.
+   `avg_func_args` is an *arity*, and an arity is the **highest position declared**, not the
+   first one seen. Without `_args_findall_max_groups` the per-function path `.search()`es the
+   block and trusts the LEFTMOST hit, which drops every higher position after it (`$1 … $3`
+   reads 1) and counts `$0` — the macro's own name — as a parameter. `shell` fixed this in
+   #1518; `m4` followed in #2784.
 
 ## What this is used for
 
@@ -95,7 +97,7 @@ density rather than declaration count.
 | `abap` | 13 | 167 | 1.35 | fallback family -- `IMPORTING`/`EXPORTING`/`CHANGING`/`RETURNING` blocks |
 | `ada` | 13 | n/a | n/a | anchored to `procedure`/`function` |
 | `agc_assembly` | 13 | 416 | 0.51 | fallback family -- instruction operands |
-| `apex` | 18 | 41 | 1.00 | **violates corollary 1** -- the return-type prefix is optional, so `probeBranch(argv)` at line start counts. Filed as #2783 |
+| `apex` | 13 | 39 | 1.00 | violated corollary 1 -- the return-type prefix was optional, so `probeBranch(argv)` at line start counted. FIXED in #2783 (return type mandatory + a `{`-anchored constructor branch); the crucible's old 41-vs-41 was 38 real plus 3 false positives |
 | `assembly` | 13 | 18837 | 16.54 | fallback family -- argument-passing registers |
 | `c` | 13 | 4106 | 2.35 | the parameter list must open with a type token |
 | `cobol` | 1 | 295 | 0.03 | fallback family -- `USING`/`RETURNING` |
@@ -107,7 +109,7 @@ density rather than declaration count.
 | `embedded_python` | 13 | 135 | 1.00 | anchored to `def`/`lambda` |
 | `fortran` | 13 | n/a | n/a | anchored to `SUBROUTINE`/`FUNCTION`/`ENTRY` and `INTENT` |
 | `go` | 13 | 897 | 1.00 | anchored to `func` |
-| `groovy` | 19 | 2193 | 2.48 | **violates corollary 1** -- the return-type run is `{0,3}`, so `close(conn)` at line start counts. Filed as #2782 |
+| `groovy` | 13 | 991 | 1.13 | violated corollary 1 -- the return-type run was `{0,3}`, so `close(conn)` at line start counted. FIXED in #2782 (a `{`-anchored bodied arm plus a typed bodyless arm for interface/abstract declarations) |
 | `haskell` | 15 | 169 | 0.68 | inside the contract -- an arrow-less `::` signature is a CAF, and a Haskell top-level value IS a nullary function (ledger `haskell-caf-bindings-count-as-functions`); `func_start` agrees with `args` on it |
 | `html` | 3 | 676 | 6.76 | fallback family -- addressable attributes |
 | `java` | 13 | 384 | 1.21 | a return type is mandatory; a constructor must reach `throws` or `{` |
@@ -116,7 +118,7 @@ density rather than declaration count.
 | `kotlin` | 13 | 28 | 1.00 | anchored to `fun`/`constructor` |
 | `livecode` | 13 | 527 | 0.55 | anchored to `on`/`command`/`function`/`getprop`/`setprop` |
 | `lua` | 13 | 1551 | 2.44 | anchored to `function` |
-| `m4` | 18 | 70 | 1.79 | fallback family at file level (ledger `m4-parameters-are-use-sites`); **`avg_func_args` violates corollary 3** -- no `_args_findall_max_groups`, so `$1 ... $1` reads arity 2. Filed as #2784 |
+| `m4` | 18 | 70 | 1.79 | fallback family at file level (ledger `m4-parameters-are-use-sites`), unchanged. `avg_func_args` violated corollary 3 -- no `_args_findall_max_groups`, so the leftmost hit won: `$1 ... $3` read 1 and `$0` read 1. FIXED in #2784 (note: that issue's `$1 ... $1` example never reproduced -- it already read 1) |
 | `makefile` | 1 | 0 | 0.00 | fallback family -- `$(1)` inside `define`, `$(call ...)` |
 | `markdown` | 0 | n/a | n/a | no rule (no callables) |
 | `matlab` | 13 | 36 | 1.57 | anchored to `function` |

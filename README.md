@@ -151,11 +151,17 @@ identical intent identically in every language?** The
 [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus
 plants the same 12-probe program in all 46 supported languages with exact known
 signal counts — so any divergence is measured language bias, by construction.
-Current answer: not yet. On average 75% of languages land within ±25% of the
-cross-language median per metric, but only 3 of 33 metrics pass the strict
-cross-language gate, and the weakest (`risk_cognitive_load`, at 15% of
-languages in band) are named in the chart rather than hidden. Each deviation is
-recorded in a validated ledger and the defect classes found this way are
+The chart colours each deviation by *cause*, not size: red is an open engine
+defect (a rule matching the wrong construct, or a scoring weight sitting inside
+a count); grey is a documented variation the ledger has validated — the language
+cannot express the construct, a deliberate scoring choice, or an echo of another
+row. Current answer: 90% of language × metric cells sit within ±25% of the
+cross-language median across 48 gated metrics, and **2.7% (62 of 2,303) are
+open defects** — concentrated in the orphan census (`raw_state_slop_orphans`,
+28% of its cells) and `branch` (27%), named on the chart rather than hidden.
+Every deviation is recorded in a validated ledger, the open defects are worked
+by cause family under the [contract roadmap](docs/contract_roadmap.md), and
+the defect classes found this way are
 [filed as GitGalaxy issues](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md).
 
 ![Cross-language variance chart](https://raw.githubusercontent.com/squid-protocol/keyword-rosetta/main/docs/bias_variance_chart.svg)

@@ -138,7 +138,7 @@ Generate a valid Python dictionary matching this exact structure.
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: Control flow that forces the CPU to make a decision or jump. Includes: if, else, switch, for, while, catch, try, &&, ||, ternary. EXCLUDES: Exceptions (throw, raise) — these belong in panics_and_aborts.
         "branch": re.compile(r""), 
-        # args: Signatures defining input parameters. Includes: parameter blocks of functions, methods, and lambdas. Must safely step over type hints.
+        # args: THE PARAMETERS A CALLABLE DECLARES. Includes: the parameter blocks of functions, methods, constructors and lambdas; must safely step over type hints. Anchor the parameter list to the declaration it belongs to -- a declaration keyword (`def`/`fn`/`proc`), a mandatory return type, a terminator lookahead on what FOLLOWS the list (`(?=\{)`, `(?=:|\{)`), or a typed parameter list -- because `(...)` is equally a call, a cast and a grouped expression. EXCLUDES call sites: a call consumes a parameter surface, it does not declare one, and unlike `func_start` there is no `_slice_by_braces` downstream to drop the ones without a body. Where the language has no formal parameter list, match the construct that stands in for a declared parameter and record it in the fallback table. Full contract, corollaries and the 46-language audit: docs/args_rule_contract.md (#2773).
         "args": re.compile(r""), 
         # structural_boundaries: Keywords defining structural boundaries and straight-line execution. Includes: var, return, class, import. EXCLUDES: Access modifiers (public, private) and Immutability keywords (const, final — these belong in immutability_locks).
         "structural_boundaries": re.compile(r""), 

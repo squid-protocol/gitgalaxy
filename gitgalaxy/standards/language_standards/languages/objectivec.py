@@ -130,7 +130,64 @@ DEFINITION: dict[str, Any] = {
             # documented, pipeline-shielded limitation, the same shape as
             # the pre-existing comment/string-lookalike one just below in
             # this same file's test suite.
-            r"((?:(?:[a-zA-Z_]\w{0,80}[ \t\n]*)?:\s*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)\s*[a-zA-Z_]\w*[ \t\n]*|[a-zA-Z_]\w{0,80}[ \t\n]*:\s*[a-zA-Z_]\w*[ \t\n]*)+)|\^[ \t]*([a-zA-Z_]\w*\s*)?(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))|(?!(?:if|for|while|switch|catch|return|sizeof)\b)\b([a-zA-Z_]\w*)[ \t\n]*(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))[ \t\n]*(?:\{|;)",
+            #
+            # #2773: both arms were counting CALL SITES, not declared
+            # parameters -- `args` counts the parameters a callable
+            # DECLARES (docs/args_rule_contract.md), and a call consumes a
+            # parameter surface rather than publishing one. Measured over
+            # the code stream of language-crucible/data/objective-c
+            # (worldwideweb), classified against a tree-sitter `objc`
+            # parse of the same stream: 378 hits, only 101 of them real
+            # declarations (26.7% precision).
+            #   * The colon-selector arm matched every Objective-C MESSAGE
+            #     SEND -- `[store setVersion:ANCHOR_CURRENT_VERSION]`,
+            #     `[list objectAt:i]` -- because a send is lexically
+            #     identical to the untyped `label:name` parameter shape
+            #     (#1335). 120 of the 277 false hits, plus 3 ternaries
+            #     (`cond ? MIN_HEIGHT : maxY`) and both `@interface
+            #     Anchor:Object` superclass colons. Fixed by requiring the
+            #     span to lead with a real method-declaration head,
+            #     `^[-+]` plus an optional return type -- the one context
+            #     a keyword-message SIGNATURE can appear in and a send
+            #     never can (a send always leads with `[`). This also
+            #     closes the string-literal hole the issue asked for a
+            #     negative test on: prism strips comments, but not
+            #     strings, so `@"status: ok"` used to be an `args` hit.
+            #   * The plain C arm accepted ANY `name(...)` followed by
+            #     `{`/`;`, so every bare call statement -- `free(conn);`,
+            #     `abort();`, `printf("...", x);` -- scored an argument.
+            #     146 of the false hits. Fixed by demanding the same
+            #     structural proof c/cpp's own args rules demand: the
+            #     parameter list must OPEN with a type token, and (unlike
+            #     c/cpp, which stop at the type) that type must be
+            #     followed by a parameter NAME or a `*`/`&` -- without the
+            #     name requirement `StrAllocCopy(Address, tag);` still
+            #     read as typed, since `Address` satisfies the PascalCase
+            #     typedef fallback all three rules share.
+            # After both: 378 -> 101 hits, 100 of them real declarations
+            # (the 101st is a method definition tree-sitter itself
+            # mis-parses). The only real declaration dropped is
+            # `page_width()` -- an empty parameter list, i.e. no parameter
+            # surface to count, exactly as c/cpp already treat it.
+            # arm 1 -- a keyword-message method SIGNATURE: the `-`/`+` lead (with
+            # func_start's own optional macro/`__attribute__` prefix and an optional
+            # `(return type)`) is what separates a declaration from a message send.
+            r"^[ \t]*(?:[A-Z_0-9]+[ \t]+|__attribute__[ \t]*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)[ \t]+)*"
+            r"[-+][ \t\n]*(?:\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)[ \t\n]*)?"
+            r"((?:(?:[a-zA-Z_]\w{0,80}[ \t\n]*)?:\s*\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)\s*[a-zA-Z_]\w*[ \t\n]*"
+            r"|[a-zA-Z_]\w{0,80}[ \t\n]*:\s*[a-zA-Z_]\w*[ \t\n]*)+)|"
+            # arm 2 -- a block literal's own parameter list, `^(int x){ ... }`.
+            r"\^[ \t]*([a-zA-Z_]\w*\s*)?(\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))|"
+            # arm 3 -- a plain C function declaration/definition. The parameter list
+            # must open with a type token AND that token must be followed by a
+            # parameter name or a `*`/`&`, which is what makes it a declaration
+            # rather than a call whose first argument happens to be capitalised.
+            r"(?!(?:if|for|while|switch|catch|return|sizeof)\b)\b([a-zA-Z_]\w*)[ \t\n]*"
+            r"(\(\s*(?:(?:const|volatile|__strong|__weak|__unsafe_unretained|_Nullable|_Nonnull)\s+)*"
+            r"(?:void\s*\)|(?:int|char|void|float|double|long|short|unsigned|signed|struct|enum|union"
+            r"|id|BOOL|SEL|IMP|Class|instancetype|_*[A-Z]\w*|[a-z_]\w*_t|[a-z_]\w*)\b"
+            r"[ \t\n]*[*&]*[ \t\n]*[a-zA-Z_]\w*(?:[^)(]|\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\))*\)))"
+            r"[ \t\n]*(?:\{|;)",
             re.M,
         ),
         # Which `args` capture-group index represents an objc

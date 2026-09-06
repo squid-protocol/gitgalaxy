@@ -62,10 +62,53 @@ DEFINITION: dict[str, Any] = {
             # multi-line SObject-builder calls) can't be parsed as "return type = new,
             # name = ClassName". Mirrors csharp's own GHOST ARGS SHIELD, which already
             # excludes `new` from its equivalent prefix group.
+            # #2783: the return-type group's trailing `?` is GONE -- it made the whole
+            # prefix optional, and since the annotation and modifier runs are both
+            # zero-allowed the method arm degenerated to `^[ \t]*IDENT(...)`, which is
+            # exactly the shape of a bare call statement. `args` matches the parameters a
+            # callable DECLARES (docs/args_rule_contract.md); a call site consumes a
+            # parameter surface, it does not publish one -- so `isAccessible(value);`,
+            # `probeRisk(argv);` and `return (Double) x.get('total');` all scored as
+            # declared parameter lists. Unlike groovy (#2782) Apex has no `def`:
+            # every method declaration carries an explicit return type (`void` included),
+            # and a constructor carries the class name in that position (`public Foo(x)`
+            # backtracks to return-type=`public`, name=`Foo`, so constructors are kept).
+            # A `(?=[ \t\n]*\{)` body-terminator lookahead -- javascript's anchor, and the
+            # other shape #2773 used -- was rejected because it cannot reach Apex's
+            # bodiless interface and `abstract` method declarations, and relaxing it to
+            # `[{;]` would re-admit `foo(x);` calls verbatim. Mandatory return type is what
+            # `java` ("Standard Methods MUST have a return type") and `csharp` -- the same
+            # C-family rule, same shape -- already do. `args` has NO downstream validator,
+            # so this arm has to be right on its own; the `func_start` sibling below keeps
+            # its `?` because #1221's gating lookahead already demands one of the three
+            # prefixes AND `_slice_by_braces` re-checks every match for a real body.
+            # `return` joins `new` in the return-type slot's exclusion (csharp branch 1
+            # excludes both, plus if/for/while/switch/yield/delegate/event): no Apex
+            # declaration can return a type named `return`, but `return doWork(x);` is a
+            # call whose two tokens otherwise satisfy "type name(...)" exactly.
+            # NOT fixed here and still counted: a SOQL clause inside `[...]` whose shape is
+            # `KEYWORD FUNC(arg)` -- `SELECT SUM(Amount) total` reads as type=`SELECT`,
+            # name=`SUM`. That is a different defect (a whole sub-language being scanned as
+            # Apex statements, which wants a scope filter, not a keyword list); 1 hit in
+            # language-crucible, 0 in keyword-rosetta, unchanged by this commit.
             r"^[ \t]*(?:@[\w.]+\b(?:\s*\((?:[^)(]|\([^)(]*\))*\))?\s*){0,5}"
             r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
-            r"(?:(?!new\b)[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)?(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)\s*(\([^)]*\))|"
-            r"^[ \t]*trigger\s+([a-zA-Z_]\w*)\s+on\s+[a-zA-Z_]\w*\s*(\([^)]*\))",
+            r"(?:(?!(?:new|return)\b)[a-zA-Z_][\w.]*(?:\s*<(?:[^<>]|<(?:[^<>]|<(?:[^<>]|<[^<>]*>)*>)*>)*>)?(?:\s*\[\s*\])*\s+)(?!(?:class|interface|enum|if|for|while|switch|catch)\b)([a-zA-Z_]\w*)\s*(\([^)]*\))|"
+            r"^[ \t]*trigger\s+([a-zA-Z_]\w*)\s+on\s+[a-zA-Z_]\w*\s*(\([^)]*\))|"
+            # #2783 branch 3 (constructors): an Apex constructor legally carries NO access
+            # modifier (`MyClass(Integer x) {`, default private), which is the one real
+            # declaration shape the mandatory return type above cannot reach -- it is
+            # lexically identical to a bare call. Anchored the way `java`/`csharp` anchor
+            # their own Branch 2 ("Constructors lack return types, so they MUST be anchored
+            # to `:` or `{`"): on the body `{` that FOLLOWS the parameter list. A call
+            # statement is followed by `;`, never `{`, so this cannot re-admit the shape
+            # branch 1 just stopped matching. Placed LAST so the method and trigger arms
+            # keep their capture-group indices (`_calculate_block_metrics` reads
+            # `group(lastindex)`, and this arm likewise ends on its parameter-list group).
+            r"^[ \t]*(?:@[\w.]+\b(?:\s*\((?:[^)(]|\([^)(]*\))*\))?\s*){0,5}"
+            r"(?:(?:public|private|global|protected|static|override|virtual|abstract|testMethod)\s+){0,5}"
+            r"(?!(?:new|return|class|interface|enum|if|else|for|while|do|switch|catch|try|finally)\b)"
+            r"([a-zA-Z_]\w*)\s*(\([^)]*\))(?=[ \t\n]*\{)",
             re.M | re.I,
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and sharing keywords.

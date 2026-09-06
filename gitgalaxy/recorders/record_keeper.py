@@ -30,6 +30,17 @@ FUNC_EVIDENCE_MASS_FLOOR = float(cast("int", ENGINE_CONSTANTS["FUNC_EVIDENCE_MAS
 EVIDENCE_MASS_FLOOR = float(cast("int", ENGINE_CONSTANTS["EVIDENCE_MASS_FLOOR"]))
 
 
+def _is_already_renamed(exc: sqlite3.OperationalError) -> bool:
+    """#2806: is this ALTER ... RENAME COLUMN failure the benign already-done one?
+
+    A fresh database is created with the current column names, so the rename
+    finds "no such column"; a database migrated by an earlier run reports the
+    new name as a "duplicate column name". Neither is an error; anything else is.
+    """
+    detail = str(exc).lower()
+    return "no such column" in detail or "duplicate column name" in detail
+
+
 class FolderStats(TypedDict):
     """Accumulator shape for the folder-level rollup below -- without this,
     the mixed int/float/list values collapse to "object" under mypy, which
@@ -87,7 +98,7 @@ class RecordKeeper:
             "high_risk_execution": "state_danger",
             "dead_code": "state_graveyard",
             "safety_bypasses": "state_safety_neg",
-            "orphaned_logic": "state_slop_orphans",
+            "unreferenced_by_name": "state_unreferenced",
             "duplicate_logic": "state_slop_duplicates",
             "planned_debt": "state_planned_debt",
             "fragile_debt": "state_fragile_debt",
@@ -315,7 +326,7 @@ class RecordKeeper:
                 hallucination_zone BOOLEAN DEFAULT 0,
                 silent_mutation_risk BOOLEAN DEFAULT 0,
                 raw_arch_api INTEGER DEFAULT 0,
-                raw_state_slop_orphans INTEGER DEFAULT 0,
+                raw_state_unreferenced INTEGER DEFAULT 0,
                 {", ".join(risk_cols)},
                 {", ".join(hit_cols)}
             )
@@ -377,9 +388,36 @@ class RecordKeeper:
             else:
                 raise
 
-        # #2536: galaxyscope.py's Contextual Baseline Fix folds orphaned_logic
+        # #2806: the signal these two columns record was called `orphaned_logic`
+        # and stored as `state_slop_orphans` -- both names asserting the count
+        # was dead weight ("slop"), when what it measures is that no other text
+        # in the file names the function. The contract
+        # (docs/unreferenced_by_name_contract.md) renamed the signal, and the
+        # columns follow it so a DB query and an equations key cannot disagree
+        # about what the number means. Pre-#2806 databases are renamed in place
+        # rather than re-scanned: the values are unchanged, only the label was
+        # wrong. Runs BEFORE the ADD COLUMN heals below, so an old database is
+        # renamed rather than growing a second, empty raw column beside it.
+        # One block per column, like the ADD COLUMN heals around it: "no such
+        # column" means a fresh database already created with the current name,
+        # "duplicate column name" means an already-migrated one.
+        try:
+            cursor.execute("ALTER TABLE file_data RENAME COLUMN state_slop_orphans TO state_unreferenced")
+        except sqlite3.OperationalError as exc:
+            if not _is_already_renamed(exc):
+                raise
+            self.logger.debug("Schema migration skipped: 'state_slop_orphans' is not present to rename.")
+
+        try:
+            cursor.execute("ALTER TABLE file_data RENAME COLUMN raw_state_slop_orphans TO raw_state_unreferenced")
+        except sqlite3.OperationalError as exc:
+            if not _is_already_renamed(exc):
+                raise
+            self.logger.debug("Schema migration skipped: 'raw_state_slop_orphans' is not present to rename.")
+
+        # #2536: galaxyscope.py's Contextual Baseline Fix folds unreferenced_by_name
         # into api for any imported file BEFORE the hit_vector is built, so
-        # arch_api / state_slop_orphans only ever carry the ADJUSTED values.
+        # arch_api / state_unreferenced only ever carry the ADJUSTED values.
         # These two columns persist the raw pre-adjustment extraction counts
         # alongside them (needed by the #1096 cross-language control corpus);
         # for files the adjustment never touches, raw == adjusted. Same
@@ -393,10 +431,10 @@ class RecordKeeper:
                 raise
 
         try:
-            cursor.execute("ALTER TABLE file_data ADD COLUMN raw_state_slop_orphans INTEGER DEFAULT 0")
+            cursor.execute("ALTER TABLE file_data ADD COLUMN raw_state_unreferenced INTEGER DEFAULT 0")
         except sqlite3.OperationalError as exc:
             if "duplicate column name" in str(exc).lower():
-                self.logger.debug("Schema migration skipped: 'raw_state_slop_orphans' already exists.")
+                self.logger.debug("Schema migration skipped: 'raw_state_unreferenced' already exists.")
             else:
                 raise
 
@@ -458,7 +496,9 @@ class RecordKeeper:
         # producer doesn't ship the raw snapshot (synthetic leak/model nodes),
         # so raw == adjusted there rather than a fake zero.
         api_sig_idx = self.SIGNAL_SCHEMA.index("api") if "api" in self.SIGNAL_SCHEMA else -1
-        orphan_sig_idx = self.SIGNAL_SCHEMA.index("orphaned_logic") if "orphaned_logic" in self.SIGNAL_SCHEMA else -1
+        orphan_sig_idx = (
+            self.SIGNAL_SCHEMA.index("unreferenced_by_name") if "unreferenced_by_name" in self.SIGNAL_SCHEMA else -1
+        )
 
         for file_data in parsed_files:
             tel = file_data.get("telemetry", {})
@@ -557,13 +597,13 @@ class RecordKeeper:
 
             # #2536: raw pre-adjustment extraction counts, snapshotted by
             # galaxyscope.py BEFORE the Contextual Baseline Fix rewrites
-            # api/orphaned_logic. Absent snapshot -> fall back to the adjusted
+            # api/unreferenced_by_name. Absent snapshot -> fall back to the adjusted
             # hit_vector slots (raw == adjusted).
             raw_pre = file_data.get("raw_pre_adjustment", {})
             adjusted_api = hv[api_sig_idx] if 0 <= api_sig_idx < len(hv) else 0
             adjusted_orphans = hv[orphan_sig_idx] if 0 <= orphan_sig_idx < len(hv) else 0
             raw_api = int(raw_pre.get("api", adjusted_api))
-            raw_orphans = int(raw_pre.get("orphaned_logic", adjusted_orphans))
+            raw_orphans = int(raw_pre.get("unreferenced_by_name", adjusted_orphans))
 
             file_archetype = tel.get("archetype", "Unknown")
             file_fingerprint_str = json.dumps(tel.get("archetype_fingerprint", {}))
@@ -826,7 +866,7 @@ class RecordKeeper:
                     ecosystem_baseline, repo_z_score,
                     ai_threat_score, is_malware, has_credentials, binary_anomaly, obfuscation_flag,
                     token_mass, financial_read_cost, agentic_isolation_risk, requires_hitl, appsec_god_mode, hallucination_zone, silent_mutation_risk,
-                    raw_arch_api, raw_state_slop_orphans,
+                    raw_arch_api, raw_state_unreferenced,
                     {", ".join([f"risk_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
                     {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}
                 ) VALUES ({placeholders})

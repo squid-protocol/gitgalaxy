@@ -419,7 +419,7 @@ class SecurityAuditor:
                     # always seen 0.0. Populating it for real is a scored-model
                     # input change that needs a retrain, not this fix.
                     "func_internal_density": 0.0,
-                    "orphaned_logic": float(hit_dict.get("orphaned_logic", 0)),
+                    "unreferenced_by_name": float(hit_dict.get("unreferenced_by_name", 0)),
                     "duplicate_logic": float(hit_dict.get("duplicate_logic", 0)),
                     "log_direct_upstream": np.log1p(np.maximum(dep.get("direct_upstream", 0), 0)),
                     "log_direct_downstream": np.log1p(np.maximum(dep.get("direct_downstream", 0), 0)),

@@ -614,7 +614,7 @@ class LLMRecorder:
                     if s.get("risk_vector", [])[flux_idx] > 0
                 )
 
-        orphan_idx = self.SIGNAL_SCHEMA.index("orphaned_logic") if "orphaned_logic" in self.SIGNAL_SCHEMA else -1
+        orphan_idx = self.SIGNAL_SCHEMA.index("unreferenced_by_name") if "unreferenced_by_name" in self.SIGNAL_SCHEMA else -1
         dup_idx = self.SIGNAL_SCHEMA.index("duplicate_logic") if "duplicate_logic" in self.SIGNAL_SCHEMA else -1
 
         if orphan_idx >= 0 and dup_idx >= 0:
@@ -810,7 +810,7 @@ class LLMRecorder:
             "safety_bypasses",
             "planned_debt",
             "fragile_debt",
-            "orphaned_logic",
+            "unreferenced_by_name",
             "duplicate_logic",
         }
         arch_keys = {"io", "concurrency", "api", "import"}

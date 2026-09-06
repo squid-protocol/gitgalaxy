@@ -361,11 +361,11 @@ def test_record_keeper_persists_doc_loc(keeper, mock_pipeline_state, tmp_path):
 
 # ==============================================================================
 # #2536: RAW PRE-ADJUSTMENT HIT_VECTOR PERSISTENCE
-# galaxyscope.py's Contextual Baseline Fix folds orphaned_logic into api for
+# galaxyscope.py's Contextual Baseline Fix folds unreferenced_by_name into api for
 # any imported file BEFORE the hit_vector is built, so arch_api /
-# state_slop_orphans only ever carry the adjusted values. The raw
+# state_unreferenced only ever carry the adjusted values. The raw
 # pre-adjustment counts must round-trip via file_data["raw_pre_adjustment"]
-# into the additive raw_arch_api / raw_state_slop_orphans columns.
+# into the additive raw_arch_api / raw_state_unreferenced columns.
 #
 # #2729 asked for the split between the two to be explicit somewhere the test
 # surface can see it, because `api` in the risk equations is not the `api`
@@ -384,7 +384,7 @@ def baseline_keeper():
     are observable side by side."""
     mock_schemas = {
         "RISK_SCHEMA": ["tech_debt"],
-        "SIGNAL_SCHEMA": ["api", "orphaned_logic"],
+        "SIGNAL_SCHEMA": ["api", "unreferenced_by_name"],
     }
     with patch("gitgalaxy.recorders.record_keeper.RECORDING_SCHEMAS", mock_schemas):
         return RecordKeeper()
@@ -411,7 +411,7 @@ def _fetch_raw_row(db_path):
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     row = conn.execute(
-        "SELECT arch_api, state_slop_orphans, raw_arch_api, raw_state_slop_orphans FROM file_data"
+        "SELECT arch_api, state_unreferenced, raw_arch_api, raw_state_unreferenced FROM file_data"
     ).fetchone()
     conn.close()
     return row
@@ -436,16 +436,16 @@ def test_raw_columns_persist_pre_adjustment_values(baseline_keeper, tmp_path):
     test_contextual_baseline_fix_* own it."""
     db_path = tmp_path / "test_raw_adjusted.sqlite"
     parsed, unparsable, summary, session = _baseline_state(
-        hit_vector=[5, 0], raw_pre_adjustment={"api": 2, "orphaned_logic": 3}
+        hit_vector=[5, 0], raw_pre_adjustment={"api": 2, "unreferenced_by_name": 3}
     )
 
     baseline_keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
 
     row = _fetch_raw_row(db_path)
     assert row["arch_api"] == 5, "Adjusted api must persist unchanged (no behavior change to scoring)"
-    assert row["state_slop_orphans"] == 0, "Adjusted orphaned_logic must persist unchanged"
+    assert row["state_unreferenced"] == 0, "Adjusted unreferenced_by_name must persist unchanged"
     assert row["raw_arch_api"] == 2, "Raw pre-adjustment api was not preserved"
-    assert row["raw_state_slop_orphans"] == 3, "Raw pre-adjustment orphaned_logic was not preserved"
+    assert row["raw_state_unreferenced"] == 3, "Raw pre-adjustment unreferenced_by_name was not preserved"
     # The point of the raw columns: the conversion is recoverable as
     # adjusted - raw, WITHOUT assuming it equals the raw orphan count.
     # keyword-rosetta's gate reads exactly this subtraction as
@@ -463,17 +463,17 @@ def test_raw_columns_recover_a_partial_conversion_credit(baseline_keeper, tmp_pa
     distinguishable at all; before #2536 only the 5 survived."""
     db_path = tmp_path / "test_raw_partial.sqlite"
     parsed, unparsable, summary, session = _baseline_state(
-        hit_vector=[5, 0], raw_pre_adjustment={"api": 4, "orphaned_logic": 3}
+        hit_vector=[5, 0], raw_pre_adjustment={"api": 4, "unreferenced_by_name": 3}
     )
 
     baseline_keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
 
     row = _fetch_raw_row(db_path)
     assert row["raw_arch_api"] == 4
-    assert row["raw_state_slop_orphans"] == 3
+    assert row["raw_state_unreferenced"] == 3
     assert row["arch_api"] == 5, "the adjusted value must round-trip as given, partial credit included"
     assert row["arch_api"] - row["raw_arch_api"] == 1, "partial conversion credit was not recoverable"
-    assert row["arch_api"] != row["raw_arch_api"] + row["raw_state_slop_orphans"], (
+    assert row["arch_api"] != row["raw_arch_api"] + row["raw_state_unreferenced"], (
         "a partial credit must NOT satisfy the pre-#2731 sum -- that sum was the double count"
     )
 
@@ -483,14 +483,14 @@ def test_raw_columns_equal_adjusted_for_untouched_file(baseline_keeper, tmp_path
     still snapshots unconditionally, so raw == adjusted."""
     db_path = tmp_path / "test_raw_untouched.sqlite"
     parsed, unparsable, summary, session = _baseline_state(
-        hit_vector=[1, 4], raw_pre_adjustment={"api": 1, "orphaned_logic": 4}
+        hit_vector=[1, 4], raw_pre_adjustment={"api": 1, "unreferenced_by_name": 4}
     )
 
     baseline_keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
 
     row = _fetch_raw_row(db_path)
     assert row["raw_arch_api"] == row["arch_api"] == 1
-    assert row["raw_state_slop_orphans"] == row["state_slop_orphans"] == 4
+    assert row["raw_state_unreferenced"] == row["state_unreferenced"] == 4
 
 
 def test_raw_columns_fall_back_to_adjusted_without_snapshot(baseline_keeper, tmp_path):
@@ -503,7 +503,7 @@ def test_raw_columns_fall_back_to_adjusted_without_snapshot(baseline_keeper, tmp
 
     row = _fetch_raw_row(db_path)
     assert row["raw_arch_api"] == 7, "Fallback must mirror the adjusted arch_api slot"
-    assert row["raw_state_slop_orphans"] == 2, "Fallback must mirror the adjusted state_slop_orphans slot"
+    assert row["raw_state_unreferenced"] == 2, "Fallback must mirror the adjusted state_unreferenced slot"
 
 
 def test_raw_columns_migration_on_legacy_db(baseline_keeper, tmp_path):
@@ -512,7 +512,7 @@ def test_raw_columns_migration_on_legacy_db(baseline_keeper, tmp_path):
     instead of failing the INSERT with a column-count mismatch."""
     db_path = tmp_path / "legacy_raw.sqlite"
     parsed, unparsable, summary, session = _baseline_state(
-        hit_vector=[5, 0], raw_pre_adjustment={"api": 2, "orphaned_logic": 3}
+        hit_vector=[5, 0], raw_pre_adjustment={"api": 2, "unreferenced_by_name": 3}
     )
 
     # First mission builds the modern schema; drop both raw columns to
@@ -520,7 +520,7 @@ def test_raw_columns_migration_on_legacy_db(baseline_keeper, tmp_path):
     baseline_keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
     conn = sqlite3.connect(db_path)
     conn.execute("ALTER TABLE file_data DROP COLUMN raw_arch_api")
-    conn.execute("ALTER TABLE file_data DROP COLUMN raw_state_slop_orphans")
+    conn.execute("ALTER TABLE file_data DROP COLUMN raw_state_unreferenced")
     conn.commit()
     conn.close()
 
@@ -529,7 +529,7 @@ def test_raw_columns_migration_on_legacy_db(baseline_keeper, tmp_path):
 
     row = _fetch_raw_row(db_path)
     assert row["raw_arch_api"] == 2
-    assert row["raw_state_slop_orphans"] == 3
+    assert row["raw_state_unreferenced"] == 3
 
 
 def test_record_keeper_doc_loc_migration_on_legacy_db(keeper, mock_pipeline_state, tmp_path):

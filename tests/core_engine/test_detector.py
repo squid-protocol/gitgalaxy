@@ -365,7 +365,7 @@ def test_detector_orphan_and_duplicate_logic():
     """
     Proves the engine accurately identifies uncalled (orphan) functions
     and duplicated function definitions within a single file, and that both
-    counts are aggregated into equations (orphaned_logic / duplicate_logic).
+    counts are aggregated into equations (unreferenced_by_name / duplicate_logic).
     """
     opt_detector = StructuralExtractor("python", MOCK_LANG_DEFS)
     code = (
@@ -397,8 +397,8 @@ def test_detector_orphan_and_duplicate_logic():
     assert duplicates.count("repeated_name") == 2, "Failed to flag both definitions of the duplicated function name!"
 
     # forgotten_orphan and main_process (never called, name > 3 chars) both flag as orphans.
-    assert result["equations"].get("orphaned_logic", 0) == len(orphans), (
-        "orphan_count was not aggregated into equations['orphaned_logic']!"
+    assert result["equations"].get("unreferenced_by_name", 0) == len(orphans), (
+        "orphan_count was not aggregated into equations['unreferenced_by_name']!"
     )
     assert result["equations"].get("duplicate_logic", 0) == 2, (
         "duplicate_count was not aggregated into equations['duplicate_logic']!"
@@ -447,7 +447,7 @@ def test_detector_orphan_census_excludes_synthetic_slicer_names():
     "<KEYWORD>_Statement"/"Declarative_Block" per-statement buckets for SQL. These
     must never be eligible for orphan/duplicate classification: a synthetic name can
     never legitimately appear a second time in the file, so without this exclusion
-    they were ALWAYS flagged "orphaned", inflating orphaned_logic with non-function
+    they were ALWAYS flagged "orphaned", inflating unreferenced_by_name with non-function
     shapes instead of real dead code.
     """
     # Mode D: shell. `. ./b.sh` is real top-level code (not a comment) preceding the
@@ -479,8 +479,8 @@ def test_detector_orphan_census_excludes_synthetic_slicer_names():
 
     real_orphans = [f["name"] for f in shell_result["functions"] if f.get("usage_status") == 1]
     assert set(real_orphans) == {"forgotten_orphan", "main_process"}, f"Real orphan detection regressed: {real_orphans}"
-    assert shell_result["equations"].get("orphaned_logic", 0) == 2, (
-        "orphaned_logic should count only the 2 real uncalled functions, not the synthetic bucket!"
+    assert shell_result["equations"].get("unreferenced_by_name", 0) == 2, (
+        "unreferenced_by_name should count only the 2 real uncalled functions, not the synthetic bucket!"
     )
 
     # Mode E: sql. Every top-level statement becomes its own satellite, named
@@ -497,8 +497,8 @@ def test_detector_orphan_census_excludes_synthetic_slicer_names():
     assert all(f.get("usage_status") == 0 for f in sql_result["functions"]), (
         f"A synthetic Mode E statement bucket was flagged as orphan/duplicate: {sql_result['functions']}"
     )
-    assert sql_result["equations"].get("orphaned_logic", 0) == 0, (
-        "orphaned_logic should be 0 -- SQL statements have no real callable names to be orphaned!"
+    assert sql_result["equations"].get("unreferenced_by_name", 0) == 0, (
+        "unreferenced_by_name should be 0 -- SQL statements have no real callable names to be orphaned!"
     )
 
 
@@ -3906,7 +3906,7 @@ def test_detector_counts_orphans_the_api_rule_already_declared():
 
     result = go_detector.splice(code, "")
 
-    assert result["equations"].get("orphaned_logic", 0) == 2, "both exported functions must census as orphans"
+    assert result["equations"].get("unreferenced_by_name", 0) == 2, "both exported functions must census as orphans"
     assert result["equations"].get("api", 0) >= 2, "go's api rule must count both exported declarations"
     assert result["api_declared_orphans"] == 2, (
         "both orphans are declared public -- converting them again would double-count the same identifiers"
@@ -4047,13 +4047,13 @@ def test_orphan_test_is_scoped_to_the_function_own_span():
 
     ada = StructuralExtractor("ada", LANGUAGE_DEFINITIONS)
     uncalled = "procedure Probe_Globals (Env : Integer) is\nbegin\n   null;\nend Probe_Globals;\n"
-    assert ada.splice(uncalled, "")["equations"].get("orphaned_logic", 0) == 1, (
+    assert ada.splice(uncalled, "")["equations"].get("unreferenced_by_name", 0) == 1, (
         "a procedure whose only other mention is its own `end Name;` is an orphan"
     )
 
     called = uncalled + "procedure Caller is\nbegin\n   Probe_Globals (1);\nend Caller;\n"
     eq = ada.splice(called, "")["equations"]
-    assert eq.get("orphaned_logic", 0) == 1, (
+    assert eq.get("unreferenced_by_name", 0) == 1, (
         "a real call from another procedure must clear the flag -- only Caller stays orphaned"
     )
 
@@ -4074,12 +4074,12 @@ def test_orphan_test_discounts_a_declaration_that_falls_outside_the_span():
 
     shell = StructuralExtractor("shell", LANGUAGE_DEFINITIONS)
     kr_style = 'make_module()\n{\n        MODULES="${MODULES} ${1}"\n}\n'
-    assert shell.splice(kr_style, "")["equations"].get("orphaned_logic", 0) == 1, (
+    assert shell.splice(kr_style, "")["equations"].get("unreferenced_by_name", 0) == 1, (
         "K&R shell function, never called: its own declaration line must not count as a reference"
     )
 
     called = kr_style + "make_module foo\n"
-    assert shell.splice(called, "")["equations"].get("orphaned_logic", 0) == 0, (
+    assert shell.splice(called, "")["equations"].get("unreferenced_by_name", 0) == 0, (
         "a real invocation outside the body must still clear the flag"
     )
 
@@ -4098,13 +4098,19 @@ def test_orphan_test_finds_names_containing_non_word_characters():
     from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
     scheme = StructuralExtractor("scheme", LANGUAGE_DEFINITIONS)
-    code = "(define (probe-globals env) env)\n(export probe-globals)\n"
-    assert scheme.splice(code, "")["equations"].get("orphaned_logic", 0) == 0, (
+    # #2806: this used to name the function a second time with `(export
+    # probe-globals)`, which does clear the flag today but for the wrong reason
+    # -- an export is a visibility declaration, not a reference (#2774 built
+    # `_visibility_export` for exactly that, and scheme is one of the two
+    # languages that never got one: #2823). A real call keeps this test on the
+    # defect it was written for -- that a hyphenated name can be matched at all.
+    code = "(define (probe-globals env) env)\n(display (probe-globals 1))\n"
+    assert scheme.splice(code, "")["equations"].get("unreferenced_by_name", 0) == 0, (
         "a hyphenated name named again elsewhere in the file is not an orphan"
     )
 
     uncalled = "(define (probe-globals env) env)\n"
-    assert scheme.splice(uncalled, "")["equations"].get("orphaned_logic", 0) == 1, (
+    assert scheme.splice(uncalled, "")["equations"].get("unreferenced_by_name", 0) == 1, (
         "the same hyphenated name with nothing else naming it still is one"
     )
 
@@ -4153,7 +4159,7 @@ def test_keyword_buckets_are_neither_duplicates_nor_orphans():
     code = "FROM debian\nRUN apt-get update\nRUN apt-get update\nRUN apt-get update\nRUN apt-get update\n"
     eq = docker.splice(code, "")["equations"]
     assert not eq.get("duplicate_logic"), "identical RUN instructions are not duplicated functions"
-    assert not eq.get("orphaned_logic"), "a RUN bucket is a keyword, and a keyword cannot be orphaned"
+    assert not eq.get("unreferenced_by_name"), "a RUN bucket is a keyword, and a keyword cannot be orphaned"
 
 
 def test_mode_d_anchors_a_function_at_its_declaration_not_its_opening_brace():

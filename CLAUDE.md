@@ -166,8 +166,8 @@ few minutes this way, instead of hours of pure static reading):
   is in play, before assuming the signal count itself is what's wrong.
 - Cross-reference the aggregated per-file numbers in the recorder DB this same run produces
   (`<scratch-dir>/<repo>_galaxy_master.db`, `file_data` table) — column names are the
-  `record_keeper.py`-renamed form of the raw equation keys (e.g. `orphaned_logic` →
-  `state_slop_orphans`, `api` → `arch_api`; confirm via `.schema file_data` since this evolves).
+  `record_keeper.py`-renamed form of the raw equation keys (e.g. `unreferenced_by_name` →
+  `state_unreferenced`, `api` → `arch_api`; confirm via `.schema file_data` since this evolves).
 - For a control/golden corpus already checked out locally (e.g. `keyword-rosetta`,
   `language-crucible`), point `galaxyscope` straight at it this way instead of writing a
   standalone repro script — the census requires git-tracked files (see `census-requires-git-

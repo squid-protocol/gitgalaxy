@@ -163,7 +163,7 @@ DEFINITION: dict[str, Any] = {
         # calls itself -- counted as a use and cleared its orphan flag. Measured
         # on keyword-rosetta/data/shell: 3 orphans per file without the export
         # lines, 0 with them. Five languages publish a FUNCTION (rather than a
-        # variable) by naming it, and all five sat at `raw_state_slop_orphans`
+        # variable) by naming it, and all five sat at `raw_state_unreferenced`
         # 0.25 against a 2.50 median because of it.
         #
         # This is deliberately NOT the `api` rule, though it overlaps it. `api`

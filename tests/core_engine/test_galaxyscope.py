@@ -1409,7 +1409,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     def test_contextual_baseline_fix_snapshots_raw_signals(self):
         """
         COVERAGE TARGET: The Contextual Baseline Fix block in _calculate_risk_exposures.
-        #2536: the fix rewrites api += orphaned_logic / orphaned_logic = 0 for any
+        #2536: the fix rewrites api += unreferenced_by_name / unreferenced_by_name = 0 for any
         imported file (popularity > 0) BEFORE recording, making the raw extraction
         counts unrecoverable. meta["raw_pre_adjustment"] must snapshot the raw
         values first -- unconditionally, so untouched files carry raw == adjusted.
@@ -1424,7 +1424,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
                 "path": "src/imported_lib.py",
                 "coding_loc": 100,
                 "lang_id": "python",
-                "equations": {"api": 2, "orphaned_logic": 3},
+                "equations": {"api": 2, "unreferenced_by_name": 3},
                 "functions": [{"name": "helper", "usage_status": 1}],
             },
             # Never imported: the adjustment must not touch it.
@@ -1432,7 +1432,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
                 "path": "src/island.py",
                 "coding_loc": 50,
                 "lang_id": "python",
-                "equations": {"api": 1, "orphaned_logic": 4},
+                "equations": {"api": 1, "unreferenced_by_name": 4},
             },
         }
         scope.popularity_scores = {"src/imported_lib.py": 2, "src/island.py": 0}
@@ -1445,27 +1445,27 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
         # 1. Adjusted behavior is byte-identical to before: orphans folded into api.
         self.assertEqual(lib["equations"]["api"], 5, "Contextual Baseline Fix no longer folds orphans into api!")
-        self.assertEqual(lib["equations"]["orphaned_logic"], 0, "Contextual Baseline Fix no longer wipes orphans!")
+        self.assertEqual(lib["equations"]["unreferenced_by_name"], 0, "Contextual Baseline Fix no longer wipes orphans!")
 
         # 2. The raw pre-adjustment values survive on the snapshot, and the
-        #    invariant adjusted api == raw_api + raw_orphaned_logic holds.
-        self.assertEqual(lib["raw_pre_adjustment"], {"api": 2, "orphaned_logic": 3})
+        #    invariant adjusted api == raw_api + raw_unreferenced_by_name holds.
+        self.assertEqual(lib["raw_pre_adjustment"], {"api": 2, "unreferenced_by_name": 3})
         self.assertEqual(
             lib["equations"]["api"],
-            lib["raw_pre_adjustment"]["api"] + lib["raw_pre_adjustment"]["orphaned_logic"],
-            "adjusted api must equal raw api + raw orphaned_logic",
+            lib["raw_pre_adjustment"]["api"] + lib["raw_pre_adjustment"]["unreferenced_by_name"],
+            "adjusted api must equal raw api + raw unreferenced_by_name",
         )
 
         # 3. The adjusted values are what flow into the recorder's hit_vector.
         signal_schema = RECORDING_SCHEMAS.get("SIGNAL_SCHEMA", [])
-        if "api" in signal_schema and "orphaned_logic" in signal_schema:
+        if "api" in signal_schema and "unreferenced_by_name" in signal_schema:
             self.assertEqual(lib["hit_vector"][signal_schema.index("api")], 5)
-            self.assertEqual(lib["hit_vector"][signal_schema.index("orphaned_logic")], 0)
+            self.assertEqual(lib["hit_vector"][signal_schema.index("unreferenced_by_name")], 0)
 
         # 4. Untouched file: snapshot still present, raw == adjusted.
-        self.assertEqual(island["raw_pre_adjustment"], {"api": 1, "orphaned_logic": 4})
+        self.assertEqual(island["raw_pre_adjustment"], {"api": 1, "unreferenced_by_name": 4})
         self.assertEqual(island["equations"]["api"], 1)
-        self.assertEqual(island["equations"]["orphaned_logic"], 4)
+        self.assertEqual(island["equations"]["unreferenced_by_name"], 4)
 
     # ==============================================================================
     # TEST 17c: #2731 -- THE CONTEXTUAL BASELINE FIX CREDITS ONLY NEW SURFACE
@@ -1491,7 +1491,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
                 "path": "src/all_exported.go",
                 "coding_loc": 100,
                 "lang_id": "go",
-                "equations": {"api": 3, "orphaned_logic": 3},
+                "equations": {"api": 3, "unreferenced_by_name": 3},
                 "api_declared_orphans": 3,
             },
             # Mixed: 3 orphans, 1 of them already public -> credit the other 2.
@@ -1499,7 +1499,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
                 "path": "src/mixed.go",
                 "coding_loc": 100,
                 "lang_id": "go",
-                "equations": {"api": 1, "orphaned_logic": 3},
+                "equations": {"api": 1, "unreferenced_by_name": 3},
                 "api_declared_orphans": 1,
             },
             # No overlap reported (the pre-#2731 shape, and every language whose
@@ -1509,7 +1509,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
                 "path": "src/no_overlap.py",
                 "coding_loc": 100,
                 "lang_id": "python",
-                "equations": {"api": 2, "orphaned_logic": 3},
+                "equations": {"api": 2, "unreferenced_by_name": 3},
             },
             # Defensive: an overlap larger than the orphan count must not
             # subtract public surface the api rule genuinely measured.
@@ -1517,7 +1517,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
                 "path": "src/overclaimed.go",
                 "coding_loc": 100,
                 "lang_id": "go",
-                "equations": {"api": 4, "orphaned_logic": 2},
+                "equations": {"api": 4, "unreferenced_by_name": 2},
                 "api_declared_orphans": 5,
             },
         }
@@ -1556,10 +1556,10 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             ("src/overclaimed.go", 2),
         ):
             self.assertEqual(
-                by_path[path]["equations"]["orphaned_logic"], 0, f"{path}: imported file kept its orphan debt!"
+                by_path[path]["equations"]["unreferenced_by_name"], 0, f"{path}: imported file kept its orphan debt!"
             )
             self.assertEqual(
-                by_path[path]["raw_pre_adjustment"]["orphaned_logic"],
+                by_path[path]["raw_pre_adjustment"]["unreferenced_by_name"],
                 raw_orphans,
                 f"{path}: #2536's raw snapshot must still hold the pre-adjustment orphan count",
             )

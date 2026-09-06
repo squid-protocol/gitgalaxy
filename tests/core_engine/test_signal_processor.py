@@ -660,7 +660,7 @@ def test_signal_processor_design_slop(processor):
         processor,
         "sloppy_debt",
         100,
-        {"planned_debt": 10, "orphaned_logic": 5, "duplicate_logic": 2},
+        {"planned_debt": 10, "unreferenced_by_name": 5, "duplicate_logic": 2},
     )
 
     r_clean = processor.calculate_risk_vector(m_clean, sig_clean)
@@ -1157,7 +1157,7 @@ def test_signal_processor_tech_debt_slop(processor):
         processor,
         "fragile_slop",
         500,
-        {"fragile_debt": 2, "orphaned_logic": 2, "duplicate_logic": 1},
+        {"fragile_debt": 2, "unreferenced_by_name": 2, "duplicate_logic": 1},
     )
 
     r_debt = processor.calculate_risk_vector(m_debt, sig_debt)

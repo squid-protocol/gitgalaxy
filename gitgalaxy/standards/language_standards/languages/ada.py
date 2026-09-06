@@ -169,7 +169,12 @@ DEFINITION: dict[str, Any] = {
         ),
         # state_mutation: Ada's assignment operator `:=` is lexically
         # distinct from `=` (equality) -- no ambiguity to guard against.
-        "state_mutation": re.compile(r":="),
+        "state_mutation": re.compile(
+            # #2765 contract: `X := v` at statement start writes; `X : T := v` declares
+            # (the `:` before the type breaks the match), as does `X : constant T := v`.
+            r"^[ \t]*[A-Za-z_][\w.]*(?:[ \t]*\([^()\n]{0,80}\))?[ \t]*:=",
+            re.M,
+        ),
         # dead_code: commented-out structural code (line_exclusive_dash
         # has exactly one comment style, so no completeness gap per
         # Rule 12).

@@ -105,7 +105,7 @@ _SWIFT_SIMPLE_CASES = [
     ("high_risk_execution", 'fatalError("unreachable")', "fatalErrorHandler = customHandler"),
     ("io", "let fm = FileManager.default", "fileManagerHelper = Helper()"),
     ("api", "public func foo() {}", "publicized = true"),
-    ("state_mutation", "var count = 0", "print(count)"),
+    ("state_mutation", "count = 1", "var count = 0"),  # #2765: a declaration is not a write
     ("dead_code", "// func foo() {}", "// just a note"),
     ("doc", "/// A doc comment", "// regular comment"),
     ("test", "XCTAssertEqual(a, b)", "setup_complete = true"),
@@ -459,10 +459,10 @@ def test_swift_api_contract_2730():
     api = SWIFT_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('public var description: String {'), 'public property'
-    assert api.search('package func helper() {}'), 'package-level function'
-    assert api.search('open class Foo {'), 'open class (kept)'
+    assert api.search("public var description: String {"), "public property"
+    assert api.search("package func helper() {}"), "package-level function"
+    assert api.search("open class Foo {"), "open class (kept)"
 
     # Not declarations -- must not match.
-    assert not api.search('let package = Package(name: "Alamofire",'), 'variable named package'
-    assert not api.search('"No public keys were found."'), 'keyword in a string literal'
+    assert not api.search('let package = Package(name: "Alamofire",'), "variable named package"
+    assert not api.search('"No public keys were found."'), "keyword in a string literal"

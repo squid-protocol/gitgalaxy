@@ -126,7 +126,17 @@ DEFINITION: dict[str, Any] = {
         ),
         # 11. flux: State Mutation. State mutation (The core of ABAP data manipulation).
         "state_mutation": re.compile(
-            r"^[ \t]*(MOVE|MOVE-CORRESPONDING|APPEND|MODIFY\s+TABLE|DELETE\s+TABLE)\b|^[ \t]*INSERT\s+[^\n;]+\s+INTO\s+TABLE",
+            # #2765 contract: the statement that writes -- the MOVE/APPEND/MODIFY verbs and
+            # the `=` assignment statement (modern ABAP's primary write form). `DATA(x) =`
+            # and `FIELD-SYMBOL(<f>) =` are inline declarations (corollary 1) and the `(`
+            # breaks the match; `IF a = b` is a comparison whose first token is the
+            # keyword, so its `=` is never at statement start. A named parameter inside a
+            # multi-line call (`iv_path = lv_path` on its own line, or `ii_log = ii_log ).`
+            # closing one) is not a statement: the assignment must end its line with the
+            # statement period, and a line that closes a `)` it never opened is a call.
+            r"^[ \t]*(MOVE|MOVE-CORRESPONDING|APPEND|MODIFY\s+TABLE|DELETE\s+TABLE)\b|^[ \t]*INSERT\s+[^\n;]+\s+INTO\s+TABLE"
+            r"|^[ \t]*[a-z_<][\w>\-]*(?:(?:->|=>)[a-z_]\w*)*(?:\[[^\]\n]{0,80}\])?[ \t]*(?:\+|-|\*|/|&&|\*\*)?=[ \t]"
+            r"(?=[^\n]{0,300}\.[ \t]*$)(?![^\n(]{0,300}\)[ \t]*\.?[ \t]*$)",
             re.I | re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural logic (supports * and ").

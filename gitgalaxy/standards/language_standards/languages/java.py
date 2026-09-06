@@ -234,8 +234,23 @@ DEFINITION: dict[str, Any] = {
         # `\w{0,100}`, matching the fix shape used throughout this
         # sweep.
         "state_mutation": re.compile(
-            r"\b(volatile|Atomic\w+)\b|^[ \t]*(?:this\.)?\w+[ \t]*=|@(?:Setter|Data)\b"
-            r"|(?:\w{0,100}\.)?(?:set[A-Z]\w+|add|put|remove|clear|addAll|replace|computeIfAbsent)\s*\("
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `volatile` / `Atomic*` name mutable state and `@Setter`/`@Data` generate
+            # accessors (corollary 2); the write is `x = v`, `x++`, `.set(`/`.add(`... A
+            # mutator needs its receiver's dot so a setter DECLARATION (`void setX(`) is
+            # not counted as a call.
+            r"(?:^|[;{}])[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"[ \t]*(?:[-+*/%&|^]|<<|>>>?)?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"|\.(?:set[A-Z]\w*|add|addAll|put|putAll|remove|clear|replace|computeIfAbsent|merge|offer|poll|push|pop"
+            r"|compareAndSet|getAndSet|incrementAndGet|decrementAndGet|addAndGet|getAndIncrement|getAndDecrement)\s*\(",
+            re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"//[ \t]*(?:public|private|protected|class|void|if|for|while|return|import)\b"),

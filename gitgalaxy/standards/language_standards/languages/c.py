@@ -210,7 +210,18 @@ DEFINITION: dict[str, Any] = {
         ),
         # 11. flux (State Mutation)
         # Mutation of state. EXCLUDES const/constexpr (freeze_hits).
-        "state_mutation": re.compile(r"(?<![=!<>])=(?![=])|\*(?!\s*const)\w+[ \t]*=|(?:\+\+|--)"),
+        "state_mutation": re.compile(
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            r"(?:^|[;{}(),])[ \t]*\**[A-Za-z_]\w*(?:(?:\.|->)[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]",
+            re.M,
+        ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"(?://|/\*)[ \t]*(?:if|for|while|struct|union|enum|void|int|return)\b"),
         # 13. doc (Structured Documentation)

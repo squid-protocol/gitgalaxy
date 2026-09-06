@@ -142,7 +142,19 @@ DEFINITION: dict[str, Any] = {
         ),
         # 11. flux: State Mutation. State mutation (var and mutable collection updates).
         "state_mutation": re.compile(
-            r"\b(var|scala\.collection\.mutable|AtomicReference|AtomicInteger)\b|^[ \t]*[a-zA-Z_]\w*[ \t]*=",
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `var x = v` declares and `mutable`/`Atomic*` name mutable state (corollaries
+            # 1 and 2). `=>` (case / lambda) and `==` are excluded; a trailing-comma line
+            # is a named argument.
+            r"(?:^|[;{}])[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\([^()\n]{0,80}\))*"
+            r"[ \t]*(?:[-+*/%])?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
+            r"|\.(?:update|append|addOne|prepend|remove|clear|put|getAndSet|compareAndSet|incrementAndGet|decrementAndGet|set)\s*\(",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code or logic trails.

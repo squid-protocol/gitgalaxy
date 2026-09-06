@@ -185,8 +185,13 @@ DEFINITION: dict[str, Any] = {
         # 11. flux (State Mutation)
         # Mutation of state. Includes UPSERT.
         "state_mutation": re.compile(
-            r"\b(UPDATE|SET|ALTER\s+TABLE|ADD\s+COLUMN|DROP\s+COLUMN|RENAME\s+TO|UPSERT|ON\s+CONFLICT\s+DO\s+UPDATE|ON\s+CONFLICT\s+DO\s+NOTHING|REPLACE\s+INTO|EXCLUDED\.[a-zA-Z_]\w*|jsonb?_(?:insert|replace|set|remove|patch))\b",
-            re.I,
+            # #2765 contract: one statement is one hit (count contract corollary 4), so a
+            # write is anchored to the statement that performs it: `UPDATE t SET ...` and
+            # `ALTER TABLE t RENAME TO ...` count once each, not once per clause. A
+            # constraint's `ON UPDATE CASCADE` is a declaration, not a write.
+            r"^[ \t]*(?:UPDATE(?:[ \t]+OR[ \t]+\w+)?[ \t]+[\w\"\[`]|ALTER[ \t]+TABLE\b|REPLACE[ \t]+INTO\b|INSERT[ \t]+OR[ \t]+REPLACE\b)"
+            r"|\bON[ \t]+CONFLICT[ \t]+DO[ \t]+UPDATE\b|\bjsonb?_(?:insert|replace|set|remove|patch)\s*\(",
+            re.I | re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(

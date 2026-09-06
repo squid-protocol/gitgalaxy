@@ -88,7 +88,7 @@ _ZIG_SIMPLE_CASES = [
     ("high_risk_execution", '@panic("unreachable state");', "return error.Bad;"),
     ("io", "const file = try std.fs.cwd().openFile(path, .{});", "const x = 5;"),
     ("api", "pub fn main() void {", "fn helper() void {"),
-    ("state_mutation", "var x: i32 = 0;", "const x: i32 = 0;"),
+    ("state_mutation", "x = 1;", "var x: i32 = 0;"),  # #2765: a declaration is not a write
     ("dead_code", "// fn oldFunc() void {}", "// just a note"),
     ("doc", "/// Computes the sum of two integers.", "// just a note"),
     ("test", 'test "basic addition" {', "fn add() void {}"),

@@ -76,7 +76,7 @@ _DOCKERFILE_SIMPLE_CASES = [
     ("high_risk_execution", "RUN rm -rf /", "RUN rm -rf /app/tmp"),
     ("io", "COPY . .", "WORKDIR /app"),
     ("api", "EXPOSE 8080", "WORKDIR /app"),
-    ("state_mutation", "ENV NODE_ENV production", "ARG NODE_ENV"),
+    ("state_mutation", "RUN export NODE_ENV=production", "ENV NODE_ENV production"),  # #2765: ENV is `globals`
     ("dead_code", "# RUN old-command", "# just a note"),
     ("doc", 'LABEL maintainer="dev@example.com"', "LABEL env=prod"),
     ("test", "RUN pytest tests/", "RUN echo done"),
@@ -533,24 +533,22 @@ def test_dockerfile_spec_exposure_nested_bracket_no_functional_bug():
     assert len(pattern.findall(nested)) == 1
 
 
-def test_dockerfile_globals_and_state_mutation_intentional_double_classification():
+def test_dockerfile_env_is_globals_not_state_mutation_2765():
     """
-    Ambiguity sweep: `globals` and `state_mutation` both fire on the same
-    `ENV NAME value` line (both anchor `^[ \\t]*ENV[ \\t]+[a-zA-Z0-9_]+`).
-    Confirmed genuine, intentional double-classification, not a bug: an
-    `ENV` instruction is simultaneously a global-state declaration
-    (globals) AND a state mutation that permanently alters the image layer
-    (state_mutation) -- both are structurally true at once, the same
-    accepted double-classification shape used elsewhere in this codebase
-    (e.g. JS's arrow-function call matching both comprehensions and
-    closures).
+    #2765 (state_mutation contract, count contract corollary 4): `ENV NAME value`
+    declares a build-time global and is the `globals` rule's token; it is not
+    also a write. This reverses the earlier "intentional double-classification"
+    reading, which charged every Dockerfile one state_mutation per ENV line and
+    put the corpus's a.dockerfile at 2 against a planted 0. What a Dockerfile
+    writes is the shell payload of a RUN step (`export X=`).
     """
     globals_ = DOCKERFILE_RULES["globals"]
     state_mutation = DOCKERFILE_RULES["state_mutation"]
 
     env_line = "ENV APP_ENV=production"
     assert globals_.search(env_line)
-    assert state_mutation.search(env_line)
+    assert not state_mutation.search(env_line)
+    assert state_mutation.search("RUN export COUNTER=1")
 
     # ARG is deliberately excluded from both (build-time only, not a persisted global).
     arg_line = "ARG APP_ENV=production"

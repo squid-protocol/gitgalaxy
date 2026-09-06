@@ -194,7 +194,20 @@ DEFINITION: dict[str, Any] = {
         ),
         # 11. flux: State Mutation. State mutation (DML operations and standard assignments).
         "state_mutation": re.compile(
-            r"\b(insert|update|upsert|delete|merge)\b|^[ \t]*(?:this\.)?[a-z_]\w*\s*[-+*/%]?=|\.(?:add|addAll|remove|put|clear|set)\s*\(",
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # A DML statement writes the database. `delete`/`undelete` are the
+            # `high_risk_execution` rule's tokens and `.clear(` is `cleanup`'s (corollary 4).
+            r"^[ \t]*(?:insert|update|upsert|merge)[ \t]+[a-z_(\[]|\bDatabase\.(?:insert|update|upsert|merge)\s*\("
+            r"|(?:^|[;{}])[ \t]*[a-z_]\w*(?:\.[a-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=>])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"|\.(?:add|addAll|remove|put|putAll|set)\s*\(",
             re.I | re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code or queries.

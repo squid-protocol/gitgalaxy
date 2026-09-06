@@ -250,7 +250,17 @@ DEFINITION: dict[str, Any] = {
         ),
         # flux: State Mutation. State mutation (IORef/MVar) and monadic binds (<-).
         "state_mutation": re.compile(
-            r"\b(IORef|STRef|TVar|MVar|TMVar|modifyIORef\'?|writeIORef|putMVar|modify|put|StateT)\b|<-"
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `IORef`/`TVar`/`MVar`/`StateT` in a type name mutable state (corollary 2) and
+            # `<-` binds a name (corollary 3); the write is the operation on the cell.
+            r"\b(?:modifyIORef'?|writeIORef|atomicModifyIORef'?|atomicWriteIORef|modifySTRef'?|writeSTRef"
+            r"|writeTVar|modifyTVar'?|putMVar|modifyMVar_?|swapMVar|writeArray|writeSTArray|unsafeWrite|modify'?|put)\b"
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(

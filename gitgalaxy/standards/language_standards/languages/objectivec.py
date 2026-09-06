@@ -277,7 +277,19 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 11. flux: State Mutation. State mutation (Property setters and raw assignments).
-        "state_mutation": re.compile(r"\b(?:self\.)?[a-zA-Z_]\w*[ \t]*=|\[self\s+set[A-Z]\w*:|(?:\+\+|--)"),
+        "state_mutation": re.compile(
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            r"(?:^|[;{}(),])[ \t]*\**[A-Za-z_]\w*(?:(?:\.|->)[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
+            r"|\[\s*(?:self|_?[a-zA-Z]\w*)\s+set[A-Z]\w*:",
+            re.M,
+        ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural code.
         "dead_code": re.compile(
             r"//[ \t]*(?:@interface|@implementation|\[|if|NSLog|- \()|/\*[ \t]*(?:@interface|@implementation|\[|if|NSLog|- \()"

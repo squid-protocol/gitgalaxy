@@ -143,7 +143,8 @@ DEFINITION: dict[str, Any] = {
         # 11. flux (State Mutation)
         # Mutation of state. In Scheme, all mutating functions end with a bang (!).
         "state_mutation": re.compile(
-            r"(?<![^ \t\n\r(\[])(set!|vector-set!|string-set!|hash-table-set!|bytevector-u8-set!)(?![^ \t)\]\n\r])"
+            # #2765 contract: a `set!`-family form in operator position writes.
+            r"(?<![^ \t\n\r(\[])(set!|vector-set!|string-set!|hash-table-set!|hashtable-set!|bytevector-u8-set!|set-box!|list-set!|vector-fill!)(?![^ \t)\]\n\r])"
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # Commented out S-expressions.

@@ -148,7 +148,9 @@ DEFINITION: dict[str, Any] = {
         "state_mutation": re.compile(
             r"^[ \t]*[a-zA-Z_]\w*"
             r"(?:\((?:[^()]|\([^()]*\))*\)|\{(?:[^{}]|\{[^{}]*\})*\}|\.[a-zA-Z_]\w*){0,5}"
-            r"[ \t]*=[ \t]*[^=]|\b(?:clear|clearvars)\b",
+            # #2765 contract: `clear`/`clearvars` release state and are the `cleanup`
+            # rule's tokens (count contract corollary 4); the write is the assignment.
+            r"[ \t]*=[ \t]*[^=]",
             re.M,
         ),
         # #2654: MATLAB has no `return <value>` statement -- a function result

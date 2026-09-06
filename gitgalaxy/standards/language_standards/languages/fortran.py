@@ -248,8 +248,14 @@ DEFINITION: dict[str, Any] = {
         #    requirement so the match can only start at a genuine word
         #    boundary, where the exclusion lookahead actually applies.
         "state_mutation": re.compile(
-            r"(?!\b(?:KIND|LEN|UNIT|FMT|FILE|STATUS|ACTION)\s*=)\b[A-Za-z_][A-Za-z0-9_%\(\)]{0,199}[ \t]*=[^=>]",
-            re.I,
+            # #2765 contract: an assignment STATEMENT writes. Anchoring to the statement
+            # start (optional label) means `INTEGER :: X = 1` (the `::` breaks the match)
+            # and a `KIND=`/`UNIT=` specifier inside a call do not count; a `DO I = 1, N`
+            # header writes its control variable like C's `for (i = 0`.
+            r"^[ \t]*(?:\d{1,5}[ \t]+)?(?!(?:KIND|LEN|UNIT|FMT|FILE|STATUS|ACTION|IOSTAT|ERR|ACCESS|FORM|RECL|IOMSG|STAT|ERRMSG)[ \t]*=)"
+            r"[A-Za-z_]\w*(?:[ \t]*\([^()\n]{0,120}\))?(?:%[A-Za-z_]\w*(?:[ \t]*\([^()\n]{0,120}\))?){0,5}[ \t]*=(?![=>])"
+            r"|^[ \t]*(?:\d{1,5}[ \t]+)?DO[ \t]+(?:\d{1,5}[ \t]*,?[ \t]*)?[A-Za-z_]\w*[ \t]*=",
+            re.I | re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         # Commented-out logic, commented-out structural code. Supports both Fortran 90+ (`!`) and legacy F77 (`C`/`*` in column 1).

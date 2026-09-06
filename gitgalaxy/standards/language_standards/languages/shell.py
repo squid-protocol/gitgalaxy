@@ -185,7 +185,10 @@ DEFINITION: dict[str, Any] = {
         # for O(n^2) total. Bounded to {0,200} each; real `(( ... ))`
         # arithmetic expressions don't get remotely that long.
         "state_mutation": re.compile(
-            r"^[ \t]*[a-zA-Z_]\w*(?:\[[^\]]+\])?\+?=(?![=~])|\b(?:let|declare)\s+[a-zA-Z_]\w*\+?=|\(\([^)]{0,200}(?:\+\+|--|[-+*/%]=)[^)]{0,200}\)\)",
+            # #2765 contract: shell has no declaration syntax, so `x=v` is the write;
+            # `declare x=v` / `local x=v` / `readonly x=v` declare (count contract
+            # corollary 1) and `let x=v` evaluates arithmetic into an existing variable.
+            r"^[ \t]*[a-zA-Z_]\w*(?:\[[^\]]+\])?\+?=(?![=~])|\blet\s+[a-zA-Z_]\w*\+?=|\(\([^)]{0,200}(?:\+\+|--|[-+*/%]=)[^)]{0,200}\)\)",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)

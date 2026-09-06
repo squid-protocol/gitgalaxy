@@ -109,7 +109,7 @@ _KOTLIN_SIMPLE_CASES = [
     ("high_risk_execution", "exitProcess(1)", "Runtime.version()"),
     ("io", "val f = File(path)", "val hash = FileUtils.hash(path)"),
     ("api", "public fun foo() {}", "private fun foo() {}"),
-    ("state_mutation", "var count = 0", "val count = 0"),
+    ("state_mutation", "count = 1", "var count = 0"),  # #2765: a declaration is not a write
     ("dead_code", "// fun foo() {}", "// this is deprecated, remove later"),
     ("doc", "/** A doc comment */", "/* internal note, not exported */"),
     ("test", "assertEquals(a, b)", "computeTotal(a, b)"),
@@ -392,11 +392,11 @@ def test_kotlin_api_contract_2730():
     api = KOTLIN_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('public override fun clone(): Call'), 'public override fun'
-    assert api.search('internal val lock = Any()'), 'internal val'
+    assert api.search("public override fun clone(): Call"), "public override fun"
+    assert api.search("internal val lock = Any()"), "internal val"
 
     # Not declarations -- must not match.
-    assert not api.search('import okhttp3.internal.CONST_VERSION'), '`internal` inside an import path'
+    assert not api.search("import okhttp3.internal.CONST_VERSION"), "`internal` inside an import path"
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "open " * 20000 + "@", timeout_sec=3.0)

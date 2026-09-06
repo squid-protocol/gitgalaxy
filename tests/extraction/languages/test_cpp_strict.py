@@ -452,9 +452,9 @@ def test_cpp_intentional_double_classification_sweep():
       `std::mutex` in their own keyword lists)
     - `delete p; fclose(f);` -> cleanup + io (both explicitly list `fclose`
       in their own keyword lists)
-    - `int *p = &x;` -> pointers + state_mutation (state_mutation's bare
-      `&(?!\\s*const)` alternative treats any address-of/reference operator
-      as a mutation signal, independent of pointers' own dedicated capture)
+    - `int *p = &x;` -> pointers only: since #2765 a declaration with an
+      initializer is not a write and `&` is a borrow, not a mutation
+      (state_mutation's old bare `&(?!\\s*const)` alternative is gone)
     """
     func_sig = "int foo(int a, int b) {"
     assert CPP_RULES["args"].search(func_sig)
@@ -504,7 +504,8 @@ def test_cpp_intentional_double_classification_sweep():
 
     ptr_decl = "int *p = &x;"
     assert CPP_RULES["pointers"].search(ptr_decl)
-    assert CPP_RULES["state_mutation"].search(ptr_decl)
+    assert not CPP_RULES["state_mutation"].search(ptr_decl)
+    assert CPP_RULES["state_mutation"].search("*p = &x;")
 
 
 def test_cpp_spec_exposure_redos_regression():

@@ -166,7 +166,24 @@ DEFINITION: dict[str, Any] = {
         ),
         # 11. flux (State Mutation)
         # Mutation of state. Reassignment and channel sends.
-        "state_mutation": re.compile(r":=|(?<![=!<>])=(?![=])|<-|\bappend\(|\batomic\.(?:Add|Store|Swap)"),
+        "state_mutation": re.compile(
+            # #2765 contract: one hit is a statement that writes a new value into state
+            # that already exists. A declaration is not a write, even with an initializer,
+            # so the assignment arm anchors a STATEMENT START to a bare lvalue -- a type
+            # name in front of the lvalue breaks the match. `==` is excluded by the
+            # operator set, a trailing-comma line (enum member / named argument) is not
+            # a statement, and `++`/`--` must touch an operand (a run of dashes inside a
+            # string literal is not an increment).
+            # `x := v` is a declaration; `_ = v` discards (the blank identifier is not
+            # state); `s = append(s, x)` is one write, counted at its `=`; a channel SEND
+            # writes the channel (`ch <- v`), a receive (`<-ch`) reads it.
+            r"(?:^(?![ \t]*_[ \t]*=)|[;{}(),])[ \t]*\**[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*"
+            r"[ \t]*(?:[-+*/%&|^]|<<|>>|&\^)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|[\w)\]][ \t]*(?:\+\+|--)"
+            r"|[\w)\]][ \t]*<-[ \t]*\S"
+            r"|\batomic\.(?:Add|Store|Swap|CompareAndSwap)\w*\(|\bdelete\(",
+            re.M,
+        ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"//[ \t]*(?:func|type|var|const|import|if|for|switch|select|return)\b"),
         # 13. doc (Structured Documentation)

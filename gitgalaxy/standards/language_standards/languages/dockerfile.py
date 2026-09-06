@@ -125,7 +125,11 @@ DEFINITION: dict[str, Any] = {
         # 11. flux (State Mutation)
         # Mutation of state. Setting Environment variables that permanently alter the image layer state.
         "state_mutation": re.compile(
-            r"^[ \t]*ENV[ \t]+[a-zA-Z0-9_]+|export[ \t]+[a-zA-Z0-9_]+[ \t]*=",
+            # #2765 contract: `ENV NAME value` declares a build-time global and is the
+            # `globals` rule's token (count contract corollary 4) -- it is not also a
+            # write. What a Dockerfile writes is the shell payload of a RUN step:
+            # `export X=` / `X=` assignments (the fallback family).
+            r"\bexport[ \t]+[a-zA-Z0-9_]+[ \t]*=",
             re.M | re.I,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)

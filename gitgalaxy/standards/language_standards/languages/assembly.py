@@ -181,7 +181,13 @@ DEFINITION: dict[str, Any] = {
         ),
         # 11. flux (State Mutation)
         # Explicit memory/register swaps and atomic increments.
-        "state_mutation": re.compile(r"\b(xchg|cmpxchg|inc|dec)\b", re.I),
+        "state_mutation": re.compile(
+            # #2765 contract (fallback family): a read-modify-write mnemonic in
+            # instruction position. Anchoring to the statement start keeps `inc` from
+            # matching the `.inc` of an `include` directive.
+            r"^[ \t]*(?:[A-Za-z_.$@][\w.$@]*:[ \t]*)?(?:xchg|cmpxchg|xadd|inc|dec|neg|not)\b",
+            re.I | re.M,
+        ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"(?i)(?:;|#|//)[ \t]*(?:jmp|call|mov|push|pop|cmp|add|sub)\b"),
         # 13. doc (Structured Documentation)

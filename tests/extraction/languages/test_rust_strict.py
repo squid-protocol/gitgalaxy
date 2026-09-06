@@ -45,7 +45,7 @@ _RUST_SIMPLE_CASES = [
     ("high_risk_execution", 'panic!("oops")', "let x = 1;"),
     ("io", "std::fs::read(path)", "let x = 1;"),
     ("api", "pub fn foo() {}", "fn foo() {}"),
-    ("state_mutation", "let mut x = 1;", "let x = 1;"),
+    ("state_mutation", "x = 2;", "let mut x = 1;"),  # #2765: `mut` marks the binding; the write is the assignment
     ("dead_code", "// fn foo() {}", "// just a note"),
     ("doc", "/// doc comment", "// just a note"),
     ("test", "assert!(x)", "let x = 1;"),

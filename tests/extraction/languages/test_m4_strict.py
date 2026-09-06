@@ -218,16 +218,19 @@ def test_m4_api_vs_macros_ac_define_intentional_double_classification():
     assert M4_RULES["macros"].search(line)
 
 
-def test_m4_cleanup_vs_state_mutation_popdef_intentional_double_classification():
+def test_m4_popdef_is_cleanup_not_state_mutation_2765():
     """
-    Ambiguity sweep finding: `popdef(...)` legitimately fires both
-    `state_mutation` (restoring the previous stack-pushed macro definition
-    is itself a mutation of macro state) and `cleanup` (releasing/undoing
-    a pushdef stack frame) -- both true at once, intentional.
+    #2765 (state_mutation contract, count contract corollary 4): `popdef(...)`
+    releases a pushdef stack frame and is the `cleanup` rule's token; it is not
+    also a write. `pushdef` is the write. This reverses the earlier "intentional
+    double-classification" reading, which put the corpus's c.m4 at 2 against a
+    planted 0.
     """
     line = "popdef([foo])"
-    assert M4_RULES["state_mutation"].search(line)
+    assert not M4_RULES["state_mutation"].search(line)
     assert M4_RULES["cleanup"].search(line)
+    assert M4_RULES["state_mutation"].search("pushdef([foo], [bar])")
+    assert not M4_RULES["cleanup"].search("pushdef([foo], [bar])")
 
 
 def test_m4_cleanup_vs_test_at_cleanup_intentional_double_classification():

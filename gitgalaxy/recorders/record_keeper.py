@@ -271,6 +271,7 @@ class RecordKeeper:
                 raw_churn_freq REAL,
                 popularity INTEGER,
                 import_count INTEGER,
+                internal_dependency_links INTEGER,
                 pagerank_score REAL,
                 normalized_blast_radius REAL,
                 betweenness_score REAL,
@@ -399,6 +400,21 @@ class RecordKeeper:
             else:
                 raise
 
+        # #2801: import_count is the raw pre-resolution capture surface
+        # (len(raw_imports)); internal_dependency_links is the resolved-edge count --
+        # the same DAG edge set popularity/pagerank/normalized_blast_radius already
+        # read (network_risk_sensor's out_degree). The two diverge by design wherever
+        # a capture resolves to no node in the scan (embedded_python's `import machine`
+        # firmware, dockerfile's `FROM scratch`, jcl's `DSN=` datasets). Same auto-heal
+        # precedent as the columns above for pre-#2801 databases.
+        try:
+            cursor.execute("ALTER TABLE file_data ADD COLUMN internal_dependency_links INTEGER DEFAULT 0")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" in str(exc).lower():
+                self.logger.debug("Schema migration skipped: 'internal_dependency_links' already exists.")
+            else:
+                raise
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS excluded_artifacts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -498,22 +514,35 @@ class RecordKeeper:
             # avg_loc > 0 guard: no functions -> avg_comp 0 -> density 0.
             func_internal_density = avg_comp / max(avg_loc, FUNC_EVIDENCE_MASS_FLOOR)
 
-            # #2770: coupling per line of code, over the same evidence-mass floor
-            # every other per-file density uses (analysis_lens' EVIDENCE_MASS_FLOOR
-            # doctrine, #2655). The old denominator was
-            # `max(int(coding_loc * control_flow_ratio), 1)`, which failed three ways
-            # at once: (1) control_flow_ratio is 0 for any file with no branches --
-            # config, constants modules, data classes, most yaml/dockerfile -- so the
-            # denominator collapsed onto the max(..., 1) floor and the column reported
-            # the raw import COUNT, up to 20x the value the same file got after adding
-            # one `if`; (2) the int() truncated the product before the floor, so
-            # anything under 2.0 also landed on 1; (3) where a language's
-            # structural_boundaries rule never fires, control_flow_ratio is 1.0 and the
-            # denominator silently became coding_loc -- the right answer, reached by
-            # accident. A coupling measure has no reason to read a control-flow ratio
-            # in the first place; `import / coding_loc` is what the name describes.
+            # #2801: two different numbers were being conflated under one column.
+            # import_count is the RAW capture surface -- how many import targets the
+            # language's _dependency_capture regex produced, before any resolution.
+            # internal_dependency_links is the RESOLVED-edge count: how many of those
+            # captures network_risk_sensor mapped to a node in the scan, i.e. the exact
+            # edge set popularity/pagerank/normalized_blast_radius/betweenness already
+            # read (its out_degree). The two disagree by design wherever a capture points
+            # at something outside the graph -- external firmware/libraries (`import
+            # machine`, `import numpy`), Docker's reserved `FROM scratch` base, JCL `DSN=`
+            # datasets. Keeping both means the capture count stays available as external-
+            # dependency surface while the graph column means its name. out_degree is a
+            # pure topology count the zero-dependency fallback computes too, so it is
+            # populated in both modes -- same as popularity (in_degree), unlike the
+            # networkx-derived scores that None out further down.
             import_count = len(file_data.get("raw_imports", []))
-            dependency_density = import_count / max(float(file_data.get("coding_loc", 0) or 0), EVIDENCE_MASS_FLOOR)
+            internal_dependency_links = int(tel.get("network_metrics", {}).get("out_degree", 0) or 0)
+
+            # #2770/#2801: coupling per line of code, over the same evidence-mass floor
+            # every other per-file density uses (analysis_lens' EVIDENCE_MASS_FLOOR
+            # doctrine, #2655). #2770 replaced the old
+            # `max(int(coding_loc * control_flow_ratio), 1)` denominator (0 for any
+            # branch-free file, so the column reported the raw count up to 20x); #2801
+            # then fixed the NUMERATOR -- coupling is INTERNAL coupling, the resolved
+            # edges, not the raw capture count. Dividing import_count here made a
+            # vendored-dependency-free service read as import-dense purely on external-
+            # library surface (os/numpy/React), which says nothing about its coupling.
+            dependency_density = internal_dependency_links / max(
+                float(file_data.get("coding_loc", 0) or 0), EVIDENCE_MASS_FLOOR
+            )
 
             # #364: security_auditor.py writes "AI Threat Score" -- "AI Threat
             # Confidence" was never a real producer key here, just a dead primary
@@ -725,6 +754,7 @@ class RecordKeeper:
                 tel.get("raw_churn_freq", 0.0),
                 tel.get("popularity", 0),
                 import_count,
+                internal_dependency_links,
                 pagerank_score,
                 blast_radius,
                 betweenness_score,
@@ -786,7 +816,7 @@ class RecordKeeper:
                 INSERT INTO file_data (
                     repo_name, commit_date, commit_hash, file_name, file_path, parent_entity, language, directory_group, 
                     total_loc, coding_loc, doc_loc, structural_mass, cog_raw, ownership_entropy, silo_risk,
-                    raw_churn_freq, popularity, import_count, pagerank_score, normalized_blast_radius, betweenness_score, closeness_score, producer_ratio, ecosystem_role,
+                    raw_churn_freq, popularity, import_count, internal_dependency_links, pagerank_score, normalized_blast_radius, betweenness_score, closeness_score, producer_ratio, ecosystem_role,
                     control_flow_ratio, function_count, class_count,
                     func_complexity_vector, avg_func_loc, avg_func_complexity, max_func_complexity, 
                     avg_func_args, func_complexity_gini, func_internal_density, dependency_density, encapsulation_ratio,

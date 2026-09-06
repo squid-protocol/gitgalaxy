@@ -3211,9 +3211,22 @@ class StructuralExtractor:
         elif lang_id == "tcl":
             # Tcl has no single-quote string literal syntax (a bare `'` is an ordinary character).
             # Follows perl/powershell convention: redefine combined_pattern to omit single_quote entirely.
+            #
+            # #2763: `//[^\n]*|/\*.*?\*/` was also dropped here -- exactly perl's
+            # #1437 bug, one language over. Tcl's only comment introducer is `#`
+            # (already blanked upstream by prism, so nothing is lost by removing
+            # these), but `//` appears constantly inside real tcl as the scheme
+            # separator of a URL, and shielding from it blanked the REST OF THE
+            # LINE -- including any `}` on it. That silently unbalanced the depth
+            # counter `_find_balanced_end` runs on. Before #2763's slicer fix this
+            # was invisible (a tcl body was never brace-walked at all); with it,
+            # `macports_port_api/portfetch.tcl`'s `bzrfetch` measured loc 515 for a
+            # real 37-line proc, because line 259's `{http://} $env($varname)] != 0`
+            # lost its closing brace to the shield. 14 of 376 crucible procs
+            # over-captured this way; all 14 resolve with the branch removed.
             combined_pattern = (
                 r'""".*?"""|' + csharp_verbatim + r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'
-                r'"(?:\\.|[^"\\])*"|' + backtick + r"|//[^\n]*|/\*.*?\*/"
+                r'"(?:\\.|[^"\\])*"|' + backtick
             )
         elif lang_id == "perl":
             # #1437: perl was falling through to the C-family default below, which shields
@@ -4632,6 +4645,53 @@ class StructuralExtractor:
                     end_idx = term_idx + 1
                 else:
                     continue  # neither a body nor a bodyless `;` terminator ever showed up in the window
+            # #2763: a tcl `proc` has TWO brace groups, not one -- the PARAMETER
+            # LIST (`proc name {a b}`) and then the body (`{ ... }`). The generic
+            # fallback below starts its brace search at `start_idx`, so for tcl it
+            # always found the parameter list and `_find_balanced_end` closed one
+            # character later: every tcl function in every scan recorded `loc` 1,
+            # `complexity` 0 and `struct_branch` 0 (measured: 13/13 functions in
+            # keyword-rosetta/data/tcl, 376/376 in language-crucible/data/tcl).
+            # `func_start` has already consumed the parameter group via its
+            # optional `(?:[ \t\n]+\{...\})?` arm, so `match.end()` is the correct
+            # body anchor, and its trailing lookahead `(?=[ \t\n]*\{|[ \t\n]|$)`
+            # guarantees the next non-space character is either the body brace or
+            # nothing. If that optional arm did NOT match (a parameter list nested
+            # deeper than the arm's four levels, or split by a `\`-continuation,
+            # neither of which `[ \t\n]` spans), `match.end()` sits right after the
+            # name and the search degrades to exactly the old behavior rather than
+            # overshooting.
+            #
+            # DELIBERATELY GATED TO TCL, not applied to the generic `else`. The
+            # blanket form of this change ("search from `match.end()` for every
+            # Mode B language") was measured first and is catastrophic: every
+            # other language reaching the generic fallback either consumes its own
+            # body `{` inside `func_start` or stops before the parameter list, so
+            # moving the anchor skips the real body and grabs the NEXT
+            # declaration's brace. Divergent matches (first `{` from `start_idx`
+            # != first `{` from `match.end()`) across both corpora: c 1756/1756,
+            # cpp 1247/1247, scheme 96/96 (whose opener is `(`), powershell 10,
+            # groovy 11 -- against apex/css/html/php/swift 0. tcl is the only
+            # language in this fallback whose `func_start` consumes a
+            # non-body brace group, so it is the only one the anchor may move for.
+            elif lang_id == "tcl":
+                brace_idx = safe_code.find(opener, match.end(), search_limit)
+                if brace_idx == -1:
+                    # A tcl body does not have to be a brace group at all -- it is
+                    # just another word, and `proc faultsim_test_proc {testrc
+                    # testresult testnfail} $O(-test)` (sqlite/malloc_common.tcl:347)
+                    # passes a VARIABLE as the body. There is no brace after the
+                    # parameter list, so anchoring at `match.end()` finds nothing and
+                    # a bare `continue` here would DROP a real declaration the old
+                    # code kept (as a loc-1 row built from the parameter group).
+                    # Falling back to the old anchor keeps that row byte-identical,
+                    # which makes this fix a strict superset of the previous
+                    # behaviour: every tcl proc either gets a correct body span or
+                    # exactly what it had before, and the function COUNT never moves.
+                    brace_idx = safe_code.find(opener, start_idx, search_limit)
+                    if brace_idx == -1:
+                        continue
+                end_idx = self._find_balanced_end(safe_code, brace_idx, opener, closer)
             else:
                 brace_idx = safe_code.find(opener, start_idx, search_limit)
                 if brace_idx == -1:

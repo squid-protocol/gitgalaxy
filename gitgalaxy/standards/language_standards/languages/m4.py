@@ -45,7 +45,28 @@ DEFINITION: dict[str, Any] = {
         "branch": re.compile(r"\b(?:ifelse|ifdef|AS_IF|AS_CASE|m4_if|m4_case|m4_cond|m4_ifval|m4_ifblank)\b"),
         # 2. args (Parameters / Coupling)
         # M4 positional arguments.
-        "args": re.compile(r"\$[0-9]+|\$[@*#]"),
+        # #2784: m4, like shell, has NO formal parameter list -- `m4_define(foo,
+        # [...])` names no parameters, and `$1`/`$@` inside the body IS the whole
+        # parameter surface (settled as intended morphology for the FILE-LEVEL
+        # count in keyword-rosetta's `m4-parameters-are-use-sites` ledger entry,
+        # which this change deliberately leaves untouched: wrapping the existing
+        # alternation in one capture group changes no match boundary, so the raw
+        # rule count is byte-for-byte identical).
+        # What it DOES fix is the PER-FUNCTION arity `_calculate_block_metrics`
+        # derives. m4 has no `args_search_text` bound (that exists only for
+        # objective-c/c/cpp/dart), so the generic derivation `.search()`es the
+        # whole macro body and trusts the single LEFTMOST hit -- which reads
+        # `AS_IF([test "$1"], [do_thing($3)])` as arity 1, silently dropping every
+        # higher position after the first. Shell hit exactly this in #1518 and
+        # solved it with `_args_findall_max_groups`, which makes the shared
+        # counter re-scan the whole block and take the HIGHEST positional index
+        # seen (`_count_shell_positional_max`) rather than the first match or a
+        # count of matches. Group 1 is the hook that helper indexes on, so the
+        # alternation is wrapped rather than left group-less. Bare `$@`/`$*`
+        # (variadic, no explicit index) resolve to "at least 1" and `$0` (the
+        # macro's own name) never raises the max, both handled by that helper.
+        "args": re.compile(r"(\$[0-9]+|\$[@*#])"),
+        "_args_findall_max_groups": {1},
         # 3. linear (Sequential Boundaries)
         # Execution flow diversion and dependency signaling.
         "structural_boundaries": re.compile(r"\b(?:divert|undivert|m4_divert|m4_undivert|m4_require|AC_REQUIRE)\b"),

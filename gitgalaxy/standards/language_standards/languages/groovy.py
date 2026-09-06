@@ -74,11 +74,82 @@ DEFINITION: dict[str, Any] = {
         # overcounted every zero/one-arg signature by +1 the same way
         # Python's did (#1199). Name group added to branch 1 too, purely
         # so existing extraction tests keep passing.
+        # BUG FIX (#2782): the modifier run is `{0,10}` and the return-type run
+        # `{0,3}` -- BOTH able to match zero times -- and neither branch checked
+        # what FOLLOWED the parameter list, so the whole first alternative
+        # degenerated to `^[ \t]*IDENT(...)`, which is equally the shape of a bare
+        # call statement. Every call written on its own line (`close(conn)`,
+        # `assertEquals(kit, kit)`, `implementation project(':lib')`,
+        # `outputContains(output2)`) was counted as a declared parameter surface.
+        # Per docs/args_rule_contract.md, `args` matches the parameters a callable
+        # DECLARES; a call site CONSUMES a parameter surface, it does not publish
+        # one. `args` has no downstream validator (unlike `func_start`, whose
+        # `_slice_by_braces` pass re-checks every match for a real body), so the
+        # anchor has to live in the regex itself.
+        # Fixed by splitting the declaration form into the two shapes Groovy
+        # actually has, each with its own anchor (the same four-shape menu #2773
+        # used for typescript/objective-c):
+        #   arm 1 (BODIED): keeps the fully-optional modifier/return-type prefix --
+        #     Groovy really does declare `def entry(argv) {` and bare constructors
+        #     `MyClass(Project project) {` with no prefix at all -- and anchors on
+        #     the `{` that opens the body instead, via a LOOKAHEAD so group(0) still
+        #     ends at the closing `)` (test_groovy_args_nested_paren_default_value_
+        #     regression asserts that exact span). An optional `throws` clause is
+        #     allowed between the two, as func_start's own branch 2 already does.
+        #   arm 2 (BODYLESS): interface methods, `@Managed` model-rule interfaces and
+        #     `abstract` property getters have no body for a `{` lookahead to reach
+        #     (`Call<JiraVersion> getVersion(@Path("id") String id);`,
+        #     `abstract DirectoryProperty getClasspath()`, `int getAge()`). Their
+        #     terminator is `;` or nothing at all, which is exactly a bare call's
+        #     terminator too -- so, as in typescript (where readmitting a bare `;`
+        #     brought back thousands of call statements), the construct is named
+        #     explicitly instead: this arm makes the DECLARATION TYPE mandatory and
+        #     restricts it to a primitive keyword, `def`, or an uppercase-initial
+        #     type name. That is what separates a real bodyless declaration from
+        #     Groovy's paren-less-call DSL sugar, whose receiver is always a
+        #     lowercase property name (`implementation project(':lib')`,
+        #     `storePassword getReleaseKeystorePassword()`, `raw _("Dismiss")`,
+        #     `srcDir file("src/json-shade/java")`) -- the same false-positive class
+        #     func_start met in #2558/#2676. The `{0,2}` trailing token run keeps the
+        #     multi-param generic return type working (`Map<String,` + `Integer>` are
+        #     two space-separated tokens; see the return-type comment above).
+        # The closure arm (`x, y ->`) is unchanged.
+        # STRING-LITERAL FIX (same change): both declaration arms now check what
+        # follows the parameter list, so the list has to close on the signature's
+        # OWN `)`. The flat `[^()]` body stopped at any `)` inside a default value's
+        # string literal (`def foo(String a = "default), with, commas") {`, the
+        # pathological case in test_groovy.py) and the lookahead then failed on the
+        # remaining `, ...) {`. Added quote-delimited alternatives (and dropped the
+        # quotes from the plain class) so a string literal is consumed whole. The
+        # alternatives have disjoint first characters, so this stays linear -- the
+        # existing assert_redos_immune cases plus a 20k-quote payload all run in
+        # <50 ms. The closure arm's list is untouched.
+        # Measured (code stream, coding_analysis raw counts):
+        #   keyword-rosetta/data/groovy: args 19 -> 13 against func_start 13 (the
+        #     6 removals are exactly the 6 call sites the issue lists, and 13 is the
+        #     value SPEC.md plants -- no corpus authoring change needed).
+        #   language-crucible/data/groovy (306 files): args 2193 -> 1012 against
+        #     func_start 883 (a/f 2.48 -> 1.15). The new set is a strict SUBSET of
+        #     the old one (0 additions); of the 1172 removals, 1165 are call
+        #     statements and 7 are `def (a, b) = ...` multiple-assignment
+        #     destructuring, which declares locals, not parameters.
         "args": re.compile(
+            # arm 1: bodied declaration -- anchored on the `{` that opens the body.
             r"^[ \t]*(?:(?:public|private|protected|static|final|def|abstract|@[A-Za-z0-9_.]+(?:\([^)]*\))?)[ \t\n]+){0,10}"
             r"(?:(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*)[ \t]+){0,3}"
             r"(?!(?:if|for|while|switch|catch|synchronized)\b)"
-            r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')[ \t\n]*(\((?:[^()]|\([^()]*\))*\))"
+            r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')[ \t\n]*(\((?:[^()\"']|\"[^\"]*\"|'[^']*'|\([^()]*\))*\))"
+            r"(?=[ \t\n]*(?:throws[ \t\n]+[\w.,<>$ \t\n]{0,200})?\{)"
+            # arm 2: bodyless declaration (interface / abstract) -- no `{` to anchor
+            # on, so the declaration type is mandatory and must be a primitive,
+            # `def`, or an uppercase-initial type.
+            r"|^[ \t]*(?:(?:public|private|protected|static|final|abstract|synchronized|native|transient|@[A-Za-z0-9_.]+(?:\([^)]*\))?)[ \t\n]+){0,10}"
+            r"(?:(?:void|int|long|short|byte|char|float|double|boolean)(?:\[\])?|def|[A-Z][a-zA-Z0-9_<>\[\]?,\.]*)[ \t]+"
+            r"(?:[a-zA-Z_][a-zA-Z0-9_<>\[\]?,\.]*[ \t]+){0,2}"
+            r"(?!(?:if|for|while|switch|catch|synchronized)\b)"
+            r"([A-Za-z_$][\w_$]*|\"[^\"]*\"|'[^']*')[ \t\n]*(\((?:[^()\"']|\"[^\"]*\"|'[^']*'|\([^()]*\))*\))"
+            r"(?=[ \t]*(?:throws[ \t\n]+[\w.,<>$ \t\n]{0,200})?[ \t]*(?:;|$))"
+            # arm 3: closure parameter list (`{ x, y ->`), unchanged.
             r"|(?:\{[ \t\n]*)?(\((?:[^()]|\([^()]*\))*\)|[a-zA-Z_$][\w_$]{0,100}|)[ \t\n]*->",
             re.M,
         ),

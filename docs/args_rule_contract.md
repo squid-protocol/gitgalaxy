@@ -23,11 +23,13 @@ Three corollaries, each of which the audit below found a language violating:
    brace — and the rule has to require it. `func_start` can afford the ambiguity because
    `_slice_by_braces` re-validates every match downstream; `args` cannot, because `struct_args` is
    the raw rule count over the whole code stream with nothing downstream of it.
-3. **A reference to a parameter is not a declaration of one either.** In a language with no formal
-   parameter list, `$1`/`$@` in a body is the only parameter surface there is — but a *count* of
-   those references measures how often the body reads its arguments, not how many it takes.
-   Counting distinct positions is the fix; `shell` does this (`_args_findall_max_groups`), `m4`
-   does not.
+3. **A reference to a parameter is not a declaration of one either — at the per-function level.**
+   In a language with no formal parameter list, `$1`/`$@` in a body is the only parameter surface
+   there is, and at file level counting each occurrence is the language's own morphology, not a
+   defect (keyword-rosetta ledgers this for `m4` as `m4-parameters-are-use-sites`). But
+   `avg_func_args` is an *arity*, and `$1 … $1` is one parameter referenced twice under any
+   reading. Counting distinct positions is the fix there; `shell` does this
+   (`_args_findall_max_groups`), `m4` does not.
 
 ## What this is used for
 
@@ -106,7 +108,7 @@ density rather than declaration count.
 | `fortran` | 13 | n/a | n/a | anchored to `SUBROUTINE`/`FUNCTION`/`ENTRY` and `INTENT` |
 | `go` | 13 | 897 | 1.00 | anchored to `func` |
 | `groovy` | 19 | 2193 | 2.48 | **violates corollary 1** -- the return-type run is `{0,3}`, so `close(conn)` at line start counts. Filed as #2782 |
-| `haskell` | 15 | 169 | 0.68 | **violates the contract narrowly** -- an arrow-less `::` signature (`region :: IORef Int`) is a VALUE, not a callable. Filed as #2785 |
+| `haskell` | 15 | 169 | 0.68 | inside the contract -- an arrow-less `::` signature is a CAF, and a Haskell top-level value IS a nullary function (ledger `haskell-caf-bindings-count-as-functions`); `func_start` agrees with `args` on it |
 | `html` | 3 | 676 | 6.76 | fallback family -- addressable attributes |
 | `java` | 13 | 384 | 1.21 | a return type is mandatory; a constructor must reach `throws` or `{` |
 | `javascript` | 13 | 1020 | 1.22 | the class-member arm carries a `(?=[ \t\n]*\{)` body lookahead -- the precedent typescript had dropped |
@@ -114,7 +116,7 @@ density rather than declaration count.
 | `kotlin` | 13 | 28 | 1.00 | anchored to `fun`/`constructor` |
 | `livecode` | 13 | 527 | 0.55 | anchored to `on`/`command`/`function`/`getprop`/`setprop` |
 | `lua` | 13 | 1551 | 2.44 | anchored to `function` |
-| `m4` | 18 | 70 | 1.79 | **violates corollary 3** -- counts every `$1` REFERENCE, so the total scales with body length. `shell` counts the highest position instead. Filed as #2784 |
+| `m4` | 18 | 70 | 1.79 | fallback family at file level (ledger `m4-parameters-are-use-sites`); **`avg_func_args` violates corollary 3** -- no `_args_findall_max_groups`, so `$1 ... $1` reads arity 2. Filed as #2784 |
 | `makefile` | 1 | 0 | 0.00 | fallback family -- `$(1)` inside `define`, `$(call ...)` |
 | `markdown` | 0 | n/a | n/a | no rule (no callables) |
 | `matlab` | 13 | 36 | 1.57 | anchored to `function` |
@@ -160,13 +162,32 @@ keeps byte offsets aligned, since prism blanks comments in place.) The typescrip
 recall — 10326 → 10910 real declarations — because the over-reaching arrow arm used to swallow real
 parameter lists inside an over-long match.
 
-**Four filed for follow-up.** [#2782](https://github.com/squid-protocol/gitgalaxy/issues/2782)
-(`groovy`, +46%) and [#2783](https://github.com/squid-protocol/gitgalaxy/issues/2783) (`apex`,
-+38%) are the same defect in the same rule family — a `^[ \t]*IDENT(...)` member arm whose
-return-type prefix is optional. [#2784](https://github.com/squid-protocol/gitgalaxy/issues/2784)
-(`m4`, +38%) is corollary 3: it counts `$1` references, where `shell` counts the highest position.
-[#2785](https://github.com/squid-protocol/gitgalaxy/issues/2785) (`haskell`) is narrow — an
-arrow-less `::` signature is a value, not a callable.
+**Two filed for follow-up, and two corrections to this audit's first draft.**
+[#2782](https://github.com/squid-protocol/gitgalaxy/issues/2782) (`groovy`, +46%) and
+[#2783](https://github.com/squid-protocol/gitgalaxy/issues/2783) (`apex`, +38%) are the same defect
+in the same rule family — a `^[ \t]*IDENT(...)` member arm whose return-type prefix is optional.
+Both are live, and keyword-rosetta's ledger carries them as
+`args-call-site-counting-apex-groovy`.
+
+The first draft of this audit also called `m4` and `haskell` violations. Both were **already
+settled in keyword-rosetta's `deviation_ledger.json`**, and checking it first would have avoided
+re-litigating them — a lesson worth more than either finding:
+
+- `haskell` is **inside** the contract. `haskell-caf-bindings-count-as-functions` (validated
+  2026-09-04) reads an arrow-less `::` signature as a CAF, and a Haskell top-level value genuinely
+  *is* a nullary function. The engine is consistent about it — `func_start` counts it too, and
+  `_args_arrow_count_groups` derives arity 0 — so the narrowing this document originally proposed
+  would have made the two rules disagree on the same binding.
+  [#2785](https://github.com/squid-protocol/gitgalaxy/issues/2785) is closed.
+- `m4`'s **file-level** count is intended morphology (`m4-parameters-are-use-sites`): a macro names
+  no parameters, so `$1` in the body is the parameter, and equalising the count would mean writing
+  macros that never reference their own argument. What survives is narrower and untouched by that
+  verdict — `avg_func_args` has no `_args_findall_max_groups`, so `AT_SETUP($1) AT_CHECK($1)` reads
+  arity 2 for a one-parameter macro. [#2784](https://github.com/squid-protocol/gitgalaxy/issues/2784)
+  is rescoped to that.
+
+**Read the ledger before calling a language's `args` a defect.** It is the corpus's audit trail of
+questions already asked and answered, and two of this audit's four findings were in it.
 
 **One knowingly approximate fallback.** `css` counts the arguments of value functions —
 `calc()`, `var()`, `url()` — which are call sites, and corollary 1 says a call is not a
@@ -221,6 +242,11 @@ recognisable anchors, worth knowing before writing a new one:
   file-level totals barely moved; `tree_sitter_accuracy_audit.py --lang typescript` caught it
   (`args_exact_match` 2881 → 2875, 6 fp-ts functions). **Run that audit after any `args` change**,
   for every language it baselines.
+- **Check `keyword-rosetta/deviation_ledger.json` before calling anything a defect.** Every
+  language's odd `args` reading has probably already been triaged there, with a `disposition`
+  (`intended-morphology`, `engine-semantic`, `upstream-bug`) and a dated verdict. Two of the four
+  violations this audit first reported were already settled in it. `grep '"signal": "args"'` is a
+  30-second check that outranks any amount of measurement.
 - **The oracle for this rule is tree-sitter over the CODE STREAM.** Parse
   `prism.split_streams(src, lang)["code_stream"]`, not the raw file — prism blanks comments in
   place, so byte offsets stay aligned — then for each match find the smallest node covering the

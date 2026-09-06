@@ -84,6 +84,15 @@ _COBOL_SIMPLE_CASES = [
     ("generics", "CLASS-ID. FOO USING BAR", "MOVE X TO Y."),
     ("scientific", "FUNCTION SQRT(X)", "MOVE X TO Y."),
     ("reflection_metaprogramming", "05 WS-ALT REDEFINES WS-ORIG.", "MOVE X TO Y."),
+    # #2485/#2484: the CICS surface. Negatives are the nearest non-CICS
+    # neighbour so a positive cannot pass by matching the bare verb alone.
+    ("io", "EXEC CICS WRITEQ TS QUEUE('Q') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("io", "EXEC CICS READQ TS QUEUE('Q') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("io", "EXEC CICS DELETEQ TS QUEUE('Q') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("panics_and_aborts", "EXEC CICS ABEND ABCODE('X999') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("safety_bypasses", "EXEC CICS IGNORE CONDITION NOTOPEN END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("ipc_rpc_bridges", "EXEC CICS PUT CONTAINER('C') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("ipc_rpc_bridges", "EXEC CICS GET CONTAINER('C') END-EXEC", "EXEC CICS ENQ END-EXEC"),
     ("import", "       COPY CUSTREC.", "MOVE X TO Y."),
     ("ownership", "       AUTHOR. Jane Doe.", "      * just a note"),
     ("planned_debt", "      * TODO: fix this", "      * done"),
@@ -331,6 +340,24 @@ def test_cobol_intentional_double_classification_sweep():
     assert COBOL_RULES["serialization_parsing"].search(string_stmt)
     assert COBOL_RULES["state_mutation"].search(string_stmt)
 
+    # #2485: a transient-data write is a real io boundary AND the CICS
+    # journalling idiom -- the same dual as sqlite's `.read` (import + io).
+    writeq_td = "EXEC CICS WRITEQ TD QUEUE('CSMT') END-EXEC"
+    assert COBOL_RULES["io"].search(writeq_td)
+    assert COBOL_RULES["telemetry"].search(writeq_td)
+
+    # #2484: PUT CONTAINER writes state that outlives the program AND hands it
+    # to another one, so it is a mutation and a bridge. GET CONTAINER is the
+    # asymmetry that proves the split is deliberate: a bridge, never a mutation.
+    put_container = "EXEC CICS PUT CONTAINER('C') CHANNEL('CH') END-EXEC"
+    assert COBOL_RULES["state_mutation"].search(put_container)
+    assert COBOL_RULES["ipc_rpc_bridges"].search(put_container)
+    get_container = "EXEC CICS GET CONTAINER('C') CHANNEL('CH') END-EXEC"
+    assert COBOL_RULES["ipc_rpc_bridges"].search(get_container)
+    assert not COBOL_RULES["state_mutation"].search(get_container), (
+        "GET CONTAINER reads a container; it mutates nothing"
+    )
+
     for other_signal, text in [
         ("io", "EXEC CICS READ FILE(X) END-EXEC"),
         ("concurrency", "EXEC CICS WAIT EVENT(X) END-EXEC"),
@@ -340,6 +367,50 @@ def test_cobol_intentional_double_classification_sweep():
         assert COBOL_RULES["reflection_metaprogramming"].search(text), (
             f"reflection_metaprogramming's bare EXEC CICS catch-all should also fire on {text!r}"
         )
+
+
+def test_cobol_cics_queue_verbs_need_their_own_alternative_2485():
+    """#2485: the `Q` suffix is why the queue lifecycle recorded nothing.
+
+    `io`'s CICS arm was `EXEC\\s+CICS\\s+(?:READ|WRITE|REWRITE|DELETE)` closed
+    by `\\b`. Engine rule 9: `\\b` needs a word/non-word transition, and in
+    `READQ` the character after `READ` is `Q` -- a word character -- so the
+    boundary never fires and the whole alternative fails. Adding the queue
+    verbs as their OWN alternative (with the mandatory TS/TD qualifier) is the
+    fix; extending the existing one to `READ(?:Q)?` would have matched
+    `EXEC CICS READQ` with no queue type, which is not a valid CICS command.
+
+    Guards both halves: the queue verbs match, and a bare `EXEC CICS READQ`
+    with no TS/TD qualifier still does not.
+    """
+    for verb in ("READQ", "WRITEQ", "DELETEQ"):
+        for qtype in ("TS", "TD"):
+            text = f"EXEC CICS {verb} {qtype} QUEUE('Q') END-EXEC"
+            assert COBOL_RULES["io"].search(text), f"{verb} {qtype} should record io"
+        assert not COBOL_RULES["io"].search(f"EXEC CICS {verb} QUEUE('Q') END-EXEC"), (
+            f"EXEC CICS {verb} without a TS/TD qualifier is not a valid CICS command"
+        )
+
+    # The file-control verbs must be unchanged by the new alternative.
+    assert COBOL_RULES["io"].search("EXEC CICS READ DATASET('FILE') END-EXEC")
+    assert COBOL_RULES["io"].search("EXEC CICS REWRITE DATASET('FILE') END-EXEC")
+
+
+def test_cobol_cics_abend_is_an_abort_not_an_execution_2485():
+    """#2485: `EXEC CICS ABEND` terminates the task; it executes nothing.
+
+    Engine rule 3 keeps `high_risk_execution` for things that execute, so the
+    abend is routed to `panics_and_aborts` only. `STOP RUN` sits in both today
+    and is asserted here so that precedent stays visible: if a later change
+    widens `high_risk_execution` to cover abends, it should be a deliberate
+    decision with its own justification, not this rule drifting into it.
+    """
+    abend = "EXEC CICS ABEND ABCODE('X999') END-EXEC"
+    assert COBOL_RULES["panics_and_aborts"].search(abend)
+    assert not COBOL_RULES["high_risk_execution"].search(abend)
+
+    assert COBOL_RULES["panics_and_aborts"].search("STOP RUN.")
+    assert COBOL_RULES["high_risk_execution"].search("STOP RUN.")
 
 
 def test_cobol_func_start_excludes_reserved_verbs_and_headers():
@@ -482,9 +553,9 @@ def test_cobol_api_contract_2730():
     api = COBOL_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search("       ENTRY 'SUBPROG'."), 'secondary entry point'
-    assert api.search('       LINKAGE SECTION.'), 'linkage section'
+    assert api.search("       ENTRY 'SUBPROG'."), "secondary entry point"
+    assert api.search("       LINKAGE SECTION."), "linkage section"
 
     # Not declarations -- must not match.
-    assert not api.search('           END-CALL.'), 'END-CALL scope terminator'
-    assert not api.search("           CALL 'CEE3ABD'."), 'CALL is a call site'
+    assert not api.search("           END-CALL."), "END-CALL scope terminator"
+    assert not api.search("           CALL 'CEE3ABD'."), "CALL is a call site"

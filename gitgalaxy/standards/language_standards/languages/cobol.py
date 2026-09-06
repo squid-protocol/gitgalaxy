@@ -239,15 +239,35 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 7. safety_neg: Safety Bypasses. Bypassing logic or unpredictable jumps.
+        # #2485: `EXEC CICS IGNORE CONDITION <cond>` switches OFF the handler
+        # for a condition for the rest of the task -- error handling
+        # deliberately disabled, which is what this key means. The issue
+        # proposed `panics_and_aborts`; that is the opposite reading (an abend
+        # raises, IGNORE CONDITION suppresses), so it is routed here instead.
         "safety_bypasses": re.compile(
-            r"\b(NEXT\s+SENTENCE|GO\s+TO|CORRESPONDING|ANY\s+LENGTH|OMITTED)\b",
+            r"\b(NEXT\s+SENTENCE|GO\s+TO|CORRESPONDING|ANY\s+LENGTH|OMITTED"
+            r"|EXEC\s+CICS\s+IGNORE\s+CONDITION)\b",
             re.I,
         ),
         # 8. danger: High-Risk Execution. Process-stopping commands and self-modifying code (ALTER).
         "high_risk_execution": re.compile(r"\b(STOP\s+RUN|ALTER|CANCEL)\b", re.I),
         # 9. io: I/O & Network Boundaries. Disk, Database (SQL), and CICS communication.
+        # #2485: the queue verbs are a SEPARATE alternative from the bare
+        # file-control ones, not extra letters on them. `EXEC CICS READQ TS`
+        # cannot reach the `READ` alternative -- the trailing `\b` needs a
+        # word/non-word transition and `READ` is followed by `Q` -- so before
+        # this the whole TSQ/TDQ lifecycle recorded no io at all (30 real
+        # occurrences in the crucible: WRITEQ TS 17, READQ TS 7, DELETEQ TS 6).
+        # Reading or writing a temporary-storage or transient-data queue is a
+        # read/write of a queue resource outside the program, which is what
+        # this signal means. `WRITEQ TD` deliberately counts BOTH here and in
+        # `telemetry`: a transient-data write is a real io boundary AND the
+        # CICS journalling idiom, the same dual as sqlite's `.read`
+        # (keyword-rosetta ledger sqlite-dot-read-dual-import-io).
         "io": re.compile(
-            r"\b(READ|WRITE|REWRITE|OPEN|CLOSE|START|DELETE|EXEC\s+SQL|EXEC\s+CICS\s+(?:READ|WRITE|REWRITE|DELETE))\b",
+            r"\b(READ|WRITE|REWRITE|OPEN|CLOSE|START|DELETE|EXEC\s+SQL"
+            r"|EXEC\s+CICS\s+(?:READQ|WRITEQ|DELETEQ)\s+(?:TS|TD)"
+            r"|EXEC\s+CICS\s+(?:READ|WRITE|REWRITE|DELETE))\b",
             re.I,
         ),
         # 10. api: Public Surface Area. Exposed linkage points and external entries.
@@ -260,8 +280,15 @@ DEFINITION: dict[str, Any] = {
         # contract) are COBOL's real published surface.
         "api": re.compile(r"\b(ENTRY|LINKAGE\s+SECTION|EXPORT)\b", re.I),
         # 11. flux: State Mutation. State mutation (The core of COBOL data manipulation).
+        # #2484: `PUT CONTAINER` writes program state into a channel that
+        # outlives the current program, so it is a mutation as well as a
+        # transfer -- it counts here AND in `ipc_rpc_bridges`, deliberately.
+        # `GET CONTAINER` is NOT here: reading a container mutates nothing.
+        # (`MOVE CONTAINER` already reaches this rule through the bare `MOVE`
+        # alternative, which is why it is not listed again.)
         "state_mutation": re.compile(
-            r"\b(MOVE|COMPUTE|ADD|SUBTRACT|MULTIPLY|DIVIDE|SET|INITIALIZE|REPLACE|STRING|UNSTRING)\b",
+            r"\b(MOVE|COMPUTE|ADD|SUBTRACT|MULTIPLY|DIVIDE|SET|INITIALIZE|REPLACE|STRING|UNSTRING"
+            r"|EXEC\s+CICS\s+PUT\s+CONTAINER)\b",
             re.I,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails) Commented out structural logic (Column 7 indicator).
@@ -375,7 +402,15 @@ DEFINITION: dict[str, Any] = {
         # 40. explicit_casts (Explicit Type Casting): Explicit type coercion/casting.
         "explicit_casts": re.compile(r"\b(REDEFINES)\b", re.I),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution.
-        "panics_and_aborts": re.compile(r"\b(STOP\s+RUN|EXIT\s+PROGRAM|GOBACK)\b", re.I),
+        # #2485: `EXEC CICS ABEND` terminates the task abnormally and is the
+        # CICS sibling of `STOP RUN` -- 91 occurrences across 47 crucible
+        # files, none of which recorded an abort before this. Deliberately NOT
+        # added to `high_risk_execution`: engine rule 3 keeps that key for
+        # things that EXECUTE, and an abend runs nothing. (`STOP RUN` sits in
+        # both today; widening high_risk_execution by 91 hits across 47 files
+        # is a scoring change that needs its own justification, not a
+        # side effect of this one.)
+        "panics_and_aborts": re.compile(r"\b(STOP\s+RUN|EXIT\s+PROGRAM|GOBACK|EXEC\s+CICS\s+ABEND)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits).
         "thread_sleeps": re.compile(r"\bEXEC\s+CICS\s+DELAY\b", re.I),
         # 43. bitwise_ops (Bitwise Operations) (Modern intrinsic bitwise).
@@ -417,6 +452,16 @@ DEFINITION: dict[str, Any] = {
         # (`CALL 'SUBPROGRAM' USING ...`), where a quote (non-word)
         # follows the consumed whitespace. Only the less-common unquoted
         # data-name form (`CALL WS-PROGRAM-NAME`) happened to work.
-        "ipc_rpc_bridges": re.compile(r"(?i)\bCALL\s+|\bEXEC\s+CICS\s+(?:LINK|XCTL|START|RETURN)\b|\bEXEC\s+SQL\b"),
+        # #2484: channels and containers are the modern replacement for the
+        # 32KB COMMAREA on LINK/XCTL, so they belong beside them -- 18 real
+        # occurrences in the crucible (PUT 9, GET 9) that recorded no bridge
+        # before this. MOVE CONTAINER is included for completeness; the
+        # crucible carries none today.
+        "ipc_rpc_bridges": re.compile(
+            r"(?i)\bCALL\s+"
+            r"|\bEXEC\s+CICS\s+(?:LINK|XCTL|START|RETURN)\b"
+            r"|\bEXEC\s+CICS\s+(?:PUT|GET|MOVE)\s+CONTAINER\b"
+            r"|\bEXEC\s+SQL\b"
+        ),
     },
 }

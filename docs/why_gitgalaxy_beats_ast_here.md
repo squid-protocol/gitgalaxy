@@ -996,6 +996,55 @@ clause-local count.
   matlab, scala, swift) — each of those has its own validated ledger verdict (all "GitGalaxy
   counts args accurately"), none of them this eta-reduction mechanism.
 
+## Claim 15: reading a method declaration split by a preprocessor conditional (Objective-C)
+
+Found 2026-09-05 while auditing the `args` rule for
+[#2773](https://github.com/squid-protocol/gitgalaxy/issues/2773), using a `tree-sitter` `objc`
+parse of the engine's own code stream as the oracle for "is this hit a declaration or a call?".
+
+`language-crucible/data/objective-c/worldwideweb/HyperText.m:1426` is a real method definition
+whose body is guarded by a preprocessor conditional placed *between* the selector and the opening
+brace — idiomatic NeXTSTEP-era style for keeping a superseded implementation alongside its
+replacement:
+
+```objc
+- keyDown:(NXEvent*)theEvent
+#ifdef TRY1
+{
+    id result;
+    ...
+```
+
+`tree-sitter-objc` cannot parse it. Parsing that file's code stream produces an `ERROR` node
+starting exactly at `- keyDown:`, and **no `method_definition`/`method_declaration` node covers
+line 1426** — the method is simply absent from the tree (48 method nodes for ~49 line-leading
+`-`/`+` heads; the file's other two `ERROR` regions do still resolve to method nodes). GitGalaxy
+reads it correctly: `func_start` matches the method, and after #2773 `args` records its one
+parameter, because both anchor on the `-`/`+` selector head and neither requires the body brace to
+be lexically adjacent.
+
+The mechanism is the same one Claim 3 (`csharp` `ref struct`) and Claim 13 describe — a grammar
+that requires a shape stricter than the real dialect, then loses a whole region to error recovery
+— applied to a construct the grammar has no concept of at all. It is worth recording separately
+because a preprocessor directive can appear at *any* point in a C-family declaration, so the same
+failure is reachable in `c`, `cpp` and `objective-c` without the file being unusual in any other
+way.
+
+## Where Claim 15 does NOT apply
+
+- It is not a claim that GitGalaxy parses Objective-C better than tree-sitter in general. On the
+  same file, tree-sitter's parse was the oracle that found 277 `args` false positives in
+  GitGalaxy's own rule, which is what #2773 fixed. The claim is about this construct only.
+- It is not a claim about `#if`-guarded code in general — GitGalaxy has no preprocessor evaluation
+  either, and a declaration that only exists in one branch of an `#if`/`#else` pair is counted in
+  both. This is specifically about a directive interrupting a declaration that exists
+  unconditionally.
+- It was found on one corpus file, and it is one method. The surrounding count is that file's own,
+  not a measured cross-corpus recall gap. `tree_sitter_accuracy_audit.py` does baseline
+  `objective-c`, but only over the functions both readers agree exist — a function tree-sitter
+  never emits cannot appear in `args_comparable` — so there is no live metric backing this the way
+  Claim 8 is backed by `ts_extra_functions`.
+
 ## Where this doc is used
 
 - README.md's "One Graph, Not Five Separate Tools" section links here as the narrow exceptions to

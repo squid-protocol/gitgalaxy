@@ -82,7 +82,23 @@ DEFINITION: dict[str, Any] = {
         # 1/4 too, purely so existing extraction tests keep passing.
         "args": re.compile(
             r"function\s+(\w*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))|"
-            r"(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[^=;{]*=>|"
+            # #2773: the gap between an arrow's parameter list and its `=>` used to be
+            # `[^=;{]*` -- unbounded and newline-crossing, so ANY parenthesised
+            # expression matched as long as some `=>` turned up later on the way to the
+            # next `=`/`;`/`{`. `some((type as UnionType).types, t => ...)` scored the
+            # cast's own parens as a parameter list (384 such hits on the typescript
+            # crucible corpus). The only thing that can legally sit between `)` and `=>`
+            # is a return-type annotation, so the gap is now whitespace or a `:`-led
+            # annotation, both bounded. Bounding it also RECOVERS ~580 real arrow
+            # parameter lists this arm used to swallow inside an over-long match.
+            # The annotation itself may carry ONE level of balanced parens, because a
+            # curried arrow's return type is itself a function type -- fp-ts's
+            # `tryCatchK = <A, B, E>(f: ..., onThrow: ...): ((...a: A) => Either<E, B>) =>`
+            # (Either.ts:1406). Excluding `(` outright made this arm skip the real
+            # 2-parameter list and match the `(...a: A)` inside the annotation instead
+            # (6 functions, tree_sitter_accuracy_audit args_exact_match 2881 -> 2875).
+            # Newlines stay excluded on both sides so the gap cannot run down the file.
+            r"(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]{0,50}(?::(?:[^=;{()\n]|\((?:[^()\n]|\([^()\n]*\))*\)){0,120})?=>|"
             r"([a-zA-Z_$][\w$]{0,100})[ \t]*=>|"
             # #2539: `with` excluded CONDITIONALLY (only when followed by whitespace
             # then `(` -- the `with (shape) {` statement shape) rather than added to
@@ -90,7 +106,28 @@ DEFINITION: dict[str, Any] = {
             # in modern code (`Array.prototype.with` ES2023, Temporal's `.with()`),
             # and formatters never put a space before a method definition's paren --
             # same discriminator func_start's #2276 catch/return/throw fix uses.
-            r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t]+){0,4}(?:async[ \t]+)?(?:\*[ \t]*)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|yield|await|void)\b|with\b[ \t\n]+\()(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))",
+            # #2773: this arm had no declaration anchor at all -- `^[ \t]*IDENT(...)` is
+            # equally the shape of a bare CALL STATEMENT, and a call consumes a
+            # parameter surface rather than declaring one (docs/args_rule_contract.md).
+            # Measured over the code stream of language-crucible/data/typescript and
+            # classified against a tree-sitter parse of the same stream, this arm
+            # produced 6133 call sites against 3026 real declarations -- 67% wrong, and
+            # `describe(kit);`/`expect(kit);` in the keyword-rosetta shell were two of
+            # them. What follows the parameter list separates the two cleanly: a
+            # declaration is followed by its body `{` or by a `:` return-type
+            # annotation (2900 of the 3026), a call statement by `;`, `,`, `)`, `|`,
+            # `&`, `.` (6039 of the 6133). Requiring `{` or `:` keeps 95.8% of the
+            # declarations and drops 98.5% of the calls.
+            r"^[ \t]*(?:(?:public|private|protected|static|override|abstract|readonly)[ \t]+){0,4}(?:async[ \t]+)?(?:\*[ \t]*)?(?:get\s+|set[ \t]+)?(?!(?:if|for|while|switch|catch|return|throw|new|typeof|yield|await|void)\b|with\b[ \t\n]+\()(\[[^\]]+\]|[#]?[a-zA-Z_$][\w$]*)(?:[ \t\n]{0,50}<(?:[^<>]|<[^<>]*>)*>)?[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]{0,50}[:{]|"
+            # #2773: the one declaration shape the `{`-or-`:` anchor above cannot
+            # cover. A constructor has no return type BY GRAMMAR, so a bodyless
+            # constructor overload signature (`constructor(runner: () => void, timeout:
+            # number);`, vscode/async.ts:1020) terminates in a bare `;` -- lexically
+            # identical to a call statement. Named explicitly rather than by loosening
+            # the anchor to accept `;`: all 125 declarations the anchor would otherwise
+            # lose on the crucible corpus are constructors, and accepting a bare `;`
+            # generally would readmit 4906 call statements.
+            r"^[ \t]*(?:(?:public|private|protected|abstract|declare)[ \t]+){0,3}(constructor)[ \t\n]{0,50}(\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))[ \t\n]{0,50};",
             re.M,
         ),
         # 3. linear (Sequential Boundaries)

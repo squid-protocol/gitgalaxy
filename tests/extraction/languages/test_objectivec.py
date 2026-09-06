@@ -139,32 +139,83 @@ OBJECTIVEC_ADVERSARIAL_TESTS = {
         "pathological": [("@interface \\\n MyClass \\\n : NSObject", "MyClass")],
     },
     "args": {
+        # #2773: every payload here now carries the `-`/`+` method-declaration
+        # lead the rule requires. A bare selector span on its own is a MESSAGE
+        # SEND, not a parameter surface, and is asserted invalid below.
         "valid": [
-            (":(int)a", None),
-            ("withString:(NSString *)str", None),
-            ("andBlock:(void (^)(int, BOOL))block", None),
-            ("generics:(NSArray<__kindof UIView *> *)views", None),
-            ("cppRef:(const std::vector<int>&)ref", None),
-            ("multiBlock:(void (^) (void (^)(BOOL)))nestedBlock", None),
-            ("arrayArg:(int[])array", None),
-            (":   (   id <  MyProtocol >  )  arg", None),
-            (":\n(int)\narg", None),
-            ("crazySpacing   :   (   NSString *   )   arg", None),
-            ("argWithAttr:(int)__attribute__((unused))a", None),
-            ("nullability:(nonnull NSString *)str", None),
+            ("- (void):(int)a", None),
+            ("- (void)withString:(NSString *)str", None),
+            ("- (void)andBlock:(void (^)(int, BOOL))block", None),
+            ("- (void)generics:(NSArray<__kindof UIView *> *)views", None),
+            ("- (void)cppRef:(const std::vector<int>&)ref", None),
+            ("- (void)multiBlock:(void (^) (void (^)(BOOL)))nestedBlock", None),
+            ("- (void)arrayArg:(int[])array", None),
+            ("- (void):   (   id <  MyProtocol >  )  arg", None),
+            ("- (void):\n(int)\narg", None),
+            ("- (void)crazySpacing   :   (   NSString *   )   arg", None),
+            ("- (void)argWithAttr:(int)__attribute__((unused))a", None),
+            ("- (void)nullability:(nonnull NSString *)str", None),
             # #1335: older, still-valid untyped keyword-message style
             # (defaults to `id`) -- language-crucible/data/objective-c/
             # worldwideweb/HyperManager.m has ~20 of these in one file.
-            ("back:sender", None),
-            ("help:sender", None),
-            ("setManager:aManager", None),
-            ("closeOthers:sender", None),
+            # Untyped style also omits the return type entirely.
+            ("- back:sender", None),
+            ("+ help:sender", None),
+            ("+ setManager:aManager", None),
+            ("-closeOthers:sender", None),
             # Mixed typed + untyped segments in the same signature.
-            ("doThing:(int)x withOther:y", None),
+            ("- (id)doThing:(int)x withOther:y", None),
+            # Multi-line vertical signature, and func_start's own leading
+            # macro / __attribute__ prefixes.
+            ("- (void)newParent:(Anchor *)p\n              tag:(const char *)t", None),
+            ("NS_AVAILABLE - (void)modern:(int)x", None),
+            ("__attribute__((deprecated)) - (void)old:(int)x", None),
+            # Block literals keep their own parameter list.
+            ("^(int x, BOOL y) { return; }", None),
+            # A plain C declaration whose parameter list opens with a real type.
+            ("int equivalent(const char *s, const char *t) {", None),
+            ("static void reset(MyStruct *state);", None),
+            ("void teardown(void);", None),
         ],
         "invalid": [
             "case 1:",
             "default:",
+            # #2773: message SENDS. Every one of these matched before the fix
+            # -- 120 of the 277 false hits on the crucible corpus were this
+            # shape (`[store setVersion:V]`, `[list objectAt:i]`).
+            "[store setVersion:ANCHOR_CURRENT_VERSION];",
+            "return [self addObject:self];",
+            "id found = [list objectAt:i];",
+            "[self loadAnchor:nodeAnchor Diagnostic:diag];",
+            # A message send at true line start, inside a method body.
+            "    [self setNode:node];",
+            # #2773: the string-literal hole the issue asked for a negative
+            # test on. Prism strips comments from the code stream but NOT
+            # strings, so `@"status: ok"` used to score an argument.
+            'NSString *s = @"status: ok";',
+            '@":(int)a"',
+            "// :(int)a",
+            # A ternary's `:` read as an untyped selector segment.
+            "return (condition) ? a : b;",
+            "self.property = condition ? a : b;",
+            # A goto label followed by a statement.
+            "label: statement;",
+            # A superclass declaration's colon.
+            "@interface Anchor:Object",
+            # #2773: bare CALL statements. The plain-C arm accepted any
+            # `name(...)` followed by `{`/`;` -- 146 of the false hits.
+            "XCTAssert(kit);",
+            "NSAssert(value);",
+            "os_log(msg);",
+            "free(conn);",
+            "abort();",
+            "exit(payload);",
+            'printf("new Anchor %i named `%s\'\\n", self, tag);',
+            # A capitalised first argument used to satisfy the PascalCase
+            # typedef fallback the c/cpp rules share; a parameter NAME is now
+            # required after the type token.
+            "StrAllocCopy(Address, tag);",
+            'HTParse(anAddress, "", PARSE_ANCHOR);',
         ],
         "pathological": [],
     },
@@ -257,48 +308,60 @@ def test_objc_args_invalid(payload):
     assert_invalid_no_match(OBJC_RULES["args"], payload, "objective-c.args")
 
 
-def test_objc_args_known_limitation_comment_string_lookalike_shielded_by_pipeline():
+def test_objc_args_body_lookalikes_no_longer_match_the_rule_itself():
     """
-    Documents that args regex matches inside comments/strings in isolation
-    (e.g., `// :(int)a` or `@\":(int)a\"`).
-    In the real pipeline, the `standard_block` lexical family strips comments
-    and strings before matching, so these are safely shielded.
-    """
-    args = OBJC_RULES["args"]
-    assert args.search("// :(int)a") is not None
-    assert args.search('@":(int)a"') is not None
+    #2773 closes what #1335 could only shield.
 
-
-def test_objc_args_known_limitation_body_lookalikes_shielded_by_pipeline():
-    """
-    #1335: recognizing the untyped `label:name` keyword-message shape (see
-    the "valid" cases above, e.g. `back:sender`) necessarily also makes the
-    regex match body-only shapes in isolation that are lexically identical
-    to a real untyped parameter:
+    Recognising the untyped `label:name` keyword-message shape (see the
+    "valid" cases above, e.g. `- back:sender`) used to make the regex match,
+    in isolation, every body-only shape that is lexically identical to a real
+    untyped parameter:
+    - a keyword-message SEND (`[self TargetFunc:a withB:b];`) -- Objective-C
+      deliberately spells a method's signature and its call site the same way
     - a C goto label followed by a statement (`label: statement;`)
     - a ternary's true-branch expression read as a label
-      (`cond ? isOn : isOff` -- "isOn" is a syntactically valid label)
-    - a keyword-message SEND (`[self TargetFunc:a withB:b];`) -- Objective-C
-      intentionally uses the exact same `label:value label2:value2` shape
-      for both a method's signature and a call site, so a call inside some
-      OTHER method's body is textually indistinguishable from a real
-      parameter list.
+      (`cond ? isOn : isOff` -- "isOn" IS a syntactically valid label)
+    - the same shape inside a comment or a STRING (`@":(int)a"`)
 
-    No local, bounded regex can tell these apart from a real untyped
-    parameter without already knowing it's inside a method signature --
-    that's exactly what detector.py's `_slice_by_braces` now establishes for
-    objc, by bounding the whole `args` search to the matched method's own
-    signature text, never its body (see `_calculate_block_metrics`'s
-    `args_search_text` param and tests/core_engine/test_detector.py's
-    test_objectivec_args_body_lookalikes_excluded_by_signature_bound), so
-    these lookalikes are unreachable in the real pipeline even though the
-    regex alone still matches them here.
+    detector.py's `_slice_by_braces` bounds the per-function args search to the
+    method's own signature text (`_calculate_block_metrics`'s
+    `args_search_text`, and test_objectivec_args_body_lookalikes_excluded_by_
+    signature_bound in tests/core_engine/test_detector.py), which made these
+    unreachable for one metric only -- `avg_func_args`. The FILE-level
+    `struct_args` count has no such bound: it is the raw rule count over the
+    whole code stream, and on language-crucible/data/objective-c it was reading
+    378 where only 101 declarations exist. Anchoring the selector arm to a
+    `-`/`+` method-declaration lead removes the ambiguity from the rule itself,
+    so the shield is now belt-and-braces rather than the only defence.
+
+    The string case is the one the pipeline never shielded at all: prism strips
+    comments from the code stream, but strings count like ordinary code text
+    for every signal (#2535), so `@"status: ok"` really was an `args` hit.
     """
     args = OBJC_RULES["args"]
-    assert args.search("label: statement;") is not None
-    assert args.search("return (condition) ? a : b;") is not None
-    assert args.search("self.property = condition ? a : b;") is not None
-    assert args.search("[self TargetFunc:a withB:b];") is not None
+    assert args.search("[self TargetFunc:a withB:b];") is None
+    assert args.search("label: statement;") is None
+    assert args.search("return (condition) ? a : b;") is None
+    assert args.search("self.property = condition ? a : b;") is None
+    assert args.search("// :(int)a") is None
+    assert args.search('@":(int)a"') is None
+    assert args.search('NSString *s = @"status: ok";') is None
+    # ...while the declarations those shapes were confused with still match.
+    assert args.search("- (void)TargetFunc:(int)a withB:(int)b {") is not None
+    assert args.search("- back:sender") is not None
+
+
+def test_objc_args_known_limitation_line_leading_selector_in_a_string():
+    """
+    #2773's residue, kept explicit rather than left implied: the `-`/`+` lead
+    is a LEXICAL anchor, so a multi-line string literal whose continuation line
+    happens to begin with `- ` followed by a selector-shaped span still matches
+    in isolation. Objective-C has no multi-line string literal, so the only way
+    to write one is an explicit `\\`-continued C string -- vanishingly rare, and
+    zero occurrences across both corpora. Documented, not silently ignored.
+    """
+    args = OBJC_RULES["args"]
+    assert args.search('char *usage = "line one\\\n- setThing:value";') is not None
 
 
 # ==============================================================================

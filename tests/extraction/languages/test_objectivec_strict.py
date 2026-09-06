@@ -95,11 +95,13 @@ _OBJC_SIMPLE_CASES = [
     ("branch", "int x = a ? b : c;", 'NSString *url = @"https://try.example.com";'),
     ("branch", "@finally {", "@finallysomething"),
     ("branch", "    goto label;", "gotofail"),
-    ("args", ": (NSString *)name", "if (a) {"),
-    ("args", ":(id<MyProto>)arg", "while (1) {"),
+    # #2773: a selector span only counts under a `-`/`+` method-declaration
+    # lead -- on its own it is a message send, not a parameter surface.
+    ("args", "- (void): (NSString *)name", "if (a) {"),
+    ("args", "+ (void):(id<MyProto>)arg", "while (1) {"),
     ("args", "^(int a, int b) {", "catch (NSException *e) {"),
     ("args", "void my_func(int a, void (*cb)(int)) {", "sizeof(int);"),
-    ("args", ":(void(^)(BOOL, NSError *))completion", "__attribute__((unused))"),
+    ("args", "- (void):(void(^)(BOOL, NSError *))completion", "__attribute__((unused))"),
     ("func_start", "- (void)doThing:(id)arg;", "void(^my_block)(void) = ^{"),
     ("func_start", "- (NSDictionary<NSString *, id> *)doThing {", "@interface Foo"),
     ("func_start", "+ (id<MyProto>)doThing {", "int x = 1;"),
@@ -135,6 +137,9 @@ def test_objectivec_args_control_flow_shield():
     assert pattern.search("- (void)doThing:(NSString *)name;")
     assert pattern.search("^(int x) { return x; }")
     assert pattern.search("myCFunction(int a, int b) {")
+    # #2773: a bare call statement is not a declaration.
+    assert not pattern.search("myCFunction(a, b);"), "args hallucinated on a call statement"
+    assert not pattern.search("[self doThing:name];"), "args hallucinated on a message send"
     assert not pattern.search("if (x) {"), "args hallucinated on an if statement"
     assert not pattern.search("while (x) {"), "args hallucinated on a while statement"
 

@@ -50,6 +50,18 @@ PY=~/nyx_projects/gitgalaxy/.venv/bin/python
    -- ~2 min in the background. Read it per language: the most frequent matched lines on the
    real corpus are where a rule is too broad; a corpus cell above the plant is where it is
    too broad or the plant is wrong; a language reading the plant can still be too narrow.
+   **If the signal is not a rule** (`unreferenced_by_name`, `duplicate_logic`, anything
+   computed in `splice()` from the function list) `rule_probe.py` cannot see it at all --
+   use `tests/tools/census_probe.py`, same snapshot/`--compare` shape.
+6. **Read the CRUCIBLE rate before the control corpus, for every language the issue accuses.**
+   keyword-rosetta says what the corpus planted; the crucible says what the language does. When
+   the claim is "this language cannot express X", one crucible number settles it in a single
+   call -- #2806 was filed against five languages "whose invocation model never names the
+   callee", and real-world ABAP read a 6% unreferenced rate through `PERFORM`, which ended the
+   question for four of the five before any code was written. **A corpus cell reading 100%
+   defective is not evidence the language cannot answer; check whether the PLANT asks.** Four
+   of those five had a `main` whose dispatch unit invoked nothing, where every median language's
+   `main` calls its three probes: the cell measured the plant, and the fix was a corpus PR.
 
 ## Phase 1 -- the sentence and its corollaries
 
@@ -89,6 +101,23 @@ $PY -m pytest tests/extraction/languages -q -p no:cacheprovider 2>&1 | grep -E "
 PATH=~/nyx_projects/gitgalaxy/.venv/bin:$PATH $PY tests/tools/rosetta_audit.py --corpus $KEYWORD_ROSETTA_PATH --allow-regressions   # background, ~3 min
 ```
 
+**A registry declaration that is not a regex needs an end-to-end check before anything else
+in this phase is believed.** `language_lens.py::_calibrate_lookup_maps` compiles every *string*
+value inside a language's `rules` into a regex before a real scan sees it, and neither
+`rule_probe.py`, `census_probe.py` nor any unit test goes through the lens -- they build the
+extractor from `LANGUAGE_DEFINITIONS` directly. #2806 declared `_invocation_model: "positional"`
+inside `rules`, measured exactly the intended result in all three, and recorded the OLD behaviour
+in every real scan, because the detector received `re.compile("positional")`. It cost a wasted
+golden-master bless. Put a non-pattern helper at the TOP LEVEL of the definition (beside
+`lexical_family`), and prove it with one scan of one file:
+
+```sh
+$PY -c "import pathlib;pathlib.Path('/tmp/one/x.<ext>').write_text(...)"   # or copy a corpus file
+git -C /tmp/one init -q && git -C /tmp/one add -A && git -C /tmp/one commit -qm x   # the census needs git-tracked files
+.crucible_venvs/zero_dependency/bin/galaxyscope /tmp/one --output /tmp/one_out --db-only
+sqlite3 /tmp/one_out/*_master.db "select file_path, <column> from file_data;"
+```
+
 The three run in parallel. Read the after-samples for every language whose count moved more
 than expected in *either* direction (abap went 48 -> 792 on a first draft because multi-line
 named parameters look like assignments; the statement-period guard took it to 402). Expect a
@@ -112,7 +141,11 @@ nothing else that is gated -- `AtomicInteger` was carrying an unplanted `concurr
   `CASES = {lang: (positives, negatives)}` table, a `COUNTS` table for one-statement-one-hit,
   and one ReDoS detonation over the shared payload list for every language.
 - `ruff format` ONLY the files you touched -- `ruff format .` reformats ~20 test files that
-  main has never formatted, and you will have to `git checkout` them back.
+  main has never formatted, and you will have to `git checkout` them back. A mechanical rename
+  touches files you never opened: format the whole CHANGED SET (`git diff --name-only`), not
+  just the ones you hand-edited, and do it BEFORE `audit_check.py --regenerate` -- formatting
+  moves line numbers, so a baseline regenerated first comes back as a new finding in CI (two
+  wasted pushes on #2806).
 - Sheet: flip the row to `status="stated"`, set `doc=`; update the schema comment line in
   `how_to_add_a_language.md` so it *contains* the contract sentence; then
   `$PY tests/signal_contract_audit.py --regenerate-baseline --render` and `--ci`.
@@ -127,6 +160,9 @@ nothing else that is gated -- `AtomicInteger` was carrying an unplanted `concurr
   "newly parsed / newly excluded" means a rule change crossed the aperture's density guard.
 - Gauntlet legs, all in the background: full `pytest tests/`, `ruff_audit --ci`,
   `mypy_audit --ci`, `dead_key_audit --ci`, `tests/tools/audit_check.py`.
+- Before opening either PR, re-run `rosetta_audit.py` once more against the corpus branch and
+  drive it to 46/46. A signal change moves the cells DERIVED from it, not only its own:
+  #2806's last regression was jcl's `api_orphan_credit`, three files, found only there.
 - Label `rosetta:rebless-owed`. One `Closes #N` per line. File the follow-ups the audit
   deferred *before* writing the doc, so the doc links them.
 

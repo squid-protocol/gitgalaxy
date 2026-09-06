@@ -21,11 +21,13 @@ See CLAUDE.md's "Using GitGalaxy's self-scan output for orientation" section for
 * **Extraction Gauntlet & Strict Tests:** Run `pytest tests/extraction/languages/test_<lang>.py` and `test_<lang>_strict.py` for the language you modified.
 
 ## 2. Static Analysis & Linting (~15s)
+* **Order matters:** `ruff format` the whole changed set (`git diff --name-only`, never a bare `ruff format .`) FIRST, then `audit_check.py --regenerate`. Formatting shifts line numbers, so a baseline regenerated before it lands in CI as a "new finding" that is really the same finding two lines down.
 * **Ruff Formatting & Linting:** `python tests/ruff_audit.py --ci`
 * **Mypy Type Checking:** `python tests/mypy_audit.py --ci`
 
 ## 3. Global Golden Master Verification (~2-5 min, first run of a fresh venv adds ~30-60s)
 * **Run the Crucible Check (Mandatory):** Execute `python tests/tools/crucible_check.py` against the full ~80-repo corpus.
+* **Before blessing anything, prove the change reaches a REAL SCAN.** A green unit test is not that proof: tests and both probes (`rule_probe.py`, `census_probe.py`) build the extractor straight from `LANGUAGE_DEFINITIONS`, while a real scan goes through `language_lens.py`, which compiles every *string* value inside a registry's `rules` into a regex, and through `galaxyscope.py`'s config assembly. #2806 declared a string helper in `rules`, passed every test, and blessed a golden master in which nothing had changed. One file, one scan, one query -- `galaxyscope <dir> --output /tmp/x --db-only` then `sqlite3 /tmp/x/*_master.db "select file_path, <column> from file_data;"` -- costs ~20 seconds and is the only thing that catches this class.
 * **Re-Bless Golden Masters:** If `crucible_check.py` shows expected, accurately traced diffs resulting from your fix, bless the new state:
   `python tests/tools/crucible_check.py --update --yes`
   * Always go through `crucible_check.py --update`, never `python tests/tools/update_golden_master.py`

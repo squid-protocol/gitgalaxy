@@ -168,6 +168,15 @@ few minutes this way, instead of hours of pure static reading):
   (`<scratch-dir>/<repo>_galaxy_master.db`, `file_data` table) — column names are the
   `record_keeper.py`-renamed form of the raw equation keys (e.g. `unreferenced_by_name` →
   `state_unreferenced`, `api` → `arch_api`; confirm via `.schema file_data` since this evolves).
+- **A unit test does not exercise the config pipeline, and for a REGISTRY DECLARATION that
+  difference is the whole bug.** Tests and the probe scripts build `StructuralExtractor` from
+  `LANGUAGE_DEFINITIONS` directly; a real scan first goes through `language_lens.py`, whose
+  `_calibrate_lookup_maps` compiles every **string** value inside a language's `rules` into a
+  regex (a guard for definitions loaded from external JSON), and then through galaxyscope's
+  `copy.deepcopy` + `PROJECT_OVERRIDES` merge. A non-pattern helper key therefore belongs at the
+  TOP LEVEL of the definition, beside `lexical_family` -- put one in `rules` and it silently
+  becomes `re.compile("...")` with every test still green (#2806, which also blessed a wrong
+  golden master before a one-file scan caught it).
 - For a control/golden corpus already checked out locally (e.g. `keyword-rosetta`,
   `language-crucible`), point `galaxyscope` straight at it this way instead of writing a
   standalone repro script — the census requires git-tracked files (see `census-requires-git-

@@ -4497,3 +4497,123 @@ def test_html_tags_never_reach_named_class_extraction():
     assert result["equations"].get("class_start") == 2, (
         "the class_start SIGNAL must still count the risk-relevant tags"
     )
+
+
+def test_mode_e_statement_buckets_leave_the_function_population():
+    """#2792: `functions_found` sqlite 31 against a 13-function planted program.
+
+    Mode E (`_slice_by_terminator`) never captures a name from source: it cleaves
+    on the terminator and labels each bucket after the igniter keyword. The count
+    therefore scales with statement volume, not with the program -- and it is the
+    denominator of six per-function descriptors. #2547 already agreed these names
+    are never real callable identifiers; only the population had not been told.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    def population(lang, code):
+        functions = StructuralExtractor(lang, LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+        return [f["name"] for f in functions if not f.get("is_synthetic_slice")]
+
+    assert population("sqlite", "CREATE TABLE t (a INT);\nSELECT * FROM t;\n") == []
+    # ...and a language whose func_start captures real identifiers is untouched.
+    assert population("python", "def probe_a():\n    return 1\n") == ["probe_a"]
+
+
+def test_closed_literal_keyword_buckets_stay_in_the_population():
+    """#2792 declined #2728's other family, and this is the measurement that
+    settled it -- not a decision inherited from #2728's own deferral note.
+
+    Excluding a name from the population drops its row from `function_data`,
+    which is what `tests/tools/tree_sitter_accuracy_audit.py` compares against
+    the grammar. tree-sitter-css has dedicated nodes for these constructs and
+    `docs/language_status/css.md` publishes 25/25 function precision on exactly
+    them; excluding them measured `found_functions: 25 -> 0` on the pinned
+    crucible. A `@media` block is a real construct GitGalaxy correctly located.
+    Whether it should be called a *function* is a cross-language comparison
+    question, and keyword-rosetta answers it by reporting the cell incomparable.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    def population(lang, code):
+        functions = StructuralExtractor(lang, LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+        return [f["name"] for f in functions if not f.get("is_synthetic_slice")]
+
+    assert population("css", "@media screen { .a { color: red; } }\n") == ["media"]
+    assert population("dockerfile", 'FROM debian\nRUN apt-get update\nCMD ["x"]\n') == ["RUN", "CMD"]
+    # They are still neither orphans nor duplicates -- #2728 is untouched.
+    docker = StructuralExtractor("dockerfile", LANGUAGE_DEFINITIONS)
+    eq = docker.splice("FROM debian\nRUN apt-get update\nRUN apt-get update\n", "")["equations"]
+    assert not eq.get("duplicate_logic")
+    assert not eq.get("unreferenced_by_name")
+
+
+def test_mode_e_bucket_names_are_only_uncountable_for_a_mode_e_language():
+    """#2792's narrowing guard, the same shape as #2691's "Main" guard.
+
+    `_is_synthetic_satellite_name` matches `<KEYWORD>_Statement` for EVERY
+    language, which is right for the orphan check -- a false positive there
+    costs nothing. In the population a false positive erases a real declaration,
+    and `SELECT_Statement` is a legal identifier in a language that does not
+    slice on a terminator, so the exclusion is gated on the slicing mode the
+    engine actually dispatches on.
+    """
+    from gitgalaxy.core.detector import ScopeParsingRegistry, _is_synthetic_satellite_name
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    assert _is_synthetic_satellite_name("SELECT_Statement"), (
+        "if this becomes False the orphan check and the population test have "
+        "converged and this guard no longer guards anything"
+    )
+    assert ScopeParsingRegistry.get_mode("sqlite") == "mode_e"
+    assert ScopeParsingRegistry.get_mode("python") is None
+
+    sqlite = StructuralExtractor("sqlite", LANGUAGE_DEFINITIONS)
+    python = StructuralExtractor("python", LANGUAGE_DEFINITIONS)
+    assert sqlite._is_uncountable_slice("SELECT_Statement")
+    assert not python._is_uncountable_slice("SELECT_Statement")
+
+
+def test_a_truncated_mode_e_label_is_still_a_mode_e_label():
+    """#2792: the truncation suffixes are stripped for the Mode E family and
+    deliberately NOT for `_UNCOUNTABLE_SLICE_NAMES`.
+
+    #2691 kept them because `Main_[Truncated]` is a real function that ran off
+    the end of the file. `Declarative_Block_[Unterminated]` is the same bucket
+    label as `Declarative_Block`; whether the statement was terminated says
+    nothing about whether anyone wrote a name. Left unstripped it kept exactly
+    one phantom function in the corpus's `sqlite/main.sql`, so the count could
+    never reach the honest 0 that lets the cell be reported as incomparable.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    sqlite = StructuralExtractor("sqlite", LANGUAGE_DEFINITIONS)
+    assert sqlite._is_uncountable_slice("Declarative_Block_[Unterminated]")
+    assert sqlite._is_uncountable_slice("Declarative_Block")
+
+    # The #2691 carve-out survives: a real name that hit EOF is still counted.
+    go = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
+    assert not go._is_uncountable_slice("Main_[Truncated]")
+    assert not go._is_uncountable_slice("Main")
+
+
+def test_synthesizes_all_function_names_is_the_reportable_form_of_the_same_rule():
+    """#2792/#2795: keyword-rosetta reads this to mark `functions_found` n/a.
+
+    An honest 0 must be reported as INCOMPARABLE, not scored as a -100% outlier
+    against languages that have functions -- otherwise this fix trades a wrong
+    number for a bigger red dot. The predicate is exported from the engine so
+    the corpus cannot hand-list a set that drifts from what the slicer emits,
+    and it must cover exactly the languages whose population this fix empties.
+    """
+    from gitgalaxy.core.detector import synthesizes_all_function_names
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    for lang in ("markdown", "sqlite"):
+        assert synthesizes_all_function_names(lang, LANGUAGE_DEFINITIONS[lang]["rules"])
+    # The closed-literal languages keep a population, so they must NOT qualify --
+    # a cell marked n/a while the scan reads 17 is a mismatch, not an absence.
+    for lang in ("dockerfile", "css", "html", "yaml", "python", "go", "makefile", "m4"):
+        assert not synthesizes_all_function_names(lang, LANGUAGE_DEFINITIONS[lang]["rules"])
+
+    # markdown qualifies on rule absence; sqlite must qualify on slicing mode.
+    assert StructuralExtractor("sqlite", LANGUAGE_DEFINITIONS)._slices_by_terminator

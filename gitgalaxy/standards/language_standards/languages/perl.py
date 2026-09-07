@@ -247,7 +247,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # 14. test: Testing & Assertions. Assertions and Test frameworks.
         "test": re.compile(
-            r"\b(?:Test2::V0|Test::More|cmp_ok|is_deeply|subtest|done_testing|BAIL_OUT)\b|\b(?:ok|is|isnt|like|unlike|plan|diag|note)\s*\("
+            # #2852 contract C2: a module qualifier is not a separate hit from the call it qualifies (Test::More::ok( = 1)
+            r"\b(?:(?:Test2::V0|Test::More)(?!::)|cmp_ok|is_deeply|subtest|done_testing|BAIL_OUT)\b|\b(?:ok|is|isnt|like|unlike|plan|diag|note)\s*\("
         ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency: Temporal Static. Async, forks, and threads.

@@ -178,7 +178,7 @@ Generate a valid Python dictionary matching this exact structure.
         "dead_code": re.compile(r""), 
         # doc: Structured documentation meant to be parsed by IDEs or generators. Includes: JSDoc, Docstrings.
         "doc": re.compile(r""), 
-        # test: Assertions and unit testing framework keywords. Includes: describe, it, assert, expect.
+        # test: A SITE THAT ENGAGES A TESTING FRAMEWORK: A TEST-CASE OR FIXTURE DECLARATION, A FRAMEWORK ASSERTION OR EXPECTATION, OR THE FRAMEWORK NAMED AS SUCH. The language's own runtime guard (C `assert(`, python's `assert` statement, Lua `assert(`) is safety's hit, never test's; a framework's assertion form (CU_ASSERT, ASSERT_*/EXPECT_*, assertEquals, luassert's `assert.<chain>`) is test's. One statement is one hit -- a module qualifier is not a separate hit from the call it qualifies (`Test::More::ok(` = 1). An everyday word (test, it, ok, group, mock...) fires only anchored to its framework form (call parens with a description string, declaration position, annotation `@Test`/`#[Test]`/`[Test]`, block label) with hyphen guards where `-` is a word boundary; an unambiguous framework name (pytest, unittest, PHPUnit, Test::More, busted) may fire bare and counts wherever it appears. A language with no per-case idiom a framework executes records the stated absence instead (`None` + ledger entry, yacc). Full contract, corollaries and the 46-language audit: docs/test_rule_contract.md (#2852).
         "test": re.compile(r""), 
 
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---

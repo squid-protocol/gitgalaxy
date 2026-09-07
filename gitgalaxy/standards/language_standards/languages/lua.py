@@ -136,7 +136,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # 14. test: Testing & Assertions. Busted, LuaUnit, and custom verification markers.
         "test": re.compile(
-            r'\b(?:setup|teardown|busted|luassert|assert|mock|stub|spy|luaunit|Test[A-Z]\w*)\b|\b(?:describe|it)\s*[\'"(]'
+            # #2852 contract C1: bare assert( is Lua's runtime guard -- safety's hit; the framework form is the matcher chain assert.<chain>
+            r'\b(?:setup|teardown|busted|luassert|mock|stub|spy|luaunit|Test[A-Z]\w*)\b|\bassert\s*\.|\b(?:describe|it)\s*[\'"(]'
         ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency: Temporal Static. Lua coroutines and task schedulers.

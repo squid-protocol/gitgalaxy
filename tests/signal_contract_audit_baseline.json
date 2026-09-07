@@ -58,7 +58,6 @@
   "draft:structural_boundaries",
   "draft:sync_locks",
   "draft:telemetry",
-  "draft:test",
   "draft:test_skip",
   "draft:thread_sleeps",
   "draft:time_date_logic",

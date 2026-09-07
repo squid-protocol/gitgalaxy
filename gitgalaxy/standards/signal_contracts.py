@@ -228,7 +228,16 @@ _ROWS = [
     _c(
         "doc", "safety", "annotation", "Structured documentation meant to be parsed by IDEs or generators", planted=True
     ),
-    _c("test", "safety", "site", "Assertions and unit testing framework keywords", planted=True),
+    _c(
+        "test",
+        "safety",
+        "site",
+        "A site that engages a testing framework: a test-case or fixture declaration, a framework assertion or expectation, or the framework named as such",
+        status="stated",
+        doc="docs/test_rule_contract.md",
+        issue=2852,
+        planted=True,
+    ),
     # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
     _c("concurrency", "architecture", "site", "Asynchronous logic and parallel execution"),
     _c("ui_framework", "architecture", "site", "DOM manipulation, UI components"),

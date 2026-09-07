@@ -128,7 +128,8 @@ DEFINITION: dict[str, Any] = {
         # as `def[ \t]+test_` instead (matches python's own fix for the
         # identical trap), dropping the trailing `\b` so it fires on the
         # realistic `def test_<name>` shape.
-        "test": re.compile(r"\b(unittest|pytest|assert|setUp|tearDown|Mock)\b|def[ \t]+test_"),
+        # #2852 contract C1: the assert statement is the runtime guard -- safety's hit (#2626 applied to the twin)
+        "test": re.compile(r"\b(unittest|pytest|setUp|tearDown|Mock)\b|def[ \t]+test_"),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency (Asynchronous Execution)
         "concurrency": re.compile(

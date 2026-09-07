@@ -367,7 +367,8 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # 14. test: Testing & Assertions. Unit testing framework markers (ZUnit).
-        "test": re.compile(r"\b(ZUNIT|CBLUNIT|ASSERT|TEST-CASE|READY\s+TRACE)\b", re.I),
+        # #2852 contract C3: hyphen guards -- UT-TEST-CASE-COUNT is an identifier, not a test case (the #2622 hyphen shape)
+        "test": re.compile(r"(?<!-)\b(ZUNIT|CBLUNIT|ASSERT|TEST-CASE|READY\s+TRACE)\b(?!-)", re.I),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency: Temporal Static. CICS Task and resource coordination.
         "concurrency": re.compile(r"\bEXEC\s+CICS\s+(?:ENQ|DEQ|WAIT|START|DELAY)\b", re.I),

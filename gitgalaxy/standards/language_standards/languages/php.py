@@ -193,7 +193,9 @@ DEFINITION: dict[str, Any] = {
         "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@var|@deprecated|@property|@method"),
         # 14. test (Testing & Assertions)
         "test": re.compile(
-            r"\b(PHPUnit|TestCase|assertSame|assertEquals|assertTrue|assertFalse|mock|spy|expects|toBe|test|it)\b|#\[Test\]"
+            # #2852 contract C3: everyday words anchor to their call form; ->test( is an ordinary method
+            # call (Twig's Token.test) and $mock an ordinary variable, measured in the crucible
+            r"\b(?:PHPUnit|TestCase|assertSame|assertEquals|assertTrue|assertFalse)\b|\b(?:mock|spy|expects|toBe)\s*\(|(?<!->)\b(?:test|it)\s*\(|#\[Test\]"
         ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency (Asynchronous Execution)

@@ -60,14 +60,14 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-6 stated, 62 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+8 stated, 60 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
 | `args` | structure | `declaration` | stated | yes | The parameters a callable declares | [args_rule_contract.md](../docs/args_rule_contract.md) #2773 |
 | `branch` | structure | `site` | stated | yes | A keyword or operator that opens a runtime choice between control-flow paths: the choosing construct or one of its alternative arms | [branch_rule_contract.md](../docs/branch_rule_contract.md) #2822 |
-| `class_start` | structure | `declaration` | draft | yes | The syntax that defines an object-oriented class, struct, or record |  |
-| `func_start` | structure | `declaration` | draft | yes | Exact syntax anchoring the start of an executable block of logic |  |
+| `class_start` | structure | `declaration` | stated | yes | The declaration of a named type -- a class, struct, record, interface, enum or object -- or the file's compilation-unit container where that container is the language's only named-entity declaration | [class_start_rule_contract.md](../docs/class_start_rule_contract.md) #2856 |
+| `func_start` | structure | `declaration` | stated | yes | The syntax that opens an executable block of logic under its own name: a function, method, procedure or subroutine declaration, or the instruction that begins an executable step in a language with no named-callable form | [func_start_rule_contract.md](../docs/func_start_rule_contract.md) #2856 |
 | `structural_boundaries` | structure | `tally` | draft |  | Keywords defining structural boundaries and straight-line execution |  |
 | `api` | safety | `declaration` | stated |  | A declaration that makes a named function or type visible outside this file | [api_rule_contract.md](../docs/api_rule_contract.md) #2730 |
 | `dead_code` | safety | `annotation` | draft |  | Commented-out structural code and unused logic trails |  |

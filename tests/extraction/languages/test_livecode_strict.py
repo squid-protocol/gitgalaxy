@@ -115,8 +115,8 @@ _LIVECODE_SIMPLE_CASES = [
     # --- DEEP ADVERSARIAL CASES: branch ---
     ("branch", "next   repeat", "put the next_repeat into x"),
     ("branch", "repeat for each item tItem in tList", "put 1 into switcharoo"),
-    ("branch", "try\n  put 1\ncatch tError", "command notAFunction"),
-    ("branch", "finally", "put branching into x"),
+    ("branch", "repeat with i = 1 to 3", "try\n  put 1\ncatch tError"),  # 2822 corollary 1
+    ("branch", "next repeat", "finally"),  # 2822 corollary 1
     ("branch", "if (x = 1) and (y = 2) then", "put 1 into if_func"),
     # --- DEEP ADVERSARIAL CASES: args ---
     ("args", "on myHandler p1, p2, p3", "on myHandler"),

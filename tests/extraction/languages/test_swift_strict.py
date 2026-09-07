@@ -146,11 +146,11 @@ _SWIFT_SIMPLE_CASES = [
     ("time_date_logic", "let d = Date()", "dateString = formatter.string(from: date)"),
     ("ipc_rpc_bridges", "URLSession.shared.dataTask(with: url)", "processedCount += 1"),
     # DEEP ADVERSARIAL CASES
-    ("branch", "throws(Error)", "func myThrows(x: Int) {"),
+    ("branch", "repeat { x += 1 } while x < 3", "throws(Error)"),  # 2822 corollary 1
     ("branch", "try? perform()", "a != b"),
     ("branch", "for await item in stream {", "formatItem(stream)"),
-    ("branch", "catch let error as NSError {", "let catcher = error"),
-    ("branch", "defer { cleanup() }", "let deferment = 5"),
+    ("branch", "guard x > 0 else { return }", "catch let error as NSError {"),  # 2822 corollary 1
+    ("branch", "} else {", "defer { cleanup() }"),  # 2822: post-block else is the arm
     ("branch", "guard let x = y else { return }", "let guardValue = 5"),
     ("args", "func foo(a: (((Int) -> Void)?)) {", "let foo = 5"),
     ("args", "{ [weak self, unowned delegate] in", "let inValue = 5"),

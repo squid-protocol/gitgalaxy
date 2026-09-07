@@ -46,7 +46,7 @@ DEFINITION: dict[str, Any] = {
         # java/c/rust/go/csharp/kotlin/apex/powershell/zig convention -- not just deleted,
         # since solidity had no other rule tracking it. Corpus impact: solidity branch 19
         # (planted 3, +280%) -> exact.
-        "branch": re.compile(r"\b(if|else|for|while|do|break|continue|try|catch)\b|\?"),
+        "branch": re.compile(r"\b(if|else|for|while|do|break|continue)\b|\?"),
         # 2. args: Parameters / Coupling. Captures parameters for functions, errors, events, and modifiers.
         # Bounded `{0,50}` to prevent ReDoS on massive tuple returns or complex signatures.
         # #1209: parameter-list span wrapped in its own capture group in
@@ -65,7 +65,7 @@ DEFINITION: dict[str, Any] = {
         # java/c/rust/go/csharp/kotlin/apex/powershell/zig convention of tracking `return`
         # as a structural boundary, not a branch.
         "structural_boundaries": re.compile(
-            r"\b(pragma|import|contract|interface|library|struct|enum|type|mapping|address|uint\d*|int\d*|bytes\d*|bool|string|return)\b"
+            r"\b(pragma|import|contract|interface|library|struct|enum|type|mapping|address|uint\d*|int\d*|bytes\d*|bool|string|return|try|catch)\b"
         ),
         # 4. func_start: Executable Logic Anchors. Anchors executable logic (Functions, Modifiers, Custom Errors, Events).
         # LOOKAHEAD MANDATE APPLIED: Stops exactly at the identifier name before the parenthesis.

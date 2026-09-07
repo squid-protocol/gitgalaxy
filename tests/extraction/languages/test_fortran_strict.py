@@ -595,7 +595,7 @@ _FORTRAN_DEEP_CASES = [
     # branch
     ("branch", "SELECT TYPE(a)", "SELECT_TYPE_VAR = 1"),
     ("branch", "SELECT  RANK (b)", "CASE_VAL = 1"),
-    ("branch", "GO TO 10", "DO_SOMETHING(x)"),
+    ("branch", "DO WHILE (x > 0)", "GO TO 10"),  # 2822 corollary 3: high_risk owns GOTO
     ("branch", "DO WHILE (x > 0)", "EXIT_CODE = 0"),
     ("branch", "IF (A .AND. B) THEN", "CYCLE_TIME = 5.0"),
     ("branch", "ELSEWHERE", "WHERE_AM_I = 'HERE'"),

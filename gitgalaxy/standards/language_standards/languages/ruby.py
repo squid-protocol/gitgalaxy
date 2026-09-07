@@ -65,9 +65,7 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. EXCLUDES raise/throw (bailout_hits).
-        "branch": re.compile(
-            r"\b(if|unless|elsif|else|case|when|in|for|while|until|begin|rescue|ensure|break|next|redo|retry)\b|&&|\|\||\?|=>"
-        ),
+        "branch": re.compile(r"\b(if|unless|elsif|else|case|when|in|for|while|until|break|next|redo)\b|&&|\|\||\?|=>"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks of methods, lambdas, and blocks. Bounded to prevent ReDoS.
         # #1209: parameter-list span wrapped in its own capture group in
@@ -87,7 +85,7 @@ DEFINITION: dict[str, Any] = {
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
         "structural_boundaries": re.compile(
-            r"\b(class|module|def|yield|return|super|alias|undef|require|require_relative|include|extend|prepend|attr_reader|attr_writer|attr_accessor|Data\.define)\b"
+            r"\b(class|module|def|yield|return|super|alias|undef|require|require_relative|include|extend|prepend|attr_reader|attr_writer|attr_accessor|Data\.define|begin|retry)\b"
         ),
         # 4. func_start (Executable Logic Anchors)
         # ONLY executable logic blocks. EXCLUDES class/module definitions.

@@ -48,7 +48,7 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Decisions and logical filters. Includes case logic and modern IIF().
         "branch": re.compile(
-            r"\b(CASE|WHEN|THEN|ELSE|END|IFNULL|NULLIF|COALESCE|IIF|FILTER|WHERE|HAVING)\b",
+            r"\b(CASE|WHEN|ELSE|IFNULL|NULLIF|COALESCE|IIF|FILTER|WHERE|HAVING)\b",
             re.I,
         ),
         # 2. args (Parameters / Coupling)
@@ -84,7 +84,7 @@ DEFINITION: dict[str, Any] = {
         # 3. linear (Sequential Boundaries)
         # Structural boundaries defining query execution flow.
         "structural_boundaries": re.compile(
-            r"\b(SELECT|FROM|JOIN|(?:INNER|LEFT|RIGHT|FULL|CROSS|NATURAL)(?:\s+OUTER)?\s+JOIN|GROUP\s+BY|ORDER\s+BY|LIMIT|OFFSET|UNION|INTERSECT|EXCEPT|RETURNING|AS|INTO|WINDOW|STRICT|WITHOUT\s+ROWID|PARTITION\s+BY|PRECEDING|FOLLOWING|UNBOUNDED|CURRENT\s+ROW)\b",
+            r"\b(SELECT|FROM|JOIN|(?:INNER|LEFT|RIGHT|FULL|CROSS|NATURAL)(?:\s+OUTER)?\s+JOIN|GROUP\s+BY|ORDER\s+BY|LIMIT|OFFSET|UNION|INTERSECT|EXCEPT|RETURNING|AS|INTO|WINDOW|STRICT|WITHOUT\s+ROWID|PARTITION\s+BY|PRECEDING|FOLLOWING|UNBOUNDED|CURRENT\s+ROW|THEN|END)\b",
             re.I,
         ),
         # 4. func_start (Executable Logic Anchors)

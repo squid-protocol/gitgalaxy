@@ -39,7 +39,7 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in|try|catch|finally)\b|\?"),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|in)\b|\?"),
         # 2. args (Parameters / Coupling)
         # Captures standard method arguments and Groovy closures (x, y ->)
         # CRITICAL FIX: Anchored the parenthesis capture to method signatures so it

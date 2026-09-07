@@ -35,7 +35,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes English-like loops and try-catch.
         "branch": re.compile(
-            r"\b(if|then|else|switch|case|default|repeat|while|until|times|try|catch|finally|throw|next\s+repeat|and|or|not)\b",
+            r"\b((?<!end )if|else|(?<!end )switch|case|default|(?<!end )repeat|next\s+repeat|and|or|not)\b",
             re.I,
         ),
         # 2. args: Parameters / Coupling. Captures parameters in handlers (on, command, function).
@@ -69,7 +69,7 @@ DEFINITION: dict[str, Any] = {
         # immutability_locks and violating this key's own documented EXCLUDES
         # rule (immutability keywords belong in immutability_locks, not here).
         "structural_boundaries": re.compile(
-            r"\b(put|get|set|go|send|dispatch|pass|return|add|subtract|multiply|divide|visual\s+effect|play|sort|find|replace)\b",
+            r"\b(put|get|set|go|send|dispatch|pass|return|add|subtract|multiply|divide|visual\s+effect|play|sort|find|replace|then|while|until|times)\b",
             re.I,
         ),
         # 4. func_start: Executable Logic Anchors. Anchors executable logic blocks (handlers).

@@ -73,7 +73,7 @@ DEFINITION: dict[str, Any] = {
         # null-coalescing `??`/`??=` are unaffected: no valid PHP operator
         # use of `?` sits immediately after `<` or immediately before `>`.
         "branch": re.compile(
-            r"(?<!\$)(?<!->)(?<!::)\b(if|else|elseif|switch|case|default|foreach|for|while|do|try|catch|finally|break|continue|match|goto)\b|&&|\|\||(?<!<)\?\?|(?<!<)\?(?!>)"
+            r"(?<!\$)(?<!->)(?<!::)\b(if|else|elseif|switch|case|default|foreach|for|while|do|break|continue|match)\b|&&|\|\||(?<!<)\?\?|(?<!<)\?(?!>)"
         ),
         # 2. args (Parameters / Coupling)
         # Signatures for functions and arrow functions. Bounded to prevent ReDoS.
@@ -91,7 +91,7 @@ DEFINITION: dict[str, Any] = {
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const/readonly (freeze_hits).
         "structural_boundaries": re.compile(
-            r"(?<!\$)(?<!->)(?<!::)\b(namespace|use|class|interface|trait|enum|function|return|yield|declare|require|require_once|include|include_once|as|implements|extends|clone|new)\b"
+            r"(?<!\$)(?<!->)(?<!::)\b(namespace|use|class|interface|trait|enum|function|return|yield|declare|require|require_once|include|include_once|as|implements|extends|clone|new|goto)\b"
         ),
         "func_start": re.compile(
             r"(?:^|(?<!->)(?<!::)[^a-zA-Z0-9_$])(?:#\[(?:[^\]\'\"]|'(?:[^'\\]|\\.)*'|\"(?:[^\"\\]|\\.)*\")*\][ \t\n]*){0,10}"

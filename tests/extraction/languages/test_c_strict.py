@@ -342,8 +342,8 @@ def test_c_intentional_double_classification_sweep():
     - `restrict`/`alignas(...)` -> structural_boundaries (own keyword list)
       + immutability_locks (own keyword list) -- both rules intentionally
       claim these qualifiers
-    - `goto end;` -> branch (control-flow jump) + reflection_metaprogramming
-      (unstructured jump signal)
+    - `goto end;` -> reflection_metaprogramming only: an unconditional
+      transfer is not a decision (#2822 corollary 3, the #2545 return shape)
     - `struct foo_ops ops;` -> class_start (any struct declaration) +
       dependency_injection (the `_ops` vtable-style suffix)
     """
@@ -381,7 +381,7 @@ def test_c_intentional_double_classification_sweep():
     assert C_RULES["immutability_locks"].search("alignas(16)")
 
     goto_stmt = "goto end;"
-    assert C_RULES["branch"].search(goto_stmt)
+    assert not C_RULES["branch"].search(goto_stmt)
     assert C_RULES["reflection_metaprogramming"].search(goto_stmt)
 
     ops_struct = "struct foo_ops ops;"
@@ -501,17 +501,17 @@ def test_c_api_contract_2730():
     api = C_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('int main(int argc, char **argv)'), 'file-scope definition'
-    assert api.search('PyObject *\nfoo(void)'), 'K&R two-line return type'
-    assert api.search('void write_rtf_header(NXStream *s);'), 'file-scope prototype'
-    assert api.search('extern int errno;'), 'extern declaration (kept)'
+    assert api.search("int main(int argc, char **argv)"), "file-scope definition"
+    assert api.search("PyObject *\nfoo(void)"), "K&R two-line return type"
+    assert api.search("void write_rtf_header(NXStream *s);"), "file-scope prototype"
+    assert api.search("extern int errno;"), "extern declaration (kept)"
 
     # Not declarations -- must not match.
-    assert not api.search('    return NULL;'), 'indented return statement'
-    assert not api.search('return NULL;'), 'column-0 return statement'
-    assert not api.search('\tgoto error;'), 'indented goto'
-    assert not api.search('    PyObject *value;'), 'body-local declaration'
-    assert not api.search('static int helper(void)'), 'static definition'
+    assert not api.search("    return NULL;"), "indented return statement"
+    assert not api.search("return NULL;"), "column-0 return statement"
+    assert not api.search("\tgoto error;"), "indented goto"
+    assert not api.search("    PyObject *value;"), "body-local declaration"
+    assert not api.search("static int helper(void)"), "static definition"
 
     # ReDoS detonation on an unterminated declaration-shaped run.
     assert_redos_immune(api, "a" * 40000 + " " + "*" * 40000, timeout_sec=3.0)

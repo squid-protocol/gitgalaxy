@@ -139,7 +139,16 @@ def _c(name, phase, kind, contract, **kw):  # tabular constructor, see rows belo
 
 _ROWS = [
     # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-    _c("branch", "structure", "site", "Control flow that forces the CPU to make a decision or jump", planted=True),
+    _c(
+        "branch",
+        "structure",
+        "site",
+        "A keyword or operator that opens a runtime choice between control-flow paths: the choosing construct or one of its alternative arms",
+        status="stated",
+        doc="docs/branch_rule_contract.md",
+        issue=2822,
+        planted=True,
+    ),
     _c(
         "args",
         "structure",

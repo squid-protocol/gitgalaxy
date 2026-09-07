@@ -49,7 +49,7 @@ DEFINITION: dict[str, Any] = {
         # idiom). `return` is already tracked under `structural_boundaries` below, matching
         # java/c/rust/go/csharp's convention -- removing it here is a pure de-duplication,
         # not a signal loss. Corpus impact: kotlin branch 19 (planted 3, +280%) -> exact.
-        "branch": re.compile(r"\b(if|else|when|for|while|do|try|catch|finally|break|continue)\b|\?:|&&|\|\|"),
+        "branch": re.compile(r"\b(if|else|when|for|while|do|break|continue)\b|\?:|&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # OPTIMIZED: Removed overlapping whitespace quantifiers to fix Regex Sludge.
         "args": re.compile(
@@ -85,7 +85,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 3. linear (Sequential Boundaries)
         # Structural boundaries defining file architecture and control returns.
-        "structural_boundaries": re.compile(r"\b(package|import|return|class|interface|object|fun|typealias)\b"),
+        "structural_boundaries": re.compile(
+            r"\b(package|import|return|class|interface|object|fun|typealias|try|catch|finally)\b"
+        ),
         # 4. func_start (Executable Logic Anchors)
         # OPTIMIZED: Bound annotation parenthesis scanning to prevent multi-line bleeding.
         "func_start": re.compile(

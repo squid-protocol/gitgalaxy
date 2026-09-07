@@ -36,7 +36,7 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "line_exclusive",
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
-        "branch": re.compile(r"\b(?:if|else|elif|fi|case|esac|for|while|do|done)\b|&&|\|\|", re.I),
+        "branch": re.compile(r"\b(?:if|else|elif|case|for|while)\b|&&|\|\|", re.I),
         # BUG FIX (#2753): the rule was narrower than the language on two axes.
         #  1. `with:` is the CALL-SITE argument block (it binds to `uses:`); the
         #     parameter surface a YAML file DECLARES -- the thing every other

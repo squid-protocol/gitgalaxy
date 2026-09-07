@@ -42,7 +42,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes modern pattern guards (when) and null-coalescing.
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|try|catch|finally|break|continue|when)\b|&&|\|\||\?|\?\?",
+            r"\b(if|else|switch|case|default|for|while|do|break|continue|when)\b|&&|\|\||\?|\?\?",
             re.I,
         ),
         # 2. args (Parameters / Coupling)

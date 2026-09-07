@@ -70,7 +70,7 @@ _TCL_SIMPLE_CASES = [
     ("test_skip", "-constraints unix", "set x 5"),
     # --- ADVERSARIAL & DEEP CASES ---
     # branch
-    ("branch", "try { foo } trap {POSIX} {} finally { bar }", "try_me"),
+    ("branch", "foreach x $items {", "try { foo } trap {POSIX} {} finally { bar }"),  # 2822 corollary 1
     ("branch", "switch -exact -- $val {", "switch_off"),
     ("branch", "elseif {$y == 2} {", "set elseif_val 1"),
     # args

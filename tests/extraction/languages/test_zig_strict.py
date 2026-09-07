@@ -386,8 +386,9 @@ def test_zig_deep_structural_signatures_ambiguity():
     assert branch.search("} else if (y) {")
     assert branch.search("for (items) |item| {")
     assert branch.search("while (true) : (i += 1) {")
-    assert branch.search("try doSomething();")
-    assert branch.search("catch |err| return err;")
+    # 2822 corollary 1: zig's error-handling keywords are safety's
+    assert not branch.search("try doSomething();")
+    assert not branch.search("catch |err| return err;")
     assert branch.search("const a = b orelse c;")
     assert branch.search("a && b")
     assert branch.search("a || b")

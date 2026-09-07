@@ -42,10 +42,10 @@ _JCL_SIMPLE_CASES = [
     # branch: anchored properly vs inline data
     ("branch", "//IF1     IF (STEP1.RC=0) THEN", "IF (STEP1.RC=0) THEN"),
     ("branch", "//        ELSE", "ELSE inside some text"),
-    ("branch", "//ENDIF1  ENDIF", "//* ENDIF in a comment"),
+    ("branch", "//ELSE1   ELSE", "//ENDIF1  ENDIF"),  # 2822 corollary 2: closing word
     ("branch", "//$IF     IF (RC > 0) THEN", "    IF  "),
     ("branch", "//#IF_A   ELSE", "//* IF"),
-    ("branch", "//@123    ENDIF", "//STEP IFX"),  # IFX is not IF
+    ("branch", "//@123    IF (RC = 0)", "//@123    ENDIF"),  # IFX is not IF; ENDIF closed (#2822)
     # args: unnamed procs, spaces, etc
     ("args", "//PROC1   PROC A=1,B=2", "//PROC1   PROC"),  # no parm/proc args
     ("args", "//        EXEC PGM=FOO,PARM='A,B,C'", "//        EXEC PGM=FOO"),
@@ -822,7 +822,9 @@ def test_jcl_lexical_family_no_block_terminator_state_to_confuse():
     """
     branch = JCL_RULES["branch"]
     assert branch.search("//         IF (STEP1.RC = 0) THEN")
-    assert branch.search("//         ENDIF")
+    # 2822 corollary 2: ENDIF is the construct's closing word; boundaries owns it
+    assert not branch.search("//         ENDIF")
+    assert JCL_RULES["structural_boundaries"].search("//         ENDIF")
 
 
 def test_jcl_redos_immunity():

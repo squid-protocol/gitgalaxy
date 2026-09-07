@@ -204,11 +204,13 @@ def test_matlab_branch_adversarial_boundaries():
     assert not branch.search("my_if = 1;")
     assert not branch.search("catchME_outside = true;")
     assert not branch.search("try_count = 5;")
+    # 2822 corollary 1: try/catch are safety's, not decisions
+    assert not branch.search("catch ME")
+    assert not branch.search("try")
 
     # Positive cases
     assert branch.search("if (x)")
-    assert branch.search("catch ME")
-    assert branch.search("try")
+    assert branch.search("elseif y")
 
 
 def test_matlab_structural_boundaries_adversarial():
@@ -450,7 +452,8 @@ def test_matlab_resource_action_dual_classification_sweep():
     Ambiguity sweep finding: several MATLAB resource/process actions
     legitimately fire two signatures representing different perspectives
     on the same underlying action -- intentional, not false collisions:
-    - `try`/`catch` -> branch (decision point) + safety (defensive programming)
+    - `try`/`catch` -> safety only since #2822 (corollary 1: a handler is not
+      a decision; the dual with branch was retired)
     - `clear all` -> high_risk_execution (destructive wipe) + cleanup
       (resource release); NOT state_mutation since #2765 (count contract
       corollary 4: `clear` is cleanup's token, the write is the assignment)
@@ -462,7 +465,7 @@ def test_matlab_resource_action_dual_classification_sweep():
     - `parpool`/`parfor` -> concurrency (parallel execution) +
       ipc_rpc_bridges (worker-process bridging)
     """
-    assert MATLAB_RULES["branch"].search("try")
+    assert not MATLAB_RULES["branch"].search("try")
     assert MATLAB_RULES["safety"].search("try")
 
     clear_all = "clear all"

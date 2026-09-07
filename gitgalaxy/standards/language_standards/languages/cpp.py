@@ -63,7 +63,7 @@ DEFINITION: dict[str, Any] = {
         # Control flow jumps. Includes modern coroutine jumps (co_yield, co_await).
         # EXCLUDES exceptions (bailout_hits).
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|catch|break|continue|goto|co_yield|co_await)\b|&&|\|\||\?"
+            r"\b(if|else|switch|case|default|for|while|do|break|continue|co_yield|co_await)\b|&&|\|\||\?"
         ),
         # 2. args (Parameters / Coupling)
         # Parameter blocks of functions and lambdas. Bounded to prevent ReDoS on massive signatures.
@@ -98,7 +98,7 @@ DEFINITION: dict[str, Any] = {
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
         "structural_boundaries": re.compile(
-            r"\b(namespace|using|class|struct|enum|union|template|typename|concept|requires|auto|return|void|inline|virtual|explicit|friend|module|export|import|typedef)\b"
+            r"\b(namespace|using|class|struct|enum|union|template|typename|concept|requires|auto|return|void|inline|virtual|explicit|friend|module|export|import|typedef|goto)\b"
         ),
         "func_start": re.compile(
             # =====================================================================

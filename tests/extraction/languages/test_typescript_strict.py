@@ -95,7 +95,7 @@ _TYPESCRIPT_SIMPLE_CASES = [
     # --- ADVERSARIAL CASES FOR HIGH-AMBIGUITY SIGNATURES ---
     ("branch", "const result = (a ?? b) || c && d ? e : f;", None),
     ("branch", "switch(x){case 1:break;default:}", None),
-    ("branch", "try{await foo()}catch(e){finally{}}", None),
+    ("branch", "switch (kind) {", "try{await foo()}catch(e){finally{}}"),  # 2822 corollary 1
     ("branch", "}else if(x){", None),
     ("branch", "for  ( let i = 0 ; i < 10 ; i++ )", None),
     ("branch", "do{foo()}while(x);", None),

@@ -64,9 +64,7 @@ DEFINITION: dict[str, Any] = {
         # java/c/rust/go/csharp/kotlin/apex/powershell/zig all use -- not just deleted,
         # since objc had no other rule tracking it. Corpus impact: objective-c branch 18
         # (planted 3, +260%) -> exact.
-        "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|break|continue|goto)\b|@(try|catch|finally)\b|&&|\|\||\?"
-        ),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do|break|continue)\b|&&|\|\||\?"),
         # 2. args: Parameters / Coupling. Captures method parameters (colons), C-style args, and Blocks (^).
         "args": re.compile(
             # =====================================================================
@@ -205,7 +203,7 @@ DEFINITION: dict[str, Any] = {
         # java/c/rust/go/csharp/kotlin/apex/powershell/zig convention of tracking `return`
         # as a structural boundary, not a branch.
         "structural_boundaries": re.compile(
-            r"@(interface|implementation|protocol|end|synthesize|dynamic|class|import)\b|\b(typedef|struct|enum|union|__block|__weak|__strong|return)\b"
+            r"@(interface|implementation|protocol|end|synthesize|dynamic|class|import)\b|\b(typedef|struct|enum|union|__block|__weak|__strong|return|goto)\b"
         ),
         # 4. func_start: Executable Logic Anchors. Anchors executable logic.
         # The Critical Fix: Compiled with re.M and optional return types for TBL / NeXTSTEP syntax

@@ -302,7 +302,7 @@ _JAVA_DEEP_CASES = [
     ("branch", "for (int i=0;i<10;i++)", "int form = 1;"),
     ("branch", "yield value;", "yields_value();"),
     ("branch", "when (true)", "whence();"),
-    ("branch", "catch(Exception e)", "catch_it();"),
+    ("branch", "do {", "catch(Exception e)"),  # 2822 corollary 1
     # --- args ---
     ("args", "public void foo( @NonNull int x, String y) {", "foo(x, y);"),
     ("args", "@Override public <T extends List<String>> void genericMethod(T x) {", "genericMethod(x);"),
@@ -404,15 +404,15 @@ def test_java_api_contract_2730():
     api = JAVA_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('public void setResourceLoader(ResourceLoader r) {'), 'public method'
-    assert api.search('public @Nullable String getName() {'), 'annotated return type'
-    assert api.search('protected abstract Long processUptime();'), 'abstract method'
-    assert api.search('public Binder(Iterable<ConfigurationPropertySource> sources) {'), 'constructor'
-    assert api.search('public static void main(String[] args) throws Exception {'), 'main'
+    assert api.search("public void setResourceLoader(ResourceLoader r) {"), "public method"
+    assert api.search("public @Nullable String getName() {"), "annotated return type"
+    assert api.search("protected abstract Long processUptime();"), "abstract method"
+    assert api.search("public Binder(Iterable<ConfigurationPropertySource> sources) {"), "constructor"
+    assert api.search("public static void main(String[] args) throws Exception {"), "main"
 
     # Not declarations -- must not match.
-    assert not api.search('String mode = "public";'), 'keyword in a string literal'
-    assert not api.search('case "public":'), 'keyword in a switch case'
+    assert not api.search('String mode = "public";'), "keyword in a string literal"
+    assert not api.search('case "public":'), "keyword in a switch case"
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)

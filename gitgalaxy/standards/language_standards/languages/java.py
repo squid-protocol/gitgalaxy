@@ -48,9 +48,7 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Includes modern switch expressions (yield) and pattern guards (when).
         # EXCLUDES: Exceptions (throw) - moved to bailout_hits.
-        "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|catch|finally|continue|break|yield|try|when)\b|\?|:"
-        ),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do|continue|break|yield|when)\b|\?|:"),
         # 2. args (Parameters / Coupling)
         # Captures method/constructor params and lambdas. Bounded to prevent ReDoS.
         "args": re.compile(

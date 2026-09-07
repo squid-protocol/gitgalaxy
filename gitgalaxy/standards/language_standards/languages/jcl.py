@@ -45,7 +45,7 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "line_exclusive",
     "rules": {
         # Control flow in JCL (IF/THEN/ELSE/ENDIF)
-        "branch": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:IF|ELSE|ENDIF)\b", re.M | re.I),
+        "branch": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:IF|ELSE)\b", re.M | re.I),
         # Extract arguments from EXEC PARM= strings or PROC symbolics definitions.
         # #2482: PARM= routinely sits on a JCL continuation line, not the EXEC
         # line itself -- a trailing comma on a `//` statement line means "this
@@ -91,7 +91,7 @@ DEFINITION: dict[str, Any] = {
         # a real EXEC step). JCL statements don't span a physical line via bare
         # whitespace, so bounded to `[ \t]+` instead.
         "structural_boundaries": re.compile(
-            r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:DD|INCLUDE|SET|PROC|PEND)\b", re.M | re.I
+            r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:DD|INCLUDE|SET|PROC|PEND|ENDIF)\b", re.M | re.I
         ),
         # Functions (EXEC steps). Same `\s+` -> `[ \t]+` cross-line fix as above.
         # BUG FIX: stepname is optional (`*` not `+`), unnamed EXEC steps are valid.

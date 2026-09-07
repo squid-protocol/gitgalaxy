@@ -94,9 +94,10 @@ _APEX_SIMPLE_CASES = [
     ("branch", "else if(y != 2)", "elseVar = 5;"),
     ("branch", "switch on account.Industry {", "Integer switchCount = 0;"),
     ("branch", "when 'Agriculture' {", "whenMethod();"),
-    ("branch", "try {", "tryVar = 1;"),
-    ("branch", "catch (Exception e) {", "catchVar = 1;"),
-    ("branch", "finally {", "finalVar = 1;"),
+    # 2822 corollary 1: the try/catch/finally construct is safety's, not a decision
+    ("branch", "while (x > 0) {", "try {"),
+    ("branch", "for (Integer i : items) {", "catch (Exception e) {"),
+    ("branch", "break;", "finally {"),
     ("branch", "do {", "doMethod();"),
     # args
     ("args", "public static List<Id> getIds(Map<Id, Account> accMap, Boolean flag) {", "System.debug(map, true);"),

@@ -50,7 +50,7 @@ DEFINITION: dict[str, Any] = {
         # `structural_boundaries` below (`(?:return|exit)\b`), so this is a pure
         # de-duplication. Corpus impact: powershell branch 10 (planted 3, +100%) -> exact.
         "branch": re.compile(
-            r"(?<![-$.])\b(if|else|elseif|switch|for|foreach|while|do|until|try|catch|finally|throw|trap|break|continue)\b|-and|-or|-not|-xor|\?\?|(?<=\s)\?(?=\s|\{)",
+            r"(?<![-$.])\b(if|else|elseif|switch|for|foreach|while|do|until|break|continue)\b|-and|-or|-not|-xor|\?\?|(?<=\s)\?(?=\s|\{)",
             re.I,
         ),
         # args: Parameters / Coupling. Captures the param block mass of functions and script files.
@@ -100,7 +100,7 @@ DEFINITION: dict[str, Any] = {
         "structural_boundaries": re.compile(
             r"(?<![-$.])\b(?:(?:function|filter|workflow|configuration|class|enum)\s+[a-zA-Z_]"
             r"|(?:process|begin|end|clean)\s*\{"
-            r"|(?:return|exit)\b(?![-])"
+            r"|(?:return|exit|throw)\b(?![-])"
             r"|using\s+(?:namespace|module)\b)",
             re.I,
         ),

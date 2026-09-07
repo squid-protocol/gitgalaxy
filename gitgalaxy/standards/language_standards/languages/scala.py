@@ -43,7 +43,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes Scala 3 if-then and match-case.
         "branch": re.compile(
-            r"\b(if|then|else|match|case|try|catch|finally|for|while|do|throw|yield)\b|&&|\|\|",
+            r"\b(if|else|match|case|for|while|do|yield)\b|&&|\|\|",
             re.I,
         ),
         # 2. args: Parameters / Coupling. Captures parameters in method signatures and lambdas.
@@ -73,7 +73,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and val/var.
         "structural_boundaries": re.compile(
-            r"\b(lazy|type|opaque|class|trait|object|enum|extension|import|export|return|extends|with|derives|new|given|using)\b"
+            r"\b(lazy|type|opaque|class|trait|object|enum|extension|import|export|return|extends|with|derives|new|given|using|then|try|catch|finally|throw)\b"
         ),
         # 4. func_start: Executable Logic Anchors. Anchors executable logic. EXCLUDES structural headers.
         "func_start": re.compile(

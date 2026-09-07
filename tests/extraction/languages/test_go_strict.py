@@ -39,7 +39,7 @@ _GO_SIMPLE_CASES = [
     ("branch", "else if true {", "else_case"),
     ("branch", "case <-ch:", "mycase := 1"),
     ("branch", "for k, v := range m {", "for_loop"),
-    ("branch", "goto L", "gotoclass"),
+    ("branch", "select {", "goto L"),  # 2822 corollary 3
     ("branch", "fallthrough", "fallthrough_var := 1"),
     ("class_start", "type Foo struct {", "Foo struct {}"),
     ("class_start", "type Foo[T map[string]int] struct {", "type Foo[T map[string]int] func()"),

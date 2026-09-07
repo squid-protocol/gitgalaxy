@@ -38,7 +38,7 @@ DEFINITION: dict[str, Any] = {
         # Decisions and logical jumps. Includes modern typed throws (throws(Error)).
         # EXCLUDES throw/rethrows (bailout_hits).
         "branch": re.compile(
-            r"\b(if|else|guard|switch|case|default|for|while|repeat|do|catch|break|continue|defer|try|throws)\b|&&|\|\||\?|\?\?"
+            r"\b(if|guard|switch|case|default|for|while|repeat|break|continue)\b|\}\s*else\b|&&|\|\||\?|\?\?"
         ),
         # 2. args (Parameters / Coupling)
         # Parameter blocks. Bounded negation [^)]* and <[^>]*> to prevent ReDoS.
@@ -70,7 +70,7 @@ DEFINITION: dict[str, Any] = {
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and let (freeze_hits).
         "structural_boundaries": re.compile(
-            r"\b(func|init|subscript|var|struct|class|enum|protocol|extension|actor|macro|import|typealias|associatedtype|mutating|nonmutating|isolated|nonisolated|return|yield|await|inout)\b|(?<!\blet )(?<!\bvar )(?<!\bfunc )(?<!\bclass )(?<!\bstruct )\b(some|any|consume|borrow|discard)\b|~Copyable"
+            r"\b(func|init|subscript|var|struct|class|enum|protocol|extension|actor|macro|import|typealias|associatedtype|mutating|nonmutating|isolated|nonisolated|return|yield|await|inout|try|throws|defer|do)\b|(?<!\blet )(?<!\bvar )(?<!\bfunc )(?<!\bclass )(?<!\bstruct )\b(some|any|consume|borrow|discard)\b|~Copyable"
         ),
         # 4. func_start (Executable Logic Anchors)
         # ONLY executable logic blocks. EXCLUDES types/classes. Steps over Concurrency modifiers.

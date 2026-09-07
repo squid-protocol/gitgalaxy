@@ -48,7 +48,7 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: decisions that split flow. Includes guards (|) and modern \cases.
-        "branch": re.compile(r"\b(if|then|else|case|of|MultiWayIf)\b|\\cases?|^[ \t]*\|", re.M),
+        "branch": re.compile(r"\b(if|else|case|MultiWayIf)\b|\\cases?|^[ \t]*\|", re.M),
         # args: Parameters / Coupling. Captures type signatures, lambda bindings, and explicit @type apps.
         # #1209: the type-signature and lambda-parameter spans wrapped in
         # their own capture groups (was only reachable via group(0), the
@@ -144,7 +144,7 @@ DEFINITION: dict[str, Any] = {
         "_args_pattern_list_groups": {3},
         # linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
         "structural_boundaries": re.compile(
-            r"\b(module|data|type|newtype|class|instance|let|in|where|do|mdo|deriving|family|pattern)\b|%1\s*->|⊸"
+            r"\b(module|data|type|newtype|class|instance|let|in|where|do|mdo|deriving|family|pattern|then|of)\b|%1\s*->|⊸"
         ),
         # 4. func_start: Executable Logic Anchors. Anchors executable logic (Type Signatures).
         # EXCLUDES data/type/class declarations to fix False Positives.

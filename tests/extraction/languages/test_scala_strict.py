@@ -130,7 +130,7 @@ _SCALA_DEEP_CASES = [
     ("branch", "for { x <- xs; if x > 0 } yield x", "val yieldAmount = 5"),
     ("branch", "while (true) do \n  println(1)", "val whileRunning = true"),
     ("branch", "x match { case Some(y) => y }", "case_sensitive = false"),
-    ("branch", "throw new IllegalArgumentException()", "val throwaway = 0"),
+    ("branch", "x match {", "throw new IllegalArgumentException()"),  # 2822 corollary 1
     # ------------------ args ------------------
     ("args", "def `weird-name with spaces!`(x: Int, y: String): Int =", "val foo = 1"),
     ("args", "def foo[T <: List[Int]](x: T): Int = {", "val fooT = 1"),

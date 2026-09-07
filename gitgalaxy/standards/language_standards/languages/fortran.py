@@ -62,7 +62,7 @@ DEFINITION: dict[str, Any] = {
         # Control flow that forces the CPU to make a decision or jump. High density creates jagged shapes.
         # Includes standard conditional blocks, legacy computed GO TO, and modern SELECT TYPE / SELECT RANK.
         "branch": re.compile(
-            r"\b(IF|ELSEIF|ELSE|DO|WHILE|SELECT\s+CASE|CASE|DEFAULT|WHERE|ELSEWHERE|GO\s*TO|GOTO|SELECT\s+TYPE|SELECT\s+RANK|EXIT|CYCLE)\b|\.AND\.|\.OR\.",
+            r"\b((?<!END[ \t])IF|ELSEIF|ELSE|(?<!END[ \t])DO|SELECT\s+CASE|CASE|DEFAULT|(?<!END[ \t])WHERE|ELSEWHERE|SELECT\s+TYPE|SELECT\s+RANK|EXIT|CYCLE)\b|\.AND\.|\.OR\.",
             re.I,
         ),
         # 2. args (Parameters / Coupling)
@@ -94,7 +94,7 @@ DEFINITION: dict[str, Any] = {
         # Structural boundaries defining straight-line execution and data types.
         # CRITICAL GUARDRAIL: Access modifiers (PUBLIC, PRIVATE, PROTECTED) do not belong here. Explicitly omitted to prevent the Structural Complexity Inflation Bug
         "structural_boundaries": re.compile(
-            r"\b(PROGRAM|MODULE|SUBMODULE|BLOCK\s+DATA|CONTAINS|END\s+(?:PROGRAM|MODULE|SUBROUTINE|FUNCTION|BLOCK|TYPE|ASSOCIATE)|RETURN|IMPLICIT|USE|ASSOCIATE|BLOCK|INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|DOUBLE\s+PRECISION|CLASS)\b",
+            r"\b(PROGRAM|MODULE|SUBMODULE|BLOCK\s+DATA|CONTAINS|END\s+(?:PROGRAM|MODULE|SUBROUTINE|FUNCTION|BLOCK|TYPE|ASSOCIATE)|RETURN|IMPLICIT|USE|ASSOCIATE|BLOCK|INTEGER|REAL|COMPLEX|LOGICAL|CHARACTER|DOUBLE\s+PRECISION|CLASS|WHILE)\b",
             re.I,
         ),
         # 4. func_start (Executable Logic Anchors)

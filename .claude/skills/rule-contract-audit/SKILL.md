@@ -11,11 +11,55 @@ a sentence, three or four corollaries, a fallback family for languages with no n
 then a 46-row audit table. Everything below is that method made repeatable. Read
 `docs/contract_roadmap.md` §2 first if the words *stream / count / score* are new.
 
-## Session shape (budget: one session, ~30 tool calls of reading, the rest building)
+## Run it cheap: who does what (read this first — it is the difference between a family that costs a session and one that costs a fraction of it)
+
+The expensive thing is not the thinking; it is the **reading**. One family's raw payloads —
+the `rule_probe` dumps (~500 lines), the ledger JSON (tens of KB), the 46 language rules, the
+golden-master diff (~1000 lines), the gauntlet logs, the bias-report regen — are megabytes, and
+if the orchestrator holds them its context (and your session budget) is gone before the contract
+is written. **The reasoning that only the strongest model can do is tiny; the token weight sits
+almost entirely on work that needs no judgment at all.** So split it:
+
+| tier | model | owns | returns / holds |
+|---|---|---|---|
+| **orchestrator** | **fable** (this session) | the contract **sentence + corollaries + kind/unit**; every **go/no-go** gate; the **record** (commit messages, PR bodies, cross-repo notes, epic status) | reads only *digests* — never a raw probe/ledger/golden-master/gauntlet dump |
+| **scout** | **haiku** (`contract-audit-scout`) | Phase-0 retrieval, plant screening, before/after compare, the verification sequence, the bless + `bless_scope`, the corpus regen | runs the megabyte scripts, returns tight tables + verdict lines |
+| **build** | **sonnet** (general-purpose Agent, `model: sonnet`) | apply the replacement script from the caller's exact `old→new` spec; write `test_<signal>_contract_<N>.py` from the template; write `docs/<signal>_rule_contract.md` from the compare table | returns the diff + "applied N/N, tests green", not its reasoning |
+| **adversary** | **gemini** (`gemini-analyzer` → `agy`) | independent-model review of the **draft sentence** ("does this mis-classify any of the 46?") and of the **final engine diff** before PR | a split verdict, surfaced not reconciled |
+
+**Never delegate (these are the orchestrator's and cost almost no tokens):** the one-sentence
+contract and its corollaries; the decision, per moved cell, of *rule fix vs re-plant vs
+contract-level absence*; the go/no-go on the `bless_scope` table and the `rosetta_audit` result;
+the wording of ledger verdicts; the PR/epic narrative. Everything else is someone else's context.
+
+**The token math from the `io` family (#2841):** the orchestrator's heaviest reads were the
+baseline probe, the per-language rule grep, the ledger blob, the golden-master diff, the
+`bless_scope` output and the gauntlet logs — all Job 0/2/3/4 scout work. Pushing those to the
+scout leaves the orchestrator holding four things all session: the four accused cells, the
+contract sentence, the compare table, and the scope table. That is the whole budget.
+
+**Fan out, don't serialize.** The three measurement legs (extraction tests · `rosetta_audit` ·
+after-probe) are independent — one scout message runs them in parallel and reports when each
+lands. The bless and the gauntlet overlap. The corpus regen overlaps the engine gauntlet. A
+family is gated by ~4 real decision points (sentence → edits → bless-scope OK → PRs), not by the
+wall-clock of the scripts.
+
+**Paste-ready handoffs:**
+- *Scout, Phase 0:* "You are contract-audit-scout. Engine worktree `<path>`, corpus worktree
+  `<path>`, signal `<sig>`. Do Job 0 and return the digest." → you get one message; you never
+  open a language file cold.
+- *Build:* "Apply exactly these `old→new` string pairs (assert each occurs once), then run
+  `pytest tests/extraction/languages/test_<sig>*`. Return the diff and the pass line. Do not
+  change any regex I did not spell out." → the design stays yours; the transcription is theirs.
+- *Adversary (optional, high-value on a contentious sentence):* hand `gemini-analyzer` the draft
+  sentence + the 46-language compare table and ask which languages it would classify differently.
+
+## Session shape (the legs, in order — background every slow one, delegate every heavy read)
 
 The #2765 session spent roughly a third of its calls re-deriving things this file now states,
 and rebuilt two throwaway scripts that are now `tests/tools/rule_probe.py` and
-`tests/tools/bless_scope.py`. Run the legs below in this order, and background every slow one.
+`tests/tools/bless_scope.py`. The phases below are the *method*; the tier table above is *who
+runs each one*. The orchestrator's own checklist is at the end of this file.
 
 ```sh
 # 0. worktrees -- never edit the primary checkout, never measure against it (it lags main)
@@ -184,3 +228,37 @@ The module row is `stated`; `signal_contract_audit.py --ci` exits 0 with a small
 `rosetta_audit.py` against the re-blessed corpus is 46/46; the bias report's open-defect share
 for the metrics this signal feeds did not rise; every red cell that remains on this signal is
 `inherency` or `echo` in the report's cause table, or has a filed issue the doc links.
+
+## Orchestrator checklist (one family — tick as you go; hand each ▸ to the tier named)
+
+Setup
+- [ ] `gh api repos/squid-protocol/gitgalaxy/issues/<N>` (not `gh issue view` — it 500s on these repos); read the epic's last comment per item; post the claim comment.
+- [ ] worktrees off `origin/main` (engine + corpus); export the paths.
+
+Design (orchestrator — the only irreducible reasoning)
+- [ ] ▸ scout Job 0: get the Phase-0 digest. Read it; do NOT open files cold.
+- [ ] write the one-sentence contract + corollaries + `kind`/`unit`. Test it against the four shapes (reference vs declaration · modifier-anchored vs bare · default-relative → marker or absence · one-owner-per-token).
+- [ ] (optional, if the sentence is contentious) ▸ adversary: gemini review of the sentence vs the compare table.
+
+Build + measure
+- [ ] write the exact `old→new` rule-edit spec. ▸ build applies it and runs the extraction tests.
+- [ ] ▸ scout Job 1: screen every re-plant (only target signal + ungated `structural_boundaries` may move).
+- [ ] ▸ scout Job 2: before/after compare. **Decision per moved cell: rule fix vs re-plant vs contract-level absence** — yours alone.
+- [ ] ▸ scout Job 3 (tests + `rosetta_audit`): drive to 46/46.
+
+Engine PR (one layer)
+- [ ] ▸ build (or self): flip the retired strict-test pins; write `test_<sig>_contract_<N>.py`; write `docs/<sig>_rule_contract.md` from the compare table.
+- [ ] flip the sheet row → `stated`, set `doc=`; update the `how_to_add_a_language.md` comment to contain the sentence; `signal_contract_audit.py --regenerate-baseline --render` then `--ci`.
+- [ ] `ruff format` the whole `git diff --name-only` set BEFORE any `--regenerate-baseline`.
+- [ ] ▸ scout Job 4: bless + `bless_scope`. **Go/no-go on the scope table** (target signal + its formulas only; newly parsed/excluded none) — yours.
+- [ ] ▸ scout Job 3 (gauntlet). File the deferred follow-ups BEFORE writing the doc so the doc links them.
+- [ ] commit; label `rosetta:rebless-owed`; one `Closes #N` per line; open PR with the Cross-repo note.
+
+Corpus PR
+- [ ] edit manifests + plants; write the ledger verdicts (yours) — retire/narrow the entries the contract settles.
+- [ ] ▸ scout Job 5: regen at full precision + `na_check`/`decoy_check`/`ledger_orphan_check` + `verify_language` for moved languages. **A `decoy_check` floor failure is a real find — a DD-/comment-anchored rule can leave a decoy unable to fire; re-author it.**
+- [ ] commit; open corpus PR (Cross-repo note, engine-first); cross-link both PR bodies via `gh api -X PATCH`.
+
+Close
+- [ ] status comment on #2812; tick the family in the epic body checklist.
+- [ ] if main moved under you: resolve conflicts by **re-blessing/regenerating on the merged code**, never hand-merging generated JSON; re-scope; the corpus regen must use the engine *worktree* `GITGALAXY_PATH` or it silently measures old rules.

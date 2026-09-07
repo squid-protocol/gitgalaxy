@@ -869,6 +869,16 @@ _SYNTHETIC_SATELLITE_SUFFIXES = ("_[Truncated]", "_[Unterminated]")
 # the identical call for the identical reason; this is that list, in the engine.
 _UNCOUNTABLE_SLICE_NAMES = frozenset({"Anonymous_Block", "__global_context__"})
 
+# #2792: the names Mode E (`_slice_by_terminator`) synthesizes for a statement
+# bucket -- "Declarative_Block" (~5176/5265) and "<IGNITER-KEYWORD>_Statement"
+# (~5235). Applied ONLY to a language that actually slices in mode_e, unlike
+# `_is_synthetic_satellite_name`'s use of the same shape: that helper answers
+# "can this be orphaned or duplicated", where a false positive costs nothing,
+# while this one answers "is this one of the file's functions", where a false
+# positive erases a real declaration from the population. `SELECT_Statement` is
+# a perfectly legal identifier in a language that does not slice this way.
+_MODE_E_SYNTHETIC_NAME = re.compile(r"Declarative_Block|[A-Z0-9]+_Statement")
+
 # #2806: the two invocation models a registry may declare through the
 # top-level `invocation_model` key. `by_name` is the default and needs no declaration: the
 # language reaches a callable unit by writing its name, so "no other text names
@@ -905,10 +915,23 @@ INVOCATION_MODELS = frozenset({INVOCATION_BY_NAME, INVOCATION_POSITIONAL})
 # FUNCTION POPULATION (#2691), and removing css's ~150 at-rule slices from it
 # would take `functions_found` to 0 and make every per-function descriptor
 # undefined for the language -- the markdown/html shape from #2689's bucket A.
-# That is a real question (keyword-rosetta's `slicer-segments-statements-not-
-# functions` ledger entry owns it) and it is NOT this issue's: #2728's measured
-# harm is entirely in the duplicate/orphan classification, so that is all this
-# changes.
+#
+# #2792 RE-TESTED that call rather than inheriting it, and MEASURED the reason to
+# keep it. Excluding a name from the population also drops its row from
+# `function_data`, which is the record `tests/tools/tree_sitter_accuracy_audit.py`
+# compares against the grammar's own nodes -- and on the pinned crucible that
+# takes css from `found_functions: 25 -> 0` and `args_exact_match: 19 -> 0`. No
+# phantom is being retired there: `docs/language_status/css.md` publishes 25/25
+# function precision, "GitGalaxy and tree-sitter agree exactly on every file",
+# because tree-sitter-css has dedicated nodes for exactly these constructs
+# (`media_statement`/`supports_statement`/`keyframes_statement`/`at_rule`). A
+# `@media` block is a real construct GitGalaxy correctly located; only calling it
+# a *function* is arguable, and that argument is about the corpus's
+# cross-language comparison, which keyword-rosetta answers by reporting the cell
+# as incomparable rather than by deleting a true recall claim.
+#
+# Mode E is the opposite case and IS excluded from the population (#2792): no
+# grammar anywhere has a node for "whatever fell between two semicolons".
 _ALTERNATION_ONLY = re.compile(r"[\w@.\-]+(?:\|[\w@.\-]+)*")
 
 
@@ -952,6 +975,37 @@ def _closed_literal_capture(pattern: str) -> frozenset[str]:
         return frozenset()
     names = set(body.split("|"))
     return frozenset(names | {"@" + n for n in names})
+
+
+def synthesizes_all_function_names(lang_id: str, rules: dict[str, Any]) -> bool:
+    """True when NO function name this language records can be an identifier.
+
+    Public because keyword-rosetta's bias report reads it (gitgalaxy#2792): a
+    language whose every "function" is a slicer label has no function POPULATION
+    to compare, so `functions_found` is n/a (incomparable) there rather than an
+    honest 0 scored as a -100% outlier against languages that do have functions.
+    Deriving it from the engine rather than hand-listing it on the corpus side is
+    the same doctrine `_registry.risk_dependencies` already follows: an engine
+    refactor then fails loudly instead of leaving a stale map quietly excusing
+    comparable cells.
+
+    Two ways a language qualifies, matching `_is_uncountable_slice`'s families:
+    no `func_start` rule at all (nothing to anchor on -- markdown), or `mode_e`
+    slicing, which never consults `func_start` for a name and labels every bucket
+    after the igniter keyword it matched (sqlite).
+
+    A closed-literal `func_start` (dockerfile `RUN`, css `@media`) is
+    deliberately NOT here. Those names are grammar-recognised constructs
+    GitGalaxy correctly locates -- css scores 25/25 function precision against
+    tree-sitter on exactly them -- so the language does have a population; it is
+    just not a population of *functions* in the sense the other 40 languages
+    mean. That is a comparison question the corpus's own ledger answers, and the
+    cell stays scored here rather than being marked incomparable by an engine
+    fact that does not hold.
+    """
+    if rules.get("func_start") is None:
+        return True
+    return ScopeParsingRegistry.get_mode(lang_id) == "mode_e"
 
 
 def _name_boundary_pattern(func_name: str) -> str:
@@ -1085,6 +1139,12 @@ class StructuralExtractor:
             _closed_literal_capture(_fs.pattern) if _fs is not None else frozenset()
         )
 
+        # #2792: whether this language's scopes are cut by `_slice_by_terminator`,
+        # which never captures a name from source at all -- it names each bucket
+        # after the igniter keyword it matched. Read off the same registry the
+        # slicer dispatches on (~2642), not hand-listed, so the two cannot drift.
+        self._slices_by_terminator: bool = ScopeParsingRegistry.get_mode(self.primary_lang_id) == "mode_e"
+
         # #1949: `END-PERFORM`/`END-IF` were removed entirely -- both are block
         # *closers*, never a real function/paragraph-terminating statement in
         # any Mode A language, so no per-language exclusion can save them; a
@@ -1155,6 +1215,63 @@ class StructuralExtractor:
                 self.logger.warning(f"[AUTO-HEAL] Re-injected LANGUAGE_DEFINITIONS for '{self.primary_lang_id}'")
             except ImportError:
                 pass
+
+    def _is_uncountable_slice(self, name: str) -> bool:
+        """True when `name` is a slicer bucket label, never an author's identifier.
+
+        The FUNCTION POPULATION test -- "how many functions does this file have,
+        and what is the average one like". Two families qualify, and both are
+        names the slicer synthesized rather than captured from source:
+
+          * the placeholder names no source language can produce
+            (`_UNCOUNTABLE_SLICE_NAMES`, #2691);
+          * Mode E's per-statement buckets, for a language that actually slices
+            that way -- sqlite `CREATE_Statement`/`Declarative_Block` (#2792).
+            `_slice_by_terminator` never captures a name from source at all: it
+            cleaves on the terminator and labels each bucket after the igniter
+            keyword it matched, so the count scales with statement volume rather
+            than with the program, and six per-function descriptors divided by
+            it (`avg_func_loc`, `avg_func_complexity`, `func_complexity_gini`,
+            `func_internal_density`, `avg_func_args`, `max_func_complexity`).
+            sqlite recorded 31 functions against a 13-function planted program.
+
+        #2728's third family -- the closed-literal keyword buckets, dockerfile
+        `RUN`, css `@media`, html `script` -- is deliberately NOT here, and
+        #2792 re-tested that rather than inheriting it. See `_ALTERNATION_ONLY`'s
+        comment for the measurement: those names are grammar-recognised
+        constructs, so dropping them from the population drops them from
+        `function_data` and takes css from 25/25 function precision to 0.
+
+        Both families were already excluded from the orphan and duplicate checks
+        on this exact reasoning (#2547); only the first was excluded from the
+        population before #2792.
+
+        The slice keeps existing and its signals are still counted at file level:
+        only its membership in the population was ever wrong. Deliberately
+        narrower than `_is_synthetic_satellite_name` -- see
+        `_UNCOUNTABLE_SLICE_NAMES` and `_MODE_E_SYNTHETIC_NAME` for why "Main"
+        and a bare `<KEYWORD>_Statement` shape are not enough on their own.
+        """
+        if name in _UNCOUNTABLE_SLICE_NAMES:
+            return True
+        if not self._slices_by_terminator:
+            return False
+        # The truncation suffixes ARE stripped for the Mode E family and
+        # deliberately NOT for `_UNCOUNTABLE_SLICE_NAMES` above. #2691 kept them
+        # because "Main_[Truncated]" is a real function that ran off the end of
+        # the file -- a diagnostic about real code. A synthesized LABEL has no
+        # such reading: "Declarative_Block_[Unterminated]" is the same bucket
+        # name as "Declarative_Block", and whether the statement was terminated
+        # says nothing about whether anyone wrote an identifier. Left
+        # unstripped, sqlite's `main.sql` kept exactly one phantom function out
+        # of 31, and the count could never reach the honest 0 that lets the cell
+        # be reported as n/a at all (keyword-rosetta#2795 condition 4).
+        base = name
+        for suffix in _SYNTHETIC_SATELLITE_SUFFIXES:
+            if base.endswith(suffix):
+                base = base[: -len(suffix)]
+                break
+        return bool(_MODE_E_SYNTHETIC_NAME.fullmatch(base))
 
     def splice(
         self,
@@ -1576,10 +1693,11 @@ class StructuralExtractor:
                 # many functions does this file have, and what is the average one
                 # like" -- without re-deriving the rule in three files. The slice
                 # keeps existing and its signals are still counted at file level:
-                # only its membership in the population was ever wrong. See
-                # `_UNCOUNTABLE_SLICE_NAMES` for why this is narrower than the
-                # orphan check's own synthetic-name test.
-                func["is_synthetic_slice"] = func_name in _UNCOUNTABLE_SLICE_NAMES
+                # only its membership in the population was ever wrong. #2792
+                # added Mode E's statement buckets to the same verdict; see
+                # `_is_uncountable_slice` for which families qualify, and why
+                # this stays narrower than the orphan check's own name test.
+                func["is_synthetic_slice"] = self._is_uncountable_slice(func_name)
 
                 # #2547: synthetic slicer bucket names (Mode D's "__global_context__",
                 # Mode E's "<KEYWORD>_Statement"/"Declarative_Block", etc.) are never

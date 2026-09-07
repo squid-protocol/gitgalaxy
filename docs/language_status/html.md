@@ -44,7 +44,7 @@ quotes since PR [#801](https://github.com/squid-protocol/gitgalaxy/pull/801) (se
 | `branch` | `<details>` / `<summary>` / `<noscript>` disclosure elements, plus framework conditionals — Vue `v-if`, Angular `ng-if` and `*ngIf`, Alpine `x-if`, HTMX `hx-swap`, Jinja/Twig `{% if/elif/else/endif %}`, Handlebars `{{#if}}` |
 | `args` | Attribute signatures that define input coupling — `data-*`, `aria-*`, `name`, `value`, `placeholder`, `for`, `alt`, `step`, `min`, `max`, with an optional quoted/unquoted `=value`. Bounded to prevent ReDoS on very large data attributes |
 | `structural_boundaries` | Document-flow tags — `html head body main section article header footer div span p h1-h6 ul ol li dl dt dd nav aside figure figcaption search address`, plus 1990 CERN-era tags `nextid`, `hp1`/`hp2`, `dir`, `menu` |
-| `func_start` | `<script` or `<style` element openings — the only executable-behavior blocks in markup (the "one comparable schema across every language" reason markup gets a `func_start` rule at all). Case-insensitive; tolerates `/`, space, tab, newline, form-feed as the post-tag delimiter |
+| `func_start` | `<script` or `<style` element openings — the only executable-behavior blocks in markup (the "one comparable schema across every language" reason markup gets a `func_start` rule at all). Case-insensitive; tolerates `/`, space, tab, newline, form-feed as the post-tag delimiter. Reachable end-to-end only since [#2549](https://github.com/squid-protocol/gitgalaxy/issues/2549) — see §7 |
 | `class_start` | Structural entities and component declarations — `form table svg canvas picture video audio dialog template fieldset legend`, plus any custom-element / web-component name (a lowercase tag name containing a hyphen, `<a-b>`), which also covers framework single-file-component roots |
 
 **Safety & risk**
@@ -240,6 +240,26 @@ behaviors are, however, deliberately documented in the test suite rather than fi
   → 100%. Both parts fixed; golden masters + ts-accuracy baseline re-blessed. See §9.
 
 **Cross-language fixes that touched HTML routing:**
+- [#2549](https://github.com/squid-protocol/gitgalaxy/issues/2549) — the polyglot splitter handed
+  the whole `<script …> … </script>` element to the JavaScript lens, **opening tag included**, and
+  the same for `<style>` and CSS. Since HTML's rules only ever ran on the segments left to HTML,
+  every rule whose anchor is the tag itself was dead in a real scan even though it matched the raw
+  file: all 38 corpus HTML files recorded `func_start` 0. Fixed by giving the two markup handshakes
+  an `open_delimiter` (`_lens_config.MARKUP_OPEN_TAG_TAIL`): the open tag is host markup and stays
+  in the HTML segment, and only the payload after the `>` goes to the embedded lens. `func_start`
+  was the reported symptom, but the tag carries `src=`, `id=`, `name=`, `on*=` and framework
+  attributes too, so `io`, `import` (`_dependency_capture`), `api`, `events`, `ssr_boundaries`,
+  `telemetry`, `args` and `dependency_injection` all gained the tag's own attributes on the same
+  files. The correction runs both ways: JavaScript's `state_mutation` was matching `; mode=` inside
+  `<script type="math/tex; mode=display">` (`revealjs_decks/math.html`), and an inline block's own
+  first statement was invisible to any line-anchored embedded rule while the tag sat in front of it
+  — CSS's `globals` (`^[ \t]*(?::root|html|body|\*)`) missed the `html{…}` in WordPress's
+  `wp-login.php` `<style>html{background-color: transparent;}</style>` for exactly that reason.
+  Downstream, `spec_match` moves 0% → 100% on the HTML files that gained entities: `_calc_spec_alignment`
+  returns 0 when `func_start + class_start` is 0 (#2655's "nothing to specify" guard), so those
+  files were scoring the empty-file value, not a measured one. Function extraction is unchanged —
+  HTML's `function_data` is still the embedded functions the JS lens finds, which is what the
+  tree-sitter accuracy audit compares against.
 - [#2440](https://github.com/squid-protocol/gitgalaxy/issues/2440) — `detector.py`'s mid-file
   language-switching ran on text where Lua `[[ ]]` long-string literals were not shielded, so a
   `Write([[<!doctype html> … <style> … </style> … ]])` call inside a Lua function got carved

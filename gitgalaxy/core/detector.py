@@ -1100,6 +1100,9 @@ class StructuralExtractor:
             "end": re.compile(h["end"], re.I | re.M),
             "target": h["target"],
             "pair": h["pair"],
+            # #2549: set for the markup handshakes only -- see
+            # _lens_config.MARKUP_OPEN_TAG_TAIL and _embedded_payload_start.
+            "open_delimiter": (re.compile(h["open_delimiter"], re.I) if h.get("open_delimiter") else None),
         }
         for h in LENS_CONFIG["HANDSHAKE_REGISTRY"]
     ]
@@ -2020,6 +2023,32 @@ class StructuralExtractor:
 
         return "\n".join(doc_buffer)[:2000]  # Cap at 2000 chars to prevent DB bloat
 
+    def _embedded_payload_start(self, content: str, trigger: dict[str, Any], end_idx: int) -> int:
+        """#2549: where the embedded language's own text begins.
+
+        The handshake's opening delimiter belongs to whichever language wrote
+        it. For the markup handshakes that is the host document (`<script
+        defer>` is html; only what follows the `>` is JavaScript), so the
+        segment boundary moves to the end of the open tag -- otherwise html's
+        `func_start`, whose only anchor is that tag, can never fire once the
+        splitter has run. Everything else -- and any tag this cannot resolve
+        (unterminated, or longer than the lookahead limit) -- keeps the
+        pre-#2549 boundary at the trigger's own start.
+
+        Mirrors `Prism._embedded_payload_start`; the two partitioners are
+        deliberate parallel implementations (same reason `_mask_lua_long_
+        brackets` exists in both), and `tests/core_engine/test_language_lens.py`
+        asserts they stay in step.
+        """
+        open_delimiter = trigger.get("open_delimiter")
+        if open_delimiter is None:
+            return trigger["start"]
+        limit = min(trigger["trigger_end"] + self.HANDSHAKE_LOOKAHEAD_LIMIT, len(content))
+        m = open_delimiter.match(content, trigger["trigger_end"], limit)
+        if m is None or m.end() > end_idx:
+            return trigger["start"]
+        return m.end()
+
     def _partition_segments(self, content: str, primary_id: str) -> list[tuple[str, str, int]]:
         """Splits content into language segments based on handshake triggers."""
         segments = []
@@ -2037,6 +2066,7 @@ class StructuralExtractor:
                 "end_pattern": h["end"],
                 "target": h["target"],
                 "pair": h["pair"],
+                "open_delimiter": h.get("open_delimiter"),
                 "trigger_end": m.end(),
             }
             for h in self.HANDSHAKE_REGISTRY
@@ -2049,11 +2079,6 @@ class StructuralExtractor:
             if t["start"] < last_idx:
                 continue
 
-            if t["start"] > last_idx:
-                chunk = content[last_idx : t["start"]]
-                segments.append((primary_id, chunk, current_line_offset))
-                current_line_offset += chunk.count("\n")
-
             if t["pair"]:
                 open_char, close_char = t["pair"]
                 end_idx = self._find_balanced_end(content, t["start"], open_char, close_char)
@@ -2062,7 +2087,17 @@ class StructuralExtractor:
                 end_match = t["end_pattern"].search(scan_view, pos=t["trigger_end"], endpos=search_limit)
                 end_idx = end_match.end() if end_match else len(content)
 
-            chunk = content[t["start"] : end_idx]
+            # #2549: the opening `<script ...>` / `<style ...>` tag is host
+            # markup and stays in the primary segment, so the host language's
+            # own rules still see it; the embedded segment starts at the `>`.
+            payload_start = self._embedded_payload_start(content, t, end_idx)
+
+            if payload_start > last_idx:
+                chunk = content[last_idx:payload_start]
+                segments.append((primary_id, chunk, current_line_offset))
+                current_line_offset += chunk.count("\n")
+
+            chunk = content[payload_start:end_idx]
             segments.append((t["target"], chunk, current_line_offset))
             current_line_offset += chunk.count("\n")
             last_idx = end_idx

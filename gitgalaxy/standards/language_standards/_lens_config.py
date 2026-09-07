@@ -10,6 +10,22 @@
 
 from typing import Any, TypedDict
 
+# #2549: the tail of a markup OPEN TAG, from the end of a handshake trigger
+# (`<script` / `<style`) through its closing `>`. A handshake entry that
+# declares it says "this opening delimiter is HOST syntax": the tag stays in
+# the host document's segment and only the payload after `>` is handed to the
+# embedded language. Without it html's own `func_start` rule -- whose only
+# anchor IS the `<script`/`<style` tag -- could never fire end to end, because
+# the splitter handed the tag itself to JavaScript/CSS before html's rules ran
+# (every corpus html file recorded `func_start = 0` against 9 raw matches).
+#
+# The three alternatives are disjoint on their first character, so the star can
+# never re-partition a prefix: linear time, no backtracking ambiguity, and an
+# attribute value holding a `>` (`<script data-tpl="a>b">`) does not cut the tag
+# short. An unterminated tag simply fails to match, and the caller falls back to
+# the pre-#2549 split point.
+MARKUP_OPEN_TAG_TAIL = r"""(?:"[^"]*"|'[^']*'|[^>"'])*>"""
+
 
 class LensConfig(TypedDict):
     # LENS_CONFIG's mixed set/dict/list values were widening to
@@ -94,12 +110,16 @@ LENS_CONFIG: LensConfig = {
             "end": r"</script>",
             "target": "javascript",
             "pair": None,
+            # #2549: `<script ...>` is html, only its body is JavaScript.
+            "open_delimiter": MARKUP_OPEN_TAG_TAIL,
         },
         {
             "trigger": r"^[ \t]*<style\b",
             "end": r"</style>",
             "target": "css",
             "pair": None,
+            # #2549: `<style ...>` is html, only its body is CSS.
+            "open_delimiter": MARKUP_OPEN_TAG_TAIL,
         },
         {
             # #1198: same drift #1183 fixed for <script>/<style> -- this

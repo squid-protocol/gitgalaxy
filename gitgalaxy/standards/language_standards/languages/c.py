@@ -237,9 +237,8 @@ DEFINITION: dict[str, Any] = {
             r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@param|@return|@brief|@details|\\param|\\return|\\brief|\\details"
         ),
         # 14. test (Testing & Assertions)
-        "test": re.compile(
-            r"\b(?:TEST|TEST_F|TEST_CASE|CU_ASSERT|RUN_TEST|EXPECT_[A-Z_]+|ASSERT_[A-Z_]+)\b|\bassert\s*\("
-        ),
+        # #2852 contract C1: bare assert( is the C runtime guard -- safety's hit (python precedent #2626)
+        "test": re.compile(r"\b(?:TEST|TEST_F|TEST_CASE|CU_ASSERT|RUN_TEST|EXPECT_[A-Z_]+|ASSERT_[A-Z_]+)\b"),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency (Asynchronous Execution)
         "concurrency": re.compile(

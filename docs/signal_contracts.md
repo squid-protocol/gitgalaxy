@@ -60,7 +60,7 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-5 stated, 63 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+6 stated, 62 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
@@ -77,7 +77,7 @@ written.** Corollaries every audited contract has needed so far:
 | `safety` | safety | `site` | draft | yes | Defensive programming constructs that prevent crashes at runtime |  |
 | `safety_bypasses` | safety | `site` | draft | yes | Syntax that actively bypasses type safety, swallows errors, or relies on unpredictable state |  |
 | `state_mutation` | safety | `site` | stated | yes | A statement that writes a new value into state that already exists | [state_mutation_rule_contract.md](../docs/state_mutation_rule_contract.md) #2765 |
-| `test` | safety | `site` | draft | yes | Assertions and unit testing framework keywords |  |
+| `test` | safety | `site` | stated | yes | A site that engages a testing framework: a test-case or fixture declaration, a framework assertion or expectation, or the framework named as such | [test_rule_contract.md](../docs/test_rule_contract.md) #2852 |
 | `closures` | architecture | `declaration` | draft |  | Anonymous functions, lambdas, inline callbacks |  |
 | `comprehensions` | architecture | `site` | draft |  | Collection iterators or inline looping |  |
 | `concurrency` | architecture | `site` | draft |  | Asynchronous logic and parallel execution |  |

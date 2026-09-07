@@ -235,7 +235,10 @@ def test_embedded_python_test_signature_pytest_convention_boundary_regression():
     assert fixed_pattern.search("m = Mock()")
     assert fixed_pattern.search("def setUp(self):")
     assert fixed_pattern.search("def tearDown(self):")
-    assert fixed_pattern.search("assert x == 1")
+    # #2852 contract C1: the assert statement is the runtime guard -- safety's
+    # hit, not test's (#2626 applied to the twin).
+    assert not fixed_pattern.search("assert x == 1")
+    assert EP_RULES["safety"].search("assert x == 1")
 
 
 def test_embedded_python_generics_redos_immunity():
@@ -398,7 +401,7 @@ def test_embedded_python_test_vs_regex_execution_no_collision():
     Known ambiguity pattern from the issue template: embedded_python's
     regex library is `ure` (`ure.compile`/`ure.search`/`ure.match`/
     `ure.sub`), not a `.test(`-style method, so it shares no token with
-    `test`'s unittest/pytest/assert/Mock/setUp/tearDown/def-test_
+    `test`'s unittest/pytest/Mock/setUp/tearDown/def-test_
     alternatives.
     """
     test = EP_RULES["test"]

@@ -300,7 +300,9 @@ DEFINITION: dict[str, Any] = {
         "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@param|@return"),
         # 14. test: Testing & Assertions. Flutter test frameworks and standard expect/verify markers.
         "test": re.compile(
-            r"\b(?:test|testWidgets|group|setUp|tearDown|pumpWidget|pumpAndSettle|find\.(?:byType|text|byKey))\b|\b(?:expect|verify|when)\s*\("
+            # #2852 contract C3: bare test/group matched ordinary identifiers (a predicate parameter, a loop
+            # variable); a test-case declaration is the call with its description string
+            r"\b(?:testWidgets|setUp|tearDown|pumpWidget|pumpAndSettle|find\.(?:byType|text|byKey))\b|\b(?:test|group)\s*\(\s*['\"]|\b(?:expect|verify|when)\s*\("
         ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency: Temporal Static. Event Loop primitives (Future, Stream, Isolate).

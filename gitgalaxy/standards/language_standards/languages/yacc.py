@@ -96,7 +96,7 @@ DEFINITION: dict[str, Any] = {
         "safety": re.compile(r"\b(assert|YYABORT|YYACCEPT|YYERROR)\b"),
         "safety_bypasses": re.compile(r"\bgoto\b|\bvoid\s*\*"),
         "high_risk_execution": re.compile(r"\b(abort|exit|YYNOMEM)\b"),
-        "io": re.compile(r"\b(fopen|fclose|fread|fwrite|yyin|yyout|fprintf)\b"),
+        "io": re.compile(r"\b(fopen|fread|fwrite|yyin|yyout|fprintf)\b"),
         "api": re.compile(r"%define\b|%code\b|%provides\b|%requires\b"),
         "state_mutation": re.compile(
             # #2765 contract: one hit is a statement that writes a new value into state

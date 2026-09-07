@@ -269,7 +269,7 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(system|memcpy|memset|abort|exit|std::terminate|longjmp|setjmp)\b"),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
-            r"\b(std::fstream|std::ifstream|std::ofstream|std::filesystem|fopen|fclose|fread|fwrite|socket|recv|send|asio::|curl_easy_perform|std::cin)\b"
+            r"\b(std::fstream|std::ifstream|std::ofstream|std::filesystem|fopen|fread|fwrite|socket|recv|send|asio::|curl_easy_perform|std::cin)\b"
         ),
         # 10. api (Public Surface Area)
         # Code exposed to the world. Explicit visibility and module exports.

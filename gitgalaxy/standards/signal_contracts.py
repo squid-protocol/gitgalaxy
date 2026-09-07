@@ -195,7 +195,16 @@ _ROWS = [
         "Process-killing commands and catastrophic runtime vulnerabilities",
         planted=True,
     ),
-    _c("io", "safety", "site", "Interaction with the disk, network, or external systems", planted=True),
+    _c(
+        "io",
+        "safety",
+        "site",
+        "An operation that moves data between the program and a system outside its own runtime",
+        status="stated",
+        doc="docs/io_rule_contract.md",
+        issue=2841,
+        planted=True,
+    ),
     _c(
         "api",
         "safety",

@@ -93,7 +93,7 @@ DEFINITION: dict[str, Any] = {
         # 8. danger: High-Risk Execution. Dynamic evaluation and OS-level execution hooks.
         "high_risk_execution": re.compile(r"\b(os\.execute|os\.exit|os\.remove|os\.rename|load|loadstring|loadfile)\b"),
         # 9. io: I/O & Network Boundaries. Standard IO library and environment inquiries.
-        "io": re.compile(r"\b(io\.open|io\.read|io\.lines|io\.close|io\.input|io\.output|io\.popen|os\.getenv)\b"),
+        "io": re.compile(r"\b(io\.open|io\.read|io\.lines|io\.input|io\.output|io\.popen|os\.getenv)\b"),
         # 10. api: Public Surface Area. Functions NOT marked local or explicit module returns.
         # BUG FIX #2657: The 'return M' module-export idiom is anchored to column 0 (^return)
         # to avoid false positives on indented function-body returns, which spiked risk_api_exposure.

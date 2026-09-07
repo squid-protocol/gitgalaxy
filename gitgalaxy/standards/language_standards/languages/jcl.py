@@ -127,7 +127,16 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # I/O (Data Set Names and Sysouts)
-        "io": re.compile(r"\b(DSN|DSNAME|SYSOUT|SYSPRINT|DISP=)\b", re.I),
+        # #2841 contract C4/C5: one hit per DD statement that allocates an
+        # external target (a cataloged dataset or spooled output); DSN=&& temps
+        # are job-local (C5) and a DD's other operands (DISP=, a second keyword
+        # on the line) never add a second hit (C4).
+        "io": re.compile(
+            r"^//(?!\*)[^ \t\n]*[ \t]+DD[ \t]+"
+            r"(?=[^\n]*\b(?:DSN(?:AME)?=(?!&&)|SYSOUT=)"
+            r"|[^\n]*,\n//[ \t]+[^\n]*\b(?:DSN(?:AME)?=(?!&&)|SYSOUT=))",
+            re.I | re.M,
+        ),
         # #2610: JCL's error handling is the COND= operand -- a return-code
         # test deciding whether a step runs after a prior step's outcome.
         # Unanchored (like io's DISP=/PGM= operands) because COND= routinely

@@ -441,20 +441,24 @@ def test_jcl_sync_locks_only_the_exclusive_enq_dispositions():
 
 def test_jcl_sync_locks_overlaps_io_by_design():
     """
-    #2733: every sync_locks hit is also an `io` hit, because `io` counts the
-    bare `DISP=` keyword. That overlap is the design decision the issue records
-    (accepted for a narrow OLD/MOD subset, unlike the broad `cleanup` rule
-    #2610 rejected), so pin it as intended behaviour -- if a later change makes
-    the two rules disjoint, that is a decision to re-make, not a silent drift.
+    #2733 pinned "every sync_locks hit is also an io hit" while io counted the
+    bare DISP= keyword. Since #2841 io counts DD statements that allocate an
+    external target (C4), a DSN=&& temp is job-local (C5) and DISP= belongs to
+    sync_locks/cleanup -- so the overlap is re-made the other way: the two
+    rules are disjoint on temp-only DDs and overlap on external OLD/MOD DDs.
     """
     sync_locks = JCL_RULES["sync_locks"]
     io = JCL_RULES["io"]
 
     exclusive = "//SYSLIN   DD DISP=(OLD,DELETE),DSN=&&LOADSET"
-    assert sync_locks.search(exclusive) and io.search(exclusive)
+    assert sync_locks.search(exclusive) and not io.search(exclusive)
 
-    # ...but the converse does not hold: the overwhelming majority of DISP=
-    # occurrences (427 of 525 in the corpus) are DISP=SHR, io-only.
+    # An external dataset held OLD is both: the ENQ and the allocation.
+    external_old = "//SYSUT2   DD DISP=(OLD,KEEP),DSN=HLQ.MASTER"
+    assert sync_locks.search(external_old) and io.search(external_old)
+
+    # The overwhelming majority of DISP= occurrences (427 of 525 in the
+    # corpus) are DISP=SHR: io-only.
     shared = "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR"
     assert io.search(shared) and not sync_locks.search(shared)
 
@@ -622,21 +626,23 @@ def test_jcl_cleanup_only_the_normal_termination_delete():
 
 def test_jcl_cleanup_overlaps_io_and_sync_locks_by_design():
     """
-    #2749: the overlap #2610 declined is accepted on #2742's terms -- a narrow,
-    semantically distinct subset of an operand io already counts. Every
-    cleanup hit is also an `io` hit (the DD's DSN=), and the OLD/MOD forms are
-    also `sync_locks` hits: the step holds an exclusive ENQ on the dataset it
-    then drops. Pin all three so a later change re-makes the decision rather
-    than drifting.
+    #2749 accepted "every cleanup hit is also an io hit" while io counted the
+    bare DSN= keyword. #2841 re-makes it (C2/C5): a teardown DD names a
+    job-local &&temp, which crosses no boundary, so cleanup and io are
+    disjoint there; cleanup of an external dataset still carries io's hit
+    through the allocation itself.
     """
     cleanup, io, sync_locks = JCL_RULES["cleanup"], JCL_RULES["io"], JCL_RULES["sync_locks"]
 
     exclusive_then_dropped = "//SYSLIN   DD DISP=(OLD,DELETE),DSN=&&LOADSET"
     assert cleanup.search(exclusive_then_dropped)
-    assert io.search(exclusive_then_dropped)
+    assert not io.search(exclusive_then_dropped)
     assert sync_locks.search(exclusive_then_dropped)
 
-    # ...and the converse does not hold in either direction.
+    # Deleting an external (cataloged) dataset is a boundary crossing too.
+    external_delete = "//PURGE    DD DSN=HLQ.OLDLOG,DISP=(OLD,DELETE)"
+    assert cleanup.search(external_delete) and io.search(external_delete)
+
     shared = "//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR"
     assert io.search(shared) and not cleanup.search(shared)
     held_and_kept = "//SYSUT1   DD DISP=(OLD,KEEP),DSN=HLQ.KEEP"

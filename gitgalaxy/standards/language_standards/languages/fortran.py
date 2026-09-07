@@ -219,7 +219,8 @@ DEFINITION: dict[str, Any] = {
         # practice. Split WRITE out of the shared-boundary group; it's already
         # unambiguously delimited by its own literal `(` and trailing `,`.
         "io": re.compile(
-            r"\b(?:OPEN|CLOSE|READ|INQUIRE|REWIND|BACKSPACE|ENDFILE|FLUSH|FORMAT)\b|"
+            # #2841 contract C2: CLOSE is cleanup's hit.
+            r"\b(?:OPEN|READ|INQUIRE|REWIND|BACKSPACE|ENDFILE|FLUSH|FORMAT)\b|"
             r"\bWRITE\s*\(\s*(?!\*|6\b)[^,]+,",
             re.I,
         ),

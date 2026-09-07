@@ -173,7 +173,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
-            r"\b(SELECT|INSERT|UPDATE|DELETE|REPLACE|ATTACH\s+DATABASE|DETACH\s+DATABASE|readfile|writefile)\b|^[ \t]*\.(?:import|output|dump|read)\b",
+            # #2841 contract C3: a .sql script executes inside the engine, so DML
+            # is computation, not a boundary crossing; io is what leaves the engine
+            # (host files, spooled output). C2: .read/.import/ATTACH are import's
+            # hits, DETACH is cleanup's.
+            r"\b(?:readfile|writefile)\s*\(|^[ \t]*\.(?:output|once|dump|backup)\b",
             re.I | re.M,
         ),
         # 10. api (Public Surface Area)

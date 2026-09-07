@@ -206,7 +206,14 @@ DEFINITION: dict[str, Any] = {
         ),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
-            r"\b(fetch|axios|http|https|fs|path|database|sql|localStorage|sessionStorage|indexedDB|document\.cookie|XMLHttpRequest|child_process)\b"
+            # #2841 contract C1: fetch/axios/fs fire bare (facility names, no
+            # measured collision); path/http/https only in operative form -- bare
+            # `path` matched probeIo's parameter, bare https matched string URLs.
+            # database/sql dropped: everyday words, nothing plants them.
+            r"\b(fetch|axios|fs|localStorage|sessionStorage|indexedDB|document\.cookie|XMLHttpRequest|child_process)\b"
+            r"|\bhttps?\.(?:get|request|createServer|Agent|globalAgent)\b"
+            r"|\brequire\(\s*['\"](?:https?|path|net|dgram|dns|tls)['\"]\s*\)"
+            r"|\bpath\.(?:join|resolve|basename|dirname|extname|sep)\b"
         ),
         # 10. api (Public Surface Area)
         # Exposure surface. Explicit exports + implicit architectural defaults.

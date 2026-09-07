@@ -60,7 +60,7 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-4 stated, 64 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+5 stated, 63 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
@@ -73,7 +73,7 @@ written.** Corollaries every audited contract has needed so far:
 | `dead_code` | safety | `annotation` | draft |  | Commented-out structural code and unused logic trails |  |
 | `doc` | safety | `annotation` | draft | yes | Structured documentation meant to be parsed by IDEs or generators |  |
 | `high_risk_execution` | safety | `site` | draft | yes | Process-killing commands and catastrophic runtime vulnerabilities |  |
-| `io` | safety | `site` | draft | yes | Interaction with the disk, network, or external systems |  |
+| `io` | safety | `site` | stated | yes | An operation that moves data between the program and a system outside its own runtime | [io_rule_contract.md](../docs/io_rule_contract.md) #2841 |
 | `safety` | safety | `site` | draft | yes | Defensive programming constructs that prevent crashes at runtime |  |
 | `safety_bypasses` | safety | `site` | draft | yes | Syntax that actively bypasses type safety, swallows errors, or relies on unpredictable state |  |
 | `state_mutation` | safety | `site` | stated | yes | A statement that writes a new value into state that already exists | [state_mutation_rule_contract.md](../docs/state_mutation_rule_contract.md) #2765 |

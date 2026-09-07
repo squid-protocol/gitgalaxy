@@ -102,7 +102,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 9. io: I/O & Network Boundaries. Database interaction and File datasets.
         "io": re.compile(
-            r"^[ \t]*(SELECT|INSERT\s+(?:INTO\b)?|UPDATE\b|MODIFY\b|OPEN\s+DATASET|TRANSFER|READ\s+DATASET|CLOSE\s+DATASET|CL_HTTP_CLIENT|CL_WEB_HTTP_CLIENT)\b",
+            r"^[ \t]*(SELECT|INSERT\s+(?:INTO\b)?|UPDATE\b|MODIFY\b|OPEN\s+DATASET|TRANSFER|READ\s+DATASET|CL_HTTP_CLIENT|CL_WEB_HTTP_CLIENT)\b",
             re.I | re.M,
         ),
         # 10. api: Public Surface Area. Exposed RFCs, OData publishing, and Public sections.

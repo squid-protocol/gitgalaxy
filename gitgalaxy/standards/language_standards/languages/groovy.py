@@ -268,7 +268,10 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(System\.exit|Runtime\.getRuntime\(\)\.exec|execute)\b"),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
-            r"\b(File|Files|Paths|FileReader|FileWriter|file|copy|sync|uri|url|Socket|Connection|ResultSet)\b"
+            # #2841 contract C1: lowercase file/copy/sync/uri/url matched
+            # ordinary identifiers and strings; the type names and Gradle's
+            # file(...) call form are the io constructs.
+            r"\b(File|Files|Paths|FileReader|FileWriter|Socket|Connection|ResultSet)\b|\bfile\s*\("
         ),
         # 10. api (Public Surface Area)
         # Groovy classes/methods are implicitly public by default, making the whole file highly exposed.

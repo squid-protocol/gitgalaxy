@@ -192,7 +192,7 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(system|exec|exit|qx|CORE::dump)\b|`[^`]+`"),
         # 9. io: I/O & Network Boundaries. Disk, Network, DBI, and standard handles.
         "io": re.compile(
-            r"\b(open|close|sysopen|sysread|syswrite|opendir|closedir|DBI->connect|Mojo::UserAgent|HTTP::Tiny|LWP::UserAgent|socket|connect|bind)\b|<[A-Z_0-9]+>|<>"
+            r"\b(open|sysopen|sysread|syswrite|opendir|DBI->connect|Mojo::UserAgent|HTTP::Tiny|LWP::UserAgent|socket|connect|bind)\b|<[A-Z_0-9]+>|<>"
         ),
         # 10. api: Public Surface Area. Exposed surface area (Exports and modern routing).
         # BUG FIX #2730 (api contract): every alternative above is a

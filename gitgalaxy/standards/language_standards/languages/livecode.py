@@ -171,7 +171,7 @@ DEFINITION: dict[str, Any] = {
         # (bounded per Rule 5, still linear) so it spans the whole
         # single-line expression instead of stopping at the first space.
         "io": re.compile(
-            r"\b(open\s+(?:file|socket|process)|read\s+from|write\s+to|close\s+(?:file|socket|process)|post\s+[^\n]{1,300}?\s+to\s+url|get\s+url|put\s+url|load\s+url)\b",
+            r"\b(open\s+(?:file|socket|process)|read\s+from|write\s+to|post\s+[^\n]{1,300}?\s+to\s+url|get\s+url|put\s+url|load\s+url)\b",
             re.I,
         ),
         # 10. api: Public Surface Area. Exposed surface area (Any non-private handler).

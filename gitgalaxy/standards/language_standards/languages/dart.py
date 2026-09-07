@@ -241,8 +241,9 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(exit|exitCode|Process\.killPid)\b", re.I),
         # 9. io: I/O & Network Boundaries. Disk, Network, WebSockets, and Uri parsing (Includes legacy CERN triggers).
         "io": re.compile(
+            # #2841 contract C1: these are case-sensitive type names; re.I
+            # made prose `file` a hit.
             r"\b(File|Directory|HttpClient|HttpServer|ServerSocket|WebSocket|Uri\.parse|HtmlDocument|HttpRequest|HttpResponse|HTRequest|Nexus|ENQUIRE)\b",
-            re.I,
         ),
         # 10. api: Public Surface Area. Exposed visibility (Lack of _ prefix) and routing decorators.
         # BUG FIX #2730 (api contract), two halves:

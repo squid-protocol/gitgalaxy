@@ -83,7 +83,15 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(?:exec|exit)\b|file[ \t]+delete[ \t]+-force"),
         # 9. io (I/O & Network Boundaries)
         # File system, sockets, and configuration. (Excludes puts which is mapped to print_hits).
-        "io": re.compile(r"\b(?:open|close|read|gets|socket|fconfigure|file|source|vfs::)\b"),
+        "io": re.compile(
+            # #2841 contract: C2 -- `source` is import's hit, `close` is cleanup's;
+            # C1 -- everyday words fire only in command position (line start or
+            # after `[`), `file` only with a filesystem subcommand.
+            r"(?:^[ \t]*|\[)(?:open|read|gets|socket|fconfigure)\b"
+            r"|\bvfs::"
+            r"|\bfile[ \t]+(?:exists|tail|mkdir|delete|rename|copy|size|isfile|isdirectory|dirname|join|normalize|stat|atime|mtime)\b",
+            re.M,
+        ),
         # 10. api (Public Surface Area)
         # Exposing packages or namespace exports.
         "api": re.compile(r"^[ \t]*(?:package[ \t]+provide|namespace[ \t]+export)\b", re.M),

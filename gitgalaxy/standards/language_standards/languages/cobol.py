@@ -320,7 +320,8 @@ DEFINITION: dict[str, Any] = {
         # CICS journalling idiom, the same dual as sqlite's `.read`
         # (keyword-rosetta ledger sqlite-dot-read-dual-import-io).
         "io": re.compile(
-            r"\b(READ|WRITE|REWRITE|OPEN|CLOSE|START|DELETE|EXEC\s+SQL"
+            # #2841 contract C2: CLOSE is cleanup's hit.
+            r"\b(READ|WRITE|REWRITE|OPEN|START|DELETE|EXEC\s+SQL"
             r"|EXEC\s+CICS\s+(?:READQ|WRITEQ|DELETEQ)\s+(?:TS|TD)"
             r"|EXEC\s+CICS\s+(?:READ|WRITE|REWRITE|DELETE))\b",
             re.I,

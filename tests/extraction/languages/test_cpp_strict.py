@@ -450,8 +450,8 @@ def test_cpp_intentional_double_classification_sweep():
       in their own compound-assignment alternatives)
     - `std::mutex m;` -> sync_locks + concurrency (both explicitly list
       `std::mutex` in their own keyword lists)
-    - `delete p; fclose(f);` -> cleanup + io (both explicitly list `fclose`
-      in their own keyword lists)
+    - `delete p; fclose(f);` -> cleanup only: since #2841 releasing a
+      resource is cleanup's hit alone (io counts acquisition and transfer)
     - `int *p = &x;` -> pointers only: since #2765 a declaration with an
       initializer is not a write and `&` is a borrow, not a mutation
       (state_mutation's old bare `&(?!\\s*const)` alternative is gone)
@@ -500,7 +500,7 @@ def test_cpp_intentional_double_classification_sweep():
 
     cleanup_call = "delete p;\nfclose(f);"
     assert CPP_RULES["cleanup"].search(cleanup_call)
-    assert CPP_RULES["io"].search(cleanup_call)
+    assert not CPP_RULES["io"].search(cleanup_call)
 
     ptr_decl = "int *p = &x;"
     assert CPP_RULES["pointers"].search(ptr_decl)

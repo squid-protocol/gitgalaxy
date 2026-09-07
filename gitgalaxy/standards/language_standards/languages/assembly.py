@@ -154,8 +154,10 @@ DEFINITION: dict[str, Any] = {
         # 9. io (I/O & Network Boundaries)
         # System calls and hardware I/O ports.
         "io": re.compile(
-            r"\b(in|out|ins[bdw]|outs[bdw]|syscall|svc\b|int\s+0x80|sys_read|sys_open)\b",
-            re.I,
+            # #2841 contract C1: bare in/out matched comment prose; the
+            # instruction form is line-anchored with an operand.
+            r"^[ \t]*(?:in|out)[ \t]+[a-z0-9]|\b(?:ins[bdw]|outs[bdw]|syscall|svc|int\s+0x80|sys_read|sys_open)\b",
+            re.I | re.M,
         ),
         # 10. api (Public Surface Area)
         # Linker-visible global exports.

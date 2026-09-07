@@ -101,7 +101,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # io: Interactions with disk, hardware, or web.
         "io": re.compile(
-            r"\b(?:load|save|fopen|fclose|fread|fwrite|fscanf|webread|webwrite|urlread|urlwrite|readtable|writetable|readmatrix|writematrix|serialport|imread|imwrite|audioread)\b"
+            r"\b(?:load|save|fopen|fread|fwrite|fscanf|webread|webwrite|urlread|urlwrite|readtable|writetable|readmatrix|writematrix|serialport|imread|imwrite|audioread)\b"
         ),
         # api: Public APIs. We track explicit Methods blocks that don't declare private access.
         # BUG FIX 1: the bare `methods` literal had no trailing boundary at all

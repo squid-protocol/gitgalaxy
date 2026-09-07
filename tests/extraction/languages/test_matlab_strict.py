@@ -457,7 +457,8 @@ def test_matlab_resource_action_dual_classification_sweep():
     - `clear all` -> high_risk_execution (destructive wipe) + cleanup
       (resource release); NOT state_mutation since #2765 (count contract
       corollary 4: `clear` is cleanup's token, the write is the assignment)
-    - `fclose(fid)` -> io (file operation) + cleanup (handle release)
+    - `fclose(fid)` -> cleanup only since #2841 (C2: releasing a
+      resource is cleanup's hit alone; io counts acquisition and transfer)
     - `system(...)` -> high_risk_execution (OS bypass) + ipc_rpc_bridges
       (inter-process bridge)
     - `load(...)` -> io (disk read) + serialization_parsing (deserializing
@@ -474,7 +475,7 @@ def test_matlab_resource_action_dual_classification_sweep():
     assert MATLAB_RULES["cleanup"].search(clear_all)
 
     fclose_call = "fclose(fid)"
-    assert MATLAB_RULES["io"].search(fclose_call)
+    assert not MATLAB_RULES["io"].search(fclose_call)
     assert MATLAB_RULES["cleanup"].search(fclose_call)
 
     system_call = "system('ls')"

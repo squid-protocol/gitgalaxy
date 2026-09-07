@@ -364,7 +364,8 @@ def test_c_intentional_double_classification_sweep():
     assert C_RULES["ipc_rpc_bridges"].search(fork_call)
 
     close_call = "close(fd);"
-    assert C_RULES["io"].search(close_call)
+    # #2841 contract C2: releasing a resource is cleanup's hit alone.
+    assert not C_RULES["io"].search(close_call)
     assert C_RULES["cleanup"].search(close_call)
 
     alloca_call = "alloca(10);"

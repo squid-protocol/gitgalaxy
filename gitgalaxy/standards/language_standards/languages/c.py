@@ -167,7 +167,7 @@ DEFINITION: dict[str, Any] = {
         "high_risk_execution": re.compile(r"\b(system|popen|execl|execv|fork|longjmp|setjmp)\b"),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
-            r"\b(fopen|fclose|fread|fwrite|fscanf|sscanf|socket|recv|send|open|read|write|close|stat|fseek|remove|rename)\b"
+            r"\b(?:fopen|fread|fwrite|fscanf|sscanf|socket|recv|send|open|read|write|stat|fseek|rename)\b\s*\("
         ),
         # 10. api (Public Surface Area)
         # Linker-visible global exports.

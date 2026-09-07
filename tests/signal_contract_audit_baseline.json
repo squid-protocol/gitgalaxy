@@ -28,7 +28,6 @@
   "draft:immutability_locks",
   "draft:import",
   "draft:inline_asm",
-  "draft:io",
   "draft:ipc_rpc_bridges",
   "draft:lazy_evaluation",
   "draft:listeners",

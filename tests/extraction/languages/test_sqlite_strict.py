@@ -44,7 +44,7 @@ _SQLITE_SIMPLE_CASES = [
     ("safety", "CREATE TABLE t (id INTEGER PRIMARY KEY, CHECK (id > 0));", "SELECT * FROM t;"),
     ("safety_bypasses", "DROP TABLE IF EXISTS staging;", "CREATE TABLE staging (id INTEGER);"),
     ("high_risk_execution", ".shell ls -la", "SELECT 1;"),
-    ("io", "SELECT * FROM users;", "BEGIN TRANSACTION;"),
+    ("io", "SELECT writefile('out.bin', 1);", "SELECT * FROM users;"),
     ("api", "CREATE VIEW active_users AS SELECT * FROM users;", "CREATE TABLE users (id INTEGER);"),
     ("state_mutation", "UPDATE users SET status = 'inactive' WHERE id = 1;", "SELECT * FROM users;"),
     ("dead_code", "-- SELECT * FROM old_table", "-- This is just a comment"),
@@ -208,18 +208,18 @@ def test_sqlite_high_risk_execution_dot_command_leading_boundary_and_case_regres
 
 def test_sqlite_io_dot_command_leading_boundary_regression():
     """
-    Regression test: `.import`/`.output`/`.dump`/`.read` all start with `.`
-    (non-word), so the shared leading `\\b` inside `\\b(...)\\b` could only
-    fire when a word char immediately preceded the `.` -- never true for
-    how these sqlite3 CLI I/O dot-commands are actually written (always
-    the first token on a line). All four never matched at all.
+    Regression test: the CLI dot-commands start with `.` (non-word), so a
+    shared leading `\\b` inside `\\b(...)\\b` silenced them entirely (the
+    original bug). Since #2841 io keeps only the dot-commands that move data
+    OUT of the engine (C3); `.read`/`.import` are import's hits alone (C2),
+    and DML is in-engine computation, not io.
     """
     pattern = SQLITE_RULES["io"]
-    assert pattern.search(".import data.csv mytable"), ".import still didn't match"
     assert pattern.search(".output out.txt"), ".output still didn't match"
     assert pattern.search(".dump"), ".dump still didn't match"
-    assert pattern.search(".read script.sql"), ".read still didn't match"
-    assert pattern.search("SELECT * FROM users;"), "SELECT regressed"
+    assert not pattern.search(".read script.sql"), ".read is import's hit alone"
+    assert not pattern.search(".import data.csv mytable"), ".import is import's hit alone"
+    assert not pattern.search("SELECT * FROM users;"), "DML is not a boundary crossing"
 
 
 def test_sqlite_test_dot_command_leading_boundary_regression():
@@ -430,8 +430,9 @@ def test_sqlite_ambiguity_sweep_shared_literals_are_not_bugs():
       `STRICT`: a STRICT table declaration is simultaneously a structural
       qualifier and an integrity/immutability guarantee -- all three
       rules deliberately list it.
-    - `structural_boundaries` <-> `io` on `SELECT`: a SELECT is
-      simultaneously query structure and a read I/O operation.
+    - `structural_boundaries` owns `SELECT` alone since #2841 (C3): a
+      .sql script executes inside the engine, so DML is computation; io
+      is what leaves the engine (readfile/writefile, output dot-commands).
     - `func_start` <-> `api` on `CREATE VIEW`: a view is simultaneously
       executable query logic and explicitly public surface area.
     - `func_start` <-> `events` on `CREATE TRIGGER`: a trigger is
@@ -468,7 +469,7 @@ def test_sqlite_ambiguity_sweep_shared_literals_are_not_bugs():
 
     select_stmt = "SELECT * FROM t;"
     assert structural_boundaries.search(select_stmt)
-    assert io.search(select_stmt)
+    assert not io.search(select_stmt)
 
     view = "CREATE VIEW active_users AS SELECT * FROM users;"
     assert func_start.search(view)

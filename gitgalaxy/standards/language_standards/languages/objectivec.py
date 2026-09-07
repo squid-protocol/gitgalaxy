@@ -329,7 +329,11 @@ DEFINITION: dict[str, Any] = {
         # match once flanked by anything else non-word (a space,
         # semicolon, line start). Split them out of the shared wrapper.
         "globals": re.compile(
-            r"\b(extern|NSUserDefaults|NXDefaults|NXApp)\b|\[UIApplication\s+sharedApplication\]|\[NSWorkspace\s+sharedWorkspace\]"
+            # #2858 contract: `extern`/`static` on a data declaration is a
+            # program-lifetime binding (`static NSString *const kKey = @"k";`);
+            # on a prototype it is linkage, not state (corollary 4).
+            r"\b(?:extern(?![ \t]*\")|static)\b(?![^;=\n({]{0,200}\()"
+            r"|\b(?:NSUserDefaults|NXDefaults|NXApp)\b|\[UIApplication\s+sharedApplication\]|\[NSWorkspace\s+sharedWorkspace\]"
         ),
         # 19. decorators: Decorators / Annotations. Attributes and Property decorators.
         "decorators": re.compile(r"\b__attribute__\s*\(\([^)]*\)\)|@property\s*\([^)]+\)"),

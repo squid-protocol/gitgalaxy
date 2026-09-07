@@ -190,7 +190,16 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: `lazy_static!` shared a trailing `\b` with word-ending
         # siblings, but ends in `!` -- always followed by whitespace/`{`
         # in real usage (`lazy_static! { ... }`), never a word char.
-        "globals": re.compile(r"\bstatic\s+mut\b|lazy_static!|\b(?:OnceCell|OnceLock|LazyLock|std::env::var)\b"),
+        "globals": re.compile(
+            # #2858 contract corollary 1: a `static`/`const` item is a binding with
+            # program lifetime whatever its mutability (constness is
+            # immutability_locks' axis, #2772); `'static` is a lifetime, not an item
+            # (both old crucible hits were `&'static mut A`).
+            r"(?<!')\bstatic\s+mut\b"
+            r"|^[ \t]*(?:pub(?:\([^)\n]{0,50}\))?[ \t]+)?(?:static|const)[ \t]+(?:mut[ \t]+)?(?!_\b)[A-Za-z_]\w*[ \t]*:"
+            r"|lazy_static!|\b(?:OnceCell|OnceLock|LazyLock)\b|\b(?:std::)?env::(?:var|vars|var_os|set_var|remove_var|args|args_os|current_dir)\b",
+            re.M,
+        ),
         # 19. decorators (Decorators / Annotations)
         "decorators": re.compile(r"^[ \t]*#!?\[[^\]]*\]", re.M),
         # 20. generics (Generics / Type Parameters)

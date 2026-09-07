@@ -227,7 +227,9 @@ DEFINITION: dict[str, Any] = {
         # a compile error elsewhere -- so `const val` is a global at any
         # indentation, while a bare `val` is a global only at true column-0.
         "globals": re.compile(
-            r"\b(object|companion\s+object)\b"
+            # #2858 contract corollary 3: the NAMED object declaration is the global
+            # (a singleton); `object : Runnable {` is an anonymous object expression.
+            r"\bobject[ \t]+[A-Za-z_`]|\bcompanion[ \t]+object\b"
             r"|^[ \t]*const[ \t]+val\s+[A-Za-z_]\w*[ \t]*="
             r"|^(?![ \t])(?:const[ \t]+)?val\s+[A-Z_0-9]+[ \t]*=",
             re.M,

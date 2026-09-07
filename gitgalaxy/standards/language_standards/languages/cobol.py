@@ -394,7 +394,10 @@ DEFINITION: dict[str, Any] = {
         # on that same file. Working-storage is program-private static storage, not
         # global surface; `SECTION` still counts as a structural boundary via the
         # `structural_boundaries` rule above, so no structural signal is lost.
-        "globals": re.compile(r"\b(COMMON|GLOBAL|EXTERNAL)\b", re.I),
+        # #2858 contract corollary 3: `-` is a regex word boundary, so the bare
+        # keyword matched inside `COMMON-RETURN` / `CA-POLICY-COMMON` (185
+        # crucible hits, every one an identifier -- the #2622 hyphen shape).
+        "globals": re.compile(r"(?<![-\w])(COMMON|GLOBAL|EXTERNAL)(?![-\w])", re.I),
         # 19. decorators: Decorators / Annotations. (COBOL uses compiler directives).
         "decorators": re.compile(
             r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*>>\s*(?:IF|ELSE|END-IF|DEFINE|CALL-CONVENTION)",

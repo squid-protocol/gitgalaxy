@@ -208,7 +208,12 @@ DEFINITION: dict[str, Any] = {
         "closures": None,
         # 18. globals (Global / Shared State)
         "globals": re.compile(
-            r"^[ \t]*(?:\.data|\.bss|\.rodata|\.comm|section\s+\.data|section\s+\.bss)\b",
+            # #2858 contract corollary 4: a section switch (`.data`, `section .bss`)
+            # is a region header, not shared state (#2805's WORKING-STORAGE
+            # precedent); the global is the labeled storage the region holds
+            # (`buf: resd 4`, `msg: .asciz "x"`, `.comm sym,4`).
+            r"^[ \t]*(?:\.comm|\.lcomm)[ \t]+[A-Za-z_.$][\w.$]*"
+            r"|^[ \t]*[A-Za-z_.$][\w.$]*:?[ \t]+(?:\.(?:byte|word|long|quad|short|int|octa|space|zero|skip|fill|ascii|asciz|string|hword|xword)|d[bwdqt]|res[bwdqt])\b",
             re.M | re.I,
         ),
         # 19. decorators

@@ -271,7 +271,10 @@ DEFINITION: dict[str, Any] = {
         # $!;`, `$? >> 8`). All 4 of the most common Perl magic
         # variables silently never matched.
         "globals": re.compile(
-            r"(?:\$a|\$b|\$_|\$0|%ENV|%SIG|@ARGV|@INC)\b|\$\$|\$@|\$!|\$\?|^[ \t]*our\s+[\$@%]",
+            # #2858 contract corollary 3: `$$options{...}` is a scalar deref and
+            # `$_[2]` is the argument array -- neither is the pid variable or the
+            # topic; `$ENV{PATH}` is the environment's element form.
+            r"(?:\$a|\$b|\$_|\$0|%ENV|%SIG|@ARGV|@INC)\b(?!\[)|\$ENV\{|\$\$(?![\w{$])|\$@|\$!|\$\?|^[ \t]*our\s+[\$@%]",
             re.M,
         ),
         # 19. decorators: Decorators / Annotations. Subroutine and variable attributes.

@@ -270,7 +270,13 @@ DEFINITION: dict[str, Any] = {
         # 17. closures (Closures / Anonymous Functions)
         "closures": re.compile(r"=>[ \t]*\{|\(\)[ \t]*=>|function\s*\([^)]*\)[ \t]*\{"),
         # 18. globals (Global / Shared State)
-        "globals": re.compile(r"\b(window\.|global\.|process\.env|document\.|navigator\.|self\.|globalThis\.)\b"),
+        "globals": re.compile(
+            # #2858 contract corollary 3: `self` and `global` are everyday
+            # identifiers (`const self = this`, assemblyscript's `let global =
+            # <Global>element` -- every crucible hit); the unambiguous handle is
+            # `globalThis.`.
+            r"\b(?:window|document|navigator|globalThis)\.(?=[\w$])|\bprocess\.env\b|\bimport\.meta\.env\b"
+        ),
         # 19. decorators (Decorators / Annotations)
         "decorators": re.compile(r"@\w+"),
         # 20. generics (Generics / Type Parameters)

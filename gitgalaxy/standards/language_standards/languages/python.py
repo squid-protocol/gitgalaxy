@@ -232,7 +232,14 @@ DEFINITION: dict[str, Any] = {
         # whatever follows a function call (`;`, a newline, `.method`,
         # end of string) is never a word character. Neither builtin
         # ever matched in any real usage.
-        "globals": re.compile(r"\b(?:os\.environ|sys\.argv|sys\.path)\b|\bglobals\(\)|\blocals\(\)"),
+        "globals": re.compile(
+            # #2858 contract: the `global x` statement is python's declaration of a
+            # module-scope binding (the embedded twin already counted it);
+            # `locals()` is a handle on the LOCAL namespace, nobody's global
+            # (corollary 5); `sys.modules` is the interpreter's registry.
+            r"\b(?:os\.environ|sys\.argv|sys\.path|sys\.modules)\b|\bglobals\(\)|^[ \t]*global[ \t]+[A-Za-z_]",
+            re.M,
+        ),
         # 19. decorators (Decorators / Annotations)
         "decorators": re.compile(r"^[ \t]*@[\w.]+", re.M),
         # 20. generics (Generics / Type Parameters)

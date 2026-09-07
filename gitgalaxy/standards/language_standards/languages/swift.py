@@ -220,7 +220,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # 18. globals (Global / Shared State)
         "globals": re.compile(
-            r"\b(?:static\s+let|static\s+var|shared|standard|default|NotificationCenter\.default|UserDefaults\.standard|FileManager\.default)\b|@Environment\b"
+            # #2858 contract corollary 3: a singleton/ambient accessor counts in its
+            # dotted form (`UserDefaults.standard`, `.shared`, `.default`); the bare
+            # word is an ordinary identifier or a `switch` case's `default:`.
+            r"\b(?:static[ \t]+(?:let|var)|NotificationCenter\.default|UserDefaults\.standard|FileManager\.default|ProcessInfo\.processInfo|CommandLine\.arguments)\b"
+            r"|\.(?:shared|standard|default)\b(?![ \t]*:)|@Environment\b"
         ),
         # 19. decorators (Decorators / Annotations)
         "decorators": re.compile(r"@[a-zA-Z_]\w*(?:\([^)]*\))?"),

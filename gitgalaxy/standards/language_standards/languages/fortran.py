@@ -292,7 +292,14 @@ DEFINITION: dict[str, Any] = {
         "closures": None,
         # 18. globals (Global / Shared State)
         # Persistent application state across scopes. F77 `COMMON` blocks, `SAVE` variables, and `EXTERNAL` procedures.
-        "globals": re.compile(r"\b(COMMON|SAVE|EXTERNAL)\b", re.I),
+        "globals": re.compile(
+            # #2858 contract: COMMON (shared storage), SAVE (a local whose storage
+            # outlives the call) and a DATA-initialised variable (implicitly SAVEd)
+            # are program-lifetime bindings; EXTERNAL declares a procedure NAME --
+            # linkage, not state (corollary 4; 9 of 16 crucible hits).
+            r"\b(COMMON|SAVE)\b|^[ \t]*DATA[ \t]+[A-Za-z_]",
+            re.I | re.M,
+        ),
         # 19. decorators (Decorators / Annotations)
         # Fortran does not have Python-style decorators, but compiler directives heavily modify block execution behaviors.
         # BUG FIX: the shared trailing `\b` after the `$`-ending alternatives

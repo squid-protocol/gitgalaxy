@@ -257,7 +257,18 @@ DEFINITION: dict[str, Any] = {
             # Same strict O(1) alternation fix applied here as in the `api` rule
             # to prevent exponential space/asterisk evaluation.
             # =====================================================================
-            r"^[ \t]*(?:static\s+|extern[ \t]+)?[a-zA-Z_]\w*(?:\s*[*&]+\s*|\s+)[a-zA-Z_]\w*(?:\[[^\]]*\])?\s*=(?![ \t]*==)",
+            # #2858 contract: a global is a binding with program lifetime -- a
+            # file-scope declaration (column 0: C's file scope is unindented, the
+            # #2651 dart/zig anchor) or a `static` inside a body (a local whose
+            # storage outlives the call). A function-local declaration with an
+            # initializer (`PyThreadState *tstate = _PyThreadState_GET();`, 2,771
+            # crucible hits under the old any-indentation form) is not a global
+            # (corollary 1); a prototype (`static void f(void);`) is linkage, not
+            # state (corollary 4).
+            r"^(?![ \t])(?:(?:static|extern|const|volatile|_Thread_local|register|_Atomic)[ \t]+)*"
+            r"(?:(?:struct|union|enum)[ \t]+)?[a-zA-Z_]\w*(?:[ \t]*[*&]+[ \t]*|[ \t]+)(?:const[ \t]+)?"
+            r"[a-zA-Z_]\w*(?:\[[^\]\n]{0,100}\])*[ \t]*(?:=(?![=])|[;,])"
+            r"|^[ \t]+(?:static|_Thread_local)[ \t]+(?!assert\b)(?![^;=\n(]{0,200}\()[^;\n]{0,200}[;=]",
             re.M,
         ),
         # 19. decorators (Decorators / Annotations)

@@ -248,7 +248,10 @@ DEFINITION: dict[str, Any] = {
         # sides of that position), so it never matched. Pulled out of the
         # group with only a trailing `\b` (the `$` is self-delimiting).
         "globals": re.compile(
-            r"\b(global\s+|the\s+global|the\s+environment|the\s+platform|it)\b|\$ENV\b",
+            # #2858 contract corollary 1: `it` is the handler-local result variable
+            # (60+ of 385 crucible hits were `return it` / `if it is empty`), not
+            # global state; `the platform` / `the environment` are ambient reads.
+            r"\bglobal[ \t]+[a-zA-Z_]|\bthe[ \t]+(?:globals?|environment|platform)\b|\$ENV\b",
             re.I,
         ),
         # 19. decorators: Decorators / Annotations. LCB attributes.

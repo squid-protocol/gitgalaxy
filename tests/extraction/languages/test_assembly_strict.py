@@ -91,7 +91,7 @@ _ASM_SIMPLE_CASES = [
     ("doc", "; @param x", "; just a note"),
     ("test", "\tassert eax", "\tmov eax, ebx"),
     ("concurrency", "\tlock xadd eax, ebx", "\tmov eax, ebx"),
-    ("globals", "\t.data", "\tmov eax, ebx"),
+    ("globals", "\tbuf: resd 4", "\t.data"),  # #2858: labeled storage, not the section switch
     ("comprehensions", "\trep movsb", "\tmov eax, ebx"),
     ("scientific", "\tfadd st0, st1", "\tmov eax, ebx"),
     ("reflection_metaprogramming", "[eax + ebx * 4]", "mov eax, ebx"),
@@ -429,12 +429,12 @@ def test_assembly_api_contract_2730():
     api = ASM_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('\t.globl\tmain'), 'GAS .globl'
-    assert api.search('GLOBAL _greet:function'), 'NASM GLOBAL'
+    assert api.search("\t.globl\tmain"), "GAS .globl"
+    assert api.search("GLOBAL _greet:function"), "NASM GLOBAL"
 
     # Not declarations -- must not match.
-    assert not api.search('EXTERN _printf'), 'EXTERN imports a name'
-    assert not api.search('\tIMPORT foo'), 'IMPORT imports a name'
+    assert not api.search("EXTERN _printf"), "EXTERN imports a name"
+    assert not api.search("\tIMPORT foo"), "IMPORT imports a name"
 
 
 def test_assembly_branch_counts_decisions_not_transfers_2764():
@@ -456,27 +456,29 @@ def test_assembly_branch_counts_decisions_not_transfers_2764():
     linear = ASM_RULES["structural_boundaries"]
 
     # x86 and ARM conditional transfers -- real decisions.
-    for decision in ("\tje .L1", "\tjne .L1", "\tjz .L1", "\tjnz .L1", "\tjae .L1",
-                     "\tbeq .L1", "\tbne .L1", "\tcbz x0, .L1", "\ttbnz x0, #3, .L1",
-                     "\tloop .retry"):
+    for decision in (
+        "\tje .L1",
+        "\tjne .L1",
+        "\tjz .L1",
+        "\tjnz .L1",
+        "\tjae .L1",
+        "\tbeq .L1",
+        "\tbne .L1",
+        "\tcbz x0, .L1",
+        "\ttbnz x0, #3, .L1",
+        "\tloop .retry",
+    ):
         assert branch.search(decision), f"{decision!r} is a decision"
         assert not linear.search(decision), f"{decision!r} must not double-count as linear"
 
     # Unconditional transfers, calls and returns -- structure, not decisions.
-    for transfer in ("\tjmp done", "\tcall probe_io", "\tret", "\tb .L1",
-                     "\tbl printf", "\tbx lr", "\tblr x19"):
+    for transfer in ("\tjmp done", "\tcall probe_io", "\tret", "\tb .L1", "\tbl printf", "\tbx lr", "\tblr x19"):
         assert not branch.search(transfer), f"{transfer!r} is not a decision (#2764)"
         assert linear.search(transfer), f"{transfer!r} must stay measured as structure"
 
     # A real probe body: three returns and a call contribute zero decisions;
     # the one conditional contributes one. Total hits are unchanged.
-    body = (
-        "probe_branch:\n"
-        "\tmov rdi, 2\n"
-        "\tjz done_branch\n"
-        "\tcall probe_io\n"
-        "\tret\n"
-    )
+    body = "probe_branch:\n\tmov rdi, 2\n\tjz done_branch\n\tcall probe_io\n\tret\n"
     assert len(branch.findall(body)) == 1
     # mov, jz's absence here, call, ret -- plus `rdi`'s `di` is args, not linear.
     assert sorted(m.group(0) for m in linear.finditer(body)) == ["call", "mov", "ret"]

@@ -4424,3 +4424,76 @@ def test_yaml_steps_take_their_name_from_the_adjacent_name_key():
 
     # The job-level `name:` belongs to the job, not to any step.
     assert "My Job" not in names, "a job-level name: must not be captured as a step name"
+
+
+# ==============================================================================
+# TEST: #1295'S CSS/HTML CLASS-EXTRACTION SCOPE DECISION IS ENFORCED (#2798)
+# ==============================================================================
+def test_css_selectors_never_reach_named_class_extraction():
+    """
+    Regression for #2798 / the #1824 reversal.
+
+    Epic #1295 decided permanently that css and html are out of scope for NAMED
+    class extraction: `class_data`'s schema is `class_name`/`inheritance_parents`/
+    `method_count`/`state_entanglement`, and a CSS selector has none of those, so
+    every row it produced would carry `method_count=0`/`inheritance_parents=[]`
+    forever (tests/extraction/how_to_extend_class_start_named_extraction.md,
+    "Decided: not extending css or html").
+
+    The decision was written but never enforced in the extractor, and #1824 -- a
+    css `class_start` REGEX improvement, five days later -- added "css" to
+    `_CLASS_START_NAMED_EXTRACTION_LANGS` without mentioning it, taking css's
+    crucible `found_classes` 0 -> 90 in the same commit. Nothing caught that: both
+    tools that reconcile class extraction force css/html's class panels to N/A for
+    this very decision, so the reversal landed in the one blind spot the decision
+    itself created.
+    """
+    from gitgalaxy.core.detector import (
+        _CLASS_EXTRACTION_OUT_OF_SCOPE_LANGS,
+        _CLASS_START_NAMED_EXTRACTION_LANGS,
+    )
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    assert _CLASS_EXTRACTION_OUT_OF_SCOPE_LANGS == {"css", "html"}
+    overlap = _CLASS_EXTRACTION_OUT_OF_SCOPE_LANGS & _CLASS_START_NAMED_EXTRACTION_LANGS
+    assert not overlap, (
+        f"{sorted(overlap)} is both allowlisted for named class extraction and decided "
+        "permanently out of scope for it (#1295) -- exactly how #1824 regressed. Remove it "
+        "from one set or re-derive the decision from the how-to doc's own section first"
+    )
+
+    css = StructuralExtractor("css", LANGUAGE_DEFINITIONS)
+    result = css.splice(".rosetta-risk { x: expression(1); }\n#probe-id { color: red; }\n", "")
+
+    assert result.get("classes") == [], (
+        f"css selectors reached class_data: {result.get('classes')} -- #1295 ruled named "
+        "class extraction permanently out of scope for css"
+    )
+    # The numeric signal is deliberately untouched: the decision says so in as many
+    # words ("unaffected by this decision and stays exactly as-is for both
+    # languages"). It still feeds the risk equations; what it must not do is claim a
+    # selector is a named class.
+    assert result["equations"].get("class_start") == 2, (
+        "the class_start SIGNAL must still count both selectors -- #1295 scoped its "
+        "decision to named extraction only"
+    )
+
+
+def test_html_tags_never_reach_named_class_extraction():
+    """#2798's other half. html's `class_start` matches a curated, risk-relevant TAG
+    list (`form`, `table`, `svg`, custom elements) chosen for attack surface, not for
+    class-likeness -- so an extracted `<table>` would be as wrong as an extracted
+    `.foo`. html was never in the allowlist, so today the legacy generic fallback is
+    what happens to return nothing; this pins the intent rather than the accident."""
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    html = StructuralExtractor("html", LANGUAGE_DEFINITIONS)
+    result = html.splice("<form action='/x'>\n<table>\n<tr><td>1</td></tr>\n</table>\n</form>\n", "")
+
+    assert result.get("classes") == [], (
+        f"html tags reached class_data: {result.get('classes')} -- #1295 ruled named "
+        "class extraction permanently out of scope for html"
+    )
+    assert result["equations"].get("class_start") == 2, (
+        "the class_start SIGNAL must still count the risk-relevant tags"
+    )

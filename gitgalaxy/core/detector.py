@@ -434,6 +434,35 @@ class ScopeParsingRegistry:
 # needs the same kind of per-language hardening pass
 # epic #813 already did for func_start/args/class_start's OWN extraction
 # gauntlets -- tracked as a follow-up (#1295), not attempted wholesale here.
+# #1295: languages permanently OUT OF SCOPE for named class extraction, whatever
+# their own `class_start` rule matches. Their rule targets something that is not an
+# OOP-shaped entity at all, so the `class_data` schema it would populate
+# (`class_name`, `inheritance_parents`, `method_count`, `state_entanglement` --
+# record_keeper.py) has nowhere to put a real answer: every row would carry
+# `method_count=0`/`inheritance_parents=[]` forever. css's rule matches *selectors*
+# (`.foo`, `#bar`); html's matches a curated risk-relevant TAG list (`form`, `table`,
+# `svg`, custom elements) chosen for attack surface, not for class-likeness. The full
+# reasoning, and the instruction to re-derive from it rather than re-open the question
+# cold, is tests/extraction/how_to_extend_class_start_named_extraction.md's "Decided:
+# not extending css or html" section.
+#
+# This gate exists because the decision was documented but never *enforced*, and so was
+# silently reversed: #1824 (a css `class_start` REGEX improvement) added "css" to the
+# allowlist below five days after the decision was written, with no mention of it, and
+# css's crucible `found_classes` went 0 -> 90 in the same commit. Nothing caught it --
+# the two tools that reconcile class extraction (tree_sitter_accuracy_audit.py,
+# tri_comparison_chart.py) each force css/html's class panels to N/A *for this very
+# decision*, so the one place the reversal would have shown up was already blind to it.
+# Both now import this set instead of keeping their own copy, and
+# `test_class_extraction_scope_decision_is_enforced` fails if a language is ever added
+# to the allowlist without removing it here.
+#
+# The numeric `class_start` SIGNAL is deliberately NOT affected: the decision says so in
+# as many words ("unaffected by this decision and stays exactly as-is for both
+# languages"). css still counts 1 class_start for `.rosetta-risk {`, and that count still
+# feeds the risk equations -- what it must not do is claim a selector is a named class.
+_CLASS_EXTRACTION_OUT_OF_SCOPE_LANGS = frozenset({"css", "html"})
+
 _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
     {
         # #1904: ABAP can't go through this epic's own documented
@@ -477,7 +506,6 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "cobol",
         "cpp",
         "csharp",
-        "css",
         "dart",
         "fortran",
         "go",
@@ -1293,7 +1321,14 @@ class StructuralExtractor:
             # stays on the legacy fallback until their own class_start is
             # hardened for this use (see the frozenset's comment).
             rules = self.languages.get(self.primary_lang_id, {}).get("rules", {})
-            if "class_start" in rules and rules["class_start"] is None:
+            if (
+                "class_start" in rules and rules["class_start"] is None
+            ) or self.primary_lang_id in _CLASS_EXTRACTION_OUT_OF_SCOPE_LANGS:
+                # No rule at all, or a rule whose matches are not named entities
+                # (#1295: css selectors, html tags -- see
+                # _CLASS_EXTRACTION_OUT_OF_SCOPE_LANGS). Both mean "nothing to put in
+                # class_data", and the second must skip the legacy fallback too rather
+                # than rely on it happening to miss.
                 class_matches = []
                 class_start_groups = 0
             else:

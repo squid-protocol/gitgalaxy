@@ -204,8 +204,11 @@ _GG_ONLY_LANGS = (
 
 # See module docstring's CSS/HTML CLASS PANELS section -- class_start there targets
 # selector/tag-shaped entities, not OOP classes; excluded from class reconciliation entirely
-# (epic #1295 precedent), not scored and hidden.
-_CLASS_SCOPE_EXCLUDED_LANGS = frozenset({"css", "html"})
+# (epic #1295 precedent), not scored and hidden. Imported from detector.py, which is where
+# the decision is enforced, rather than kept as a third hand-copy of the same two names.
+from gitgalaxy.core.detector import (  # noqa: E402
+    _CLASS_EXTRACTION_OUT_OF_SCOPE_LANGS as _CLASS_SCOPE_EXCLUDED_LANGS,
+)
 
 # ARGS GRANULARITY: "args" doesn't mean the same unit across every language, even when a real
 # comparison tool exists for existence. See .claude/skills/tri-comparison-ledger-sweep/SKILL.md's

@@ -331,6 +331,7 @@ import tree_sitter_language_pack
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from _crucible_pin import PINNED_TAG
 
+from gitgalaxy.core.detector import _CLASS_EXTRACTION_OUT_OF_SCOPE_LANGS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -2779,10 +2780,23 @@ _INFORMATIONAL_METRICS = ("args_comparable",)
 _ALL_BASELINE_KEYS = (*[k for k, _ in _GATED_METRICS], *_GROUND_TRUTH_METRICS, *_INFORMATIONAL_METRICS)
 
 
-def _regressions(current: dict, baseline: dict) -> list[str]:
+def _regressions(current: dict, baseline: dict, lang: str | None = None) -> list[str]:
+    """Gated-metric regressions, minus the class metrics for a language whose class
+    panels are already forced N/A above (#2798).
+
+    Those two sets disagreed until now: the summary table and the chart refused to
+    SHOW css/html class recall because #1295 ruled named extraction out of scope for
+    them, while this gate went on requiring `found_classes` never to fall -- so the
+    gate was still pulling toward an extraction the reports had already disowned. It
+    is also what made the correct fix un-blessable: removing css from the extraction
+    allowlist reads here as `found_classes: 227 -> 0`, a "regression" toward exactly
+    the number the decision asks for.
+    """
     regressions = []
     for key, direction in _GATED_METRICS:
         if key not in baseline:
+            continue
+        if lang in _CLASS_EXTRACTION_OUT_OF_SCOPE and key.endswith("_classes"):
             continue
         cur, base = current[key], baseline[key]
         worse = cur < base if direction == "higher_is_better" else cur > base
@@ -2840,7 +2854,7 @@ def run_full_report(lang: str) -> int:
         for line in drift:
             print(f"  {line}")
 
-    regressions = _regressions(current, baseline)
+    regressions = _regressions(current, baseline, lang)
     if regressions:
         print(f"\ntree_sitter_accuracy_audit: {len(regressions)} regression(s) against the baseline:")
         for line in regressions:
@@ -2867,7 +2881,7 @@ def run_ci_check(lang: str) -> int:
         print("This means the corpus changed. Investigate before regenerating.")
         return 1
 
-    regressions = _regressions(current, baseline)
+    regressions = _regressions(current, baseline, lang)
     if regressions:
         print(f"tree_sitter_accuracy_audit: {len(regressions)} regression(s) against the baseline:")
         for line in regressions:
@@ -2891,7 +2905,7 @@ def run_regenerate(lang: str) -> int:
     _print_report(current, baseline)
 
     if baseline:
-        regressions = _regressions(current, baseline)
+        regressions = _regressions(current, baseline, lang)
         if regressions:
             print(f"\ntree_sitter_accuracy_audit: refusing to regenerate -- {len(regressions)} regression(s) present:")
             for line in regressions:
@@ -2959,7 +2973,10 @@ def run_all(mode_fn) -> int:
 # missed everything" rather than "GitGalaxy never attempts this by design". func_recall/
 # func_precision are NOT touched by this set -- func_start extraction is in scope and
 # genuinely measured for both languages.
-_CLASS_EXTRACTION_OUT_OF_SCOPE = frozenset({"css", "html"})
+# Imported, not re-declared: detector.py is where the decision is now ENFORCED (a
+# hand-kept second copy here is what let #1824 add css to the extraction allowlist
+# while this tool went on reporting its class panels as N/A for the same decision).
+_CLASS_EXTRACTION_OUT_OF_SCOPE = _CLASS_EXTRACTION_OUT_OF_SCOPE_LANGS
 
 _TABLE_BEGIN = "<!-- TREE_SITTER_ACCURACY_TABLE:BEGIN -->"
 _TABLE_END = "<!-- TREE_SITTER_ACCURACY_TABLE:END -->"

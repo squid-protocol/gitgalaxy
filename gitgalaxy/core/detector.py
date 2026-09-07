@@ -792,6 +792,18 @@ _ASSEMBLY_DATA_DIRECTIVE_RE = re.compile(
 # physical line (never unbounded input), so this stays a fixed-cost check.
 _DOCKERFILE_HEREDOC_OPENER_RE = re.compile(r"<<-?[ \t]*(?:['\"]?)([A-Za-z_][A-Za-z0-9_]{0,60})(?:['\"]?)[ \t]*$")
 
+# #2863: matches a COBOL `ENTRY` statement at the start of a physical line,
+# tolerating the fixed-format sequence area (cols 1-6) and indicator column
+# (col 7) the same way cobol's own `func_start`/`class_start` patterns do.
+# A paragraph's alternate entry point is declared by an `ENTRY 'NAME' USING
+# ...` statement on the line(s) AFTER the paragraph label -- the label is
+# terminated by its own period, so the declaration is a separate statement --
+# and this is what lets _mode_a_args_window_end reach it without reaching
+# anything else. Deliberately anchored to the line's first token: a `CALL
+# ... USING` (an invocation, which passes arguments rather than declaring
+# them) can never match, which is the distinction the window exists to keep.
+_COBOL_ENTRY_STATEMENT_RE = re.compile(r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*ENTRY\b", re.IGNORECASE)
+
 
 def _resolve_class_start_match(match: re.Match, groups_count: int) -> tuple[Optional[int], str, list[str]]:
     """Given a `class_start` regex match and its pattern's total capture-group
@@ -3111,7 +3123,11 @@ class StructuralExtractor:
     # primary_lang_id. Deliberately NOT a generic "any trailing symbol"
     # rule -- cobol's fixed-format continuation is a column-7 indicator on
     # the CONTINUING line, not a trailing marker on the line before, so
-    # cobol legitimately gets no entry here and stays single-line-only.
+    # cobol legitimately gets no entry here. #2863: that is still correct,
+    # and it is also not the whole story -- a COBOL paragraph declares its
+    # parameters in a separate `ENTRY` statement on the following line, not
+    # in a continuation of the label line, so cobol is routed to
+    # `_cobol_args_window_end` before this map is consulted.
     # jcl's marker is a bare trailing comma: any `//` statement line ending in
     # `,` continues onto the next `//` line by real JCL syntax (no separate
     # indicator column the way cobol/fixed-format languages use) -- this
@@ -3135,7 +3151,11 @@ class StructuralExtractor:
         inside a still-open Dockerfile heredoc body (`<<EOF ... EOF`) --
         stopping at the first line that's neither, which is the real end of
         the label's own signature/statement. A language with no
-        continuation marker (cobol) never extends past its own first line.
+        continuation marker never extends past its own first line -- which
+        is why cobol no longer comes through here at all: its parameter
+        declaration is a separate `ENTRY` statement rather than a
+        continuation of the label line, so it needs a window rule of its own
+        (`_cobol_args_window_end`, #2863) rather than a marker entry.
         For fortran specifically, a blank line, a full `!...` comment line,
         or a C-preprocessor line (`#ifdef`/`#endif`/etc. -- real-world `.F`
         files like WRF's are cpp-preprocessed) carries no continuation
@@ -3155,6 +3175,8 @@ class StructuralExtractor:
         regex backtracking), so a generous cap costs nothing at the common
         (short) case and only matters for genuinely pathological input.
         """
+        if self.primary_lang_id == "cobol":
+            return self._cobol_args_window_end(code, start_idx, hard_limit_idx)
         marker = self._MODE_A_ARGS_CONTINUATION_MARKER.get(self.primary_lang_id)
         is_fortran = self.primary_lang_id == "fortran"
         pos = start_idx
@@ -3199,6 +3221,73 @@ class StructuralExtractor:
                 continue
             return min(line_end + 1, hard_limit_idx)
         return min(pos, hard_limit_idx)
+
+    # #2863: how many physical lines of leading `ENTRY` statements one COBOL
+    # paragraph may declare before the scan gives up. A paragraph declares one
+    # alternate entry point in practice and a handful at the very most; this is
+    # only here so a pathological file cannot turn a per-label check into a
+    # whole-file walk.
+    _COBOL_ENTRY_SCAN_LINES: ClassVar[int] = 24
+
+    def _cobol_args_window_end(self, code: str, start_idx: int, hard_limit_idx: int) -> int:
+        """Bound a COBOL paragraph's args-search window to the label line PLUS
+        any `ENTRY` statements that immediately follow it (#2863).
+
+        COBOL is the one Mode A language whose parameter declaration cannot sit
+        on the label's own line. A paragraph name is terminated by its own
+        period, so the `ENTRY 'PARA-NAME' USING <linkage-item>` that declares
+        the paragraph's alternate entry point is necessarily a SEPARATE
+        statement on the next line. The generic
+        `_mode_a_args_window_end` walk extends only across a language's
+        line-continuation marker, and cobol correctly has none (its
+        fixed-format continuation is a column-7 indicator on the CONTINUING
+        line, not a trailing marker on the line before), so the window was
+        exactly the label line and the declaration always fell one line
+        outside it -- `hit_vector['args']` counted the clause while the
+        function's own `args` read 0, in the same record.
+
+        Only leading `ENTRY` lines extend the window, and that narrowness is
+        the whole point rather than caution. Measured over the real-world
+        crucible COBOL corpus (570 files, 10155 paragraphs), 158 paragraphs
+        have a `USING`/`RETURNING` somewhere inside their greedy Mode A block
+        and NONE of them is a parameter declaration: 123 are `CALL ... USING`
+        (an invocation -- it passes arguments to a subprogram rather than
+        declaring the paragraph's own), 26 are the program-level `PROCEDURE
+        DIVISION USING` swallowed by a preceding label's greedy block, 3 are
+        `XML PARSE ... RETURNING`, and the rest are `CALL` continuation lines
+        and a `MOVE "USING OPERANDS"` string literal. Widening this window to
+        the block -- the unbounded behaviour #1973/#2483 removed -- would
+        therefore manufacture 158 wrong per-paragraph parameter counts to fix
+        nothing, which is exactly why the bound exists and why `CALL` cannot
+        match `_COBOL_ENTRY_STATEMENT_RE`.
+
+        Blank lines are transparent, for a concrete reason rather than for
+        symmetry with the fortran branch above: `prism` blanks comment lines
+        in place to preserve line numbering, so a banner comment between a
+        paragraph label and its `ENTRY` -- ordinary COBOL house style --
+        reaches this scan as an empty line. Stopping on it would make the fix
+        depend on whether the author commented the paragraph.
+        """
+        window_end = code.find("\n", start_idx)
+        if window_end == -1 or window_end >= hard_limit_idx:
+            return hard_limit_idx
+        window_end += 1
+        scan = window_end
+        for _ in range(self._COBOL_ENTRY_SCAN_LINES):
+            if scan >= hard_limit_idx:
+                break
+            line_end = code.find("\n", scan)
+            if line_end == -1 or line_end >= hard_limit_idx:
+                break
+            line = code[scan:line_end]
+            if not line.strip():
+                scan = line_end + 1
+                continue
+            if _COBOL_ENTRY_STATEMENT_RE.match(line):
+                scan = window_end = line_end + 1
+                continue
+            break
+        return min(window_end, hard_limit_idx)
 
     def _slice_by_labels(
         self,

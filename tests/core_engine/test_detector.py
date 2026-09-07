@@ -4617,3 +4617,98 @@ def test_synthesizes_all_function_names_is_the_reportable_form_of_the_same_rule(
 
     # markdown qualifies on rule absence; sqlite must qualify on slicing mode.
     assert StructuralExtractor("sqlite", LANGUAGE_DEFINITIONS)._slices_by_terminator
+
+
+def test_cobol_paragraph_entry_using_is_inside_the_args_window_2863():
+    """
+    #2863: a COBOL paragraph declares its parameters in an `ENTRY 'NAME'
+    USING <item>` statement on the line AFTER the label -- a paragraph name is
+    terminated by its own period, so the declaration is necessarily a separate
+    statement. `_mode_a_args_window_end` extends only across a language's
+    line-continuation marker and cobol correctly has none (its fixed-format
+    continuation is a column-7 indicator on the CONTINUING line), so the
+    window used to be exactly the label line and the declaration always fell
+    one line outside it. The symptom was a single function record disagreeing
+    with itself: `hit_vector["args"] == 1` (the block's own rule tally, which
+    sees the clause) while `args == 0` (the bounded per-function count, which
+    `avg_func_args` averages).
+
+    `_cobol_args_window_end` now extends the window across leading `ENTRY`
+    statements only. This test pins both halves of that -- what must now be
+    reached, and what must still be out of reach:
+
+    - `PROBE-GLOBALS` declares one operand and must measure 1.
+    - `PROBE-MULTI` declares three (`USING A, B, C`) and must measure 3, which
+      is also what proves #2830's `_count_cobol_using_operands` reaches the
+      per-function path and not just the file-level count.
+    - `PROBE-COMMENTED` has a banner comment between its label and its `ENTRY`.
+      `prism` blanks comment lines in place to preserve line numbering, so that
+      reaches the window scan as an empty line; blank lines must be transparent
+      or the measurement would depend on whether the author commented the
+      paragraph.
+    - `PROBE-CALLER` must stay at 0. `CALL ... USING` is an INVOCATION -- it
+      passes arguments to a subprogram rather than declaring the paragraph's
+      own -- and is by far the dominant shape in real COBOL: over the
+      language-crucible corpus (570 files, 10155 paragraphs) 123 of the 158
+      unattributed `USING`/`RETURNING` clauses are `CALL`, and none of the 158
+      is a parameter declaration. Widening this window to the block would
+      manufacture wrong per-paragraph counts, which is exactly what the bound
+      added by #1973/#2483 exists to prevent.
+    - `PROBE-LATE` must stay at 0: only LEADING `ENTRY` statements extend the
+      window, so an `ENTRY` that appears after an ordinary statement is not
+      swept in.
+    """
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    from gitgalaxy.core.prism import Prism
+
+    source = (
+        "       PROBE-GLOBALS.\n"
+        "           ENTRY 'PROBE-GLOBALS' USING ARGV-BLOCK.\n"
+        "           DISPLAY REGION-ITEM.\n"
+        "       PROBE-MULTI.\n"
+        "           ENTRY 'PROBE-MULTI' USING WS-A, WS-B, WS-C.\n"
+        "           DISPLAY REGION-ITEM.\n"
+        "       PROBE-COMMENTED.\n"
+        "      * banner comment between the label and its ENTRY\n"
+        "           ENTRY 'PROBE-COMMENTED' USING ARGV-BLOCK.\n"
+        "           DISPLAY REGION-ITEM.\n"
+        "       PROBE-CALLER.\n"
+        "           CALL 'CSUTLDTC' USING WS-A, WS-B, WS-C.\n"
+        "           DISPLAY REGION-ITEM.\n"
+        "       PROBE-LATE.\n"
+        "           DISPLAY REGION-ITEM.\n"
+        "           ENTRY 'PROBE-LATE' USING ARGV-BLOCK.\n"
+    )
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = prism.split_streams(source, "cobol")["code_stream"]
+    result = StructuralExtractor("cobol", LANGUAGE_DEFINITIONS).splice(code, "")
+
+    found = {fn["name"]: fn for fn in result.get("functions", [])}
+    for name in ("PROBE-GLOBALS", "PROBE-MULTI", "PROBE-COMMENTED", "PROBE-CALLER", "PROBE-LATE"):
+        assert name in found, f"{name} should be extracted as a paragraph, got {sorted(found)}"
+
+    assert found["PROBE-GLOBALS"]["args"] == 1, (
+        "a paragraph's own ENTRY ... USING must be inside its args window, "
+        f"got {found['PROBE-GLOBALS']['args']}"
+    )
+    assert found["PROBE-MULTI"]["args"] == 3, (
+        "#2830's operand counting must reach the per-function path, "
+        f"got {found['PROBE-MULTI']['args']}"
+    )
+    assert found["PROBE-COMMENTED"]["args"] == 1, (
+        "a blanked comment line between the label and its ENTRY must be transparent, "
+        f"got {found['PROBE-COMMENTED']['args']}"
+    )
+    assert found["PROBE-CALLER"]["args"] == 0, (
+        "CALL ... USING is an invocation, not a declaration, and must never be "
+        f"counted as the paragraph's own parameters, got {found['PROBE-CALLER']['args']}"
+    )
+    assert found["PROBE-LATE"]["args"] == 0, (
+        "only LEADING ENTRY statements extend the window, "
+        f"got {found['PROBE-LATE']['args']}"
+    )
+
+    # The defect's signature: the block's rule tally saw the clause all along.
+    # PROBE-CALLER keeps that disagreement, and it is correct for it to.
+    assert found["PROBE-CALLER"]["hit_vector"].get("args", 0) == 1

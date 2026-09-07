@@ -2,7 +2,6 @@
  "_doc": "Baseline for tests/signal_contract_audit.py --ci. Each entry is kind:signal. Shrink it deliberately (a draft becoming stated) with --regenerate-baseline in the PR that lands the contract; never regenerate to hide a new finding.",
  "findings": [
   "draft:bitwise_ops",
-  "draft:class_start",
   "draft:cleanup",
   "draft:closures",
   "draft:comprehensions",
@@ -19,7 +18,6 @@
   "draft:exfiltration_camouflage",
   "draft:explicit_casts",
   "draft:fragile_debt",
-  "draft:func_start",
   "draft:generics",
   "draft:globals",
   "draft:hardcoded_secrets",
@@ -62,6 +60,7 @@
   "draft:thread_sleeps",
   "draft:time_date_logic",
   "draft:ui_framework",
-  "draft:vectorized_math"
+  "draft:vectorized_math",
+  "schema-drift:func_start"
  ]
 }

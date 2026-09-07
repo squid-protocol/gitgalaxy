@@ -151,7 +151,13 @@ DEFINITION: dict[str, Any] = {
         # 17. closures: Closures / Anonymous Functions. Anonymous function depth.
         "closures": re.compile(r"(?:^|[(=,\s])function\s*\([^)]*\)", re.M),
         # 18. globals: Global / Shared State. Access to global registries.
-        "globals": re.compile(r"\b(_G|_ENV|_VERSION|arg)\b|^[ \t]*[A-Z][A-Z0-9_]*[ \t]*=(?![=])", re.M),
+        "globals": re.compile(
+            # #2858 contract corollary 3: `arg` is the script's global argument
+            # table only when it is not being declared as a local (`local arg =
+            # {...}`), assigned, or read as a field (`t.arg`).
+            r"\b(?:_G|_ENV|_VERSION)\b|(?<!local )(?<![\w.:])arg\b(?![ \t]*=(?![=]))|^[ \t]*[A-Z][A-Z0-9_]*[ \t]*=(?![=])",
+            re.M,
+        ),
         # 19. decorators: Decorators / Annotations. EmmyLua annotations.
         "decorators": re.compile(r"^[ \t]*---@[a-zA-Z_]\w*", re.M),
         # 20. generics: Generics / Type Parameters. EmmyLua generic type annotations.

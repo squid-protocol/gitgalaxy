@@ -317,7 +317,9 @@ DEFINITION: dict[str, Any] = {
         # both `=` and intervening lines (e.g. a `{-# NOINLINE #-}`
         # pragma between the signature and the binding).
         "globals": re.compile(
-            r"^[ \t]*[a-z_][a-zA-Z0-9_\']*\s*::\s*(?:IORef|TVar|MVar)[\s\S]{0,200}?unsafePerformIO",
+            r"^[ \t]*[a-z_][a-zA-Z0-9_\']*\s*::\s*(?:IORef|TVar|MVar)[\s\S]{0,200}?unsafePerformIO"
+            # #2858 contract corollary 2: the ambient reads (System.Environment).
+            r"|\b(?:getEnv|lookupEnv|getEnvironment|setEnv|getArgs|getProgName)\b",
             re.M,
         ),
         # decorators: Decorators / Annotations. GHC pragmas (INLINE, LANGUAGE).

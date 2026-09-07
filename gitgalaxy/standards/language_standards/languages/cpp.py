@@ -352,7 +352,14 @@ DEFINITION: dict[str, Any] = {
         ),
         # 18. globals (Global / Shared State)
         "globals": re.compile(
-            r"\b(extern|static(?!\s*assert)|thread_local|inline\s+constexpr)\b|^[ \t]*(?:static|extern)\s+[\w:<>_]+\s+[a-zA-Z_]\w*[ \t]*=",
+            # #2858 contract: `static`/`extern`/`thread_local` on a DATA declaration
+            # is a binding with program lifetime (file scope, class-static or a
+            # function-static); on a procedure it declares linkage, not state
+            # (corollary 4: `static void f();`, `extern "C" {`). The lookahead stops
+            # at `=`, so `static T x = f();` still counts; `static thread_local` is
+            # one declaration, one hit.
+            r"\b(?:(?:extern|static)(?![ \t]*(?:assert\b|\"))(?:[ \t]+thread_local)?|thread_local)\b(?![^;=\n({]{0,200}\()"
+            r"|(?<!static )\binline[ \t]+constexpr\b",
             re.M,
         ),
         # 19. decorators (Decorators / Annotations)

@@ -224,7 +224,13 @@ DEFINITION: dict[str, Any] = {
         "closures": None,  # Shell lacks native anonymous lambdas.
         # 18. globals (Global / Shared State)
         "globals": re.compile(
-            r"\b(PATH|HOME|USER|SHELL|EDITOR|PWD|OLDPWD|TERM|LANG|OSTYPE|MACHTYPE|UID|EUID|GROUPS)\b"
+            # #2858 contract corollary 3: an environment variable is global state
+            # in its variable form -- a read `$NAME` / `${NAME` or a top-level
+            # assignment `NAME=` / `export NAME=` -- never as a bare word: `TERM`
+            # in `trap : TERM` is a signal name, `PATH` in a log string is prose.
+            r"\$\{?(?:PATH|HOME|USER|SHELL|EDITOR|PWD|OLDPWD|TERM|LANG|OSTYPE|MACHTYPE|UID|EUID|GROUPS)\b"
+            r"|^[ \t]*(?:export[ \t]+)?(?:PATH|HOME|USER|SHELL|EDITOR|PWD|OLDPWD|TERM|LANG|OSTYPE|MACHTYPE|UID|EUID|GROUPS)=",
+            re.M,
         ),
         # 19. decorators
         "decorators": None,

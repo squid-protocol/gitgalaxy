@@ -19,7 +19,6 @@
   "draft:explicit_casts",
   "draft:fragile_debt",
   "draft:generics",
-  "draft:globals",
   "draft:hardcoded_secrets",
   "draft:hardware_bridge",
   "draft:high_risk_execution",

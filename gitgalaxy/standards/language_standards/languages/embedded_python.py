@@ -143,7 +143,12 @@ DEFINITION: dict[str, Any] = {
         # 17. closures (Closures / Anonymous Functions)
         "closures": re.compile(r"\blambda\b"),
         # 18. globals (Global / Shared State)
-        "globals": re.compile(r"\bglobal\b|\bglobals\(\)|\blocals\(\)|\b(sys\.path|sys\.modules|os\.environ)\b"),
+        "globals": re.compile(
+            # #2858 contract: the twin of python's rule -- `global x` anchored to the
+            # statement, `locals()` out (corollary 5), `sys.argv` in.
+            r"^[ \t]*global[ \t]+[A-Za-z_]|\bglobals\(\)|\b(?:sys\.path|sys\.modules|sys\.argv|os\.environ)\b",
+            re.M,
+        ),
         # 19. decorators (Decorators / Annotations)
         # Generic decorators. (Specific ASM/Viper optimizations moved to heat_triggers/inline_asm).
         "decorators": re.compile(

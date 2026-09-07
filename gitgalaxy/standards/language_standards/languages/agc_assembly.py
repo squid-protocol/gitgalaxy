@@ -180,7 +180,10 @@ DEFINITION: dict[str, Any] = {
         # 18. globals (Global / Shared State)
         # Memory division markers.
         "globals": re.compile(
-            r"\b(ERASABLE\s+MEMORY|FIXED\s+MEMORY|WORKING-STORAGE|COMMON|FLAGWRD\d+|BIT\d+)\b",
+            # #2858 contract corollary 2: `CAF BIT14` references a fixed constant
+            # (the bit-mask table), not shared erasable; a flagword is the shared
+            # state every program section reads and writes.
+            r"\b(ERASABLE\s+MEMORY|FIXED\s+MEMORY|WORKING-STORAGE|COMMON|FLAGWRD\d+)\b",
             re.I,
         ),
         # 19. decorators

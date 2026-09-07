@@ -227,7 +227,11 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX (#2660): Anchored to true column-0 (no indentation) to prevent
         # function-local var declarations from being incorrectly counted as globals.
         "globals": re.compile(
-            r"^(?![ \t])var\s+[a-zA-Z_]\w*\s*(?:[a-zA-Z_]\w*\s*)?=|os\.Getenv|os\.Environ",
+            # #2858 contract corollary 1: a package-level `var`/`const` (column 0,
+            # the #2651 anchor) is a program-lifetime binding with or without an
+            # initializer (`var mu sync.Mutex`); a `var (` / `const (` group is a
+            # scope question (#2859).
+            r"^(?![ \t])(?:var|const)[ \t]+[a-zA-Z_]\w*\b|\bos\.(?:Getenv|Environ|LookupEnv|Setenv|Unsetenv|Args|Getwd)\b",
             re.M,
         ),
         # 19. decorators (Decorators / Annotations)

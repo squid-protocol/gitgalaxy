@@ -376,7 +376,9 @@ DEFINITION: dict[str, Any] = {
         # spaced form (`MAX_VALUE = 100;`) that's the dominant real C#
         # style.
         "globals": re.compile(
-            r"\b(?:ConfigurationManager|AsyncLocal)\b|\bEnvironment\.|"
+            # #2858 contract corollary 5: `Environment.Exit` / `.FailFast` end the
+            # process -- high_risk_execution's hit, not an access to the environment.
+            r"\b(?:ConfigurationManager|AsyncLocal)\b|\bEnvironment\.(?!(?:Exit|FailFast)\b)|"
             r"\bpublic\s+static\s+(?:readonly[ \t]+)?[\w<>]+\s+[A-Z_0-9]+[ \t]*=|\[ThreadStatic\]"
         ),
         # 19. decorators (Decorators / Annotations)

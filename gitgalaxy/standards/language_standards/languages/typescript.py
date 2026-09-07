@@ -61,9 +61,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # EXCLUDES: Exceptions (throw). Includes control flow and logical short-circuits.
-        "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|catch|finally|continue|break|try)\b|&&|\|\||\?|\?\?"
-        ),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do|continue|break)\b|&&|\|\||\?|\?\?"),
         # 2. args (Parameters / Coupling)
         # CRITICAL FIX: Added negative lookahead for control flow, and `[^=;{]*` to support TypeScript return types.
         # QUADRATIC BLOWUP FIX: the bare-identifier-before-arrow branch's
@@ -133,7 +131,7 @@ DEFINITION: dict[str, Any] = {
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: Access modifiers (public/private) and Immutability (const).
         "structural_boundaries": re.compile(
-            r"\b(var|return|class|interface|type|enum|import|export|await|satisfies|using|namespace|module|implements|extends|declare)\b|=>"
+            r"\b(var|return|class|interface|type|enum|import|export|await|satisfies|using|namespace|module|implements|extends|declare|unknown|never|void)\b|=>"
         ),
         # 4. func_start (Executable Logic Anchors)
         # Captures standard functions, assignments, object properties, and class methods.
@@ -513,7 +511,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety (Defensive Programming / Validation)
         "safety": re.compile(
-            r"\b(try|catch|finally|satisfies|unknown|never|void|Object\.freeze|z\.(?:string|object|parse)|v\.(?:string|parse))\b|\?\?|\?\.|\b(?:is|asserts)\s+\w+\b"
+            r"\b(try|catch|finally|satisfies|Object\.freeze|z\.(?:string|object|parse)|v\.(?:string|parse))\b|\?\?|\?\.|\b(?:is|asserts)\s+\w+\b"
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Force unwrapping, any, and linter bypasses.

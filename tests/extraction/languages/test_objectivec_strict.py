@@ -90,11 +90,11 @@ _OBJC_SIMPLE_CASES = [
     ("bitwise_ops", "NSUInteger mask = flags & 0x0F;", "if (a && b) {"),
     ("import", "#import <Foundation/Foundation.h>", "// #import <Foundation/Foundation.h>"),
     # --- Deep Adversarial Cases ---
-    ("branch", "@try\n{", "@trycatch"),
+    ("branch", "do {\n} while (x);", "@try\n{"),  # 2822 corollary 1
     ("branch", "else if (x) {", "something_else"),
     ("branch", "int x = a ? b : c;", 'NSString *url = @"https://try.example.com";'),
-    ("branch", "@finally {", "@finallysomething"),
-    ("branch", "    goto label;", "gotofail"),
+    ("branch", "case 2:", "@finally {"),  # 2822 corollary 1
+    ("branch", "default:", "    goto label;"),  # 2822 corollary 3
     # #2773: a selector span only counts under a `-`/`+` method-declaration
     # lead -- on its own it is a message send, not a parameter surface.
     ("args", "- (void): (NSString *)name", "if (a) {"),
@@ -219,7 +219,8 @@ def test_objectivec_at_prefixed_directives_regression():
     always written. None of these ever actually matched real code.
     """
     r = OBJC_RULES
-    assert r["branch"].search("@try { f(); }")
+    # @try left branch in #2822 (corollary 1); safety below still owns it
+    assert not r["branch"].search("@try { f(); }")
     assert r["safety"].search("@catch (NSException *e) {}")
     assert r["structural_boundaries"].search("@interface Foo : NSObject")
     assert r["structural_boundaries"].search("@end")
@@ -276,8 +277,10 @@ def test_objectivec_return_not_counted_as_branch_regression():
     assert branch.search("if (x) return 1;"), "the real if must still count as branch"
     assert len(branch.findall("if (x) return 1;")) == 1, "only the if should match, not the return"
     assert structural.search("return x;"), "return must now be tracked via structural_boundaries"
-    # goto stays -- C's own branch rule also counts it, unaffected by this change.
-    assert branch.search("goto done;"), "goto must remain counted as branch (unaffected by #2545)"
+    # 2822 corollary 3: goto is an unconditional transfer, moved to
+    # structural_boundaries exactly like return was.
+    assert not branch.search("goto fail;")
+    assert structural.search("goto fail;")
 
 
 def test_objectivec_structural_boundaries_redos_immune_after_return_addition():
@@ -341,13 +344,13 @@ def test_objectivec_api_contract_2730():
     api = OBJC_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('- (void) linkTo:(Anchor *)destination;'), '@interface method declaration'
-    assert api.search('+ (BOOL) follow;'), 'class method declaration'
-    assert api.search('extern int HTAccMgr;'), 'extern declaration (kept)'
+    assert api.search("- (void) linkTo:(Anchor *)destination;"), "@interface method declaration"
+    assert api.search("+ (BOOL) follow;"), "class method declaration"
+    assert api.search("extern int HTAccMgr;"), "extern declaration (kept)"
 
     # Not declarations -- must not match.
-    assert not api.search('+ ((slotNumber/10)%3)* 40;'), 'wrapped arithmetic continuation'
-    assert not api.search('- (void) doWork {'), '@implementation method body'
+    assert not api.search("+ ((slotNumber/10)%3)* 40;"), "wrapped arithmetic continuation"
+    assert not api.search("- (void) doWork {"), "@implementation method body"
 
     # ReDoS detonation on an unclosed method type cast.
     assert_redos_immune(api, "- (" + "a " * 40000, timeout_sec=3.0)

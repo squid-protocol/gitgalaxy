@@ -49,7 +49,7 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Control flow executing inside RUN shell blocks. High density indicates complex embedded shell scripts.
         "branch": re.compile(
-            r"\b(?:if|elif|else|fi|case|esac|for|while|do|done|until)\b|&&|\|\|",
+            r"\b(?:if|elif|else|case|for|while|until)\b|&&|\|\|",
             re.I,
         ),
         # 2. args (Parameters / Coupling)
@@ -58,7 +58,9 @@ DEFINITION: dict[str, Any] = {
         # 3. linear (Sequential Boundaries)
         # Structural boundaries defining straight-line execution and environment contexts.
         # CRITICAL GUARDRAIL: EXCLUDES `FROM` and `RUN`/`CMD` to maintain geometric stability.
-        "structural_boundaries": re.compile(r"^[ \t]*(?:WORKDIR|USER|VOLUME|STOPSIGNAL|SHELL|LABEL)\b", re.M | re.I),
+        "structural_boundaries": re.compile(
+            r"^[ \t]*(?:WORKDIR|USER|VOLUME|STOPSIGNAL|SHELL|LABEL)\b|\b(?:fi|esac|done|do)\b", re.M | re.I
+        ),
         # 4. func_start (Executable Logic Anchors)
         # CRITICAL GUARDRAIL: Anchors logic blocks. ONLY executable logic blocks.
         # In Docker, `RUN`, `CMD`, and `ENTRYPOINT` execute logic, generating discrete intermediate image layers.

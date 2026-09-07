@@ -44,7 +44,7 @@ DEFINITION: dict[str, Any] = {
         # --------------------------------------------------------------------------
         # Captures Make conditionals and typical inline shell conditional branches.
         "branch": re.compile(
-            r"^[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else|endif)\b(?![ \t]*:)|(?:^[ \t]*(?:@|-|\+)*[ \t]*|[;|&(][ \t]*)\b(?:if|elif|for|while|case)\b|&&|\|\|",
+            r"^[ \t]*(?:ifeq|ifneq|ifdef|ifndef|else)\b(?![ \t]*:)|(?:^[ \t]{0,64}(?:@|-|\+){0,8}[ \t]{0,64}|[;|&(][ \t]*)\b(?:if|elif|for|while|case)\b|&&|\|\|",
             re.M,
         ),
         # Make dynamically accesses arguments within $(call macro, args...) or positional $1, $2 inside recipes.
@@ -63,7 +63,7 @@ DEFINITION: dict[str, Any] = {
         # Smooth structural boundaries: variable assignments (:=, =, ?=) and native structural controls like vpath.
         # Explicitly excludes the append operator `+=` which belongs in flux.
         "structural_boundaries": re.compile(
-            r"^[ \t]*(?:[a-zA-Z0-9_.-]|\+(?!=))+[ \t]*(?::|\?|::)?=(?![ \t]*=)|^[ \t]*(?:vpath|undefine)\b",
+            r"^[ \t]*(?:[a-zA-Z0-9_.-]|\+(?!=))+[ \t]*(?::|\?|::)?=(?![ \t]*=)|^[ \t]*(?:vpath|undefine|endif)\b",
             re.M,
         ),
         # 4. func_start (Executable Logic Anchors)

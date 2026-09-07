@@ -38,7 +38,7 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes standard loops and Lua 5.2+ goto.
-        "branch": re.compile(r"\b(if|then|elseif|else|for|in|while|do|repeat|until|break|continue|goto|and|or|not)\b"),
+        "branch": re.compile(r"\b(if|elseif|else|for|while|repeat|break|continue|and|or|not)\b"),
         # 2. args: Parameters / Coupling. Captures parameters in named and anonymous function signatures.
         # #1209: parameter-list span wrapped in its own capture group (was
         # only reachable via group(0), the whole match including the
@@ -52,7 +52,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining scope and data definitions.
         "structural_boundaries": re.compile(
-            r"\b(local|end|require|module|return|export\s+type|type)\b|<\s*(?:const|close|toclose)\s*>"
+            r"\b(local|end|require|module|return|export\s+type|type|then|in|do|until|goto)\b|<\s*(?:const|close|toclose)\s*>"
         ),
         # 4. func_start: Executable Logic Anchors. Anchors executable logic blocks (named functions).
         "func_start": re.compile(

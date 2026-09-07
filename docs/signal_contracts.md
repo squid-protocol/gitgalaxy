@@ -60,12 +60,12 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-3 stated, 65 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+4 stated, 64 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
 | `args` | structure | `declaration` | stated | yes | The parameters a callable declares | [args_rule_contract.md](../docs/args_rule_contract.md) #2773 |
-| `branch` | structure | `site` | draft | yes | Control flow that forces the CPU to make a decision or jump |  |
+| `branch` | structure | `site` | stated | yes | A keyword or operator that opens a runtime choice between control-flow paths: the choosing construct or one of its alternative arms | [branch_rule_contract.md](../docs/branch_rule_contract.md) #2822 |
 | `class_start` | structure | `declaration` | draft | yes | The syntax that defines an object-oriented class, struct, or record |  |
 | `func_start` | structure | `declaration` | draft | yes | Exact syntax anchoring the start of an executable block of logic |  |
 | `structural_boundaries` | structure | `tally` | draft |  | Keywords defining structural boundaries and straight-line execution |  |

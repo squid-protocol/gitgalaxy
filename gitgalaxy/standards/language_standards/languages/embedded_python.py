@@ -41,7 +41,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. EXCLUDES raise (bailout_hits).
-        "branch": re.compile(r"\b(if|elif|else|for|while|with|try|finally|match|case|and|or)\b"),
+        "branch": re.compile(r"\b(if|elif|else|for|while|with|match|case|and|or)\b"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks of functions/lambdas. Bounded negation to prevent ReDoS.
         # #1199: the parameter list is now captured in its own group

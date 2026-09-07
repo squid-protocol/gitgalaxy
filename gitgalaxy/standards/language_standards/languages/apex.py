@@ -43,7 +43,7 @@ DEFINITION: dict[str, Any] = {
         # count it either). Already tracked under `structural_boundaries` below, so this is
         # a pure de-duplication. Corpus impact: apex branch 19 (planted 3, +280%) -> exact.
         "branch": re.compile(
-            r"\b(if|else|switch\s+on|when|for|while|do|try|catch|finally|break|continue)\b|&&|\|\||\?|\?\?",
+            r"\b(if|else|switch\s+on|when|for|while|do|break|continue)\b|&&|\|\||\?|\?\?",
             re.I,
         ),
         # 2. args: Parameters / Coupling. Captures method parameters and trigger event signatures.

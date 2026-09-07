@@ -220,8 +220,8 @@ _CSHARP_SIMPLE_CASES = _CSHARP_SIMPLE_CASES[:-1] + [
     ("branch", "x is not null", "not_a_branch"),
     ("branch", "yield\nreturn 1;", "yields"),
     ("branch", "if(true)", "iffy"),
-    ("branch", "catch   (Exception)", "catcher"),
-    ("branch", "goto MyLabel;", "gotcha"),
+    ("branch", "foreach (var x in xs) {", "catch   (Exception)"),  # 2822 corollary 1
+    ("branch", "yield return x;", "goto MyLabel;"),  # 2822 corollary 3
     ("branch", "switch\n(", "switcher"),
     ("branch", "x ? y : z", "public int? Foo"),
     # args:
@@ -696,14 +696,14 @@ def test_csharp_api_contract_2730():
     api = CSHARP_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('public static SyntaxTree ParseText('), 'public static method'
-    assert api.search('public sealed partial class CSharpCompilation : Compilation'), 'public class'
-    assert api.search('internal (bool ok, int n)? TryGet(SimpleNameSyntax x)'), 'tuple return type'
-    assert api.search('internal TNode ParseWithStackGuard<TNode>(Func<int> f)'), 'generic method name'
+    assert api.search("public static SyntaxTree ParseText("), "public static method"
+    assert api.search("public sealed partial class CSharpCompilation : Compilation"), "public class"
+    assert api.search("internal (bool ok, int n)? TryGet(SimpleNameSyntax x)"), "tuple return type"
+    assert api.search("internal TNode ParseWithStackGuard<TNode>(Func<int> f)"), "generic method name"
 
     # Not declarations -- must not match.
-    assert not api.search('case "public":'), 'keyword in a switch case'
-    assert not api.search('return "public";'), 'keyword in a string literal'
+    assert not api.search('case "public":'), "keyword in a switch case"
+    assert not api.search('return "public";'), "keyword in a string literal"
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)

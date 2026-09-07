@@ -82,7 +82,7 @@ _LUA_SIMPLE_CASES = [
 
 _LUA_DEEP_CASES = [
     # --- branch ---
-    ("branch", "goto skip_label", "my_goto = 1"),
+    ("branch", "repeat", "goto skip_label"),  # 2822 corollary 3: goto moved to boundaries
     ("branch", "continue", "local continue_flag = true"),
     ("branch", "elseif\n  condition\nthen", "local if_true = 1"),
     ("branch", "for i, v in ipairs(t) do", "local format = 1"),
@@ -278,8 +278,8 @@ def test_lua_api_contract_2730():
     api = LUA_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('function Writer(doc, opts)'), 'named global function'
+    assert api.search("function Writer(doc, opts)"), "named global function"
 
     # Not declarations -- must not match.
-    assert not api.search('function ()'), 'anonymous function'
-    assert not api.search('local function helper()'), 'local function'
+    assert not api.search("function ()"), "anonymous function"
+    assert not api.search("local function helper()"), "local function"

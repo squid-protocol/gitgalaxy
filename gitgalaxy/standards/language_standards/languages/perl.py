@@ -51,7 +51,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: Decisions that split the flow. Includes modern try/catch/finally and defer.
         "branch": re.compile(
-            r"\b(if|unless|elsif|else|while|until|for|foreach|given|when|next|last|redo|try|catch|finally|defer|goto|continue|default)\b|&&|\|\||//|\?|(?<!:):(?!:)"
+            r"\b(if|unless|elsif|else|while|until|for|foreach|given|when|next|last|redo|continue|default)\b|&&|\|\||//|\?|(?<!:):(?!:)"
         ),
         # 2. args: Parameters / Coupling. Captures modern signatures, traditional @_ unpacking, and shift.
         # #1209: parameter-list span wrapped in its own capture group in
@@ -118,7 +118,7 @@ DEFINITION: dict[str, Any] = {
         "_args_prototype_groups": {2},
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and immutability.
         "structural_boundaries": re.compile(
-            r"\b(my|our|state|local|field|class|role|package|sub|method|return|yield|use|require|undef|do|true|false|await)\b"
+            r"\b(my|our|state|local|field|class|role|package|sub|method|return|yield|use|require|undef|do|true|false|await|goto)\b"
         ),
         # 4. func_start (Executable Logic Anchors)
         # Anchors executable logic blocks. MUST HAVE EXACTLY ONE CAPTURE GROUP for the name.

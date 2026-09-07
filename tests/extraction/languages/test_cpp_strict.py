@@ -587,7 +587,6 @@ def test_cpp_branch_deep_cases():
     assert p.search("co_await my_task();")
     assert p.search("if constexpr (sizeof(T) > 4)")
     assert p.search("for (auto&& x : v)")
-    assert p.search("catch (...) {")
     assert p.search("x && y")
     assert p.search("a ? b : c")
     assert p.search("while(true)")
@@ -599,6 +598,8 @@ def test_cpp_branch_deep_cases():
     assert not p.search("a & b")
     assert not p.search("a | b")
     assert not p.search("catch_error()")
+    assert not p.search("catch (...) {")  # 2822 corollary 1: handlers are safety's
+    assert not p.search("goto retry;")  # 2822 corollary 3: unconditional transfer
     assert not p.search("default_value = 1")
 
 

@@ -64,7 +64,7 @@ _ABAP_SIMPLE_CASES = [
     ("branch", "LOOP AT itab ASSIGNING <fs>.", "DATA if_var TYPE i."),
     ("branch", "COND i( WHEN a = b THEN c )", "IF_VAR = 1."),
     ("branch", "SWITCH #( foo WHEN 1 THEN 2 )", "DATA lv_x TYPE i."),
-    ("branch", "CATCH cx_root INTO DATA(lx_root).", "DATA lv_x TYPE i."),
+    ("branch", "CASE lv_x.", "CATCH cx_root INTO DATA(lx_root)."),  # 2822 corollary 1
     ("branch", "CHECK lv_foo IS NOT INITIAL.", "DATA lv_x TYPE i."),
     ("args", "IMPORTING iv_x TYPE i", "DATA lv_x TYPE i."),
     ("args", "IMPORTING  VALUE(  foo_bar  )  TYPE i", "DATA importing_var TYPE i."),
@@ -426,9 +426,9 @@ def test_abap_api_contract_2730():
     api = ABAP_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('FORM probe_globals CHANGING cv_env.'), 'FORM subroutine (public by default)'
-    assert api.search('FUNCTION z_get_flight.'), 'function module'
-    assert api.search('PUBLIC SECTION.'), 'class public section (kept)'
+    assert api.search("FORM probe_globals CHANGING cv_env."), "FORM subroutine (public by default)"
+    assert api.search("FUNCTION z_get_flight."), "function module"
+    assert api.search("PUBLIC SECTION."), "class public section (kept)"
 
     # Not declarations -- must not match.
-    assert not api.search("  CALL FUNCTION 'RFC_PING'."), 'CALL FUNCTION is a call site'
+    assert not api.search("  CALL FUNCTION 'RFC_PING'."), "CALL FUNCTION is a call site"

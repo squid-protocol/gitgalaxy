@@ -100,8 +100,9 @@ _EMBEDDED_PYTHON_SIMPLE_CASES = [
     ("branch", "match data:", "matchable"),
     ("branch", "case 1:", "_case"),
     ("branch", "for i in range(10):", "foraging"),
-    ("branch", "try:", "try_this"),
-    ("branch", "finally:", "finally_clause"),
+    # 2822 corollary 1: try/finally are safety's
+    ("branch", "elif x:", "try:"),
+    ("branch", "with open(f) as fh:", "finally:"),
     ("branch", "a and b", "random"),
     ("branch", "a or b", "oracle"),
     ("branch", 'with open("f") as f:', "without"),

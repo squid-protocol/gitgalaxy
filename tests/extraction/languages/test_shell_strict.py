@@ -59,8 +59,9 @@ _SHELL_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
     # --- PHASE 1 ---
     ("branch", "if [[ $x -gt 5 ]]; then", "x=5"),
-    ("branch", '[ "$x" = "y" ]', "arr[0]=1"),
-    ("branch", "  [ -z x ]", "echo '[]'"),
+    # 2822 corollary 2: test brackets are the conditional's syntax, boundaries owns them
+    ("branch", "elif [ -z x ]; then", '[ "$x" = "y" ]'),
+    ("branch", "until [ -z x ]; do", "  [ -z x ]"),
     ("branch", "if true; [ -z x ]; then", "echo '[text]'"),
     ("branch", "for i in {1..5}; do", "for_loop=1"),
     ("branch", "while read -r line; do", "while_loop=1"),
@@ -565,11 +566,11 @@ def test_shell_api_contract_2730():
     api = SHELL_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('export -f probe_globals'), 'exported function'
-    assert api.search('export PROBE_GLOBALS=1'), 'exported variable (kept)'
+    assert api.search("export -f probe_globals"), "exported function"
+    assert api.search("export PROBE_GLOBALS=1"), "exported variable (kept)"
 
     # Not declarations -- must not match.
-    assert not api.search('exported=1'), 'identifier starting with export'
+    assert not api.search("exported=1"), "identifier starting with export"
 
     # ReDoS detonation on an unterminated flag run.
     assert_redos_immune(api, "export " + "-f " * 40000, timeout_sec=3.0)

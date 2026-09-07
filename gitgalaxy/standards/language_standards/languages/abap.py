@@ -37,7 +37,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes modern COND/SWITCH expressions.
         "branch": re.compile(
-            r"^[ \t]*(IF|ELSE|ELSEIF|CASE|WHEN|WHILE|DO|LOOP\s+AT|TRY|CATCH|CLEANUP|CHECK|EXIT|CONTINUE|RETURN|COND|SWITCH)\b",
+            r"^[ \t]*(IF|ELSE|ELSEIF|CASE|WHEN|WHILE|DO|LOOP\s+AT|CHECK|EXIT|CONTINUE|COND|SWITCH)\b",
             re.I | re.M,
         ),
         # 2. args: Parameters / Coupling. Captures explicit parameter binding keywords.
@@ -63,7 +63,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and constants.
         "structural_boundaries": re.compile(
-            r"^[ \t]*(DATA|TYPES|FIELD-SYMBOLS|CLASS|INTERFACE|METHOD|FORM|FUNCTION|MODULE|REPORT|PROGRAM|IMPORT|EXPORT)(?![(-])\b",
+            r"^[ \t]*(DATA|TYPES|FIELD-SYMBOLS|CLASS|INTERFACE|METHOD|FORM|FUNCTION|MODULE|REPORT|PROGRAM|IMPORT|EXPORT|RETURN)(?![(-])\b",
             re.I | re.M,
         ),
         # 4. func_start: Executable Logic Anchors. Anchors executable logic. EXCLUDES structural headers.

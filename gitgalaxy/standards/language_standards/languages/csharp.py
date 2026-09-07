@@ -59,7 +59,7 @@ DEFINITION: dict[str, Any] = {
         # Decisions and logical jumps. EXCLUDES throw (bailout_hits).
         # Includes pattern matching (and, or, not) and null-coalescing.
         "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|foreach|while|do|catch|finally|continue|break|goto|try|yield\s+return|yield\s+break|and|or|not)\b|\?\?|\?\.|(?<=\s)\?(?=\s)"
+            r"\b(if|else|switch|case|default|for|foreach|while|do|continue|break|yield\s+return|yield\s+break|and|or|not)\b|\?\?|\?\.|(?<=\s)\?(?=\s)"
         ),
         # 2. args (Parameters / Coupling)
         # Parameter blocks for methods, primary constructors, and lambdas.

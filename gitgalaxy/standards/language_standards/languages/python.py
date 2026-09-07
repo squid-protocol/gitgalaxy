@@ -83,7 +83,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Includes match/case (3.10+) and logical short-circuits. EXCLUDES exceptions.
-        "branch": re.compile(r"\b(if|elif|else|for|while|with|try|finally|match|case|and|or)\b"),
+        "branch": re.compile(r"\b(if|elif|else|for|while|with|match|case|and|or)\b"),
         # 2. args (Parameters / Coupling)
         # Signatures for def/lambda. Bounded generics and params [^)]*.
         # RULE 11 FIX (epic #813/#818): the PEP 695 (3.12+) generic-parameter step-over was a

@@ -39,7 +39,7 @@ DEFINITION: dict[str, Any] = {
         # same error-propagation-via-return idiom, doesn't count it either. Already tracked
         # under `structural_boundaries` below, so this is a pure de-duplication. Corpus
         # impact: zig branch 19 (planted 3, +280%) -> exact.
-        "branch": re.compile(r"(?<!@\")\b(if|else|switch|while|for|try|catch|orelse|break|continue)\b(?!\")|&&|\|\|"),
+        "branch": re.compile(r"(?<!@\")\b(if|else|switch|while|for|orelse|break|continue)\b(?!\")|&&|\|\|"),
         # 2. args: Parameters / Coupling. Captures parameters in function signatures.
         "args": re.compile(
             r"\bfn[ \t\n]*(?:@\"[^\"]+\"|[a-zA-Z_]\w*[ \t\n]*)?\(((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*)\)"

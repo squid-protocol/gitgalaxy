@@ -40,7 +40,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: Entscheidungslogik. Control flow that splits execution paths.
         "branch": re.compile(
-            r"\b(IF|ELSE|EVALUATE|WHEN|PERFORM|UNTIL|VARYING|TIMES|DEPENDING\s+ON|ON\s+EXCEPTION|AT\s+END|INVALID\s+KEY|ON\s+SIZE\s+ERROR|ON\s+OVERFLOW)\b",
+            r"\b((?<!END-)IF|ELSE|(?<!END-)EVALUATE|WHEN|UNTIL|VARYING|TIMES|DEPENDING\s+ON|ON\s+EXCEPTION|AT\s+END|INVALID\s+KEY|ON\s+SIZE\s+ERROR|ON\s+OVERFLOW)\b",
             re.I,
         ),
         # 2. args: Parameters / Coupling. Captures USING and RETURNING signatures in PROCEDURE division or CALLs.
@@ -116,7 +116,7 @@ DEFINITION: dict[str, Any] = {
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries defining straight-line execution flow.
         # EXCLUDES access modifiers (GLOBAL, EXTERNAL) to prevent Structural Complexity Inflation.
         "structural_boundaries": re.compile(
-            r"\b(DIVISION|SECTION|EXIT|CONTINUE|GOBACK|ACCEPT|XML\s+PARSE|JSON\s+GENERATE|DISPLAY|STOP\s+RUN)\b",
+            r"\b(DIVISION|SECTION|EXIT|CONTINUE|GOBACK|ACCEPT|XML\s+PARSE|JSON\s+GENERATE|DISPLAY|STOP\s+RUN|PERFORM)\b",
             re.I,
         ),
         # 4. func_start: Executable Logic Anchors. Anchors logic blocks (Paragraphs and Sections).

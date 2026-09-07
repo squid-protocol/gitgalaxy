@@ -70,9 +70,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. EXCLUDES throw (bailout_hits).
-        "branch": re.compile(
-            r"\b(if|else|switch|case|default|for|while|do|catch|finally|continue|break|try)\b|&&|\|\||\?|\?\?"
-        ),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do|continue|break)\b|&&|\|\||\?|\?\?"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks. Bounded to prevent ReDoS on massive positional/destructured sets.
         "args": re.compile(

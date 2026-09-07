@@ -36,7 +36,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Tcl control flow keywords.
-        "branch": re.compile(r"\b(?:if|elseif|else|switch|while|for|foreach|catch|try|trap|finally)\b"),
+        "branch": re.compile(r"\b(?:if|elseif|else|switch|while|for|foreach)\b"),
         # 2. args (Parameters / Coupling)
         # Safely captures the parameter list `{...}` immediately following a proc name.
         "args": re.compile(

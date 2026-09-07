@@ -66,7 +66,7 @@ _KOTLIN_SIMPLE_CASES = [
     ("branch", "} else {", "val ifBlock = IfBlock()"),
     ("branch", 'val name = user?.name ?: "Unknown"', "val effort = 5"),
     ("branch", "if (a && b || c) {", "val tryBlock = 1"),
-    ("branch", "try { doWork() } catch (e: Exception) {", 'val branch = "test"'),
+    ("branch", "do { work() } while (x)", "try { doWork() } catch (e: Exception) {"),  # 2822 corollary 1
     ("branch", "do { x++ } while (x < 10)", "fun differentiate()"),
     ("args", "fun foo(x: (Int) -> String) {", "val func = foo(x, y)"),
     ("args", "fun <T : Comparable<T>> sort(list: List<T>) {", "class Foo(val x: Int)"),

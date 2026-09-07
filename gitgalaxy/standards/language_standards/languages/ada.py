@@ -52,7 +52,7 @@ DEFINITION: dict[str, Any] = {
         # branch: Ada's short-circuit forms are the two-word "and then"/
         # "or else" (no && / || symbols exist in Ada).
         "branch": re.compile(
-            r"\b(?:if|elsif|else|case|when|for|while|loop|exit)\b|\band[ \t]+then\b|\bor[ \t]+else\b",
+            r"\b(?:(?<!end[ \t])(?:if|case|loop)|elsif|else|when|for|while|exit)\b|\band[ \t]+then\b|\bor[ \t]+else\b",
             re.I,
         ),
         # args: parameter profile following a procedure/function name.

@@ -85,10 +85,10 @@ def test_solidity_signature_positive_and_negative(signature, positive, negative)
 _SOLIDITY_ADVERSARIAL_CASES = [
     # --- branch ---
     ("branch", "uint256 x = a ? b : c;", "uint256 amount = 5;"),
-    ("branch", "try feed.getData(token) returns (uint v) {", 'target.call{value: 1 ether}("");'),
+    ("branch", "do { x--; } while (x > 0);", "try feed.getData(token) returns (uint v) {"),  # 2822 corollary 1
     ("branch", "if\n(x)\n{", "assembly { let x := 5 }"),
     ("branch", "while(true){}", 'string memory name = "foo:bar";'),
-    ("branch", "catch Error(string memory reason) {", "uint256[10] memory arr;"),
+    ("branch", "continue;", "catch Error(string memory reason) {"),  # 2822 corollary 1
     # --- args ---
     ("args", "function\ntransfer\n(address to) public", "transfer(to, amount);"),
     ("args", "modifier onlyOwner\n() {", "emit Transfer(msg.sender);"),

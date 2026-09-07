@@ -205,6 +205,16 @@ class Prism:
                     "end": re.compile(trigger_config["end"], re.I),
                     "target": trigger_config["target"],
                     "pair": trigger_config["pair"],
+                    # #2549: present only for the markup-tag handshakes, whose
+                    # opening delimiter is host syntax (see MARKUP_OPEN_TAG_TAIL).
+                    # A paired-bracket handshake (`asm!(`) never declares one --
+                    # _find_balanced_end counts depth from the opening bracket, so
+                    # that bracket has to stay inside the embedded segment.
+                    "open_delimiter": (
+                        re.compile(trigger_config["open_delimiter"], re.I)
+                        if trigger_config.get("open_delimiter")
+                        else None
+                    ),
                 }
             )
 
@@ -837,6 +847,25 @@ class Prism:
 
         return self._LUA_LONG_BRACKET_RE.sub(_repl, text)
 
+    def _embedded_payload_start(self, content: str, trigger: dict[str, Any], end_idx: int) -> int:
+        """#2549: where the embedded language's own text begins.
+
+        The trigger's opening delimiter belongs to whichever language wrote it.
+        For the markup handshakes that is the host document (`<script defer>` is
+        html; only what follows the `>` is JavaScript), so the segment boundary
+        moves to the end of the open tag. Everything else -- and any tag this
+        cannot resolve (unterminated, or longer than the lookahead limit) --
+        keeps the pre-#2549 boundary at the trigger's own start.
+        """
+        open_delimiter = trigger.get("open_delimiter")
+        if open_delimiter is None:
+            return trigger["start"]
+        limit = min(trigger["trigger_end"] + self.EMBEDDED_LOOKAHEAD_LIMIT, len(content))
+        m = open_delimiter.match(content, trigger["trigger_end"], limit)
+        if m is None or m.end() > end_idx:
+            return trigger["start"]
+        return m.end()
+
     def _partition_embedded_languages(self, content: str, primary_id: str) -> list[tuple[str, str]]:
         """Splits content into language segments based on embedded language triggers."""
         segments = []
@@ -878,6 +907,7 @@ class Prism:
                     "end_pattern": t_config["end"],
                     "target": t_config["target"],
                     "pair": t_config["pair"],
+                    "open_delimiter": t_config.get("open_delimiter"),
                     "trigger_end": m.end(),
                 }
                 for m in t_config["trigger"].finditer(scan_view)
@@ -893,9 +923,6 @@ class Prism:
                 f"Embedded Trigger: Embedded Language Block '{t['target']}' discovered at offset {t['start']}."
             )
 
-            if t["start"] > last_idx:
-                segments.append((primary_id, content[last_idx : t["start"]]))
-
             if t["pair"]:
                 open_char, close_char = t["pair"]
                 end_idx = self._find_balanced_end(content, t["start"], open_char, close_char)
@@ -906,7 +933,16 @@ class Prism:
                 if not end_match and end_idx == search_limit:
                     self.logger.warning("Scanner Scope Guard: Failed to find closure within limit. Forcing clip.")
 
-            segments.append((t["target"], content[t["start"] : end_idx]))
+            # #2549: the opening `<script ...>` / `<style ...>` tag is host
+            # markup, not payload -- it stays in the primary segment so the host
+            # language's own rules can still see it, and the embedded segment
+            # starts at the tag's `>`.
+            payload_start = self._embedded_payload_start(content, t, end_idx)
+
+            if payload_start > last_idx:
+                segments.append((primary_id, content[last_idx:payload_start]))
+
+            segments.append((t["target"], content[payload_start:end_idx]))
             last_idx = end_idx
 
         if last_idx < len(content):

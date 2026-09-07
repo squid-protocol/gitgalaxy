@@ -33,9 +33,20 @@ disagrees is a row, not a missing file.
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 from gitgalaxy.core.detector import INVOCATION_POSITIONAL, StructuralExtractor
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
-from tests.extraction.languages._strict_harness import assert_redos_immune
+
+# The detonation harness lives beside the per-language strict tests and is
+# imported there via a sys.path shim rather than as a package (CI runs pytest
+# without the repo root on sys.path); same shim here.
+_LANGUAGES_DIR = str(Path(__file__).resolve().parents[1] / "extraction" / "languages")
+if _LANGUAGES_DIR not in sys.path:
+    sys.path.insert(0, _LANGUAGES_DIR)
+
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
 
 def _splice(lang: str, code: str) -> dict:

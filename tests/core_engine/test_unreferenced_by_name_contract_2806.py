@@ -44,7 +44,14 @@ def _declared_model(lang: str) -> str:
 # The languages that declare they cannot be asked. Kept as a literal so ADDING a
 # language to the family is a deliberate edit reviewed against the contract's
 # corollary 4, never a side effect of a registry tweak.
-POSITIONAL_LANGUAGES = {"jcl"}
+# #2866 widened the family from jcl alone: dockerfile instructions, sqlite
+# statements, yaml steps and html script/style elements all execute in written
+# order, and no syntax in any of them reaches an extracted unit by its
+# extracted name (dockerfile's named build stage is class_start's unit, #2856;
+# yaml's `needs:` reaches a job and `steps.<id>` reads outputs without causing
+# a run). css was measured for this family and kept OUT: `animation-name`
+# reaches a `@keyframes` unit by name, so css is censused instead.
+POSITIONAL_LANGUAGES = {"jcl", "dockerfile", "html", "sqlite", "yaml"}
 
 
 def test_invocation_model_values_are_a_closed_set():
@@ -147,11 +154,7 @@ def test_an_export_construct_declaring_many_names_covers_all_of_them():
     assert _census("haskell", haskell) == 3, "every name in the list is declared, not referenced"
 
     scheme = (
-        "(export probe-globals probe-test)\n"
-        "\n"
-        "(define (probe-globals env)\n  env)\n"
-        "\n"
-        "(define (probe-test kit)\n  kit)\n"
+        "(export probe-globals probe-test)\n\n(define (probe-globals env)\n  env)\n\n(define (probe-test kit)\n  kit)\n"
     )
     assert _census("scheme", scheme) == 2, "one clause, two declared names, two hits"
 

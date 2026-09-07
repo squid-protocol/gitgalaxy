@@ -52,6 +52,17 @@ DEFINITION: dict[str, Any] = {
     "shebangs": [],
     # UPGRADED: Maps to Family 8 (Singular/Unique)
     # Rationale: Uses SGML-style block delimiters () exclusively; no single-line anchor.
+    # #2866 contract (corollary 4): the units `func_start` extracts are
+    # `<script>`/`<style>` ELEMENTS, and a document executes them in document
+    # order -- no HTML syntax reaches an element to run it by name. What CAN
+    # carry names is the embedded program inside those elements, and that
+    # belongs to the embedded language, measured where a file IS that language;
+    # before this declaration the census walked embedded-segment buckets whose
+    # names the host's own keyword-bucket exclusion cannot know (a css `@media`
+    # bucket inside `<style>` read UNREFERENCED in the crucible's
+    # cpython_jinja/layout.html and fed phantom tech debt). TOP-LEVEL property,
+    # not a rule (the #2806 language_lens pre-compiler trap).
+    "invocation_model": "positional",
     "lexical_family": "block_exclusive",
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

@@ -43,6 +43,16 @@ DEFINITION: dict[str, Any] = {
     "shebangs": [],
     # UPGRADED: Maps to Family 3 (Pure Hash)
     # Rationale: Docker natively uses '#' exclusively for line-level comments and parser directives.
+    # #2866 contract (corollary 4): the units `func_start` extracts are build
+    # INSTRUCTIONS (RUN/CMD/ENTRYPOINT/HEALTHCHECK, Mode A labels), and no
+    # Dockerfile syntax reaches an instruction by naming it -- a build executes
+    # its instructions in the order they are written, every time. The construct
+    # that IS reached by name -- `FROM base AS builder` / `COPY --from=builder`
+    # -- is the named build stage, which is `class_start`'s unit (#2856), not a
+    # member of the function population this census walks. TOP-LEVEL property,
+    # not a rule: language_lens.py's pre-compiler would turn a string inside
+    # `rules` into re.compile("positional") (the #2806 trap).
+    "invocation_model": "positional",
     "lexical_family": "line_exclusive",
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

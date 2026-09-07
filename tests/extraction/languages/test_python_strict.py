@@ -329,9 +329,13 @@ def test_python_explicit_casts_vs_pointers_no_overlap():
 
 
 def test_python_globals_builtin_call_boundary_regression():
+    """The `(` boundary still fires for `globals()`; `locals()` left the rule
+    with the #2858 contract (corollary 5: a reflective handle on the LOCAL
+    namespace is nobody's global) and the `global x` statement joined it."""
     r = LANGUAGE_DEFINITIONS["python"]["rules"]
     assert r["globals"].search("x = globals()")
-    assert r["globals"].search("y = locals()")
+    assert not r["globals"].search("y = locals()")
+    assert r["globals"].search("    global state")
 
 
 def test_python_doc_docstring_counts_once_regression():

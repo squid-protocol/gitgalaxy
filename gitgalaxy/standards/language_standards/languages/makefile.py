@@ -134,7 +134,11 @@ DEFINITION: dict[str, Any] = {
         # valid, equally common ignore-errors forms.
         "safety_bypasses": re.compile(r"^\t[ \t]*-[ \t]*[a-zA-Z0-9_./$]|\|\|[ \t]*(?:true|exit[ \t]+0)\b", re.M),
         # Heavily destructive sequence patterns or overriding permissions. (Eval is categorized under heat_triggers).
-        "high_risk_execution": re.compile(r"\bsudo[ \t]+|\brm[ \t]+-[rR]?[fF][ \t]+(?:/|\$[{(])|\bkill[ \t]+-9\b"),
+        # #2878 contract C4: root-only recursive delete (a `$(VAR)` target is cleanup's form,
+        # as yaml already reads it); any kill except the -0 probe / -l listing (C1a).
+        "high_risk_execution": re.compile(
+            r"\bsudo[ \t]+|\brm[ \t]+(?:-[rR][fF]|-[fF][rR])[ \t]+[\"']?/(?![A-Za-z])|\bkill[ \t]+(?!-[0l]\b)"
+        ),
         # Interacting directly with outputs, networks, or the disk filesystem.
         "io": re.compile(
             r"\$\((?:file|wildcard)[ \t]+|\b(?:curl|wget|scp|rsync|tar|unzip|mkdir|cp|mv)\b|>>?[ \t]*[^ \t\n/]+"

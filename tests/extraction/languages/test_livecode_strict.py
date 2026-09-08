@@ -73,7 +73,7 @@ _LIVECODE_SIMPLE_CASES = [
     ("class_start", "module com.livecode.string", "on mouseUp"),
     ("safety", "try\n  put 1 into x\ncatch e\nend try", "put 1 into x"),
     ("safety_bypasses", 'do "put 1 into x"', "put 1 into x"),
-    ("high_risk_execution", 'answer "hello"', "put 1 into x"),
+    ("high_risk_execution", "quit", 'answer "hello"'),  # #2878 C5: a dialog is not danger
     ("io", "open file tFilePath for read", "put 1 into x"),
     ("api", 'on mouseUp\n  answer "hi"\nend mouseUp', "private command foo"),
     ("state_mutation", "put the effective filename of this stack into tPath", "answer 1"),

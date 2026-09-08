@@ -207,7 +207,10 @@ _ROWS = [
         "high_risk_execution",
         "safety",
         "site",
-        "Process-killing commands and catastrophic runtime vulnerabilities",
+        "A SITE THAT HANDS CONTROL OUT OF THE PROGRAM'S OWN SEMANTICS -- it ends or halts the process, runs text or another program as code, loads or rewrites executable code at run time, destroys a whole store the program does not own, or steps outside the runtime's protections -- in the primitive's own invocation or statement form.",
+        status="stated",
+        doc="docs/high_risk_execution_rule_contract.md",
+        issue=2878,
         planted=True,
     ),
     _c(

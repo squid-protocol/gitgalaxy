@@ -95,8 +95,9 @@ DEFINITION: dict[str, Any] = {
         "safety_bypasses": re.compile(r'\b(?:eval|evalin|assignin|evalc)\b|\bwarning[ \t]*\([ \t]*[\'"]off[\'"]'),
         # danger: Destructive workspace actions and OS bypasses.
         # CRITICAL GUARDRAIL: Raw terminal prints (`disp`) strictly routed to print_hits.
+        # #2878 contract C5: `clear all`/`clc` reset the workspace (cleanup's, batch4 dual retired).
         "high_risk_execution": re.compile(
-            r"\b(?:clear[ \t]+all|clc|system|dos|unix|exit|quit|keyboard)\b|^[ \t]*![ \t]*[a-zA-Z_]",
+            r"\b(?:system|dos|unix|exit|quit|keyboard)\b|^[ \t]*![ \t]*[a-zA-Z_]",
             re.M | re.I,
         ),
         # io: Interactions with disk, hardware, or web.

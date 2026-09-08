@@ -92,8 +92,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 8. danger (High-Risk Execution / System Calls)
         # Hardware resets and raw memory pokes. EXCLUDES TODO (debt) and print (print_hits).
+        # #2878 contract C1a: the os-level exits join (python twin parity).
         "high_risk_execution": re.compile(
-            r"\b(machine\.reset|machine\.deepsleep|machine\.bootloader|machine\.disable_irq|eval|exec|sys\.exit)\b"
+            r"\b(machine\.reset|machine\.deepsleep|machine\.bootloader|machine\.disable_irq|eval|exec|sys\.exit|os\._exit|os\.abort)\b"
         ),
         # 9. io (I/O & Network Boundaries)
         # Hardware Peripherals (I2C, SPI, UART, Pin) and Networking.

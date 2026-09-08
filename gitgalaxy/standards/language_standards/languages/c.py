@@ -164,7 +164,11 @@ DEFINITION: dict[str, Any] = {
         "safety_bypasses": re.compile(r"\b(strcpy|strcat|sprintf|gets|alloca)\b|\([a-zA-Z_]\w*\s*\*\)\s*[a-zA-Z_]\w*"),
         # 8. danger (High-Risk Execution / System Calls)
         # Process killers and context switches. EXCLUDES prints (Phase 5).
-        "high_risk_execution": re.compile(r"\b(system|popen|execl|execv|fork|longjmp|setjmp)\b"),
+        # #2878 contract C2: call form (the crucible's only hit was `"Load system defaults"`);
+        # C1a exit/abort join (cpp/objective-c parity); setjmp is the landing point.
+        "high_risk_execution": re.compile(
+            r"\b(?:system|popen|exec[lv][pe]?|execve|fork|abort|exit|_Exit|longjmp)\s*\("
+        ),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
             r"\b(?:fopen|fread|fwrite|fscanf|sscanf|socket|recv|send|open|read|write|stat|fseek|rename)\b\s*\("

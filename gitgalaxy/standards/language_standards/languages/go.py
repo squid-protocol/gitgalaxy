@@ -113,7 +113,11 @@ DEFINITION: dict[str, Any] = {
         "safety_bypasses": re.compile(r'_\s*,\s*err[ \t]*=|_[ \t]*=\s*\w+|\bimport\s+\.[ \t]+"'),
         # 8. danger (High-Risk Execution / System Calls)
         # Process-killing commands and direct syscalls. EXCLUDES TODO (debt) and fmt.Print (print_hits).
-        "high_risk_execution": re.compile(r"\b(os\.Exit|syscall\.Kill|syscall\.RawSyscall|log\.Fatal(?:f|ln)?)\b"),
+        # #2878 contract C1: `panic(` is go's abort (rust's panic!, zig's @panic), exec.Command
+        # runs a program (C1b); both were invisible.
+        "high_risk_execution": re.compile(
+            r"\b(?:os\.Exit|syscall\.(?:Kill|RawSyscall|Exec)|log\.(?:Fatal|Panic)(?:f|ln)?|exec\.Command)\b|\bpanic\s*\("
+        ),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
             r"\b(os\.(?:Open|Create|ReadFile)|io\.(?:Reader|Writer|Copy)|net/http|database/sql|bufio\.|grpc\.|sqlx\.|pgx\.)\b"

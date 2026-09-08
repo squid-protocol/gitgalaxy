@@ -254,7 +254,8 @@ DEFINITION: dict[str, Any] = {
             r"\b(__unsafe_unretained|unsafe_unretained|id)\b|void\s*\*|performSelector:|!\s*[;,\]\)\.]|#pragma\s+clang\s+diagnostic\s+ignored"
         ),
         # 8. danger: High-Risk Execution. Process killers.
-        "high_risk_execution": re.compile(r"\b(abort|exit)\b"),
+        # #2878 contract C1b: system( and NSTask run a program (c parity; call form, C2).
+        "high_risk_execution": re.compile(r"\b(abort|exit)\b|\bsystem\s*\(|\bNSTask\b"),
         # 9. io: I/O & Network Boundaries. Disk, Network, and URL fetching (Includes NeXTSTEP NX prefixes & TBL WWW wrappers).
         "io": re.compile(
             r"\b(NSFileHandle|NSFileManager|NSURLSession|NSURLConnection|NSData|NXNetPath|NXSocket|NXStream|NXFile|HTLoad|HyperText|HTGet|socket|connect|send|recv)\b"

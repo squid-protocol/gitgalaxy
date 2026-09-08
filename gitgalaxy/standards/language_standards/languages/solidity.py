@@ -84,7 +84,8 @@ DEFINITION: dict[str, Any] = {
         # 7. safety_neg: Safety Bypasses. Bypassing overflow checks (0.8+) or dangerous delegation.
         "safety_bypasses": re.compile(r"\b(unchecked|assembly|delegatecall)\b"),
         # 8. danger: High-Risk Execution. Contract destruction and absolute value termination.
-        "high_risk_execution": re.compile(r"\b(selfdestruct|suicide)\b"),
+        # #2878 contract C1c: delegatecall runs foreign code in this contract's storage.
+        "high_risk_execution": re.compile(r"\b(selfdestruct|suicide|delegatecall)\b"),
         # 9. io: I/O & Network Boundaries. EVM blockchains are closed systems. (Cross-contract calls are mapped as API/Generics).
         "io": None,
         # 10. api: Public Surface Area. Exposed boundaries to external wallets or contracts.

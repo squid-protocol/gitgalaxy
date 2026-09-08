@@ -266,7 +266,10 @@ DEFINITION: dict[str, Any] = {
         "safety_bypasses": re.compile(r"\bstd::any\b|\bvoid\s*\*|catch\s*\(\s*\.\.\.\s*\)"),
         # 8. danger (High-Risk Execution / System Calls)
         # Process killers and low-level blits. EXCLUDES prints (Phase 5).
-        "high_risk_execution": re.compile(r"\b(system|memcpy|memset|abort|exit|std::terminate|longjmp|setjmp)\b"),
+        # #2878 contract C2: call form -- Godot's `bool exit = false; exit = true;` is an
+        # identifier, `"Thread exit status"` is prose; C5 memcpy/memset are memory primitives,
+        # not a danger family; setjmp is the landing point, longjmp the site.
+        "high_risk_execution": re.compile(r"\b(?:system|abort|exit|_Exit|quick_exit|std::terminate|longjmp)\s*\("),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
             r"\b(std::fstream|std::ifstream|std::ofstream|std::filesystem|fopen|fread|fwrite|socket|recv|send|asio::|curl_easy_perform|std::cin)\b"

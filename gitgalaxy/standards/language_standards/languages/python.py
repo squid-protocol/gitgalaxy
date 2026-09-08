@@ -177,8 +177,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # 8. danger (High-Risk Execution / System Calls)
         # Process killers and un-sanitized deserialization. EXCLUDES TODO/print.
+        # #2878 contract C1a: sys.exit/os._exit/os.abort end the process (embedded_python twin
+        # parity); os.exec*/os.spawn* replace or spawn one (C1b).
         "high_risk_execution": re.compile(
-            r"\b(eval|exec|subprocess\.(?:call|Popen|run)|os\.system|pickle\.loads?|yaml\.unsafe_load|shell=True)\b"
+            r"\b(eval|exec|subprocess\.(?:call|Popen|run)|os\.system|os\.exec[lv]p?e?|os\.spawn[lv]p?e?|pickle\.loads?|yaml\.unsafe_load|shell=True|sys\.exit|os\._exit|os\.abort)\b"
         ),
         # 9. io (I/O & Network Boundaries)
         # #2593: `os\.`/`sys\.` used to match ANY `os.x`/`sys.x` attribute access, which

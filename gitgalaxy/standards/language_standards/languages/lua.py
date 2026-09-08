@@ -90,7 +90,9 @@ DEFINITION: dict[str, Any] = {
         # +1 of this rule's +2 over the planted value.
         "safety_bypasses": re.compile(r"\b(rawget|rawset|rawlen|debug\.[a-zA-Z0-9_]+|getfenv|setfenv)\b"),
         # 8. danger: High-Risk Execution. Dynamic evaluation and OS-level execution hooks.
-        "high_risk_execution": re.compile(r"\b(os\.execute|os\.exit|os\.remove|os\.rename|load|loadstring|loadfile)\b"),
+        # #2878 contract C4: os.remove/os.rename touch one file (cleanup's question, #2843);
+        # io.popen and dofile join (C1b/C1c).
+        "high_risk_execution": re.compile(r"\b(os\.execute|os\.exit|io\.popen|load|loadstring|loadfile|dofile)\b"),
         # 9. io: I/O & Network Boundaries. Standard IO library and environment inquiries.
         "io": re.compile(r"\b(io\.open|io\.read|io\.lines|io\.input|io\.output|io\.popen|os\.getenv)\b"),
         # 10. api: Public Surface Area. Functions NOT marked local or explicit module returns.

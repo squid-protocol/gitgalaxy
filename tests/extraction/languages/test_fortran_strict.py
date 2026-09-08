@@ -108,7 +108,7 @@ _FORTRAN_SIMPLE_CASES = [
     ("class_start", "MODULE mymod", "SUBROUTINE foo(x)"),
     ("safety", "IMPLICIT NONE", "X = 1"),
     ("safety_bypasses", "COMMON /blk/ x, y", "X = 1"),
-    ("high_risk_execution", "GOTO 100", "X = 1"),
+    ("high_risk_execution", "STOP", "GOTO 100"),  # #2878 C3: a jump is nobody's signal
     ("io", "OPEN(10, FILE='x.txt')", "X = 1"),
     ("api", "SUBROUTINE foo()", "X = 1"),
     ("state_mutation", "X = 1", "CALL foo(x)"),

@@ -235,9 +235,9 @@ DEFINITION: dict[str, Any] = {
             r"\b(unsafePerformIO|unsafeCoerce|error|undefined|fromJust|head|tail|init|last|throw|unsafeFixIO)\b"
         ),
         # danger: High-Risk Execution. Forceful aborts and Debug-trace leaks in production.
-        "high_risk_execution": re.compile(
-            r"\b(die|exitWith|exitFailure|Debug\.Trace|trace|traceShow|traceIO|traceM)\b"
-        ),
+        # #2878 contract C5: the trace family is debug output, not danger; `error "..."` is the
+        # abort form (C1a).
+        "high_risk_execution": re.compile(r"\b(?:die|exitWith|exitFailure|exitSuccess)\b|\berror\s+\""),
         # io: I/O & Network Boundaries. IO Monad and hardware interactions.
         "io": re.compile(
             r"\b(IO|readFile|writeFile|appendFile|hGetContents|hPutStr|openFile|withFile|getLine|getChar|Socket|Connection|runDB)\b"

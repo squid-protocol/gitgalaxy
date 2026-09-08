@@ -135,7 +135,11 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*continue-on-error:[ \t]*true|chmod[ \t]+777|\b(?:curl|wget)[ \t]+[^|\n]{1,200}\|[ \t]*(?:bash|sh|zsh)\b",
             re.M | re.I,
         ),
-        "high_risk_execution": re.compile(r"\brm[ \t]+-rf[ \t]+/(?![A-Za-z])|\beval\b|\bexec\b", re.M | re.I),
+        # #2878 contract C4: root-only recursive delete, the same form in shell/makefile/dockerfile
+        # (the non-root form is cleanup's, below).
+        "high_risk_execution": re.compile(
+            r"\brm[ \t]+(?:-[rR][fF]|-[fF][rR])[ \t]+[\"']?/(?![A-Za-z])|\beval\b|\bexec\b", re.M | re.I
+        ),
         "io": re.compile(
             r"\b(?:wget|curl|apt-get|apk|yum|git[ \t]+clone|npm[ \t]+install|pip[ \t]+install)\b",
             re.M | re.I,

@@ -119,7 +119,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # 8. danger (High-Risk Execution / System Calls)
         # Process killers and shell execution. EXCLUDES puts (Phase 5).
-        "high_risk_execution": re.compile(r"\b(abort|exit|exit!|system|exec|spawn|fork)\b|`[^`]+`|IO\.popen"),
+        # #2878 contract C2: a backtick command is one line and not the `$\`` prematch variable
+        # (one spanned three lines in the crucible); Process.kill and %x() join (C1a/C1b).
+        "high_risk_execution": re.compile(
+            r"\b(abort|exit|system|exec|spawn|fork|Process\.kill)\b|(?<!\$)`[^`\n]+`|IO\.popen|%x[\[({]"
+        ),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
             r"\b(File|Dir|IO|Net::HTTP|URI\.open|Socket|TCPSocket|FileUtils|ActiveRecord::Base|find|where|create|update|destroy)\b"

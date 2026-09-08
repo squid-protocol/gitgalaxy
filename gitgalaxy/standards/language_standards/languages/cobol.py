@@ -306,7 +306,9 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 8. danger: High-Risk Execution. Process-stopping commands and self-modifying code (ALTER).
-        "high_risk_execution": re.compile(r"\b(STOP\s+RUN|ALTER|CANCEL)\b", re.I),
+        # #2878 contract C2: hyphen-guarded -- `ALTER-TEST-INIT.` is a paragraph name, not the
+        # ALTER statement (the #2622 shape). ALTER rewrites control (C3), CANCEL unloads code (C1c).
+        "high_risk_execution": re.compile(r"(?<![-\w])(?:STOP\s+RUN|ALTER|CANCEL)(?![-\w])", re.I),
         # 9. io: I/O & Network Boundaries. Disk, Database (SQL), and CICS communication.
         # #2485: the queue verbs are a SEPARATE alternative from the bare
         # file-control ones, not extra letters on them. `EXEC CICS READQ TS`

@@ -27,7 +27,10 @@ FINDINGS
                        allowlisted below)
     draft              a contract transcribed from the schema comment and not yet
                        audited across the corpus languages -- see the
-                       `rule-contract-audit` skill for how one becomes `stated`
+                       `rule-contract-audit` skill for how one becomes `stated`.
+                       A `declared` row (sentence, kind and unit fixed, incidence
+                       measured, disagreeing rules filed -- #2897) is not a
+                       finding; its evidence is docs/domain_sensor_contracts.md
 
 BASELINE (same philosophy as dead_key_audit.py, #325)
 The day this audit was wired in, 2 of ~56 signals had a stated contract (api
@@ -117,6 +120,10 @@ def run_audit() -> list[dict[str, str]]:
             findings.append(
                 {"kind": "draft", "signal": name, "detail": "transcribed, not yet audited across languages"}
             )
+        elif c.status == "declared" and not c.doc:
+            findings.append({"kind": "missing-doc", "signal": name, "detail": "declared row with no evidence doc"})
+        elif c.status not in ("declared", "stated"):
+            findings.append({"kind": "bad-status", "signal": name, "detail": f"unknown status {c.status!r}"})
     return findings
 
 
@@ -172,15 +179,18 @@ def render() -> str:
     for kind, (meaning, unit) in sc.KINDS.items():
         lines.append(f"| `{kind}` | {meaning} | `{unit}` |")
     stated = sum(1 for c in sc.CONTRACTS.values() if c.status == "stated")
+    declared = sum(1 for c in sc.CONTRACTS.values() if c.status == "declared")
     lines += [
         "",
         "## Signals",
         "",
-        f"{stated} stated, {len(sc.CONTRACTS) - stated} draft. A **draft** row is the schema comment "
-        "transcribed as-is; a **stated** row has been audited across the corpus languages and has a "
-        "contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the "
-        "cross-language gate can hold it equal); unplanted signals that feed a risk formula are the "
-        "ones the roadmap's Phase 3 must plant or declare absent.",
+        f"{stated} stated, {declared} declared, {len(sc.CONTRACTS) - stated - declared} draft. A **draft** "
+        "row is the schema comment transcribed as-is; a **declared** row has a fixed language-independent "
+        "sentence, kind and unit, measured incidence and its disagreeing rules filed but not edited "
+        "(#2897, `docs/domain_sensor_contracts.md`); a **stated** row has been audited across the corpus "
+        "languages, its rules edited to agree, and has a contract doc. `planted` = the keyword-rosetta "
+        "corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted "
+        "signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.",
         "",
         "| signal | phase | kind | status | planted | contract | doc |",
         "|---|---|---|---|---|---|---|",
@@ -221,8 +231,9 @@ def main(argv: list[str] | None = None) -> int:
     for f in findings:
         by_kind.setdefault(f["kind"], []).append(f)
     stated = sum(1 for c in sc.CONTRACTS.values() if c.status == "stated")
+    declared = sum(1 for c in sc.CONTRACTS.values() if c.status == "declared")
     print(
-        f"signal contracts: {len(sc.CONTRACTS)} entries, {stated} stated, "
+        f"signal contracts: {len(sc.CONTRACTS)} entries, {stated} stated, {declared} declared, "
         f"{len(by_kind.get('draft', []))} draft, {len(registry_keys())} registry keys"
     )
 

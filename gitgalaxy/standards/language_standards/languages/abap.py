@@ -61,6 +61,16 @@ DEFINITION: dict[str, Any] = {
             r"(?:VALUE\s*\([^)]*\)|!?[a-zA-Z_][a-zA-Z0-9_-]*)",
             re.I,
         ),
+        # #2824 contract corollary 1 (docs/args_rule_contract.md): a call is not a
+        # declaration. ABAP passes actuals with the SAME six keywords the
+        # declarations use (`CALL FUNCTION ... EXPORTING/EXCEPTIONS`,
+        # `PERFORM ... CHANGING`, `RAISE EXCEPTION ... EXPORTING`), so the raw
+        # rule cannot tell a parameter surface from a consumer of one. The filter
+        # keeps only clauses whose owning statement (ABAP statements end at an
+        # unquoted `.`) opens with a declaration keyword --
+        # METHODS/CLASS-METHODS/FORM/FUNCTION/MODULE. See detector.py's
+        # `_abap_declaration_statement_spans`.
+        "_scope_filters": {"args": "abap_declaration_statement"},
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and constants.
         "structural_boundaries": re.compile(
             r"^[ \t]*(DATA|TYPES|FIELD-SYMBOLS|CLASS|INTERFACE|METHOD|FORM|FUNCTION|MODULE|REPORT|PROGRAM|IMPORT|EXPORT|RETURN)(?![(-])\b",

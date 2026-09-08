@@ -6185,10 +6185,10 @@ class StructuralExtractor:
 
     # ------------------------------------------------------------------
     # #2674: registry-declared scope filters (see `_scope_filters` in
-    # coding_analysis). Three exist today -- `lisp_body_position` (scheme),
-    # `matlab_return_channel` and `yaml_parameter_block` (#2753); add new ones
-    # here, keyed by the name a language definition uses, so the registry stays
-    # data.
+    # coding_analysis). Four exist today -- `lisp_body_position` (scheme),
+    # `matlab_return_channel`, `yaml_parameter_block` (#2753) and
+    # `abap_declaration_statement` (#2824); add new ones here, keyed by the
+    # name a language definition uses, so the registry stays data.
     # ------------------------------------------------------------------
 
     # Forms whose body is a LOCAL scope: a `(define ...)` whose nearest
@@ -6294,6 +6294,96 @@ class StructuralExtractor:
         r"^(?P<lead>[ \t]*(?:-[ \t]+)*)(?P<key>[A-Za-z0-9_.-]{1,64}):(?P<value>[ \t].*|)$"
     )
 
+    # #2824: ABAP statement tokenizer for the `abap_declaration_statement`
+    # filter. Every alternative is anchored on a distinct first character and
+    # bounded to one line (ABAP literals and comments cannot span lines), so
+    # the scan is linear. Comments are already stripped by Prism before
+    # coding_analysis; the comment branches are defensive only, same as the
+    # lisp tokenizer's.
+    _ABAP_STATEMENT_TOKEN: ClassVar[re.Pattern[str]] = re.compile(
+        r"'(?:[^'\n]|'')*'"  # character literal, '' escapes a quote
+        r"|`(?:[^`\n]|``)*`"  # untyped text literal
+        r"|\|(?:\\[\\{|}]|[^|\n])*\|"  # string template
+        r'|"[^\n]*'  # inline comment to end of line
+        r"|^\*[^\n]*"  # fixed-format full-line comment
+        r"|\.",  # statement terminator
+        re.M,
+    )
+    # The statements that DECLARE a parameter surface (#2824): a subroutine,
+    # function-module, dialog-module or method declaration. The same six
+    # binding keywords on any other statement are a call site passing actuals
+    # (`CALL FUNCTION`/`CALL METHOD`/`CALL BADI`, `PERFORM`,
+    # `RAISE EXCEPTION`, `RECEIVE RESULTS`) or a functional method call on an
+    # assignment -- consumers of a parameter surface, not publishers of one.
+    _ABAP_DECLARATION_OPENERS: ClassVar[frozenset[str]] = frozenset(
+        {"METHODS", "CLASS-METHODS", "FORM", "FUNCTION", "MODULE"}
+    )
+    # First token of a statement; long enough for CLASS-METHODS, bounded so a
+    # pathological run of letters cannot scan far. Whitespace and comment
+    # lines before the opener are skipped in `_abap_statement_opener` -- in
+    # CODE, not in this pattern, because a regex skip loop over them is a
+    # nested quantifier (the #631 ReDoS shape; this file's own detonation
+    # test caught the first draft).
+    _ABAP_STATEMENT_OPENER: ClassVar[re.Pattern[str]] = re.compile(r"[A-Za-z][A-Za-z-]{0,31}")
+
+    def _abap_statement_opener(self, code: str, start: int, end: int) -> Optional[str]:
+        """
+        Upper-cased first token of the statement spanning `code[start:end]`,
+        or None if the span holds no token. Skips whitespace, fixed-format
+        comment lines (`*` in column 1 -- a `*` after leading blanks is a
+        continuation line's multiplication, not a comment) and inline `"`
+        comments; Prism strips comments before coding_analysis, so the skips
+        are defensive, same as the lisp tokenizer's. One forward pass.
+        """
+        pos = start
+        at_line_start = pos == 0 or code[pos - 1] == "\n"
+        while pos < end:
+            ch = code[pos]
+            if ch == "\n":
+                pos += 1
+                at_line_start = True
+                continue
+            if ch in " \t\r":
+                pos += 1
+                at_line_start = False
+                continue
+            if (ch == "*" and at_line_start) or ch == '"':
+                nl = code.find("\n", pos, end)
+                if nl == -1:
+                    return None
+                pos = nl + 1
+                at_line_start = True
+                continue
+            m = self._ABAP_STATEMENT_OPENER.match(code, pos, end)
+            return m.group(0).upper() if m else None
+        return None
+
+    def _abap_declaration_statement_spans(self, code: str) -> list[tuple[int, int]]:
+        """
+        `(start, end)` spans of every ABAP statement whose first token is one
+        of `_ABAP_DECLARATION_OPENERS`. One tokenizer pass, O(len(code)).
+
+        A chained declaration (`METHODS: a IMPORTING ..., b IMPORTING ...`) is
+        one statement with one period, so every clause in the chain lands in
+        its opener's span. A trailing statement with no final period is closed
+        at end-of-code rather than dropped, so a truncated segment can only
+        read like the untruncated one, never lose its last declaration.
+        """
+        spans: list[tuple[int, int]] = []
+        stmt_start = 0
+        for tok in self._ABAP_STATEMENT_TOKEN.finditer(code):
+            if tok.group(0) != ".":
+                continue
+            opener = self._abap_statement_opener(code, stmt_start, tok.start())
+            if opener in self._ABAP_DECLARATION_OPENERS:
+                spans.append((stmt_start, tok.start()))
+            stmt_start = tok.end()
+        if stmt_start < len(code):
+            opener = self._abap_statement_opener(code, stmt_start, len(code))
+            if opener in self._ABAP_DECLARATION_OPENERS:
+                spans.append((stmt_start, len(code)))
+        return spans
+
     def _yaml_parameter_child_offsets(self, code: str) -> set[int]:
         """
         Line-start offsets of the mapping keys whose immediate parent is a
@@ -6380,6 +6470,20 @@ class StructuralExtractor:
                 # The rule that opts in is `^`-anchored, so a match starts at its
                 # own line's first character -- the same offset the walk keys on.
                 if m.start() in keep:
+                    kept.append(m)
+            return kept
+        if filter_name == "abap_declaration_statement":
+            # #2824 (args contract corollary 1): keep only the parameter-binding
+            # clauses owned by a declaration statement. Not memoized through
+            # `cache`: it holds offset SETS and this filter needs spans; `args`
+            # is the only rule that opts in, so the scan runs once per segment
+            # either way.
+            spans = self._abap_declaration_statement_spans(code)
+            starts = [s for s, _ in spans]
+            kept = []
+            for m in matches:
+                i = bisect.bisect_right(starts, m.start()) - 1
+                if i >= 0 and m.start() < spans[i][1]:
                     kept.append(m)
             return kept
         if filter_name == "matlab_return_channel":

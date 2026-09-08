@@ -68,7 +68,7 @@ places GitGalaxy reads a file more accurately than a tree-sitter parse of it doe
 | `yacc` | `$1`…`$n`, `$$` — a rule action's semantic values |
 | `assembly` | the argument-passing registers of the calling convention |
 | `agc_assembly` | the erasable/bank operand of an instruction |
-| `abap` | `IMPORTING`/`EXPORTING`/`CHANGING`/`RETURNING`/`EXCEPTIONS` blocks |
+| `abap` | `IMPORTING`/`EXPORTING`/`CHANGING`/`RETURNING`/`EXCEPTIONS` blocks owned by a declaration statement (`METHODS`/`CLASS-METHODS`/`FORM`/`FUNCTION`/`MODULE`), via the `abap_declaration_statement` scope filter ([#2824](https://github.com/squid-protocol/gitgalaxy/issues/2824)) — the same six keywords at a `CALL FUNCTION`/`PERFORM`/`RAISE EXCEPTION`/functional-call site pass actuals and do not count |
 | `cobol` | `USING` / `RETURNING` in a `PROCEDURE DIVISION` header |
 | `jcl` | `PARM=` on `EXEC`, and a `PROC` statement's own symbolic parameters |
 | `dockerfile` | `ARG` — a build-time parameter declaration |
@@ -94,7 +94,7 @@ density rather than declaration count.
 
 | language | keyword-rosetta (planted 13) | crucible | crucible a/f | verdict |
 |---|---|---|---|---|
-| `abap` | 13 | 167 | 1.35 | fallback family -- `IMPORTING`/`EXPORTING`/`CHANGING`/`RETURNING` blocks |
+| `abap` | 16 → 13 | 167 → 121 | 0.98 | violated corollary 1 -- the six binding keywords appear verbatim at call sites (`CALL FUNCTION ... EXPORTING/EXCEPTIONS`, `PERFORM ... CHANGING`, `RAISE EXCEPTION ... EXPORTING`, `walk( EXPORTING ... )`), audited clean in #2773 only because neither corpus then contained one. FIXED in #2824 via the `abap_declaration_statement` scope filter (the decision is statement-scoped and `re` has no variable-width lookbehind, so it cannot live in the rule); all 46 crucible drops verified as call sites, the corpus 16 → 13 is exactly the three `PERFORM` clauses #2806 planted |
 | `ada` | 13 | n/a | n/a | anchored to `procedure`/`function` |
 | `agc_assembly` | 13 | 416 | 0.51 | fallback family -- instruction operands |
 | `apex` | 13 | 39 | 1.00 | violated corollary 1 -- the return-type prefix was optional, so `probeBranch(argv)` at line start counted. FIXED in #2783 (return type mandatory + a `{`-anchored constructor branch); the crucible's old 41-vs-41 was 38 real plus 3 false positives |

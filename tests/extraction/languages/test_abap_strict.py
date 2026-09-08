@@ -68,6 +68,10 @@ _ABAP_SIMPLE_CASES = [
     ("branch", "CHECK lv_foo IS NOT INITIAL.", "DATA lv_x TYPE i."),
     ("args", "IMPORTING iv_x TYPE i", "DATA lv_x TYPE i."),
     ("args", "IMPORTING  VALUE(  foo_bar  )  TYPE i", "DATA importing_var TYPE i."),
+    # #2824: at the bare-regex level a call-site clause still matches -- the
+    # declaration-vs-call decision is the `abap_declaration_statement` scope
+    # filter's, exercised through the real pipeline in
+    # test_abap_args_contract_2824 below (same split as yaml's #2753 cases).
     ("args", "EXPORTING et_data = lt_data", "DATA exporting TYPE i."),
     ("args", "CHANGING  ct_data", "DATA lv_x TYPE i."),
     ("args", "RETURNING VALUE(r) TYPE ref to data", "DATA lv_x TYPE i."),
@@ -432,3 +436,99 @@ def test_abap_api_contract_2730():
 
     # Not declarations -- must not match.
     assert not api.search("  CALL FUNCTION 'RFC_PING'."), "CALL FUNCTION is a call site"
+
+
+# ==============================================================================
+# #2824: `args` CONTRACT COROLLARY 1 -- A CALL IS NOT A DECLARATION
+# ==============================================================================
+# ABAP passes actuals with the SAME six binding keywords its declarations use,
+# so the decision is not expressible in the rule regex (the owning statement can
+# start an unbounded distance before the clause, and `re` has no variable-width
+# lookbehind). It lives in detector.py's `abap_declaration_statement` scope
+# filter, so these tests go through the real pipeline (prism + extractor), not
+# the bare regex -- the same layout as yaml's #2753 filter tests.
+
+
+def _abap_args(code: str) -> int:
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    stream = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS).split_streams(code, "abap")["code_stream"]
+    counts, _mit, _maps, _parents, _locs = StructuralExtractor("abap", LANGUAGE_DEFINITIONS).coding_analysis(
+        [("abap", stream, 0)]
+    )
+    return counts["args"]
+
+
+def test_abap_scope_filter_is_declared_for_args():
+    assert ABAP_RULES["_scope_filters"] == {"args": "abap_declaration_statement"}
+
+
+def test_abap_args_contract_2824():
+    # Declarations publish a parameter surface -- counted.
+    assert _abap_args("FORM dispatch CHANGING cv_argv.") == 1
+    assert _abap_args("FORM my_form USING p_in CHANGING cv_out.") == 1, "USING is not a rule keyword; CHANGING is"
+    assert (
+        _abap_args(
+            "METHODS serialize\n"
+            "  IMPORTING\n"
+            "    !iv_url TYPE string\n"
+            "  EXPORTING\n"
+            "    !ev_branch TYPE string\n"
+            "  RETURNING\n"
+            "    VALUE(rt_result) TYPE string_table.\n"
+        )
+        == 3
+    ), "continuation lines belong to the METHODS statement that owns them"
+    assert _abap_args("METHODS: get IMPORTING iv_key TYPE string,\n         put IMPORTING iv_val TYPE string.") == 2, (
+        "a chained METHODS: declaration is one statement, every clause counts"
+    )
+    assert _abap_args("* control shell comment\nFORM probe_cleanup CHANGING cv_conn.") == 1, (
+        "a leading comment line belongs to no statement (rosetta c.abap shape)"
+    )
+
+    # Call sites consume one -- dropped (#2824's measured examples).
+    assert _abap_args("PERFORM probe_branch CHANGING cv_argv.") == 0
+    assert (
+        _abap_args(
+            "CALL FUNCTION 'ENQUEUE_EZABAPGIT'\n"
+            "  EXPORTING\n"
+            "    mode_zabapgit  = iv_mode\n"
+            "  EXCEPTIONS\n"
+            "    foreign_lock   = 1.\n"
+        )
+        == 0
+    )
+    assert _abap_args("RAISE EXCEPTION TYPE zcx_not_supported EXPORTING obj_type = ls_item-obj_type.") == 0
+    assert _abap_args("CREATE OBJECT go_float_regex EXPORTING pattern = 'x'.") == 0
+    assert _abap_args("rt_files = walk( EXPORTING it_objects = it_objects CHANGING ct_files = rt_files ).") == 0
+    assert _abap_args("mi_client->response->get_status( IMPORTING code = lv_code ).") == 0
+
+    # One statement of each kind, adjacent: only the declaration's clause counts.
+    assert _abap_args("FORM dispatch CHANGING cv_argv.\n  PERFORM probe_io CHANGING cv_argv.\nENDFORM.") == 1, (
+        "rosetta main.abap in miniature: 16 -> 13 is exactly the three PERFORM clauses"
+    )
+
+
+def test_abap_scope_filter_redos_immunity():
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    # The tokenizer's alternatives each anchor on a distinct first character
+    # and consume >= 1 char. (The opener skip is deliberately plain code, not
+    # a regex: a first draft's `(?:[ \t\r\n]+|...)*` skip loop was the #631
+    # nested-quantifier shape and THIS detonation caught it.)
+    assert_redos_immune(StructuralExtractor._ABAP_STATEMENT_TOKEN, "'" + "a" * 100000, timeout_sec=3.0)
+    assert_redos_immune(StructuralExtractor._ABAP_STATEMENT_TOKEN, "|" + "{" * 100000, timeout_sec=3.0)
+    assert_redos_immune(StructuralExtractor._ABAP_STATEMENT_TOKEN, "`" * 100001, timeout_sec=3.0)
+    assert_redos_immune(StructuralExtractor._ABAP_STATEMENT_OPENER, "A-" * 50000, timeout_sec=3.0)
+
+    # And the code path the opener regex lives behind stays linear end to end:
+    # a statement that is all skippable content must return no opener quickly.
+    ext = StructuralExtractor("abap", LANGUAGE_DEFINITIONS)
+    payload = ('"' + "x" * 60 + "\n") * 800 + " " * 50000
+    import time
+
+    t0 = time.perf_counter()
+    assert ext._abap_statement_opener(payload, 0, len(payload)) is None
+    assert time.perf_counter() - t0 < 1.0

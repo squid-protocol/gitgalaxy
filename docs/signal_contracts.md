@@ -60,7 +60,7 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-13 stated, 55 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+14 stated, 54 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
@@ -101,7 +101,7 @@ written.** Corollaries every audited contract has needed so far:
 | `spec_exposure` | subsystems | `annotation` | draft |  | Audit tags establishing traceability of intent |  |
 | `ssr_boundaries` | subsystems | `site` | draft |  | Server-Side Rendering computation boundaries |  |
 | `bitwise_ops` | resources | `site` | draft |  | Bitwise operations manipulating raw bytes |  |
-| `cleanup` | resources | `site` | draft | yes | Explicitly destroying state or releasing resources |  |
+| `cleanup` | resources | `site` | stated | yes | A SITE THAT EXPLICITLY DESTROYS STATE OR RELEASES A HELD RESOURCE -- a deallocation or finalization call, a handle or connection close, removal of an entry from a live container or of external state the program owns, or the opener of a guaranteed-teardown region -- in call or statement form. | [cleanup_rule_contract.md](../docs/cleanup_rule_contract.md) #2888 |
 | `debug_prints` | resources | `site` | draft |  | Ad-hoc, temporary debug statements |  |
 | `encapsulation` | resources | `annotation` | draft |  | Explicitly hiding logic from the rest of the application | #2766 |
 | `explicit_casts` | resources | `site` | draft |  | Explicitly bypassing the compiler's type-checker |  |

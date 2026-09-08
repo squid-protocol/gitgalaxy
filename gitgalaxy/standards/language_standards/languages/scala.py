@@ -339,7 +339,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints) Immutability.
         "immutability_locks": re.compile(r"\b(val|final|sealed|readonly|Object\.freeze|immutable)\b"),
         # 46. cleanup (Resource Cleanup / Teardown) Resource release.
-        "cleanup": re.compile(r"\b(dispose|close|cleanup|cancel|free|bracket|finally|onException)\b"),
+        "cleanup": re.compile(
+            r"\b(?<!def )(?:dispose|close|cleanup|cancel|free)\b[ \t]*\(|\.(?:dispose|close|cleanup|cancel|free)\b|\b(?:bracket|finally|onException)\b"
+        ),  # #2888 C1/C3: `def close():` declares and a token in a log string is a name; call or receiver form only
         # 47. encapsulation (Encapsulation / Access Modifiers)
         "encapsulation": re.compile(r"\b(private|protected)\b|private\[[^\]]+\]"),
         # 48. listeners (Event Listeners / Observers) Waiting for state broadcasts.

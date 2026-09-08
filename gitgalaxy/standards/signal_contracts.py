@@ -326,7 +326,16 @@ _ROWS = [
     _c("bitwise_ops", "resources", "site", "Bitwise operations manipulating raw bytes"),
     _c("sync_locks", "resources", "site", "Explicitly coordinating threaded logic to prevent race conditions"),
     _c("immutability_locks", "resources", "annotation", "Explicitly locking data so it cannot be mutated", issue=2772),
-    _c("cleanup", "resources", "site", "Explicitly destroying state or releasing resources", planted=True),
+    _c(
+        "cleanup",
+        "resources",
+        "site",
+        "A SITE THAT EXPLICITLY DESTROYS STATE OR RELEASES A HELD RESOURCE -- a deallocation or finalization call, a handle or connection close, removal of an entry from a live container or of external state the program owns, or the opener of a guaranteed-teardown region -- in call or statement form.",
+        status="stated",
+        doc="docs/cleanup_rule_contract.md",
+        issue=2888,
+        planted=True,
+    ),
     _c(
         "encapsulation",
         "resources",

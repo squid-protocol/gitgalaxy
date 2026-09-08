@@ -266,7 +266,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\bFIXED\s+MEMORY\b", re.I),
         # 46. cleanup (Resource Cleanup / Teardown)
-        "cleanup": re.compile(r"\b(ENDOFJOB|RESUME|EXIT)\b", re.I),
+        "cleanup": re.compile(
+            r"\b(ENDOFJOB|RESUME)\b", re.I
+        ),  # #2888 C2: EXIT is a control transfer; ENDOFJOB releases the job core set, RESUME the interrupt context
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Internal task-local labels or non-global tags.
         # BUG FIX: required a lowercase-starting label, but authentic

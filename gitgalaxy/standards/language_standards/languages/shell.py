@@ -364,7 +364,9 @@ DEFINITION: dict[str, Any] = {
         # unanchored, O(n^2) on a long run of `trap ` occurrences that never
         # resolve to EXIT (confirmed ~4x slowdown per input-size doubling).
         # Bounded to {0,300}, matching the fix already applied to `safety`.
-        "cleanup": re.compile(r"\b(rm\s+-f|trap\s+.{0,300}EXIT|unset|exit|logout)\b"),
+        "cleanup": re.compile(
+            r"\brm[ \t]+-[a-zA-Z]*f[a-zA-Z]*[ \t]+(?!/(?:[^A-Za-z]|$))\S|\btrap[ \t]+[^\n]{0,300}\bEXIT\b|\bunset\b"
+        ),  # #2888 C2: exit terminates (panics_and_aborts owns it); rm flags-with-f on a non-root target destroys external state (#2843; rm -rf / stays high_risk\'s)
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Physical Reality: local variables represent internal state scope.
         "encapsulation": re.compile(r"\b(local|typeset|declare)\b"),

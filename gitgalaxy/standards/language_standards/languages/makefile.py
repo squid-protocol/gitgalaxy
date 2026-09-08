@@ -254,7 +254,9 @@ DEFINITION: dict[str, Any] = {
         # Enforcing strict immutability bounds on state configuration. .
         "immutability_locks": re.compile(r"^[ \t]*override[ \t]+[a-zA-Z0-9_.-]+", re.M),
         # Janitor routines ripping apart build artifacts and cleanly tearing down output paths. .
-        "cleanup": re.compile(r"^[ \t]*(?:dist)?clean[ \t]*::?|\brm[ \t]+-[a-zA-Z]*f[a-zA-Z]*\b", re.M),
+        "cleanup": re.compile(
+            r"\brm[ \t]+-[a-zA-Z]*f[a-zA-Z]*\b", re.M
+        ),  # #2888 C1: a clean: target header names the routine (func_start\'s unit); its recipe carries the sites
         # The Vault explicitly hiding scope logic away from external API leakage boundaries. .
         "encapsulation": re.compile(
             r"^[ \t]*(?:unexport[ \t]+[a-zA-Z0-9_.-]+|[a-zA-Z0-9_.-]+[ \t]*:[ \t]*private[ \t]+|\.SILENT[ \t]*:)",

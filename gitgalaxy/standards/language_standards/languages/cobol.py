@@ -505,7 +505,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints) Immutability.
         "immutability_locks": re.compile(r"\b(CONSTANT)\b", re.I),
         # 46. cleanup (Resource Cleanup / Teardown) Resource release.
-        "cleanup": re.compile(r"\b(CLOSE|FREE|END-DECLARATIVES)\b", re.I),
+        "cleanup": re.compile(
+            r"(?<![\w\'-])(CLOSE|FREE|DELETE)(?![\w-])", re.I
+        ),  # #2888 C3: \\b fired inside 9000-DALYTRAN-CLOSE and \'CLOSE...\' literals; END-DECLARATIVES is a structural closer (#2869\'s END-* family); DELETE removes a record (#2843)
         # 47. encapsulation (Encapsulation / Access Modifiers)
         "encapsulation": re.compile(r"\b(LOCAL-STORAGE\s+SECTION|PRIVATE)\b", re.I),
         # 48. listeners (Event Listeners / Observers)

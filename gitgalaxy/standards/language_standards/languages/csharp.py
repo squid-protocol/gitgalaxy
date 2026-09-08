@@ -508,7 +508,9 @@ DEFINITION: dict[str, Any] = {
         # idiomatic C# always PascalCases public members
         # (`.Dispose()`, `.Close()`), so the realistic form never
         # matched at all; only a non-idiomatic lowercase call would.
-        "cleanup": re.compile(r"\b(dispose|close|free|delete|GC\.Collect|GC\.SuppressFinalize)\b\s*\(", re.I),
+        "cleanup": re.compile(
+            r"\b(?<!void )(dispose|close|free|delete|GC\.Collect|GC\.SuppressFinalize)\b\s*\(", re.I
+        ),  # #2888 C1: `public void Dispose()` declares the routine
         # 47. encapsulation (Access Modifiers / Encapsulation)
         "encapsulation": re.compile(r"\b(private|protected|internal|file)\b"),
         # 48. listeners (Event Listeners / Observers)

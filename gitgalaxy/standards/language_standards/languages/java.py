@@ -399,7 +399,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\b(final|immutable|unmodifiable[A-Z]\w*|Object\.freeze)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
-        "cleanup": re.compile(r"\b(close|dispose|shutdown|free|release|cleaner\.register)\b\s*\("),
+        "cleanup": re.compile(
+            r"\b(?<!void )(close|dispose|shutdown|free|release|cleaner\.register)\b\s*\("
+        ),  # #2888 C1: `void close(ApplicationContext c) {` declares
         # 47. encapsulation (Access Modifiers / Encapsulation)
         "encapsulation": re.compile(r"\b(private|protected|internal)\b"),
         # 48. listeners (Event Listeners / Observers)

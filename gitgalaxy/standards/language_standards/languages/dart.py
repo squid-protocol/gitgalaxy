@@ -452,7 +452,9 @@ DEFINITION: dict[str, Any] = {
         # actually written. Never matched at all.
         "immutability_locks": re.compile(r"\b(?:const|final|readonly)\b|@immutable", re.I),
         # 46. cleanup (Resource Cleanup / Teardown) Resource release.
-        "cleanup": re.compile(r"\b(dispose|close|cleanup|cancel|drop|free)\s*\(", re.I),
+        "cleanup": re.compile(
+            r"\b(?<!void )(dispose|close|cleanup|cancel|drop|free)\s*\(", re.I
+        ),  # #2888 C1: `void dispose() {` declares
         # 47. encapsulation Scope hiding (Underscore prefix).
         "encapsulation": re.compile(r"\b(_[a-zA-Z0-9_$]+)\b|@protected|@private"),
         # 48. listeners (Event Listeners / Observers) Waiting for state broadcasts.

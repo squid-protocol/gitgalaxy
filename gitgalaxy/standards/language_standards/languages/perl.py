@@ -380,7 +380,10 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints) Explicitly locking data so it cannot be mutated.
         "immutability_locks": re.compile(r"\b(Readonly|Const::Fast|Internals::SvREADONLY)\b"),
         # 46. cleanup (Resource Cleanup / Teardown) Explicitly destroying state or releasing resources.
-        "cleanup": re.compile(r"\b(DESTROY|undef|close|closedir|finish)\b|^[ \t]*END[ \t]*\{", re.M),
+        "cleanup": re.compile(
+            r"(?<!sub )\bDESTROY\b|\b(?:close|closedir)\b|\bundef\b(?=[ \t]*\(|[ \t]+[\$@%*])|->[ \t]*finish\b|\bfinish[ \t]*\(|^[ \t]*END[ \t]*\{",
+            re.M,
+        ),  # #2888 C3: `return undef` yields a value, only `undef $x` destroys one; C1/C3: `sub finish {` declares and `=head2 finish` documents; call or arrow form only
         # 47. encapsulation Explicitly hiding logic from the rest of the application.
         "encapsulation": re.compile(r"\b(my|state|local)\b|:private\b"),
         # 48. listeners (Event Listeners / Observers) Waiting to receive state from an external broadcast.

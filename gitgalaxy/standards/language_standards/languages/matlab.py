@@ -275,7 +275,10 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\bConstant\b"),
         # cleanup: Garbage collection and explicit file/handle destruction.
-        "cleanup": re.compile(r"\b(?:clear|clearvars|delete|close|fclose|onCleanup)\b"),
+        "cleanup": re.compile(
+            r"(?:^|[,;])[ \t]*(?:clear|clearvars|close|fclose|delete)\b(?![ \t]*=(?!=))|\b(?:delete|close|fclose|onCleanup)[ \t]*\(",
+            re.M,
+        ),  # #2888 C3: command form at statement position or call form; a bare token mid-expression is a name
         # 47. encapsulation (Encapsulation / Access Modifiers)
         "encapsulation": re.compile(r"Access[ \t]*=[ \t]*(?:private|protected)"),
         # 48. listeners (Event Listeners / Observers)

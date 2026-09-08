@@ -311,7 +311,9 @@ DEFINITION: dict[str, Any] = {
             r"(?<![^ \t\n\r(\[])(quote|string->immutable-string)(?![^ \t)\]\n\r])|\'(?=\()"
         ),
         # 46. cleanup (Resource Cleanup / Teardown)
-        "cleanup": re.compile(r"(?<![^ \t\n\r(\[])(close-input-port|close-output-port|close-port)(?![^ \t)\]\n\r])"),
+        "cleanup": re.compile(
+            r"(?<=[(\[])[ \t]*(close-input-port|close-output-port|close-port)(?![^ \t)\]\n\r])"
+        ),  # #2888 C3: head position only; `(call-port-handler close-port ...)` passes the name
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Module-internal definitions.
         "encapsulation": re.compile(r"^[ \t]*\([ \t]*define-private(?![^ \t)\]\n\r])", re.M),

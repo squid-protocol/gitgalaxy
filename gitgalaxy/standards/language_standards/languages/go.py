@@ -330,7 +330,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\bconst\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
-        "cleanup": re.compile(r"\b(defer|Close|Unlock|RUnlock|Stop|Cleanup)\b\s*\("),
+        "cleanup": re.compile(
+            r"\b(defer|Close|Stop|Cleanup)\b\s*\("
+        ),  # #2888 C5: Unlock/RUnlock are sync_locks\' tokens (the release half of coordination)
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Unexported identifiers (lowercase) in Go are private/internal.
         # BUG FIX (two layered issues):

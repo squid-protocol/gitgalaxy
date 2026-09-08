@@ -239,9 +239,8 @@ DEFINITION: dict[str, Any] = {
         # 6. safety: Defensive Programming. ARC memory qualifiers and Cocoa/NeXT Assertions.
         # BUG FIX: @try/@catch/@finally never matched -- same \b-before-@
         # shape as branch's fix above.
-        "safety": re.compile(
-            r"@(try|catch|finally)\b|\b(__weak|__strong|__auto_type|NSAssert|NSParameterAssert|NSError|nil|Nil)\b"
-        ),
+        # C4: bare nil is every null literal. C1: NSError is a type name. ARC qualifiers stay: zeroing weak refs are a runtime crash-prevention mechanism (C5 note).
+        "safety": re.compile(r"@(try|catch|finally)\b|\b(__weak|__strong|__auto_type|NSAssert|NSParameterAssert)\b"),
         # 7. safety_neg: Safety Bypasses. Bypassing ARC, raw void pointers, and dangerous dynamic selectors.
         # BUG FIX: `void\s*\*` (trailing \b after a literal `*`) and
         # `performSelector:` (trailing \b after a literal `:`) only

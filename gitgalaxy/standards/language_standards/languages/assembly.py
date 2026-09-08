@@ -138,8 +138,9 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety (Defensive Programming / Validation)
         # Stack preservation and defensive frame setups.
+        # C2: frame mechanics/alignment are structure; CFI/pointer-auth hardening stays.
         "safety": re.compile(
-            r"\b(enter|leave|endbr64|paciasp|autiasp|bti|retab|\.align|\.p2align)\b|\b(?:stp|ldp)\s+x29,\s*x30",
+            r"\b(endbr64|paciasp|autiasp|bti|retab)\b",
             re.I,
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)

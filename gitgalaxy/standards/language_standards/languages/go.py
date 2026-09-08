@@ -98,9 +98,8 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: `recover\(\)` ends on `)` (non-word), so the shared
         # trailing \b could never fire -- the classic
         # `defer func() { recover() }()` idiom never matched.
-        "safety": re.compile(
-            r"err\s*!=\s*nil|\b(?:errors\.(?:Is|As|New|Join)|sync\.(?:Once|WaitGroup)|context\.Context)\b|\brecover\(\)"
-        ),
+        # C2: errors.New constructs. C3: sync.* is concurrency's. C1: context.Context is a type.
+        "safety": re.compile(r"err\s*!=\s*nil|\b(?:errors\.(?:Is|As|Join))\b|\brecover\(\)"),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Explicitly ignoring errors via blank identifier.
         # BUG FIX (#2542): the import alternation made the dot OPTIONAL

@@ -68,7 +68,8 @@ _COBOL_SIMPLE_CASES = [
     ("structural_boundaries", "PROCEDURE DIVISION.", "MOVE X TO Y."),
     ("func_start", "       100-PROCESS-RECORDS SECTION.", "       01  WS-POLICY-RECORD."),
     ("class_start", "       PROGRAM-ID. MYPROG.", "       100-PROCESS-RECORDS SECTION."),
-    ("safety", "END-IF", "MOVE X TO Y."),
+    # #2869 contract: C2, END-* scope terminators are structure's, not safety's
+    ("safety", "VALIDATE REC.", "END-IF"),
     ("safety_bypasses", "GO TO PARA-X", "MOVE X TO Y."),
     ("high_risk_execution", "STOP RUN.", "MOVE X TO Y."),
     ("io", "READ CUSTOMER-FILE", "MOVE X TO Y."),

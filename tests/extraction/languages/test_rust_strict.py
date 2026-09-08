@@ -40,7 +40,8 @@ _RUST_SIMPLE_CASES = [
     ("structural_boundaries", "let x = 1;", "x + 1;"),
     ("func_start", "fn foo() {}", "struct Foo {}"),
     ("class_start", "struct Foo {}", "fn foo() {}"),
-    ("safety", "match x {", "let x = 1;"),
+    # #2869 contract: C1/C3, bare match is branch's now; the fallback family is the form
+    ("safety", "let v = x.unwrap_or(0);", "match x {"),
     ("safety_bypasses", "x.unwrap()", "let x = 1;"),
     ("high_risk_execution", 'panic!("oops")', "let x = 1;"),
     ("io", "std::fs::read(path)", "let x = 1;"),

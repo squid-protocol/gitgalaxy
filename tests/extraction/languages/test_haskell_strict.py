@@ -85,7 +85,8 @@ _HS_SIMPLE_CASES = [
     ("api", "module MyLib (foo, bar) where", "import MyLib (foo, bar)"),
     ("branch", "if x then y else z", "x = y"),
     ("structural_boundaries", "module Foo where", "mod = 5"),
-    ("safety", "case result of\n  Just x -> x\n  Nothing -> 0", "x = 5"),
+    # #2869 contract: C1, bare constructors (Just x) are invisible now; fromMaybe/Nothing-> are the forms
+    ("safety", "fromMaybe 0 result", "Just x -> x"),
     ("safety_bypasses", "fromJust maybeValue", "fromJustified"),
     ("high_risk_execution", "exitWith (ExitFailure 1)", "exitWithout"),
     ("io", 'contents <- readFile "f.txt"', "readFiles = True"),

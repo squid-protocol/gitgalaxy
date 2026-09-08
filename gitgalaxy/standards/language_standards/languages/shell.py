@@ -127,8 +127,9 @@ DEFINITION: dict[str, Any] = {
         # {0,300}; the `${...}` clauses use the one-level-nesting form so a
         # realistic nested default like `${LOG_LEVEL:-${DEFAULT:-info}}` is
         # captured in full instead of truncating at the inner `}`.
+        # C4: quoted expansion is ordinary shell. The ${VAR:-default} fallback form stays (C1).
         "safety": re.compile(
-            r'\b(set\s+-(?:[a-zA-Z]*e[a-zA-Z]*|u|o\s+pipefail)|trap\s+[^\n]{0,300}(?:ERR|EXIT|INT|TERM))\b|"\$[@*]"|"\$\{(?:[^{}]|\{[^{}]*\})+\}"|\bcommand\s+-v\b|\$\{[a-zA-Z0-9_]+:[-=?](?:[^{}]|\{[^{}]*\})*\}'
+            r"\b(set\s+-(?:[a-zA-Z]*e[a-zA-Z]*|u|o\s+pipefail)|trap\s+[^\n]{0,300}(?:ERR|EXIT|INT|TERM))\b|\bcommand\s+-v\b|\$\{[a-zA-Z0-9_]+:[-=?](?:[^{}]|\{[^{}]*\})*\}"
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Unquoted variables, dynamic evaluation, and blind network-to-shell piping.

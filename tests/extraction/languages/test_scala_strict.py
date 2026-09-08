@@ -64,7 +64,8 @@ _SCALA_SIMPLE_CASES = [
     ("structural_boundaries", "import scala.util.Try", "extendedInfo = fetch()"),
     ("func_start", "def foo() = {}", "if (x) foo()"),
     ("class_start", "class Foo {", "Class.forName(name)"),
-    ("safety", "val x: Option[Int] = None", "optional = true"),
+    # #2869 contract: C1, constructors/types (Option[Int]) are invisible now; require() is the form
+    ("safety", "require(x > 0)", "val x: Option[Int] = None"),
     ("safety_bypasses", "x.asInstanceOf[String]", "x.getClass"),
     ("high_risk_execution", "System.exit(1)", "System.currentTimeMillis()"),
     ("io", "Source.fromFile(path)", "sourceMap = generate()"),

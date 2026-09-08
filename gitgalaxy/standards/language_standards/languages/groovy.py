@@ -257,9 +257,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 2: RISK ENGINE (Structural Integrity) ---
         # 6. safety (Defensive Programming / Validation)
-        "safety": re.compile(
-            r"\b(try|catch|finally|assert|instanceof|Optional)\b|@(?:Valid|Validated|NotNull|NonNull|Immutable)"
-        ),
+        # C1: Optional is a type name; @Immutable is not runtime validation (twin of java.py).
+        "safety": re.compile(r"\b(try|catch|finally|assert|instanceof)\b|@(?:Valid|Validated|NotNull|NonNull)"),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         "safety_bypasses": re.compile(
             r"\b(null)\b|return\s+null|catch\s*\(\s*(?:Exception|Throwable)\b|@SuppressWarnings|@SneakyThrows|\.get\(\)"

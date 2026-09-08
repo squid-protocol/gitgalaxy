@@ -431,16 +431,20 @@ def test_embedded_python_func_start_vs_macros_no_collision():
 def test_embedded_python_safety_and_reflection_metaprogramming_intentional_double_classification():
     """
     Ambiguity sweep: `safety` and `reflection_metaprogramming` both list
-    `hasattr`/`getattr` and both fire on the same
-    `hasattr(sensor, 'read')`/`getattr(sensor, 'read')` call. Confirmed
-    genuine, intentional double-classification (present identically in
-    python's own already-hardened rules dict, not an embedded_python-only
-    accident): a runtime attribute-existence probe is simultaneously a
-    defensive validation technique (safety) AND a dynamic/reflective
-    attribute access (reflection_metaprogramming) -- both are structurally
-    true at once, the same accepted double-classification shape used
-    elsewhere in this codebase (e.g. dockerfile's ENV firing both `globals`
-    and `state_mutation`).
+    `hasattr` and both fire on the same `hasattr(sensor, 'read')` call.
+    Confirmed genuine, intentional double-classification (present
+    identically in python's own already-hardened rules dict, not an
+    embedded_python-only accident): a runtime attribute-existence probe is
+    simultaneously a defensive validation technique (safety) AND a
+    dynamic/reflective attribute access (reflection_metaprogramming) --
+    both are structurally true at once, the same accepted
+    double-classification shape used elsewhere in this codebase (e.g.
+    dockerfile's ENV firing both `globals` and `state_mutation`).
+
+    #2869 contract: bare `getattr` dropped from `safety` (C3 twin-parity
+    with python -- it's reflection_metaprogramming's alone now, the
+    unchecked/no-default attribute pull is not itself a defensive form).
+    `hasattr` keeps its dual role; `getattr` no longer does.
     """
     safety = EP_RULES["safety"]
     reflection = EP_RULES["reflection_metaprogramming"]
@@ -450,7 +454,7 @@ def test_embedded_python_safety_and_reflection_metaprogramming_intentional_doubl
     assert reflection.search(line)
 
     line2 = "value = getattr(sensor, 'read', None)"
-    assert safety.search(line2)
+    assert not safety.search(line2), "getattr must no longer count as safety (#2869 C3 twin-parity)"
     assert reflection.search(line2)
 
 

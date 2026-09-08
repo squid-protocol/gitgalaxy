@@ -162,7 +162,7 @@ Generate a valid Python dictionary matching this exact structure.
         "class_start": re.compile(r""), 
 
         # --- PHASE 2: SAFETY & EXECUTION RISK ---
-        # safety: Defensive programming constructs that prevent crashes at runtime. Includes: try/catch, explicit null checks, guard. EXCLUDES: Immutability.
+        # safety: A site that handles or forestalls a runtime failure at the value level -- a guarded region's opener or its typed handler, a runtime assertion or validation call, a fallback or handled-absence form, an installed failure handler or watchdog, or a hardening instruction -- in a form an ordinary identifier, type annotation or constructor cannot match. Includes: try/typed catch, assert/require/precondition, fromMaybe/unwrap_or fallbacks, trap/watchdogs, endbr64. EXCLUDES: type annotations and constructors (Maybe, Option, sealed), blanket handlers (bare except -- safety_bypasses'), release combinators (finally -- cleanup's), raising (throw/error), block closers (END-IF), frame mechanics, immutability (#2772's axis).
         "safety": re.compile(r""), 
         # safety_bypasses: Syntax that actively bypasses type safety, swallows errors, or relies on unpredictable state. Includes: Force unwrapping (!), any, raw memory casting, linter bypasses (@ts-ignore).
         "safety_bypasses": re.compile(r""), 

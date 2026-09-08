@@ -180,8 +180,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety (Defensive Programming / Validation)
+        # C1: Optional is a type name; @Immutable/@Transactional are not runtime validation.
         "safety": re.compile(
-            r"\b(try|catch|finally|assert|Optional|Objects\.requireNonNull|instanceof)\b|@(Valid|Validated|NotNull|NonNull|NotBlank|Immutable|Transactional)\b"
+            r"\b(try|catch|finally|assert|Objects\.requireNonNull|instanceof)\b|@(Valid|Validated|NotNull|NonNull|NotBlank)\b"
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         "safety_bypasses": re.compile(

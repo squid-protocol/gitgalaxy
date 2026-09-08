@@ -186,7 +186,16 @@ _ROWS = [
         planted=True,
     ),
     # --- PHASE 2: SAFETY & EXECUTION RISK ---
-    _c("safety", "safety", "site", "Defensive programming constructs that prevent crashes at runtime", planted=True),
+    _c(
+        "safety",
+        "safety",
+        "site",
+        "A site that handles or forestalls a runtime failure at the value level -- a guarded region's opener or its typed handler, a runtime assertion or validation call, a fallback or handled-absence form, an installed failure handler or watchdog, or a hardening instruction -- in a form an ordinary identifier, type annotation or constructor cannot match",
+        status="stated",
+        doc="docs/safety_rule_contract.md",
+        issue=2869,
+        planted=True,
+    ),
     _c(
         "safety_bypasses",
         "safety",

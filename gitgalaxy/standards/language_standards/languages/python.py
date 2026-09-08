@@ -165,8 +165,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety (Defensive Programming / Validation)
+        # C3: blanket except is safety_bypasses'; bare getattr is reflection_metaprogramming's. C1: dataclass/Field/TypeGuard/override are declaration/type-level.
         "safety": re.compile(
-            r"\b(try|except(?:\*)?|finally|assert|isinstance|issubclass|hasattr|getattr|dataclass|BaseModel|Field|TypeGuard|override)\b"
+            r"\b(try|finally|assert|isinstance|issubclass|hasattr|BaseModel)\b|\bexcept\*?\s+(?!(?:Base)?Exception\b)[A-Za-z_]\w*"
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Swallowed errors, wildcard imports, and Any bypasses.

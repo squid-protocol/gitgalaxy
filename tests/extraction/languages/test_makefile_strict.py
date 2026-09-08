@@ -83,7 +83,9 @@ _MAKEFILE_SIMPLE_CASES = [
     ("thread_sleeps", "\tsleep 5", "\tdate"),
     ("sync_locks", ".NOTPARALLEL:", ".PHONY:"),
     ("immutability_locks", "override CFLAGS += -g", "CFLAGS += -g"),
-    ("cleanup", "clean:", "build:"),
+    # #2888 C1: the clean: target header names the routine (func_start's unit);
+    # its rm -f recipe carries the cleanup sites.
+    ("cleanup", "\trm -f leftovers", "clean:"),
     ("encapsulation", "unexport SECRET_VAR", "export PUBLIC_VAR"),
     ("listeners", "\tinotifywait -m ./src", "\tls ./src"),
     ("test_skip", "SKIP_TESTS=1", "RUN_TESTS=1"),
@@ -401,7 +403,7 @@ def test_makefile_cleanup_flag_pattern_redos_immunity():
     cleanup = MAKEFILE_RULES["cleanup"]
     assert_redos_immune(cleanup, "rm -" + "a" * 50000, timeout_sec=3.0)
     assert cleanup.search("rm -rf build/")
-    assert cleanup.search("clean:")
+    assert not cleanup.search("clean:")  # #2888 C1: the target header is func_start's unit
 
 
 def test_makefile_macros_and_locks_redos_immunity():
@@ -468,9 +470,14 @@ def test_makefile_api_and_cleanup_ambiguity_sweep_clean_target():
     cleanup = MAKEFILE_RULES["cleanup"]
 
     assert api.search("clean:")
-    assert cleanup.search("clean:")
+    # #2888 retires the cleanup half of this dual: the clean: header is the
+    # ROUTINE (func_start's unit, api's lifecycle surface); the teardown
+    # sites are the rm -f lines in its recipe. Counting header + recipe
+    # double-counted every clean target (the corpus's one open cleanup cell).
+    assert not cleanup.search("clean:")
+    assert cleanup.search("\trm -f build/*.o")
 
-    assert cleanup.search("distclean:")
+    assert not cleanup.search("distclean:")  # #2888: same C1 as clean: -- the header is the routine
     assert not api.search("distclean:"), "distclean should not be part of api's named-target surface"
 
 

@@ -393,7 +393,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\b(const|readonly|final|Object\.freeze|Object\.seal)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
-        "cleanup": re.compile(r"\b(dispose|close|destroy|clearTimeout|clearInterval|removeEventListener|delete)\b"),
+        "cleanup": re.compile(
+            r"\b(?:clearTimeout|clearInterval|removeEventListener)\s*\(|\b(?<!function )(?:dispose|close|destroy)\s*\((?!\s*\)\s*(?::|\{))"
+        ),  # #2888 C1: bare tokens counted declarations and prose; C5: .delete( is state_mutation\'s (#2765)
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # JS private fields and keywords. `#` needed its own un-bounded
         # branch: \b#\b can only match when `#` is directly sandwiched

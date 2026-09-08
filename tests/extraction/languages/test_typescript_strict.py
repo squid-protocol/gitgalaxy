@@ -386,8 +386,8 @@ def test_typescript_intentional_double_classification_sweep():
     - `Atomics.wait(...)` -> sync_locks (coordination) + thread_sleeps
       (blocks the calling agent)
     - `new RegExp(x)` -> memory_alloc (object instantiation) + regex_execution
-    - `mySet.delete(x)` -> cleanup (bare `delete` keyword) + state_mutation
-      (`.delete(` method call) -- same token, two real signatures
+    - `mySet.delete(x)` -> state_mutation alone since #2888 (the cleanup
+      half of the old dual is retired: one token, one owner)
     - `private foo() {}` -> args (captures the whole signature) +
       encapsulation (private modifier)
     """
@@ -415,9 +415,13 @@ def test_typescript_intentional_double_classification_sweep():
     assert TYPESCRIPT_RULES["memory_alloc"].search(new_regexp)
     assert TYPESCRIPT_RULES["regex_execution"].search(new_regexp)
 
+    # #2888 retires the cleanup half of the `.delete(` dual: the container
+    # mutator is state_mutation's token alone (#2765's family); cleanup keeps
+    # the release verbs in call form.
     set_delete = "mySet.delete(x);"
-    assert TYPESCRIPT_RULES["cleanup"].search(set_delete)
+    assert not TYPESCRIPT_RULES["cleanup"].search(set_delete)
     assert TYPESCRIPT_RULES["state_mutation"].search(set_delete)
+    assert TYPESCRIPT_RULES["cleanup"].search("subscription.dispose();")
 
     private_method = "private foo(x: number) {"
     assert TYPESCRIPT_RULES["args"].search(private_method)

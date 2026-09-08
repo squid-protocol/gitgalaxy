@@ -363,7 +363,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\b(const|constexpr|alignas|restrict)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
-        "cleanup": re.compile(r"\b(free|fclose|close|munmap|destroy|shutdown)\b\s*\("),
+        "cleanup": re.compile(
+            r"\b(free|fclose|close|munmap|destroy|shutdown|remove)\b\s*\("
+        ),  # #2888/#2843: remove() destroys external state, the sqlite DROP TABLE precedent
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Physical Reality: Static functions/variables are internal/private to the translation unit.
         "encapsulation": re.compile(r"^[ \t]*static\b", re.M),

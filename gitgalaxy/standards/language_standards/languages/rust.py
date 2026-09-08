@@ -328,7 +328,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\b(const|static|immutable|readonly)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
-        "cleanup": re.compile(r"\b(drop|free|delete|close|shutdown)\b\s*\("),
+        "cleanup": re.compile(
+            r"\b(?<!fn )(drop|free|delete|close|shutdown)\b\s*\("
+        ),  # #2888 C1: `fn drop(&mut self)` declares the Drop impl; drop(x) invokes it
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Visibility variant tracking.
         "encapsulation": re.compile(r"\bpub(?:\(crate\)|\(super\)|\(self\))?\b"),

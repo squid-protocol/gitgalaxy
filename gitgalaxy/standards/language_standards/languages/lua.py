@@ -247,7 +247,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"<\s*const\s*>"),
         # 46. cleanup (Resource Cleanup / Teardown)
-        "cleanup": re.compile(r"\b(ffi\.C\.free|collectgarbage|io\.close|:[ \t]*close)\b|<\s*(?:close|toclose)\s*>"),
+        "cleanup": re.compile(
+            r"\b(ffi\.C\.free|collectgarbage(?![ \t]*\([ \t]*[\"\'](?:stop|restart|isrunning|count|setpause|setstepmul|incremental|generational)\b)|io\.close|:[ \t]*close)\b|<\s*(?:close|toclose)\s*>"
+        ),  # #2888 C4: collectgarbage("stop"/"restart"/...) configures the collector
         # 47. encapsulation
         "encapsulation": re.compile(r"\b(local|_ENV)\b|---@private", re.M),
         # 48. listeners (Event Listeners / Observers)

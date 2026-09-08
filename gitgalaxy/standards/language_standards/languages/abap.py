@@ -289,7 +289,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints) Immutability (constants).
         "immutability_locks": re.compile(r"\b(CONSTANTS|FINAL|READ-ONLY)\b", re.I),
         # 46. cleanup (Resource Cleanup / Teardown)
-        "cleanup": re.compile(r"^[ \t]*(FREE|CLEAR|CLOSE\s+DATASET)\b", re.I | re.M),
+        "cleanup": re.compile(
+            r"^[ \t]*(FREE|CLEAR|CLOSE\s+DATASET)\b(?![ \t]+FOR\b)", re.I | re.M
+        ),  # #2888 C1: `clear FOR zif~clear` on an ALIASES continuation line declares an alias
         # 47. encapsulation (Encapsulation / Access Modifiers)
         "encapsulation": re.compile(r"\b(PRIVATE\s+SECTION|PROTECTED\s+SECTION)\b", re.I),
         # 48. listeners (Event Listeners / Observers)

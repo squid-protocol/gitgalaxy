@@ -217,7 +217,9 @@ DEFINITION: dict[str, Any] = {
         # Tcl lacks `const`, but setting a trace to prevent writes is the Tcl idiom for freezing.
         "immutability_locks": re.compile(r"\btrace[ \t]+add[ \t]+variable[ \t]+[a-zA-Z0-9_:]+[ \t]+write\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
-        "cleanup": re.compile(r'\b(?:close|unset)\b|rename[ \t]+[a-zA-Z0-9_:]+[ \t]+""'),
+        "cleanup": re.compile(
+            r'\b(?:close|unset)\b|\bfile[ \t]+delete\b|rename[ \t]+[a-zA-Z0-9_:]+[ \t]+""'
+        ),  # #2888/#2843: file delete destroys external state
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Internal namespaces and private `_` prefixed procs.
         "encapsulation": re.compile(r"\bnamespace[ \t]+eval\b|^[ \t]*proc[ \t]+_[a-zA-Z0-9_:]+", re.M),

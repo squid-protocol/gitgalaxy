@@ -428,7 +428,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints) Immutability.
         "immutability_locks": re.compile(r"\b(const|readonly|immutable)\b"),
         # 46. cleanup (Resource Cleanup / Teardown) Resource release (Crucial for MRC NeXT era).
-        "cleanup": re.compile(r"\b(dealloc|release|autorelease|free|NX_FREE)\b"),
+        "cleanup": re.compile(
+            r"(?<![-+] )(?<!\))\b(dealloc|release|autorelease|free|NX_FREE)\b"
+        ),  # #2888 C1: `- free` and `- (void)free` declare; `[super free]` and free(x) are sites
         # 47. encapsulation Hiding logic from the application.
         # BUG FIX: the leading \b before `@` never matched (same shape as
         # branch's fix above). The trailing \b is fine as-is (each

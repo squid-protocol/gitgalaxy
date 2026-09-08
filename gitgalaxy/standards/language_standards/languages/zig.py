@@ -227,7 +227,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints) Immutability.
         "immutability_locks": re.compile(r"\bconst\b"),
         # 46. cleanup (Resource Cleanup / Teardown) Resource release.
-        "cleanup": re.compile(r"\b(deinit|free|destroy|allocator\.free)\b"),
+        "cleanup": re.compile(
+            r"\b(?<!fn )(deinit|free|destroy|allocator\.free)\b"
+        ),  # #2888 C1: `pub fn deinit(` declares
         # 47. encapsulation Scope hiding (Lack of pub).
         "encapsulation": re.compile(r"^[ \t]*(?!(?:pub|export|extern)\b)(?:const|var|fn)\s+", re.M),
         # 48. listeners (Event Listeners / Observers)

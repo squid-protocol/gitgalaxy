@@ -271,7 +271,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints)
         "immutability_locks": re.compile(r"\b(Final|frozenset|mappingproxy|immutable)\b"),
         # 46. cleanup (Resource Cleanup / Teardown)
-        "cleanup": re.compile(r"\b(close|__exit__|del|gc\.collect|cleanup)\b\s*\("),
+        "cleanup": re.compile(
+            r"\b(?<!def )(close|__exit__|del|gc\.collect|cleanup)\b\s*\("
+        ),  # #2888 C1: `def close(self):` declares (python twin)
         # 47. encapsulation (Access Modifiers / Encapsulation)
         "encapsulation": re.compile(r"\b_[a-zA-Z_]\w*\b"),
         # 48. listeners (Event Listeners / Observers)

@@ -149,16 +149,14 @@ def test_lua_listeners_on_call_boundary_regression():
 
 def test_lua_ambiguity_sweep_shared_literals_are_not_bugs():
     """
-    Documents 7 pairs the automated ambiguity sweep flagged, mostly
+    Documents pairs the automated ambiguity sweep flagged, mostly
     centered on Lua 5.4's `<const>`/`<close>` attribute syntax
-    (cleanup<->concurrency, cleanup<->safety, cleanup<->
-    structural_boundaries, concurrency<->safety, concurrency<->
-    structural_boundaries, safety<->structural_boundaries) plus
+    (cleanup<->concurrency, cleanup<->structural_boundaries) plus
     dead_code<->doc (sharing "return"). All confirmed non-bugs:
-    - A `<close>`-attributed local variable is genuinely triple-
-      classified by design (it's simultaneously a safety mechanism, a
-      structural declaration modifier, and a cleanup signal) -- verified
-      directly, not a false collision.
+    - A `<close>`-attributed local variable is genuinely dual-
+      classified by design (it's simultaneously a structural declaration
+      modifier and a cleanup signal) -- verified directly, not a false
+      collision.
     - "close" appearing in both `uv.close` (concurrency) and `io.close`/
       `ffi.C.free` (cleanup) are different, correctly-namespaced tokens
       that don't actually collide on the same real code.
@@ -166,6 +164,10 @@ def test_lua_ambiguity_sweep_shared_literals_are_not_bugs():
       disambiguates it from doc's `---@return` EmmyLua tag (three
       dashes, not two) -- confirmed neither matches the other's positive
       case.
+
+    #2869 contract: `<close>`/`<toclose>` dropped from `safety` (C3 --
+    cleanup is the verified owner). `<close>` is no longer triple-
+    classified; it's cleanup<->structural_boundaries only now.
     """
     dead_code = LUA_RULES["dead_code"]
     doc = LUA_RULES["doc"]
@@ -183,7 +185,8 @@ def test_lua_ambiguity_sweep_shared_literals_are_not_bugs():
     assert not doc.search(commented_return)
 
     close_var = "local f <close> = io.open(path)"
-    assert cleanup.search(close_var) and safety.search(close_var) and structural_boundaries.search(close_var)
+    assert cleanup.search(close_var) and structural_boundaries.search(close_var)
+    assert not safety.search(close_var), "<close> must no longer count as safety (#2869 C3, cleanup owns it)"
 
     uv_close = "uv.close(handle)"
     assert concurrency.search(uv_close)

@@ -131,8 +131,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety: Defensive Programming. Defensive programming and screen/message locking.
+        # C2: throw raises, not handles. (batch4's livecode throw safety+branch pair retires.)
         "safety": re.compile(
-            r"\b(try|catch|finally|throw|lock\s+screen|lock\s+messages|lock\s+errordialogs|assert|strict\s+compilation|is\s+a|is\s+strictly)\b",
+            r"\b(try|catch|finally|lock\s+screen|lock\s+messages|lock\s+errordialogs|assert|strict\s+compilation|is\s+a|is\s+strictly)\b",
             re.I,
         ),
         # 7. safety_neg: Safety Bypasses. Actively bypassing safety (disabling messages, raw do).

@@ -80,9 +80,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety: Defensive Programming. Protected calls, assertions, and type checks.
-        "safety": re.compile(
-            r"\b(pcall|xpcall|assert|error|type|getmetatable|rawequal|ipairs|pairs|next)\b|<\s*(?:const|close|toclose)\s*>"
-        ),
+        # C2: error( raises; type/getmetatable/rawequal/ipairs/pairs/next are introspection/iteration. C3: <close|toclose> cleanup's (verified owner); <const> immutability's.
+        "safety": re.compile(r"\b(pcall|xpcall|assert)\b"),
         # 7. safety_neg: Safety Bypasses. Actively bypassing safety (environment manipulation/raw access).
         # BUG FIX (#2675): dropped `_G`/`_ENV` (a bare reference to the global
         # table -- `globals` owns it via `\b(_G|_ENV|_VERSION|arg)\b`) and

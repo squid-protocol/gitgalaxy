@@ -138,8 +138,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety (Defensive Programming / Validation)
+        # C2: error() raises. C1: sealed/Result type-level. C4: bare fold is an ordinary fold.
         "safety": re.compile(
-            r"\?\.(?!.)|as\?|\b(require|requireNotNull|check|checkNotNull|error|sealed|is|!is|Result|onSuccess|onFailure|fold|runCatching)\b|\?:"
+            r"\?\.(?!.)|as\?|\b(require|requireNotNull|check|checkNotNull|is|!is|onSuccess|onFailure|runCatching)\b|\?:"
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Force unwrapping, unsafe casts, and suppression.

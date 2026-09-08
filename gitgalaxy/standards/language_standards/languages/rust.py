@@ -112,8 +112,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety (Defensive Programming / Validation)
+        # C1: type names/constructors invisible; fallback family + handled None arm are the forms. C3: bare match is branch's; Mutex/Arc concurrency-adjacent. (if let keeps its pre-existing branch dual — doc-noted.)
         "safety": re.compile(
-            r"\b(Option|Result|Mutex|RwLock|Arc|Rc|Box|RefCell|match|if\s+let|while\s+let|let\s+else|Ok|Err|Some|None)\b"
+            r"\b(if\s+let|while\s+let|let\s+else)\b|\b(?:unwrap_or|unwrap_or_else|unwrap_or_default|ok_or|ok_or_else|map_or|map_or_else)\b|None\s*=>"
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Actively bypasses type safety (unwraps and forced expectations).

@@ -223,14 +223,20 @@ def test_shell_structural_boundaries_dot_source_leading_boundary_regression():
 
 def test_shell_safety_nested_default_expansion_regression():
     """
-    Nested-delimiter regression (Rule 11): both `${...}` clauses in `safety`
-    (the quoted and unquoted default-value forms) used a flat `[^}]+`/
-    `[^}]*` delimiter matcher, which cannot represent one level of nesting.
-    A realistic nested default-value expansion -- e.g.
+    Nested-delimiter regression (Rule 11): the `${...}` default-value clause
+    in `safety` used a flat `[^}]*` delimiter matcher, which cannot represent
+    one level of nesting. A realistic nested default-value expansion -- e.g.
     `${LOG_LEVEL:-${DEFAULT_LEVEL:-info}}`, a common multi-level fallback
     idiom -- truncated at the first (inner) `}` instead of capturing the
     full expression. Upgraded to the one-level-nesting form from the
     project's Rule 11 playbook.
+
+    #2869 contract: C4, the dedicated quoted-string alternative (`"${...}"`)
+    was dropped from `safety` -- quoted expansion is ordinary shell, not a
+    defensive form. The bare `${VAR:-default}` fallback clause still fires
+    inside a quoted string (it doesn't require an unquoted context), so the
+    nested match is still found there -- it just no longer captures the
+    enclosing quote characters themselves.
     """
     pattern = SHELL_RULES["safety"]
     m = pattern.search("${LOG_LEVEL:-${DEFAULT_LEVEL:-info}}")
@@ -238,8 +244,8 @@ def test_shell_safety_nested_default_expansion_regression():
         f"nested default expansion truncated: {m.group() if m else None!r}"
     )
     m2 = pattern.search('"${LOG_LEVEL:-${DEFAULT_LEVEL:-info}}"')
-    assert m2 and m2.group() == '"${LOG_LEVEL:-${DEFAULT_LEVEL:-info}}"', (
-        f"nested quoted default expansion truncated: {m2.group() if m2 else None!r}"
+    assert m2 and m2.group() == "${LOG_LEVEL:-${DEFAULT_LEVEL:-info}}", (
+        f"nested default expansion (inside quotes) truncated: {m2.group() if m2 else None!r}"
     )
     assert pattern.search("${VAR:-default}"), "non-nested form regressed"
 

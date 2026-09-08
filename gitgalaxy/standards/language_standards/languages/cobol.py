@@ -289,8 +289,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety: Defensive Programming. Defensive scope terminators and declarative blocks.
+        # C2: END-* closers are structure. C4: hyphen guards (#2622 shape). ON ERROR/AT END/INVALID KEY stay branch's (verified owner, #2822 disposition).
         "safety": re.compile(
-            r"\b(END-IF|END-PERFORM|END-EVALUATE|END-READ|END-WRITE|END-COMPUTE|END-CALL|DECLARATIVES|VALIDATE|CHECK)\b",
+            r"(?<!-)\b(DECLARATIVES|VALIDATE|CHECK)\b(?!-)",
             re.I,
         ),
         # 7. safety_neg: Safety Bypasses. Bypassing logic or unpredictable jumps.

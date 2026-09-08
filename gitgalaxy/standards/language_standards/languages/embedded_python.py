@@ -80,8 +80,9 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety (Defensive Programming / Validation)
         # Hardware watchdogs and standard Python safety checks.
+        # C3 twin-parity with python (#2852 lesson). Fixes b.py: bare except x2 → 0.
         "safety": re.compile(
-            r"\b(try|except|finally|assert|machine\.WDT|isinstance|issubclass|hasattr|getattr|alloc_emergency_exception_buf)\b"
+            r"\b(try|finally|assert|machine\.WDT|isinstance|issubclass|hasattr|alloc_emergency_exception_buf)\b|\bexcept\s+(?!(?:Base)?Exception\b)[A-Za-z_]\w*"
         ),
         # 7. safety_neg (Safety Bypasses / Unchecked Types)
         # Bare excepts and blocking the event loop (detrimental in embedded async).

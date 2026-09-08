@@ -118,9 +118,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety: Defensive Programming. Monadic error handling (Option/Try) and assertions.
-        "safety": re.compile(
-            r"\b(Option|Some|None|Try|Success|Failure|Either|Left|Right|sealed|require|assert|assume)\b|\|\s*Null\b"
-        ),
+        # C1: constructors/types/sealed/| Null invisible. Try kept: guarded-region opener (immutability_locks dual pre-exists — doc-noted).
+        "safety": re.compile(r"\b(require|assert|assume)\b|\bTry\s*[({]"),
         # 7. safety_neg: Safety Bypasses. Actively bypassing type safety (asInstanceOf, .get).
         # BUG FIX: `@unchecked` is `@`-prefixed -- the shared leading
         # \b could only fire when a word char immediately preceded the

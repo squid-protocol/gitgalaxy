@@ -228,9 +228,8 @@ DEFINITION: dict[str, Any] = {
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # safety: Defensive Programming. Functional safety (Maybe/Either) and exception brackets.
-        "safety": re.compile(
-            r"\b(Maybe|Either|Just|Nothing|Right|Left|try|catch|bracket|finally|onException|SafeT|mask|pure|return)\b"
-        ),
+        # C1: type/data constructors invisible; the handled-absence ARM (Nothing ->) is the form. C2: pure/return are plumbing. C3: bracket/finally/onException are cleanup's (verified owner). Resolves haskell-finally-dual-cleanup-safety.
+        "safety": re.compile(r"\b(try|catch|mask|fromMaybe)\b|Nothing\s*->"),
         # safety_neg: Safety Bypasses. Bypassing purity (unsafePerformIO) and partial functions.
         "safety_bypasses": re.compile(
             r"\b(unsafePerformIO|unsafeCoerce|error|undefined|fromJust|head|tail|init|last|throw|unsafeFixIO)\b"

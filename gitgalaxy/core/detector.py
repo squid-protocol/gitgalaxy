@@ -6303,7 +6303,12 @@ class StructuralExtractor:
     _ABAP_STATEMENT_TOKEN: ClassVar[re.Pattern[str]] = re.compile(
         r"'(?:[^'\n]|'')*'"  # character literal, '' escapes a quote
         r"|`(?:[^`\n]|``)*`"  # untyped text literal
-        r"|\|(?:\\[\\{|}]|[^|\n])*\|"  # string template
+        r"|\|(?:\\[^\n]|[^\\|\n])*\|"  # string template; the two alternatives
+        # are disjoint on their first character (backslash vs not), so a run
+        # of backslashes has exactly one parse -- `\\[\\{|}]|[^|\n]` let a
+        # backslash match EITHER arm and backtracked exponentially (CodeQL on
+        # #2886). Consuming `\<any>` over-accepts invalid escapes by design:
+        # the tokenizer only needs the template's span, not its validity.
         r'|"[^\n]*'  # inline comment to end of line
         r"|^\*[^\n]*"  # fixed-format full-line comment
         r"|\.",  # statement terminator

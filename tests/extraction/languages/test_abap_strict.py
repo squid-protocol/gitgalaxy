@@ -520,6 +520,10 @@ def test_abap_scope_filter_redos_immunity():
     # nested-quantifier shape and THIS detonation caught it.)
     assert_redos_immune(StructuralExtractor._ABAP_STATEMENT_TOKEN, "'" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(StructuralExtractor._ABAP_STATEMENT_TOKEN, "|" + "{" * 100000, timeout_sec=3.0)
+    # A backslash run in an unterminated template: with the escape arm and the
+    # ordinary arm both able to eat a backslash, this payload backtracked
+    # exponentially (CodeQL on #2886); the arms are now disjoint on `\`.
+    assert_redos_immune(StructuralExtractor._ABAP_STATEMENT_TOKEN, "|" + "\\" * 100000, timeout_sec=3.0)
     assert_redos_immune(StructuralExtractor._ABAP_STATEMENT_TOKEN, "`" * 100001, timeout_sec=3.0)
     assert_redos_immune(StructuralExtractor._ABAP_STATEMENT_OPENER, "A-" * 50000, timeout_sec=3.0)
 

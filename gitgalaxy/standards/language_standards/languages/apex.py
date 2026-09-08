@@ -278,10 +278,11 @@ DEFINITION: dict[str, Any] = {
         # counted as an import. `(?-i:...)` locally turns case-insensitivity back OFF for
         # just the member-name class, so the guard actually guards while `Type.forName` and
         # the namespace-exclusion lookahead stay case-insensitive as before.
-        "import": re.compile(
-            r"\bType\.forName\b|(?!(?:System|Database|Schema|Auth|Cache|Chatter|EventBus|Limits|Messaging|RestContext|Test)\b)\b[a-zA-Z_]\w*\.(?-i:[A-Z]\w*)\b",
-            re.I,
-        ),
+        # #2875 contract C3: a qualified `Receiver.Member` is a reference, not a binding
+        # (apex has no import statement; every class in the org is visible). The
+        # dynamic loader `Type.forName(` is the language's one load form. #2671 scoped
+        # the reference arm's guard; the contract retires the arm.
+        "import": re.compile(r"\bType[ \t]*\.[ \t]*forName[ \t]*\(", re.I),
         "_dependency_capture": re.compile(
             r"\bType\s*\.\s*forName\s*\(\s*['\"]([^'\"]+)['\"](?:[ \t\n]*,[ \t\n]*['\"]([^'\"]+)['\"])?\s*\)",
             re.I,

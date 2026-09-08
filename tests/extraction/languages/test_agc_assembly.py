@@ -299,19 +299,18 @@ def test_agc_assembly_args_register_opcode_whitelist_regression():
 # DEPENDENCY CAPTURE (_dependency_capture)
 # ==============================================================================
 DEPENDENCY_CASES: dict[str, Any] = {
+    # #2875 import contract C4/C6: the capture reads a SYMBOLIC operand of BANK/SETLOC
+    # in opcode position -- a numeric bank (`BANK 43`) is a location directive that
+    # binds no unit, and `EBANK=` is an erasable-bank addressing directive owned by
+    # the args rule (`[EFB]BANK=`); neither becomes a dependency edge.
     "valid": [
-        ("BANK 43", "43"),
-        ("SETLOC 43", "43"),
-        ("EBANK= 43", "43"),
-        ("BANK\t43", "43"),
-        ("SETLOC\t43", "43"),
-        ("EBANK=43", "43"),
+        ("BANK B", "B"),
+        ("SETLOC FOO", "FOO"),
         (" BANK\nMYBANK", "MYBANK"),
         ("\tSETLOC\n\tMYLOC", "MYLOC"),
-        ("EBANK=MYBANK", "MYBANK"),
         ("BANK MY_BANK", "MY_BANK"),
         ("SETLOC MY_LOC", "MY_LOC"),
-        ("EBANK= MY_EBANK", "MY_EBANK"),
+        ("SETLOC F2DPS", "F2DPS"),
     ],
     "invalid": [
         "BANK43",  # No space after BANK
@@ -325,18 +324,19 @@ DEPENDENCY_CASES: dict[str, Any] = {
         "MYBANK BANK",  # BANK not at start of line
         "BANK \n \n",  # No operand
         "BANK # comment",  # Hash not allowed in operand
+        "BANK 43",  # #2875 C4: numeric bank switch, no unit
+        "SETLOC\t43",  # #2875 C4
+        "EBANK= MYBANK",  # #2875 C6: args' token, an addressing directive
+        "EBANK=43",  # #2875 C6
     ],
     "pathological": [
         ("\t \t BANK \n\n \t MYBANK123", "MYBANK123"),
         ("\tSETLOC\t\t\t\n  \t MYLOC123", "MYLOC123"),
-        ("   EBANK=\t\n\t \n MY_EBANK", "MY_EBANK"),
         ("BANK\n\n\n\n\n\n\nMYBANK", "MYBANK"),
         ("\t\t\t\tBANK\t\t\t\tMYBANK", "MYBANK"),
         ("    SETLOC    \t\t\n\nMYLOC", "MYLOC"),
-        ("\t \tEBANK=\t \t \n\nMY_EBANK", "MY_EBANK"),
         ("BANK\t\n\t\n\t\nMYBANK", "MYBANK"),
         ("SETLOC\n\n\t\n\tMYLOC", "MYLOC"),
-        ("EBANK=\n\n\nMYEBANK", "MYEBANK"),
     ],
 }
 

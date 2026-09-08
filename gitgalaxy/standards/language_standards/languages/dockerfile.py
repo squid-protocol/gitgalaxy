@@ -209,11 +209,13 @@ DEFINITION: dict[str, Any] = {
         # 24. import (Dependency Inclusions)
         # Base images or dependencies pulled from other build stages (`COPY --from=`).
         "import": re.compile(
-            r"^[ \t]*(?:FROM(?:\s+(?:\\\s+)*)(?:--[\w-]+=[^\s]+(?:\s+(?:\\\s+)*))*[a-zA-Z0-9_./:-]+|COPY(?:\s+(?:\\\s+)*)(?:--[\w-]+(?:=[^\s]+)?(?:\s+(?:\\\s+)*))*--from=[a-zA-Z0-9_./:-]+)",
+            # #2875 contract C4: `FROM scratch` names the reserved empty base -- no image
+            # is pulled, nothing is bound (class_start still opens the stage, #2856).
+            r"^[ \t]*(?:FROM(?:\s+(?:\\\s+)*)(?:--[\w-]+=[^\s]+(?:\s+(?:\\\s+)*))*(?!scratch(?![a-zA-Z0-9_./:-]))[a-zA-Z0-9_./:-]+|COPY(?:\s+(?:\\\s+)*)(?:--[\w-]+(?:=[^\s]+)?(?:\s+(?:\\\s+)*))*--from=[a-zA-Z0-9_./:-]+)",
             re.M | re.I,
         ),
         "_dependency_capture": re.compile(
-            r"^[ \t]*(?:FROM(?:\s+(?:\\\s+)*)(?:--[\w-]+=[^\s]+(?:\s+(?:\\\s+)*))*([a-zA-Z0-9_./:-]+)|COPY(?:\s+(?:\\\s+)*)(?:--[\w-]+(?:=[^\s]+)?(?:\s+(?:\\\s+)*))*--from=([a-zA-Z0-9_./:-]+))",
+            r"^[ \t]*(?:FROM(?:\s+(?:\\\s+)*)(?:--[\w-]+=[^\s]+(?:\s+(?:\\\s+)*))*(?!scratch(?![a-zA-Z0-9_./:-]))([a-zA-Z0-9_./:-]+)|COPY(?:\s+(?:\\\s+)*)(?:--[\w-]+(?:=[^\s]+)?(?:\s+(?:\\\s+)*))*--from=([a-zA-Z0-9_./:-]+))",  # #2875 C4
             re.M | re.I,
         ),
         # 25. ownership (Authorship Metadata)

@@ -156,7 +156,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 24. import (Dependency Inclusions)
         # File inclusions.
-        "import": re.compile(r"^[ \t]*(?:include|sinclude|m4_include|m4_sinclude)\b", re.M),
+        # #2875 contract C5: the m4 form is `include(`; a path whose first component is
+        # a directory named include (`include/Makefile \`) is not one.
+        "import": re.compile(r"^[ \t]*(?:m4_)?s?include\(", re.M),
         # BUG FIX (#2652 shape, #2668): the `import` rule above counts the
         # signal but produced no DAG edge, so m4 sat in keyword-rosetta's
         # `no-dependency-capture-languages` ledger entry with popularity,

@@ -281,8 +281,12 @@ DEFINITION: dict[str, Any] = {
         "ml_traditional": GLOBAL_ML_TRADITIONAL,
         "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
         # 24. import (Dependency Inclusions)
+        # #2875 contract C5: statement position -- 279 of python's 1,925 crucible hits
+        # were doctest `>>> import numpy as np` lines inside docstrings (strings count
+        # uniformly, #2535; the prompt breaks statement position). The loader calls
+        # (`__import__(`, `importlib.import_module(`) are calls and stay unanchored.
         "import": re.compile(
-            r"\b(?:from[ \t]+[a-zA-Z0-9_.]+[ \t]+import\b|import[ \t]+[a-zA-Z0-9_., \t]+|\b__import__[ \t]*\(|\bimportlib\.import_module[ \t]*\()",
+            r"(?:^|;)[ \t]*(?:from[ \t]+[a-zA-Z0-9_.]+[ \t]+import\b|import[ \t]+[a-zA-Z_.])|\b__import__[ \t]*\(|\bimportlib\.import_module[ \t]*\(",
             re.M,
         ),
         "_dependency_capture": re.compile(

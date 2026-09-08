@@ -255,7 +255,9 @@ DEFINITION: dict[str, Any] = {
         # Reflection, CGO, and Unsafe triggers.
         "reflection_metaprogramming": re.compile(r'import\s+"C"|\b(reflect\.|unsafe\.|cgo|go:linkname)\b'),
         # 24. import (Dependency Inclusions)
-        "import": re.compile(r'^[ \t]*import\s*(?:\(|"[^"]+")', re.M),
+        # #2875 contract C1: the aliased single-line form (`import _ "embed"`,
+        # `import f "fmt"`) binds a unit like the bare one; the group counts 1 (C2).
+        "import": re.compile(r'^[ \t]*import[ \t]*(?:\(|(?:[A-Za-z_.]\w*[ \t]+)?"[^"\n]+")', re.M),
         # ---> THE FIX: Strictly bounded to valid Go import path characters <---
         # Prevents raw HTTP string literals in test files from being hallucinated as packages.
         "_dependency_capture": re.compile(

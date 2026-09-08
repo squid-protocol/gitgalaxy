@@ -169,7 +169,10 @@ def test_livecode_dependency_capture():
         ('start using stack "lib"', "lib"),
         ('require "database"', "database"),
         ('include "my_lib"', "my_lib"),
-        ('module "com.livecode.math"', "com.livecode.math"),
+        (
+            "use com.livecode.math",
+            "com.livecode.math",
+        ),  # #2875 C3: `module X` declares the file's OWN module; `use` binds one
         ("start using behavior my_behavior", "my_behavior"),
         ('start using "stack_name"', "stack_name"),
         ("start using stack my_stack", "my_stack"),
@@ -189,7 +192,7 @@ def test_livecode_dependency_capture():
         ('start \t using \t behavior \t "btnBehavior"', "btnBehavior"),
         ('start \t using \t stack \t "lib"', "lib"),
         ('require \t "database"', "database"),
-        ('module \t "com.livecode.math"', "com.livecode.math"),
+        ("use \t com.livecode.math", "com.livecode.math")  # #2875 C3: `use` binds, `module` declares,
     ]
 
     for payload, expected in valid:

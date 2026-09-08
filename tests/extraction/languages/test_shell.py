@@ -343,27 +343,22 @@ def test_shell_dependency_capture_redos_immunity():
     assert dep.search("source .env")
 
 
-def test_shell_dependency_capture_known_limitation_commented_out_source_still_matches():
+def test_shell_dependency_capture_commented_out_source_no_longer_captures():
     """
-    Documents a known, NOT-fixed limitation (recurring bug class 11 in
-    how_to_harden_extraction.md: "_dependency_capture is matched against raw,
-    unshielded file content for EVERY language"), newly confirmed for shell
-    specifically. Unlike powershell's equivalent rule (which anchors strictly
-    to `^[ \\t]*`, so a `#` at true line start structurally blocks any match --
-    see test_powershell.py's "comment_lookalike_structurally_immune" test),
-    shell's rule deliberately allows a boundary character ANYWHERE preceding
-    the keyword -- not just true line-start -- specifically so mid-statement
-    sourcing after `;`/`|`/`&`/`&&` is recognized (a real historical bug fix,
-    see the rule's own inline comment). The side effect: a commented-out
-    `# source .env` line still produces a phantom dependency-graph edge,
-    because the space character immediately after `#` satisfies the boundary
-    requirement regardless of the `#` itself. This is the exact same
-    architectural gap as every other language's dependency-capture rule, not
-    a shell-specific oversight -- fixing it requires the shared
-    comment/string-shielding architecture, not a per-language regex patch.
+    Until #2875 this test documented a known limitation (recurring bug class 11 in
+    how_to_harden_extraction.md): shell's rule allowed a boundary character ANYWHERE
+    before the keyword so that mid-statement sourcing after `;`/`|`/`&` was seen,
+    and the space after `#` satisfied it -- `# source .env` produced a phantom edge.
+    The #2875 import contract (C5, command position) narrowed the boundary set to
+    line start, `;`, `|`, `&`, `(`, a backtick and the then/else/do/if keywords; a
+    `#` is none of those, so the commented-out line is structurally excluded --
+    like powershell's `^[ \t]*`-anchored rule -- while every mid-statement form the
+    valid tier pins still captures. (Comment stripping still happens upstream in
+    the pipeline; this closes the raw-regex gap only for this rule.)
     """
     dep = SHELL_RULES["_dependency_capture"]
-    assert dep.search("# source .env"), "documents current (expected, pipeline-wide, not-yet-fixed) regex behavior"
+    assert dep.search("# source .env") is None
+    assert dep.search("x=1; source .env")
 
 
 def test_shell_dependency_capture_string_lookalike_boundary_is_incidental_not_real_immunity():
@@ -378,4 +373,8 @@ def test_shell_dependency_capture_string_lookalike_boundary_is_incidental_not_re
     """
     dep = SHELL_RULES["_dependency_capture"]
     assert not dep.search('echo "source .env"'), "no-space case: incidental non-match (unchanged baseline)"
-    assert dep.search('echo " source .env"'), "documents current (expected, not-yet-fixed) regex behavior"
+    # #2875 import contract C5: the keyword must sit in command position (line start
+    # or after `;`, `|`, `&`, `(`, a backtick, or then/else/do/if), so a spaced
+    # string lookalike no longer captures either -- for the boundary reason, not
+    # string-awareness (strings still count uniformly, #2535).
+    assert not dep.search('echo " source .env"')

@@ -647,7 +647,8 @@ DEFINITION: dict[str, Any] = {
         "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
         # 24. import (Dependency Inclusions)
         "import": re.compile(
-            r"\b(?:import(?:\s+type)?|export(?:\s+type)?)\b[^;]*?\bfrom\b|\brequire\s*\(|\bimport\s*\(",
+            # #2875: bounded lazy scan (see javascript); no crucible change.
+            r"\b(?:import(?:\s+type)?|export(?:\s+type)?)\b[^;]{0,2000}?\bfrom\b|\brequire\s*\(|\bimport\s*\(",
             re.M,
         ),
         "_dependency_capture": re.compile(

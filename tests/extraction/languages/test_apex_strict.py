@@ -179,7 +179,7 @@ _APEX_SIMPLE_CASES = [
     ("comprehensions", "for (Account a : [SELECT Id FROM Account]) {", "for (Integer i=0;i<10;i++) {"),
     ("scientific", "Math.abs(x);", "Integer x = 1;"),
     ("reflection_metaprogramming", "Type.forName('Foo');", "Integer x = 1;"),
-    ("import", "MyUtil.Helper();", "System.debug('x');"),
+    ("import", "Type.forName('MyUtil');", "MyUtil.Helper();"),  # #2875 C3: a reference is not a binding
     ("ownership", "Author: Jane Doe", "Integer x = 1;"),
     ("planned_debt", "// TODO: fix this", "// done"),
     ("fragile_debt", "// HACK: workaround", "// clean"),
@@ -447,27 +447,27 @@ def test_apex_doc_block_redos_immunity():
 
 
 def test_apex_import_ignorecase_type_guard_regression():
-    """#2671: `import` is compiled with re.IGNORECASE (needed so `Type.forName` and
-    `TYPE.FORNAME` both match), which also neutralised the `[A-Z]` guard meant to
-    isolate a genuine type reference (lowercase receiver, capitalised member) -- under
-    re.I, `[A-Z]` matches any letter, degrading the alternative to "any word.word" and
-    counting every ordinary method call as an import. Fixed with a locally-scoped
-    `(?-i:...)` that turns case-sensitivity back on for just the member-name class.
+    """#2671 found the reference arm's `[A-Z]` guard neutralised by re.IGNORECASE (every
+    `word.word` counted as an import) and scoped it with `(?-i:...)`. The #2875 import
+    contract (C3, docs/import_rule_contract.md) then retired the arm: a qualified
+    `Receiver.Member` is a *reference* to a type, not a binding of a unit -- apex has no
+    import statement at all, and `Type.forName(` is its one load form. The #2671
+    negatives stay negatives; the capitalised type reference joins them.
     """
     import_rule = APEX_RULES["import"]
 
-    # positive: Type.forName in either case, and a real capitalised type reference.
+    # positive: the dynamic loader in either case (apex is case-insensitive).
     assert import_rule.search("Type.forName('a')")
     assert import_rule.search("TYPE.FORNAME('a')")
-    assert import_rule.search("Account.SObjectType")
+    assert import_rule.search("Type.forName(ns, 'a')")
 
-    # negative: these all wrongly matched before the fix (per the issue's micro-repro).
-    for false_positive in ("foo.bar", "conn.clear", "Logger.info"):
+    # negative: the #2671 micro-repro, plus the type reference the old arm counted.
+    for false_positive in ("foo.bar", "conn.clear", "Logger.info", "Account.SObjectType", "acct.Id"):
         assert not import_rule.search(false_positive), (
-            f"apex 'import' incorrectly matched an ordinary method call: {false_positive!r}"
+            f"apex 'import' matched a reference, not a binding: {false_positive!r}"
         )
 
-    # already-correctly-excluded via the namespace lookahead -- must stay excluded.
+    # the namespace lookahead the old arm needed is gone with it -- still excluded.
     assert not import_rule.search("System.debug('x')")
     assert not import_rule.search("Database.query('SELECT Id FROM Account')")
 

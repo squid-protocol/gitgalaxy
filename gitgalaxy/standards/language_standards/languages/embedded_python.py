@@ -191,7 +191,11 @@ DEFINITION: dict[str, Any] = {
             r"__(?:getattr|setattr|new|call|dict|dir|import)__|@(?:staticmethod|classmethod|property)|@micropython\.(?:viper|native)\b|\b(?:getattr|setattr|hasattr)\b"
         ),
         # 24. import (Dependency Inclusions)
-        "import": re.compile(r"^[ \t]*(?:import|from)\b\s+[\w.]+", re.M),
+        # #2875 contract: twin parity with python -- the loader calls join the anchored
+        # statement form (a `from`/`import` after `;` counts, as in python).
+        "import": re.compile(
+            r"(?:^|;)[ \t]*(?:import|from)[ \t]+[\w.]+|\b__import__[ \t]*\(|\bimportlib\.import_module[ \t]*\(", re.M
+        ),
         "_dependency_capture": re.compile(r"^[ \t]*(?:import|from)\b\s+([\w.]+)", re.M),
         # 25. ownership (Authorship Metadata)
         "ownership": re.compile(r"(?:__author__[ \t]*=|Author:|Created by:)\s*(.*)", re.I),

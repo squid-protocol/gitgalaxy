@@ -550,6 +550,23 @@ specifically. Check every language against these *first* before assuming a rule 
     This meant legitimate global labels starting with `.` were blocked, and the lookahead was dead
     code. When adding a negative lookahead, verify that the subsequent matching logic actually
     permits the excluded shape to begin with.
+45. **(#2851) A comment-stream rule anchored on a SHAPE rather than a keyword reads every
+    `# Label: text` prose comment as commented-out code.** makefile's `dead_code` target
+    alternative was `<identifier>[ \t]*::?` -- which `# TODO:`, `# Note:`, `# Author:` and
+    `# SPDX-License-Identifier: GPL-2.0` (every kernel Makefile) all satisfy; on a 3,002-file
+    real-world pool 82% of the rule's hits were the SPDX line alone, and the crucible showed
+    none of it (its one Makefile has no such comment). Every sibling `dead_code` rule anchors
+    on a closed keyword set; a language whose construct has no keyword (a Make target, a YAML
+    key) needs positive evidence a prose label cannot supply -- a name the code-stream rules
+    already treat as that construct (`api`'s lifecycle set), a form prose does not take (`%`,
+    `/`, `$(`), or the construct's own continuation (a commented recipe line). Two things to
+    check while narrowing: (1) the code-stream twin of the rule (`func_start` here) may be
+    shape-only *legitimately*, because in the code stream the shape IS the construct -- do not
+    copy its anchor into the comment stream; (2) measure on a real corpus with rich comments,
+    not just the golden-master corpus -- the `# Label:` convention is a documentation habit,
+    and a small hand-picked corpus can carry none of it while every kernel Makefile does.
+    Residue named, not hidden: a plain-name target with identifier prerequisites and no
+    recipe (`# foo: bar`) is ambiguous with prose and is deliberately not claimed.
 
 ## Process: the epic and its sub-issues
 

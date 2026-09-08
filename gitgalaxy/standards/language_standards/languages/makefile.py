@@ -13,6 +13,24 @@ from typing import Any
 
 from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
+# #2851: the pieces of the `dead_code` target alternatives (see the rule for the reasoning).
+# One Make prerequisite token: bare name / path / pattern chars, or a `$(...)` / `${...}` ref.
+_MK_TOK = r"(?:[A-Za-z0-9_./%+@~*-]|\$[({][^ \t\n)}]*[)}])+"
+# A prerequisite list: whitespace-separated tokens, `|` (order-only), an optional `;` recipe.
+_MK_PREREQS = r"[ \t]*(?:(?:" + _MK_TOK + r"|\|)(?:[ \t]+(?:" + _MK_TOK + r"|\|))*)?[ \t]*(?:;[^\n]*)?"
+# The lifecycle names the `api` rule already treats as public targets, plus the GNU
+# standard-target set (make.info "Standard Targets for Users"), minus the ones that are
+# also common prose labels (info, ps, html, pdf, dvi).
+_MK_LIFECYCLE_TARGET = (
+    r"(?:all|install(?:-(?:strip|html|dvi|pdf|ps))?|uninstall|installcheck|installdirs"
+    r"|build|clean|distclean|mostlyclean|maintainer-clean|test|check|run|dist)(?![A-Za-z0-9_./%+@~-])"
+)
+# A file / pattern / variable target name: carries `.`, `/` or `%`, or starts with a `$(...)`
+# ref; never a leading `-` (an option table) and never a trailing `.` (`e.g.`).
+_MK_FILE_TARGET = r"(?!-)(?=[./%+@~-]*[A-Za-z0-9$])(?:[A-Za-z0-9_+@~-]*[./%][A-Za-z0-9_./%+@~-]*|\$[({][^ \t\n)}]*[)}][A-Za-z0-9_./%+@~-]*)(?<!\.)"
+# Any target name a commented recipe can vouch for: lowercase-initial, digit, or a file form.
+_MK_PLAIN_TARGET = r"(?:[a-z0-9_./%+@~][A-Za-z0-9_./%+@~-]*|\$[({][^ \t\n)}]*[)}][A-Za-z0-9_./%+@~-]*)(?<!\.)"
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "GNU Make 4.4+",
@@ -150,9 +168,44 @@ DEFINITION: dict[str, Any] = {
         ),
         # Mutating variable state by appending (+=) or shell assignment (!=). .
         "state_mutation": re.compile(r"^[ \t]*(?:[a-zA-Z0-9_.-]|\+(?!=))+[ \t]*(?:\+|!)=", re.M),
-        # Commented-out targets, commented out shell logic, or commented conditional Make directives.
+        # Commented-out targets, assignments, or conditional / include directives.
+        # BUG FIX #2851: the target alternative was `<identifier>[ \t]*::?` -- a bare shape
+        # that every `Label: text` prose comment satisfies (`# TODO:`, `# NOTE:`, `# Author:`,
+        # and `# SPDX-License-Identifier:` on every kernel Makefile: 82% of the rule's hits on
+        # a 3,002-file real-world pool were that one line). The sibling comment-stream rules
+        # (shell, python, yaml) all anchor on a closed keyword set; Make's target syntax has
+        # no keyword, so a commented target now needs evidence a prose label cannot supply:
+        #   (a) its name is one of the lifecycle targets the `api` rule already names (plus
+        #       the GNU standard-target set), e.g. `# all: $(PRG).elf`, `# clean:`;
+        #   (b) its name is a file / pattern / variable form (`# %.o: %.c`, `# lib.a: $(OBJS)`,
+        #       `# $(TARGET): $(OBJS)`, `# .PHONY: x`) -- not a leading `-` (an option table
+        #       like `#  -Wall...: warning level`) and not a trailing `.` (`# e.g.:`);
+        #   (c) the next comment line is a commented recipe (`#\t...`), the shape a rule takes
+        #       when it is commented out whole: `# install-html: html` / `#\t./install.sh`.
+        # In every form the prerequisite list must read as Make prerequisites (bare tokens,
+        # variable refs, `|`, an optional `;` recipe) -- a `,`, a `:` (URLs) or a trailing
+        # sentence period ends the claim -- and a multi-target rule carries at most three
+        # co-targets (`# build parallelizes well and finishes roughly at once:` is a sentence).
+        # Form (c) wants a single name, lowercase or file-form (`# vmlinuz is:` + a tab-indented
+        # listing is prose; a tab-continued `# NOTE:\t...` paragraph is prose), on a line that
+        # is space-indented after the `#` (a tab-indented `#\tavrdude: ...` is a pasted log).
+        # A commented assignment cannot start with `-` (`# -mcmodel=medium breaks modules`),
+        # and `include` (also `-include` / `sinclude`, the forms the `import` rule reads) needs
+        # a path-like argument (`# include the stub's deps` is prose).
+        # Known narrowness, deliberate: a commented recipe line on its own (`#\t$(CC) ...`) is
+        # not counted -- `#\t` also opens tab-aligned prose paragraphs and pasted tool output.
         "dead_code": re.compile(
-            r"^[ \t]*#[ \t]*(?:[a-zA-Z0-9_./%+-]+[ \t]*::?|(?:[a-zA-Z0-9_.-]|\+(?!=))+[ \t]*(?::|\?|::)?=|\b(?:ifeq|ifneq|ifdef|ifndef|include)\b)",
+            r"^[ \t]*#(?:"
+            # -- target forms (a) and (b): name + optional co-targets + `:`/`::` + prerequisites to end of line
+            r"[ ]*(?:" + _MK_LIFECYCLE_TARGET + r"|" + _MK_FILE_TARGET + r")(?:[ \t]+" + _MK_TOK + r"){0,3}"
+            r"[ \t]*(?:::(?!=)|:(?!:?=))" + _MK_PREREQS + r"$"
+            # -- target form (c): any lowercase / file-form name whose next comment line is a commented recipe
+            r"|[ ]*" + _MK_PLAIN_TARGET + r"[ \t]*(?:::(?!=)|:(?!:?=))" + _MK_PREREQS + r"\n[ \t]*#[ ]*\t"
+            # -- a commented assignment (`# CFLAGS := -O2`) or conditional / include directive
+            r"|[ \t]*(?!-)(?:[a-zA-Z0-9_.-]|\+(?!=))+[ \t]*(?::|\?|::)?="
+            r"|[ \t]*\b(?:ifeq|ifneq|ifdef|ifndef)\b"
+            r"|[ \t]*-?\bs?include[ \t]+[^ \t\n]*[./$]"
+            r")",
             re.M,
         ),
         # Structured self-documenting makefile comments typically utilizing a double hash block.

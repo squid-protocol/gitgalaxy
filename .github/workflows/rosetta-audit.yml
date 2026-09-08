@@ -103,8 +103,21 @@ jobs:
 
       # Baseline-gated: fails only on unreviewed rule-absent (n/a) cells beyond the corpus's
       # docs/na_baseline.json -- an engine PR cannot quietly null a rule nobody has ledgered.
-      - name: n/a review audit (baseline-gated)
+      # Under `rosetta:rebless-owed` a new absence is a warning, not a failure, for the same
+      # reason the audit step's regressions are: the label declares a companion corpus PR
+      # whose ledger entry this step cannot see (the corpus is checked out at MAIN, and the
+      # entry that reviews the absence merges with the re-bless). #2772's haskell/swift/zig
+      # `None` rules were the first label-declared absences and sat red despite being
+      # ledgered in the cross-linked corpus PR -- the exact skew the label exists to bridge.
+      - name: n/a review audit (baseline-gated; label-aware)
         working-directory: keyword-rosetta
         env:
           GITGALAXY_PATH: ${{ github.workspace }}/gitgalaxy
-        run: python tools/na_check.py --ci
+        run: |
+          if [ "${{ contains(github.event.pull_request.labels.*.name, 'rosetta:rebless-owed') }}" = "true" ]; then
+            if ! python tools/na_check.py --ci; then
+              echo "::warning::new n/a absences under rosetta:rebless-owed -- must be ledgered in the companion corpus PR (its own na_check gates the merge)"
+            fi
+          else
+            python tools/na_check.py --ci
+          fi

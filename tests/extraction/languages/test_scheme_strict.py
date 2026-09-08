@@ -76,7 +76,7 @@ _SCHEME_SIMPLE_CASES = [
     ("thread_sleeps", "(sleep 5)", "(+ x 1)"),
     ("bitwise_ops", "(bitwise-and a b)", "(+ x 1)"),
     ("sync_locks", "(mutex-lock! m)", "(+ x 1)"),
-    ("immutability_locks", "(quote (1 2 3))", "(+ x 1)"),
+    ("immutability_locks", "(string->immutable-string s)", "(quote (1 2 3))"),  # #2772
     ("cleanup", "(close-input-port port)", "(+ x 1)"),
     ("encapsulation", "(define-private helper (lambda (x) x))", "(define (foo x) x)"),
     ("listeners", "(add-hook! my-hook proc)", "(+ x 1)"),
@@ -284,8 +284,11 @@ def test_scheme_quote_shorthand_and_bare_keyword_immutability_locks():
     immutability-via-quotation concept.
     """
     immutability_locks = SCHEME_RULES["immutability_locks"]
-    assert immutability_locks.search("(quote (1 2 3))")
-    assert immutability_locks.search("'(1 2 3)")
+    # #2772: a quote is scheme's ordinary literal syntax (987 crucible hits were
+    # datum quotes); only the explicit lock call counts now.
+    assert not immutability_locks.search("(quote (1 2 3))")
+    assert not immutability_locks.search("'(1 2 3)")
+    assert immutability_locks.search("(string->immutable-string s)")
     assert not immutability_locks.search("(+ x 1)")
 
 

@@ -217,7 +217,9 @@ DEFINITION: dict[str, Any] = {
         # 44. sync_locks (Resource Management & Stability) Native Reentrancy guards.
         "sync_locks": re.compile(r"\b(nonReentrant)\b"),
         # 45. immutability_locks (Immutability Constraints) Gas-saving immutability constraints.
-        "immutability_locks": re.compile(r"\b(constant|immutable|view|pure)\b"),
+        "immutability_locks": re.compile(
+            r"\b(constant|immutable)\b"
+        ),  # #2772 C2: view/pure are purity annotations on functions, not locks on data
         # 46. cleanup (Resource Cleanup / Teardown) Deleting state variables to claim gas refunds.
         "cleanup": re.compile(r"\b(delete)\b"),
         # 47. encapsulation Access limitation to prevent external calls.

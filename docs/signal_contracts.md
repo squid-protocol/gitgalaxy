@@ -60,7 +60,7 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-14 stated, 54 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+15 stated, 53 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
@@ -105,7 +105,7 @@ written.** Corollaries every audited contract has needed so far:
 | `debug_prints` | resources | `site` | draft |  | Ad-hoc, temporary debug statements |  |
 | `encapsulation` | resources | `annotation` | draft |  | Explicitly hiding logic from the rest of the application | #2766 |
 | `explicit_casts` | resources | `site` | draft |  | Explicitly bypassing the compiler's type-checker |  |
-| `immutability_locks` | resources | `annotation` | draft |  | Explicitly locking data so it cannot be mutated | #2772 |
+| `immutability_locks` | resources | `annotation` | stated |  | AN ADDED MARKER OR LOCK CALL THAT PREVENTS A BINDING OR VALUE FROM BEING CHANGED AFTER INITIALISATION, WHERE THE LANGUAGE'S DEFAULT WOULD PERMIT IT -- a modifier or qualifier on an otherwise-mutable declaration, a restricted constant-declaration form distinct from the general-purpose binding, a runtime lock call, or an immutable reference pin; the language's ordinary binding keyword is a binding choice, not a lock, and a language whose bindings are immutable by default records the stated absence. | [immutability_locks_rule_contract.md](../docs/immutability_locks_rule_contract.md) #2772 |
 | `listeners` | resources | `site` | draft |  | Waiting to receive state from an external broadcast |  |
 | `panics_and_aborts` | resources | `site` | draft |  | Forcefully destroying the current execution context |  |
 | `sync_locks` | resources | `site` | draft |  | Explicitly coordinating threaded logic to prevent race conditions |  |

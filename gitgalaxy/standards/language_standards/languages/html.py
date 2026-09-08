@@ -358,7 +358,9 @@ DEFINITION: dict[str, Any] = {
         # `disabled` alternative (matching regardless of the actual
         # true/false value, which was never the intent) -- pulled out so
         # the match is for the right reason.
-        "immutability_locks": re.compile(r"\b(?:readonly|disabled|inert)\b|aria-disabled=[\"']true[\"']", re.I),
+        "immutability_locks": re.compile(
+            r"\breadonly\b", re.I
+        ),  # #2772: disabled/inert/aria-disabled gate interactivity, not data mutation
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
             r'\b(?:removeEventListener|clearInterval|clearTimeout|remove|innerHTML\s*=\s*[\'"][\'"])\s*\(',

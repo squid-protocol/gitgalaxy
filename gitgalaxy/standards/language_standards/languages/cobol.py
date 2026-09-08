@@ -503,7 +503,9 @@ DEFINITION: dict[str, Any] = {
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\bEXEC\s+CICS\s+ENQ\b", re.I),
         # 45. immutability_locks (Immutability Constraints) Immutability.
-        "immutability_locks": re.compile(r"\b(CONSTANT)\b", re.I),
+        "immutability_locks": re.compile(
+            r"(?<![\w'-])(CONSTANT)(?![\w-])", re.I
+        ),  # #2772 C3: hyphen/quote guards -- AN-CONSTANT is a name, not a lock (the #2888 cobol shape)
         # 46. cleanup (Resource Cleanup / Teardown) Resource release.
         "cleanup": re.compile(
             r"(?<![\w\'-])(CLOSE|FREE|DELETE)(?![\w-])", re.I

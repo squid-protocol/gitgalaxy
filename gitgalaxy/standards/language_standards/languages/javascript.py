@@ -391,7 +391,9 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 45. immutability_locks (Immutability Constraints)
-        "immutability_locks": re.compile(r"\b(const|readonly|final|Object\.freeze|Object\.seal)\b"),
+        "immutability_locks": re.compile(
+            r"\bObject\.(?:freeze|seal)\b"
+        ),  # #2772 C1: `const` is the ordinary binding declaration; the runtime lock calls are the sites
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
             r"\b(?:clearTimeout|clearInterval|removeEventListener)\s*\(|\b(?<!function )(?:dispose|close|destroy)\s*\((?!\s*\)\s*(?::|\{))"

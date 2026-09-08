@@ -357,7 +357,9 @@ DEFINITION: dict[str, Any] = {
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(flock|mkdir|mkfifo|lockfile|sem)\b"),
         # 45. immutability_locks (Immutability Constraints)
-        "immutability_locks": re.compile(r"\b(readonly|declare\s+-r|typeset\s+-r)\b"),
+        "immutability_locks": re.compile(
+            r"(?:^|[;&|]|\$\()[ \t]*(?:readonly[ \t]+[A-Za-z_]|declare[ \t]+-[a-zA-Z]*r|typeset[ \t]+-[a-zA-Z]*r)", re.M
+        ),  # #2772 C3: command position only -- readonly='readonly' inside echo'd HTML strings is prose
         # 46. cleanup (Resource Cleanup / Teardown)
         # QUADRATIC BLOWUP FIX: same class of bug as `safety`'s trap clause
         # above -- the unbounded `.*` before the required `EXIT` literal was

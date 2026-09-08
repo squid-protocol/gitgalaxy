@@ -287,7 +287,9 @@ DEFINITION: dict[str, Any] = {
         # with more word characters (ENQUEUE_FOO).
         "sync_locks": re.compile(r"\b(?:ENQUEUE_|DEQUEUE_)", re.I),
         # 45. immutability_locks (Immutability Constraints) Immutability (constants).
-        "immutability_locks": re.compile(r"\b(CONSTANTS|FINAL|READ-ONLY)\b", re.I),
+        "immutability_locks": re.compile(
+            r"\b(CONSTANTS|READ-ONLY)\b", re.I
+        ),  # #2772 C2: FINAL locks a class against subclassing, not data against mutation
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
             r"^[ \t]*(FREE|CLEAR|CLOSE\s+DATASET)\b(?![ \t]+FOR\b)", re.I | re.M

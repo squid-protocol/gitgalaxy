@@ -327,7 +327,7 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 45. immutability_locks (Immutability Constraints)
-        "immutability_locks": re.compile(r"\b(let|final|static|readonly|Immutable|Sendable)\b"),
+        "immutability_locks": None,  # #2772 C1: `let` is swift's ordinary binding declaration (the rust/swift inversion this contract exists to fix); swift has no added data-lock form. Stated absence.
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(r"\b(deinit|close|free|dispose|shutdown|removeAll)\b\s*\("),
         # 47. encapsulation (Access Modifiers / Encapsulation)

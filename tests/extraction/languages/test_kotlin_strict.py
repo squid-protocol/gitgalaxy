@@ -140,7 +140,7 @@ _KOTLIN_SIMPLE_CASES = [
     ("thread_sleeps", "delay(1000)", "Thread.currentThread().name"),
     ("bitwise_ops", "a xor b", "val valid = a && b"),
     ("sync_locks", "val mutex = Mutex()", "val lockPosition = getDoorState()"),
-    ("immutability_locks", "val x = 5", "var x = 5"),
+    ("immutability_locks", "const val X = 5", "val x = 5"),  # #2772 C1: `val` is the ordinary binding
     ("cleanup", "conn.close()", "conn.closeQuietly()"),
     ("encapsulation", "private val x = 5", "public val x = 5"),
     ("listeners", "button.setOnClickListener { doThing() }", "button.performClick()"),

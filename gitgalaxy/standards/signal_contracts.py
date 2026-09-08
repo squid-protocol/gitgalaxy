@@ -325,7 +325,15 @@ _ROWS = [
     _c("thread_sleeps", "resources", "site", "Thread blocking or forced timeouts"),
     _c("bitwise_ops", "resources", "site", "Bitwise operations manipulating raw bytes"),
     _c("sync_locks", "resources", "site", "Explicitly coordinating threaded logic to prevent race conditions"),
-    _c("immutability_locks", "resources", "annotation", "Explicitly locking data so it cannot be mutated", issue=2772),
+    _c(
+        "immutability_locks",
+        "resources",
+        "annotation",
+        "AN ADDED MARKER OR LOCK CALL THAT PREVENTS A BINDING OR VALUE FROM BEING CHANGED AFTER INITIALISATION, WHERE THE LANGUAGE'S DEFAULT WOULD PERMIT IT -- a modifier or qualifier on an otherwise-mutable declaration, a restricted constant-declaration form distinct from the general-purpose binding, a runtime lock call, or an immutable reference pin; the language's ordinary binding keyword is a binding choice, not a lock, and a language whose bindings are immutable by default records the stated absence.",
+        status="stated",
+        doc="docs/immutability_locks_rule_contract.md",
+        issue=2772,
+    ),
     _c(
         "cleanup",
         "resources",

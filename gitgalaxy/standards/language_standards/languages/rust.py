@@ -326,7 +326,9 @@ DEFINITION: dict[str, Any] = {
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(Mutex|RwLock|lock|barrier|atomic|Semaphore)\b", re.I),
         # 45. immutability_locks (Immutability Constraints)
-        "immutability_locks": re.compile(r"\b(const|static|immutable|readonly)\b"),
+        "immutability_locks": re.compile(
+            r"(?<!\*)\bconst\b(?![ \t]*fn\b)|(?<!')\bstatic\b(?![ \t]*(?:\]|\)|,|>))"
+        ),  # #2772: `&'static str` is a lifetime, not a lock; `const fn` is a purity marker and *const the ordinary raw-pointer spelling. const/static items stay (rust's restricted constant forms; `let` immutability is the default and ambient)
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
             r"\b(?<!fn )(drop|free|delete|close|shutdown)\b\s*\("

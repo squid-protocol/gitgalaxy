@@ -281,9 +281,10 @@ DEFINITION: dict[str, Any] = {
             re.IGNORECASE,
         ),
         # 25. ownership (Authorship Metadata)
+        # #2882 contract: C3 the <link rev=made> alternative captures the address; `<!-- Author: -->` comment lines join
         "ownership": re.compile(
-            r"<meta\s+name=(?:\"(?:author|creator|publisher)\"|'(?:author|creator|publisher)')\s+content=(?:\"([^\"]+)\"|'([^']+)')|<link\s+rev=(?:\"made\"|'made')\s+href=(?:\"mailto:[^\"]+\"|'mailto:[^']+')",
-            re.I,
+            r"<meta\s+name=(?:\"(?:author|creator|publisher)\"|'(?:author|creator|publisher)')\s+content=(?:\"([^\"]+)\"|'([^']+)')|<link\s+rev=(?:\"made\"|'made')\s+href=(?:\"mailto:([^\"]+)\"|'mailto:([^']+)')|^[ \t]*(?:<!--+)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$|@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$",
+            re.I | re.M,
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         # 26. planned_debt (Annotated Debt / TODOs)

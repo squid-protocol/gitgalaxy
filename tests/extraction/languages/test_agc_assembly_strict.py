@@ -263,7 +263,7 @@ def test_agc_assembly_ambiguity_doc_vs_ownership_author_no_collision():
     header = "# AUTHOR: Jane Doe"
     assert not AGC_RULES["doc"].search(header)
     m = AGC_RULES["ownership"].search(header)
-    assert m and m.group(1) == "Jane Doe"
+    assert m and m.group(m.lastindex) == "Jane Doe"  # #2882 C3: the last group is the value
 
 
 def test_agc_api_contract_2730():

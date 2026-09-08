@@ -114,7 +114,8 @@ DEFINITION: dict[str, Any] = {
         # non-greedy span, the #2658 shape), then the line-marker form so
         # `/// @param x` is one hit per line, not two; bare tags stay last
         # so a tag outside any doc comment still counts.
-        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@(?:param|return|dev|notice|custom|title|author)"),
+        # #2882 contract C4: doc counts the block, not the author tag -- the bare `@author` tag is ownership's alone.
+        "doc": re.compile(r"/\*\*[\s\S]{0,15000}?\*/|///[^\n]*|@(?:param|return|dev|notice|custom|title)"),
         # 14. test: Testing & Assertions. Foundry/Forge testing hooks and assertions.
         "test": re.compile(
             r"\b(?:setUp|test[A-Za-z0-9_]*|assertEq|assertTrue|assertFalse|assertGt|assertLt|vm\.expectRevert)\b"
@@ -166,7 +167,11 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 25. ownership: Authorship indicators. Strictly targets SPDX license tags and authorship notes.
-        "ownership": re.compile(r"//[ \t]*SPDX-License-Identifier:|(?:@author|Created by):\s+(.*)", re.I),
+        # #2882 contract: C2 the SPDX license identifier is not who is responsible (the open cell, 4 vs 1) and its alternative had no group (C3); natspec @author and keyed lines
+        "ownership": re.compile(
+            r"@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?:/\*+|\*+|//+!?)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$",
+            re.I | re.M,
+        ),
         # --- 🌌 PHASE 4: EXTENDED DIMENSIONS (Specialized Sub-Equations) ---
         # 26. planned_debt (Annotated Debt / TODOs)
         "planned_debt": GLOBAL_PLANNED_DEBT,

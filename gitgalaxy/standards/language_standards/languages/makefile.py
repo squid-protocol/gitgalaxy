@@ -204,8 +204,9 @@ DEFINITION: dict[str, Any] = {
         # same precedent as #843's identical call for yaml.
         "_dependency_capture": re.compile(r"^[ ]*-?(?:include|sinclude)[ \t\n]+([^\s#]+)", re.M),
         # Metadata anchoring authorship and structural domain owners.
+        # #2882 contract: C1 the keyed family on `#`; `AUTHOR := x` is a variable (the separator is not `:=`)
         "ownership": re.compile(
-            r"^[ \t]*#[ \t]*(?:@author\b|author:|maintainer:|created by:)",
+            r"^[ \t]*(?:#+)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$|@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$",
             re.I | re.M,
         ),
         # --------------------------------------------------------------------------

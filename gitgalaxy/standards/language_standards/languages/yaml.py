@@ -215,9 +215,10 @@ DEFINITION: dict[str, Any] = {
         # both a generic "name:" line AND part of an ownership/contact block), not a
         # bug introduced here; `author:` itself has no such overlap since `doc` has no
         # `author:` alternative.
+        # #2882 contract: C3 both alternatives capture the value
         "ownership": re.compile(
-            r"^[ \t]*author:[ \t]+.*"
-            r"|^[ \t]*contact:[ \t]*(?:#.*)?\n(?:[ \t]*(?:#.*)?\n){0,10}[ \t]+(?:name|email):",
+            r"^[ \t]*author:[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$"
+            r"|^[ \t]*contact:[ \t]*(?:#.*)?\n(?:[ \t]*(?:#.*)?\n){0,10}[ \t]+(?:name|email):[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$",
             re.M | re.I,
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---

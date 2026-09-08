@@ -46,7 +46,7 @@ _SOLIDITY_SIMPLE_CASES = [
     ("scientific", "keccak256(abi.encodePacked(x));", "sha256Hash = compute();"),
     ("reflection_metaprogramming", "fallback() external payable {}", "callingConvention = 1;"),
     ("import", 'import "./Token.sol";', "// import legacy code, no longer used"),
-    ("ownership", "// SPDX-License-Identifier: MIT", "// SPDX-FileCopyrightText: 2024 Acme"),
+    ("ownership", "/// @author Jane Doe", "// SPDX-License-Identifier: MIT"),  # #2882 C2: a license is not an owner
     ("planned_debt", "// TODO: optimize gas", "// See our TODOS backlog for details"),
     ("fragile_debt", "// HACK: workaround for reentrancy", "// this approach is a bit hacky"),
     ("spec_exposure", "// ERC-20 compliant", "ERC721 compliant"),

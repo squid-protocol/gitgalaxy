@@ -144,7 +144,11 @@ DEFINITION: dict[str, Any] = {
         # ordinary C `#include`s in their prologue); both delimiters and the
         # quantifier are bounded (Engine Rule 14).
         "_dependency_capture": re.compile(r'^[ \t]*#[ \t]*include[ \t]*[<"]([^>"\n]{1,200})[>"]', re.M),
-        "ownership": re.compile(r"(?:@author|Author:|Created by:|Copyright)\s+(.*)", re.I),
+        # #2882 contract: C2 the copyright notice and the license's own prose out (6 -> 0)
+        "ownership": re.compile(
+            r"@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?:/\*+|\*+|//+!?)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$",
+            re.I | re.M,
+        ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         "planned_debt": GLOBAL_PLANNED_DEBT,
         "fragile_debt": GLOBAL_FRAGILE_DEBT,

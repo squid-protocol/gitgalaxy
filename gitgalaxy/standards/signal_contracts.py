@@ -290,7 +290,16 @@ _ROWS = [
         issue=2875,
         planted=True,
     ),
-    _c("ownership", "architecture", "annotation", "Authorship metadata", planted=True),
+    _c(
+        "ownership",
+        "architecture",
+        "annotation",
+        "A tag naming who is responsible for the unit -- an author, creator, maintainer, owner, developer or contact -- with its value, in the form the language's tooling or header convention reads as metadata",
+        status="stated",
+        doc="docs/ownership_rule_contract.md",
+        issue=2882,
+        planted=True,
+    ),
     # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
     _c("planned_debt", "subsystems", "annotation", "Annotated future work", planted=True),
     _c("fragile_debt", "subsystems", "annotation", "Explicit admissions of fragile or dangerous logic", planted=True),

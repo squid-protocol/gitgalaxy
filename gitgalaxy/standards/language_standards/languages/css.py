@@ -184,8 +184,9 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 13. doc (Structured Documentation)
+        # #2882 contract C4: doc counts the block, not the author tag -- `/* @author` is ownership's alone.
         "doc": re.compile(
-            r"/\*\*\s*|/\*\s*@(?:param|return|author|example|prop|define|theme)",
+            r"/\*\*\s*|/\*\s*@(?:param|return|example|prop|define|theme)",
             re.I,
         ),
         # 14. test (Testing & Assertions)
@@ -230,9 +231,10 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # 25. ownership (Authorship Metadata)
+        # #2882 contract: C2 `Copyright` out; @author is ownership's (doc released it, C4); the `*/` is stripped from the value (C3)
         "ownership": re.compile(
-            r"/\*\s*(?:@author|Author:|Created by|Maintainer|Copyright):?\s+([^*]*)\*/",
-            re.I | re.S,
+            r"@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?:/\*+|\*+)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$",
+            re.I | re.M,
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         # 26. planned_debt (Annotated Debt / TODOs)

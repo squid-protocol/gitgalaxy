@@ -78,7 +78,7 @@ _DOCKERFILE_SIMPLE_CASES = [
     ("api", "EXPOSE 8080", "WORKDIR /app"),
     ("state_mutation", "RUN export NODE_ENV=production", "ENV NODE_ENV production"),  # #2765: ENV is `globals`
     ("dead_code", "# RUN old-command", "# just a note"),
-    ("doc", 'LABEL maintainer="dev@example.com"', "LABEL env=prod"),
+    ("doc", 'LABEL description="dev image"', "LABEL env=prod"),  # #2882 C4: maintainer= is ownership's alone
     ("test", "RUN pytest tests/", "RUN echo done"),
     # --- PHASE 3 ---
     ("concurrency", "RUN make -j4", "RUN echo hi"),

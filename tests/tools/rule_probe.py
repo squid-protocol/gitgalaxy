@@ -43,6 +43,13 @@ CORPORA
 WHAT IT MEASURES
     Raw rule hits over `Prism.split_streams(...)["code_stream"]` -- comments
     stripped, string literals kept, exactly the text detector.py hands the rule.
+    The six comment-stream rules (`dead_code`, `doc`, `ownership`, `planned_debt`,
+    `fragile_debt`, `spec_exposure`; detector.comment_analysis) are run over the
+    code stream AND the comment stream, because that is what the detector does:
+    coding_analysis applies every non-underscore rule to the code stream, then
+    comment_analysis adds a second pass over the comments (#2882). `--stream`
+    picks one stream explicitly; the default is `auto` (both for those six, code
+    for everything else). The per-stream split is in the JSON and the samples.
     NOT the recorded count: scope filters (`_scope_filters`, e.g. matlab's return
     channel) and the per-function slicer run after the regex, so a language with a
     filter reads higher here than in a manifest. That is the right thing for a
@@ -87,6 +94,14 @@ ROSETTA = _sibling("KEYWORD_ROSETTA_PATH", "keyword-rosetta") / "data"
 # registry key -> corpus directory name, where they differ
 CORPUS_DIR = {"objectivec": "objective-c"}
 MAX_FILE_BYTES = 2_000_000
+# detector.comment_analysis's list: these rules read the comment surface too.
+COMMENT_STREAM_RULES = frozenset({"dead_code", "doc", "ownership", "planned_debt", "fragile_debt", "spec_exposure"})
+
+
+def streams_for(rule_name: str, stream: str) -> tuple[str, ...]:
+    if stream == "auto":
+        stream = "both" if rule_name in COMMENT_STREAM_RULES else "code"
+    return ("code_stream", "comment_stream") if stream == "both" else (f"{stream}_stream",)
 
 
 def _extensions(lang: str) -> set[str]:
@@ -121,28 +136,45 @@ def compile_override(pattern: str, flags: str) -> re.Pattern:
     return re.compile(pattern, fl)
 
 
-def probe(rule_name: str, lang: str, corpus: str, samples: int, override: re.Pattern | None, prism: Prism):
+def probe(
+    rule_name: str,
+    lang: str,
+    corpus: str,
+    samples: int,
+    override: re.Pattern | None,
+    prism: Prism,
+    stream: str = "auto",
+):
     rule = override or LANGUAGE_DEFINITIONS[lang]["rules"].get(rule_name)
     if rule is None or not hasattr(rule, "finditer"):
         return None
+    streams = streams_for(rule_name, stream)
     per: dict[str, dict] = {}
     for name, root, path in corpus_files(lang, corpus):
         try:
             src = path.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        code = prism.split_streams(src, lang)["code_stream"]
-        hits = list(rule.finditer(code))
-        c = per.setdefault(name, {"files": 0, "hits": 0, "by_file": {}, "samples": collections.Counter()})
+        split = prism.split_streams(src, lang)
+        c = per.setdefault(
+            name,
+            {"files": 0, "hits": 0, "by_stream": dict.fromkeys(streams, 0), "by_file": {}, "samples": collections.Counter()},
+        )
         c["files"] += 1
-        c["hits"] += len(hits)
-        if hits:
-            c["by_file"][str(path.relative_to(root))] = len(hits)
-        for m in hits:
-            ls = code.rfind("\n", 0, m.start()) + 1
-            le = code.find("\n", m.end())
-            line = code[ls : len(code) if le < 0 else le].strip()
-            c["samples"][(m.group(0).strip()[:40], line[:120])] += 1
+        rel = str(path.relative_to(root))
+        for sname in streams:
+            text = split[sname]
+            hits = list(rule.finditer(text))
+            c["hits"] += len(hits)
+            c["by_stream"][sname] += len(hits)
+            if hits:
+                c["by_file"][rel] = c["by_file"].get(rel, 0) + len(hits)
+            for m in hits:
+                ls = text.rfind("\n", 0, m.start()) + 1
+                le = text.find("\n", m.end())
+                line = text[ls : len(text) if le < 0 else le].strip()
+                tag = "" if len(streams) == 1 else f"{sname[:4]} "
+                c["samples"][(tag + m.group(0).strip()[:40], line[:120])] += 1
     for c in per.values():
         c["samples"] = [(tok, line, n) for (tok, line), n in c["samples"].most_common(samples)]
     return per
@@ -152,7 +184,12 @@ def print_probe(lang: str, per: dict | None, samples: int) -> None:
     if per is None:
         print(f"{lang:16s} rule is None")
         return
-    summary = "  ".join(f"{k}:{v['hits']}/{v['files']}f" for k, v in per.items())
+    def _cell(v: dict) -> str:
+        by = v.get("by_stream") or {}
+        split = f" ({', '.join(f'{k[:4]} {n}' for k, n in by.items())})" if len(by) > 1 else ""
+        return f"{v['hits']}/{v['files']}f{split}"
+
+    summary = "  ".join(f"{k}:{_cell(v)}" for k, v in per.items())
     print(f"{lang:16s} {summary}")
     for k, v in per.items():
         for tok, line, n in v["samples"][:samples]:
@@ -183,6 +220,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("rule")
     ap.add_argument("lang", help="a registry key, or `all`")
     ap.add_argument("--corpus", choices=("crucible", "rosetta", "both"), default="both")
+    ap.add_argument(
+        "--stream",
+        choices=("auto", "code", "comment", "both"),
+        default="auto",
+        help="which Prism stream(s) to run the rule over; auto = both for the comment-stream rules, code otherwise",
+    )
     ap.add_argument("--samples", type=int, default=6, help="matched lines to show per corpus (most frequent first)")
     ap.add_argument("--override", help="probe this regex instead of the registry's rule")
     ap.add_argument("--flags", default="", help="flags for --override, e.g. IM")
@@ -200,7 +243,7 @@ def main(argv: list[str] | None = None) -> int:
     prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
     out: dict[str, dict | None] = {}
     for lang in langs:
-        per = probe(args.rule, lang, args.corpus, args.samples, override, prism)
+        per = probe(args.rule, lang, args.corpus, args.samples, override, prism, args.stream)
         out[lang] = per
         print_probe(lang, per, args.samples)
     if args.json:

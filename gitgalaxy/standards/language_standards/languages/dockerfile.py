@@ -155,8 +155,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 13. doc (Structured Documentation)
         # Intent documentation meant for developers or image registries.
+        # #2882 contract C4: doc counts the block, not the author tag -- `LABEL maintainer=`, `org.opencontainers.image.authors=`, `# Author:`/`# Maintainer:` is ownership's alone.
         "doc": re.compile(
-            r"^[ \t]*LABEL[ \t]+(?:maintainer|org\.opencontainers|version|description)=|^[ \t]*#[ \t]*(?:Description|Usage|Author|Maintainer):",
+            r"^[ \t]*LABEL[ \t]+(?:org\.opencontainers\.image\.(?!authors=)|version|description)[\w.]*=|^[ \t]*#[ \t]*(?:Description|Usage):",
             re.M | re.I,
         ),
         # 14. test (Testing & Assertions)
@@ -223,8 +224,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 25. ownership (Authorship Metadata)
         # Standard metadata tracing image ownership (legacy MAINTAINER or modern LABEL).
+        # #2882 contract: C1 `# Author:`/`# Maintainer:` comment lines join (doc released them, C4)
         "ownership": re.compile(
-            r"^[ \t]*(?:MAINTAINER|LABEL[ \t]+maintainer=|LABEL[ \t]+org\.opencontainers\.image\.authors=)[ \t]*(.*)",
+            r"^[ \t]*(?:MAINTAINER|LABEL[ \t]+maintainer=|LABEL[ \t]+org\.opencontainers\.image\.authors=)[ \t]*(.*)|^[ \t]*(?:#+)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$|@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$",
             re.M | re.I,
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---

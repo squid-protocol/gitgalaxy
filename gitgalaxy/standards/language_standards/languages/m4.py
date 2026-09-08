@@ -173,8 +173,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 25. ownership (Authorship Metadata)
         # Same comment-style completeness fix as dead_code above (Engine Rule 12).
+        # #2882 contract: C2 AC_COPYRIGHT is doc's alone (the intentional dual retired), `Copyright:`/`License:` out; every alternative captures (C3)
         "ownership": re.compile(
-            r"^[ \t]*(?:dnl[ \t]+|#[ \t]*)(?:Author|Maintainer|Copyright|License):|AC_COPYRIGHT",
+            r"^[ \t]*(?:dnl\b|#+)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$|@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$",
             re.I | re.M,
         ),
         # --- 🌌 PHASE 4: EXTENDED DIMENSIONS (Specialized Sub-Equations) ---

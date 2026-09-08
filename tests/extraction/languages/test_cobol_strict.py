@@ -523,7 +523,9 @@ def test_cobol_doc_excludes_author_regression():
     assert doc.search("       REMARKS. Some remark.")
     assert doc.search("       INSTALLATION. Site X.")
     assert doc.search("      *> @return something")
-    assert doc.search("      *> @author Joe"), "the inline `*> @author` tag is distinct from the AUTHOR paragraph"
+    # #2882 C4: the inline `*> @author` tag is ownership's too -- doc counts the block, never the author tag.
+    assert not doc.search("      *> @author Joe")
+    assert ownership.search("      *> @author Joe")
 
 
 def test_cobol_doc_planted_construct_counts_once_regression():

@@ -421,14 +421,14 @@ def test_apex_doc_and_ownership_author_colon_optional_split_regression():
     idiomatic = "/**\n * @author Joe\n */"
     assert len(doc.findall(idiomatic)) == 1
     m = ownership.search(idiomatic)
-    assert m and m.group(1).strip() == "Joe"
+    assert m and m.group(m.lastindex).strip() == "Joe"  # #2882 C3: the last group is the value
 
     # colon form outside any doc block: doc has nothing to match (no /**, @author isn't
     # a doc tag anymore); ownership still claims it via the colon-optional alternative.
     colon_form = "@author: Joe"
     assert not doc.search(colon_form)
     m2 = ownership.search(colon_form)
-    assert m2 and m2.group(1).strip() == "Joe"
+    assert m2 and m2.group(m2.lastindex).strip() == "Joe"
 
     # the real rosetta corpus construct (data/apex/main.cls): doc=1 comes from the
     # separate @description line, unaffected by dropping @author; ownership still
@@ -436,7 +436,7 @@ def test_apex_doc_and_ownership_author_colon_optional_split_regression():
     corpus = "// Author: keyword-rosetta generator\n// @description dispatch each probe once"
     assert len(doc.findall(corpus)) == 1
     m3 = ownership.search(corpus)
-    assert m3 and m3.group(1).strip() == "keyword-rosetta generator"
+    assert m3 and m3.group(m3.lastindex).strip() == "keyword-rosetta generator"
 
     # prose must never false-positive on either rule.
     prose = "the Author of this module"

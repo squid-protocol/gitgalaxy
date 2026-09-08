@@ -293,7 +293,11 @@ DEFINITION: dict[str, Any] = {
         # so an Author line with the value wrapped to the next physical line
         # captured garbage from that *different* line (including its own "//*"
         # prefix) instead of correctly failing to match. Bounded to `[ \t]+`.
-        "ownership": re.compile(r"^//\*[ \t]*(?:Author|Created by|Maintainer):[ \t]+(.*)", re.I | re.M),
+        # #2882 contract: C1 keyed line on `//*`
+        "ownership": re.compile(
+            r"^[ \t]*(?://\*+)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$|@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$",
+            re.I | re.M,
+        ),
         # #2610: MSGLEVEL= (what the job log records: statements/allocations)
         # and MSGCLASS= (where the log goes) are JCL's observability dials --
         # the closest native equivalent of configuring a logger. Unanchored

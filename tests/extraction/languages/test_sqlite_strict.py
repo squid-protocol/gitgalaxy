@@ -187,8 +187,8 @@ def test_sqlite_high_risk_execution_dot_command_leading_boundary_and_case_regres
        of the CLI's process-killing/shell-escape commands never matched at
        all.
     2. The rule also had no `re.I` flag at all (every sibling Phase-2 rule
-       does), so even the keyword alternatives (`PRAGMA legacy_alter_table`,
-       `DROP DATABASE`) were silently case-sensitive-only and missed
+       does), so even the keyword alternative (`DROP DATABASE`; the
+       `PRAGMA legacy_alter_table` alternative left in #2878, C5) was silently case-sensitive-only and missed
        lowercase SQL, which is extremely common in real migration scripts.
 
     Fixed by pulling the dot-commands out into a `^[ \\t]*\\.` anchored
@@ -201,7 +201,7 @@ def test_sqlite_high_risk_execution_dot_command_leading_boundary_and_case_regres
     assert pattern.search(".system ls"), ".system still didn't match"
     assert pattern.search(".exit"), ".exit still didn't match"
     assert pattern.search(".quit"), ".quit still didn't match"
-    assert pattern.search("pragma legacy_alter_table=1;"), "lowercase PRAGMA still didn't match"
+    assert not pattern.search("pragma legacy_alter_table=1;"), "#2878 C5: a compatibility pragma is not a site"
     assert pattern.search("drop database foo;"), "lowercase DROP DATABASE still didn't match"
     assert pattern.search("DROP DATABASE foo;"), "uppercase form regressed"
 

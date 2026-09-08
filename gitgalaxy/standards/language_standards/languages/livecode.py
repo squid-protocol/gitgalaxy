@@ -159,8 +159,10 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 8. danger: High-Risk Execution. Process killers and blocking UI alerts in execution flow.
+        # #2878 contract C5: answer/ask are dialogs; C4 `delete file|folder|url` is a single
+        # resource (cleanup's question, #2843); shell( runs a command (C1b).
         "high_risk_execution": re.compile(
-            r"\b(answer|ask|do(?!\s+(?:AppleScript|VBScript))|delete\s+(?:file|folder|url)|quit|exit\s+to\s+top)\b",
+            r"\b(?:do(?!\s+(?:AppleScript|VBScript))|quit|exit\s+to\s+top)\b|\bshell\s*\(",
             re.I,
         ),
         # 9. io: I/O & Network Boundaries. Disk, Network, and URL fetching.

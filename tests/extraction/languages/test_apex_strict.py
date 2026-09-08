@@ -164,7 +164,11 @@ _APEX_SIMPLE_CASES = [
     ("structural_boundaries", "return x;", "String returnVar = 'x';"),
     ("safety", "try {", "Integer x = 1;"),
     ("safety_bypasses", "without sharing", "with sharing"),
-    ("high_risk_execution", "delete records;", "insert records;"),
+    (
+        "high_risk_execution",
+        "Database.emptyRecycleBin(ids);",
+        "delete records;",
+    ),  # #2878 C4/C5: DML delete is not a site
     ("io", "[SELECT Id FROM Account]", "Integer x = 1;"),
     ("api", "global class Foo {", "public class Foo {"),
     ("state_mutation", "insert acc;", "System.debug('hi');"),
@@ -195,7 +199,11 @@ _APEX_SIMPLE_CASES = [
     ("bitwise_ops", "x = a & b;", "x = a && b;"),
     ("sync_locks", "[SELECT Id FROM Account FOR UPDATE]", "[SELECT Id FROM Account]"),
     ("immutability_locks", "final Integer MAX = 10;", "Integer x = 1;"),
-    ("cleanup", "emptyRecycleBin();", "Integer x = 1;"),
+    (
+        "cleanup",
+        "Database.rollback(sp);",
+        "emptyRecycleBin();",
+    ),  # #2878 C6: emptyRecycleBin is high_risk_execution's alone
     ("encapsulation", "private Integer x;", "public Integer x;"),
     ("listeners", "trigger MyTrigger on Account (before insert) {", "public class Foo {"),
     ("test_skip", "Test.setMock(HttpCalloutMock.class, mock);", "Integer x = 1;"),

@@ -178,8 +178,11 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 8. danger: High-Risk Execution. Dynamic SOQL, mass deletion, and hardcoded IDs.
+        # #2878 contract: C6 Database.query is safety_bypasses' alone (batch4 dual retired);
+        # C4/C5 `delete` is single-record DML, `undelete` restores, a hard-coded ID is not a
+        # site; emptyRecycleBin (whole-store, C4), abortJob (termination, C1) are this signal's.
         "high_risk_execution": re.compile(
-            r"\b(Database\.query|delete|undelete|emptyRecycleBin|purgeOldAsyncJobs)\b|\'[a-z0-9]{15,18}\'",
+            r"\b(emptyRecycleBin|abortJob|purgeOldAsyncJobs)\b",
             re.I,
         ),
         # 9. io: I/O & Network Boundaries. SOQL/SOSL queries, HTTP callouts, and batch boundaries.
@@ -359,7 +362,9 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints) Immutability (constants).
         "immutability_locks": re.compile(r"\b(static\s+final|final|const)\b", re.I),
         # 46. cleanup (Resource Cleanup / Teardown) Recycle bin management.
-        "cleanup": re.compile(r"\b(emptyRecycleBin|Database\.rollback|clear)\s*\(", re.I),
+        "cleanup": re.compile(
+            r"\b(Database\.rollback|clear)\s*\(", re.I
+        ),  # #2878 C6: emptyRecycleBin is high_risk_execution\'s
         # 47. encapsulation (Encapsulation / Access Modifiers)
         "encapsulation": re.compile(r"\b(private|protected)\b", re.I),
         # 48. listeners (Event Listeners / Observers) Triggers listening for events.

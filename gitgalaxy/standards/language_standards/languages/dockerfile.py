@@ -116,7 +116,10 @@ DEFINITION: dict[str, Any] = {
         # word chars, so the old pattern could never match the single most catastrophic
         # command a Dockerfile could contain. Pulled out of the shared group, same as the
         # Rule 9 playbook's canonical fix.
-        "high_risk_execution": re.compile(r"\brm[ \t]+-rf[ \t]+/(?![A-Za-z])|\beval\b|\bexec\b", re.M | re.I),
+        # #2878 contract C4: root-only recursive delete, the same form in shell/makefile/yaml.
+        "high_risk_execution": re.compile(
+            r"\brm[ \t]+(?:-[rR][fF]|-[fF][rR])[ \t]+[\"']?/(?![A-Za-z])|\beval\b|\bexec\b", re.M | re.I
+        ),
         # 9. io (I/O & Network Boundaries)
         # Interaction with external networks, copying files from host, or executing package managers.
         # BUG FIX (#2675): the bare package-manager names matched their own

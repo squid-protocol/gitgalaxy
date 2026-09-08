@@ -80,7 +80,9 @@ DEFINITION: dict[str, Any] = {
         "safety_bypasses": re.compile(r"\b(?:eval|uplevel|upvar)\b"),
         # 8. danger (High-Risk Execution / System Calls)
         # OS command execution and process termination.
-        "high_risk_execution": re.compile(r"\b(?:exec|exit)\b|file[ \t]+delete[ \t]+-force"),
+        # #2878 contract C2: hyphen-guarded (`ports_deactivate_no-exec`); C4 `file delete -force`
+        # is a path deletion (cleanup's question, #2843).
+        "high_risk_execution": re.compile(r"(?<![-\w])(?:exec|exit)(?![-\w])"),
         # 9. io (I/O & Network Boundaries)
         # File system, sockets, and configuration. (Excludes puts which is mapped to print_hits).
         "io": re.compile(

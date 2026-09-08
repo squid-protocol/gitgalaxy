@@ -107,7 +107,9 @@ DEFINITION: dict[str, Any] = {
         "safety_bypasses": re.compile(r"^[ \t]*\*|^[ \t]*#[\w-]+\s*(?:[:.[>+~][^{;]*)?\{", re.M | re.I),
         # 8. danger (High-Risk Execution / System Calls)
         # Extreme tech debt and legacy engine thrashing.
-        "high_risk_execution": re.compile(r"\b(?:expression|behavior|-ms-filter)\b"),
+        # #2878 contract C2: the IE forms -- `expression(` as a value, `behavior:`/`-ms-filter:` as
+        # the property; `scroll-behavior:`/`overscroll-behavior:` are ordinary properties.
+        "high_risk_execution": re.compile(r"\bexpression\s*\(|(?<![-\w])(?:behavior|-ms-filter)\s*:"),
         # 9. io (I/O & Network Boundaries)
         # =====================================================================
         # A DECLARATION WHOSE VALUE FETCHES AN EXTERNAL RESOURCE (#2752).

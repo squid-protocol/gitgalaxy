@@ -238,7 +238,8 @@ DEFINITION: dict[str, Any] = {
         # 7. safety_neg: Safety Bypasses. Actively bypassing sound null safety or static analysis.
         "safety_bypasses": re.compile(r"!\s*[;,\n)\.\]]|\bdynamic\b|//\s*ignore(?:_for_file)?:\s*\w+"),
         # 8. danger: High-Risk Execution. Process killers and catastrophic exit commands.
-        "high_risk_execution": re.compile(r"\b(exit|exitCode|Process\.killPid)\b", re.I),
+        # #2878 contract C5: `exitCode` is a property that records a code; it ends nothing.
+        "high_risk_execution": re.compile(r"\b(exit|Process\.killPid)\b", re.I),
         # 9. io: I/O & Network Boundaries. Disk, Network, WebSockets, and Uri parsing (Includes legacy CERN triggers).
         "io": re.compile(
             # #2841 contract C1: these are case-sensitive type names; re.I

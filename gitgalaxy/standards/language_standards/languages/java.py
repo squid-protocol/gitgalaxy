@@ -190,8 +190,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # 8. danger (High-Risk Execution / System Calls)
         # Process killers and raw memory/execution risks. EXCLUDES prints (Phase 5).
+        # #2878 contract C2: `ProcessBuilder builder;` declares a variable; `new ProcessBuilder(`
+        # is the site.
         "high_risk_execution": re.compile(
-            r"\b(Runtime\.getRuntime\(\)\.exec|ProcessBuilder|System\.exit|Thread\.stop|Unsafe)\b"
+            r"\b(?:Runtime\.getRuntime\(\)\.(?:exec|halt)|System\.exit|Thread\.stop|Unsafe)\b|\bnew\s+ProcessBuilder\b"
         ),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(

@@ -454,9 +454,9 @@ def test_matlab_resource_action_dual_classification_sweep():
     on the same underlying action -- intentional, not false collisions:
     - `try`/`catch` -> safety only since #2822 (corollary 1: a handler is not
       a decision; the dual with branch was retired)
-    - `clear all` -> high_risk_execution (destructive wipe) + cleanup
-      (resource release); NOT state_mutation since #2765 (count contract
-      corollary 4: `clear` is cleanup's token, the write is the assignment)
+    - `clear all` -> cleanup only since #2878 (C5: a workspace reset is
+      cleanup's release, not a danger site); NOT state_mutation since #2765
+      (count contract corollary 4: `clear` is cleanup's token)
     - `fclose(fid)` -> cleanup only since #2841 (C2: releasing a
       resource is cleanup's hit alone; io counts acquisition and transfer)
     - `system(...)` -> high_risk_execution (OS bypass) + ipc_rpc_bridges
@@ -470,7 +470,7 @@ def test_matlab_resource_action_dual_classification_sweep():
     assert MATLAB_RULES["safety"].search("try")
 
     clear_all = "clear all"
-    assert MATLAB_RULES["high_risk_execution"].search(clear_all)
+    assert not MATLAB_RULES["high_risk_execution"].search(clear_all)
     assert not MATLAB_RULES["state_mutation"].search(clear_all)
     assert MATLAB_RULES["cleanup"].search(clear_all)
 

@@ -201,8 +201,11 @@ DEFINITION: dict[str, Any] = {
         "safety_bypasses": re.compile(r"(?<![=!])==(?!=)|!=(?!=)|\b(with|void)\b|eslint-disable|@ts-nocheck"),
         # 8. danger (High-Risk Execution / System Calls)
         # Catastrophic vulnerabilities. EXCLUDES console.log (print_hits) and TODO (debt).
+        # #2878 contract C2: innerHTML/outerHTML count as the assignment sink, not a read or a
+        # method named innerHTML; `debugger` is the statement, not `'./debugger'`; C5 alert is output.
         "high_risk_execution": re.compile(
-            r"\b(eval|document\.write|innerHTML|outerHTML|dangerouslySetInnerHTML|debugger|alert|process\.exit)\b"
+            r"\b(?:eval|document\.write(?:ln)?|dangerouslySetInnerHTML|process\.(?:exit|abort)|execSync|new\s+Function)\b|\.(?:innerHTML|outerHTML)\s*\+?=(?!=)|(?:^|[;{}])[ \t]*debugger\b",
+            re.M,
         ),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(

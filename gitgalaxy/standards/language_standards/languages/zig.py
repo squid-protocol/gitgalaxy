@@ -93,7 +93,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # 8. danger: High-Risk Execution. Forceful panics and process terminations.
         # BUG FIX: `@panic` is `@`-prefixed -- same leading-\b bug.
-        "high_risk_execution": re.compile(r"\b(?:panic|std\.process\.exit)\b|@panic"),
+        # #2878 contract C2: `.panic` enum tags, `panic,` fields and the `pub fn panic(` handler
+        # definition are not sites; the call and the builtin are.
+        "high_risk_execution": re.compile(
+            r"@panic\b|\bstd\.(?:process\.(?:exit|abort)|debug\.panic|os\.abort)\b|(?<!fn )(?<![.\w\"])panic\s*\("
+        ),
         # 9. io: I/O & Network Boundaries. Standard library IO, Network, and Filesystem interactions.
         "io": re.compile(r"\b(std\.fs|std\.net|std\.io(?!\.getStdOut)|std\.ChildProcess|std\.posix|std\.os)\b"),
         # 10. api: Public Surface Area. Exposed boundaries via 'pub' and 'export' (C ABI).

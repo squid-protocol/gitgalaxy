@@ -60,7 +60,7 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-11 stated, 57 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+12 stated, 56 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
@@ -72,7 +72,7 @@ written.** Corollaries every audited contract has needed so far:
 | `api` | safety | `declaration` | stated |  | A declaration that makes a named function or type visible outside this file | [api_rule_contract.md](../docs/api_rule_contract.md) #2730 |
 | `dead_code` | safety | `annotation` | draft |  | Commented-out structural code and unused logic trails |  |
 | `doc` | safety | `annotation` | draft | yes | Structured documentation meant to be parsed by IDEs or generators |  |
-| `high_risk_execution` | safety | `site` | draft | yes | Process-killing commands and catastrophic runtime vulnerabilities |  |
+| `high_risk_execution` | safety | `site` | stated | yes | A SITE THAT HANDS CONTROL OUT OF THE PROGRAM'S OWN SEMANTICS -- it ends or halts the process, runs text or another program as code, loads or rewrites executable code at run time, destroys a whole store the program does not own, or steps outside the runtime's protections -- in the primitive's own invocation or statement form. | [high_risk_execution_rule_contract.md](../docs/high_risk_execution_rule_contract.md) #2878 |
 | `io` | safety | `site` | stated | yes | An operation that moves data between the program and a system outside its own runtime | [io_rule_contract.md](../docs/io_rule_contract.md) #2841 |
 | `safety` | safety | `site` | stated | yes | A site that handles or forestalls a runtime failure at the value level -- a guarded region's opener or its typed handler, a runtime assertion or validation call, a fallback or handled-absence form, an installed failure handler or watchdog, or a hardening instruction -- in a form an ordinary identifier, type annotation or constructor cannot match | [safety_rule_contract.md](../docs/safety_rule_contract.md) #2869 |
 | `safety_bypasses` | safety | `site` | draft | yes | Syntax that actively bypasses type safety, swallows errors, or relies on unpredictable state |  |

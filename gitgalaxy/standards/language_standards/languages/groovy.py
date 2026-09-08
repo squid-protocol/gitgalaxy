@@ -264,7 +264,12 @@ DEFINITION: dict[str, Any] = {
             r"\b(null)\b|return\s+null|catch\s*\(\s*(?:Exception|Throwable)\b|@SuppressWarnings|@SneakyThrows|\.get\(\)"
         ),
         # 8. danger (High-Risk Execution / System Calls)
-        "high_risk_execution": re.compile(r"\b(System\.exit|Runtime\.getRuntime\(\)\.exec|execute)\b"),
+        # #2878 contract C2: bare `execute` was retrofit's `.execute().body()` and `void execute()`;
+        # the GDK process spawn is `.execute()` on a string or list literal. Eval.me/GroovyShell
+        # run text as code (C1b).
+        "high_risk_execution": re.compile(
+            r"\b(?:System\.exit|Runtime\.getRuntime\(\)\.(?:exec|halt)|Eval\.(?:me|x|xy|xyz)|GroovyShell)\s*\(|(?:\"|\'|\])\.execute\s*\("
+        ),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
             # #2841 contract C1: lowercase file/copy/sync/uri/url matched

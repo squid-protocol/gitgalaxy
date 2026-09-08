@@ -129,7 +129,10 @@ DEFINITION: dict[str, Any] = {
         # leading \b fires correctly.)
         "safety_bypasses": re.compile(r"\b(?:null|asInstanceOf|isInstanceOf|Any|AnyRef)\b|\.get\b(?!Class)|@unchecked"),
         # 8. danger: High-Risk Execution. Process killers and catastrophic exit commands.
-        "high_risk_execution": re.compile(r"\b(System\.exit|sys\.exit|Thread\.stop|Runtime\.getRuntime\.exec)\b"),
+        # #2878 contract C1b: the parenthesised getRuntime() spelling and sys.process join.
+        "high_risk_execution": re.compile(
+            r"\b(System\.exit|sys\.exit|Thread\.stop|Runtime\.getRuntime(?:\(\))?\.exec|sys\.process)\b"
+        ),
         # 9. io: I/O & Network Boundaries. Filesystem, Network, and Http Clients (Includes CERN triggers).
         "io": re.compile(
             r"\b(Source|java\.io|java\.nio|Files\.|Socket|ServerSocket|sttp|Http|WSClient|HTLoad|HTGet|ENQUIRE)\b"

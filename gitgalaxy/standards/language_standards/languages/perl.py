@@ -189,7 +189,11 @@ DEFINITION: dict[str, Any] = {
             r'\b(?:no\s+strict|no\s+warnings)\b|\beval\s*["\']|\beval\s*\(|\beval\s+(?!\w|{)|\bgoto\s+&'
         ),
         # 8. danger: High-Risk Execution. Process killers and raw shell execution.
-        "high_risk_execution": re.compile(r"\b(system|exec|exit|qx|CORE::dump)\b|`[^`]+`"),
+        # #2878 contract C2: `system` fires with its argument (9 crucible hits were config prose:
+        # `the current login system allows`); a backtick command is one line and not `$\``.
+        "high_risk_execution": re.compile(
+            r"\b(?:system|exec)(?:\s*\(|\s+[\$@\"\'])|\b(?:exit|qx|CORE::dump)\b|(?<!\$)`[^`\n]+`"
+        ),
         # 9. io: I/O & Network Boundaries. Disk, Network, DBI, and standard handles.
         "io": re.compile(
             r"\b(open|sysopen|sysread|syswrite|opendir|DBI->connect|Mojo::UserAgent|HTTP::Tiny|LWP::UserAgent|socket|connect|bind)\b|<[A-Z_0-9]+>|<>"

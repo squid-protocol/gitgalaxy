@@ -206,7 +206,13 @@ DEFINITION: dict[str, Any] = {
         # 8. danger (High-Risk Execution)
         # Extreme tech debt, unconstrained legacy jumps (`GO TO`, `ASSIGN`), and raw terminal output.
         # CRITICAL GUARDRAIL: Terminal prints (`PRINT`, `WRITE(*,...)`) strictly routed here, away from `io` and `telemetry`.
-        "high_risk_execution": re.compile(r"\b(GO\s*TO|GOTO|ASSIGN|RETURN\s+\d+)\b", re.I),
+        # #2878 contract C3: GO TO is a jump and nobody's signal (reverses #2822's hand-off);
+        # ASSIGN rewrites where control goes and RETURN n abandons the caller's flow, both stay;
+        # C1a STOP/ERROR STOP/CALL EXIT|ABORT and C1b CALL SYSTEM/EXECUTE_COMMAND_LINE join.
+        "high_risk_execution": re.compile(
+            r"\b(?:ASSIGN|RETURN\s+\d+|ERROR\s+STOP|STOP|CALL\s+(?:EXIT|ABORT|SYSTEM|EXECUTE_COMMAND_LINE))\b|\bEXECUTE_COMMAND_LINE\s*\(",
+            re.I,
+        ),
         # 9. io (I/O & Network Boundaries)
         # File operations, hardware inquiries, and disk boundaries.
         # Negatively asserts `*` or `6` to ensure raw standard-out terminal prints do not trigger IO.

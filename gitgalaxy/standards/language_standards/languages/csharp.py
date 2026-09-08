@@ -270,8 +270,9 @@ DEFINITION: dict[str, Any] = {
         "safety_bypasses": re.compile(r"!\.|\bnull!|#pragma\s+warning\s+disable|\.Result\b|\.Wait\(\)|\b(dynamic)\b"),
         # 8. danger (High-Risk Execution / System Calls)
         # Extreme tech debt/vulnerabilities. EXCLUDES TODO (debt) and Console (print).
+        # #2878 contract C3: `goto` is a jump inside the unit and nobody's signal (as in c/go/perl).
         "high_risk_execution": re.compile(
-            r"\b(Thread\.Abort|Process\.Start|Environment\.FailFast|Environment\.Exit|goto)\b"
+            r"\b(?:Thread\.Abort|Process\.Start|Environment\.FailFast|Environment\.Exit)\b"
         ),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(

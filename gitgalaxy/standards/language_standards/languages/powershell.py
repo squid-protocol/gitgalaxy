@@ -159,7 +159,8 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # danger: High-Risk Execution. Dynamic code execution and process terminators.
-        "high_risk_execution": re.compile(r"\b(Invoke-Expression|iex|Stop-Process|kill|Exit)\b", re.I),
+        # #2878 contract C1b: Start-Process runs a program (Process.Start parity).
+        "high_risk_execution": re.compile(r"\b(Invoke-Expression|iex|Stop-Process|Start-Process|kill|Exit)\b", re.I),
         # io: I/O & Network Boundaries. Disk, Network, and URL fetching (Includes CERN/TBL legacy emulation triggers).
         "io": re.compile(
             r"\b(Get-Content|Set-Content|Out-File|Invoke-WebRequest|iwr|Invoke-RestMethod|irm|TcpClient|HttpListener|HTLoad|HTGet|ENQUIRE)\b",

@@ -176,8 +176,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # 8. danger (High-Risk Execution / System Calls)
         # Destructive schema actions and system bypasses.
+        # #2878 contract C5: a compatibility pragma is not a site; C1c load_extension( loads code;
+        # DROP TABLE / DELETE FROM are cleanup's (C4).
         "high_risk_execution": re.compile(
-            r"\b(PRAGMA\s+legacy_alter_table|DROP\s+DATABASE)\b|^[ \t]*\.(?:shell|system|exit|quit)\b",
+            r"\bDROP\s+DATABASE\b|^[ \t]*\.(?:shell|system|exit|quit)\b|\bload_extension\s*\(",
             re.I | re.M,
         ),
         # 9. io (I/O & Network Boundaries)

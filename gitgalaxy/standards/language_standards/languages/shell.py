@@ -140,8 +140,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # 8. danger (High-Risk Execution / System Calls)
         # Destructive commands and privilege elevation. EXCLUDES echo (Phase 5).
+        # #2878 contract C4: `rm -rf` counts on the root only (makefile/dockerfile/yaml agree; a
+        # path target is cleanup's question, #2843); C1a `kill -0` probes and `kill -l` lists.
         "high_risk_execution": re.compile(
-            r"\b(rm\s+-[rR]f|sudo|chmod\s+(?:-R[ \t]+)?777|chown\s+(?:-R[ \t]+)?root|mkfs|dd|kill(?:all)?)\b"
+            r"\brm[ \t]+(?:-[rR][fF]|-[fF][rR])[ \t]+[\"']?/(?![A-Za-z])|(?<![-\w])sudo(?![-\w])|\b(?:chmod\s+(?:-R[ \t]+)?777|chown\s+(?:-R[ \t]+)?root|mkfs(?:\.\w+)?|dd)\b|\bkill(?:all)?\b(?![ \t]+-[0l]\b)"
         ),
         # 9. io (I/O & Network Boundaries)
         # Redirections, pipes, and network clients.

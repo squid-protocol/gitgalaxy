@@ -96,8 +96,10 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 8. danger: High-Risk Execution. Raw SQL/Kernel bypasses and mass deletion.
+        # #2878 contract C4: DELETE FROM is a row/table deletion (cleanup's family, #2843);
+        # TRUNCATE empties the whole store and stays.
         "high_risk_execution": re.compile(
-            r"\b(SYSTEM-CALL|EXEC\s+SQL|DELETE\s+FROM|TRUNCATE|GENERATE\s+SUBROUTINE\s+POOL)\b",
+            r"\b(SYSTEM-CALL|EXEC\s+SQL|TRUNCATE|GENERATE\s+SUBROUTINE\s+POOL)\b",
             re.I,
         ),
         # 9. io: I/O & Network Boundaries. Database interaction and File datasets.

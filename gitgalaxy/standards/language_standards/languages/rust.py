@@ -127,7 +127,10 @@ DEFINITION: dict[str, Any] = {
         # whitespace, both non-word, so `\b` could never fire. None of
         # these three -- among the most common constructs in any real Rust
         # file -- ever matched. Pulled out of the shared boundary group.
-        "high_risk_execution": re.compile(r"panic!|todo!|unimplemented!|\b(?:process::exit|abort)\b"),
+        # #2878 contract C1: unreachable! aborts like panic!; Command::new spawns (C1b).
+        "high_risk_execution": re.compile(
+            r"panic!|todo!|unimplemented!|unreachable!|\b(?:process::(?:exit|abort)|abort|Command::new)\b"
+        ),
         # 9. io (I/O & Network Boundaries)
         "io": re.compile(
             r"\b(std::fs|File::|std::net|tokio::net|tokio::fs|reqwest|std::io|hyper::|sqlx::|diesel::|sea_orm::)\b"

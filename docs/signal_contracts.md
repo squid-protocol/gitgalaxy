@@ -18,6 +18,10 @@ there is no shielding mechanism). Corollaries:
 2. Comment-stream rules (`dead_code`, `doc`, `ownership`, `planned_debt`, `fragile_debt`,
    `spec_exposure`) read the comment surface instead; a language whose comment syntax
    `prism.py` does not know sends its comments into the code stream (gitgalaxy#2610, jcl).
+   The literate pack (`lit_code_blocks`, `lit_diagrams`, `lit_headers`, `lit_links`) is the
+   same shape for markdown: `prism.py`'s Prose Bypass routes the whole file into the comment
+   stream and `detector.comment_analysis` runs the four rules there (#691) -- probed on the
+   code stream they read 0 on every file.
 3. The recorded count is the raw hit count, for every signal (gitgalaxy#2813). The
    proximity pairs in `core/spatial_correlation.py` (the x3 cascading flux on
    `state_mutation`, the silencer dampener on `high_risk_execution`, the race and
@@ -60,7 +64,7 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-15 stated, 53 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+15 stated, 40 declared, 13 draft. A **draft** row is the schema comment transcribed as-is; a **declared** row has a fixed language-independent sentence, kind and unit, measured incidence and its disagreeing rules filed but not edited (#2897, `docs/domain_sensor_contracts.md`); a **stated** row has been audited across the corpus languages, its rules edited to agree, and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
@@ -68,7 +72,7 @@ written.** Corollaries every audited contract has needed so far:
 | `branch` | structure | `site` | stated | yes | A keyword or operator that opens a runtime choice between control-flow paths: the choosing construct or one of its alternative arms | [branch_rule_contract.md](../docs/branch_rule_contract.md) #2822 |
 | `class_start` | structure | `declaration` | stated | yes | The declaration of a named type -- a class, struct, record, interface, enum or object -- or the file's compilation-unit container where that container is the language's only named-entity declaration | [class_start_rule_contract.md](../docs/class_start_rule_contract.md) #2856 |
 | `func_start` | structure | `declaration` | stated | yes | The syntax that opens an executable block of logic under its own name: a function, method, procedure or subroutine declaration, or the instruction that begins an executable step in a language with no named-callable form | [func_start_rule_contract.md](../docs/func_start_rule_contract.md) #2856 |
-| `structural_boundaries` | structure | `tally` | draft |  | Keywords defining structural boundaries and straight-line execution |  |
+| `structural_boundaries` | structure | `tally` | declared |  | A vocabulary token of straight-line execution or structural delimiting -- a return, a declaration or import keyword, a type keyword, an instruction mnemonic in a language with no other structure -- counted as a length-like tally with no structural referent | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `api` | safety | `declaration` | stated |  | A declaration that makes a named function or type visible outside this file | [api_rule_contract.md](../docs/api_rule_contract.md) #2730 |
 | `dead_code` | safety | `annotation` | draft |  | Commented-out structural code and unused logic trails |  |
 | `doc` | safety | `annotation` | draft | yes | Structured documentation meant to be parsed by IDEs or generators |  |
@@ -78,60 +82,60 @@ written.** Corollaries every audited contract has needed so far:
 | `safety_bypasses` | safety | `site` | draft | yes | Syntax that actively bypasses type safety, swallows errors, or relies on unpredictable state |  |
 | `state_mutation` | safety | `site` | stated | yes | A statement that writes a new value into state that already exists | [state_mutation_rule_contract.md](../docs/state_mutation_rule_contract.md) #2765 |
 | `test` | safety | `site` | stated | yes | A site that engages a testing framework: a test-case or fixture declaration, a framework assertion or expectation, or the framework named as such | [test_rule_contract.md](../docs/test_rule_contract.md) #2852 |
-| `closures` | architecture | `declaration` | draft |  | Anonymous functions, lambdas, inline callbacks |  |
-| `comprehensions` | architecture | `site` | draft |  | Collection iterators or inline looping |  |
+| `closures` | architecture | `declaration` | declared |  | The syntax that opens an anonymous callable -- a lambda, arrow function, block literal or inline callback -- at the point it is defined | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `comprehensions` | architecture | `site` | declared |  | A collection-transform expression -- a comprehension, a map/filter/fold/for-each call, or an inline iteration form -- at its invocation | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `concurrency` | architecture | `site` | draft |  | Asynchronous logic and parallel execution |  |
-| `decorators` | architecture | `annotation` | draft |  | Annotations applied to classes/methods |  |
-| `generics` | architecture | `annotation` | draft |  | Type parameters indicating generic abstractions |  |
+| `decorators` | architecture | `annotation` | declared |  | A metadata attribute attached to the declaration it precedes -- an annotation, attribute, pragma or directive line -- in the language's attribute syntax | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `generics` | architecture | `annotation` | declared |  | A type-parameter list on a declaration or an instantiation -- the bracketed parameters that make a type or callable generic -- in the language's parameterisation syntax | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `globals` | architecture | `declaration` | stated | yes | A declaration of a binding with program lifetime -- file, module, class-static or process scope -- or a read or write of the process's ambient environment through its named handle | [globals_rule_contract.md](../docs/globals_rule_contract.md) #2858 |
 | `import` | architecture | `declaration` | stated | yes | A statement or directive that binds an external unit -- a module, package, header, library, file, stage or base image -- into the current unit, in the language's own dependency form | [import_rule_contract.md](../docs/import_rule_contract.md) #2875 |
 | `ownership` | architecture | `annotation` | stated | yes | A tag naming who is responsible for the unit -- an author, creator, maintainer, owner, developer or contact -- with its value, in the form the language's tooling or header convention reads as metadata | [ownership_rule_contract.md](../docs/ownership_rule_contract.md) #2882 |
 | `reflection_metaprogramming` | architecture | `site` | draft |  | Metaprogramming, reflection, and dynamic property assignment |  |
-| `scientific` | architecture | `site` | draft |  | Math, data science, and complex rendering libraries |  |
-| `ui_framework` | architecture | `site` | draft |  | DOM manipulation, UI components |  |
-| `dependency_injection` | subsystems | `annotation` | draft |  | Inversion of Control (IoC) injection markers |  |
-| `events` | subsystems | `site` | draft |  | Event-driven architecture signatures and message brokers |  |
+| `scientific` | architecture | `site` | declared |  | A call into, or an import of, a numeric, scientific or rendering library facility -- a math function, a linear-algebra or matrix type, an array, plotting or GPU library -- in its qualified, typed or call form | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `ui_framework` | architecture | `site` | declared |  | A call, declaration or markup construct that builds or mutates a user-interface surface through a UI framework or the document tree -- a component or widget definition, a hook or lifecycle call, a DOM query or mutation, a layout or rendering directive -- in the framework's own invocation or property form | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `dependency_injection` | subsystems | `annotation` | declared |  | An inversion-of-control marker -- an injection annotation, a provider or module registration, a container or factory declaration -- attached to the declaration it wires | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `events` | subsystems | `site` | declared |  | A site that publishes into or wires up an event or message channel -- an emit or dispatch call, a broker or bus client construction, a signal connect -- in call form | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `fragile_debt` | subsystems | `annotation` | draft | yes | Explicit admissions of fragile or dangerous logic |  |
-| `hardcoded_secrets` | subsystems | `site` | draft |  | Static credentials or API keys baked into code |  |
-| `inline_asm` | subsystems | `site` | draft |  | Direct CPU architecture bridging |  |
-| `macros` | subsystems | `declaration` | draft |  | Compiler pragmas or macro definitions that generate code at compile-time |  |
-| `memory_alloc` | subsystems | `site` | draft |  | Explicit unmanaged memory allocations and raw heap manipulations |  |
+| `hardcoded_secrets` | subsystems | `site` | declared |  | A literal credential written into the file -- a password, token, key or secret assigned or configured as a string literal of credential length -- at the assignment | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `inline_asm` | subsystems | `site` | declared |  | The opener of an embedded machine-code region -- an inline-assembly statement, block or intrinsic -- in the language's embedding syntax | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `macros` | subsystems | `declaration` | declared |  | A compile-time code-generation directive -- a macro definition, a conditional-compilation or include directive, a compiler pragma -- in directive form | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `memory_alloc` | subsystems | `site` | declared |  | A call that requests memory from the runtime or the heap explicitly -- an allocator call, an explicit object or buffer construction, a manual resize -- at its invocation | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `planned_debt` | subsystems | `annotation` | draft | yes | Annotated future work |  |
-| `pointers` | subsystems | `site` | draft |  | Explicit tracking of raw memory addressing and pointer dereferencing |  |
+| `pointers` | subsystems | `site` | declared |  | A site that takes, holds or dereferences a raw memory address -- an address-of, a pointer declaration or dereference, an unsafe pointer or raw-handle type -- in the language's pointer syntax | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `spec_exposure` | subsystems | `annotation` | draft |  | Audit tags establishing traceability of intent |  |
-| `ssr_boundaries` | subsystems | `site` | draft |  | Server-Side Rendering computation boundaries |  |
-| `bitwise_ops` | resources | `site` | draft |  | Bitwise operations manipulating raw bytes |  |
+| `ssr_boundaries` | subsystems | `site` | declared |  | A server-side rendering boundary -- a framework's data-loading or render-mode hook, a server/client directive, or a template-render call -- in the framework's own form | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `bitwise_ops` | resources | `site` | declared |  | A bitwise operator applied between value operands -- shift, and, or, xor, or the unary complement -- in operator position | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `cleanup` | resources | `site` | stated | yes | A SITE THAT EXPLICITLY DESTROYS STATE OR RELEASES A HELD RESOURCE -- a deallocation or finalization call, a handle or connection close, removal of an entry from a live container or of external state the program owns, or the opener of a guaranteed-teardown region -- in call or statement form. | [cleanup_rule_contract.md](../docs/cleanup_rule_contract.md) #2888 |
 | `debug_prints` | resources | `site` | draft |  | Ad-hoc, temporary debug statements |  |
 | `encapsulation` | resources | `annotation` | draft |  | Explicitly hiding logic from the rest of the application | #2766 |
-| `explicit_casts` | resources | `site` | draft |  | Explicitly bypassing the compiler's type-checker |  |
+| `explicit_casts` | resources | `site` | declared |  | A site that converts a value's type explicitly -- a cast expression, a conversion call or a cast keyword -- in cast form | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `immutability_locks` | resources | `annotation` | stated |  | AN ADDED MARKER OR LOCK CALL THAT PREVENTS A BINDING OR VALUE FROM BEING CHANGED AFTER INITIALISATION, WHERE THE LANGUAGE'S DEFAULT WOULD PERMIT IT -- a modifier or qualifier on an otherwise-mutable declaration, a restricted constant-declaration form distinct from the general-purpose binding, a runtime lock call, or an immutable reference pin; the language's ordinary binding keyword is a binding choice, not a lock, and a language whose bindings are immutable by default records the stated absence. | [immutability_locks_rule_contract.md](../docs/immutability_locks_rule_contract.md) #2772 |
-| `listeners` | resources | `site` | draft |  | Waiting to receive state from an external broadcast |  |
-| `panics_and_aborts` | resources | `site` | draft |  | Forcefully destroying the current execution context |  |
+| `listeners` | resources | `site` | declared |  | A registration to receive from an external broadcast -- an event-listener, subscription or handler-binding call -- at its invocation | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `panics_and_aborts` | resources | `site` | declared |  | A statement that ends the current execution context by raising or aborting -- a throw or raise, a panic, an unreachable marker, a fatal-error, revert or process-exit call -- in statement or call form | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `sync_locks` | resources | `site` | draft |  | Explicitly coordinating threaded logic to prevent race conditions |  |
 | `telemetry` | resources | `site` | draft | yes | Structured logging and observability frameworks |  |
-| `test_skip` | resources | `annotation` | draft |  | Bypassed tests or ignored verification specs |  |
-| `thread_sleeps` | resources | `site` | draft |  | Thread blocking or forced timeouts |  |
-| `ipc_rpc_bridges` | hybrid | `site` | draft |  | Inter-process or RPC bridging commands |  |
-| `regex_execution` | hybrid | `site` | draft |  | Native regex evaluation commands |  |
-| `serialization_parsing` | hybrid | `site` | draft |  | JSON, XML, YAML parsing libraries |  |
-| `time_date_logic` | hybrid | `site` | draft |  | Time/date instantiation and math |  |
-| `cryptography` | ai-ml | `site` | draft |  | Cryptographic primitives and identity libraries |  |
-| `dl_frameworks` | ai-ml | `site` | draft |  | Deep learning frameworks |  |
-| `hardware_bridge` | ai-ml | `site` | draft |  | Bridges from software into physical/peripheral I/O |  |
-| `lazy_evaluation` | ai-ml | `site` | draft |  | Generators and deferred-execution constructs |  |
+| `test_skip` | resources | `annotation` | declared |  | A marker that disables or ignores a test -- a skip decorator, an ignore attribute, a `.skip`/`xit` call form -- attached to the test it silences | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `thread_sleeps` | resources | `site` | declared |  | A call that blocks the current thread or schedules a forced delay -- a sleep, a timed wait, a timeout-driven deferral -- at its invocation | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `ipc_rpc_bridges` | hybrid | `site` | declared |  | A site that crosses a process or host boundary through a bridge -- an RPC or IPC client or server construction, a pipe or socket-message send, a foreign-function or platform-channel call -- at its invocation | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `regex_execution` | hybrid | `site` | declared |  | A site that evaluates a regular expression -- a match, substitution or split operator, a regex constructor or compile/exec call -- at its invocation | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `serialization_parsing` | hybrid | `site` | declared |  | A call that encodes to or decodes from a structured interchange format -- JSON, XML, YAML, CSV, protocol buffers, a marshal or unmarshal -- at its invocation | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `time_date_logic` | hybrid | `site` | declared |  | A site that instantiates or computes with a clock or calendar value -- a now/time/date constructor, duration arithmetic, a formatting or timezone call -- at its invocation | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `cryptography` | ai-ml | `declaration` | declared |  | An import of a cryptographic-primitive, hashing, transport-security or identity library from the pack's name list -- one hit per import statement | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `dl_frameworks` | ai-ml | `declaration` | declared |  | An import of a deep-learning framework from the pack's name list -- one hit per import statement, none for a use of the imported name | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `hardware_bridge` | ai-ml | `declaration` | declared |  | An import of a library that bridges software into physical or peripheral I/O -- serial, USB, bluetooth, printers, device sockets -- one hit per import statement | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `lazy_evaluation` | ai-ml | `site` | declared |  | A deferred-execution construct at its site -- a yield statement, a generator or iterator type annotation, an async-generator form | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `llm_api` | ai-ml | `site` | draft |  | Direct calls into a hosted LLM provider SDK |  |
-| `llm_orchestrator` | ai-ml | `site` | draft |  | Agent/RAG orchestration frameworks |  |
-| `llm_vector_store` | ai-ml | `site` | draft |  | Vector database clients |  |
-| `ml_traditional` | ai-ml | `site` | draft |  | Classical (non-deep-learning) ML libraries |  |
-| `vectorized_math` | ai-ml | `site` | draft |  | Tensor/matrix math operations |  |
-| `exfiltration_camouflage` | appsec | `site` | draft |  | Outbound HTTP calls disguised as telemetry/metrics/audit traffic |  |
-| `memory_scraping` | appsec | `site` | draft |  | Direct reads of process memory |  |
-| `rce_funnel` | appsec | `site` | draft |  | Spawning a shell/interpreter subprocess from application code |  |
-| `lit_code_blocks` | literate | `site` | draft |  | Fenced code block delimiters |  |
-| `lit_diagrams` | literate | `site` | draft |  | Embedded diagram blocks |  |
-| `lit_headers` | literate | `declaration` | draft |  | Section headers, for document structure/navigation mapping |  |
-| `lit_links` | literate | `site` | draft |  | Links to other documents or resources, captured as document dependencies |  |
+| `llm_orchestrator` | ai-ml | `declaration` | declared |  | An import of an agent or retrieval-orchestration framework from the pack's name list -- one hit per import statement, none for a use of the imported name | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `llm_vector_store` | ai-ml | `declaration` | declared |  | An import of a vector-database client from the pack's name list -- one hit per import statement, none for a use of the imported name | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `ml_traditional` | ai-ml | `declaration` | declared |  | An import of a classical (non-deep-learning) machine-learning library from the pack's name list -- one hit per import statement, none for a use of the imported name | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `vectorized_math` | ai-ml | `site` | declared |  | A tensor or matrix operation at its site -- an einsum/matmul/tensordot/dot call, or the infix matrix-multiply operator between two value operands | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `exfiltration_camouflage` | appsec | `site` | declared |  | An outbound HTTP call whose target or payload carries a telemetry-, metrics-, audit- or log-shaped name -- at the call | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `memory_scraping` | appsec | `site` | declared |  | A read of another process's memory image through the operating system's process filesystem -- at the path construction or open | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `rce_funnel` | appsec | `site` | declared |  | A subprocess spawn from application code whose command is a shell or interpreter -- at the spawn call, with the interpreter name in the command | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `lit_code_blocks` | literate | `site` | declared |  | A fence line that opens or closes a code block -- a block contributes its opener and its closer, so one block is two hits | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `lit_diagrams` | literate | `site` | declared |  | A fence line that opens an embedded diagram block by its info string -- one hit per diagram | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `lit_headers` | literate | `declaration` | declared |  | An ATX heading line -- one to six `#` at the margin followed by a space -- one hit per heading | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+| `lit_links` | literate | `site` | declared |  | An inline link or image target `[text](target)` -- one hit per link | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 
 ## Helper keys (not signals)
 

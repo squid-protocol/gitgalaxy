@@ -1,6 +1,6 @@
 {
   "args_comparable": 25,
-  "args_exact_match": 19,
+  "args_exact_match": 25,
   "corpus_path": "language-crucible/data/css",
   "extra_classes": 0,
   "extra_functions": 0,

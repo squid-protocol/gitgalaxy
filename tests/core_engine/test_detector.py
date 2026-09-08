@@ -4134,7 +4134,11 @@ def test_closed_literal_capture_is_generated_not_hand_listed():
         "exactly four languages have a func_start capture that is a closed keyword set"
     )
     assert {"RUN", "CMD", "ENTRYPOINT", "HEALTHCHECK"} <= closed["dockerfile"]
-    assert {"keyframes", "media", "supports", "container", "layer"} <= closed["css"]
+    # #2866: `keyframes` deliberately LEFT this set -- its capture is now the
+    # @keyframes custom-ident (an author-written name the census walks), so only
+    # the four bucket at-rules remain closed literals for css.
+    assert {"media", "supports", "container", "layer"} <= closed["css"]
+    assert "keyframes" not in closed["css"]
     assert {"script", "style"} <= closed["html"]
     # #2767: yaml joined this set deliberately. Its `func_start` keyword arm is
     # capture group 1 and excludes its own colon, precisely so an UNNAMED step
@@ -4474,8 +4478,7 @@ def test_css_selectors_never_reach_named_class_extraction():
     # languages"). It still feeds the risk equations; what it must not do is claim a
     # selector is a named class.
     assert result["equations"].get("class_start") == 2, (
-        "the class_start SIGNAL must still count both selectors -- #1295 scoped its "
-        "decision to named extraction only"
+        "the class_start SIGNAL must still count both selectors -- #1295 scoped its decision to named extraction only"
     )
 
 
@@ -4494,9 +4497,7 @@ def test_html_tags_never_reach_named_class_extraction():
         f"html tags reached class_data: {result.get('classes')} -- #1295 ruled named "
         "class extraction permanently out of scope for html"
     )
-    assert result["equations"].get("class_start") == 2, (
-        "the class_start SIGNAL must still count the risk-relevant tags"
-    )
+    assert result["equations"].get("class_start") == 2, "the class_start SIGNAL must still count the risk-relevant tags"
 
 
 def test_mode_e_statement_buckets_leave_the_function_population():
@@ -4689,12 +4690,10 @@ def test_cobol_paragraph_entry_using_is_inside_the_args_window_2863():
         assert name in found, f"{name} should be extracted as a paragraph, got {sorted(found)}"
 
     assert found["PROBE-GLOBALS"]["args"] == 1, (
-        "a paragraph's own ENTRY ... USING must be inside its args window, "
-        f"got {found['PROBE-GLOBALS']['args']}"
+        f"a paragraph's own ENTRY ... USING must be inside its args window, got {found['PROBE-GLOBALS']['args']}"
     )
     assert found["PROBE-MULTI"]["args"] == 3, (
-        "#2830's operand counting must reach the per-function path, "
-        f"got {found['PROBE-MULTI']['args']}"
+        f"#2830's operand counting must reach the per-function path, got {found['PROBE-MULTI']['args']}"
     )
     assert found["PROBE-COMMENTED"]["args"] == 1, (
         "a blanked comment line between the label and its ENTRY must be transparent, "
@@ -4705,8 +4704,7 @@ def test_cobol_paragraph_entry_using_is_inside_the_args_window_2863():
         f"counted as the paragraph's own parameters, got {found['PROBE-CALLER']['args']}"
     )
     assert found["PROBE-LATE"]["args"] == 0, (
-        "only LEADING ENTRY statements extend the window, "
-        f"got {found['PROBE-LATE']['args']}"
+        f"only LEADING ENTRY statements extend the window, got {found['PROBE-LATE']['args']}"
     )
 
     # The defect's signature: the block's rule tally saw the clause all along.

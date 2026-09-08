@@ -105,7 +105,9 @@ EXTRACTION_CASES = {
         "pathological": [("//TargetFunc \t EXEC ", "TargetFunc")],
     },
     "css": {
-        "valid": [("@media (max-width: 600px) {", "@media"), ("@keyframes TargetFunc {", "@keyframes")],
+        # #2866: @keyframes captures its custom-ident (the unit css reaches by
+        # name via animation-name); the other at-rules stay keyword buckets.
+        "valid": [("@media (max-width: 600px) {", "@media"), ("@keyframes TargetFunc {", "TargetFunc")],
         "invalid": [".TargetFunc {", "#TargetFunc {"],
         "pathological": [("@media \n (max-width) \n {", "@media")],
     },

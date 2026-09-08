@@ -33,6 +33,16 @@ DEFINITION: dict[str, Any] = {
         ".github/workflows",
     ],
     "shebangs": [],
+    # #2866 contract (corollary 4): the units `func_start` extracts are
+    # pipeline STEPS (`run:`/`script:` blocks, named from an adjacent `name:`
+    # key, #2767), and no workflow syntax reaches a step by that name -- a
+    # job's steps run in document order, unconditionally. `needs:` references
+    # a JOB (`class_start`'s unit), and `steps.<id>.outputs` reads a finished
+    # step's outputs through its `id:` attribute without ever causing one to
+    # run; neither is an invocation of the extracted unit by its extracted
+    # name. TOP-LEVEL property, not a rule (the #2806 language_lens
+    # pre-compiler trap).
+    "invocation_model": "positional",
     "lexical_family": "line_exclusive",
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

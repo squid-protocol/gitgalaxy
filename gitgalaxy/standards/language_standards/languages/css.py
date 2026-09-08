@@ -74,8 +74,19 @@ DEFINITION: dict[str, Any] = {
         ),
         # 4. func_start (Executable Logic Anchors)
         # ONLY executable logic blocks (Selectors). EXCLUDES classes/IDs to avoid False Positives.
+        # #2866 contract: `@keyframes` is the one at-rule that declares a NAMED
+        # unit the language reaches by that name (`animation-name: slide` /
+        # `animation: slide 2s`), so its custom-ident is captured as the unit
+        # name and the block joins the orphan census -- tailwind's theme.css
+        # carries 4 keyframes nothing in the file animates, and that is a true
+        # unreferenced-by-name reading. The other at-rules stay group-1 keyword
+        # buckets, excluded by derivation (#2728). Same two-group shape as
+        # yaml's #2767 rule: group 1 a bare literal alternation for
+        # `_closed_literal_capture`, group 2 the open name capture; a
+        # `@keyframes` with no ident (invalid CSS) simply stops matching.
         "func_start": re.compile(
-            r"^[ \t]*(@(?:media|supports|container|layer|keyframes|-webkit-keyframes)\b)(?=[^{]*\{)",
+            r"^[ \t]*(?:(@(?:media|supports|container|layer)\b)"
+            r"|@(?:-webkit-)?keyframes[ \t]+([A-Za-z_-][\w-]*))(?=[^{]*\{)",
             re.M | re.I,
         ),
         # 5. class_start (Object / Entity Declarations)

@@ -42,6 +42,15 @@ DEFINITION: dict[str, Any] = {
     # zero comment stripping (standard_block never used the `--` token).
     # "multi_style_dash" is the real family for this shape.
     # Rationale: Uses '--' for line-level and '/*' '*/' for block-level Commented / Non-Executable Text.
+    # #2866 contract (corollary 4): the units `func_start` extracts are
+    # STATEMENTS (Mode E's `CREATE_Statement`/`Declarative_Block` buckets,
+    # #2792), and SQL has no syntax that reaches a statement by naming it -- a
+    # script's statements execute top to bottom on every run. The names a SQL
+    # file does declare and reference (tables, views) belong to container
+    # constructs, not to this census's function population; an index's name is
+    # never written in the queries that use it at all. TOP-LEVEL property, not
+    # a rule (the #2806 language_lens pre-compiler trap).
+    "invocation_model": "positional",
     "lexical_family": "multi_style_dash",
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

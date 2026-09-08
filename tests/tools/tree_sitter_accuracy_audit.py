@@ -1177,17 +1177,16 @@ def _get_node_name(node: Any) -> Optional[str]:
     if node.type == "supports_statement":
         return "supports"
     if node.type == "keyframes_statement":
-        # This grammar version names the at-keyword child literally `@keyframes` /
-        # `@-webkit-keyframes`, NOT `at_keyword` (that shape is only how @media/@supports
-        # are built). Checking only `at_keyword` here was dead code -- it always fell
-        # through to `return None`, so tree-sitter silently reported 0 keyframes
-        # corpus-wide even though GitGalaxy's own func_start matches @keyframes. Same
-        # audit-reader bug class as #1313 (which fixed media/supports but mis-wrote this
-        # branch). Surfaced by tri-comparison-ledger-sweep on css:
-        # css/function/existence/agree[gitgalaxy]_vs[ctags,tree_sitter].
+        # #2866: GitGalaxy's css func_start now captures the @keyframes
+        # CUSTOM-IDENT as the unit name (the one css unit the language reaches
+        # by name, via animation/animation-name), so the reader returns the
+        # grammar's `keyframes_name` child to compare like-for-like. The
+        # keyword fallback keeps the #1313-era shape for a nameless
+        # `@keyframes {` (invalid CSS; GitGalaxy no longer extracts it at all,
+        # so the fallback pairs with nothing on the GitGalaxy side).
         for child in node.children:
-            if child.type in ("at_keyword", "@keyframes", "@-webkit-keyframes"):
-                return child.text.decode("utf8").lstrip("@")
+            if child.type == "keyframes_name":
+                return child.text.decode("utf8")
         return "keyframes"
     if node.type == "at_rule":
         # The generic bucket also holds @font-face/@page/@charset/@namespace/@property/@scope --

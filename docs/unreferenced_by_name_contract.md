@@ -138,7 +138,7 @@ across a file boundary the census deliberately cannot see — corollary 5).
 | `cobol` | 2.75 | 2.75 | in band, and the plant was measured and then deliberately NOT made: `DISPATCH-PARA` calls nothing, and planting the canonical `PERFORM PROBE-IO.`/`PERFORM PROBE-RISK.` reads 2.25 (below the median, because `PROBE-RISK`'s `ALTER DISPATCH-PARA TO PROCEED TO PROBE-BRANCH` names the dispatch paragraph as well) at the cost of moving the **gated `branch` cell 3 → 5** — cobol's `branch` rule counts a bare out-of-line `PERFORM`, which is a call, not a branch (10% of its 21,549 crucible branch hits; recorded on #2822). Free to plant once that lands |
 | `agc_assembly` | 2.75 | 2.75 | in band. Same shape as the four plant gaps and left alone deliberately: `DISPATCH TC PROBEBR` and `PROBEBR`'s branches reach `PROBEIO`, so only `PROBERISK` is unreached, and planting a `TC PROBERISK` would add a control-flow hit to a gated cell to fix a cell that is already in band |
 | `yacc` | 3.00 | 3.00 | in band, same shape: `dispatch : probe_branch ;` names one of the three nonterminals |
-| `css` `dockerfile` `html` `markdown` `sqlite` `yaml` | 0.00 | 0.00 | no callable units to census — either nothing is extracted (html, markdown) or every extracted unit is a synthetic bucket (corollary 6). This is the *undefined* family of #2549, not this contract's |
+| `css` `dockerfile` `html` `markdown` `sqlite` `yaml` | 0.00 | 0.00 | no callable units to census — either nothing is extracted (html, markdown) or every extracted unit is a synthetic bucket (corollary 6). This is the *undefined* family of #2549, not this contract's. **Resolved by #2866 ("The undefined family resolved" below): css measured into the census at 2.50, the other four declared positional, markdown n/a by rule absence** |
 | `haskell` `scheme` | 0.25 | 2.50 | **#2823, fixed after this audit — see "The two languages that read the flag backwards" below.** Engine: both declare `_visibility_export_list`, so their export construct stops clearing the flag (0.25 → 3.00). Corpus: `main`'s `entry` dispatched one of its three probes, the same plant gap as the four above (3.00 → 2.50) |
 
 ### What the audit found
@@ -294,10 +294,94 @@ mass changed: the census is a property of the extracted population, not of it.
   css, dockerfile, html, markdown, sqlite and yaml, none of which have a callable unit to census
   (#2549). agc_assembly, yacc and cobol are the knowingly-loose plants -- all three in band, all
   three deliberately unplanted because the plant would move a gated neighbour, and cobol's is
-  free to make once #2822 lands.
+  free to make once #2822 lands. **Resolved by #2866 — see the next section.**
 - **When a fix creates orphans where there were none, re-screen every consumer of the census,
   not just the census cell.** #2823's engine half moved no signal but its own; what moved was
   `api_orphan_credit`, two layers downstream in `galaxyscope.py`, because scheme suddenly had
   orphans to convert and `api_declared_orphans` could not match a hyphenated name. `rosetta_audit.py
   --baseline-bin` is what found it -- a per-file `splice()` probe cannot, because the conversion
   is cross-file by construction (corollary 5).
+
+## The undefined family resolved (#2866)
+
+The six languages above all recorded 0.00 against the 2.50 median, and by the report's cause
+table they were the corpus's largest open-defect share on one metric (6 of 46 cells). The
+resolution adds **no new corollary**: each language lands on one of the sentences this contract
+already states, and the whole question was which one — measured, not assumed, per language.
+
+> A census over a population that cannot exist and a census whose population answered "none"
+> both print 0, and the cell cannot say which. The fix is to make the first kind stop printing.
+
+**css is censused — the one language measured INTO the census.** `@keyframes` declares a named
+unit the language reaches by exactly that name (`animation-name: slide`, `animation: slide 2s`),
+which is corollary 4's bar *failed* in the good direction: an invoke-by-name form exists, so the
+language can be asked. The `func_start` rule now captures the keyframes custom-ident as the unit
+name (the other at-rules stay group-1 keyword buckets, excluded by derivation — the same
+two-group shape as yaml's #2767 rule), and the census runs over real names:
+
+| where | before | after | reading |
+| --- | --- | --- | --- |
+| corpus `a/b/c.css` | 0 | 3 each | the three per-file probes, uncalled — the median shape |
+| corpus `main.css` | 0 | 2 | `probe-dispatch` (the entry analogue, correctly lonely) + `probe-io`, which main declares and never animates — a plant gap; the corpus PR adds the `animation: probe-io` dispatch reference, taking css to 2.50, exactly on the median |
+| crucible, all 38 files | 0 | 0 | bootstrap/reveal reference every keyframes by `animation`; tailwind's theme.css names its four in `--animate-*` custom-property **values**, and corollary 3 counts any occurrence — a true 0, reached by measurement instead of by absence |
+
+Downstream, the #2823 lesson replayed on schedule: css's imported `a/b/c.css` now have orphans
+for `galaxyscope.py`'s conversion, so `api_orphan_credit` reads 3 per file — and this time it is
+the mechanism working, not #2827's tokenizer defect: the keyframes names never appear on css's
+`@property` api lines, so `api_declared_orphans` is 0 and the credit is the same one 25
+by-name languages already carry. Corpus cells and the two ledger entries that name css as
+"produces no orphans to convert" (`risk-api-exposure-zero-api-shortcircuit`,
+`risk-documentation-zero-evidence-guard`) move in the corpus PR.
+
+**dockerfile, sqlite, yaml and html join jcl's positional family** (corollary 4, the existing
+`invocation_model: "positional"` declaration — top-level, beside `lexical_family`, for the #2806
+pre-compiler reason). Each was held to jcl's bar — *no syntax at all reaches the units its own
+`func_start` extracts by naming them* — with the near-miss named rather than waved off:
+
+- **dockerfile**: the units are build instructions (Mode A labels), executed in written order.
+  The construct that IS reached by name — `FROM base AS builder` / `COPY --from=builder` — is
+  the named build **stage**, `class_start`'s unit since #2856, not a member of this census's
+  population.
+- **sqlite**: the units are statements (Mode E buckets, #2792), executed top to bottom. The
+  names a SQL file declares and references (tables, views) belong to container constructs; an
+  index's name is never written in the queries that use it.
+- **yaml**: the units are pipeline steps (#2767), run in document order unconditionally.
+  `needs:` reaches a **job** (`class_start`'s unit), and `steps.<id>.outputs` reads a finished
+  step's outputs through its `id:` attribute without ever causing one to run — a data handle,
+  not an invocation, and not the extracted name besides.
+- **html**: the units are `<script>`/`<style>` elements, executed in document order. What can
+  carry names is the embedded program inside them, and that belongs to the embedded language,
+  measured where a file IS that language (a `.php` host keeps `by_name` and legitimately
+  censuses a lonely embedded `function orphanJs()`; measured, not assumed).
+
+The html declaration also closes a measured defect, not just a taxonomy gap: **ten crucible
+html files carried a phantom census** (0.19/file — threejs shader examples, html5-boilerplate's
+404s, vscode's webview host, cpython's jinja layout), because an embedded segment's keyword
+bucket (`media` from an embedded `@media`, `startup` and friends from scripts) carries a name
+the HOST's keyword-bucket exclusion cannot know — `_keyword_bucket_names` derives from html's
+own `func_start` literals (`script|style`) only. Each phantom fed `slop_stress` at weight 2.0
+into `risk_tech_debt`. All ten zero under the declaration; that is the golden-master movement.
+
+**markdown declares nothing, and that is the mechanism.** It has no `func_start` rule at all
+(the lit-plane morphology, `markdown-lit-plane-morphology`), so there is no population and
+nothing for a registry property to suppress. Its cell goes **n/a by rule absence** — the #2795
+inference (`functions_found` is n/a where `func_start` is) extended to the census, report-side.
+
+**The report half (keyword-rosetta PR).** `bias_report.py` gains the census n/a inference:
+`raw_state_unreferenced` is n/a for a language when its registry declares
+`invocation_model != by_name` **or** defines no `func_start` rule. jcl's cell — 0.00, previously
+held in band only by its ledger entry — becomes n/a by the same mechanism, and
+`orphan-detection-is-name-recurrence` (which #2806/#2823 narrowed down to exactly this family)
+finally stops reproducing. Comparable census cells go 46 → 41, every one of them measured.
+
+**Verified end to end, because a registry declaration is not a regex** (the #2806 lens trap):
+one-file `galaxyscope --db-only` scans — layout.html's phantom reads 1 on main and 0 here; a
+named-but-lonely yaml step reads 0; a lonely css `@keyframes` reads 1 and an animated one 0.
+Pinned in `tests/core_engine/test_unreferenced_census_2866.py`, with the positional-family
+membership gate in `test_unreferenced_by_name_contract_2806.py::POSITIONAL_LANGUAGES`.
+
+**Known limit inherited, not created:** `_name_boundary_pattern` treats `-` as a non-word
+boundary character, so a hyphenated name that is a hyphen-prefix of another
+(`probe-io` inside `probe-io-fast`) false-clears. cobol's paragraph names and livecode have
+lived inside this limit since #2754; css joins them. It is corollary 3's "an unrelated
+identifier that happens to match" family, and it moves no corpus or crucible cell today.

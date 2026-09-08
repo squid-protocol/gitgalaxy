@@ -98,7 +98,6 @@ CSS_RULES = LANGUAGE_DEFINITIONS["css"]["rules"]
 _CSS_SIMPLE_CASES = [
     # (signature, positive snippet, text expected to NOT match / None to skip)
     ("branch", "@media (min-width: 768px) {", ".foo { color: red; }"),
-    ("args", "width: calc(100% - 10px);", "width: 100%;"),
     ("structural_boundaries", "@keyframes spin {", ".foo {"),
     ("func_start", "@media (min-width: 768px) {", ".foo {"),
     ("class_start", ".my-class {", "body {"),
@@ -135,15 +134,18 @@ _CSS_SIMPLE_CASES = [
     ("branch", "div:not(.foo) {", None),
     ("branch", "@starting-style { opacity: 0; }", None),
     ("branch", "@media print {", ".has-error { color: red; }"),
-    ("args", "width: calc(100% - var(--x, calc(20px + 10%)));", "width: min-content;"),
-    ("args", "background: color-mix(in srgb, var(--bg-color) 50%, white);", "--calc-value: 10px;"),
-    ("args", "clamp(0.5rem, calc(1rem + 2vw), 1.5rem)", ".min-width-class { }"),
-    ("args", "color: lch(from var(--color) l c h / calc(alpha * 0.8));", None),
-    ("args", 'background: url("data:image/svg+xml;utf8,<svg...</svg>");', None),
     ("io", "  src: url(icomoon.woff2) format('woff2');", "@import url('base.css');"),
-    ("io", "background: #fff url(/img/refresh.svg) 5px 3px no-repeat;", 'background: url("data:image/svg+xml,%3Csvg/%3E");'),
-    ("io", "--icon-token: url('../img/logo.svg');", "--icon-token: url(\"data:image/png;base64,iVBOR\");"),
-    ("io", "src: local('Open Sans'), local('OpenSans'), url('OpenSans.ttf') format('truetype');", "clip-path: url(#clip0);"),
+    (
+        "io",
+        "background: #fff url(/img/refresh.svg) 5px 3px no-repeat;",
+        'background: url("data:image/svg+xml,%3Csvg/%3E");',
+    ),
+    ("io", "--icon-token: url('../img/logo.svg');", '--icon-token: url("data:image/png;base64,iVBOR");'),
+    (
+        "io",
+        "src: local('Open Sans'), local('OpenSans'), url('OpenSans.ttf') format('truetype');",
+        "clip-path: url(#clip0);",
+    ),
     ("io", "cursor: url(grab.cur), pointer;", "mask-image: url( #mask );"),
     ("func_start", "@media screen and (min-width: 900px), \\n print {", "@import url('foo.css');"),
     ("func_start", "  @keyframes slide-in {", 'content: "@media";'),
@@ -230,9 +232,10 @@ def test_css_io_counts_resource_fetching_declarations():
 def test_css_io_does_not_re_count_the_import_already_counted_twice():
     """
     Exclusion 1 (keyword-rosetta ledger `css-import-url-io-triple-overlap`):
-    `@import url("a.css")` already produces `args` + `import` +
-    `_dependency_capture`. io is anchored on a declaration's `:`, and an
-    at-rule prelude has none, so it stays at those hits rather than a fourth.
+    `@import url("a.css")` already produces `import` + `_dependency_capture`.
+    io is anchored on a declaration's `:`, and an at-rule prelude has none, so
+    it stays at those hits rather than a third. (It was a TRIPLE overlap until
+    #2893 made `args` a stated absence -- the `url(` arm was the third.)
     """
     io = CSS_RULES["io"]
     for at_rule in (
@@ -283,8 +286,8 @@ def test_css_io_does_not_walk_into_an_inlined_svg_payload():
         "xmlns='http://www.w3.org/2000/svg'%3E%3Cg clip-path='url(%23clip0_6958)'%3E%3C/g%3E%3C/svg%3E\");"
     )
     raw = (
-        "background-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\">"
-        "<g fill=\"url(#grad)\"/></svg>');"
+        'background-image: url(\'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg">'
+        '<g fill="url(#grad)"/></svg>\');'
     )
     assert not io.search(escaped), "css io walked into a percent-escaped SVG data URI"
     assert not io.search(raw), "css io walked into a raw SVG data URI"
@@ -320,25 +323,16 @@ def test_css_io_property_anchor_is_a_lookbehind_not_a_match_redos_regression():
     assert CSS_RULES["io"].search("background-image: url(real.png);")
 
 
-def test_css_args_and_scientific_nested_call_regression():
+def test_css_scientific_nested_call_regression():
     """
     Regression test for a real bug (Rule 11): `[^)]*` cannot represent even
     one level of nesting. Modern CSS math functions nest constantly
-    (`calc(var(--x) + 1px)`, `round(var(--x), 1px)`) -- confirmed the old
-    patterns truncated at the first *inner* `)` instead of the true closing
-    one.
+    (`round(var(--x), 1px)`) -- confirmed the old pattern truncated at the
+    first *inner* `)` instead of the true closing one.
+
+    This covered `args` too until #2893 made css `args` a stated absence; the
+    `scientific` half is still live and keeps the pin.
     """
-    old_args = re.compile(
-        r"\b(?:calc|clamp|min|max|var|env|url|rgba?|hsla?|lch|oklch|color-mix|light-dark)\s*\([^)]*\)", re.I
-    )
-    nested = "calc(var(--x) + 1px)"
-    old_m = old_args.search(nested)
-    assert old_m and old_m.group(0) != nested, "sanity check: old pattern must reproduce the truncation"
-
-    args = CSS_RULES["args"]
-    m = args.search(nested)
-    assert m and m.group(0) == nested, f"nested calc(var(...)) truncated: {m.group(0) if m else None!r}"
-
     old_sci = re.compile(
         r"\b(?:sin|cos|tan|asin|acos|atan|atan2|hypot|abs|sign|mod|rem|round|pow|sqrt|exp|log)\s*\([^)]*\)", re.I
     )
@@ -351,14 +345,40 @@ def test_css_args_and_scientific_nested_call_regression():
     assert m2 and m2.group(0) == nested_sci, f"nested round(var(...)) truncated: {m2.group(0) if m2 else None!r}"
 
     # non-nested forms must still match cleanly
-    assert args.search("calc(100% - 10px)").group(0) == "calc(100% - 10px)"
     assert scientific.search("sqrt(100px)").group(0) == "sqrt(100px)"
 
 
-def test_css_args_and_scientific_nested_call_redos_immunity():
-    assert_redos_immune(CSS_RULES["args"], "calc(" + "(" * 20000, timeout_sec=3.0)
+def test_css_scientific_nested_call_redos_immunity():
     assert_redos_immune(CSS_RULES["scientific"], "sqrt(" + "(" * 20000, timeout_sec=3.0)
-    assert CSS_RULES["args"].search("calc(100% - 10px)")
+
+
+# ==============================================================================
+# Issue #2893: css `args` is a stated absence -- CSS declares no callable
+# ==============================================================================
+# The mirror image of the #2752 `io` pin above. `args` matched CSS value-function
+# CALLS (calc|var|url|rgba|clamp|...), which count contract corollary 3 forbids
+# coexisting with the absence answer inside one signal: "the language records a
+# contract-level absence (`None` rule + a ledgered `intended-morphology` entry)
+# rather than a manufactured construct." Same shape as solidity's `io: None`.
+
+
+def test_css_args_is_a_stated_absence():
+    """CSS declares no callable, so it declares no parameter surface."""
+    assert CSS_RULES["args"] is None, "css args was re-wired to a rule; #2893 made it a stated absence"
+
+    # The coupling the old rule approximated is owned by the rules whose
+    # contracts actually name it -- this is why the absence loses no real
+    # measurement (see the rule comment in languages/css.py for the counts).
+    assert CSS_RULES["api"].search(":root { --main-color: blue; }"), "api owns the custom-property declaration"
+    assert CSS_RULES["safety"].search("color: var(--x, red);"), "safety owns the guarded var() read"
+    assert CSS_RULES["io"].search("background-image: url('hero.png');"), "io owns the resource fetch"
+
+    # REOPEN CONDITION: .scss/.less DO declare parameters. The absence stands
+    # only while no preprocessor dialect is in either corpus; if one lands,
+    # write the declaration-form rule instead of extending this pin.
+    assert ".scss" in LANGUAGE_DEFINITIONS["css"]["extensions"], (
+        "css no longer claims .scss -- re-read the reopen condition in languages/css.py"
+    )
 
 
 def test_css_class_start_lookahead_redos_regression():

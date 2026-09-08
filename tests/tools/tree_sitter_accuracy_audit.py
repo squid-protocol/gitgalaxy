@@ -295,21 +295,31 @@ SCOPE & LIMITATIONS
     rather than treated as a real regression, same "ground truth can be wrong" precedent as
     every other entry in this section.
 
-    css's at-rule "functions" (`@media`/`@supports`/`@container`/`@layer`/`@keyframes`) show a
-    permanent `args_comparable` discrepancy: GitGalaxy assigns them a param count read from the
-    at-rule prelude tokens (`@media all and (max-width: 600px)` -> got=3;
-    `@layer wp-ui-components {` -> got=1), while `_get_param_count` here always returns 0 for them
-    -- an at-rule statement node has no "parameters" field and isn't a `function_definition`, so
-    none of that function's branches apply. This is not a GitGalaxy defect: a CSS at-rule genuinely
-    has no formal parameter list, and counting these at-rules as functions at all is a deliberate,
-    ledger-validated design choice (`tri_comparison_ledger.json`'s
+    css's at-rule "functions" (`@media`/`@supports`/`@container`/`@layer`/`@keyframes`) used to
+    show an `args_comparable` discrepancy, and the explanation that stood here until #2893 was
+    WRONG in a way worth recording, because it told three baseline reviews in a row not to look.
+    It said GitGalaxy read the count "from the at-rule prelude tokens" and concluded "this is not
+    a GitGalaxy defect". No such prelude mechanism exists. css received no `args_search_text`
+    (only `objective-c`/`c`/`cpp`/`dart` do), so `_calculate_block_metrics` searched the whole
+    sliced block -- BODY INCLUDED -- and took the first `args` match anywhere in it. The six
+    non-matching functions were carrying 13 parameters borrowed from their own bodies:
+    `tailwindcss_atrules/preflight.css:291`'s `@supports` has no parenthesised call in its prelude
+    at all and read got=3 off a `color-mix(in oklab, currentcolor 50%, transparent)` three lines
+    inside the block; `threejs_app_ui/editor_main.css:720`'s `@media ( prefers-color-scheme: dark )`
+    read got=4 the same way. That is exactly the failure `docs/args_rule_contract.md` (lines 38-53)
+    describes -- "wherever there is no signature bound ... a function with no parameters borrows an
+    argument count off the first call statement in its own body" -- and it was also NOT confined to
+    the informational column: the gated `args_exact_match` read 19 of 25, and those 6 were the
+    misses. #2893 made css `args` a stated absence (CSS declares no callable, so it declares no
+    parameter surface; count contract corollary 3), all 25 at-rules now read 0 == 0, and
+    `args_exact_match` is 25 of 25. Counting at-rules as functions at all remains the deliberate,
+    ledger-validated design choice it always was (`tri_comparison_ledger.json`'s
     `css/function/existence/agree[gitgalaxy,tree_sitter]_vs[ctags]`, status validated: at-rule
-    keywords are "the closest function-shaped construct CSS has"). Same "no formal signature to
-    read at the declaration site" shape as the shell/perl note above (#1518/#1519), minus a
-    body-scan heuristic to bridge it -- the informational `args_comparable` count simply carries
-    these as non-exact, and the gated `args_exact_match` is unaffected (an at-rule with a
-    genuinely 0-token prelude, `@media {`, still matches 0 == 0). Noted here so the css
-    `args_comparable` gap isn't mistaken for a real args-regex bug on a future baseline review.
+    keywords are "the closest function-shaped construct CSS has") -- that half of the old note was
+    correct, and it is the reason the fix was to drop the parameter count, not the function. The
+    lesson for the next reader: "ground truth can be wrong" is this section's premise, but a
+    disagreement that is 100% one-directional (tree-sitter 0, GitGalaxy nonzero, every time) is
+    evidence for the tool being wrong, not the ground truth.
 """
 
 import argparse

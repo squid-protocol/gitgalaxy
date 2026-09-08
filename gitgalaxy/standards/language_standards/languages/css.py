@@ -51,19 +51,60 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 2. args (Parameters / Coupling)
-        # Signatures defining input coupling. Bounded to prevent ReDoS on massive calculations.
-        # BUG FIX (Rule 11): `[^)]*` is a flat negated class -- can't
-        # represent even one level of nesting. Modern CSS math functions
-        # nest constantly (`calc(var(--x) + 1px)`, `min(sin(45deg), .5)`)
-        # -- confirmed the old pattern truncated at the first inner `)`,
-        # matching only `calc(var(--x)` instead of the full call.
-        # Upgraded to the one-level-nesting bounded form (the two
-        # alternatives never match overlapping text, so it stays linear).
-        "args": re.compile(
-            r"\b(?:calc|clamp|min|max|var|env|url|rgba?|hsla?|lch|oklch|color-mix|light-dark)"
-            r"\s*\((?:[^()]|\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))*\)",
-            re.I,
-        ),
+        # =====================================================================
+        # A STATED ABSENCE (#2893). The `args` contract is "the parameters a
+        # callable declares". CSS declares no callable, so it declares no
+        # parameter surface: every parenthesis in a stylesheet is a CALL into a
+        # builtin. Count contract corollary 3 -- a language that cannot express
+        # the construct records "a contract-level absence (`None` rule + a
+        # ledgered `intended-morphology` entry) rather than a manufactured
+        # construct. The two answers cannot coexist inside one signal." Same
+        # answer solidity's `io: None` records (docs/io_rule_contract.md C3).
+        #
+        # HISTORICAL CONTEXT FOR FUTURE LLMS: this matched CSS value-function
+        # calls -- calc|clamp|min|max|var|env|url|rgba?|hsla?|lch|oklch|
+        # color-mix|light-dark. docs/args_rule_contract.md called that "the one
+        # place in this document where the contract is deliberately not met",
+        # kept because "the honest alternatives are this approximation or 0
+        # forever, and 0 says a stylesheet full of computed values has no
+        # coupling at all". Both halves of that were wrong by 2026-09-08:
+        #   1. The third alternative is None, not 0, and None is not scored.
+        #   2. A stylesheet's coupling IS measured, by the rules that own it.
+        #      Of the 3855 hits this rule made on the crucible's 38 css files
+        #      (code stream, the text detector.py actually hands the rule):
+        #      2521 `var(` reads, 931 colour literals (rgba/rgb/oklch -- never
+        #      coupling), 321 `calc(` (226 of them already containing a
+        #      `var()`), 77 `url(` and 5 `clamp(`/`min(`. Meanwhile `api` counts
+        #      3597 `--custom-property:` DECLARATIONS (the definitions those
+        #      `var()`s read, a larger surface than the reads), `safety` counts
+        #      512 guarded `var(x, fallback)` reads plus `clamp()`, `io` counts
+        #      the 14 real url() fetches (#2752) and `reflection_metaprogramming`
+        #      the 24 nested `calc(`.
+        # It was also wrong twice per file: css gets no `args_search_text`, so
+        # `_calculate_block_metrics` searched the whole block BODY and took the
+        # first match -- 6 at-rules carried 13 phantom parameters borrowed from
+        # their own bodies (preflight.css:291's `@supports` read arity 3 off a
+        # `color-mix()` on line 294). tree-sitter reads 0 for all 25; this takes
+        # `args_exact_match` from 19/25 to 25/25.
+        #
+        # THE NAMED RESIDUAL: the UNGUARDED `var(--x)` read (2521 - 512 = 2009
+        # crucible occurrences) is now unmeasured. Deliberate -- no stated
+        # contract owns "reads a document-lifetime binding by name" (the globals
+        # contract's C2 excludes an ordinary read), and inventing one to keep the
+        # number is the failure this change exists to end. It earns its own
+        # signal or it stays unmeasured.
+        #
+        # REOPEN CONDITION: `extensions` above claims .scss/.sass/.less/.styl/
+        # .pcss, and Sass/Less DO declare parameters -- `@mixin b($size, $color)`,
+        # `@function f($a, $b)`, Less `.mixin(@a; @b)`. Those are real declared
+        # parameter surfaces and this absence does NOT cover them. It stands only
+        # because there are zero .scss/.sass/.less files in the language-crucible
+        # and zero in keyword-rosetta, so such a rule would be unmeasurable on
+        # either corpus. If a preprocessor dialect enters the crucible, write the
+        # declaration-form rule and retire this absence.
+        # Corpus: keyword-rosetta `args-no-parameter-surface-morphology`.
+        # =====================================================================
+        "args": None,
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: Access modifiers (none in CSS) and !important (freeze_hits).
         # BUG FIX: all 8 at-rule alternatives are `@`-prefixed -- same

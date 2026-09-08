@@ -340,7 +340,12 @@ DEFINITION: dict[str, Any] = {
         ),
         # 24. import (Dependency Inclusions)
         # Dependency linkage across Fortran modules and files.
-        "import": re.compile(r"\b(USE|INCLUDE|IMPORT)\b", re.I),
+        # #2875 contract C5: statement position (`use ysu (option1)` inside a string
+        # literal was counted); C3: `IMPORT` is host association inside an interface
+        # body -- nothing external is bound. `#include` is the preprocessor form.
+        "import": re.compile(
+            r"^[ \t]*(?:USE(?=[ \t]*(?:,|::)|[ \t]+[A-Za-z])|INCLUDE[ \t]*['\"]|#[ \t]*include\b)", re.I | re.M
+        ),
         "_dependency_capture": re.compile(
             r"^[ \t]*(?:USE(?:\s+|\s*(?:,[^:]*)?::\s*)([a-zA-Z0-9_]+)|INCLUDE[ \t\n]*['\"]([^'\"]+)['\"]|SUBMODULE\s*\(\s*([^):]+)[^)]*\))",
             re.IGNORECASE | re.MULTILINE,

@@ -267,7 +267,11 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 24. import (Dependency Inclusions)
-        "import": re.compile(r"(?:^|[ \t;|&])(?:source\b|\.(?=[ \t]))[ \t]+[^\s;]+", re.M),
+        # #2875 contract C5: command position only -- a lone `.` after a plain space is a
+        # path argument (`find -s . -mindepth`, `--init-path . name`), not the source builtin.
+        "import": re.compile(
+            r"(?:^|[;|&(`]|\b(?:then|else|do|if|elif|until|while)[ \t])[ \t]*(?:source[ \t]+|\.[ \t]+)[^\s;]+", re.M
+        ),
         "_dependency_capture": re.compile(
             # =====================================================================
             # [ FUTURE LLM CONTEXT: THE DYNAMIC EXECUTION SHIFT (SHELL) ]
@@ -292,7 +296,7 @@ DEFINITION: dict[str, Any] = {
             # Therefore, we explicitly branch: `source` gets a word boundary `\b`,
             # and `.` gets a positive lookahead for whitespace `(?=[ \t])`.
             # =====================================================================
-            r"(?:^|[ \t;|&])(?:source\b|\.(?=[ \t]))[ \t]+['\"]?([^'\"\s;]+)['\"]?",
+            r"(?:^|[;|&(`]|\b(?:then|else|do|if|elif|until|while)[ \t])[ \t]*(?:source[ \t]+|\.[ \t]+)['\"]?([^'\"\s;]+)['\"]?",  # #2875 C5
             re.M,
         ),
         # 25. ownership (Authorship Metadata)

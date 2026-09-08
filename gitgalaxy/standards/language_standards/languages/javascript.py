@@ -303,7 +303,9 @@ DEFINITION: dict[str, Any] = {
         "dl_frameworks": GLOBAL_DL_FRAMEWORKS,
         # 24. import (Dependency Inclusions)
         "import": re.compile(
-            r"\b(?:import|export)\b[^;]*?\bfrom\b|\brequire\s*\(|\bimport\s*\(",
+            # #2875: the lazy scan to `from` is bounded -- unbounded it is quadratic on a
+            # `from`-less payload (the contract module's detonation); no crucible change.
+            r"\b(?:import|export)\b[^;]{0,2000}?\bfrom\b|\brequire\s*\(|\bimport\s*\(",
             re.M,
         ),
         "_dependency_capture": re.compile(

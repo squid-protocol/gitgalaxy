@@ -398,7 +398,13 @@ DEFINITION: dict[str, Any] = {
             r"\b(System\.Reflection|DllImport|LibraryImport|MethodInfo|Activator|Marshal\.|Emit|ILGenerator)\b"
         ),
         # 24. import (Dependency Inclusions)
-        "import": re.compile(r"^[ \t]*(?:global[ \t]+)?using\s+(?:static[ \t]+)?[\w.]+;", re.M),
+        # #2875 contract C1: the alias directive `using Alias = Target.Namespace;` binds a
+        # unit (the capture below already reads it); a `using` statement/declaration
+        # (`using (var x = …)`, `using var f = …;`) is a scope, not a binding.
+        "import": re.compile(
+            r"^[ \t]*(?:global[ \t]+)?using[ \t]+(?:static[ \t]+)?(?:\w+[ \t]*=[ \t]*)?[\w.]+(?:<[^;\n]*>)?[ \t]*;",
+            re.M,
+        ),
         # ALIAS DIRECTIVE FIX (epic #813/#820): `using Alias = Target.Namespace;` (a using-alias
         # directive, common for shortening long generic types or disambiguating identical type
         # names from different namespaces) didn't match AT ALL -- there was no allowance for the

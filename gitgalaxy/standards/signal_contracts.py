@@ -277,7 +277,16 @@ _ROWS = [
         "site",
         "Metaprogramming, reflection, and dynamic property assignment",
     ),
-    _c("import", "architecture", "declaration", "Dependency resolution and module loading", planted=True),
+    _c(
+        "import",
+        "architecture",
+        "declaration",
+        "A statement or directive that binds an external unit -- a module, package, header, library, file, stage or base image -- into the current unit, in the language's own dependency form",
+        status="stated",
+        doc="docs/import_rule_contract.md",
+        issue=2875,
+        planted=True,
+    ),
     _c("ownership", "architecture", "annotation", "Authorship metadata", planted=True),
     # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
     _c("planned_debt", "subsystems", "annotation", "Annotated future work", planted=True),

@@ -183,7 +183,10 @@ DEFINITION: dict[str, Any] = {
             r"\$\((?:eval|call|value|origin|flavor|shell)[ \t]+|\.SECONDEXPANSION:"
         ),
         # Linking isolated segments of the graph execution via modular file resolution.
-        "import": re.compile(r"^[ \t]*-?(?:include|sinclude)[ \t]+[^ \t\n]+", re.M),
+        # #2875 contract C5 (statement position): a tab-initial line is a recipe command in
+        # Make's own lexical rules, never a directive -- the fix #844 applied to func_start
+        # and _dependency_capture below and deliberately left this rule out of.
+        "import": re.compile(r"^[ ]*-?(?:include|sinclude)[ \t]+[^ \t\n]+", re.M),
         # BUG FIX (epic #813/#844): the leading `[ \t]*` allowed a TAB, but
         # a tab-initial line is ALWAYS a recipe command in Make's own
         # lexical rules (never a directive, absent a custom

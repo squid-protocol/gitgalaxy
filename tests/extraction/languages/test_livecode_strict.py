@@ -174,7 +174,10 @@ def test_livecode_dependency_capture_extracts_path():
     m = pattern.search('include "utils.lc"')
     assert m and (m.group(1) or m.group(2)) == "utils.lc"
 
-    m = pattern.search("module com.livecode.string")
+    # #2875 import contract C3: `module com.x` declares the file's OWN module (no
+    # edge); the LCB import form `use com.x` is the dotted-path capture.
+    assert pattern.search("module com.livecode.string") is None
+    m = pattern.search("use com.livecode.string")
     assert m and (m.group(1) or m.group(2)) == "com.livecode.string", "dotted module path capture regressed"
 
 

@@ -292,9 +292,15 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 24. import: Dependency Inclusions. Library and stack loading.
-        "import": re.compile(r"\b(start\s+using\s+(?:stack|behavior)|require|include|module)\b", re.I),
+        # #2875 contract C3/C5: `module com.x` declares the file's OWN module and
+        # `end module` closes it (35 of 83 crucible hits); the LCB import form is
+        # `use com.livecode.foreign`. Every form in statement position.
+        "import": re.compile(
+            r"^[ \t]*(?:start[ \t]+using[ \t]+(?:stack|behavior)\b|use[ \t]+[A-Za-z_]\w*(?:\.\w+)+|(?:require|include)[ \t]+\S)",
+            re.I | re.M,
+        ),
         "_dependency_capture": re.compile(
-            r"^[ \t]*(?:start[ \t]+using[ \t]+(?:stack[ \t]+|behavior[ \t]+)?|require[ \t]+|include[ \t]+|module[ \t]+)(?:['\"]([^'\"]+)['\"]|([^'\"\s]+))",
+            r"^[ \t]*(?:start[ \t]+using[ \t]+(?:stack[ \t]+|behavior[ \t]+)?|require[ \t]+|include[ \t]+|use[ \t]+)(?:['\"]([^'\"]+)['\"]|([^'\"\s]+))",  # #2875 C3: own module out, `use` in
             re.I | re.M,
         ),
         # 25. ownership: Authorship metadata in comments.

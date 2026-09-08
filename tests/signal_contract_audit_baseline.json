@@ -23,7 +23,6 @@
   "draft:hardware_bridge",
   "draft:high_risk_execution",
   "draft:immutability_locks",
-  "draft:import",
   "draft:inline_asm",
   "draft:ipc_rpc_bridges",
   "draft:lazy_evaluation",

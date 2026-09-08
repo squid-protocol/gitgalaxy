@@ -205,7 +205,9 @@ DEFINITION: dict[str, Any] = {
             r"\b(implicit|given|using|inline|extension|TypeTag|ClassTag|scala\.reflect|Typeable|Dynamic|summon|derives)\b"
         ),
         # 24. import (Dependency Inclusions)
-        "import": re.compile(r"\b(?:import|export)\s+[\w.{}\s,]+", re.M),
+        # #2875 contract C2: one statement is one hit -- the old class included `\s`, so
+        # a block of eight import lines (and the def after them) was ONE match.
+        "import": re.compile(r"(?:^|[;{])[ \t]*(?:import|export)[ \t]+[\w.*]+(?:[ \t]*\{[^{}\n]*\})?", re.M),
         "_dependency_capture": re.compile(
             # =====================================================================
             # [ FUTURE LLM CONTEXT: THE DYNAMIC EXECUTION SHIFT (SCALA) ]

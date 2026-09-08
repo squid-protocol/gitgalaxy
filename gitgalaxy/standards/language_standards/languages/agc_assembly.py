@@ -202,9 +202,14 @@ DEFINITION: dict[str, Any] = {
         # Self-modifying logic and VM entry.
         "reflection_metaprogramming": re.compile(r"\b(INDEX|TC\s+INTPRET|DXCH\s+0000|RVQ)\b", re.I),
         # 24. import (Dependency Inclusions)
-        "import": re.compile(r"\b(BANK|SETLOC|EBANK=)\b", re.I),
+        # #2875 contract C4: a bare or numeric BANK/SETLOC is a location-counter
+        # directive binding nothing; a symbolic operand in opcode position (the
+        # capture's own reading) names the unit. `TCF SETLOC` is a label operand (C3).
+        # `EBANK=` is an erasable-bank addressing directive and args' token
+        # (`[EFB]BANK=`) -- one owner (C6), out of both the count and the capture.
+        "import": re.compile(r"^[ \t]*(?:BANK|SETLOC)[ \t]+[A-Za-z][A-Za-z0-9_]*", re.I | re.M),
         "_dependency_capture": re.compile(
-            r"^[ \t]*(?:BANK[ \t\n]+|SETLOC[ \t\n]+|EBANK=[ \t\n]*)([A-Za-z0-9_]+)",
+            r"^[ \t]*(?:BANK|SETLOC)[ \t\n]+([A-Za-z][A-Za-z0-9_]*)",  # #2875 C4/C6: symbolic operand, EBANK= is args'
             re.I | re.M,
         ),
         # 25. ownership (Authorship Metadata)

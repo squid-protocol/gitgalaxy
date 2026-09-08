@@ -136,8 +136,11 @@ def test_agc_assembly_dependency_capture_extracts_bank_and_setloc():
     pattern = AGC_RULES["_dependency_capture"]
     m = pattern.search("\tSETLOC\tFOO")
     assert m and m.group(1) == "FOO"
-    m2 = pattern.search("\tBANK\t27")
-    assert m2 and m2.group(1) == "27"
+    # #2875 import contract C4: a numeric bank switch names no unit -- the capture,
+    # like the count, reads a symbolic operand only.
+    assert pattern.search("\tBANK\t27") is None
+    m2 = pattern.search("\tBANK\tLUNAR")
+    assert m2 and m2.group(1) == "LUNAR"
 
 
 def test_agc_assembly_func_start_cross_line_false_match_regression():
@@ -280,11 +283,11 @@ def test_agc_api_contract_2730():
     api = AGC_RULES["api"]
 
     # Declarations that publish a name -- must match.
-    assert api.search('SBIT1\t\tEQUALS\tBIT1'), 'EQUALS symbol equate'
+    assert api.search("SBIT1\t\tEQUALS\tBIT1"), "EQUALS symbol equate"
 
     # Not declarations -- must not match.
-    assert not api.search('\tEXTEND'), 'EXTEND is an instruction'
-    assert not api.search('EXTEND'), 'EXTEND at column 0'
+    assert not api.search("\tEXTEND"), "EXTEND is an instruction"
+    assert not api.search("EXTEND"), "EXTEND at column 0"
 
 
 def test_agc_branch_counts_decisions_not_transfers_2764():
@@ -304,14 +307,29 @@ def test_agc_branch_counts_decisions_not_transfers_2764():
     branch = AGC_RULES["branch"]
     linear = AGC_RULES["structural_boundaries"]
 
-    for decision in ("\tBZF\tTARGET", "\tBZMF\tTARGET", "\tBZE\tTARGET", "\tBMN\tTARGET",
-                     "\tBPL\tTARGET", "\tBMI\tTARGET", "\tCCS\tTEMP", "\tBVBZ\tTARGET",
-                     "\tOVSK\t"):
+    for decision in (
+        "\tBZF\tTARGET",
+        "\tBZMF\tTARGET",
+        "\tBZE\tTARGET",
+        "\tBMN\tTARGET",
+        "\tBPL\tTARGET",
+        "\tBMI\tTARGET",
+        "\tCCS\tTEMP",
+        "\tBVBZ\tTARGET",
+        "\tOVSK\t",
+    ):
         assert branch.search(decision), f"{decision!r} is a decision"
         assert not linear.search(decision), f"{decision!r} must not double-count as linear"
 
-    for transfer in ("\tTC\tPROBEIO", "\tTCF\tPROBEIO", "\tTCR\tPROBEIO", "\tCALL\tPROBEIO",
-                     "\tGOTO\tPROBEIO", "\tRESUME\t", "\tRETURN\t"):
+    for transfer in (
+        "\tTC\tPROBEIO",
+        "\tTCF\tPROBEIO",
+        "\tTCR\tPROBEIO",
+        "\tCALL\tPROBEIO",
+        "\tGOTO\tPROBEIO",
+        "\tRESUME\t",
+        "\tRETURN\t",
+    ):
         assert not branch.search(transfer), f"{transfer!r} is not a decision (#2764)"
         assert linear.search(transfer), f"{transfer!r} must stay measured as structure"
 

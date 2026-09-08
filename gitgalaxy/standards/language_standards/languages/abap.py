@@ -207,7 +207,11 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 24. import: Dependency Inclusions. Includes and type pools.
-        "import": re.compile(r"\b(INCLUDE|TYPE-POOLS)\b", re.I),
+        # #2875 contract C5: statement position (the word inside a template string is
+        # prose); C3: `INCLUDE TYPE|STRUCTURE` binds a type's components, not a unit.
+        "import": re.compile(
+            r"^[ \t]*(?:INCLUDE(?![ \t]+(?:TYPE|STRUCTURE)\b)|TYPE-POOLS)[ \t]+[A-Za-z0-9_/<]", re.I | re.M
+        ),
         "_dependency_capture": re.compile(r"^[ \t]*(?:INCLUDE|TYPE-POOLS)[ \t\n]+([A-Za-z0-9_/]+)", re.I | re.M),
         # 25. ownership: Authorship indicators.
         "ownership": re.compile(

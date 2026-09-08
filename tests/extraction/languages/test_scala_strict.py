@@ -298,10 +298,11 @@ def test_scala_ambiguity_sweep_shared_literals_are_not_bugs():
     assert import_pattern.search(live_import)
     assert not dead_code.search(live_import)
 
+    # #2875 import contract C5: `import` fires in statement position only, so the
+    # raw-regex collision this sweep used to document is structurally gone --
+    # dead_code owns the commented-out import alone.
     commented_import = "// import scala.util.Try"
-    assert dead_code.search(commented_import) and import_pattern.search(commented_import), (
-        "documented raw-regex collision changed shape -- update this test's rationale"
-    )
+    assert dead_code.search(commented_import) and not import_pattern.search(commented_import)
 
 
 def test_scala_explicit_casts_and_pointers_no_false_collision():

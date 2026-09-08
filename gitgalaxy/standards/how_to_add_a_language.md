@@ -204,7 +204,7 @@ Generate a valid Python dictionary matching this exact structure.
         "import": re.compile(r""), 
         # _dependency_capture: Regex strictly capturing group 1 as the exact dependency path string.
         "_dependency_capture": re.compile(r""), 
-        # ownership: Authorship metadata. Includes: @author, Created by:.
+        # ownership: A tag naming who is responsible for the unit -- an author, creator, maintainer, owner, developer or contact -- with its value, in the form the language's tooling or header convention reads as metadata. Includes: @author, Author:, Created by:, Maintainer:, __author__ =, MAINTAINER. Not a license identifier or a copyright notice (#2882 C2), not the word in prose (C1).
         "ownership": re.compile(r""), 
 
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---

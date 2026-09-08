@@ -257,9 +257,10 @@ DEFINITION: dict[str, Any] = {
         # Javadoc, and how java's own ownership rule already handles
         # it) is `@author Jane Doe`, with no colon at all. The colon
         # requirement meant the real Scaladoc tag never matched.
+        # #2882 contract: C2 `Copyright:` out; a person's name is not a rule (C1)
         "ownership": re.compile(
-            r"@author\s+([^\n]+)|(?:Created by|Maintainer|Copyright|Tim Berners-Lee):\s+([^\n]+)",
-            re.I,
+            r"@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?:/\*+|\*+|//+!?)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$",
+            re.I | re.M,
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         # 26. planned_debt: The Promise. Future work markers.

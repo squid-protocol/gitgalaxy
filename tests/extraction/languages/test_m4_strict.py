@@ -259,16 +259,17 @@ def test_m4_dependency_injection_vs_structural_boundaries_ac_require_intentional
     assert M4_RULES["dependency_injection"].search(line)
 
 
-def test_m4_doc_vs_ownership_ac_copyright_intentional_double_classification():
+def test_m4_ac_copyright_is_doc_alone():
     """
-    Ambiguity sweep finding (mirrors the abap/fortran doc-vs-ownership
-    cases): `AC_COPYRIGHT(...)` legitimately fires both `doc` (it inserts
-    licensing documentation into the generated output) and `ownership`
-    (it's authorship/copyright metadata) -- both true at once, intentional.
+    #2882 C2 retired the intentional dual pinned here: `AC_COPYRIGHT(...)`
+    inserts a copyright notice into the generated output -- rights, not
+    responsibility -- so it is `doc`'s alone and `ownership` no longer
+    counts it. `dnl Author:` / `# Maintainer:` are the ownership forms.
     """
     line = "AC_COPYRIGHT([Copyright (C) 2026 Jane Doe])"
     assert M4_RULES["doc"].search(line)
-    assert M4_RULES["ownership"].search(line)
+    assert not M4_RULES["ownership"].search(line)
+    assert M4_RULES["ownership"].search("dnl Maintainer: Jane Doe")
 
 
 def test_m4_no_block_comment_family_confusion():

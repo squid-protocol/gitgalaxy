@@ -37,7 +37,6 @@
   "draft:memory_alloc",
   "draft:memory_scraping",
   "draft:ml_traditional",
-  "draft:ownership",
   "draft:panics_and_aborts",
   "draft:planned_debt",
   "draft:pointers",

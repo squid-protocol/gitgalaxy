@@ -299,8 +299,9 @@ DEFINITION: dict[str, Any] = {
         # alternative; the remaining prose-risky alternatives (Author|Created by|
         # Maintainer|Copyright|Tim Berners-Lee) stay colon-required so ordinary prose
         # ("the Author of this module") still can't false-positive.
+        # #2882 contract: C2 `Copyright:` out; a person's name is not a rule (C1)
         "ownership": re.compile(
-            r"(?:@author:?\s+|(?:Author|Created by|Maintainer|Copyright|Tim Berners-Lee):\s+)([^\n]+)",
+            r"@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?:/\*+|\*+|//+!?)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$",
             re.I | re.M,
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---

@@ -188,7 +188,7 @@ def test_scala_ownership_scaladoc_author_no_colon_regression():
     pattern = SCALA_RULES["ownership"]
     assert pattern.search("@author Jane Doe"), "the real, colon-less @author form still didn't match"
     assert pattern.search("Created by: Jane Doe")
-    assert pattern.search("Copyright: 2026 Acme")
+    assert not pattern.search("Copyright: 2026 Acme")  # #2882 C2: rights are not responsibility
 
 
 def test_scala_test_signature_boundary_regression():

@@ -397,22 +397,19 @@ def test_fortran_doc_vs_ownership_author_no_collision():
     assert m and m.group(1) == "Jane Doe"
 
 
-def test_fortran_ownership_column_anchor_stricter_than_doc():
+def test_fortran_ownership_keyed_line_tolerates_indentation():
     """
-    Positional-family accuracy check: `doc`'s Author/Description/Param/
-    Return alternative tolerates leading whitespace before the `!`
-    (`^[ \\t]*!`), but `ownership`'s equivalent alternative requires the
-    comment character literally in column 1 (`^[cCdD*!]`, no leading
-    whitespace group) -- an indented "! Author:" line matches `doc` but
-    not `ownership`. Confirmed intentional column-strictness difference,
-    not a bug: `ownership`'s docstring targets legacy fixed-form headers,
-    which are always unindented at file/routine scope.
+    #2882 C1 reversed the older column-1 pin: the keyed header line is the
+    tag wherever the comment sits (free-form `!` comments are routinely
+    indented inside a module), so `ownership` tolerates leading whitespace
+    exactly as `doc` does. A fixed-form `C` in column 1 still counts.
     """
     indented = "   ! Description: A thing"
     assert FORTRAN_RULES["doc"].search(indented), "doc should tolerate leading whitespace before '!'"
-    assert not FORTRAN_RULES["ownership"].search("   ! Author: Jane Doe"), (
-        "ownership requires column-1 anchoring -- indented form must not match"
-    )
+    m = FORTRAN_RULES["ownership"].search("   ! Author: Jane Doe")
+    assert m and m.group(m.lastindex) == "Jane Doe"
+    m = FORTRAN_RULES["ownership"].search("C Author: Jane Doe")
+    assert m and m.group(m.lastindex) == "Jane Doe"
 
 
 def test_fortran_globals_vs_safety_bypasses_common_intentional_double_classification():

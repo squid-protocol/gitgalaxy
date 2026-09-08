@@ -294,7 +294,8 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # doc: Structured Documentation. Haddock documentation markers.
-        "doc": re.compile(r"--\s*\||--\s*\^|\{-\||--\s*@(?:param|return|author)"),
+        # #2882 contract C4: doc counts the block, not the author tag -- `-- @author` is ownership's alone.
+        "doc": re.compile(r"--\s*\||--\s*\^|\{-\||--\s*@(?:param|return)"),
         # test: Testing & Assertions. Verification framework keywords (QuickCheck/Hspec).
         "test": re.compile(
             r'\b(?:hspec|QuickCheck|prop_[a-zA-Z0-9_\']+|assertEqual|shouldBe|testGroup|testCase)\b|\b(?:describe|it|property)\s+"'
@@ -343,7 +344,11 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*import\b[\s\S]{0,100}?(?:qualified\b[\s\S]{0,100}?)?([A-Z][a-zA-Z0-9_.]*)", re.M
         ),
         # ownership: Authorship indicators in comments.
-        "ownership": re.compile(r"--\s*\|?\s*(?:Author|Maintainer|Copyright|License):\s+([^\n]+)", re.I),
+        # #2882 contract: C2 `License:`/`Copyright:` out; C1 the GHC header's `Maintainer  :` (spaces before the colon, unprefixed inside `{- |`) in; `-- @author` is ownership's (doc released it, C4)
+        "ownership": re.compile(
+            r"^[ \t]*(?:--+(?:[ \t]*\|)?|\{-+)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$|@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$",
+            re.I | re.M,
+        ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         "planned_debt": GLOBAL_PLANNED_DEBT,
         "fragile_debt": GLOBAL_FRAGILE_DEBT,

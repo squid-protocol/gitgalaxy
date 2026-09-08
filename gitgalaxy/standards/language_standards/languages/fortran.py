@@ -358,8 +358,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # 25. ownership (Authorship Metadata)
         # Identifying the developer, maintainer, or copyright holder natively.
+        # #2882 contract: C1 the keyed line tolerates indentation; `Developer:` joins the family; C2 `Copyright` never counted here
         "ownership": re.compile(
-            r"^[cCdD*!][ \t]*(?:Author|Created by|Maintainer|Developer):\s+(.*)",
+            r"^[ \t]*(?:!+|[cCdD*](?=[ \t]))[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$|@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$",
             re.I | re.M,
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---

@@ -365,8 +365,9 @@ DEFINITION: dict[str, Any] = {
         # owns `AUTHOR` exclusively; drop it here and leave the other
         # header fields and the `*>` tags (including `@author` inline
         # comments, which are distinct from the AUTHOR paragraph) as-is.
+        # #2882 contract C4: doc counts the block, not the author tag -- `*> @author` is ownership's alone.
         "doc": re.compile(
-            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:DATE-WRITTEN|DATE-COMPILED|REMARKS|INSTALLATION)\.|\*>\s*@(?:param|return|author)",
+            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:DATE-WRITTEN|DATE-COMPILED|REMARKS|INSTALLATION)\.|\*>\s*@(?:param|return)",
             re.I | re.M,
         ),
         # 14. test: Testing & Assertions. Unit testing framework markers (ZUnit).
@@ -437,7 +438,11 @@ DEFINITION: dict[str, Any] = {
             re.I | re.M,
         ),
         # 25. ownership: Authorship indicators.
-        "ownership": re.compile(r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*AUTHOR\.\s+([^\n]+)", re.I | re.M),
+        # #2882 contract: C1 `* Author :` comment lines join the AUTHOR. paragraph; `*> @author` is ownership's (doc released it, C4)
+        "ownership": re.compile(
+            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*AUTHOR\.\s+([^\n]+)|\*>[ \t]*@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^(?:[0-9a-zA-Z \t]{6}[*/\-]|[ \t]*\*>)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$",
+            re.I | re.M,
+        ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         # 26. planned_debt: The Promise. Future work markers.
         "planned_debt": GLOBAL_PLANNED_DEBT,

@@ -194,7 +194,8 @@ DEFINITION: dict[str, Any] = {
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"(?i)(?:;|#|//)[ \t]*(?:jmp|call|mov|push|pop|cmp|add|sub)\b"),
         # 13. doc (Structured Documentation)
-        "doc": re.compile(r"^[;#@/|]+\s*@(?:param|return|brief|author|note)", re.M | re.I),
+        # #2882 contract C4: doc counts the block, not the author tag -- @author is ownership's alone.
+        "doc": re.compile(r"^[;#@/|]+\s*@(?:param|return|brief|note)", re.M | re.I),
         # 14. test (Testing & Assertions)
         "test": re.compile(r"(?i)\b(?:describe|expect|assert|TestCase)\b|\bit[ \t]*\("),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
@@ -243,8 +244,9 @@ DEFINITION: dict[str, Any] = {
             re.M | re.I,
         ),
         # 25. ownership (Authorship Metadata)
+        # #2882 contract: C2 `Copyright:` out; @author is ownership's (doc released it, C4)
         "ownership": re.compile(
-            r"^[;#@/|]+\s*(?:Author|Created by|Maintainer|Copyright):\s+(.*)",
+            r"^[ \t]*(?:[;#@|]+|//+|/\*+|\*+)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$|@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$",
             re.M | re.I,
         ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---

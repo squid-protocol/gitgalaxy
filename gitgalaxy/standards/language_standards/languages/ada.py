@@ -272,7 +272,11 @@ DEFINITION: dict[str, Any] = {
         ),
         # ownership: header comment convention, same shape as the JCL/
         # COBOL entries.
-        "ownership": re.compile(r"^[ \t]*--[ \t]*(?:Author|Created by|Maintainer)[ \t]*:[ \t]*(.*)$", re.I | re.M),
+        # #2882 contract: C1 keyed line on `--`; @author joins
+        "ownership": re.compile(
+            r"^[ \t]*(?:--+)[ \t]*(?:Authors?|Created[ \t]+by|Maintainers?|Owners?|Developers?|Contact)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$|^[ \t]*(?-i:(?:Author|AUTHOR)(?:s|S)?|Created[ \t]+by|CREATED[ \t]+BY|Maintainer(?:s)?|MAINTAINER(?:S)?|Owner(?:s)?|OWNER(?:S)?|Developer(?:s)?|DEVELOPER(?:S)?|Contact|CONTACT)[ \t]*:(?![:=])[ \t]*(\S[^\n]*?)(?<![,;{(])[ \t]*(?:\*/|-->)?[ \t]*$|@author:?[ \t]+(\S[^\n]*?)[ \t]*(?:\*/|-->)?[ \t]*$",
+            re.I | re.M,
+        ),
         # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
         "planned_debt": GLOBAL_PLANNED_DEBT,
         "fragile_debt": GLOBAL_FRAGILE_DEBT,

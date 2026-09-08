@@ -60,7 +60,7 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-12 stated, 56 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+13 stated, 55 draft. A **draft** row is the schema comment transcribed as-is; a **stated** row has been audited across the corpus languages and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
@@ -85,7 +85,7 @@ written.** Corollaries every audited contract has needed so far:
 | `generics` | architecture | `annotation` | draft |  | Type parameters indicating generic abstractions |  |
 | `globals` | architecture | `declaration` | stated | yes | A declaration of a binding with program lifetime -- file, module, class-static or process scope -- or a read or write of the process's ambient environment through its named handle | [globals_rule_contract.md](../docs/globals_rule_contract.md) #2858 |
 | `import` | architecture | `declaration` | stated | yes | A statement or directive that binds an external unit -- a module, package, header, library, file, stage or base image -- into the current unit, in the language's own dependency form | [import_rule_contract.md](../docs/import_rule_contract.md) #2875 |
-| `ownership` | architecture | `annotation` | draft | yes | Authorship metadata |  |
+| `ownership` | architecture | `annotation` | stated | yes | A tag naming who is responsible for the unit -- an author, creator, maintainer, owner, developer or contact -- with its value, in the form the language's tooling or header convention reads as metadata | [ownership_rule_contract.md](../docs/ownership_rule_contract.md) #2882 |
 | `reflection_metaprogramming` | architecture | `site` | draft |  | Metaprogramming, reflection, and dynamic property assignment |  |
 | `scientific` | architecture | `site` | draft |  | Math, data science, and complex rendering libraries |  |
 | `ui_framework` | architecture | `site` | draft |  | DOM manipulation, UI components |  |

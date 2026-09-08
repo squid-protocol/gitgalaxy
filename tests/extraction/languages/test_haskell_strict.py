@@ -197,7 +197,10 @@ def test_haskell_doc_vs_ownership_no_overlap():
     doc = HS_RULES["doc"]
     ownership = HS_RULES["ownership"]
     assert not doc.search("-- Author: Jane Doe"), "doc incorrectly matched a Haddock Author: field"
-    assert not ownership.search("-- @author Jane Doe"), "ownership incorrectly matched a JSDoc-style @author tag"
+    # #2882 C4: the author tag is ownership's in every language; doc counts the Haddock block, not the tag.
+    assert not doc.search("-- @author Jane Doe"), "doc must not claim the @author tag"
+    m = ownership.search("-- @author Jane Doe")
+    assert m and m.group(m.lastindex) == "Jane Doe"
 
 
 def test_haskell_regex_execution_symbolic_operator_bug():

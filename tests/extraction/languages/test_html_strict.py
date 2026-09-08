@@ -290,7 +290,11 @@ def test_html_immutability_locks_aria_disabled_trailing_boundary_regression():
     )
 
     immutability_locks = HTML_RULES["immutability_locks"]
-    assert immutability_locks.search('<button aria-disabled="true">'), "aria-disabled=true still didn't match"
+    # #2772: disabled/inert/aria-disabled gate INTERACTIVITY, not data -- the
+    # aria-disabled alternative is retired outright; readonly (locks the field
+    # value) is the one html data-lock form and must keep matching.
+    assert not immutability_locks.search('<button aria-disabled="true">')
+    assert not immutability_locks.search('<button disabled="disabled">')
     assert immutability_locks.search("<input readonly>"), "bare-word readonly regressed"
 
 
@@ -435,7 +439,7 @@ _HTML_SINGLE_QUOTE_TARGETS = [
     ("events", "<div hx-trigger='click'>", '<div hx-trigger="click">'),
     ("dependency_injection", "<script type='importmap'>", '<script type="importmap">'),
     ("telemetry", "<script src='gtag.js'>", '<script src="gtag.js">'),
-    ("immutability_locks", "<input aria-disabled='true'>", '<input aria-disabled="true">'),
+    # immutability_locks: aria-disabled retired by #2772 (interactivity, not data).
     ("comprehensions", "<li v-for='x in y'>", '<li v-for="x in y">'),
 ]
 

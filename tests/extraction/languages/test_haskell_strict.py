@@ -120,7 +120,8 @@ _HS_SIMPLE_CASES = [
     ("panics_and_aborts", "throwIO MyException", "throwIOs"),
     ("thread_sleeps", "threadDelay 1000000", "threadDelayed"),
     ("sync_locks", "takeMVar lock", "takeMVars"),
-    ("immutability_locks", "pure x", "pures x"),
+    # immutability_locks is None since #2772 (immutable by default -- the old rule
+    # counted monadic `return`); pinned in test_immutability_locks_contract_2772.py.
     ("cleanup", "hClose handle", "hClosed"),
     ("listeners", "subscribe channel handler", "subscribed"),
     ("test_skip", 'it "should work" $ pending', "pendingWork"),

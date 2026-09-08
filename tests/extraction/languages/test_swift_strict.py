@@ -136,7 +136,8 @@ _SWIFT_SIMPLE_CASES = [
     ("thread_sleeps", "sleep(1)", "sleepyHead = true"),
     ("bitwise_ops", "a << 2", "a != b"),
     ("sync_locks", "let lock = NSLock()", "unlocked = true"),
-    ("immutability_locks", "let x = 5", "letter = 5"),
+    # immutability_locks is None since #2772 (`let` is the ordinary binding -- the
+    # rust-vs-swift inversion); pinned in test_immutability_locks_contract_2772.py.
     ("cleanup", "conn.close()", "closeableResource = true"),
     ("encapsulation", "private var x = 5", "privateKeyHash = compute()"),
     ("listeners", "view.onAppear(perform: { })", "view.onDisappear { }"),

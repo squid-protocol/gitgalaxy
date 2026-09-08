@@ -74,7 +74,11 @@ _TYPESCRIPT_SIMPLE_CASES = [
     ("thread_sleeps", "setTimeout(fn, 100)", "const x = 1;"),
     ("bitwise_ops", "x << 2", "const x = 1;"),
     ("sync_locks", "mutex.lock()", "const x = 1;"),
-    ("immutability_locks", "const x = 1;", "let x = 1;"),
+    (
+        "immutability_locks",
+        "readonly id: string;",
+        "const x = 1;",
+    ),  # #2772 C1: `const` is the ordinary binding; readonly is the added modifier
     ("cleanup", "dispose()", "const x = 1;"),
     ("encapsulation", "private foo", "public foo"),
     ("listeners", "addEventListener('click', fn)", "const x = 1;"),

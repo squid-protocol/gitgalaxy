@@ -337,7 +337,9 @@ DEFINITION: dict[str, Any] = {
         # 44. sync_locks (Resource Management & Stability) Coordinated threading.
         "sync_locks": re.compile(r"\b(synchronized|volatile|Semaphore|Mutex|lock|unlock)\b"),
         # 45. immutability_locks (Immutability Constraints) Immutability.
-        "immutability_locks": re.compile(r"\b(val|final|sealed|readonly|Object\.freeze|immutable)\b"),
+        "immutability_locks": re.compile(
+            r"\bfinal[ \t]+val\b|\bimmutable\.[A-Z]\w*"
+        ),  # #2772 C1: `val` is scala's ordinary binding and `sealed` locks a hierarchy, not data; `final val` and choosing collection.immutable are the added locks
         # 46. cleanup (Resource Cleanup / Teardown) Resource release.
         "cleanup": re.compile(
             r"\b(?<!def )(?:dispose|close|cleanup|cancel|free)\b[ \t]*\(|\.(?:dispose|close|cleanup|cancel|free)\b|\b(?:bracket|finally|onException)\b"

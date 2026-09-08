@@ -101,7 +101,7 @@ _SCALA_SIMPLE_CASES = [
     ("thread_sleeps", "Thread.sleep(1000)", "delayedResult = compute()"),
     ("bitwise_ops", "a ^ b", "a && b"),
     ("sync_locks", "synchronized { }", "locked = true"),
-    ("immutability_locks", "val x = 5", "evaluate(x)"),
+    ("immutability_locks", "final val MaxSize = 10", "val x = 5"),  # #2772 C1: `val` is the ordinary binding
     ("cleanup", "conn.close()", "closely_related = true"),
     ("encapsulation", "private val x = 5", "privately = true"),
     ("listeners", 'emitter.on("event", cb)', "button.onClick"),

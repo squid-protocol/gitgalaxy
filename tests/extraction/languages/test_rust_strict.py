@@ -326,9 +326,11 @@ def test_rust_intentional_double_classification_sweep():
     assert RUST_RULES["concurrency"].search(await_expr)
     assert RUST_RULES["structural_boundaries"].search(await_expr)
 
+    # #2772 C2/C3: `const fn` is a purity marker and `*const` the raw-pointer
+    # spelling -- both immutability halves retired; the other owners keep them.
     const_fn = "const fn foo() {}"
     assert RUST_RULES["func_start"].search(const_fn)
-    assert RUST_RULES["immutability_locks"].search(const_fn)
+    assert not RUST_RULES["immutability_locks"].search(const_fn)
 
     panic_call = 'panic!("oops")'
     assert RUST_RULES["high_risk_execution"].search(panic_call)
@@ -336,7 +338,7 @@ def test_rust_intentional_double_classification_sweep():
 
     raw_ptr = "let p: *const i32 = &x;"
     assert RUST_RULES["pointers"].search(raw_ptr)
-    assert RUST_RULES["immutability_locks"].search(raw_ptr)
+    assert not RUST_RULES["immutability_locks"].search(raw_ptr)
 
     macro_def = "macro_rules! foo {}"
     assert RUST_RULES["macros"].search(macro_def)

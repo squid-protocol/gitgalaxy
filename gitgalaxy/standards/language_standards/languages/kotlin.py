@@ -327,7 +327,9 @@ DEFINITION: dict[str, Any] = {
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(mutex|lock|synchronized|Semaphore|Atomic[A-Z]\w*)\b", re.I),
         # 45. immutability_locks (Immutability Constraints)
-        "immutability_locks": re.compile(r"\b(val|const|immutable|readonly)\b"),
+        "immutability_locks": re.compile(
+            r"\bconst\b(?=[ \t]+val\b)"
+        ),  # #2772 C1: `val` is kotlin's ordinary binding; `const val` is the added compile-time lock
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(r"\b(close|dispose|shutdown|use|cleanup)\b\s*\("),
         # 47. encapsulation (Access Modifiers / Encapsulation)

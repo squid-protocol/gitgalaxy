@@ -743,7 +743,9 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 45. immutability_locks (Immutability Constraints)
-        "immutability_locks": re.compile(r"\b(const|readonly|final|Object\.freeze|Object\.seal)\b"),
+        "immutability_locks": re.compile(
+            r"\breadonly\b|\bObject\.(?:freeze|seal)\b|\bas[ \t]+const\b"
+        ),  # #2772 C1: `const` is the ordinary binding; `readonly`, `as const` and the runtime lock calls are the added forms
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
             r"\b(?:clearTimeout|clearInterval|removeEventListener)\s*\(|\b(?<!function )(?:dispose|close|destroy)\s*\((?!\s*\)\s*(?::|\{))"

@@ -450,7 +450,9 @@ DEFINITION: dict[str, Any] = {
         # shared leading \b could only fire when a word char
         # immediately preceded it -- never true for how annotations are
         # actually written. Never matched at all.
-        "immutability_locks": re.compile(r"\b(?:const|final|readonly)\b|@immutable", re.I),
+        "immutability_locks": re.compile(
+            r"\bconst\b|@immutable", re.I
+        ),  # #2772 C1: `final` is dart's ordinary binding choice; `const` is the restricted compile-time form
         # 46. cleanup (Resource Cleanup / Teardown) Resource release.
         "cleanup": re.compile(
             r"\b(?<!void )(dispose|close|cleanup|cancel|drop|free)\s*\(", re.I

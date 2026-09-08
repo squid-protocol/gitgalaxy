@@ -385,7 +385,7 @@ DEFINITION: dict[str, Any] = {
         # sync_locks: Barricades preventing races.
         "sync_locks": re.compile(r"\b(takeMVar|putMVar|readMVar|swapMVar|atomically|STM|Mutex|lock|unlock)\b"),
         # 45. immutability_locks (Immutability Constraints)
-        "immutability_locks": re.compile(r"\b(pure|return|frozen|immutable|const)\b"),
+        "immutability_locks": None,  # #2772: haskell bindings are immutable by default -- the guarantee is ambient, not site-shaped (the old rule counted monadic `return`). Stated absence, the io/solidity precedent.
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(r"\b(hClose|close|free|bracket|finally|onException)\b"),
         # 47. encapsulation (Encapsulation / Access Modifiers)

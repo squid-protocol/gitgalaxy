@@ -115,7 +115,8 @@ _ZIG_SIMPLE_CASES = [
     ("thread_sleeps", "std.time.sleep(1000);", "const x = 5;"),
     ("bitwise_ops", "const mask = a & b;", "const sum = a + b;"),
     ("sync_locks", "var mutex = std.Thread.Mutex{};", "const x = 5;"),
-    ("immutability_locks", "const x: i32 = 5;", "var x: i32 = 5;"),
+    # immutability_locks is None since #2772 (`const` is zig's ordinary binding);
+    # pinned in test_immutability_locks_contract_2772.py.
     ("cleanup", "defer allocator.free(buf);", "const x = 5;"),
     ("encapsulation", "fn helper() void {", "pub fn helper() void {"),
     ("test_skip", "std.testing.expect(true) catch unreachable;", "const x = 5;"),

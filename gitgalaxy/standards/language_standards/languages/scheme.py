@@ -308,8 +308,8 @@ DEFINITION: dict[str, Any] = {
         # 45. immutability_locks (Immutability Constraints)
         # Immutable strings and explicit quotations (meaning the list cannot be mutated safely).
         "immutability_locks": re.compile(
-            r"(?<![^ \t\n\r(\[])(quote|string->immutable-string)(?![^ \t)\]\n\r])|\'(?=\()"
-        ),
+            r"(?<![^ \t\n\r(\[])(string->immutable-string)(?![^ \t)\]\n\r])"
+        ),  # #2772: a quote is the ordinary literal syntax (987 crucible hits were datum quotes); the explicit lock call stays
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(
             r"(?<=[(\[])[ \t]*(close-input-port|close-output-port|close-port)(?![^ \t)\]\n\r])"

@@ -225,7 +225,7 @@ DEFINITION: dict[str, Any] = {
         # 44. sync_locks (Resource Management & Stability) Coordinated threading.
         "sync_locks": re.compile(r"\b(Mutex|RwLock|Semaphore|lock|unlock)\b"),
         # 45. immutability_locks (Immutability Constraints) Immutability.
-        "immutability_locks": re.compile(r"\bconst\b"),
+        "immutability_locks": None,  # #2772 C1: `const` is zig's ordinary binding declaration for locals, imports and containers alike; there is no added lock form. Stated absence.
         # 46. cleanup (Resource Cleanup / Teardown) Resource release.
         "cleanup": re.compile(
             r"\b(?<!fn )(deinit|free|destroy|allocator\.free)\b"

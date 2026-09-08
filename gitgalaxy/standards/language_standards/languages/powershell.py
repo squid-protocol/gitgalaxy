@@ -358,7 +358,9 @@ DEFINITION: dict[str, Any] = {
         # sync_locks: Barricades. Coordinated threading logic.
         "sync_locks": re.compile(r"\b(lock|Monitor|Mutex|Semaphore|atomic|WaitOne)\b", re.I),
         # 45. immutability_locks (Immutability Constraints)
-        "immutability_locks": re.compile(r"New-Variable\s+[^;]*?-Option\s+Constant|readonly", re.I),
+        "immutability_locks": re.compile(
+            r"\b(?:New|Set)-Variable\b[^;\n]*?-Option\s+(?:Constant|ReadOnly)\b", re.I
+        ),  # #2772 C3: bare `readonly` matched string prose; the -Option Constant/ReadOnly act is the lock
         # 46. cleanup (Resource Cleanup / Teardown) Resource release.
         "cleanup": re.compile(
             r"\b(dispose|Remove-Variable|Remove-Item|Remove-Module|Stop-Transcript)\b",

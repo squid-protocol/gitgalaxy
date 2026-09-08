@@ -24,10 +24,11 @@ Six corollaries, each pinned by a test in
    LiveCode's closing handler name, a K&R shell declaration that falls outside the slicer's own
    span (discounted implicitly when the span contains no occurrence, #2727), and any form a
    registry declares through `_visibility_export` — `export -f foo`, `namespace export foo`,
-   `Export-ModuleMember -Function foo`, `module_function :foo`, `global foo` (#2774) — or
-   through `_visibility_export_list`, its plural form, for the constructs that name every
-   exported function at once: a Haskell module header's parenthesised list, a Scheme
-   `(export a b c)` clause (#2823). The two keys build one set of discounted name offsets and a
+   `Export-ModuleMember -Function foo`, `module_function :foo`, `global foo` (#2774), an m4
+   `m4_provide([foo])` / `AC_PROVIDE([foo])` (#2872) — or through `_visibility_export_list`, its
+   plural form, for the constructs that name every exported function at once: a Haskell module
+   header's parenthesised list, a Scheme `(export a b c)` clause (#2823), a makefile
+   `.PHONY: foo bar baz` prerequisite list (#2872). The two keys build one set of discounted name offsets and a
    language declares one of them, not both; `detector.py::_export_declaration_offsets` is where
    they meet. The discount is per name OFFSET, never per line or per construct, so a genuine
    call that shares a line with an export still counts.

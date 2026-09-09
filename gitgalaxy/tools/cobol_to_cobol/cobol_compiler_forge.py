@@ -204,7 +204,7 @@ def main():
             output_file.write_text(jcl_payload, encoding="utf-8")
 
             print(f"  [+] Generated {dialect} Pipeline : {output_file.name}")
-        except Exception as e:
+        except Exception as e:  # noqa: PERF203 -- per-iteration isolation: one bad COBOL file shouldn't fail the whole forge run
             print(f"  [!] Failed to process {file_path.name}: {e}")
 
     print("=" * 70 + "\n")

@@ -362,7 +362,7 @@ class StatisticalAuditor:
                     # Polyglot Defense: Only add pure files to the statistical baseline
                     if not self._is_highly_blended(artifact):
                         rhos.append(artifact["_rho"])
-                except Exception as e:
+                except Exception as e:  # noqa: PERF203 -- per-iteration isolation: one artifact's failure shouldn't drop the group's stats
                     self.logger.warning(
                         f"Failed to calculate signal density for '{artifact.get('name', 'unknown')}': {e}"
                     )

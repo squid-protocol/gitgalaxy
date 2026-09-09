@@ -201,7 +201,7 @@ def main():
                         print(f"   -> {msg}")
                     anomalies_found += 1
 
-        except Exception as e:
+        except Exception as e:  # noqa: PERF203 -- per-iteration isolation: one unreadable file shouldn't abort the anomaly scan
             logging.getLogger("binary_anomaly_detector").debug(f"Failed to scan '{rel_path_str}': {e}")
 
     end_time = time.time()

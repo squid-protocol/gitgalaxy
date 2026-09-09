@@ -358,17 +358,17 @@ class AuditRecorder:
             )
 
         # 3.2 Append structurally bypassed artifacts to the local output list
-        for anon_path in summary.get("unparsable_files", {}).get("unparsable_artifacts", []):
-            pretty_unparsable.append(
-                {
-                    "Path": anon_path,
-                    "Forensic Category": "Parser Bypass",
-                    "Diagnostic Reason": "Engine Bypass (Dense Structure or Unrecognized Syntax)",
-                    "Size": "Unknown (Parser Bypass)",
-                    "Identity Confidence": "0.0% (Scan Yielded No Data)",
-                    "Discovery Proof": "Structural Signature Extractor Shielding",
-                }
-            )
+        pretty_unparsable.extend(
+            {
+                "Path": anon_path,
+                "Forensic Category": "Parser Bypass",
+                "Diagnostic Reason": "Engine Bypass (Dense Structure or Unrecognized Syntax)",
+                "Size": "Unknown (Parser Bypass)",
+                "Identity Confidence": "0.0% (Scan Yielded No Data)",
+                "Discovery Proof": "Structural Signature Extractor Shielding",
+            }
+            for anon_path in summary.get("unparsable_files", {}).get("unparsable_artifacts", [])
+        )
 
         # ==========================================================
         # 4. FORENSIC SECURITY & VULNERABILITY AUDIT

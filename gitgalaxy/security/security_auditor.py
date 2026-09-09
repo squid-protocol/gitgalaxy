@@ -459,7 +459,7 @@ class SecurityAuditor:
 
                 rows.append(row)
 
-            except Exception as e:
+            except Exception as e:  # noqa: PERF203 -- per-iteration isolation: inject a safe fallback vector instead of aborting the batch
                 self.logger.error(
                     f"Feature extraction failed for '{artifact.get('path', 'Unknown')}': {e}. Injecting safe fallback vector."
                 )

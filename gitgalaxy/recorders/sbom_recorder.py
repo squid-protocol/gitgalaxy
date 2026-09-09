@@ -214,11 +214,12 @@ class SbomRecorder:
         (which an attacker choosing a late-sorting filename could exploit
         to defer their file's first inspection).
         """
-        candidates = []
-        for root, _, files in os.walk(pkg_path):
-            for file in files:
-                if file.lower().endswith((".js", ".py", ".ts", ".php", ".rs")):
-                    candidates.append(Path(root) / file)
+        candidates = [
+            Path(root) / file
+            for root, _, files in os.walk(pkg_path)
+            for file in files
+            if file.lower().endswith((".js", ".py", ".ts", ".php", ".rs"))
+        ]
 
         def _priority(p: Path):
             stem = p.stem.lower()

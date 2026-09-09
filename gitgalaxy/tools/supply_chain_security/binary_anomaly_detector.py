@@ -307,9 +307,12 @@ def run_xray_audit(target_path: Path, config: Optional[Union[ResolvedConfig, dic
 
                 # Check Binary Headers
                 bt = security.scan_binary(head_bytes, ext)
-                if bt and not (ext in [".sh", ".bash", ".zsh"] and "#!/bin/" in bt.get("threat_snippet", "")):
-                    if not is_whitelisted:
-                        anomalies_found += 1
+                if (
+                    bt
+                    and not (ext in [".sh", ".bash", ".zsh"] and "#!/bin/" in bt.get("threat_snippet", ""))
+                    and not is_whitelisted
+                ):
+                    anomalies_found += 1
 
                 # Check String Entropy
                 content = head_bytes.decode("utf-8", errors="ignore")

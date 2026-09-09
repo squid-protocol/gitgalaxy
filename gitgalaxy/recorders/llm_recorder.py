@@ -1053,9 +1053,12 @@ class LLMRecorder:
             hotspots = []
             for s in parsed_files:
                 rv = s.get("risk_vector", [])
-                if len(rv) > max(churn_idx, cog_idx, debt_idx):
-                    if rv[churn_idx] > 50.0 and (rv[cog_idx] > 50.0 or rv[debt_idx] > 50.0):
-                        hotspots.append(s)
+                if (
+                    len(rv) > max(churn_idx, cog_idx, debt_idx)
+                    and rv[churn_idx] > 50.0
+                    and (rv[cog_idx] > 50.0 or rv[debt_idx] > 50.0)
+                ):
+                    hotspots.append(s)
 
             if hotspots:
                 lines.append("### 🔥 The Hotspot Matrix (High Volatility + High Risk)")

@@ -122,10 +122,7 @@ Masked evidence logs are safely written to disk without exposing the full PII.
         print(f"\n[ERROR] Target file does not exist or is not a file: {target_path}")
         sys.exit(1)
 
-    if args.out:
-        out_dir = Path(args.out).resolve()
-    else:
-        out_dir = target_path.parent
+    out_dir = Path(args.out).resolve() if args.out else target_path.parent
 
     try:
         out_dir.mkdir(parents=True, exist_ok=True)

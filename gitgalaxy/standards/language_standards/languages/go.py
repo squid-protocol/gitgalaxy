@@ -38,7 +38,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Includes select/case and range-based loops. EXCLUDES panic (bailout_hits).
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|select|break|continue|fallthrough)\b|&&|\|\|"),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|select)\b|&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks for functions and methods. Bounded generics [^\]]* and params [^)]*.
         # #1209: parameter-list span wrapped in its own capture group (was
@@ -55,7 +55,7 @@ DEFINITION: dict[str, Any] = {
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: const/var (freeze_hits) and Capitalization (encapsulation).
         "structural_boundaries": re.compile(
-            r"\b(package|import|return|type|go|defer|chan|map|interface|struct|goto|range)\b"
+            r"\b(package|import|return|break|continue|fallthrough|type|go|defer|chan|map|interface|struct|goto|range)\b"
         ),
         # 4. func_start (Executable Logic Anchors)
         # ONLY executable logic blocks.

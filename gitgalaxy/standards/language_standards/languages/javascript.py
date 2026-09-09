@@ -70,7 +70,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. EXCLUDES throw (bailout_hits).
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do|continue|break)\b|&&|\|\||\?|\?\?"),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|&&|\|\||\?|\?\?"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks. Bounded to prevent ReDoS on massive positional/destructured sets.
         "args": re.compile(
@@ -125,7 +125,7 @@ DEFINITION: dict[str, Any] = {
         # 3. linear (Sequential Boundaries)
         # Structural declaration boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
         "structural_boundaries": re.compile(
-            r"\b(let|var|import|export|return|class|extends|super|await|delete|yield)\b|=>"
+            r"\b(let|var|import|export|return|break|continue|class|extends|super|await|delete|yield)\b|=>"
         ),
         # 4. func_start (Executable Logic Anchors)
         # Uses positive lookaheads (?=) to stop the match exactly at the identifier name.

@@ -88,7 +88,7 @@ _SOLIDITY_ADVERSARIAL_CASES = [
     ("branch", "do { x--; } while (x > 0);", "try feed.getData(token) returns (uint v) {"),  # 2822 corollary 1
     ("branch", "if\n(x)\n{", "assembly { let x := 5 }"),
     ("branch", "while(true){}", 'string memory name = "foo:bar";'),
-    ("branch", "continue;", "catch Error(string memory reason) {"),  # 2822 corollary 1
+    ("structural_boundaries", "continue;", "amount = 5;"),  # 2832: unconditional transfer, relocated to boundaries
     # --- args ---
     ("args", "function\ntransfer\n(address to) public", "transfer(to, amount);"),
     ("args", "modifier onlyOwner\n() {", "emit Transfer(msg.sender);"),

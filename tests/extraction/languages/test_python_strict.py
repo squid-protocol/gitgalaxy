@@ -96,7 +96,7 @@ _PY_SIMPLE_CASES = [
     ("branch", "if (x := 1):", "iffy = True"),
     ("branch", "match x:\n    case 1:", "def case_func():"),
     ("branch", "while True:", "while_loop = False"),
-    ("branch", "with open('f.txt') as f:", "without = True"),
+    ("structural_boundaries", "with open('f.txt') as f:", "without = True"),  # 2833: with is resource scope, not a branch
     ("branch", "for i in range(10):", "format_string"),
     # args (generics, newlines, edge-case lambdas)
     ("args", "def foo[T, U](x, y):", "define_foo = 1"),

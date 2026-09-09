@@ -55,7 +55,7 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Decisions and jumps. EXCLUDES exit/abort (bailout_hits).
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do|break|continue)\b|&&|\|\||\?"),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do)\b|&&|\|\||\?"),
         # 2. args (Parameters / Coupling)
         # Parameter blocks. Bounded negation [^)]* to prevent ReDoS on massive param lists.
         "args": re.compile(
@@ -92,7 +92,7 @@ DEFINITION: dict[str, Any] = {
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and const (freeze_hits).
         "structural_boundaries": re.compile(
-            r"\b(struct|union|enum|typedef|return|void|restrict|auto|bool|true|false|_BitInt|alignas|alignof)\b"
+            r"\b(struct|union|enum|typedef|return|break|continue|void|restrict|auto|bool|true|false|_BitInt|alignas|alignof)\b"
         ),
         "func_start": re.compile(
             # =====================================================================

@@ -39,7 +39,7 @@ DEFINITION: dict[str, Any] = {
         # same error-propagation-via-return idiom, doesn't count it either. Already tracked
         # under `structural_boundaries` below, so this is a pure de-duplication. Corpus
         # impact: zig branch 19 (planted 3, +280%) -> exact.
-        "branch": re.compile(r"(?<!@\")\b(if|else|switch|while|for|orelse|break|continue)\b(?!\")|&&|\|\|"),
+        "branch": re.compile(r"(?<!@\")\b(if|else|switch|while|for|orelse)\b(?!\")|&&|\|\|"),
         # 2. args: Parameters / Coupling. Captures parameters in function signatures.
         "args": re.compile(
             r"\bfn[ \t\n]*(?:@\"[^\"]+\"|[a-zA-Z_]\w*[ \t\n]*)?\(((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\((?:[^)(]|\([^)(]*\))*\))*\))*\))*)\)"
@@ -59,7 +59,7 @@ DEFINITION: dict[str, Any] = {
         "_args_bare_body_groups": {1},
         # 3. linear: Sequential I/O & Network Boundaries. Structural boundaries. EXCLUDES access modifiers and const (freeze_hits).
         "structural_boundaries": re.compile(
-            r"(?<!@\")\b(var|return|defer|errdefer|unreachable|resume|suspend|await|nosuspend|usingnamespace)\b(?!\")"
+            r"(?<!@\")\b(var|return|break|continue|defer|errdefer|unreachable|resume|suspend|await|nosuspend|usingnamespace)\b(?!\")"
         ),
         # 4. func_start: Executable Logic Anchors. Anchors logic blocks (fn). EXCLUDES struct/enum/union headers.
         "func_start": re.compile(

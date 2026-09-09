@@ -89,7 +89,7 @@ class SignalProcessor:
         self.SCALER_IQRS = inference_model.get("SCALER_IQRS", [1.0] * 100)
 
         # Dynamically grab whichever ARCHETYPES_K key exists (e.g. ARCHETYPES_K9)
-        arch_key = next((k for k in inference_model.keys() if k.startswith("ARCHETYPES_K")), None)
+        arch_key = next((k for k in inference_model if k.startswith("ARCHETYPES_K")), None)
         self.GLOBAL_ARCHETYPES = inference_model.get(arch_key, {}) if arch_key else {}
 
         # ---> NEW: Fetch Language-Specific Clustering Models <---
@@ -545,7 +545,7 @@ class SignalProcessor:
             func_ml_brain = getattr(analysis_lens, "GENERAL_FUNCTION_INFERENCE_MODEL", {})
             f_medians = func_ml_brain.get("SCALER_MEDIANS", [])
             f_iqrs = func_ml_brain.get("SCALER_IQRS", [])
-            f_arch_key = next((k for k in func_ml_brain.keys() if k.startswith("ARCHETYPES_K")), None)
+            f_arch_key = next((k for k in func_ml_brain if k.startswith("ARCHETYPES_K")), None)
             f_centroids = func_ml_brain.get(f_arch_key, {}) if f_arch_key else {}
 
             # Bulletproof fallback names if the model dictionary forgets them
@@ -706,7 +706,7 @@ class SignalProcessor:
                 lang_iqrs = lang_brain.get("SCALER_IQRS", [])
 
                 # Find the dynamic K-key (e.g., ARCHETYPES_K11)
-                arch_key = next((k for k in lang_brain.keys() if k.startswith("ARCHETYPES_K")), None)
+                arch_key = next((k for k in lang_brain if k.startswith("ARCHETYPES_K")), None)
                 lang_archetypes = lang_brain.get(arch_key, {}) if arch_key else {}
 
                 if lang_medians and lang_iqrs and lang_archetypes:
@@ -1769,7 +1769,7 @@ class SignalProcessor:
         # If a file exposes 50 APIs but has 0 inbound network edges, it is an isolated node.
         # We dampen the risk. If it has massive popularity, we amplify it.
         network_multiplier = 1.0
-        if popularity == 0:
+        if popularity == 0:  # noqa: SIM108 -- block form keeps the inline 80%-reduction rationale readable
             network_multiplier = 0.2  # 80% reduction for orphaned APIs
         else:
             network_multiplier = min(1.0 + (math.log1p(popularity) / 5.0), 2.0)

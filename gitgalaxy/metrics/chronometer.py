@@ -296,7 +296,7 @@ class Chronometer:
         duration = time.time() - start_time
 
         # Filter our churn map to only count currently tracked files for the final pct
-        coverage_achieved = len([k for k in self.churn_map.keys() if k in tracked_files])
+        coverage_achieved = len([k for k in self.churn_map if k in tracked_files])
         pct = coverage_achieved / max(total_files, 1) * 100
 
         self.logger.info(

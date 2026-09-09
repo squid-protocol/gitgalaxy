@@ -187,7 +187,7 @@ class LanguageDetector:
                 ".gen",
                 ".in",
             }
-            if (ext not in self.extension_map or ext in SAFE_WRAPPERS) and len(path_obj.suffixes) > 1:
+            if (ext not in self.extension_map or ext in SAFE_WRAPPERS) and len(path_obj.suffixes) > 1:  # noqa: SIM102 -- merging the inner `ext in SAFE_WRAPPERS` guard would duplicate the condition
                 if ext in SAFE_WRAPPERS:
                     for middle_ext in reversed(path_obj.suffixes[:-1]):
                         if middle_ext.lower() in self.extension_map:
@@ -334,16 +334,15 @@ class LanguageDetector:
                         result,
                         content_sample,
                     )
-            elif ext == ".m":
-                if f"{base_stem}.h" in ext_tally:
-                    return self._forge_result(
-                        "objective-c",
-                        0.99,
-                        0,
-                        "Sibling Anchor (.h)",
-                        result,
-                        content_sample,
-                    )
+            elif ext == ".m" and f"{base_stem}.h" in ext_tally:
+                return self._forge_result(
+                    "objective-c",
+                    0.99,
+                    0,
+                    "Sibling Anchor (.h)",
+                    result,
+                    content_sample,
+                )
 
         # 1. Gather Physical Signals
         ext_lang = self._tier_1_metadata_lock(ext, name)
@@ -456,13 +455,12 @@ class LanguageDetector:
         if ext in self.COLLISION_FREQUENCIES and ext_tally and lock_tier > 2:
             gravity_lang, dominance = self._evaluate_ecosystem_gravity(file_path, ext, ext_tally)
 
-            if gravity_lang:
-                if dominance >= self.thresholds.get("ECOSYSTEM_DOMINANCE_MIN", 0.70):
-                    best_lang = gravity_lang
-                    best_conf = 0.95
-                    lock_tier = 1.5
-                    source_proof = f"Ecosystem Consensus Lock ({dominance * 100:.0f}% Local Dominance)"
-                    self.logger.debug(f"[{name}] Fast-tracked via Ecosystem Consensus -> {gravity_lang}")
+            if gravity_lang and dominance >= self.thresholds.get("ECOSYSTEM_DOMINANCE_MIN", 0.70):
+                best_lang = gravity_lang
+                best_conf = 0.95
+                lock_tier = 1.5
+                source_proof = f"Ecosystem Consensus Lock ({dominance * 100:.0f}% Local Dominance)"
+                self.logger.debug(f"[{name}] Fast-tracked via Ecosystem Consensus -> {gravity_lang}")
 
         # =========================================================================
         # TIER 1.7: UNKNOWN EXTENSION FALLBACK
@@ -653,9 +651,8 @@ class LanguageDetector:
             top_lid = max(scores, key=lambda lid: scores[lid])
             dominance = scores[top_lid] / total_gravity
 
-            if ext == ".h" and set(scores.keys()).issubset({"c", "cpp", "objective-c"}):
-                if dominance >= 0.55:
-                    dominance = max(dominance, self.thresholds.get("ECOSYSTEM_DOMINANCE_MIN", 0.70))
+            if ext == ".h" and set(scores.keys()).issubset({"c", "cpp", "objective-c"}) and dominance >= 0.55:
+                dominance = max(dominance, self.thresholds.get("ECOSYSTEM_DOMINANCE_MIN", 0.70))
 
             # Evaluate if this scope produced a statistical winner
             threshold = self.thresholds.get("ECOSYSTEM_DOMINANCE_MIN", 0.70)

@@ -180,7 +180,7 @@ def parse_official_swagger(swagger_path: Path) -> set:
 
         paths = swagger_data.get("paths", {})
         for api_path, methods in paths.items():
-            for method in methods.keys():
+            for method in methods:
                 approved_apis.add(normalize_endpoint(method, api_path))
     except Exception as e:
         # Fix #165: Pipeline Assassin. Raise exception instead of sys.exit()
@@ -239,7 +239,7 @@ def calculate_api_drift(physical_endpoints: set, approved_apis: set) -> tuple:
         for app in approved_apis:
             app_meth, app_path = app.split(" ", 1)
 
-            if phys_meth == app_meth:
+            if phys_meth == app_meth:  # noqa: SIM102 -- nesting keeps the suffix-match explanation scoped to its guard
                 # Suffix Match: Physical '/profile' aligns with Swagger '/api/v1/users/profile'
                 # Because our normalizer guarantees phys_path starts with a '/',
                 # .endswith(phys_path) naturally prevents partial word bleeding.

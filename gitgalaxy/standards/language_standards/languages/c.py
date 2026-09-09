@@ -205,11 +205,24 @@ DEFINITION: dict[str, Any] = {
             # legitimately start a line. `[ \t\n]` rather than `\s` keeps
             # the K&R two-line form (`PyObject *\nfoo(void)`) matching, which
             # is the reason the separator was allowed to span lines at all.
+            # #2907 (api contract, one owner per token): the column-0
+            # declaration shape also matched every file-scope VARIABLE
+            # (`int shared_region = 1;`, `PyTypeObject PyDict_Type = {`,
+            # `FILE *out;` -- 101 of the crucible's 1141 hits, both of the
+            # rosetta `globals` plants), which the contract gives to
+            # `globals` (#2858) and which is neither a function nor a type.
+            # The shape is now a FUNCTION DECLARATOR -- one to four
+            # type words, the name, then `(` -- with the paren allowed on
+            # the next line for Doom's `void\nI_Tactile\n( int on,` layout,
+            # plus the type declarations the old shape happened to cover
+            # (`typedef ...`, `struct name {`). The bare-prototype
+            # alternative this subsumes (`^type name(...);`) never excluded
+            # `static`, so `static MP_DEFINE_CONST_FUN_OBJ_0(...)` counted.
             r"\bextern\b|__declspec\(dllexport\)|"
             r'__attribute__\(\(visibility\("default"\)\)\)|'
-            r"^(?!static\b)(?!(?:return|goto|else|case|break|continue|do|while|if|for|switch|sizeof)\b)"
-            r"[a-zA-Z_]\w*(?:[ \t]*[*&]+[ \t\n]*|[ \t\n]+)[a-zA-Z_]\w*(?:\[[^\]\n]*\])?[ \t]*=?|"
-            r"^[a-zA-Z_]\w*(?:[ \t]*[*&]+[ \t]*|[ \t]+)[a-zA-Z_]\w*[ \t]*\([^)\n]*\)[ \t]*;",
+            r"^typedef\b|^(?:struct|union|enum)[ \t]+[a-zA-Z_]\w*[ \t]*\{|"
+            r"^(?!static\b)(?!(?:return|goto|else|case|break|continue|do|while|if|for|switch|sizeof|typedef)\b)"
+            r"(?:[a-zA-Z_]\w*(?:[ \t]*[*&]+[ \t\n]*|[ \t\n]+)){1,4}[a-zA-Z_]\w*[ \t\n]*\(",
             re.M,
         ),
         # 11. flux (State Mutation)

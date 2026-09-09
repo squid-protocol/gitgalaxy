@@ -83,7 +83,7 @@ _LUA_SIMPLE_CASES = [
 _LUA_DEEP_CASES = [
     # --- branch ---
     ("branch", "repeat", "goto skip_label"),  # 2822 corollary 3: goto moved to boundaries
-    ("branch", "continue", "local continue_flag = true"),
+    ("structural_boundaries", "break", "breakfast = true"),  # 2832: unconditional transfer, not a branch
     ("branch", "elseif\n  condition\nthen", "local if_true = 1"),
     ("branch", "for i, v in ipairs(t) do", "local format = 1"),
     ("branch", "repeat\nuntil x == 0", "local until_now = 0"),

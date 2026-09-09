@@ -67,13 +67,19 @@ corollary-4 question from the other side). They moved to
   runtime decisions *and* defensive idioms; they count `branch` and may count
   `safety` (typescript `??`, zig `orelse`). This is a stated exception to
   corollary 4, recorded here.
-- **The break/continue family is deferred** (`break`, `continue`, perl
-  `next`/`last`/`redo`, fortran `EXIT`/`CYCLE`, go `fallthrough`, livecode
-  `next repeat`, …) along with the two-keyword loop headers (C-family
-  `do…while` counts 2; ada `while … loop` counts 2): **#2832**. Uniform across
-  the family today, so no corpus cell reads out of band on them.
-- **Measured but out of scope:** ruby's bare `?` (predicate method names),
-  java's bare `:` (`::` method references), python's `with`: **#2833**.
+- **The break/continue family moved to `structural_boundaries` (#2832).** The
+  single-token unconditional transfers (`break`, `continue`, ruby `next`/`redo`,
+  go `fallthrough`) were relocated out of `branch` into `structural_boundaries`,
+  beside `return`, in the 12 languages whose rule listed them (c, go, java,
+  javascript, kotlin, lua, objectivec, ruby, shell, solidity, typescript, zig) —
+  matching corollary 3. Python already carried `break`/`continue` in its
+  boundaries, so it needed no move. **Still deferred:** the two-keyword loop
+  headers (C-family `do…while` counts 2; ada `while … loop` counts 2), which the
+  regex slicer cannot collapse with the condition sitting between the keywords.
+- **Non-decision token bleed fixed (#2833):** ruby's bare `?` now excludes
+  predicate-method names via `(?<!\w)\?` and drops the `=>` hash-rocket; java's
+  bare `:` excludes `::` method references via `(?<!:):(?!:)`; python's `with`
+  (a resource scope, not a decision) moved to `structural_boundaries`.
 - go's `range` rides the `for` it continues (removed, boundaries); fortran's
   `WHILE` only ever follows `DO` (removed, boundaries).
 
@@ -90,46 +96,46 @@ the four control files, target 3 + 0 + 0 + 0). "—" = no crucible presence.
 | agc_assembly | 398 | 3 | clean since #2779 |
 | apex | 23 → 12 | 3 | try/catch/finally |
 | assembly | 1213 | 3 | clean since #2779 |
-| c | 10093 → 9720 | 3 | goto (reflection owns it) |
+| c | 10093 → 9310 | 3 | goto (reflection owns it); break/continue → boundaries (#2832) |
 | cobol | 21549 → 10087 | 3 | END-IF/END-EVALUATE re-matches; bare PERFORM |
 | cpp | 8346 → 8256 | 4 → 3 | catch; goto relocated |
 | css | 774 | 3 | clean |
 | csharp | 3941 → 3849 | 4 → 3 | try/catch/finally; goto (high_risk owns it) |
 | dart | 6809 → 6729 | 3 | try/catch/finally |
 | dockerfile | 91 → 88 | 3 | fi/esac/done/do; re-plant added the else arm |
-| embedded_python | 772 → 659 | 3 | try/finally |
+| embedded_python | 772 → 588 | 3 | try/finally; with → boundaries (#2833) |
 | fortran | 5457 → 4177 | 4 → 3 | END-rematches guarded; GOTO (high_risk); WHILE rides DO |
-| go | 3552 → 3378 | 3 | goto, range relocated |
+| go | 3552 → 3271 | 3 | goto, range relocated; break/continue/fallthrough → boundaries (#2832) |
 | groovy | 552 → 533 | 3 | try/catch/finally |
 | haskell | 252 → 174 | 3 | then/of; re-plant added a case |
 | html | 11 | 3 | clean |
-| java | 487 → 428 | 3 | try/catch/finally |
-| javascript | 5235 → 5105 | 3 | try/catch/finally |
+| java | 487 → 351 | 3 | try/catch/finally; break/continue → boundaries, `::` method-refs excluded (#2832/#2833) |
+| javascript | 5235 → 4957 | 3 | try/catch/finally; break/continue → boundaries (#2832) |
 | jcl | 81 → 52 | 3 | ENDIF; re-plant added a second IF |
-| kotlin | 45 | 3 | try/catch/finally relocated |
+| kotlin | 45 → 43 | 3 | try/catch/finally relocated; break/continue → boundaries (#2832) |
 | livecode | 8329 → 4407 | 5 → 3 | then/while/until/times, throw, end-rematches; re-plant added a repeat |
-| lua | 6090 → 4036 | 3 | then/do/until/in/goto; re-plant added a while |
+| lua | 6090 → 3973 | 3 | then/do/until/in/goto; re-plant added a while; break → boundaries (#2832) |
 | m4 | 50 | 3 | clean |
 | makefile | — | 4 → 3 | endif; recipe-prefix run bounded (ReDoS) |
 | matlab | 1078 → 1014 | 3 | try/catch |
-| objective-c | 311 | 3 | @try/@catch/@finally; goto relocated |
+| objective-c | 311 → 309 | 3 | @try/@catch/@finally; goto relocated; break/continue → boundaries (#2832) |
 | perl | 8808 → 8771 | 3 | try/catch/finally/defer; goto relocated |
 | php | 6365 → 6240 | 3 | try/catch/finally; goto relocated |
 | powershell | 6400 → 5761 | 5 → 3 | try/catch/finally/trap/throw; trap plant body |
-| python | 8371 → 8177 | 3 | try/finally |
-| ruby | 207 → 205 | 4 → 3 | rescue/ensure; begin/retry relocated |
+| python | 8371 → 7757 | 3 | try/finally; with → boundaries (#2833) |
+| ruby | 207 → 132 | 4 → 3 | rescue/ensure; begin/retry relocated; break/next/redo → boundaries, bare `?` & `=>` fixed (#2832/#2833) |
 | rust | 2749 | 3 | already contract-clean |
 | scala | 2064 → 1850 | 3 | try/catch/finally/throw/then relocated |
 | scheme | 4105 | 3 | clean |
-| shell | 9737 → 3502 | 5 → 3 | then/fi/esac/done/do, test brackets; re-plant added else + while |
-| solidity | 69 | 3 | try/catch relocated |
+| shell | 9737 → 3411 | 5 → 3 | then/fi/esac/done/do, test brackets; re-plant added else + while; break/continue → boundaries (#2832) |
+| solidity | 69 | 3 | try/catch relocated; break/continue → boundaries, no corpus incidence (#2832) |
 | sqlite | 161 → 45 | 5 → 3 | THEN/END relocated; one CASE = CASE + its arms |
 | swift | 871 → 781 | 4 → 3 | catch/try/throws/defer/do; else anchored on `}` |
 | tcl | 2330 → 2124 | 4 → 3 | catch/try/trap/finally |
-| typescript | 14879 → 14751 | 3 | try/catch/finally (+ safety mirror) |
+| typescript | 14879 → 14137 | 3 | try/catch/finally (+ safety mirror); break/continue → boundaries (#2832) |
 | yacc | 93 | 3 | clean (`\|` is yacc's real alternation decision) |
 | yaml | 0 | 3 | fi/esac/do/done; re-plant added the elif arm |
-| zig | 25311 → 16340 | 3 | try/catch (zig safety owns both) |
+| zig | 25311 → 14157 | 3 | try/catch (zig safety owns both); break/continue → boundaries (#2832) |
 
 Every rosetta cell above lands on its plant with no residue; the corpus
 re-bless (keyword-rosetta, branch `rebless/gitgalaxy-2822-branch`) carries the

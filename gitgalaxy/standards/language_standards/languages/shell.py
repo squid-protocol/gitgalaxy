@@ -53,7 +53,7 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Decisions and logic jumps. Includes test constructs [[ ]] and [ ].
         # CRITICAL: Excluded bare '((' and '))' to prevent ReDoS on massive subshell nesting.
-        "branch": re.compile(r"\b(if|else|elif|case|for|while|until|select|break|continue)\b|&&|\|\|"),
+        "branch": re.compile(r"\b(if|else|elif|case|for|while|until|select)\b|&&|\|\|"),
         # 2. args (Parameters / Coupling)
         # Positional parameters and expansion markers.
         # BUG FIX (epic #813/#835): the braced form only matched a bare
@@ -86,7 +86,7 @@ DEFINITION: dict[str, Any] = {
         # `_dependency_capture` below. Pulled out into its own statement-boundary
         # anchored alternative instead of sitting inside the `\b(...)\b` group.
         "structural_boundaries": re.compile(
-            r"\b(local|readonly|export|declare|typeset|return|exit|source|read|cd|pwd|ls|cp|mv|rm|mkdir|touch|then|fi|esac|done|do)\b|(?<!\|)\|(?!\s*\|)|(?:^|[ \t;|&])\.(?=[ \t])|\[\[|\]\]|(?:^|(?<=\s|;|\||&))\[(?=\s)|(?<=\s)\](?=\s|;|\||&|$)",
+            r"\b(local|readonly|export|declare|typeset|return|break|continue|exit|source|read|cd|pwd|ls|cp|mv|rm|mkdir|touch|then|fi|esac|done|do)\b|(?<!\|)\|(?!\s*\|)|(?:^|[ \t;|&])\.(?=[ \t])|\[\[|\]\]|(?:^|(?<=\s|;|\||&))\[(?=\s)|(?<=\s)\](?=\s|;|\||&|$)",
             re.M,
         ),
         # Anchors executable logic blocks. Captures `function foo` or `foo()`.

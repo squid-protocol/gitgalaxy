@@ -415,9 +415,7 @@ DEFINITION: dict[str, Any] = {
         # prose and, via `#`, C-preprocessor lines inside shader strings). One hit =
         # a #field DECLARATION (assignment, bare field, or method) at class-member
         # position -- not every usage of `this.#x`.
-        "encapsulation": re.compile(
-            r"(?:^[ \t]*|[{;,][ \t]*)(?:static[ \t]+)?#[a-zA-Z_$]\w*[ \t]*[=;(]", re.M
-        ),
+        "encapsulation": re.compile(r"(?:^[ \t]*|[{;,][ \t]*)(?:static[ \t]+)?#[a-zA-Z_$]\w*[ \t]*[=;(]", re.M),
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\b(on|addEventListener|subscribe|watch|effect)\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)

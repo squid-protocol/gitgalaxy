@@ -20,7 +20,7 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import _best_of_timing, assert_redos_immune  # noqa: E402 # type: ignore
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
 # NOTE: this test was originally grouped under a shared "cross-language sweep"
 # section in tests/core_engine/test_language_standards_strict.py (before that file
@@ -305,18 +305,15 @@ def test_css_io_property_anchor_is_a_lookbehind_not_a_match_redos_regression():
     the fix (1.3s / 5.5s / 13.5s / 54s at 10k / 20k / 40k / 80k chars); the
     fixed-width lookbehind the rule ships is linear on the same inputs.
     """
-    quadratic = re.compile(r"[-a-zA-Z_][-\w]*[ \t]*:[^;{}@%<>]{0,200}?\burl\s*\(", re.I)
-    small = "background:" + "a" * 4000
-    large = "background:" + "a" * 8000
-    small_duration = _best_of_timing(quadratic, small)
-    large_duration = _best_of_timing(quadratic, large)
-    ratio = large_duration / small_duration if small_duration > 0 else 0
-    assert ratio > 2.2, (
-        f"sanity check: the match-anchored spelling was expected to show quadratic (~4x) scaling "
-        f"on a payload doubling, but only scaled {ratio:.2f}x "
-        f"({small_duration:.4f}s -> {large_duration:.4f}s)"
-    )
-
+    # #2901: a scale-relative check on the PRE-FIX pattern
+    #     r"[-a-zA-Z_][-\w]*[ \t]*:[^;{}@%<>]{0,200}?\burl\s*\(", re.I
+    # used to run here, asserting it scaled ~quadratically over a payload
+    # doubling. Removed: it timed a regex this repo no longer ships, and a
+    # ratio between two sub-100ms samples is inside the scheduling noise of
+    # a shared CI runner -- this family of asserts went red on macOS for
+    # PRs that touched none of it. The measured pre-fix numbers are kept in
+    # the docstring above; the shipped pattern's immunity is asserted below
+    # as an ABSOLUTE bound inside an isolated process, which is stable.
     assert_redos_immune(CSS_RULES["io"], "background:" + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(CSS_RULES["io"], "background:" + "a" * 100000 + "url(data:x)", timeout_sec=3.0)
     assert_redos_immune(CSS_RULES["io"], "x:" * 50000, timeout_sec=3.0)
@@ -399,20 +396,15 @@ def test_css_class_start_lookahead_redos_regression():
     everything it did) -- post-fix scaling at n=2000/8000/32000 is
     0.0001s/0.0004s/0.0016s, clean ~2x per doubling (linear).
     """
-    old_pattern = re.compile(r"^[ \t]*(\.[a-zA-Z_][\w-]*|#[a-zA-Z_][\w-]*)(?=[ \t,>+~:]*[^{]*\{)", re.M)
-
-    # Scale-relative sanity check (not an absolute wall-clock threshold,
-    # which is flaky across CI hardware of varying speed): a doubling of
-    # payload size should cost ~4x on the quadratic OLD pattern, vs ~2x for
-    # linear. This is the same discipline used everywhere else in this
-    # epic's ReDoS scaling sweeps.
-    small_duration = _best_of_timing(old_pattern, ".foo" + (" ,>+~:" * 1000))
-    large_duration = _best_of_timing(old_pattern, ".foo" + (" ,>+~:" * 2000))
-    ratio = large_duration / small_duration if small_duration > 0 else 0
-    assert ratio > 2.2, (
-        f"sanity check: old pattern was expected to show quadratic (~4x) scaling on a payload "
-        f"doubling, but only scaled {ratio:.2f}x ({small_duration:.4f}s -> {large_duration:.4f}s)"
-    )
+    # #2901: a scale-relative check on the PRE-FIX pattern
+    #     r"^[ \t]*(\.[a-zA-Z_][\w-]*|#[a-zA-Z_][\w-]*)(?=[ \t,>+~:]*[^{]*\{)", re.M
+    # used to run here, asserting it scaled ~quadratically over a payload
+    # doubling. Removed: it timed a regex this repo no longer ships, and a
+    # ratio between two sub-100ms samples is inside the scheduling noise of
+    # a shared CI runner -- this family of asserts went red on macOS for
+    # PRs that touched none of it. The measured pre-fix numbers are kept in
+    # the docstring above; the shipped pattern's immunity is asserted below
+    # as an ABSOLUTE bound inside an isolated process, which is stable.
 
     class_start = CSS_RULES["class_start"]
     assert_redos_immune(class_start, ".foo" + (" ,>+~:" * 200000), timeout_sec=3.0)
@@ -431,19 +423,15 @@ def test_css_spec_exposure_redos_regression():
     bracket before writing this test; bounded `\\d+` to `\\d{1,10}` and
     `[^\\]]*` to `{0,300}`.
     """
-    old_pattern = re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]|\bfigma\.com/file/", re.I)
-
-    # Scale-relative sanity check (not an absolute wall-clock threshold,
-    # which is flaky across CI hardware of varying speed): a doubling of
-    # payload size should cost ~4x on the quadratic OLD pattern, vs ~2x for
-    # linear.
-    small_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 8000)
-    large_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 16000)
-    ratio = large_duration / small_duration if small_duration > 0 else 0
-    assert ratio > 2.2, (
-        f"sanity check: old pattern was expected to show quadratic (~4x) scaling on a payload "
-        f"doubling, but only scaled {ratio:.2f}x ({small_duration:.4f}s -> {large_duration:.4f}s)"
-    )
+    # #2901: a scale-relative check on the PRE-FIX pattern
+    #     r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]|\bfigma\.com/file/", re.I
+    # used to run here, asserting it scaled ~quadratically over a payload
+    # doubling. Removed: it timed a regex this repo no longer ships, and a
+    # ratio between two sub-100ms samples is inside the scheduling noise of
+    # a shared CI runner -- this family of asserts went red on macOS for
+    # PRs that touched none of it. The measured pre-fix numbers are kept in
+    # the docstring above; the shipped pattern's immunity is asserted below
+    # as an ABSOLUTE bound inside an isolated process, which is stable.
 
     spec_exposure = CSS_RULES["spec_exposure"]
     assert_redos_immune(spec_exposure, "[SPEC-" + "1" * 100000, timeout_sec=3.0)

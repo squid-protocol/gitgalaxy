@@ -20,7 +20,7 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import _best_of_timing, assert_redos_immune  # noqa: E402 # type: ignore
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
 # ==============================================================================
 # MAKEFILE: STRICT STRUCTURAL SIGNATURE COVERAGE (Issue #596, part of epic #518)
@@ -499,20 +499,15 @@ def test_makefile_hybrid_sensors_redos_immunity():
     the same n=500..32000 sweep against the new pattern comes in at
     0.00003s..0.00151s, a clean ~2x per doubling.
     """
-    old_serialization_parsing = re.compile(r"(?m)^\s*(?:@|-)?(?:tar|unzip|gunzip|jq|sed|awk)\b")
-    # Scale-relative sanity check (not an absolute wall-clock threshold,
-    # which is flaky across CI hardware of varying speed -- confirmed by
-    # a real CI failure on an unrelated PR's smoke-test run hitting the
-    # analogous absolute-threshold check in tcl's spec_exposure test): a
-    # payload-size doubling should cost ~4x on the quadratic OLD pattern,
-    # vs ~2x for linear.
-    small_duration = _best_of_timing(old_serialization_parsing, "\n" * 1000)
-    large_duration = _best_of_timing(old_serialization_parsing, "\n" * 2000)
-    ratio = large_duration / small_duration if small_duration > 0 else 0
-    assert ratio > 2.2, (
-        f"sanity check: old ^\\s* pattern was expected to show quadratic (~4x) scaling on a "
-        f"payload doubling, but only scaled {ratio:.2f}x ({small_duration:.4f}s -> {large_duration:.4f}s)"
-    )
+    # #2901: a scale-relative check on the PRE-FIX pattern
+    #     r"(?m)^\s*(?:@|-)?(?:tar|unzip|gunzip|jq|sed|awk)\b"
+    # used to run here, asserting it scaled ~quadratically over a payload
+    # doubling. Removed: it timed a regex this repo no longer ships, and a
+    # ratio between two sub-100ms samples is inside the scheduling noise of
+    # a shared CI runner -- this family of asserts went red on macOS for
+    # PRs that touched none of it. The measured pre-fix numbers are kept in
+    # the docstring above; the shipped pattern's immunity is asserted below
+    # as an ABSOLUTE bound inside an isolated process, which is stable.
 
     for key in (
         "serialization_parsing",

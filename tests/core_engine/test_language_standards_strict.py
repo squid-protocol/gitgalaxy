@@ -24,7 +24,7 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent.parent / "extraction" / "la
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import _best_of_timing, assert_redos_immune  # noqa: E402 # type: ignore
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
 
 # ==============================================================================
@@ -176,27 +176,27 @@ _SPEC_EXPOSURE_REDOS_SWEEP_TARGETS = [
 
 
 @pytest.mark.parametrize(
-    "language,old_pattern_text,extra_positive",
+    "language,_old_pattern_text,extra_positive",
     _SPEC_EXPOSURE_REDOS_SWEEP_TARGETS,
     ids=[t[0] for t in _SPEC_EXPOSURE_REDOS_SWEEP_TARGETS],
 )
-def test_spec_exposure_adjacent_quantifier_redos_sweep(language, old_pattern_text, extra_positive):
-    old_pattern = re.compile(old_pattern_text, re.I)
+def test_spec_exposure_adjacent_quantifier_redos_sweep(language, _old_pattern_text, extra_positive):
+    """#2901: this used to time the PRE-FIX pattern and assert it scaled
+    quadratically (ratio > 2.2 over an 8000 -> 16000 byte doubling) before
+    checking the shipped one. That half measured a regex this repo no
+    longer ships, on a wall clock, on a shared runner -- and it is what
+    went red on macOS runs 34288012477 / 34212533327 with ratios like
+    2.31, on PRs whose diffs touched none of this. A ratio between two
+    sub-100ms samples is inside the scheduling noise of a contended
+    runner, so no threshold makes it both meaningful and stable.
 
-    # Scale-relative sanity check (not an absolute wall-clock threshold,
-    # which is flaky across CI hardware of varying speed -- the exact
-    # failure mode of an earlier version of this same style of test in
-    # this file): a payload-size doubling should cost ~4x on the
-    # quadratic OLD pattern, vs ~2x for linear.
-    small_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 8000)
-    large_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 16000)
-    ratio = large_duration / small_duration if small_duration > 0 else 0
-    assert ratio > 2.2, (
-        f"{language}: sanity check failed -- old pattern was expected to show quadratic (~4x) "
-        f"scaling on a payload doubling, but only scaled {ratio:.2f}x "
-        f"({small_duration:.4f}s -> {large_duration:.4f}s)"
-    )
-
+    What is worth pinning is the property of the code that actually
+    ships: `spec_exposure` is immune on a pathological payload. That is
+    asserted below as an ABSOLUTE bound inside an isolated process
+    (`assert_redos_immune`), which is deterministic. The pre-fix pattern
+    for each language is kept in the parametrize table above as a record
+    of the shape that was fixed -- documentation, not a measurement.
+    """
     spec_exposure = LANGUAGE_DEFINITIONS[language]["rules"]["spec_exposure"]
     assert_redos_immune(spec_exposure, "[SPEC-" + "1" * 100000, timeout_sec=3.0)
     assert spec_exposure.search("[SPEC-123]"), f"{language}: lost the basic SPEC-NNN positive case"

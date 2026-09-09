@@ -2,14 +2,27 @@ name: Full Suite Gate (All OS x Python)
 
 # Backup safety net for the full OS x Python-version matrix, now that
 # smoke-test.yml only runs the full pytest suite once per push (see that
-# file's comments for why). This workflow restores full 12-way matrix
-# coverage of the entire suite at two checkpoints instead of every push:
+# file's comments for why). This workflow restores matrix coverage of the
+# entire suite at two checkpoints instead of every push:
 #   - Any label added to a pull request (an explicit "give this the full
 #     validation pass" signal -- not filtered to a specific label name, so
 #     applying ANY label triggers it).
 #   - Any release tag push (`v*`), matching publish.yml's own release
 #     trigger, as a pre-release confidence check across every supported
 #     environment.
+#
+# The matrix is sized per checkpoint (see the `matrix` job below). Measured
+# 2026-09-09: the 12-way matrix's jobs RAN for 10-18 min but QUEUED for
+# 23-65 min, because four label events on one PR put 48 jobs (16 of them
+# macOS, the scarcest pool) into the queue for a single SHA. Deduplication
+# is handled by `concurrency` above; this trims what one run costs.
+#
+# On a PR label: all four Python versions still run, on ubuntu; windows and
+# macOS cover the version floor and ceiling only. That keeps the thing the
+# matrix exists to catch -- a version-specific syntax/stdlib break that the
+# every-push ubuntu/3.12 full-suite cannot see -- while cutting macOS from
+# four jobs to two.
+# On a `v*` tag: the untrimmed 12-way matrix, unchanged.
 on:
   pull_request:
     types: [labeled]
@@ -20,17 +33,71 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  # One run per workflow per PR (or per ref outside a PR). A PR that gets four
+  # labels in one `gh pr create` fired four IDENTICAL matrix runs on the same
+  # SHA; superseded runs are now cancelled instead of queueing behind each
+  # other. cancel-in-progress is scoped to pull_request on purpose -- the
+  # push/schedule/tag runs are the ones that commit (docs, history charts,
+  # releases), and killing one mid-write is how you get a half-written commit.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  # Emits the matrix for this checkpoint. A tag push gets the full 12-way
+  # grid; a PR label gets the trimmed grid described in the header comment.
+  matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      include: ${{ steps.pick.outputs.include }}
+    steps:
+      - name: Pick matrix for this trigger
+        id: pick
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # Release tag: every supported environment, untrimmed.
+            include='[
+              {"os":"ubuntu-latest","python-version":"3.9"},
+              {"os":"ubuntu-latest","python-version":"3.10"},
+              {"os":"ubuntu-latest","python-version":"3.11"},
+              {"os":"ubuntu-latest","python-version":"3.12"},
+              {"os":"windows-latest","python-version":"3.9"},
+              {"os":"windows-latest","python-version":"3.10"},
+              {"os":"windows-latest","python-version":"3.11"},
+              {"os":"windows-latest","python-version":"3.12"},
+              {"os":"macos-latest","python-version":"3.9"},
+              {"os":"macos-latest","python-version":"3.10"},
+              {"os":"macos-latest","python-version":"3.11"},
+              {"os":"macos-latest","python-version":"3.12"}
+            ]'
+          else
+            # PR label: full Python coverage on ubuntu, floor+ceiling elsewhere.
+            include='[
+              {"os":"ubuntu-latest","python-version":"3.9"},
+              {"os":"ubuntu-latest","python-version":"3.10"},
+              {"os":"ubuntu-latest","python-version":"3.11"},
+              {"os":"ubuntu-latest","python-version":"3.12"},
+              {"os":"windows-latest","python-version":"3.9"},
+              {"os":"windows-latest","python-version":"3.12"},
+              {"os":"macos-latest","python-version":"3.9"},
+              {"os":"macos-latest","python-version":"3.12"}
+            ]'
+          fi
+          echo "include=$(echo "$include" | tr -d '\n ')" >> "$GITHUB_OUTPUT"
+
   full-suite-matrix:
+    needs: matrix
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     env:
       PYTHONUTF8: "1"
       GITGALAXY_LICENSE_KEY: "COMMUNITY_FREE_TIER"
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        include: ${{ fromJSON(needs.matrix.outputs.include) }}
 
     steps:
       - name: Check out repository code
@@ -52,8 +119,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install PyYAML networkx tiktoken pandas xgboost pytest
+          pip install PyYAML networkx tiktoken pandas xgboost pytest pytest-xdist
           pip install --no-build-isolation -e .
 
       - name: Full Suite (${{ matrix.os }}, Python ${{ matrix.python-version }})
-        run: pytest tests/ -v
+        run: pytest tests/ -n auto -q -ra --durations=25

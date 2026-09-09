@@ -7,9 +7,22 @@ on:
       - v6-dev
     paths-ignore: ["docs/**"]
 
+concurrency:
+  # One run per workflow per PR (or per ref outside a PR). Without this, a PR
+  # that picks up several labels in one `gh pr create` starts a separate,
+  # IDENTICAL run per label event on the same SHA (measured 2026-09-09: four
+  # Full Suite Gate runs and five rosetta-audit runs for one commit), and a
+  # re-push leaves the superseded run occupying the queue. cancel-in-progress
+  # is scoped to pull_request on purpose -- the push/schedule/tag runs are the
+  # ones that commit (docs, history charts, releases), and cancelling one
+  # mid-write is how you get a half-written commit.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   crucible-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:

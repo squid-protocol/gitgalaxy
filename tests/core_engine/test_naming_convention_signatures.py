@@ -28,7 +28,7 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent.parent / "extraction" / "la
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import _best_of_timing, assert_redos_immune  # noqa: E402 # type: ignore
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
 
 @pytest.fixture(scope="module")
@@ -169,17 +169,29 @@ def test_var_decl_pattern_redos_immune_many_comparisons(var_decl_pattern):
     assert_redos_immune(var_decl_pattern, ("x == y " * 20000), timeout_sec=2.0)
 
 
-def test_var_decl_pattern_scales_linearly_not_quadratically(var_decl_pattern):
-    """Scale-relative sanity check (not an absolute wall-clock threshold, which
-    is flaky across CI hardware): doubling the payload should cost ~2x
-    (linear), not ~4x (the O(n^2) catastrophic-backtracking signature)."""
-    small = _best_of_timing(var_decl_pattern, "a" + (" " * 8000))
-    large = _best_of_timing(var_decl_pattern, "a" + (" " * 16000))
-    ratio = large / small if small > 0 else 0
-    assert ratio < 3.0, (
-        f"expected roughly linear (~2x) scaling on a payload doubling, got {ratio:.2f}x "
-        f"({small:.5f}s -> {large:.5f}s) -- possible quadratic regression"
-    )
+def test_var_decl_pattern_stays_linear_on_a_long_whitespace_run(var_decl_pattern):
+    """The payload shape that would expose quadratic backtracking in
+    `var_decl`: one identifier followed by a long whitespace run with no
+    `=` ever appearing, so every offset is a near-miss.
+
+    #2901: this was a `_best_of_timing` ratio check (`large / small < 3.0`
+    over an 8000 -> 16000 byte doubling). Both samples were sub-millisecond,
+    which made the ratio a measurement of runner scheduling rather than of
+    the regex -- it is one of the two asserts #2901 reports going red on
+    shared macOS runners for unrelated PRs.
+
+    Replaced with an absolute bound at a payload an order of magnitude
+    larger, inside an isolated process -- what the rest of this file's
+    ReDoS tests already do, and deterministic.
+
+    Verified (2026-09-09) that this still catches the regression it is
+    here for, rather than just being quieter: dropping the `{0,80}` bound
+    on the pre-`=` segment (`[^=\\n]{0,80}` -> `[^=\\n]*`, which restores
+    the adjacent-unbounded-quantifier shape) makes this exact assertion
+    FAIL on the 160k payload, while the shipped pattern passes it in
+    ~1.1s including process spawn.
+    """
+    assert_redos_immune(var_decl_pattern, "a" + (" " * 160000), timeout_sec=2.0)
 
 
 # ==============================================================================

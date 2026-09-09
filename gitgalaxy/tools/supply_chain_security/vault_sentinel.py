@@ -142,7 +142,7 @@ def main():
                         # Never log any portion of a detected secret snippet.
                         print("   -> ********[REDACTED]********")
                     leaks_found += 1
-        except Exception as e:
+        except Exception as e:  # noqa: PERF203 -- per-iteration isolation: skip an unreadable file, keep scanning
             logging.getLogger("vault_sentinel").debug(f"Failed to scan '{rel_path_str}': {e}")
 
     end_time = time.time()

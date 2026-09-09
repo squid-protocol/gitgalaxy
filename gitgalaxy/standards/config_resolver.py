@@ -39,7 +39,7 @@ from __future__ import annotations
 import copy
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.standards import gitgalaxy_config as _defaults
 
@@ -251,9 +251,9 @@ def _load_yaml_section(yaml_path: str) -> dict[str, Any]:
 
 
 def resolve_config(
-    yaml_path: Optional[str] = None,
-    yaml_data: Optional[dict[str, Any]] = None,
-    cli_overrides: Optional[dict[str, Any]] = None,
+    yaml_path: str | None = None,
+    yaml_data: dict[str, Any] | None = None,
+    cli_overrides: dict[str, Any] | None = None,
 ) -> ResolvedConfig:
     """
     Merge, in the precedence decided in #332:

@@ -1,5 +1,4 @@
 {
-  "gitgalaxy/cobol_refractor_controller.py:280: DTZ005": "`datetime.datetime.now()` called without a `tz` argument",
   "gitgalaxy/cobol_refractor_controller.py:370: PERF401": "Use `list.extend` to create a transformed list",
   "gitgalaxy/cobol_to_java_controller.py:221: PERF203": "`try`-`except` within a loop incurs performance overhead",
   "gitgalaxy/cobol_to_java_controller.py:303: PERF203": "`try`-`except` within a loop incurs performance overhead",
@@ -8,8 +7,6 @@
   "gitgalaxy/core/aperture.py:527: SIM102": "Use a single `if` statement instead of nested `if` statements",
   "gitgalaxy/core/aperture.py:541: SIM102": "Use a single `if` statement instead of nested `if` statements",
   "gitgalaxy/core/guidestar_lens.py:139: C401": "Unnecessary generator (rewrite as a set comprehension)",
-  "gitgalaxy/licensing.py:82: DTZ007": "Naive datetime constructed using `datetime.datetime.strptime()` without %z",
-  "gitgalaxy/licensing.py:83: DTZ005": "`datetime.datetime.now()` called without a `tz` argument",
   "gitgalaxy/metrics/chronometer.py:299: SIM118": "Use `key in dict` instead of `key in dict.keys()`",
   "gitgalaxy/metrics/chronometer.py:424: PERF203": "`try`-`except` within a loop incurs performance overhead",
   "gitgalaxy/metrics/signal_processor.py:1772: SIM108": "Use ternary operator `network_multiplier = 0.2 if popularity == 0 else min(1.0 + math.log1p(popularity) / 5.0, 2.0)` instead of `if`-`else`-block",
@@ -57,7 +54,6 @@
   "gitgalaxy/tools/cobol_to_cobol/cobol_compiler_forge.py:207: PERF203": "`try`-`except` within a loop incurs performance overhead",
   "gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:107: RUF015": "Prefer `next(iter(generated_metrics[\"exec_pgms\"]))` over single element slice",
   "gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py:105: PERF401": "Use `list.extend` to create a transformed list",
-  "gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py:186: DTZ005": "`datetime.datetime.now()` called without a `tz` argument",
   "gitgalaxy/tools/cobol_to_java/cobol_to_java_agent_forge.py:39: PERF401": "Use a list comprehension to create a transformed list",
   "gitgalaxy/tools/network_auditing/full_api_network_map.py:183: SIM118": "Use `key in dict` instead of `key in dict.keys()`",
   "gitgalaxy/tools/network_auditing/full_api_network_map.py:242: SIM102": "Use a single `if` statement instead of nested `if` statements",

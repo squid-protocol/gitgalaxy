@@ -192,3 +192,38 @@ def test_routing_malformed_key(mock_validate, monkeypatch, capsys):
         assert "LICENSE KEY MALFORMED" in captured.err
         assert "FORGERY" not in captured.err
         assert "tampering" not in captured.err.lower()
+
+
+# ==============================================================================
+# TEST 5: EXPIRY IS EVALUATED IN UTC (#502)
+# ==============================================================================
+@patch("gitgalaxy.licensing.pow")
+def test_validate_key_expiry_is_utc_and_tz_safe(mock_pow):
+    """#502: expiry must be checked against UTC-midnight using two tz-AWARE
+    datetimes. Guards two regressions: (a) a naive-vs-aware comparison would
+    raise TypeError, and (b) expiry drifting to the server's local midnight.
+
+    We freeze now() to a fixed UTC instant and authenticate a key whose expiry
+    date is the SAME calendar day: since expiry is that day's 00:00 UTC and now
+    is noon UTC, the key must read EXPIRED. A day later must read VALID.
+    """
+    import hashlib
+    from datetime import datetime as real_datetime
+    from datetime import timezone
+
+    def authenticate(date_str):
+        payload = f"ENTERPRISE-ACME-{date_str}".encode()
+        mock_pow.return_value = int.from_bytes(hashlib.sha256(payload).digest(), byteorder="big")
+        return f"GG-ENTERPRISE-ACME-{date_str}-1A2B"  # gitleaks:allow
+
+    frozen_now = real_datetime(2025, 6, 15, 12, 0, 0, tzinfo=timezone.utc)
+
+    with patch("gitgalaxy.licensing.datetime.datetime") as mock_dt:
+        # now(tz) is frozen; strptime delegates to the real implementation.
+        mock_dt.now.return_value = frozen_now
+        mock_dt.strptime = real_datetime.strptime
+
+        # Same UTC day: expiry is 2025-06-15 00:00 UTC, now is noon UTC -> EXPIRED.
+        assert _validate_offline_key(authenticate("20250615")) == "EXPIRED"
+        # One day later: expiry is 2025-06-16 00:00 UTC, still ahead of now -> VALID.
+        assert _validate_offline_key(authenticate("20250616")) == "VALID"

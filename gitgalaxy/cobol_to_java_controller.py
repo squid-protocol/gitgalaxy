@@ -218,7 +218,7 @@ def main():
                 out_path.write_text(java_code, encoding="utf-8")
                 stats["entities"] += 1
                 print(f"  [+] Generated Entity: {class_name}.java")
-            except Exception as e:
+            except Exception as e:  # noqa: PERF203 -- per-iteration isolation: skip a malformed file, keep generating the rest of the batch
                 print(f"  [!] Failed to generate entity from {schema_file.name}: {e}")
 
     # 3. Generate REST Controllers & Service Layers from IR State Files
@@ -300,7 +300,7 @@ def main():
                 out_path.write_text(json.dumps(ticket_json, indent=2), encoding="utf-8")
                 stats["agent_jobs"] += 1
                 print(f"  [+] Generated Agent Job: {out_path.name}")
-            except Exception as e:
+            except Exception as e:  # noqa: PERF203 -- per-iteration isolation: skip a malformed file, keep generating the rest of the batch
                 print(f"  [!] Failed to generate job from {slice_file.name}: {e}")
 
     # 5. Generate Master CI/CD Audit Report

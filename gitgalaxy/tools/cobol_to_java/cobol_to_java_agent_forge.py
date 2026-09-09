@@ -34,9 +34,7 @@ def generate_java_agent_ticket(slice_json: dict, prog_id: str, ir_state: Optiona
         unresolved_calls = lineage.get("unresolved_calls", [])
 
     # Format business rules for the JSON payload
-    formatted_rules = []
-    for rule in rules:
-        formatted_rules.append(f"// Context: {rule['paragraph']}\n{rule['statement']}")
+    formatted_rules = [f"// Context: {rule['paragraph']}\n{rule['statement']}" for rule in rules]
 
     ticket = {
         "job_id": f"{prog_id.upper()}_JAVA_SERVICE_TRANSLATION",

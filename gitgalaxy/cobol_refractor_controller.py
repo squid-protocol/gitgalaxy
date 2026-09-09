@@ -366,8 +366,9 @@ def main():
         # Aggregate Architectural Anomalies
         lineage = ir_state["analysis"].get("lineage")
         if lineage and lineage.get("unresolved_calls"):
-            for call in lineage["unresolved_calls"]:
-                master_honesty_flags.append(f"[{file_path.name}] Unresolved Dynamic CALL to: {call}")
+            master_honesty_flags.extend(
+                f"[{file_path.name}] Unresolved Dynamic CALL to: {call}" for call in lineage["unresolved_calls"]
+            )
 
         system_limits = ir_state["analysis"].get("honesty_flags")
         if system_limits:

@@ -150,7 +150,7 @@ Expected JSON Schema:
         try:
             pattern_str = rf"{kw}"
             keyword_patterns[kw] = re.compile(pattern_str.encode("utf-8"), re.IGNORECASE)
-        except re.error as e:
+        except re.error as e:  # noqa: PERF203 -- except exits the process, so the per-iteration try cost is moot
             print(f"\n[ERROR] Invalid regex generated for keyword '{kw}': {e}")
             sys.exit(1)
 

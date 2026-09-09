@@ -421,7 +421,7 @@ class Chronometer:
                     full_path = Path(root) / name
                     rel_path = full_path.relative_to(self.root).as_posix()
                     self.mtime_map[rel_path] = os.path.getmtime(full_path)
-                except (OSError, ValueError):
+                except (OSError, ValueError):  # noqa: PERF203 -- per-iteration isolation: skip an unreadable file, continue the os.walk scan
                     continue
 
     def get_file_history_metrics(self, rel_path: str) -> dict[str, Any]:

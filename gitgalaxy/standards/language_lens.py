@@ -1100,19 +1100,17 @@ class LanguageDetector:
 
         distribution = {primary_id: total_len}
         last_processed_idx = 0
-        triggers = []
-
-        for hs in self.HANDSHAKE_REGISTRY:
-            for m in hs["trigger"].finditer(content):
-                triggers.append(
-                    {
-                        "start": m.start(),
-                        "trigger_end": m.end(),
-                        "target": hs["target"],
-                        "end_pattern": hs["end"],
-                        "pair": hs.get("pair"),
-                    }
-                )
+        triggers = [
+            {
+                "start": m.start(),
+                "trigger_end": m.end(),
+                "target": hs["target"],
+                "end_pattern": hs["end"],
+                "pair": hs.get("pair"),
+            }
+            for hs in self.HANDSHAKE_REGISTRY
+            for m in hs["trigger"].finditer(content)
+        ]
 
         triggers.sort(key=lambda x: x["start"])
 

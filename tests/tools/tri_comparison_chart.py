@@ -241,6 +241,10 @@ from gitgalaxy.core.detector import (  # noqa: E402
 # candidates at first glance and turned out to be ordinary recall bugs instead.
 ARGS_GRANULARITY: dict[str, str] = {
     "cobol": "program_level",
+    # css: not a recall bug -- the rule is `None` (#2893, a stated absence: CSS declares no
+    # callable, so no parameter surface). docs/language_status/css.md said "CSS has no
+    # parameter-list construct, so there is no args panel" long before the rule agreed.
+    "css": "none",
     "dockerfile": "none",
     "yaml": "none",
     "jcl": "none",

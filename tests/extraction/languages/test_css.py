@@ -63,29 +63,6 @@ PATHOLOGICAL_CLASS_STARTS = [
     ".class" + " \n" * 1000 + "{",
 ]
 
-VALID_ARGS = [
-    (
-        "width: calc(100% - var(--sidebar, calc(var(--base) * 2px)));",
-        "calc(100% - var(--sidebar, calc(var(--base) * 2px)))",
-    ),
-    (
-        "background: url(data:image/svg+xml;base64,PHN2ZyB...=); mask-image: url( http://evil.com/path?a=1&b=2 );",
-        "url(data:image/svg+xml;base64,PHN2ZyB...=)",
-    ),
-    (
-        "color: VaR(\n  --primary-color\n ); transform: CaLc(\n 10px\n + \n 5% \n);",
-        "VaR(\n  --primary-color\n )",
-    ),
-]
-
-INVALID_ARGS = [
-    'content: "calc(100% - 10px)"; /* color: var(--hacked); */',
-]
-
-PATHOLOGICAL_ARGS = [
-    "calc(" + "var(" * 50 + "--x" + ")" * 50 + ")",
-]
-
 VALID_DEPENDENCIES = [
     (
         '@import "style.css";\n@import \'print.css\' print;\n@import url("mobile.css") screen and (max-width: 600px);',
@@ -136,16 +113,6 @@ def test_css_class_start_invalid(payload):
 @pytest.mark.parametrize("payload", PATHOLOGICAL_CLASS_STARTS)
 def test_css_class_start_redos(payload):
     assert_redos_immune(CSS_DEFS["class_start"], payload)
-
-
-@pytest.mark.parametrize("payload,expected_matches", VALID_ARGS)
-def test_css_args_valid(payload, expected_matches):
-    assert_valid_match(CSS_DEFS["args"], payload, expected_matches, "css.args")
-
-
-@pytest.mark.parametrize("payload", PATHOLOGICAL_ARGS)
-def test_css_args_redos(payload):
-    assert_redos_immune(CSS_DEFS["args"], payload)
 
 
 @pytest.mark.parametrize("payload,expected_matches", VALID_DEPENDENCIES)

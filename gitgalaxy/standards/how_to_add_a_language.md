@@ -155,7 +155,7 @@ Generate a valid Python dictionary matching this exact structure.
         "branch": re.compile(r""), 
         # args: THE PARAMETERS A CALLABLE DECLARES. Includes: the parameter blocks of functions, methods, constructors and lambdas; must safely step over type hints. Anchor the parameter list to the declaration it belongs to -- a declaration keyword (`def`/`fn`/`proc`), a mandatory return type, a terminator lookahead on what FOLLOWS the list (`(?=\{)`, `(?=:|\{)`), or a typed parameter list -- because `(...)` is equally a call, a cast and a grouped expression. EXCLUDES call sites: a call consumes a parameter surface, it does not declare one, and unlike `func_start` there is no `_slice_by_braces` downstream to drop the ones without a body. Where the language has no formal parameter list, match the construct that stands in for a declared parameter and record it in the fallback table. Full contract, corollaries and the 46-language audit: docs/args_rule_contract.md (#2773).
         "args": re.compile(r""), 
-        # structural_boundaries: Keywords defining structural boundaries and straight-line execution. Includes: var, return, class, import. EXCLUDES: Access modifiers (public, private) and Immutability keywords (const, final — these belong in immutability_locks).
+        # structural_boundaries: A vocabulary token of straight-line execution or structural delimiting -- a return, a declaration or import keyword, a type keyword, an instruction mnemonic in a language with no other structure -- counted as a length-like tally with no structural referent. Includes: var, return, class, import. EXCLUDES: access modifiers (public, private -- encapsulation/api) and immutability keywords (const, final -- immutability_locks). A tally is never a denominator (count contract corollary 5); `control_flow_ratio` divides by it today, which is #2770's Phase 4 question, not this row's. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "structural_boundaries": re.compile(r""), 
         # func_start: THE SYNTAX THAT OPENS AN EXECUTABLE BLOCK OF LOGIC UNDER ITS OWN NAME -- a function, method, procedure or subroutine declaration anchored to its naming syntax, or, where the language has no named-callable form, the instruction that begins an executable step (dockerfile RUN/CMD/ENTRYPOINT/HEALTHCHECK, a makefile recipe, a yaml run:/script: step). A call site or reference to a callable is not a declaration. EXCLUDES type declarations (classes, interfaces, records -- those are class_start). A language with no executable-block morphology records the stated absence (None, markdown). Full contract, corollaries and the 46-language audit: docs/func_start_rule_contract.md (#2856).
         "func_start": re.compile(r""), 
@@ -185,19 +185,19 @@ Generate a valid Python dictionary matching this exact structure.
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # concurrency: Asynchronous logic and parallel execution. Includes: async, await, Promise, Thread.
         "concurrency": re.compile(r""), 
-        # ui_framework: DOM manipulation, UI components. Includes: HTML tags, React hooks.
+        # ui_framework: A call, declaration or markup construct that builds or mutates a user-interface surface through a UI framework or the document tree -- a component or widget definition, a hook or lifecycle call, a DOM query or mutation, a layout or rendering directive -- in the framework's own invocation or property form. Includes: HTML tags, React hooks, DOM queries, widget/component definitions, layout properties in a stylesheet. EXCLUDES an everyday word (`text`, `widget`) in a string or identifier, a generic type parameter (`<Class>` -- generics'), and template markers inside documentation prose. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "ui_framework": re.compile(r""), 
-        # closures: Anonymous functions, lambdas, inline callbacks. Includes: Fat arrows (=>).
+        # closures: The syntax that opens an anonymous callable -- a lambda, arrow function, block literal or inline callback -- at the point it is defined. Includes: fat arrows (=>), lambda, fn/function literals, block arguments. A named function's parameter list, a control-flow condition (`if (...) {`) and a call that merely passes a named callable are not one; a language with no anonymous-callable form records None. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "closures": re.compile(r""), 
         # globals: A DECLARATION OF A BINDING WITH PROGRAM LIFETIME -- FILE, MODULE, CLASS-STATIC OR PROCESS SCOPE -- OR A READ OR WRITE OF THE PROCESS'S AMBIENT ENVIRONMENT THROUGH ITS NAMED HANDLE, in a form an ordinary identifier cannot match. Scope, not mutability: a program-scope constant counts (`public static final X =`, `const val`, rust `static`/`const` items) -- constness is immutability_locks' axis; a function-local binding never counts, whatever its keyword (anchor a file-scope declaration to column 0, the #2651 shape, and count an indented `static` only where the language makes it a program-lifetime local). A declaration or the ambient handle, not a reference: an ordinary read of a global by name is invisible; the handles are the language's named process-state objects (`os.environ`, `process.env`, `$PATH`, `System.getenv`, `sy-subrc`, `msg.sender`, `%ENV`, `sqlite_master`). An everyday word fires only in its global form (`$NAME` not bare `TERM`, `.shared`/`.default` not bare `default`, `globalThis.` not `global.`/`self.`, `COMMON` outside a hyphenated identifier). Linkage and region headers are not state (`static void f();`, `extern "C"`, fortran `EXTERNAL`, an assembly `.data` section switch, cobol WORKING-STORAGE). One owner: process control through the ambient class is high_risk_execution's (`Environment.Exit`); `locals()` is nobody's global. Deliberate duals kept: kotlin `object` (class_start), fortran `COMMON` (safety_bypasses), jcl `SET` (state_mutation). A language with no scoped-vs-global morphology records the stated absence (None + ledger entry: html, markdown). Full contract, corollaries and the 46-language audit: docs/globals_rule_contract.md (#2858).
         "globals": re.compile(r""), 
-        # decorators: Annotations applied to classes/methods. Includes: @Injectable, [Obsolete].
+        # decorators: A metadata attribute attached to the declaration it precedes -- an annotation, attribute, pragma or directive line -- in the language's attribute syntax. Includes: @Injectable, [Obsolete], #[inline], !$OMP. EXCLUDES a namespace or package separator (`::`), a type annotation, a label and a sigil; a language with no attribute syntax records None. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "decorators": re.compile(r""), 
-        # generics: Type parameters indicating generic abstractions. Includes: <T>, List<T>.
+        # generics: A type-parameter list on a declaration or an instantiation -- the bracketed parameters that make a type or callable generic -- in the language's parameterisation syntax. Includes: <T>, List<T>, [A], Map<String, String>. EXCLUDES a comparison operator, a cast (`<T>expr` -- explicit_casts'), a markup tag and a shift; a language without parametric types records None. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "generics": re.compile(r""), 
-        # comprehensions: Collection iterators or inline looping. Includes: .map(, .filter(.
+        # comprehensions: A collection-transform expression -- a comprehension, a map/filter/fold/for-each call, or an inline iteration form -- at its invocation. Includes: .map(, .filter(, [x for x in ...], for-each, fold. EXCLUDES a plain loop statement (branch's) and a block opener that happens to contain a loop; a language with no transform form records None. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "comprehensions": re.compile(r""), 
-        # scientific: Math, data science, and complex rendering libraries. Includes: Math., numpy.
+        # scientific: A call into, or an import of, a numeric, scientific or rendering library facility -- a math function, a linear-algebra or matrix type, an array, plotting or GPU library -- in its qualified, typed or call form. Includes: Math., numpy, LOG(, Matrix4, dart:math, vector mnemonics. EXCLUDES an everyday identifier used as a variable name (`sum`, `exp`, `log`) and a library mentioned in a string. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "scientific": re.compile(r""), 
         # reflection_metaprogramming (Cognitive Load / Metaprogramming Density): Metaprogramming, reflection, and dynamic property assignment. Includes: Reflection, Proxy, .bind().
         "reflection_metaprogramming": re.compile(r""), 
@@ -213,23 +213,23 @@ Generate a valid Python dictionary matching this exact structure.
         "planned_debt": re.compile(r""), 
         # fragile_debt: Explicit admissions of fragile or dangerous logic. Includes: HACK, FIXME, XXX.
         "fragile_debt": re.compile(r""), 
-        # hardcoded_secrets: Static credentials or API keys baked into code. Includes: password, secret, token.
+        # hardcoded_secrets: A literal credential written into the file -- a password, token, key or secret assigned or configured as a string literal of credential length -- at the assignment. Includes: password: "...", api_key = "...", private_key :=. EXCLUDES the identifier on its own, a reference to a secret store, and a placeholder shorter than credential length. Baseline rule in three languages (ada, solidity, yaml); every other language is covered by the security lens's own detector (`sec_hardcoded_secrets`), which is not a registry rule. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "hardcoded_secrets": re.compile(r""), 
         # spec_exposure: Audit tags establishing traceability of intent. Includes: [SPEC-123], [audit].
         "spec_exposure": re.compile(r""), 
-        # ssr_boundaries: Server-Side Rendering computation boundaries. Includes: getServerSideProps.
+        # ssr_boundaries: A server-side rendering boundary -- a framework's data-loading or render-mode hook, a server/client directive, or a template-render call -- in the framework's own form. Includes: getServerSideProps, getStaticProps, "use server", render_template(. EXCLUDES the words `request` or `template` as ordinary identifiers or in prose, and a type named Request; a language with no rendering framework records None. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "ssr_boundaries": re.compile(r""), 
-        # events: Event-driven architecture signatures and message brokers. Includes: emit, EventEmitter, Kafka.
+        # events: A site that publishes into or wires up an event or message channel -- an emit or dispatch call, a broker or bus client construction, a signal connect -- in call form. Includes: emit(, dispatchEvent(, EventEmitter, Kafka/AMQP clients, signal/slot connect. EXCLUDES a bare verb (`emit`, `signal`) in a string or as an ordinary function name, and the receiving side (listeners'). Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "events": re.compile(r""), 
-        # dependency_injection: Inversion of Control (IoC) injection markers. Includes: @Autowired, @Inject.
+        # dependency_injection: An inversion-of-control marker -- an injection annotation, a provider or module registration, a container or factory declaration -- attached to the declaration it wires. Includes: @Autowired, @Inject, @Bean, @Configuration, ApplicationContext. EXCLUDES a plain import and a macro-prerequisite directive (`AC_REQUIRE` is macros' territory); a language with no IoC convention records None. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "dependency_injection": re.compile(r""), 
-        # macros: Compiler pragmas or macro definitions that generate code at compile-time. Includes: #define, macro_rules!.
+        # macros: A compile-time code-generation directive -- a macro definition, a conditional-compilation or include directive, a compiler pragma -- in directive form. Includes: #define, #if/#else/#endif, macro_rules!, define-syntax, syntax-rules, m4 define. EXCLUDES a macro invocation that reads as an ordinary call, and a decorator line (decorators'); a language with no preprocessor or macro system records None. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "macros": re.compile(r""), 
-        # pointers: Explicit tracking of raw memory addressing and pointer dereferencing. Includes: *const, &mut, IntPtr.
+        # pointers: A site that takes, holds or dereferences a raw memory address -- an address-of, a pointer declaration or dereference, an unsafe pointer or raw-handle type -- in the language's pointer syntax. Includes: *const, &mut, IntPtr, ->, unsafe.Pointer, *T. EXCLUDES a managed reference, an object member access, and a hash or array dereference in a language without raw addresses (perl `->{key}`, `$$ref` are references, not addresses -- filed); a language with no address syntax records None. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "pointers": re.compile(r""), 
-        # memory_alloc: Explicit unmanaged memory allocations and raw heap manipulations. Includes: malloc, new.
+        # memory_alloc: A call that requests memory from the runtime or the heap explicitly -- an allocator call, an explicit object or buffer construction, a manual resize -- at its invocation. Includes: malloc, calloc, alloca, new, make(, cons, Buffer.alloc. EXCLUDES the allocator's name in a string or as a function pointer. The managed side is unsettled: javascript/typescript/scheme count every `new`/`cons`, java/kotlin/scala/dart count none -- the batch filed it as one decision, not 46; one side must be chosen for the whole row (count contract corollary 3). Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "memory_alloc": re.compile(r""), 
-        # inline_asm: Direct CPU architecture bridging. Includes: __asm__, asm!.
+        # inline_asm: The opener of an embedded machine-code region -- an inline-assembly statement, block or intrinsic -- in the language's embedding syntax. Includes: __asm__, asm!, asm volatile, assembly { } (solidity), @asm. An assembly language's own instructions are not inline in anything and record None (assembly, agc_assembly); so does every language with no embedding form. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "inline_asm": re.compile(r""), 
 
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
@@ -237,13 +237,13 @@ Generate a valid Python dictionary matching this exact structure.
         "telemetry": re.compile(r""), 
         # debug_prints (Debug Artifacts / Unstructured Outputs): Ad-hoc, temporary debug statements. Includes: print(, console.log(.
         "debug_prints": re.compile(r""), 
-        # explicit_casts: Explicitly bypassing the compiler's type-checker. Includes: as String, (int), static_cast.
+        # explicit_casts: A site that converts a value's type explicitly -- a cast expression, a conversion call or a cast keyword -- in cast form. Includes: as String, (int), static_cast<, @intCast(, string(x), <Type>expr. EXCLUDES a type annotation, a generic instantiation (generics'), and an instruction-set prefix (agc EXTEND selects an extended opcode; it converts nothing -- filed); a language with no explicit conversion form records None. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "explicit_casts": re.compile(r""), 
-        # panics_and_aborts (Execution Interrupts / Fatal Aborts): Forcefully destroying the current execution context. Includes: throw, raise, panic!, abort().
+        # panics_and_aborts (Execution Interrupts / Fatal Aborts): A statement that ends the current execution context by raising or aborting -- a throw or raise, a panic, an unreachable marker, a fatal-error, revert or process-exit call -- in statement or call form. Includes: throw, raise, panic!, abort(), unreachable, revert, exit(, AC_MSG_ERROR. EXCLUDES an ordinary `return`, an assertion that guards a value (assert -- safety's), and a handler keyword (catch). Deliberate dual: process termination (`exit`, `System.exit`, `kill`) is also high_risk_execution's termination family (#2878); the two rows count it on purpose. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "panics_and_aborts": re.compile(r""), 
-        # thread_sleeps (Thread Blocking / Synchronous Pauses): Thread blocking or forced timeouts. Includes: sleep(, delay(.
+        # thread_sleeps (Thread Blocking / Synchronous Pauses): A call that blocks the current thread or schedules a forced delay -- a sleep, a timed wait, a timeout-driven deferral -- at its invocation. Includes: sleep(, usleep(, delay(, setTimeout(, std.time.sleep. EXCLUDES an identifier named `delay` or a duration type not in call position; a language with no blocking-wait form records None. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "thread_sleeps": re.compile(r""), 
-        # bitwise_ops: Bitwise operations manipulating raw bytes. EXCLUDES logical &&/||.
+        # bitwise_ops: A bitwise operator applied between value operands -- shift, and, or, xor, or the unary complement -- in operator position. Includes: <<, >>, &, |, ^, ~. EXCLUDES logical &&/||, an address-of or reference sigil (`&x`, `\&sub`), a capture or pipe delimiter (`|err|`), and any `&`/`|` inside a string literal (HTML entities, regex alternation -- the stream keeps strings, so the rule must anchor to two value operands; filed). Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "bitwise_ops": re.compile(r""), 
         # sync_locks: Explicitly coordinating threaded logic to prevent race conditions.
         "sync_locks": re.compile(r""), 
@@ -253,19 +253,19 @@ Generate a valid Python dictionary matching this exact structure.
         "cleanup": re.compile(r""), 
         # encapsulation (Encapsulation / Access Modifiers): Explicitly hiding logic from the rest of the application. Includes: private, protected, internal.
         "encapsulation": re.compile(r""), 
-        # listeners: Waiting to receive state from an external broadcast. Includes: on(, addEventListener, subscribe(.
+        # listeners: A registration to receive from an external broadcast -- an event-listener, subscription or handler-binding call -- at its invocation. Includes: on(, addEventListener(, subscribe(, .sink(, .irq(. EXCLUDES the words `on`, `callback` or `handler` in prose, in a string or as ordinary identifiers, and the publishing side (events'). Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "listeners": re.compile(r""), 
-        # test_skip: Bypassed tests or ignored verification specs. Includes: @Ignore, test.skip(.
+        # test_skip: A marker that disables or ignores a test -- a skip decorator, an ignore attribute, a `.skip`/`xit` call form -- attached to the test it silences. Includes: @Ignore, @pytest.mark.skip, test.skip(, xit(, [Fact(Skip=. EXCLUDES the word `skip` as an ordinary identifier, argument or documentation item; a language with no test framework records None. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "test_skip": re.compile(r""), 
 
         # --- HYBRID DOMAIN SENSORS ---
-        # serialization_parsing: JSON, XML, YAML parsing libraries.
+        # serialization_parsing: A call that encodes to or decodes from a structured interchange format -- JSON, XML, YAML, CSV, protocol buffers, a marshal or unmarshal -- at its invocation. Includes: JSON.parse(, json.loads(, xml.etree, yaml.safe_load(, Marshal, jq. EXCLUDES formatted record I/O and stream open/close (READ/WRITE/OPEN are io's -- filed, fortran) and a text-processing command that parses no format (`sed`, `awk`). Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "serialization_parsing": re.compile(r""), 
-        # regex_execution: Native regex evaluation commands.
+        # regex_execution: A site that evaluates a regular expression -- a match, substitution or split operator, a regex constructor or compile/exec call -- at its invocation. Includes: =~, s///, new RegExp(, re.compile(, preg_match(, std::regex. EXCLUDES a plain substring search or intrinsic that takes no pattern (INDEX, SCAN, VERIFY -- filed, fortran). Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "regex_execution": re.compile(r""), 
-        # time_date_logic: Time/date instantiation and math.
+        # time_date_logic: A site that instantiates or computes with a clock or calendar value -- a now/time/date constructor, duration arithmetic, a formatting or timezone call -- at its invocation. Includes: Date.now(, time.time(, DateTime(, Time::HiRes, strftime(. EXCLUDES an array or variable named `time` and the word in prose. Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "time_date_logic": re.compile(r""), 
-        # ipc_rpc_bridges: Inter-process or RPC bridging commands.
+        # ipc_rpc_bridges: A site that crosses a process or host boundary through a bridge -- an RPC or IPC client or server construction, a pipe or socket-message send, a foreign-function or platform-channel call -- at its invocation. Includes: grpc, postMessage(, MessageChannel, pipe(, fork(, shm_open, multiprocessing, ProcessBuilder, java.rmi, Isolate.spawn. EXCLUDES an in-process queue or dispatch queue, a coroutine yield, a GPIO pin and a contract event (all filed as wrong-construct hits). Declared contract (batch #2897): docs/domain_sensor_contracts.md.
         "ipc_rpc_bridges": re.compile(r"") 
     }
 }
@@ -423,25 +423,17 @@ existed in the original 43-key baseline because none of it existed as a mainstre
 that schema was designed.
 
 * `llm_api`: Direct calls into a hosted LLM provider SDK. Includes: `openai`, `anthropic`.
-* `llm_orchestrator`: Agent/RAG orchestration frameworks. Includes: `langchain`, `llama_index`.
-* `llm_vector_store`: Vector database clients. Includes: `chromadb`, `pinecone`.
-* `ml_traditional`: Classical (non-deep-learning) ML libraries. Includes: `sklearn`.
-* `dl_frameworks`: Deep learning frameworks. Includes: `tensorflow`, `torch`, `keras`.
-* `hardware_bridge`: Bridges from software into physical/peripheral I/O. Includes: `serialport`,
-  `usb`, `bluetooth`, `socket.io`, `websocket`.
-* `cryptography`: Cryptographic primitives and identity libraries. Includes: `crypto`, `bcrypt`,
-  `x509`, `tls`/`ssl`, `jsonwebtoken`, `argon2`.
-* `rce_funnel`: Spawning a shell/interpreter subprocess from application code — a common
-  agentic-tool-use RCE shape. Includes: `child_process.spawn/exec/execSync` invoking
-  `python`/`bash`/`sh`/`node`.
-* `exfiltration_camouflage`: Outbound HTTP calls disguised as telemetry/metrics/audit traffic.
-  Includes: `requests.post`/`urllib.request`/`httpx.post` whose payload references
-  `telemetry`/`metrics`/`audit`-shaped keys.
-* `memory_scraping`: Direct reads of process memory. Includes: `/proc/<pid>/mem`-style paths.
-* `lazy_evaluation`: Generators and deferred-execution constructs. Includes: `yield`,
-  `Generator`, `Iterator` (and their `Async*` counterparts).
-* `vectorized_math`: Tensor/matrix math operations. Includes: `einsum`, `matmul`, `tensordot`,
-  `.dot(`, the `@` matmul operator.
+* `llm_orchestrator`: An import of an agent or retrieval-orchestration framework from the pack's name list -- one hit per import statement, none for a use of the imported name. Includes: langchain, llama_index (the pack's whole list today).
+* `llm_vector_store`: An import of a vector-database client from the pack's name list -- one hit per import statement, none for a use of the imported name. Includes: chromadb, pinecone (the pack's whole list today).
+* `ml_traditional`: An import of a classical (non-deep-learning) machine-learning library from the pack's name list -- one hit per import statement, none for a use of the imported name. Includes: sklearn (the pack's whole list today).
+* `dl_frameworks`: An import of a deep-learning framework from the pack's name list -- one hit per import statement, none for a use of the imported name. Includes: tensorflow, torch, keras (the pack's whole list today).
+* `hardware_bridge`: An import of a library that bridges software into physical or peripheral I/O -- serial, USB, bluetooth, printers, device sockets -- one hit per import statement. Includes: serialport, usb, bluetooth, socket.io, websocket, printer. The rule also lists `webgl`, which is rendering rather than a peripheral -- recorded, not changed, in the batch.
+* `cryptography`: An import of a cryptographic-primitive, hashing, transport-security or identity library from the pack's name list -- one hit per import statement. Includes: crypto, bcrypt, x509, tls, ssl, jsonwebtoken, argon2. The standard-library hashing modules (`hashlib`, `hmac`) are not in the list -- the crucible's python reads 0 on files that import them; filed as too narrow.
+* `rce_funnel`: A subprocess spawn from application code whose command is a shell or interpreter -- at the spawn call, with the interpreter name in the command. Includes: child_process.spawn/exec/execSync('python'|'bash'|'sh'|'node'|'bun'. A deliberate refinement of high_risk_execution's running-another-program family (#2878): the same call counts there too; a spawn of a non-interpreter program is only high_risk_execution's.
+* `exfiltration_camouflage`: An outbound HTTP call whose target or payload carries a telemetry-, metrics-, audit- or log-shaped name -- at the call. Includes: requests.post(..telemetry..), fetch(..metrics..), axios.post(..audit..). The same call without the camouflage vocabulary is io's alone; with it, both rows count it on purpose.
+* `memory_scraping`: A read of another process's memory image through the operating system's process filesystem -- at the path construction or open. Includes: /proc/<pid>/mem, '/proc/' + str(pid). EXCLUDES a process's introspection of its own state.
+* `lazy_evaluation`: A deferred-execution construct at its site -- a yield statement, a generator or iterator type annotation, an async-generator form. Includes: yield, Generator, Iterator, AsyncGenerator, AsyncIterator. EXCLUDES a completed collection and an ordinary loop.
+* `vectorized_math`: A tensor or matrix operation at its site -- an einsum/matmul/tensordot/dot call, or the infix matrix-multiply operator between two value operands. Includes: einsum(, matmul(, tensordot(, .dot(, a @ b. EXCLUDES a decorator marker (`@name` on its own line or after a newline -- the python rule's operand lookbehind accepts a preceding `)` across the newline; filed).
 * `_named_token_capture`: Capture-group rule that extracts the exact imported symbol name(s)
   from a `from X import Y` statement, for dependency-graph precision beyond what the baseline
   `_dependency_capture` rule gives you.
@@ -450,10 +442,10 @@ that schema was designed.
 For languages that *are* documentation rather than executable code, but still have internal
 structure worth mapping.
 
-* `lit_code_blocks`: Fenced code block delimiters (` ``` `).
-* `lit_diagrams`: Embedded diagram blocks (e.g. Mermaid).
-* `lit_headers`: Section headers, for document structure/navigation mapping.
-* `lit_links`: Cross-reference/hyperlink targets.
+* `lit_code_blocks`: A fence line that opens or closes a code block -- a block contributes its opener and its closer, so one block is two hits. Includes: ``` and ```lang fences. A diagram fence (```mermaid) is also lit_diagrams' -- a deliberate dual.
+* `lit_diagrams`: A fence line that opens an embedded diagram block by its info string -- one hit per diagram. Includes: ```mermaid, ```plantuml, ```graphviz. The closing fence is lit_code_blocks' alone.
+* `lit_headers`: An ATX heading line -- one to six `#` at the margin followed by a space -- one hit per heading. Includes: # Title, ## Section. The rule is not fence-aware: a `#` comment line inside a ```python block reads as a heading (filed).
+* `lit_links`: An inline link or image target `[text](target)` -- one hit per link. Includes: [b](b.md), ![alt](img.png). EXCLUDES a reference-style definition (`[id]: url`) and a bare URL.
 
 ### Adding a new extension pack
 If you're detecting a new category of risk that doesn't fit any baseline key and only applies

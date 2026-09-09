@@ -15,8 +15,9 @@ Three corollaries, each of which the audit below found a language violating:
 1. **A call is not a declaration.** A call site *consumes* a parameter surface; it does not
    publish one. `free(conn);`, `describe(kit);`, `[store setVersion:V]`, `assertEquals(a, b)` are
    all references to somebody else's parameter list. (`objective-c` counted 146 C calls and 120
-   Objective-C message sends; `typescript` counted 6133 call statements; `groovy`, `apex` and
-   `css` still do — see the audit.)
+   Objective-C message sends; `typescript` counted 6133 call statements; `groovy` and `apex` still
+   do — see the audit. `css` did too, until [#2893](https://github.com/squid-protocol/gitgalaxy/issues/2893)
+   answered it with a stated absence rather than a narrowing.)
 2. **The declaration anchor has to be in the rule.** A parameter list is `(...)`, and so is a call,
    a cast, a grouped expression and an `if` condition. What separates them is always local
    context — a `def`/`fn`/`func`/`proc` keyword, a `-`/`+` method lead, a return type, a body
@@ -75,13 +76,15 @@ places GitGalaxy reads a file more accurately than a tree-sitter parse of it doe
 | `sqlite` | bind parameters (`?`, `?n`, `:name`, `@name`) and a CTE's column list |
 | `html` | the addressable attributes of a form/element (`name`, `value`, `for`, `data-*`, `aria-*`) |
 | `yaml` | a `with:`/`inputs:`/`args:` block's direct children, via the `yaml_parameter_block` scope filter ([#2753](https://github.com/squid-protocol/gitgalaxy/issues/2753)) |
-| `css` | *(currently)* the arguments of a value function — `calc()`, `var()`, `url()`. This is a call site, not a declaration; see the audit. |
+
+`css` is deliberately **not** in that table: it records a stated absence instead (see "One stated
+absence" below).
 
 `keyword-rosetta`'s `deviation_ledger.json` carries the matching decline under
 `args-no-parameter-surface-morphology` for the languages whose shells score 0 or near-0 against a
 planted 13 (`css`, `html`, `dockerfile`, `makefile`, `sqlite`, `yacc`, `cobol`, and `yaml` until
-#2753). That entry covers the **low** tail. This document's audit is the first pass over the
-**high** tail.
+#2753). That entry covers the **low** tail — and since #2893 it covers css as an *absence* rather
+than a low count. This document's audit is the first pass over the **high** tail.
 
 ## The audit — all 46 corpus languages
 
@@ -103,7 +106,7 @@ density rather than declaration count.
 | `cobol` | 1 | 295 | 0.03 | fallback family -- `USING`/`RETURNING` |
 | `cpp` | 13 | 3178 | 2.57 | the parameter list must open with a type token |
 | `csharp` | 13 | 1283 | 1.30 | a return type is mandatory; a constructor must reach `: base`/`this` or `{` |
-| `css` | 6 | 3855 | 21.18 | fallback family, knowingly approximate -- `calc()`/`var()`/`url()` are value-function CALLS (see below) |
+| `css` | 6 → **n/a** | 3855 → **0** | — | **stated absence** (#2893): CSS declares no callable, so no parameter surface. Was the fallback family's one knowingly-approximate member |
 | `dart` | 13 | 1289 | 0.72 | anchored by the `(?=\{|=>|:|async|sync)` terminator lookahead |
 | `dockerfile` | 4 | n/a | n/a | fallback family -- `ARG` |
 | `embedded_python` | 13 | 135 | 1.00 | anchored to `def`/`lambda` |
@@ -191,13 +194,63 @@ re-litigating them — a lesson worth more than either finding:
 **Read the ledger before calling a language's `args` a defect.** It is the corpus's audit trail of
 questions already asked and answered, and two of this audit's four findings were in it.
 
-**One knowingly approximate fallback.** `css` counts the arguments of value functions —
-`calc()`, `var()`, `url()` — which are call sites, and corollary 1 says a call is not a
-declaration. It is kept, and ledgered in `keyword-rosetta` under
-`args-no-parameter-surface-morphology`, for the same reason `matlab`'s `api` fallback is kept in
-`docs/api_rule_contract.md`: CSS has no callable of any kind, so the honest alternatives are this
-approximation or 0 forever, and 0 says a stylesheet full of computed values has no coupling at all.
-It is the one place in this document where the contract is deliberately not met.
+**One stated absence.** ([#2893](https://github.com/squid-protocol/gitgalaxy/issues/2893), which
+replaced this section's former heading, "One knowingly approximate fallback".) `css` counted the
+arguments of value functions — `calc()`, `var()`, `url()` — which are call sites, and corollary 1
+says a call is not a declaration. That was kept for a while on the argument that *"CSS has no
+callable of any kind, so the honest alternatives are this approximation or 0 forever, and 0 says a
+stylesheet full of computed values has no coupling at all."* Both halves of that turned out to be
+wrong, and `css` now records `args: None`.
+
+**There is a third alternative, and the sheet already mandated it.** `signal_contracts.py`'s
+`COUNT_CONTRACT` corollary 3: a language that cannot express the construct records *"a
+contract-level absence (`None` rule + a ledgered `intended-morphology` entry) rather than a
+manufactured construct. The two answers cannot coexist inside one signal."* `None` is not `0` — an
+n/a cell leaves the median instead of being compared against it. `docs/io_rule_contract.md` C3
+records the same answer for solidity (`io: None`, the EVM cannot reach outside itself).
+
+**A stylesheet's coupling is measured — by the rules whose contracts name it.** Composition of all
+3855 hits the old rule made on the language-crucible's 38 css files (code stream):
+
+| head | hits | share | who owns it now |
+|---|---:|---:|---|
+| `var(` | 2521 | 65.4% | `safety` owns 512 of them (the guarded `var(x, fallback)` read); the rest is the named residual below |
+| `rgba(` `rgb(` `oklch(` `color-mix(` | 931 | 24.2% | nobody, and nobody should — a colour written longhand is not coupling |
+| `calc(` | 321 | 8.3% | `reflection_metaprogramming` owns the nested form; **226 of the 321 already contained a `var()`** |
+| `url(` | 77 | 2.0% | `io`, since [#2752](https://github.com/squid-protocol/gitgalaxy/issues/2752) |
+| `clamp(` `min(` | 5 | 0.1% | `safety` |
+
+And on those same files: `api` counts **3597 `--custom-property:` declarations** — the definitions
+of the very tokens `var()` reads, a *larger* surface than the reads — plus `safety` 515, `io` 14,
+`reflection_metaprogramming` 24, `import` 9. Three of those five rules postdate the sentence they
+disprove.
+
+**It was also wrong twice per file.** css receives no `args_search_text` (only `objective-c`, `c`,
+`cpp` and `dart` do), so `_calculate_block_metrics` searched the whole block *body* and took the
+first match — the failure this document describes under "What this is used for". Six at-rules
+carried 13 parameters borrowed from their own bodies: `tailwindcss_atrules/preflight.css:291`'s
+`@supports` has no parenthesised call in its prelude at all and read arity **3** off a
+`color-mix(in oklab, currentcolor 50%, transparent)` three lines inside the block. tree-sitter
+reads 0 for all 25 css at-rules; `args_exact_match` went **19/25 → 25/25**.
+
+**The named residual.** The *unguarded* `var(--x)` read — 2521 − 512 = **2009** crucible
+occurrences — is now unmeasured. This is deliberate and is recorded rather than hidden: no stated
+contract owns "reads a document-lifetime binding by name" (the `globals` contract's **C2**
+explicitly excludes an ordinary read by name), and inventing a home for it to preserve a number is
+the failure mode the absence exists to end. If it earns measurement, it earns its own signal.
+
+**Reopen condition.** `css.py`'s `extensions` claims `.scss`, `.sass`, `.less`, `.styl` and
+`.pcss`, and **Sass and Less genuinely declare parameters** — `@mixin button($size, $color)`,
+`@function foo($a, $b)`, Less `.mixin(@a; @b)`. So "CSS has no callable of any kind" is false at
+the scope this definition claims, and this absence does **not** cover those dialects. Narrowing the
+rule to those declaration forms — which would satisfy the contract rather than except it — was
+considered and rejected on measurability alone: there are zero `.scss`/`.sass`/`.less` files in the
+language-crucible, zero in `keyword-rosetta`, and zero on the build box, so the rule could not be
+measured on either corpus. **If a preprocessor dialect enters the crucible, write the
+declaration-form rule and retire the absence.**
+
+(Contrast `matlab`'s `api` fallback in `docs/api_rule_contract.md`, which is still kept: MATLAB
+*has* callables, so an approximation there is a precision question, not a category error.)
 
 **Everything else was already inside the contract**, and the compliant rules cluster into four
 recognisable anchors, worth knowing before writing a new one:

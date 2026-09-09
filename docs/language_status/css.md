@@ -17,15 +17,15 @@ old relative to `last_updated` below.
 | `_meta.blueprint_version` | v5.0 |
 | `_meta.last_updated` | 2026-02-18 |
 | `lexical_family` | `standard_block` (`/* */` block comments; the SCSS/Less/Stylus dialects sharing this entry also use `//` line comments — not modelled, see §5) |
-| Structural signature keys wired | 31 / 48 (17 explicit `None`, see §4) |
-| Extraction-gauntlet tests (`test_css.py`) | 18 |
-| Strict-signature tests (`test_css_strict.py`) | 85 |
-| Total dedicated CSS test cases | 103 |
+| Structural signature keys wired | 30 / 48 (18 explicit `None`, see §4) |
+| Extraction-gauntlet tests (`test_css.py`) | 14 |
+| Strict-signature tests (`test_css_strict.py`) | 80 |
+| Total dedicated CSS test cases | 94 |
 
 CSS is a declarative stylesheet language, so its rule set is deliberately smaller than a
 Turing-complete language's: nearly every `None` below is a documented refusal to hallucinate an
 imperative concept (I/O latency, state flux, memory management, debug output) onto a stylesheet.
-It still carries a `func_start`/`class_start`/`args`/`_dependency_capture` extraction surface so
+It still carries a `func_start`/`class_start`/`_dependency_capture` extraction surface so
 it produces the same comparable schema every other language does — anchored on at-rule blocks and
 class/ID selectors rather than on real functions.
 
@@ -48,7 +48,7 @@ Grouped by the phase headers `language_standards.py` uses for CSS. Description i
 | Key | What it captures for CSS |
 |---|---|
 | `branch` | The conditional at-rules `@media @supports @container @starting-style`, plus the logic-gating functional pseudo-selectors `:has() :is() :where() :not()` (argument span bounded to one level of parenthesis nesting so it stays linear). The four `@`-prefixed alternatives were pulled out of a shared leading-`\b` wrapper by the cross-language `@`-boundary sweep (#645) — before that they never matched at all |
-| `args` | CSS value/math function calls — `calc clamp min max var env url rgba? hsla? lch oklch color-mix light-dark` — with the parenthesised span captured in its own group under a one-level-nesting bounded form (Rule 11). The old flat `[^)]*` truncated `calc(100% - var(--sidebar, calc(...)))` at the first inner `)`; fixed in #737 / #955 |
+| `args` | **`None` — a stated absence** ([#2893](https://github.com/squid-protocol/gitgalaxy/issues/2893)). CSS declares no callable, so it declares no parameter surface; count contract corollary 3 forbids an absence and a manufactured construct coexisting in one signal. Until then it matched value/math function *calls* — `calc clamp min max var env url rgba? hsla? lch oklch color-mix light-dark` — 3855 crucible hits of which 931 were colour literals and 77 were `url(` that `io` already owns. See `docs/args_rule_contract.md`, "One stated absence", for the composition and the `.scss`/`.less` reopen condition |
 | `structural_boundaries` | The structural at-rules `@layer @scope @property @font-face @keyframes @page @charset @namespace`. Same leading-`\b`-before-`@` bug as `branch`, fixed in the same #645 sweep |
 | `func_start` | Anchors an at-rule *block* at line start: `^[ \t]*` then `@media|@supports|@container|@layer|@keyframes|@-webkit-keyframes` with a `{` ahead of the next `}`. Deliberately **excludes** class/ID selectors (that's `class_start`'s job) to keep the "executable block" count from ballooning to every rule in the file |
 | `class_start` | `.class` / `#id` selectors, with full CSS identifier grammar: unicode escapes (`.\31 23-number`), backslash-escaped specials (`.\@special\+chars`), and a `{`-before-`;`/`}` lookahead. Negative lookbehinds exclude the universal `*`, and quoted / backslash-escaped positions (so `[value=".not-a-class"]` and `content: "#id"` don't fire) |
@@ -72,7 +72,7 @@ Grouped by the phase headers `language_standards.py` uses for CSS. Description i
 | `ui_framework` | Layout-primitive density — `display: flex`, `display: grid`, `justify-content`, `align-items`, `gap`, `grid-template-columns`, `absolute`, `relative` — plus the Tailwind `@apply` directive |
 | `closures` | Native CSS nesting: a `&` nesting selector followed by `{` (optionally through a combinator / pseudo prefix) |
 | `globals` | Line-start global-scope selectors `:root`, `html`, `body`, `*` |
-| `scientific` | Trig / math functions with an argument list — `sin cos tan asin acos atan atan2 hypot abs sign mod rem round pow sqrt exp log` — with the same one-level-nesting fix as `args` (#737 / #955) |
+| `scientific` | Trig / math functions with an argument list — `sin cos tan asin acos atan atan2 hypot abs sign mod rem round pow sqrt exp log` — with the one-level-nesting fix `args` also carried before #2893 retired it (#737 / #955) |
 | `reflection_metaprogramming` | Catastrophic-specificity / recursive-logic shapes: repeated `&&&` nesting, `:has()/:is()/:not()` chains nested into another such pseudo, and `calc(...)` recursively containing another `calc(` |
 | `import` | `@import` |
 | `_dependency_capture` | Extracts the exact target path from `@import url(...)` or `@import "..."` (feeds the dependency DAG) |
@@ -105,7 +105,7 @@ Two pairs above are **deliberate double-classifications**, asserted as intention
 
 ## 4. What GitGalaxy explicitly does not track
 
-Seventeen keys are hard-set to `None` in CSS's `rules` dict. Four carry a substantial inline
+Eighteen keys are hard-set to `None` in CSS's `rules` dict. Five carry a substantial inline
 rationale in `language_standards.py` (CSS is declarative — forcing an imperative regex onto it
 produces confident nonsense); the rest are constructs the language simply has no syntax for.
 
@@ -126,6 +126,15 @@ old `None` was really buying is now three explicit exclusions in the rule itself
   management.
 - **`memory_alloc`** — no manual allocation exists to track (paired with the `cleanup` rationale
   above).
+- **`args`** — the newest of these, and the only one that was a rule first
+  ([#2893](https://github.com/squid-protocol/gitgalaxy/issues/2893)). CSS declares no callable, so
+  it declares no parameter surface; every parenthesis in a stylesheet is a call into a builtin.
+  This is a **stated absence** in the count contract's sense (corollary 3: an absence and a
+  manufactured construct "cannot coexist inside one signal"), the same answer solidity's
+  `io: None` records. Note the direction of travel: `io` below went `None` → rule because a real
+  construct was going unmeasured; `args` went rule → `None` because no real construct was there.
+  The rule comment carries the measured composition, the named residual (the unguarded `var(--x)`
+  read) and the `.scss`/`.less` reopen condition.
 
 **`None` because the construct does not exist in CSS:**
 `concurrency`, `decorators`, `generics`, `comprehensions`, `ssr_boundaries`,
@@ -158,7 +167,7 @@ accepted gaps are nonetheless documented in the test suite / closing PRs rather 
 
 ## 6. Test depth
 
-- **Extraction gauntlet** (`func_start` / `args` / `class_start` / `_dependency_capture`): 18
+- **Extraction gauntlet** (`func_start` / `class_start` / `_dependency_capture`): 14
   tests in `tests/extraction/languages/test_css.py` — valid / invalid / pathological (ReDoS)
   cases per rule, including unicode-escape identifiers, nested `calc(var(calc()))`, vendor-prefix
   `@-webkit-keyframes`, and multi-line-split selectors. **Partially migrated:** a small number of
@@ -166,12 +175,12 @@ accepted gaps are nonetheless documented in the test suite / closing PRs rather 
   `@keyframes` valid, `.x {` / `#x {` invalid) and `test_dependency_extraction.py` (`@import
   url(...)` / `@import "..."`). No CSS cases remain in `test_args_extraction.py` or
   `test_class_extraction.py`.
-- **Strict signature suite** (all other wired keys): 85 tests in
+- **Strict signature suite** (all other wired keys): 80 tests in
   `tests/extraction/languages/test_css_strict.py` (epic #518, issue #577) — a positive/negative
-  table across all 31 wired signatures plus adversarial cases for the high-ambiguity ones
-  (`branch`, `args`, `func_start`, `class_start`, `structural_boundaries`, `safety`,
+  table across all 30 wired signatures plus adversarial cases for the high-ambiguity ones
+  (`branch`, `func_start`, `class_start`, `structural_boundaries`, `safety`,
   `reflection_metaprogramming`), the `@`-boundary leading-`\b` regression, dedicated ReDoS
-  regressions for `class_start`, `args`/`scientific`, `io`, and `spec_exposure`, the
+  regressions for `class_start`, `scientific`, `io`, and `spec_exposure`, the
   `class_start`-vs-`func_start` no-collision check, the two intentional-double-classification
   assertions from §3, the dual-comment-style audit from §5, and a full ReDoS-immunity sweep over
   every compiled CSS pattern.
@@ -186,7 +195,7 @@ accepted gaps are nonetheless documented in the test suite / closing PRs rather 
   along the way:
   1. `args` / `scientific` — flat `[^)]*` could not represent one level of nesting; modern CSS
      math (`calc(var(--x) + 1px)`) truncated at the first inner `)`. Upgraded to the bounded
-     one-level-nesting form.
+     one-level-nesting form. (`args` itself was retired in #2893; the `scientific` half is live.)
   2. `class_start` — confirmed O(n²) ReDoS in the trailing lookahead (two adjacent quantifiers,
      the first's charset a strict subset of the second's). The redundant first quantifier was
      dropped.
@@ -205,8 +214,9 @@ accepted gaps are nonetheless documented in the test suite / closing PRs rather 
 
 **Signature-coverage additions:**
 - [#2752](https://github.com/squid-protocol/gitgalaxy/issues/2752) — `io` was `None`, so a
-  stylesheet's resource fetches were invisible to every signal except `args` (which sees `url(`
-  only because CSS functional notation matches its call-shaped alternation, not as I/O). Found by
+  stylesheet's resource fetches were invisible to every signal except `args` (which saw `url(`
+  only because CSS functional notation matched its call-shaped alternation, not as I/O — that
+  accidental arm is gone with #2893, leaving `io` the sole owner). Found by
   the [#2669](https://github.com/squid-protocol/gitgalaxy/issues/2669) pass over every non-green
   cell of the keyword-rosetta bias report. The in-code rationale ("a `url()` fetch does not block
   a computational thread") does not survive comparison with html's own `io` rule, which counts
@@ -261,7 +271,7 @@ canonical baseline:
   — `twbs/bootstrap`, the largest CSS/SCSS corpus available: 91 CSS-family files / ~6k LOC / 64.5%
   of the repo, a deep `@import` mixin graph (`bootstrap.scss` has 40 outbound dependencies), and
   heavy `@media` / `@supports` / `calc()` / `var()` use — exercises `import` / `_dependency_capture`,
-  `branch`, `args`, and the nested-paren fix directly. Scanned in 15.44s.
+  `branch`, and the nested-paren fix directly. Scanned in 15.44s.
 - **[`css_doom_pure`](https://github.com/squid-protocol/gitgalaxy-raw-output/blob/main/v2.4.7/css_doom_pure/css_doom_pure_galaxy_llm.md)**
   — `NielsLeenheer/cssDOOM`, a rendering of DOOM in pure CSS with no JavaScript. A genuinely
   adversarial CSS-only codebase: enormous generated selector graphs and catastrophic-specificity
@@ -292,7 +302,14 @@ form in `docs/self_scan/tri_comparison_points_of_interest.md`.
 
 CSS only has a **function** panel. Class extraction is permanently out of scope for CSS
 (`_CLASS_EXTRACTION_OUT_OF_SCOPE` in `tree_sitter_accuracy_audit.py` — a selector is not a class
-definition; see §3), and CSS has no parameter-list construct, so there is no args panel.
+definition; see §3), and CSS has no parameter-list construct, so there is no args panel. That
+last clause was true in this doc long before the engine agreed with it: `args` matched value-
+function calls until [#2893](https://github.com/squid-protocol/gitgalaxy/issues/2893) made it a
+stated absence. css is now in `ARGS_GRANULARITY` as `"none"` ("no parameter-list concept exists
+for this language", alongside dockerfile/yaml/jcl), the args panel renders `0‡`, and no
+`manual_verification.json` entry is owed. `args_exact_match` went 19/25 → 25/25 in the same
+change: the 6 misses were at-rules carrying a parameter count borrowed from their own block
+bodies.
 "Function" for CSS means the block-bearing at-rule — `@media` / `@supports` / `@container` /
 `@layer name {` / `@keyframes` / `@-webkit-keyframes` — the closest function-shaped construct the
 language has ([#1313](https://github.com/squid-protocol/gitgalaxy/issues/1313)).

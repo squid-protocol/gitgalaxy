@@ -110,8 +110,10 @@ whenever that happens.
 **D3 · Where the contract sheet lives — `gitgalaxy/standards/signal_contracts.py`,
 machine-readable, rendered to `docs/signal_contracts.md`, checked against
 `how_to_add_a_language.md`.** One entry per signal: `kind`, `unit`, the one-sentence contract,
-its status (`stated` after a corpus-wide audit, `draft` when transcribed from the schema
-comment), the full-doc link, and whether the corpus plants it. `how_to_add_a_language.md` keeps
+its status (`stated` after a corpus-wide audit, `declared` when the sentence, kind and unit are
+fixed and the disagreeing rules filed but not edited -- the unplanted, ungated sensors' state,
+#2897 -- `draft` when transcribed from the schema comment), the full-doc link, and whether the
+corpus plants it. `how_to_add_a_language.md` keeps
 its one-liners — it is the LLM prompt for new languages — but a baseline-gated audit
 (`tests/signal_contract_audit.py`, the `dead_key_audit.py` pattern) fails when a registry key
 has no entry or a comment drifts from its sentence. The corpus's `_registry.py` can import the
@@ -178,9 +180,14 @@ units come from the sheet.
   c `alignas|restrict`, makefile `override`; the contract states it is annotation-relative and
   default-immutable languages ledger an absence) → cobol `args`/`globals` #2804 #2805 → the rest
   by the mechanical audit. The eight unplanted risk inputs get a plant or a contract-level
-  absence.
-- **done when** every row in the sheet is `stated`; inherency cells are `n/a` by contract, not
-  by ledger prose.
+  absence. The ~41 unplanted, ungated domain sensors are declared in one batch (#2897,
+  `docs/domain_sensor_contracts.md`): a language-independent sentence, `kind`/`unit`, incidence
+  measured on both corpora, and every rule the measurement shows contradicting the sentence
+  filed by shape -- not fixed, because no corpus cell can move for them and a per-family audit
+  has nothing to hold equal. `encapsulation` is the exception: it governs `_calc_api_exposure`
+  and keeps its family audit (#2766).
+- **done when** every row in the sheet is `stated` or `declared`; inherency cells are `n/a` by
+  contract, not by ledger prose.
 
 ### Phase 4 — Score contracts + the commensurability audit
 
@@ -196,8 +203,9 @@ units come from the sheet.
 
 - chart badge → open-defect share (D4 step 2) with the README copy; capstones written per
   language as each reads clean.
-- **done when** open-defect share is 0 and the sheet has no `draft` rows — the epic's close
-  criterion, replacing "nothing unexplained".
+- **done when** open-defect share is 0 and the sheet has no `draft` rows (`declared` rows count:
+  they say exactly how far they were taken, #2897) — the epic's close criterion, replacing
+  "nothing unexplained".
 
 ## 5. Tooling and skills
 

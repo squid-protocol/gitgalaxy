@@ -22,13 +22,23 @@ the keyword-rosetta corpus tooling (which already imports LANGUAGE_DEFINITIONS t
 same way), and the Phase 4 commensurability audit over the risk formulas, which
 needs each input's `kind`/`unit` to say whether a formula adds like to like.
 
-A contract's lifecycle has two states:
-  draft   -- the schema comment transcribed as-is; not yet audited across the
-             corpus languages. The audit baseline carries every draft.
-  stated  -- audited against every corpus language (the `rule-contract-audit`
-             skill), with a docs/<signal>_rule_contract.md giving the sentence,
-             its corollaries, the fallback family and the per-language verdicts.
-             `api` (#2730/#2743) and `args` (#2773/#2786) are the precedents.
+A contract's lifecycle has three states:
+  draft     -- the schema comment transcribed as-is; not yet audited across the
+               corpus languages. The audit baseline carries every draft.
+  declared  -- the sentence, `kind` and `unit` are fixed and language-independent,
+               the schema comment contains the sentence, incidence was measured on
+               both corpora, and every rule the measurement shows contradicting
+               the sentence is FILED, not fixed. The rules have not been brought
+               into line. This is the state the unplanted, ungated domain sensors
+               get in one batch (#2897, docs/domain_sensor_contracts.md): no corpus
+               cell can move for them, so a per-family audit has nothing to hold
+               equal. A declared row becomes stated the day it gains a plant or a
+               gated consumer and gets the family audit.
+  stated    -- audited against every corpus language (the `rule-contract-audit`
+               skill), with a docs/<signal>_rule_contract.md giving the sentence,
+               its corollaries, the fallback family and the per-language verdicts,
+               and the rules edited to agree with it in the same PR.
+               `api` (#2730/#2743) and `args` (#2773/#2786) are the precedents.
 
 Nothing at scan time imports this module. It is documentation with a type
 signature, so the engine's behaviour cannot depend on it -- only its audits can.
@@ -54,6 +64,10 @@ there is no shielding mechanism). Corollaries:
 2. Comment-stream rules (`dead_code`, `doc`, `ownership`, `planned_debt`, `fragile_debt`,
    `spec_exposure`) read the comment surface instead; a language whose comment syntax
    `prism.py` does not know sends its comments into the code stream (gitgalaxy#2610, jcl).
+   The literate pack (`lit_code_blocks`, `lit_diagrams`, `lit_headers`, `lit_links`) is the
+   same shape for markdown: `prism.py`'s Prose Bypass routes the whole file into the comment
+   stream and `detector.comment_analysis` runs the four rules there (#691) -- probed on the
+   code stream they read 0 on every file.
 3. The recorded count is the raw hit count, for every signal (gitgalaxy#2813). The
    proximity pairs in `core/spatial_correlation.py` (the x3 cascading flux on
    `state_mutation`, the silencer dampener on `high_risk_execution`, the race and
@@ -117,7 +131,7 @@ class SignalContract:
     phase: str
     kind: str
     contract: str
-    status: str = "draft"  # "draft" | "stated"
+    status: str = "draft"  # "draft" | "declared" | "stated"
     doc: str | None = None  # repo-relative path to docs/<signal>_rule_contract.md
     issue: int | None = None  # the gitgalaxy issue that asked for the contract
     planted: bool = False  # keyword-rosetta SPEC plants a known count of it
@@ -163,7 +177,10 @@ _ROWS = [
         "structural_boundaries",
         "structure",
         "tally",
-        "Keywords defining structural boundaries and straight-line execution",
+        "A vocabulary token of straight-line execution or structural delimiting -- a return, a declaration or import keyword, a type keyword, an instruction mnemonic in a language with no other structure -- counted as a length-like tally with no structural referent",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
     ),
     _c(
         "func_start",
@@ -258,8 +275,24 @@ _ROWS = [
     ),
     # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
     _c("concurrency", "architecture", "site", "Asynchronous logic and parallel execution"),
-    _c("ui_framework", "architecture", "site", "DOM manipulation, UI components"),
-    _c("closures", "architecture", "declaration", "Anonymous functions, lambdas, inline callbacks"),
+    _c(
+        "ui_framework",
+        "architecture",
+        "site",
+        "A call, declaration or markup construct that builds or mutates a user-interface surface through a UI framework or the document tree -- a component or widget definition, a hook or lifecycle call, a DOM query or mutation, a layout or rendering directive -- in the framework's own invocation or property form",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "closures",
+        "architecture",
+        "declaration",
+        "The syntax that opens an anonymous callable -- a lambda, arrow function, block literal or inline callback -- at the point it is defined",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
     _c(
         "globals",
         "architecture",
@@ -270,10 +303,42 @@ _ROWS = [
         issue=2858,
         planted=True,
     ),
-    _c("decorators", "architecture", "annotation", "Annotations applied to classes/methods"),
-    _c("generics", "architecture", "annotation", "Type parameters indicating generic abstractions"),
-    _c("comprehensions", "architecture", "site", "Collection iterators or inline looping"),
-    _c("scientific", "architecture", "site", "Math, data science, and complex rendering libraries"),
+    _c(
+        "decorators",
+        "architecture",
+        "annotation",
+        "A metadata attribute attached to the declaration it precedes -- an annotation, attribute, pragma or directive line -- in the language's attribute syntax",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "generics",
+        "architecture",
+        "annotation",
+        "A type-parameter list on a declaration or an instantiation -- the bracketed parameters that make a type or callable generic -- in the language's parameterisation syntax",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "comprehensions",
+        "architecture",
+        "site",
+        "A collection-transform expression -- a comprehension, a map/filter/fold/for-each call, or an inline iteration form -- at its invocation",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "scientific",
+        "architecture",
+        "site",
+        "A call into, or an import of, a numeric, scientific or rendering library facility -- a math function, a linear-algebra or matrix type, an array, plotting or GPU library -- in its qualified, typed or call form",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
     _c(
         "reflection_metaprogramming",
         "architecture",
@@ -303,27 +368,118 @@ _ROWS = [
     # --- PHASE 4: SPECIALIZED SUB-SYSTEMS ---
     _c("planned_debt", "subsystems", "annotation", "Annotated future work", planted=True),
     _c("fragile_debt", "subsystems", "annotation", "Explicit admissions of fragile or dangerous logic", planted=True),
-    _c("hardcoded_secrets", "subsystems", "site", "Static credentials or API keys baked into code"),
+    _c(
+        "hardcoded_secrets",
+        "subsystems",
+        "site",
+        "A literal credential written into the file -- a password, token, key or secret assigned or configured as a string literal of credential length -- at the assignment",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
     _c("spec_exposure", "subsystems", "annotation", "Audit tags establishing traceability of intent"),
-    _c("ssr_boundaries", "subsystems", "site", "Server-Side Rendering computation boundaries"),
-    _c("events", "subsystems", "site", "Event-driven architecture signatures and message brokers"),
-    _c("dependency_injection", "subsystems", "annotation", "Inversion of Control (IoC) injection markers"),
+    _c(
+        "ssr_boundaries",
+        "subsystems",
+        "site",
+        "A server-side rendering boundary -- a framework's data-loading or render-mode hook, a server/client directive, or a template-render call -- in the framework's own form",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "events",
+        "subsystems",
+        "site",
+        "A site that publishes into or wires up an event or message channel -- an emit or dispatch call, a broker or bus client construction, a signal connect -- in call form",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "dependency_injection",
+        "subsystems",
+        "annotation",
+        "An inversion-of-control marker -- an injection annotation, a provider or module registration, a container or factory declaration -- attached to the declaration it wires",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
     _c(
         "macros",
         "subsystems",
         "declaration",
-        "Compiler pragmas or macro definitions that generate code at compile-time",
+        "A compile-time code-generation directive -- a macro definition, a conditional-compilation or include directive, a compiler pragma -- in directive form",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
     ),
-    _c("pointers", "subsystems", "site", "Explicit tracking of raw memory addressing and pointer dereferencing"),
-    _c("memory_alloc", "subsystems", "site", "Explicit unmanaged memory allocations and raw heap manipulations"),
-    _c("inline_asm", "subsystems", "site", "Direct CPU architecture bridging"),
+    _c(
+        "pointers",
+        "subsystems",
+        "site",
+        "A site that takes, holds or dereferences a raw memory address -- an address-of, a pointer declaration or dereference, an unsafe pointer or raw-handle type -- in the language's pointer syntax",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "memory_alloc",
+        "subsystems",
+        "site",
+        "A call that requests memory from the runtime or the heap explicitly -- an allocator call, an explicit object or buffer construction, a manual resize -- at its invocation",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "inline_asm",
+        "subsystems",
+        "site",
+        "The opener of an embedded machine-code region -- an inline-assembly statement, block or intrinsic -- in the language's embedding syntax",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
     # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
     _c("telemetry", "resources", "site", "Structured logging and observability frameworks", planted=True),
     _c("debug_prints", "resources", "site", "Ad-hoc, temporary debug statements"),
-    _c("explicit_casts", "resources", "site", "Explicitly bypassing the compiler's type-checker"),
-    _c("panics_and_aborts", "resources", "site", "Forcefully destroying the current execution context"),
-    _c("thread_sleeps", "resources", "site", "Thread blocking or forced timeouts"),
-    _c("bitwise_ops", "resources", "site", "Bitwise operations manipulating raw bytes"),
+    _c(
+        "explicit_casts",
+        "resources",
+        "site",
+        "A site that converts a value's type explicitly -- a cast expression, a conversion call or a cast keyword -- in cast form",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "panics_and_aborts",
+        "resources",
+        "site",
+        "A statement that ends the current execution context by raising or aborting -- a throw or raise, a panic, an unreachable marker, a fatal-error, revert or process-exit call -- in statement or call form",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "thread_sleeps",
+        "resources",
+        "site",
+        "A call that blocks the current thread or schedules a forced delay -- a sleep, a timed wait, a timeout-driven deferral -- at its invocation",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "bitwise_ops",
+        "resources",
+        "site",
+        "A bitwise operator applied between value operands -- shift, and, or, xor, or the unary complement -- in operator position",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
     _c("sync_locks", "resources", "site", "Explicitly coordinating threaded logic to prevent race conditions"),
     _c(
         "immutability_locks",
@@ -351,32 +507,200 @@ _ROWS = [
         "Explicitly hiding logic from the rest of the application",
         issue=2766,
     ),
-    _c("listeners", "resources", "site", "Waiting to receive state from an external broadcast"),
-    _c("test_skip", "resources", "annotation", "Bypassed tests or ignored verification specs"),
+    _c(
+        "listeners",
+        "resources",
+        "site",
+        "A registration to receive from an external broadcast -- an event-listener, subscription or handler-binding call -- at its invocation",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "test_skip",
+        "resources",
+        "annotation",
+        "A marker that disables or ignores a test -- a skip decorator, an ignore attribute, a `.skip`/`xit` call form -- attached to the test it silences",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
     # --- HYBRID DOMAIN SENSORS ---
-    _c("serialization_parsing", "hybrid", "site", "JSON, XML, YAML parsing libraries"),
-    _c("regex_execution", "hybrid", "site", "Native regex evaluation commands"),
-    _c("time_date_logic", "hybrid", "site", "Time/date instantiation and math"),
-    _c("ipc_rpc_bridges", "hybrid", "site", "Inter-process or RPC bridging commands"),
+    _c(
+        "serialization_parsing",
+        "hybrid",
+        "site",
+        "A call that encodes to or decodes from a structured interchange format -- JSON, XML, YAML, CSV, protocol buffers, a marshal or unmarshal -- at its invocation",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "regex_execution",
+        "hybrid",
+        "site",
+        "A site that evaluates a regular expression -- a match, substitution or split operator, a regex constructor or compile/exec call -- at its invocation",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "time_date_logic",
+        "hybrid",
+        "site",
+        "A site that instantiates or computes with a clock or calendar value -- a now/time/date constructor, duration arithmetic, a formatting or timezone call -- at its invocation",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "ipc_rpc_bridges",
+        "hybrid",
+        "site",
+        "A site that crosses a process or host boundary through a bridge -- an RPC or IPC client or server construction, a pipe or socket-message send, a foreign-function or platform-channel call -- at its invocation",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
     # --- AI/ML EXTENSION PACK (python, javascript, typescript) ---
     _c("llm_api", "ai-ml", "site", "Direct calls into a hosted LLM provider SDK"),
-    _c("llm_orchestrator", "ai-ml", "site", "Agent/RAG orchestration frameworks"),
-    _c("llm_vector_store", "ai-ml", "site", "Vector database clients"),
-    _c("ml_traditional", "ai-ml", "site", "Classical (non-deep-learning) ML libraries"),
-    _c("dl_frameworks", "ai-ml", "site", "Deep learning frameworks"),
-    _c("hardware_bridge", "ai-ml", "site", "Bridges from software into physical/peripheral I/O"),
-    _c("cryptography", "ai-ml", "site", "Cryptographic primitives and identity libraries"),
-    _c("lazy_evaluation", "ai-ml", "site", "Generators and deferred-execution constructs"),
-    _c("vectorized_math", "ai-ml", "site", "Tensor/matrix math operations"),
+    _c(
+        "llm_orchestrator",
+        "ai-ml",
+        "declaration",
+        "An import of an agent or retrieval-orchestration framework from the pack's name list -- one hit per import statement, none for a use of the imported name",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "llm_vector_store",
+        "ai-ml",
+        "declaration",
+        "An import of a vector-database client from the pack's name list -- one hit per import statement, none for a use of the imported name",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "ml_traditional",
+        "ai-ml",
+        "declaration",
+        "An import of a classical (non-deep-learning) machine-learning library from the pack's name list -- one hit per import statement, none for a use of the imported name",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "dl_frameworks",
+        "ai-ml",
+        "declaration",
+        "An import of a deep-learning framework from the pack's name list -- one hit per import statement, none for a use of the imported name",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "hardware_bridge",
+        "ai-ml",
+        "declaration",
+        "An import of a library that bridges software into physical or peripheral I/O -- serial, USB, bluetooth, printers, device sockets -- one hit per import statement",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "cryptography",
+        "ai-ml",
+        "declaration",
+        "An import of a cryptographic-primitive, hashing, transport-security or identity library from the pack's name list -- one hit per import statement",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "lazy_evaluation",
+        "ai-ml",
+        "site",
+        "A deferred-execution construct at its site -- a yield statement, a generator or iterator type annotation, an async-generator form",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "vectorized_math",
+        "ai-ml",
+        "site",
+        "A tensor or matrix operation at its site -- an einsum/matmul/tensordot/dot call, or the infix matrix-multiply operator between two value operands",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
     # --- APPSEC SENSORS (zero-trust pipelines) ---
-    _c("rce_funnel", "appsec", "site", "Spawning a shell/interpreter subprocess from application code"),
-    _c("exfiltration_camouflage", "appsec", "site", "Outbound HTTP calls disguised as telemetry/metrics/audit traffic"),
-    _c("memory_scraping", "appsec", "site", "Direct reads of process memory"),
+    _c(
+        "rce_funnel",
+        "appsec",
+        "site",
+        "A subprocess spawn from application code whose command is a shell or interpreter -- at the spawn call, with the interpreter name in the command",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "exfiltration_camouflage",
+        "appsec",
+        "site",
+        "An outbound HTTP call whose target or payload carries a telemetry-, metrics-, audit- or log-shaped name -- at the call",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "memory_scraping",
+        "appsec",
+        "site",
+        "A read of another process's memory image through the operating system's process filesystem -- at the path construction or open",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
     # --- LITERATE-PROGRAMMING EXTENSION PACK (markdown) ---
-    _c("lit_code_blocks", "literate", "site", "Fenced code block delimiters"),
-    _c("lit_diagrams", "literate", "site", "Embedded diagram blocks"),
-    _c("lit_headers", "literate", "declaration", "Section headers, for document structure/navigation mapping"),
-    _c("lit_links", "literate", "site", "Links to other documents or resources, captured as document dependencies"),
+    _c(
+        "lit_code_blocks",
+        "literate",
+        "site",
+        "A fence line that opens or closes a code block -- a block contributes its opener and its closer, so one block is two hits",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "lit_diagrams",
+        "literate",
+        "site",
+        "A fence line that opens an embedded diagram block by its info string -- one hit per diagram",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "lit_headers",
+        "literate",
+        "declaration",
+        "An ATX heading line -- one to six `#` at the margin followed by a space -- one hit per heading",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
+    _c(
+        "lit_links",
+        "literate",
+        "site",
+        "An inline link or image target `[text](target)` -- one hit per link",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=2897,
+    ),
 ]
 
 CONTRACTS: dict[str, SignalContract] = {row.name: row for row in _ROWS}

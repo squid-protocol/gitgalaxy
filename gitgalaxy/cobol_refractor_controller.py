@@ -16,7 +16,7 @@ import argparse
 import json
 import sqlite3
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
@@ -277,7 +277,7 @@ def main():
         sys.exit(1)
 
     # Create the Clean-Room parallel directory
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     clean_dir = target_path.parent / f"{target_path.name}_gitgalaxy_clean_{timestamp}"
 
     # Define the sub-architecture

@@ -1,8 +1,5 @@
 {
-  "gitgalaxy/cobol_refractor_controller.py:280: DTZ005": "`datetime.datetime.now()` called without a `tz` argument",
   "gitgalaxy/core/guidestar_lens.py:139: C401": "Unnecessary generator (rewrite as a set comprehension)",
-  "gitgalaxy/licensing.py:82: DTZ007": "Naive datetime constructed using `datetime.datetime.strptime()` without %z",
-  "gitgalaxy/licensing.py:83: DTZ005": "`datetime.datetime.now()` called without a `tz` argument",
   "gitgalaxy/metrics/signal_processor.py:536: RUF046": "Value being cast to `int` is already an integer",
   "gitgalaxy/recorders/audit_recorder.py:285: C416": "Unnecessary dict comprehension (rewrite using `dict()`)",
   "gitgalaxy/recorders/audit_recorder.py:302: C414": "Unnecessary `list()` call within `sorted()`",
@@ -27,6 +24,5 @@
   "gitgalaxy/recorders/record_keeper.py:910: RUF005": "Consider iterable unpacking instead of concatenation",
   "gitgalaxy/recorders/record_keeper.py:979: RUF005": "Consider iterable unpacking instead of concatenation",
   "gitgalaxy/security/security_auditor.py:371: RUF046": "Value being cast to `int` is already an integer",
-  "gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:107: RUF015": "Prefer `next(iter(generated_metrics[\"exec_pgms\"]))` over single element slice",
-  "gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py:185: DTZ005": "`datetime.datetime.now()` called without a `tz` argument"
+  "gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:107: RUF015": "Prefer `next(iter(generated_metrics[\"exec_pgms\"]))` over single element slice"
 }

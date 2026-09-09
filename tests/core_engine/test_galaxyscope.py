@@ -489,6 +489,50 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         )
 
     # ==============================================================================
+    # TEST 8.6: THE CONTEXTUAL BASELINE FIX READS A CASE-FOLDED EDGE (#2871)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.logger")
+    def test_resolver_case_folds_for_case_insensitive_import_languages(self, mock_logger):
+        """
+        Regression for #2871 (#2540's residue). Haskell module names must be
+        capitalised, so `import B` names b.hs. #2540 taught network_risk_sensor's
+        graph that (the one pagerank and the recorded `popularity` column read),
+        but THIS resolver -- the one the Contextual Baseline Fix is gated on --
+        kept an exact-case fast path plus a stem fallback whose `len(stem) >= 3`
+        guard rejects `b`. So b.hs recorded popularity 1 and pagerank identical to
+        java's while its orphans were never wiped: keyword-rosetta haskell a/b/c
+        read unreferenced_by_name 3 and risk_tech_debt 97 against a stratum
+        median of 30, with every visible input on the median.
+
+        The folded retry is scoped exactly like the sensor's Stage 1c: only
+        after the exact-case forms miss, only for a case-insensitive-resolution
+        language, only onto that language's own files.
+        """
+        scope = Orchestrator(".", self.mock_config)
+        scope.ram_cache = {
+            # haskell: `import B` must bind b.hs even though the module name is
+            # one capital letter (the fallback's length guard rejects it).
+            "hs/a.hs": {"lang_id": "haskell", "raw_imports": {"import B"}},
+            "hs/b.hs": {"lang_id": "haskell", "raw_imports": set()},
+            # go is case-sensitive: `import "B"` must NOT fold onto b.go.
+            "go/a.go": {"lang_id": "go", "raw_imports": {"B"}},
+            "go/b.go": {"lang_id": "go", "raw_imports": set()},
+            # a haskell import must not fold across languages onto a same-named
+            # file of another language. One letter, so the long-standing
+            # language-agnostic stem fallback (`len(stem) >= 3`) cannot reach
+            # it either and only the folded path is under test.
+            "hs/c.hs": {"lang_id": "haskell", "raw_imports": {"import Q"}},
+            "py/q.py": {"lang_id": "python", "raw_imports": set()},
+        }
+        scope.stem_map = {k: k for k in scope.ram_cache.keys()}
+
+        scope._resolve_dependency_graph()
+
+        self.assertEqual(scope.popularity_scores["hs/b.hs"], 1, "haskell `import B` must resolve to b.hs case-folded")
+        self.assertEqual(scope.popularity_scores["go/b.go"], 0, "a case-sensitive language must not gain folding")
+        self.assertEqual(scope.popularity_scores["py/q.py"], 0, "folding never invents a cross-language edge")
+
+    # ==============================================================================
     # TEST 9: INCREMENTAL DELTA SHIFT (State Rehydration)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")
@@ -1445,7 +1489,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
         # 1. Adjusted behavior is byte-identical to before: orphans folded into api.
         self.assertEqual(lib["equations"]["api"], 5, "Contextual Baseline Fix no longer folds orphans into api!")
-        self.assertEqual(lib["equations"]["unreferenced_by_name"], 0, "Contextual Baseline Fix no longer wipes orphans!")
+        self.assertEqual(
+            lib["equations"]["unreferenced_by_name"], 0, "Contextual Baseline Fix no longer wipes orphans!"
+        )
 
         # 2. The raw pre-adjustment values survive on the snapshot, and the
         #    invariant adjusted api == raw_api + raw_unreferenced_by_name holds.

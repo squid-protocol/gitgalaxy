@@ -1779,14 +1779,32 @@ class StructuralExtractor:
             # outside the slicer's own span (JS/TS `export` precedes start_idx,
             # php's span starts a line early, a java `@Test` line pulls start_line
             # a line back off the `public` one).
+            #
+            # BUG FIX #2827: "by name" used to mean tokenizing each api line
+            # with `\b\w+\b` and testing set membership. That tokenizer
+            # cannot produce a token containing `-`, `:`, `.`, `!` or `?`, so
+            # every function whose name holds one (cobol `PROBE-GLOBALS`,
+            # scheme `(export probe-globals)`, powershell `Verb-Noun`, tcl
+            # `::ns::proc`, ruby `save!`) was invisible to the test, the overlap
+            # read 0, and the conversion credited the orphan a second time --
+            # the exact double count #2731 was built to remove, back for every
+            # language whose names are not plain `\w`. Same tokenizer family
+            # as #2754, which fixed the census and left this consumer behind.
+            # The test now searches the orphan's real name, with the same
+            # `_name_boundary_pattern` lookarounds `_is_orphan` uses, over the
+            # api-matched lines -- so both halves of the census agree about
+            # what an occurrence of a name is.
             api_declared_orphans = 0
             if orphan_names and threat_locations.get("api"):
                 code_lines = code_stream.splitlines()
-                api_line_tokens: set[str] = set()
-                for line_no in set(threat_locations["api"]):
-                    if 0 < line_no <= len(code_lines):
-                        api_line_tokens.update(re.findall(r"\b\w+\b", code_lines[line_no - 1]))
-                api_declared_orphans = sum(1 for name in orphan_names if name in api_line_tokens)
+                api_blob = "\n".join(
+                    code_lines[line_no - 1]
+                    for line_no in set(threat_locations["api"])
+                    if 0 < line_no <= len(code_lines)
+                )
+                api_declared_orphans = sum(
+                    1 for name in orphan_names if re.search(_name_boundary_pattern(name), api_blob)
+                )
 
             if orphan_count > 0:
                 equations["unreferenced_by_name"] = orphan_count

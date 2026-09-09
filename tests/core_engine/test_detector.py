@@ -3954,6 +3954,76 @@ def test_detector_api_declared_orphans_ignores_hits_outside_the_declaration():
     )
 
 
+def test_detector_api_declared_orphans_sees_hyphenated_cobol_names_2827():
+    r"""
+    #2827: the overlap test tokenized each api line with `\b\w+\b`, which
+    cannot produce a token containing `-`, so a cobol paragraph named
+    `PROBE-GLOBALS` -- declared public by its own `ENTRY 'PROBE-GLOBALS'` line
+    -- was invisible to it, read as not-yet-counted, and the Contextual
+    Baseline Fix credited it a second time (keyword-rosetta `data/cobol/a.cpy`:
+    api_orphan_credit 3 where it should read 0). Fixture is that file's shape.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    cobol_detector = StructuralExtractor("cobol", LANGUAGE_DEFINITIONS)
+    code = (
+        "       COPY b.\n"
+        "\n"
+        "       77 REGION-ITEM PIC 9 GLOBAL.\n"
+        "\n"
+        "       PROBE-GLOBALS.\n"
+        "           ENTRY 'PROBE-GLOBALS' USING ARGV-BLOCK.\n"
+        "           DISPLAY REGION-ITEM.\n"
+        "       PROBE-TEST.\n"
+        "           ENTRY 'PROBE-TEST' USING ARGV-BLOCK.\n"
+        "           DISPLAY REGION-ITEM.\n"
+        "       PROBE-SAFETY.\n"
+        "           ENTRY 'PROBE-SAFETY' USING ARGV-BLOCK.\n"
+        "           DISPLAY REGION-ITEM.\n"
+    )
+
+    result = cobol_detector.splice(code, "")
+
+    orphans = {f["name"] for f in result["functions"] if f.get("usage_status") == 1}
+    assert orphans == {"PROBE-GLOBALS", "PROBE-TEST", "PROBE-SAFETY"}, (
+        f"all three paragraphs are uncalled and must census as orphans, got {orphans}"
+    )
+    assert result["equations"].get("api", 0) == 3, "cobol's api rule counts the three ENTRY declarations"
+    assert result["api_declared_orphans"] == 3, (
+        "every orphan is named on an api-matched line (its own ENTRY) -- a `\\b\\w+\\b` tokenizer "
+        "splits PROBE-GLOBALS into PROBE and GLOBALS and reads 0 here"
+    )
+
+
+def test_detector_api_declared_orphans_sees_hyphenated_scheme_export_2827():
+    """
+    #2827, the lisp shape: `(export probe-globals)` is the api hit and
+    `probe-globals` is the orphan's real name. Same fix, same expectation.
+    """
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    scheme_detector = StructuralExtractor("scheme", LANGUAGE_DEFINITIONS)
+    code = (
+        "(import b)\n"
+        "(export probe-globals)\n"
+        "(export probe-test)\n"
+        "\n"
+        "(define (probe-globals env)\n"
+        "  env)\n"
+        "\n"
+        "(define (probe-test kit)\n"
+        "  (test-assert kit))\n"
+    )
+
+    result = scheme_detector.splice(code, "")
+
+    orphans = {f["name"] for f in result["functions"] if f.get("usage_status") == 1}
+    assert orphans == {"probe-globals", "probe-test"}, f"got {orphans}"
+    assert result["api_declared_orphans"] == 2, (
+        "both orphans are named on their own `(export ...)` line; the old tokenizer saw only `export`, `probe`, `globals`"
+    )
+
+
 # ==============================================================================
 # TEST: YACC NAMED-CLASS EXTRACTION USES %union, NOT THE GENERIC FALLBACK (#2644)
 # ==============================================================================

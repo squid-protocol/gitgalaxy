@@ -20,7 +20,7 @@ _LANGUAGES_DIR = str(Path(__file__).resolve().parent)
 if _LANGUAGES_DIR not in sys.path:
     sys.path.insert(0, _LANGUAGES_DIR)
 
-from _strict_harness import _best_of_timing, assert_redos_immune  # noqa: E402 # type: ignore
+from _strict_harness import assert_redos_immune  # noqa: E402 # type: ignore
 
 
 # ==============================================================================
@@ -253,20 +253,15 @@ def test_c_spec_exposure_redos_regression():
     tcl, matlab, scheme, typescript, and rust earlier in this epic (the 8th
     language with this exact shape). Bounded both quantifiers.
     """
-    old_pattern = re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I)
-    # Prove the quadratic blowup via a scale-relative comparison (not an
-    # absolute wall-clock threshold, which is flaky across CI hardware of
-    # varying speed): unclosed bracket with digits then padding forces the
-    # engine to re-partition the trailing run between `\d+` and `[^\]]*` on
-    # every failed attempt to find `]`, so a payload-size doubling should
-    # cost ~4x on the quadratic OLD pattern, vs ~2x for linear.
-    small_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 4000 + " " * 4000)
-    large_duration = _best_of_timing(old_pattern, "[SPEC-" + "1" * 8000 + " " * 8000)
-    ratio = large_duration / small_duration if small_duration > 0 else 0
-    assert ratio > 2.2, (
-        f"sanity check: old pattern was expected to show quadratic (~4x) scaling on a payload "
-        f"doubling, but only scaled {ratio:.2f}x ({small_duration:.4f}s -> {large_duration:.4f}s)"
-    )
+    # #2901: a scale-relative check on the PRE-FIX pattern
+    #     r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I
+    # used to run here, asserting it scaled ~quadratically (ratio > 2.2)
+    # over a payload doubling. Removed: it timed a regex this repo no
+    # longer ships, and the ratio between two sub-100ms samples is inside
+    # the scheduling noise of a shared CI runner -- this family of asserts
+    # went red on macOS for PRs that touched none of it. The shipped
+    # pattern's immunity is asserted below as an ABSOLUTE bound inside an
+    # isolated process, which is deterministic.
 
     spec_exposure = C_RULES["spec_exposure"]
     assert_redos_immune(spec_exposure, "[SPEC-" + " " * 100000, timeout_sec=3.0)

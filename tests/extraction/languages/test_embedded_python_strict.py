@@ -259,24 +259,15 @@ def test_embedded_python_generics_redos_immunity():
     immune and still matches realistic (including one-level-nested, per
     Rule 11) generic annotations.
     """
-    old_buggy_pattern = re.compile(
-        r"\b(?:List|Dict|Set|Tuple|Optional|Union|Any|Callable|Sequence|Iterable)\[[^\]]*\]|->"
-    )
-    import time as _time
-
-    durations = []
-    for n in (2000, 4000, 8000, 16000):
-        payload = "List[" * n
-        start = _time.perf_counter()
-        list(old_buggy_pattern.finditer(payload))
-        durations.append(_time.perf_counter() - start)
-    # Each doubling should show a roughly 4x increase for real O(n^2); assert
-    # the ratio between the last two measurements is well above the ~2x a
-    # linear-time pattern would show, confirming this really is quadratic.
-    assert durations[-1] / durations[-2] > 2.0, (
-        f"expected quadratic scaling on the pre-fix pattern, got durations={durations}"
-    )
-
+    # #2901: the pre-fix pattern
+    #     \b(?:List|Dict|...|Iterable)\[[^\]]*\]|->
+    # measured ~4x per size doubling at n=2000/4000/8000/16000. That
+    # measurement used to run here as a `durations[-1] / durations[-2] > 2.0`
+    # assertion; it is retained as this comment instead. It timed a regex
+    # this repo no longer ships, and a ratio between sub-100ms samples is
+    # inside the scheduling noise of a shared runner -- it went red on
+    # macOS for unrelated PRs. The shipped pattern's immunity is asserted
+    # below as an absolute bound in an isolated process, which is stable.
     pattern = EP_RULES["generics"]
     assert_redos_immune(pattern, "List[" * 40000, timeout_sec=3.0)
     assert pattern.search("def read() -> Optional[int]:")
@@ -302,19 +293,15 @@ def test_embedded_python_spec_exposure_redos_immunity():
     `[^\\]]*` to `{0,300}`; verify the fixed pattern stays immune and still
     matches realistic SPEC/audit tags.
     """
-    old_buggy_pattern = re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]", re.I)
-    import time as _time
-
-    durations = []
-    for n in (2000, 4000, 8000, 16000):
-        payload = "[SPEC-" + "1" * n
-        start = _time.perf_counter()
-        list(old_buggy_pattern.finditer(payload))
-        durations.append(_time.perf_counter() - start)
-    assert durations[-1] / durations[-2] > 2.5, (
-        f"expected quadratic scaling on the pre-fix pattern, got durations={durations}"
-    )
-
+    # #2901: the pre-fix pattern
+    #     \[(?:\s*SPEC\s*-\s*\d+|spec|audit)[^\]]*\]
+    # measured ~4x per size doubling (the numbers are in the docstring
+    # above). That measurement used to run here as a
+    # `durations[-1] / durations[-2] > 2.5` assertion and is the specific
+    # assert named in #2901: macOS run 34288012477 produced 2.31 on a PR
+    # that touched none of this. Deleted rather than re-tuned -- it timed
+    # a deleted regex, and no threshold is both meaningful and stable on
+    # a shared runner. The shipped pattern's absolute bound is below.
     pattern = EP_RULES["spec_exposure"]
     assert_redos_immune(pattern, "[SPEC-" + "1" * 80000, timeout_sec=3.0)
     assert pattern.search("# [SPEC-123] implements the boot contract")

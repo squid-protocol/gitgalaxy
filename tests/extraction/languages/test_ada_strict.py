@@ -413,26 +413,34 @@ def test_ada_redos_immunity_sweep():
     assert ADA_RULES["import"].search("with Ada.Text_IO;")
 
 
-def test_ada_func_start_scaling_is_linear_not_quadratic():
+def test_ada_func_start_stays_linear_on_a_long_with_aspect_run():
     """
-    Explicit geometric-scaling proof (Rule 5, not a single timing) for the
-    bounded `with`-aspect segment between the profile and "is" -- the one
-    genuinely payload-shaped quantifier in func_start.
-    """
-    import time
+    Bounds the one genuinely payload-shaped quantifier in func_start: the
+    `with`-aspect segment between the profile and "is".
 
+    #2901: this was a geometric-scaling ratio (`timings[-1] < timings[0] *
+    8 + 0.05` over n=2000/4000/8000) built from single unrepeated
+    `perf_counter()` samples -- the same wall-clock-ratio-on-a-shared-runner
+    shape as the two asserts #2901 reports flaking on macOS.
+
+    Measured while replacing it (2026-09-09): every sample was
+    sub-millisecond, so the additive 0.05 floor was deciding the result,
+    not the ratio. And the ratio had little to detect here -- the aspect
+    segment is LAZY and this payload has a single start position, so even
+    with the bound removed entirely (`[^;{}]{0,300}?` -> `[^;{}]*?`) the
+    pattern still scales linearly: 0.0002s / 0.0004s / 0.0007s / 0.0014s at
+    n=2000/4000/8000/16000. So this site has no reachable quadratic
+    regression for a ratio to catch.
+
+    What is left worth pinning is a plain ceiling on the cost of a long
+    aspect run, which an absolute bound on a much larger payload states
+    directly and deterministically.
+    """
     func_start = ADA_RULES["func_start"]
-    timings = []
-    for n in (2000, 4000, 8000):
-        payload = "procedure Foo with " + "A" * n
-        start = time.perf_counter()
-        func_start.search(payload)
-        timings.append(time.perf_counter() - start)
+    assert_redos_immune(func_start, "procedure Foo with " + "A" * 200000, timeout_sec=3.0)
 
-    # A roughly-2x-per-doubling ratio is linear; anything approaching 4x
-    # would indicate real quadratic backtracking. Generous margin for CI
-    # scheduling noise.
-    assert timings[-1] < timings[0] * 8 + 0.05, f"suspicious scaling: {timings}"
+    # the bounded segment must not have cost the rule its real positive case
+    assert func_start.search("procedure Foo is")
 
 
 # ==============================================================================

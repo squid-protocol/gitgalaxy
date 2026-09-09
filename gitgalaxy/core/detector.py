@@ -1656,8 +1656,17 @@ class StructuralExtractor:
                 del cls["_end_line"]
 
             branch_hits = equations.get("branch", 0)
-            linear_hits = equations.get("structural_boundaries", 0)
-            total_control_flow_ratio = round(branch_hits / max(branch_hits + linear_hits, 1), 3)
+            # #2770: the denominator is coding lines (line_count = non-blank lines of
+            # the comment-stripped code stream), NOT branch + structural_boundaries.
+            # structural_boundaries is an ungoverned per-language vocabulary tally
+            # (45 words in solidity, 16 in shell, 0 in markdown), which made the same
+            # decision density read wildly differently per language -- the corpus's
+            # worst metric at 33% consistency. Lines are the one denominator that
+            # means the same thing in all 46 languages, and the per-FUNCTION Control
+            # Flow Ratio already divides by LOC -- this brings the file-level ratio
+            # into agreement with its own function-level sibling (and with
+            # logic_density just below, which uses the same line_count).
+            total_control_flow_ratio = round(branch_hits / max(line_count, 1), 3)
 
             # Use the newly standardized keys from the updated coding_analysis
             total_signals = sum(equations.values())

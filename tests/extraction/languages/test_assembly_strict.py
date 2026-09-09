@@ -448,9 +448,11 @@ def test_assembly_branch_counts_decisions_not_transfers_2764():
     a file has, the thing `functions_found` already measures. #2545
     settled the identical question for high-level `return`.
 
-    The tokens were RELOCATED to `structural_boundaries`, not deleted, so
-    `control_flow_ratio = branch / (branch + linear)` keeps the same
-    denominator; only the numerator loses the non-decisions.
+    The tokens were RELOCATED to `structural_boundaries`, not deleted. (At
+    the time, `control_flow_ratio = branch / (branch + linear)` made the
+    relocation denominator-neutral; #2770 has since moved the ratio onto a
+    coding-LOC denominator, so only the numerator side of this test's story
+    is load-bearing today.)
     """
     branch = ASM_RULES["branch"]
     linear = ASM_RULES["structural_boundaries"]

@@ -440,10 +440,9 @@ class SecurityLens:
             return threats
 
         expected_magic = self.MAGIC_BYTES.get(ext.lower())
-        if expected_magic:
-            if not raw_bytes.startswith(expected_magic):
-                threats["sec_extension_mismatch"] = 1
-                threats["threat_snippet"] = f"Expected {expected_magic}, found mismatch"
+        if expected_magic and not raw_bytes.startswith(expected_magic):
+            threats["sec_extension_mismatch"] = 1
+            threats["threat_snippet"] = f"Expected {expected_magic}, found mismatch"
 
         for header in self.THREAT_HEADERS:
             if header in raw_bytes:

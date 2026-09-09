@@ -158,10 +158,7 @@ Expected JSON Schema:
     histograms = {kw: defaultdict(int) for kw in search_targets}
 
     # Determine output paths
-    if args.out:
-        out_dir = Path(args.out).resolve()
-    else:
-        out_dir = target_path.parent
+    out_dir = Path(args.out).resolve() if args.out else target_path.parent
 
     try:
         out_dir.mkdir(parents=True, exist_ok=True)

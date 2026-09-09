@@ -21,6 +21,7 @@ import re
 import time
 from typing import Any, ClassVar, Optional, TypedDict, cast
 
+from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
 from gitgalaxy.core.spatial_correlation import (
     apply_amplifier_correlations,
     apply_dampener_correlations,
@@ -79,12 +80,42 @@ class _ClassInfoWithBounds(ClassInfo, total=False):
     _end_line: int
 
 
+# #2908 Phase 2, D3: the header-anchor window for `is_documented`. A
+# doc-rule match's END line must land within [start_line - ABOVE, start_line]
+# to count -- widened to [start_line - ABOVE, start_line + BODY] (capped at
+# end_line) for the docstring-position family (see
+# _DOCSTRING_POSITION_LANGS), whose real doc text sits just inside the body
+# rather than immediately above the header. ABOVE=5 tolerates a decorator/
+# annotation stack between a preceding doc comment and the header it
+# documents; BODY=2 tolerates a `def foo(\n    args,\n):` multi-line
+# signature before a below-header docstring opens.
+_DOC_ANCHOR_LINES_ABOVE = 5
+_DOC_ANCHOR_BODY_LINES = 2
+
+# The below-header docstring-position family: exactly the languages
+# `_extract_documentation_tether`'s "Harvest Below" branch scans (detector.py,
+# near its `lang_id in (...)` check). Duplicated as a module constant here
+# (rather than imported from that method) because the tether's own tuple is
+# inline and untouched by #2908 D3 -- the slicer's `docstring` field stays
+# exactly as it was.
+_DOCSTRING_POSITION_LANGS = ("python", "embedded_python", "matlab", "ruby", "elixir")
+
+
 class FunctionNode(TypedDict, total=False):
     """Metadata for a surgically extracted functional logic block."""
 
     name: str
     parent_class_name: str
     usage_status: int
+
+    # #2908 Phase 2: per-unit public/documented flags feeding the
+    # risk_documentation score contract (docs/risk_documentation_contract.md).
+    # is_public is the union of the api-header match (A), the export-list
+    # name set (B), and the Contextual Baseline Fix's healed-orphan credit
+    # (C, applied in galaxyscope.py). is_documented is a header-anchored
+    # `doc`-rule match -- NOT the `docstring` field (D3).
+    is_public: bool
+    is_documented: bool
 
     # #2691: True for the slicer's synthetic buckets ("__global_context__" and
     # friends), which hold a file's top-level statements. Their signals are real
@@ -1295,8 +1326,19 @@ class StructuralExtractor:
         confidence: float = 1.0,
         profile_regex: bool = False,
         raw_content: str = "",
+        positional_comment_stream: str = "",
     ) -> dict[str, Any]:
-        """Executes the structural regex pass over refracted code streams."""
+        """Executes the structural regex pass over refracted code streams.
+
+        #2908 Phase 2: `positional_comment_stream`, when given, is prism.py's
+        `split_positional_comment_stream` output -- a line-number-aligned
+        counterpart of `comment_stream` (which loses line correspondence by
+        joining every segment's stripped comments into one blob). Used only
+        to anchor `is_documented`'s positional `doc`-rule pass; every
+        existing stream/count above is unchanged. Defaults to "" so callers
+        that don't pass it (tests, manual invocations) behave exactly as
+        before -- the positional pass then just finds no matches.
+        """
         self.raw_content_lines = raw_content.splitlines() if raw_content else []
         regex_telemetry: dict[str, float] = {}
 
@@ -1402,6 +1444,41 @@ class StructuralExtractor:
             # `module_function :save!` name functions whose first character a
             # generic tokenizer would not treat as a name start.
             export_name_starts = frozenset(self._export_declaration_offsets(code_stream))
+
+            # #2908 Phase 2: is_public source B -- the export-list NAME set
+            # (not just offsets). #2915's case-insensitive-import languages
+            # resolve identifiers case-foldedly elsewhere in the pipeline
+            # (network_risk_sensor.py's Contextual Baseline Fix Stage 1c);
+            # the same fold applies here so e.g. cobol's `COPY A.`-style
+            # case-insensitive naming doesn't miss an export declared in a
+            # different case than the function's own header.
+            _fold_names = self.primary_lang_id in CASE_INSENSITIVE_IMPORT_LANGS
+            export_declared_names = {
+                (n.casefold() if _fold_names else n) for n in self._export_declared_names(code_stream)
+            }
+
+            # #2908 Phase 2, D3: the positional `doc`-rule pass. Built from
+            # `positional_comment_stream` (prism.py's line-number-aligned
+            # counterpart of `comment_stream`) rather than `comment_stream`
+            # itself, which loses line correspondence by joining every
+            # segment's stripped comments into one blob (see
+            # docs/risk_documentation_contract.md D3). Records each match's
+            # END line, 1-indexed, corresponding to the original file --
+            # `is_documented` below tests each unit's header window against
+            # this same list. Uses the primary language's own `doc` rule,
+            # matching how `comment_analysis` already reads `self.primary_lang_id`
+            # rather than per-segment rules.
+            doc_positional_end_lines: list[int] = []
+            _doc_pattern = self.languages.get(self.primary_lang_id, {}).get("rules", {}).get("doc")
+            if _doc_pattern is not None and positional_comment_stream:
+                _doc_matches = (
+                    _doc_pattern.finditer(positional_comment_stream)
+                    if hasattr(_doc_pattern, "finditer")
+                    else re.finditer(str(_doc_pattern), positional_comment_stream)
+                )
+                doc_positional_end_lines = sorted(
+                    positional_comment_stream.count("\n", 0, m.end()) + 1 for m in _doc_matches
+                )
 
             # #2806: does this language reach its callable units BY NAME? The
             # census below is a name-reference test and nothing else can be
@@ -1768,6 +1845,56 @@ class StructuralExtractor:
 
                 func["usage_status"] = usage_status
 
+                # --- #2908 Phase 2: is_public (A union B) ---
+                # A. api header match: the language's `api` rule fired on a
+                # line inside this unit's own header window (start_line to
+                # min(start_line+2, end_line), tolerating a multi-line
+                # signature), AND the unit's own name is what that window's
+                # text actually names -- guards against a neighbouring
+                # construct's api hit landing in the window. A unit with no
+                # usable name (synthetic slices) is never public via A.
+                is_public_a = False
+                start_line = func.get("start_line", 0)
+                end_line = func.get("end_line", start_line)
+                if func_name and start_line > 0:
+                    api_window_end = min(start_line + 2, end_line)
+                    api_lines = threat_locations.get("api")
+                    if api_lines and any(start_line <= ln <= api_window_end for ln in api_lines):
+                        header_lines = self.raw_content_lines[start_line - 1 : api_window_end]
+                        if header_lines and re.search(_name_boundary_pattern(func_name), "\n".join(header_lines)):
+                            is_public_a = True
+
+                # B. export-list name: is_public via B iff unit.name is in
+                # the file's export-declared name set (case-folded for the
+                # #2915 case-insensitive-import languages).
+                is_public_b = bool(func_name) and (
+                    (func_name.casefold() if _fold_names else func_name) in export_declared_names
+                )
+
+                func["is_public"] = is_public_a or is_public_b
+
+                # --- #2908 Phase 2, D3: is_documented ---
+                # A `doc`-rule match whose END line lands in the unit's
+                # header window: [start_line - k, start_line], widened to
+                # [start_line - k, min(start_line + 2, end_line)] for the
+                # docstring-position family. OR (that family only) a
+                # non-empty below-header docstring the positional pass
+                # can't see because it lives in code_stream as a string
+                # literal, not a comment -- see _has_below_position_doc_text.
+                is_documented = False
+                if start_line > 0 and doc_positional_end_lines:
+                    anchor_hi = start_line
+                    if self.primary_lang_id in _DOCSTRING_POSITION_LANGS:
+                        anchor_hi = min(start_line + _DOC_ANCHOR_BODY_LINES, end_line)
+                    anchor_lo = start_line - _DOC_ANCHOR_LINES_ABOVE
+                    lo = bisect.bisect_left(doc_positional_end_lines, anchor_lo)
+                    hi = bisect.bisect_right(doc_positional_end_lines, anchor_hi)
+                    is_documented = hi > lo
+                if not is_documented and start_line > 0:
+                    is_documented = self._has_below_position_doc_text(start_line, self.primary_lang_id)
+
+                func["is_documented"] = is_documented
+
             # --- #2731: WHICH ORPHANS DID THE api RULE ALREADY COUNT? ---
             # galaxyscope.py's Contextual Baseline Fix converts an imported
             # file's orphans into API exposure. A function that is BOTH declared
@@ -2061,6 +2188,60 @@ class StructuralExtractor:
                         break
 
         return "\n".join(doc_buffer)[:2000]  # Cap at 2000 chars to prevent DB bloat
+
+    # Markers a below-header line can open that are genuinely invisible to
+    # the positional `doc`-rule pass: a string-literal docstring
+    # (`"""`/`'''`, live in code_stream, never in a comment stream at all)
+    # or ruby's `=begin` block (not a single-line comment, so
+    # `_strip_single_line_comments_positional`'s line_exclusive handling
+    # never sees it either). Deliberately narrower than
+    # `_extract_documentation_tether`'s own "Harvest Below" marker set,
+    # which also opens on `#`/`%` -- both real single-line comments every
+    # docstring-position language (python/embedded_python/matlab/ruby are
+    # all `line_exclusive`) already exposes to the positional pass, so a
+    # `#`/`%` line is measured by the actual `doc` rule there, not
+    # rubber-stamped true just for existing. Confirmed via the corpus probe:
+    # without this narrowing, python's planted `# HACK: ...` comment (the
+    # exact false-positive docs/risk_documentation_contract.md S1 names as
+    # why `is_documented` must not read `docstring` directly) counted as
+    # documented.
+    _BELOW_POSITION_DOC_MARKERS = ('"""', "'''", "=begin")
+
+    def _has_below_position_doc_text(self, start_line: int, lang_id: str) -> bool:
+        """Did the docstring-position family's own below-header STRING/BLOCK
+        doc text exist -- as opposed to an ordinary comment?
+
+        #2908 Phase 2, D3 fallback: python's real triple-quoted docstring
+        lives in `code_stream` as a string literal, not a comment, so the
+        positional `doc`-rule pass (built from a comment-preserving stream)
+        cannot see it there -- confirmed in `splice()`. The decided fallback
+        is narrow: for the docstring-position family ONLY, a below-header
+        line opening one of `_BELOW_POSITION_DOC_MARKERS` also sets
+        `is_documented`. This does NOT replicate
+        `_extract_documentation_tether`'s "Harvest Below" branch verbatim --
+        that branch also opens on `#`/`%`, which is a real, positionally-
+        visible comment already covered by path A whenever it actually
+        matches the language's `doc` rule; treating "any comment exists
+        here" as sufficient would re-import exactly the per-language bias
+        docs/risk_documentation_contract.md D3 exists to keep out. Also
+        excludes "Harvest Above" entirely, for the same reason.
+        """
+        if lang_id not in _DOCSTRING_POSITION_LANGS:
+            return False
+        if not hasattr(self, "raw_content_lines") or not self.raw_content_lines:
+            return False
+
+        i = start_line - 1
+        if i < 0 or i >= len(self.raw_content_lines):
+            return False
+
+        for j in range(i + 1, min(len(self.raw_content_lines), i + 10)):
+            nxt = self.raw_content_lines[j].strip()
+            if not nxt:
+                continue
+            return nxt.startswith(self._BELOW_POSITION_DOC_MARKERS)
+
+        return False
 
     def _embedded_payload_start(self, content: str, trigger: dict[str, Any], end_idx: int) -> int:
         """#2549: where the embedded language's own text begins.
@@ -7641,6 +7822,35 @@ class StructuralExtractor:
                     offsets.update(base + t.start() for t in _EXPORT_LIST_NAME.finditer(region))
 
         return offsets
+
+    def _export_declared_names(self, code_stream: str) -> set[str]:
+        """The NAME TEXT captured by this language's export-declaration
+        rules (#2908 Phase 2, is_public source B) -- the sibling of
+        `_export_declaration_offsets`, which records OFFSETS for
+        `_is_orphan`'s discount test. `is_public` needs the names
+        themselves: a unit is public via B iff its own name is in this set.
+
+        Same two regex sites as `_export_declaration_offsets`: the singular
+        `_visibility_export` group(1) text, and the plural
+        `_visibility_export_list`'s regions via `_EXPORT_LIST_NAME.finditer`.
+        Does not touch `_export_declaration_offsets` or `_is_orphan`.
+        """
+        names: set[str] = set()
+
+        exact = self.primary_rules.get("_visibility_export")
+        if exact is not None:
+            names.update(m.group(1) for m in exact.finditer(code_stream) if m.group(1))
+
+        listed = self.primary_rules.get("_visibility_export_list")
+        if listed is not None:
+            for m in listed.finditer(code_stream):
+                for group in range(1, (m.re.groups or 0) + 1):
+                    region = m.group(group)
+                    if not region:
+                        continue
+                    names.update(t.group(0) for t in _EXPORT_LIST_NAME.finditer(region))
+
+        return names
 
     @staticmethod
     def _is_orphan(

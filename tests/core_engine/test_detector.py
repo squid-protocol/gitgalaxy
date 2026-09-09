@@ -4786,3 +4786,180 @@ def test_cobol_paragraph_entry_using_is_inside_the_args_window_2863():
     # The defect's signature: the block's rule tally saw the clause all along.
     # PROBE-CALLER keeps that disagreement, and it is correct for it to.
     assert found["PROBE-CALLER"]["hit_vector"].get("args", 0) == 1
+
+
+# ==============================================================================
+# #2908 PHASE 2: is_public / is_documented CONTRACT TESTS
+# ==============================================================================
+# One test per declaration family, run through the real Prism + StructuralExtractor
+# (LANGUAGE_DEFINITIONS/LEXICAL_FAMILY_HEURISTICS) rather than MOCK_LANG_DEFS --
+# is_public/is_documented read each language's real `api`/`doc`/export rules, so a
+# hand-rolled mock rule set would test the harness, not the contract.
+
+
+def test_detector_is_public_is_documented_preceding_block_c():
+    """Family 1: preceding-block (C-like). A `/** ... */` doc comment ending
+    2 lines above a header sets is_documented; a unit with nothing nearby, or
+    only a comment 6 lines above (outside k=5), does not. A non-static
+    column-0 declarator is_public via the api rule (A); `static` is not."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "/** Adds two numbers. */\n"
+        "\n"
+        "int add(int a, int b) {\n"
+        "    return a + b;\n"
+        "}\n"
+        "\n"
+        "static int helper(int x) {\n"
+        "    return x;\n"
+        "}\n"
+        "\n"
+        "int no_comment_nearby(void) {\n"
+        "    return 0;\n"
+        "}\n"
+        "\n"
+        "/** Far doc comment. */\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "int far_from_doc(void) {\n"
+        "    return 0;\n"
+        "}\n"
+    )
+    refraction = prism.split_streams(code, "c")
+    positional = prism.split_positional_comment_stream(code, "c")
+    result = StructuralExtractor("c", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    # doc comment ending 2 lines above the header -> documented
+    assert found["add"]["is_documented"] is True
+    # no doc comment anywhere nearby -> not documented
+    assert found["no_comment_nearby"]["is_documented"] is False
+    # doc comment ending 6 lines above (outside k=5) -> not documented
+    assert found["far_from_doc"]["is_documented"] is False
+
+    # non-static column-0 declarator, api-rule-matched -> public
+    assert found["add"]["is_public"] is True
+    # static -> not api-matched, not export-listed -> not public
+    assert found["helper"]["is_public"] is False
+
+
+def test_detector_is_public_is_documented_docstring_position_python():
+    """Family 2: docstring-position (python). A real `\"\"\"...\"\"\"` docstring
+    sets is_documented via the D3 fallback (the positional pass can't see a
+    docstring -- it's a code_stream string literal, not a comment). A `#`
+    comment matching the `doc` rule's `:param` tag, sitting above a decorator
+    stack, sets is_documented via the real positional pass -- decorators
+    between the comment and `def` stay inside the k=5 window."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "def entry():\n"
+        '    """Runs the thing."""\n'
+        "    return 1\n"
+        "\n"
+        "\n"
+        "# :param x: something\n"
+        "@decorator\n"
+        "@another\n"
+        "def decorated(x):\n"
+        "    return x\n"
+    )
+    refraction = prism.split_streams(code, "python")
+    positional = prism.split_positional_comment_stream(code, "python")
+    result = StructuralExtractor("python", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    # real below-header docstring -> documented via the D3 fallback
+    assert found["entry"]["is_documented"] is True
+    # `:param` comment above a decorator stack, within k=5 -> documented via
+    # the real positional pass
+    assert found["decorated"]["is_documented"] is True
+
+
+def test_detector_is_public_is_documented_export_list_makefile():
+    """Family 3: export-list. makefile's `.PHONY: foo` is a
+    `_visibility_export_list` rule (#2902's re-plant). A target named in it
+    is public via B; a target absent from it (and outside the api rule's own
+    hardcoded target-name whitelist) is not."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = ".PHONY: foo\n\nfoo:\n\techo foo\n\nbar:\n\techo bar\n"
+    refraction = prism.split_streams(code, "makefile")
+    positional = prism.split_positional_comment_stream(code, "makefile")
+    result = StructuralExtractor("makefile", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    assert found["foo"]["is_public"] is True, "a name in .PHONY's export list must be public"
+    assert found["bar"]["is_public"] is False, "a name absent from the export list must not be public"
+
+
+def test_detector_is_public_is_documented_positional_invocation_cobol():
+    """Family 4: positional-invocation (cobol). A `*> @param` structured
+    comment immediately before a paragraph label sets is_documented via the
+    positional_anchored pass. A paragraph's own `ENTRY "name"` statement --
+    real COBOL syntax for a callable entry point -- sets is_public via A,
+    matched by name through `_name_boundary_pattern` against the hyphenated
+    paragraph name inside its own header window."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. TESTPROG.\n"
+        "       PROCEDURE DIVISION.\n"
+        "      *> @param none\n"
+        "       PROBE-GLOBALS.\n"
+        '           ENTRY "PROBE-GLOBALS".\n'
+        "           DISPLAY 'HI'.\n"
+        "           STOP RUN.\n"
+        "\n"
+        "       OTHER-PARA.\n"
+        "           DISPLAY 'BYE'.\n"
+    )
+    refraction = prism.split_streams(code, "cobol")
+    positional = prism.split_positional_comment_stream(code, "cobol")
+    result = StructuralExtractor("cobol", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    # `*> @param` comment line immediately before the paragraph label -> documented
+    assert found["PROBE-GLOBALS"]["is_documented"] is True
+    # hyphenated paragraph name matched via _name_boundary_pattern where the
+    # api rule (ENTRY) fires inside the paragraph's own header window
+    assert found["PROBE-GLOBALS"]["is_public"] is True
+    # a paragraph with neither an ENTRY statement nor an export-list mention
+    assert found["OTHER-PARA"]["is_public"] is False

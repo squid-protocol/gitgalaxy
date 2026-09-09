@@ -348,6 +348,184 @@ class Prism:
             )
             raise PrismError(f"Prism failure: {e}") from e
 
+    def split_positional_comment_stream(self, content: str, primary_lang: str) -> str:
+        """#2908 Phase 2: a line-number-aligned comment surface.
+
+        `split_streams` above builds `comment_stream` by joining every
+        segment's stripped comments into one blob (`"\\n".join(comment_parts)`
+        at its own return) -- correct for the counting rules
+        (`comment_analysis`) that only ever need a total, but useless for a
+        POSITIONAL test: which line does a `doc`-rule match end on, in the
+        original file? docs/risk_documentation_contract.md D3's
+        `is_documented` needs exactly that.
+
+        This mirrors `split_streams`'s own construction of `code_stream`
+        (comments blanked to newlines-only, so code keeps its original line
+        numbers) with the roles swapped: CODE is blanked (newlines
+        preserved, so line numbers still match the original file) and
+        COMMENTS are kept verbatim at their original position. detector.py's
+        `splice()` then runs the language's own `doc` pattern's `finditer`
+        over this stream and anchors each match's END line against a unit's
+        header window.
+
+        Only the families exercised by #2908 Phase 2's own contract tests
+        are positionally supported today: the generic REGEX_MATRIX families
+        (standard_block and siblings), `line_exclusive`, and
+        `positional_anchored`/`positional_abap`. Every other family
+        (recursive_block's three variants, jcl) contributes a blank,
+        newline-preserving stretch -- safe by construction: it reads as "no
+        positional doc match on this language" rather than raising, and
+        those languages fall through to whatever `is_documented` fallback
+        applies to them (none, today, outside the docstring-position
+        family). Python/embedded_python/ruby's own docstring-stripping
+        pre-pass (`_strip_python_docstrings`, run by `split_streams` BEFORE
+        family routing) is deliberately NOT mirrored here: a real docstring
+        is a string literal in `code_stream`, not a comment, so it can never
+        appear in a comment-positional stream either way -- see D3's
+        decided fallback in detector.py's `_has_below_position_doc_text`.
+        """
+        if not content:
+            return ""
+        if primary_lang in ("undeterminable", "unknown", "markdown", "plaintext", "xml"):
+            return ""
+
+        try:
+            header, body = self._guard_metadata_signal(content)
+            out_parts = [self._blank_preserve_newlines(header)]
+
+            segments = self._partition_embedded_languages(body, primary_lang)
+            for lang_id, segment_text in segments:
+                family = self.languages.get(lang_id, {}).get("lexical_family", "standard_block")
+                out_parts.append(self._positional_comment_segment(segment_text, lang_id, family))
+
+            return "".join(out_parts)
+        except Exception as e:
+            self.logger.error(f"Positional comment stream failure: {e}", exc_info=True)
+            return self._blank_preserve_newlines(content)
+
+    @staticmethod
+    def _blank_preserve_newlines(text: str) -> str:
+        """Collapses every run of non-newline characters to nothing, keeping
+        every `\\n` exactly where it was -- so the result has the identical
+        line count (and identical byte offset of each newline) as `text`,
+        with none of its non-newline content. Used to blank CODE out of the
+        positional comment stream while keeping line numbers aligned."""
+        return re.sub(r"[^\n]+", "", text)
+
+    def _positional_comment_segment(self, text: str, lang_id: str, family: str) -> str:
+        """Per-segment dispatcher for `split_positional_comment_stream`, the
+        positional-and-role-swapped sibling of `_strip_segment_comments`."""
+        if family in ("positional_anchored", "positional_abap"):
+            # `_strip_positional_comments` already returns one entry per
+            # input line (blank for a code-only line, comment text --
+            # possibly the whole line -- for a comment one), joined with
+            # "\n": already exactly the positional shape this needs, with
+            # zero new code required. Existing method, called read-only.
+            _, positional_comments = self._strip_positional_comments(
+                text, abap_mode=(family == "positional_abap"), cobol_mode=(lang_id == "cobol")
+            )
+            return positional_comments
+
+        if lang_id == "jcl" or family in (
+            "recursive_block",
+            "recursive_block_haskell",
+            "recursive_block_lisp",
+        ):
+            # Not positionally supported this phase (see the docstring on
+            # split_positional_comment_stream) -- a blank, newline-preserving
+            # stretch reads as "no positional doc match" rather than raising.
+            return self._blank_preserve_newlines(text)
+
+        if family == "line_exclusive":
+            return self._strip_single_line_comments_positional(text, lang_id)
+
+        # Generic REGEX_MATRIX families (standard_block and siblings) --
+        # same pattern selection `_strip_segment_comments` uses for its own
+        # generic branch.
+        pattern = self.REGEX_MATRIX.get(family)
+        if lang_id == "cpp" and family == "standard_block":
+            pattern = self.CPP_REGEX_MATRIX.get(family) or pattern
+        if not pattern:
+            return self._blank_preserve_newlines(text)
+        return self._positional_generic_strip(text, pattern)
+
+    def _positional_generic_strip(self, text: str, pattern: "re.Pattern") -> str:
+        """Positional sibling of `_strip_segment_comments`'s generic
+        REGEX_MATRIX branch. That branch's `strip_callback` blanks a
+        matched comment (group 2) to newlines-only and passes a matched
+        literal shield (group 1) through unharmed, building `code_stream`.
+        This builds the inverse: every character of `text` is accounted for
+        exactly once, either blanked-preserving-newlines (real code, and
+        literal-shield spans, which are code/strings, not comments) or kept
+        verbatim (a real comment match) -- so the result has the identical
+        newline count and position as `text`, and line N here corresponds to
+        line N of the original segment.
+        """
+        out = []
+        pos = 0
+        for m in pattern.finditer(text):
+            out.append(self._blank_preserve_newlines(text[pos : m.start()]))
+            if m.group(2) is not None:
+                out.append(m.group(0))
+            else:
+                out.append(self._blank_preserve_newlines(m.group(0)))
+            pos = m.end()
+        out.append(self._blank_preserve_newlines(text[pos:]))
+        return "".join(out)
+
+    def _strip_single_line_comments_positional(self, text: str, lang_id: str) -> str:
+        """Positional sibling of `_strip_single_line_comments`: same
+        per-line masking and carry-quote discipline, but returns ONE entry
+        per input line (blank for a line with no comment) instead of
+        compacting to just the lines that had one -- `_strip_single_line_
+        comments`'s own `comments` list only grows `if comment_part is not
+        None`, so its `"\\n".join(comments)` has no line correspondence at
+        all, exactly the problem `split_positional_comment_stream` exists to
+        avoid.
+
+        Perl's bare-regex/quote-like-operator masking (`_mask_perl_line`, a
+        closure private to `_strip_single_line_comments`) is not replicated
+        here -- perl carries no #2908 `is_documented` contract test and gets
+        no positional doc anchor for now; a `/regex/` division-looking slash
+        safely reads as "no comment on this line" rather than misreading it.
+        """
+        pattern = self.SINGLE_LINE_DELIMITER_PATTERNS.get(lang_id) or re.compile(r"(?!)")
+        carry_aware = lang_id in ("python", "micropython", "embedded_python", "ruby", "shell")
+        out: list[str] = []
+        carry_quote: Optional[str] = None
+
+        normalized_text = text.replace("\r\n", "\n").replace("\r", "\n")
+        for line in normalized_text.split("\n"):
+            if carry_quote is not None:
+                close_pattern = self.CARRY_QUOTE_CLOSE_PATTERNS[carry_quote]
+                m = close_pattern.match(line)
+                if not m:
+                    # Still inside the carried-over literal for its entire
+                    # length -- not code, and not a comment either.
+                    out.append("")
+                    continue
+                line = line[m.end() :]
+                carry_quote = None
+
+            masked_line, masked_literals = self._mask_line_literals(line)
+
+            if pattern.search(masked_line):
+                parts = pattern.split(masked_line, 1)
+                code_part = parts[0]
+                comment_part = parts[1] + (parts[2] if len(parts) > 2 else "")
+            else:
+                code_part = masked_line
+                comment_part = None
+
+            if carry_aware:
+                tail_match = self.UNTERMINATED_QUOTE_TAIL_PATTERN.search(code_part)
+                if tail_match:
+                    carry_quote = tail_match.group(0)
+
+            out.append(self._restore_masked_literals(comment_part, masked_literals) if comment_part is not None else "")
+
+        return "\n".join(out)
+
     def _strip_segment_comments(self, text: str, lang_id: str, family: str) -> tuple[str, str]:
         """Surgically strips documentation using an ordered, additive pipeline."""
         lits = []

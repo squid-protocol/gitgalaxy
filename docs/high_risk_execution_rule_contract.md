@@ -253,10 +253,13 @@ scheme, swift, yacc. Scala gained the `Runtime.getRuntime().exec` spelling and
 
 ## Deferred by design (#2879)
 
-The one-owner call on `eval` in matlab/ruby/shell/tcl (safety_bypasses' contract), the
-non-root `rm -rf` and single-resource deletions now counted by nobody (#2843), and the
-family's forms no rule carries yet (cobol `CALL 'SYSTEM'`/`EXEC CICS ABEND`, ada `abort`,
-swift `Process()`, java `ScriptEngine.eval`).
+The one-owner call on `eval` in matlab/ruby/shell/tcl (safety_bypasses' contract) — and
+the same unmeasured one-owner question for haskell `unsafePerformIO` and ruby
+`instance_eval`/`class_eval` — the non-root `rm -rf` and single-resource deletions now
+counted by nobody (#2843), and the family's forms no rule carries yet (cobol
+`CALL 'SYSTEM'`/`EXEC CICS ABEND`, ada `abort`/`GNAT.OS_Lib.Spawn`, swift `Process()`,
+java `ScriptEngine.eval`, powershell `Remove-Item -Recurse` on a drive root, and sqlite
+`DELETE FROM` without `WHERE` — unreadable by regex, so it stays cleanup's with the rest).
 
 ## Bless scope
 

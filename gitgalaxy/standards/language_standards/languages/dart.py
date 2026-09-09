@@ -320,9 +320,10 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 16. ui_framework: UI / View Components. Flutter Component trees and DOM nodes (Includes TBL triggers).
+        # #2899: re.I dropped -- flutter's types are exact-case, and the fold made
+        # `widget`/`text` inside prose strings count.
         "ui_framework": re.compile(
-            r"\b(Widget|BuildContext|StatefulWidget|Scaffold|Container|Text|HtmlElementView|RichText|Hyperlink|SGML|HyperText|Browser)\b",
-            re.I,
+            r"\b(Widget|BuildContext|StatefulWidget|Scaffold|Container|Text|HtmlElementView|RichText|Hyperlink|SGML|HyperText|Browser)\b"
         ),
         # 17. closures: Closures / Anonymous Functions. Fat-arrows and anonymous function blocks.
         # BUG FIX (ReDoS): `[^)]*` was unbounded. Confirmed quadratic
@@ -334,7 +335,10 @@ DEFINITION: dict[str, Any] = {
         # across the whole remaining length -- O(n) work at each of
         # O(n) positions. Bounded to `{0,300}`, the same fix shape used
         # elsewhere in this sweep.
-        "closures": re.compile(r"=>|\(\s*[^)]{0,300}\)\s*(?:async\*?|sync\*?)?[ \t]*\{"),
+        # #2898: the paren-block arm matched `if (...) {` and every parameter list
+        # (3282 crucible hits). An anonymous function's list sits in expression
+        # position -- directly after `(`/`,`/`=`/`:`/`[` -- a statement keyword's never does.
+        "closures": re.compile(r"=>|(?:^|(?<=[,(=:\[]))\s*\(\s*[^)]{0,300}\)\s*(?:async\*?|sync\*?)?[ \t]*\{"),
         # 18. globals: Global / Shared State. Static class fields and environmental bindings.
         # BUG FIX (#2651): Anchored to true column-0 (no indentation) to prevent
         # function-local var/const declarations from being incorrectly counted as globals.
@@ -348,7 +352,10 @@ DEFINITION: dict[str, Any] = {
         "generics": re.compile(r"<\s*[A-Z][^>]*>"),
         # 21. comprehensions: Iterators / Comprehensions. Collection for/if and functional pipelines.
         "comprehensions": re.compile(
-            r"\[\s*(?:for|if)\s*\([^)]*\)|\{\s*(?:for|if)\s*\([^)]*\)|\.(?:map|where|reduce|fold|expand|every|any)\s*\("
+            # #2898: the `{` arm matched statement blocks (`{ if (...)`) -- a set/map
+            # literal's brace sits in expression position (after =/,/(/:/[), a block's
+            # never does. `[` needs no guard: it can't open a code block.
+            r"\[\s*(?:for|if)\s*\([^)]*\)|(?:^|(?<=[=,(:\[]))\s*\{\s*(?:for|if)\s*\([^)]*\)|\.(?:map|where|reduce|fold|expand|every|any)\s*\("
         ),
         # 22. scientific: Numerical / Compute Libraries. math.pi, typed binary arrays, and Matrix4 vectors.
         "scientific": re.compile(

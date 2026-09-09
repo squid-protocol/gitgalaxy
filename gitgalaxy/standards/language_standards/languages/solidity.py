@@ -249,7 +249,9 @@ DEFINITION: dict[str, Any] = {
         #   failed for every event name longer than one letter, which
         #   is effectively all of them.
         "ipc_rpc_bridges": re.compile(
-            r"\b(?:delegatecall|staticcall|selfdestruct)\b|\.call\{value:|\bemit\s+[A-Z]\w*\b"
+            # #2898: `emit Event(` removed -- events' token (its rule already counts
+            # emit); what stays are genuine cross-contract call boundaries.
+            r"\b(?:delegatecall|staticcall|selfdestruct)\b|\.call\{value:"
         ),
     },
 }

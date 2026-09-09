@@ -68,7 +68,8 @@ _SCHEME_SIMPLE_CASES = [
     ("spec_exposure", "[SPEC-123]", "; just a note"),
     ("events", "(add-hook! my-hook proc)", "(+ x 1)"),
     ("macros", "(define-syntax my-macro (syntax-rules () ((_ x) x)))", "(+ x 1)"),
-    ("memory_alloc", "(make-vector 10)", "(+ x 1)"),
+    # memory_alloc is None since #2898 -- cons/list/make-* are GC-managed allocation
+    # and the registry reads memory_alloc as unmanaged only.
     ("telemetry", '(log-info "msg")', '(display "msg")'),
     ("debug_prints", '(display "hello")', '(log-info "msg")'),
     ("explicit_casts", "(number->string 5)", "(+ x 1)"),

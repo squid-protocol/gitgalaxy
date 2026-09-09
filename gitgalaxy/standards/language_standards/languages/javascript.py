@@ -289,7 +289,8 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": re.compile(r"\.(?:map|filter|reduce|flatMap|some|every|find|forEach|groupBy)\s*\("),
         "scientific": re.compile(r"\b(?:import|require|from)\b.*?(?:numpy|pandas|scipy|matplotlib|opencv|cv2)\b"),
         "hardware_bridge": re.compile(
-            r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer|webgl)\b"
+            # #2898: webgl removed -- a renderer, not a hardware peripheral.
+            r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer)\b"
         ),
         "cryptography": re.compile(
             r"\b(?:import|require|from)\b.*?(?:crypto|bcrypt|x509|tls|ssl|jsonwebtoken|argon2)\b"
@@ -367,7 +368,12 @@ DEFINITION: dict[str, Any] = {
         # 35. pointers
         "pointers": None,
         # 36. memory_alloc
-        "memory_alloc": re.compile(r"\bnew\s+[A-Z]\w*"),
+        # #2898: `new <AnyCapitalized>` counted every object construction (new Error,
+        # new Promise). The registry reads memory_alloc as UNMANAGED allocation only
+        # (java/kotlin/scala/dart precedent: Arena/memScoped/ffi.Allocator, honest 0s).
+        "memory_alloc": re.compile(
+            r"\bnew\s+(?:ArrayBuffer|SharedArrayBuffer|WebAssembly\.Memory)\b|\bBuffer\.alloc(?:Unsafe(?:Slow)?)?\s*\("
+        ),
         # 37. inline_asm
         "inline_asm": None,
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---

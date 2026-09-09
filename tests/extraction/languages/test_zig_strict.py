@@ -319,8 +319,11 @@ def test_zig_structural_boundaries_and_panics_and_aborts_shared_literals_intenti
     structural_boundaries = ZIG_RULES["structural_boundaries"]
     panics_and_aborts = ZIG_RULES["panics_and_aborts"]
 
+    # #2898 retires the `return` half of the dual: an unconditional transfer is
+    # structural_boundaries' alone. `unreachable` keeps both readings (it is a
+    # boundary AND a trap).
     assert structural_boundaries.search("return;")
-    assert panics_and_aborts.search("return;")
+    assert not panics_and_aborts.search("return;")
     assert structural_boundaries.search("unreachable;")
     assert panics_and_aborts.search("unreachable;")
 

@@ -610,7 +610,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # 16. ui_framework (UI / View Components)
         "ui_framework": re.compile(
-            r'<[A-Z]\w+|className=|use(?:State|Effect|Context|Reducer|Ref|Memo|Callback|Transition|Id)|props\.|this\.state|@Component|@Injectable|document\.(?:getElementById|querySelector)|["\']use\s+(?:client|server)["\']'
+            # #2898: `<[A-Z]\w+` also matched generic type arguments (Array<Foo>,
+            # <ModifierLike>). A generic always follows an identifier; a JSX element
+            # never does -- the not-word lookbehind separates them.
+            r'(?<!\w)<[A-Z]\w+|className=|use(?:State|Effect|Context|Reducer|Ref|Memo|Callback|Transition|Id)|props\.|this\.state|@Component|@Injectable|document\.(?:getElementById|querySelector)|["\']use\s+(?:client|server)["\']'
         ),
         # 17. closures (Closures / Anonymous Functions)
         "closures": re.compile(r"=>[ \t]*\{|\(\)[ \t]*=>|function\s*\([^)]*\)[ \t]*\{"),
@@ -711,7 +714,10 @@ DEFINITION: dict[str, Any] = {
             r"\b(getServerSideProps|getStaticProps|generateStaticParams|LoaderFunction|ActionFunction)\b"
         ),
         # 32. events (Event Emitters / Pub-Sub)
-        "events": re.compile(r"\b(emit|on|once|off|dispatchEvent|EventEmitter|EventTarget)\b"),
+        # #2899: the short generic words anchored to their method-call form -- bare
+        # `emit` was the typescript compiler's own emit pipeline (9/file), and bare
+        # on/once/off matched prose and identifiers.
+        "events": re.compile(r"\.(?:emit|on|once|off)\s*\(|\b(dispatchEvent|EventEmitter|EventTarget)\b"),
         # 33. dependency_injection (Dependency Injection / IoC)
         "dependency_injection": re.compile(r"\b(Inject|Injectable|Container|resolve|register|tsyringe|inversify)\b"),
         # 34. macros
@@ -719,7 +725,12 @@ DEFINITION: dict[str, Any] = {
         # 35. pointers
         "pointers": None,  # Managed memory environment.
         # 36. memory_alloc
-        "memory_alloc": re.compile(r"\bnew\s+[A-Z]\w*"),
+        # #2898: `new <AnyCapitalized>` counted every object construction (new Error,
+        # new Promise). The registry reads memory_alloc as UNMANAGED allocation only
+        # (java/kotlin/scala/dart precedent: Arena/memScoped/ffi.Allocator, honest 0s).
+        "memory_alloc": re.compile(
+            r"\bnew\s+(?:ArrayBuffer|SharedArrayBuffer|WebAssembly\.Memory)\b|\bBuffer\.alloc(?:Unsafe(?:Slow)?)?\s*\("
+        ),
         # 37. inline_asm
         "inline_asm": None,
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---

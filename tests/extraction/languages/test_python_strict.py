@@ -71,7 +71,7 @@ _PY_SIMPLE_CASES = [
     ("bitwise_ops", "x = a << 2", "result = base ** exponent"),
     ("closures", "f = lambda x: x + 1", "def f(x):\n    return x + 1"),
     ("comprehensions", "[x**2 for x in range(10)]", "for x in range(10):\n    print(x)"),
-    ("cryptography", "import bcrypt", "import hashlib"),
+    ("cryptography", "import hashlib", "import os"),  # 2898: stdlib crypto modules now count
     ("dl_frameworks", "import torch", "import sklearn"),
     ("encapsulation", "self._private_value = 1", "self.public_value = 1"),
     (

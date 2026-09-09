@@ -58,7 +58,7 @@ _JS_SIMPLE_CASES = [
     ("ssr_boundaries", "export async function getServerSideProps() {}", "function foo() {}"),
     ("events", "emitter.on('data', handler);", "onData(handler);"),
     ("dependency_injection", "@Injectable()", "let inject = true;"),
-    ("memory_alloc", "const x = new Foo();", "const x = new foo();"),
+    ("memory_alloc", "const buf = new ArrayBuffer(8);", "const e = new Error('x');"),  # 2898: unmanaged only
     ("telemetry", "logger.info('started');", "let logger = info;"),
     ("debug_prints", "console.log('debug value:', x);", "let console = log;"),
     ("explicit_casts", "Number('42');", "let num = 42;"),

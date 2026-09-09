@@ -285,8 +285,9 @@ DEFINITION: dict[str, Any] = {
         "serialization_parsing": re.compile(r"\b(ujson\.loads?|ujson\.dumps?|ustruct\.pack|ustruct\.unpack)\b"),
         "regex_execution": re.compile(r"\b(ure\.compile|ure\.search|ure\.match|ure\.sub)\b"),
         "time_date_logic": re.compile(r"\b(utime\.sleep_ms|utime\.ticks_ms|utime\.ticks_diff|machine\.RTC)\b"),
-        "ipc_rpc_bridges": re.compile(
-            r"\b(machine\.Pin|machine\.I2C|machine\.UART|network\.WLAN|usocket\.socket|busio\.I2C)\b"
-        ),
+        # #2898: the peripheral handles (machine.Pin/I2C/UART, network.WLAN, busio.I2C)
+        # removed -- io's tokens (its rule already counts them). A socket is the one
+        # genuine process/host boundary this dialect has.
+        "ipc_rpc_bridges": re.compile(r"\busocket\.socket\b"),
     },
 }

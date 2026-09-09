@@ -261,7 +261,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # 16. ui_framework: UI / View Components. GUI libraries and template engines.
         "ui_framework": re.compile(
-            r"\b(Tk::|Wx::|Gtk2::|Gtk3::|Prima::|Template|HTML::Mason|Mojolicious::Plugin::TagHelpers)\b|\brender(?:_to_string)?\b|<%|%>|\[%|%\]"
+            # #2898: `<%` no longer fires inside POD formatting codes (C<%Y>) -- an
+            # uppercase letter directly before `<` is POD's C<>/B<>/L<> shape, never a
+            # Mason/embedded-template tag.
+            r"\b(Tk::|Wx::|Gtk2::|Gtk3::|Prima::|Template|HTML::Mason|Mojolicious::Plugin::TagHelpers)\b|\brender(?:_to_string)?\b|(?<![A-Z])<%|%>|\[%|%\]"
         ),
         # 17. closures: Closures / Anonymous Functions. Anonymous subroutines.
         "closures": re.compile(r"\bsub\s*(?:\([^)]*\))?[ \t]*\{"),
@@ -282,7 +285,10 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),
         # 19. decorators: Decorators / Annotations. Subroutine and variable attributes.
-        "decorators": re.compile(r":\s*[a-zA-Z_]\w*(?:\([^)]*\))?"),
+        # #2898: `::` package separators no longer count (2760 crucible hits) -- the
+        # double-colon guards leave only the single-colon attribute form (:shared,
+        # :SpamAssassin), which is what the sentence names.
+        "decorators": re.compile(r"(?<!:):(?!:)\s*[a-zA-Z_]\w*(?:\([^)]*\))?"),
         # 20. generics: Generics / Type Parameters. Parameterized types (via Type::Tiny/Moose).
         "generics": re.compile(r"\b(?:ArrayRef|HashRef|Map|Tuple|Dict|Maybe|InstanceOf|ConsumerOf|Enum)\[[^\]]*\]"),
         # 21. comprehensions: Iterators / Comprehensions. Map and Grep.
@@ -335,7 +341,9 @@ DEFINITION: dict[str, Any] = {
         "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
         # 31. ssr_boundaries: View Horizon. Server-Side Rendering computation boundaries.
         "ssr_boundaries": re.compile(
-            r"\b(Mojolicious::Controller|Dancer2|Catalyst::Controller|render|template|reply->|to_app)\b"
+            # #2899: bare `render`/`template` matched ordinary words; anchored to the
+            # call form a server handler actually uses.
+            r"\b(Mojolicious::Controller|Dancer2|Catalyst::Controller|reply->|to_app)\b|\b(?:render|template)\s*\("
         ),
         # 32. events: Pub/Sub Network. Event-driven architecture signatures and message brokers.
         "events": re.compile(
@@ -350,7 +358,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # 35. pointers: Memory Map. Explicit tracking of memory addressing or references.
         # UPDATED: Removed '\\[$@%&*]\w+' to stop flagging standard pass-by-reference variables.
-        "pointers": re.compile(r"->(?:\[[^\]]*\]|\{[^\}]*\})|@\$|%\$|\$\$|\&\$"),
+        # #2898: contract-level absence. ->{key}/->[i] and the sigil-derefs ($$, @$,
+        # %$, &$) are all GC-managed reference operations; perl exposes no raw memory
+        # address the way c/cpp/zig (which read the sentence) do.
+        "pointers": None,
         # 36. memory_alloc: Manual Memory Management. Explicit heap manipulations or reference count controls.
         "memory_alloc": re.compile(
             r"\b(Scalar::Util::weaken|Scalar::Util::isweak|Internals::SvREFCNT|Internals::SvREADONLY|undef|Devel::Peek)\b"
@@ -374,7 +385,9 @@ DEFINITION: dict[str, Any] = {
         "thread_sleeps": re.compile(r"\bsleep\b"),
         # 43. bitwise_ops (Bitwise Operations) Manipulating raw bytes and memory registers.
         # UPDATED: Added negative lookbehinds '(?<![=!])~' to ignore Perl regex operators.
-        "bitwise_ops": re.compile(r"(?<!&)&(?!&)|(?<!\|)\|(?!\|)|<<|>>|\^|(?<![=!])~"),
+        # #2899: binary `|` requires spacing so regex-literal alternation (m/a|b/) no
+        # longer counts; perl bitwise-or is conventionally written spaced.
+        "bitwise_ops": re.compile(r"(?<!&)&(?!&)|(?<= )\|(?= )|<<|>>|\^|(?<![=!])~"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(lock|threads::shared|Thread::Semaphore)\b"),
         # 45. immutability_locks (Immutability Constraints) Explicitly locking data so it cannot be mutated.
@@ -394,7 +407,9 @@ DEFINITION: dict[str, Any] = {
         # follows the paren. Both never matched at all.
         "listeners": re.compile(r"\bon\s*\(|\bsubscribe\s*\(|\badd_listener\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs) Code that bypasses test verification.
-        "test_skip": re.compile(r"\b(skip|todo_skip)\b"),
+        # #2899: `skip` anchored to Test::More's call shapes (skip(..., skip "why", n,
+        # skip $why, n) so a hash key or POD item spelling the word no longer counts.
+        "test_skip": re.compile(r"\bskip\s*(?:\(|[\"'\$])|\btodo_skip\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Perl Specifics) ---
         "serialization_parsing": re.compile(
             r"\b(Storable::(?:thaw|fd_retrieve)|JSON::(?:decode_json|from_json)|YAML::(?:Load|LoadFile))\b"
@@ -414,7 +429,8 @@ DEFINITION: dict[str, Any] = {
         "regex_execution": re.compile(
             r"(=~|!~|\b(?:qr|m|s|tr|y)\b[/{}\[\]()<>!|#~^])"
         ),  # Catches Perl's native binding operators and regex quotes
-        "time_date_logic": re.compile(r"\b(localtime|gmtime|Time::HiRes|sleep|time)\b"),
+        # #2899: `time` no longer matches sigil-carrying variables ($time[5], @time).
+        "time_date_logic": re.compile(r"\b(localtime|gmtime|Time::HiRes|sleep)\b|(?<![\$@%\w])time\b(?!\s*[\[{])"),
         # BUG FIX: the whole alternation used to be wrapped in \b(...)\b.
         # \b requires a word/non-word transition; `system\s*\(` and
         # `exec\s*\(` both END in a literal `(` (non-word), so the

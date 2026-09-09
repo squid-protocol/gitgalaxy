@@ -186,7 +186,7 @@ _EMBEDDED_PYTHON_SIMPLE_CASES = [
     ("serialization_parsing", "data = ujson.loads(raw)", "data = 1"),
     ("regex_execution", "m = ure.match(r'^boot', line)", "m = 1"),
     ("time_date_logic", "now = utime.ticks_ms()", "now = 1"),
-    ("ipc_rpc_bridges", "i2c = machine.I2C(0)", "i2c = 0"),
+    ("ipc_rpc_bridges", "s = usocket.socket()", "i2c = machine.I2C(0)"),  # 2898: peripherals are io's
 ]
 
 

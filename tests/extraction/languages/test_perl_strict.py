@@ -96,7 +96,8 @@ _PERL_SIMPLE_CASES = [
     ("events", "$bus->emit('event');", "$bus->publish('event');"),
     ("dependency_injection", "my $c = container();", "my $c = factory();"),
     ("macros", "BEGIN { }", "INIT { }"),
-    ("pointers", "$ref->[0];", "$ref->method();"),
+    # pointers is None since #2898 -- perl's derefs are GC-managed references,
+    # not raw memory addresses (c/cpp/zig read the sentence).
     ("memory_alloc", "undef $x;", "delete $h{$x};"),
     ("inline_asm", "use Inline 'C';", "use Inline::Python;"),
     ("telemetry", "$logger->info('msg');", "$logger->format('msg');"),

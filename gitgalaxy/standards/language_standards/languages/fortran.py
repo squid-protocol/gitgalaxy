@@ -334,8 +334,10 @@ DEFINITION: dict[str, Any] = {
         "comprehensions": re.compile(r"\b(?:FORALL|DO\s+CONCURRENT)\b|\[[^\]]+\]|\(\/[^/]+\/\)", re.I),
         # 22. scientific (Numerical / Compute Libraries)
         # Native Fortran superpower: Vectorized matrix operations, tensor reductions, and strict scientific primitive typing.
+        # #2899: intrinsics anchored to their call form -- with re.I, bare `sum`, `exp`,
+        # `mod` etc. matched ordinary variable names (fortran's top bleed, 28/file).
         "scientific": re.compile(
-            r"\b(MATMUL|DOT_PRODUCT|TRANSPOSE|SUM|PRODUCT|MAXVAL|MINVAL|MAXLOC|MINLOC|RESHAPE|SQRT|EXP|LOG|LOG10|SIN|COS|TAN|ASIN|ACOS|ATAN|ATAN2|SINH|COSH|TANH|KIND=|CEILING|FLOOR|MOD|MODULO)\b",
+            r"\b(MATMUL|DOT_PRODUCT|TRANSPOSE|SUM|PRODUCT|MAXVAL|MINVAL|MAXLOC|MINLOC|RESHAPE|SQRT|EXP|LOG|LOG10|SIN|COS|TAN|ASIN|ACOS|ATAN|ATAN2|SINH|COSH|TANH|CEILING|FLOOR|MOD|MODULO)\s*\(|KIND\s*=",
             re.I,
         ),
         # 23. heat_triggers (Metaprogramming & Reflection)
@@ -442,10 +444,12 @@ DEFINITION: dict[str, Any] = {
         # Framework code that explicitly bypasses verification.
         "test_skip": None,
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Fortran Specifics) ---
-        "serialization_parsing": re.compile(r"(?i)\b(NAMELIST|READ\s*\(|WRITE\s*\(|FORMAT|OPEN\s*\()\b"),
-        "regex_execution": re.compile(
-            r"(?i)\b(SCAN|INDEX|VERIFY|ADJUSTL|ADJUSTR)\b"
-        ),  # Relies on intrinsic string processing
+        # #2898: READ(/WRITE(/OPEN( removed -- formatted record I/O is io's (its rule
+        # already counts them). NAMELIST and FORMAT are fortran's serialization formats.
+        "serialization_parsing": re.compile(r"(?i)\b(NAMELIST|FORMAT)\b"),
+        # #2898: contract-level absence. SCAN/INDEX/VERIFY/ADJUSTL/ADJUSTR are string
+        # intrinsics that take no pattern -- standard fortran has no regex engine.
+        "regex_execution": None,
         "time_date_logic": re.compile(r"(?i)\b(DATE_AND_TIME|SYSTEM_CLOCK|CPU_TIME)\b"),
         # BUG FIX: the shared trailing `\b` made the `OMP_` prefix alternative
         # unreachable -- `OMP_` ends in `_` (a word char), and real OpenMP

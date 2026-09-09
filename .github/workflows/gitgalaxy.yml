@@ -22,6 +22,18 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  # One run per workflow per PR (or per ref outside a PR). Without this, a PR
+  # that picks up several labels in one `gh pr create` starts a separate,
+  # IDENTICAL run per label event on the same SHA (measured 2026-09-09: four
+  # Full Suite Gate runs and five rosetta-audit runs for one commit), and a
+  # re-push leaves the superseded run occupying the queue. cancel-in-progress
+  # is scoped to pull_request on purpose -- the push/schedule/tag runs are the
+  # ones that commit (docs, history charts, releases), and cancelling one
+  # mid-write is how you get a half-written commit.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   # ============================================================
   # PRE-GATE — runs on every PR, blocks the merge on failure.
@@ -31,6 +43,7 @@ jobs:
     if: github.event_name == 'pull_request'
     name: Vault Sentinel
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -45,6 +58,7 @@ jobs:
     if: github.event_name == 'pull_request'
     name: X-Ray Inspector
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -59,6 +73,7 @@ jobs:
     if: github.event_name == 'pull_request'
     name: Supply Chain Firewall
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -89,6 +104,7 @@ jobs:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     name: Full Report (SARIF, SBOM, LLM Brief)
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: write
       pull-requests: write   # NEW — required for create-pull-request to open the PR

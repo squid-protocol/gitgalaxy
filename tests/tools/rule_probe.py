@@ -105,9 +105,16 @@ def streams_for(rule_name: str, stream: str) -> tuple[str, ...]:
 
 
 def _extensions(lang: str) -> set[str]:
+    """The suffixes AND the exact file names a language claims (lower-cased).
+
+    #2851: `makefile` reaches its corpus files by exact name (`Makefile`, `Kbuild`),
+    not by suffix -- filtering on `extensions` alone skipped every one of them and
+    reported the crucible as `--` for a language the golden master does scan.
+    """
     defn = LANGUAGE_DEFINITIONS[lang]
     exts = defn.get("extensions") or defn.get("file_extensions") or []
-    return {e.lower() for e in exts}
+    names = defn.get("exact_matches") or []
+    return {e.lower() for e in exts} | {n.lower() for n in names}
 
 
 def corpus_files(lang: str, corpus: str):
@@ -158,7 +165,13 @@ def probe(
         split = prism.split_streams(src, lang)
         c = per.setdefault(
             name,
-            {"files": 0, "hits": 0, "by_stream": dict.fromkeys(streams, 0), "by_file": {}, "samples": collections.Counter()},
+            {
+                "files": 0,
+                "hits": 0,
+                "by_stream": dict.fromkeys(streams, 0),
+                "by_file": {},
+                "samples": collections.Counter(),
+            },
         )
         c["files"] += 1
         rel = str(path.relative_to(root))
@@ -184,6 +197,7 @@ def print_probe(lang: str, per: dict | None, samples: int) -> None:
     if per is None:
         print(f"{lang:16s} rule is None")
         return
+
     def _cell(v: dict) -> str:
         by = v.get("by_stream") or {}
         split = f" ({', '.join(f'{k[:4]} {n}' for k, n in by.items())})" if len(by) > 1 else ""

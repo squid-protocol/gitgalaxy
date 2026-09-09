@@ -61,6 +61,9 @@ _MAKEFILE_SIMPLE_CASES = [
     ("api", ".PHONY: build", "deploy: main.o"),
     ("state_mutation", "CFLAGS += -Wall", "CFLAGS := -Wall"),
     ("dead_code", "# clean:", "# just a note"),
+    # #2851: a `# Label: text` prose comment is not a commented-out target.
+    ("dead_code", "# %.o: %.c", "# TODO: refactor build"),
+    ("dead_code", "# CFLAGS := -O2", "# SPDX-License-Identifier: GPL-2.0"),
     ("doc", "## Build the project", "# just a note"),
     ("test", "\tpytest tests/", "\techo done"),
     # --- PHASE 3 ---
@@ -125,6 +128,164 @@ def test_makefile_dependency_capture_extracts_include_path():
     assert m3 and m3.group(1) == "foo.mk"
     m4 = pattern.search("  include ../common.mk")
     assert m4 and m4.group(1) == "../common.mk"
+
+
+# --- #2851: makefile dead_code read every `# Word:` prose comment as a commented-out target ---
+_DEAD_CODE_2851_POSITIVE = [
+    # (a) lifecycle names the api rule already treats as targets, with or without prerequisites
+    "# clean:",
+    "# clean :",
+    "#build: lib",
+    "# all: $(PRG).elf lst text eeprom",
+    "# install: install_lib install_headers install_pkgconfig install_doc",
+    "# all clean: ; rm -f *.o",
+    "# install-html: html",
+    "# distclean: clean",
+    # (b) file / pattern / variable target forms
+    "# %.o: %.c",
+    "# text/%.text: %.xml %.txt",
+    "# lib.a: $(OBJS)",
+    "# $(TARGET): $(OBJS)",
+    "# ${TARGET}: main.o",
+    "# .PHONY: clean",
+    "# comedi.h.xml : $(INC_UAPI)/linux/comedi.h",
+    "#$(LUFA_PATH)/LUFA/LUFA_Events.lst:",
+    "# foo.o bar.o: common.h | $(BUILD_DIR)",
+    # (c) any lowercase / file-form name whose next comment line is a commented recipe
+    "# quick-install-man:\n#\t'$(SHELL_PATH_SQ)' ./install-doc-quick.sh",
+    "# checkinvalidevents: $(LUFA_PATH)/LUFA/LUFA_Events.lst\n# \t@echo",
+    "# foo: bar | baz\n#\t$(CC) -o $@ $<",
+    # assignments and directives (the alternatives the issue did not implicate, kept)
+    "# CFLAGS := -O2",
+    "#MCU_TARGET     = atmega8",
+    "# ENV ?= arduino",
+    "# snd-soc-test-objs := soc-topology-test.o",
+    "    # ifeq ($(DEBUG),1)",
+    "#ifdef CONFIG_RANDOMIZE_KSTACK_OFFSET",
+    "# include $(MAKEDIR)/embedded.mk",
+    "# -include .depend",
+    "# include config.mk",
+]
+_DEAD_CODE_2851_NEGATIVE = [
+    # the seven control-corpus hits (keyword-rosetta data/makefile): every one is prose
+    "# decoy: config reads are safe and the sudo word stays in prose",
+    "# HACK: shortcut kept deliberately for the rosetta corpus",
+    "# TODO: fill in the probe body later",
+    "# author: keyword-rosetta generator",
+    # the real-world pool: 82% of the old rule's hits were this one line
+    "# SPDX-License-Identifier: GPL-2.0",
+    "#// SPDX-License-Identifier: GPL-2.0",
+    # prose labels, capitalised and not
+    "# Note:",
+    "# NOTE: keep the order of boards in accordance to their order in Kconfig",
+    "# Author: Jane Doe <jane@example.com>",
+    "# Authors: AMD",
+    "# Compile: create object files from C source files.",
+    "# Target: clean project.",
+    "# FIXME: fix the ambiguous grammar in parse.y and delete this hack",
+    "# File: drivers/arcmsr/Makefile",
+    "# mode: makefile",
+    "# conf: Used for defconfig, oldconfig and related targets",
+    "# see: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63533",
+    "# https://github.com/llvm/llvm-project/issues/44842",
+    "# http://www.samsung.com/",
+    # option tables and abbreviations
+    "#  -Wall...:     warning level",
+    "#    -Map:      create map file",
+    "# e.g.: obj-y += foo_$(BITS).o",
+    "# -mcmodel=medium breaks modules because it uses 32bit offsets",
+    "# -std=c90 (equivalent to -ansi) catches the violation of those.",
+    # a sentence ending in a colon before a tab-indented listing, a tab-continued paragraph,
+    # and pasted tool output -- the three shapes that would satisfy the recipe form (c)
+    "# vmlinuz is:\n#\tgzip compressed vmlinux.bin",
+    "# build parallelizes well and finishes roughly at once:\n#\tfoo bar",
+    "# this make file is simply to help autogenerate these files:\n#\tcomedi_h.py",
+    "# NOTE:\tthis code may be built for 32 bit in ELF32 format even though\n#\tit packages a 64 bit kernel.",
+    "#\tavrdude: Device signature = 0x1e9702\n#\tavrdude: safemode: lfuse reads as 8F",
+    # prose that starts with a directive word
+    "# include the stub's libfdt dependencies from lib/ when needed",
+    "# include additional Makefiles when needed",
+    # a plain-name target with identifier prerequisites and no recipe is ambiguous with prose
+    # (`# foo: bar` vs `# note: see`) and is deliberately NOT claimed
+    "# foo: bar",
+    "# note: see the README",
+]
+
+
+@pytest.mark.parametrize("snippet", _DEAD_CODE_2851_POSITIVE)
+def test_makefile_dead_code_2851_commented_out_construct_counts(snippet):
+    """
+    #2851: the shapes a commented-out Make construct takes -- a lifecycle target
+    (the api rule's own set), a file / pattern / variable target, a target whose
+    commented recipe follows it, an assignment, a conditional or an include with a
+    path argument -- each still count as dead code after the prose-label fix.
+    """
+    assert MAKEFILE_RULES["dead_code"].search(snippet), snippet
+
+
+@pytest.mark.parametrize("snippet", _DEAD_CODE_2851_NEGATIVE)
+def test_makefile_dead_code_2851_prose_label_does_not_count(snippet):
+    """
+    #2851: `# Label: text` is the single most common comment convention there is
+    (`# TODO:`, `# Note:`, `# Author:`, `# SPDX-License-Identifier:` on every
+    kernel Makefile). The old target alternative was `<identifier>[ \\t]*::?`,
+    which every one of these satisfies; on the keyword-rosetta control corpus all
+    7 of makefile's dead_code hits were prose, and on a 3,002-file real-world pool
+    82% of the rule's 3,360 hits were the SPDX line alone. None of these may count.
+    """
+    assert not MAKEFILE_RULES["dead_code"].search(snippet), snippet
+
+
+def test_makefile_dead_code_2851_debt_and_ownership_plants_are_not_double_counted():
+    """
+    #2851: two of the seven control-corpus hits were the `fragile_debt` and
+    `planned_debt` plants and one was the `ownership` plant, so `dead_code` moved
+    with those signals for reasons unrelated to dead code (and `dead_code` feeds
+    `risk_dead_code`). A token another rule owns is not a second signal.
+    """
+    for snippet, owner in [
+        ("# HACK: shortcut kept deliberately", "fragile_debt"),
+        ("# TODO: fill in the probe body later", "planned_debt"),
+        ("# Author: keyword-rosetta generator", "ownership"),
+    ]:
+        assert MAKEFILE_RULES[owner].search(snippet), (owner, snippet)
+        assert not MAKEFILE_RULES["dead_code"].search(snippet), snippet
+
+
+def test_makefile_dead_code_2851_one_rule_one_hit():
+    """A commented-out rule with its recipe counts once (the header), not once per line."""
+    block = "# install-html: html\n#\t'$(SHELL_PATH_SQ)' ./install-webdoc.sh $(DESTDIR)$(htmldir)\n#\t@echo done\n"
+    assert len(MAKEFILE_RULES["dead_code"].findall(block)) == 1
+    two = "# %.html: %.txt\n#\tasciidoc -D html $<\n# xhtml/%.html: %.txt\n#\ta2x -f xhtml $<\n"
+    assert len(MAKEFILE_RULES["dead_code"].findall(two)) == 2
+
+
+# Short ids are REQUIRED here: pytest exports each node id as PYTEST_CURRENT_TEST, and a
+# 50,000-character payload inside the id exceeds Windows' 32,767-character limit on one
+# environment variable ("ValueError: the environment variable is longer than 32767
+# characters" at setup, on every Windows leg of the matrix, green everywhere else).
+_DEAD_CODE_2851_REDOS_PAYLOADS = {
+    "file-form-name-trailing-dot": "# " + "a." * 20000,  # never reaches a colon
+    "prereq-list-fails-last-char": "# all: " + "x " * 20000 + ",",
+    "variable-ref-prereqs": "# all: " + "$(X)" * 10000 + ",",
+    "unterminated-variable-ref": "# $(" + "a" * 50000,
+    "co-targets-past-the-cap": "# a.o " + "b " * 20000 + "!",
+    "punctuation-only-file-form": "# " + "/" * 50000 + ":",
+    "dash-only-assignment-name": "# " + "-" * 50000 + "=",
+    "recipe-form-across-many-lines": ("# foo: bar\n" * 5000) + "x",
+}
+
+
+@pytest.mark.parametrize("payload", _DEAD_CODE_2851_REDOS_PAYLOADS.values(), ids=_DEAD_CODE_2851_REDOS_PAYLOADS.keys())
+def test_makefile_dead_code_2851_redos_immunity(payload):
+    """
+    #2851 added three quantified pieces to `dead_code` (the token / prerequisite
+    classes, the `{0,3}` co-target cap and the two-line recipe form). Each
+    alternative's classes are disjoint at their split points ('$' opens a ref, a
+    whitespace run separates tokens, `\\n` ends a line under re.M), so scaling
+    measured 2k -> 16k characters at ~8x per 8x input before this test was written.
+    """
+    assert_redos_immune(MAKEFILE_RULES["dead_code"], payload, timeout_sec=3.0)
 
 
 def test_makefile_dead_code_single_comment_style_confirmed_no_second_style():
@@ -372,11 +533,12 @@ def test_makefile_io_and_dead_code_redos_immunity():
     """
     ReDoS immunity for `io`'s trailing `>>?[ \\t]*[^ \\t\\n/]+` (a single
     unbounded negated class stopping at whitespace/newline/slash) and
-    `dead_code`'s target/assignment alternatives (each a single unbounded
-    `[a-zA-Z0-9_./%-]+`/`[a-zA-Z0-9_.-]+` bounded by `\\n` via `re.M`'s `^`
-    anchor). Neither has an adjacent second quantifier to backtrack
-    against, so both should stay linear even on a long run of matching
-    characters with no terminator.
+    `dead_code`'s assignment alternative (a single unbounded
+    `[a-zA-Z0-9_.-]+` bounded by `\\n` via `re.M`'s `^` anchor). Neither has an
+    adjacent second quantifier to backtrack against, so both should stay linear
+    even on a long run of matching characters with no terminator. (#2851 rebuilt
+    the target alternatives; their payloads are in
+    test_makefile_dead_code_2851_redos_immunity.)
     """
     io = MAKEFILE_RULES["io"]
     assert_redos_immune(io, ">" + "a" * 50000, timeout_sec=3.0)

@@ -40,7 +40,7 @@ _GO_SIMPLE_CASES = [
     ("branch", "case <-ch:", "mycase := 1"),
     ("branch", "for k, v := range m {", "for_loop"),
     ("branch", "select {", "goto L"),  # 2822 corollary 3
-    ("branch", "fallthrough", "fallthrough_var := 1"),
+    ("structural_boundaries", "fallthrough", "fallthrough_var := 1"),  # 2832: unconditional transfer, not a branch
     ("class_start", "type Foo struct {", "Foo struct {}"),
     ("class_start", "type Foo[T map[string]int] struct {", "type Foo[T map[string]int] func()"),
     ("class_start", "type \n Foo \n [T map[string]int] \n struct {", "type \n Foo \n int"),

@@ -102,10 +102,10 @@ _EMBEDDED_PYTHON_SIMPLE_CASES = [
     ("branch", "for i in range(10):", "foraging"),
     # 2822 corollary 1: try/finally are safety's
     ("branch", "elif x:", "try:"),
-    ("branch", "with open(f) as fh:", "finally:"),
+    ("structural_boundaries", "with open(f) as fh:", "finally:"),  # 2833: with is resource scope, not a branch
     ("branch", "a and b", "random"),
     ("branch", "a or b", "oracle"),
-    ("branch", 'with open("f") as f:', "without"),
+    ("structural_boundaries", 'with open("f") as f:', "without"),  # 2833: with is resource scope, not a branch
     ("args", 'def foo(a="bar)", b=2):', 'foo(a="bar)", b=2)'),
     ("args", "async def fetch(url):", "async fetch(url)"),
     ("args", "lambda: 5", "lambda_func: 5"),

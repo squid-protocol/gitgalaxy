@@ -48,7 +48,7 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Includes modern switch expressions (yield) and pattern guards (when).
         # EXCLUDES: Exceptions (throw) - moved to bailout_hits.
-        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do|continue|break|yield|when)\b|\?|:"),
+        "branch": re.compile(r"\b(if|else|switch|case|default|for|while|do|yield|when)\b|\?|(?<!:):(?!:)"),
         # 2. args (Parameters / Coupling)
         # Captures method/constructor params and lambdas. Bounded to prevent ReDoS.
         "args": re.compile(
@@ -114,7 +114,7 @@ DEFINITION: dict[str, Any] = {
         # 3. linear (Sequential Boundaries)
         # Structural boundaries. EXCLUDES: Access modifiers (encapsulation) and final (freeze_hits).
         "structural_boundaries": re.compile(
-            r"\b(void|return|import|package|class|interface|enum|record|extends|implements|var|sealed|non-sealed|permits|new|throws|module|requires|exports|opens|provides|uses)\b"
+            r"\b(void|return|break|continue|import|package|class|interface|enum|record|extends|implements|var|sealed|non-sealed|permits|new|throws|module|requires|exports|opens|provides|uses)\b"
         ),
         # 4. func_start (Executable Logic Anchors)
         # ONLY executable logic blocks. EXCLUDES classes/interfaces. Steps over annotations.

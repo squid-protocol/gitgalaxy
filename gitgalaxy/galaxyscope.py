@@ -30,7 +30,7 @@ from typing import Any, Optional, Union
 from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.detector import HAS_TIKTOKEN
 from gitgalaxy.core.guidestar_lens import GuideStarLens
-from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX, NetworkRiskSensor
+from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, HAS_NETWORKX, NetworkRiskSensor
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.core.spatial_correlation import correlate_against_ledger
 from gitgalaxy.core.spatial_mapper import SpatialMapper
@@ -1818,11 +1818,29 @@ class Orchestrator:
         suffix_map = {}
         stem_to_paths = {}
 
+        # #2871 (#2540's residue): a case-folded view of the same suffix keys,
+        # held per case-insensitive-resolution language and holding only that
+        # language's own files -- the orchestrator's twin of
+        # network_risk_sensor's `_build_folded_resolution_map`. #2540 taught
+        # the sensor's graph (the one pagerank and the recorded `popularity`
+        # column read) that haskell's necessarily-capitalised `import B` binds
+        # b.hs, but THIS resolver -- the one the Contextual Baseline Fix reads
+        # to decide whether an imported file's orphans are wiped -- kept its
+        # exact-case fast path and a stem fallback whose `len(stem) >= 3`
+        # guard rejects `b`. So every column a reviewer could see said the
+        # chain resolved while the debt wipe never ran (keyword-rosetta
+        # haskell a/b/c: unreferenced_by_name 3 where every other language
+        # reads 0, risk_tech_debt 97 against a stratum median of 30).
+        folded_suffix_map: dict[str, dict[str, list[str]]] = {}
+
         for repo_file in repo_file_paths:
             s = Path(repo_file).stem.lower()
             if s not in stem_to_paths:
                 stem_to_paths[s] = []
             stem_to_paths[s].append(repo_file)
+
+            fold_lang = str(self.ram_cache.get(repo_file, {}).get("lang_id", "")).lower()
+            folded = folded_suffix_map.setdefault(fold_lang, {}) if fold_lang in CASE_INSENSITIVE_IMPORT_LANGS else None
 
             norm_repo = repo_file.replace("\\", "/")
             repo_no_ext = norm_repo.rsplit(".", 1)[0] if "." in Path(norm_repo).name else norm_repo
@@ -1833,6 +1851,8 @@ class Orchestrator:
                 if suffix not in suffix_map:
                     suffix_map[suffix] = []
                 suffix_map[suffix].append(repo_file)
+                if folded is not None:
+                    folded.setdefault(suffix.lower(), []).append(repo_file)
 
             parts_no_ext = repo_no_ext.split("/")
             for i in range(len(parts_no_ext)):
@@ -1841,6 +1861,8 @@ class Orchestrator:
                     suffix_map[suffix] = []
                 if repo_file not in suffix_map[suffix]:
                     suffix_map[suffix].append(repo_file)
+                if folded is not None and repo_file not in folded.setdefault(suffix.lower(), []):
+                    folded[suffix.lower()].append(repo_file)
 
         stop_stems = {
             "text",
@@ -1939,6 +1961,20 @@ class Orchestrator:
                         matched_internal = True
                         for target_path in suffix_map[init_path]:
                             self.popularity_scores[target_path] += 1
+
+                # --- FAST PATH 1c (#2871 / #2540): case-folded retry ---
+                # Only after every exact-case form missed, only for a file
+                # whose language resolves imports case-insensitively, and
+                # only against that language's own files -- the same three
+                # conditions as the sensor's Stage 1c, so the two resolvers
+                # agree on the edge the Contextual Baseline Fix is gated on.
+                if not matched_internal:
+                    fold_lang = str(meta.get("lang_id", "")).lower()
+                    lang_map = folded_suffix_map.get(fold_lang) if fold_lang in CASE_INSENSITIVE_IMPORT_LANGS else None
+                    if lang_map:
+                        for target_path in lang_map.get(clean_path.lower(), ()):
+                            self.popularity_scores[target_path] += 1
+                            matched_internal = True
 
                 # --- THE FALLBACK: Stem Matching ---
                 if not matched_internal:

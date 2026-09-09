@@ -109,7 +109,8 @@ _AGC_SIMPLE_CASES = [
     ("memory_alloc", "\tERASABLE", "\tCA\tBAR"),
     ("telemetry", "\tDOWNLINK", "\tCA\tBAR"),
     ("debug_prints", "\tFLASH", "\tCA\tBAR"),
-    ("explicit_casts", "\tEXTEND", "\tCA\tBAR"),
+    # explicit_casts is None since #2898 -- EXTEND is an opcode-mode prefix, not a
+    # type conversion; tested in test_agc_assembly_explicit_casts_vs_pointers_no_false_collision.
     ("panics_and_aborts", "\tTC\tBAILOUT", "\tCA\tBAR"),
     ("thread_sleeps", "\tVARDELAY", "\tCA\tBAR"),
     ("bitwise_ops", "\tMASK\tBAR", "\tTC\tBAR"),
@@ -218,10 +219,14 @@ def test_agc_assembly_explicit_casts_vs_pointers_no_false_collision():
     explicit_casts = AGC_RULES["explicit_casts"]
     pointers = AGC_RULES["pointers"]
 
+    # #2898: explicit_casts is a contract-level absence -- EXTEND is an
+    # opcode-mode prefix, not a type conversion, and AGC assembly has no cast
+    # construct. The old EXTEND/INDEX co-occurrence scenario now belongs to
+    # pointers alone.
+    assert explicit_casts is None
+
     combined = "\tEXTEND\n\tINDEX\tA"
-    cast_match = explicit_casts.search(combined)
     ptr_match = pointers.search(combined)
-    assert cast_match and cast_match.group(0).upper() == "EXTEND"
     assert ptr_match and ptr_match.group(0).upper() == "INDEX"
 
 

@@ -254,7 +254,9 @@ DEFINITION: dict[str, Any] = {
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs)
         "debug_prints": re.compile(r"\b(?:FLASH|PINBALL|OUT\d+)\b", re.I),
         # 40. explicit_casts (Explicit Type Casting)
-        "explicit_casts": re.compile(r"\bEXTEND\b", re.I),
+        # #2898: contract-level absence. EXTEND is an opcode-mode prefix, not a type
+        # conversion -- AGC assembly has no cast construct.
+        "explicit_casts": None,
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
         "panics_and_aborts": re.compile(r"\b(POODOO|BAILOUT|TC\s+ALARM|ABORT)\b", re.I),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)

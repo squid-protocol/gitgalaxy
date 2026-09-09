@@ -345,7 +345,9 @@ DEFINITION: dict[str, Any] = {
             r"->|\b(?:uintptr_t|intptr_t|ptrdiff_t|size_t)\b|(?<=[=\s,(])&\w+|(?<=[=\s,(])\*(?:\s*const\s*)?\w+"
         ),
         # 36. memory_alloc (Manual Memory Management)
-        "memory_alloc": re.compile(r"\b(malloc|calloc|realloc|free|aligned_alloc|mmap|alloca)\b"),
+        # #2899: anchored to the call form -- bare names matched `"malloc failed"`
+        # inside strings and `free` as an ordinary identifier (freefunc free).
+        "memory_alloc": re.compile(r"\b(malloc|calloc|realloc|free|aligned_alloc|mmap|alloca)\s*\("),
         # 37. inline_asm (The Bare Metal)
         "inline_asm": re.compile(
             r"\b(?:__asm__|asm|__asm)\b(?:\s+(?:volatile|__volatile__))?\s*\(|\b(?:__asm__|asm|__asm)\b[ \t]*\{"

@@ -357,7 +357,9 @@ DEFINITION: dict[str, Any] = {
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r"\b(sleep|usleep|time_nanosleep|time_sleep_until)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"<<|>>|(?<!&)&(?!&)|(?<!\|)\|(?!\|)|\^|~"),
+        # #2899: `&` no longer matches HTML entities (&amp;, &#123;) inside the string
+        # stream -- 12316 of php's 15137 crucible hits were entity ampersands.
+        "bitwise_ops": re.compile(r"<<|>>|(?<!&)&(?!&)(?![a-zA-Z#]\w*;)|(?<!\|)\|(?!\|)|\^|~"),
         # 44. sync_locks (Resource Management & Stability)
         "sync_locks": re.compile(r"\b(mutex|lock|synchronized|Semaphore|flock|sem_acquire)\b", re.I),
         # 45. immutability_locks (Immutability Constraints)

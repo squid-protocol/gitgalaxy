@@ -64,9 +64,9 @@ _TYPESCRIPT_SIMPLE_CASES = [
     ("fragile_debt", "// HACK: workaround", "// clean"),
     ("spec_exposure", "[SPEC-123]", "// just a note"),
     ("ssr_boundaries", "getServerSideProps", "const x = 1;"),
-    ("events", "emit('event')", "const x = 1;"),
+    ("events", "bus.emit('event')", "function emit(node) {"),  # 2899: method-call anchored
     ("dependency_injection", "@Injectable()", "const x = 1;"),
-    ("memory_alloc", "new Foo()", "const x = 1;"),
+    ("memory_alloc", "new ArrayBuffer(8)", "new Foo()"),  # 2898: unmanaged only
     ("telemetry", "logger.info('msg')", "console.log('msg')"),
     ("debug_prints", "console.log('msg')", "logger.info('msg')"),
     ("explicit_casts", "x as Foo", "const x = 1;"),
@@ -415,8 +415,11 @@ def test_typescript_intentional_double_classification_sweep():
     assert TYPESCRIPT_RULES["sync_locks"].search(atomics_wait)
     assert TYPESCRIPT_RULES["thread_sleeps"].search(atomics_wait)
 
+    # #2898 retires the memory_alloc half of this dual: the registry reads
+    # memory_alloc as UNMANAGED allocation only (java/kotlin/scala/dart precedent),
+    # so a managed object construction is regex_execution's alone.
     new_regexp = "new RegExp(x)"
-    assert TYPESCRIPT_RULES["memory_alloc"].search(new_regexp)
+    assert not TYPESCRIPT_RULES["memory_alloc"].search(new_regexp)
     assert TYPESCRIPT_RULES["regex_execution"].search(new_regexp)
 
     # #2888 retires the cleanup half of the `.delete(` dual: the container

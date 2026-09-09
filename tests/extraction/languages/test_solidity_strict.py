@@ -194,7 +194,8 @@ def test_solidity_ipc_rpc_bridges_boundary_regressions():
         "the idiomatic spaced .call{value: ...} form still didn't match"
     )
     assert pattern.search('target.call{value:amount}("");')
-    assert pattern.search("emit Transfer(from, to, amount);"), "a real multi-character event name still didn't match"
+    # #2898: `emit Event(` is events' token alone now -- the ipc arm was removed.
+    assert not pattern.search("emit Transfer(from, to, amount);")
     assert pattern.search("target.delegatecall(data);")
     assert pattern.search("target.staticcall(data);")
     assert pattern.search("selfdestruct(payable(owner));")

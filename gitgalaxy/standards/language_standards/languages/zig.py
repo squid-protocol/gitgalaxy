@@ -217,11 +217,15 @@ DEFINITION: dict[str, Any] = {
         "explicit_casts": re.compile(r"@ptrCast\b|@intCast\b|@alignCast\b|@bitCast\b|@as\b"),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting context.
         # BUG FIX: `@panic` is `@`-prefixed -- same leading-\b bug.
-        "panics_and_aborts": re.compile(r"\b(?:unreachable|return)\b|@panic"),
+        # #2898: `return` removed -- an unconditional transfer is structural_boundaries'
+        # (7538 crucible hits, none of them a panic/abort).
+        "panics_and_aborts": re.compile(r"\bunreachable\b|@panic"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits/sleep).
         "thread_sleeps": re.compile(r"\b(std\.time\.sleep)\b"),
         # 43. bitwise_ops (Bitwise Operations)
-        "bitwise_ops": re.compile(r"(?<!&)&(?!&)|(?<!\|)\|(?!\|)|<<|>>|\^|~"),
+        # #2898: binary `&`/`|` require the zig-fmt spacing (` a & b `) so the prefix
+        # address-of `&x` and payload captures `|err|` no longer count.
+        "bitwise_ops": re.compile(r"(?<= )&(?= )|(?<= )\|(?= )|<<|>>|\^|~"),
         # 44. sync_locks (Resource Management & Stability) Coordinated threading.
         "sync_locks": re.compile(r"\b(Mutex|RwLock|Semaphore|lock|unlock)\b"),
         # 45. immutability_locks (Immutability Constraints) Immutability.

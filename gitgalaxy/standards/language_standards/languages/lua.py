@@ -237,7 +237,8 @@ DEFINITION: dict[str, Any] = {
         # 40. explicit_casts (Explicit Type Casting): "Trust Me" Tax.
         "explicit_casts": re.compile(r"\b(ffi\.cast|tonumber|tostring)\b"),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts)
-        "panics_and_aborts": re.compile(r"\b(error|assert|os\.exit)\b"),
+        # #2898: `assert` removed -- safety's token (its rule already counts it).
+        "panics_and_aborts": re.compile(r"\b(error|os\.exit)\b"),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses)
         "thread_sleeps": re.compile(r'\b(task\.wait|os\.execute\s*\(?[\'"]sleep)\b'),
         # 43. bitwise_ops (Bitwise Operations)
@@ -264,8 +265,9 @@ DEFINITION: dict[str, Any] = {
         "serialization_parsing": re.compile(r"\b(string\.dump|loadstring|load|cjson\.decode|cjson\.encode)\b"),
         "regex_execution": re.compile(r"\b(string\.match|string\.gmatch|string\.find|string\.gsub)\b"),
         "time_date_logic": re.compile(r"\b(os\.time|os\.clock|os\.date|os\.difftime)\b"),
-        "ipc_rpc_bridges": re.compile(
-            r"\b(os\.execute|io\.popen|coroutine\.create|coroutine\.resume|coroutine\.yield)\b"
-        ),
+        # #2898: the coroutine.* family removed -- in-process control transfer is
+        # concurrency's (its rule already counts `coroutine`); a bridge crosses a
+        # process boundary, which os.execute/io.popen do.
+        "ipc_rpc_bridges": re.compile(r"\b(os\.execute|io\.popen)\b"),
     },
 }

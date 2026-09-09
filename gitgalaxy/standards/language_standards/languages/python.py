@@ -269,7 +269,9 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:import|require|from)\b.*?(?:serialport|usb|bluetooth|socket\.io|websocket|printer|webgl)\b"
         ),
         "cryptography": re.compile(
-            r"\b(?:import|require|from)\b.*?(?:crypto|bcrypt|x509|tls|ssl|jsonwebtoken|argon2)\b"
+            # #2898: hashlib/hmac added -- the stdlib's own crypto modules were missing
+            # from the name list, so files importing them read 0.
+            r"\b(?:import|require|from)\b.*?(?:crypto|bcrypt|x509|tls|ssl|jsonwebtoken|argon2|hashlib|hmac)\b"
         ),
         # 23. heat_triggers (Metaprogramming & Reflection)
         # Metaprogramming and class-level binding.
@@ -370,7 +372,10 @@ DEFINITION: dict[str, Any] = {
         # --- NEW: ADVANCED ALGORITHMIC SENSORS ---
         "lazy_evaluation": re.compile(r"\b(yield|yield\s+from|Generator|AsyncGenerator|Iterator|AsyncIterator)\b"),
         "vectorized_math": re.compile(
-            r"\b(einsum|matmul|tensordot|vdot|bmm)\b|\.dot\s*\(|(?<=[a-zA-Z0-9_\]\)])\s*@\s*(?=[a-zA-Z0-9_\[\(])"
+            # #2898: the matrix-multiply `@` operand gap must stay on one line --
+            # `\s*` crossed newlines, so a decorator under any expression counted
+            # (892 of the 898 crucible hits were decorator lines).
+            r"\b(einsum|matmul|tensordot|vdot|bmm)\b|\.dot\s*\(|(?<=[a-zA-Z0-9_\]\)])[ \t]*@[ \t]*(?=[a-zA-Z0-9_\[\(])"
         ),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Python Specifics) ---
         "serialization_parsing": re.compile(

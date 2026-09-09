@@ -142,7 +142,8 @@ _FORTRAN_SIMPLE_CASES = [
     ("cleanup", "DEALLOCATE(x)", "X = 1"),
     ("encapsulation", "PRIVATE", "PUBLIC"),
     ("serialization_parsing", "FORMAT(I5)", None),
-    ("regex_execution", "INDEX(str, 'x')", "X = 1"),
+    # regex_execution is None since #2898 -- fortran's string intrinsics take no
+    # pattern; tested explicitly in test_fortran_test_vs_regex_execution_no_false_collision.
     ("time_date_logic", "CALL DATE_AND_TIME(date, time)", "X = 1"),
     ("ipc_rpc_bridges", "CALL MPI_Send(buf, count, dtype)", "X = 1"),
 ]
@@ -524,13 +525,13 @@ def test_fortran_test_vs_regex_execution_no_false_collision():
     test = FORTRAN_RULES["test"]
     regex_execution = FORTRAN_RULES["regex_execution"]
 
+    # #2898: regex_execution is a contract-level absence -- SCAN/INDEX/VERIFY/
+    # ADJUSTL/ADJUSTR are string intrinsics that take no pattern, and standard
+    # fortran has no regex engine. The old collision scenario is moot.
+    assert regex_execution is None
+
     test_line = "call assert_equal(x, y)"
     assert test.search(test_line)
-    assert not regex_execution.search(test_line)
-
-    regex_line = "pos = INDEX(str, 'x')"
-    assert regex_execution.search(regex_line)
-    assert not test.search(regex_line)
 
 
 def test_fortran_func_start_vs_generics_no_false_collision():

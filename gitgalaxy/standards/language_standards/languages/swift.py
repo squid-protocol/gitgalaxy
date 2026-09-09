@@ -271,7 +271,11 @@ DEFINITION: dict[str, Any] = {
         "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d{1,10}|spec|audit)[^\]]{0,300}\]", re.I),
         # 31. ssr_boundaries (Server-Side Rendering)
         "ssr_boundaries": re.compile(
-            r"\b(Vapor|Hummingbird|Request|Response|Route|app\.get|app\.post|EventLoopFuture)\b"
+            # #2899: bare `Request`/`Response` matched ordinary identifiers and prose;
+            # anchored to the type-annotation (`: Request`) and initializer (`Request(`)
+            # forms, the shapes a server handler actually uses.
+            r"\b(Vapor|Hummingbird|Route|app\.get|app\.post|EventLoopFuture)\b"
+            r"|:\s*(?:Request|Response)\b|\b(?:Request|Response)\("
         ),
         # 32. events (Event Emitters / Pub-Sub)
         # BUG FIX: `@Published` is `@`-prefixed -- same leading-\b bug.
@@ -353,7 +357,9 @@ DEFINITION: dict[str, Any] = {
         ),
         # BUG FIX: `Process\(\)` ends on `)` -- same bug. Never matched.
         "ipc_rpc_bridges": re.compile(
-            r"\b(?:URLSession|NSXPCConnection|NotificationCenter|DispatchQueue)\b|\bProcess\(\)"
+            # #2898: DispatchQueue removed -- in-process dispatch is concurrency's
+            # (its rule already counts it); a bridge crosses a process boundary.
+            r"\b(?:URLSession|NSXPCConnection|NotificationCenter)\b|\bProcess\(\)"
         ),
     },
 }

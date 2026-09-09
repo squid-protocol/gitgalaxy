@@ -159,3 +159,29 @@ python tests/tools/rule_probe.py panics_and_aborts zig --samples 8
 # the literate pack, on the stream the detector uses:
 python tests/tools/rule_probe.py lit_headers markdown --stream both
 ```
+
+## Resolution (#2898 / #2899)
+
+The filed one-layer fixes landed in one PR (2026-09-09); the table above remains the
+batch's measurement record — these are the deltas against it:
+
+- **Cross-sensor double-counts removed** (the receiving rule already counts the token):
+  zig `return` (7538), lua `assert` + the `coroutine.*` family, swift `DispatchQueue`,
+  solidity `emit Event(`, embedded_python's peripheral handles (a socket remains its one
+  bridge), fortran `READ(`/`WRITE(`/`OPEN(`, shell `sed`/`awk`.
+- **Registry-consistent narrowing**: javascript/typescript `memory_alloc` now counts
+  unmanaged forms only (`ArrayBuffer`/`SharedArrayBuffer`/`WebAssembly.Memory`/
+  `Buffer.alloc*`), joining the java/kotlin/scala/dart reading; perl `decorators` no
+  longer counts `::`; dart `closures`/`comprehensions` anchor to expression position;
+  zig `bitwise_ops` requires zig-fmt operator spacing; python `vectorized_math`'s `@`
+  gap no longer crosses newlines; python `cryptography` gains `hashlib`/`hmac`.
+- **Contract-level absences declared** (`None`): fortran `regex_execution`,
+  agc_assembly `explicit_casts`, scheme `memory_alloc`, perl `pointers`.
+- **String/bare-word anchors** (#2899): fortran/scheme `scientific` call/head anchors,
+  c `memory_alloc` call anchor, cpp `signal(`/`on(`/`callback(`, typescript `.emit(`,
+  swift/perl `ssr_boundaries` type/call anchors, dart `ui_framework` exact case,
+  php `&` entity guard, perl `|` spacing, perl `skip`/`time` shapes, perl `<%` POD guard.
+- **Parked**: markdown `lit_headers` fence-awareness is a stream-level change
+  (`detector.comment_analysis`), not a regex anchor — still open on #2898's margin;
+  typescript `.emit(` is best-effort, the compiler's own `emit` calls remain
+  by-name indistinguishable.

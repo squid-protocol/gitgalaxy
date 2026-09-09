@@ -420,7 +420,9 @@ DEFINITION: dict[str, Any] = {
         # 31. ssr_boundaries (Server-Side Rendering)
         "ssr_boundaries": re.compile(r"\b(FCGI_Accept|render_template|Inja::|ctemplate::)\b"),
         # 32. events (Event Emitters / Pub-Sub)
-        "events": re.compile(r"\b(emit|signal|slot|notify|publish|subscribe|boost::signals2)\b"),
+        # #2899: `signal` anchored to its call form so the word inside prose strings
+        # no longer counts.
+        "events": re.compile(r"\b(emit|slot|notify|publish|subscribe|boost::signals2)\b|\bsignal\s*\("),
         # 33. dependency_injection (Dependency Injection / IoC)
         "dependency_injection": re.compile(r"\b(boost\.di|fruit::|[I]nject|IServiceCollection)\b"),
         # 34. macros (Preprocessor Directives / Macros)
@@ -497,7 +499,9 @@ DEFINITION: dict[str, Any] = {
         # unambiguous.
         "encapsulation": re.compile(r"\b(?:private|protected|internal):"),
         # 48. listeners (Event Listeners / Observers)
-        "listeners": re.compile(r"\b(on|addEventListener|subscribe|connect|handler|callback)\b"),
+        # #2899: `on` and `callback` anchored to their call form -- bare, they matched
+        # prose in strings and ordinary identifiers.
+        "listeners": re.compile(r"\bon\s*\(|\bcallback\s*\(|\b(addEventListener|subscribe|connect|handler)\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         # BUG FIX (Rule 10): `mock\(`/`fake\(` end in a literal `(` but
         # shared a trailing `\b` with word-ending siblings -- broke on

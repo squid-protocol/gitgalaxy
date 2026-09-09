@@ -223,8 +223,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # 22. scientific (Numerical / Compute Libraries)
         # Scheme's native mathematical tower.
+        # #2899: anchored to head (operator) position -- directly after `(`/`[` -- so
+        # `exp` as a field/variable name in operand position no longer counts.
         "scientific": re.compile(
-            r"(?<![^ \t\n\r(\[])(sin|cos|tan|asin|acos|atan|exp|log|sqrt|expt|abs|gcd|lcm|numerator|denominator|floor|ceiling|truncate|round|exact->inexact)(?![^ \t)\]\n\r])"
+            r"(?<=[(\[])(sin|cos|tan|asin|acos|atan|exp|log|sqrt|expt|abs|gcd|lcm|numerator|denominator|floor|ceiling|truncate|round|exact->inexact)(?![^ \t)\]\n\r])"
         ),
         # 23. heat_triggers (Metaprogramming & Reflection)
         # Metaprogramming and syntactic abstractions.
@@ -280,9 +282,10 @@ DEFINITION: dict[str, Any] = {
         "pointers": None,
         # 36. memory_alloc
         # Explicit heap instantiations.
-        "memory_alloc": re.compile(
-            r"(?<![^ \t\n\r(\[])(make-vector|make-string|make-bytevector|make-hash-table|cons|list)(?![^ \t)\]\n\r])"
-        ),
+        # #2898: contract-level absence. cons/list/make-* are all GC-managed allocation
+        # (cons alone was 150/file); the registry reads memory_alloc as UNMANAGED
+        # allocation only, and portable scheme has no unmanaged form.
+        "memory_alloc": None,
         # 37. inline_asm
         "inline_asm": None,
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---

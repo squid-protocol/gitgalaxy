@@ -382,7 +382,9 @@ DEFINITION: dict[str, Any] = {
         # group with the leading `\b` dropped (the `#` is self-delimiting).
         "test_skip": re.compile(r"\b(test\.skip|bats_skip|mock|stub)\b|#\s*SKIP\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Shell Specifics) ---
-        "serialization_parsing": re.compile(r"\b(jq|yq|awk|sed|xmlstarlet)\b"),
+        # #2898: sed/awk removed -- general text processors, not format codecs
+        # (sed alone was 529 crucible hits); jq/yq/xmlstarlet parse a format.
+        "serialization_parsing": re.compile(r"\b(jq|yq|xmlstarlet)\b"),
         "regex_execution": re.compile(r"\b(grep|egrep|sed|awk)\b|=~"),
         # BOUNDARY FIX: the trailing `\s+` before the shared closing `\b`
         # required a word char to immediately follow the whitespace --

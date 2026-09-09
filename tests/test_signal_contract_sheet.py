@@ -69,9 +69,15 @@ def test_declared_rows_are_unplanted():
 
 
 def test_encapsulation_is_carved_out_of_the_batch():
-    """It governs _calc_api_exposure (#2766); a sentence without the rule audit would be the false `stated`."""
-    assert sc.CONTRACTS["encapsulation"].status == "draft"
+    """The #2897 batch carved encapsulation out as `draft` because it governs
+    _calc_api_exposure and a sentence without the rule audit would have been the
+    false `stated`. The family audit landed with #2766 (46 languages, rules edited
+    in the same PR, docs/encapsulation_rule_contract.md) -- the carve-out's exit
+    condition -- so the row is `stated` now, and this test pins that the promotion
+    came WITH its doc rather than by sentence alone."""
+    assert sc.CONTRACTS["encapsulation"].status == "stated"
     assert sc.CONTRACTS["encapsulation"].issue == 2766
+    assert sc.CONTRACTS["encapsulation"].doc == "docs/encapsulation_rule_contract.md"
 
 
 # ==============================================================================

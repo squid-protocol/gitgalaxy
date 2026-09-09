@@ -370,11 +370,12 @@ DEFINITION: dict[str, Any] = {
         #    the same reason as in `api` above: without it, greedy
         #    `\w+` can backtrack one character short of the real
         #    identifier end purely to dodge the `(?!\()` check.
+        # #2766: lowercase names ARE go's per-name non-public marker, but only at
+        # package scope -- the old indented arm matched every function-local
+        # identifier (4521 crucible hits of `gp :=`-shaped locals). Top-level
+        # declaration forms only.
         "encapsulation": re.compile(
-            r"^func\s+(?:\([^)]*\)[ \t]+)?[a-z]\w+|^(?:type|var|const)\s+[a-z]\w+"
-            r"|^[ \t]+(?!(?:if|else|for|switch|case|default|break|continue|goto|fallthrough"
-            r"|return|go|defer|select|range|func|type|var|const|package|import|struct"
-            r"|interface|map|chan|make|new|nil|true|false|iota)\b)\b[a-z]\w+\b(?!\()",
+            r"^func\s+(?:\([^)]*\)[ \t]+)?[a-z]\w+|^(?:type|var|const)\s+[a-z]\w+",
             re.M,
         ),
         # 48. listeners (Event Listeners / Observers)

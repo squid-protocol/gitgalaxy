@@ -497,7 +497,8 @@ DEFINITION: dict[str, Any] = {
         # word character), meaning this rule never matched anything.
         # Removed the trailing `\b`; the literal `:` is already
         # unambiguous.
-        "encapsulation": re.compile(r"\b(?:private|protected|internal):"),
+        # #2766: `internal:` removed -- not a C++ access label.
+        "encapsulation": re.compile(r"\b(?:private|protected):"),
         # 48. listeners (Event Listeners / Observers)
         # #2899: `on` and `callback` anchored to their call form -- bare, they matched
         # prose in strings and ordinary identifiers.

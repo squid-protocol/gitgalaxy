@@ -768,7 +768,12 @@ DEFINITION: dict[str, Any] = {
         # field syntax (`#foo` is always preceded by `{`, whitespace, or
         # `.` -- never a bare word char) -- so the `#` alternative was
         # completely unreachable, same bug as javascript's copy of this.
-        "encapsulation": re.compile(r"\b(private|protected|internal)\b|#[a-zA-Z_$]"),
+        # #2766: `internal` removed (not a ts modifier; matched './internal' import
+        # strings). #fields count at declaration position only, not every usage.
+        "encapsulation": re.compile(
+            r"\b(private|protected)\b|(?:^[ \t]*|[{;,][ \t]*)(?:static[ \t]+)?#[a-zA-Z_$]\w*[ \t]*[=;(]",
+            re.M,
+        ),
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\b(on|addEventListener|subscribe|watch|effect)\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)

@@ -398,7 +398,10 @@ DEFINITION: dict[str, Any] = {
             re.M,
         ),  # #2888 C3: `return undef` yields a value, only `undef $x` destroys one; C1/C3: `sub finish {` declares and `=head2 finish` documents; call or arrow form only
         # 47. encapsulation Explicitly hiding logic from the rest of the application.
-        "encapsulation": re.compile(r"\b(my|state|local)\b|:private\b"),
+        # #2766: contract-level absence. `my`/`state`/`local` are lexical scoping of
+        # every variable -- scope is not API visibility; perl has no per-name
+        # non-public marker (package symbols are all reachable).
+        "encapsulation": None,
         # 48. listeners (Event Listeners / Observers) Waiting to receive state from an external broadcast.
         # BUG FIX: `on\s*\(` and `subscribe\s*\(` both end in a literal
         # `(` (non-word), so the shared trailing \b could only fire when

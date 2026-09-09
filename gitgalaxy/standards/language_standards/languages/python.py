@@ -364,7 +364,19 @@ DEFINITION: dict[str, Any] = {
         ),  # #2888 C1: `def close(self):` declares (embedded_python twin)
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Captures protected/private members via underscore convention.
-        "encapsulation": re.compile(r"\b_[a-zA-Z_]\w*\b"),
+        # #2766: declaration-position only. The `_` marker is part of the identifier,
+        # so the old bare-word form counted every USAGE of a private name (massive
+        # overcount vs keyword-morphology languages). One hit = declaring a private
+        # def/class, or binding a private module-level or attribute name.
+        "encapsulation": re.compile(
+            # dunders (__init__, __all__) are the PUBLIC protocol surface, excluded;
+            # _single and __mangled stay.
+            r"^[ \t]*(?:async[ \t]+)?def[ \t]+(?!__\w+__[ \t]*\()_\w+"
+            r"|^[ \t]*class[ \t]+(?!__\w+__\b)_\w+"
+            r"|^(?!__\w+__[ \t]*=)_[a-zA-Z_]\w*[ \t]*=(?!=)"
+            r"|self\.(?!__\w+__[ \t]*=)_\w+[ \t]*=(?!=)",
+            re.M,
+        ),
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\b(on_event|add_listener|subscribe|callback|handler)\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)

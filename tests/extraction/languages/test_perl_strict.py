@@ -109,7 +109,7 @@ _PERL_SIMPLE_CASES = [
     ("sync_locks", "lock($var);", "unlock($var);"),
     ("immutability_locks", "use Readonly;", "use constant PI => 3.14;"),
     ("cleanup", "close($fh);", "$closed_handles++;"),
-    ("encapsulation", "state $x;", "our $x;"),
+    # encapsulation is None since #2766 -- my/state/local are lexical scope, not visibility.
     ("listeners", "$bus->on('event', sub {});", "$bus->off('event');"),
     ("test_skip", "skip('reason', 1);", "todo('reason', 1);"),
     ("serialization_parsing", "JSON::decode_json($json);", "JSON::encode_json($data);"),

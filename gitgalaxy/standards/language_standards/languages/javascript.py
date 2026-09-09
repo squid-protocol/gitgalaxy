@@ -411,7 +411,11 @@ DEFINITION: dict[str, Any] = {
         # which never happens in real private-field syntax (`#foo` is
         # always preceded by `{`, whitespace, or `.` -- never a bare word
         # char) -- so the `#` alternative was completely unreachable.
-        "encapsulation": re.compile(r"\b(private|protected|internal)\b|#[a-zA-Z_$]"),
+        # #2766: js has no private/protected keywords (the old word list matched
+        # prose and, via `#`, C-preprocessor lines inside shader strings). One hit =
+        # a #field DECLARATION (assignment, bare field, or method) at class-member
+        # position -- not every usage of `this.#x`.
+        "encapsulation": re.compile(r"(?:^[ \t]*|[{;,][ \t]*)(?:static[ \t]+)?#[a-zA-Z_$]\w*[ \t]*[=;(]", re.M),
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\b(on|addEventListener|subscribe|watch|effect)\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)

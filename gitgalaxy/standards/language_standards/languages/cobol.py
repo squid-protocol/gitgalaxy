@@ -511,7 +511,10 @@ DEFINITION: dict[str, Any] = {
             r"(?<![\w\'-])(CLOSE|FREE|DELETE)(?![\w-])", re.I
         ),  # #2888 C3: \\b fired inside 9000-DALYTRAN-CLOSE and \'CLOSE...\' literals; END-DECLARATIVES is a structural closer (#2869\'s END-* family); DELETE removes a record (#2843)
         # 47. encapsulation (Encapsulation / Access Modifiers)
-        "encapsulation": re.compile(r"\b(LOCAL-STORAGE\s+SECTION|PRIVATE)\b", re.I),
+        # #2766: LOCAL-STORAGE SECTION dropped -- it is per-invocation memory
+        # allocation (recursion support), not a name-visibility marker. PRIVATE is
+        # OO COBOL's genuine non-public marker.
+        "encapsulation": re.compile(r"\bPRIVATE\b", re.I),
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\b(?:MQGET|EXEC\s+CICS\s+RECEIVE)\b", re.I),
         # 49. test_skip (Bypassed Tests / Ignored Specs)

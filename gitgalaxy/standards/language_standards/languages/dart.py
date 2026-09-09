@@ -465,7 +465,17 @@ DEFINITION: dict[str, Any] = {
             r"\b(?<!void )(dispose|close|cleanup|cancel|drop|free)\s*\(", re.I
         ),  # #2888 C1: `void dispose() {` declares
         # 47. encapsulation Scope hiding (Underscore prefix).
-        "encapsulation": re.compile(r"\b(_[a-zA-Z0-9_$]+)\b|@protected|@private"),
+        # #2766: declaration-position only -- the `_` marker is part of the
+        # identifier, so the bare-word form counted every usage. `@private` dropped
+        # (not a dart/meta annotation); @protected kept (non-public intent marker).
+        "encapsulation": re.compile(
+            # The var/final arm requires `= `/`;` right after the name so `final
+            # _Type publicName` (a private-TYPE usage) doesn't count; the method arm
+            # excludes statement keywords so `return _call(...)` doesn't.
+            r"@protected\b|\b(?:class|enum|mixin|extension|typedef)[ \t]+_[\w$]+"
+            r"|^[ \t]*(?!return\b|await\b|yield\b|throw\b|case\b)(?:static[ \t]+)?(?:[\w<>,\[\]$?]+[ \t]+){1,3}_[\w$]+[ \t]*[=;(]",
+            re.M,
+        ),
         # 48. listeners (Event Listeners / Observers) Waiting for state broadcasts.
         # BUG FIX: `on\(` ends on `(` (non-word), so the shared trailing
         # \b could only fire when a word char immediately followed --

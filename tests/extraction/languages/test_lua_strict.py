@@ -70,7 +70,7 @@ _LUA_SIMPLE_CASES = [
     ("sync_locks", "local mutex = Mutex.new()", "local locker = KeyHolder.new()"),
     ("immutability_locks", "local x <const> = 5", "local x <close> = 5"),
     ("cleanup", "file:close()", "local data = file:read()"),
-    ("encapsulation", "local x = 5", "x = 5"),
+    # encapsulation is None since #2766 -- `local` is lexical scope, not API visibility.
     ("listeners", "emitter:on('event', cb)", "emitter:off('event', cb)"),
     ("test_skip", 'xit("skip this")', 'it("runs normally")'),
     ("serialization_parsing", "cjson.decode(str)", "cjson.safe.decode(str)"),

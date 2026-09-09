@@ -222,7 +222,11 @@ DEFINITION: dict[str, Any] = {
         ),  # #2888/#2843: file delete destroys external state
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Internal namespaces and private `_` prefixed procs.
-        "encapsulation": re.compile(r"\bnamespace[ \t]+eval\b|^[ \t]*proc[ \t]+_[a-zA-Z0-9_:]+", re.M),
+        # #2766: contract-level absence. `namespace eval` defines a namespace
+        # boundary (structure, not a per-name visibility marker) and the `proc _x`
+        # underscore is convention without probe incidence; tcl names remain
+        # reachable via qualified paths.
+        "encapsulation": None,
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\b(?:bind|fileevent)\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)

@@ -335,7 +335,9 @@ DEFINITION: dict[str, Any] = {
         ),  # #2888 C1: `fn drop(&mut self)` declares the Drop impl; drop(x) invokes it
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Visibility variant tracking.
-        "encapsulation": re.compile(r"\bpub(?:\(crate\)|\(super\)|\(self\))?\b"),
+        # #2766: bare `pub` marks the PUBLIC surface (api's side) -- counting it here
+        # was backward. Rust's genuine non-public markers are the restricted-pub forms.
+        "encapsulation": re.compile(r"\bpub\((?:crate|super|self)\)"),
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\.subscribe\(|\.on\(|addEventListener"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)

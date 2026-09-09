@@ -235,7 +235,11 @@ DEFINITION: dict[str, Any] = {
             r"\b(?<!fn )(deinit|free|destroy|allocator\.free)\b"
         ),  # #2888 C1: `pub fn deinit(` declares
         # 47. encapsulation Scope hiding (Lack of pub).
-        "encapsulation": re.compile(r"^[ \t]*(?!(?:pub|export|extern)\b)(?:const|var|fn)\s+", re.M),
+        # #2766: contract-level absence. Zig hiding is the UNMARKED default (there is
+        # no private keyword and no per-name non-public marker); the old rule counted
+        # every non-pub declaration including function locals (15430 crucible hits) --
+        # code volume, not information-hiding effort.
+        "encapsulation": None,
         # 48. listeners (Event Listeners / Observers)
         "listeners": None,
         # 49. test_skip (Bypassed Tests / Ignored Specs)

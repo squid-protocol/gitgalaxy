@@ -371,7 +371,10 @@ DEFINITION: dict[str, Any] = {
         ),  # #2888 C2: exit terminates (panics_and_aborts owns it); rm flags-with-f on a non-root target destroys external state (#2843; rm -rf / stays high_risk\'s)
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Physical Reality: local variables represent internal state scope.
-        "encapsulation": re.compile(r"\b(local|typeset|declare)\b"),
+        # #2766: contract-level absence. `local`/`typeset`/`declare` scope variables
+        # inside functions -- scope is not API visibility; shell has no per-name
+        # non-public marker.
+        "encapsulation": None,
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\b(read|inotifywait|nc\s+-l|while\s+read)\b"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)

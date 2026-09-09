@@ -247,7 +247,10 @@ DEFINITION: dict[str, Any] = {
         "cleanup": re.compile(r"\b(?:m4_popdef|popdef|AT_CLEANUP)\b"),
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Forbidding specific patterns from reaching the output script.
-        "encapsulation": re.compile(r"\b(?:m4_pattern_forbid)\b"),
+        # #2766: contract-level absence. m4_pattern_forbid is an error-generation
+        # directive (an assertion shape), not a name-visibility marker; m4 macros are
+        # globally visible. See #2872 for the m4/makefile visibility questions.
+        "encapsulation": None,
         # 48. listeners
         "listeners": None,
         # 49. test_skip (Bypassed Tests / Ignored Specs)

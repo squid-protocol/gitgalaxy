@@ -65,7 +65,7 @@ _TCL_SIMPLE_CASES = [
     ("sync_locks", "thread::mutex lock $m", "set x 5"),
     ("immutability_locks", "trace add variable x write lockCb", "set x 5"),
     ("cleanup", "close $f", "set x 5"),
-    ("encapsulation", "namespace eval ::myns {", "proc publicFn {} {}"),
+    # encapsulation is None since #2766 -- namespace eval is structure, not a per-name marker.
     ("listeners", "fileevent $sock readable cb", "set x 5"),
     ("test_skip", "-constraints unix", "set x 5"),
     # --- ADVERSARIAL & DEEP CASES ---

@@ -347,7 +347,10 @@ DEFINITION: dict[str, Any] = {
         "cleanup": None,
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Scoping and part boundaries.
-        "encapsulation": re.compile(r"@scope\b|::part|::slotted", re.I),
+        # #2766: contract-level absence. @scope/::part/::slotted are DOM/style
+        # isolation boundaries, not markers excluding a NAME from a public surface;
+        # css has no name-visibility construct.
+        "encapsulation": None,
         # 48. listeners (Event Listeners / Observers)
         # Subscribing to external timelines.
         "listeners": re.compile(r"animation-timeline|@scroll-timeline", re.I),

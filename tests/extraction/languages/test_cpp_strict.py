@@ -214,7 +214,8 @@ def test_cpp_encapsulation_total_breakage_regression():
     encapsulation = CPP_RULES["encapsulation"]
     assert encapsulation.search("private:\n    int x;")
     assert encapsulation.search("protected:\n    int y;")
-    assert encapsulation.search("internal:\n    int z;")
+    # #2766: `internal:` is not a C++ access label -- removed from the rule.
+    assert not encapsulation.search("internal:\n    int z;")
 
 
 def test_cpp_ui_framework_qt_boundary_regression():

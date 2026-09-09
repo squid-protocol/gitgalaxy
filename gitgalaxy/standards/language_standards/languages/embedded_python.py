@@ -275,7 +275,16 @@ DEFINITION: dict[str, Any] = {
             r"\b(?<!def )(close|__exit__|del|gc\.collect|cleanup)\b\s*\("
         ),  # #2888 C1: `def close(self):` declares (python twin)
         # 47. encapsulation (Access Modifiers / Encapsulation)
-        "encapsulation": re.compile(r"\b_[a-zA-Z_]\w*\b"),
+        # #2766: declaration-position only (python twin parity) -- the bare-word form
+        # counted every usage of a private name.
+        "encapsulation": re.compile(
+            # dunders are the public protocol surface, excluded (python twin parity).
+            r"^[ \t]*(?:async[ \t]+)?def[ \t]+(?!__\w+__[ \t]*\()_\w+"
+            r"|^[ \t]*class[ \t]+(?!__\w+__\b)_\w+"
+            r"|^(?!__\w+__[ \t]*=)_[a-zA-Z_]\w*[ \t]*=(?!=)"
+            r"|self\.(?!__\w+__[ \t]*=)_\w+[ \t]*=(?!=)",
+            re.M,
+        ),
         # 48. listeners (Event Listeners / Observers)
         # Waiting for state broadcast via hardware IRQs or event listeners.
         "listeners": re.compile(r"\.irq\(|handler=|callback="),

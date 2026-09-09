@@ -304,7 +304,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Explicitly encapsulating logic in multi-stage builds (`AS builder`). Hides intermediate build layers.
-        "encapsulation": re.compile(r"^[ \t]*FROM[ \t]+[^\n]+[ \t]+AS[ \t]+[a-zA-Z0-9_-]+", re.M | re.I),
+        # #2766: contract-level absence. `FROM ... AS name` declares a build-stage
+        # alias (structure/reuse), not a marker excluding a name from a public
+        # surface; dockerfile has no name-visibility construct.
+        "encapsulation": None,
         # 48. listeners (Event Listeners / Observers)
         # Exposing ports for network consumption. .
         "listeners": re.compile(r"^[ \t]*EXPOSE[ \t]+[0-9]+", re.M | re.I),

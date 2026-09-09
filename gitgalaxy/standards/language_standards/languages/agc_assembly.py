@@ -279,7 +279,10 @@ DEFINITION: dict[str, Any] = {
         # func_start's own capture class is `[A-Z0-9_-]+`) -- confirmed
         # a realistic label ("MYLABEL") never matched at all. Widened
         # to accept any case.
-        "encapsulation": re.compile(r"^[ \t]*[A-Za-z0-9_][a-zA-Z0-9_.]*", re.M),
+        # #2766: contract-level absence. The old pattern matched every identifier-
+        # shaped token at line start (a catch-all, ~12.5 hits/file); AGC assembly has
+        # no visibility construct of any kind.
+        "encapsulation": None,
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\b(EVENT\s+WAIT|TC\s+WAITLIST)\b", re.I),
         # 49. test_skip (Bypassed Tests / Ignored Specs)

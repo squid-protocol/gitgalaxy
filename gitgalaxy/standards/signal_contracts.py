@@ -504,7 +504,9 @@ _ROWS = [
         "encapsulation",
         "resources",
         "annotation",
-        "Explicitly hiding logic from the rest of the application",
+        "One hit is a declaration-position marker that excludes a name from the public surface, in the language's own morphology",
+        status="stated",
+        doc="docs/encapsulation_rule_contract.md",
         issue=2766,
     ),
     _c(

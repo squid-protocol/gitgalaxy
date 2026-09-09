@@ -117,7 +117,7 @@ _AGC_SIMPLE_CASES = [
     ("sync_locks", "\tINHINT", "\tCA\tBAR"),
     ("immutability_locks", "\tFIXED MEMORY", "\tCA\tBAR"),
     ("cleanup", "\tENDOFJOB", "\tCA\tBAR"),
-    ("encapsulation", "MYLABEL\tCA\tBAR", "# just a comment line"),
+    # encapsulation is None since #2766 -- AGC has no visibility construct.
     ("listeners", "\tEVENT WAIT", "\tCA\tBAR"),
 ]
 
@@ -177,12 +177,11 @@ def test_agc_assembly_encapsulation_case_regression():
     lowercase-only requirement here was a clear outlier. Confirmed a
     realistic label ("MYLABEL") never matched at all under the old pattern.
     """
-    old_pattern = re.compile(r"^[ \t]*[a-z0-9_][a-zA-Z0-9_.]*", re.M)
-    realistic = "MYLABEL\tCA\tBAR"
-    assert not old_pattern.search(realistic), "sanity check: bug must reproduce against the old pattern"
-
-    encapsulation = AGC_RULES["encapsulation"]
-    assert encapsulation.search(realistic), "uppercase AGC label still didn't match"
+    # #2766 superseded the case fix entirely: the case-corrected pattern was a
+    # catch-all matching EVERY identifier-shaped line (~12.5 hits/file of opcode
+    # mnemonics), and AGC assembly has no visibility construct at all -- the rule
+    # is a contract-level absence now.
+    assert AGC_RULES["encapsulation"] is None
 
 
 def test_agc_assembly_func_start_vs_macros_no_false_collision():

@@ -368,7 +368,10 @@ DEFINITION: dict[str, Any] = {
         ),
         # 47. encapsulation (Access Modifiers / Encapsulation)
         # Declarative and Shadow DOM boundaries.
-        "encapsulation": re.compile(r"<(?:template|shadowrootmode|slot)\b", re.I),
+        # #2766: contract-level absence. template/shadowroot/slot are DOM rendering
+        # isolation, not name-visibility markers; html has no name-visibility
+        # construct (0 probe hits confirmed the honest zero).
+        "encapsulation": None,
         # 48. listeners (Event Listeners / Observers)
         # Event sinks waiting for state broadcast.
         "listeners": re.compile(r"\bhx-trigger|v-on:|@[a-z]+=|addEventListener|on[a-z]+=", re.I),

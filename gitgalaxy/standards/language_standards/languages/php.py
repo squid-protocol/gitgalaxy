@@ -367,7 +367,8 @@ DEFINITION: dict[str, Any] = {
         # 46. cleanup (Resource Cleanup / Teardown)
         "cleanup": re.compile(r"\b(unset|fclose|mysql_close|mysqli_close|PDO::null|dispose|cleanup)\b\s*\("),
         # 47. encapsulation (Access Modifiers / Encapsulation)
-        "encapsulation": re.compile(r"\b(private|protected|internal)\b"),
+        # #2766: `internal` removed -- not a php keyword (matched prose/identifiers).
+        "encapsulation": re.compile(r"\b(private|protected)\b"),
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\.on\(|addEventListener|subscribe|@KafkaListener|@RabbitListener"),
         # 49. test_skip (Bypassed Tests / Ignored Specs)

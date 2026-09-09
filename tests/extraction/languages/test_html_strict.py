@@ -74,7 +74,7 @@ _HTML_SIMPLE_CASES = [
     ("thread_sleeps", "setTimeout(fn, 1000)", "requestAnimationFrame(fn)"),
     ("immutability_locks", "<input readonly>", "<input>"),
     ("cleanup", "clearTimeout(t)", "setTimeout(fn, 0)"),
-    ("encapsulation", "<template></template>", "<div></div>"),
+    # encapsulation is None since #2766 -- DOM isolation is not name visibility.
     ("listeners", "addEventListener('click', fn)", "<div>no listener here</div>"),
     ("test_skip", "data-skip", "data-run"),
 ]

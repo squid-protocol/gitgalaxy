@@ -123,7 +123,7 @@ _CSS_SIMPLE_CASES = [
     ("panics_and_aborts", "all: unset;", "all: inherit;"),
     ("thread_sleeps", "transition-delay: 200ms;", "transition-duration: 200ms;"),
     ("immutability_locks", "color: red !important;", "color: red;"),
-    ("encapsulation", "::part(header) {", ".foo {}"),
+    # encapsulation is None since #2766 -- style isolation is not name visibility.
     ("listeners", "animation-timeline: scroll();", ".foo {}"),
     ("test_skip", "[data-skip] { display: none; }", ".foo {}"),
     # --- DEEP / ADVERSARIAL CASES FOR HIGH-AMBIGUITY SIGNATURES ---
@@ -494,10 +494,14 @@ def test_css_encapsulation_and_structural_boundaries_scope_intentional_double_cl
     structural at-rule boundary AND an explicit encapsulation/scoping
     mechanism -- both readings are correct.
     """
+    # #2766 retired the encapsulation half of this dual: @scope is style/DOM
+    # isolation, not a marker excluding a NAME from a public surface -- css has no
+    # name-visibility construct, so the rule is a contract-level absence and
+    # @scope is structural_boundaries' alone.
     encapsulation = CSS_RULES["encapsulation"]
     structural_boundaries = CSS_RULES["structural_boundaries"]
     scope_rule = "@scope (.card) to (.content) {"
-    assert encapsulation.search(scope_rule)
+    assert encapsulation is None
     assert structural_boundaries.search(scope_rule)
 
 

@@ -403,7 +403,10 @@ DEFINITION: dict[str, Any] = {
             r"\b(?<!void )(close|dispose|shutdown|free|release|cleaner\.register)\b\s*\("
         ),  # #2888 C1: `void close(ApplicationContext c) {` declares
         # 47. encapsulation (Access Modifiers / Encapsulation)
-        "encapsulation": re.compile(r"\b(private|protected|internal)\b"),
+        # #2766: `internal` removed -- not a java keyword (matched prose/identifiers).
+        # protected counts under the public-surface comparator: a protected member is
+        # not public API even though it widens java's package default.
+        "encapsulation": re.compile(r"\b(private|protected)\b"),
         # 48. listeners (Event Listeners / Observers)
         # BUG FIX: `@KafkaListener`/`@RabbitListener` start with `@` --
         # same leading-\b bug as dependency_injection above.

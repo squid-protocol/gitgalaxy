@@ -127,7 +127,7 @@ _SHELL_SIMPLE_CASES = [
     ("sync_locks", "flock /tmp/lock", "echo lock"),
     ("immutability_locks", "readonly CONST=1", "local CONST=1"),
     ("cleanup", "rm -f /tmp/file", "ls /tmp/file"),
-    ("encapsulation", "local x=1", "export x=1"),
+    # encapsulation is None since #2766 -- `local` is lexical scope, not API visibility.
     ("listeners", "nc -l 8080", "nc example.com 80"),
     ("test_skip", "# SKIP: flaky test", "# run test"),
     # --- HYBRID ---
@@ -540,7 +540,9 @@ def test_shell_ambiguity_sweep_shared_literals_are_not_bugs():
 
     local_decl = "local env=$1"
     assert structural_boundaries.search(local_decl)
-    assert encapsulation.search(local_decl)
+    # #2766 retired the encapsulation half of the `local` dual: lexical scoping is
+    # not API visibility, and shell's encapsulation is a contract-level absence.
+    assert encapsulation is None
 
     readonly_decl = "readonly VERSION=1.2.3"
     assert structural_boundaries.search(readonly_decl)

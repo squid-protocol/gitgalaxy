@@ -59,7 +59,7 @@ _M4_SIMPLE_CASES = [
     ("panics_and_aborts", "AC_MSG_ERROR([fatal])", "AC_SUBST(FOO)"),
     ("thread_sleeps", "sleep 5", "AC_SUBST(FOO)"),
     ("cleanup", "AT_CLEANUP", "AC_SUBST(FOO)"),
-    ("encapsulation", "m4_pattern_forbid([^MY_])", "AC_SUBST(FOO)"),
+    # encapsulation is None since #2766 -- pattern_forbid is error generation, not visibility.
     ("test_skip", "AT_SKIP_IF([test x = y])", "AC_SUBST(FOO)"),
 ]
 

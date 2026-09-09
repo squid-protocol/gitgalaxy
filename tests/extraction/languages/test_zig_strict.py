@@ -118,7 +118,7 @@ _ZIG_SIMPLE_CASES = [
     # immutability_locks is None since #2772 (`const` is zig's ordinary binding);
     # pinned in test_immutability_locks_contract_2772.py.
     ("cleanup", "defer allocator.free(buf);", "const x = 5;"),
-    ("encapsulation", "fn helper() void {", "pub fn helper() void {"),
+    # encapsulation is None since #2766 -- zig hiding is the unmarked default (no marker).
     ("test_skip", "std.testing.expect(true) catch unreachable;", "const x = 5;"),
     ("serialization_parsing", "const parsed = try std.json.parseFromSlice(T, allocator, data, .{});", "const x = 5;"),
     ("regex_execution", "const idx = std.mem.indexOf(u8, haystack, needle);", "const x = 5;"),
@@ -335,11 +335,11 @@ def test_zig_encapsulation_default_private_semantics():
     semantic intent over keyword matching) -- a declaration is "encapsulated"
     precisely when it's NOT explicitly marked pub/export/extern.
     """
-    encapsulation = ZIG_RULES["encapsulation"]
-    assert encapsulation.search("fn helper() void {"), "unmarked (private-by-default) fn should match"
-    assert encapsulation.search("const secret = 42;"), "unmarked (private-by-default) const should match"
-    assert not encapsulation.search("pub fn helper() void {"), "pub fn incorrectly matched as encapsulated"
-    assert not encapsulation.search("export fn helper() void {"), "export fn incorrectly matched as encapsulated"
+    # #2766 reversed this design: counting every NOT-pub declaration measured code
+    # volume (15430 crucible hits, mostly function locals), not hiding effort. Zig
+    # has no per-name non-public marker -- hiding is the unmarked default -- so the
+    # rule is a contract-level absence.
+    assert ZIG_RULES["encapsulation"] is None
 
 
 def test_zig_lexical_family_no_block_terminator_state_to_confuse():

@@ -311,8 +311,11 @@ def test_rust_intentional_double_classification_sweep():
     - `macro_rules! foo {}` -> macros + reflection_metaprogramming (Rust's
       macro system IS its metaprogramming system)
     """
+    # #2766 retired the pub dual: bare `pub` marks the PUBLIC surface and is api's
+    # token alone; encapsulation counts only the restricted-pub non-public markers.
     assert RUST_RULES["api"].search("pub fn foo() {}")
-    assert RUST_RULES["encapsulation"].search("pub fn foo() {}")
+    assert not RUST_RULES["encapsulation"].search("pub fn foo() {}")
+    assert RUST_RULES["encapsulation"].search("pub(crate) fn foo() {}")
 
     struct_decl = "struct Foo {}"
     assert RUST_RULES["class_start"].search(struct_decl)

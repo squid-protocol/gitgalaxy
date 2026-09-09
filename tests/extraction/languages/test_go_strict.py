@@ -243,10 +243,15 @@ def test_go_api_and_encapsulation_column_zero_and_keyword_regression():
     assert api.search("type Foo struct {") and not encap.search("type Foo struct {")
     assert encap.search("type foo struct {") and not api.search("type foo struct {")
 
-    # Grouped var/const block members: indented, but still top-level.
+    # Grouped var/const block members: indented, but still top-level. api keeps
+    # its indented arm (uppercase can't collide with keywords/locals). #2766 removed
+    # encapsulation's indented arm entirely: a lowercase `name = value` at indent is
+    # regex-indistinguishable from a function-local assignment (the old arm's 4521
+    # crucible hits were locals), so grouped-member privates are a KNOWN LIMIT until
+    # #2859's go_package_scope brace-walking filter exists.
     assert api.search("\tBurstReplicas = 500"), "api failed on an indented grouped-const member"
     assert not encap.search("\tBurstReplicas = 500")
-    assert encap.search("\tenableFoo = true"), "encapsulation failed on an indented grouped-var member"
+    assert not encap.search("\tenableFoo = true"), "grouped-member privates are out until #2859's scope filter"
     assert not api.search("\tenableFoo = true")
     # Struct TYPE fields and embedded types are declarations -- they stay.
     assert api.search("\tName string"), "api failed on an indented exported struct field"

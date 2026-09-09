@@ -112,7 +112,7 @@ _DOCKERFILE_SIMPLE_CASES = [
     ("sync_locks", "RUN flock /var/lock/mylock.lock echo done", "RUN echo done"),
     ("immutability_locks", "FROM alpine@sha256:" + "a" * 64, "FROM node:latest"),
     ("cleanup", "RUN apt-get clean", "RUN apt-get update"),
-    ("encapsulation", "FROM golang:1.22 AS builder", "FROM golang:1.22"),
+    # encapsulation is None since #2766 -- a build-stage alias is not name visibility.
     ("listeners", "EXPOSE 443", "WORKDIR /app"),
     ("test_skip", "RUN npm test || true", "RUN npm test"),
     # --- HYBRID ---

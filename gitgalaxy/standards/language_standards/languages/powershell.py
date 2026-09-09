@@ -367,7 +367,10 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 47. encapsulation (Encapsulation / Access Modifiers)
-        "encapsulation": re.compile(r"\b(hidden|private)\b", re.I),
+        # #2766: anchored to declaration shapes -- the bare words matched string
+        # literals ('Private') and prose. `hidden` is the class-member modifier;
+        # private: is the scope qualifier on variables and function names.
+        "encapsulation": re.compile(r"^[ \t]*hidden[ \t]+|\$private:|\b(?:function|filter)[ \t]+private:", re.I | re.M),
         # 48. listeners (Event Listeners / Observers)
         "listeners": re.compile(r"\b(Register-ObjectEvent|on_|Connect-)\b", re.I),
         # 49. test_skip (Bypassed Tests / Ignored Specs) Safety Theater.

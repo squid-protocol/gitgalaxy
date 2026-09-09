@@ -252,7 +252,11 @@ DEFINITION: dict[str, Any] = {
             r"\b(ffi\.C\.free|collectgarbage(?![ \t]*\([ \t]*[\"\'](?:stop|restart|isrunning|count|setpause|setstepmul|incremental|generational)\b)|io\.close|:[ \t]*close)\b|<\s*(?:close|toclose)\s*>"
         ),  # #2888 C4: collectgarbage("stop"/"restart"/...) configures the collector
         # 47. encapsulation
-        "encapsulation": re.compile(r"\b(local|_ENV)\b|---@private", re.M),
+        # #2766: contract-level absence. `local` is lexical scoping of every variable
+        # (scope is not API visibility) and `---@private` is a doc annotation, not a
+        # language construct. Lua's module-privacy idiom (not returning a name from
+        # the module table) is structural, not a marker.
+        "encapsulation": None,
         # 48. listeners (Event Listeners / Observers)
         # BUG FIX: `on\s*\(` ends on `(` (non-word), so the shared
         # trailing \b could only fire when a word char immediately

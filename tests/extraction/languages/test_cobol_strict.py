@@ -116,7 +116,7 @@ _COBOL_SIMPLE_CASES = [
     ("sync_locks", "EXEC CICS ENQ END-EXEC", "MOVE X TO Y."),
     ("immutability_locks", "01 WS-X CONSTANT AS 5.", "MOVE X TO Y."),
     ("cleanup", "CLOSE CUSTOMER-FILE.", "MOVE X TO Y."),
-    ("encapsulation", "LOCAL-STORAGE SECTION.", "MOVE X TO Y."),
+    ("encapsulation", "METHOD-ID. GET-BALANCE PRIVATE.", "LOCAL-STORAGE SECTION."),  # 2766: memory section is not visibility
     ("listeners", "EXEC CICS RECEIVE END-EXEC", "MOVE X TO Y."),
     ("test_skip", "IGNORE.", "MOVE X TO Y."),
     ("serialization_parsing", "STRING A B INTO C.", "MOVE X TO Y."),

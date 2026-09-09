@@ -326,8 +326,12 @@ DEFINITION: dict[str, Any] = {
             r"\brm[ \t]+-[a-zA-Z]*f[a-zA-Z]*\b", re.M
         ),  # #2888 C1: a clean: target header names the routine (func_start\'s unit); its recipe carries the sites
         # The Vault explicitly hiding scope logic away from external API leakage boundaries. .
+        # #2766: `.SILENT:` dropped -- it suppresses command echo (output quieting),
+        # not name visibility. `unexport` (hides a variable from child makes) and the
+        # target-specific `private` modifier are makefile's genuine non-public
+        # markers. See #2872 for the wider m4/makefile visibility questions.
         "encapsulation": re.compile(
-            r"^[ \t]*(?:unexport[ \t]+[a-zA-Z0-9_.-]+|[a-zA-Z0-9_.-]+[ \t]*:[ \t]*private[ \t]+|\.SILENT[ \t]*:)",
+            r"^[ \t]*(?:unexport[ \t]+[a-zA-Z0-9_.-]+|[a-zA-Z0-9_.-]+[ \t]*:[ \t]*private[ \t]+)",
             re.M,
         ),
         # Subscribing the file system to continuous native observation hooks.

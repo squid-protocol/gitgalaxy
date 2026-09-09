@@ -260,19 +260,23 @@ def test_makefile_dead_code_2851_one_rule_one_hit():
     assert len(MAKEFILE_RULES["dead_code"].findall(two)) == 2
 
 
-@pytest.mark.parametrize(
-    "payload",
-    [
-        "# " + "a." * 20000,  # a file-form name that never reaches a colon (trailing-dot backtrack)
-        "# all: " + "x " * 20000 + ",",  # a prerequisite list that fails on its last character
-        "# all: " + "$(X)" * 10000 + ",",  # variable-ref prerequisites, same failure
-        "# $(" + "a" * 50000,  # an unterminated variable ref
-        "# a.o " + "b " * 20000 + "!",  # co-targets past the cap
-        "# " + "/" * 50000 + ":",  # a punctuation-only file-form name
-        "# " + "-" * 50000 + "=",  # a dash-only assignment name
-        ("# foo: bar\n" * 5000) + "x",  # the recipe form's lookahead across many lines
-    ],
-)
+# Short ids are REQUIRED here: pytest exports each node id as PYTEST_CURRENT_TEST, and a
+# 50,000-character payload inside the id exceeds Windows' 32,767-character limit on one
+# environment variable ("ValueError: the environment variable is longer than 32767
+# characters" at setup, on every Windows leg of the matrix, green everywhere else).
+_DEAD_CODE_2851_REDOS_PAYLOADS = {
+    "file-form-name-trailing-dot": "# " + "a." * 20000,  # never reaches a colon
+    "prereq-list-fails-last-char": "# all: " + "x " * 20000 + ",",
+    "variable-ref-prereqs": "# all: " + "$(X)" * 10000 + ",",
+    "unterminated-variable-ref": "# $(" + "a" * 50000,
+    "co-targets-past-the-cap": "# a.o " + "b " * 20000 + "!",
+    "punctuation-only-file-form": "# " + "/" * 50000 + ":",
+    "dash-only-assignment-name": "# " + "-" * 50000 + "=",
+    "recipe-form-across-many-lines": ("# foo: bar\n" * 5000) + "x",
+}
+
+
+@pytest.mark.parametrize("payload", _DEAD_CODE_2851_REDOS_PAYLOADS.values(), ids=_DEAD_CODE_2851_REDOS_PAYLOADS.keys())
 def test_makefile_dead_code_2851_redos_immunity(payload):
     """
     #2851 added three quantified pieces to `dead_code` (the token / prerequisite

@@ -516,3 +516,56 @@ def test_c_api_contract_2730():
 
     # ReDoS detonation on an unterminated declaration-shaped run.
     assert_redos_immune(api, "a" * 40000 + " " + "*" * 40000, timeout_sec=3.0)
+
+
+def test_c_api_variable_declarations_are_globals_not_api_2907():
+    """
+    #2907 (api contract, one owner per token): the column-0 declaration shape
+    matched every file-scope VARIABLE -- `int shared_region = 1;` in the
+    rosetta corpus read api 5 for three functions, and 101 of the crucible's
+    1141 c hits were `PyTypeObject PyDict_Type = {`, `FILE *out;`, Doom's
+    `boolean nomonsters;` block and the like. The contract gives those to
+    `globals` (#2858); `api` is a declaration that publishes a *function or
+    type*. The shape is now a function declarator (type words, name, `(`,
+    with the paren allowed on the next line) plus `typedef` / `struct X {`.
+
+    Every case below was verified against the real compiled rule before
+    being written down (AGENTS.md rule 3).
+    """
+    api = C_RULES["api"]
+
+    # File-scope variables -- globals' hit, never api's.
+    assert not api.search("int shared_region = 1;"), "the rosetta globals plant"
+    assert not api.search("PyTypeObject PyDict_Type = {"), "cpython type object instance"
+    assert not api.search("FILE *out;"), "pointer variable declaration"
+    assert not api.search("char\t\twadfile[1024];"), "array variable"
+    assert not api.search("const binaryfunc _PyEval_BinaryOps[] = {"), "const array definition"
+    assert not api.search("struct lemon *lemp;"), "struct-typed variable"
+    assert not api.search("struct lemon;"), "forward declaration of an incomplete type"
+    assert not api.search("static MP_DEFINE_CONST_FUN_OBJ_0(machine_idle_obj, machine_idle);"), (
+        "static macro invocation -- the old bare-prototype alternative never excluded static"
+    )
+
+    # Function declarators -- still api's, in every layout the crucible uses.
+    assert api.search("int probe_globals(int env) {"), "one-line definition"
+    assert api.search("unsigned int foo(void)"), "multi-word return type"
+    assert api.search("struct lemon *Lemon_new(void)"), "struct-pointer return type"
+    assert api.search("PyObject *\nfoo(void)"), "K&R two-line return type"
+    assert api.search("void\nI_Tactile\n( int on,\n  int off )"), "Doom: name and paren on separate lines"
+    assert api.search("fixed_t\nFixedMul\n( fixed_t a,"), "Doom: typedef'd return type"
+    assert api.search("void write_rtf_header(NXStream *s);"), "prototype"
+
+    # Type declarations -- still api's.
+    assert api.search("typedef struct {"), "anonymous typedef struct"
+    assert api.search("typedef enum"), "typedef enum head"
+    assert api.search("struct config {"), "named struct definition"
+    assert api.search("extern int errno;"), "extern declaration (kept)"
+
+    # Body-local and statement lines stay out (the #2730 guard).
+    assert not api.search("    PyObject *value;"), "body-local declaration"
+    assert not api.search("return foo(x);"), "column-0 return calling a function"
+    assert not api.search("static int helper(void)"), "static definition"
+
+    # ReDoS: bounded {1,4} type-word repetition on an unterminated run.
+    assert_redos_immune(api, "a " * 40000 + "b", timeout_sec=3.0)
+    assert_redos_immune(api, "a" * 40000 + " " + "*" * 40000, timeout_sec=3.0)

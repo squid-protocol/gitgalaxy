@@ -56,7 +56,7 @@ import sys
 import tempfile
 from collections import defaultdict
 from dataclasses import dataclass, field
-from typing import Any, Callable
+from typing import Callable
 
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 

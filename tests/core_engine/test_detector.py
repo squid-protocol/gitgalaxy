@@ -4330,11 +4330,14 @@ def test_visibility_export_rules_capture_a_name():
         "ruby": ("module_function :probe_globals", "probe_globals"),
         "powershell": ("Export-ModuleMember -Function probe_globals", "probe_globals"),
         "assembly": ("global probe_globals", "probe_globals"),
+        # #2872: `m4_provide`/`AC_PROVIDE` publish a macro as a provided feature,
+        # naming exactly one macro per clause -- the singular form.
+        "m4": ("m4_provide([probe_globals])", "probe_globals"),
     }
     declared = {
         lang for lang, cfg in LANGUAGE_DEFINITIONS.items() if cfg.get("rules", {}).get("_visibility_export") is not None
     }
-    assert declared == set(expected), f"exactly the five export-by-name languages opt in, got {declared}"
+    assert declared == set(expected), f"exactly the six export-by-name languages opt in, got {declared}"
 
     for lang, (line, name) in expected.items():
         rule = LANGUAGE_DEFINITIONS[lang]["rules"]["_visibility_export"]
@@ -4359,13 +4362,16 @@ def test_visibility_export_list_rules_capture_a_region_of_names():
     expected = {
         "haskell": ("module A (probeGlobals, probeTest) where", ["probeGlobals", "probeTest"]),
         "scheme": ("(export probe-globals probe-test)", ["probe-globals", "probe-test"]),
+        # #2872: a `.PHONY:` prerequisite list names an arbitrary number of
+        # targets in one clause -- the list form.
+        "makefile": (".PHONY: probe_globals probe_test", ["probe_globals", "probe_test"]),
     }
     declared = {
         lang
         for lang, cfg in LANGUAGE_DEFINITIONS.items()
         if cfg.get("rules", {}).get("_visibility_export_list") is not None
     }
-    assert declared == set(expected), f"exactly the two export-a-list languages opt in, got {declared}"
+    assert declared == set(expected), f"exactly the three export-a-list languages opt in, got {declared}"
 
     for lang, (line, names) in expected.items():
         rule = LANGUAGE_DEFINITIONS[lang]["rules"]["_visibility_export_list"]

@@ -1554,7 +1554,7 @@ class SignalProcessor:
         mp: float,
         functions: Optional[list[dict[str, Any]]] = None,
         doc_umbrella: float = 0.0,
-        popularity: int = 0,
+        popularity: int = 0,  # noqa: ARG002 -- inert since #2908 D4 (#2909); kept so callers/audit adapters keep a stable signature
         silo_exposure: float = 0.0,
     ) -> float:
         t = self.risk_tuning.get("documentation", {})
@@ -1608,13 +1608,16 @@ class SignalProcessor:
         smoothed_loc = self._mass_loc(loc) + t.get("loc_smoothing", 20.0)
         density = (net_exposure / smoothed_loc) * 100.0
 
-        # 4. THE MULTIPLIERS (Dependency Blast Radius & Authorship Centralization)
-        # Undocumented code is exponentially more dangerous if it is highly
-        # integrated (popularity) or siloed to a single developer.
-        network_multiplier = 1.0 + (popularity / 10.0)
+        # 4. THE MULTIPLIER (Authorship Centralization)
+        # #2909 / #2908 D4: the popularity ("dependency blast radius") multiplier
+        # is gone from this score. It had never actually fired -- meta["popularity"]
+        # was unplumbed until #2909, so removing it here is score-neutral -- and D4's
+        # ruling is that blast radius is REPORTED beside the score, not folded into
+        # it. The `popularity` parameter stays accepted (and inert) so callers and
+        # the audit_score_inputs adapter keep a stable signature.
         silo_multiplier = 1.0 + (silo_exposure / 200.0)
 
-        final_multiplier = network_multiplier * silo_multiplier * mp
+        final_multiplier = silo_multiplier * mp
 
         threshold = t.get("threshold_base", 10.0)
 

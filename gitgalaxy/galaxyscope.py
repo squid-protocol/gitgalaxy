@@ -2313,6 +2313,15 @@ class Orchestrator:
             # Pass the mapped test coverage data to the risk engine
             meta["test_coverage_map"] = test_coverage_map.get(rel_path, {})
 
+            # #2909: hand the import fan-in to the risk engine. It was computed
+            # above (the Contextual Baseline Fix) and written into the telemetry
+            # payload thirty lines AFTER calculate_risk_vector ran, so
+            # meta.get("popularity", 0) read 0 on every file, every scan -- the
+            # popularity terms in api_exposure, verification and the threat
+            # vector were dead. (documentation's multiplier was removed by
+            # #2908 D4 in the same change, so it does NOT re-liven here.)
+            meta["popularity"] = popularity
+
             # The Analysis Engine natively handles the Exposed Secret and Documentation bypass protocols.
             # We unconditionally route to the Signal Processor so it can execute the 18-point math.
             forensic_result = self.processor.calculate_risk_vector(

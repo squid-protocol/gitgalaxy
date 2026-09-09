@@ -188,6 +188,14 @@ def probe(
                 line = text[ls : len(text) if le < 0 else le].strip()
                 tag = "" if len(streams) == 1 else f"{sname[:4]} "
                 c["samples"][(tag + m.group(0).strip()[:40], line[:120])] += 1
+                # --diff-lines (#2916) reads these: every matched span with its
+                # 1-based line number, so two snapshots of the SAME corpus under
+                # different rule candidates can be diffed line-by-line. Line
+                # numbers are stable across snapshots because the corpus doesn't
+                # change between them -- only the rule does.
+                c.setdefault("lines", {}).setdefault(rel, []).append(
+                    [text.count("\n", 0, m.start()) + 1, m.group(0)[:200]]
+                )
     for c in per.values():
         c["samples"] = [(tok, line, n) for (tok, line), n in c["samples"].most_common(samples)]
     return per
@@ -229,6 +237,68 @@ def compare(before: dict, after: dict, langs: list[str]) -> None:
         print(f"| `{lang}` | {cell('crucible')} | {cell('rosetta')} |")
 
 
+def _context_lines(lang: str, rel: str, lineno: int, n: int) -> list[str]:
+    """±n source lines around lineno, re-read from whichever corpus holds rel (best effort)."""
+    d = CORPUS_DIR.get(lang, lang)
+    for root in (CRUCIBLE / d, ROSETTA / d):
+        p = root / rel
+        if p.is_file():
+            try:
+                src = p.read_text(encoding="utf-8", errors="replace").splitlines()
+            except OSError:
+                return []
+            lo, hi = max(0, lineno - 1 - n), min(len(src), lineno + n)
+            return [f"{'>' if i == lineno - 1 else ' '} {i + 1:5d} {src[i]}" for i in range(lo, hi)]
+    return []
+
+
+def diff_lines(before: dict, after: dict, langs: list[str], context: int) -> int:
+    """#2916: list lost and gained matched lines per corpus, with counts.
+
+    The #2907 session wrote this twice by hand; its first rule candidate lost 21
+    Doom K&R definitions that only this listing showed. Keyed on
+    (file, lineno, matched text) as a multiset -- a line matching twice under one
+    rule and once under the other shows up. Multi-line matches print in full
+    (their span IS the context); --context N adds N surrounding source lines
+    re-read from the corpus when it is checked out.
+    """
+    total_lost = total_gained = 0
+    for lang in langs:
+        for corpus in ("crucible", "rosetta"):
+            b = ((before.get(lang) or {}).get(corpus) or {}).get("lines", {})
+            a = ((after.get(lang) or {}).get(corpus) or {}).get("lines", {})
+            bc: collections.Counter = collections.Counter(
+                (rel, ln, txt) for rel, ms in b.items() for ln, txt in ms
+            )
+            ac: collections.Counter = collections.Counter(
+                (rel, ln, txt) for rel, ms in a.items() for ln, txt in ms
+            )
+            lost, gained = bc - ac, ac - bc
+            if not lost and not gained:
+                continue
+            total_lost += sum(lost.values())
+            total_gained += sum(gained.values())
+            print(f"\n{lang} / {corpus}: -{sum(lost.values())} lost, +{sum(gained.values())} gained")
+            for label, bag in (("LOST", lost), ("GAINED", gained)):
+                for (rel, ln, txt) in sorted(bag):
+                    n = bag[(rel, ln, txt)]
+                    mark = f" x{n}" if n > 1 else ""
+                    if "\n" in txt:
+                        print(f"  {label}{mark} {rel}:{ln} (multi-line match)")
+                        for tl in txt.splitlines():
+                            print(f"      | {tl}")
+                    else:
+                        print(f"  {label}{mark} {rel}:{ln}: {txt.strip()[:160]}")
+                    if context:
+                        for cl in _context_lines(lang, rel, ln, context):
+                            print(f"      {cl}")
+    if total_lost == 0 and total_gained == 0:
+        print("no matched-line movement between the snapshots")
+    else:
+        print(f"\ntotal: -{total_lost} lost, +{total_gained} gained")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("rule")
@@ -245,6 +315,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--flags", default="", help="flags for --override, e.g. IM")
     ap.add_argument("--json", help="write the per-language snapshot here")
     ap.add_argument("--compare", nargs=2, metavar=("BEFORE", "AFTER"), help="print audit-table rows from two snapshots")
+    ap.add_argument(
+        "--diff-lines",
+        nargs=2,
+        metavar=("BEFORE", "AFTER"),
+        help="list lost and gained matched LINES between two --json snapshots (#2916)",
+    )
+    ap.add_argument("--context", type=int, default=0, help="source lines of context around each --diff-lines entry")
     args = ap.parse_args(argv)
 
     langs = sorted(LANGUAGE_DEFINITIONS) if args.lang == "all" else [args.lang]
@@ -252,6 +329,9 @@ def main(argv: list[str] | None = None) -> int:
         before, after = (json.loads(Path(p).read_text(encoding="utf-8")) for p in args.compare)
         compare(before, after, langs)
         return 0
+    if args.diff_lines:
+        before, after = (json.loads(Path(p).read_text(encoding="utf-8")) for p in args.diff_lines)
+        return diff_lines(before, after, langs, args.context)
 
     override = compile_override(args.override, args.flags) if args.override else None
     prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)

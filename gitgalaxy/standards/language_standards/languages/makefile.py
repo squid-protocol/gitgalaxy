@@ -166,6 +166,21 @@ DEFINITION: dict[str, Any] = {
             r"^[ \t]*(?:\.PHONY|export\b|(?:all|install|build|clean|test|run)[ \t]*::?)",
             re.M,
         ),
+        # #2872: the ORPHAN-CENSUS EXEMPTION, plural form -- see #2823's note in
+        # scheme.py and haskell.py. A `.PHONY:` line names every target it lists
+        # as phony; naming a target in that declaration is a visibility
+        # DECLARATION, not a use, so the census must not let it clear the orphan
+        # flag the api plant is meant to leave standing (keyword-rosetta#53). The
+        # list form because a single `.PHONY:` prerequisite list names an
+        # arbitrary number of targets in one clause. Group 1 is the region after
+        # the colon; `_export_declaration_offsets` tokenizes it with
+        # `_EXPORT_LIST_NAME` and records the start offset of each name, which
+        # `_is_orphan` then discounts. A trailing `#` comment on the line falls
+        # inside the region, but only name-start offsets are used and a comment
+        # word's offset never coincides with a target's definition, so it costs
+        # nothing. Leading `_` keeps it out of `coding_analysis`'s rule loop and
+        # the counts schema, the same way `_scope_filters` does.
+        "_visibility_export_list": re.compile(r"^[ \t]*\.PHONY[ \t]*:[ \t]*(.*)$", re.M),
         # Mutating variable state by appending (+=) or shell assignment (!=). .
         "state_mutation": re.compile(r"^[ \t]*(?:[a-zA-Z0-9_.-]|\+(?!=))+[ \t]*(?:\+|!)=", re.M),
         # Commented-out targets, assignments, or conditional / include directives.

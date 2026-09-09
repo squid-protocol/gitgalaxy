@@ -104,6 +104,20 @@ DEFINITION: dict[str, Any] = {
         # 10. api (Public Surface Area)
         # M4 macros are inherently public, but these explicitly export state into the generated Makefile/C headers.
         "api": re.compile(r"\b(?:AC_SUBST|AC_DEFINE|AC_PROVIDE|m4_provide)\b"),
+        # #2872: the ORPHAN-CENSUS EXEMPTION -- see the matching note in
+        # shell.py and #2823's plural form in scheme.py. `AC_PROVIDE([name])` /
+        # `m4_provide([name])` publish the macro `name` as a provided feature;
+        # naming a macro in a provide statement is a visibility DECLARATION, not
+        # a use, so this captures that NAME (group 1) and `_is_orphan` discounts
+        # only that capture's own span. Without it the api plant the corpus wants
+        # to land on this form would clear the orphan flag it is meant to leave
+        # standing (keyword-rosetta#53). Group 1 is the name inside the argument;
+        # the leading `[` is m4's quote char and is optional so the bare
+        # `AC_PROVIDE(name)` form is captured too. Singular rather than the list
+        # form because each provide clause names exactly one feature. Leading `_`
+        # keeps it out of `coding_analysis`'s rule loop and the counts schema, the
+        # same way `_scope_filters` does.
+        "_visibility_export": re.compile(r"\b(?:AC_PROVIDE|m4_provide)\b[ \t]*\([ \t]*\[?[ \t]*([a-zA-Z_]\w*)"),
         # 11. flux (State Mutation)
         # Stack-based macro overriding and list appending.
         "state_mutation": re.compile(

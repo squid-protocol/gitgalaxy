@@ -17,14 +17,23 @@ caller decides against them.
 
 ## Environment (get this right or everything lies)
 
+**Start with `tests/tools/worktree_env.sh <name> [--corpus]` (#2916)** -- it creates/re-detaches
+the engine (and corpus) worktrees at the machine's real worktree roots and prints the five
+exports (`PYTHONPATH GITGALAXY_PATH GALAXYSCOPE_BIN LANGUAGE_CRUCIBLE_PATH
+KEYWORD_ROSETTA_PATH`) as copy-paste lines. Every past environment trap (wrong-path worktree,
+background job from a drifted cwd, stale corpus worktree) is a run that skipped this step.
+
 Two gotchas cost real time; bake them in:
 
-- **Engine tools** (`rule_probe`, `rosetta_audit`, `crucible_check`, `bless_scope`, the audits)
-  run from the engine worktree with `PYTHONPATH=$PWD GITGALAXY_PATH=$PWD`. The venv is
-  `/srv/storage_16tb/projects/gitgalaxy/v6/.venv/bin/python` (call it `$PY`). The baseline-gated
-  audits (`tests/ruff_audit.py`, `tests/mypy_audit.py`, `tests/tools/audit_check.py`) shell out to
-  bare `ruff`/`mypy` -- **prefix `PATH=/srv/storage_16tb/projects/gitgalaxy/v6/.venv/bin:$PATH`**
-  or they die `FileNotFoundError`.
+- **Engine tools** (`rule_probe`, `rosetta_audit`, `crucible_check`, `bless_scope`,
+  `audit_score_inputs`, the audits) run from the engine worktree with
+  `PYTHONPATH=$PWD GITGALAXY_PATH=$PWD`. The interpreter is the PRIMARY checkout's venv --
+  `~/nyx_projects/gitgalaxy/.venv/bin/python` on the primary box (full precision:
+  `.crucible_venvs/full_precision`); wherever the checkout lives, it is
+  `<primary>/.venv/bin/python` (call it `$PY`; `worktree_env.sh` prints the matching
+  `GALAXYSCOPE_BIN`). The baseline-gated audits (`tests/ruff_audit.py`, `tests/mypy_audit.py`,
+  `tests/tools/audit_check.py`) shell out to bare `ruff`/`mypy` -- **prefix
+  `PATH=<primary>/.venv/bin:$PATH`** or they die `FileNotFoundError`.
 - **Corpus tools** (`bias_report.py`, `na_check`, `decoy_check`, `ledger_orphan_check`,
   `verify_language`) run from the keyword-rosetta worktree and default `GITGALAXY_PATH` to the v6
   primary checkout -- which lags your feature branch. **Always pass
@@ -69,6 +78,11 @@ $PY tests/tools/rule_probe.py <signal> all --compare /tmp/<signal>-before.json /
 Return the compare table verbatim (it is already compact -- one row per language), plus a one-line
 call-out for any language that moved in an unexpected direction (widened when it should narrow, or
 vice versa) with its top sample line. That call-out is a flag for the caller, not a diagnosis.
+
+When a language's count moved and the caller asks WHICH lines, run
+`$PY tests/tools/rule_probe.py <signal> <lang> --diff-lines /tmp/<signal>-before.json
+/tmp/<signal>-after.json --context 2` (#2916) and return the LOST/GAINED listing verbatim --
+it is the evidence a candidate silently dropped real definitions (the #2907 Doom K&R case).
 
 ## Job 3 -- the verification sequence
 
@@ -124,6 +138,18 @@ each check's verdict line. **`decoy_check` failing "under the 2-keyword floor" i
 not noise -- a rule change can leave a comment decoy unable to fire any gated signal; surface it
 loudly. Run `verify_language.py <lang>` for any language whose plant you changed and report
 `PASS/FAIL: N assertions`.
+
+## Job 6 -- score-contract legs (#2916)
+
+For a SCORE contract (epic #2812 Phase 4 / #2908), two more tools join the sequence:
+
+- `$PY tests/tools/audit_score_inputs.py <risk_metric> [--summary]` -- reproduces every recorded
+  `risk_<metric>` from its recorded inputs. Return the `--summary` paragraph plus the CLUSTER
+  table; on exit 1 return the residual rows verbatim (a residual means the adapter or the formula
+  drifted -- the caller decides which).
+- `PATH=<venv>/bin:$PATH $PY tests/tools/contract_pr_check.py [--rules|--score] --corpus
+  <kr worktree>` -- the whole PR gauntlet in one command; return its PR-body block verbatim
+  (Measured / Corpus / Golden masters / Tests) and nothing else unless a leg failed.
 
 ## When you're unsure
 

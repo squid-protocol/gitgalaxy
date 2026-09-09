@@ -56,11 +56,39 @@ def _unparsable(doc: dict) -> dict[str, str]:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("old")
+    ap.add_argument("old", nargs="?", help="pre-bless fixture (omit with --from-head)")
     ap.add_argument("new")
+    ap.add_argument(
+        "--from-head",
+        action="store_true",
+        help="#2916: take the pre-bless fixture from `git show HEAD:<new>` itself, "
+        "so the whole recipe is one command run after the bless",
+    )
     ap.add_argument("--show", type=int, default=8, help="substantive diff lines to print")
     ap.add_argument("--grep", help="only print diff lines containing this text")
+    ap.add_argument(
+        "--summary",
+        action="store_true",
+        help="#2916: append the PR-body block -- one line per (file x leaf keys)",
+    )
     args = ap.parse_args(argv)
+
+    if args.from_head:
+        if args.old is not None:
+            ap.error("--from-head takes only the NEW fixture path")
+        import subprocess
+        import tempfile
+
+        rel = str(Path(args.new).resolve().relative_to(Path.cwd().resolve()))
+        blob = subprocess.run(
+            ["git", "show", f"HEAD:{rel}"], capture_output=True, text=True, check=True
+        ).stdout
+        tf = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
+        tf.write(blob)
+        tf.close()
+        args.old = tf.name
+    elif args.old is None:
+        ap.error("old fixture required (or pass --from-head)")
 
     old, new = gd.load_and_sanitize(args.old), gd.load_and_sanitize(args.new)
     diffs = [str(d) for d in gd.deep_compare(old, new)]
@@ -102,6 +130,29 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\nfirst {len(shown)} substantive lines{' matching ' + repr(args.grep) if args.grep else ''}:")
         for d in shown:
             print("  " + d[:240])
+
+    if args.summary:
+        # #2916: the PR-body block -- one line per file, listing the leaf keys that
+        # moved in it, so a reviewer sees the bless's shape without the raw diff.
+        by_file: dict[str, set] = collections.defaultdict(set)
+        for d in rest:
+            m = _AT.search(d)
+            if not m:
+                continue
+            segs = m.group(1).strip("/").split("/")
+            ml = _LANG.search(m.group(1))
+            fname = next(
+                (s for s in segs if re.search(r"\.[A-Za-z0-9]{1,8}$", s) and not s[:1].isdigit()),
+                segs[0],
+            )
+            key = f"{ml.group(1) + '/' if ml else ''}{fname}"
+            by_file[key].add(segs[-1][:40])
+        print(f"\n--summary ({len(by_file)} files moved):")
+        for f in sorted(by_file):
+            keys = sorted(by_file[f])
+            head = ", ".join(keys[:6])
+            more = f" (+{len(keys) - 6} more)" if len(keys) > 6 else ""
+            print(f"  {f}: {head}{more}")
     return 0
 
 

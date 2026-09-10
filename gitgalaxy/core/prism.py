@@ -11,7 +11,7 @@ import logging
 import re
 from typing import Any, Optional, TypedDict
 
-from gitgalaxy.standards.language_standards import LENS_CONFIG, PRISM_CONFIG
+from gitgalaxy.standards.language_standards import COMPILED_HANDSHAKE_REGISTRY, LENS_CONFIG, PRISM_CONFIG
 
 # ==============================================================================
 # GitGalaxy Phase 2: Payload & Surface Splitter (The Prism)
@@ -197,26 +197,17 @@ class Prism:
         self.SINGLE_LINE_DELIMITER_PATTERNS: dict[str, re.Pattern] = self._compile_single_line_delimiter_patterns()
 
         # Phase 6.1 Handshake Registry (Synchronized securely via Language Standards)
-        self.EMBEDDED_TRIGGERS = []
-        for trigger_config in LENS_CONFIG.get("HANDSHAKE_REGISTRY", []):
-            self.EMBEDDED_TRIGGERS.append(
-                {
-                    "trigger": re.compile(trigger_config["trigger"], re.I),
-                    "end": re.compile(trigger_config["end"], re.I),
-                    "target": trigger_config["target"],
-                    "pair": trigger_config["pair"],
-                    # #2549: present only for the markup-tag handshakes, whose
-                    # opening delimiter is host syntax (see MARKUP_OPEN_TAG_TAIL).
-                    # A paired-bracket handshake (`asm!(`) never declares one --
-                    # _find_balanced_end counts depth from the opening bracket, so
-                    # that bracket has to stay inside the embedded segment.
-                    "open_delimiter": (
-                        re.compile(trigger_config["open_delimiter"], re.I)
-                        if trigger_config.get("open_delimiter")
-                        else None
-                    ),
-                }
-            )
+        # #2848: this used to compile LENS_CONFIG's patterns here with `re.I`
+        # alone, while detector.py's copy used `re.I | re.M`. Every trigger is
+        # `^`-anchored, so without re.M this partitioner only fired on a file
+        # whose very FIRST byte opened the block -- a mid-file `<script>` (the
+        # normal case) never formed an embedded segment, and html's `<!-- -->`
+        # comment rules ran over the JavaScript body. Both copies now share the
+        # one compiled registry that lives beside the patterns.
+        # #2549's `open_delimiter` (host-syntax opening tag; None for a
+        # paired-bracket handshake, whose bracket _find_balanced_end must keep
+        # inside the embedded segment) rides along on the shared entries.
+        self.EMBEDDED_TRIGGERS = COMPILED_HANDSHAKE_REGISTRY
 
         # Performance Constants
         self.EMBEDDED_LOOKAHEAD_LIMIT = LENS_CONFIG.get("THRESHOLDS", {}).get("HANDSHAKE_LOOKAHEAD_LIMIT", 50000)

@@ -8,6 +8,7 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 
+import re
 from typing import Any, TypedDict
 
 # #2549: the tail of a markup OPEN TAG, from the end of a handshake trigger
@@ -149,3 +150,39 @@ LENS_CONFIG: LensConfig = {
         "TIER_4_OUTLIER_MARGIN": 1.3,
     },
 }
+
+
+# ==============================================================================
+# THE COMPILED HANDSHAKE REGISTRY -- one source, every partitioner (#2848)
+# ==============================================================================
+# Three consumers used to compile HANDSHAKE_REGISTRY themselves --
+# `detector.StructuralExtractor` (`re.I | re.M`), `prism.Prism` (`re.I`) and
+# `language_lens._detect_hybrids` (`re.I`) -- and the flags drifted twice on
+# the same three patterns. #1183 fixed the anchor half in the detector; #2848
+# found the flag half: every trigger is `^`-anchored, so WITHOUT `re.M` a
+# partitioner only fires on a file whose very first byte opens the block. In
+# every real file the embedded segment was never formed, and the host
+# language's comment rules ran over the JavaScript/CSS/asm body -- html's
+# `<!-- -->` rules over a `//` comment, so commented-out code counted as
+# executable risk and `doc_loc` (derived as active lines minus coding_loc) lost
+# the line to code.
+#
+# The registry is compiled ONCE here, beside the patterns it compiles, and
+# imported. Compiled patterns are immutable and thread-safe, so every consumer
+# shares these objects rather than paying for its own copies. A consumer that
+# needs different flags must state why in its own code; the default is that a
+# handshake means the same thing to every partitioner that reads it.
+#
+# `open_delimiter` is `None` for a paired-bracket handshake (#2549) and keeps
+# `re.I` alone deliberately: it is `.match()`ed at an exact offset, never
+# searched, so a line anchor would be meaningless to it.
+COMPILED_HANDSHAKE_REGISTRY: list[dict[str, Any]] = [
+    {
+        "trigger": re.compile(h["trigger"], re.I | re.M),
+        "end": re.compile(h["end"], re.I | re.M),
+        "target": h["target"],
+        "pair": h["pair"],
+        "open_delimiter": (re.compile(h["open_delimiter"], re.I) if h.get("open_delimiter") else None),
+    }
+    for h in LENS_CONFIG["HANDSHAKE_REGISTRY"]
+]

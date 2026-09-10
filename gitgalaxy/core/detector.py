@@ -30,7 +30,10 @@ from gitgalaxy.core.spatial_correlation import (
     correlate_signals as _correlate_signals_impl,
 )
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
-from gitgalaxy.standards.language_standards import HTML_NONEXECUTABLE_SCRIPT_TAG, LENS_CONFIG
+from gitgalaxy.standards.language_standards import (
+    COMPILED_HANDSHAKE_REGISTRY,
+    HTML_NONEXECUTABLE_SCRIPT_TAG,
+)
 
 HAS_TIKTOKEN = False
 try:
@@ -1137,18 +1140,12 @@ class StructuralExtractor:
     # re.M is required for the "^" anchor to match at the start of any line
     # rather than only the start of the whole file -- without it, a genuine
     # mid-file "<script>" (the normal case) would never match either.
-    HANDSHAKE_REGISTRY: ClassVar[list[dict[str, Any]]] = [
-        {
-            "trigger": re.compile(h["trigger"], re.I | re.M),
-            "end": re.compile(h["end"], re.I | re.M),
-            "target": h["target"],
-            "pair": h["pair"],
-            # #2549: set for the markup handshakes only -- see
-            # _lens_config.MARKUP_OPEN_TAG_TAIL and _embedded_payload_start.
-            "open_delimiter": (re.compile(h["open_delimiter"], re.I) if h.get("open_delimiter") else None),
-        }
-        for h in LENS_CONFIG["HANDSHAKE_REGISTRY"]
-    ]
+    # #2848: the compilation itself moved next to the patterns
+    # (_lens_config.COMPILED_HANDSHAKE_REGISTRY) after the flags drifted a
+    # second time -- prism.py and language_lens.py were still compiling their
+    # own copies without re.M, so their partitioners only ever fired on a file
+    # whose first byte opened the block. Entries carry #2549's `open_delimiter`.
+    HANDSHAKE_REGISTRY: ClassVar[list[dict[str, Any]]] = COMPILED_HANDSHAKE_REGISTRY
 
     def __init__(
         self,

@@ -17,6 +17,7 @@ from typing import Any, Optional, TypedDict, Union
 
 from gitgalaxy.standards.gitgalaxy_config import EXACT_FILE_MATCH
 from gitgalaxy.standards.language_standards import (
+    COMPILED_HANDSHAKE_REGISTRY,
     LANGUAGE_DEFINITIONS,  # noqa: F401
     LENS_CONFIG,
 )
@@ -102,16 +103,12 @@ class LanguageDetector:
             self.DISQUALIFIERS[key] = re.compile(regex_str, re.M | re.I)
 
         # Compile hybrid language handshake triggers (e.g., HTML inside PHP)
-        self.HANDSHAKE_REGISTRY = []
-        for hs in LENS_CONFIG.get("HANDSHAKE_REGISTRY", []):
-            self.HANDSHAKE_REGISTRY.append(
-                {
-                    "trigger": re.compile(hs["trigger"], re.I),
-                    "end": re.compile(hs["end"], re.I),
-                    "target": hs["target"],
-                    "pair": hs["pair"],
-                }
-            )
+        # #2848: this was the third copy of the same compilation, and the
+        # second one missing re.M -- so `_detect_hybrids` reported a polyglot
+        # `lang_mix` only for a file whose very first byte opened the embedded
+        # block, and every ordinary html-with-<script> file read as
+        # single-language. The one compiled registry lives beside the patterns.
+        self.HANDSHAKE_REGISTRY = COMPILED_HANDSHAKE_REGISTRY
 
         self.logger.debug("Initializing O(1) lookup maps for Linguistic Classifier...")
         self._calibrate_lookup_maps()

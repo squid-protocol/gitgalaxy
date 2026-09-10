@@ -426,14 +426,26 @@ class Prism:
             )
             return positional_comments
 
-        if lang_id == "jcl" or family in (
-            "recursive_block",
-            "recursive_block_haskell",
-            "recursive_block_lisp",
-        ):
-            # Not positionally supported this phase (see the docstring on
-            # split_positional_comment_stream) -- a blank, newline-preserving
-            # stretch reads as "no positional doc match" rather than raising.
+        if family in ("recursive_block", "recursive_block_haskell", "recursive_block_lisp"):
+            # #2908 Phase 2 follow-up: rust/scala/swift (recursive_block),
+            # haskell (recursive_block_haskell) and scheme
+            # (recursive_block_lisp) -- see _positional_nested_comments.
+            return self._positional_nested_comments(text, family)
+
+        if lang_id == "perl":
+            # perl is nominally "line_exclusive" (`#` line comments), but its
+            # own doc convention is POD (`=pod`/`=head1`/... to `=cut`), which
+            # line_exclusive's stripper has never covered at all (see
+            # perl.py's own "Known remaining gap, not fixed here" note) --
+            # see _positional_perl_comments.
+            return self._positional_perl_comments(text)
+
+        if lang_id == "jcl":
+            # Not positionally supported -- but moot, not a gap: jcl declares
+            # no `doc` rule at all (grep language_standards/languages/jcl.py),
+            # so no positional stream could ever produce a match here anyway.
+            # A blank, newline-preserving stretch reads as "no positional doc
+            # match" rather than raising.
             return self._blank_preserve_newlines(text)
 
         if family == "line_exclusive":
@@ -483,16 +495,124 @@ class Prism:
         all, exactly the problem `split_positional_comment_stream` exists to
         avoid.
 
-        Perl's bare-regex/quote-like-operator masking (`_mask_perl_line`, a
-        closure private to `_strip_single_line_comments`) is not replicated
-        here -- perl carries no #2908 `is_documented` contract test and gets
-        no positional doc anchor for now; a `/regex/` division-looking slash
-        safely reads as "no comment on this line" rather than misreading it.
+        #2908 Phase 2 follow-up: perl's `#`-comment detection now carries the
+        same bare-regex/quote-like-operator masking `_mask_perl_line` (a
+        closure private to `_strip_single_line_comments`) applies -- a
+        duplicated, positional-safe copy of that same logic, gated the same
+        way (`lang_id == "perl"`). Without it, a `/`- or `{...}`-delimited
+        regex/quote-like operator (`m/foo#bar/`, `s{foo#bar}{baz}`, a bare
+        `/pattern#here/` match) whose OWN literal text happens to contain a
+        `#` would have that embedded `#` misread as opening a real comment,
+        truncating the line early. `#`-DELIMITED forms (`m#pattern#`) are
+        NOT covered -- `perl_candidate_pattern` below only recognises `/`/`{`
+        as opening delimiters, matching the original `_mask_perl_line`'s own
+        scope exactly; not a new gap this method introduces. POD
+        (`=pod`/`=cut`) is NOT this method's job either -- see
+        `_positional_perl_comments`, which calls this method for the
+        `#`-only pass after carving POD lines out.
         """
         pattern = self.SINGLE_LINE_DELIMITER_PATTERNS.get(lang_id) or re.compile(r"(?!)")
         carry_aware = lang_id in ("python", "micropython", "embedded_python", "ruby", "shell")
         out: list[str] = []
         carry_quote: Optional[str] = None
+
+        # Compiled unconditionally (not just `if lang_id == "perl"`): cheap,
+        # and it lets `_mask_perl_line_positional` close over plain
+        # `re.Pattern` values instead of an `Optional` pair that would need
+        # a runtime None-check on every call.
+        perl_bare_regex_preceding = re.compile(
+            r"(?:(?:=~|!~|\(|,|;|\{|&&|\|\|)[ \t]*$)|(?:\b(?:if|unless|while|split|grep|map|return)[ \t]+$)"
+        )
+        perl_candidate_pattern = re.compile(r"\b(?:qw|qq|qx|qr|tr|q|m|s|y)[ \t]*[\{/]|/")
+
+        def _mask_perl_line_positional(line: str, masked_literals: list[str]) -> str:
+            pos = 0
+            parts = []
+            while pos < len(line):
+                match = perl_candidate_pattern.search(line, pos)
+                if not match:
+                    parts.append(line[pos:])
+                    break
+                start = match.start()
+                parts.append(line[pos:start])
+                matched_str = match.group(0)
+                is_brace_op = matched_str.endswith("{")
+                is_slash_op = matched_str.endswith("/") and len(matched_str) > 1
+                is_bare_slash = matched_str == "/"
+                if is_bare_slash and not perl_bare_regex_preceding.search(line[:start]):
+                    parts.append("/")
+                    pos = start + 1
+                    continue
+                op_start_idx = start
+                if is_brace_op:
+                    depth = 1
+                    idx = match.end()
+                    while idx < len(line):
+                        ch = line[idx]
+                        if ch == "\\":
+                            idx += 2
+                            continue
+                        if ch == "{":
+                            depth += 1
+                        elif ch == "}":
+                            depth -= 1
+                            if depth == 0:
+                                break
+                        idx += 1
+                    op_keyword = matched_str[:-1].strip()
+                    end_idx = min(idx + 1, len(line))
+                    if op_keyword in ("s", "tr", "y") and end_idx < len(line):
+                        ws_match = re.match(r"[ \t]*", line[end_idx:])
+                        ws_len = len(ws_match.group(0)) if ws_match else 0
+                        second_start = end_idx + ws_len
+                        if second_start < len(line) and line[second_start] == "{":
+                            depth = 1
+                            idx2 = second_start + 1
+                            while idx2 < len(line):
+                                ch = line[idx2]
+                                if ch == "\\":
+                                    idx2 += 2
+                                    continue
+                                if ch == "{":
+                                    depth += 1
+                                elif ch == "}":
+                                    depth -= 1
+                                    if depth == 0:
+                                        break
+                                idx2 += 1
+                            end_idx = min(idx2 + 1, len(line))
+                    span_text = line[op_start_idx:end_idx]
+                    masked_literals.append(span_text)
+                    parts.append(f"__MASK_{len(masked_literals) - 1}__")
+                    pos = end_idx
+                else:
+                    idx = match.end()
+                    while idx < len(line):
+                        ch = line[idx]
+                        if ch == "\\":
+                            idx += 2
+                            continue
+                        if ch == "/":
+                            break
+                        idx += 1
+                    end_idx = min(idx + 1, len(line))
+                    op_keyword = matched_str[:-1].strip() if is_slash_op else ""
+                    if op_keyword in ("s", "tr", "y") and end_idx < len(line):
+                        idx2 = end_idx
+                        while idx2 < len(line):
+                            ch = line[idx2]
+                            if ch == "\\":
+                                idx2 += 2
+                                continue
+                            if ch == "/":
+                                break
+                            idx2 += 1
+                        end_idx = min(idx2 + 1, len(line))
+                    span_text = line[op_start_idx:end_idx]
+                    masked_literals.append(span_text)
+                    parts.append(f"__MASK_{len(masked_literals) - 1}__")
+                    pos = end_idx
+            return "".join(parts)
 
         normalized_text = text.replace("\r\n", "\n").replace("\r", "\n")
         for line in normalized_text.split("\n"):
@@ -508,6 +628,9 @@ class Prism:
                 carry_quote = None
 
             masked_line, masked_literals = self._mask_line_literals(line)
+
+            if lang_id == "perl":
+                masked_line = _mask_perl_line_positional(masked_line, masked_literals)
 
             if pattern.search(masked_line):
                 parts = pattern.split(masked_line, 1)
@@ -525,6 +648,140 @@ class Prism:
             out.append(self._restore_masked_literals(comment_part, masked_literals) if comment_part is not None else "")
 
         return "\n".join(out)
+
+    # #2908 Phase 2 follow-up: perl's `doc` rule (language_standards/
+    # languages/perl.py) matches a POD block -- `^=pod`/`=head1..6`/`=item`/
+    # `=over`/`=back`/`=begin`/`=end`/`=encoding`/`=for`, paired to its
+    # closing `^=cut`, or the bare opener alone if unpaired. Mirrored here
+    # verbatim (not imported -- prism.py doesn't otherwise depend on any
+    # per-language rules dict) so _positional_perl_comments makes exactly the
+    # text the doc rule will itself re-match visible, at the right lines.
+    _PERL_POD_SPAN = re.compile(
+        r"^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b[\s\S]{0,15000}?^=cut\b"
+        r"|^=(?:pod|head[1-6]|item|over|back|begin|end|encoding|for)\b",
+        re.M,
+    )
+
+    def _positional_perl_comments(self, text: str) -> str:
+        """Positional comment surface for perl: POD blocks (kept verbatim at
+        their real lines) plus ordinary `#` comments elsewhere (via
+        `_strip_single_line_comments_positional`, perl's masked variant).
+
+        POD is perl's real doc convention and, per perl.py's own "Known
+        remaining gap, not fixed here" note, was NEVER stripped into
+        `comment_stream` by the production pipeline -- `comment_analysis`'s
+        `doc` count has always read 0 for a POD-documented perl file. That
+        gap is untouched here (comment_stream, comment_analysis and every
+        existing count stay exactly as they are); this only makes POD text
+        visible to the NEW positional pass, so #2908's `is_documented` can
+        see what the counting pass structurally cannot.
+
+        POD-span lines are blanked (not run through the `#`-scan) before
+        that scan runs, so `#`/quote characters inside POD prose can't
+        perturb its per-line masking or carry-quote state; the real POD text
+        is spliced back in afterward, line-for-line.
+        """
+        normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+        lines = normalized.split("\n")
+
+        pod_line_set: set[int] = set()
+        for m in self._PERL_POD_SPAN.finditer(normalized):
+            start_line = normalized.count("\n", 0, m.start())
+            end_line = normalized.count("\n", 0, m.end())
+            pod_line_set.update(range(start_line, end_line + 1))
+
+        working_lines = ["" if i in pod_line_set else ln for i, ln in enumerate(lines)]
+        hash_positional = self._strip_single_line_comments_positional("\n".join(working_lines), "perl")
+        hash_lines = hash_positional.split("\n")
+
+        out_lines = [lines[i] if i in pod_line_set else hash_lines[i] for i in range(len(lines))]
+        return "\n".join(out_lines)
+
+    def _positional_nested_comments(self, text: str, family: str) -> str:
+        """Positional sibling of `_strip_nested_comments`: rust/scala/swift
+        (recursive_block), haskell (recursive_block_haskell) and scheme
+        (recursive_block_lisp) all nest block comments, so finding their real
+        boundaries needs the same "peel the innermost pair, repeat" approach
+        `_strip_nested_comments` uses -- reimplemented here rather than
+        reused because that method's own string/char-literal masking
+        replaces a matched literal with a variable-length `__GALAXY_STR_
+        MASK_N__` placeholder token (fine for its own purpose -- only LINE
+        correspondence, not byte offset, matters to its caller) and this
+        method needs the search view to stay byte-for-byte aligned with
+        `text` throughout, so a found delimiter's offset can be sliced
+        directly out of the pristine original.
+
+        Same discipline as `_strip_nested_comments`: string/char/backtick
+        literals AND single-line comments are masked/found in one atomic
+        combined-pattern pass first (so a delimiter-shaped character inside
+        a string, or a `;`/`--`/`//` that starts a real line comment, can't
+        be mistaken for a block-comment marker), then block comments are
+        peeled from the innermost pair outward. Literal spans are neutralized
+        (same length, newlines kept) rather than deleted; line-comment and
+        block-comment spans are recorded and spliced back in verbatim from
+        `text` at the end, everything else blanked.
+        """
+        delims = self.lexical_families.get(family, {}).get("delimiters", ["//", "/*", "*/"])
+        if len(delims) < 3:
+            return self._blank_preserve_newlines(text)
+        s_line, b_start, b_end = delims[0], delims[1], delims[2]
+
+        # Same construction as _strip_nested_comments -- see that method's
+        # own comment for why each alternative exists and why lisp's char
+        # literal must be tried first.
+        lisp_char_literal = r"#\\(?:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}|[^\s])|" if family == "recursive_block_lisp" else ""
+        combined_pattern = re.compile(
+            lisp_char_literal
+            + r'(?<!\\)"(?:\\.|[^"\\])*"'
+            + r"|(?<!\\)'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\]){0,10}'"
+            + r"|(?<!\\)`(?:\\.|[^`\\]){0,200}`"
+            + rf"|{re.escape(s_line)}[^\n]*",
+            re.S | re.M,
+        )
+
+        def _neutralize(s: str) -> str:
+            return "".join(ch if ch == "\n" else "\x00" for ch in s)
+
+        keep_spans: list[tuple[int, int]] = []
+
+        def _combined_replacer(m: "re.Match[str]") -> str:
+            if m.group(0).startswith(s_line):
+                keep_spans.append((m.start(), m.end()))
+            return _neutralize(m.group(0))
+
+        search_view = combined_pattern.sub(_combined_replacer, text)
+
+        safety = 0
+        while b_start in search_view and safety < self.NESTED_PEEL_LIMIT:
+            end_match = re.search(re.escape(b_end), search_view)
+            if not end_match:
+                break
+            start_idx = search_view.rfind(b_start, 0, end_match.start())
+            if start_idx == -1:
+                break
+            keep_spans.append((start_idx, end_match.end()))
+            search_view = (
+                search_view[:start_idx]
+                + _neutralize(search_view[start_idx : end_match.end()])
+                + search_view[end_match.end() :]
+            )
+            safety += 1
+
+        keep_spans.sort()
+        out = []
+        pos = 0
+        for a, b in keep_spans:
+            if a < pos:
+                # An inner span the first pass already recorded (e.g. a
+                # line-comment-shaped token that turned out to sit inside a
+                # block comment later peeled around it) -- already covered
+                # by the enclosing span just emitted.
+                continue
+            out.append(self._blank_preserve_newlines(text[pos:a]))
+            out.append(text[a:b])
+            pos = b
+        out.append(self._blank_preserve_newlines(text[pos:]))
+        return "".join(out)
 
     def _strip_segment_comments(self, text: str, lang_id: str, family: str) -> tuple[str, str]:
         """Surgically strips documentation using an ordered, additive pipeline."""

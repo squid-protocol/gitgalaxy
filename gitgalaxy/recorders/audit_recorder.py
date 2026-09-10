@@ -275,6 +275,14 @@ class AuditRecorder:
                         "Control Flow Ratio": f"{round((func.get('control_flow_ratio') or func.get('cf_ratio') or 0.0) * 100, 1)}%",
                         "Start Line": func.get("start_line", 0),
                         "End Line": func.get("end_line", 0),
+                        # #2908 Phase 2: per-unit is_public/is_documented
+                        # (docs/risk_documentation_contract.md) and the
+                        # existing reflection hit_vector entry, surfaced per
+                        # function for the first time -- no existing key in
+                        # this block moves.
+                        "Is Public": int(func.get("is_public", False)),
+                        "Is Documented": int(func.get("is_documented", False)),
+                        "Reflection Hits": func.get("hit_vector", {}).get("reflection_metaprogramming", 0),
                     }
                     for func in file_data.get("functions", [])
                     if isinstance(func, dict)

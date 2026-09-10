@@ -361,6 +361,8 @@ class RecordKeeper:
                 docstring TEXT,
                 calls_out_to TEXT,
                 token_mass INTEGER DEFAULT 0,
+                is_public INTEGER DEFAULT 0,
+                is_documented INTEGER DEFAULT 0,
                 {", ".join(hit_cols)},
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
@@ -369,6 +371,27 @@ class RecordKeeper:
         # DEFENSIVE GUARD: Indexes to Prevent Cascade Delete Hangs
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_class_file_id ON class_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_function_file_id ON function_data(file_id);")
+
+        # #2908 Phase 2: per-unit is_public/is_documented (function_data.
+        # docs/risk_documentation_contract.md). Auto-heal for a pre-#2908
+        # database whose function_data table (the CREATE IF NOT EXISTS
+        # above won't touch it) predates these columns -- same precedent as
+        # file_data's doc_loc heal above.
+        try:
+            cursor.execute("ALTER TABLE function_data ADD COLUMN is_public INTEGER DEFAULT 0")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" in str(exc).lower():
+                self.logger.debug("Schema migration skipped: 'is_public' already exists.")
+            else:
+                raise
+
+        try:
+            cursor.execute("ALTER TABLE function_data ADD COLUMN is_documented INTEGER DEFAULT 0")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" in str(exc).lower():
+                self.logger.debug("Schema migration skipped: 'is_documented' already exists.")
+            else:
+                raise
 
         # #2625: file_data historically persisted only total_loc (blank-inclusive)
         # and coding_loc (blank-exclusive), forcing downstream consumers to
@@ -922,6 +945,8 @@ class RecordKeeper:
                         str(func.get("docstring", ""))[:2000],
                         json.dumps(func.get("calls_out_to", [])),
                         (int(func.get("token_mass")) if func.get("token_mass") is not None else None),
+                        int(bool(func.get("is_public", False))),
+                        int(bool(func.get("is_documented", False))),
                     ]
                     + func_hits
                 )
@@ -934,7 +959,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, token_mass, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])})
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])})
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

@@ -4786,3 +4786,471 @@ def test_cobol_paragraph_entry_using_is_inside_the_args_window_2863():
     # The defect's signature: the block's rule tally saw the clause all along.
     # PROBE-CALLER keeps that disagreement, and it is correct for it to.
     assert found["PROBE-CALLER"]["hit_vector"].get("args", 0) == 1
+
+
+# ==============================================================================
+# #2908 PHASE 2: is_public / is_documented CONTRACT TESTS
+# ==============================================================================
+# One test per declaration family, run through the real Prism + StructuralExtractor
+# (LANGUAGE_DEFINITIONS/LEXICAL_FAMILY_HEURISTICS) rather than MOCK_LANG_DEFS --
+# is_public/is_documented read each language's real `api`/`doc`/export rules, so a
+# hand-rolled mock rule set would test the harness, not the contract.
+
+
+def test_detector_is_public_is_documented_preceding_block_c():
+    """Family 1: preceding-block (C-like). A `/** ... */` doc comment ending
+    2 lines above a header sets is_documented; a unit with nothing nearby, or
+    only a comment 6 lines above (outside k=5), does not. A non-static
+    column-0 declarator is_public via the api rule (A); `static` is not."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "/** Adds two numbers. */\n"
+        "\n"
+        "int add(int a, int b) {\n"
+        "    return a + b;\n"
+        "}\n"
+        "\n"
+        "static int helper(int x) {\n"
+        "    return x;\n"
+        "}\n"
+        "\n"
+        "int no_comment_nearby(void) {\n"
+        "    return 0;\n"
+        "}\n"
+        "\n"
+        "/** Far doc comment. */\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "int far_from_doc(void) {\n"
+        "    return 0;\n"
+        "}\n"
+    )
+    refraction = prism.split_streams(code, "c")
+    positional = prism.split_positional_comment_stream(code, "c")
+    result = StructuralExtractor("c", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    # doc comment ending 2 lines above the header -> documented
+    assert found["add"]["is_documented"] is True
+    # no doc comment anywhere nearby -> not documented
+    assert found["no_comment_nearby"]["is_documented"] is False
+    # doc comment ending 6 lines above (outside k=5) -> not documented
+    assert found["far_from_doc"]["is_documented"] is False
+
+    # non-static column-0 declarator, api-rule-matched -> public
+    assert found["add"]["is_public"] is True
+    # static -> not api-matched, not export-listed -> not public
+    assert found["helper"]["is_public"] is False
+
+
+def test_detector_is_public_is_documented_docstring_position_python():
+    """Family 2: docstring-position (python). A real `\"\"\"...\"\"\"` docstring
+    sets is_documented via the D3 fallback (the positional pass can't see a
+    docstring -- it's a code_stream string literal, not a comment). A `#`
+    comment matching the `doc` rule's `:param` tag, sitting above a decorator
+    stack, sets is_documented via the real positional pass -- decorators
+    between the comment and `def` stay inside the k=5 window."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "def entry():\n"
+        '    """Runs the thing."""\n'
+        "    return 1\n"
+        "\n"
+        "\n"
+        "# :param x: something\n"
+        "@decorator\n"
+        "@another\n"
+        "def decorated(x):\n"
+        "    return x\n"
+    )
+    refraction = prism.split_streams(code, "python")
+    positional = prism.split_positional_comment_stream(code, "python")
+    result = StructuralExtractor("python", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    # real below-header docstring -> documented via the D3 fallback
+    assert found["entry"]["is_documented"] is True
+    # `:param` comment above a decorator stack, within k=5 -> documented via
+    # the real positional pass
+    assert found["decorated"]["is_documented"] is True
+
+
+def test_detector_is_public_is_documented_export_list_makefile():
+    """Family 3: export-list. makefile's `.PHONY: foo` is a
+    `_visibility_export_list` rule (#2902's re-plant). A target named in it
+    is public via B; a target absent from it (and outside the api rule's own
+    hardcoded target-name whitelist) is not."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = ".PHONY: foo\n\nfoo:\n\techo foo\n\nbar:\n\techo bar\n"
+    refraction = prism.split_streams(code, "makefile")
+    positional = prism.split_positional_comment_stream(code, "makefile")
+    result = StructuralExtractor("makefile", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    assert found["foo"]["is_public"] is True, "a name in .PHONY's export list must be public"
+    assert found["bar"]["is_public"] is False, "a name absent from the export list must not be public"
+
+
+def test_detector_is_public_is_documented_positional_invocation_cobol():
+    """Family 4: positional-invocation (cobol). A `*> @param` structured
+    comment immediately before a paragraph label sets is_documented via the
+    positional_anchored pass. A paragraph's own `ENTRY "name"` statement --
+    real COBOL syntax for a callable entry point -- sets is_public via A,
+    matched by name through `_name_boundary_pattern` against the hyphenated
+    paragraph name inside its own header window."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. TESTPROG.\n"
+        "       PROCEDURE DIVISION.\n"
+        "      *> @param none\n"
+        "       PROBE-GLOBALS.\n"
+        '           ENTRY "PROBE-GLOBALS".\n'
+        "           DISPLAY 'HI'.\n"
+        "           STOP RUN.\n"
+        "\n"
+        "       OTHER-PARA.\n"
+        "           DISPLAY 'BYE'.\n"
+    )
+    refraction = prism.split_streams(code, "cobol")
+    positional = prism.split_positional_comment_stream(code, "cobol")
+    result = StructuralExtractor("cobol", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    # `*> @param` comment line immediately before the paragraph label -> documented
+    assert found["PROBE-GLOBALS"]["is_documented"] is True
+    # hyphenated paragraph name matched via _name_boundary_pattern where the
+    # api rule (ENTRY) fires inside the paragraph's own header window
+    assert found["PROBE-GLOBALS"]["is_public"] is True
+    # a paragraph with neither an ENTRY statement nor an export-list mention
+    assert found["OTHER-PARA"]["is_public"] is False
+
+
+# ==============================================================================
+# #2908 PHASE 2 FOLLOW-UP: is_documented FOR THE NESTED-COMMENT / PERL / POD
+# COMMENT FAMILIES
+# ==============================================================================
+# The corpus sweep found split_positional_comment_stream's blank-stream
+# fallback was load-bearing for recursive_block (rust/scala/swift),
+# recursive_block_haskell (haskell), recursive_block_lisp (scheme), and perl's
+# own POD convention -- is_documented could structurally never fire for any of
+# them. These tests lock in the real positional passes that replaced that
+# fallback (_positional_nested_comments, _positional_perl_comments).
+# powershell/embedded_syntax needed no new code -- embedded_syntax was never
+# excluded from the generic REGEX_MATRIX dispatch branch -- so its test below
+# only guards that continuing to work, not a fix.
+
+
+def test_detector_is_documented_recursive_block_rust():
+    """rust (recursive_block): a `///` block directly above `fn` sets
+    is_documented; the same block sitting 6+ lines above (outside k=5) does
+    not."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "/// Adds two numbers.\n"
+        "pub fn add_two(a: i32, b: i32) -> i32 {\n"
+        "    a + b\n"
+        "}\n"
+        "\n"
+        "/// Far comment.\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "pub fn far_func(a: i32) -> i32 {\n"
+        "    a\n"
+        "}\n"
+    )
+    refraction = prism.split_streams(code, "rust")
+    positional = prism.split_positional_comment_stream(code, "rust")
+    result = StructuralExtractor("rust", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    assert found["add_two"]["is_documented"] is True
+    assert found["far_func"]["is_documented"] is False
+
+
+def test_detector_is_documented_recursive_block_haskell():
+    """haskell (recursive_block_haskell): a `-- |` line directly above a
+    type signature sets is_documented; the same comment 6+ lines above does
+    not."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "-- | Adds two numbers.\n"
+        "addTwo :: Int -> Int -> Int\n"
+        "addTwo a b = a + b\n"
+        "\n"
+        "-- | Far comment.\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "farFunc :: Int -> Int\n"
+        "farFunc x = x\n"
+    )
+    refraction = prism.split_streams(code, "haskell")
+    positional = prism.split_positional_comment_stream(code, "haskell")
+    result = StructuralExtractor("haskell", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    assert found["addTwo"]["is_documented"] is True
+    assert found["farFunc"]["is_documented"] is False
+
+
+def test_detector_is_documented_recursive_block_lisp_scheme():
+    """scheme (recursive_block_lisp): a `;;;` comment (the doc rule's own
+    marker -- a bare `;;` does not match it) immediately above a `define`
+    sets is_documented; the same marker pushed several lines above the
+    define (so its own positional match no longer lands inside the header
+    window) does not.
+
+    Uses two separate single-`define` snippets rather than one two-function
+    file: scheme's slicer has a pre-existing, unrelated start_line
+    computation defect on multi-declaration files (confirmed while building
+    this test -- out of scope for #2908, not touched here) that would make a
+    combined file's line numbers unreliable. Each snippet here is
+    independently correct for what this test actually checks: whether a
+    `doc`-rule match's positional line falls inside is_documented's own k=5
+    anchor window relative to whatever start_line the engine reports.
+    """
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    def documented(code: str) -> bool:
+        refraction = prism.split_streams(code, "scheme")
+        positional = prism.split_positional_comment_stream(code, "scheme")
+        result = StructuralExtractor("scheme", LANGUAGE_DEFINITIONS).splice(
+            code_stream=refraction["code_stream"],
+            comment_stream=refraction["comment_stream"],
+            raw_content=code,
+            positional_comment_stream=positional,
+        )
+        return result["functions"][0]["is_documented"]
+
+    assert documented(";;; probe globals\n(define (probe-globals) 1)\n") is True
+    assert documented("\n\n\n\n\n\n;;; far comment\n(define (probe-globals) 1)\n") is False
+
+
+def test_detector_is_documented_perl_pod():
+    """perl: a POD block (`=head1 ... =cut`) ending <=5 lines above a `sub`
+    sets is_documented -- POD was never stripped into comment_stream at all
+    (perl.py's own "Known remaining gap, not fixed here" note), so this is
+    exercised entirely through the new positional pass. The same block
+    pushed further above the `sub` does not."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "=head1 NAME\n"
+        "\n"
+        "add - adds two numbers\n"
+        "\n"
+        "=cut\n"
+        "\n"
+        "sub add {\n"
+        "    return 1;\n"
+        "}\n"
+        "\n"
+        "=head1 NAME\n"
+        "\n"
+        "far sub\n"
+        "\n"
+        "=cut\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "sub far_sub {\n"
+        "    return 1;\n"
+        "}\n"
+    )
+    refraction = prism.split_streams(code, "perl")
+    positional = prism.split_positional_comment_stream(code, "perl")
+    result = StructuralExtractor("perl", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    assert found["add"]["is_documented"] is True
+    assert found["far_sub"]["is_documented"] is False
+
+
+def test_detector_is_documented_powershell_embedded_syntax():
+    """powershell (embedded_syntax): a `<# .SYNOPSIS ... #>` help block
+    directly above a function sets is_documented; the same block 6+ lines
+    above does not. No new dispatch branch was needed for this family --
+    `embedded_syntax` was never excluded from the generic REGEX_MATRIX
+    positional path -- this only guards that continuing to work."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    code = (
+        "<#\n"
+        ".SYNOPSIS\n"
+        "Adds two numbers.\n"
+        "#>\n"
+        "function Add-Two {\n"
+        "    param($a, $b)\n"
+        "    return $a + $b\n"
+        "}\n"
+        "\n"
+        "<#\n"
+        ".SYNOPSIS\n"
+        "Far function.\n"
+        "#>\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "function Far-Func {\n"
+        "    return 1\n"
+        "}\n"
+    )
+    refraction = prism.split_streams(code, "powershell")
+    positional = prism.split_positional_comment_stream(code, "powershell")
+    result = StructuralExtractor("powershell", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    assert found["Add-Two"]["is_documented"] is True
+    assert found["Far-Func"]["is_documented"] is False
+
+
+def test_detector_is_documented_powershell_undelimited_doc_marker_in_code():
+    """powershell: the real keyword-rosetta corpus shape
+    (data/powershell/main.ps1) is NOT a `<# ... #>` block at all -- its
+    `.SYNOPSIS` plant line carries no `#`/`<#`/`#>` delimiter whatsoever, so
+    it sits in `code_stream`, never `comment_stream`. Confirmed against the
+    real corpus file this test mirrors: `equations["doc"]` was already 1
+    for that file before #2908 (`coding_analysis`'s generic per-rule loop
+    runs the `doc` pattern against every segment of `code_stream` too, with
+    no comment-vs-code distinction -- `comment_analysis` is not its only
+    source), so a positional pass that only ever scanned the comment surface
+    structurally could not agree with the file-level count it is the
+    per-unit form of. `splice()` now also scans `code_stream` (itself
+    already line-aligned with the original file, the same way
+    `positional_comment_stream` is) for `doc`-rule matches. A first version
+    of this test used a `<# .SYNOPSIS ... #>` block, which passed while the
+    real corpus file failed -- see test_detector_is_documented_powershell_
+    embedded_syntax above for that (still valid, still real) block-comment
+    shape; this test is the one that actually tracks the corpus."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    def documented(code: str) -> bool:
+        refraction = prism.split_streams(code, "powershell")
+        positional = prism.split_positional_comment_stream(code, "powershell")
+        result = StructuralExtractor("powershell", LANGUAGE_DEFINITIONS).splice(
+            code_stream=refraction["code_stream"],
+            comment_stream=refraction["comment_stream"],
+            raw_content=code,
+            positional_comment_stream=positional,
+        )
+        return {fn["name"]: fn for fn in result["functions"]}["probe_dispatch"]["is_documented"]
+
+    # The real corpus shape, verbatim: a bare, undelimited `.SYNOPSIS` line
+    # sandwiched between two real `#` comments, 4 lines above the function.
+    near = (
+        "# keyword rosetta control shell: powershell / main\n"
+        "# Author: keyword-rosetta generator\n"
+        ".SYNOPSIS\n"
+        "# decoy: this suite never invokes iex words outside prose\n"
+        ". ./a.ps1\n"
+        "\n"
+        "function probe_dispatch {\n"
+        "    param($argv)\n"
+        "    probe_branch\n"
+        "}\n"
+    )
+    assert documented(near) is True
+
+    # Same undelimited marker, pushed 6+ lines above (outside k=5).
+    far = (
+        ".SYNOPSIS\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "function probe_dispatch {\n"
+        "    param($argv)\n"
+        "}\n"
+    )
+    assert documented(far) is False

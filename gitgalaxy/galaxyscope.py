@@ -456,6 +456,11 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                 # Phase 4: Lexical Scanning
                 t_prism = time.perf_counter()
                 refraction = prism.split_streams(content_buffer, lang_id)
+                # #2908 Phase 2: a line-number-aligned comment surface for
+                # detector.py's positional `is_documented` anchor (D3) --
+                # see split_positional_comment_stream's own docstring for
+                # why refraction["comment_stream"] can't be reused for this.
+                positional_comment_stream = prism.split_positional_comment_stream(content_buffer, lang_id)
                 if is_file_profiling:
                     phase_times["4_Lexical_Scan"] = time.perf_counter() - t_prism
 
@@ -477,6 +482,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     confidence=detection_result.get("intensity", 1.0),
                     profile_regex=is_profiling,
                     raw_content=content_buffer,
+                    positional_comment_stream=positional_comment_stream,
                 )
                 if is_file_profiling:
                     phase_times["5_Optical_Detector"] = time.perf_counter() - t_detector_phase
@@ -2296,6 +2302,16 @@ class Orchestrator:
                     # 3. Heal the function metadata
                     for func in meta.get("functions", []):
                         if func.get("usage_status") == 1:
+                            # #2908 Phase 2, is_public source C: this credit
+                            # firing (imported file, real orphan) is exactly
+                            # the Contextual Baseline Fix's own definition of
+                            # "actually public" -- set BEFORE the usage_status
+                            # flip below, which stays untouched. OR'd with any
+                            # existing True from detector.py's A/B sources
+                            # (a name can be healed here AND api/export-list
+                            # public at once; is_public is a union, never a
+                            # double count).
+                            func["is_public"] = True
                             func["usage_status"] = 0
             # =================================================================
 

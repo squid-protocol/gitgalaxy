@@ -1468,17 +1468,41 @@ class StructuralExtractor:
             # this same list. Uses the primary language's own `doc` rule,
             # matching how `comment_analysis` already reads `self.primary_lang_id`
             # rather than per-segment rules.
+            #
+            # #2908 Phase 2 follow-up: ALSO scans `code_stream`, not just the
+            # comment surface. `equations["doc"]` (the FILE-LEVEL count
+            # `comment_analysis` feeds) was already the sum of a comment_
+            # stream pass (comment_analysis) AND a code_stream pass --
+            # `coding_analysis`'s own generic per-rule loop runs every rule
+            # in the language's `rules` dict, "doc" included, against each
+            # segment of `code_stream` too, with no comment-vs-code
+            # distinction at all. Confirmed on keyword-rosetta's powershell
+            # main.ps1 (expected_signals.json: `"doc": 1`): its `.SYNOPSIS`
+            # plant line carries no `#`/`<#`/`#>` delimiter at all -- a
+            # genuinely bare, un-commented line -- yet the file's own `doc`
+            # equation already reads 1, entirely from the code_stream pass
+            # (comment_stream never contains it). A positional pass that
+            # only ever looked at the comment surface would then structurally
+            # disagree with the file-level count it is the per-unit form of.
+            # `code_stream` is already line-number-aligned with the original
+            # file for the same reason `positional_comment_stream` is (prism.py
+            # blanks a stripped comment to an equal run of newlines, never
+            # deleting the line break) -- no new stream is needed, just a
+            # second pattern pass over a stream `splice()` already has.
             doc_positional_end_lines: list[int] = []
             _doc_pattern = self.languages.get(self.primary_lang_id, {}).get("rules", {}).get("doc")
-            if _doc_pattern is not None and positional_comment_stream:
-                _doc_matches = (
-                    _doc_pattern.finditer(positional_comment_stream)
-                    if hasattr(_doc_pattern, "finditer")
-                    else re.finditer(str(_doc_pattern), positional_comment_stream)
-                )
-                doc_positional_end_lines = sorted(
-                    positional_comment_stream.count("\n", 0, m.end()) + 1 for m in _doc_matches
-                )
+            if _doc_pattern is not None:
+                _doc_end_lines: set[int] = set()
+                for _doc_stream in (positional_comment_stream, code_stream):
+                    if not _doc_stream:
+                        continue
+                    _doc_matches = (
+                        _doc_pattern.finditer(_doc_stream)
+                        if hasattr(_doc_pattern, "finditer")
+                        else re.finditer(str(_doc_pattern), _doc_stream)
+                    )
+                    _doc_end_lines.update(_doc_stream.count("\n", 0, m.end()) + 1 for m in _doc_matches)
+                doc_positional_end_lines = sorted(_doc_end_lines)
 
             # #2806: does this language reach its callable units BY NAME? The
             # census below is a name-reference test and nothing else can be

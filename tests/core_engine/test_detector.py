@@ -5188,3 +5188,69 @@ def test_detector_is_documented_powershell_embedded_syntax():
 
     assert found["Add-Two"]["is_documented"] is True
     assert found["Far-Func"]["is_documented"] is False
+
+
+def test_detector_is_documented_powershell_undelimited_doc_marker_in_code():
+    """powershell: the real keyword-rosetta corpus shape
+    (data/powershell/main.ps1) is NOT a `<# ... #>` block at all -- its
+    `.SYNOPSIS` plant line carries no `#`/`<#`/`#>` delimiter whatsoever, so
+    it sits in `code_stream`, never `comment_stream`. Confirmed against the
+    real corpus file this test mirrors: `equations["doc"]` was already 1
+    for that file before #2908 (`coding_analysis`'s generic per-rule loop
+    runs the `doc` pattern against every segment of `code_stream` too, with
+    no comment-vs-code distinction -- `comment_analysis` is not its only
+    source), so a positional pass that only ever scanned the comment surface
+    structurally could not agree with the file-level count it is the
+    per-unit form of. `splice()` now also scans `code_stream` (itself
+    already line-aligned with the original file, the same way
+    `positional_comment_stream` is) for `doc`-rule matches. A first version
+    of this test used a `<# .SYNOPSIS ... #>` block, which passed while the
+    real corpus file failed -- see test_detector_is_documented_powershell_
+    embedded_syntax above for that (still valid, still real) block-comment
+    shape; this test is the one that actually tracks the corpus."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+    def documented(code: str) -> bool:
+        refraction = prism.split_streams(code, "powershell")
+        positional = prism.split_positional_comment_stream(code, "powershell")
+        result = StructuralExtractor("powershell", LANGUAGE_DEFINITIONS).splice(
+            code_stream=refraction["code_stream"],
+            comment_stream=refraction["comment_stream"],
+            raw_content=code,
+            positional_comment_stream=positional,
+        )
+        return {fn["name"]: fn for fn in result["functions"]}["probe_dispatch"]["is_documented"]
+
+    # The real corpus shape, verbatim: a bare, undelimited `.SYNOPSIS` line
+    # sandwiched between two real `#` comments, 4 lines above the function.
+    near = (
+        "# keyword rosetta control shell: powershell / main\n"
+        "# Author: keyword-rosetta generator\n"
+        ".SYNOPSIS\n"
+        "# decoy: this suite never invokes iex words outside prose\n"
+        ". ./a.ps1\n"
+        "\n"
+        "function probe_dispatch {\n"
+        "    param($argv)\n"
+        "    probe_branch\n"
+        "}\n"
+    )
+    assert documented(near) is True
+
+    # Same undelimited marker, pushed 6+ lines above (outside k=5).
+    far = (
+        ".SYNOPSIS\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "\n"
+        "function probe_dispatch {\n"
+        "    param($argv)\n"
+        "}\n"
+    )
+    assert documented(far) is False

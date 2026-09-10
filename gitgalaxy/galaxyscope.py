@@ -221,6 +221,8 @@ def _init_worker(
     )
 
     _worker_state["guidestar"].scan_project_config()
+    # #2555: a root manifest stands down the aperture's infra/test shield for this scan.
+    _worker_state["filter"].manifest_project_scope = _worker_state["guidestar"].has_manifest_scope
 
 
 def _process_file_worker(rel_path: str) -> dict[str, Any]:
@@ -971,6 +973,8 @@ class Orchestrator:
             # OS-level walk determining physical existence, OS permissions, and intent.
             t_phase = time.time()
             self.guidestar.scan_project_config()
+            # #2555: a root manifest stands down the aperture's infra/test shield for this scan.
+            self.filter.manifest_project_scope = self.guidestar.has_manifest_scope
             self._build_file_census()
             logger.debug(f"⏱️ EXECUTION_TIME [Phase 0 - Radar]: {time.time() - t_phase:.2f}s")
 
@@ -1516,10 +1520,16 @@ class Orchestrator:
                 git_paths = [self.single_file_target]
                 self.git_tracked_files = set(git_paths)
             else:
+                # #2555: `-z` (NUL-delimited) output disables git's default
+                # core.quotepath octal-escaping/double-quote-wrapping of paths with
+                # "unusual" bytes (non-ASCII, tab, backslash, literal `"`). Without it,
+                # such a path arrives wrapped as `"src/na\303\257ve.txt"`, and the
+                # surrounding `"` leaks all the way into the extracted extension
+                # (`.txt"`) and the exclusion reason string.
                 raw_output = subprocess.check_output(  # noqa: S603 -- _GIT_BIN resolved absolute, args are fixed strings
-                    [_GIT_BIN, "ls-files"], cwd=self.root, text=True, stderr=subprocess.DEVNULL
+                    [_GIT_BIN, "ls-files", "-z"], cwd=self.root, text=True, stderr=subprocess.DEVNULL
                 )
-                git_paths = raw_output.splitlines()
+                git_paths = [p for p in raw_output.split("\0") if p]
                 self.git_tracked_files = set(git_paths)
 
             # --- FAST I/O: ThreadPool for os.stat operations ---

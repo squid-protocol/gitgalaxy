@@ -87,6 +87,16 @@ class GuideStarLens:
         # Spatial Documentation Map: Dict[directory_path, coverage_strength_float]
         self.documentation_coverage: dict[str, float] = {}
 
+        # #2555: True once a recognized package/build manifest is found AT THE SCAN ROOT.
+        # A root manifest is authoritative proof the scan target is a real project the
+        # user means to analyze, so its own first-class source/test/example directories
+        # (`lib/`, `test/`, `examples/`, ...) should not be silently dropped by the
+        # aperture's Semantic Infrastructure & Test Target Shield. Root-level only:
+        # a manifest nested in a subdirectory does NOT flip this, which is what keeps
+        # manifest-less directory scans (and the language-crucible corpus, scanned at a
+        # manifest-less `data/` root) fully shielded.
+        self.has_manifest_scope: bool = False
+
         self.logger.debug(f"GuideStar Lens Online | Sector: {self.root.name}")
 
     def scan_project_config(self):
@@ -206,6 +216,11 @@ class GuideStarLens:
         for manifest, lang in active_manifests.items():
             path = self.root / manifest
             if path.exists():
+                # #2555: a manifest at the scan root proves this is a real project ->
+                # grant project scope so its own source/test/example dirs survive the
+                # aperture's infra/test shield. Root-level only (path == self.root / <name>).
+                self.has_manifest_scope = True
+
                 # 1. Prioritize the manifest itself
                 self._inject_intent_lock(manifest, lang, 0.90, "Roadmap Lock (Manifest)")
 

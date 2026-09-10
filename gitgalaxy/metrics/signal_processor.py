@@ -2124,7 +2124,8 @@ class SignalProcessor:
         # take the impact-argmax over code languages first and only fall back to the
         # full set (docs included) when there is no code language present at all.
         doc_languages = {
-            lang.lower() for lang in self.asset_masks.get("DOCUMENTATION_LANGUAGES", {"markdown", "plaintext", "rst", "text"})
+            lang.lower()
+            for lang in self.asset_masks.get("DOCUMENTATION_LANGUAGES", {"markdown", "plaintext", "rst", "text"})
         }
         code_langs = {lang: stats for lang, stats in composition.items() if lang.lower() not in doc_languages}
         ranked = code_langs or composition

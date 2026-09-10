@@ -1,6 +1,6 @@
 {
   "gitgalaxy/core/guidestar_lens.py:139: C401": "Unnecessary generator (rewrite as a set comprehension)",
-  "gitgalaxy/metrics/signal_processor.py:536: RUF046": "Value being cast to `int` is already an integer",
+  "gitgalaxy/metrics/signal_processor.py:531: RUF046": "Value being cast to `int` is already an integer",
   "gitgalaxy/recorders/audit_recorder.py:293: C416": "Unnecessary dict comprehension (rewrite using `dict()`)",
   "gitgalaxy/recorders/audit_recorder.py:310: C414": "Unnecessary `list()` call within `sorted()`",
   "gitgalaxy/recorders/gpu_recorder.py:285: C414": "Unnecessary `list()` call within `sorted()`",

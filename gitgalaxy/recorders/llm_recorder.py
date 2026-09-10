@@ -276,7 +276,7 @@ class LLMRecorder:
         lines.append("> 10. **Stability:** Measures the recency of edits relative to the repository's entire lifespan.")
         lines.append("> 11. **Deep Churn:** Measures the historical volatility and frequency of modification.")
         lines.append(
-            "> 12. **Documentation Risk Exposure:** Measures the lack of structured documentation and ownership metadata."
+            "> 12. **Documentation Risk Exposure:** Of the units extracted from a file, the weight-share a reader cannot recover from documentation -- public units count double, runtime-dynamic units count more, and a folder-level documentation umbrella shields the whole file. A ratio over units, not a density over lines; files with no extracted units have no value."
         )
         lines.append(
             "> 13. **Indentation Consistency:** Measures formatting alignment (Tabs vs. Spaces). Provided for codebase standardization context, not a functional risk."

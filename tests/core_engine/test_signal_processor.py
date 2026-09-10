@@ -1122,26 +1122,70 @@ def test_signal_processor_load_bearer_penalty(processor):
 
 
 # ==============================================================================
-# TEST 40: OPAQUE EXECUTION RISK (Documentation Risk)
+# TEST 40: DOCUMENTATION COVERAGE RATIO (#2908 Phase 3)
 # ==============================================================================
-def test_signal_processor_opaque_execution_risk(processor):
-    """Proves that heavy-impact functions lacking docstrings spike documentation risk."""
-    # 1. High-impact function WITH a docstring
-    m_doc, sig_doc = create_synthetic_star(processor, "documented_heavy", 100, {"doc": 10})
-    m_doc["functions"] = [{"name": "heavy_func", "loc": 50, "impact": 60.0, "docstring": True}]
-
-    # 2. High-impact function WITHOUT a docstring
-    m_blind, sig_blind = create_synthetic_star(processor, "blind_heavy", 100, {"doc": 10})
-    m_blind["functions"] = [{"name": "heavy_func", "loc": 50, "impact": 60.0, "docstring": False}]
-
-    r_doc = processor.calculate_risk_vector(m_doc, sig_doc)
-    r_blind = processor.calculate_risk_vector(m_blind, sig_blind)
-
+def test_signal_processor_documentation_coverage_ratio(processor):
+    """The per-unit contract (docs/risk_documentation_contract.md §1) through the
+    full calculate_risk_vector path: an undocumented unit exposes its weight, a
+    documented one exposes nothing, and the score is their ratio -- the old
+    opaque-execution/impact term is gone (impact ranks the hitlist, D1)."""
     idx_doc = processor.RISK_SCHEMA.index("documentation")
 
-    assert r_blind["risk_vector"][idx_doc] > r_doc["risk_vector"][idx_doc], (
-        "Opaque execution risk failed to penalize undocumented heavy functions!"
-    )
+    def score(functions):
+        m, sig = create_synthetic_star(processor, "units", 100, {"doc": 10})
+        m["functions"] = functions
+        return processor.calculate_risk_vector(m, sig)["risk_vector"][idx_doc]
+
+    unit = {"name": "f", "loc": 50, "impact": 60.0, "hit_vector": {}}
+    documented = score([{**unit, "is_public": True, "is_documented": True}])
+    blind = score([{**unit, "is_public": True, "is_documented": False}])
+    assert blind > documented, "An undocumented public unit must outscore a documented one!"
+    assert blind == 100.0 and documented == 0.0, "One-unit files read the pure ratio (D5: no damping)"
+
+
+def test_signal_processor_documentation_acceptance_pins(processor):
+    """The #2908 acceptance table, pinned exactly: the rosetta a/b/c shape (3 public
+    units, 0 documented) reads 100; the main shape (4 public units, `entry`
+    documented) reads 75; the same file at 0 public reads the unweighted ratio;
+    no units emits 0.0 (n/a is the reporting layer's inference, D6); reflection
+    raises the weight of ITS unit (#2719)."""
+    abc = [{"name": n, "is_public": True, "is_documented": False, "hit_vector": {}} for n in ("a", "b", "c")]
+    assert processor._calc_documentation(abc) == 100.0
+
+    main = [
+        {"name": "entry", "is_public": True, "is_documented": True, "hit_vector": {}},
+        *({"name": n, "is_public": True, "is_documented": False, "hit_vector": {}} for n in ("a", "b", "c")),
+    ]
+    assert processor._calc_documentation(main) == 75.0
+
+    # The api-contract split surfaced on purpose: entry not in the name set -> 6/7.
+    main_entry_private = [dict(u, is_public=(u["name"] != "entry")) for u in main]
+    assert processor._calc_documentation(main_entry_private) == pytest.approx(100.0 * 6.0 / 7.0)
+
+    # Phase-2 amendment: mains with units_public=0 read the unweighted ratio.
+    unweighted = [dict(u, is_public=False) for u in main]
+    assert processor._calc_documentation(unweighted) == 75.0
+
+    assert processor._calc_documentation([]) == 0.0
+
+    # The slicer's synthetic buckets are not units (#2691/#2792): a file whose
+    # "functions" are all buckets is the n/a class, not 100 -- sqlite's
+    # CREATE_Statement buckets put a/b/c at 100 until this filter.
+    buckets = [
+        {"name": "CREATE_Statement", "is_public": False, "is_documented": False, "hit_vector": {}, "is_synthetic_slice": True},
+        {"name": "__global_context__", "is_public": False, "is_documented": False, "hit_vector": {}, "is_synthetic_slice": True},
+    ]
+    assert processor._calc_documentation(buckets) == 0.0
+    assert processor._calc_documentation(buckets + abc) == 100.0
+
+    reflective = [
+        {"name": "static", "is_public": False, "is_documented": False, "hit_vector": {}},
+        {"name": "dynamic", "is_public": False, "is_documented": False, "hit_vector": {"reflection_metaprogramming": 3}},
+    ]
+    # weights 1 and 4, both exposed -> still 100; document the dynamic one -> 1/5.
+    assert processor._calc_documentation(reflective) == 100.0
+    reflective[1]["is_documented"] = True
+    assert processor._calc_documentation(reflective) == 100.0 * (1.0 / 5.0)
 
 
 # ==============================================================================

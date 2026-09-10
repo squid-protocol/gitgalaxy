@@ -32,10 +32,11 @@ measured only the code stream until this issue and read c's 51 crucible hits as 
 > metadata field.**
 
 Kind `annotation`, unit `annotations` (the module's `KINDS` table): a marker attached to a
-comment or declaration. The score layer reads it once, at `ownership_weight` 0.5 as documentation
-defense in `_calc_documentation` (the "knowledge shield": a named person to ask), scaled by the
-per-signal fidelity coefficient; `detector._decode_comment_stream` also reads the rule's **last
-capture group** from the comment stream as the file's dominant author (`Architect` in the audit,
+comment or declaration. The score layer no longer reads it: #2908 D4 removed the
+`ownership_weight` 0.5 documentation-defense term (*who* maintains a file is a different
+question from whether its units are documented, and it is carried by the silo/authorship
+views); `detector._decode_comment_stream` still reads the rule's **last capture group** from
+the comment stream as the file's dominant author (`Architect` in the audit,
 `Unknown Architect` when nothing matches), and `signal_processor` names ghost clusters after it.
 
 ## Corollaries

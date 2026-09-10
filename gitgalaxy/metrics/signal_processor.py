@@ -274,11 +274,6 @@ class SignalProcessor:
             except (ValueError, TypeError):
                 total_loc = loc
 
-            try:
-                doc_lines = int(meta.get("doc_loc", 0))
-            except (ValueError, TypeError):
-                doc_lines = 0
-
             lang_id = meta.get("lang_id", "undeterminable")
 
             import os
@@ -744,19 +739,12 @@ class SignalProcessor:
                 popularity=popularity,
             )
 
-            # Calculate Silo Risk early for the Documentation N-Dimensional Math
-            silo_exposure = self._calculate_silo_risk(meta.get("authors", {}))
-
+            # #2908 Phase 3: the per-unit coverage ratio reads the units and the
+            # umbrella, nothing else -- loc/doc_loc/fid/mp/popularity/silo left
+            # the equation (D4; docs/risk_documentation_contract.md §3).
             doc_score = self._calc_documentation(
-                loc,
-                doc_lines,
-                signals,
-                fid,
-                mp_map.get("doc", 1.0),
                 functions,
                 doc_umbrella=ghost_meta.get("doc_umbrella", 0.0),
-                popularity=popularity,
-                silo_exposure=silo_exposure,
             )
             spec_score = self._calc_spec_alignment(signals, mp_map.get("spec", 1.0))
 
@@ -1547,87 +1535,55 @@ class SignalProcessor:
 
     def _calc_documentation(
         self,
-        loc: int,
-        doc_loc: int,
-        raw_signals: dict[str, int],
-        fid: Mapping[str, float],
-        mp: float,
         functions: Optional[list[dict[str, Any]]] = None,
         doc_umbrella: float = 0.0,
-        popularity: int = 0,  # noqa: ARG002 -- inert since #2908 D4 (#2909); kept so callers/audit adapters keep a stable signature
-        silo_exposure: float = 0.0,
     ) -> float:
+        """The #2908 score contract (docs/risk_documentation_contract.md §1): of the
+        units extracted from a file, the weight-share a reader cannot recover from
+        documentation. A ratio over units, never a density over lines -- no LOC
+        term, no sigmoid, no fidelity/strictness/popularity/silo/path multiplier.
+
+            weight(u)  = (public_weight if public(u) else 1) + reflection_hits(u)
+            exposed(u) = weight(u) if not documented(u) else 0
+            score      = 100 x sum(exposed) / sum(weight) x (1 - umbrella_shield x doc_umbrella)
+
+        `is_public` / `is_documented` are the Phase-2 per-unit attributes
+        (detector.py: the union of api-header match, export list and healed
+        orphans; the header-anchored `doc` match). Reflection is the unit's own
+        `reflection_metaprogramming` count (#2719, kept where it belongs).
+        A file with no extracted units emits 0.0; the reporting layer infers
+        `n/a` from the unit count (D6), the convention the corpus tooling
+        already uses for rule absence.
+        """
         t = self.risk_tuning.get("documentation", {})
+        public_weight = t.get("public_weight", 2.0)
+        umbrella_shield = t.get("umbrella_shield", 0.5)
 
-        # 1. THE DEFENSE (The Knowledge Shield)
-        # GuideStar Umbrella projection: 1.0 shield = 50 lines of virtual documentation
-        umbrella_defense = doc_umbrella * 50.0
+        # "Extracted units" is the FUNCTION POPULATION (#2691/#2792), not the
+        # slicer's synthetic buckets (`__global_context__`, sqlite's
+        # `CREATE_Statement`): a bucket's count scales with statement volume,
+        # not with the program, and it is excluded from `function_data` -- so
+        # reading it here would both re-import a slicer artifact as a unit
+        # (sqlite a/b/c read 100 instead of the declared n/a) and make the
+        # score irreproducible from its recorded inputs.
+        units = [f for f in functions or [] if not f.get("is_synthetic_slice")]
 
-        # Per-signal fidelity (#2718): doc_loc and the umbrella are structural, not
-        # rule hits, so they carry no coefficient.
-        defense_hits = (
-            (raw_signals.get("doc", 0) * t.get("doc_weight", 1.0) * fid.get("doc", 1.0))
-            + (raw_signals.get("ownership", 0) * t.get("ownership_weight", 0.5) * fid.get("ownership", 1.0))
-            + (doc_loc * t.get("doc_loc_weight", 0.33))
-            + umbrella_defense
-        )
+        total_weight = 0.0
+        exposed_weight = 0.0
+        for func in units:
+            reflection = int(func.get("hit_vector", {}).get("reflection_metaprogramming", 0))
+            weight = (public_weight if func.get("is_public") else 1.0) + reflection
+            total_weight += weight
+            if not func.get("is_documented"):
+                exposed_weight += weight
 
-        # 2. THE RISK (Opaque Execution Risk)
-        opaque_execution = 0.0
-        api_exposure = raw_signals.get("api", 0) * 2.0
-
-        if functions:
-            for func in functions:
-                impact = func.get("impact", 0.0)
-
-                # If a load-bearing block lacks a semantic tether
-                if impact > 50.0 and not func.get("docstring"):
-                    opaque_execution += 5.0 + math.log1p(impact)
-
-        # Dynamism corrects measured risk; it never creates it (#2655). A file with no
-        # public surface and no load-bearing undocumented block has nothing to
-        # document, whatever it does at runtime -- the same zero-evidence convention
-        # _calc_safety and _calc_tech_debt follow. Before this, tier-3 files with
-        # api=0 scored 19-42 on the language constant alone (html/css a/b/c in the
-        # rosetta corpus).
-        measured_risk = opaque_execution + api_exposure
-        if measured_risk == 0:
+        if total_weight == 0:
             return 0.0
 
-        # Runtime-decided behaviour is what most needs documenting and what a reader
-        # cannot recover from the text: reflection and dynamic dispatch, counted in
-        # THIS file (#2719). This replaces the flat per-language `irc`, which stood
-        # in for the same thing without measuring it.
-        risk_hits = measured_risk + self._dynamism(raw_signals) * t.get("dynamism_weight", 1.0)
-
-        # 3. UNIVERSAL DENSITY EQUATION
-        # loc_smoothing is kept ON TOP of the evidence-mass floor so files at or
-        # above the floor score exactly as before; the floor is what bounds irc's
-        # flat additive contribution at tiny files (#2655).
-        net_exposure = max(0.0, risk_hits - (defense_hits / 2.0))
-        smoothed_loc = self._mass_loc(loc) + t.get("loc_smoothing", 20.0)
-        density = (net_exposure / smoothed_loc) * 100.0
-
-        # 4. THE MULTIPLIER (Authorship Centralization)
-        # #2909 / #2908 D4: the popularity ("dependency blast radius") multiplier
-        # is gone from this score. It had never actually fired -- meta["popularity"]
-        # was unplumbed until #2909, so removing it here is score-neutral -- and D4's
-        # ruling is that blast radius is REPORTED beside the score, not folded into
-        # it. The `popularity` parameter stays accepted (and inert) so callers and
-        # the audit_score_inputs adapter keep a stable signature.
-        silo_multiplier = 1.0 + (silo_exposure / 200.0)
-
-        final_multiplier = silo_multiplier * mp
-
-        threshold = t.get("threshold_base", 10.0)
-
-        try:
-            # We use a negative slope because high density = high risk exposure
-            raw_risk = 100.0 / (1.0 + math.exp(-t.get("sigmoid_slope", 0.2) * (density - threshold)))
-        except OverflowError:
-            raw_risk = 100.0 if density > threshold else 0.0
-
-        return min(raw_risk * final_multiplier, 100.0)
+        # The one file-level defence that survives: a folder README/GuideStar
+        # umbrella genuinely documents every unit in the folder a little.
+        shield = max(0.0, 1.0 - umbrella_shield * doc_umbrella)
+        return min(100.0 * (exposed_weight / total_weight) * shield, 100.0)
 
     def _calc_verification(
         self,

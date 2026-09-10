@@ -5,15 +5,17 @@
 > that a public unit counts double and a unit doing runtime-decided work counts more. It is a
 > ratio over units, never a density over lines. A file with no extracted units has no value.**
 
-**Status: `draft`** — epic #2908 Phase 0. The sentence, the equation and the decisions below are
-proposed; the formula in `signal_processor.py` is still the one §2 describes. This document
-flips to `stated` when Phase 3 lands the equation and Phase 4 re-blesses the corpus.
+**Status: `draft`** — D1–D6 approved on #2908 (2026-09-09); Phase 3 landed the §1 equation in
+`signal_processor.py`, so §2 now describes the *retired* density formula, kept as the record of
+why it was replaced. This document flips to `stated` when Phase 4 re-blesses the corpus.
 
 This is the first **score** contract (roadmap Phase 4, `docs/contract_roadmap.md` §4). The count
 contracts it builds on: `docs/api_rule_contract.md` (#2730, the public surface),
 `docs/unreferenced_by_name_contract.md` (#2806, the orphan census), and the `doc` row of
-`gitgalaxy/standards/signal_contracts.py`. The audit that keeps §2 honest is
-`tests/tools/audit_documentation_inputs.py`.
+`gitgalaxy/standards/signal_contracts.py`. The audit that keeps §1 honest is
+`tests/tools/audit_score_inputs.py documentation` (per-unit since Phase 3; its Phase-0
+ancestor `audit_documentation_inputs.py` decomposed the §2 density formula and retired
+with it).
 
 ## 1. The equation
 
@@ -137,11 +139,24 @@ no sigmoid to turn a ±1 count into ±13 points.
 
 ## 5. Expected values (acceptance)
 
-| file | today | after |
+Amended twice by measurement. After Phase 2 (2026-09-10 status on #2908): css is **not** an
+n/a language — it extracts public units and reads 100; and mains whose `units_public` reads 0
+(agc_assembly, cobol, css, objective-c, yacc — ledgered in
+`units-public-main-outside-api-contract`) read the unweighted ratio, the api contract cell
+surfaced on purpose. After Phase 3's decomposition (185 files, 0 residuals): the n/a class the
+engine actually records is **html, markdown, sqlite** (plus javascript's `package.json`
+decoy) — dockerfile, jcl and yaml DO extract units (the slicer's grammar-recognised keyword
+constructs and paragraphs/steps, the population #2728/#2792 kept), while sqlite's
+`CREATE_Statement` buckets are synthetic slices, which the equation excludes exactly as the
+function population does (#2691).
+
+| file | before Phase 3 | after |
 |---|---|---|
-| rosetta a/b/c, every language | 17.9 → 79.2 depending on api assembly | **100** (3 public units, 0 documented) |
-| rosetta main, `entry` documented | 33.4 | **75** where the api rule sees `entry`, **86** where it does not — an `api` contract cell, surfaced on purpose |
-| css, yaml, html, sqlite, markdown | 0 → 55 | **n/a** |
+| rosetta a/b/c, every unit-bearing language (css included) | 17.9 → 79.2 depending on api assembly | **100** (public units, 0 documented) |
+| rosetta main, `entry` documented, `entry` in the name set | 33.4 | **75** (weights 2+2+2+2, exposed 6) |
+| rosetta main, `entry` documented, NOT in the name set | 33.4 | **86** (6/7 — an `api` contract cell, surfaced on purpose) |
+| rosetta main, `units_public` 0 (agc_assembly, cobol, css, objective-c, yacc) | varies | **75** (unweighted 3/4) |
+| html, markdown, sqlite a/b/c and main (no non-synthetic units) | 0 → 100 | **n/a** (engine emits 0.0, unit count 0, D6) |
 | 500-line file, 10 public units, 2 documented | ≈ 15 | 80 |
 | 20-line file, 3 public units, 0 documented | 40.6 | 100 |
 | bias report length-leak row | rho −0.83, **leak** | rho 0 by construction |

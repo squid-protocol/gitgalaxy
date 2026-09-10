@@ -10,7 +10,8 @@
 # ==============================================================================
 """
 Per-file input decomposition for the gated `_calc_*` risk formulas (#2916,
-generalising tests/tools/audit_documentation_inputs.py / #2910).
+generalising #2910's audit_documentation_inputs.py, which decomposed the
+pre-#2908 density formula and retired with it in Phase 3).
 
 For every scanned file it reads the inputs a formula consumes straight out of
 the galaxyscope database (the SHORT_KEY_MAP column names), calls the
@@ -85,6 +86,11 @@ class Adapter:
     exit_on_residual: bool = True
     note: str = ""
     row_cols: tuple[str, ...] = field(default_factory=tuple)  # compact per-file columns
+    # #2908 Phase 3: per-unit formulas read function_data, not file_data columns.
+    # When set, read_db attaches each file's units as row["functions"] (the shape
+    # SignalProcessor consumes) plus derived units/units_public/units_documented/
+    # refl_hits keys for the row and cluster tables.
+    needs_functions: bool = False
 
 
 def _signals(row: dict, cols: dict[str, str]) -> dict[str, int]:
@@ -100,20 +106,10 @@ def _consts(p: SignalProcessor, row: dict):
 
 
 def _repro_documentation(p: SignalProcessor, row: dict, popularity: int) -> float:
-    _irc, _ot, fid = _consts(p, row)
-    return float(
-        p._calc_documentation(
-            max(int(row["coding_loc"] or 0), 1),
-            int(row["doc_loc"] or 0),
-            _signals(row, ADAPTERS["documentation"].signal_cols),
-            fid,
-            _mp(p, row, "doc"),
-            None,
-            doc_umbrella=0.0,
-            popularity=popularity,
-            silo_exposure=float(row.get("silo_risk") or 0.0),
-        )
-    )
+    # #2908 Phase 3: the ratio reads the recorded per-unit attributes and the
+    # umbrella only. doc_umbrella is not persisted in file_data; a corpus scan
+    # carries no GuideStar folder, so 0.0 is the recorded reality, not a guess.
+    return float(p._calc_documentation(row.get("functions") or [], doc_umbrella=0.0))
 
 
 def _repro_api_exposure(p: SignalProcessor, row: dict, popularity: int) -> float:
@@ -178,22 +174,29 @@ def _sens_generic(calc: Callable[[SignalProcessor, int], float]) -> Callable:
 ADAPTERS: dict[str, Adapter] = {
     "documentation": Adapter(
         recorded_col="risk_documentation",
-        signal_cols={
-            "api": "arch_api",
-            "doc": "def_doc",
-            "ownership": "def_ownership",
-            "reflection_metaprogramming": "state_heat_triggers",
-        },
-        extra_cols=("coding_loc", "doc_loc", "raw_arch_api", "silo_risk"),
+        signal_cols={},
+        extra_cols=("coding_loc",),
         repro=_repro_documentation,
-        cluster_label="adjusted api per file",
-        cluster_key=lambda r: int(r.get("arch_api") or 0),
-        sens_label="score vs adjusted api (doc_loc 2, others 0, loc 15)",
+        cluster_label="extracted units per file",
+        cluster_key=lambda r: int(r.get("units") or 0),
+        sens_label="score vs units documented (8 public units, no reflection, no umbrella)",
         sens=lambda p, lang: [
-            (api, float(p._calc_documentation(15, 2, {"api": api}, p._language_constants(lang)[2], 1.0, None)))
-            for api in range(0, 8)
+            (
+                n,
+                float(
+                    p._calc_documentation(
+                        [
+                            {"name": f"u{i}", "is_public": True, "is_documented": i < n, "hit_vector": {}}
+                            for i in range(8)
+                        ]
+                    )
+                ),
+            )
+            for n in range(0, 8)
         ],
-        row_cols=("coding_loc", "doc_loc", "raw_arch_api", "arch_api", "def_doc", "def_ownership"),
+        uses_popularity=False,
+        row_cols=("coding_loc", "units", "units_public", "units_documented", "refl_hits"),
+        needs_functions=True,
     ),
     "api_exposure": Adapter(
         recorded_col="risk_api_exposure",
@@ -307,6 +310,30 @@ def read_db(db_path: pathlib.Path, adapter: Adapter, language_hint: str | None) 
     if missing:
         raise SystemExit(f"{db_path}: file_data lacks {missing}")
     rows = [dict(r) for r in conn.execute("SELECT * FROM file_data ORDER BY file_name")]
+    if adapter.needs_functions:
+        fhave = {r[1] for r in conn.execute("PRAGMA table_info(function_data)")}
+        fneed = {"file_id", "is_public", "is_documented", "state_heat_triggers"}
+        if not fneed <= fhave:
+            raise SystemExit(f"{db_path}: function_data lacks {sorted(fneed - fhave)} -- scan with a #2908-Phase-2 engine")
+        by_file: dict[int, list[dict]] = {}
+        for fr in conn.execute(
+            "SELECT file_id, func_name, is_public, is_documented, state_heat_triggers FROM function_data"
+        ):
+            by_file.setdefault(fr["file_id"], []).append(
+                {
+                    "name": fr["func_name"],
+                    "is_public": bool(fr["is_public"]),
+                    "is_documented": bool(fr["is_documented"]),
+                    "hit_vector": {"reflection_metaprogramming": int(fr["state_heat_triggers"] or 0)},
+                }
+            )
+        for r in rows:
+            units = by_file.get(r["id"], [])
+            r["functions"] = units
+            r["units"] = len(units)
+            r["units_public"] = sum(1 for u in units if u["is_public"])
+            r["units_documented"] = sum(1 for u in units if u["is_documented"])
+            r["refl_hits"] = sum(u["hit_vector"]["reflection_metaprogramming"] for u in units)
     conn.close()
     out = []
     for r in rows:

@@ -348,9 +348,17 @@ def test_objectivec_api_contract_2730():
     assert api.search("+ (BOOL) follow;"), "class method declaration"
     assert api.search("extern int HTAccMgr;"), "extern declaration (kept)"
 
+    # #2940 (contract corollary 3) REVERSES the earlier "@implementation method
+    # body" exclusion: Objective-C has no method-level visibility, so a method
+    # DEFINITION is the public-by-default marker the way C's column-0 function
+    # declarator (#2907), matlab's column-0 `function` and abap's `FORM` are.
+    assert api.search("- (void) doWork {"), "method definition (public by default, #2940)"
+    assert api.search("- (int)probeGlobals:(int)env {"), "typed-selector definition (#2940)"
+
     # Not declarations -- must not match.
     assert not api.search("+ ((slotNumber/10)%3)* 40;"), "wrapped arithmetic continuation"
-    assert not api.search("- (void) doWork {"), "@implementation method body"
+    assert not api.search("+ ((slotNumber/10)%3)* 40 {"), "arithmetic continuation before a block"
+    assert not api.search("[self doWork];"), "message send is a reference, not a declaration"
 
     # ReDoS detonation on an unclosed method type cast.
     assert_redos_immune(api, "- (" + "a " * 40000, timeout_sec=3.0)

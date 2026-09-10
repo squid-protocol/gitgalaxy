@@ -269,9 +269,20 @@ DEFINITION: dict[str, Any] = {
         # (`\([ \t]*[A-Za-z_]...\)` then an identifier) is required so a
         # wrapped arithmetic continuation line (`+ ((slot/10)%3)* 40;`) cannot
         # match. Needs re.M for the new `^` anchor (Rule 13).
+        # #2940 (contract corollary 3): the method DEFINITION counts too -- the
+        # same line shape ending in `{` instead of `;`. Objective-C has no
+        # method-level visibility at all, so every method a file implements is
+        # dispatchable from outside it: the definition is the public-by-default
+        # marker exactly as C's column-0 function declarator (#2907), matlab's
+        # column-0 `function` and abap's `FORM` are. A file carrying both the
+        # `@interface` declaration and the `@implementation` definition of one
+        # method counts it twice -- the matlab order of approximation, accepted
+        # by the contract; the per-unit `is_public` name-set union (#2908)
+        # dedupes at the unit level. Same-line brace only, mirroring the
+        # same-line `;` the declaration form already requires.
         "api": re.compile(
             r"\b(FOUNDATION_EXPORT|UIKIT_EXTERN|OBJC_EXPORT|extern)\b|@(property)\b|IBOutlet|IBAction|"
-            r"^[ \t]*[-+][ \t]*\([ \t]*[A-Za-z_][\w \t*<>,]{0,120}\)[ \t]*[A-Za-z_]\w*[^;{\n]{0,300};",
+            r"^[ \t]*[-+][ \t]*\([ \t]*[A-Za-z_][\w \t*<>,]{0,120}\)[ \t]*[A-Za-z_]\w*[^;{\n]{0,300}[;{]",
             re.M,
         ),
         # 11. flux: State Mutation. State mutation (Property setters and raw assignments).

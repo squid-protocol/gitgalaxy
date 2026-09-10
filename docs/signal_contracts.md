@@ -64,7 +64,7 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-15 stated, 40 declared, 13 draft. A **draft** row is the schema comment transcribed as-is; a **declared** row has a fixed language-independent sentence, kind and unit, measured incidence and its disagreeing rules filed but not edited (#2897, `docs/domain_sensor_contracts.md`); a **stated** row has been audited across the corpus languages, its rules edited to agree, and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+16 stated, 40 declared, 12 draft. A **draft** row is the schema comment transcribed as-is; a **declared** row has a fixed language-independent sentence, kind and unit, measured incidence and its disagreeing rules filed but not edited (#2897, `docs/domain_sensor_contracts.md`); a **stated** row has been audited across the corpus languages, its rules edited to agree, and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
@@ -107,7 +107,7 @@ written.** Corollaries every audited contract has needed so far:
 | `bitwise_ops` | resources | `site` | declared |  | A bitwise operator applied between value operands -- shift, and, or, xor, or the unary complement -- in operator position | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `cleanup` | resources | `site` | stated | yes | A SITE THAT EXPLICITLY DESTROYS STATE OR RELEASES A HELD RESOURCE -- a deallocation or finalization call, a handle or connection close, removal of an entry from a live container or of external state the program owns, or the opener of a guaranteed-teardown region -- in call or statement form. | [cleanup_rule_contract.md](../docs/cleanup_rule_contract.md) #2888 |
 | `debug_prints` | resources | `site` | draft |  | Ad-hoc, temporary debug statements |  |
-| `encapsulation` | resources | `annotation` | draft |  | Explicitly hiding logic from the rest of the application | #2766 |
+| `encapsulation` | resources | `annotation` | stated |  | One hit is a declaration-position marker that excludes a name from the public surface, in the language's own morphology | [encapsulation_rule_contract.md](../docs/encapsulation_rule_contract.md) #2766 |
 | `explicit_casts` | resources | `site` | declared |  | A site that converts a value's type explicitly -- a cast expression, a conversion call or a cast keyword -- in cast form | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `immutability_locks` | resources | `annotation` | stated |  | AN ADDED MARKER OR LOCK CALL THAT PREVENTS A BINDING OR VALUE FROM BEING CHANGED AFTER INITIALISATION, WHERE THE LANGUAGE'S DEFAULT WOULD PERMIT IT -- a modifier or qualifier on an otherwise-mutable declaration, a restricted constant-declaration form distinct from the general-purpose binding, a runtime lock call, or an immutable reference pin; the language's ordinary binding keyword is a binding choice, not a lock, and a language whose bindings are immutable by default records the stated absence. | [immutability_locks_rule_contract.md](../docs/immutability_locks_rule_contract.md) #2772 |
 | `listeners` | resources | `site` | declared |  | A registration to receive from an external broadcast -- an event-listener, subscription or handler-binding call -- at its invocation | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
@@ -136,6 +136,14 @@ written.** Corollaries every audited contract has needed so far:
 | `lit_diagrams` | literate | `site` | declared |  | A fence line that opens an embedded diagram block by its info string -- one hit per diagram | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `lit_headers` | literate | `declaration` | declared |  | An ATX heading line -- one to six `#` at the margin followed by a space -- one hit per heading | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
 | `lit_links` | literate | `site` | declared |  | An inline link or image target `[text](target)` -- one hit per link | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
+
+## Score contracts (the formulas over these units)
+
+1 stated, 0 draft -- contract roadmap Phase 4 (#2812). A **stated** score contract pins what the 0-100 number MEANS as one language-independent sentence over the units above; its equation, decisions and acceptance table live in the doc, and `tests/tools/audit_score_inputs.py <metric>` keeps it honest (every recorded score reproduced from its recorded inputs). The method is the `score-contract-audit` skill; #2908 is the worked precedent the remaining formulas copy.
+
+| score | status | contract | doc |
+|---|---|---|---|
+| `risk_documentation` | stated | Of the units extracted from a file (functions, methods, paragraphs, steps), the weight-share a reader cannot recover from documentation: a public unit counts double, a unit's own reflection hits raise its weight, and a folder-level documentation umbrella shields the whole file multiplicatively. A ratio over units, never a density over lines; a file with no extracted units has no value (n/a), not zero | [risk_documentation_contract.md](../docs/risk_documentation_contract.md) #2908 |
 
 ## Helper keys (not signals)
 

@@ -5,9 +5,12 @@
 > that a public unit counts double and a unit doing runtime-decided work counts more. It is a
 > ratio over units, never a density over lines. A file with no extracted units has no value.**
 
-**Status: `draft`** — D1–D6 approved on #2908 (2026-09-09); Phase 3 landed the §1 equation in
-`signal_processor.py`, so §2 now describes the *retired* density formula, kept as the record of
-why it was replaced. This document flips to `stated` when Phase 4 re-blesses the corpus.
+**Status: `stated`** (2026-09-11) — D1–D6 approved on #2908 (2026-09-09); Phase 3 landed the
+§1 equation in `signal_processor.py` (#2938); Phase 4 pointed the corpus report at the per-unit
+inputs, declared the D6 n/a class and turned the length-leak row into the invariance proof
+(keyword-rosetta#120); Phase 5 confirmed D5 on real code (curl, cics-genapp, the crucible). §2
+describes the *retired* density formula, kept as the record of why it was replaced. The sheet
+row is the first entry in `signal_contracts.py`'s score-contract section.
 
 This is the first **score** contract (roadmap Phase 4, `docs/contract_roadmap.md` §4). The count
 contracts it builds on: `docs/api_rule_contract.md` (#2730, the public surface),

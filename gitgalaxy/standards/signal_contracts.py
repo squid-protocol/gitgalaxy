@@ -736,6 +736,54 @@ HELPER_KEYS: dict[str, str] = {
 }
 
 
+# ------------------------------------------------------------------------------
+# Score contracts (contract roadmap Phase 4, #2812; first entry #2908).
+# One gated `risk_<metric>` formula, stated the way a signal is: one
+# language-independent sentence saying what the 0-100 SCORE means, over units
+# the sheet above defines -- so the equation can be checked for adding like to
+# like, not just for running. The full contract (equation, D-decisions,
+# acceptance table, what left the formula and why) lives in the doc; the audit
+# that keeps it honest is `tests/tools/audit_score_inputs.py <metric>` (every
+# recorded score reproduced from its recorded inputs, exit 1 on residual). The
+# method for taking one from draft to stated is the `score-contract-audit`
+# skill; #2908 (risk_documentation) is the worked precedent whose phase list
+# the next contracts (risk_api_exposure, risk_tech_debt, func_complexity_gini)
+# copy.
+# ------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class ScoreContract:
+    name: str  # the risk vector column, "risk_<metric>"
+    contract: str  # what the score MEANS, one language-independent sentence
+    status: str = "draft"  # "draft" | "stated"
+    doc: str | None = None  # repo-relative path to docs/risk_<metric>_contract.md
+    issue: int | None = None  # the epic that stated it
+
+
+_SCORE_ROWS = [
+    ScoreContract(
+        "risk_documentation",
+        "Of the units extracted from a file (functions, methods, paragraphs, steps), "
+        "the weight-share a reader cannot recover from documentation: a public unit "
+        "counts double, a unit's own reflection hits raise its weight, and a "
+        "folder-level documentation umbrella shields the whole file multiplicatively. "
+        "A ratio over units, never a density over lines; a file with no extracted "
+        "units has no value (n/a), not zero",
+        status="stated",
+        doc="docs/risk_documentation_contract.md",
+        issue=2908,
+    ),
+]
+
+SCORE_CONTRACTS: dict[str, ScoreContract] = {row.name: row for row in _SCORE_ROWS}
+if len(SCORE_CONTRACTS) != len(_SCORE_ROWS):
+    raise RuntimeError("signal_contracts: duplicate score name in _SCORE_ROWS")
+for _srow in _SCORE_ROWS:
+    if _srow.status not in ("draft", "stated"):
+        raise RuntimeError(f"signal_contracts: {_srow.name} has unknown status {_srow.status}")
+
+
 def unit_of(signal: str) -> str | None:
     """The unit a formula may treat this signal's count as, or None if unknown."""
     row = CONTRACTS.get(signal)

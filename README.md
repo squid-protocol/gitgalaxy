@@ -155,10 +155,11 @@ The chart colours each deviation by *cause*, not size: red is an open engine
 defect (a rule matching the wrong construct, or a scoring weight sitting inside
 a count); grey is a documented variation the ledger has validated — the language
 cannot express the construct, a deliberate scoring choice, or an echo of another
-row. Current answer: 90% of language × metric cells sit within ±25% of the
-cross-language median across 48 gated metrics, and **2.7% (62 of 2,303) are
-open defects** — concentrated in the orphan census (`raw_state_unreferenced`,
-28% of its cells) and `branch` (27%), named on the chart rather than hidden.
+row. Current answer: on average 95% of languages sit within ±25% of the
+cross-language median per gated metric (55 chartable metrics, 54 holding ≥80%),
+and **0.1% (3 of 2,633 comparable cells) are open defects** — what remains is
+named on the chart rather than hidden: `raw_arch_api` (2 cells) and
+`func_complexity_gini` (1), the next score contracts' territory.
 Every deviation is recorded in a validated ledger, the open defects are worked
 by cause family under the [contract roadmap](docs/contract_roadmap.md), and
 the defect classes found this way are

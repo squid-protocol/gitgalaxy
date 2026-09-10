@@ -201,6 +201,27 @@ def render() -> str:
             doc = (doc + " " if doc else "") + f"#{c.issue}"
         planted = "yes" if c.planted else ""
         lines.append(f"| `{name}` | {c.phase} | `{c.kind}` | {c.status} | {planted} | {c.contract} | {doc} |")
+    score_stated = sum(1 for c in sc.SCORE_CONTRACTS.values() if c.status == "stated")
+    lines += [
+        "",
+        "## Score contracts (the formulas over these units)",
+        "",
+        f"{score_stated} stated, {len(sc.SCORE_CONTRACTS) - score_stated} draft -- contract roadmap "
+        "Phase 4 (#2812). A **stated** score contract pins what the 0-100 number MEANS as one "
+        "language-independent sentence over the units above; its equation, decisions and acceptance "
+        "table live in the doc, and `tests/tools/audit_score_inputs.py <metric>` keeps it honest "
+        "(every recorded score reproduced from its recorded inputs). The method is the "
+        "`score-contract-audit` skill; #2908 is the worked precedent the remaining formulas copy.",
+        "",
+        "| score | status | contract | doc |",
+        "|---|---|---|---|",
+    ]
+    for name, c in sorted(sc.SCORE_CONTRACTS.items()):
+        doc = f"[{Path(c.doc).name}]({Path('..') / c.doc})" if c.doc else ""
+        if c.issue:
+            doc = (doc + " " if doc else "") + f"#{c.issue}"
+        lines.append(f"| `{name}` | {c.status} | {c.contract} | {doc} |")
+
     lines += ["", "## Helper keys (not signals)", "", "| key | purpose |", "|---|---|"]
     for k, v in sorted(sc.HELPER_KEYS.items()):
         lines.append(f"| `{k}` | {v} |")

@@ -191,6 +191,11 @@ units come from the sheet.
 
 ### Phase 4 — Score contracts + the commensurability audit
 
+- **done (first formula)** `risk_documentation` (#2908): equation replaced by the per-unit
+  coverage ratio (#2938), corpus re-blessed and the report reads the per-unit inputs
+  (keyword-rosetta#120/#121), D5 confirmed on real code, sheet row `stated` — the first entry
+  in `signal_contracts.py`'s score-contract section. `risk_api_exposure`, `risk_tech_debt` and
+  `func_complexity_gini` copy #2908's phase list; #2771 answered by its D2 per-unit name set.
 - **repo** gitgalaxy: one tooling PR, then one PR per formula
 - **change** `tests/tools/audit_commensurability.py`: walks each `_calc_*` AST (the corpus's
   `_SignalUses` approach in `_registry.py`), reads units from the sheet, flags `+`/`−` between

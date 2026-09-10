@@ -129,7 +129,7 @@ untouched.
 | `ada` | a library-level subprogram is its own compilation unit | a `procedure`/`function` at **column 0**; nested (body-local, private) ones are indented |
 | `dart` | a top-level function whose name has no leading `_` | a column-0 return-type + public name + `(` |
 | `matlab` | a function file is callable by name | a column-0 `function` (the fallback family above) |
-| `objective-c` | a method declared in an `@interface` | a `-`/`+` method line terminated by `;` rather than a `{` body |
+| `objective-c` | a method declared in an `@interface`, or defined in an `@implementation` | a `-`/`+` method line ending in `;` (declaration) or `{` (definition) -- methods have no visibility syntax and are dispatchable from anywhere, so the definition is the public-by-default marker (corollary 3, [#2940](https://github.com/squid-protocol/gitgalaxy/issues/2940), reversing the earlier declaration-only reading); a file carrying both forms of one method counts it twice, the matlab order of approximation |
 | `ruby` | `public :name` (a top-level `def` is private on `Object`) | `public`/`public_class_method` followed by a symbol |
 | `shell` | `export -f name` | the flag run between `export` and the name |
 

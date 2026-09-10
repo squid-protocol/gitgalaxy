@@ -2112,20 +2112,5 @@ class SignalProcessor:
     def _get_dominant_lang(self, composition: dict[str, dict[str, Any]]) -> str:
         if not composition:
             return "mixed"
-        # Sort by active structural impact instead of raw lines of code.
-        #
-        # #2555: documentation languages get their `file_impact` from a *full*
-        # line-count basis (`max(total_loc/50, 1.0)`, the STATIC LITERATURE OVERRIDE),
-        # so a handful of large plaintext/markdown files can out-rank real source on
-        # summed impact even while the COMPOSITION table (which ranks by file count /
-        # coding_loc) shows a code language as the clear majority -- producing a report
-        # that names PLAINTEXT dominant over JAVASCRIPT 53.8%. A documentation language
-        # is never the "dominant language" of a codebase that also contains code, so we
-        # take the impact-argmax over code languages first and only fall back to the
-        # full set (docs included) when there is no code language present at all.
-        doc_languages = {
-            lang.lower() for lang in self.asset_masks.get("DOCUMENTATION_LANGUAGES", {"markdown", "plaintext", "rst", "text"})
-        }
-        code_langs = {lang: stats for lang, stats in composition.items() if lang.lower() not in doc_languages}
-        ranked = code_langs or composition
-        return max(ranked.items(), key=lambda x: x[1].get("impact", 0.0))[0]
+        # Sort by active structural impact instead of raw lines of code
+        return max(composition.items(), key=lambda x: x[1].get("impact", 0.0))[0]

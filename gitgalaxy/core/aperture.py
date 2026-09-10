@@ -125,14 +125,6 @@ class ApertureFilter:
         self._intent_cache: set[str] = set()
         self.dynamic_ignore_dirs: set[str] = set()
 
-        # #2555: whole-scan property, set once from GuideStar when a manifest sits at the
-        # scan root. It relaxes ONLY the Semantic Infrastructure & Test Target Shield
-        # (Gate 3 of _check_ignore_rules) -- deliberately NOT the extension whitelist
-        # (Gate 1.5) or the minification/machine-generated content gates, which a real
-        # project still wants applied. That is why this is a separate signal and not just
-        # a project-wide `has_intent=True` (intent short-circuits those other gates too).
-        self.manifest_project_scope: bool = False
-
         self.logger.debug(f"Initializing Aperture Filter for project: '{self.root.name}'...")
 
         # Optimized Lookup Construction
@@ -232,13 +224,7 @@ class ApertureFilter:
         if path_obj.name in self.exact_match_files or ext.lower() in self.whitelisted_extensions:
             return True, size_bytes, "Passed (Whitelisted)"
 
-        # #2555: defensive -- never emit a malformed extension into user-facing text.
-        # The census is now dequoted upstream (git ls-files -z), but any path that
-        # reaches here carrying stray bytes (a quotepath artifact, a non-git census
-        # path) must not leak e.g. a trailing `"` into the reason. Mirror the REGEX
-        # SHIELD used by galaxyscope's anomaly summarizer.
-        safe_ext = ext if re.match(r"^\.[a-z0-9_\-+]+$", ext.lower()) else "no_extension"
-        reason = f"Blocked (Unsupported Extension: '{safe_ext}')"
+        reason = f"Blocked (Unsupported Extension: '{ext}')"
         return False, size_bytes, reason
 
     def is_in_scope(
@@ -552,18 +538,8 @@ class ApertureFilter:
 
         # 3. Semantic Infrastructure & Test Target Shield
         # SQL DDL/DML is exempt -- see _SQL_DDL_EXTENSIONS' own comment (#2512).
-        # #2555: a scan whose root carries a recognized manifest (manifest_project_scope)
-        # is a real project -- its own lib/test/examples dirs are first-class source, not
-        # generated/vendor noise, so the shield is stood down here (node_modules/dist/
-        # vendor are still caught by the static IGNORED_DIRECTORIES gate above, and
-        # minified/machine-generated files by the content gates in is_in_scope).
         ext = Path(rel_path).suffix.lower()
-        if (
-            ext not in self._SQL_DDL_EXTENSIONS
-            and self.infra_path_pattern.search(rel_path)
-            and not has_intent
-            and not self.manifest_project_scope
-        ):
+        if ext not in self._SQL_DDL_EXTENSIONS and self.infra_path_pattern.search(rel_path) and not has_intent:
             return False
 
         # 4. The Denylist (Vendor Blob Deflection)

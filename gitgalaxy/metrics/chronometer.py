@@ -244,17 +244,14 @@ class Chronometer:
 
         # 1. Establish the Denominator (Total Tracked Files)
         try:
-            # #2555: `-z` disables core.quotepath quoting so paths with unusual bytes
-            # are not double-quote-wrapped (keeps this denominator count consistent with
-            # the census built in galaxyscope._build_file_census).
             res = subprocess.run(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
-                [_GIT_BIN, "ls-files", "-z"],
+                [_GIT_BIN, "ls-files"],
                 cwd=self.root,
                 capture_output=True,
                 text=True,
                 check=True,
             )
-            tracked_files = {p for p in res.stdout.split("\0") if p}
+            tracked_files = set(res.stdout.splitlines())
             total_files = len(tracked_files)
         except Exception as e:
             self.logger.warning(f"Chronometer: git ls-files failed ({e}). Aborting stream to prevent timeout trap.")

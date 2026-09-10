@@ -595,10 +595,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         scope = Orchestrator(".", self.mock_config)
         scope.MICRO_MASS_GRACE_LIMIT = 5  # Lower for faster testing
 
-        # Mock Git returning 10 tiny files in the same directory.
-        # #2555: census now consumes `git ls-files -z` (NUL-delimited) output.
+        # Mock Git returning 10 tiny files in the same directory
         fake_files = [f"src/assets/icon_{i}.svg" for i in range(10)]
-        mock_git.return_value = "\0".join(fake_files) + "\0"
+        mock_git.return_value = "\n".join(fake_files)
 
         # Mock aperture returning: is_valid=True, size=10 bytes (under MICRO_MASS_BYTES)
         mock_aperture.return_value = (True, 10, "Passed")

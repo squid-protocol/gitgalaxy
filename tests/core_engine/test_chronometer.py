@@ -52,7 +52,7 @@ def test_chronometer_git_boundaries(mock_run, tmp_path):
         elif "log" in cmd and "abc123hash" in cmd:
             m.stdout = "1000\n"  # Min Time
         elif "ls-files" in cmd:
-            m.stdout = "src/main.py\0"  # Fake tracking (#2555: git ls-files -z, NUL-delimited)
+            m.stdout = "src/main.py\n"  # Fake tracking
         return m
 
     mock_run.side_effect = git_side_effect
@@ -91,8 +91,8 @@ def test_load_ignored_revs(tmp_path):
 @patch("gitgalaxy.metrics.chronometer.subprocess.Popen")
 def test_scan_git_history_and_stream(mock_popen, mock_run, tmp_path):
     """Proves the Popen stream handles quoted paths, skipped hashes, and empty lines."""
-    # 1. Mock ls-files (#2555: git ls-files -z, NUL-delimited)
-    mock_run.return_value = MagicMock(stdout="src/main.py\0src/utils.py\0")
+    # 1. Mock ls-files
+    mock_run.return_value = MagicMock(stdout="src/main.py\nsrc/utils.py\n")
 
     # 2. Mock Popen stream output with hostile edge cases
     mock_process = MagicMock()

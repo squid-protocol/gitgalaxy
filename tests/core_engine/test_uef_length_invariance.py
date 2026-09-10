@@ -86,6 +86,17 @@ def processor():
     return SignalProcessor()
 
 
+def doc_units(sig: dict) -> list[dict]:
+    # #2908 Phase 3: documentation reads per-unit attributes, not the signal
+    # vector or loc -- synthesize one public undocumented unit per extracted
+    # function so the sweep still exercises the equation beside the density
+    # formulas. Constant across loc and tier by construction.
+    return [
+        {"name": f"u{i}", "is_public": True, "is_documented": False, "hit_vector": {}}
+        for i in range(sig.get("func_start", 0))
+    ]
+
+
 def score_all(p: SignalProcessor, sig: dict, loc: int, tier: str) -> dict[str, float]:
     tv = LEGACY_TIERS[tier]
     fid, irc, ot = uniform_fid(tv["fc"]), tv["irc"], tv["ot"]
@@ -93,7 +104,7 @@ def score_all(p: SignalProcessor, sig: dict, loc: int, tier: str) -> dict[str, f
         "cog": p._calc_cog_load(loc, sig, fid, 1.0, 0.0)[0],
         "safety": p._calc_safety(loc, sig, irc, fid, 1.0),
         "debt": p._calc_tech_debt(loc, sig, irc, 1.0),
-        "doc": p._calc_documentation(loc, 2, sig, fid, 1.0),
+        "doc": p._calc_documentation(doc_units(sig)),
         "verification": p._calc_verification(
             loc, False, sig, ot, fid, 1.0, [{"name": "f", "impact": 60.0, "hit_vector": {}, "docstring": None}], {}
         ),
@@ -139,13 +150,16 @@ def test_no_cliff_at_the_floor(processor, fname, tier):
 # 0.75 systems buffer retired, #2717) and documentation in #2718/#2719 (rule hits
 # alone carry fidelity; per-file dynamism replaced the language irc); cognitive
 # load, concurrency and state flux re-pinned in #2719 (dynamism in heat_density,
-# language irc term removed). Every other equation still equals the pre-#2655 engine.
+# language irc term removed); documentation re-pinned in #2908 Phase 3 (a per-unit
+# coverage ratio with no density regime -- the synthetic all-public undocumented
+# units read a flat 100 at every length and tier). Every other equation still
+# equals the pre-#2655 engine.
 PRE_2655_AT_51 = {
     ("tier1", "main"): {
         "cog": 4.7642,
         "safety": 79.1701,
         "debt": 0.0,
-        "doc": 48.7327,
+        "doc": 100.0,
         "api": 6.5172,
         "flux": 0.0,
         "spec": 100.0,
@@ -154,7 +168,7 @@ PRE_2655_AT_51 = {
         "cog": 0.0,
         "safety": 54.2153,
         "debt": 0.0,
-        "doc": 78.3694,
+        "doc": 100.0,
         "api": 9.8496,
         "flux": 0.0,
         "spec": 100.0,
@@ -163,7 +177,7 @@ PRE_2655_AT_51 = {
         "cog": 0.0,
         "safety": 66.2858,
         "debt": 0.0,
-        "doc": 78.3694,
+        "doc": 100.0,
         "api": 9.8496,
         "flux": 30.3355,
         "spec": 100.0,
@@ -172,7 +186,7 @@ PRE_2655_AT_51 = {
         "cog": 0.0,
         "safety": 0.0,
         "debt": 80.5584,
-        "doc": 78.3694,
+        "doc": 100.0,
         "api": 9.8496,
         "flux": 0.0,
         "spec": 100.0,
@@ -181,7 +195,7 @@ PRE_2655_AT_51 = {
         "cog": 5.229,
         "safety": 89.908,
         "debt": 0.0,
-        "doc": 50.845,
+        "doc": 100.0,
         "api": 6.5172,
         "flux": 0.0,
         "spec": 100.0,
@@ -190,7 +204,7 @@ PRE_2655_AT_51 = {
         "cog": 0.0,
         "safety": 77.1518,
         "debt": 0.0,
-        "doc": 78.3694,
+        "doc": 100.0,
         "api": 9.8496,
         "flux": 0.0,
         "spec": 100.0,
@@ -199,7 +213,7 @@ PRE_2655_AT_51 = {
         "cog": 0.0,
         "safety": 82.0704,
         "debt": 0.0,
-        "doc": 78.3694,
+        "doc": 100.0,
         "api": 9.8496,
         "flux": 30.3355,
         "spec": 100.0,
@@ -208,7 +222,7 @@ PRE_2655_AT_51 = {
         "cog": 0.0,
         "safety": 0.0,
         "debt": 97.9619,
-        "doc": 78.3694,
+        "doc": 100.0,
         "api": 9.8496,
         "flux": 0.0,
         "spec": 100.0,
@@ -238,7 +252,7 @@ def score_profile(p: SignalProcessor, sig: dict, loc: int, tv: dict) -> dict[str
         "cog": p._calc_cog_load(loc, sig, fid, 1.0, 0.0)[0],
         "safety": p._calc_safety(loc, sig, irc, fid, 1.0),
         "debt": p._calc_tech_debt(loc, sig, irc, 1.0),
-        "doc": p._calc_documentation(loc, 2, sig, fid, 1.0),
+        "doc": p._calc_documentation(doc_units(sig)),
         "verification": p._calc_verification(
             loc, False, sig, ot, fid, 1.0, [{"name": "f", "impact": 60.0, "hit_vector": {}, "docstring": None}], {}
         ),
@@ -273,15 +287,34 @@ def test_safety_never_discounts_more_hits_into_a_lower_score(processor):
 
 
 def test_zero_evidence_scores_zero_regardless_of_language(processor):
-    """Irc corrects measured risk; it never creates it. A file with no public surface,
-    no branches and no debt scores 0 on documentation, cognitive load and tech debt in
-    every language -- tier-3 files used to carry 19-42 documentation risk on irc alone."""
+    """Irc corrects measured risk; it never creates it. A file with no branches and no
+    debt scores 0 on cognitive load and tech debt in every language -- tier-3 files
+    used to carry 19-42 documentation risk on irc alone. Documentation's form of the
+    same rule since #2908 Phase 3: no extracted units emits 0.0 (the reporting layer
+    infers n/a from the unit count, D6) -- no loc or language enters at all."""
+    assert processor._calc_documentation([]) == 0.0
+    assert processor._calc_documentation(None) == 0.0
     for lang in ("rust", "python", "shell", "yacc", "yaml", "embedded_python", "not-a-language"):
         irc, _ot, fid = processor._language_constants(lang)
         for loc in (3, 10, 49, 50, 200):
-            assert processor._calc_documentation(loc, 0, {}, fid, 1.0) == 0.0
             assert processor._calc_cog_load(loc, {"state_mutation": 4}, fid, 1.0)[0] == 0.0
             assert processor._calc_tech_debt(loc, {}, irc, 1.0) == 0.0
+
+
+def test_documentation_is_exactly_invariant_by_construction(processor):
+    """#2908 Phase 3: the documentation ratio reads units and the umbrella only --
+    there is no loc, fid, irc, mp or popularity parameter left to vary, so identical
+    units score EXACTLY identically (equality, not tolerance) at any file length in
+    any language. The mixed-unit value is asserted exactly: public undocumented (2/7),
+    reflective documented (0), public documented (0) -> 200/7."""
+    units = [
+        {"name": "a", "is_public": True, "is_documented": False, "hit_vector": {}},
+        {"name": "b", "is_public": False, "is_documented": True, "hit_vector": {"reflection_metaprogramming": 2}},
+        {"name": "c", "is_public": True, "is_documented": True, "hit_vector": {}},
+    ]
+    assert processor._calc_documentation(units) == 100.0 * (2.0 / 7.0)
+    # The umbrella is the one surviving file-level defence: multiplicative shield.
+    assert processor._calc_documentation(units, doc_umbrella=1.0) == 100.0 * (2.0 / 7.0) * 0.5
 
 
 def test_spec_alignment_needs_entities(processor):

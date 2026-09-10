@@ -879,13 +879,13 @@ RISK_EQUATION_TUNING = {
         "threshold": 5.0,
         "sigmoid_slope": 0.5,
     },
+    # #2908 Phase 3: the per-unit coverage ratio has exactly two knobs
+    # (docs/risk_documentation_contract.md §1). The six density-era keys
+    # (doc_weight, ownership_weight, doc_loc_weight, loc_smoothing,
+    # threshold_base, sigmoid_slope) left with the sigmoid they tuned.
     "documentation": {
-        "doc_weight": 1.0,
-        "ownership_weight": 0.5,
-        "doc_loc_weight": 0.33,
-        "loc_smoothing": 20.0,
-        "threshold_base": 10.0,
-        "sigmoid_slope": 0.2,
+        "public_weight": 2.0,
+        "umbrella_shield": 0.5,
     },
     "verification": {
         "sibling_bonus": 30.0,

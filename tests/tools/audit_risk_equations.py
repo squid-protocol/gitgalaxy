@@ -181,41 +181,6 @@ EQUATION_CASES: list[EquationCase] = [
         ],
     ),
     EquationCase(
-        name="documentation",
-        method_name="_calc_documentation",
-        notes="irc adds directly to risk_hits (risk axis); fc multiplies defense_hits (defense axis).",
-        scenarios=[
-            Scenario(
-                "risk",
-                lambda loc, hits, tv: dict(
-                    loc=loc,
-                    doc_loc=0,
-                    raw_signals={"api": hits, "doc": 0, "ownership": 0},
-                    fid=tv["fid"],
-                    mp=_mp1(),
-                    functions=None,
-                    doc_umbrella=0.0,
-                    popularity=0,
-                    silo_exposure=0.0,
-                ),
-            ),
-            Scenario(
-                "defense",
-                lambda loc, hits, tv: dict(
-                    loc=loc,
-                    doc_loc=0,
-                    raw_signals={"api": 0, "doc": hits, "ownership": 0},
-                    fid=tv["fid"],
-                    mp=_mp1(),
-                    functions=None,
-                    doc_umbrella=0.0,
-                    popularity=0,
-                    silo_exposure=0.0,
-                ),
-            ),
-        ],
-    ),
-    EquationCase(
         name="verification",
         method_name="_calc_verification",
         notes="ot (opacity tax) directly amplifies risk density (risk axis); fc gates "
@@ -266,6 +231,7 @@ EQUATION_CASES: list[EquationCase] = [
 NOT_TIER_PARAMETERIZED = [
     "_calc_state_flux",  # #2719: language term removed
     "_calc_concurrency",  # #2719: language term removed
+    "_calc_documentation",  # #2908 Phase 3: per-unit coverage ratio; fid/irc/mp all left the equation
     "_calc_graveyard",
     "_calc_api_exposure",
     "_calc_spec_alignment",

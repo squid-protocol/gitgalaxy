@@ -88,6 +88,20 @@ DEFAULT_JUMP_FLAG = 2.5
 class EquationCase:
     name: str
     call: Callable[[SignalProcessor, int, dict[str, int], dict[str, Any]], float]
+    # #2908 Phase 3: a pure ratio has no density regime at all -- the invariance
+    # check covers the WHOLE sweep (equality, not tolerance), not just below the
+    # evidence-mass floor.
+    invariant_everywhere: bool = False
+
+
+def _doc_units(sig: dict[str, int]) -> list[dict[str, Any]]:
+    # Documentation reads per-unit attributes since #2908 Phase 3; synthesize one
+    # public undocumented unit per extracted function so the sweep exercises the
+    # equation beside the density formulas.
+    return [
+        {"name": f"u{i}", "is_public": True, "is_documented": False, "hit_vector": {}}
+        for i in range(sig.get("func_start", 0))
+    ]
 
 
 # #2718: the three tiers are gone; sweep three strictness profiles (0 / 2 / 4 gaps) at
@@ -103,7 +117,11 @@ EQUATION_CASES: list[EquationCase] = [
     EquationCase("cog_load", lambda p, loc, s, tv: p._calc_cog_load(loc, s, tv["fid"], 1.0, 0.0)[0]),
     EquationCase("safety", lambda p, loc, s, tv: p._calc_safety(loc, s, tv["irc"], tv["fid"], 1.0)),
     EquationCase("tech_debt", lambda p, loc, s, tv: p._calc_tech_debt(loc, s, tv["irc"], 1.0)),
-    EquationCase("documentation", lambda p, loc, s, tv: p._calc_documentation(loc, 2, s, tv["fid"], 1.0)),
+    EquationCase(
+        "documentation",
+        lambda p, loc, s, tv: p._calc_documentation(_doc_units(s)),
+        invariant_everywhere=True,
+    ),
     EquationCase(
         "verification",
         lambda p, loc, s, tv: p._calc_verification(
@@ -142,7 +160,7 @@ def audit(processor: SignalProcessor, case: EquationCase, jump_flag: float) -> t
     for fname, sig in ROSETTA_VECTORS.items():
         for tier in ("tier1", "tier2", "tier3"):
             scores = [float(case.call(processor, loc, sig, _tv(processor, tier))) for loc in locs]
-            below = [s for loc, s in zip(locs, scores) if loc < floor]
+            below = scores if case.invariant_everywhere else [s for loc, s in zip(locs, scores) if loc < floor]
             flags = []
             if below and (max(below) - min(below)) > INVARIANCE_EPSILON:
                 flags.append("INVARIANCE VIOLATION")

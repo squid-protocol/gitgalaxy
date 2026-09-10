@@ -66,7 +66,7 @@ for the same metrics tracked over time across pushes to main.
 
 from typing import Any
 
-from ._lens_config import LENS_CONFIG, LensConfig
+from ._lens_config import COMPILED_HANDSHAKE_REGISTRY, LENS_CONFIG, LensConfig
 from ._overrides import PROJECT_OVERRIDES
 from ._prism_config import PRISM_CONFIG, PrismConfigSchema
 from ._shared_patterns import HTML_NONEXECUTABLE_SCRIPT_TAG
@@ -131,6 +131,7 @@ from .languages import yaml as _yaml
 from .languages import zig as _zig
 
 __all__ = [
+    "COMPILED_HANDSHAKE_REGISTRY",
     "HTML_NONEXECUTABLE_SCRIPT_TAG",
     "LANGUAGE_DEFINITIONS",
     "LENS_CONFIG",

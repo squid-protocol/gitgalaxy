@@ -214,8 +214,13 @@ DEFINITION: dict[str, Any] = {
             # is a region header, not shared state (#2805's WORKING-STORAGE
             # precedent); the global is the labeled storage the region holds
             # (`buf: resd 4`, `msg: .asciz "x"`, `.comm sym,4`).
+            # #2859: the label may also sit on its own line with the storage
+            # directive on the next (`msg:\n    .asciz "x"`) -- the third arm
+            # catches that two-line form. The directive allow-list keeps a label
+            # followed by an *instruction* (`loop:\n  mov ...`) from matching.
             r"^[ \t]*(?:\.comm|\.lcomm)[ \t]+[A-Za-z_.$][\w.$]*"
-            r"|^[ \t]*[A-Za-z_.$][\w.$]*:?[ \t]+(?:\.(?:byte|word|long|quad|short|int|octa|space|zero|skip|fill|ascii|asciz|string|hword|xword)|d[bwdqt]|res[bwdqt])\b",
+            r"|^[ \t]*[A-Za-z_.$][\w.$]*:?[ \t]+(?:\.(?:byte|word|long|quad|short|int|octa|space|zero|skip|fill|ascii|asciz|string|hword|xword)|d[bwdqt]|res[bwdqt])\b"
+            r"|^[ \t]*[A-Za-z_.$][\w.$]*:[ \t]*\n[ \t]*(?:\.(?:byte|word|long|quad|short|int|octa|space|zero|skip|fill|ascii|asciz|string|hword|xword)|d[bwdqt]|res[bwdqt])\b",
             re.M | re.I,
         ),
         # 19. decorators

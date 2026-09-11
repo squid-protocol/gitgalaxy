@@ -146,10 +146,6 @@ are the global style scope).
 
 ## Deliberate duals and deferred residue
 
-- **agc_assembly `COMMON`** — the corpus plant's `COMMON` lines and the rule's
-  `ERASABLE MEMORY` / `WORKING-STORAGE` alternatives are not AGC vocabulary
-  (the crucible's `COMMON` is a label name); the language's declaration of
-  shared erasable is `NAME ERASE n`, planted nowhere. Deferred with #2859.
 - **zig 1,892 crucible hits** — every top-level Zig declaration is a `const`
   binding (`const std = @import("std");`, `const Foo = struct {`), so the
   column-0 `const|var` rule reads the language's morphology, not a defect;
@@ -157,15 +153,27 @@ are the global style scope).
 - **perl `$_`** — the topic variable is package-global by definition and stays
   counted (`local $_;` is a dynamic-scope write to it); it dominates perl's
   911.
-- **swift's branch rule** counts the bare `default` in `FileManager.default`
-  (38 of its 136 crucible `default` hits are the singleton accessor, 1 is a
-  `switch` case) — branch contract C3 (#2822), filed in #2859.
-- **Narrower-than-contract forms with no evidence to widen on** (go `var (`
-  / `const (` groups — indented, a scope-filter question in scheme's
-  `_scope_filters` shape; java/csharp class statics that are not
-  `public … SCREAMING_CASE`; dart `static var`; assembly's label on its own
-  line; tcl's bare `global`) — recorded as conforming-by-absence-of-evidence,
-  deferred with #2859.
+- **swift's branch rule** counted the bare `default` in `FileManager.default`
+  (the singleton accessor, not a `switch` case) — branch contract C3 (#2822),
+  **resolved in #2859**: swift's branch `default` now carries a `(?<!\.)` guard,
+  so the dotted accessor (io/events' hit) no longer counts as a decision
+  (crucible 781 → 759).
+- **lua's SCREAMING_CASE assignment arm (`^X =`)** — the fallback declaration
+  for a language whose first assignment without `local` *is* the declaration;
+  the same line is `state_mutation`'s write (the jcl-`SET` dual shape). Kept as
+  a deliberate dual, recorded here, not the ledger — no cell moves (#2859).
+- **The narrower-than-contract forms #2858 deferred are now widened (#2859):**
+  go `var (` / `const (` group members (via the `go_declaration_group` scope
+  filter — over-match then keep only members directly inside a column-0 group);
+  java/csharp class statics beyond `public … SCREAMING_CASE` (any static field,
+  the `[=;]` terminator excluding methods and initializer blocks); dart
+  `static var` and column-0 `late final`; assembly's label-on-its-own-line
+  two-line form; tcl's `$global` read dropped and the `global NAME…` statement
+  kept; agc_assembly's `NAME ERASE` erasable allocation in with the dead prose
+  vocabulary and the routine-label `COMMON` out (the `EQUALS`/`=` equate stays
+  out — a constant binding under C2, and a rosetta decoy). Each was gated on a
+  `rule_probe` crucible measurement; the moved cells are re-blessed and
+  re-planted with #2859.
 
 ## The 46-language audit
 
@@ -179,22 +187,22 @@ mlir, nix, pbtxt, plaintext, proto, td, xml).
 |---|---|---|---|
 | abap | 48 | 2 | conforms (`TABLES`/`STATICS`/`CLASS-DATA` declarations, `SY-*` ambient reads) |
 | ada | — | 2 | conforms (`Global =>` aspect, `pragma Volatile`) |
-| agc_assembly | 150 → 25 | 2 | **C2**: `BIT\d+` constant references out; flagwords stay; plant vocabulary → #2859 |
+| agc_assembly | 150 → 23 | 2 | **C2**: `BIT\d+` constant references out; flagwords stay. #2859: dead `ERASABLE MEMORY`/`FIXED MEMORY`/`WORKING-STORAGE` prose and the routine-label `COMMON` out; `NAME ERASE` (erasable allocation) in. The `EQUALS`/`=` equate is a constant binding (C2) and a rosetta decoy — not counted |
 | apex | 0 | 2 | conforms (`UserInfo`, `System.Label`, `Cache.Org` handles) |
-| assembly | 70 → 226 | 2 | **C4**: section switch out, labeled storage in; plant re-planted (`region dd 1`) |
+| assembly | 70 → 478 | 2 | **C4**: section switch out, labeled storage in; plant re-planted (`region dd 1`). #2859: the label-on-its-own-line two-line form (`msg:` ⏎ `.asciz`) in |
 | c | 2771 → 247 | 2 | **C1/C4**: column-0 file scope + indented `static`; locals and prototypes out |
 | cobol | 185 → 16 | 2 | **C3**: hyphen guards; `COMMON-RETURN` was an identifier |
 | cpp | 485 → 218 | 2 | **C4**: `static`/`extern` on a prototype and `extern "C"` out; one hit per `static thread_local` |
-| csharp | 0 | 3 → 2 | **C5**: `Environment.Exit`/`FailFast` are high_risk's (main.cs 1 → 0) |
+| csharp | 0 → 5 | 3 → 2 | **C5**: `Environment.Exit`/`FailFast` are high_risk's (main.cs 1 → 0). **C1** (#2859): any class-static field, not just `public … SCREAMING_CASE =` |
 | css | 32 | 2 | conforms (`:root`/`html`/`body`/`*` global scope) |
-| dart | 25 | 2 | conforms (top-level `final`/`const`/`var` at column 0, `static const`, `Platform.environment`) |
+| dart | 25 | 2 | conforms (top-level `final`/`const`/`var` at column 0, `static const`, `Platform.environment`). **C1** (#2859): `static var` and column-0 `late final` added (no crucible instance) |
 | dockerfile | 10 | 2 | conforms (`ENV NAME` — globals only since #2765) |
 | embedded_python | 7 | 2 | **C5**: `locals()` out; `global` anchored to the statement; `sys.argv` in |
 | fortran | 16 → 7 | 2 | **C4**: `EXTERNAL` out, `DATA` in; plant re-planted (`DATA HOME /2/`) |
-| go | 36 → 105 | 2 | **C1**: package-level `var` without initializer and `const` in; groups → #2859 |
+| go | 36 → 237 | 2 | **C1**: package-level `var` without initializer and `const` in. #2859: `var (`/`const (` group members in, via the `go_declaration_group` scope filter (over-match then keep only members directly inside a column-0 group; struct-literal fields and body statements drop) |
 | groovy | 17 | 2 | conforms (`System.getenv`/`getProperty`, `project.ext`) |
 | haskell | 0 | 2 | **C2**: `System.Environment` reads join the IORef idiom |
-| java | 8 | 2 | conforms-narrow (`public static … SCREAMING_CASE =`, `ThreadLocal`, `System.getenv`); non-public statics → #2859 |
+| java | 8 → 22 | 2 | `ThreadLocal`, `System.getenv`. **C1** (#2859): any class-static field (`private static final Logger LOG`, `static int counter;`), not just `public … SCREAMING_CASE =`; the `[=;]` terminator keeps methods and `static {}` blocks out |
 | javascript | 18 → 12 | 2 | **C3**: `global.`/`self.` out; `import.meta.env` in |
 | jcl | 73 | 2 | conforms (`//JOBLIB DD`, `SET`, `EXPORT SYMLIST`; SET dual ledgered) |
 | kotlin | 3 | 2 | **C3**: named `object` only; `const val`/top-level `val` unchanged |
@@ -216,7 +224,7 @@ mlir, nix, pbtxt, plaintext, proto, td, xml).
 | solidity | 6 | 2 | conforms (`msg.*`/`block.*`/`tx.*` ambient state) |
 | sqlite | 6 | 2 | conforms (`sqlite_master`/`sqlite_schema`/`sqlite_stat*` registries) |
 | swift | 33 → 29 | 2 | **C3**: dotted accessor only; bare `default`/`shared`/`standard` out; plant re-planted |
-| tcl | 193 | 2 | conforms (`global` statement, `::env`, `upvar #0`); bare-`global` anchor → #2859 |
+| tcl | 193 | 2 | conforms (`global` statement, `::env`, `upvar #0`). **C3** (#2859): the `(?<!\$)` guard drops `$global` (an ordinary variable read), keeps the `global NAME…` statement |
 | typescript | 113 → 27 | 2 | **C3**: `global.` (assemblyscript's local) and `self.` out |
 | yacc | 0 | 2 | conforms (`yylval`/`yylloc`/`yynerrs`/`yydebug` parser globals) |
 | yaml | 0 | 2 | conforms (`${{ env.* }}`/`${{ github.* }}`, `$VAR`) |

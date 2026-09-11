@@ -37,8 +37,12 @@ DEFINITION: dict[str, Any] = {
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. Includes modern typed throws (throws(Error)).
         # EXCLUDES throw/rethrows (bailout_hits).
+        # #2859 (branch contract C3, #2822): a switch `default:` is a decision, but
+        # the dotted singleton accessor (`FileManager.default`, `.default`) is not --
+        # it is io/events' hit. The `(?<!\.)` guard keeps the switch case and drops
+        # the accessor, the mirror of the fix #2858 made on the `globals` side.
         "branch": re.compile(
-            r"\b(if|guard|switch|case|default|for|while|repeat|break|continue)\b|\}\s*else\b|&&|\|\||\?|\?\?"
+            r"\b(if|guard|switch|case|for|while|repeat|break|continue)\b|(?<!\.)\bdefault\b|\}\s*else\b|&&|\|\||\?|\?\?"
         ),
         # 2. args (Parameters / Coupling)
         # Parameter blocks. Bounded negation [^)]* and <[^>]*> to prevent ReDoS.

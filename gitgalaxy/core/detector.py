@@ -6791,6 +6791,24 @@ class StructuralExtractor:
                 if paren != -1 and paren in keep:
                     kept.append(m)
             return kept
+        if filter_name == "go_declaration_group":
+            if filter_name not in cache:
+                cache[filter_name] = self._go_declaration_group_member_offsets(code)
+            keep = cache[filter_name]
+            kept = []
+            for m in matches:
+                # The over-matching arm is `^[ \t]+<ident>` -- an indented line
+                # start. Only those need the structural test; the column-0
+                # `var`/`const` arm (its first char is not whitespace) and the
+                # mid-line `os.*` arm (does not start at a line boundary) are kept
+                # unconditionally, so the filter can only ever drop group-member
+                # candidates that are not in fact group members.
+                start = m.start()
+                is_line_start = start == 0 or code[start - 1] == "\n"
+                indented_candidate = is_line_start and start < len(code) and code[start] in " \t"
+                if not indented_candidate or start in keep:
+                    kept.append(m)
+            return kept
         if filter_name == "yaml_parameter_block":
             if filter_name not in cache:
                 cache[filter_name] = self._yaml_parameter_child_offsets(code)
@@ -6837,6 +6855,83 @@ class StructuralExtractor:
             f"[DIAGNOSTIC] Unknown scope filter '{filter_name}' declared for '{seg_lang}::{rule_name}'. Ignoring."
         )
         return matches
+
+    def _go_declaration_group_member_offsets(self, code: str) -> set[int]:
+        """
+        Line-start offsets of the direct members of every top-level Go
+        `var (` / `const (` declaration group (#2859).
+
+        A group's members are indented, so the column-0 `var`/`const` anchor
+        cannot see them, and an indented `x = 1` is indistinguishable from a
+        struct-literal field or a function-body statement without knowing the
+        enclosing form. This walks the bracket structure -- skipping strings,
+        runes and comments so their brackets never count -- and records the
+        start offset of every physical line whose immediately enclosing bracket
+        is a top-level `var (` / `const (` paren (not a nested `{...}` struct or
+        array literal, not a function body). The globals rule's over-matching
+        `^[ \t]+<ident>` arm keeps only the matches whose line start is in this
+        set; a struct-literal member (`x = Foo{ ... }`) keeps its own member
+        line but its indented field lines fall under the `{` frame and drop.
+
+        Group-open parens are found up front: a `(` that closes a column-0
+        `var`/`const` line. Every other bracket pushes an opaque frame. Linear
+        in len(code): one tokenizer pass, one bracket stack.
+        """
+        group_open = {m.end() - 1 for m in re.finditer(r"^(?:var|const)[ \t]*\(", code, re.M)}
+        if not group_open:
+            return set()
+        members: set[int] = set()
+        stack: list[bool] = []  # True == this open bracket is a var/const group paren
+        n = len(code)
+        i = 0
+        at_new_line = True
+        while i < n:
+            c = code[i]
+            if at_new_line:
+                # Start of a physical line: a member iff the innermost open
+                # bracket is a var/const group paren.
+                if stack and stack[-1]:
+                    members.add(i)
+                at_new_line = False
+            if c == "\n":
+                at_new_line = True
+                i += 1
+                continue
+            if c == '"':  # interpreted string
+                i += 1
+                while i < n and code[i] != '"':
+                    i += 2 if code[i] == "\\" else 1
+                i += 1
+                continue
+            if c == "`":  # raw string literal (may span lines)
+                i += 1
+                while i < n and code[i] != "`":
+                    i += 1
+                i += 1
+                continue
+            if c == "'":  # rune literal
+                i += 1
+                while i < n and code[i] != "'":
+                    i += 2 if code[i] == "\\" else 1
+                i += 1
+                continue
+            if c == "/" and i + 1 < n and code[i + 1] == "/":
+                while i < n and code[i] != "\n":
+                    i += 1
+                continue
+            if c == "/" and i + 1 < n and code[i + 1] == "*":
+                i += 2
+                while i + 1 < n and not (code[i] == "*" and code[i + 1] == "/"):
+                    i += 1
+                i += 2
+                continue
+            if c in "({[":
+                stack.append(c == "(" and i in group_open)
+            elif c in ")}]":
+                if stack:
+                    stack.pop()
+            i += 1
+        return members
 
     def _matlab_return_channel_offsets(self, code: str) -> set[int]:
         """

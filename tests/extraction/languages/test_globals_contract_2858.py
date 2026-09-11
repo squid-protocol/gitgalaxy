@@ -124,7 +124,12 @@ CASES = {
             'os.Getenv("GOGC")',
             'os.LookupEnv("X")',
         ],
-        ["\tvar x = 5", "\tconst y = 2", "func main() {"],
+        # #2859: the middle arm now over-matches indented identifier lines on
+        # purpose -- the `go_declaration_group` scope filter (exercised in
+        # test_go_strict.py: a function-local reads 0, a group member reads N)
+        # is what tells a body local from a group member. The bare-regex
+        # negatives here are the column-0 non-declarations it still rejects.
+        ["func main() {", "package main", 'import "os"'],
     ),
     "python": (
         ["    global state", 'os.environ["X"]', "sys.modules", 'globals()["f"]'],
@@ -144,7 +149,14 @@ CASES = {
         ["local arg = {...}", "t.arg = 1", "arg = 1"],
     ),
     # --- C2: a declaration or the ambient handle, not a reference ----------------
-    "agc_assembly": (["ADS\tFLAGWRD7", "COMMON"], ["CAF\tBIT14", "CS\tBIT10"]),
+    # #2859: `NAME ERASE` (erasable allocation) is the unambiguous shared-state
+    # declaration; the flagword reference stays. Bare `COMMON` was a routine
+    # label (`TCF COMMON`), now rejected; the `EQUALS`/`=` equate binds a fixed
+    # value (a constant reference, C2 -- and a rosetta decoy), so it is not one.
+    "agc_assembly": (
+        ["ADS\tFLAGWRD7", "DSPCOUNT\tERASE"],
+        ["CAF\tBIT14", "CS\tBIT10", "\tTCF\tCOMMON", "COMMON\t\tTC\tPHASCHNG", "SBIT1\t\tEQUALS\tBIT1", "CNTRCON\t\t=\tOCT50"],
+    ),
     "haskell": (
         ["region :: IORef Int\nregion = unsafePerformIO (newIORef 0)", 'home <- getEnv "HOME"', "args <- getArgs"],
         ["x :: IORef Int", "let y = 5"],
@@ -198,8 +210,24 @@ CASES = {
     ),
     # --- C4: linkage and region headers are not state -----------------------------
     "assembly": (
-        ["buf: resd 4", 'msg db "x"', 'helloworld:\t.ascii "Hello"', ".comm\t__blst_platform_cap,4", "next: .word 0"],
-        ["\t.data", "section .data", "section .bss", "\tmov byte [rax], 1", "    dq expect", "    resb 1"],
+        [
+            "buf: resd 4",
+            'msg db "x"',
+            'helloworld:\t.ascii "Hello"',
+            ".comm\t__blst_platform_cap,4",
+            "next: .word 0",
+            'msg:\n    .asciz "x"',  # #2859: label on its own line, directive on the next
+            "FB_STRUCT:\n\tdw 5",
+        ],
+        [
+            "\t.data",
+            "section .data",
+            "section .bss",
+            "\tmov byte [rax], 1",
+            "    dq expect",
+            "    resb 1",
+            "loop:\n    mov eax, 1",  # #2859: a label followed by an instruction is not storage
+        ],
     ),
     # --- C5: one owner -------------------------------------------------------------
     "csharp": (
@@ -208,8 +236,37 @@ CASES = {
             "Environment.MachineName;",
             "var region = ConfigurationManager;",
             "public static readonly int MAX = 1;",
+            # #2859 (C1): any class-static field, not just public SCREAMING_CASE.
+            "private static readonly SyntaxTree Dummy = new DummySyntaxTree();",
+            "static int counter;",
         ],
-        ["Environment.Exit(payload);", "Environment.FailFast(msg);"],
+        [
+            "Environment.Exit(payload);",
+            "Environment.FailFast(msg);",
+            "static void Helper() {",  # a method is not a field
+            "public static int Count { get; }",  # an auto-property is not a field
+        ],
+    ),
+    # #2859 (C1): a class-static field is a program-scope binding whatever its
+    # visibility; the `[=;]` terminator keeps methods and initializer blocks out.
+    "java": (
+        [
+            "private static final Logger LOG = LoggerFactory.getLogger();",
+            "static int counter;",
+            "public static final String NAME = \"x\";",
+            "private static final ThreadLocal<Hook> hook = new ThreadLocal<>();",
+        ],
+        ["static void helper() {", "static {", "int local = 5;"],
+    ),
+    # #2859 (C1): `static var` (mutable class-static) and column-0 `late final`.
+    "dart": (
+        ["static final int MAX = 1;", "static const x = 1;", "static var counter = 0;", "late final config = load();"],
+        ["    var local = 5;", "int add(int a) => a;", "    late final x = 1;"],
+    ),
+    # #2859: `global NAME…` is the statement; `$global` is a variable read.
+    "tcl": (
+        ["global TRG", "global macports::registry.format", "::env(PATH)", "upvar #0 the_array arr"],
+        ["set x $global", "if {$global} {}"],
     ),
 }
 
@@ -232,6 +289,10 @@ COUNTS = [
         2,
     ),
     ("csharp", "public static int ProbeRisk(int payload) {\n    Environment.Exit(payload);\n    return payload;\n}", 0),
+    ("java", "private static final Logger LOG = getLog();", 1),  # #2859: one class-static field, one hit
+    ("csharp", "private static readonly SyntaxTree Dummy = new();", 1),  # #2859
+    ("agc_assembly", "DSPCOUNT\tERASE", 1),  # #2859: one erasable allocation, one hit
+    ("assembly", 'msg:\n    .asciz "x"', 1),  # #2859: the two-line labeled-storage form is one hit
 ]
 
 PAYLOADS = [

@@ -379,8 +379,12 @@ DEFINITION: dict[str, Any] = {
         "globals": re.compile(
             # #2858 contract corollary 5: `Environment.Exit` / `.FailFast` end the
             # process -- high_risk_execution's hit, not an access to the environment.
+            # #2859 (contract C1: scope, not visibility): any class-static FIELD is a
+            # program-scope binding, not just the `public … SCREAMING_CASE =` one the
+            # #2858 rule saw. The `[=;]` terminator excludes `static` methods (a `(`
+            # follows) and `static { get; }` auto-properties (a `{` follows).
             r"\b(?:ConfigurationManager|AsyncLocal)\b|\bEnvironment\.(?!(?:Exit|FailFast)\b)|"
-            r"\bpublic\s+static\s+(?:readonly[ \t]+)?[\w<>]+\s+[A-Z_0-9]+[ \t]*=|\[ThreadStatic\]"
+            r"\b(?:private|protected|internal|public)?[ \t]*static[ \t]+(?:readonly[ \t]+)?[\w<>\[\].]+[ \t]+\w+[ \t]*[=;]|\[ThreadStatic\]"
         ),
         # 19. decorators (Decorators / Annotations)
         "decorators": re.compile(r"^[ \t]*\[[A-Za-z_][^\]]*\]", re.M),

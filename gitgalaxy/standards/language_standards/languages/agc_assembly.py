@@ -183,8 +183,17 @@ DEFINITION: dict[str, Any] = {
             # #2858 contract corollary 2: `CAF BIT14` references a fixed constant
             # (the bit-mask table), not shared erasable; a flagword is the shared
             # state every program section reads and writes.
-            r"\b(ERASABLE\s+MEMORY|FIXED\s+MEMORY|WORKING-STORAGE|COMMON|FLAGWRD\d+)\b",
-            re.I,
+            # #2859: `ERASABLE MEMORY`/`FIXED MEMORY`/`WORKING-STORAGE` were never
+            # AGC vocabulary (they only ever matched comment prose, which the code
+            # stream strips) and bare `COMMON` matched a routine label (`TCF COMMON`).
+            # The unambiguous program-scope declaration is erasable allocation
+            # (`NAME ERASE n`): a named cell of shared read/write RAM. The `EQUALS`/`=`
+            # equate is deliberately NOT counted -- it binds a symbol to a fixed
+            # value/address, which C2 reads as a constant reference, and the rosetta
+            # control corpus plants it as a decoy (b/c/main globals = 0). Flagword
+            # references stay (C2 ambient shared state).
+            r"\bFLAGWRD\d+\b|^[A-Za-z0-9][\w$#]*[ \t]+ERASE\b",
+            re.I | re.M,
         ),
         # 19. decorators
         "decorators": None,

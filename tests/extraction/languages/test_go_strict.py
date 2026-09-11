@@ -366,22 +366,63 @@ def test_go_test_vs_regex_execution_no_false_collision():
     assert not test_pattern.search("myRegex.MatchString(s)"), "test incorrectly matched a regex method call"
 
 
+def _go_globals(code: str) -> int:
+    """Filtered globals count: the real extractor applies the registry-declared
+    `go_declaration_group` scope filter, which the bare regex does not."""
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    return StructuralExtractor("go", LANGUAGE_DEFINITIONS).splice(code, "")["equations"]["globals"]
+
+
 def test_go_globals_anchor_bug_regression():
-    """#2660: `globals` rule anchored to column-0 to prevent gofmt-indented
-    function-local `var` declarations from being counted as globals."""
-    globals_rule = GO_RULES["globals"]
+    """#2660: a gofmt-indented function-local `var` must not count as a global.
+    #2859: the column-0 anchor could not see `var (`/`const (` group members
+    either, so the rule now over-matches every indented identifier line and the
+    `go_declaration_group` scope filter (detector.py) keeps only the true group
+    members -- these tests go through the real extractor, not the bare regex."""
+    assert _go_globals("var registry = map[string]int{}") == 1, "true top-level var must count"
+    assert _go_globals('os.Getenv("X")') == 1, "os.Getenv must still count"
 
-    assert globals_rule.search("var registry = map[string]int{}"), "true top-level var must count as global"
+    # #2660: the over-matching arm now matches the indented `var local`, but the
+    # scope filter drops it -- it is a function body, not a declaration group.
+    func_local = "func foo() {\n\tvar local = 5\n\tother := 3\n\treturn local\n}"
+    assert GO_RULES["globals"].search(func_local), "sanity: the bare regex over-matches the indented line"
+    assert _go_globals(func_local) == 0, "tab-indented function-local var must NOT count as global"
 
-    func_local = "func foo() {\n\tvar local = 5\n}"
-    assert not globals_rule.search(func_local), "tab-indented function-local var must NOT count as global"
+    # #2859: grouped `var (...)` / `const (...)` members now count -- the whole
+    # point of the widening.
+    grouped = "var (\n\tregistry = map[string]int{}\n\tcounter int\n)\n"
+    assert _go_globals(grouped) == 2, "both group members count as globals"
 
-    assert globals_rule.search('os.Getenv("X")'), "os.Getenv must still count as global"
+    # A struct-literal field inside a group member is not itself a global.
+    with_struct = 'var (\n\tres = schema.GroupResource{\n\t\tGroup:    "apps",\n\t\tResource: "sets",\n\t}\n)\n'
+    assert _go_globals(with_struct) == 1, "only the member binding counts, not its struct fields"
 
-    # Grouped `var (...)` blocks: the inner member line carries no `var`
-    # keyword of its own, so it never matched this alternation before the
-    # fix either -- documented here, not changed by it.
-    grouped = "var (\n\tregistry = map[string]int{}\n)"
-    assert len(globals_rule.findall(grouped)) == 0, (
-        "grouped var(...) block member has no `var` keyword on its own line and must not match"
-    )
+
+def test_go_scope_filter_is_declared_for_globals():
+    assert GO_RULES["_scope_filters"] == {"globals": "go_declaration_group"}
+
+
+def test_go_declaration_group_walk_is_linear_on_pathological_input():
+    """The member walk is a single tokenizer pass, not backtracking."""
+    import time
+
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    d = StructuralExtractor("go", LANGUAGE_DEFINITIONS)
+    payloads = ["var (\n" + "\tx = 1\n" * 20000 + ")\n", "(" * 60000, "`" * 60000, "\t" * 60000 + "x"]
+    for p in payloads:
+        t = time.perf_counter()
+        d._go_declaration_group_member_offsets(p)
+        assert time.perf_counter() - t < 1.0
+
+
+def test_go_unknown_scope_filter_name_is_ignored_not_zeroed():
+    import copy
+
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    defs = copy.deepcopy(LANGUAGE_DEFINITIONS)
+    defs["go"]["rules"]["_scope_filters"] = {"globals": "no-such-filter"}
+    counts, *_ = StructuralExtractor("go", defs).coding_analysis([("go", "var top = 1\n", 0)])
+    assert counts["globals"] >= 1

@@ -149,7 +149,10 @@ DEFINITION: dict[str, Any] = {
         # precedes it with `$`, also non-word -- `\b` between two
         # non-word chars can never fire, so `::env` never matched.
         # Pulled out with no leading `\b` (self-delimiting on `::`).
-        "globals": re.compile(r"\bglobal\b|::env\b|upvar[ \t]+#0"),
+        # #2859: `global NAME…` is the statement form; `$global` is an ordinary
+        # variable read, so the `(?<!\$)` guard keeps the command and drops the
+        # sigil'd identifier an ordinary reference cannot be a declaration.
+        "globals": re.compile(r"(?<!\$)\bglobal\b|::env\b|upvar[ \t]+#0"),
         # 19. decorators
         "decorators": None,
         # 20. generics

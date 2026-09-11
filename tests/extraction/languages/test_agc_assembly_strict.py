@@ -95,7 +95,7 @@ _AGC_SIMPLE_CASES = [
     ("test", "\tSELFCHECK", "\tCA\tBAR"),
     ("concurrency", "\tEXEC", "\tCA\tBAR"),
     ("ui_framework", "\tVERB\t37", "\tCA\tBAR"),
-    ("globals", "\tERASABLE MEMORY", "\tCA\tBAR"),
+    ("globals", "DSPCOUNT\tERASE", "\tCA\tBAR"),  # #2859: NAME ERASE is the real erasable declaration
     ("scientific", "\tVAD\tVEC1", "\tCA\tBAR"),
     ("reflection_metaprogramming", "\tINDEX\tA", "\tCA\tBAR"),
     ("import", "\tSETLOC\tFOO", "\tCA\tBAR"),

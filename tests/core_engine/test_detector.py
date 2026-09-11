@@ -504,21 +504,24 @@ def test_detector_orphan_census_excludes_synthetic_slicer_names():
 
 def test_detector_c_macro_dead_branch_shield():
     """
-    Pins what the C-family macro shield does and does not do (#2814).
+    Pins that a statically-dead C preprocessor branch is not counted (#2814).
 
-    `_build_brace_safe_stream`'s `#if 1` / `#if 0` policy stack (#1720) only
-    produces the brace-safe stream used to find function boundaries. Neither
-    the file-level counts nor the per-function hit_vector read it, so a
-    `strcpy` inside a statically dead `#if 0` branch is COUNTED, exactly like
-    one under an unknown `#if defined(X)`.
+    `detector._blank_dead_preproc_branches` blanks the body of `#if 0` (and the
+    dead side of `#if 1`) before the rule loop in `coding_analysis`, so a
+    `strcpy` inside a dead branch reaches neither the file-level counts nor the
+    per-function `hit_vector`. This mirrors the `#1720` macro shield that
+    already prunes dead branches for function-boundary detection -- before
+    #2814 the two paths disagreed and the dead `strcpy` was counted.
 
-    This test used to assert a recorded count of 0 here and passed for the
-    wrong reason: the `strncpy` in the #else, 500 chars away in the same
-    function, tallied one `mitigated_danger` and the Silencer Region
-    subtracted it from the count in place. Since #2813 the recorded count is
-    the raw hit, so the dampener and the (absent) scrub are told apart.
-    Whether the dead branch SHOULD be counted is the stream-contract question
-    #2814 tracks; change this test with that decision, not before.
+    An UNKNOWN condition (`#if defined(DEBUG_MODE)`) keeps both branches, since
+    the engine cannot decide it without a macro table -- so the same `strcpy`
+    is still counted there, exactly like live code.
+
+    (Before #2813 this test asserted 0 for the wrong reason: the live `#else`
+    `strncpy` tallied a `mitigated_danger` and the Silencer Region subtracted it
+    in place. `strncpy` is not a `strcpy` substring in MOCK_LANG_DEFS, so with
+    the dead branch blanked the raw `high_risk_execution` is a clean 0 -- no
+    hit to mitigate -- rather than a mitigated 1.)
     """
     opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
     code_dead = (
@@ -532,19 +535,27 @@ def test_detector_c_macro_dead_branch_shield():
     )
     code_unknown = code_dead.replace("#if 0", "#if defined(DEBUG_MODE)")
 
-    for label, code in (("#if 0", code_dead), ("#if defined", code_unknown)):
-        result = opt_detector.splice(code, "")
-        assert result["equations"]["high_risk_execution"] == 1, (
-            f"{label}: the recorded count is the raw hit -- the dead branch is counted (#2814)"
-        )
-        assert result["threat_locations"]["high_risk_execution"] == [3], f"{label}: the hit is the strcpy on line 3"
-        assert result["functions"][0]["hit_vector"].get("high_risk_execution", 0) == 1, (
-            f"{label}: the per-function hit_vector does not read the brace-safe stream either"
-        )
-        assert result["mitigation_telemetry"]["mitigated_danger"] == 1, f"{label}: same-function strncpy silences it"
-        assert weighted_count(result["equations"], result["mitigation_telemetry"], "high_risk_execution") == 0, (
-            f"{label}: the weighted view is what the old recorded 0 actually was"
-        )
+    # #if 0: the strcpy is in a statically-dead branch -- blanked, not counted.
+    dead = opt_detector.splice(code_dead, "")
+    assert dead["equations"]["high_risk_execution"] == 0, (
+        "#if 0: the dead branch is blanked before counting -- no raw hit (#2814)"
+    )
+    assert "high_risk_execution" not in dead["threat_locations"], "#if 0: no high_risk_execution location survives"
+    assert dead["functions"][0]["hit_vector"].get("high_risk_execution", 0) == 0, (
+        "#if 0: the per-function hit_vector inherits the blanked stream too"
+    )
+    assert dead["mitigation_telemetry"].get("mitigated_danger", 0) == 0, "#if 0: nothing left to mitigate"
+    assert weighted_count(dead["equations"], dead["mitigation_telemetry"], "high_risk_execution") == 0
+
+    # #if defined(X): unknown condition -> both branches stay live and counted.
+    unknown = opt_detector.splice(code_unknown, "")
+    assert unknown["equations"]["high_risk_execution"] == 1, (
+        "#if defined: an undecidable condition keeps both branches -- the strcpy is counted"
+    )
+    assert unknown["threat_locations"]["high_risk_execution"] == [3], "#if defined: the hit is the strcpy on line 3"
+    assert unknown["functions"][0]["hit_vector"].get("high_risk_execution", 0) == 1
+    assert unknown["mitigation_telemetry"]["mitigated_danger"] == 1, "#if defined: same-function strncpy silences it"
+    assert weighted_count(unknown["equations"], unknown["mitigation_telemetry"], "high_risk_execution") == 0
 
 
 def test_detector_c_macro_else_branch_is_scanned_issue_1720():

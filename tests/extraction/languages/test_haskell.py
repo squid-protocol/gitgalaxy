@@ -37,6 +37,10 @@ FUNCTION_CASES: dict[str, Any] = {
     "valid": [
         ("TargetFunc :: Int -> Int", "TargetFunc"),
         ("TargetFunc :: Maybe String", "TargetFunc"),
+        # #2934: an arrowless `IO ()` entry-point signature matches func_start
+        # at the regex level already (like `Maybe String` above) -- the drop
+        # was purely in the slicer guard, exercised in the #2934 block below.
+        ("entryPoint :: IO ()", "entryPoint"),
         # Valid operators?
         ("(+++) :: Int -> Int", "(+++)"),
         ("target_func :: a -> b", "target_func"),
@@ -377,6 +381,39 @@ def _extract_function_names(payload: str) -> list[str]:
     segments = extractor._partition_segments(payload, "haskell")
     functions, _ = extractor._function_slice(segments, [{}], {}, None)
     return [f["name"] for f in functions]
+
+
+# ==============================================================================
+# ARROWLESS IO-ACTION ENTRY POINTS (#2934)
+# ==============================================================================
+# The #1312 guard used "no arrow in the signature" as its whole test for a
+# point-free VALUE binding, which wrongly dropped the canonical arrowless
+# entry-point shape `entry :: IO ()` (a zero-arg IO action DOES open an
+# executable block under its own name -- docs/func_start_rule_contract.md,
+# #2856). #2934 narrows the guard so an arrowless signature whose return-type
+# head is `IO` is retained, while pure value types stay rejected.
+
+
+def test_haskell_arrowless_io_action_entry_point_accepted():
+    """#2934: `entry :: IO ()` / `main :: IO a` are zero-arg IO actions, not CAFs -- extracted."""
+    assert _extract_function_names('entry :: IO ()\nentry = putStrLn "hi"\n') == ["entry"]  # noqa: S101
+    assert _extract_function_names("main :: IO a\nmain = undefined\n") == ["main"]  # noqa: S101
+
+
+def test_haskell_arrowless_io_action_under_forall_and_constraint_accepted():
+    """#2934: the return-type head is still `IO` after a `forall` quantifier or a `=>` constraint."""
+    assert _extract_function_names("run :: forall a. IO a\nrun = undefined\n") == ["run"]  # noqa: S101
+    assert _extract_function_names("act :: Monad m => IO ()\nact = undefined\n") == ["act"]  # noqa: S101
+
+
+def test_haskell_arrowless_ioref_value_binding_still_rejected():
+    """#2934 guard: `IORef` must not be misread as `IO` -- `counter :: IORef Int` stays a value."""
+    assert _extract_function_names("counter :: IORef Int\ncounter = undefined\n") == []  # noqa: S101
+
+
+def test_haskell_arrowless_non_io_action_monad_still_rejected():
+    """#2934: only a bare `IO` head is retained; `ReaderT ... IO ()` (head ReaderT) is a follow-up."""
+    assert _extract_function_names("runApp :: ReaderT Env IO ()\nrunApp = undefined\n") == []  # noqa: S101
 
 
 def test_haskell_func_start_instance_method_equations_accepted():

@@ -5788,7 +5788,19 @@ class StructuralExtractor:
                 # `safe_code` has strings/comments masked, which is perfect since we don't
                 # want to match an arrow inside a default-value string literal or comment
                 signature_text = safe_code[start_idx:sig_end]
-                if "->" not in signature_text and "⊸" not in signature_text:
+                # #2934 contract (docs/func_start_rule_contract.md, #2856): "no
+                # arrow" is too broad a test for "point-free value binding". A
+                # zero-arg IO action (`entry :: IO ()`, `main :: IO a`) is
+                # arrowless yet opens an executable block under its own name --
+                # the canonical Haskell entry point -- so it must NOT be dropped
+                # like a pure CAF (`defaultKaTeXURL :: Text`). Skip only an
+                # arrowless signature whose return-type head is NOT `IO`; every
+                # true value binding still falls through, IO actions are kept.
+                if (
+                    "->" not in signature_text
+                    and "⊸" not in signature_text
+                    and not self._haskell_arrowless_signature_is_action(signature_text)
+                ):
                     continue
 
             # Extract the raw payload using the ORIGINAL code to retain the exact executable payload
@@ -7408,6 +7420,41 @@ class StructuralExtractor:
             elif "@" in text or "*" in text:
                 saw_variadic = True
         return max_index if max_index else (1 if saw_variadic else 0)
+
+    def _haskell_arrowless_signature_is_action(self, signature_text: str) -> bool:
+        """
+        #2934: an arrowless Haskell type signature is a point-free VALUE
+        binding (a CAF like `defaultKaTeXURL :: Text`) in the common case,
+        which #1312 correctly drops. It is NOT one when its type is a zero-
+        arg IO action (`entry :: IO ()`, `main :: IO a`): that action opens
+        an executable block under its own name (docs/func_start_rule_contract
+        .md, #2856) exactly as a function does, and the rest of the engine
+        already treats `IO ()` as a genuine zero-arrow callable (see
+        `_count_haskell_type_arrows` and haskell.py's `args` rule). Return
+        True only when the signature's OUTERMOST return-type head is `IO`, so
+        pure value types (`Text`, `Int`, `IORef Int`) still read as values --
+        `IORef` must never be mistaken for `IO` (whole-token match, never a
+        prefix). Broader action monads (`ReaderT ... IO ()`, or `m ()` under
+        a `MonadIO` constraint) are deliberately left to a follow-up per the
+        issue; only a bare `IO` head is retained here.
+        """
+        parts = signature_text.split("::", 1)
+        if len(parts) < 2:
+            return False
+        type_str = parts[1].strip()
+        # A leading `forall a b.` quantifier's `.` terminates the binder list
+        # (not a qualified-name dot); strip the whole clause before the head.
+        type_str = re.sub(r"^forall\b[^.]*\.\s*", "", type_str)
+        # Skip a leading typeclass-constraint clause, mirroring the LAST-top-
+        # level-`=>` rule `_count_haskell_type_arrows` uses for the same job.
+        last_constraint = type_str.rfind("=>")
+        if last_constraint != -1:
+            type_str = type_str[last_constraint + 2 :].strip()
+        head_match = re.match(r"\(*\s*([A-Za-z_][A-Za-z0-9_']*(?:\.[A-Za-z_][A-Za-z0-9_']*)*)", type_str)
+        if not head_match:
+            return False
+        head = head_match.group(1)
+        return head == "IO" or head.endswith(".IO")
 
     def _count_haskell_type_arrows(self, args_str: str) -> int:
         """

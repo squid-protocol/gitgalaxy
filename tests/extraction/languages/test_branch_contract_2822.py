@@ -181,8 +181,16 @@ CASES = {
         ["END IF", "END DO", "END WHERE", "GOTO 100", "GO TO 100"],
     ),
     "swift": (
-        ["if flag > 0 {", "} else {", "guard flag > 0 else { return 3 }", "repeat {"],
-        ["catch let e {", "try foo()", "throws(Error)", "defer { cleanup() }"],
+        ["if flag > 0 {", "} else {", "guard flag > 0 else { return 3 }", "repeat {", "default:", "@unknown default:"],
+        # #2859 C3: the dotted singleton accessor is io/events', not a decision.
+        [
+            "catch let e {",
+            "try foo()",
+            "throws(Error)",
+            "defer { cleanup() }",
+            "let fm = FileManager.default",
+            "let c = NotificationCenter.default",
+        ],
     ),
     # --- corollary 3: an unconditional transfer is not a decision ------------------
     "c": (
@@ -224,6 +232,8 @@ COUNTS = [
     ("shell", "if [ 1 -gt 0 ]; then\n    :\nelse\n    :\nfi\nwhile false; do\n    :\ndone", 3),
     ("sqlite", "SELECT CASE WHEN 1 THEN 2 ELSE 3 END;", 3),
     ("swift", "if flag > 0 {\n} else {\n}\nguard flag > 0 else { return 3 }", 3),
+    # #2859 C3: switch + case + default = 3; the `.default` accessor adds nothing.
+    ("swift", "switch k {\ncase 1: foo()\ndefault: bar()\n}\nlet fm = FileManager.default", 3),
     ("ada", "if Flag > 0 then\n   null;\nelsif Flag < 0 then\n   null;\nelse\n   null;\nend if;", 3),
     ("haskell", "probeBranch flag = case flag of\n  0 -> 3\n  _ -> if flag > 0 then 1 else 2", 3),
     ("lua", "if flag > 0 then\n  return 1\nelse\n  return 2\nend\nwhile false do\nend", 3),

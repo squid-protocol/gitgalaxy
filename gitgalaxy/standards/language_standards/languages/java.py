@@ -293,9 +293,14 @@ DEFINITION: dict[str, Any] = {
         # whatever follows the `=` in a real declaration (a space, then
         # the value) is never a word character. This extremely common
         # Java constant-declaration idiom never matched at all.
+        # #2859 (contract C1: scope, not visibility or mutability): any class-static
+        # FIELD is a program-lifetime binding, not just the `public … SCREAMING_CASE`
+        # constant the #2858 rule saw. `private static final Logger LOG`,
+        # `static int counter;` count; the `[=;]` terminator excludes `static`
+        # methods (a `(` follows) and `static {}` initializer blocks (no name).
         "globals": re.compile(
             r"\b(?:System\.getProperty|System\.getenv|ThreadLocal|ScopedValue)\b"
-            r"|public\s+static\s+(?:final[ \t]+)?\w+\s+[A-Z_0-9]+[ \t]*="
+            r"|\b(?:private|protected|public)?[ \t]*static[ \t]+(?:final[ \t]+)?[\w<>\[\].]+[ \t]+\w+[ \t]*[=;]"
             r"|@(?:Value|ConfigurationProperties)"
         ),
         # 19. decorators (Decorators / Annotations)

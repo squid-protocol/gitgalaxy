@@ -232,11 +232,23 @@ DEFINITION: dict[str, Any] = {
         "globals": re.compile(
             # #2858 contract corollary 1: a package-level `var`/`const` (column 0,
             # the #2651 anchor) is a program-lifetime binding with or without an
-            # initializer (`var mu sync.Mutex`); a `var (` / `const (` group is a
-            # scope question (#2859).
-            r"^(?![ \t])(?:var|const)[ \t]+[a-zA-Z_]\w*\b|\bos\.(?:Getenv|Environ|LookupEnv|Setenv|Unsetenv|Args|Getwd)\b",
+            # initializer (`var mu sync.Mutex`).
+            # #2859: a `var (` / `const (` group's members are indented, so the
+            # column-0 anchor cannot see them. The middle arm over-matches every
+            # indented declaration-shaped identifier line; the `go_declaration_group`
+            # scope filter (detector.py) keeps only those directly inside a column-0
+            # var/const group, dropping struct-literal fields and function-body
+            # statements. A scope filter can only REMOVE matches, so the column-0 and
+            # os.* arms are never touched. `\b(?![\w.(])` pins the identifier to its
+            # full extent and rejects a call/selector (`os.Getenv(`, `t.Run(`) so the
+            # over-match cannot shadow the mid-line os.* handle on the same line.
+            r"^(?![ \t])(?:var|const)[ \t]+[a-zA-Z_]\w*\b|^[ \t]+[A-Za-z_]\w*\b(?![\w.(])|\bos\.(?:Getenv|Environ|LookupEnv|Setenv|Unsetenv|Args|Getwd)\b",
             re.M,
         ),
+        # #2859: see the globals comment above -- a paren/brace walk classifies
+        # which indented identifier lines are direct members of a top-level
+        # `var (` / `const (` declaration group.
+        "_scope_filters": {"globals": "go_declaration_group"},
         # 19. decorators (Decorators / Annotations)
         # Go lacks @decorators; uses Struct Tags and Build Tags.
         "decorators": re.compile(r'`[^`]*?(?:json|xml|yaml|gorm|db|bson):"[^"]*"[^`]*?`|//go:build|//\s*\+build'),

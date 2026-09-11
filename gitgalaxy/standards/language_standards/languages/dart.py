@@ -342,8 +342,12 @@ DEFINITION: dict[str, Any] = {
         # 18. globals: Global / Shared State. Static class fields and environmental bindings.
         # BUG FIX (#2651): Anchored to true column-0 (no indentation) to prevent
         # function-local var/const declarations from being incorrectly counted as globals.
+        # #2859 (contract C1: scope, not mutability): `static var` is the mutable
+        # class-static binding and `late final` at column 0 is a top-level program
+        # binding -- both are program-scope declarations the #2858 rule did not yet
+        # see. Added beside the existing `static final`/`static const` forms.
         "globals": re.compile(
-            r"\b(static\s+final|static\s+const|Platform\.environment|window\.|Zone\.current)\b|^(?![ \t])(?:final|const|var)\s+[A-Za-z_$][\w$]*[ \t]*=",
+            r"\b(static\s+(?:final|const|var)|Platform\.environment|window\.|Zone\.current)\b|^(?![ \t])(?:final|const|var|late[ \t]+final)\s+[A-Za-z_$][\w$]*[ \t]*=",
             re.I | re.M,
         ),
         # 19. decorators: Decorators / Annotations. Annotations applied to methods/classes.

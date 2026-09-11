@@ -130,7 +130,7 @@ the four control files, target 3 + 0 + 0 + 0). "—" = no crucible presence.
 | shell | 9737 → 3411 | 5 → 3 | then/fi/esac/done/do, test brackets; re-plant added else + while; break/continue → boundaries (#2832) |
 | solidity | 69 | 3 | try/catch relocated; break/continue → boundaries, no corpus incidence (#2832) |
 | sqlite | 161 → 45 | 5 → 3 | THEN/END relocated; one CASE = CASE + its arms |
-| swift | 871 → 781 | 4 → 3 | catch/try/throws/defer/do; else anchored on `}` |
+| swift | 871 → 759 | 4 → 3 | catch/try/throws/defer/do; else anchored on `}`; C3 `.default` accessor dropped (#2859) |
 | tcl | 2330 → 2124 | 4 → 3 | catch/try/trap/finally |
 | typescript | 14879 → 14137 | 3 | try/catch/finally (+ safety mirror); break/continue → boundaries (#2832) |
 | yacc | 93 | 3 | clean (`\|` is yacc's real alternation decision) |

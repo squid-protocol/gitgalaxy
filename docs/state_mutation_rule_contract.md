@@ -119,7 +119,7 @@ rule was already inside the contract and is untouched.
 | `css` | `None` | n/a | contract-level absence (ledgered) |
 | `dart` | 764 -> 2052 | 2 | too narrow: only *unspaced* `x=1` matched; `x = 1` was invisible |
 | `dockerfile` | 13 -> 3 | 4 -> 2 | too broad: `ENV` is `globals` (corollary 4) |
-| `embedded_python` | 191 -> 894 | 2 | agrees (#2817): same plain-assignment arm as `python`, hardware-toggle arm kept |
+| `embedded_python` | 191 -> 894 -> 892 | 2 | agrees (#2817); hardware arm tightened to the contract: `.value(` requires an argument (the no-arg getter is a read, corollary 3), and `.on/.off/.high/.low/.toggle` match the no-arg form only (a parameterised `.on(evt, cb)` is an event subscription `events`/`listeners` own, corollary 4) |
 | `fortran` | 6344 -> 5066 | 3 | too broad: `INTEGER :: X = 1`, `CALL f(UNIT = 10)` mid-line specifiers |
 | `go` | 3344 -> 1548 | 5 -> 2 | too broad: `:=` declarations, `_ = x` discards, `append(` double-counting its own `=` |
 | `groovy` | 730 -> 895 | 2 | too broad/narrow: `@Setter`/`@Data` counted; `+=`, `++`, `.add(` did not |

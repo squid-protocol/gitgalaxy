@@ -558,6 +558,36 @@ def test_detector_c_macro_dead_branch_shield():
     assert weighted_count(unknown["equations"], unknown["mitigation_telemetry"], "high_risk_execution") == 0
 
 
+def test_detector_c_macro_dead_branch_nesting_and_else():
+    """
+    Locks down `_blank_dead_preproc_branches` on the tricky shapes (#2814):
+    a dead `#if 0` nested inside a live `#if 1`, the dead side of `#if 1`/`#else`,
+    an `#ifndef` header guard (unknown -> both sides live), and a live directive
+    left untouched. Only the genuinely dead calls must vanish from the count.
+    """
+    opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
+    code = (
+        "void f() {\n"
+        "#if 1\n"
+        "    strcpy(a, b);\n"  # LIVE (line 3) -> counted
+        "#if 0\n"
+        "    gets(buf);\n"  # DEAD, nested inside live (line 5) -> dropped
+        "#endif\n"
+        "#else\n"
+        "    system(x);\n"  # DEAD, #if 1 else (line 8) -> dropped
+        "#endif\n"
+        "}\n"
+        "#ifndef GUARD\n"
+        "void g() { strcpy(c, d); }\n"  # header guard = unknown -> LIVE (line 12)
+        "#endif\n"
+    )
+    result = opt_detector.splice(code, "")
+    assert result["equations"]["high_risk_execution"] == 2, (
+        "only the two live strcpy hits survive; nested #if 0 gets() and #if 1-else system() are dropped"
+    )
+    assert result["threat_locations"]["high_risk_execution"] == [3, 12], "hits are the live strcpy on lines 3 and 12"
+
+
 def test_detector_c_macro_else_branch_is_scanned_issue_1720():
     """
     Regression test for #1720: the preprocessor shield used to assume the

@@ -113,9 +113,22 @@ DEFINITION: dict[str, Any] = {
             # #2817: count a plain assignment statement (`x = v`, `obj.attr = v`,
             # `d[k] = v`) as a write -- see python.py for the space-before-`=` black
             # anchor, the `==`/kwarg/default/annotated exclusions, and why re.M.
-            # The hardware-toggle arm (`.value(`/`.on(`/...) is kept.
+            #
+            # Hardware-toggle arm (#2765 contract corollaries 3 & 4): a call by
+            # itself is not a write -- a read is not a write, and a token another
+            # rule owns is not a second signal.
+            #   * `.value(` is BOTH getter and setter in MicroPython/CircuitPython:
+            #     `pin.value(1)` writes, `pin.value()` reads. Require a non-empty
+            #     argument so the getter (`if pin.value() == 0`, `x = pin.value()`)
+            #     is not miscounted -- the `x = ...` case still counts once via the
+            #     assignment arm above, not twice.
+            #   * `.on()/.off()/.high()/.low()/.toggle()` are the no-arg imperative
+            #     write forms; require empty parens so a parameterised `.on(evt, cb)`
+            #     -- an event SUBSCRIPTION owned by `events`/`listeners` -- does not
+            #     read as a mutation.
             r"(?:^|;)[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]+=(?![=])(?![^\n(]{0,300},[ \t]*$)"
-            r"|\bglobal\b|\bnonlocal\b|\b(?:self|cls)\.\w+[ \t]*=|:=|(?:\.\w+)?\.(?:append|extend|update|pop|remove|insert|clear)\s*\(|\.(?:value|on|off|high|low|toggle)\s*\(",
+            r"|\bglobal\b|\bnonlocal\b|\b(?:self|cls)\.\w+[ \t]*=|:=|(?:\.\w+)?\.(?:append|extend|update|pop|remove|insert|clear)\s*\("
+            r"|\.value\s*\(\s*[^)\s]|\.(?:on|off|high|low|toggle)\s*\(\s*\)",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)

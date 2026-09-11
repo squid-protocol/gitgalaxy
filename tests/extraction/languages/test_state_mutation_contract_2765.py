@@ -295,9 +295,21 @@ CASES = {
         ["print(self.value)", "x == 1", "foo(x=1)", "def f(x=1):", "x: int = 1"],
     ),
     "embedded_python": (
-        # #2817: same plain-assignment arm as python; keeps the hardware-toggle arm.
-        ["x = 1", "obj.attr = 1", "led.value(1)", "global counter"],
-        ["led.value == 1", "x == 1", "foo(x=1)", "def f(x=1):", "x: int = 1"],
+        # #2817: same plain-assignment arm as python. Hardware-toggle arm (corollaries
+        # 3 & 4): `.value(arg)` and the no-arg `.on()/.off()/.high()/.low()/.toggle()`
+        # imperative forms are writes; a `.value()` getter, an event-subscribe
+        # `.on(evt, cb)`, and a `.value` read are not.
+        ["x = 1", "obj.attr = 1", "led.value(1)", "global counter", "led.on()", "pin.toggle()"],
+        [
+            "led.value == 1",
+            "x == 1",
+            "foo(x=1)",
+            "def f(x=1):",
+            "x: int = 1",
+            "if pin.value() == 0:",  # corollary 3: the value getter is a read
+            "return sensor.value()",  # corollary 3: getter read, no assignment
+            "emitter.on('evt', cb)",  # corollary 4: event subscription (events/listeners own it)
+        ],
     ),
     # --- corollary 4: a token another rule owns is not a second signal ----------------
     "dockerfile": (
@@ -411,6 +423,11 @@ COUNTS = [
     ("embedded_python", "x = 1", 1),
     ("embedded_python", "led.value(1)", 1),
     ("embedded_python", "foo(x=1)", 0),
+    # #2765 corollary 3/4: reading a getter into an assignment is ONE write (the
+    # assignment), not two -- the `.value()` getter must not add a second hit.
+    ("embedded_python", "val = self.pin.value()", 1),
+    ("embedded_python", "if pin.value() == 0:", 0),
+    ("embedded_python", "led.on()", 1),
     ("ruby", "x = 1", 1),
     ("ruby", "arr[0] = 1", 1),
     ("ruby", "CONST = 1", 0),  # constant assignment is freeze_hits, not flux

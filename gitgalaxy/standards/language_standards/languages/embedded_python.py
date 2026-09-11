@@ -110,7 +110,13 @@ DEFINITION: dict[str, Any] = {
         # 11. flux (State Mutation)
         # State mutation including hardware value toggling.
         "state_mutation": re.compile(
-            r"\bglobal\b|\bnonlocal\b|\b(?:self|cls)\.\w+[ \t]*=|:=|(?:\.\w+)?\.(?:append|extend|update|pop|remove|insert|clear)\s*\(|\.(?:value|on|off|high|low|toggle)\s*\("
+            # #2817: count a plain assignment statement (`x = v`, `obj.attr = v`,
+            # `d[k] = v`) as a write -- see python.py for the space-before-`=` black
+            # anchor, the `==`/kwarg/default/annotated exclusions, and why re.M.
+            # The hardware-toggle arm (`.value(`/`.on(`/...) is kept.
+            r"(?:^|;)[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]+=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|\bglobal\b|\bnonlocal\b|\b(?:self|cls)\.\w+[ \t]*=|:=|(?:\.\w+)?\.(?:append|extend|update|pop|remove|insert|clear)\s*\(|\.(?:value|on|off|high|low|toggle)\s*\(",
+            re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"#[ \t]*(?:def|class|import|if|for|while|try|print|machine\.Pin)\b"),

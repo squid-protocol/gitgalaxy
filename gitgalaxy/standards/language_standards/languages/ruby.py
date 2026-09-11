@@ -164,10 +164,18 @@ DEFINITION: dict[str, Any] = {
             # receiver (`.push(` -- a bare `def delete` is a declaration, corollary 1),
             # a bang method, or `<<` append (`class << self` opens a singleton class and
             # `<<~EOS` a heredoc: neither writes).
-            r"@@?[a-zA-Z_]\w*\s*(?:\+|-|\*|/|\|\||&&)?=(?![=~>])"
+            # #2817: a plain local re-assignment (`x = v`, `obj.attr = v`, `x[i] = v`)
+            # now counts too. Anchored like lua/js (statement start + lvalue with
+            # `.attr`/`[idx]` tails) with `[ \t]+=` requiring a space before `=`; the
+            # lvalue is lowercase-initial so a `CONST = 1` constant assignment stays
+            # excluded (that is freeze_hits, not flux), and `(?![=~>])` drops `==`,
+            # `=~` and the `=>` hash rocket. Needs re.M for the `^` anchor.
+            r"(?:^|;)[ \t]*[a-z_]\w*(?:\.[a-zA-Z_]\w*|\[[^\]\n]{0,80}\])*[ \t]+=(?![=~>])(?![^\n(]{0,300},[ \t]*$)"
+            r"|@@?[a-zA-Z_]\w*\s*(?:\+|-|\*|/|\|\||&&)?=(?![=~>])"
             r"|\.(?:push|pop|shift|unshift|delete|delete_at|delete_if|clear|concat|insert|store|replace|prepend|append)\b(?![?!])"
             r"|(?<!class)(?<!class )[ \t]<<(?![~\-]?[A-Z_\"'])"
-            r"|\b(?:merge!|update!|gsub!|sub!|map!|select!|reject!|sort!|sort_by!|uniq!|compact!|flatten!|reverse!|strip!|chomp!|squeeze!|slice!|shuffle!)"
+            r"|\b(?:merge!|update!|gsub!|sub!|map!|select!|reject!|sort!|sort_by!|uniq!|compact!|flatten!|reverse!|strip!|chomp!|squeeze!|slice!|shuffle!)",
+            re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"#[ \t]*(?:def|class|module|if|unless|while|puts|p)\b"),

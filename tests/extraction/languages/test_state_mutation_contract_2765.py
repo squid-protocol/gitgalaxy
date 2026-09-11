@@ -268,8 +268,13 @@ CASES = {
             'list << "s"',
             "hash.merge!(other)",
             "@memo ||= compute",
+            # #2817: a plain local re-assignment now counts (was a negative before).
+            "x = 1",
+            "arr[0] = 1",
         ],
-        ["class << self", "def delete", "<<~EOS", "x = 1", "arr.length"],
+        # `CONST = 1` is a constant assignment (freeze_hits, not flux); `=~`/`=>`/`==`
+        # are not writes; a bare `def delete` is a declaration; heredoc/singleton open.
+        ["class << self", "def delete", "<<~EOS", "arr.length", "CONST = 1", "x =~ /re/", "k => v"],
     ),
     "haskell": (
         ["modifyIORef ref (+1)", "writeIORef ref 0", "writeTVar tv x", "putMVar mv x", "modify (+1)"],
@@ -283,8 +288,16 @@ CASES = {
         ],
     ),
     "python": (
-        ["self.value = 1", "items.append(1)", "global counter"],
-        ["print(self.value)", "x == 1"],
+        # #2817: a plain assignment statement is a write (corollary 1 fallback).
+        ["self.value = 1", "items.append(1)", "global counter", "x = 1", "obj.attr = 1", 'd["k"] = 1'],
+        # kwargs / default params have no space before `=`; annotated assignment is a
+        # declaration-with-initializer; `==` is a comparison.
+        ["print(self.value)", "x == 1", "foo(x=1)", "def f(x=1):", "x: int = 1"],
+    ),
+    "embedded_python": (
+        # #2817: same plain-assignment arm as python; keeps the hardware-toggle arm.
+        ["x = 1", "obj.attr = 1", "led.value(1)", "global counter"],
+        ["led.value == 1", "x == 1", "foo(x=1)", "def f(x=1):", "x: int = 1"],
     ),
     # --- corollary 4: a token another rule owns is not a second signal ----------------
     "dockerfile": (
@@ -383,6 +396,26 @@ COUNTS = [
     ("csharp", "Reduce(ref a, ref b, ref c);", 3),
     ("perl", "my $self = shift;", 0),
     ("dockerfile", "ENV REGION=1\nENV HOME_ZONE=2\nRUN export COUNTER=1", 1),
+    # #2817: python / embedded_python / ruby plain-reassignment arm.
+    ("python", "x = 1", 1),
+    ("python", "count = count + 1", 1),
+    ("python", "obj.attr = 1", 1),
+    ("python", 'd["k"] = 1', 1),
+    ("python", "foo(x=1)", 0),
+    ("python", "def f(x=1):", 0),
+    ("python", "x == 1", 0),
+    ("python", "x: int = 1", 0),
+    ("python", "x = 1\ny = 2", 2),  # one hit per statement
+    ("python", "foo(\n    x = 1,\n)", 0),  # spaced kwarg on its own line, dropped by the comma guard
+    ("python", "result = foo(\n    x=1,\n)", 1),  # the assignment counts, the kwarg does not
+    ("embedded_python", "x = 1", 1),
+    ("embedded_python", "led.value(1)", 1),
+    ("embedded_python", "foo(x=1)", 0),
+    ("ruby", "x = 1", 1),
+    ("ruby", "arr[0] = 1", 1),
+    ("ruby", "CONST = 1", 0),  # constant assignment is freeze_hits, not flux
+    ("ruby", "x == 1", 0),
+    ("ruby", "def f(x = 1)", 0),  # default parameter is a declaration, not a statement
 ]
 
 PAYLOADS = [

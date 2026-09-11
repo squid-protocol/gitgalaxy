@@ -35,7 +35,7 @@ _PY_SIMPLE_CASES = [
     ("io", "with open('f.txt') as f:\n    pass", "opened = True"),
     ("io", "os.path.join(a, b)", "os.environ.get('X')"),
     ("io", "sys.stdin.read()", "sys.argv[0]"),
-    ("state_mutation", "self.value = 1", "print(self.value)"),
+    ("state_mutation", "x = 1", "foo(x=1)"),  # #2817: plain reassignment counts; kwarg does not
     ("dead_code", "# def old_unused_function():", "# just a note"),
     ("doc", '"""A module docstring."""', '"a regular string"'),
     ("concurrency", "async def f():\n    await g()", "def f(): g()"),

@@ -1612,6 +1612,92 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             )
 
     # ==============================================================================
+    # TEST 17d: #2904 -- TIER-3 EXTERNAL-ENTRY-POINT RESCUE (makefile .PHONY)
+    # ==============================================================================
+    def test_contextual_baseline_fix_tier3_external_entry_points(self):
+        """
+        #2904: a makefile is never imported (popularity is structurally 0), so the
+        tier-2 fix can never reach it and every `.PHONY:` entry point falls through
+        to tech debt. A language that opts in via `export_visibility:
+        external_entry_points` gets its DECLARED entry-point orphans
+        (`api_declared_orphans`) cleared from the census -- while a genuinely
+        internal, UNdeclared orphan stays real dead weight, and the raw census
+        survives in `raw_pre_adjustment`. `api` is NOT re-credited: a declared
+        entry point's declaration line is already an api-rule hit.
+        """
+        scope = Orchestrator(".", self.mock_config)
+
+        scope.ram_cache = {
+            # bootos/Makefile's real shape: 3 orphans (all, clean, runqemu), all 3
+            # declared external entry points -> census clears to 0, api unchanged.
+            "asm/Makefile": {
+                "path": "asm/Makefile",
+                "coding_loc": 18,
+                "lang_id": "makefile",
+                "equations": {"api": 5, "unreferenced_by_name": 3},
+                "api_declared_orphans": 3,
+                "exports_are_external_entry_points": True,
+                "functions": [
+                    {"name": "all", "usage_status": 1, "is_public": True},
+                    {"name": "clean", "usage_status": 1, "is_public": True},
+                    {"name": "runqemu", "usage_status": 1, "is_public": True},
+                ],
+            },
+            # Mixed: 2 orphans, only 1 declared. The undeclared internal orphan
+            # (is_public False) must stay dead weight.
+            "asm/Internal.mk": {
+                "path": "asm/Internal.mk",
+                "coding_loc": 9,
+                "lang_id": "makefile",
+                "equations": {"api": 3, "unreferenced_by_name": 2},
+                "api_declared_orphans": 1,
+                "exports_are_external_entry_points": True,
+                "functions": [
+                    {"name": "all", "usage_status": 1, "is_public": True},
+                    {"name": "_secret", "usage_status": 1, "is_public": False},
+                ],
+            },
+            # A language that did NOT opt in: unchanged, orphans stay as debt even
+            # though it too is never imported (popularity 0).
+            "src/lib.py": {
+                "path": "src/lib.py",
+                "coding_loc": 40,
+                "lang_id": "python",
+                "equations": {"api": 1, "unreferenced_by_name": 2},
+                "api_declared_orphans": 2,
+                "functions": [{"name": "helper", "usage_status": 1, "is_public": True}],
+            },
+        }
+        scope.stem_map = {k: k for k in scope.ram_cache}
+        scope.popularity_scores = dict.fromkeys(scope.ram_cache, 0)  # nothing is imported
+
+        scope._calculate_risk_exposures()
+        by_path = {f.get("path"): f for f in scope.parsed_files}
+
+        # 1. All orphans declared: census cleared, api NOT re-credited, functions healed.
+        boot = by_path["asm/Makefile"]
+        self.assertEqual(boot["equations"]["unreferenced_by_name"], 0, "declared .PHONY orphans stayed as debt!")
+        self.assertEqual(
+            boot["equations"]["api"], 5, "tier-3 must not re-credit api (declaration is already an api hit)!"
+        )
+        self.assertEqual(boot["raw_pre_adjustment"], {"api": 5, "unreferenced_by_name": 3})
+        self.assertTrue(all(f["usage_status"] == 0 for f in boot["functions"]), "declared entry points not healed!")
+
+        # 2. Only the declared orphan is cleared; the internal one stays dead weight.
+        internal = by_path["asm/Internal.mk"]
+        self.assertEqual(
+            internal["equations"]["unreferenced_by_name"], 1, "undeclared internal orphan wrongly exempted!"
+        )
+        healed = {f["name"]: f["usage_status"] for f in internal["functions"]}
+        self.assertEqual(healed["all"], 0, "declared entry point not healed!")
+        self.assertEqual(healed["_secret"], 1, "internal undeclared orphan wrongly healed!")
+
+        # 3. A non-opted-in language is untouched, popularity 0 or not.
+        lib = by_path["src/lib.py"]
+        self.assertEqual(lib["equations"]["unreferenced_by_name"], 2, "a non-opted-in language must keep its census!")
+        self.assertEqual(lib["equations"]["api"], 1)
+
+    # ==============================================================================
     # TEST 18: WORKER I/O ERRORS & BINARY THREAT ESCALATION
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)

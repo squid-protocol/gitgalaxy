@@ -939,6 +939,26 @@ INVOCATION_BY_NAME = "by_name"
 INVOCATION_POSITIONAL = "positional"
 INVOCATION_MODELS = frozenset({INVOCATION_BY_NAME, INVOCATION_POSITIONAL})
 
+# #2904: the export-visibility models a registry may declare through the
+# top-level `export_visibility` key. `standard` is the default and needs no
+# declaration: a symbol an `export`/visibility construct marks is an ordinary
+# public symbol, and an exported-but-uncalled unit is still measured as
+# `unreferenced_by_name` (the #2774 dead-code population). `external_entry_points`
+# says the language's export construct is narrow and curated -- it names the
+# units an EXTERNAL invoker runs (a makefile `.PHONY:` target is invoked by a
+# human typing `make all`, by CI, by a Dockerfile -- never by an in-repo
+# caller or import), so those declared orphans are public surface, not dead
+# weight. galaxyscope.py's Contextual Baseline Fix reads this to give such a
+# unit the same api-surface credit an imported file's orphans get (tier 3),
+# WITHOUT the language ever being imported. Opt-in per language and asserted
+# closed by `tests/core_engine/test_export_visibility_contract_2904.py`, so a
+# typo cannot silently exempt a language from the dead-code census -- and it is
+# deliberately NOT set on languages whose `export` decorates every symbol
+# (JS/TS), where a blanket exemption would blind #2774.
+EXPORT_VISIBILITY_STANDARD = "standard"
+EXPORT_VISIBILITY_EXTERNAL_ENTRY_POINTS = "external_entry_points"
+EXPORT_VISIBILITY_MODELS = frozenset({EXPORT_VISIBILITY_STANDARD, EXPORT_VISIBILITY_EXTERNAL_ENTRY_POINTS})
+
 # #2728: a THIRD family of slicer-synthesized names, distinct from both sets
 # above. Where a language's `func_start` capture group is a closed set of
 # literal keywords -- css `@(media|supports|container|layer|keyframes|
@@ -2015,6 +2035,15 @@ class StructuralExtractor:
                 # already counted as public surface. Consumed by galaxyscope.py's
                 # Contextual Baseline Fix; never a signal in its own right.
                 "api_declared_orphans": api_declared_orphans,
+                # #2904: does this file's language declare its export construct to
+                # name EXTERNAL entry points (a `.PHONY:` target), not ordinary
+                # public symbols? Read from the closed `export_visibility` registry
+                # key, mirroring how `invocation_model` is consumed above. Consumed
+                # by the Contextual Baseline Fix's tier-3 branch; never a signal.
+                "exports_are_external_entry_points": (
+                    self.languages.get(self.primary_lang_id, {}).get("export_visibility", EXPORT_VISIBILITY_STANDARD)
+                    == EXPORT_VISIBILITY_EXTERNAL_ENTRY_POINTS
+                ),
             }
             if profile_regex:
                 result_payload["regex_telemetry"] = regex_telemetry

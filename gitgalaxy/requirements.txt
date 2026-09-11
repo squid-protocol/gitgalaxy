@@ -67,7 +67,7 @@ networkx==3.6.1
 nh3==0.3.7
 numba==0.67.0
 numpy==2.4.3
-nvidia-nccl-cu12==2.30.4
+nvidia-nccl-cu12==2.31.2
 opencv-python==5.0.0.93
 packaging==26.2
 paginate==0.5.7

@@ -1000,6 +1000,22 @@ def _count_haskell_signature_arrows(type_node: Optional[Any]) -> int:
     return 1 + _count_haskell_signature_arrows(type_node.child_by_field_name("result"))
 
 
+def _haskell_signature_type_is_io_action(type_node: Optional[Any]) -> bool:
+    """#2934: mirrors detector.py's `_haskell_arrowless_signature_is_action` on the ground-truth
+    side. An arrowless signature whose (already-unwrapped) type is a bare `IO ...` application
+    (`IO ()`, `IO a`) is a zero-arg IO action -- a real entry point that opens an executable block
+    under its own name -- not a point-free value binding, so it must be kept just like an arrow
+    chain. tree-sitter renders `IO ()` as `apply(constructor: name "IO", argument: ...)`; walk the
+    constructor spine down to the head constructor (so `ReaderT Env IO ()` yields head "ReaderT",
+    correctly NOT retained -- broader action monads are a follow-up per the issue) and require it
+    to be exactly `IO`. `IORef Int` yields head "IORef" and stays a value binding.
+    """
+    node = type_node
+    while node is not None and node.type == "apply":
+        node = node.child_by_field_name("constructor")
+    return node is not None and node.type == "name" and node.text == b"IO"
+
+
 def _get_node_name(node: Any) -> Optional[str]:
     if node.type == "bind":
         # #1566: only a real function -- see func_node_types' haskell entry for the full
@@ -1013,7 +1029,12 @@ def _get_node_name(node: Any) -> Optional[str]:
         if sig is None:
             return None
         sig_type = _unwrap_haskell_signature_type(sig.child_by_field_name("type"))
-        if sig_type is None or sig_type.type != "function":
+        if sig_type is None:
+            return None
+        # #2934: an arrow chain is a function; a bare `IO ...` action is an arrowless entry point
+        # that GitGalaxy now also extracts -- keep both, so the ground truth doesn't book the
+        # newly-retained `entry :: IO ()` units as extra_functions false positives.
+        if sig_type.type != "function" and not _haskell_signature_type_is_io_action(sig_type):
             return None
         return name_node.text.decode("utf8")
 

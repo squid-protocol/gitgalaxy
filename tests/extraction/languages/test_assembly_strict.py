@@ -89,7 +89,7 @@ _ASM_SIMPLE_CASES = [
     ("state_mutation", "\txchg eax, ebx", "\tmov eax, ebx"),
     ("dead_code", "; mov eax, 5", "; just a note"),
     ("doc", "; @param x", "; just a note"),
-    ("test", "\tassert eax", "\tmov eax, ebx"),
+    ("test", "testcase {", "\tassert eax"),  # #2853: nasm testcase macro counts; bare `assert` prose does not
     ("concurrency", "\tlock xadd eax, ebx", "\tmov eax, ebx"),
     ("globals", "\tbuf: resd 4", "\t.data"),  # #2858: labeled storage, not the section switch
     ("comprehensions", "\trep movsb", "\tmov eax, ebx"),
@@ -286,14 +286,14 @@ def test_assembly_test_vs_regex_execution_no_false_collision():
     """
     Known ambiguity pattern from the issue template (TypeScript's
     `myRegex.test('x')` colliding with `test`). assembly's `test` maps to
-    describe/expect/assert/TestCase/`it(`; `regex_execution` maps to
+    the `testcase` macro and `it(`; `regex_execution` maps to
     `call`/`bl` into POSIX regex functions -- disjoint token vocabularies,
     no realistic overlap.
     """
     test_rule = ASM_RULES["test"]
     regex_execution = ASM_RULES["regex_execution"]
 
-    assertion = "\tassert eax"
+    assertion = "testcase {"  # #2853: assembly's test surface is the nasm `testcase` macro (bare `assert` prose dropped)
     assert test_rule.search(assertion)
     assert not regex_execution.search(assertion)
 

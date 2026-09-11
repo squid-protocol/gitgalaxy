@@ -344,7 +344,11 @@ DEFINITION: dict[str, Any] = {
         # Spock-label anchor could stretch across blank lines. Bounded to
         # `[ \t]*` (same-line whitespace only).
         "test": re.compile(
-            r"@(?:Test|Before|After|BeforeEach|AfterEach|Mock)|assert\w*\s*\(|^[ \t]*(?:given|when|then|expect|setup|cleanup|where):",
+            # #2853 contract C1: `assert\w{1,40}\(` (was `\w*`) keeps `assertEquals(`
+            # but drops groovy's parenthesized power-assert `assert(cond)` -- a
+            # runtime guard, safety's. Spock block labels are untouched. Bounded so
+            # a long `\w` run with no `(` can't catastrophically backtrack.
+            r"@(?:Test|Before|After|BeforeEach|AfterEach|Mock)|assert\w{1,40}\s*\(|^[ \t]*(?:given|when|then|expect|setup|cleanup|where):",
             re.M,
         ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---

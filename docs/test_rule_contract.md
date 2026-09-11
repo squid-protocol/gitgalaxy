@@ -102,12 +102,25 @@ an unplanted corpus.
 - **php `public static function spy()`** — Mockery declaring its own `spy`
   method fires the call-anchored form once; accepted (it is framework
   source).
-- **Bare-word menus the crucible cannot measure** (ruby's
-  `before`/`after`/`let`/`subject`, javascript's bare `describe`/`expect`/
-  `assert`, java's and groovy's `assert…(` runtime-statement exposure,
-  assembly's `(?i)` prose vocabulary): deferred with #2853 — no crucible
-  files, no corpus cell, nothing moves today. The audit records these as
-  conforming-by-absence-of-evidence, not validated.
+- **Bare-word menus, resolved in #2853.** ruby's `before`/`after`/`let`/
+  `subject`/`context`, javascript's bare `describe`/`expect`/`assert`, java's
+  and groovy's `assert…(` runtime-statement exposure, and assembly's `(?i)`
+  prose vocabulary — all deferred at #2852 as "conforming-by-absence-of-
+  evidence" — were validated once the v1.2.0 corpus grew files for these
+  languages (ruby, javascript, groovy 312, assembly 239; java present but with
+  no test sites). C3 anchors the everyday word to its framework form: ruby's
+  words to their rspec/minitest call/block (`describe "x" do`, `before(:each)`,
+  `let(:u)`, `assert_equal`), javascript's `describe`/`expect` to `\s*\(` and
+  bare `assert` to the chai chain `assert.<x>`, assembly's menu dropped in
+  favour of the `testcase` macro. C1 hands the runtime guard to safety: java's
+  and groovy's `assert\w*\(` → `assert\w{1,40}\(` (the parenthesized power-
+  assert/JLS statement is safety's; `assertEquals(` stays; also closes a latent
+  `\w+\(` backtracking exposure), and js's bare `assert(`. Pipeline reprice:
+  javascript 5 → 0, ruby 2 → 0, assembly 284 → 275, groovy 954 → 954
+  (unchanged — no bare power-assert in corpus), java 0 → 0. **Residual:**
+  non-black/unspaced forms and languages still thin on test files (java has no
+  `@Test` sites in its springboot corpus) are validated by the contract test's
+  positive/negative pairs rather than a corpus cell.
 
 ## The 46-language audit
 
@@ -124,7 +137,7 @@ morphology.
 | ada | — | 2 | conforms (`AUnit`, `Assert(` — Ada has no runtime assert keyword) |
 | agc_assembly | 13 | 2 | conforms (SELFCHECK/ROPECHK are its self-test ops) |
 | apex | 116 | 2 | conforms (@isTest/System.assert anchored forms) |
-| assembly | 275 | 2 | conforms; `testcase` macro rows are case declarations; `(?i)` prose surface → #2853 |
+| assembly | 284 → 275 | 2 | validated (#2853): kept the `testcase` macro + `it(`; dropped the `(?i)` prose menu and the linker `ASSERT(` guard (safety's) |
 | c | 1052 → 97 | 3 → 2 | **C1**: `assert(` → safety's; uppercase `ASSERT_*` macros stay (framework form) |
 | cobol | 51 → 0 | 2 | **C3**: hyphen guards; `UT-TEST-CASE-COUNT` was an identifier (#2622 shape) |
 | cpp | 0 | 2 | conforms (framework macros only, no bare assert() alternative) |
@@ -135,11 +148,11 @@ morphology.
 | embedded_python | 0 | 3 → 2 | **C1**: bare `assert` removed (#2626 applied to the twin) |
 | fortran | 0 | 2 | conforms (pFUnit `@test`/`@assertEqual` directive-anchored) |
 | go | 2 | 2 | conforms (`TestX`/`t.Run`/`assert.X(` anchored) |
-| groovy | 948 | 2 | conforms; Spock labels line-anchored; `assert…(` exposure → #2853 |
+| groovy | 954 → 954 | 2 | validated (#2853): C1 `assert\w{1,40}\(` drops the parenthesized power-assert (none in corpus); Spock labels + `assertEquals(` kept |
 | haskell | 0 | 2 | conforms (hspec/QuickCheck names, `prop_` prefix) |
 | html | 0 | 2 | conforms (`data-testid=` attribute form) |
-| java | 0 | 2 | conforms; `assert…(` runtime-statement exposure → #2853 |
-| javascript | 5 | 2 | conforms; anchored `it`/`test` halves already contract-shaped; bare `describe`/`expect`/`assert` → #2853 |
+| java | 0 → 0 | 2 | validated (#2853): C1 `assert…{1,40}\(` keeps `assertEquals(`, drops the JLS runtime `assert(cond)`; no test sites in the springboot corpus, so pinned by the contract test |
+| javascript | 5 → 0 | 2 | validated (#2853): C3 anchors `describe`/`expect` to `\s*\(`, bare `assert` to the chai chain `assert.`; the 5 were comment/string prose, now gone |
 | kotlin | 1 | 2 | conforms (annotation + call-anchored forms) |
 | livecode | 0 | 2 | conforms (`command test*`/`pass test` statement forms) |
 | lua | 3471 → 134 | 2 | **C1**: bare `assert` → safety's; luassert chain `assert.<chain>` added (the 134 are all chains) |
@@ -151,7 +164,7 @@ morphology.
 | php | 53 → 7 | 2 | **C3**: everyday words call-anchored, `(?<!->)` on `test`/`it`; remainder Mockery calls |
 | powershell | 203 | 2 | conforms (Pester `Should`/`Describe`/`It` forms) |
 | python | 1221 | 2 | conforms (#2626 already removed `assert`; framework names + `def test_`) |
-| ruby | 0 | 2 | conforms-by-absence-of-evidence; bare-word menu → #2853 |
+| ruby | 2 → 0 | 2 | validated (#2853): C3 anchors describe/context/it/before/after/let/subject/expect and minitest assert_*/refute_* to their framework forms; prose (`# context`, `assertions`) no longer fires |
 | rust | 464 | 2 | conforms (`#[test]`/`assert!` macros — the macro *is* the framework form) |
 | scala | 0 | 2 | conforms (framework names + `it should`) |
 | scheme | 0 | 2 | conforms (paren-anchored srfi-64 forms) |

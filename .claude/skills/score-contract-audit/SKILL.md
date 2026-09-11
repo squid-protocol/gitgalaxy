@@ -34,6 +34,12 @@ $PY tests/tools/audit_score_inputs.py <metric> --corpus $KEYWORD_ROSETTA_PATH/da
 - Hold four things from the digest: the CLUSTER table's dominant input, the SENSITIVITY
   points-per-unit, the open-defect cells the bias report pins on this metric, and the
   formula's consumers (`grep -n "risk_<metric>\|_calc_<metric>" gitgalaxy/ -r`).
+- A distribution/inequality metric (gini and kin) that is the lone red cell while its
+  underlying count TOTAL sits on the median is a wrong per-unit DISTRIBUTION, not a slicing
+  or inherency question -- one probe planted in the wrong unit, or double-counted across two
+  contracts, skews the per-unit spread behind a correct total. Read the per-file values
+  before reclassifying the cell (makefile `func_complexity_gini`, #2918 -> keyword-rosetta#123:
+  a correct branch total of 3 hid a per-unit gini of 0.667 through three mis-diagnoses).
 
 ### Phase 1 -- the equation contract (orchestrator only; the irreducible reasoning)
 Write, in the template's sections: the equation sentence (what the score MEANS, one

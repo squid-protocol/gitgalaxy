@@ -28,6 +28,16 @@ there is no shielding mechanism). Corollaries:
    exfiltration amplifiers; see `core/README.md`'s proximity table) tally into the per-file
    `mitigation_telemetry` and are applied only in the score layer's weighted view
    (`weighted_count()`); a corpus, recorder or manifest never sees them in a count.
+4. For the C family (`c`, `cpp`, `objective-c`, `cs`, `swift`), a statically-dead
+   preprocessor branch is NOT in the code stream a rule counts (gitgalaxy#2814):
+   `detector._blank_dead_preproc_branches` blanks the body of `#if 0` and the dead side of
+   `#if 1` before the rule loop, mirroring the `#1720` macro shield that already prunes those
+   branches for function-boundary detection. An unknown condition (`#if FOO`, `#ifdef X`,
+   `#if defined(X)`) keeps BOTH branches -- their hits are counted as live, since the engine
+   cannot decide the condition without a macro table. The branch's own
+   `#if/#elif/#else/#endif` markers and every live directive stay in the stream, so rules
+   that match directives (cpp `import` on `#include`, csharp `safety_bypasses` on
+   `#pragma warning disable`, objective-c `import` on `#import`) are unaffected.
 
 ## The count contract (what every row below promises)
 

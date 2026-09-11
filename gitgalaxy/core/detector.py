@@ -1129,6 +1129,12 @@ class StructuralExtractor:
     # Directly mirrors the central registry to prevent schema drift
     UNIVERSAL_METRICS_SCHEMA = RECORDING_SCHEMAS.get("SIGNAL_SCHEMA", [])
 
+    # Languages whose #if/#else preprocessor policy stack is honoured (#1720):
+    # `_build_brace_safe_stream`'s macro shield (function-boundary path) and
+    # `_blank_dead_preproc_branches` (count path, #2814) share this gate so the
+    # two paths can never disagree about which family carries dead branches.
+    _C_FAMILY_MACRO_LANGS = ("c", "cpp", "objective-c", "cs", "swift")
+
     # #1183: this used to be a hand-maintained duplicate of LENS_CONFIG's
     # HANDSHAKE_REGISTRY (gitgalaxy/standards/language_standards.py) that had
     # drifted out of sync -- it dropped the "^[ \t]*...\b" line-anchoring the
@@ -2483,6 +2489,13 @@ class StructuralExtractor:
         for seg_lang, seg_code, current_line_offset in segments:
             # 1. Grab the language-specific rules
             rules = self.languages.get(seg_lang, {}).get("rules", {}).copy()
+
+            # #2814: blank statically-dead C-family preprocessor branches before
+            # any rule runs, so a hit inside `#if 0` is not counted at file or
+            # function level. Length-preserving, so threat_locations line
+            # numbers and the spatial_map offsets below stay valid. No-op for
+            # non-C-family segments and for unknown/live conditions.
+            seg_code = self._blank_dead_preproc_branches(seg_code, seg_lang)
 
             seg_len = len(seg_code)
 
@@ -4026,7 +4039,7 @@ class StructuralExtractor:
             safe_code = re.sub(combined_pattern, fast_shield, safe_code, flags=re.DOTALL)
 
         # Macro Shields (Strictly Gated to C-Family)
-        if lang_id in ("c", "cpp", "objective-c", "cs", "swift"):
+        if lang_id in self._C_FAMILY_MACRO_LANGS:
             lines = safe_code.splitlines(keepends=True)
             # Per-open-#if branch policy. Each stack entry is a (policy, side)
             # pair where policy is the #if condition's static truth value and
@@ -4113,6 +4126,89 @@ class StructuralExtractor:
         if cond in ("0", "false", "FALSE", "False"):
             return False
         return None
+
+    def _blank_dead_preproc_branches(self, code: str, lang_id: str) -> str:
+        """
+        Blanks the bodies of statically-dead C-family preprocessor branches
+        (`#if 0`, and the dead side of `#if 1`) so a rule regex in
+        `coding_analysis` never counts a hit inside code the compiler never
+        compiles (#2814). Same length as `code` (blanks -> spaces, newlines
+        preserved) so every offset in `spatial_map` / `threat_locations` and the
+        `_calculate_block_metrics` bisect stays valid.
+
+        Unlike `_build_brace_safe_stream`'s boundary shield this does NOT blank
+        the branch's own `#if/#elif/#else/#endif` markers or any *live*
+        directive line: rules such as cpp `import` (`#include`), csharp
+        `safety_bypasses` (`#pragma warning disable`) and objective-c `import`
+        (`#import`) legitimately match directives, so only the DEAD side may
+        disappear. A directive nested inside an enclosing dead branch (e.g. a
+        dead `#define`) is blanked, because its enclosing frame is dead.
+
+        Policy semantics mirror the boundary shield (#1720): `#if 1` -> `#else`
+        dead, `#if 0` -> first branch dead, unknown (`#if FOO` / `#ifdef` /
+        `#if defined(X)`) -> both branches kept alive and counted.
+        """
+        if lang_id not in self._C_FAMILY_MACRO_LANGS:
+            return code
+
+        lines = code.splitlines(keepends=True)
+        branch_stack: list[tuple[Optional[bool], str]] = []
+        in_multiline_macro = False
+
+        def _blank_line(line: str) -> str:
+            return " " * (len(line) - 1) + "\n" if line.endswith("\n") else " " * len(line)
+
+        def _branch_dead(entry: tuple[Optional[bool], str]) -> bool:
+            policy, side = entry
+            if policy is True:
+                return side == "else"
+            if policy is False:
+                return side == "first"
+            return False
+
+        for i in range(len(lines)):
+            line = lines[i]
+            stripped = line.lstrip()
+
+            if in_multiline_macro:
+                # A dead multi-line macro's continuation lines vanish with the
+                # branch; a live one stays for the rules to read.
+                if any(_branch_dead(e) for e in branch_stack):
+                    lines[i] = _blank_line(line)
+                if not stripped.rstrip(" \t\r\n").endswith("\\"):
+                    in_multiline_macro = False
+                continue
+
+            if stripped.startswith("#"):
+                # Deadness is judged on the stack BEFORE this directive mutates
+                # it, so the markers delimiting the dead branch (and every live
+                # directive) survive, while a non-conditional directive nested
+                # inside an already-dead region is blanked.
+                enclosing_dead = any(_branch_dead(e) for e in branch_stack)
+
+                if re.match(r"#if\b", stripped):
+                    branch_stack.append((self._classify_preproc_condition(stripped[3:].strip()), "first"))
+                elif stripped.startswith("#ifdef ") or stripped.startswith("#ifndef "):
+                    branch_stack.append((None, "first"))
+                elif re.match(r"#elif\b", stripped) and branch_stack:
+                    branch_stack[-1] = (self._classify_preproc_condition(stripped[5:].strip()), "first")
+                elif stripped.startswith("#else") and branch_stack:
+                    policy, _ = branch_stack[-1]
+                    branch_stack[-1] = (policy, "else")
+                elif stripped.startswith("#endif") and branch_stack:
+                    branch_stack.pop()
+
+                if stripped.startswith("#define") and stripped.rstrip(" \t\r\n").endswith("\\"):
+                    in_multiline_macro = True
+
+                if enclosing_dead:
+                    lines[i] = _blank_line(line)
+                continue
+
+            if any(_branch_dead(e) for e in branch_stack):
+                lines[i] = _blank_line(line)
+
+        return "".join(lines)
 
     def _slice_by_braces(
         self,

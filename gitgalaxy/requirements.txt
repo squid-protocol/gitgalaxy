@@ -134,6 +134,6 @@ watchdog==6.0.0
 wcwidth==0.8.1
 webencodings==0.5.1
 Werkzeug==3.1.8
-wheel==0.47.0
+wheel==0.48.0
 xgboost==3.2.0
 yarg==0.1.10

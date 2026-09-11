@@ -4240,7 +4240,8 @@ class StructuralExtractor:
         # instead of a hardcoded lang_id string so any future lisp-family language
         # sharing this integration mode is covered automatically.
         opener, closer = "{", "}"
-        if self.languages.get(lang_id, {}).get("lexical_family") == "recursive_block_lisp":
+        is_lisp = self.languages.get(lang_id, {}).get("lexical_family") == "recursive_block_lisp"
+        if is_lisp:
             opener, closer = "(", ")"
 
         safe_code = self._build_brace_safe_stream(code, lang_id)
@@ -4352,6 +4353,22 @@ class StructuralExtractor:
 
         for match_idx, match in enumerate(matches):
             start_idx = match.start()
+
+            # #2933: scheme's func_start leads with `^[ \t\n]*` under re.M, whose
+            # newline-inclusive class swallows the blank/blanked-comment lines
+            # preceding `(define` -- so `match.start()` lands at the TOP of that
+            # whitespace run (offset 0 for the first form, the inter-definition gap
+            # for later ones), not at the form itself. `block` hides this (it's
+            # `.strip()`ped), but start_line/end_line are counted from this anchor
+            # and come out shifted early for every declaration past the first. The
+            # true form start is the outer paren; advance to the first `(` at/after
+            # the match (the skipped span is pure whitespace, so `block`, the
+            # spatial-map hit-vector, and the args slice are all unaffected). Gated
+            # to the lisp family; C-family declaration anchors must stay put.
+            if is_lisp:
+                lead = safe_code.find("(", start_idx)
+                if lead != -1:
+                    start_idx = lead
 
             if lang_id == "dart" and start_idx < dart_arrow_body_end:
                 continue

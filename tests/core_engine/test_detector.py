@@ -5104,14 +5104,12 @@ def test_detector_is_documented_recursive_block_lisp_scheme():
     define (so its own positional match no longer lands inside the header
     window) does not.
 
-    Uses two separate single-`define` snippets rather than one two-function
-    file: scheme's slicer has a pre-existing, unrelated start_line
-    computation defect on multi-declaration files (confirmed while building
-    this test -- out of scope for #2908, not touched here) that would make a
-    combined file's line numbers unreliable. Each snippet here is
-    independently correct for what this test actually checks: whether a
-    `doc`-rule match's positional line falls inside is_documented's own k=5
-    anchor window relative to whatever start_line the engine reports.
+    Uses two separate single-`define` snippets. The "far" case puts the blank
+    gap BETWEEN the doc comment and the `define` (not before the comment): the
+    #2933 slicer fix now anchors each `define` at its own line, so the comment
+    is "far" only when it is genuinely >k=5 lines above the real form. (Before
+    #2933 this test leaned on the anchor bug -- the define reported start_line
+    1 regardless of position, which is exactly the defect #2933 fixed.)
     """
     from gitgalaxy.core.prism import Prism
     from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
@@ -5131,7 +5129,103 @@ def test_detector_is_documented_recursive_block_lisp_scheme():
         return result["functions"][0]["is_documented"]
 
     assert documented(";;; probe globals\n(define (probe-globals) 1)\n") is True
-    assert documented("\n\n\n\n\n\n;;; far comment\n(define (probe-globals) 1)\n") is False
+    assert documented(";;; far comment\n\n\n\n\n\n\n(define (probe-globals) 1)\n") is False
+
+
+def test_detector_scheme_start_line_multi_declaration_2933():
+    """scheme (recursive_block_lisp): every `define` reports the start_line/
+    end_line/loc of its OWN form, not an anchor dragged up into the preceding
+    blank/comment lines.
+
+    Regression guard for #2933: scheme's func_start leads with `^[ \\t\\n]*`
+    under re.M, whose newline-inclusive class used to make _slice_by_braces
+    anchor at match.start() -- the top of the whitespace run before `(define`.
+    That reported the first form at line 1 and every later form shifted early
+    by the size of its leading gap (measured before the fix on this exact
+    source: add=1, mul=6, square=11). The Mode-B anchor now advances to the
+    outer paren, so each form lands on its real line. Function COUNT is
+    unchanged -- only the line numbers move.
+    """
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        ";; file header\n"  # 1
+        "\n"  # 2
+        ";;; adder\n"  # 3
+        "(define (add a b)\n"  # 4  <- add starts here
+        "  (+ a b))\n"  # 5  <- add ends here
+        "\n"  # 6
+        "\n"  # 7
+        ";;; multiplier\n"  # 8
+        "(define (mul a b)\n"  # 9  <- mul starts here
+        "  (* a b))\n"  # 10 <- mul ends here
+        "\n"  # 11
+        "(define (square x)\n"  # 12 <- square starts here
+        "  (mul x x))\n"  # 13 <- square ends here
+    )
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    refraction = prism.split_streams(code, "scheme")
+    positional = prism.split_positional_comment_stream(code, "scheme")
+    result = StructuralExtractor("scheme", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    # All three forms are still extracted (count unchanged by the fix).
+    assert set(found) == {"add", "mul", "square"}
+
+    expected = {
+        "add": (4, 5),
+        "mul": (9, 10),
+        "square": (12, 13),
+    }
+    for name, (start, end) in expected.items():
+        assert found[name]["start_line"] == start, (name, found[name]["start_line"])
+        assert found[name]["end_line"] == end, (name, found[name]["end_line"])
+        assert found[name]["loc"] == end - start + 1
+
+
+def test_detector_scheme_start_line_char_literal_balance_2933():
+    """scheme (recursive_block_lisp): a `#\\(` / `#\\)` char literal and a `)`
+    inside a string in the body do not derail the #2933 anchor or the form's
+    balanced end -- the outer-paren anchor lands on the real `(define`, and
+    _find_balanced_end still bounds the whole form. Covers the one residual
+    Mode-B edge the anchor fix relies on (leading region is whitespace, so the
+    first `(` found is always the form's own opener, never a body char-literal
+    paren)."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    code = (
+        ";; header comment\n"  # 1
+        "\n"  # 2
+        "(define (paren-char)\n"  # 3  <- starts here
+        "  (let ((open #\\()\n"  # 4  #\( char literal
+        "        (close #\\)))\n"  # 5  #\) char literal
+        '    (string-append "a)b" (string open close))))\n'  # 6  ) inside a string; ends here
+    )
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    refraction = prism.split_streams(code, "scheme")
+    positional = prism.split_positional_comment_stream(code, "scheme")
+    result = StructuralExtractor("scheme", LANGUAGE_DEFINITIONS).splice(
+        code_stream=refraction["code_stream"],
+        comment_stream=refraction["comment_stream"],
+        raw_content=code,
+        positional_comment_stream=positional,
+    )
+    found = {fn["name"]: fn for fn in result["functions"]}
+
+    assert "paren-char" in found
+    fn = found["paren-char"]
+    assert fn["start_line"] == 3, fn["start_line"]
+    assert fn["end_line"] == 6, fn["end_line"]
+    assert fn["loc"] == 4
 
 
 def test_detector_is_documented_perl_pod():

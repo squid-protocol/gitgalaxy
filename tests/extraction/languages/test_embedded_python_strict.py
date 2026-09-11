@@ -147,7 +147,7 @@ _EMBEDDED_PYTHON_SIMPLE_CASES = [
     ("high_risk_execution", "machine.reset()", "print('safe')"),
     ("io", "i2c = I2C(0, scl=Pin(9), sda=Pin(8))", "i2c = 0"),
     ("api", "def read_temperature():\n    pass", "def _read_temperature():"),
-    ("state_mutation", "led.value(1)", "led.value == 1"),
+    ("state_mutation", "x = 1", "led.value == 1"),  # #2817: plain reassignment counts
     ("dead_code", "# def old_blink():", "# just a note"),
     ("doc", '"""Blink the onboard LED."""', "'a string'"),
     ("test", "def test_login():\n    assert True", "def foo():"),

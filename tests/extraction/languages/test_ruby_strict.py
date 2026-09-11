@@ -47,7 +47,7 @@ _RUBY_SIMPLE_CASES = [
     ("high_risk_execution", 'exec("ls")', "executable_path = '/usr/bin/ruby'"),
     ("io", 'File.read("x")', "user.updated_at"),
     ("api", "module_function", "get_user_data"),
-    ("state_mutation", "arr.push(1)", "arr.length"),
+    ("state_mutation", "x = 1", "CONST = 1"),  # #2817: local reassignment counts; constant assignment does not
     ("dead_code", "# def foo", "# just a note"),
     ("doc", "# @param x [String] description", "# some regular comment"),
     ("test", "describe 'Foo' do", "letter_count = 5"),

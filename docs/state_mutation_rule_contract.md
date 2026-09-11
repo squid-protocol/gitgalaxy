@@ -119,7 +119,7 @@ rule was already inside the contract and is untouched.
 | `css` | `None` | n/a | contract-level absence (ledgered) |
 | `dart` | 764 -> 2052 | 2 | too narrow: only *unspaced* `x=1` matched; `x = 1` was invisible |
 | `dockerfile` | 13 -> 3 | 4 -> 2 | too broad: `ENV` is `globals` (corollary 4) |
-| `embedded_python` | 190 | 2 | agrees on its plant; see `python` |
+| `embedded_python` | 191 -> 894 | 2 | agrees (#2817): same plain-assignment arm as `python`, hardware-toggle arm kept |
 | `fortran` | 6344 -> 5066 | 3 | too broad: `INTEGER :: X = 1`, `CALL f(UNIT = 10)` mid-line specifiers |
 | `go` | 3344 -> 1548 | 5 -> 2 | too broad: `:=` declarations, `_ = x` discards, `append(` double-counting its own `=` |
 | `groovy` | 730 -> 895 | 2 | too broad/narrow: `@Setter`/`@Data` counted; `+=`, `++`, `.add(` did not |
@@ -139,8 +139,8 @@ rule was already inside the contract and is untouched.
 | `perl` | 5838 -> 3932 | 4 -> 2 | too broad: `my $x = v` declarations, bare `shift` (98 of `my $self = shift;`), `delete` inside a string |
 | `php` | 6096 -> 6328 | 2 | too broad/narrow: `global $x` (globals), `&$x`, `$a == $b`; `$a[] = v` did not count |
 | `powershell` | 5206 | 3 | agrees; c.ps1's 1 is the corpus's `probe_debt` assignment (corpus re-plant) |
-| `python` | 1461 | 2 | **too narrow, deferred**: counts attribute/container writes and `global`/`nonlocal`, never a plain re-assignment `x = v` (see below) |
-| `ruby` | 54 | 2 | too broad: `class << self`, `def delete`, heredocs; plain local re-assignment is invisible (deferred with python) |
+| `python` | 1490 -> 11647 | 2 | agrees (#2817): a plain assignment statement (`x = v`, `obj.attr = v`, `d[k] = v`) is a write; the space before `=` excludes `foo(x=1)`/`def f(x=1)`, `==` and annotated `x: int = 1` are not writes |
+| `ruby` | 64 -> 140 | 2 | agrees (#2817): local `x = v` now counts; `CONST = 1` (freeze_hits), `class << self`, `def delete`, heredocs and `=~`/`=>` still excluded |
 | `rust` | 2331 -> 636 | 2 -> 0 | too broad: every `mut` (`&mut self` 71 hits), `Cell::`/`RefCell::`/`Atomic*` types |
 | `scala` | 274 -> 322 | 2 -> 0 | too broad/narrow: `var` declarations, `mutable`/`Atomic*` imports; `+=` did not count |
 | `scheme` | 932 -> 944 | 3 | agrees; the corpus's third hit is the decoy's own `set!` (corpus re-plant) |
@@ -183,15 +183,20 @@ abapGit, more than half of them parameters.
 
 **What the contract cannot do with a regex, and does not pretend to:**
 
-- **python / embedded_python / ruby locals.** Python has no declaration syntax, so corollary 1's
-  fallback says every assignment statement is a write -- and python's rule counts none of them,
-  only `self.x =`, `global`/`nonlocal` and container mutators. ruby is the same for locals. Both
-  read 2 on the corpus (the plants are container writes, which are writes) and both are honestly
-  *narrower than the contract*: `x = x + 1` counts in lua, php, shell and go and not in python.
-  Widening python is a one-line regex and a population-wide reprice of `risk_state_flux` for the
-  engine's most-scanned language, so it is filed separately rather than folded into a 30-language
-  PR: [#2817](https://github.com/squid-protocol/gitgalaxy/issues/2817). Until it lands, python and ruby
-  sit in a narrower stratum, stated here rather than implied.
+- **python / embedded_python / ruby locals (landed in [#2817](https://github.com/squid-protocol/gitgalaxy/issues/2817)).**
+  Python has no declaration syntax, so corollary 1's fallback says every assignment statement is a
+  write. These rules used to count only `self.x =`/`@ivar =`, `global`/`nonlocal`, container mutators
+  and (ruby) bang methods -- never a plain `x = v` -- so `x = x + 1` counted in lua/php/shell/go and
+  not in python. #2817 adds the assignment arm, anchored on the black/PEP8 convention that a
+  statement writes with a **space before `=`** (`x = 1`) while a keyword argument does not (`x=1`):
+  a statement-start bare lvalue with `.attr`/`[idx]` tails, `[ \t]+=`, `(?![=])` (and ruby
+  `(?![=~>])`), and the shared trailing-comma guard. That counts `x = v`, `obj.attr = v` and
+  `d[k] = v`, and excludes `foo(x=1)`, `def f(x=1)`, `x == 1`, and annotated `x: int = 1` (a
+  declaration-with-initializer). ruby keeps `CONST = 1` out (lowercase-initial lvalue -> constants
+  are freeze_hits). Repriced the corpus python 1490 -> 11647, embedded_python 191 -> 894, ruby
+  64 -> 140; the kwargs / multi-line-call false-positive rate is ~0.02% (a handful of last-argument
+  spaced kwargs with no magic trailing comma in non-black multi-line calls). **Residual:** compound
+  assignment (`x += 1`) and unspaced `x=1` are not counted -- the space anchor is deliberate.
 - **A class-body field initializer** (`count = 0;` inside a TS/JS class, an enum member's last
   line, a kotlin named argument without a trailing comma) is indistinguishable from a statement
   at the text level. The trailing-comma guard `(?![^\n(]{0,300},[ \t]*$)` removes the common

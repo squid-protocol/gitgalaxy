@@ -201,7 +201,20 @@ DEFINITION: dict[str, Any] = {
         # 11. flux (State Mutation)
         # State mutation. Includes Walrus operator and collection mutators.
         "state_mutation": re.compile(
-            r"\bglobal\b|\bnonlocal\b|\b(?:self|cls)\.\w+[ \t]*=|:=|(?:\.\w+)?\.(?:append|extend|update|pop|remove|insert|clear)\s*\("
+            # #2817: python has no declaration syntax, so corollary 1's fallback
+            # says every assignment statement is a write -- a plain `x = v` (also
+            # `obj.attr = v`, `d[k] = v`) counts, not only `self.x =`/container
+            # mutators. Anchored like lua/js (statement start + bare lvalue with
+            # `.attr`/`[idx]` tails), but with `[ \t]+=` REQUIRING a space before
+            # `=`: black/PEP8 writes a statement assignment as `x = 1` and a keyword
+            # argument as `x=1`, so the space is the usable anchor that excludes
+            # `foo(x=1)` and `def f(x=1)`. `(?![=])` drops `==`; the trailing-comma
+            # guard drops a spaced kwarg on its own line (`x = 1,`); `x: int = 1` is
+            # a declaration-with-initializer (the `:` breaks the lvalue) and is not a
+            # write. Needs re.M for the `^` anchor.
+            r"(?:^|;)[ \t]*[A-Za-z_]\w*(?:\.[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]+=(?![=])(?![^\n(]{0,300},[ \t]*$)"
+            r"|\bglobal\b|\bnonlocal\b|\b(?:self|cls)\.\w+[ \t]*=|:=|(?:\.\w+)?\.(?:append|extend|update|pop|remove|insert|clear)\s*\(",
+            re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
         "dead_code": re.compile(r"#[ \t]*(?:def|class|import|if|for|while|try|return)\b"),

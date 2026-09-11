@@ -92,6 +92,60 @@ CASES = {
         ["ASSERT RESULT-ONE.", "ZUNIT RESULT-TWO.", "READY TRACE."],
         ["MOVE UT-TEST-CASE-COUNT TO UT-TEST-CASE-NUMBER", "UT-TEST-CASE-NUMBER '. '"],
     ),
+    # --- #2853: bare-word menus in languages the crucible now measures -----------
+    "ruby": (  # C3: anchor rspec/minitest words; ruby has no runtime assert (C1 n/a)
+        [
+            'describe "x" do',
+            'context "when y" do',
+            'it "does" do',
+            "before(:each)",
+            "before do",
+            "let(:user)",
+            "subject { described_class }",
+            "expect(x).to be",
+            "assert_equal a, b",
+            "refute_nil x",
+            "def setup",
+        ],
+        [
+            "# the context.",
+            'require "bundler/setup"',
+            "Struct.new(:name, :failures, :assertions)",
+            "named after the method",
+            "before the request",
+        ],
+    ),
+    "javascript": (  # C3 anchors + C1 (bare `assert` runtime is safety's; keep chai `assert.`)
+        [
+            'describe("x", () => {',
+            "expect(x).toBe(1)",
+            "it('adds', () => {",
+            "assert.equal(a, b)",
+            "beforeEach(() => {",
+            "afterEach(() => {",
+            "jest.fn()",
+            "cy.visit('/')",
+        ],
+        [
+            "if (methodName === 'assert') {",
+            "/* assert on the output */",
+            "myRegex.test('x')",
+            "transparency. Blending",
+            "const describer = 1",
+        ],
+    ),
+    "java": (  # C1: `assert...(` keeps JUnit `assertEquals(`, drops the runtime `assert(cond)` statement
+        ["@Test", "@ParameterizedTest", "assertEquals(a, b)", "assertThat(x).isNull()", "verify(mock).run()", "when(mock.get())"],
+        ["assert(cond);", "assert x > 0;", "assert cond : message;"],
+    ),
+    "groovy": (  # C1: keeps `assertEquals(`, drops groovy's parenthesized power-assert; Spock labels stay
+        ["@Test", "given:", "when:", "then:", "expect:", "assertEquals(a, b)", "assertTrue(ok)"],
+        ["assert(x)", "assert x == y", "assert (result > 0)"],
+    ),
+    "assembly": (  # C3: keep the nasm `testcase` macro + call-anchored `it(`, drop the `(?i)` prose menu
+        ["%macro testcase 2", "testcase {", "it (foo)", "TESTCASE macro"],
+        ["; describe the loop", "assert clarity of intent", "; expect failure here", "ASSERT(sizeof == 8)"],
+    ),
 }
 
 # One statement is one hit (C2), and the plant shapes stay pinned.
@@ -112,6 +166,14 @@ COUNTS = [
     ("lua", "function probe_test(kit)\n  busted(kit)\n  luassert(kit)\nend", 2),
     ("cobol", "       PROBE-TEST.\n           ASSERT RESULT-ONE.\n           ZUNIT RESULT-TWO.", 2),
     ("php", "public function probe_test($kit) {\n    PHPUnit::run($kit);\n    assertTrue($kit);\n}", 2),
+    # #2853
+    ("ruby", "def probe\n  assert_equal a, b\n  refute_nil x\nend", 2),
+    ("ruby", "x = respond_to?(:foo)\n# context here", 0),
+    ("javascript", "describe('x', () => {\n  expect(a).toBe(b);\n});", 2),
+    ("javascript", "if (name === 'assert') doThing();", 0),
+    ("java", "@Test\nvoid t() { assertEquals(a, b); assert(raw); }", 2),  # framework assert counts, runtime assert(raw) does not
+    ("groovy", "def 'spec'() {\n  expect:\n  assertEquals(a, b)\n  assert(raw)\n}", 2),  # label + framework assert; power-assert(raw) excluded
+    ("assembly", "%macro testcase 2\n; describe the flow\ntestcase {", 2),  # macro decl + invocation; comment prose excluded
 ]
 
 PAYLOADS = [
@@ -153,6 +215,9 @@ def test_test_runtime_guard_is_safetys_hit_alone():
         ("embedded_python", "assert isinstance(value, int)"),
         ("lua", "assert(os.remove(file))"),
         ("python", "assert x == 1"),
+        # #2853: java's and groovy's parenthesized runtime assert is safety's now
+        ("java", "assert(cond);"),
+        ("groovy", "assert(x)"),
     ]:
         assert _rule(lang, "safety").search(guard), f"{lang}: safety lost {guard!r}"
         assert not _rule(lang).search(guard), f"{lang}: test still claims {guard!r}"

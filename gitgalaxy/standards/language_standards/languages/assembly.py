@@ -197,7 +197,12 @@ DEFINITION: dict[str, Any] = {
         # #2882 contract C4: doc counts the block, not the author tag -- @author is ownership's alone.
         "doc": re.compile(r"^[;#@/|]+\s*@(?:param|return|brief|note)", re.M | re.I),
         # 14. test (Testing & Assertions)
-        "test": re.compile(r"(?i)\b(?:describe|expect|assert|TestCase)\b|\bit[ \t]*\("),
+        # #2853 contract C3/C1: dropped the `(?i)` bare prose menu
+        # `describe|expect|assert` (comment vocabulary, and a linker `ASSERT(`
+        # guard is safety's, not a test). The real test surface in the corpus is
+        # the nasm/masm `testcase` macro table (kept, case-insensitively) and a
+        # call-anchored `it(`.
+        "test": re.compile(r"(?i)\bTestCase\b|\bit[ \t]*\("),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency (Asynchronous Execution)
         "concurrency": re.compile(

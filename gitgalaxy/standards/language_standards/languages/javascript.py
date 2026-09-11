@@ -258,8 +258,15 @@ DEFINITION: dict[str, Any] = {
         # already carries this guard so `myRegex.test('x')` (a regex method
         # call) isn't miscounted as a test-framework call -- JavaScript's own
         # rule never got the same fix despite the identical ambiguity.
+        # #2853 contract C3/C1: the bare menu `describe|expect|assert` fired on
+        # comment/string prose (`methodName === 'assert'`, `/* assert */`). Anchor
+        # the everyday words to their call form (`describe(`, `expect(`), keep the
+        # unambiguous framework names bare, and reduce bare `assert` to the chai
+        # matcher chain `assert.<x>` -- Node/`console.assert` runtime guards are
+        # safety's (C1). The `(?<!\.)\b(?:it|test)\s*\(` half is already
+        # contract-shaped. (`\bcy\.` anchored so it can't match `transparency.`.)
         "test": re.compile(
-            r"\b(describe|expect|assert|beforeEach|afterEach|jest|mocha|vitest|cy\.)\b|(?<!\.)\b(?:it|test)\s*\("
+            r"\b(?:jest|mocha|vitest|beforeEach|afterEach)\b|\bcy\.|(?<!\.)\b(?:describe|it|test)\s*\(|\bexpect\s*\(|\bassert\s*\."
         ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency (Asynchronous Execution)

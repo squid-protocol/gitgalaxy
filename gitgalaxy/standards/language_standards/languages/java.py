@@ -267,8 +267,14 @@ DEFINITION: dict[str, Any] = {
             r"/\*\*[\s\S]{0,15000}?\*/|@param|@return|@throws|@deprecated|@see|@since|@apiNote|@implSpec|@Operation|@Schema"
         ),
         # 14. test (Testing & Assertions)
+        # #2853 contract C1: `assert[...]{1,40}\(` (was `*`) requires >=1 char after
+        # `assert`, so a JUnit `assertEquals(`/`assertThat(` matches but the JLS
+        # runtime `assert(cond)` statement -- a production guard, safety's -- does
+        # not (the runtime `assert cond;` form was never matched here anyway). The
+        # count is bounded (a real assertion name is short) so a long run of word
+        # chars with no `(` can't catastrophically backtrack the `\w+\s*\(` tail.
         "test": re.compile(
-            r"@(?:Test|ParameterizedTest|Before|After|BeforeEach|AfterEach|Mock|InjectMocks)|assert[A-Za-z0-9_]*\s*\(|\b(?:verify|expect|given|when)\s*\("
+            r"@(?:Test|ParameterizedTest|Before|After|BeforeEach|AfterEach|Mock|InjectMocks)|assert[A-Za-z0-9_]{1,40}\s*\(|\b(?:verify|expect|given|when)\s*\("
         ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency (Asynchronous Execution)

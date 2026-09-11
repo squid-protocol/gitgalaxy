@@ -186,8 +186,23 @@ DEFINITION: dict[str, Any] = {
             re.M | re.I,
         ),
         # 14. test (Testing & Assertions)
+        # #2853 contract C3: the bare menu (`context`, `before`, `after`, `setup`,
+        # `let`, `subject`, `assert[a-z_]*` matching the noun `assertions`) fired on
+        # ordinary prose/comments. Anchor every everyday word to its rspec/minitest
+        # form: describe/context to a description string or `do`, it/specify to a
+        # description string, before/after to a hook call/`do`/`:each`/`:all`,
+        # let/subject to `(`/`{`, expect to `(`, minitest assert/refute to the
+        # `assert_<name>` or `assert(` call form, and setup/teardown to a `def`.
+        # Ruby has no runtime `assert` keyword, so `assert*` stays test's (C1 n/a).
         "test": re.compile(
-            r'\b(describe|context|expect|assert[a-zA-Z_]*|refute[a-zA-Z_]*|setup|teardown|before|after|let|subject)\b|\b(?:it|test)\s+[\'"]'
+            r"\bRSpec\b"
+            r"|\b(?:describe|context)\s*(?:['\"(]|do\b)"
+            r"|\b(?:it|specify)\s+['\"]"
+            r"|\b(?:before|after)\s*(?:\(|do\b|:each|:all)"
+            r"|\b(?:let|subject)\s*(?:\(|\{)"
+            r"|\bexpect\s*\("
+            r"|\b(?:assert|refute)(?:_\w+|\s*\()"
+            r"|\bdef[ \t]+(?:setup|teardown)\b"
         ),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency (Asynchronous Execution)

@@ -6927,9 +6927,8 @@ class StructuralExtractor:
                 continue
             if c in "({[":
                 stack.append(c == "(" and i in group_open)
-            elif c in ")}]":
-                if stack:
-                    stack.pop()
+            elif c in ")}]" and stack:
+                stack.pop()
             i += 1
         return members
 

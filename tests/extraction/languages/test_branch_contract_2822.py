@@ -183,7 +183,14 @@ CASES = {
     "swift": (
         ["if flag > 0 {", "} else {", "guard flag > 0 else { return 3 }", "repeat {", "default:", "@unknown default:"],
         # #2859 C3: the dotted singleton accessor is io/events', not a decision.
-        ["catch let e {", "try foo()", "throws(Error)", "defer { cleanup() }", "let fm = FileManager.default", "let c = NotificationCenter.default"],
+        [
+            "catch let e {",
+            "try foo()",
+            "throws(Error)",
+            "defer { cleanup() }",
+            "let fm = FileManager.default",
+            "let c = NotificationCenter.default",
+        ],
     ),
     # --- corollary 3: an unconditional transfer is not a decision ------------------
     "c": (

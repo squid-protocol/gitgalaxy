@@ -155,7 +155,14 @@ CASES = {
     # value (a constant reference, C2 -- and a rosetta decoy), so it is not one.
     "agc_assembly": (
         ["ADS\tFLAGWRD7", "DSPCOUNT\tERASE"],
-        ["CAF\tBIT14", "CS\tBIT10", "\tTCF\tCOMMON", "COMMON\t\tTC\tPHASCHNG", "SBIT1\t\tEQUALS\tBIT1", "CNTRCON\t\t=\tOCT50"],
+        [
+            "CAF\tBIT14",
+            "CS\tBIT10",
+            "\tTCF\tCOMMON",
+            "COMMON\t\tTC\tPHASCHNG",
+            "SBIT1\t\tEQUALS\tBIT1",
+            "CNTRCON\t\t=\tOCT50",
+        ],
     ),
     "haskell": (
         ["region :: IORef Int\nregion = unsafePerformIO (newIORef 0)", 'home <- getEnv "HOME"', "args <- getArgs"],
@@ -253,7 +260,7 @@ CASES = {
         [
             "private static final Logger LOG = LoggerFactory.getLogger();",
             "static int counter;",
-            "public static final String NAME = \"x\";",
+            'public static final String NAME = "x";',
             "private static final ThreadLocal<Hook> hook = new ThreadLocal<>();",
         ],
         ["static void helper() {", "static {", "int local = 5;"],

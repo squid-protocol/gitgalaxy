@@ -2324,6 +2324,41 @@ class Orchestrator:
                             func["is_public"] = True
                             func["usage_status"] = 0
             # =================================================================
+            # ---> #2904: TIER-3 EXTERNAL-ENTRY-POINT RESCUE <---
+            # A makefile is never imported (nothing `import`s a makefile; its
+            # caller is a human typing `make all`, CI, or a Dockerfile), so its
+            # popularity is STRUCTURALLY 0 and the tier-2 fix above can never
+            # reach it -- every `.PHONY:` entry point falls through to
+            # `risk_tech_debt`. But a `.PHONY:` target is a curated declaration
+            # of the file's EXTERNAL interface, not dead weight. For a language
+            # that opts in via `export_visibility: external_entry_points`, credit
+            # its DECLARED entry-point orphans (`api_declared_orphans` -- the
+            # orphans whose name sits on an api-rule line) the same way an
+            # imported file's orphans are credited: clear them from the tech-debt
+            # census. Only the declared portion moves -- a genuinely internal,
+            # UNdeclared orphan target (never .PHONY, no in-repo caller) stays
+            # real dead weight, so this cannot blind #2774. Gated on the tier-2
+            # branch NOT firing (elif), so popularity>0 never double-runs it.
+            # The honest census survives in `raw_pre_adjustment` above; only the
+            # debt/surface classification moves, never the raw count.
+            elif meta.get("exports_are_external_entry_points") and "equations" in meta:
+                orphans = meta["equations"].get("unreferenced_by_name", 0)
+                declared = min(meta.get("api_declared_orphans", 0), orphans)
+                if declared > 0:
+                    # No api credit: a declared entry point's own declaration
+                    # line is already an api-rule hit, so `api` already carries
+                    # it -- re-crediting would double-count. Just stop reading it
+                    # as tech debt.
+                    meta["equations"]["unreferenced_by_name"] = orphans - declared
+                    for func in meta.get("functions", []):
+                        # A unit that is already public (api/export source B) AND
+                        # uncalled is exactly a declared external entry point --
+                        # clear its unused flag (is_public source C analogue). An
+                        # undeclared internal orphan (is_public False) is left
+                        # flagged, so it keeps contributing to the census.
+                        if func.get("usage_status") == 1 and func.get("is_public"):
+                            func["usage_status"] = 0
+            # =================================================================
 
             meta["temporal_telemetry"] = self.chronometer.get_file_history_metrics(rel_path)
             meta["authors"] = meta["temporal_telemetry"].get("authors", {})

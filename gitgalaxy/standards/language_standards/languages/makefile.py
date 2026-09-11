@@ -56,6 +56,17 @@ DEFINITION: dict[str, Any] = {
     # UPGRADED: Maps to Family 3 (Pure Hash)
     # Rationale: Make natively uses '#' exclusively for line-level comments.
     "lexical_family": "line_exclusive",
+    # #2904: a makefile's callable units are invoked EXTERNALLY -- a human typing
+    # `make all`, CI, a Dockerfile -- never by an in-repo caller or import, so a
+    # `.PHONY:` target is a curated declaration of the file's external interface,
+    # not dead weight. This opts makefile into the tier-3 Contextual Baseline Fix
+    # (galaxyscope.py): its declared entry-point orphans are credited as api
+    # surface instead of `risk_tech_debt`, while the census keeps reading the
+    # orphan honestly. Narrow and safe because `_visibility_export_list`
+    # (`.PHONY:`) names exactly the external interface, unlike a JS/TS `export`
+    # that decorates every symbol. Closed set asserted by
+    # tests/core_engine/test_export_visibility_contract_2904.py.
+    "export_visibility": "external_entry_points",
     "rules": {
         # --------------------------------------------------------------------------
         # 1. GEOMETRY & SHAPE (Geometry & Shape)

@@ -154,8 +154,15 @@ def test_project_scope_stands_down_infra_shield_but_keeps_ignored_dirs(filter_en
 def test_malformed_extension_not_leaked_into_reason(filter_engine, tmp_path):
     """A path carrying a stray quote (quotepath artifact) must not surface a malformed
     extension like `.txt"` in the human-readable exclusion reason."""
+    # #2961: do NOT create the file on disk -- `"` is a legal filename char on
+    # POSIX (where a git quotepath artifact can actually produce this name) but
+    # illegal on Windows, so `write_text` raised OSError: [Errno 22] on the
+    # Windows CI legs before any assertion ran. evaluate_path_integrity is
+    # "Gate 1: Zero-I/O Path Evaluation" -- the malformed-extension sanitization
+    # is pure string analysis of the path and size_bytes falls back to 0 when the
+    # file is absent, so evaluating the constructed Path alone keeps this test
+    # meaningful (and cross-platform) without touching the filesystem.
     bad = tmp_path / 'naive.txt"'
-    bad.write_text("data", encoding="utf-8")
 
     is_valid, _, reason = filter_engine.evaluate_path_integrity(bad, has_intent=False)
     assert is_valid is False

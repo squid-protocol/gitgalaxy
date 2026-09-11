@@ -168,12 +168,15 @@ intent is identical by construction.
 
 Current results
 ([bias report](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/bias_report.md)):
-across 59 gated metrics, on average **95% of languages land within ±25% of the
-cross-language median** (54 of 55 chartable metrics hold at least 80% of
-languages in band), and under the cause-based gate **0.1% of comparable cells
-(3 of 2,633) are open engine defects**. The weakest metrics are named, not
-hidden: `raw_arch_api` holds 76% of languages in the ±25% band,
-`reflection_metaprogramming` 82%, `avg_func_args` and `cog_raw` 83%. Every known
+across 59 gated metrics, on average **94% of languages land within ±25% of the
+cross-language median** (53 of 55 chartable metrics hold at least 80% of
+languages in band), and under the cause-based gate **the open-defect share is
+0.0% — 0 of 2,632 comparable cells** are open engine defects; every remaining
+out-of-band cell is a ledger-validated variation (a strictness stratum, a
+construct the language cannot express, an echo, or a scoring choice). The
+weakest metrics are named, not hidden: `cog_raw` holds 76% of languages in the
+±25% band, `raw_arch_api` 78%, `reflection_metaprogramming` and
+`risk_state_flux` 82%, `avg_func_args` 83%. Every known
 deviation is recorded in a validated
 [deviation ledger](https://github.com/squid-protocol/keyword-rosetta/blob/main/deviation_ledger.json),
 and the defect classes found this way are filed as GitGalaxy issues — see the

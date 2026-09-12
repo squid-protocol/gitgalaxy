@@ -107,14 +107,42 @@ class Chronometer:
         """Dispatches the survey engines to establish boundaries and churn cache."""
         t_start = time.time()
 
-        # Step A: Git Binary Verification
-        if (self.root / ".git").exists():
+        # Step A: Git Worktree Verification
+        # #2976: `.git` only exists at the repository ROOT, so the old check
+        # `(self.root / ".git").exists()` silently disabled the entire temporal
+        # pipeline for any scan rooted at a SUBDIRECTORY of a repo (galaxyscope
+        # path/to/repo/src, or a control-corpus language folder) -- the mtime
+        # fallback then fired, a fresh checkout's uniform mtimes tripped the
+        # TEMPORAL COLLAPSE guard below, and every file read the neutral
+        # (stability 50, churn 0). Ask git itself: rev-parse resolves upward
+        # from any subdirectory, and a linked worktree's `.git` FILE pointer
+        # passes the same way. A non-git directory still lands in the OS-walk
+        # fallback exactly as before.
+        #
+        # Determinism-sensitive harnesses (the golden-crucible pins scan a
+        # subdirectory of a pinned checkout whose git history is NOT part of
+        # the measured structure) opt out EXPLICITLY here -- before the fix
+        # they got temporal neutrality by accident of the broken root check.
+        if self.chrono_config.get("DISABLE_GIT_HISTORY", False) or os.environ.get(
+            "GITGALAXY_DISABLE_GIT_HISTORY", ""
+        ) == "1":
+            # is_git_enabled stays False: Steps B/C below run the same OS-walk
+            # fallback (including the collapse guard) a non-git directory gets.
+            self.logger.info("Git history disabled by configuration. Using OS-walk fallback.")
+        else:
             try:
-                subprocess.run([_GIT_BIN, "--version"], capture_output=True, check=True)  # noqa: S603
-                self.is_git_enabled = True
-                self.logger.debug("Git binary verified. Commencing Deep Boundary Survey.")
-            except (subprocess.CalledProcessError, FileNotFoundError):
-                self.logger.warning("Git binary not found. Falling back to OS Walk.")
+                res = subprocess.run(  # noqa: S603 -- _GIT_BIN resolved absolute, fixed args
+                    [_GIT_BIN, "rev-parse", "--is-inside-work-tree"],
+                    cwd=self.root,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                if res.stdout.strip() == "true":
+                    self.is_git_enabled = True
+                    self.logger.debug("Git worktree verified. Commencing Deep Boundary Survey.")
+            except (subprocess.CalledProcessError, FileNotFoundError, OSError):
+                self.logger.warning("Not inside a git worktree (or git unavailable). Falling back to OS Walk.")
 
         # Step B: Establish Absolute Project Boundaries (Min/Max Time)
         self._determine_commit_bounds()
@@ -268,7 +296,12 @@ class Chronometer:
         # Axis 1 (Volume): Stop scanning once 50% of active files are mapped (max 5000).
         # Axis 2 (Time): Hard abort after 'timeout_limit' seconds.
         # ======================================================================
-        required_files = min(int(total_files * 0.50), 5000)
+        # #2976: a tiny subtree's year-log parses in milliseconds -- the 50% early
+        # exit only ever protected monorepo scans, and on a 6-file control-corpus
+        # folder it stopped after mapping 3 files, leaving the rest with no history
+        # at all. Full coverage at or below 200 files; the monorepo math is
+        # unchanged above that, and the Axis-2 time budget still applies to both.
+        required_files = total_files if total_files <= 200 else min(int(total_files * 0.50), 5000)
         timeout_limit = self.chrono_config.get("STREAM_TIMEOUT_SECONDS", 15.0)
 
         self.logger.info(f"Chronometer: Engaging 1-Year Historical Sweep. Budget: {timeout_limit}s")
@@ -277,13 +310,24 @@ class Chronometer:
 
         # 3. The Command: Limit Git to the last year of commits.
         # This generates massive churn spikes without getting bogged down in decade-old bedrock.
+        # #2976: `--relative -- .` scopes the stream to the scanned subtree and names
+        # files relative to cwd. Without it, a subdirectory scan streams the WHOLE
+        # repo's log (burning the time budget on unrelated files) and `--name-only`
+        # emits repo-relative paths while `git ls-files` above emits cwd-relative
+        # ones -- so churn_map/mtime_map would be keyed differently from both the
+        # tracked-files denominator and the scanner's scan-root-relative rel_path,
+        # and every lookup would miss. At the repository root both flags are no-ops:
+        # the output is byte-identical to the previous command.
         cmd = [
             _GIT_BIN,
             "log",
             "--since=1.year",
             "--name-only",
+            "--relative",
             "--pretty=format:@@GIT_COMMIT@@|%H|%at|%an",
             "--no-merges",
+            "--",
+            ".",
         ]
 
         # Execute the stream

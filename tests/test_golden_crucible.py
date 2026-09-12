@@ -66,7 +66,15 @@ def test_golden_crucible_matches_baseline(tmp_path):
         ],
         check=True,
         timeout=180,
-        env={**os.environ, "GITGALAXY_LICENSE_KEY": "COMMUNITY_FREE_TIER"},
+        env={
+            **os.environ,
+            "GITGALAXY_LICENSE_KEY": "COMMUNITY_FREE_TIER",
+            # #2976: the golden masters pin a corpus whose git history is not part
+            # of the measured structure. Before the chronometer's subdir fix they
+            # got temporal neutrality by accident (the scan root data/ has no .git);
+            # this makes the same neutrality explicit and deterministic.
+            "GITGALAXY_DISABLE_GIT_HISTORY": "1",
+        },
     )
 
     actual_path = output_dir / "data_galaxy_audit.json"

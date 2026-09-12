@@ -37,14 +37,13 @@ def test_chronometer_no_git_fallback(mock_getmtime, mock_walk, mock_run, tmp_pat
 def test_chronometer_git_boundaries(mock_run, tmp_path):
     """Proves the boundary scanner correctly extracts min/max times from git logs."""
 
-    # Simulate the .git directory existing so the hardware check fires
-    (tmp_path / ".git").mkdir()
-
     def git_side_effect(cmd, **kwargs):
         m = MagicMock()
         m.stdout = ""
-        if "--version" in cmd:
-            m.stdout = "git version 2.40.0\n"
+        if "rev-parse" in cmd:
+            # #2976: the gate asks git itself rather than testing (root/.git).exists(),
+            # so a subdirectory of a repo (and a linked worktree) passes too.
+            m.stdout = "true\n"
         elif "log" in cmd and "-1" in cmd and "HEAD" not in cmd and len(cmd) == 4:
             m.stdout = "5000\n"  # Max Time
         elif "rev-list" in cmd:

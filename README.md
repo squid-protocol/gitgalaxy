@@ -156,7 +156,7 @@ defect (a rule matching the wrong construct, or a scoring weight sitting inside
 a count); grey is a documented variation the ledger has validated — the language
 cannot express the construct, a deliberate scoring choice, or an echo of another
 row. Current answer: on average 94% of languages sit within ±25% of the
-cross-language median per gated metric (55 chartable metrics, 53 holding ≥80%),
+cross-language median per gated metric (56 chartable metrics, 54 holding ≥80%),
 and **the open-defect share is 0.0% (0 of 2,632 comparable cells)** — every
 remaining out-of-band cell is a variation the ledger has validated (a strictness
 stratum, a construct the language cannot express, an echo of another row, or a
@@ -164,6 +164,14 @@ deliberate scoring choice), not an open engine defect. The weakest metrics are
 named rather than hidden — `cog_raw` holds 76% of languages in band,
 `raw_arch_api` 78%, `reflection_metaprogramming` 82% — but their sub-band cells
 are documented, not defects.
+The claim also survives expansion: when the corpus planted its first
+security-lens probe — one identical hardcoded secret in every language —
+`risk_secrets_risk` read a **uniform score across all 44 languages the lens
+covers**, and the two exceptions (the engine deliberately skips its security
+lens on data formats) and the formula's measured length dependence were
+ledgered and filed the same day
+([#2978](https://github.com/squid-protocol/gitgalaxy/issues/2978),
+[#2979](https://github.com/squid-protocol/gitgalaxy/issues/2979)).
 Every deviation is recorded in a validated ledger, the work is tracked by cause
 family under the [contract roadmap](docs/contract_roadmap.md), and
 the defect classes found this way are

@@ -8,7 +8,7 @@
 [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) ·
 [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output)
 
-**1 scan · 97 structural signals · 50+ languages · no compilation · 19
+**1 scan · 97 structural signals · 50+ languages · no compilation · 17
 risk-exposure categories · 6 outputs**
 
 ## The short version

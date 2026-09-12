@@ -60,7 +60,7 @@ summary with both charts and per-claim limitation clauses.
    dropped with it; restoring any of them (each still has a real link behind it, so each
    would pass rule 1) is an open gap, not a considered removal.
 2. Proof strip — `1 scan · 97 structural signals · 50+ languages · no compilation ·
-   19 risk-exposure categories · 6 outputs`. Still missing the "0 dependencies" claim
+   17 risk-exposure categories · 6 outputs`. Still missing the "0 dependencies" claim
    (shipped and true as of #1104) — its absence remains a regression, not a status change.
 3. **The short version** — plain-terms description folding in the old "The problem"
    polyglot code block, the consumer list as prose, the blockquoted central-thesis line,

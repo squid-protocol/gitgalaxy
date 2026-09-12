@@ -123,9 +123,10 @@ class Chronometer:
         # subdirectory of a pinned checkout whose git history is NOT part of
         # the measured structure) opt out EXPLICITLY here -- before the fix
         # they got temporal neutrality by accident of the broken root check.
-        if self.chrono_config.get("DISABLE_GIT_HISTORY", False) or os.environ.get(
-            "GITGALAXY_DISABLE_GIT_HISTORY", ""
-        ) == "1":
+        if (
+            self.chrono_config.get("DISABLE_GIT_HISTORY", False)
+            or os.environ.get("GITGALAXY_DISABLE_GIT_HISTORY", "") == "1"
+        ):
             # is_git_enabled stays False: Steps B/C below run the same OS-walk
             # fallback (including the collapse guard) a non-git directory gets.
             self.logger.info("Git history disabled by configuration. Using OS-walk fallback.")

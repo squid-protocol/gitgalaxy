@@ -699,6 +699,12 @@ ORCHESTRATOR_RULES = {
 # Consumed by: chronometer.py
 # ------------------------------------------------------------------------------
 CHRONOMETER_CONFIG = {
+    # #2976: force the OS-walk fallback even inside a git worktree. For
+    # determinism-sensitive harnesses (the golden-crucible pins) whose
+    # corpus git history is not part of the measured structure. The
+    # GITGALAXY_DISABLE_GIT_HISTORY=1 environment variable is the same
+    # switch for subprocess invocations.
+    "DISABLE_GIT_HISTORY": False,
     # The absolute ceiling for OS-level fallback scanning
     "FALLBACK_SCAN_LIMIT": 25000,
     # Process management

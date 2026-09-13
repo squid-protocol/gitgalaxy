@@ -3001,6 +3001,15 @@ def main():
     parser.add_argument(
         "--incremental", type=str, metavar="DB_PATH", help="Path to baseline SQLite database for Delta Scanning"
     )
+    parser.add_argument(
+        "--baseline",
+        type=str,
+        metavar="COMMIT_SHA",
+        default=None,
+        help="Explicit baseline commit to rehydrate/diff against for --incremental. "
+        "Default (unset) keeps the latest commit by date. Required for longitudinal "
+        "history walks, where the DB holds many commits in arbitrary order (#2983).",
+    )
 
     # --- DEPENDENCY AUDIT CACHE (incremental SBOM verification) ---
     parser.add_argument(
@@ -3268,14 +3277,22 @@ def main():
 
         scope = Orchestrator(args.target, full_config)
 
+        if args.baseline and not args.incremental:
+            logging.warning(
+                "⚠️ --baseline has no effect without --incremental; it selects the "
+                "delta-scan baseline commit. Ignoring."
+            )
+
         if args.incremental:
             from gitgalaxy.core.state_rehydrator import StateRehydrator
 
-            logging.info(f"🔄 Delta Scan Requested: Attempting to rehydrate from {args.incremental}")
+            baseline_msg = f" (baseline {args.baseline})" if args.baseline else " (baseline: latest by date)"
+            logging.info(f"🔄 Delta Scan Requested: Attempting to rehydrate from {args.incremental}{baseline_msg}")
 
             db_out_path = str(Path(final_output).with_name(f"{Path(final_output).stem}_master.db"))
             rehydrator = StateRehydrator(args.incremental)
-            baseline_state = rehydrator.load_latest_state(project_name)
+            # #2983: pass the explicit baseline when given; None keeps latest-by-date.
+            baseline_state = rehydrator.load_state(project_name, args.baseline)
 
             if baseline_state:
                 baseline_commit = baseline_state["commit_hash"]

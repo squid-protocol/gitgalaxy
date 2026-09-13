@@ -278,3 +278,44 @@ def test_rehydrator_doc_loc_read_back_when_present(tmp_path):
     result = StateRehydrator(str(db_path)).load_latest_state("test_repo")
     assert result is not None
     assert result["ram_cache"]["src/main.py"]["doc_loc"] == 42
+
+
+# ==============================================================================
+# #2983: EXPLICIT BASELINE SELECTION
+# ==============================================================================
+def test_explicit_baseline_selects_that_commit(mock_db):
+    """load_state(repo, commit_hash) rehydrates THAT commit, not the newest by
+    date — the multi-commit-DB case #2983 fixes. The mock has hash_new_456 as the
+    newest by date; we ask for the older hash_old_123 and must get it back."""
+    # Give the older commit its own file state (the fixture only seeds the newer one).
+    conn = sqlite3.connect(mock_db)
+    conn.execute("""
+        INSERT INTO file_data VALUES (
+            'test_repo', 'hash_old_123', 'src/legacy.py', 'python',
+            50, 40, 10.0, 0.2, 3, 'Joe Esquibel', 10.0, 1.0, 1, 0
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+    result = StateRehydrator(mock_db).load_state("test_repo", "hash_old_123")
+    assert result is not None
+    assert result["commit_hash"] == "hash_old_123", "Explicit baseline was ignored!"
+    # Proves it rehydrated the OLD commit's files, not the newer-by-date commit's.
+    assert "src/legacy.py" in result["ram_cache"]
+    assert "src/main.py" not in result["ram_cache"]
+
+
+def test_explicit_baseline_missing_returns_none(mock_db):
+    """An explicit baseline that isn't recorded must refuse (return None), never
+    silently fall back to a different commit (the nonsense-delta #2983 prevents)."""
+    result = StateRehydrator(mock_db).load_state("test_repo", "deadbeef_not_here")
+    assert result is None
+
+
+def test_load_state_none_matches_legacy_latest(mock_db):
+    """load_state(repo) with no commit_hash keeps the latest-by-date behavior,
+    identical to the legacy load_latest_state alias — full backward compatibility."""
+    r = StateRehydrator(mock_db)
+    assert r.load_state("test_repo")["commit_hash"] == "hash_new_456"
+    assert r.load_state("test_repo")["commit_hash"] == r.load_latest_state("test_repo")["commit_hash"]

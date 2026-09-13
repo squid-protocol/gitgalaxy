@@ -202,3 +202,92 @@ def test_audit_recorder_empty_state(recorder, tmp_path):
 
     assert payload["6. Parsed Files (Scanned Artifacts)"] == {}
     assert payload["3. Forensic Security & Vulnerability Audit"]["Audit Status"] == "SECURE_NO_THREATS_DETECTED"
+
+
+# ==============================================================================
+# gitgalaxy#2994: GOLDEN-MASTER KEYSET-UNCHANGED GUARD
+# audit_recorder's output is hashed WHOLE by the golden-master corpus -- any
+# new key added to it breaks every master. The measurement-tier reform must
+# add fam_*/pct_fam_*/pct_vec_*/rel_* ONLY to telemetry/DB columns/the LLM
+# brief, never to this recorder's JSON. This test is the enforced proof.
+# ==============================================================================
+def _collect_keys(obj, keys=None):
+    """Recursively collects every dict key anywhere in a JSON-shaped structure."""
+    if keys is None:
+        keys = set()
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            keys.add(k)
+            _collect_keys(v, keys)
+    elif isinstance(obj, list):
+        for item in obj:
+            _collect_keys(item, keys)
+    return keys
+
+
+def test_audit_recorder_output_keyset_unchanged_by_tier_telemetry(recorder, tmp_path):
+    """Adding telemetry["surface_families"/"surface_percentiles"/"surface_relations"]
+    (gitgalaxy#2994's Tier 1/2/3 per-file telemetry) to a file's raw pipeline
+    state must produce a byte-identical audit_recorder JSON payload -- the
+    recorder reads an explicit whitelist of telemetry keys, never the whole
+    dict, so new telemetry keys must be invisible to it."""
+
+    def _mock_parsed():
+        return [
+            {
+                "path": "src/core/auth.py",
+                "name": "auth.py",
+                "lang_id": "python",
+                "directory_group": "src/core",
+                "telemetry": {
+                    "domain_context": {"Purpose": "Handles JWT Validation"},
+                    "ownership": "BackendTeam",
+                    "archetype": "API Controller",
+                    "control_flow_ratio": 0.5,
+                    "popularity": 5,
+                    "raw_churn_freq": 12.0,
+                    "author_distribution": 10.0,
+                    "ownership_entropy": 0.5,
+                },
+                "is_ml_threat": False,
+                "risk_vector": [10.0, 50.0],
+                "hit_vector": [1, 1],
+                "total_loc": 150,
+            }
+        ]
+
+    mock_summary = {"directory_groups": {"src/core": {"total_mass": 45.5, "file_count": 1}}}
+    mock_session = {"engine": "Test", "target_directory": str(tmp_path)}
+
+    baseline_file = tmp_path / "baseline.json"
+    recorder.generate_report(_mock_parsed(), [], mock_summary, {}, mock_session, str(baseline_file))
+    with open(baseline_file, encoding="utf-8") as f:
+        baseline_payload = json.load(f)
+
+    # Now inject the Tier 1/2/3 telemetry gitgalaxy#2994 adds.
+    tiered_parsed = _mock_parsed()
+    tiered_parsed[0]["telemetry"]["surface_families"] = {"guards": 6, "danger": 1, "memory": 2, "cleanup": 3}
+    tiered_parsed[0]["telemetry"]["surface_percentiles"] = {
+        "fam": {"guards": 87.5},
+        "vec": {"tech_debt": 62.5},
+    }
+    tiered_parsed[0]["telemetry"]["surface_relations"] = {
+        "guard_balance_ratio": 3.0,
+        "alloc_cleanup_pairing": 0.75,
+    }
+
+    tiered_file = tmp_path / "tiered.json"
+    recorder.generate_report(tiered_parsed, [], mock_summary, {}, mock_session, str(tiered_file))
+    with open(tiered_file, encoding="utf-8") as f:
+        tiered_payload = json.load(f)
+
+    # 1. The full JSON payload must be byte-identical.
+    assert baseline_payload == tiered_payload, (
+        "audit_recorder's output changed when Tier 1/2/3 telemetry was added -- this breaks "
+        "every golden master, which hashes this JSON whole"
+    )
+
+    # 2. Belt-and-suspenders: none of the new tier vocabulary leaked in as a key anywhere.
+    all_keys = _collect_keys(baseline_payload) | _collect_keys(tiered_payload)
+    for forbidden in ("surface_families", "surface_percentiles", "surface_relations", "fam_guards", "rel_guard_balance"):
+        assert forbidden not in all_keys, f"tier vocabulary {forbidden!r} leaked into the audit_recorder JSON"

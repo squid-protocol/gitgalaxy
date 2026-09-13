@@ -12097,7 +12097,7 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 <p><strong>Metric:</strong> Logic Complexity vs. Defensive Test Verification</p>
 <p><strong>Summary:</strong> Measures verification risk by assessing code complexity and structural impact against internal assertions and external test coverage. Rather than relying on simple line-count coverage, GitGalaxy computes residual <strong>Untested Impact</strong> at the function, class, file, directory, and repository levels.</p>
-<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Risk Spectrum:
+<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Surface Spectrum:
 * 🟦 <strong>VERY LOW (Score 0-19):</strong> High Verification. Functions are heavily covered by targeted unit tests or snapshot assertions.
 * 🟨 <strong>INTERMEDIATE (Score 40-59):</strong> Moderate Exposure. Core paths have basic tests, but some functions lack sufficient defensive assertions.
 * 🟥 <strong>VERY HIGH (Score 80-100+):</strong> Unverified Execution. Complex functions and files operate with minimal or zero test verification.</p>

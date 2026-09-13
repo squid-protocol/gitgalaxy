@@ -12097,7 +12097,7 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 <p><strong>Metric:</strong> Density of Planned vs. Fragile Work Markers</p>
 <p><strong>Summary:</strong> Measures technical debt density using developer code annotations (<code>TODO</code>, <code>FIXME</code>, <code>HACK</code>, <code>XXX</code>). It differentiates between planned pending work (<code>TODO</code>, <code>WIP</code>) and admitted logic fragility (<code>HACK</code>, <code>FIXME</code>), calculating a weighted stress score normalized per 100 lines of code.</p>
-<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Risk Spectrum:
+<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Surface Spectrum:
 * 🟦 <strong>VERY LOW (Score 0-19):</strong> Polished. Code aligns with expectations with no active debt annotations.
 * 🟨 <strong>INTERMEDIATE (Score 40-59):</strong> Active Development. A moderate density of planned task markers.
 * 🟥 <strong>VERY HIGH (Score 80-100):</strong> High Risk. High density of fragile fixes (<code>HACK</code>, <code>FIXME</code>) and unfinished stubs (<code>TODO</code>).</p>

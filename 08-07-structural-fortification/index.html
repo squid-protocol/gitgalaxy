@@ -12097,7 +12097,7 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 <p><strong>Metric:</strong> Ratio of Defensive Controls to Execution Stressors</p>
 <p><strong>Summary:</strong> Evaluates how well source files are protected by defensive programming practices. It balances risk triggers (such as unsafe execution, type-suppression, and mutable state) against defensive controls (such as <code>try/catch</code> error handling, type guards, and test assertions).</p>
-<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Risk Spectrum:
+<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Surface Spectrum:
 * 🟦 <strong>VERY LOW (Score 0-19):</strong> Highly Fortified. Defensive controls (<code>try/catch</code>, type guards) comfortably exceed execution stressors.
 * 🟨 <strong>INTERMEDIATE (Score 40-59):</strong> Stable. Execution stressors and defensive controls are in equilibrium.
 * 🟥 <strong>VERY HIGH (Score 80-100):</strong> Fragile / High Exposure. Execution stressors significantly exceed defensive controls, leaving code vulnerable to runtime failures.</p>

@@ -12105,7 +12105,7 @@
 <h2 id="design">Design</h2>
 <p>The module defines three core schemas:
 - <code>SIGNAL_SCHEMA</code>: A 60-point vector aggregating raw syntax heuristics (e.g., branching, memory allocation).
-- <code>RISK_SCHEMA</code>: An 18-point vector representing normalized risk exposure (e.g., tech debt, secrets risk) on a 0-100 scale.
+- <code>RISK_SCHEMA</code>: An 18-point vector representing the normalized <strong>Structural Surface Profile</strong> (formerly "risk exposure"; e.g. tech-debt markers, credential material) on a 0-100 scale. The vectors measure structural surface/activity, not defect probability — see <a href="../vectors.md"><code>vectors.md</code></a>. <code>RISK_SCHEMA</code> and the <code>risk_*</code> keys are retained as deprecated schema aliases; <code>VECTOR_NAMES</code> maps them to the descriptive names.
 - <code>SAT_SCHEMA</code>: A 10-element array for individual function metadata (e.g., LOC, complexity).
 It also includes string translation maps and security thresholds.</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>

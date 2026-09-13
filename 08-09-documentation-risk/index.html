@@ -12097,7 +12097,7 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 <p><strong>Metric:</strong> Contextual Knowledge Debt &amp; Undocumented Risk Density</p>
 <p><strong>Summary:</strong> Evaluates documentation risk not by raw comment line counts, but by weighing the structural complexity of undocumented functions against existing inline comments, docstrings, and directory-level documentation (such as <code>README.md</code> or <code>ARCHITECTURE.md</code>). Risk is amplified for highly imported hub files (blast radius) and single-author files (bus factor risk).</p>
-<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Risk Spectrum:
+<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Surface Spectrum:
 * 🟦 <strong>VERY LOW (Score 0-19):</strong> Fully Documented. Code is well-commented or protected under a comprehensive directory documentation shield.
 * 🟨 <strong>INTERMEDIATE (Score 40-59):</strong> Moderate. Standard code complexity with acceptable inline comments.
 * 🟥 <strong>VERY HIGH (Score 80-100+):</strong> Critical Exposure. Complex, highly-coupled, or single-author logic operating without documentation.</p>

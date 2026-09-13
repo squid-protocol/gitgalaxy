@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#overview-of-methodology-risk-exposure-index" class="md-skip">
+        <a href="#overview-of-methodology-the-structural-surface-profile" class="md-skip">
           Skip to content
         </a>
       
@@ -12092,16 +12092,17 @@
   
 
 
-<h1 id="overview-of-methodology-risk-exposure-index">Overview of Methodology &amp; Risk Exposure Index</h1>
+<h1 id="overview-of-methodology-the-structural-surface-profile">Overview of Methodology &amp; the Structural Surface Profile</h1>
 <blockquote>
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
+<p><strong>⚠️ Naming update (<a href="https://github.com/squid-protocol/gitgalaxy/issues/2991">#2991</a>).</strong> These 13 per-file vectors were formerly called <strong>"Risk Exposures."</strong> The <code>risk_</code> framing claimed a higher value means a higher chance of a defect. The temporal-crucible validation program (<a href="https://github.com/squid-protocol/gitgalaxy/issues/2982">#2982</a> — ~3,550 pre-registered snapshots across curl and nDPI) tested that claim to exhaustion and found the structural vectors <strong>reduce to file size and do not predict defects</strong> (the size-confound wall, independently reported by <a href="https://github.com/repowise-dev/repowise">repowise-bench</a>). They have therefore been renamed to the <strong>Structural Surface Profile</strong>: they measure structural <strong>surface area and activity</strong>, which is real and useful for <em>describing, explaining, and localizing</em> code — but is <strong>not</strong> a risk score. The legacy <code>risk_*</code> names remain as deprecated schema aliases. Full name table and evidence: <a href="../vectors.md"><code>vectors.md</code></a>.</p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
-<p>This subsystem forms the analytical core that translates raw regex heuristic counts into structured risk exposure ratings. It solves the problem of converting massive volumes of static analysis data into actionable, normalized health indicators without manual inspection. It exists to objectively map structural anomalies to a universal risk spectrum. Within GitGalaxy, it processes data across five architectural scopes to generate the primary knowledge graph attributes.</p>
+<p>This subsystem forms the analytical core that translates raw regex heuristic counts into a structured <strong>surface profile</strong>. It solves the problem of converting massive volumes of static analysis data into normalized, comparable structural indicators without manual inspection. It exists to objectively map structural constructs to a universal surface-area spectrum. Within GitGalaxy, it processes data across five architectural scopes to generate the primary knowledge graph attributes.</p>
 <h2 id="purpose">Purpose</h2>
-<p>To evaluate source code components against 50+ heuristic metrics and aggregate them into a 5-tier Universal Risk Spectrum across function, class, file, directory, and repository scopes.</p>
+<p>To evaluate source code components against 50+ heuristic metrics and aggregate them into a 5-tier Universal Surface Spectrum across function, class, file, directory, and repository scopes — a description of what each component <em>contains and does</em>, not a prediction of where defects are.</p>
 <h2 id="problem-being-solved">Problem Being Solved</h2>
-<p>Subjective code quality scores lack consistency and traceability. This subsystem replaces subjective heuristics with deterministic, objective Risk Exposures, enabling engineering teams to identify architectural drift and technical debt algorithmically.</p>
+<p>Subjective code descriptions lack consistency and traceability. This subsystem replaces subjective heuristics with deterministic, objective structural-surface measures, enabling engineering teams to characterize architecture, activity, and technical-debt markers algorithmically. (What it deliberately does <strong>not</strong> claim: that a high surface score predicts defects — see the validation note above.)</p>
 <h2 id="design">Design</h2>
 <p>Evaluates metrics mapping to a 5-tier spectrum (Blue, Cyan, Yellow, Orange, Red). It calculates specific risk domains like Cognitive Load, State Flux, Technical Debt, and Concurrency Exposure. Aggregations use distinct mathematical normalization techniques depending on scope: Count-based (Levels 1-2), Sigmoid Normalized (Level 3), and Mass-Weighted Averages (Levels 4-5). Custom topological scales are employed for structural formatting indicators (e.g., Indentation Consistency).</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>

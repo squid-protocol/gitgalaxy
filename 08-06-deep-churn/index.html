@@ -12097,7 +12097,7 @@
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
 <p><strong>Metric:</strong> Relative Commit Volatility &amp; Change Frequency</p>
 <p><strong>Summary:</strong> Measures how frequently a source file is modified over time relative to the rest of the repository. Churn is auto-scaled across the codebase so that the most volatile file anchors the maximum score (100.0), and all other files are normalized logarithmically against this maximum.</p>
-<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Risk Spectrum, scaling from 🟦 <strong>Deep Blue</strong> (stable, rarely touched code) to 🟥 <strong>Intense Red</strong> (highly active hotspots).</p>
+<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Surface Spectrum, scaling from 🟦 <strong>Deep Blue</strong> (stable, rarely touched code) to 🟥 <strong>Intense Red</strong> (highly active hotspots).</p>
 </blockquote>
 <h2 id="engineering-summary">Engineering Summary</h2>
 <p>This subsystem measures how frequently a source file is modified over time relative to the rest of the repository. It solves the problem of raw commit counts being misleading by auto-scaling churn across the codebase. It exists to highlight highly active hotspots that may indicate architectural instability or constant bug fixing. By using a two-pass auto-scaling normalization model, it fits into the broader risk assessment pipeline of GitGalaxy.</p>
@@ -12123,7 +12123,7 @@ $<span class="arithmatex">\(\text{FinalScore} = \min(\text{BaseScore} \times Mp,
 </code></pre></div>
 - <strong>Inputs received:</strong> <code>commit_count</code> (total commits modifying the file), <code>age_in_weeks</code> (file age relative to newest commit), and <code>max_freq</code> (highest raw change frequency in repo).
 - <strong>Outputs produced:</strong> A normalized volatility score (0-100).
-- <strong>Dependencies:</strong> Requires Git version control history upstream. Feeds downstream into the Universal Risk Spectrum dashboard.</p>
+- <strong>Dependencies:</strong> Requires Git version control history upstream. Feeds downstream into the Universal Surface Spectrum dashboard.</p>
 <h2 id="tradeoffs">Tradeoffs</h2>
 <ul>
 <li>Logarithmic normalization is chosen to flatten extreme outliers, which sacrifices linear differentiation at the high end but prevents a single hyper-active file from compressing the distribution of the rest of the files.</li>
@@ -12144,7 +12144,7 @@ $<span class="arithmatex">\(\text{FinalScore} = \min(\text{BaseScore} \times Mp,
 <ul>
 <li>Git Log Analyzer</li>
 <li>Path Modifier (<span class="arithmatex">\(Mp\)</span>)</li>
-<li>GitGalaxy Universal Risk Spectrum</li>
+<li>GitGalaxy Universal Surface Spectrum</li>
 </ul>
 
 

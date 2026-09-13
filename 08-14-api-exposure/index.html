@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#api-exposure" class="md-skip">
+        <a href="#connectivity-api-surface" class="md-skip">
           Skip to content
         </a>
       
@@ -12092,12 +12092,13 @@
   
 
 
-<h1 id="api-exposure">API Exposure</h1>
+<h1 id="connectivity-api-surface">Connectivity (API Surface)</h1>
 <blockquote>
 <p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
-<p><strong>Metric:</strong> Public API Surface Area &amp; Export Ratio</p>
+<p><strong>Vector:</strong> <code>connectivity</code> (legacy alias <code>risk_api_exposure</code>) — Public API Surface Area &amp; Export Ratio</p>
+<p><strong>⚠️ Naming update (<a href="https://github.com/squid-protocol/gitgalaxy/issues/2991">#2991</a>):</strong> formerly "API Exposure / <code>risk_api_exposure</code>." This vector measures the <strong>size of a module's public surface</strong>, not a probability of defect. See <a href="../vectors.md"><code>vectors.md</code></a> for the full reframe and the temporal-crucible evidence behind it.</p>
 <p><strong>Summary:</strong> Measures the permeability of a module's public boundary by comparing exported public endpoints to total declared entities (functions + classes). It allows developers to distinguish encapsulated internal helpers from heavily exposed public interfaces.</p>
-<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Risk Spectrum:
+<p><strong>Effect:</strong> Maps directly to the GitGalaxy Universal Surface Spectrum (higher = more public surface, <strong>not</strong> higher risk):
 * 🟦 <strong>VERY LOW (Score 0-19):</strong> Encapsulated Vault. Internal utility module with no public export surface.
 * 🟨 <strong>MODERATE (Score 40-59):</strong> Balanced API. Balanced mix of public methods and internal private helpers.
 * 🟥 <strong>VERY HIGH (Score 80-100):</strong> Public Entry Point. Exposes a large volume of public functions/classes to external consumers.</p>

@@ -2,13 +2,13 @@
 
 Welcome to **GitGalaxy Metrics**. If the `core/` directory is the extraction layer (identifying raw structural signals), this directory is the analytical brain. 
 
-It is responsible for consuming raw lexical data, merging it with temporal Git telemetry, and translating it into actionable, multi-dimensional risk vectors. This is where raw data becomes architectural intelligence.
+It is responsible for consuming raw lexical data, merging it with temporal Git telemetry, and translating it into actionable, multi-dimensional Structural Surface Profile vectors (formerly called "risk vectors" — see [`docs/vectors.md`](../../docs/vectors.md) for the rename record and evidence). This is where raw data becomes architectural intelligence.
 
 ## The Why: False-Positive Eradication & Alert Fatigue
 
 Traditional Static Application Security Testing (SAST) tools suffer from a fatal flaw: they flag raw vulnerabilities in a vacuum. A raw execution command inside a deprecated, unimported sandbox script generates the same critical alert as one sitting in your primary routing controller. This lack of context generates massive false-positive fatigue, eventually causing engineering teams to ignore the scanner entirely.
 
-The GitGalaxy Metrics engine is engineered to solve this through **Contextual Synthesis**. It operates on a fundamental rule: **Risk exposures are calculated metrics derived from structural hits; they are not the hits themselves.** The engine applies mathematical dampeners (like testing umbrellas, network isolation, and documentation shields) to raw signals. For example, a high "state flux" signal in a file with 100% test coverage and zero downstream dependents has its ultimate risk exposure mathematically dampened, reflecting true ecosystem reality rather than isolated syntax panic.
+The GitGalaxy Metrics engine is engineered to solve this through **Contextual Synthesis**. It operates on a fundamental rule: **Structural Surface Profile vectors are calculated metrics derived from structural hits; they are not the hits themselves.** The engine applies mathematical dampeners (like testing umbrellas, network isolation, and documentation shields) to raw signals. For example, a high "mutation surface" (formerly "state flux") signal in a file with 100% test coverage and zero downstream dependents has its ultimate surface reading mathematically dampened, reflecting true ecosystem reality rather than isolated syntax panic. These vectors describe activity and content, not defect probability — see [`docs/vectors.md`](../../docs/vectors.md) for the validation record behind that distinction (gitgalaxy#2991, gitgalaxy#2982).
 
 ---
 
@@ -17,7 +17,7 @@ The GitGalaxy Metrics engine is engineered to solve this through **Contextual Sy
 All modules in this directory are engineered to operate strictly in $O(1)$ or $O(N)$ linear time complexity. Because expensive disk I/O and regex parsing have already concluded in the `core/` phase, these mathematical operations execute across tens of thousands of files in milliseconds.
 
 ### 1. `signal_processor.py` (The Mathematical Core)
-The primary heuristic synthesis engine. It translates raw structural hits into an 18-point risk vector evaluating dimensions like Technical Debt, Cognitive Load, and State Flux.
+The primary heuristic synthesis engine. It translates raw structural hits into an 18-point Structural Surface Profile evaluating dimensions like Debt Markers (formerly Technical Debt), Complexity Load (formerly Cognitive Load), and Mutation Surface (formerly State Flux). The underlying `risk_*` DB columns and JSON keys are unchanged; see [`docs/vectors.md`](../../docs/vectors.md).
 * **Dual-Axis Anomaly Detection:** Evaluates threats using both global repository baselines and local language models. It leverages **Architectural Drift (Z-Score)** to mathematically flag files that blend in globally but violate their local ecosystem's structural norms.
 * **Autonomous Execution Vectors & AI Topology:** Analyzes the density of LLM orchestration tools, vector databases, and execution loops to classify the repository's AI footprint. It explicitly flags vulnerabilities where raw **Prompt Injection Surfaces** flow directly into OS-level execution.
 

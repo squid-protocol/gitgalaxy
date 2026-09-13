@@ -92,8 +92,8 @@ and test data aggressively, and §5 of the brief itemizes every exclusion by
 extension and reason.
 
 **cics-genapp** (IBM's CICS COBOL/DB2 sample) — 92.1% scanned: 44 COBOL
-programs, 29 JCL jobs. The cumulative-risk hitlist leads with
-`base/src/lgupdb01.cbl` (state flux ~100%, cognitive load 92%), and the
+programs, 29 JCL jobs. The cumulative structural-surface hitlist leads with
+`base/src/lgupdb01.cbl` (mutation surface ~100%, complexity load 92%), and the
 heaviest paragraph in the repo is `UPDATE-POLICY-DB2-INFO` — the `SELECT FOR
 UPDATE` row-locking logic, which is exactly where a maintainer of that program
 would want to look first. The same brief also shows a limitation plainly: on a
@@ -113,7 +113,7 @@ this repo's own always-current self-scan brief is at
 |---|---|
 | Architecture | What is this repository made of? |
 | Structural analysis | Where are the functions, classes, APIs, dependencies and control structures? |
-| Risk exposure | Where are potentially important risk patterns concentrated? |
+| Structural Surface Profile (formerly Risk exposure) | Where is a given structural/content pattern concentrated? |
 | Refactoring | Which files are complex, high-churn or load-bearing? |
 | Supply chain | What dependencies physically exist on disk? |
 | AI context | What architecture and relationships should an agent know? |
@@ -166,8 +166,10 @@ named rather than hidden — `cog_raw` holds 76% of languages in band,
 are documented, not defects.
 The claim also survives expansion: when the corpus planted its first
 security-lens probe — one identical hardcoded secret in every language —
-`risk_secrets_risk` read a **uniform score across all 44 languages the lens
-covers**, and the two exceptions (the engine deliberately skips its security
+`credential_material` (formerly `risk_secrets_risk`; the `risk_*` name remains
+the DB column — see [`docs/vectors.md`](docs/vectors.md)) read a **uniform
+score across all 44 languages the lens covers**, and the two exceptions (the
+engine deliberately skips its security
 lens on data formats) and the formula's measured length dependence were
 ledgered and filed the same day
 ([#2978](https://github.com/squid-protocol/gitgalaxy/issues/2978),
@@ -205,21 +207,65 @@ unedited artifacts.
 
 ------------------------------------------------------------------------
 
-# Risk exposure: what GitGalaxy claims
+# Structural Surface Profile: what GitGalaxy claims (formerly "Risk exposure")
 
-GitGalaxy produces **risk-exposure measurements**, not vulnerability verdicts.
+GitGalaxy's 13 per-file vectors were originally named `risk_*` and described as
+**risk-exposure measurements**. The question this section used to leave open —
+"are these signatures empirically associated with meaningful classes of
+software risk?" — has since been tested, not just asked. The
+temporal-crucible validation program (epic
+[#2982](https://github.com/squid-protocol/gitgalaxy/issues/2982), ~3,550
+scanned snapshots, two repositories, three label families, every test
+pre-registered before the data was looked at) ran that experiment to
+exhaustion, and the honest result drove a rename
+([#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)): the
+vectors are now called the **Structural Surface Profile**. `risk_*` remains
+the DB column / JSON key name for compatibility (see
+[`docs/vectors.md`](docs/vectors.md) for the full name table and the
+deprecation note).
 
-A high exposure means:
+**What the record found, restated honestly:**
 
-> **This location deserves attention relative to the rest of the repository.**
+- **Per-file standing risk, falsified.** The founding hypothesis — that a
+  file's `risk_*` level, or its change after a fix, tracks defect
+  probability — did not hold. Median structural delta after a security fix
+  was +0.000 (equivalence-confirmed near-zero on a second, independent
+  repository, not just non-significant); summed structural exposure ranked
+  *last* of six features for predicting fix-touched files; a 26-signal
+  multivariate structural vector scored at chance (AUC 0.479) under a
+  temporal split, below a plain line count (0.531). The full ledger is in
+  temporal-crucible's `docs/HYPOTHESES.md` and is linked from
+  [#2982](https://github.com/squid-protocol/gitgalaxy/issues/2982).
+- **What the vectors actually validated for:** describing **activity and
+  content**, not defect probability. The fix-shaped composite reliably
+  tracks a security-fix → ordinary-fix → control → revert gradient; deltas
+  correspond to real code events (guard code added, threading introduced,
+  debt markers diluted). That's the x-ray this document now names
+  accurately — see [`docs/vectors.md`](docs/vectors.md) vector-by-vector.
+- **System-level / history signal, restated as the actual predictive
+  finding.** Two features *did* survive validation: **recidivism** (the file
+  that had the last fix gets the next one — the single most replicated
+  result of the program, p<1e-4 on both repositories) and **change entropy /
+  Hassan HCM**, validated out-of-selection on fresh bug labels (AUC 0.868 vs
+  a line count's 0.830). Both are **history** metrics, not structural
+  content metrics — and both are currently zeroed in every scan
+  (`GITGALAXY_DISABLE_GIT_HISTORY`, tracked in
+  [temporal-crucible#29](https://github.com/squid-protocol/temporal-crucible/issues/29)).
+  This is the seed of a separate, honestly-named **predictive layer** — the
+  `hist_stability`/`hist_churn` vectors are named to mark that status
+  explicitly — gated on shipping history-enabled mode and then clearing
+  [#2987](https://github.com/squid-protocol/gitgalaxy/issues/2987)'s
+  defect-lift promotion contract.
+
+A high Structural Surface Profile reading means:
+
+> **This location has more of a given structural/content pattern present,
+> relative to the rest of the repository.**
 
 It does not mean:
 
-> "This code is definitely vulnerable."
-
-The current system produces normalized exposure categories across the
-repository and rolls information from structural entities through files,
-folders and repository-level views.
+> "This code is more likely to contain a defect" — the per-file version of
+> that claim was tested and did not hold.
 
 The underlying signatures cover patterns involving areas such as:
 
@@ -236,11 +282,10 @@ The underlying signatures cover patterns involving areas such as:
 -   entropy
 -   other structural/security characteristics
 
-The important research question is whether these signatures are **empirically
-associated with meaningful classes of software risk**, rather than merely
-correlated with a score that GitGalaxy itself mathematically constructed.
-
-That distinction drives the next phase.
+See [`docs/vectors.md`](docs/vectors.md) for the per-vector rename table,
+evidence, and appropriate/inappropriate uses, and
+[temporal-crucible](https://github.com/squid-protocol/temporal-crucible)'s
+`docs/HYPOTHESES.md` for the full validation ledger this section summarizes.
 
 ------------------------------------------------------------------------
 
@@ -386,6 +431,8 @@ guide](github-action-readme.md).
 |---|---|
 | [Documentation](https://squid-protocol.github.io/gitgalaxy/) | Architecture, claims and methodology |
 | [The validation program](docs/validation.md) | The full proof narrative: thesis, benchmarks, validity ladder, next experiments |
+| [Vector reference](docs/vectors.md) | The 13 per-file vectors: names, meaning, evidence, and the `risk_*` deprecation note |
+| [Vector formula facts](docs/vector_formulas.md) | Mechanical per-calculator formula audit (inputs, arithmetic, constants) |
 | [Language Crucible](https://github.com/squid-protocol/language-crucible) | Cross-language benchmark and golden corpus |
 | [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) | 46-language planted control corpus and bias reports |
 | [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output) | Unedited scans of real repositories |

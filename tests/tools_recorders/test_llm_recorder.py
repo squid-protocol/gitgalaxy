@@ -378,3 +378,64 @@ def test_rankings_still_render_when_the_graph_has_any_connection(recorder, mock_
     assert "highly coupled and fragile" in md_text
     assert "1 outbound dependencies" in md_text
     assert "no coupling ranking to report" not in md_text
+
+
+# ==============================================================================
+# gitgalaxy#2994: SECTION 6b -- SURFACE FAMILY PROFILE (display-only)
+# ==============================================================================
+def test_build_markdown_includes_surface_family_profile_section(recorder, mock_pipeline_state):
+    """Section 6b renders, with a row per SURFACE_FAMILIES entry and the two
+    relations as repo medians -- purely display-only telemetry, distinct
+    from the golden-mastered section 6 sigmoid table above it."""
+    parsed, unparsable, summary, session = mock_pipeline_state
+    parsed[0]["telemetry"]["surface_families"] = {"guards": 6, "danger": 1}
+    parsed[0]["telemetry"]["surface_relations"] = {
+        "guard_balance_ratio": 3.0,
+        "alloc_cleanup_pairing": 0.5,
+    }
+    parsed[1]["telemetry"]["surface_families"] = {"guards": 2, "danger": 0}
+    parsed[1]["telemetry"]["surface_relations"] = {
+        "guard_balance_ratio": 1.0,
+        "alloc_cleanup_pairing": 0.25,
+    }
+
+    md_text = recorder._build_markdown(parsed, unparsable, summary, session, {})
+
+    assert "## 6b. SURFACE FAMILY PROFILE" in md_text
+    assert "| guards | 8 |" in md_text  # repo total: 6 + 2
+    assert "src/api/handler.py" in md_text  # top file for `guards`
+    assert "guard_balance_ratio" in md_text
+    assert "alloc_cleanup_pairing" in md_text
+    # Repo median of [3.0, 1.0] -> 2.0
+    assert "**2.0**" in md_text
+
+
+def test_surface_family_profile_survives_missing_telemetry(recorder, mock_pipeline_state):
+    """Files without surface_families/surface_relations telemetry (the
+    fixture's default state) must not crash section 6b -- every family
+    reads a clean 0 total, not a KeyError."""
+    parsed, unparsable, summary, session = mock_pipeline_state
+
+    md_text = recorder._build_markdown(parsed, unparsable, summary, session, {})
+
+    assert "## 6b. SURFACE FAMILY PROFILE" in md_text
+    assert "| guards | 0 | 0 | 0 | - |" in md_text
+
+
+def test_surface_family_profile_empty_galaxy_renders_dash_rows(recorder):
+    """Zero parsed files: every family row must render the '-' placeholder
+    (mirrors the existing empty-state behavior of section 6's risk table)
+    instead of raising."""
+    session_meta = {
+        "engine": "GitGalaxy Scope vtest",
+        "target": "Repo",
+        "target_directory": "/mock",
+        "timestamp": "2026-01-01T00:00:00Z",
+        "duration_seconds": 1.0,
+        "zero_dependency_mode": False,
+        "git_audit": {"branch": "main", "commit_hash": "abc", "remote_url": "https://example.invalid/repo"},
+    }
+    md_text = recorder._build_markdown([], [], {}, session_meta, {})
+
+    assert "## 6b. SURFACE FAMILY PROFILE" in md_text
+    assert "| guards | - | - | - | - |" in md_text

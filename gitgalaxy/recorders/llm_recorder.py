@@ -64,6 +64,11 @@ class LLMRecorder:
         # above changes -- the brief is generated text, not a schema.
         self.VECTOR_NAMES = schemas.get("VECTOR_NAMES", {})
         self._legacy_to_new = {legacy: new for new, legacy in self.VECTOR_NAMES.items()}
+        # gitgalaxy#2994: Tier-1 declarative family map, bound the same way
+        # as RISK_SCHEMA/SIGNAL_SCHEMA above -- not part of RECORDING_SCHEMAS
+        # itself (a standalone top-level constant). Drives section 6b of the
+        # markdown brief (display-only; never golden-mastered).
+        self.SURFACE_FAMILIES = getattr(config, "SURFACE_FAMILIES", {})
 
     def _format_new_vector_name(self, new_name: str) -> str:
         """Renders a VECTOR_NAMES canonical name (e.g. 'concurrency_surface')
@@ -493,6 +498,54 @@ class LLMRecorder:
                 lines.append(f"| {risk_label} | {v_min} | {v_max} | {v_mean} | {v_med} | {v_mode} |")
             else:
                 lines.append(f"| {risk_label} | - | - | - | - | - |")
+        lines.append("")
+
+        # --- 6b. SURFACE FAMILY PROFILE (gitgalaxy#2994, Tier 1/2/3) ---
+        # Display-only: nothing here is golden-mastered (section 6 above
+        # reads risk_vector, the audit-recorder's hashed contract; this
+        # reads telemetry["surface_families"/"surface_percentiles"/
+        # "surface_relations"], which audit_recorder never touches).
+        lines.append("## 6b. SURFACE FAMILY PROFILE (Tier 1/2/3 -- gitgalaxy#2994)")
+        lines.append(
+            "> Percentile columns elsewhere in this brief that come from the Tier-2 snapshot "
+            'percentiles are SNAPSHOT-RELATIVE: "87" means this file\'s value sits at the 87th '
+            "percentile of THIS repo's files for that surface -- true by construction (Hazen "
+            "average-rank), not a calibrated 0-100 risk threshold like the section 6 sigmoid "
+            "scores above. An all-zero surface across the whole repo reads as 0.0 for every "
+            "file, never a false-median 50."
+        )
+        lines.append("| Family | Repo Total | Files w/ Signal | P90 File Value | Top File |")
+        lines.append("|---|---|---|---|---|")
+
+        for family in self.SURFACE_FAMILIES:
+            per_file = [
+                (f.get("telemetry", {}).get("surface_families", {}).get(family, 0), f.get("path", "unknown"))
+                for f in parsed_files
+            ]
+            if per_file:
+                total = sum(v for v, _ in per_file)
+                files_with_signal = sum(1 for v, _ in per_file if v > 0)
+                sorted_vals = sorted(v for v, _ in per_file)
+                p90_idx = max(0, min(len(sorted_vals) - 1, round(0.9 * (len(sorted_vals) - 1))))
+                p90_val = sorted_vals[p90_idx]
+                top_val, top_path = max(per_file, key=lambda pair: pair[0])
+                top_display = f"`{top_path}`" if top_val > 0 else "-"
+                lines.append(f"| {family} | {total} | {files_with_signal} | {p90_val} | {top_display} |")
+            else:
+                lines.append(f"| {family} | - | - | - | - |")
+        lines.append("")
+
+        guard_balance_vals = [
+            f.get("telemetry", {}).get("surface_relations", {}).get("guard_balance_ratio", 0.0) for f in parsed_files
+        ]
+        alloc_cleanup_vals = [
+            f.get("telemetry", {}).get("surface_relations", {}).get("alloc_cleanup_pairing", 0.0) for f in parsed_files
+        ]
+        gb_median = round(statistics.median(guard_balance_vals), 4) if guard_balance_vals else 0.0
+        ac_median = round(statistics.median(alloc_cleanup_vals), 4) if alloc_cleanup_vals else 0.0
+        lines.append("**Relations (repo medians):**")
+        lines.append(f"- `guard_balance_ratio` (guards / (danger + 1)): **{gb_median}**")
+        lines.append(f"- `alloc_cleanup_pairing` (cleanup / (memory + 1)): **{ac_median}**")
         lines.append("")
 
         # --- 7. ARCHITECTURAL CHOKE POINTS & DEPENDENCIES ---

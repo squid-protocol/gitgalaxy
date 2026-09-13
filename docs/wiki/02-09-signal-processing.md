@@ -17,6 +17,13 @@ It employs biaxial anomaly detection to measure both global repository drift and
 Infrastructure shields bypass scoring for minified files, documentation, or exposed secrets.
 Temporal normalization is performed via a two-pass approach to scale churn metrics against the repository maximum logarithmically.
 Systemic risk is calculated by synthesizing local risk scores with network centrality metrics.
+[gitgalaxy#2994](https://github.com/squid-protocol/gitgalaxy/issues/2994) adds an additive
+measurement-tier layer alongside the frozen legacy `RISK_SCHEMA` vector: `calculate_risk_vector`
+sums declarative signal families (`SURFACE_FAMILIES`) and two count-relations straight from the
+raw signal counts, and a new `_compute_snapshot_percentiles` pass — called immediately after the
+Pass 2 temporal normalization above, since it ranks the post-normalization churn value — ranks
+every file's family/vector totals into a snapshot-relative 0–100 percentile. See
+[`docs/vectors.md`, "The tier model"](../vectors.md#the-tier-model) for the full design.
 
 ## Pipeline Integration
 Inputs: Raw structural counts, directory context, Git commit churn, and network centrality scores.
@@ -46,3 +53,6 @@ Integrating dynamic machine learning models to adjust language tier normalizatio
 ## Related Components
 - [The Detector](02-08-the-detector.md)
 - [Spectral Audit](02-11-spectral-audit.md)
+- [`docs/vectors.md`](../vectors.md) — the 13 legacy vectors' names/evidence, and (gitgalaxy#2994)
+  the measurement-tier model (families, snapshot percentiles, relations) this subsystem now also
+  computes

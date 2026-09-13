@@ -6,7 +6,9 @@ vocabulary below; the legacy `risk_*` names are kept as **deprecated aliases** f
 schema compatibility (see [Deprecation](#deprecation) below). This document describes
 what each vector measures, cites the evidence behind that description, and gives the
 old-name -> new-name mapping. It is the reference `README.md` links to for vector-level
-detail.
+detail. [gitgalaxy#2994](https://github.com/squid-protocol/gitgalaxy/issues/2994) adds a
+second, additive measurement system on top of these 13 vectors — see
+[The tier model](#the-tier-model) below.
 
 ## Why this document exists
 
@@ -438,14 +440,168 @@ The `risk_*` names (`risk_cognitive_load`, `risk_safety_score`, `risk_tech_debt`
   [`gitgalaxy/standards/analysis_lens.py`](../gitgalaxy/standards/analysis_lens.py), next to
   `RISK_SCHEMA`.
 
+## The tier model
+
+**Status: current.** [gitgalaxy#2994](https://github.com/squid-protocol/gitgalaxy/issues/2994)
+is the successor to this document's rename (#2993/#2991): where the rename made the
+*claims* honest, #2994 makes the **arithmetic** honest. The formula audit behind the rename
+established that 11 of the 13 vectors above are density formulas — the empirically convicted
+shape (`vector_formulas.md`, [gitgalaxy#2984](https://github.com/squid-protocol/gitgalaxy/issues/2984)/
+[gitgalaxy#2979](https://github.com/squid-protocol/gitgalaxy/issues/2979)) — squashed through
+sigmoids carrying ~40 uncalibrated tuned constants (thresholds, slopes, breach floors, path
+multipliers) that assert a 0–100 calibration nobody has ever validated against anything. #2994
+adds a second, additive measurement system that sidesteps the calibration problem entirely
+instead of trying to re-tune it.
+
+**The bargain is identical to the rename's:** every `risk_*` column above keeps emitting
+byte-identical values from the frozen legacy formulas — golden masters, bless baselines,
+temporal-crucible's longitudinal DBs, and `supply_chain_firewall`'s 50.0-cutoff are all
+unaffected (see [Deprecation](#deprecation) and the firewall note below). The tiers below are
+new columns, new telemetry keys, and a new LLM-brief section — nothing is removed or
+recalculated in place.
+
+| tier | content | transform | constants |
+|---|---|---|---|
+| 0 | raw signal counts (the validated x-ray; existing `struct_/state_/arch_/def_` columns) | none — canonical | 0 |
+| 1 | **families** — `SURFACE_FAMILIES`, a declarative `{family: [signal, ...]}` map, 22 families over the signal space; per-file value = raw sum of member counts | none | 0 |
+| 2 | **snapshot percentiles** — the honest 0–100: "87" means *87th percentile of this surface in this repo*, true by construction | rank (Hazen) | 0 |
+| 3 | **relations** — count÷count ratios with mechanism stories | ratio | 0 |
+
+Sigmoid-87 (a `risk_*` value) asserts a threshold/saturation curve nobody calibrated;
+percentile-87 (a `pct_fam_*`/`pct_vec_*` value) is a rank statement that cannot be wrong by
+construction — it just restates where this file sits among the files actually scanned. Count÷
+LOC density, the shape behind the `debt_markers`/`credential_material` REWORK flags above, is
+retired from measurement entirely in the tier model; no new tier is density-shaped.
+
+### Tier 1 — `SURFACE_FAMILIES`
+
+`SURFACE_FAMILIES` (in [`gitgalaxy/standards/analysis_lens.py`](../gitgalaxy/standards/analysis_lens.py),
+next to `SIGNAL_SCHEMA`) groups 63 of `SIGNAL_SCHEMA`'s 95 raw-signal names into 22 families:
+`memory`, `cleanup`, `guards`, `danger`, `concurrency`, `connectivity`, `io`, `crypto`, `ipc`,
+`time`, `serialization`, `regex`, `events`, `tests`, `docs`, `debt`, `mutation`, `dead_code`,
+`credential`, `threat`, `ml_ai`, `ui`. A file's per-family value is a plain **integer sum** of
+its member signals' raw counts — no formula, no constant, no sigmoid.
+
+The remaining 32 names are declared exempt in `SURFACE_FAMILY_EXEMPT` (same file), each with a
+one-line reason, in four groups: structural-shape signals that are substrate for complexity
+rather than a measurement surface in their own right (11: `branch`, `structural_boundaries`,
+`args`, `func_start`, `class_start`, `globals`, `decorators`, `import`,
+`dependency_injection`, `macros`, `bitwise_ops`); cosmetic style/naming signals (8: the
+`design_*_case`/`design_*_vars` family plus `indent_tabs`/`indent_spaces`); the single
+`ownership` signal (its own concern, not a surface); paradigm markers (3: `closures`,
+`generics`, `comprehensions`); `sec_*` lens duplicates of a signal already summed under its
+non-`sec_` counterpart's family, which would double-count if also included (7); and two
+permanent always-zero placeholders kept only for `SIGNAL_SCHEMA`'s positional stability
+(`prompt_injection`, `agentic_rce` — see the comment at their definition site). Every
+`SIGNAL_SCHEMA` name is in exactly one family XOR exempt — enforced by
+`tests/core_engine/test_surface_families_contract.py`, the arbiter of the map, not this
+document.
+
+**Raw-truth semantics (the suppression contract).** Families sum `raw_signals` — the counts
+the detector actually recorded — never the mitigation-suppressed `exposure_vector` that the
+`risk_*` sigmoids above are computed from. An inline `galaxyscope:ignore` that zeroes a file's
+`risk_safety_score` to 0.0 does **not** zero its `guards` family total: the family keeps
+reporting what is actually in the file, independent of whatever the legacy display layer was
+told to suppress. This is deliberate, not an oversight — families are "raw truth by
+construction," a different epistemic claim from the legacy vectors' suppressible display
+value. See the suppression-interplay test in `tests/core_engine/test_signal_processor.py`.
+
+### Tier 2 — snapshot percentiles
+
+`SignalProcessor._compute_snapshot_percentiles`, called in `summarize_galaxy_metrics`
+immediately after `_normalize_temporal_metrics` (ordering is load-bearing — Pass 2 rewrites
+`risk_vector`'s churn slot in place, so percentiles must rank the post-normalization value, not
+the raw pre-normalization one; see the churn-ordering test), ranks 35 series per repo snapshot:
+the 22 Tier-1 family sums and the 13 `RISK_SCHEMA` legacy-vector values (read-only — the
+legacy values themselves are never modified by this pass).
+
+The formula is the **Hazen plotting position**: `pct = (avg_rank − 0.5) / N × 100`, rounded to
+2 decimal places, where ties share the mean of the ranks they would occupy. Two special cases:
+
+- **All-zero series → 0.0 for every file.** If no file in the snapshot has a given surface at
+  all, a naive average-rank computation would still assign every (tied) file the 50th
+  percentile — misrepresenting "nobody has this signal in this repo" as "the median file has
+  it." The all-zero override reads 0.0 instead, so an absent surface never looks like a
+  median one.
+- **N=1 → 50.0 for every series.** A single-file snapshot has nothing to rank against;
+  "true middle" is the only honest value, for both a family with signal and one entirely
+  absent.
+
+Written to `telemetry["surface_percentiles"] = {"fam": {<family>: pct, ...}, "vec": {<slug>:
+pct, ...}}` on every parsed file — never on the `summarize_galaxy_metrics` return dict, which
+feeds the golden-mastered audit JSON (see [Golden-master constraint](#golden-master-constraint)
+below).
+
+**Firewall migration note.** `gitgalaxy/security/supply_chain_firewall.py` hardcodes a
+50.0-cutoff against the legacy 0–100 sigmoid scores (`risk_*`). That cutoff is unaffected by
+this reform — the firewall keeps reading frozen legacy values, unconditionally. A future
+migration of the firewall's threshold semantics from "sigmoid ≥ 50.0" to "percentile ≥ some
+cutoff" is a natural follow-up once the tier model has field experience, but it is **not**
+part of #2994 and no code changes here. Anyone undertaking that migration should note the
+50.0 in the firewall today is a sigmoid-calibration artifact, not a percentile — the two
+"50"s mean genuinely different things (one is an uncalibrated curve's midpoint, the other is
+the honest statement "half the repo is at or below this").
+
+### Tier 3 — relations
+
+Two count÷count ratios, each with a mechanism story, computed alongside the Tier-1 sums in
+`calculate_risk_vector`:
+
+- **`guard_balance_ratio`** = `guards / (danger + 1)` — defensive constructs per unit of
+  danger surface. The `+1` denominator means a danger-free file (the common case) never
+  divides by zero or spikes to an unbounded value.
+- **`alloc_cleanup_pairing`** = `cleanup / (memory + 1)` — cleanup (free/close/dispose)
+  constructs per unit of manual-allocation surface; this is the X-H1 feature from the
+  temporal-crucible validation record, now exposed directly instead of folded into a sigmoid.
+
+Written to `telemetry["surface_relations"]` on every parsed file. Like the families they're
+built from, relations read `raw_signals` — the same raw-truth semantics apply.
+
+### Where tiers surface
+
+Additive only, nowhere replacing a golden-mastered value:
+
+- Per-file: `telemetry["surface_families"]`, `telemetry["surface_relations"]` (both written in
+  `calculate_risk_vector`), `telemetry["surface_percentiles"]` (written in
+  `summarize_galaxy_metrics`, Tier 2).
+- SQLite (`record_keeper.py`, `file_data` table): 22 `fam_<name>` INTEGER, 22
+  `pct_fam_<name>` REAL, 13 `pct_vec_<risk-slug>` REAL, and `rel_guard_balance` /
+  `rel_alloc_cleanup` REAL — 59 new columns, generated dynamically from `SURFACE_FAMILIES`/
+  `RISK_SCHEMA` the same way the existing `risk_*`/hit-vector columns already are. A guarded
+  `ALTER TABLE ADD COLUMN` heal (`_ensure_columns`) brings pre-#2994 databases up to date on
+  the next write; `folder_data` is untouched.
+- LLM brief: section "6b. SURFACE FAMILY PROFILE," directly below the legacy section 6
+  sigmoid table — per-family repo total, files-with-signal count, p90 file value, and top
+  file, plus the two relations as repo medians. Display-only, not golden-mastered.
+
+### Golden-master constraint
+
+`audit_recorder`'s output is hashed whole by the golden-master corpus — any new key breaks
+every master. The tier model therefore changes `audit_recorder`'s output **not at all**: no
+new key is added to its sanitized JSON, and `pytest -m golden_crucible` passing with masters
+**untouched** (not regenerated) is the enforced proof that this reform is byte-identical to
+legacy on every value the corpus hashes. Tiers surface only through the three channels listed
+above — telemetry keys, DB columns, and the LLM brief — none of which the golden-master
+corpus reads.
+
 ## Appendix
 
 - [`vector_formulas.md`](vector_formulas.md) — the mechanical, per-calculator formula audit
   (inputs, arithmetic, constants, line references) extracted from
   `gitgalaxy/metrics/signal_processor.py`, referenced throughout this document.
+- `SURFACE_FAMILIES` / `SURFACE_FAMILY_EXEMPT` in
+  [`gitgalaxy/standards/analysis_lens.py`](../gitgalaxy/standards/analysis_lens.py) — the
+  Tier-1 family map and its exemption ledger described above.
+- `tests/core_engine/test_surface_families_contract.py` — the enforced contract (every
+  `SIGNAL_SCHEMA` name in exactly one family XOR exempt; no column-name collisions) that is
+  the arbiter of the family map, not this document.
 
 ## References
 
+- [gitgalaxy#2994](https://github.com/squid-protocol/gitgalaxy/issues/2994) — the
+  measurement-tier reform ([The tier model](#the-tier-model) above): `SURFACE_FAMILIES`,
+  snapshot percentiles, count relations, additive and legacy-frozen. Successor to #2991;
+  supersedes #2984/#2979 (frozen-deprecated rather than reworked).
 - [gitgalaxy#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991) — the naming/
   reframe issue this document implements (Option A), its disposition-table comment, and its
   formula-facts comment

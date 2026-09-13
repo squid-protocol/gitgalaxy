@@ -34,9 +34,7 @@ class StateRehydrator:
     def __init__(self, db_path: str):
         self.db_path = Path(db_path)
 
-    def load_state(
-        self, repo_name: str, commit_hash: Optional[str] = None
-    ) -> Optional[dict[str, Any]]:
+    def load_state(self, repo_name: str, commit_hash: Optional[str] = None) -> Optional[dict[str, Any]]:
         """
         Rebuild the RAM dictionary from a baseline commit's state in SQLite.
 

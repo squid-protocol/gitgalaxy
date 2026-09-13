@@ -3279,8 +3279,7 @@ def main():
 
         if args.baseline and not args.incremental:
             logging.warning(
-                "⚠️ --baseline has no effect without --incremental; it selects the "
-                "delta-scan baseline commit. Ignoring."
+                "⚠️ --baseline has no effect without --incremental; it selects the delta-scan baseline commit. Ignoring."
             )
 
         if args.incremental:

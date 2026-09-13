@@ -21,7 +21,7 @@ import statistics
 from pathlib import Path
 from typing import Optional, TypedDict, cast
 
-from gitgalaxy.standards.analysis_lens import ENGINE_CONSTANTS, RECORDING_SCHEMAS
+from gitgalaxy.standards.analysis_lens import ENGINE_CONSTANTS, RECORDING_SCHEMAS, SURFACE_FAMILIES
 
 # #2705: per-function evidence-mass floor (see analysis_lens.ENGINE_CONSTANTS).
 FUNC_EVIDENCE_MASS_FLOOR = float(cast("int", ENGINE_CONSTANTS["FUNC_EVIDENCE_MASS_FLOOR"]))
@@ -39,6 +39,35 @@ def _is_already_renamed(exc: sqlite3.OperationalError) -> bool:
     """
     detail = str(exc).lower()
     return "no such column" in detail or "duplicate column name" in detail
+
+
+def _ensure_columns(cursor: sqlite3.Cursor, table: str, col_defs: list[str]) -> None:
+    """DEFENSIVE GUARD: Auto-Heal Schema Drift (gitgalaxy#2994).
+
+    Generalizes the guarded-ALTER precedent already used for
+    `is_zero_dependency_mode`/`repo_data` (below) into a loop: on a
+    pre-existing DB from before this reform, `CREATE TABLE IF NOT EXISTS` is
+    a no-op, so new columns must be healed in one at a time with ALTER
+    TABLE. Safe on a freshly created DB too -- CREATE TABLE already added
+    every column below, so each ALTER here just hits the benign "duplicate
+    column name" branch and is skipped.
+
+    `col_defs` is a list of "name TYPE" strings, the same shape as the
+    risk_cols/hit_cols/fam_cols lists built in record_mission. `table` and
+    every entry in `col_defs` are internal literals (schema-derived, never
+    user input) -- SQLite has no parameterized syntax for column/table
+    names, same as the CREATE TABLE f-strings elsewhere in this module.
+    """
+    for col_def in col_defs:
+        try:
+            cursor.execute(f"ALTER TABLE {table} ADD COLUMN {col_def}")
+        except sqlite3.OperationalError as exc:  # noqa: PERF203 -- per-column isolation: one already-present column shouldn't abort healing the rest
+            if "duplicate column name" in str(exc).lower():
+                logging.getLogger("record_keeper").debug(
+                    f"Schema migration skipped: '{table}.{col_def}' already exists."
+                )
+            else:
+                raise
 
 
 class FolderStats(TypedDict):
@@ -80,6 +109,12 @@ class RecordKeeper:
         # downstream consumer), so the DB columns stay risk_* exactly,
         # unconditionally, per #2991's dual-emission requirement.
         self.VECTOR_NAMES = schemas.get("VECTOR_NAMES", {})
+        # gitgalaxy#2994: Tier-1 declarative family map (analysis_lens.py
+        # section 7b), bound here for the same reason VECTOR_NAMES is --
+        # not part of RECORDING_SCHEMAS itself (a standalone top-level
+        # constant), but travels with the rest of the schema wherever this
+        # recorder is imported from.
+        self.SURFACE_FAMILIES = SURFACE_FAMILIES
 
         # The Taxonomy Map (Enforces structural schema consistency)
         self.SHORT_KEY_MAP = {
@@ -196,6 +231,17 @@ class RecordKeeper:
         # 1. DYNAMIC SCHEMA GENERATION
         risk_cols = [f"risk_{r.replace('-', '_')} REAL" for r in self.RISK_SCHEMA]
         hit_cols = [f"{self.SHORT_KEY_MAP.get(h, h)} INTEGER" for h in self.SIGNAL_SCHEMA]
+
+        # gitgalaxy#2994: Tier-1/2/3 measurement columns, generated the same
+        # dynamic way as risk_cols/hit_cols above. Canonical order used
+        # consistently across CREATE TABLE, the guarded-ALTER heal, and the
+        # INSERT below: families (raw sums, then their snapshot percentiles),
+        # then the legacy-vector snapshot percentiles, then the relations.
+        fam_cols = [f"fam_{fam} INTEGER" for fam in self.SURFACE_FAMILIES]
+        pct_fam_cols = [f"pct_fam_{fam} REAL" for fam in self.SURFACE_FAMILIES]
+        pct_vec_cols = [f"pct_vec_{r.replace('-', '_')} REAL" for r in self.RISK_SCHEMA]
+        rel_cols = ["rel_guard_balance REAL", "rel_alloc_cleanup REAL"]
+        tier_cols = fam_cols + pct_fam_cols + pct_vec_cols + rel_cols
 
         cursor.execute(f"""
             CREATE TABLE IF NOT EXISTS repo_data (
@@ -336,9 +382,16 @@ class RecordKeeper:
                 raw_arch_api INTEGER DEFAULT 0,
                 raw_state_unreferenced INTEGER DEFAULT 0,
                 {", ".join(risk_cols)},
-                {", ".join(hit_cols)}
+                {", ".join(hit_cols)},
+                {", ".join(tier_cols)}
             )
         """)
+
+        # DEFENSIVE GUARD: Auto-Heal Schema Drift (gitgalaxy#2994) -- a
+        # pre-existing DB from before this reform already has file_data, so
+        # CREATE TABLE IF NOT EXISTS above is a no-op for it; heal the new
+        # fam_*/pct_fam_*/pct_vec_*/rel_* columns in with guarded ALTERs.
+        _ensure_columns(cursor, "file_data", tier_cols)
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS class_data (
@@ -875,31 +928,55 @@ class RecordKeeper:
             row_data.extend(rv)
             row_data.extend(hv)
 
+            # gitgalaxy#2994: Tier-1/2/3 measurement values, same canonical
+            # order as tier_cols above (families raw sums, family
+            # percentiles, legacy-vector percentiles, relations) -- read via
+            # tel.get(...) with 0/0.0 defaults so files that took an early-
+            # return path in calculate_risk_vector (critical-leak override,
+            # minified override, literature override -- none of which
+            # compute surface_families) still insert a clean row instead of
+            # raising.
+            fam_values = tel.get("surface_families", {})
+            pct_fam_values = tel.get("surface_percentiles", {}).get("fam", {})
+            pct_vec_values = tel.get("surface_percentiles", {}).get("vec", {})
+            rel_values = tel.get("surface_relations", {})
+
+            row_data.extend(fam_values.get(fam, 0) for fam in self.SURFACE_FAMILIES)
+            row_data.extend(pct_fam_values.get(fam, 0.0) for fam in self.SURFACE_FAMILIES)
+            row_data.extend(pct_vec_values.get(r, 0.0) for r in self.RISK_SCHEMA)
+            row_data.append(rel_values.get("guard_balance_ratio", 0.0))
+            row_data.append(rel_values.get("alloc_cleanup_pairing", 0.0))
+
             placeholders = ",".join(["?"] * len(row_data))
 
             # Safe: f-string interpolation is limited to self.RISK_SCHEMA/
-            # self.SIGNAL_SCHEMA/self.SHORT_KEY_MAP, internal hardcoded class
-            # constants (column names), not user input -- SQLite has no
-            # parameterized syntax for column names. Every actual row value
-            # goes through `placeholders`/`?` (noqa is on the closing `"""` below).
+            # self.SIGNAL_SCHEMA/self.SHORT_KEY_MAP/self.SURFACE_FAMILIES,
+            # internal hardcoded class constants (column names), not user
+            # input -- SQLite has no parameterized syntax for column names.
+            # Every actual row value goes through `placeholders`/`?` (noqa
+            # is on the closing `"""` below).
             cursor.execute(
                 f"""
                 INSERT INTO file_data (
-                    repo_name, commit_date, commit_hash, file_name, file_path, parent_entity, language, directory_group, 
+                    repo_name, commit_date, commit_hash, file_name, file_path, parent_entity, language, directory_group,
                     total_loc, coding_loc, doc_loc, structural_mass, cog_raw, ownership_entropy, silo_risk,
                     raw_churn_freq, popularity, import_count, internal_dependency_links, pagerank_score, normalized_blast_radius, betweenness_score, closeness_score, producer_ratio, ecosystem_role,
                     control_flow_ratio, function_count, class_count,
-                    func_complexity_vector, avg_func_loc, avg_func_complexity, max_func_complexity, 
+                    func_complexity_vector, avg_func_loc, avg_func_complexity, max_func_complexity,
                     avg_func_args, func_complexity_gini, func_internal_density, dependency_density, encapsulation_ratio,
-                    author, ai_threat_class, ai_threat_confidence, 
-                    func_z_max, func_z_mean, func_z_median, pct_z_above_5, pct_z_above_15, 
+                    author, ai_threat_class, ai_threat_confidence,
+                    func_z_max, func_z_mean, func_z_median, pct_z_above_5, pct_z_above_15,
                     file_archetype, file_fingerprint,
                     ecosystem_baseline, repo_z_score,
                     ai_threat_score, is_malware, has_credentials, binary_anomaly, obfuscation_flag,
                     token_mass, financial_read_cost, agentic_isolation_risk, requires_hitl, appsec_god_mode, hallucination_zone, silent_mutation_risk,
                     raw_arch_api, raw_state_unreferenced,
                     {", ".join([f"risk_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
-                    {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}
+                    {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])},
+                    {", ".join([f"fam_{fam}" for fam in self.SURFACE_FAMILIES])},
+                    {", ".join([f"pct_fam_{fam}" for fam in self.SURFACE_FAMILIES])},
+                    {", ".join([f"pct_vec_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
+                    rel_guard_balance, rel_alloc_cleanup
                 ) VALUES ({placeholders})
             """,  # noqa: S608
                 row_data,

@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from gitgalaxy.recorders.record_keeper import RecordKeeper
+from gitgalaxy.standards.analysis_lens import SURFACE_FAMILIES
 
 
 @pytest.fixture
@@ -599,3 +600,171 @@ def test_record_keeper_is_public_is_documented_migration_on_legacy_db(keeper, mo
     conn.close()
     assert row["is_public"] == 1, "post-migration insert must carry the real is_public"
     assert row["is_documented"] == 0, "post-migration insert must carry the real is_documented"
+
+
+# ==============================================================================
+# gitgalaxy#2994: MEASUREMENT-TIER COLUMNS (fam_*/pct_fam_*/pct_vec_*/rel_*)
+# ==============================================================================
+def test_record_keeper_tier_columns_present(keeper, mock_pipeline_state, tmp_path):
+    """Every SURFACE_FAMILIES key gets a fam_<name> INTEGER and pct_fam_<name>
+    REAL column; every (mocked) RISK_SCHEMA slug gets a pct_vec_<slug> REAL
+    column; the two relations get rel_guard_balance/rel_alloc_cleanup. Uses
+    the real SURFACE_FAMILIES (not patched by the `keeper` fixture, unlike
+    RISK_SCHEMA/SIGNAL_SCHEMA) since it's a standalone top-level constant."""
+    db_path = tmp_path / "test_tier_schema.sqlite"
+    parsed, unparsable, summary, session = mock_pipeline_state
+
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    conn = sqlite3.connect(db_path)
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(file_data)")}
+    conn.close()
+
+    for fam in SURFACE_FAMILIES:
+        assert f"fam_{fam}" in columns, f"missing fam_{fam} column"
+        assert f"pct_fam_{fam}" in columns, f"missing pct_fam_{fam} column"
+
+    for slug in keeper.RISK_SCHEMA:  # the fixture's mocked 3-slug RISK_SCHEMA
+        assert f"pct_vec_{slug}" in columns, f"missing pct_vec_{slug} column"
+
+    assert "rel_guard_balance" in columns
+    assert "rel_alloc_cleanup" in columns
+
+    # No collision between the new tier columns and any pre-existing column.
+    new_cols = (
+        {f"fam_{f}" for f in SURFACE_FAMILIES}
+        | {f"pct_fam_{f}" for f in SURFACE_FAMILIES}
+        | {f"pct_vec_{s}" for s in keeper.RISK_SCHEMA}
+        | {"rel_guard_balance", "rel_alloc_cleanup"}
+    )
+    assert new_cols <= columns
+
+
+def test_record_keeper_persists_surface_family_telemetry(keeper, mock_pipeline_state, tmp_path):
+    """Tier 1/2/3 telemetry (calculate_risk_vector's surface_families/
+    surface_percentiles/surface_relations) must round-trip verbatim into the
+    fam_*/pct_fam_*/pct_vec_*/rel_* columns via tel.get(...)."""
+    db_path = tmp_path / "test_tier_data.sqlite"
+    parsed, unparsable, summary, session = mock_pipeline_state
+
+    parsed[0]["telemetry"]["surface_families"] = {"guards": 7, "danger": 2, "memory": 3, "cleanup": 5}
+    parsed[0]["telemetry"]["surface_percentiles"] = {
+        "fam": {"guards": 87.5, "danger": 12.5},
+        "vec": {"tech_debt": 62.5, "cognitive_load": 0.0, "secrets_risk": 100.0},
+    }
+    parsed[0]["telemetry"]["surface_relations"] = {
+        "guard_balance_ratio": 2.3333,
+        "alloc_cleanup_pairing": 1.25,
+    }
+
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT fam_guards, fam_danger, pct_fam_guards, pct_fam_danger, "
+        "pct_vec_tech_debt, pct_vec_cognitive_load, pct_vec_secrets_risk, "
+        "rel_guard_balance, rel_alloc_cleanup FROM file_data WHERE file_name='router.py'"
+    ).fetchone()
+    conn.close()
+
+    assert row["fam_guards"] == 7
+    assert row["fam_danger"] == 2
+    assert row["pct_fam_guards"] == 87.5
+    assert row["pct_fam_danger"] == 12.5
+    assert row["pct_vec_tech_debt"] == 62.5
+    assert row["pct_vec_cognitive_load"] == 0.0
+    assert row["pct_vec_secrets_risk"] == 100.0
+    assert row["rel_guard_balance"] == 2.3333
+    assert row["rel_alloc_cleanup"] == 1.25
+
+
+def test_record_keeper_surface_family_telemetry_defaults_when_absent(keeper, mock_pipeline_state, tmp_path):
+    """A file whose telemetry never got surface_families/surface_percentiles/
+    surface_relations (e.g. calculate_risk_vector's critical-leak/minified/
+    literature early-return paths, which don't compute them) must insert a
+    clean row with 0/0.0 defaults instead of raising."""
+    db_path = tmp_path / "test_tier_defaults.sqlite"
+    parsed, unparsable, summary, session = mock_pipeline_state
+    # mock_pipeline_state's telemetry deliberately has none of the tier keys.
+
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT fam_guards, pct_fam_guards, pct_vec_tech_debt, rel_guard_balance, rel_alloc_cleanup "
+        "FROM file_data WHERE file_name='router.py'"
+    ).fetchone()
+    conn.close()
+
+    assert row["fam_guards"] == 0
+    assert row["pct_fam_guards"] == 0.0
+    assert row["pct_vec_tech_debt"] == 0.0
+    assert row["rel_guard_balance"] == 0.0
+    assert row["rel_alloc_cleanup"] == 0.0
+
+
+def test_record_keeper_tier_columns_migration_on_legacy_db(keeper, mock_pipeline_state, tmp_path):
+    """gitgalaxy#2994: recording into a pre-reform database (missing the
+    fam_*/pct_fam_*/pct_vec_*/rel_* columns) must auto-heal the schema via
+    the new `_ensure_columns` helper (same doc_loc / is_public / is_documented
+    / is_zero_dependency_mode ALTER TABLE precedent) instead of failing the
+    INSERT with a column-count mismatch."""
+    db_path = tmp_path / "legacy_tier.sqlite"
+    parsed, unparsable, summary, session = mock_pipeline_state
+    parsed[0]["telemetry"]["surface_families"] = {"guards": 9}
+    parsed[0]["telemetry"]["surface_relations"] = {"guard_balance_ratio": 4.5}
+
+    # First mission builds the modern schema; drop a representative sample of
+    # the new columns (one from each of the four groups) to simulate a
+    # legacy (pre-#2994) database. DROP COLUMN keeps class_data/function_data
+    # foreign keys intact, unlike a rename-and-rebuild.
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+    conn = sqlite3.connect(db_path)
+    conn.execute("ALTER TABLE file_data DROP COLUMN fam_guards")
+    conn.execute("ALTER TABLE file_data DROP COLUMN pct_fam_guards")
+    conn.execute("ALTER TABLE file_data DROP COLUMN pct_vec_tech_debt")
+    conn.execute("ALTER TABLE file_data DROP COLUMN rel_guard_balance")
+    conn.commit()
+    conn.close()
+
+    # Second mission against the legacy-shaped DB must migrate and insert.
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT fam_guards, rel_guard_balance FROM file_data ORDER BY id DESC LIMIT 1"
+    ).fetchone()
+    conn.close()
+    assert row["fam_guards"] == 9, "post-migration insert must carry the real fam_guards"
+    assert row["rel_guard_balance"] == 4.5, "post-migration insert must carry the real rel_guard_balance"
+
+
+def test_ensure_columns_helper_is_idempotent(tmp_path):
+    """Direct unit test of `_ensure_columns`: healing the same columns twice
+    must not raise (the guarded "duplicate column name" branch), and must
+    leave the schema unchanged the second time."""
+    from gitgalaxy.recorders.record_keeper import _ensure_columns
+
+    db_path = tmp_path / "ensure_columns.sqlite"
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    cursor.execute("CREATE TABLE probe (id INTEGER PRIMARY KEY, x TEXT)")
+    conn.commit()
+
+    col_defs = ["fam_guards INTEGER", "pct_fam_guards REAL", "rel_guard_balance REAL"]
+    _ensure_columns(cursor, "probe", col_defs)
+    conn.commit()
+    first = sorted(row[1] for row in cursor.execute("PRAGMA table_info(probe)"))
+
+    _ensure_columns(cursor, "probe", col_defs)  # must not raise
+    conn.commit()
+    second = sorted(row[1] for row in cursor.execute("PRAGMA table_info(probe)"))
+
+    conn.close()
+    assert first == second
+    assert "fam_guards" in first
+    assert "pct_fam_guards" in first
+    assert "rel_guard_balance" in first

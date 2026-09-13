@@ -1741,3 +1741,233 @@ def test_file_archetype_classified_when_model_matches_live_dims(monkeypatch):
     res = processor.calculate_risk_vector(meta, sig)
 
     assert res["telemetry"]["archetype"] == "file_cluster_1"
+
+
+# ==============================================================================
+# gitgalaxy#2994: MEASUREMENT TIERS -- TIER 1/3 (FAMILIES & RELATIONS)
+# ==============================================================================
+def test_signal_processor_surface_families_are_raw_sums(processor):
+    """Tier 1: a file's per-family value is the RAW SUM of its member signal
+    counts. `guards` = safety + immutability_locks + encapsulation;
+    `danger` = safety_bypasses + high_risk_execution + inline_asm +
+    panics_and_aborts (see analysis_lens.SURFACE_FAMILIES)."""
+    meta, sig = create_synthetic_star(
+        processor,
+        "families_sum",
+        200,
+        {
+            "safety": 4,
+            "immutability_locks": 2,
+            "encapsulation": 1,
+            "safety_bypasses": 3,
+            "high_risk_execution": 1,
+        },
+    )
+    res = processor.calculate_risk_vector(meta, sig)
+    families = res["telemetry"]["surface_families"]
+
+    assert families["guards"] == 4 + 2 + 1
+    assert families["danger"] == 3 + 1
+    # A family with no fired members sums to a true 0, not absent/None.
+    assert families["crypto"] == 0
+
+
+def test_signal_processor_surface_families_covers_every_declared_family(processor):
+    """Every key in SURFACE_FAMILIES must appear in telemetry["surface_families"]
+    for every file, even when every member is 0 -- consumers (record_keeper,
+    the LLM brief) read this dict by family name unconditionally."""
+    meta, sig = create_synthetic_star(processor, "empty_families", 50)
+    res = processor.calculate_risk_vector(meta, sig)
+    assert set(res["telemetry"]["surface_families"].keys()) == set(processor.SURFACE_FAMILIES.keys())
+    assert all(v == 0 for v in res["telemetry"]["surface_families"].values())
+
+
+def test_signal_processor_surface_relations_formulas(processor):
+    """Tier 3: guard_balance_ratio = guards / (danger + 1); alloc_cleanup_pairing
+    = cleanup / (memory + 1). The +1 denominators mean a danger-free /
+    memory-free file never divides by zero."""
+    meta, sig = create_synthetic_star(
+        processor,
+        "relations",
+        200,
+        {
+            "safety": 6,  # guards = 6
+            "safety_bypasses": 1,  # danger = 1
+            "cleanup": 5,  # cleanup = 5
+            "pointers": 1,  # memory = 1
+        },
+    )
+    res = processor.calculate_risk_vector(meta, sig)
+    relations = res["telemetry"]["surface_relations"]
+
+    assert relations["guard_balance_ratio"] == round(6 / (1 + 1), 4)
+    assert relations["alloc_cleanup_pairing"] == round(5 / (1 + 1), 4)
+
+
+def test_signal_processor_surface_relations_plus_one_denominator_on_zero(processor):
+    """A file with zero danger/memory signals must not raise ZeroDivisionError
+    -- the +1 denominator is the whole point of the formula."""
+    meta, sig = create_synthetic_star(processor, "no_danger_no_memory", 50, {"safety": 3, "cleanup": 2})
+    res = processor.calculate_risk_vector(meta, sig)
+    relations = res["telemetry"]["surface_relations"]
+
+    assert relations["guard_balance_ratio"] == round(3 / (0 + 1), 4)
+    assert relations["alloc_cleanup_pairing"] == round(2 / (0 + 1), 4)
+
+
+def test_signal_processor_surface_families_are_raw_truth_despite_suppression(processor):
+    """The suppression-interplay contract (gitgalaxy#2994): families sum
+    raw_signals, NOT the mitigation-suppressed exposure_vector. A file whose
+    legacy risk_safety_score is zeroed by an inline `galaxyscope:ignore`
+    must still show a nonzero `guards` family total -- the family is "raw
+    truth by construction," independent of what the legacy sigmoid displays."""
+    meta, sig = create_synthetic_star(
+        processor,
+        "suppressed_but_raw",
+        100,
+        {"safety": 8, "immutability_locks": 2},
+    )
+    meta["mitigations"] = ["safety_score"]  # suppresses risk_safety_score (legacy "guard_balance")
+
+    res = processor.calculate_risk_vector(meta, sig)
+
+    idx_safety = processor.RISK_SCHEMA.index("safety_score")
+    assert res["risk_vector"][idx_safety] == 0.0, "legacy risk_safety_score must be suppressed to 0.0"
+    assert res["telemetry"]["surface_families"]["guards"] == 8 + 2, (
+        "the guards family sum must survive the legacy vector's suppression -- it reads raw_signals, "
+        "not the suppressed exposure_vector"
+    )
+
+
+# ==============================================================================
+# gitgalaxy#2994: MEASUREMENT TIERS -- TIER 2 (SNAPSHOT PERCENTILES)
+# ==============================================================================
+def _star_with_families(processor, name, **raw_signals):
+    meta, sig = create_synthetic_star(processor, name, 100, raw_signals)
+    res = processor.calculate_risk_vector(meta, sig)
+    meta["telemetry"] = res["telemetry"]
+    meta["risk_vector"] = res["risk_vector"]
+    meta["file_impact"] = res["file_impact"]
+    return meta
+
+
+def test_signal_processor_percentiles_hazen_average_rank(processor):
+    """Hazen plotting position: pct = (avg_rank - 0.5) / N * 100. Four files
+    with strictly increasing `safety` counts (0, 0, 5, 10) rank as
+    [25.0, 25.0, 62.5, 87.5] -- the two zeros tie and share the mean rank."""
+    files = [
+        _star_with_families(processor, "f0a", safety=0),
+        _star_with_families(processor, "f0b", safety=0),
+        _star_with_families(processor, "f5", safety=5),
+        _star_with_families(processor, "f10", safety=10),
+    ]
+    processor.summarize_galaxy_metrics(files, [])
+
+    pcts = [f["telemetry"]["surface_percentiles"]["fam"]["guards"] for f in files]
+    assert pcts == [25.0, 25.0, 62.5, 87.5]
+
+
+def test_signal_processor_percentiles_all_zero_series_reads_zero(processor):
+    """An all-zero series (no file in the snapshot has this surface at all)
+    must read 0.0 for every file -- NOT the 50.0 a naive average-rank tie
+    computation would give a tied field of zeroes. Absent signal must not
+    read as median."""
+    files = [
+        _star_with_families(processor, "a", safety=3),
+        _star_with_families(processor, "b", safety=7),
+        _star_with_families(processor, "c", safety=1),
+    ]
+    processor.summarize_galaxy_metrics(files, [])
+
+    # None of these files fired any `crypto` family member.
+    assert all(f["telemetry"]["surface_percentiles"]["fam"]["crypto"] == 0.0 for f in files)
+
+
+def test_signal_processor_percentiles_single_file_snapshot_reads_fifty(processor):
+    """N=1: with nothing to rank against, every series reads 50.0 -- both
+    for a family with signal and one entirely absent."""
+    files = [_star_with_families(processor, "solo", safety=9)]
+    processor.summarize_galaxy_metrics(files, [])
+
+    percentiles = files[0]["telemetry"]["surface_percentiles"]
+    assert percentiles["fam"]["guards"] == 50.0
+    assert percentiles["fam"]["crypto"] == 50.0  # absent signal, still N=1 -> 50.0
+    idx_cog = processor.RISK_SCHEMA.index("cognitive_load")
+    assert percentiles["vec"]["cognitive_load"] == 50.0
+
+
+def test_signal_processor_percentiles_written_for_every_family_and_vector(processor):
+    """telemetry["surface_percentiles"] must carry exactly the 22 families
+    (under "fam") and the 13 RISK_SCHEMA slugs (under "vec")."""
+    files = [
+        _star_with_families(processor, "a", safety=3),
+        _star_with_families(processor, "b", safety=1),
+    ]
+    processor.summarize_galaxy_metrics(files, [])
+
+    percentiles = files[0]["telemetry"]["surface_percentiles"]
+    assert set(percentiles["fam"].keys()) == set(processor.SURFACE_FAMILIES.keys())
+    assert set(percentiles["vec"].keys()) == set(processor.RISK_SCHEMA)
+
+
+def test_signal_processor_percentiles_rank_off_post_normalization_churn(processor):
+    """Ordering regression guard (gitgalaxy#2994): _compute_snapshot_percentiles
+    must run AFTER _normalize_temporal_metrics, because Pass 2 rewrites
+    risk_vector[churn_idx] in place from a raw frequency into a log1p-
+    normalized 0-100 score. Two files with wildly different raw churn
+    frequencies must rank by their NORMALIZED churn (both scores in the
+    0-100 range, ordered by relative frequency), not by the pre-normalization
+    raw seismic-frequency numbers -- which would still rank the same way by
+    coincidence for a monotonic transform, so this pins the actual values
+    seen, not just the order, to catch a reordering regression."""
+    churn_idx = processor.RISK_SCHEMA.index("churn")
+
+    hot = {
+        "is_git_tracked": True,
+        "mtime": 100,
+        "repo_min_time": 0,
+        "repo_max_time": 110,
+        "commit_count": 1000,
+    }
+    cold = {
+        "is_git_tracked": True,
+        "mtime": 100,
+        "repo_min_time": 0,
+        "repo_max_time": 110,
+        "commit_count": 1,
+    }
+
+    meta_hot, sig_hot = create_synthetic_star(processor, "hot", 100)
+    meta_hot["temporal_telemetry"] = hot
+    meta_cold, sig_cold = create_synthetic_star(processor, "cold", 100)
+    meta_cold["temporal_telemetry"] = cold
+
+    for meta, sig in ((meta_hot, sig_hot), (meta_cold, sig_cold)):
+        res = processor.calculate_risk_vector(meta, sig)
+        meta["telemetry"] = res["telemetry"]
+        meta["risk_vector"] = res["risk_vector"]
+        meta["file_impact"] = res["file_impact"]
+
+    # Before summarize_galaxy_metrics runs Pass 2, churn is still the 0.0
+    # placeholder calculate_risk_vector left in exposure_vector["churn"].
+    assert meta_hot["risk_vector"][churn_idx] == 0.0
+    assert meta_cold["risk_vector"][churn_idx] == 0.0
+
+    processor.summarize_galaxy_metrics([meta_hot, meta_cold], [])
+
+    # Pass 2 must have already rewritten both risk_vector[churn_idx] values
+    # (proving normalization ran) before the percentile pass ranked them.
+    assert meta_hot["risk_vector"][churn_idx] > meta_cold["risk_vector"][churn_idx] > 0.0
+
+    # The hotter file must rank at the top of the churn percentile series.
+    hot_pct = meta_hot["telemetry"]["surface_percentiles"]["vec"]["churn"]
+    cold_pct = meta_cold["telemetry"]["surface_percentiles"]["vec"]["churn"]
+    assert hot_pct == 75.0  # 2 files, hot ranks 2nd -> (2-0.5)/2*100
+    assert cold_pct == 25.0  # cold ranks 1st -> (1-0.5)/2*100
+
+
+def test_signal_processor_percentiles_empty_galaxy_survives(processor):
+    """Zero files must not crash _compute_snapshot_percentiles (mirrors the
+    existing empty-state guard on _normalize_temporal_metrics)."""
+    summary = processor.summarize_galaxy_metrics([], [])
+    assert summary == {}

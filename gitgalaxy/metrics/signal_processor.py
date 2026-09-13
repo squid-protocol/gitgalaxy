@@ -72,6 +72,13 @@ class SignalProcessor:
     # imported from, rather than each renderer re-deriving it independently.
     VECTOR_NAMES = config.RECORDING_SCHEMAS.get("VECTOR_NAMES", {})
 
+    # gitgalaxy#2994: Tier-1 declarative family map (analysis_lens.py section
+    # 7b), bound here alongside RISK_SCHEMA/SIGNAL_SCHEMA so it travels with
+    # the schema wherever this class is imported from. Not part of
+    # RECORDING_SCHEMAS -- it's a standalone top-level constant, same pattern
+    # as ENGINE_CONSTANTS/APERTURE_CONFIG below.
+    SURFACE_FAMILIES = getattr(config, "SURFACE_FAMILIES", {})
+
     def __init__(
         self,
         aperture_config: Optional[dict[str, Any]] = None,
@@ -873,6 +880,42 @@ class SignalProcessor:
             if mp_map:
                 telemetry_payload["multipliers"] = mp_map
 
+            # ==================================================================
+            # TIER 1/3 -- SURFACE FAMILIES & RELATIONS (gitgalaxy#2994)
+            # ==================================================================
+            # Summed from raw_signals, NOT the mitigation-suppressed
+            # exposure_vector assembled above (:784-788 in this method) -- these
+            # are "raw truth by construction": a file whose legacy
+            # risk_safety_score got zeroed by an inline `galaxyscope:ignore`
+            # can still show a nonzero `guards` family total. See
+            # analysis_lens.SURFACE_FAMILIES / SURFACE_FAMILY_EXEMPT and the
+            # suppression-interplay test in test_signal_processor.py.
+            #
+            # Additive only: risk_vector/hit_vector/file_impact above are
+            # unchanged, and this key is new -- it does not touch the
+            # golden-mastered audit_recorder output (that reads risk_vector/
+            # hit_vector/file_impact, not telemetry["surface_families"]).
+            surface_families = {
+                family: sum(raw_signals.get(member, 0) for member in members)
+                for family, members in self.SURFACE_FAMILIES.items()
+            }
+            guards_total = surface_families.get("guards", 0)
+            danger_total = surface_families.get("danger", 0)
+            memory_total = surface_families.get("memory", 0)
+            cleanup_total = surface_families.get("cleanup", 0)
+            surface_relations = {
+                # Mechanism story: defensive constructs per unit of danger
+                # surface, +1 in the denominator so a danger-free file (the
+                # common case) doesn't divide by zero or spike to infinity.
+                "guard_balance_ratio": round(guards_total / (danger_total + 1), 4),
+                # Mechanism story: cleanup (free/close/dispose) per unit of
+                # manual allocation surface -- the X-H1 feature from the
+                # temporal-crucible validation record.
+                "alloc_cleanup_pairing": round(cleanup_total / (memory_total + 1), 4),
+            }
+            telemetry_payload["surface_families"] = surface_families
+            telemetry_payload["surface_relations"] = surface_relations
+
             return {
                 "risk_vector": risk_vector_ordered,
                 "hit_vector": hit_vector,
@@ -903,6 +946,16 @@ class SignalProcessor:
 
         # Execute Pass 2: Temporal Normalization across the Universe
         self._normalize_temporal_metrics(parsed_files)
+
+        # gitgalaxy#2994 Tier 2: snapshot percentiles MUST run AFTER temporal
+        # normalization above -- `_normalize_temporal_metrics` rewrites
+        # `risk_vector[churn_idx]` in place (:1275 in that method), and the
+        # percentile pass ranks the legacy-vector series off `risk_vector`
+        # directly. Reordering this ahead of normalization would rank every
+        # file's churn against its pre-normalization (raw, unnormalized)
+        # value instead -- see the churn-ordering regression test in
+        # test_signal_processor.py.
+        self._compute_snapshot_percentiles(parsed_files)
 
         total_files = len(parsed_files) + len(unparsable_files)
         if total_files == 0:
@@ -1273,6 +1326,97 @@ class SignalProcessor:
             # Inject Churn directly into the correct Risk Vector index
             if "risk_vector" in file_data and len(file_data["risk_vector"]) > idx:
                 file_data["risk_vector"][idx] = round(final_churn, 2)
+
+    def _compute_snapshot_percentiles(self, parsed_files: list[dict[str, Any]]) -> None:
+        """[TIER 2, gitgalaxy#2994] Snapshot percentiles -- the honest 0-100.
+
+        Ranks each file's 22 Tier-1 surface-family sums (telemetry
+        ["surface_families"], written by calculate_risk_vector) and its 13
+        RISK_SCHEMA legacy-vector values (risk_vector, POST-churn-
+        normalization -- see the call site in summarize_galaxy_metrics, which
+        invokes this method IMMEDIATELY AFTER _normalize_temporal_metrics so
+        churn is already rewritten before ranking) against every other file
+        in THIS scan/snapshot. "Percentile 87" means literally "87th
+        percentile of this surface in this repo" -- true by construction,
+        unlike the legacy sigmoid scores this tier supersedes for display.
+        Legacy risk_vector values themselves are read-only here, never
+        modified.
+
+        Hazen plotting-position formula: pct = (avg_rank - 0.5) / N * 100,
+        rounded to 2dp. Ties share the MEAN of the ranks they would occupy
+        (standard "average rank" tie-breaking), so two files with identical
+        values get identical percentiles.
+
+        An all-zero series (every file measures 0 on that surface) reads as
+        0.0 for EVERY file -- not the 50.0 an average-rank computation would
+        otherwise give a tied field of zeroes. Naively ranking would
+        misrepresent "nobody has this signal in this repo" as "the median
+        file has it," which is exactly backwards for an absent surface.
+
+        A single-file snapshot (N=1) reads 50.0 for every series: with
+        nothing to rank against, "true middle" is the only honest value.
+
+        Writes `telemetry["surface_percentiles"] = {"fam": {...}, "vec":
+        {...}}` on every parsed file, in place -- mirroring
+        `_normalize_temporal_metrics`'s own in-place style. The return value
+        of `summarize_galaxy_metrics` (the golden-mastered audit JSON) is
+        untouched; this only ever writes per-file telemetry.
+        """
+        n = len(parsed_files)
+        if n == 0:
+            return
+
+        fam_names = list(self.SURFACE_FAMILIES.keys())
+        vec_names = list(self.RISK_SCHEMA)
+
+        def _percentiles_for(values: list[float]) -> list[float]:
+            count = len(values)
+            if count == 0:
+                return []
+            if count == 1:
+                # Nothing to rank against -- "true middle" is the only
+                # honest value for a snapshot of one.
+                return [50.0]
+            if all(v == 0 for v in values):
+                # Absent signal must not read as median 50 (see docstring).
+                return [0.0] * count
+
+            # Average-rank (Hazen) ranking: sort ascending, then give every
+            # value in a tied run the MEAN of the 1-based ranks it spans.
+            order = sorted(range(count), key=lambda i: values[i])
+            ranks = [0.0] * count
+            i = 0
+            while i < count:
+                j = i
+                while j + 1 < count and values[order[j + 1]] == values[order[i]]:
+                    j += 1
+                avg_rank = (i + 1 + j + 1) / 2.0  # 1-based rank span [i+1, j+1]
+                for k in range(i, j + 1):
+                    ranks[order[k]] = avg_rank
+                i = j + 1
+
+            return [round((r - 0.5) / count * 100.0, 2) for r in ranks]
+
+        fam_percentiles: dict[str, list[float]] = {}
+        for fam in fam_names:
+            values = [float(f.get("telemetry", {}).get("surface_families", {}).get(fam, 0)) for f in parsed_files]
+            fam_percentiles[fam] = _percentiles_for(values)
+
+        vec_percentiles: dict[str, list[float]] = {}
+        for slug in vec_names:
+            idx = self.RISK_SCHEMA.index(slug)
+            values = [
+                float(f["risk_vector"][idx]) if "risk_vector" in f and len(f["risk_vector"]) > idx else 0.0
+                for f in parsed_files
+            ]
+            vec_percentiles[slug] = _percentiles_for(values)
+
+        for i, file_data in enumerate(parsed_files):
+            telemetry = file_data.setdefault("telemetry", {})
+            telemetry["surface_percentiles"] = {
+                "fam": {fam: fam_percentiles[fam][i] for fam in fam_names},
+                "vec": {slug: vec_percentiles[slug][i] for slug in vec_names},
+            }
 
     # ==========================================================================
     # FORENSIC EQUATIONS (The Structural Models)

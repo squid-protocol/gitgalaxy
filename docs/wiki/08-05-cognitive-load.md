@@ -6,7 +6,7 @@
 >
 > **Summary:** Measures the mental overhead required for a developer to understand a source file. Unlike raw line count (which measures volume), Cognitive Load evaluates decision density, state mutations, temporal complexity, reflection, and unsafe execution markers per line of code. High cognitive load highlights complex or tangled logic requiring focus, while clear documentation acts as a mitigating factor.
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum, scaling from 🟦 **Deep Blue** (linear, straightforward code) to 🟥 **Intense Red** (dense, multi-state async logic).
+> **Effect:** Maps directly to the GitGalaxy Universal Surface Spectrum, scaling from 🟦 **Deep Blue** (linear, straightforward code) to 🟥 **Intense Red** (dense, multi-state async logic).
 
 ## Engineering Summary
 This subsystem calculates the mental overhead required for developers to comprehend a given source file. It solves the problem of misidentifying codebase maintainability by moving beyond raw line counts, which only measure code volume, to quantify the actual density of logic. The subsystem exists to highlight tangled control flows, state mutations, and temporal complexities that slow down developer velocity and increase the likelihood of defects. By synthesizing these factors into a single metric, this system fits into the broader risk assessment pipeline of GitGalaxy.

@@ -79,14 +79,14 @@ This matrix maps the structural "Broadcast Power" of coding languages across his
 #### Column Legend (Signal Clusters)
 * **CF (Control Flow):** branch, linear, closures, comprehensions.
 * **Phys (Physics):** mass, args, func_start, class_start, import.
-* **Risk (Risk Exposure):** safety, safety_neg, danger, flux, graveyard, debt.
+* **Surface (Structural Surface Profile, formerly "Risk Exposure"):** safety, safety_neg, danger, flux, graveyard, debt.
 * **Domain (Ecosystem):** ui_framework, ssr_boundaries, events, di.
 * **Thermo (Thermodynamics):** telemetry, print_hits, bailout, halt, bitwise, locks, cleanup.
 
 #### Column Legend (Signal Clusters)
 * **CF (Control Flow):** branch, linear, closures, comprehensions.
 * **Phys (Physics):** mass, args, func_start, class_start, import.
-* **Risk (Risk Exposure):** safety, safety_neg, danger, flux, graveyard, debt.
+* **Surface (Structural Surface Profile, formerly "Risk Exposure"):** safety, safety_neg, danger, flux, graveyard, debt.
 * **Domain (Ecosystem):** ui_framework, ssr_boundaries, events, di.
 * **Thermo (Thermodynamics):** telemetry, print_hits, bailout, halt, bitwise, locks, cleanup.
 

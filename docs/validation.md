@@ -337,11 +337,11 @@ GitGalaxy is moving through a sequence of increasingly difficult questions:
 
 ↓
 
-> **Do those structural measurements correspond to meaningful risk exposure?**
+> **Do those structural measurements correspond to defect risk?** *(Answered — no: the temporal-crucible program ([#2982](https://github.com/squid-protocol/gitgalaxy/issues/2982)) found the structural vectors reduce to file size and do not predict defects. They were renamed from "risk exposure" to the **Structural Surface Profile** ([#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)); they measure surface area and activity. History metrics — recidivism, change entropy — are the predictive layer. See [`vectors.md`](vectors.md).)*
 
 ↓
 
-> **Does measured exposure behave correctly as real software evolves?**
+> **Does the measured surface profile behave correctly as real software evolves?** *(Yes — per-vector deltas track real code events: guard code added, threading introduced, debt markers diluted, cleanly across a security-fix → fix → control → revert gradient.)*
 
 The Tree-sitter/Ctags validation is currently about halfway complete. The
 immediate priority is to finish that audit before turning preliminary

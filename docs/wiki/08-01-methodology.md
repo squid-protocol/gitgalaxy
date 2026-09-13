@@ -1,15 +1,17 @@
-# Overview of Methodology & Risk Exposure Index
+# Overview of Methodology & the Structural Surface Profile
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 
+> **⚠️ Naming update ([#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)).** These 13 per-file vectors were formerly called **"Risk Exposures."** The `risk_` framing claimed a higher value means a higher chance of a defect. The temporal-crucible validation program ([#2982](https://github.com/squid-protocol/gitgalaxy/issues/2982) — ~3,550 pre-registered snapshots across curl and nDPI) tested that claim to exhaustion and found the structural vectors **reduce to file size and do not predict defects** (the size-confound wall, independently reported by [repowise-bench](https://github.com/repowise-dev/repowise)). They have therefore been renamed to the **Structural Surface Profile**: they measure structural **surface area and activity**, which is real and useful for *describing, explaining, and localizing* code — but is **not** a risk score. The legacy `risk_*` names remain as deprecated schema aliases. Full name table and evidence: [`vectors.md`](../vectors.md).
+
 ## Engineering Summary
-This subsystem forms the analytical core that translates raw regex heuristic counts into structured risk exposure ratings. It solves the problem of converting massive volumes of static analysis data into actionable, normalized health indicators without manual inspection. It exists to objectively map structural anomalies to a universal risk spectrum. Within GitGalaxy, it processes data across five architectural scopes to generate the primary knowledge graph attributes.
+This subsystem forms the analytical core that translates raw regex heuristic counts into a structured **surface profile**. It solves the problem of converting massive volumes of static analysis data into normalized, comparable structural indicators without manual inspection. It exists to objectively map structural constructs to a universal surface-area spectrum. Within GitGalaxy, it processes data across five architectural scopes to generate the primary knowledge graph attributes.
 
 ## Purpose
-To evaluate source code components against 50+ heuristic metrics and aggregate them into a 5-tier Universal Risk Spectrum across function, class, file, directory, and repository scopes.
+To evaluate source code components against 50+ heuristic metrics and aggregate them into a 5-tier Universal Surface Spectrum across function, class, file, directory, and repository scopes — a description of what each component *contains and does*, not a prediction of where defects are.
 
 ## Problem Being Solved
-Subjective code quality scores lack consistency and traceability. This subsystem replaces subjective heuristics with deterministic, objective Risk Exposures, enabling engineering teams to identify architectural drift and technical debt algorithmically.
+Subjective code descriptions lack consistency and traceability. This subsystem replaces subjective heuristics with deterministic, objective structural-surface measures, enabling engineering teams to characterize architecture, activity, and technical-debt markers algorithmically. (What it deliberately does **not** claim: that a high surface score predicts defects — see the validation note above.)
 
 ## Design
 Evaluates metrics mapping to a 5-tier spectrum (Blue, Cyan, Yellow, Orange, Red). It calculates specific risk domains like Cognitive Load, State Flux, Technical Debt, and Concurrency Exposure. Aggregations use distinct mathematical normalization techniques depending on scope: Count-based (Levels 1-2), Sigmoid Normalized (Level 3), and Mass-Weighted Averages (Levels 4-5). Custom topological scales are employed for structural formatting indicators (e.g., Indentation Consistency).

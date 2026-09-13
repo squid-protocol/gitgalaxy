@@ -6,7 +6,7 @@
 >
 > **Summary:** Measures the density of commented-out source code blocks ("dead code"). Commented-out logic adds cognitive noise for developers who must mentally parse and discard inactive code paths.
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum:
+> **Effect:** Maps directly to the GitGalaxy Universal Surface Spectrum:
 > * 🟦 **CLEAN (Score 0-19):** Active, clean, executable code. Zero dead code detected.
 > * 🟨 **INTERMEDIATE (Score 40-59):** Minor inactive snippets or temporary commented blocks.
 > * 🟥 **HIGH GRAVEYARD RISK (Score 80-100):** Heavily polluted with dead code blocks requiring cleanup.

@@ -14,7 +14,7 @@ Exporting raw syntax counts directly to visualization or audit tools creates inc
 ## Design
 The module defines three core schemas:
 - `SIGNAL_SCHEMA`: A 60-point vector aggregating raw syntax heuristics (e.g., branching, memory allocation).
-- `RISK_SCHEMA`: An 18-point vector representing normalized risk exposure (e.g., tech debt, secrets risk) on a 0-100 scale.
+- `RISK_SCHEMA`: An 18-point vector representing the normalized **Structural Surface Profile** (formerly "risk exposure"; e.g. tech-debt markers, credential material) on a 0-100 scale. The vectors measure structural surface/activity, not defect probability — see [`vectors.md`](../vectors.md). `RISK_SCHEMA` and the `risk_*` keys are retained as deprecated schema aliases; `VECTOR_NAMES` maps them to the descriptive names.
 - `SAT_SCHEMA`: A 10-element array for individual function metadata (e.g., LOC, complexity).
 It also includes string translation maps and security thresholds.
 

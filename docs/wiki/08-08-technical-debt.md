@@ -6,7 +6,7 @@
 >
 > **Summary:** Measures technical debt density using developer code annotations (`TODO`, `FIXME`, `HACK`, `XXX`). It differentiates between planned pending work (`TODO`, `WIP`) and admitted logic fragility (`HACK`, `FIXME`), calculating a weighted stress score normalized per 100 lines of code.
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum:
+> **Effect:** Maps directly to the GitGalaxy Universal Surface Spectrum:
 > * 🟦 **VERY LOW (Score 0-19):** Polished. Code aligns with expectations with no active debt annotations.
 > * 🟨 **INTERMEDIATE (Score 40-59):** Active Development. A moderate density of planned task markers.
 > * 🟥 **VERY HIGH (Score 80-100):** High Risk. High density of fragile fixes (`HACK`, `FIXME`) and unfinished stubs (`TODO`).

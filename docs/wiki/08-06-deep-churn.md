@@ -6,7 +6,7 @@
 >
 > **Summary:** Measures how frequently a source file is modified over time relative to the rest of the repository. Churn is auto-scaled across the codebase so that the most volatile file anchors the maximum score (100.0), and all other files are normalized logarithmically against this maximum.
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum, scaling from 🟦 **Deep Blue** (stable, rarely touched code) to 🟥 **Intense Red** (highly active hotspots).
+> **Effect:** Maps directly to the GitGalaxy Universal Surface Spectrum, scaling from 🟦 **Deep Blue** (stable, rarely touched code) to 🟥 **Intense Red** (highly active hotspots).
 
 ## Engineering Summary
 This subsystem measures how frequently a source file is modified over time relative to the rest of the repository. It solves the problem of raw commit counts being misleading by auto-scaling churn across the codebase. It exists to highlight highly active hotspots that may indicate architectural instability or constant bug fixing. By using a two-pass auto-scaling normalization model, it fits into the broader risk assessment pipeline of GitGalaxy.
@@ -38,7 +38,7 @@ flowchart LR
 ```
 - **Inputs received:** `commit_count` (total commits modifying the file), `age_in_weeks` (file age relative to newest commit), and `max_freq` (highest raw change frequency in repo).
 - **Outputs produced:** A normalized volatility score (0-100).
-- **Dependencies:** Requires Git version control history upstream. Feeds downstream into the Universal Risk Spectrum dashboard.
+- **Dependencies:** Requires Git version control history upstream. Feeds downstream into the Universal Surface Spectrum dashboard.
 
 ## Tradeoffs
 - Logarithmic normalization is chosen to flatten extreme outliers, which sacrifices linear differentiation at the high end but prevents a single hyper-active file from compressing the distribution of the rest of the files.
@@ -59,4 +59,4 @@ Current behavior relies strictly on commit frequency. Planned improvements aim t
 ## Related Components
 - Git Log Analyzer
 - Path Modifier ($Mp$)
-- GitGalaxy Universal Risk Spectrum
+- GitGalaxy Universal Surface Spectrum

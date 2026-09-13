@@ -6,7 +6,7 @@
 >
 > **Summary:** Evaluates file age and timestamp stability across the repository. Instead of treating older code as inherently problematic, stability measures the relative time elapsed since a file was last modified compared to the newest and oldest timestamps in the repository.
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum:
+> **Effect:** Maps directly to the GitGalaxy Universal Surface Spectrum:
 > * 🟦 **RECENT / ACTIVE (Score 0-19):** Code modified very recently (the active edge of development).
 > * 🟨 **SETTLED (Score 40-59):** Code modified near the midpoint of the repository timeline.
 > * 🟥 **ESTABLISHED BASELINE (Score 80-100):** The oldest, long-unmodified files in the repository.

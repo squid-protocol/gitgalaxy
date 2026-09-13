@@ -1,12 +1,14 @@
-# API Exposure
+# Connectivity (API Surface)
 
 > **File Reference:** [`gitgalaxy/metrics/signal_processor.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py)
 >
-> **Metric:** Public API Surface Area & Export Ratio
+> **Vector:** `connectivity` (legacy alias `risk_api_exposure`) — Public API Surface Area & Export Ratio
+>
+> **⚠️ Naming update ([#2991](https://github.com/squid-protocol/gitgalaxy/issues/2991)):** formerly "API Exposure / `risk_api_exposure`." This vector measures the **size of a module's public surface**, not a probability of defect. See [`vectors.md`](../vectors.md) for the full reframe and the temporal-crucible evidence behind it.
 >
 > **Summary:** Measures the permeability of a module's public boundary by comparing exported public endpoints to total declared entities (functions + classes). It allows developers to distinguish encapsulated internal helpers from heavily exposed public interfaces.
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum:
+> **Effect:** Maps directly to the GitGalaxy Universal Surface Spectrum (higher = more public surface, **not** higher risk):
 > * 🟦 **VERY LOW (Score 0-19):** Encapsulated Vault. Internal utility module with no public export surface.
 > * 🟨 **MODERATE (Score 40-59):** Balanced API. Balanced mix of public methods and internal private helpers.
 > * 🟥 **VERY HIGH (Score 80-100):** Public Entry Point. Exposes a large volume of public functions/classes to external consumers.

@@ -6,7 +6,7 @@
 >
 > **Summary:** Evaluates how well source files are protected by defensive programming practices. It balances risk triggers (such as unsafe execution, type-suppression, and mutable state) against defensive controls (such as `try/catch` error handling, type guards, and test assertions).
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum:
+> **Effect:** Maps directly to the GitGalaxy Universal Surface Spectrum:
 > * 🟦 **VERY LOW (Score 0-19):** Highly Fortified. Defensive controls (`try/catch`, type guards) comfortably exceed execution stressors.
 > * 🟨 **INTERMEDIATE (Score 40-59):** Stable. Execution stressors and defensive controls are in equilibrium.
 > * 🟥 **VERY HIGH (Score 80-100):** Fragile / High Exposure. Execution stressors significantly exceed defensive controls, leaving code vulnerable to runtime failures.

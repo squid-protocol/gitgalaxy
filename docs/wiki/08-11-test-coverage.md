@@ -6,7 +6,7 @@
 >
 > **Summary:** Measures verification risk by assessing code complexity and structural impact against internal assertions and external test coverage. Rather than relying on simple line-count coverage, GitGalaxy computes residual **Untested Impact** at the function, class, file, directory, and repository levels.
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum:
+> **Effect:** Maps directly to the GitGalaxy Universal Surface Spectrum:
 > * 🟦 **VERY LOW (Score 0-19):** High Verification. Functions are heavily covered by targeted unit tests or snapshot assertions.
 > * 🟨 **INTERMEDIATE (Score 40-59):** Moderate Exposure. Core paths have basic tests, but some functions lack sufficient defensive assertions.
 > * 🟥 **VERY HIGH (Score 80-100+):** Unverified Execution. Complex functions and files operate with minimal or zero test verification.

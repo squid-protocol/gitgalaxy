@@ -6,7 +6,7 @@
 >
 > **Summary:** Evaluates documentation risk not by raw comment line counts, but by weighing the structural complexity of undocumented functions against existing inline comments, docstrings, and directory-level documentation (such as `README.md` or `ARCHITECTURE.md`). Risk is amplified for highly imported hub files (blast radius) and single-author files (bus factor risk).
 >
-> **Effect:** Maps directly to the GitGalaxy Universal Risk Spectrum:
+> **Effect:** Maps directly to the GitGalaxy Universal Surface Spectrum:
 > * 🟦 **VERY LOW (Score 0-19):** Fully Documented. Code is well-commented or protected under a comprehensive directory documentation shield.
 > * 🟨 **INTERMEDIATE (Score 40-59):** Moderate. Standard code complexity with acceptable inline comments.
 > * 🟥 **VERY HIGH (Score 80-100+):** Critical Exposure. Complex, highly-coupled, or single-author logic operating without documentation.

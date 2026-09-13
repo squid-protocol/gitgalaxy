@@ -1921,7 +1921,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
         # Safely mock the state rehydrator into sys.modules to avoid ImportError/AttributeError
         mock_rehydrator_cls = MagicMock()
-        mock_rehydrator_cls.return_value.load_latest_state.return_value = {
+        mock_rehydrator_cls.return_value.load_state.return_value = {
             "commit_hash": "old_hash",
             "ram_cache": {"src/a.py": {}},
         }
@@ -2041,7 +2041,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         test_args = ["galaxyscope", ".", "--incremental", "missing.db"]
 
         # SCENARIO A: Rehydrator returns None (No baseline exists)
-        mock_rehydrator_cls.return_value.load_latest_state.return_value = None
+        mock_rehydrator_cls.return_value.load_state.return_value = None
 
         with patch.object(sys, "argv", test_args), patch("gitgalaxy.licensing.enforce_licensing_guard"):
             try:
@@ -2055,7 +2055,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
         # SCENARIO B: Rehydrator works, but `git diff` crashes (e.g., shallow clone)
         mock_full_scan.reset_mock()
-        mock_rehydrator_cls.return_value.load_latest_state.return_value = {"commit_hash": "old", "ram_cache": {}}
+        mock_rehydrator_cls.return_value.load_state.return_value = {"commit_hash": "old", "ram_cache": {}}
 
         mock_subprocess.side_effect = subprocess.CalledProcessError(1, "git")
 

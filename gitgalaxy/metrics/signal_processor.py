@@ -1353,8 +1353,9 @@ class SignalProcessor:
         misrepresent "nobody has this signal in this repo" as "the median
         file has it," which is exactly backwards for an absent surface.
 
-        A single-file snapshot (N=1) reads 50.0 for every series: with
-        nothing to rank against, "true middle" is the only honest value.
+        A single-file snapshot (N=1) reads 50.0 for a series it actually
+        has (nothing to rank against => true middle), but 0.0 for a series
+        it measures zero on -- the all-zero rule takes precedence at every N.
 
         Writes `telemetry["surface_percentiles"] = {"fam": {...}, "vec":
         {...}}` on every parsed file, in place -- mirroring
@@ -1373,13 +1374,16 @@ class SignalProcessor:
             count = len(values)
             if count == 0:
                 return []
-            if count == 1:
-                # Nothing to rank against -- "true middle" is the only
-                # honest value for a snapshot of one.
-                return [50.0]
             if all(v == 0 for v in values):
                 # Absent signal must not read as median 50 (see docstring).
+                # This check deliberately PRECEDES the N=1 case: a
+                # single-file snapshot with zero of a surface still has
+                # NONE of it -- 0.0, never 50.0.
                 return [0.0] * count
+            if count == 1:
+                # One file, nonzero value: nothing to rank against --
+                # "true middle" is the only honest value.
+                return [50.0]
 
             # Average-rank (Hazen) ranking: sort ascending, then give every
             # value in a tied run the MEAN of the 1-based ranks it spans.

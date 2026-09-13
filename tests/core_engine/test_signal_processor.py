@@ -1884,16 +1884,21 @@ def test_signal_processor_percentiles_all_zero_series_reads_zero(processor):
 
 
 def test_signal_processor_percentiles_single_file_snapshot_reads_fifty(processor):
-    """N=1: with nothing to rank against, every series reads 50.0 -- both
-    for a family with signal and one entirely absent."""
+    """N=1: a series the file actually HAS reads 50.0 (nothing to rank
+    against => true middle); a series it measures zero on reads 0.0 -- the
+    all-zero rule takes precedence at every N, including N=1. An absent
+    surface must never read as a misleading mid-band 50."""
     files = [_star_with_families(processor, "solo", safety=9)]
     processor.summarize_galaxy_metrics(files, [])
 
     percentiles = files[0]["telemetry"]["surface_percentiles"]
+    # guards family fired (safety=9) -> the honest "true middle" at N=1.
     assert percentiles["fam"]["guards"] == 50.0
-    assert percentiles["fam"]["crypto"] == 50.0  # absent signal, still N=1 -> 50.0
-    idx_cog = processor.RISK_SCHEMA.index("cognitive_load")
-    assert percentiles["vec"]["cognitive_load"] == 50.0
+    # crypto family entirely absent -> 0.0 even at N=1.
+    assert percentiles["fam"]["crypto"] == 0.0
+    # legacy-vector series behave identically: this fixture's risk_vector
+    # carries cognitive_load == 0, so the all-zero rule applies there too.
+    assert percentiles["vec"]["cognitive_load"] == 0.0
 
 
 def test_signal_processor_percentiles_written_for_every_family_and_vector(processor):

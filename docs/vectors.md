@@ -523,7 +523,7 @@ The formula is the **Hazen plotting position**: `pct = (avg_rank − 0.5) / N ×
   percentile — misrepresenting "nobody has this signal in this repo" as "the median file has
   it." The all-zero override reads 0.0 instead, so an absent surface never looks like a
   median one.
-- **N=1 → 50.0 for every series.** A single-file snapshot has nothing to rank against;
+- **N=1 → 50.0 for a series the file has** (nothing to rank against => true middle); the all-zero rule takes precedence at every N, so an absent surface reads 0.0 even on a single-file snapshot;
   "true middle" is the only honest value, for both a family with signal and one entirely
   absent.
 

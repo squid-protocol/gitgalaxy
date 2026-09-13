@@ -174,16 +174,17 @@ class A11yEngine {
         }
 
         // 4. Determine Risks
-        // Engine normalizes risks to 1000. 500 = 50% risk exposure.
+        // Engine normalizes vectors to 1000. 500 = 50% surface presence.
+        // Structural Surface Profile (formerly "risk exposure") -- gitgalaxy#2991.
         const risks = file.risks || [];
         const highRisks = [];
-        if ((risks[0] || 0) > 500) highRisks.push("Cognitive Load");
-        if ((risks[1] || 0) > 500) highRisks.push("Safety Exposure");
-        if ((risks[2] || 0) > 500) highRisks.push("Tech Debt");
-        if ((risks[10] || 0) > 500) highRisks.push("Seismic Churn");
+        if ((risks[0] || 0) > 500) highRisks.push("Complexity Load");
+        if ((risks[1] || 0) > 500) highRisks.push("Guard Balance");
+        if ((risks[2] || 0) > 500) highRisks.push("Debt Markers");
+        if ((risks[10] || 0) > 500) highRisks.push("Seismic Churn (Historical Churn, predictive layer pending #2987)");
 
         if (highRisks.length > 0) {
-            desc += `Warning: High risk exposure in ${highRisks.join(', ')}.`;
+            desc += `Warning: high structural surface in ${highRisks.join(', ')}.`;
         } else {
             desc += "System stable.";
         }

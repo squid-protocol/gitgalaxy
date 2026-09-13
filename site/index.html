@@ -140,25 +140,25 @@
         </div>
 
         <div class="panel-section">
-            <label>Risk Exposure Analysis</label>
+            <label>Structural Surface Profile (formerly Risk Exposure)</label>
             <select id="metric-select" onchange="App.setMetric(parseInt(this.value))">
                 <option value="0">Standard (Basal State)</option>
                 <option value="14">Language Identity</option>
-                <option value="1">Cognitive Load Exposure</option>
-                <option value="2">Error & Exception Exposure</option>
-                <option value="3">Tech Debt Exposure</option>
-                <option value="4">Testing Exposure & Testing</option>
-                <option value="5">API Exposure</option>
-                <option value="6">Concurrency Exposure</option>
-                <option value="7">State Flux Exposure</option>
-                <option value="8">Graveyard (Dead Code)</option>
+                <option value="1">Complexity Load (formerly Cognitive Load Exposure)</option>
+                <option value="2">Guard Balance (formerly Error & Exception Exposure)</option>
+                <option value="3">Debt Markers (formerly Tech Debt Exposure)</option>
+                <option value="4">Test Surface (formerly Testing Exposure)</option>
+                <option value="5">Connectivity (formerly API Exposure)</option>
+                <option value="6">Concurrency Surface (formerly Concurrency Exposure)</option>
+                <option value="7">Mutation Surface (formerly State Flux Exposure)</option>
+                <option value="8">Dead Code Surface (formerly Graveyard)</option>
                 <option value="9">Spec Alignment</option>
-                <option value="10">Stability (Recent Commits)</option>
-                <option value="11">Deep Churn</option>
-                <option value="12">Documentation Risk</option>
+                <option value="10">Historical Stability (formerly Stability; predictive layer, pending #2987)</option>
+                <option value="11">Historical Churn (formerly Deep Churn; predictive layer, pending #2987)</option>
+                <option value="12">Documentation Surface (formerly Documentation Risk)</option>
                 <option value="13">Civil War</option>
                 <option value="16">Exploit Generation Surface</option>
-                <option value="19">Hardcoded Payload Artifacts</option>
+                <option value="19">Credential Material (formerly Hardcoded Payload Artifacts)</option>
             </select>
         </div>
 
@@ -908,24 +908,24 @@
                     txt += `\n`;
                 }
 
-                txt += `--- FORENSIC RISK EXPOSURES ---\n`;
+                txt += `--- FORENSIC STRUCTURAL SURFACE PROFILE (formerly Risk Exposures) ---\n`;
                 if (d.risks && window.RISK_SCHEMA) {
                     const exposureLabels = {
-                        "cognitive_load": "Cognitive Load Exposure",
-                        "safety_score": "Safety Exposure",
-                        "tech_debt": "Tech Debt Exposure",
-                        "verification": "Testing Exposure",
-                        "api_exposure": "API Exposure",
-                        "concurrency": "Concurrency Exposure",
-                        "state_flux": "State Flux Exposure",
-                        "graveyard": "Graveyard Exposure",
-                        "spec_match": "Specification Exposure",
-                        "stability": "Instability Exposure",
-                        "churn": "Volatility Exposure",
-                        "documentation": "Documentation Exposure",
+                        "cognitive_load": "Complexity Load (formerly Cognitive Load Exposure)",
+                        "safety_score": "Guard Balance (formerly Safety Exposure)",
+                        "tech_debt": "Debt Markers (formerly Tech Debt Exposure)",
+                        "verification": "Test Surface (formerly Testing Exposure)",
+                        "api_exposure": "Connectivity (formerly API Exposure)",
+                        "concurrency": "Concurrency Surface (formerly Concurrency Exposure)",
+                        "state_flux": "Mutation Surface (formerly State Flux Exposure)",
+                        "graveyard": "Dead Code Surface (formerly Graveyard Exposure)",
+                        "spec_match": "Spec Alignment (formerly Specification Exposure)",
+                        "stability": "Historical Stability (formerly Instability Exposure; predictive layer, pending #2987)",
+                        "churn": "Historical Churn (formerly Volatility Exposure; predictive layer, pending #2987)",
+                        "documentation": "Documentation Surface (formerly Documentation Exposure)",
                         "civil_war": "Tabs Vs. Spaces",
                         "logic_bomb": "Logic Bomb Exposure",
-                        "secrets_risk": "Hardcoded Secrets Exposure"
+                        "secrets_risk": "Credential Material (formerly Hardcoded Secrets Exposure)"
                     };
 
                     window.RISK_SCHEMA.forEach((schemaKey, idx) => {
@@ -1535,13 +1535,13 @@
                         GitGalaxy maps the hidden architecture of massive software repositories, translating codebases into non-numeric star-based dashboards (for humans), low-token markdown summaries (for AI agents), and full internal scanned audit results (for lawyers). 
                     </p>
                     <p style="margin: 0 0 15px 0;">
-                        Accomplished by scanning codebases with the same tech used to scan strings of DNA when I was a scientist. By employing a BLAST-like algorithm, a taxonomic language feature map, and DNA fingerprinting algorithms, GitGalaxy brings 50-ish years of bioinformatics to code analysis. We parse our resulting DNA/code fingerprint into a series of risk exposure metrics (genotype to phenotype assocations).
+                        Accomplished by scanning codebases with the same tech used to scan strings of DNA when I was a scientist. By employing a BLAST-like algorithm, a taxonomic language feature map, and DNA fingerprinting algorithms, GitGalaxy brings 50-ish years of bioinformatics to code analysis. We parse our resulting DNA/code fingerprint into a series of Structural Surface Profile metrics (formerly called risk exposure metrics; genotype to phenotype assocations).
                     </p>
                     <p style="margin: 0 0 15px 0;">
-                        GitGalaxy does not measure "Code Quality", which feels like a judgment, but instead measures Risk Exposure. Our measurements do not judge; they highlight. We do not assess "Bad Code"; we measure Cognitive Load Exposure—how hard it is for a human to work through the logic—because teams should be aware which files are the hardest to work on. 
+                        GitGalaxy does not measure "Code Quality", which feels like a judgment, but instead measures the Structural Surface Profile — what activity and content is present in a file, not a defect-probability verdict (this system was previously called Risk Exposure; a project validation program found the per-file "risk" framing didn't hold up and drove the rename — see docs/vectors.md). Our measurements do not judge; they highlight. We do not assess "Bad Code"; we measure Complexity Load (formerly Cognitive Load Exposure)—how hard it is for a human to work through the logic—because teams should be aware which files are the hardest to work on.
                     </p>
                     <p style="margin: 0;">
-                        Risk Exposures identify general trends (this file has high API exposure) instead of providing an absolute ranking over tiny differences (this file is better than that one because it scored 6% higher in the tech debt equation). These are general guides to give engineers, managers and CTOs a visual estimate on code status. It allows a team to agree on standards and instantly see—without reading a single line of text—where their architecture might be drifting into dangerous territory.
+                        Structural Surface Profile vectors identify general trends (this file has high connectivity, formerly "API exposure") instead of providing an absolute ranking over tiny differences (this file is better than that one because it scored 6% higher in the debt-markers equation). These are general guides to give engineers, managers and CTOs a visual estimate on code status. It allows a team to agree on standards and instantly see—without reading a single line of text—where their architecture might be drifting into dangerous territory.
                     </p>
                 </div>
 

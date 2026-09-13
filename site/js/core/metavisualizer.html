@@ -138,11 +138,11 @@
                 <div id="col-physical" class="space-y-8 bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-2xl backdrop-blur-md"></div>
             </section>
 
-            <!-- Pillar 2: Risk Exposure -->
+            <!-- Pillar 2: Structural Surface Profile (formerly Risk Exposure) -->
             <section class="space-y-6">
                 <div class="flex items-center gap-3">
                     <div class="w-2 h-6 bg-rose-500 shadow-[0_0_15px_rgba(244,63,94,0.6)] rounded-full"></div>
-                    <h3 class="text-sm font-black uppercase tracking-[0.2em] text-rose-400">Generalized Risk Exposures</h3>
+                    <h3 class="text-sm font-black uppercase tracking-[0.2em] text-rose-400">Structural Surface Profile (formerly Risk Exposures)</h3>
                 </div>
                 <div id="col-risk" class="space-y-8 bg-slate-900/60 p-6 rounded-3xl border border-slate-800 shadow-2xl backdrop-blur-md"></div>
             </section>
@@ -186,22 +186,22 @@
                 { id: 'popularity', label: 'Imported by # (Popularity)', keys: ['popularity', 'Popularity', 'pop'] },
                 ],
             risk: [
-                { slug: 'cognitive_load', keys: ['cognitive_load'], label: 'Cognitive Load Exposure', isRisk: true },
-                { slug: 'safety_score', keys: ['safety_score'], label: 'Safety Risk Exposure', isRisk: true },
-                { slug: 'tech_debt', keys: ['tech_debt'], label: 'Tech Debt Exposure', isRisk: true },
-                { slug: 'verification', keys: ['verification'], label: 'Testing Exposure', isRisk: true },
-                { slug: 'api_exposure', keys: ['api_exposure'], label: 'API Exposure', isRisk: true },
-                { slug: 'concurrency', keys: ['concurrency'], label: 'Concurrency Exposure', isRisk: true },
-                { slug: 'state_flux', keys: ['state_flux'], label: 'State Flux Exposure', isRisk: true },
-                { slug: 'dead_code', keys: ['dead_code', 'graveyard'], label: 'Dead Code Exposure', isRisk: true },
-                { slug: 'spec_match', keys: ['spec_match'], label: 'Specification Exposure', isRisk: true },
-                { slug: 'stability', keys: ['stability'], label: 'Stability', isRisk: true },
-                { slug: 'churn', keys: ['churn'], label: 'Churn', isRisk: true },
-                { slug: 'documentation', keys: ['documentation'], label: 'Documentation Risk Exposure', isRisk: true },
+                { slug: 'cognitive_load', keys: ['cognitive_load'], label: 'Complexity Load (formerly Cognitive Load Exposure)', isRisk: true },
+                { slug: 'safety_score', keys: ['safety_score'], label: 'Guard Balance (formerly Safety Risk Exposure)', isRisk: true },
+                { slug: 'tech_debt', keys: ['tech_debt'], label: 'Debt Markers (formerly Tech Debt Exposure)', isRisk: true },
+                { slug: 'verification', keys: ['verification'], label: 'Test Surface (formerly Testing Exposure)', isRisk: true },
+                { slug: 'api_exposure', keys: ['api_exposure'], label: 'Connectivity (formerly API Exposure)', isRisk: true },
+                { slug: 'concurrency', keys: ['concurrency'], label: 'Concurrency Surface (formerly Concurrency Exposure)', isRisk: true },
+                { slug: 'state_flux', keys: ['state_flux'], label: 'Mutation Surface (formerly State Flux Exposure)', isRisk: true },
+                { slug: 'dead_code', keys: ['dead_code', 'graveyard'], label: 'Dead Code Surface (formerly Dead Code Exposure)', isRisk: true },
+                { slug: 'spec_match', keys: ['spec_match'], label: 'Spec Alignment (formerly Specification Exposure)', isRisk: true },
+                { slug: 'stability', keys: ['stability'], label: 'Historical Stability (formerly Stability; predictive layer, pending #2987)', isRisk: true },
+                { slug: 'churn', keys: ['churn'], label: 'Historical Churn (formerly Churn; predictive layer, pending #2987)', isRisk: true },
+                { slug: 'documentation', keys: ['documentation'], label: 'Documentation Surface (formerly Documentation Risk Exposure)', isRisk: true },
                 { slug: 'tabs_vs_spaces', keys: ['tabs_vs_spaces', 'civil_war'], label: 'Layout Unity (Civil War)', isRisk: true, isCivilWar: true },
                 { slug: 'algorithmic_dos', keys: ['algorithmic_dos'], label: 'Algorithmic DoS Exposure', isRisk: true },
                 { slug: 'logic_bomb', keys: ['logic_bomb'], label: 'Logic Bomb Exposure', isRisk: true },
-                { slug: 'secrets_risk', keys: ['secrets_risk'], label: 'Hardcoded Secrets Exposure', isRisk: true }
+                { slug: 'secrets_risk', keys: ['secrets_risk'], label: 'Credential Material (formerly Hardcoded Secrets Exposure)', isRisk: true }
             ],
             satellite: [
                 { id: 'impact', label: 'Function Impact #', keys: ['mag_x10', 'magnitude', 'impact'] },

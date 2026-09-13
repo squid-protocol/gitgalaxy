@@ -56,6 +56,43 @@ class LLMRecorder:
         schemas = getattr(config, "RECORDING_SCHEMAS", {})
         self.RISK_SCHEMA = schemas.get("RISK_SCHEMA", [])
         self.SIGNAL_SCHEMA = schemas.get("SIGNAL_SCHEMA", [])
+        # gitgalaxy#2991 (Option A): canonical new-name -> legacy risk_* name.
+        # Used ONLY to translate this recorder's human-readable brief labels
+        # (the markdown narrative auto-committed to
+        # docs/gitgalaxy_architecture_brief.md) to the new descriptive
+        # vocabulary. Nothing keyed by RISK_SCHEMA/risk_vector positions
+        # above changes -- the brief is generated text, not a schema.
+        self.VECTOR_NAMES = schemas.get("VECTOR_NAMES", {})
+        self._legacy_to_new = {legacy: new for new, legacy in self.VECTOR_NAMES.items()}
+
+    def _format_new_vector_name(self, new_name: str) -> str:
+        """Renders a VECTOR_NAMES canonical name (e.g. 'concurrency_surface')
+        as a display label (e.g. 'Concurrency Surface').
+
+        `hist_*` entries are the PROMOTE-flagged predictive-layer family
+        (gitgalaxy#2991's disposition table): currently inert in every scan
+        (GITGALAXY_DISABLE_GIT_HISTORY ablates them to zero) pending
+        temporal-crucible#29's history-enabled mode and gitgalaxy#2987's
+        defect-lift promotion gate. Say so on the label itself so an LLM
+        reading the brief doesn't treat a current stability/churn value as a
+        live predictor.
+        """
+        if new_name.startswith("hist_"):
+            rest = new_name[len("hist_") :].replace("_", " ").title()
+            return f"Historical {rest} (predictive layer, promotion pending #2987)"
+        return new_name.replace("_", " ").title()
+
+    def _surface_label(self, bare_slug: str, old_label: str) -> str:
+        """Translates a risk_* vector's legacy display label to the new
+        descriptive vocabulary from gitgalaxy#2991, noting the alias on
+        first use. Falls back to `old_label` untouched when no mapping is
+        bound (e.g. tests that stub RECORDING_SCHEMAS without VECTOR_NAMES)
+        or for entries VECTOR_NAMES doesn't cover.
+        """
+        new_name = self._legacy_to_new.get(f"risk_{bare_slug}")
+        if not new_name:
+            return old_label
+        return f"{self._format_new_vector_name(new_name)} (formerly {old_label})"
 
     def _parse_threat_score(self, artifact: dict) -> tuple[float, str]:
         """Safely extracts and converts the AI threat score string to a float."""
@@ -216,7 +253,7 @@ class LLMRecorder:
         lines.append("> ")
         lines.append("> **CORE DIRECTIVES:**")
         lines.append(
-            "> 1. **Narrate the Architecture, Don't Judge the Author:** Frame every observation as a blameless description of the system's physical reality. High Risk Exposure (e.g., Cognitive Load Exposure) describes where the architecture may be drifting into fragile territory, not developer incompetence -- it is a prompt to investigate, never a verdict."
+            "> 1. **Narrate the Architecture, Don't Judge the Author:** Frame every observation as a blameless description of the system's physical reality. A high Structural Surface Profile reading (formerly called Risk Exposure; e.g., Complexity Load, formerly Cognitive Load Exposure) describes where the architecture may be drifting into fragile territory, not developer incompetence -- it is a prompt to investigate, never a verdict. These are activity/content surface meters, not defect-probability estimates (gitgalaxy#2991, evidence in #2982) -- describe what is there, don't imply it predicts a bug."
         )
         lines.append(
             "> 2. **The Physical Reality Rule:** Base your narrative strictly on the provided Structural Signatures and the numbers derived from them. Do not hallucinate meaning, and do not restate a heuristic's raw label (e.g. a 'Logic Bomb' or 'O(2^N)' flag) as a confirmed finding of malice or a guaranteed defect -- explain what the signature actually measures, weave it into the story of the file, and let the reader draw their own conclusion."
@@ -240,43 +277,51 @@ class LLMRecorder:
         )
 
         # --- 2. 13-POINT RISK ANALYSIS (THE EQUATIONS) ---
-        lines.append("## 2. THE 13-POINT RISK EXPOSURE ANALYSIS (EQUATIONS & CONTEXT)")
-        lines.append("> **How the SAST Engine Calculates Risk Exposure (Lower Risk 0 - Higher Risk Exposure 100%):**")
         lines.append(
-            "> Most scores use a Sigmoid curve based on density (Hits / LOC) to prevent massive files from mathematically hiding their flaws."
+            "## 2. THE 13-POINT STRUCTURAL SURFACE PROFILE (formerly Risk Exposure) ANALYSIS (EQUATIONS & CONTEXT)"
+        )
+        lines.append(
+            "> **How the SAST Engine Calculates the Structural Surface Profile (Lower 0 - Higher Surface Presence 100%):**"
+        )
+        lines.append(
+            "> Most scores use a Sigmoid curve based on density (Hits / LOC) to prevent massive files from mathematically hiding their flaws. These 13 vectors are activity/content surface meters -- they describe what is present in a file, not the probability of a defect. The temporal-crucible validation record (gitgalaxy#2982, ~3,550 scanned snapshots, two repositories, pre-registered) tested the per-file-standing-risk claim to exhaustion and found it does not hold; see docs/vectors.md for the full record and gitgalaxy#2991 for the rename this drove. `risk_*` names remain the underlying column/key names for schema compatibility -- see the 'formerly' aliases below."
         )
         lines.append("> ")
         lines.append(
-            "> 1. **Cognitive Load Exposure:** Measures the mental effort required for a developer to read and understand the file. `Density(Branches + (Flux * 2) + Async/Danger)` mitigated by `Doc Coverage`."
+            "> 1. **Complexity Load** (formerly Cognitive Load Exposure)**:** Measures the mental effort required for a developer to read and understand the file. `Density(Branches + (Flux * 2) + Async/Danger)` mitigated by `Doc Coverage`."
         )
         lines.append(
-            "> 2. **Error & Exception Risk Exposure:** Measures structural integrity and resilience against runtime errors. `Net Exposure = (Danger + Safety_Neg + Flux) - (Safety + Tests + Docs)`."
+            "> 2. **Guard Balance** (formerly Error & Exception Risk Exposure)**:** Measures structural integrity and resilience against runtime errors. `Net Exposure = (Danger + Safety_Neg + Flux) - (Safety + Tests + Docs)`."
         )
         lines.append(
-            "> 3. **Tech Debt Exposure:** Measures the density of developer-annotated structural stress. `Density(TODOs [1x] + FIXMEs/Hacks [3x] + Empty Stubs [0.5x])`."
+            "> 3. **Debt Markers** (formerly Tech Debt Exposure)**:** Measures the density of developer-annotated structural stress. `Density(TODOs [1x] + FIXMEs/Hacks [3x] + Empty Stubs [0.5x])`."
         )
         lines.append(
-            "> 4. **Verification Risk Exposure:** Evaluates test coverage by comparing a function's structural complexity against the scope of the tests validating it."
+            "> 4. **Test Surface** (formerly Verification Risk Exposure)**:** Evaluates test coverage by comparing a function's structural complexity against the scope of the tests validating it."
         )
         lines.append(
-            "> 5. **API Risk Exposure:** Measures the public surface area of a module. `Ratio(API Hits / Total Functions & Classes)`."
+            "> 5. **Connectivity** (formerly API Risk Exposure)**:** Measures the public surface area of a module. `Ratio(API Hits / Total Functions & Classes)`."
         )
         lines.append(
-            "> 6. **Concurrency Risk Exposure:** Measures the density of asynchronous operations, threading, and parallel execution logic."
+            "> 6. **Concurrency Surface** (formerly Concurrency Risk Exposure)**:** Measures the density of asynchronous operations, threading, and parallel execution logic."
         )
         lines.append(
-            "> 7. **State Flux Risk Exposure:** Measures the frequency of data mutation and variable reassignment."
+            "> 7. **Mutation Surface** (formerly State Flux Risk Exposure)**:** Measures the frequency of data mutation and variable reassignment."
         )
         lines.append(
-            "> 8. **Commented Logic (dead code):** Measures the presence of abandoned, commented-out logic blocks."
+            "> 8. **Dead Code Surface** (formerly Commented Logic (dead code))**:** Measures the presence of abandoned, commented-out logic blocks."
         )
         lines.append(
-            "> 9. **Spec Match Risk Exposure:** Measures how closely code aligns with formal specifications or architectural requirements."
+            "> 9. **Spec Alignment** (formerly Spec Match Risk Exposure)**:** Measures how closely code aligns with formal specifications or architectural requirements."
         )
-        lines.append("> 10. **Stability:** Measures the recency of edits relative to the repository's entire lifespan.")
-        lines.append("> 11. **Deep Churn:** Measures the historical volatility and frequency of modification.")
         lines.append(
-            "> 12. **Documentation Risk Exposure:** Of the units extracted from a file, the weight-share a reader cannot recover from documentation -- public units count double, runtime-dynamic units count more, and a folder-level documentation umbrella shields the whole file. A ratio over units, not a density over lines; files with no extracted units have no value."
+            "> 10. **Historical Stability** (formerly Stability; predictive layer, promotion pending #2987)**:** Measures the recency of edits relative to the repository's entire lifespan. Part of the family the validation record actually supports as predictive -- currently ablated to zero in every scan (`GITGALAXY_DISABLE_GIT_HISTORY`, temporal-crucible#29)."
+        )
+        lines.append(
+            "> 11. **Historical Churn** (formerly Deep Churn; predictive layer, promotion pending #2987)**:** Measures the historical volatility and frequency of modification. Same predictive-layer status and ablation caveat as Historical Stability above."
+        )
+        lines.append(
+            "> 12. **Documentation Surface** (formerly Documentation Risk Exposure)**:** Of the units extracted from a file, the weight-share a reader cannot recover from documentation -- public units count double, runtime-dynamic units count more, and a folder-level documentation umbrella shields the whole file. A ratio over units, not a density over lines; files with no extracted units have no value."
         )
         lines.append(
             "> 13. **Indentation Consistency:** Measures formatting alignment (Tabs vs. Spaces). Provided for codebase standardization context, not a functional risk."
@@ -296,7 +341,7 @@ class LLMRecorder:
             "> 17. **Memory Corruption Risk Exposure:** Measures the density of raw pointer math and manual memory allocations (Buffer Overflows, UAF)."
         )
         lines.append(
-            "> 18. **Secrets Risk Exposure:** Measures the presence of hardcoded credentials exposed to logs or globals."
+            "> 18. **Credential Material** (formerly Secrets Risk Exposure)**:** Measures the presence of hardcoded credentials exposed to logs or globals."
         )
         lines.append("> ")
         lines.append("> **--- STRUCTURAL MAGNITUDE (NOT RISK) ---**")
@@ -423,8 +468,8 @@ class LLMRecorder:
         lines.append("")
 
         # --- 6. RISK DISTRIBUTIONS ---
-        lines.append("## 6. RISK EXPOSURE ANALYSIS (0-100%)")
-        lines.append("| Risk Vector | Min | Max | Mean | Med | Mode |")
+        lines.append("## 6. STRUCTURAL SURFACE PROFILE (formerly Risk Exposure) ANALYSIS (0-100%)")
+        lines.append("| Structural Surface Vector | Min | Max | Mean | Med | Mode |")
         lines.append("|---|---|---|---|---|---|")
 
         schemas = getattr(config, "RECORDING_SCHEMAS", {})
@@ -432,7 +477,8 @@ class LLMRecorder:
 
         for i, risk_slug in enumerate(self.RISK_SCHEMA):
             vals = [s.get("risk_vector", [])[i] for s in parsed_files if len(s.get("risk_vector", [])) > i]
-            risk_label = exposure_labels.get(risk_slug, risk_slug.replace("_", " ").title())
+            old_label = exposure_labels.get(risk_slug, risk_slug.replace("_", " ").title())
+            risk_label = self._surface_label(risk_slug, old_label)
 
             if vals:
                 v_min, v_max = round(min(vals), 1), round(max(vals), 1)
@@ -561,7 +607,7 @@ class LLMRecorder:
         lines.append("## 9. DIRECTORY GROUPS (Top 10 Heaviest Modules)")
         dir_groups = summary.get("directory_groups", {})
         if dir_groups:
-            lines.append("| Folder Path | Files | Total Impact | Avg Cog Load | Avg Debt |")
+            lines.append("| Folder Path | Files | Total Impact | Avg Complexity Load | Avg Debt Markers |")
             lines.append("|---|---|---|---|---|")
 
             sorted_groups = sorted(
@@ -582,7 +628,7 @@ class LLMRecorder:
         lines.append("")
 
         # --- 10. TARGETED RISK VECTORS ---
-        lines.append("## 10. TARGETED RISK VECTORS (Top 5 by Exposure)")
+        lines.append("## 10. TARGETED STRUCTURAL SURFACE VECTORS (formerly Risk Vectors, Top 5 by Surface)")
 
         debt_idx = self.RISK_SCHEMA.index("tech_debt") if "tech_debt" in self.RISK_SCHEMA else -1
         if debt_idx >= 0:
@@ -592,7 +638,7 @@ class LLMRecorder:
                 reverse=True,
             )[:5]
             if high_debt and high_debt[0].get("risk_vector", [])[debt_idx] > 0:
-                lines.append("### Highest Tech Debt (Fragile/Planned)")
+                lines.append("### Highest Debt Markers (formerly Tech Debt; Fragile/Planned)")
                 lines.extend(
                     f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[debt_idx]}%** Exposure"
                     for s in high_debt
@@ -607,7 +653,7 @@ class LLMRecorder:
                 reverse=True,
             )[:5]
             if high_flux and high_flux[0].get("risk_vector", [])[flux_idx] > 0:
-                lines.append("### Highest State Flux (Mutation/Volatility)")
+                lines.append("### Highest Mutation Surface (formerly State Flux; Mutation/Volatility)")
                 lines.extend(
                     f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[flux_idx]}%** Exposure"
                     for s in high_flux
@@ -678,7 +724,8 @@ class LLMRecorder:
 
                 if v_files:
                     vuln_found = True
-                    label = exposure_labels.get(v_key, v_key.replace("_", " ").title())
+                    old_label = exposure_labels.get(v_key, v_key.replace("_", " ").title())
+                    label = self._surface_label(v_key, old_label)
                     lines.append(f"### {label}")
                     lines.extend(
                         f"- `{s.get('path')}` -> **{s.get('risk_vector', [])[v_idx]}%** Exposure" for s in v_files[:5]

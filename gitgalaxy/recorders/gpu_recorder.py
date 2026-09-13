@@ -75,6 +75,14 @@ class GPURecorder:
         self.RISK_SCHEMA = schemas.get("RISK_SCHEMA", [])
         self.HIT_SCHEMA = schemas.get("SIGNAL_SCHEMA", [])
         self.FUNCTION_SCHEMA = schemas.get("SAT_SCHEMA", [])
+        # gitgalaxy#2991: canonical new-name -> legacy risk_* mapping, bound
+        # here for parity with the other 4 definition sites. Deliberately NOT
+        # used to alter "risk_vector_x1000": self.RISK_SCHEMA below -- the
+        # site's WebGPU visualizer (site/js/core/metavisualizer.html) binds
+        # its `slug`/`keys` data lookups positionally against these exact
+        # bare names; only that file's human-readable `label` strings get the
+        # new vocabulary, per #2991's "no functional JS changes" constraint.
+        self.VECTOR_NAMES = schemas.get("VECTOR_NAMES", {})
 
     def record_mission(
         self,

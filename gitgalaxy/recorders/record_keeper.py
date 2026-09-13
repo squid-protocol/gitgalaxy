@@ -72,6 +72,14 @@ class RecordKeeper:
         schemas = RECORDING_SCHEMAS
         self.RISK_SCHEMA = schemas.get("RISK_SCHEMA", [])
         self.SIGNAL_SCHEMA = schemas.get("SIGNAL_SCHEMA", [])
+        # gitgalaxy#2991: canonical new-name -> legacy risk_* mapping, bound
+        # here for parity with the other 4 definition sites. Deliberately NOT
+        # used to change the `risk_{r}` column names built below: this
+        # recorder writes the persisted SQLite schema temporal-crucible
+        # queries directly (docs/self_scan/gitgalaxy_master.db and every
+        # downstream consumer), so the DB columns stay risk_* exactly,
+        # unconditionally, per #2991's dual-emission requirement.
+        self.VECTOR_NAMES = schemas.get("VECTOR_NAMES", {})
 
         # The Taxonomy Map (Enforces structural schema consistency)
         self.SHORT_KEY_MAP = {

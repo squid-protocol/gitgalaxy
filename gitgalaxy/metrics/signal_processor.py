@@ -64,6 +64,14 @@ class SignalProcessor:
     # The 18-Point Risk Exposure Schema
     RISK_SCHEMA = config.RECORDING_SCHEMAS.get("RISK_SCHEMA", [])
 
+    # gitgalaxy#2991: canonical new-name -> legacy risk_* mapping (display-layer
+    # only; RISK_SCHEMA and every DB column/JSON key above are unchanged). Not
+    # consumed by this module's own output today -- signal_processor computes
+    # the risk_vector, it doesn't render it -- but bound here alongside
+    # RISK_SCHEMA so it travels with the schema wherever this class is
+    # imported from, rather than each renderer re-deriving it independently.
+    VECTOR_NAMES = config.RECORDING_SCHEMAS.get("VECTOR_NAMES", {})
+
     def __init__(
         self,
         aperture_config: Optional[dict[str, Any]] = None,

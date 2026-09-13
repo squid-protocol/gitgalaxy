@@ -1059,6 +1059,17 @@ class RecordingSchemas(TypedDict):
     # Collection[str], which has no .index() -- the single largest source
     # of mypy fan-out errors repo-wide (#431).
     RISK_SCHEMA: list[str]
+    # VECTOR_NAMES (gitgalaxy#2991, Option A): the canonical new-name ->
+    # legacy risk_* name mapping for the 13 per-file vectors in RISK_SCHEMA.
+    # The temporal-crucible validation record (epic #2982) established that
+    # these vectors measure per-file activity/content surface, not defect
+    # probability -- the risk_ prefix overclaimed. The risk_* names remain
+    # the ACTUAL emitted DB columns / JSON keys everywhere (schema/back-compat:
+    # temporal-crucible's queries, crucible bless baselines, and SARIF
+    # consumers all still read risk_*); this mapping is the single source of
+    # truth for translating to the new descriptive vocabulary on
+    # report/brief DISPLAY surfaces only. See docs/vectors.md.
+    VECTOR_NAMES: dict[str, str]
     SIGNAL_SCHEMA: list[str]
     SAT_SCHEMA: list[str]
     GPU_TEXTURE_LOOKUPS: list[str]
@@ -1083,6 +1094,35 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         # --- THE SECURITY & VULNERABILITY LENSES ---
         "secrets_risk",
     ],
+    # gitgalaxy#2991 (Option A, disposition table in the issue comments):
+    # descriptive-layer renames for 11 of the 13 RISK_SCHEMA vectors, plus
+    # the 2 PROMOTE-flagged history vectors (hist_stability/hist_churn) that
+    # mark the family the validation record actually supports as predictive
+    # -- currently inert (ablated to zero by GITGALAXY_DISABLE_GIT_HISTORY in
+    # every scan) pending temporal-crucible#29's history-enabled mode and
+    # gitgalaxy#2987's defect-lift promotion gate. `tech_debt`/`secrets_risk`
+    # additionally carry a REWORK flag (gitgalaxy#2984, #2979) unrelated to
+    # naming -- the rename does not imply the formula artifact is fixed.
+    #
+    # Values are the legacy risk_* names as still emitted in the DB
+    # columns/JSON keys today -- do not change these values; they are the
+    # dual-emission anchor. Renaming a vector here does NOT change what
+    # RISK_SCHEMA, the DB schema, or any recorded output emits.
+    "VECTOR_NAMES": {
+        "complexity_load": "risk_cognitive_load",
+        "guard_balance": "risk_safety_score",
+        "debt_markers": "risk_tech_debt",
+        "test_surface": "risk_verification",
+        "connectivity": "risk_api_exposure",
+        "concurrency_surface": "risk_concurrency",
+        "mutation_surface": "risk_state_flux",
+        "dead_code_surface": "risk_dead_code",
+        "spec_alignment": "risk_spec_match",
+        "hist_stability": "risk_stability",
+        "hist_churn": "risk_churn",
+        "doc_surface": "risk_documentation",
+        "credential_material": "risk_secrets_risk",
+    },
     "SIGNAL_SCHEMA": [
         "branch",
         "structural_boundaries",

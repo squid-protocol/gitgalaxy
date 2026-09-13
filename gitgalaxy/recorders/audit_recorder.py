@@ -53,6 +53,16 @@ class AuditRecorder:
         self.RISK_SCHEMA = schemas.get("RISK_SCHEMA", [])
         # Note: The pipeline calls it SIGNAL_SCHEMA, but the Auditor references it as HIT_SCHEMA
         self.HIT_SCHEMA = schemas.get("SIGNAL_SCHEMA", [])
+        # gitgalaxy#2991: canonical new-name -> legacy risk_* mapping, bound
+        # here for parity with the other 4 definition sites. Deliberately NOT
+        # used to change any EXPOSURE_LABELS/FRIENDLY_MAP-derived string below
+        # -- this recorder's JSON ("Average Risk Exposures", "Vulnerability &
+        # Risk Exposures", ...) is exactly what tests/golden_master_audit.json
+        # and tests/golden_master_zero_dep_audit.json bless byte-for-byte
+        # (see tests/test_golden_crucible.py); changing these label strings
+        # would fail the golden-crucible regression test without a deliberate,
+        # separate golden-master regen this PR does not perform.
+        self.VECTOR_NAMES = schemas.get("VECTOR_NAMES", {})
 
         # PERFORMANCE OPTIMIZATION: Pre-cache all labels to avoid regex overhead on the hot path
         self._label_cache = {}

@@ -130,7 +130,7 @@
 | State Flux Exposure | 0.0 | 100.0 | 6.2 | 0.0 | 0.0 |
 | Commented Logic Exposure | 0.0 | 11.7 | 0.1 | 0.0 | 0.0 |
 | Specification Exposure | 0.0 | 100.0 | 6.4 | 0.0 | 0.0 |
-| Instability Exposure | 0.0 | 20.6 | 0.2 | 0.0 | 0.0 |
+| Instability Exposure | 0.0 | 20.8 | 0.2 | 0.0 | 0.0 |
 | Volatility Exposure | 0.0 | 100.0 | 1.8 | 0.0 | 0.0 |
 | Documentation Exposure | 0.0 | 50.0 | 1.6 | 0.0 | 0.0 |
 | Hardcoded Payload Artifacts | 0.0 | 0.0 | 0.0 | 0.0 | 0.0 |
@@ -225,61 +225,61 @@ These files pull in the most external dependencies. They are highly coupled and 
 ## 11. CUMULATIVE RISK HITLIST (Top 10 Highest Risk Files)
 > Cumulative Risk is the sum of all individual risk exposures. These files represent the highest multi-dimensional technical debt and architectural fragility.
 
-### 1. `gitgalaxy/core/detector.py` (PYTHON) -> Cumulative Risk: **631.17**
+### 1. `gitgalaxy/core/detector.py` (PYTHON) -> Cumulative Risk: **631.36**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 8079.72 | **LOC:** 8418 | **CtrlFlow:** 40.9% | **Authorship Centralization:** 94.9%
 - **Primary Risk Drivers:** State Flux (100.0%), Spec Match (100.0%), Churn (100.0%), Safety Score (99.5233%)
 - **Heaviest Functions:** `_slice_by_braces` (Impact: 1150.2), `splice` (Impact: 389.6), `_calculate_block_metrics` (Impact: 322.8)
 
-### 2. `gitgalaxy/recorders/llm_recorder.py` (PYTHON) -> Cumulative Risk: **587.32**
+### 2. `gitgalaxy/recorders/llm_recorder.py` (PYTHON) -> Cumulative Risk: **587.51**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 2084.1 | **LOC:** 1450 | **CtrlFlow:** 27.9% | **Authorship Centralization:** 87.5%
 - **Primary Risk Drivers:** State Flux (100.0%), Spec Match (100.0%), Safety Score (99.9093%), Cognitive Load (83.731%)
 - **Heaviest Functions:** `_build_markdown` (Impact: 782.2), `generate_artifacts` (Impact: 37.7), `_generate_sqlite_graph` (Impact: 13.4)
 
-### 3. `gitgalaxy/core/prism.py` (PYTHON) -> Cumulative Risk: **567.31**
+### 3. `gitgalaxy/core/prism.py` (PYTHON) -> Cumulative Risk: **567.5**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 1876.64 | **LOC:** 1883 | **CtrlFlow:** 35.7% | **Authorship Centralization:** 96.7%
 - **Primary Risk Drivers:** State Flux (100.0%), Spec Match (100.0%), Safety Score (99.7976%), Verification (80.0%)
 - **Heaviest Functions:** `_strip_single_line_comments` (Impact: 124.1), `_strip_single_line_comments_positional` (Impact: 122.2), `_mask_perl_line_positional` (Impact: 75.4)
 
-### 4. `gitgalaxy/metrics/signal_processor.py` (PYTHON) -> Cumulative Risk: **566.25**
+### 4. `gitgalaxy/metrics/signal_processor.py` (PYTHON) -> Cumulative Risk: **566.44**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 2058.68 | **LOC:** 2133 | **CtrlFlow:** 25.6% | **Authorship Centralization:** 86.7%
 - **Primary Risk Drivers:** State Flux (100.0%), Spec Match (100.0%), Safety Score (99.2557%), Verification (80.0%)
 - **Heaviest Functions:** `calculate_risk_vector` (Impact: 255.1), `summarize_galaxy_metrics` (Impact: 193.3), `generate_forensic_report` (Impact: 69.1)
 
-### 5. `gitgalaxy/galaxyscope.py` (PYTHON) -> Cumulative Risk: **560.87**
+### 5. `gitgalaxy/galaxyscope.py` (PYTHON) -> Cumulative Risk: **561.06**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 2589.18 | **LOC:** 3349 | **CtrlFlow:** 25.7% | **Authorship Centralization:** 100.0%
 - **Primary Risk Drivers:** State Flux (100.0%), Spec Match (100.0%), Safety Score (99.0788%), Verification (80.0%)
 - **Heaviest Functions:** `execute_pipeline` (Impact: 275.5), `_process_file_worker` (Impact: 135.8), `_resolve_dependency_graph` (Impact: 121.7)
 
-### 6. `gitgalaxy/recorders/audit_recorder.py` (PYTHON) -> Cumulative Risk: **549.0**
+### 6. `gitgalaxy/recorders/audit_recorder.py` (PYTHON) -> Cumulative Risk: **549.19**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 598.62 | **LOC:** 593 | **CtrlFlow:** 23.0% | **Authorship Centralization:** 100.0%
 - **Primary Risk Drivers:** State Flux (100.0%), Spec Match (100.0%), Safety Score (98.5087%), Cognitive Load (81.3204%)
 - **Heaviest Functions:** `generate_report` (Impact: 270.7), `descale` (Impact: 14.1), `format_label` (Impact: 7.6)
 
-### 7. `gitgalaxy/standards/language_lens.py` (PYTHON) -> Cumulative Risk: **537.6**
+### 7. `gitgalaxy/standards/language_lens.py` (PYTHON) -> Cumulative Risk: **537.79**
 - **Archetype:** `Unknown Archetype` (Distance: N/A IQR)
 - **Magnitude:** 1335.3 | **LOC:** 1144 | **CtrlFlow:** 0.0% | **Authorship Centralization:** 0.0%
 - **Primary Risk Drivers:** None
 - **Heaviest Functions:** `inspect` (Impact: 353.2), `_tier_4_heuristic_discovery` (Impact: 122.9), `_evaluate_ecosystem_gravity` (Impact: 81.6)
 
-### 8. `gitgalaxy/recorders/gpu_recorder.py` (PYTHON) -> Cumulative Risk: **533.39**
+### 8. `gitgalaxy/recorders/gpu_recorder.py` (PYTHON) -> Cumulative Risk: **533.51**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 360.44 | **LOC:** 441 | **CtrlFlow:** 13.7% | **Authorship Centralization:** 100.0%
 - **Primary Risk Drivers:** State Flux (100.0%), Spec Match (100.0%), Safety Score (99.6164%), Verification (80.0%)
 - **Heaviest Functions:** `record_mission` (Impact: 119.0), `__init__` (Impact: 7.2), `_intern` (Impact: 4.2)
 
-### 9. `gitgalaxy/cobol_refractor_controller.py` (PYTHON) -> Cumulative Risk: **530.96**
+### 9. `gitgalaxy/cobol_refractor_controller.py` (PYTHON) -> Cumulative Risk: **531.14**
 - **Archetype:** `Unclassified` (Distance: N/A IQR)
 - **Magnitude:** 297.82 | **LOC:** 435 | **CtrlFlow:** 18.2% | **Authorship Centralization:** 100.0%
 - **Primary Risk Drivers:** State Flux (100.0%), Spec Match (100.0%), Safety Score (98.1664%), Verification (80.0%)
 - **Heaviest Functions:** `main` (Impact: 31.6), `process_payload` (Impact: 24.7), `record_dead_code` (Impact: 14.4)
 
-### 10. `gitgalaxy/security/security_auditor.py` (PYTHON) -> Cumulative Risk: **526.52**
+### 10. `gitgalaxy/security/security_auditor.py` (PYTHON) -> Cumulative Risk: **526.71**
 - **Archetype:** `Unknown Archetype` (Distance: N/A IQR)
 - **Magnitude:** 425.28 | **LOC:** 472 | **CtrlFlow:** 0.0% | **Authorship Centralization:** 0.0%
 - **Primary Risk Drivers:** None

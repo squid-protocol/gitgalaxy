@@ -96,6 +96,7 @@ ALLOWLIST = {
     "galaxyscope": "top-level section name in a user's .galaxyscope.yml project config file",
     "GITGALAXY_LICENSE_KEY": "environment variable (os.environ.get), not a repo-produced dict",
     "GITGALAXY_DISABLE_GIT_HISTORY": "environment variable (os.environ.get), not a repo-produced dict (#2976)",
+    "GALAXYSCOPE_MAX_WORKERS": "environment variable (os.environ.get), not a repo-produced dict (#2988)",
     "vulnerability_density_min": "optional risk_tuning YAML key (signal_processor.py risk-equation-style tuning)",
     "asymptotic_dampener": "optional risk_tuning YAML key (signal_processor.py)",
     "quarantine": "STATIC_ARCHETYPES app-config constant, read with a graceful string fallback",

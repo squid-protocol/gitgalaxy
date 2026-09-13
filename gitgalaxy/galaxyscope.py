@@ -1668,6 +1668,13 @@ class Orchestrator:
         if cpu_count is None:
             cpu_count = 4
         max_workers = max(1, cpu_count - 1)
+        # #2988: allow pinning the worker count (GALAXYSCOPE_MAX_WORKERS=1 forces a
+        # single-worker, fully serial extraction). Used to reproduce/confirm the
+        # whole-repo symbol-resolution non-determinism, and to run deterministically
+        # when a scan shares the box with other heavy processes.
+        _wenv = os.environ.get("GALAXYSCOPE_MAX_WORKERS")
+        if _wenv and _wenv.isdigit() and int(_wenv) > 0:
+            max_workers = int(_wenv)
 
         current_log_level = logging.getLogger().getEffectiveLevel()
         # DEFENSIVE UI: Mute the initialization spam from the 16-32 worker cores unless in debug mode
@@ -1944,6 +1951,10 @@ class Orchestrator:
 
         for rel_path, meta in self.ram_cache.items():
             raw_imports = sorted(meta.get("raw_imports", set()))
+            # #2988: the importing file's own extension, used to reject
+            # cross-language matches when the import token carries no extension
+            # of its own (bare module imports: Python/JS `import base64`).
+            importer_ext = Path(rel_path).suffix
             for raw_import in raw_imports:
                 clean_path = import_cleaner.sub("", raw_import.strip())
                 if "from" in clean_path:
@@ -1965,10 +1976,21 @@ class Orchestrator:
                 matched_internal = False  # <--- NEW: Flag to verify if import is local
 
                 # --- FAST PATH 1: O(1) Suffix & Exact Match ---
+                # #2988: guard by the IMPORTING file's language, the same way the
+                # stem fallback below guards by token extension (#2684). Without it
+                # an extensionless bare import (`import base64` in a .py) matches the
+                # extensionless suffix key "base64", which lumps every same-stemmed
+                # file across languages -- so Python's stdlib base64 credited curl's
+                # C `lib/curlx/base64.c`, spuriously firing the Contextual Baseline
+                # Fix and the api_exposure network multiplier. The token itself is
+                # often extensionless (Python/JS module imports), so the token-ext
+                # guard can't catch this; the importer's own extension can.
                 if clean_path in suffix_map:
-                    matched_internal = True
                     for target_path in suffix_map[clean_path]:
+                        if not _extensions_can_name_the_same_file(importer_ext, Path(target_path).suffix):
+                            continue
                         self.popularity_scores[target_path] += 1
+                        matched_internal = True
 
                 # --- FAST PATH 2: O(1) Python Package Resolution ---
                 if not matched_internal:
@@ -2003,8 +2025,13 @@ class Orchestrator:
                                 # filename, so without this guard one token
                                 # credits every same-stemmed file in the whole
                                 # scan, across languages and repositories.
-                                if token_ext and not _extensions_can_name_the_same_file(
-                                    token_ext, Path(target_path).suffix
+                                # #2988: fall back to the IMPORTER's extension when
+                                # the token itself is extensionless (bare module
+                                # imports), so a Python `import base64` cannot credit
+                                # curl's C `base64.c` via the shared "base64" stem.
+                                guard_ext = token_ext or importer_ext
+                                if guard_ext and not _extensions_can_name_the_same_file(
+                                    guard_ext, Path(target_path).suffix
                                 ):
                                     continue
                                 self.popularity_scores[target_path] += 1

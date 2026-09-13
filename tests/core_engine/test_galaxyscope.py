@@ -533,6 +533,55 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertEqual(scope.popularity_scores["py/q.py"], 0, "folding never invents a cross-language edge")
 
     # ==============================================================================
+    # TEST 8.7: FAST PATH 1 MUST NOT CROSS LANGUAGES ON A BARE IMPORT (#2988)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.logger")
+    def test_resolver_rejects_cross_language_extensionless_import(self, mock_logger):
+        """
+        Regression for #2988. A bare `import base64` in a Python file must NOT
+        credit curl's C `lib/curlx/base64.c` popularity. The extensionless import
+        token 'base64' exact-matches the extensionless suffix key "base64", which
+        lumps every same-stemmed file across languages; FAST PATH 1 (unlike the
+        stem fallback) had no language guard, so Python's stdlib base64 credited
+        the C file. That spurious edge fired the Contextual Baseline Fix and the
+        api_exposure network multiplier, so `state_unreferenced` / `risk_api_exposure`
+        / `risk_tech_debt` on base64.c differed between two commits with a
+        byte-identical blob and an identical import graph -- read as engine
+        non-determinism. The guard uses the IMPORTER's extension because the token
+        itself carries none (bare module imports).
+        """
+        scope = Orchestrator(".", self.mock_config)
+        scope.ram_cache = {
+            # Python test file importing the STDLIB base64 module (no extension).
+            "tests/certs.py": {"lang_id": "python", "raw_imports": {"import base64"}},
+            # curl's C module: nothing #includes a .c implementation file.
+            "lib/curlx/base64.c": {"lang_id": "c", "raw_imports": set()},
+            "lib/curlx/base64.h": {"lang_id": "c", "raw_imports": set()},
+            # a legitimate SAME-language bare import that must still resolve.
+            "app/main.py": {"lang_id": "python", "raw_imports": {"import helper"}},
+            "app/helper.py": {"lang_id": "python", "raw_imports": set()},
+        }
+        scope.stem_map = {k: k for k in scope.ram_cache.keys()}
+
+        scope._resolve_dependency_graph()
+
+        self.assertEqual(
+            scope.popularity_scores["lib/curlx/base64.c"],
+            0,
+            "Python `import base64` must not credit curl's C base64.c",
+        )
+        self.assertEqual(
+            scope.popularity_scores["lib/curlx/base64.h"],
+            0,
+            "Python `import base64` must not credit a C header either",
+        )
+        self.assertEqual(
+            scope.popularity_scores["app/helper.py"],
+            1,
+            "a legitimate same-language bare import must still resolve",
+        )
+
+    # ==============================================================================
     # TEST 9: INCREMENTAL DELTA SHIFT (State Rehydration)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")

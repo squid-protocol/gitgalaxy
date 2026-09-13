@@ -2104,7 +2104,11 @@ class Orchestrator:
                 if variant in anchor_index:
                     candidates.update(anchor_index[variant])
 
-            for anchor_imp in candidates:
+            # #2988: iterate a SORTED candidate list, not the set. The loop breaks
+            # on the first anchor within the distance threshold, so an unordered set
+            # made the recorded "mimics <anchor>" nondeterministic when a token was
+            # equidistant from two anchors (e.g. 'string:' -> 'string' vs 'strings').
+            for anchor_imp in sorted(candidates):
                 # 3. The Casing Shield (Developer typos, not malware)
                 if orphan_imp.lower() == anchor_imp.lower():
                     continue

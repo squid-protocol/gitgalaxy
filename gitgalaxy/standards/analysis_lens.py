@@ -1404,6 +1404,126 @@ RECORDING_SCHEMAS: RecordingSchemas = {
 }
 
 # ------------------------------------------------------------------------------
+# 7b. MEASUREMENT TIERS (gitgalaxy#2994 -- successor to #2991/#2984/#2979)
+# Consumed by: signal_processor.py (Tier 1/3 family sums + relations,
+# calculate_risk_vector; Tier 2 snapshot percentiles, summarize_galaxy_metrics),
+# record_keeper.py (dynamic fam_*/pct_fam_*/pct_vec_*/rel_* column generation),
+# llm_recorder.py (Surface Family Profile, section 6b).
+#
+# The measurement-tier model is ADDITIVE: the frozen legacy risk_* columns
+# (RISK_SCHEMA above), their sigmoid formulas, and every mp/multiplier stay
+# byte-identical -- golden masters, bless baselines, and the
+# supply_chain_firewall 50.0-cutoff are unaffected. Tiers surface only in
+# new telemetry keys / DB columns / the LLM brief. See docs/vectors.md
+# "The tier model" for the full design writeup.
+#
+# Tier 1 -- SURFACE_FAMILIES: a declarative {family: [signal, ...]} map over
+# SIGNAL_SCHEMA. A file's per-family value is the RAW SUM of its member
+# signal counts, taken from raw_signals -- NOT the mitigation-suppressed
+# exposure_vector. This is deliberate ("raw truth by construction"): a file
+# whose legacy risk_safety_score is zeroed by an inline `galaxyscope:ignore`
+# can still show a nonzero `guards` family total. See the suppression-
+# interplay test in test_signal_processor.py.
+#
+# SURFACE_FAMILY_EXEMPT documents every SIGNAL_SCHEMA name deliberately left
+# out of every family, with a one-line reason. The contract -- enforced by
+# tests/core_engine/test_surface_families_contract.py -- is: every
+# SIGNAL_SCHEMA name appears in EXACTLY ONE family XOR EXEMPT (never both,
+# never neither); every family/exempt member is a real SIGNAL_SCHEMA name;
+# no fam_*/pct_fam_*/pct_vec_*/rel_* column name collides with an existing
+# file_data column. That test is the arbiter of this map, not this comment.
+# ------------------------------------------------------------------------------
+
+SURFACE_FAMILIES: dict[str, list[str]] = {
+    "memory": ["pointers", "memory_alloc", "explicit_casts"],
+    "cleanup": ["cleanup"],
+    "guards": ["safety", "immutability_locks", "encapsulation"],
+    "danger": ["safety_bypasses", "high_risk_execution", "inline_asm", "panics_and_aborts"],
+    "concurrency": ["concurrency", "thread_sleeps", "sync_locks", "lazy_evaluation"],
+    "connectivity": ["api", "spec_exposure", "ssr_boundaries", "auth_middleware"],
+    "io": ["io"],
+    "crypto": ["cryptography"],
+    "ipc": ["hardware_bridge", "ipc_rpc_bridges"],
+    "time": ["time_date_logic"],
+    "serialization": ["serialization_parsing"],
+    "regex": ["regex_execution"],
+    "events": ["events", "telemetry", "listeners"],
+    "tests": ["test", "test_skip"],
+    "docs": ["doc", "lit_code_blocks", "lit_diagrams", "lit_headers", "lit_links"],
+    "debt": ["planned_debt", "fragile_debt", "debug_prints", "feature_flags", "duplicate_logic"],
+    "mutation": ["state_mutation", "core_var_decl"],
+    "dead_code": ["dead_code", "unreferenced_by_name"],
+    "credential": ["sec_hardcoded_secrets", "sec_entropy"],
+    "threat": [
+        "reflection_metaprogramming",
+        "sec_shadow_imports",
+        "sec_homoglyphs",
+        "sec_extension_mismatch",
+        "sec_tainted_injection",
+        "sec_unicode_steganography",
+        "sec_self_propagation",
+    ],
+    "ml_ai": [
+        "scientific",
+        "llm_api",
+        "llm_orchestrator",
+        "llm_vector_store",
+        "llm_local_compute",
+        "ml_traditional",
+        "dl_frameworks",
+        "vectorized_math",
+    ],
+    "ui": ["ui_framework"],
+}
+
+SURFACE_FAMILY_EXEMPT: dict[str, str] = {
+    # --- structural-shape (11): substrate of code complexity/shape, not a
+    # --- measurement surface in their own right ---
+    "branch": "structural-shape: control-flow substrate, not a surface family",
+    "structural_boundaries": "structural-shape: sequential-logic substrate, not a surface family",
+    "args": "structural-shape: function-signature substrate, not a surface family",
+    "func_start": "structural-shape: unit-of-code substrate, not a surface family",
+    "class_start": "structural-shape: unit-of-code substrate, not a surface family",
+    "globals": "structural-shape: variable-scope substrate, not a surface family",
+    "decorators": "structural-shape: annotation substrate, not a surface family",
+    "import": "structural-shape: dependency-wiring substrate, not a surface family",
+    "dependency_injection": "structural-shape: wiring-pattern substrate, not a surface family",
+    "macros": "structural-shape: code-generation substrate, not a surface family",
+    "bitwise_ops": "structural-shape: low-level-operator substrate, not a surface family",
+    # --- style/naming (8): cosmetic convention, not a risk/activity surface ---
+    "design_camel_case": "style/naming: cosmetic naming convention",
+    "design_snake_case": "style/naming: cosmetic naming convention",
+    "design_pascal_case": "style/naming: cosmetic naming convention",
+    "design_upper_case": "style/naming: cosmetic naming convention",
+    "design_short_vars": "style/naming: cosmetic naming convention",
+    "design_long_vars": "style/naming: cosmetic naming convention",
+    "indent_tabs": "style/naming: cosmetic formatting convention",
+    "indent_spaces": "style/naming: cosmetic formatting convention",
+    # --- ownership (1): single-signal authorship metadata, its own concern ---
+    "ownership": "ownership: authorship metadata, not a surface family",
+    # --- paradigm (3): functional/generic-programming style markers ---
+    "closures": "paradigm: functional-style marker, not a surface family",
+    "generics": "paradigm: generic-programming style marker, not a surface family",
+    "comprehensions": "paradigm: functional-style marker, not a surface family",
+    # --- sec_* lens duplicates (7): would double-count signals already
+    # --- summed under their non-sec_ counterpart's family ---
+    "sec_reflection_metaprogramming": (
+        "sec_* duplicate of 'reflection_metaprogramming' (threat family); would double-count"
+    ),
+    "sec_safety_bypasses": "sec_* duplicate of 'safety_bypasses' (danger family); would double-count",
+    "sec_io": "sec_* duplicate of 'io' (io family); would double-count",
+    "sec_high_risk_execution": "sec_* duplicate of 'high_risk_execution' (danger family); would double-count",
+    "sec_state_mutation": "sec_* duplicate of 'state_mutation' (mutation family); would double-count",
+    "sec_dead_code": "sec_* duplicate of 'dead_code' (dead_code family); would double-count",
+    "sec_bitwise_ops": "sec_* duplicate of 'bitwise_ops' (structural-shape exempt); would double-count",
+    # --- always-zero (2): detector removed (#1020), kept only for
+    # --- SIGNAL_SCHEMA positional stability (see the comment at their
+    # --- definition site in SIGNAL_SCHEMA above) ---
+    "prompt_injection": "always-zero: detector removed (#1020), positional placeholder only",
+    "agentic_rce": "always-zero: detector removed (#1020), positional placeholder only",
+}
+
+# ------------------------------------------------------------------------------
 # 8. Machine Learning Inference Models
 # Consumed by: detector.py, signal_processor.py, security_auditor.py
 # ------------------------------------------------------------------------------

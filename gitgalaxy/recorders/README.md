@@ -35,6 +35,45 @@ Each file in this directory represents a specialized data exit strategy, tailore
 
 ---
 
+## The Dependency Graph in `_master.db` (`edge_data`, #2992)
+
+`network_risk_sensor.py` builds the file-to-file import graph every scan. Besides the per-node summaries in `file_data` (`popularity` = in-degree, `internal_dependency_links` = out-degree, `pagerank_score`, ...), `record_keeper.py` persists the edges themselves, keyed like every other snapshot table:
+
+| column | meaning |
+|---|---|
+| `repo_name`, `commit_hash` | the snapshot |
+| `src_file_id` → `file_data.id` | the importing file |
+| `dst_file_id` → `file_data.id` | the imported file |
+| `edge_kind` | `'import'` (the only relation recorded today) |
+| `import_statements` | resolved import captures from src to dst (repeats collapse into one row) |
+| `entity_imports` | how many of those were the entity (`from x import y`) form |
+| `weight` | the edge weight pagerank/betweenness read (1.0 per plain import, 1.5 per entity import) |
+
+In full-precision mode, per file, `COUNT(*)` of rows with `src_file_id = f.id` equals `internal_dependency_links` and rows with `dst_file_id = f.id` equals `popularity`. Zero-dependency mode counts import statements instead of distinct neighbours, so reconcile it with `SUM(import_statements)`. An edge is only recorded when both endpoints have a `file_data` row. The statistical audit can relegate a graph node to `excluded_artifacts` after the graph is built, and the edges that loses are counted in `repo_data.network_edges_unrecorded` (NULL when the caller supplied no edge list).
+
+```sql
+-- Neighbourhood marker load: what a file's direct imports carry, beside its own load.
+SELECT f.file_path, f.arch_concurrency AS own_concurrency,
+       SUM(d.arch_globals + d.state_flux) AS neighbour_shared_state
+FROM file_data f
+JOIN edge_data e ON e.src_file_id = f.id
+JOIN file_data d ON d.id = e.dst_file_id
+WHERE f.repo_name = ? AND f.commit_hash = ?
+GROUP BY f.id;
+
+-- Per-language edge coverage: how much of the raw import surface resolves to an in-scan edge.
+SELECT f.language, COUNT(*) AS files, SUM(f.import_count) AS captures,
+       SUM(f.import_count > 0) AS files_with_captures,
+       SUM(EXISTS (SELECT 1 FROM edge_data e WHERE e.src_file_id = f.id)) AS files_with_edges,
+       (SELECT COUNT(*) FROM edge_data e JOIN file_data s ON s.id = e.src_file_id
+         WHERE s.language = f.language AND s.repo_name = f.repo_name AND s.commit_hash = f.commit_hash) AS edges
+FROM file_data f
+WHERE f.repo_name = ? AND f.commit_hash = ?
+GROUP BY f.language ORDER BY captures DESC;
+```
+
+---
+
 ## Standard Orchestrator Output
 When running the `galaxyscope.py` orchestrator without exclusive flags, the engine automatically routes the centralized RAM state through all recorders, emitting the following standard artifacts for a given target (e.g., `project-name`):
 

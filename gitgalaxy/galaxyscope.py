@@ -1423,6 +1423,7 @@ class Orchestrator:
                         summary=summary,
                         session_meta=session_meta,
                         output_path=db_output,
+                        dependency_edges=self.network_sensor.dependency_edges,  # #2992
                     )
                 except Exception as e:
                     logger.error(
@@ -2948,6 +2949,7 @@ class Orchestrator:
                 summary=summary,
                 session_meta=session_meta,
                 output_path=db_output_path,
+                dependency_edges=self.network_sensor.dependency_edges,  # #2992
             )
 
             logger.info(

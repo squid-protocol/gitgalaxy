@@ -65,6 +65,12 @@ class NetworkRiskSensor:
     def __init__(self, parent_logger: Optional[logging.Logger] = None):
         self.logger = parent_logger.getChild("network_sensor") if parent_logger else logging.getLogger("network_sensor")
         self.RISK_SCHEMA = RECORDING_SCHEMAS.get("RISK_SCHEMA", [])
+        # #2992: the resolved edge list of the most recent build_dependency_graph
+        # call. The graph is discarded once its degree/centrality math is done;
+        # this is the only copy that survives it, and record_keeper persists it
+        # as the edge_data table. Deliberately not written into file telemetry
+        # or the returned macro metrics -- both reach the audit/GPU JSON exports.
+        self.dependency_edges: list[dict[str, Any]] = []
 
     def _build_resolution_map(self, files: list[dict[str, Any]]) -> dict[str, list[str]]:
         """
@@ -305,10 +311,61 @@ class NetworkRiskSensor:
 
         return coverage_map
 
+    def _resolve_edges(self, parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], dict[str, Any]]:
+        """
+        #2992: resolves every file's raw_imports into directed file-to-file
+        edges, keyed (importer, imported) in first-occurrence order. Repeated
+        imports of the same target collapse into one edge that keeps count:
+        `import_statements` (resolved captures), `entity_imports` (the Level 2
+        tuple form among them) and `weight` (1.0 per plain import, 1.5 per
+        entity import, summed in capture order -- the exact float the DiGraph
+        accumulated before this was factored out).
+
+        The single resolver behind both graph builders, so the persisted edge
+        list cannot drift from the degrees and pagerank computed off it.
+        """
+        resolution_map = self._build_resolution_map(parsed_files)
+        folded_maps = self._build_folded_resolution_map(parsed_files)
+        edges: dict[tuple[str, str], dict[str, Any]] = {}
+
+        for f in parsed_files:
+            curr_path = f.get("path", "")
+            fold_lang = self._fold_lang(f)
+
+            for imp in f.get("raw_imports", []):
+                # Check if it's a Level 2 Tuple (Entity Import) or Level 1 String
+                if isinstance(imp, tuple) and len(imp) == 2:
+                    target_token, entity = imp
+                else:
+                    target_token = imp
+                    entity = None
+
+                target_path = self._resolve_target(
+                    target_token, resolution_map, curr_path, folded_maps=folded_maps, fold_lang=fold_lang
+                )
+                if target_path and target_path != curr_path:
+                    edge = edges.setdefault(
+                        (curr_path, target_path), {"weight": 0.0, "import_statements": 0, "entity_imports": 0}
+                    )
+                    # Edge weight can be increased if specific entities are highly coupled
+                    edge["weight"] += 1.5 if entity else 1.0
+                    edge["import_statements"] += 1
+                    if entity:
+                        edge["entity_imports"] += 1
+
+        return edges
+
+    def _publish_edges(self, edges: dict[tuple[str, str], dict[str, Any]]) -> None:
+        """#2992: exposes the resolved edges as `self.dependency_edges` for the recorder."""
+        self.dependency_edges = [
+            {"src": src, "dst": dst, "edge_kind": "import", **attrs} for (src, dst), attrs in edges.items()
+        ]
+
     def build_dependency_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Builds the directed graph and calculates multi-dimensional risk vectors.
-        Modifies the 'telemetry' dictionary of each file in place.
+        Modifies the 'telemetry' dictionary of each file in place, and leaves
+        the resolved edge list on `self.dependency_edges` (#2992).
         """
         if not HAS_NETWORKX:
             return self._fallback_build_graph(parsed_files)
@@ -317,9 +374,7 @@ class NetworkRiskSensor:
 
         G = nx.DiGraph()
 
-        # 1. Build the Resolution Map (Fast Path Lookup)
-        resolution_map = self._build_resolution_map(parsed_files)
-        folded_maps = self._build_folded_resolution_map(parsed_files)
+        # 1. Add every file as a node, edges or not
         for f in parsed_files:
             path = f.get("path", "")
 
@@ -330,28 +385,10 @@ class NetworkRiskSensor:
             )
 
         # 2. Wire the Edges (File-to-File Level 1 & Entity Level 2)
-        for f in parsed_files:
-            curr_path = f.get("path", "")
-            raw_imports = f.get("raw_imports", [])
-
-            for imp in raw_imports:
-                # Check if it's a Level 2 Tuple (Entity Import) or Level 1 String
-                if isinstance(imp, tuple) and len(imp) == 2:
-                    target_token, entity = imp
-                else:
-                    target_token = imp
-                    entity = None
-
-                target_path = self._resolve_target(
-                    target_token, resolution_map, curr_path, folded_maps=folded_maps, fold_lang=self._fold_lang(f)
-                )
-                if target_path and target_path != curr_path:
-                    # Edge weight can be increased if specific entities are highly coupled
-                    weight = 1.5 if entity else 1.0
-                    if G.has_edge(curr_path, target_path):
-                        G[curr_path][target_path]["weight"] += weight
-                    else:
-                        G.add_edge(curr_path, target_path, weight=weight)
+        edges = self._resolve_edges(parsed_files)
+        for (src, dst), attrs in edges.items():
+            G.add_edge(src, dst, weight=attrs["weight"])
+        self._publish_edges(edges)
 
         # =========================================================================
         # 3. NETWORK MATHEMATICS (Dependency Blast Radius & Centrality)
@@ -529,22 +566,18 @@ class NetworkRiskSensor:
             "[!] 'networkx' not found. Operating in Zero-Dependency Mode. Using linear counting for Ecosystem Roles."
         )
 
-        resolution_map = self._build_resolution_map(parsed_files)
-        folded_maps = self._build_folded_resolution_map(parsed_files)
-
         in_degrees = {f.get("path", ""): 0 for f in parsed_files}
         out_degrees = {f.get("path", ""): 0 for f in parsed_files}
 
-        for f in parsed_files:
-            curr_path = f.get("path", "")
-            for imp in f.get("raw_imports", []):
-                target_token = imp[0] if isinstance(imp, tuple) and len(imp) == 2 else imp
-                target_path = self._resolve_target(
-                    target_token, resolution_map, curr_path, folded_maps=folded_maps, fold_lang=self._fold_lang(f)
-                )
-                if target_path and target_path != curr_path:
-                    out_degrees[curr_path] = out_degrees.get(curr_path, 0) + 1
-                    in_degrees[target_path] = in_degrees.get(target_path, 0) + 1
+        # Linear counting over the same resolved edges the DiGraph path wires.
+        # Unlike the DiGraph (whose degree counts distinct neighbours), this
+        # mode has always counted every resolved import statement -- kept
+        # as-is, since the zero-dependency golden master records it.
+        edges = self._resolve_edges(parsed_files)
+        for (src, dst), attrs in edges.items():
+            out_degrees[src] = out_degrees.get(src, 0) + attrs["import_statements"]
+            in_degrees[dst] = in_degrees.get(dst, 0) + attrs["import_statements"]
+        self._publish_edges(edges)
 
         for f in parsed_files:
             path = f.get("path", "")

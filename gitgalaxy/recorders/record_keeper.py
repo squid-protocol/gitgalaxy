@@ -222,8 +222,16 @@ class RecordKeeper:
         summary: dict,
         session_meta: dict,
         output_path: str,
+        dependency_edges: Optional[list[dict]] = None,
     ):
-        """Builds the formal relational SQLite database directly from pipeline RAM state."""
+        """
+        Builds the formal relational SQLite database directly from pipeline RAM state.
+
+        `dependency_edges` (#2992) is the network sensor's resolved edge list
+        (`NetworkRiskSensor.dependency_edges`), persisted as edge_data. None --
+        a caller with no graph -- writes no edges and leaves
+        repo_data.network_edges_unrecorded NULL rather than a fake 0.
+        """
         repo_name = session_meta.get("target", "Unknown")
         git_audit = session_meta.get("git_audit", {})
         commit_date = git_audit.get("latest_commit_date", "Unknown").split("T")[0]
@@ -269,10 +277,10 @@ class RecordKeeper:
                 total_coding_loc INTEGER,
                 total_functions INTEGER,
                 total_classes INTEGER,
-                total_doc_files INTEGER,    
-                total_build_files INTEGER,  
-                total_config_files INTEGER, 
-                total_test_files INTEGER,   
+                total_doc_files INTEGER,
+                total_build_files INTEGER,
+                total_config_files INTEGER,
+                total_test_files INTEGER,
                 typosquat_hits INTEGER,
                 ecosystem_baseline TEXT,
                 z_score REAL,
@@ -283,6 +291,9 @@ class RecordKeeper:
                 network_cyclic_density REAL,
                 network_avg_path_length REAL,
                 network_articulation_points INTEGER,
+                -- #2992: resolved graph edges left out of edge_data because an
+                -- endpoint has no file_data row (see the edge_data insert).
+                network_edges_unrecorded INTEGER,
                 -- #1148: real producer (run_api_audit -> calculate_api_drift in
                 -- full_api_network_map.py), but nonzero only when the repo ships exactly
                 -- one auto-discoverable OpenAPI/Swagger spec AND has code endpoints missing
@@ -311,6 +322,8 @@ class RecordKeeper:
         # gitgalaxy#2985: repo_data's half of the hit_cols heal (see file_data's
         # below for why the INSERTs make this mandatory, not merely tidy).
         _ensure_columns(cursor, "repo_data", hit_cols)
+        # #2992: same heal for a pre-#2992 repo_data.
+        _ensure_columns(cursor, "repo_data", ["network_edges_unrecorded INTEGER"])
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS folder_data (
@@ -376,12 +389,12 @@ class RecordKeeper:
                 author TEXT,
                 ai_threat_class TEXT,
                 ai_threat_confidence REAL,
-                func_z_max REAL DEFAULT 0.0, 
-                func_z_mean REAL DEFAULT 0.0, 
-                func_z_median REAL DEFAULT 0.0, 
-                pct_z_above_5 REAL DEFAULT 0.0, 
-                pct_z_above_15 REAL DEFAULT 0.0, 
-                file_archetype TEXT, 
+                func_z_max REAL DEFAULT 0.0,
+                func_z_mean REAL DEFAULT 0.0,
+                func_z_median REAL DEFAULT 0.0,
+                pct_z_above_5 REAL DEFAULT 0.0,
+                pct_z_above_15 REAL DEFAULT 0.0,
+                file_archetype TEXT,
                 file_fingerprint TEXT,
                 ecosystem_baseline TEXT,
                 repo_z_score REAL,
@@ -463,6 +476,37 @@ class RecordKeeper:
         # DEFENSIVE GUARD: Indexes to Prevent Cascade Delete Hangs
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_class_file_id ON class_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_function_file_id ON function_data(file_id);")
+
+        # #2992: the dependency graph's edge list. The engine builds the full
+        # file-to-file import graph every scan (network_risk_sensor) but used to
+        # persist only per-node summaries of it (popularity, pagerank_score,
+        # internal_dependency_links), so no neighbourhood question -- what do a
+        # file's importers carry? -- was answerable from the DB. One row per
+        # resolved (importer, imported) pair: repeated imports of the same target
+        # collapse into one row that keeps count in import_statements (of which
+        # entity_imports were the `from x import y` entity form); weight is the
+        # value pagerank/betweenness read. edge_kind is 'import' today -- the
+        # column exists so another relation (calls, test coverage) can share the
+        # table later without a schema change. No FK to repo_data on purpose:
+        # its INSERT OR REPLACE below would cascade-delete these rows.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS edge_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                src_file_id INTEGER,
+                dst_file_id INTEGER,
+                edge_kind TEXT DEFAULT 'import',
+                weight REAL,
+                import_statements INTEGER,
+                entity_imports INTEGER,
+                FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE,
+                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_edge_src_file_id ON edge_data(src_file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_edge_dst_file_id ON edge_data(dst_file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_edge_snapshot ON edge_data(repo_name, commit_hash);")
 
         # #2908 Phase 2: per-unit is_public/is_documented (function_data.
         # docs/risk_documentation_contract.md). Auto-heal for a pre-#2908
@@ -580,7 +624,13 @@ class RecordKeeper:
             )
         """)
 
-        # THE IDEMPOTENT WIPE: Ensures delta-scans don't duplicate rows for the same commit
+        # THE IDEMPOTENT WIPE: Ensures delta-scans don't duplicate rows for the same commit.
+        # edge_data would also go with file_data's cascade; deleting it first by
+        # snapshot key is one indexed pass instead of two FK lookups per file.
+        cursor.execute(
+            "DELETE FROM edge_data WHERE repo_name = ? AND commit_hash = ?",
+            (repo_name, commit_hash),
+        )
         cursor.execute(
             "DELETE FROM file_data WHERE repo_name = ? AND commit_hash = ?",
             (repo_name, commit_hash),
@@ -605,6 +655,9 @@ class RecordKeeper:
 
         # PERFORMANCE OPTIMIZATION: Global array for batched executemany inserts
         all_func_rows = []
+
+        # #2992: graph node (file path) -> the file_data row it became, for edge_data.
+        path_to_file_id: dict[str, int] = {}
 
         # #2536: hit_vector indexes for the two keys the Contextual Baseline
         # Fix rewrites -- used to fall back to the adjusted values whenever a
@@ -1014,6 +1067,8 @@ class RecordKeeper:
             )
 
             file_id = cursor.lastrowid
+            if file_id is not None:
+                path_to_file_id[file_data.get("path", "")] = file_id
 
             # 1. Extract and Insert Classes
             classes = file_data.get("classes", [])
@@ -1081,6 +1136,50 @@ class RecordKeeper:
                 all_func_rows,
             )
 
+        # 2b. #2992: DEPENDENCY EDGE INSERTION
+        # An edge is recorded only when BOTH endpoints got a file_data row. The
+        # statistical audit runs after the graph is built and can relegate a node
+        # to excluded_artifacts, leaving its edges nothing to key on. Those are
+        # counted into repo_data.network_edges_unrecorded rather than dropped
+        # silently, so a reader reconciling edge_data against popularity /
+        # internal_dependency_links knows how many edges the table cannot show.
+        edges_unrecorded: Optional[int] = None
+        if dependency_edges is not None:
+            edge_rows = []
+            for edge in dependency_edges:
+                src_id = path_to_file_id.get(edge.get("src", ""))
+                dst_id = path_to_file_id.get(edge.get("dst", ""))
+                if src_id is None or dst_id is None:
+                    continue
+                edge_rows.append(
+                    (
+                        repo_name,
+                        commit_hash,
+                        src_id,
+                        dst_id,
+                        edge.get("edge_kind", "import"),
+                        float(edge.get("weight", 0.0)),
+                        int(edge.get("import_statements", 0)),
+                        int(edge.get("entity_imports", 0)),
+                    )
+                )
+            edges_unrecorded = len(dependency_edges) - len(edge_rows)
+            if edges_unrecorded:
+                self.logger.debug(
+                    f"Record Keeper: {edges_unrecorded} graph edge(s) touch a file with no file_data row."
+                )
+
+            if edge_rows:
+                cursor.executemany(
+                    """
+                    INSERT INTO edge_data (
+                        repo_name, commit_hash, src_file_id, dst_file_id,
+                        edge_kind, weight, import_statements, entity_imports
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                    edge_rows,
+                )
+
         # 3. REPO DATA INSERTION
         class_start_idx = self.SIGNAL_SCHEMA.index("class_start") if "class_start" in self.SIGNAL_SCHEMA else -1
         total_classes = agg_hits[class_start_idx] if class_start_idx >= 0 else 0
@@ -1141,6 +1240,7 @@ class RecordKeeper:
                 net_cyclic_density,
                 net_avg_path_length,
                 net_articulation_points,
+                edges_unrecorded,
                 int(audits.get("api_mapper", {}).get("shadow_count", 0)),
                 int(audits.get("xray", {}).get("anomalies_found", 0)),
                 int(audits.get("firewall", {}).get("imports_unknown", 0)),
@@ -1154,11 +1254,12 @@ class RecordKeeper:
         cursor.execute(
             f"""
             INSERT OR REPLACE INTO repo_data (
-                repo_name, commit_date, commit_hash, total_files, total_excluded_artifacts, total_loc, total_coding_loc, 
-                total_functions, total_classes, total_doc_files, total_build_files, total_config_files, total_test_files, 
+                repo_name, commit_date, commit_hash, total_files, total_excluded_artifacts, total_loc, total_coding_loc,
+                total_functions, total_classes, total_doc_files, total_build_files, total_config_files, total_test_files,
                 typosquat_hits, ecosystem_baseline, z_score,
                 avg_encapsulation_ratio, avg_imports_per_file,
                 network_modularity, network_assortativity, network_cyclic_density, network_avg_path_length, network_articulation_points,
+                network_edges_unrecorded,
                 audit_shadow_apis, audit_binary_anomalies, audit_unknown_packages, is_zero_dependency_mode,
                 {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])},
                 file_composition
@@ -1186,7 +1287,7 @@ class RecordKeeper:
         if unparsable_rows:
             cursor.executemany(
                 """
-                INSERT INTO excluded_artifacts 
+                INSERT INTO excluded_artifacts
                 (repo_name, commit_hash, file_path, extension, exclusion_reason, size_bytes)
                 VALUES (?, ?, ?, ?, ?, ?)
             """,

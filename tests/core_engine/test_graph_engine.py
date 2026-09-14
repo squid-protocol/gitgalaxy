@@ -3,6 +3,7 @@
 networkx parity harness every native graph metric is checked with.
 """
 
+import math
 import os
 import sqlite3
 import sys
@@ -134,6 +135,13 @@ def test_mutual_import_is_one_undirected_edge():
     index = GraphIndex(["a", "b", "c"], [("a", "b", 1.0), ("b", "a", 1.0), ("b", "c", 1.0)])
     assert graph_engine.nodes_in_cycles(index) == 2
     assert graph_engine.articulation_point_count(index) == 1
+
+
+def test_assortativity_is_nan_where_undefined():
+    """#3036: no edges, or a degree that never varies, leaves the correlation undefined: NaN, as in networkx."""
+    assert math.isnan(graph_engine.degree_assortativity(GraphIndex(["a", "b"], [])))
+    hub = GraphIndex(["h", "a", "b"], [("a", "h", 1.0), ("b", "h", 1.0)])
+    assert math.isnan(graph_engine.degree_assortativity(hub))
 
 
 def test_every_metric_declares_an_oracle_mode():

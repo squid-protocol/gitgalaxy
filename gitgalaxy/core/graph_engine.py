@@ -14,6 +14,7 @@ module must match: networkx's own call where GitGalaxy keeps its definition, or
 networkx computing the tailored definition where #3033 chose a different one.
 """
 
+import math
 from collections.abc import Iterable
 from operator import mul, sub, truediv
 from typing import Optional
@@ -370,3 +371,45 @@ def articulation_point_count(index: GraphIndex) -> int:
         if root_children > 1:  # a DFS root is a cut vertex only with two or more subtrees
             is_cut[root] = True
     return sum(is_cut)
+
+
+def degree_assortativity(index: GraphIndex) -> float:
+    """
+    #3036: degree assortativity, the Pearson correlation over every edge u -> v
+    of (out-degree of u, in-degree of v). Strict parity with networkx's default
+    `nx.degree_assortativity_coefficient(G)` (x="out", y="in", unweighted), with
+    no numpy. networkx's routine imports numpy, which networkx does not install,
+    so with networkx alone it raised and the metric was silently lost.
+
+    Degrees are integers, so every sum is exact integer arithmetic, and the only
+    rounding is the final square root and division. networkx instead sums floats
+    over a normalised mixing matrix. The two agree to about 1e-15, identical at
+    the 4 dp the sensor stores.
+
+    The result is NaN, as networkx returns, when the correlation is undefined:
+    there are no edges, or one of the two degrees never varies (every edge
+    points at the same hub, say). O(N + E).
+    """
+    n = len(index.nodes)
+    out_offsets, out_targets, in_offsets = index.out_offsets, index.out_targets, index.in_offsets
+    in_degree = [in_offsets[v + 1] - in_offsets[v] for v in range(n)]
+    edges = sum_x = sum_xx = sum_y = sum_yy = sum_xy = 0
+    for u in range(n):
+        start, stop = out_offsets[u], out_offsets[u + 1]
+        x = stop - start  # u's out-degree: the x of each of its x edges
+        if x == 0:
+            continue
+        ys = [in_degree[v] for v in out_targets[start:stop]]
+        y_total = sum(ys)
+        edges += x
+        sum_x += x * x
+        sum_xx += x * x * x
+        sum_y += y_total
+        sum_yy += sum(y * y for y in ys)
+        sum_xy += x * y_total
+    covariance = edges * sum_xy - sum_x * sum_y
+    variance_x = edges * sum_xx - sum_x * sum_x
+    variance_y = edges * sum_yy - sum_y * sum_y
+    if variance_x == 0 or variance_y == 0:
+        return math.nan
+    return covariance / math.sqrt(variance_x * variance_y)

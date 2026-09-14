@@ -137,6 +137,7 @@ def test_network_fallback_mode(sensor, parsed_files_universe):
         # #3035: cyclic density and articulation points are native too.
         assert metrics["cyclic_density"] > 0.0
         assert metrics["articulation_points"] is not None
+        assert metrics["assortativity"] is not None  # #3036
 
 
 # ==============================================================================
@@ -458,46 +459,46 @@ def test_pagerank_failure_degrades_to_none(sensor, parsed_files_universe):
 @pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_macro_metrics_individual_failures_stay_isolated(sensor, parsed_files_universe):
     """
-    Stress test: each macro-ecosystem metric (modularity, assortativity,
-    cyclic density, avg path length, articulation points) is computed in
-    its own try/except so one metric's failure doesn't take down the
-    others. Previously none of these five except-blocks had a single test
-    forcing the failure path -- they were trusted by inspection only.
+    Stress test: one failing macro metric must not take the others down. Since
+    #3035-#3037, modularity is the only macro metric networkx still computes;
+    the rest are native and computed outside its try/except, so they must
+    survive its failure.
     """
-    with patch("networkx.degree_assortativity_coefficient", side_effect=RuntimeError("boom")):
+    with patch("networkx.algorithms.community.modularity", side_effect=RuntimeError("boom")):
         _, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
 
-    assert macro_metrics["assortativity"] is None, (
-        "A failed assortativity computation must stay None, not 0.0 or crash."
-    )
-    # #3035/#3037: avg path length, cyclic density and articulation points are
-    # native, computed outside the networkx block.
-    assert macro_metrics["avg_path_length"] is not None
-    assert macro_metrics["articulation_points"] is not None
-    # Modularity and cyclic_density weren't patched to fail -- they should
-    # still have computed normally, proving the try/except isolation really
-    # is per-metric and not a single all-or-nothing block.
-    assert macro_metrics["modularity"] is not None
-    assert macro_metrics["cyclic_density"] is not None
+    assert macro_metrics["modularity"] is None, "A failed modularity computation must stay None, not 0.0 or crash."
+    for key in ("assortativity", "cyclic_density", "avg_path_length", "articulation_points"):
+        assert macro_metrics[key] is not None, key
 
 
-def test_cycle_metrics_are_native_in_both_modes(sensor, parsed_files_universe):
-    """#3035: cyclic density and articulation points never call networkx, and both modes agree."""
+def test_topology_metrics_are_native_in_both_modes(sensor, parsed_files_universe):
+    """#3035/#3036: assortativity, cyclic density and articulation points never call networkx; both modes agree."""
+    native = ("assortativity", "cyclic_density", "articulation_points")
     with (
         patch("networkx.strongly_connected_components", side_effect=AssertionError("must not be called")),
         patch("networkx.articulation_points", side_effect=AssertionError("must not be called")),
+        patch("networkx.degree_assortativity_coefficient", side_effect=AssertionError("must not be called")),
     ):
         _, full = sensor.build_dependency_graph(parsed_files_universe)
     with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
         _, zero = sensor.build_dependency_graph(parsed_files_universe)
 
     assert full["cyclic_density"] > 0.0  # the universe has a cycle
-    assert full["articulation_points"] is not None
-    assert (zero["cyclic_density"], zero["articulation_points"]) == (
-        full["cyclic_density"],
-        full["articulation_points"],
-    )
+    assert all(full[key] is not None for key in native)
+    assert {key: zero[key] for key in native} == {key: full[key] for key in native}
     assert full["modularity"] is not None, "networkx's own macro metrics still run beside the native ones."
+
+
+def test_assortativity_needs_no_numpy(sensor, parsed_files_universe):
+    """
+    #3036: networkx's assortativity imports numpy, which networkx does not
+    install, so a scan with networkx but no numpy silently lost the metric. The
+    native one needs neither.
+    """
+    with patch.dict("sys.modules", {"numpy": None}):
+        _, macro = sensor.build_dependency_graph(parsed_files_universe)
+    assert macro["assortativity"] is not None
 
 
 def test_modularity_falls_back_to_greedy_when_louvain_unavailable(sensor, parsed_files_universe):
@@ -528,12 +529,12 @@ def test_macro_math_outer_failure_returns_all_none(sensor, parsed_files_universe
     with patch("networkx.DiGraph.to_undirected", side_effect=RuntimeError("boom")):
         mapped_files, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
 
-    native = ("avg_path_length", "cyclic_density", "articulation_points")
+    native = ("assortativity", "avg_path_length", "cyclic_density", "articulation_points")
     networkx_metrics = {k: v for k, v in macro_metrics.items() if k not in native}
     assert networkx_metrics and all(v is None for v in networkx_metrics.values()), (
         "Outer macro-math failure should leave every networkx metric None."
     )
-    # #3035/#3037: the native metrics are computed outside the networkx block.
+    # #3035-#3037: the native metrics are computed outside the networkx block.
     assert all(macro_metrics[k] is not None for k in native)
     # Per-file network metrics (computed earlier in the function, before the
     # macro block) must survive even though the macro block blew up.

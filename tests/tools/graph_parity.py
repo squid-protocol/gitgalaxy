@@ -23,10 +23,12 @@ Used two ways:
 """
 
 import argparse
+import math
 import random
 import sqlite3
 import sys
 import time
+import warnings
 from dataclasses import dataclass
 from typing import Any, Callable, Optional
 
@@ -34,6 +36,7 @@ from gitgalaxy.core.graph_engine import (
     GraphIndex,
     articulation_point_count,
     closeness_and_path_length,
+    degree_assortativity,
     nodes_in_cycles,
     pagerank,
 )
@@ -70,6 +73,17 @@ def _reachable_pair_path_length(graph: Any) -> Optional[float]:
     return hops / pairs if pairs else None
 
 
+def _stored_assortativity(value: float) -> float:
+    """The value the sensor stores: an undefined correlation (NaN) is recorded as 0.0."""
+    return 0.0 if math.isnan(value) else value
+
+
+def _networkx_assortativity(graph: Any) -> float:
+    with warnings.catch_warnings():  # networkx warns on an undefined correlation's 0/0
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        return _stored_assortativity(nx.degree_assortativity_coefficient(graph))
+
+
 METRICS: dict[str, Metric] = {
     "pagerank": Metric(
         oracle_mode="strict",
@@ -104,6 +118,12 @@ METRICS: dict[str, Metric] = {
         native=articulation_point_count,
         oracle=lambda graph: len(list(nx.articulation_points(graph.to_undirected()))),
         places=0,  # a count: exact
+    ),
+    "assortativity": Metric(
+        oracle_mode="strict",
+        native=lambda index: _stored_assortativity(degree_assortativity(index)),
+        oracle=_networkx_assortativity,
+        places=4,  # repo_data.network_assortativity
     ),
 }
 

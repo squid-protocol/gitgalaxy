@@ -659,8 +659,7 @@ class LLMRecorder:
             defs = getattr(config, "FUNCTION_ARCHETYPE_DEFINITIONS", {})
             lines.append("")
             lines.append("*Function archetypes referenced above:*")
-            for a in shown:
-                lines.append(f"  * **{a}**: {defs.get(a, 'n/a')}")
+            lines.extend(f"  * **{a}**: {defs.get(a, 'n/a')}" for a in shown)
         else:
             lines.append("*No complex functions detected.*")
         lines.append("")

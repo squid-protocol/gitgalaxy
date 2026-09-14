@@ -715,7 +715,7 @@ class SignalProcessor:
             # Per-file function-archetype mix (count per archetype), surfaced in the
             # audit + LLM reports so the deterministic output carries the function
             # taxonomy, not just the scan DB. Sorted by count for stable report output.
-            _mix = {}
+            _mix: dict[str, int] = {}
             for _s in real_functions:
                 _a = _s.get("archetype", "Unclassified")
                 _mix[_a] = _mix.get(_a, 0) + 1

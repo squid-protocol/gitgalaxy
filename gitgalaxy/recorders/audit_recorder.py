@@ -162,7 +162,7 @@ class AuditRecorder:
             }
 
         folder_archetype_counts = {}
-        function_archetype_totals = {}  # repo-wide function-archetype distribution
+        function_archetype_totals: dict[str, int] = {}  # repo-wide function-archetype distribution
 
         # 2. Row Reconstruction (Parsed Files) mapped into Directory Groups
         for file_data in parsed_files:

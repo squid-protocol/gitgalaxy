@@ -224,6 +224,7 @@ units come from the sheet.
 | skill `rosetta-language-sweep` | keyword-rosetta | 1 | Re-scoped to the per-language *classification instrument* a family audit calls; no longer a work queue. |
 | `tools/issue_status.py` | keyword-rosetta | 1 | Kept as a generator for ad hoc standing; `--post` retired with the issues. |
 | `tests/tools/audit_commensurability.py` | gitgalaxy | 4 | Unit check over the risk formulas; the third invariant beside length and tier parity. |
+| `tests/tools/embedded_verb_coverage.py` | gitgalaxy | n/a | Not a contract-roadmap tool — a single-language coverage audit (#2990): every CICS/SQL/DLI verb and native-COBOL/JCL idiom the corpus contains is owned by a rule or recorded blanket-only/none with a reason. See `docs/cobol_semantic_coverage.md`. |
 
 ## 6. Issue disposition
 

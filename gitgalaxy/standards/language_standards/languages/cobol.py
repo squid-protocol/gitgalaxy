@@ -290,8 +290,23 @@ DEFINITION: dict[str, Any] = {
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
         # 6. safety: Defensive Programming. Defensive scope terminators and declarative blocks.
         # C2: END-* closers are structure. C4: hyphen guards (#2622 shape). ON ERROR/AT END/INVALID KEY stay branch's (verified owner, #2822 disposition).
+        # #2990: the stated #2869 sentence names "an installed failure handler" and "a
+        # value-level failure check". CICS installs handlers with HANDLE CONDITION / HANDLE
+        # ABEND (PUSH/POP HANDLE stack them) -- HANDLE CONDITION moved here from `events`,
+        # whose declared row excludes the receiving side. SYNCPOINT [ROLLBACK] / RESYNC,
+        # EXEC SQL COMMIT/ROLLBACK and EXEC DLI CHKP/ROLB/ROLL are unit-of-work control, the
+        # transactional guard sqlite.py already counts as safety. `DFHRESP(` comparisons and
+        # `IF|EVALUATE SQLCODE` are the mainframe try/catch: the value-level check of a
+        # command's response (393 / 132 crucible hits, no owner before this). The IF form is
+        # also branch's decision -- the jcl COND=((4,LT),EVEN) dual shape, deliberate.
+        # `WHENEVER <cond> GO TO` installs a handler (its CONTINUE form is safety_bypasses').
         "safety": re.compile(
-            r"(?<!-)\b(DECLARATIVES|VALIDATE|CHECK)\b(?!-)",
+            r"(?<!-)\b(?:DECLARATIVES|VALIDATE|CHECK)\b(?!-)"
+            r"|\bEXEC\s+CICS\s+(?:HANDLE\s+(?:CONDITION|ABEND)|PUSH\s+HANDLE|POP\s+HANDLE|SYNCPOINT|RESYNC)\b"
+            r"|\bEXEC\s+SQL\s+(?:COMMIT|ROLLBACK|WHENEVER\s+(?:SQLERROR|SQLWARNING|NOT\s+FOUND)\s+GO\s*TO)\b"
+            r"|\bEXEC\s+DLI\s+(?:CHKP|SYMCHKP|ROLB|ROLL|ROLS)\b"
+            r"|\bDFHRESP\("
+            r"|\b(?:IF|EVALUATE)\s+(?:SQLCODE|SQLSTATE)\b",
             re.I,
         ),
         # 7. safety_neg: Safety Bypasses. Bypassing logic or unpredictable jumps.
@@ -300,15 +315,35 @@ DEFINITION: dict[str, Any] = {
         # deliberately disabled, which is what this key means. The issue
         # proposed `panics_and_aborts`; that is the opposite reading (an abend
         # raises, IGNORE CONDITION suppresses), so it is routed here instead.
+        # #2990: NOHANDLE on a command switches CICS exception handling off for that one
+        # command, and `EXEC SQL WHENEVER <cond> CONTINUE` tells the precompiler to ignore
+        # the condition -- both swallow errors, which is this key. The GO TO alternative is
+        # guarded (fixed-width lookbehinds, one per condition word) so `WHENEVER SQLERROR GO
+        # TO` -- a handler install, safety's -- is not also counted as a bypass.
         "safety_bypasses": re.compile(
-            r"\b(NEXT\s+SENTENCE|GO\s+TO|CORRESPONDING|ANY\s+LENGTH|OMITTED"
-            r"|EXEC\s+CICS\s+IGNORE\s+CONDITION)\b",
+            r"\b(?:NEXT\s+SENTENCE|(?<!SQLERROR\s)(?<!SQLWARNING\s)(?<!FOUND\s)GO\s+TO|CORRESPONDING"
+            r"|ANY\s+LENGTH|OMITTED|EXEC\s+CICS\s+IGNORE\s+CONDITION)\b"
+            r"|(?<![-\w])NOHANDLE(?![-\w])"
+            r"|\bEXEC\s+SQL\s+WHENEVER\s+(?:SQLERROR|SQLWARNING|NOT\s+FOUND)\s+CONTINUE\b",
             re.I,
         ),
         # 8. danger: High-Risk Execution. Process-stopping commands and self-modifying code (ALTER).
         # #2878 contract C2: hyphen-guarded -- `ALTER-TEST-INIT.` is a paragraph name, not the
         # ALTER statement (the #2622 shape). ALTER rewrites control (C3), CANCEL unloads code (C1c).
-        "high_risk_execution": re.compile(r"(?<![-\w])(?:STOP\s+RUN|ALTER|CANCEL)(?![-\w])", re.I),
+        # #2990: the COBOL CANCEL verb unloads a program and takes a program operand
+        # (`CANCEL 'SUBPROG'`, `CANCEL WS-PGM`). The same word is a CICS option with no
+        # operand -- `EXEC CICS ABEND ABCODE('X') CANCEL`, `HANDLE ABEND CANCEL` -- and the
+        # interval-control command `EXEC CICS CANCEL REQID(...)` (concurrency's). The bare
+        # token fired on all of them (31% of the crucible's ABEND blocks read as high-risk
+        # execution). CANCEL now needs an operand on its line and must not be the CICS form.
+        # Dynamic SQL runs text as code (contract family 2: PREPARE / EXECUTE [IMMEDIATE]);
+        # TRUNCATE and DROP DATABASE are whole-store destruction (family 4).
+        "high_risk_execution": re.compile(
+            r"(?<![-\w])(?:STOP\s+RUN|ALTER"
+            r"|CANCEL(?![ \t]+(?:REQID|TRANSID|SYSID|END-EXEC)\b)(?=[ \t]+['\"A-Z0-9]))(?![-\w])"
+            r"|\bEXEC\s+SQL\s+(?:PREPARE|EXECUTE(?:\s+IMMEDIATE)?|TRUNCATE|DROP\s+DATABASE)\b",
+            re.I,
+        ),
         # 9. io: I/O & Network Boundaries. Disk, Database (SQL), and CICS communication.
         # #2485: the queue verbs are a SEPARATE alternative from the bare
         # file-control ones, not extra letters on them. `EXEC CICS READQ TS`
@@ -324,9 +359,22 @@ DEFINITION: dict[str, Any] = {
         # (keyword-rosetta ledger sqlite-dot-read-dual-import-io).
         "io": re.compile(
             # #2841 contract C2: CLOSE is cleanup's hit.
-            r"\b(READ|WRITE|REWRITE|OPEN|START|DELETE|EXEC\s+SQL"
+            # #2990: the VSAM browse family (STARTBR/READNEXT/READPREV/ENDBR/RESETBR), UNLOCK,
+            # the spool API and the named-counter API (a shared counter in the coupling
+            # facility is an external store: DEFINE/GET/QUERY/UPDATE/REWIND/DELETE COUNTER)
+            # are boundary operations with no owner before this. `EXEC DLI` (IMS) and the
+            # CBLTDLI call interface join `EXEC SQL` as the embedded-database boundary. The
+            # bare file-positioning verb START is guarded so `EXEC CICS START TRANSID` (a task
+            # spawn: concurrency + ipc_rpc_bridges) no longer reads as a file operation. The
+            # lookbehind alone assumes exactly one space after CICS; real source varies
+            # (cics-genapp's lgwebst5.cbl has two), so a lookahead on the CICS-only operand
+            # words (TRANSID/BREXIT/CHANNEL/AFTER, never a file-control START's next token)
+            # backs it up regardless of spacing.
+            r"\b(READ|WRITE|REWRITE|OPEN|(?<!CICS\s)START(?!\s+(?:TRANSID|BREXIT|CHANNEL|AFTER)\b)|DELETE|EXEC\s+(?:SQL|DLI)"
             r"|EXEC\s+CICS\s+(?:READQ|WRITEQ|DELETEQ)\s+(?:TS|TD)"
-            r"|EXEC\s+CICS\s+(?:READ|WRITE|REWRITE|DELETE))\b",
+            r"|EXEC\s+CICS\s+(?:READ|WRITE|REWRITE|DELETE|UNLOCK|STARTBR|READNEXT|READPREV|ENDBR|RESETBR"
+            r"|SPOOL(?:OPEN|READ|WRITE|CLOSE)|(?:DEFINE|GET|QUERY|UPDATE|REWIND|DELETE)\s+D?COUNTER))\b"
+            r"|CALL\s+'(?:CBLTDLI|AIBTDLI)'",
             re.I,
         ),
         # 10. api: Public Surface Area. Exposed linkage points and external entries.
@@ -372,13 +420,29 @@ DEFINITION: dict[str, Any] = {
         ),
         # 14. test: Testing & Assertions. Unit testing framework markers (ZUnit).
         # #2852 contract C3: hyphen guards -- UT-TEST-CASE-COUNT is an identifier, not a test case (the #2622 hyphen shape)
+        # #2852 contract C3: hyphen guards -- UT-TEST-CASE-COUNT is an identifier, not a test case (the #2622 hyphen shape)
         "test": re.compile(r"(?<!-)\b(ZUNIT|CBLUNIT|ASSERT|TEST-CASE|READY\s+TRACE)\b(?!-)", re.I),
         # --- PHASE 3: ARCHITECTURE & DOMAIN SENSORS ---
         # 15. concurrency: Temporal Static. CICS Task and resource coordination.
-        "concurrency": re.compile(r"\bEXEC\s+CICS\s+(?:ENQ|DEQ|WAIT|START|DELAY)\b", re.I),
+        # #2990: the Async API (RUN TRANSID spawns a child task, FETCH CHILD/ANY joins it,
+        # FREE CHILD discards its token), interval control (START/RETRIEVE/CANCEL/POST) and
+        # task control (WAIT*, WAITCICS, SUSPEND) are CICS's task-coordination surface. Before
+        # this a modern async CICS app read arch_concurrency = 0. RUN TRANSID also counts in
+        # ipc_rpc_bridges (the dual START already carries); SUSPEND also in thread_sleeps.
+        "concurrency": re.compile(
+            r"\bEXEC\s+CICS\s+(?:ENQ|DEQ|WAIT|WAITCICS|START|RETRIEVE|CANCEL|POST|DELAY|SUSPEND"
+            r"|RUN\s+(?:TRANSID|ACTIVITY|ACQPROCESS)|FETCH\s+(?:CHILD|ANY)|FREE\s+CHILD)\b",
+            re.I,
+        ),
         # 16. ui_framework: UI / View Components. Screen sections and CICS maps.
+        # #2990: SEND MAP was the only terminal output counted; SEND TEXT / SEND CONTROL /
+        # SEND PAGE and the bare SEND (37 crucible blocks) write the same 3270 screen, and
+        # CONVERSE / ROUTE / PURGE MESSAGE / ISSUE ERASEAUP are the rest of the terminal-
+        # control surface. `WEB SEND` cannot reach the SEND alternative (CICS must be
+        # adjacent) -- it stays ssr_boundaries'. CONVERSE is also a listener (send+receive).
         "ui_framework": re.compile(
-            r"\b(SCREEN\s+SECTION|EXEC\s+CICS\s+SEND\s+MAP|DFHMDF|DFHMDI|DFHMSD)\b",
+            r"\b(?:SCREEN\s+SECTION|EXEC\s+CICS\s+(?:SEND|CONVERSE|ROUTE|PURGE\s+MESSAGE|ISSUE\s+ERASEAUP)"
+            r"|DFHMDF|DFHMDI|DFHMSD)\b",
             re.I,
         ),
         # 17. closures: Closures / Anonymous Functions. (COBOL lacks native lambdas).
@@ -412,13 +476,21 @@ DEFINITION: dict[str, Any] = {
         # 21. comprehensions: Iterators / Comprehensions. (Not native to COBOL).
         "comprehensions": None,
         # 22. scientific: Numerical / Compute Libraries. Intrinsic math functions.
+        # #2990: the statistical and remaining math intrinsics (410 crucible calls in 35
+        # files read no scientific signal: MEAN, MEDIAN, STANDARD-DEVIATION, SUM, RANGE,
+        # ANNUITY ...). The hyphen guard keeps INTEGER off INTEGER-OF-DATE (time's) and
+        # E off EXP; NUMVAL* are conversions (explicit_casts'), not math.
         "scientific": re.compile(
-            r"\bFUNCTION\s+(?:ACOS|ASIN|ATAN|COS|EXP|FACTORIAL|LOG|LOG10|MOD|RANDOM|SQRT|TAN|VARIANCE)\b",
+            r"\bFUNCTION\s+(?:ACOS|ASIN|ATAN|COS|SIN|TAN|EXP|EXP10|LOG|LOG10|SQRT|FACTORIAL|ABS|PI|E|MOD|REM"
+            r"|INTEGER|INTEGER-PART|RANDOM|SUM|MEAN|MEDIAN|MIDRANGE|RANGE|VARIANCE|STANDARD-DEVIATION"
+            r"|MIN|MAX|ORD-MIN|ORD-MAX|ANNUITY|PRESENT-VALUE)(?![-\w])",
             re.I,
         ),
         # 23. heat_triggers: Metaprogramming & Reflection. Metaprogramming and memory aliasing.
         "reflection_metaprogramming": re.compile(
-            r"\b(REDEFINES|RENAMES|OCCURS\s+DEPENDING\s+ON|EVALUATE\s+TRUE|EXEC\s+CICS|EXEC\s+SQL)\b",
+            # #2990: the EXEC blanket also covers EXEC DLI (IMS); docs/cobol_semantic_coverage.md
+            # records which verbs this blanket is the semantic owner of (ASSIGN, INQUIRE ...).
+            r"\b(REDEFINES|RENAMES|OCCURS\s+DEPENDING\s+ON|EVALUATE\s+TRUE|EXEC\s+(?:CICS|SQL|DLI))\b",
             re.I,
         ),
         # 24. import (Dependency Inclusions)
@@ -451,7 +523,13 @@ DEFINITION: dict[str, Any] = {
         # 29. spec_exposure: Map vs. Territory. Audit tags.
         "spec_exposure": re.compile(r"\[(?:\s*SPEC\s*-\s*\d+|spec|audit)\]", re.I),
         # 31. ssr_boundaries: View Horizon. CICS web endpoints.
-        "ssr_boundaries": re.compile(r"\bEXEC\s+CICS\s+(?:WEB\s+SEND|DOCUMENT|WEB\s+READ)\b", re.I),
+        # #2990: the whole WEB / DOCUMENT API (WEB OPEN/CLOSE/RECEIVE/WRITE/EXTRACT/CONVERSE,
+        # DOCUMENT CREATE/INSERT/SET/RETRIEVE), SOAPFAULT and the EXTRACT WEB/TCPIP/CERTIFICATE
+        # inquiries are CICS's HTTP surface, not only WEB SEND / WEB READ.
+        "ssr_boundaries": re.compile(
+            r"\bEXEC\s+CICS\s+(?:WEB\s+[A-Z]+|DOCUMENT\s+[A-Z]+|SOAPFAULT|EXTRACT\s+(?:WEB|TCPIP|CERTIFICATE))\b",
+            re.I,
+        ),
         # 32. events: Pub/Sub Network. Signal handlers and MQ bindings.
         # BUG FIX: the `CALL 'MQPUT'`/`CALL 'MQGET'` alternative shared a
         # trailing `\b` with the word-ending EXEC CICS alternative, but
@@ -459,8 +537,11 @@ DEFINITION: dict[str, Any] = {
         # fire if the next char is a word character, never true for the
         # realistic form (`CALL 'MQPUT' USING queue-name.`, whitespace
         # after the closing quote). Pulled out of the shared group.
+        # #2990: HANDLE CONDITION moved to `safety` (an installed failure handler is the
+        # stated #2869 contract's; the declared events row excludes the receiving side).
+        # SIGNAL EVENT is the CICS event-processing emit and stays.
         "events": re.compile(
-            r"\bEXEC\s+CICS\s+(?:SIGNAL|HANDLE\s+CONDITION)\b|CALL\s+'(?:MQPUT|MQGET)'",
+            r"\bEXEC\s+CICS\s+SIGNAL\s+EVENT\b|CALL\s+'(?:MQPUT|MQGET)'",
             re.I,
         ),
         # 33. dependency_injection: Inversion of Control.
@@ -472,20 +553,47 @@ DEFINITION: dict[str, Any] = {
         ),
         # 35. pointers: Memory Map. Explicit pointer tracking.
         "pointers": re.compile(
-            r"\b(?:POINTER|PROCEDURE-POINTER|FUNCTION-POINTER)\b|\bADDRESS\s+OF\b",
+            # #2990: EXEC CICS ADDRESS obtains the address of a CICS area (COMMAREA, EIB, CWA).
+            r"\b(?:POINTER|PROCEDURE-POINTER|FUNCTION-POINTER)\b|\bADDRESS\s+OF\b|\bEXEC\s+CICS\s+ADDRESS\b",
             re.I,
         ),
         # 36. memory_alloc: Manual Memory Management. Heap and CICS allocation.
-        "memory_alloc": re.compile(r"\b(?:ALLOCATE|FREE|EXEC\s+CICS\s+(?:GETMAIN|FREEMAIN))\b", re.I),
+        # #2990: FREE CHILD discards an async child's token (cleanup's), not storage;
+        # GETMAIN64 / FREEMAIN64 are the 64-bit forms.
+        "memory_alloc": re.compile(
+            r"\b(?:ALLOCATE|FREE(?!\s+CHILD\b)|EXEC\s+CICS\s+(?:GETMAIN|FREEMAIN)(?:64)?)\b", re.I
+        ),
         # 37. inline_asm: Bare Metal.
         "inline_asm": None,
         # --- PHASE 5: RESOURCE MANAGEMENT & STABILITY ---
         # 38. telemetry: Professional diagnostics.
-        "telemetry": re.compile(r"\b(?:EXEC\s+CICS\s+WRITEQ\s+TD|CEE3DMP|CEEMOUT|CEEDUMP)\b", re.I),
+        # #2990: journal writes, operator messages, transaction dumps and trace entries are
+        # CICS's other diagnostic emissions (WRITE JOURNALNAME is also an io write, the
+        # WRITEQ TD dual); EXEC DLI LOG writes the IMS log; DSNTIAR formats a Db2
+        # diagnostic message (the CEEMOUT class).
+        "telemetry": re.compile(
+            r"\b(?:EXEC\s+CICS\s+(?:WRITEQ\s+TD|WRITE\s+JOURNALNAME|WRITE\s+OPERATOR|DUMP\s+TRANSACTION|ENTER\s+TRACENUM)"
+            r"|EXEC\s+DLI\s+LOG|CEE3DMP|CEEMOUT|CEEDUMP)\b|CALL\s+'DSNTIAR'",
+            re.I,
+        ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs): Standard output.
-        "debug_prints": re.compile(r"\b(DISPLAY)\b", re.I),
+        # #2990: EXHIBIT is DISPLAY's OS/VS ancestor (still compiled). READY TRACE is left
+        # in `test` (unchanged) -- the stated #2852 contract already pins it as a positive
+        # case there (test_test_contract_2852.py) and this is a single-language coverage
+        # pass, not a contract revision; RESET TRACE (the trace-off form the contract does
+        # not mention) is added here as the debug-artifact toggle's other half.
+        "debug_prints": re.compile(r"\b(?:DISPLAY|EXHIBIT|RESET\s+TRACE)\b", re.I),
         # 40. explicit_casts (Explicit Type Casting): Explicit type coercion/casting.
-        "explicit_casts": re.compile(r"\b(REDEFINES)\b", re.I),
+        # #2990: NUMVAL / NUMVAL-C / NUMVAL-F, DISPLAY-OF / NATIONAL-OF and HEX-OF /
+        # HEX-TO-CHAR are COBOL's conversion calls (string <-> numeric / encoding), and
+        # EXEC CICS BIF DEEDIT converts an edited numeric field back to a number -- the
+        # declared explicit_casts sentence's "conversion call" form.
+        "explicit_casts": re.compile(
+            r"\b(?:REDEFINES)\b"
+            r"|\bFUNCTION\s+(?:NUMVAL|NUMVAL-C|NUMVAL-F|DISPLAY-OF|NATIONAL-OF|HEX-OF|HEX-TO-CHAR)(?![-\w])"
+            r"|\bEXEC\s+CICS\s+BIF\s+DEEDIT\b",
+            re.I,
+        ),
         # 41. panics_and_aborts (Execution Interrupts / Fatal Aborts) Aborting execution.
         # #2485: `EXEC CICS ABEND` terminates the task abnormally and is the
         # CICS sibling of `STOP RUN` -- 91 occurrences across 47 crucible
@@ -495,9 +603,14 @@ DEFINITION: dict[str, Any] = {
         # both today; widening high_risk_execution by 91 hits across 47 files
         # is a scoring change that needs its own justification, not a
         # side effect of this one.)
-        "panics_and_aborts": re.compile(r"\b(STOP\s+RUN|EXIT\s+PROGRAM|GOBACK|EXEC\s+CICS\s+ABEND)\b", re.I),
+        # #2990: CALL 'CEE3ABD' is the Language Environment abend service -- the batch
+        # sibling of EXEC CICS ABEND (8 crucible calls, ipc-only before this).
+        "panics_and_aborts": re.compile(
+            r"\b(?:STOP\s+RUN|EXIT\s+PROGRAM|GOBACK|EXEC\s+CICS\s+ABEND)\b|CALL\s+'CEE3ABD'", re.I
+        ),
         # 42. thread_sleeps (Thread Blocking / Synchronous Pauses) (Forced waits).
-        "thread_sleeps": re.compile(r"\bEXEC\s+CICS\s+DELAY\b", re.I),
+        # #2990: SUSPEND yields the task to CICS (a forced pause); also concurrency's.
+        "thread_sleeps": re.compile(r"\bEXEC\s+CICS\s+(?:DELAY|SUSPEND)\b", re.I),
         # 43. bitwise_ops (Bitwise Operations) (Modern intrinsic bitwise).
         "bitwise_ops": re.compile(r"\bFUNCTION\s+(?:BIT-AND|BIT-OR|BIT-XOR|BIT-NOT)\b", re.I),
         # 44. sync_locks (Resource Management & Stability)
@@ -507,8 +620,11 @@ DEFINITION: dict[str, Any] = {
             r"(?<![\w'-])(CONSTANT)(?![\w-])", re.I
         ),  # #2772 C3: hyphen/quote guards -- AN-CONSTANT is a name, not a lock (the #2888 cobol shape)
         # 46. cleanup (Resource Cleanup / Teardown) Resource release.
+        # #2990: ENDBR releases a VSAM browse cursor and SPOOLCLOSE a spool report -- the
+        # `EXEC SQL CLOSE` (cursor) shape, cleanup + io. FREE CHILD / DELETE COUNTER / DELETE
+        # CONTAINER reach the bare verbs already and are contract-correct releases of state.
         "cleanup": re.compile(
-            r"(?<![\w\'-])(CLOSE|FREE|DELETE)(?![\w-])", re.I
+            r"(?<![\w\'-])(CLOSE|FREE|DELETE)(?![\w-])|\bEXEC\s+CICS\s+(?:ENDBR|SPOOLCLOSE)\b", re.I
         ),  # #2888 C3: \\b fired inside 9000-DALYTRAN-CLOSE and \'CLOSE...\' literals; END-DECLARATIVES is a structural closer (#2869\'s END-* family); DELETE removes a record (#2843)
         # 47. encapsulation (Encapsulation / Access Modifiers)
         # #2766: LOCAL-STORAGE SECTION dropped -- it is per-invocation memory
@@ -516,12 +632,15 @@ DEFINITION: dict[str, Any] = {
         # OO COBOL's genuine non-public marker.
         "encapsulation": re.compile(r"\bPRIVATE\b", re.I),
         # 48. listeners (Event Listeners / Observers)
-        "listeners": re.compile(r"\b(?:MQGET|EXEC\s+CICS\s+RECEIVE)\b", re.I),
+        # #2990: HANDLE AID registers a handler for a terminal attention key (PF/PA/ENTER)
+        # -- a registration to receive from the terminal; CONVERSE is a send+receive pair.
+        "listeners": re.compile(r"\b(?:MQGET|EXEC\s+CICS\s+(?:RECEIVE|CONVERSE|HANDLE\s+AID))\b", re.I),
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"\b(IGNORE)\b", re.I),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (COBOL Specifics) ---
         "serialization_parsing": re.compile(
-            r"(?i)\b(UNSTRING|STRING|JSON\s+PARSE|JSON\s+GENERATE|XML\s+PARSE|XML\s+GENERATE)\b"
+            # #2990: EXEC CICS TRANSFORM DATATOXML / XMLTODATA / DATATOJSON / JSONTODATA.
+            r"(?i)\b(UNSTRING|STRING|JSON\s+PARSE|JSON\s+GENERATE|XML\s+PARSE|XML\s+GENERATE|EXEC\s+CICS\s+TRANSFORM)\b"
         ),
         "regex_execution": re.compile(
             r"(?i)\b(INSPECT|TALLYING|REPLACING)\b"
@@ -535,8 +654,17 @@ DEFINITION: dict[str, Any] = {
         # COBOL syntax only ever has a single identifier there, so
         # replaced the unbounded `.*` with a real identifier character
         # class, which is both correct and eliminates the ambiguity.
+        # #2990: ASKTIME / FORMATTIME / CONVERTTIME are CICS's clock and calendar calls
+        # (119 crucible blocks in 51 files, no owner before this); the date intrinsics
+        # convert between calendar forms; CEEGMT/CEEDATM/... are the LE date services.
         "time_date_logic": re.compile(
             r"(?i)\bACCEPT\s+[A-Za-z0-9_-]+\s+FROM\s+(?:DATE|TIME|DAY)\b|\b(?:CURRENT-DATE|WHEN-COMPILED)\b"
+            r"|\bEXEC\s+CICS\s+(?:ASKTIME|FORMATTIME|CONVERTTIME)\b"
+            r"|\bFUNCTION\s+(?:INTEGER-OF-DATE|DATE-OF-INTEGER|INTEGER-OF-DAY|DAY-OF-INTEGER|DATE-TO-YYYYMMDD"
+            r"|DAY-TO-YYYYDDD|YEAR-TO-YYYY|SECONDS-PAST-MIDNIGHT|SECONDS-FROM-FORMATTED-TIME"
+            r"|FORMATTED-(?:DATE|TIME|DATETIME|CURRENT-DATE)|INTEGER-OF-FORMATTED-DATE|COMBINED-DATETIME"
+            r"|TEST-(?:DATE-YYYYMMDD|DAY-YYYYDDD|FORMATTED-DATETIME))(?![-\w])"
+            r"|CALL\s+'CEE(?:GMT|DATM|DATE|LOCT|SECS|DAYS|UTC)'"
         ),
         # BUG FIX: `CALL\s+` shared a trailing `\b` with word-ending
         # siblings, but ends in whitespace (non-word) -- broke on the
@@ -551,9 +679,12 @@ DEFINITION: dict[str, Any] = {
         # crucible carries none today.
         "ipc_rpc_bridges": re.compile(
             r"(?i)\bCALL\s+"
-            r"|\bEXEC\s+CICS\s+(?:LINK|XCTL|START|RETURN)\b"
+            # #2990: RUN TRANSID hands work to another transaction (START's shape: also
+            # concurrency); INVOKE APPLICATION / SERVICE / WEBSERVICE cross to another
+            # application context; EXEC DLI is the IMS database bridge beside EXEC SQL.
+            r"|\bEXEC\s+CICS\s+(?:LINK|XCTL|START|RETURN|RUN\s+TRANSID|INVOKE\s+(?:APPLICATION|SERVICE|WEBSERVICE))\b"
             r"|\bEXEC\s+CICS\s+(?:PUT|GET|MOVE)\s+CONTAINER\b"
-            r"|\bEXEC\s+SQL\b"
+            r"|\bEXEC\s+(?:SQL|DLI)\b"
         ),
     },
 }

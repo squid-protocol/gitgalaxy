@@ -116,7 +116,11 @@ _COBOL_SIMPLE_CASES = [
     ("sync_locks", "EXEC CICS ENQ END-EXEC", "MOVE X TO Y."),
     ("immutability_locks", "01 WS-X CONSTANT AS 5.", "MOVE X TO Y."),
     ("cleanup", "CLOSE CUSTOMER-FILE.", "MOVE X TO Y."),
-    ("encapsulation", "METHOD-ID. GET-BALANCE PRIVATE.", "LOCAL-STORAGE SECTION."),  # 2766: memory section is not visibility
+    (
+        "encapsulation",
+        "METHOD-ID. GET-BALANCE PRIVATE.",
+        "LOCAL-STORAGE SECTION.",
+    ),  # 2766: memory section is not visibility
     ("listeners", "EXEC CICS RECEIVE END-EXEC", "MOVE X TO Y."),
     ("test_skip", "IGNORE.", "MOVE X TO Y."),
     ("serialization_parsing", "STRING A B INTO C.", "MOVE X TO Y."),
@@ -152,6 +156,65 @@ _COBOL_SIMPLE_CASES = [
     ("structural_boundaries", "JSON GENERATE", "MOVE X TO Y."),
     ("structural_boundaries", "STOP RUN", "MOVE X TO Y."),
     ("structural_boundaries", "EXIT PROGRAM", "MOVE X TO Y."),
+    # --- #2990: CICS Async API, browse, unit-of-work, SQL/DLI, intrinsics ---
+    ("concurrency", "EXEC CICS RUN TRANSID('T') CHILD(X) END-EXEC", "EXEC CICS SEND MAP('M') END-EXEC"),
+    ("concurrency", "EXEC CICS FETCH CHILD(X) END-EXEC", "EXEC CICS SEND MAP('M') END-EXEC"),
+    ("concurrency", "EXEC CICS FETCH ANY(X) END-EXEC", "EXEC CICS SEND MAP('M') END-EXEC"),
+    ("ipc_rpc_bridges", "EXEC CICS RUN TRANSID('T') END-EXEC", "EXEC CICS SEND MAP('M') END-EXEC"),
+    ("io", "EXEC CICS STARTBR FILE('F') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("io", "EXEC CICS READNEXT FILE('F') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("io", "EXEC CICS ENDBR FILE('F') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("cleanup", "EXEC CICS ENDBR FILE('F') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("io", "EXEC CICS DEFINE COUNTER('C') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("io", "EXEC CICS DELETE COUNTER('C') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("cleanup", "EXEC CICS DELETE COUNTER('C') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("io", "EXEC DLI GU USING PCB(1)", "MOVE X TO Y."),
+    ("io", "CALL 'CBLTDLI' USING GU-FUNC.", "MOVE X TO Y."),
+    ("safety", "EXEC CICS HANDLE ABEND LABEL(ERR-PARA) END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("safety", "EXEC CICS PUSH HANDLE END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("safety", "EXEC CICS SYNCPOINT ROLLBACK END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("safety", "EXEC SQL COMMIT END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("safety", "EXEC DLI CHKP END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("safety", "IF WS-RESP NOT = DFHRESP(NORMAL)", "MOVE X TO Y."),
+    ("safety", "IF SQLCODE NOT = 0", "MOVE X TO Y."),
+    ("safety", "EVALUATE SQLCODE", "MOVE X TO Y."),
+    ("branch", "IF SQLCODE NOT = 0", "MOVE X TO Y."),
+    ("safety_bypasses", "EXEC CICS READ FILE('F') NOHANDLE END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("safety_bypasses", "EXEC SQL WHENEVER SQLERROR CONTINUE END-EXEC", "MOVE X TO Y."),
+    ("high_risk_execution", "EXEC SQL EXECUTE IMMEDIATE :WS-SQL END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("high_risk_execution", "EXEC SQL PREPARE STMT FROM :WS-SQL END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("events", "EXEC CICS SIGNAL EVENT('E') END-EXEC", "EXEC CICS HANDLE CONDITION ERROR(X) END-EXEC"),
+    ("ui_framework", "EXEC CICS SEND TEXT FROM(WS-MSG) END-EXEC", "EXEC CICS WEB SEND END-EXEC"),
+    ("ui_framework", "EXEC CICS SEND CONTROL CURSOR END-EXEC", "EXEC CICS WEB SEND END-EXEC"),
+    ("listeners", "EXEC CICS HANDLE AID PF3(EXIT-PARA) END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("time_date_logic", "EXEC CICS ASKTIME ABSTIME(WS-TIME) END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("time_date_logic", "FUNCTION INTEGER-OF-DATE(WS-DATE)", "MOVE X TO Y."),
+    ("scientific", "FUNCTION MEAN(WS-TABLE)", "MOVE X TO Y."),
+    ("scientific", "FUNCTION STANDARD-DEVIATION(WS-TABLE)", "MOVE X TO Y."),
+    ("explicit_casts", "FUNCTION NUMVAL-C(WS-FIELD)", "MOVE X TO Y."),
+    ("explicit_casts", "EXEC CICS BIF DEEDIT FIELD(WS-FIELD) END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("panics_and_aborts", "CALL 'CEE3ABD' USING WS-CODE.", "MOVE X TO Y."),
+    ("debug_prints", "EXHIBIT NAMED WS-FIELD.", "MOVE X TO Y."),
+    ("debug_prints", "RESET TRACE.", "MOVE X TO Y."),
+    # READY TRACE stays `test`'s (the stated #2852 contract's positive case, unchanged).
+    ("test", "READY TRACE.", "MOVE X TO Y."),
+    ("telemetry", "EXEC CICS WRITE JOURNALNAME('J') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("telemetry", "EXEC CICS DUMP TRANSACTION('D') END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("pointers", "EXEC CICS ADDRESS SET(WS-PTR) END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("thread_sleeps", "EXEC CICS SUSPEND END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("concurrency", "EXEC CICS SUSPEND END-EXEC", "EXEC CICS SEND MAP('M') END-EXEC"),
+    ("serialization_parsing", "EXEC CICS TRANSFORM DATATOXML END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("ssr_boundaries", "EXEC CICS WEB OPEN END-EXEC", "MOVE X TO Y."),
+    ("ssr_boundaries", "EXEC CICS DOCUMENT CREATE(D) END-EXEC", "MOVE X TO Y."),
+    ("memory_alloc", "EXEC CICS GETMAIN64 SET(WS-PTR) END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    # negative controls: verbs that must NOT move
+    ("memory_alloc", "FREE WS-BUFFER.", "EXEC CICS FREE CHILD(X) END-EXEC"),
+    ("cleanup", "EXEC CICS FREE CHILD(X) END-EXEC", "EXEC CICS ENQ END-EXEC"),
+    ("io", "START CUST-FILE.", "EXEC CICS START TRANSID('T') END-EXEC"),
+    # real-corpus regression (cics-genapp lgwebst5.cbl): TWO spaces between CICS and
+    # START defeats a fixed-width lookbehind alone -- the TRANSID/AFTER lookahead is
+    # the guard that actually holds regardless of spacing.
+    ("io", "START CUST-FILE.", "EXEC CICS  START Transid('SSST') After Minutes(1) END-EXEC"),
 ]
 
 
@@ -372,6 +435,33 @@ def test_cobol_intentional_double_classification_sweep():
             f"reflection_metaprogramming's bare EXEC CICS catch-all should also fire on {text!r}"
         )
 
+    # #2990: five more deliberate duals surfaced by the CICS verb-coverage census.
+    run_transid = "EXEC CICS RUN TRANSID('T') END-EXEC"
+    assert COBOL_RULES["concurrency"].search(run_transid)
+    assert COBOL_RULES["ipc_rpc_bridges"].search(run_transid)
+
+    if_sqlcode = "IF SQLCODE NOT = 0"
+    assert COBOL_RULES["branch"].search(if_sqlcode)
+    assert COBOL_RULES["safety"].search(if_sqlcode)
+
+    delete_counter = "EXEC CICS DELETE COUNTER('C') END-EXEC"
+    assert COBOL_RULES["io"].search(delete_counter)
+    assert COBOL_RULES["cleanup"].search(delete_counter)
+
+    endbr = "EXEC CICS ENDBR FILE('F') END-EXEC"
+    assert COBOL_RULES["io"].search(endbr)
+    assert COBOL_RULES["cleanup"].search(endbr)
+
+    suspend = "EXEC CICS SUSPEND END-EXEC"
+    assert COBOL_RULES["concurrency"].search(suspend)
+    assert COBOL_RULES["thread_sleeps"].search(suspend)
+
+    # #2990 asymmetry: FREE CHILD moved OUT of memory_alloc and INTO cleanup
+    # (a token release, not storage) -- the opposite pairing of FREE/memory_alloc above.
+    free_child = "EXEC CICS FREE CHILD(X) END-EXEC"
+    assert not COBOL_RULES["memory_alloc"].search(free_child), "FREE CHILD releases a token, not storage"
+    assert COBOL_RULES["cleanup"].search(free_child)
+
 
 def test_cobol_cics_queue_verbs_need_their_own_alternative_2485():
     """#2485: the `Q` suffix is why the queue lifecycle recorded nothing.
@@ -415,6 +505,21 @@ def test_cobol_cics_abend_is_an_abort_not_an_execution_2485():
 
     assert COBOL_RULES["panics_and_aborts"].search("STOP RUN.")
     assert COBOL_RULES["high_risk_execution"].search("STOP RUN.")
+
+
+def test_cobol_high_risk_execution_cancel_option_vs_verb_2990():
+    """#2990: the bare CANCEL token used to fire on the CICS ABEND/HANDLE ABEND
+    "CANCEL" option and on `EXEC CICS CANCEL REQID(...)` (interval control,
+    concurrency's) -- 31% of the crucible's ABEND blocks read as a high-risk
+    execution for terminating abnormally, not for unloading a program. The
+    real COBOL CANCEL verb always takes a program-name operand.
+    """
+    assert not COBOL_RULES["high_risk_execution"].search("EXEC CICS ABEND ABCODE('X999') CANCEL END-EXEC")
+    assert not COBOL_RULES["high_risk_execution"].search("EXEC CICS HANDLE ABEND CANCEL\n           END-EXEC")
+    assert not COBOL_RULES["high_risk_execution"].search("EXEC CICS CANCEL REQID('REQ1') END-EXEC")
+    assert COBOL_RULES["concurrency"].search("EXEC CICS CANCEL REQID('REQ1') END-EXEC")
+    assert COBOL_RULES["high_risk_execution"].search("CANCEL 'SUBPROG'.")
+    assert COBOL_RULES["high_risk_execution"].search("CANCEL WS-PROGRAM-NAME.")
 
 
 def test_cobol_func_start_excludes_reserved_verbs_and_headers():
@@ -622,3 +727,24 @@ def test_cobol_args_regex_is_redos_immune():
     character classes disjoint and the repetition `{0,20}`-bounded, so no
     overlapping-quantifier ambiguity is introduced."""
     assert_redos_immune(COBOL_RULES["args"], "USING " + "WS-A, " * 40)
+
+
+def test_cobol_2990_redos_immunity_sweep():
+    """ReDoS scaling check for every alternation #2990 widened."""
+    assert_redos_immune(COBOL_RULES["concurrency"], "EXEC CICS " + "X" * 100000, timeout_sec=3.0)
+    assert_redos_immune(COBOL_RULES["io"], "EXEC CICS " + "X" * 100000, timeout_sec=3.0)
+    assert_redos_immune(COBOL_RULES["safety"], "EXEC CICS " + "X" * 100000, timeout_sec=3.0)
+    assert_redos_immune(COBOL_RULES["safety"], "DFHRESP(" + "X" * 100000, timeout_sec=3.0)
+    assert_redos_immune(COBOL_RULES["safety_bypasses"], "GO TO " + "X" * 100000, timeout_sec=3.0)
+    assert_redos_immune(COBOL_RULES["high_risk_execution"], "CANCEL " + "X" * 100000, timeout_sec=3.0)
+    assert_redos_immune(COBOL_RULES["ui_framework"], "EXEC CICS SEND " + "X" * 100000, timeout_sec=3.0)
+    assert_redos_immune(COBOL_RULES["ssr_boundaries"], "EXEC CICS WEB " + "X" * 100000, timeout_sec=3.0)
+    assert_redos_immune(COBOL_RULES["ssr_boundaries"], "EXEC CICS DOCUMENT " + "X" * 100000, timeout_sec=3.0)
+    assert_redos_immune(COBOL_RULES["time_date_logic"], "FUNCTION " + "X" * 100000, timeout_sec=3.0)
+    assert_redos_immune(COBOL_RULES["scientific"], "FUNCTION " + "X" * 100000, timeout_sec=3.0)
+    assert_redos_immune(COBOL_RULES["telemetry"], "EXEC CICS " + "X" * 100000, timeout_sec=3.0)
+
+    # sanity: real positives still match after the sweep
+    assert COBOL_RULES["concurrency"].search("EXEC CICS RUN TRANSID('T') END-EXEC")
+    assert COBOL_RULES["safety"].search("DFHRESP(NORMAL)")
+    assert COBOL_RULES["high_risk_execution"].search("CANCEL 'SUBPROG'.")

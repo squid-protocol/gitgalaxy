@@ -54,8 +54,9 @@ def test_zero_dependency_pagerank_family_matches_networkx():
     for path, full_metrics in full.items():
         assert {k: zero[path][k] for k in PAGERANK_FAMILY} == {k: full_metrics[k] for k in PAGERANK_FAMILY}, path
         assert zero[path]["normalized_blast_radius"] is not None
-        assert zero[path]["betweenness_score"] is None, path
-        # #3037: closeness is native too, so identical in both modes.
+        # #3037/#3038: betweenness and closeness are native too, so identical in both modes.
+        assert zero[path]["betweenness_score"] is not None, path
+        assert zero[path]["betweenness_score"] == full_metrics["betweenness_score"], path
         assert zero[path]["closeness_score"] is not None, path
         assert zero[path]["closeness_score"] == full_metrics["closeness_score"], path
 
@@ -148,7 +149,7 @@ def test_zero_dependency_db_records_native_pagerank(tmp_path):
     conn.close()
 
     assert rows and all(pr is not None and blast is not None for pr, blast, *_ in rows)
-    assert all(btw is None and close is not None for _, _, btw, close, _ in rows)  # closeness native since #3037
+    assert all(btw is not None and close is not None for _, _, btw, close, _ in rows)  # native: #3037, #3038
     assert all(ratio is not None for *_, ratio in rows)  # exact since #3024, no longer NULLed
     assert repo == (None, 1)
 

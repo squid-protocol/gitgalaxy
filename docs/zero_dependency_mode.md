@@ -3,8 +3,8 @@
 `pip install gitgalaxy` installs **nothing else**. For teams where every third-party package is a supply-chain review, that is the point: the engine runs on the Python standard library alone. A handful of measurements do need optional engines, though. When any of them is missing, the scan runs in **Zero-Dependency Mode**. This page lists, field by field, what that costs, so you can tell which numbers you can trust.
 
 **Short version:**
-- **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, **PageRank / blast radius**, **closeness**, **average path length**, **cyclic density**, **articulation points** and **assortativity**. These are computed natively, with no networkx.
-- **What you lose:** betweenness and modularity, token counts, ML threat classification, and YAML config parsing.
+- **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, **PageRank / blast radius**, **closeness**, **average path length**, **cyclic density**, **articulation points**, **assortativity** and **betweenness**. These are computed natively, with no networkx.
+- **What you lose:** modularity, token counts, ML threat classification, and YAML config parsing.
 - **How missing metrics show up:** a metric that was not computed is **absent**: `None` in telemetry, NULL in the SQLite DB, `n/a` in the LLM brief. It is never a placeholder `0`. The one remaining exception is the ML placeholders described below (#3028).
 
 ## Getting full precision
@@ -17,7 +17,7 @@ Or add only the engines whose outputs you need (table below). Each is independen
 
 ## What each optional package provides
 
-### `networkx`: betweenness and modularity
+### `networkx`: modularity
 
 | Output | With networkx | Without |
 |---|---|---|
@@ -29,24 +29,26 @@ Or add only the engines whose outputs you need (table below). Each is independen
 | `closeness_score`, `network_avg_path_length` | native | **identical**: both modes run the same native breadth-first search (#3037) |
 | `network_cyclic_density`, `network_articulation_points` | native | **identical**: both modes run the same native depth-first searches (#3035) |
 | `network_assortativity` | native | **identical**: both modes run the same native single pass over the edges (#3036), which needs no numpy |
-| `betweenness_score` | computed | **not computed**: `None` / NULL / `n/a` |
+| `betweenness_score` | native | **identical**: both modes run the same exact native search (#3038) |
 | Repo topology: `network_modularity` | computed | **not computed**: `None` / NULL; LLM brief §3.5 shows `n/a (not computed)` |
 
-Because PageRank and closeness are computed in both modes, these all work exactly as with networkx:
+Because every centrality is computed in both modes, these all work exactly as with networkx:
 - `--max-systemic-threat` and the agent-guardrail `requires_hitl` flag
 - the composition archetypes
-- the brief's "undocumented critical path" and "fragile dependency chain" rankings, and its blast-radius insights
+- the brief's "undocumented critical path", "fragile dependency chain" and "cascading state mutation" rankings
+- its blast-radius insights and the AI-topology "Cognitive Choke Point" insight
 
-Without betweenness:
-- The "cascading state mutation" bottleneck ranking is **empty**, not filled with zero-score files.
-- The AI-topology "Cognitive Choke Point" insight is skipped.
-
-**In both modes**, closeness and average path length are computed at every repository size. The only limit is a deterministic work budget: 50 million incoming-edge scans, which counts work, never time. Past it, both are `None` / NULL / `n/a`, and the "fragile dependency chain" ranking is empty. An import graph stays far below the budget: language-crucible's 2,817 files take under 2 ms.
+**In both modes**, betweenness, closeness and average path length are computed at every repository size. The only limit is a deterministic work budget: 50 million edge scans per search, which counts work, never time. Past it, the metric is `None` / NULL / `n/a`, and the ranking built on it is empty. An import graph stays far below the budget: language-crucible's 2,817 files take about 2 ms per search.
 
 **Average path length changed meaning in #3037.**
 - **Now:** the mean number of import hops from a file to each file it transitively depends on, over every such (importer, dependency) pair in the repository.
 - **Before:** the mean shortest path in the largest *undirected* component. That ignored import direction and covered only 22.5% of language-crucible's files. It was also skipped above 5,000 files.
 - The two are not comparable. Language-crucible reads 1.36 now vs 7.07 before. #3033 measured the self-scan at 1.71 vs 4.19.
+
+**Betweenness changed meaning in #3038.**
+- **Now:** exact, with every file as a source, and shortest paths counted in import hops.
+- **Before:** above 500 files, networkx sampled 100 seeded sources. In every size of graph it read each edge's weight as a distance, so an entity import, a stronger coupling, counted as a longer path.
+- On language-crucible the sample found 11 files with nonzero betweenness against 41 exact, and read 14 of the exact top 20 choke points as 0. Above 500 files the old and new values are not comparable; below that they differ only where an entity import changed a shortest path.
 
 ### `tiktoken`: token counts
 
@@ -103,6 +105,7 @@ Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets
     - `network_avg_path_length` meant the undirected largest-component distance (see above), so it is not comparable with later snapshots
   - Recorded before **#3035**: zero-dependency `network_cyclic_density` / `network_articulation_points` were NULL. The definitions did not change, so later values compare directly with full-precision history.
   - Recorded before **#3036**: `network_assortativity` was NULL in zero-dependency mode, and also NULL when networkx was installed without numpy. The definition did not change.
+  - Recorded before **#3038**: `betweenness_score` was NULL in zero-dependency mode, and sampled and weighted above 500 files in every mode (see above).
 
 ## For contributors
 

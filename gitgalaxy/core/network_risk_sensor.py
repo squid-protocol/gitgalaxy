@@ -14,6 +14,7 @@ from gitgalaxy.core.graph_engine import (
     WorkBudget,
     WorkBudgetExceeded,
     articulation_point_count,
+    betweenness_centrality,
     closeness_and_path_length,
     degree_assortativity,
     nodes_in_cycles,
@@ -37,12 +38,14 @@ CASE_INSENSITIVE_IMPORT_LANGS = frozenset(
 # backtracking risk (single non-overlapping alternative, fixed-width group).
 LEADING_RELATIVE_MARKER = re.compile(r"^(?:\.{1,2}/)+")
 
-# #3037: the deterministic work budget for the hop-count path metrics (closeness
-# and average path length), counted in incoming edges scanned across every file's
-# breadth-first search. 50M is about 3 s of pure-Python search; past it both
-# metrics are None ("not computed"), never 0.0. It replaced node-count cutoffs --
-# closeness above 1,500 files, path length above 5,000 -- that skipped the
-# 2,817-file language-crucible graph, whose searches take under 2 ms.
+# #3037/#3038: the deterministic work budget for each hop-count path metric.
+# Closeness and average path length share one search; betweenness runs its own.
+# It counts edges scanned across every file's breadth-first search. 50M is about
+# 3 s of pure-Python search; past it the metric is None ("not computed"), never
+# 0.0. It replaced node-count cutoffs and sampling -- closeness skipped above
+# 1,500 files, path length above 5,000, betweenness sampled to 100 sources above
+# 500 -- on graphs like the 2,817-file language-crucible one, whose searches take
+# about 2 ms each.
 PATH_METRICS_WORK_BUDGET = 50_000_000
 
 
@@ -390,8 +393,8 @@ class NetworkRiskSensor:
     ) -> dict[str, Any]:
         """
         One file's `network_metrics`, shared by both graph builders. #3027: a
-        metric that was not computed (no networkx for betweenness, closeness
-        past its #3037 work budget, a failed computation) is None, never
+        metric that was not computed (betweenness or closeness past its work
+        budget, a failed computation) is None, never
         a 0.0 placeholder -- a 0.0 reads as a measurement and every consumer drew
         conclusions from it (a "Containment (Low Risk)" verdict, zero-score
         bottleneck rankings, zeroed archetype features).
@@ -467,6 +470,20 @@ class NetworkRiskSensor:
             self.logger.warning(f"PageRank failed to converge, leaving it unset (None): {e}")
             return {}
 
+    def _betweenness(self, index: GraphIndex) -> dict[str, Optional[float]]:
+        """
+        #3038: exact hop-count betweenness, native in both modes (see
+        graph_engine.betweenness_centrality), so the two modes produce the same
+        values. Past PATH_METRICS_WORK_BUDGET it is None ("not computed"),
+        never 0.0.
+        """
+        try:
+            values = betweenness_centrality(index, WorkBudget(PATH_METRICS_WORK_BUDGET))
+        except WorkBudgetExceeded as e:
+            self.logger.info(f"Betweenness past its work budget, leaving it unset (None): {e}")
+            return dict.fromkeys(index.nodes)
+        return dict(zip(index.nodes, values))
+
     def _path_metrics(self, index: GraphIndex) -> tuple[dict[str, Optional[float]], Optional[float]]:
         """
         #3037: per-file closeness and the repo's average path length, from one
@@ -534,29 +551,17 @@ class NetworkRiskSensor:
 
         # =========================================================================
         # 3. NETWORK MATHEMATICS (Dependency Blast Radius & Centrality)
-        # DEFENSIVE DESIGN: networkx's betweenness scales non-linearly, so above
-        # 500 nodes it is sampled, otherwise the CI/CD pipeline would hit a
-        # timeout deadlock.
+        # Every centrality is native in BOTH modes, bounded by deterministic work
+        # budgets instead of node-count cutoffs or sampling (#3027, #3034-#3038).
         # =========================================================================
-        # PageRank, closeness, avg path length and every repo-topology metric
-        # but modularity are native in BOTH modes (see _native_pagerank,
-        # _path_metrics, _topology_metrics), computed outside the networkx block
-        # so a centrality failure can't take them down.
+        # PageRank, betweenness, closeness, avg path length and every
+        # repo-topology metric but modularity: see _native_pagerank,
+        # _betweenness, _path_metrics and _topology_metrics.
         index = self._graph_index(parsed_files, edges)
         pagerank = self._native_pagerank(index)
+        betweenness = self._betweenness(index)
         closeness, avg_path_length = self._path_metrics(index)
         topology = self._topology_metrics(index)
-
-        try:
-            # Force a maximum sample size of 100 nodes for any graph > 500 nodes.
-            # seed is fixed because k triggers *approximate* betweenness via random
-            # node sampling -- unseeded, two scans of an unchanged repo can pick a
-            # completely different sample and report different bottleneck files.
-            k_val = min(len(G.nodes()), 100) if len(G.nodes()) > 500 else None
-            betweenness = nx.betweenness_centrality(G, k=k_val, weight="weight", seed=42 if k_val is not None else None)
-        except Exception as e:
-            self.logger.warning(f"Centrality math failed, leaving betweenness unset (None): {e}")
-            betweenness = dict.fromkeys(G.nodes())
 
         in_degrees = dict(G.in_degree())
         out_degrees = dict(G.out_degree())
@@ -638,8 +643,8 @@ class NetworkRiskSensor:
     def _fallback_build_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         self.logger.warning(
             "[!] 'networkx' not found. Operating in Zero-Dependency Mode: degree counts, PageRank, closeness, avg path "
-            "length, assortativity, cyclic density and articulation points are computed natively; betweenness and "
-            "modularity are not computed (None)."
+            "length, betweenness, assortativity, cyclic density and articulation points are computed natively; "
+            "only modularity is not computed (None)."
         )
 
         in_degrees = {f.get("path", ""): 0 for f in parsed_files}
@@ -660,12 +665,12 @@ class NetworkRiskSensor:
             in_degrees[dst] = in_degrees.get(dst, 0) + 1
         self._publish_edges(edges)
 
-        # #3027/#3035-#3037: the same native PageRank, closeness, avg path
-        # length, assortativity, cyclic density and articulation points the
-        # DiGraph path uses -- they need nothing but the edge list. Betweenness
-        # stays None until it is native too (#3038).
+        # #3027/#3035-#3038: the same native PageRank, betweenness, closeness,
+        # avg path length, assortativity, cyclic density and articulation points
+        # the DiGraph path uses -- they need nothing but the edge list.
         index = self._graph_index(parsed_files, edges)
         pagerank = self._native_pagerank(index)
+        betweenness = self._betweenness(index)
         closeness, avg_path_length = self._path_metrics(index)
         topology = self._topology_metrics(index)
 
@@ -674,7 +679,12 @@ class NetworkRiskSensor:
             if "telemetry" not in f:
                 f["telemetry"] = {}
             f["telemetry"]["network_metrics"] = self._network_metrics(
-                f, pagerank.get(path), None, closeness.get(path), in_degrees.get(path, 0), out_degrees.get(path, 0)
+                f,
+                pagerank.get(path),
+                betweenness.get(path),
+                closeness.get(path),
+                in_degrees.get(path, 0),
+                out_degrees.get(path, 0),
             )
             f["telemetry"]["popularity"] = in_degrees.get(path, 0)
 

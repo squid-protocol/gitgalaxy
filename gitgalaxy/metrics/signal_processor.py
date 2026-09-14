@@ -1259,8 +1259,8 @@ class SignalProcessor:
                 net_mets = primary_ai_node.get("telemetry", {}).get("network_metrics", {})
 
                 role = net_mets.get("ecosystem_role", "Unknown")
-                # #3027: None = not computed (no networkx for betweenness, or a
-                # failed computation). An insight that needs the metric is
+                # #3027: None = not computed (betweenness past its #3038 work
+                # budget, or a failed computation). An insight that needs the metric is
                 # skipped, never inferred from a placeholder -- a 0.0 blast
                 # radius used to yield a false "Containment (Low Risk)" verdict.
                 pr = net_mets.get("normalized_blast_radius")
@@ -2164,8 +2164,8 @@ class SignalProcessor:
             p = file_data.get("path", "")
 
             # #3027: a file enters a ranking only if the metric that ranking
-            # multiplies was computed. None (no networkx for betweenness,
-            # closeness past its #3037 work budget) used to be read as
+            # multiplies was computed. None (betweenness or closeness past its
+            # #3037/#3038 work budget) used to be read as
             # 0.0, filling each list with five zero-score files picked by path
             # order -- a ranking of nothing. A ranking nobody could compute is empty.
             btw = net.get("betweenness_score")

@@ -127,12 +127,13 @@ def test_network_fallback_mode(sensor, parsed_files_universe):
         # It should still calculate basic in/out degrees and roles using pure Python dicts
         foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
         assert foundation["telemetry"]["network_metrics"]["ecosystem_role"] == "Pure Producer (Foundation)"
-        # #3027/#3037: PageRank and closeness are computed natively (no 0.0
-        # placeholder); betweenness, still networkx-only, is None -- "not
-        # computed", not "measured zero".
+        # #3027/#3037/#3038: PageRank, closeness and betweenness are computed
+        # natively -- no 0.0 placeholder, and no None.
         assert foundation["telemetry"]["network_metrics"]["pagerank_score"] > 0.0
         assert foundation["telemetry"]["network_metrics"]["closeness_score"] > 0.0
-        assert foundation["telemetry"]["network_metrics"]["betweenness_score"] is None
+        # orchestrator -> transceiver -> heavy_calc is the only path between them.
+        transceiver = next(f for f in mapped_files if f["path"] == "/src/utils/transceiver.py")
+        assert transceiver["telemetry"]["network_metrics"]["betweenness_score"] > 0.0
         assert metrics["avg_path_length"] is not None
         # #3035: cyclic density and articulation points are native too.
         assert metrics["cyclic_density"] > 0.0
@@ -417,26 +418,35 @@ def test_network_duplicate_edge_weight_accumulates(sensor):
 # TEST 12: NETWORK MATH RESILIENCE — CENTRALITY COMPUTATION FAILURE
 # ==============================================================================
 @pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
-def test_network_math_failure_degrades_to_none(sensor, parsed_files_universe):
+def test_betweenness_is_native_in_both_modes(sensor, parsed_files_universe):
     """
-    Stress test: if NetworkX's centrality math itself throws (e.g. a future
-    NetworkX version changes behavior, or an unexpected graph shape), the
-    sensor must leave betweenness unset rather than crashing the
-    whole pipeline. This exercises the outer `except Exception` fallback in
-    build_dependency_graph. #3027: unset is None -- it used to be 0.0, which
-    every consumer read as a measured score -- and PageRank and closeness
-    (#3037), computed natively outside that block, survive the failure.
+    #3038: betweenness is exact and native in both modes. networkx's
+    betweenness_centrality (sampled above 500 files, weight read as distance) is
+    never called, and the two modes agree.
     """
-    with patch("networkx.betweenness_centrality", side_effect=RuntimeError("simulated centrality failure")):
+    with patch("networkx.betweenness_centrality", side_effect=AssertionError("must not be called")):
+        full_files, _ = sensor.build_dependency_graph(parsed_files_universe)
+    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
+        zero_files, _ = sensor.build_dependency_graph(copy.deepcopy(MOCK_PARSED_FILES))
+
+    full = {f["path"]: f["telemetry"]["network_metrics"] for f in full_files}
+    zero = {f["path"]: f["telemetry"]["network_metrics"] for f in zero_files}
+    for path, metrics in full.items():
+        assert metrics["betweenness_score"] is not None, path
+        assert zero[path]["betweenness_score"] == metrics["betweenness_score"], path
+    # Degree is exact and never depended on the centrality math.
+    assert full["/src/core/foundation.py"]["ecosystem_role"] == "Pure Producer (Foundation)"
+
+
+def test_betweenness_past_its_work_budget_is_none(sensor, parsed_files_universe):
+    """A graph too large for the budget leaves betweenness "not computed" -- None, never 0.0."""
+    with patch("gitgalaxy.core.network_risk_sensor.PATH_METRICS_WORK_BUDGET", 0):
         mapped_files, _ = sensor.build_dependency_graph(parsed_files_universe)
 
     foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
     metrics = foundation["telemetry"]["network_metrics"]
     assert metrics["betweenness_score"] is None
-    assert metrics["closeness_score"] is not None
     assert metrics["pagerank_score"] is not None
-    assert metrics["normalized_blast_radius"] is not None
-    # Degree is exact and never depended on the centrality math.
     assert metrics["ecosystem_role"] == "Pure Producer (Foundation)"
 
 

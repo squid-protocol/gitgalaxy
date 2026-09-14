@@ -35,6 +35,7 @@ from typing import Any, Callable, Optional
 from gitgalaxy.core.graph_engine import (
     GraphIndex,
     articulation_point_count,
+    betweenness_centrality,
     closeness_and_path_length,
     degree_assortativity,
     nodes_in_cycles,
@@ -124,6 +125,12 @@ METRICS: dict[str, Metric] = {
         native=lambda index: _stored_assortativity(degree_assortativity(index)),
         oracle=_networkx_assortativity,
         places=4,  # repo_data.network_assortativity
+    ),
+    "betweenness": Metric(
+        oracle_mode="tailored",  # the engine used to sample 100 weighted sources above 500 files
+        native=lambda index: dict(zip(index.nodes, betweenness_centrality(index))),
+        oracle=lambda graph: nx.betweenness_centrality(graph),
+        places=6,  # betweenness_score
     ),
 }
 

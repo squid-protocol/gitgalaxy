@@ -413,3 +413,79 @@ def degree_assortativity(index: GraphIndex) -> float:
     if variance_x == 0 or variance_y == 0:
         return math.nan
     return covariance / math.sqrt(variance_x * variance_y)
+
+
+def betweenness_centrality(index: GraphIndex, budget: Optional[WorkBudget] = None) -> list[float]:
+    """
+    #3038: exact betweenness centrality, one value per node id: the share of
+    shortest import paths between other files that pass through each file.
+
+    Bit-identical to networkx's exact, unweighted `nx.betweenness_centrality(G)`
+    (normalized, directed, endpoints excluded), because it mirrors networkx's
+    Brandes pass step for step:
+    - BFS in adjacency order, with predecessors in discovery order
+    - dependencies accumulated in reverse BFS order, sources in node order
+    - then the directed `1 / ((N - 1) * (N - 2))` rescale
+
+    It replaced networkx's 100-source sample above 500 files (#3033's
+    tailoring decisions). On language-crucible the sample found 11 files with
+    nonzero betweenness against 41 exact, and read 14 of the exact top 20 choke
+    points as 0.
+
+    Paths are counted in hops, not weight. networkx reads `weight` as a
+    distance, which made an entity import, a stronger coupling, into a longer
+    path.
+
+    A file with no outgoing import starts no path, so it is skipped as a
+    source. Each source charges `budget` the edges its search scanned (once for
+    the BFS, once for the accumulation) plus its reach. Worst case O(N * E). On
+    the language-crucible graph (2,817 nodes, 1,354 edges) it takes 2.1 ms,
+    against 1.9 s for networkx's exact call.
+    """
+    n = len(index.nodes)
+    out_offsets, out_targets = index.out_offsets, index.out_targets
+    centrality = [0.0] * n
+    sigma = [0.0] * n  # shortest-path counts from the current source
+    depth = [-1] * n  # -1 = not reached by the current source
+    delta = [0.0] * n  # accumulated dependency on each node
+    predecessors: list[list[int]] = [[] for _ in range(n)]
+    for source in range(n):
+        if out_offsets[source] == out_offsets[source + 1]:
+            continue  # no outgoing import: no path starts here
+        order = [source]  # BFS order; popped in reverse for the accumulation
+        sigma[source] = 1.0
+        depth[source] = 0
+        scanned = 0
+        position = 0
+        while position < len(order):
+            node = order[position]
+            position += 1
+            next_depth = depth[node] + 1
+            node_sigma = sigma[node]
+            start, stop = out_offsets[node], out_offsets[node + 1]
+            scanned += stop - start
+            for target in out_targets[start:stop]:
+                if depth[target] < 0:
+                    depth[target] = next_depth
+                    order.append(target)
+                if depth[target] == next_depth:
+                    sigma[target] += node_sigma
+                    predecessors[target].append(node)
+        for node in reversed(order):
+            coefficient = (1 + delta[node]) / sigma[node]
+            for predecessor in predecessors[node]:
+                delta[predecessor] += sigma[predecessor] * coefficient
+            if node != source:
+                centrality[node] += delta[node]
+        for node in order:
+            sigma[node] = 0.0
+            depth[node] = -1
+            delta[node] = 0.0
+            predecessors[node] = []
+        if budget is not None:
+            budget.charge(2 * scanned + len(order))
+    pairs = n - 1  # networkx's N: an endpoint cannot be the node a path passes through
+    if pairs >= 2:
+        scale = 1 / (pairs * (pairs - 1))
+        centrality = [value * scale for value in centrality]
+    return centrality

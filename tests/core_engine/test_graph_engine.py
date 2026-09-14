@@ -144,6 +144,22 @@ def test_assortativity_is_nan_where_undefined():
     assert math.isnan(graph_engine.degree_assortativity(hub))
 
 
+@needs_oracle
+@pytest.mark.parametrize("seed", range(25))
+def test_betweenness_is_bit_identical_to_networkx_exact(seed):
+    """#3038 mirrors networkx's Brandes step for step: identical floats, not merely 6-dp equal."""
+    nodes, edges = graph_parity.random_graph(seed)
+    reference = graph_parity.nx.betweenness_centrality(graph_parity.to_networkx(nodes, edges))
+    assert graph_engine.betweenness_centrality(GraphIndex(nodes, edges)) == [reference[v] for v in nodes]
+
+
+def test_betweenness_stops_at_its_work_budget():
+    names = [f"f{i}" for i in range(50)]
+    index = GraphIndex(names, [(names[i], names[i + 1], 1.0) for i in range(49)])
+    with pytest.raises(WorkBudgetExceeded):
+        graph_engine.betweenness_centrality(index, WorkBudget(100))
+
+
 def test_every_metric_declares_an_oracle_mode():
     assert {m.oracle_mode for m in graph_parity.METRICS.values()} <= {"strict", "tailored"}
 

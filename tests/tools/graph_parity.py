@@ -129,7 +129,7 @@ METRICS: dict[str, Metric] = {
     "betweenness": Metric(
         oracle_mode="tailored",  # the engine used to sample 100 weighted sources above 500 files
         native=lambda index: dict(zip(index.nodes, betweenness_centrality(index))),
-        oracle=lambda graph: nx.betweenness_centrality(graph),
+        oracle=nx.betweenness_centrality,
         places=6,  # betweenness_score
     ),
 }

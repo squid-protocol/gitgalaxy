@@ -94,6 +94,25 @@ def test_zero_dependency_pagerank_family_matches_networkx():
         assert zero[path]["closeness_score"] is None, path
 
 
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX for the full-precision side")
+def test_full_precision_runs_the_native_pagerank_not_networkx():
+    """
+    One implementation in both modes: full precision must never call nx.pagerank
+    (a version-dependent, numpy/scipy-backed routine networkx does not install),
+    and both modes must produce the SAME floats, not just the same rounding.
+    """
+    with patch("networkx.pagerank", side_effect=AssertionError("nx.pagerank must not be called")):
+        full_files, _ = NetworkRiskSensor().build_dependency_graph(_files())
+    with NO_NETWORKX:
+        zero_files, _ = NetworkRiskSensor().build_dependency_graph(_files())
+
+    full, zero = _metrics(full_files), _metrics(zero_files)
+    for path in full:
+        for key in PAGERANK_FAMILY:
+            assert full[path][key] == zero[path][key], (path, key)
+        assert full[path]["pagerank_score"] is not None
+
+
 @pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_closeness_skipped_for_scale_is_none_not_zero():
     """Above 1,500 nodes closeness is bypassed: that is "not computed", not 0.0."""

@@ -51,9 +51,9 @@ def _pagerank(
     tol: float = 1.0e-6,
 ) -> dict[str, float]:
     """
-    #3027: weighted PageRank in pure Python, so zero-dependency mode computes the
-    same blast radius networkx does instead of writing a 0.0 placeholder. Mirrors
-    nx.pagerank's defaults and conventions -- alpha 0.85, uniform start and
+    #3027: weighted PageRank in pure Python -- the only PageRank the engine runs,
+    in both modes (see NetworkRiskSensor._native_pagerank for why not nx.pagerank).
+    Mirrors nx.pagerank's defaults and conventions -- alpha 0.85, uniform start and
     teleport, a dangling node's mass spread uniformly, out-weights normalised per
     node, converged once the L1 change is below N*tol, an error after max_iter.
     Checked against nx.pagerank on the self-scan (395 nodes) and language-crucible
@@ -460,6 +460,27 @@ class NetworkRiskSensor:
             "systemic_threat_vector": systemic_threat_vector,
         }
 
+    def _native_pagerank(
+        self, parsed_files: list[dict[str, Any]], edges: dict[tuple[str, str], dict[str, Any]]
+    ) -> dict[str, float]:
+        """
+        #3027: the ONE PageRank both graph builders use, fed identical nodes and
+        edges (file order, first-occurrence edge order), so the two modes produce
+        the same floats, not merely the same rounded values. Full precision used to
+        call nx.pagerank, which in networkx 3.x dispatches to a numpy/scipy backend
+        that networkx itself does not install -- with networkx alone it raised and
+        every file's PageRank was silently lost -- and whose implementation can
+        change between networkx releases. One implementation means no mode split
+        and no installed version can move the numbers. Empty on failure, so every
+        file reads None ("not computed"), never 0.0.
+        """
+        nodes = list(dict.fromkeys(f.get("path", "") for f in parsed_files))
+        try:
+            return _pagerank(nodes, [(src, dst, attrs["weight"]) for (src, dst), attrs in edges.items()])
+        except Exception as e:
+            self.logger.warning(f"PageRank failed to converge, leaving it unset (None): {e}")
+            return {}
+
     def build_dependency_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Builds the directed graph and calculates multi-dimensional risk vectors.
@@ -496,9 +517,11 @@ class NetworkRiskSensor:
         # strict sampling or bypasses, otherwise the CI/CD pipeline will hit a timeout deadlock.
         # PageRank is safe as it uses iterative convergence.
         # =========================================================================
-        try:
-            pagerank = nx.pagerank(G, weight="weight")
+        # PageRank is the native implementation in BOTH modes (see _native_pagerank),
+        # computed outside the networkx block so a centrality failure can't take it down.
+        pagerank = self._native_pagerank(parsed_files, edges)
 
+        try:
             # Force a maximum sample size of 100 nodes for any graph > 500 nodes.
             # seed is fixed because k triggers *approximate* betweenness via random
             # node sampling -- unseeded, two scans of an unchanged repo can pick a
@@ -517,8 +540,7 @@ class NetworkRiskSensor:
                 closeness = nx.closeness_centrality(G)
 
         except Exception as e:
-            self.logger.warning(f"Network math failed to converge, leaving centrality unset (None): {e}")
-            pagerank = dict.fromkeys(G.nodes())
+            self.logger.warning(f"Centrality math failed, leaving betweenness/closeness unset (None): {e}")
             betweenness = dict.fromkeys(G.nodes())
             closeness = dict.fromkeys(G.nodes())
 
@@ -653,17 +675,10 @@ class NetworkRiskSensor:
             in_degrees[dst] = in_degrees.get(dst, 0) + 1
         self._publish_edges(edges)
 
-        # #3027: PageRank needs nothing but the edge list, so compute it here
-        # rather than leave a 0.0 placeholder -- same node set and weights the
-        # DiGraph path hands nx.pagerank, and the same result (see _pagerank).
-        # Betweenness/closeness stay None: networkx samples 100 nodes at random
-        # above 500 files, which a native version would not reproduce exactly.
-        nodes = list(dict.fromkeys(f.get("path", "") for f in parsed_files))
-        try:
-            pagerank: dict[str, float] = _pagerank(nodes, [(s, d, a["weight"]) for (s, d), a in edges.items()])
-        except Exception as e:
-            self.logger.warning(f"Native PageRank failed to converge, leaving it unset (None): {e}")
-            pagerank = {}
+        # #3027: the same native PageRank the DiGraph path uses -- PageRank needs
+        # nothing but the edge list. Betweenness/closeness stay None: networkx
+        # samples 100 nodes at random above 500 files (#3031).
+        pagerank = self._native_pagerank(parsed_files, edges)
 
         for f in parsed_files:
             path = f.get("path", "")

@@ -24,7 +24,7 @@ Or add only the engines whose outputs you need (table below). Each is independen
 | In/out degree: `popularity`, `internal_dependency_links`, `dependency_density`, "Popularity Rank", "Direct Downstream" | distinct neighbouring files | **identical** (same resolved edges, counted linearly; #3024) |
 | `producer_ratio`, `ecosystem_role` | from degree | **identical** |
 | `edge_data` table (the edge list) | ✓ | **identical** |
-| `pagerank_score`, `normalized_blast_radius`, `systemic_threat_vector` | `nx.pagerank` | **identical**: native pure-Python PageRank, same parameters, same values after rounding (#3027) |
+| `pagerank_score`, `normalized_blast_radius`, `systemic_threat_vector` | native PageRank | **identical**: both modes run the same pure-Python PageRank on the same inputs (#3027), so the values cannot differ by mode or by networkx version |
 | Total upstream/downstream reach (audit JSON §8) | graph descendants/ancestors | same numbers from a pure-Python BFS (can differ by 1 on files inside a cycle, or right at the 500-node cap) |
 | `betweenness_score`, `closeness_score` | computed | **not computed**: `None` / NULL / `n/a` |
 | Repo topology: `network_modularity`, `_assortativity`, `_cyclic_density`, `_avg_path_length`, `_articulation_points` | computed | **not computed**: `None` / NULL; LLM brief §3.5 shows `n/a (not computed)` |
@@ -35,7 +35,7 @@ Without betweenness/closeness:
 - The "cascading state mutation" and "fragile dependency chain" bottleneck rankings are **empty**, not filled with zero-score files.
 - The AI-topology "Cognitive Choke Point" insight is skipped.
 
-**Even with networkx**, closeness is not computed above 1,500 files, or when the centrality computation fails. It is then `None` / NULL / `n/a` too, and the "fragile dependency chain" ranking is empty.
+**Even with networkx**, closeness is not computed above 1,500 files, or when the centrality computation fails. It is then `None` / NULL / `n/a` too, and the "fragile dependency chain" ranking is empty. `network_assortativity` also needs `numpy`: networkx declares no dependencies of its own, but its assortativity routine imports numpy, so with networkx alone assortativity is `None`.
 
 ### `tiktoken`: token counts
 

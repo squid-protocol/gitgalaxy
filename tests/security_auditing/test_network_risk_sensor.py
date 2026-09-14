@@ -415,12 +415,28 @@ def test_network_math_failure_degrades_to_none(sensor, parsed_files_universe):
     """
     Stress test: if NetworkX's centrality math itself throws (e.g. a future
     NetworkX version changes behavior, or an unexpected graph shape), the
-    sensor must leave every node's centrality unset rather than crashing the
+    sensor must leave betweenness/closeness unset rather than crashing the
     whole pipeline. This exercises the outer `except Exception` fallback in
     build_dependency_graph. #3027: unset is None -- it used to be 0.0, which
-    every consumer read as a measured score.
+    every consumer read as a measured score -- and PageRank, computed natively
+    outside that block, survives the failure.
     """
-    with patch("networkx.pagerank", side_effect=RuntimeError("simulated convergence failure")):
+    with patch("networkx.betweenness_centrality", side_effect=RuntimeError("simulated centrality failure")):
+        mapped_files, _ = sensor.build_dependency_graph(parsed_files_universe)
+
+    foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
+    metrics = foundation["telemetry"]["network_metrics"]
+    assert metrics["betweenness_score"] is None
+    assert metrics["closeness_score"] is None
+    assert metrics["pagerank_score"] is not None
+    assert metrics["normalized_blast_radius"] is not None
+    # Degree is exact and never depended on the centrality math.
+    assert metrics["ecosystem_role"] == "Pure Producer (Foundation)"
+
+
+def test_pagerank_failure_degrades_to_none(sensor, parsed_files_universe):
+    """#3027: a PageRank that fails to converge is None ("not computed") for the PageRank family only."""
+    with patch("gitgalaxy.core.network_risk_sensor._pagerank", side_effect=RuntimeError("no convergence")):
         mapped_files, _ = sensor.build_dependency_graph(parsed_files_universe)
 
     foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
@@ -428,9 +444,6 @@ def test_network_math_failure_degrades_to_none(sensor, parsed_files_universe):
     assert metrics["pagerank_score"] is None
     assert metrics["normalized_blast_radius"] is None
     assert metrics["systemic_threat_vector"] is None
-    assert metrics["betweenness_score"] is None
-    assert metrics["closeness_score"] is None
-    # Degree is exact and never depended on the centrality math.
     assert metrics["ecosystem_role"] == "Pure Producer (Foundation)"
 
 

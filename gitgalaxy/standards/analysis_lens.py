@@ -1564,6 +1564,27 @@ SURFACE_FAMILY_EXEMPT: dict[str, str] = {
 # ------------------------------------------------------------------------------
 
 # Function Archetypes (K-means Clusters)
+# Plain-language definitions of the k=14 function archetypes (keys match the model's
+# cluster_names). Surfaced in the LLM report so a reader/agent knows what each inline
+# label (e.g. "foo (Compute Cores)") means.
+FUNCTION_ARCHETYPE_DEFINITIONS = {
+    "Interface Declarations": "signature/entry function exposing API with minimal logic",
+    "Type Conversions": "cast- and conversion-heavy function",
+    "State Mutators": "general-purpose function that reassigns or mutates state",
+    "Callbacks & Closures": "built around closures/callbacks (handlers, async continuations)",
+    "Parameter Forwarders": "thin, many-argument glue that forwards to other code",
+    "Compute Cores": "dense algorithmic logic (high decision density per line)",
+    "C Struct Operations": "operates on C structs and pointers (data-structure logic)",
+    "Many-Argument Workhorses": "large, many-parameter procedural function doing heavy lifting",
+    "I/O & Config Routines": "dominated by I/O and configuration handling",
+    "Encapsulated Accessors": "getters/setters and private-scope accessors",
+    "Annotated Framework Methods": "decorator/annotation-driven framework method",
+    "Generic / Templated Code": "generic / type-parameterized (templated) function",
+    "Defensive Guards": "validation and error handling (null checks, guards, early bailouts)",
+    "Tests & Verification": "assertion-heavy test or verification function",
+    "Unclassified": "no dominant structural signature (too small or ambiguous)",
+}
+
 # Rosetta-governed function-archetype model (k=14, encapsulation 0.3x lens).
 # Trained in gitgalaxy-population-analyses/kmeans_clustering (see FUNCTION_ARCHETYPES.md).
 # 38-D vector = 5 geometry + 33 per-LOC DNA densities (FEATURE_NAMES order);

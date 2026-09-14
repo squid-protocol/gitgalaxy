@@ -512,7 +512,15 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             if "equations" not in logic_data:
                 logic_data["equations"] = {}
 
-            if not is_inert:
+            # #2978: inert formats (markdown/yaml/json/csv/plaintext) carry no code for
+            # detector.py to parse, but they're a common home for embedded credentials
+            # (docker-compose, k8s manifests, CI config) that the filename/extension-based
+            # CRITICAL-LEAK shunt in aperture.py doesn't catch -- so the lens still runs on
+            # them by default. SECURITY_SCAN_INERT_FORMATS is the opt-out for repos where
+            # that trades too much doc/config noise (README examples, CI `secrets:` blocks)
+            # for the extra coverage.
+            scan_inert_security = _worker_state["config"].get("SECURITY_SCAN_INERT_FORMATS", True)
+            if not is_inert or scan_inert_security:
                 # Handle the new nested dictionary
                 sec_results = security.scan_content(content_buffer)
 

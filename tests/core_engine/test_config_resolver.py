@@ -68,6 +68,18 @@ def test_cli_overrides_default_with_no_yaml():
     assert resolved.FIREWALL_NETWORK_WEIGHTING is True
 
 
+def test_yaml_overrides_security_scan_inert_formats_default(tmp_path):
+    # #2978: SECURITY_SCAN_INERT_FORMATS defaults to True; a repo that finds
+    # the lens too noisy on markdown/yaml/json/csv/plaintext can opt out.
+    assert defaults.SECURITY_SCAN_INERT_FORMATS is True
+    yaml_path = tmp_path / ".galaxyscope.yaml"
+    yaml_path.write_text("galaxyscope:\n  SECURITY_SCAN_INERT_FORMATS: false\n")
+
+    resolved = resolve_config(yaml_path=str(yaml_path))
+
+    assert resolved.SECURITY_SCAN_INERT_FORMATS is False
+
+
 # ==============================================================================
 # MERGE SEMANTICS: extend vs. replace
 # ==============================================================================

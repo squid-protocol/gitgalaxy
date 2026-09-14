@@ -48,6 +48,19 @@ BLACKLISTED_IMPORTS: list[str] = [
 FIREWALL_NETWORK_WEIGHTING = False
 
 # ------------------------------------------------------------------
+# SECURITY LENS ON INERT FORMATS (#2978)
+# Whether Phase 5.5 (SecurityLens.scan_content) runs on the "inert" data
+# formats (plaintext, markdown, json, yaml, csv) that carry no code for
+# detector.py to parse. A hardcoded credential inside an ordinary
+# config.yaml/settings.json is invisible to the filename/extension-based
+# CRITICAL-LEAK shunt in aperture.py, so this is on by default. Flip off
+# for repos where the extra coverage trades for too much doc/config noise
+# (README code-fence examples, CI YAML `secrets:` blocks, high-entropy CSV
+# data) tripping the lens's other THREAT_SIGNATURES.
+# ------------------------------------------------------------------
+SECURITY_SCAN_INERT_FORMATS = True
+
+# ------------------------------------------------------------------
 # GLOBAL DENYLIST
 # String patterns for files that should NEVER exist in the repository.
 # If a file matches these patterns, scanners will instantly block the commit.

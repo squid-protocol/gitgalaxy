@@ -183,9 +183,11 @@ planted its first **security-lens probe** — one identical comment-form
 hardcoded secret in every language's shell — `risk_secrets_risk` went from
 inert to a scored metric reading a **uniform value across all 44 languages
 the lens covers**, in one screened change. The two languages reading 0
-(markdown, yaml) are not misses: the engine deliberately skips its security
-lens on inert data formats, a boundary now ledgered and filed as a design
-question ([#2978](https://github.com/squid-protocol/gitgalaxy/issues/2978)).
+(markdown, yaml) were not misses: the engine deliberately skipped its
+security lens on inert data formats, a boundary ledgered and filed as a
+design question ([#2978](https://github.com/squid-protocol/gitgalaxy/issues/2978))
+and since closed — the lens now runs on all five inert formats
+(plaintext/markdown/json/yaml/csv), opt-out via `SECURITY_SCAN_INERT_FORMATS`.
 The same regeneration *measured* the formula's length dependence (Spearman
 ρ = −0.91 against file length with inputs held equal) and filed it as
 score-contract work ([#2979](https://github.com/squid-protocol/gitgalaxy/issues/2979))

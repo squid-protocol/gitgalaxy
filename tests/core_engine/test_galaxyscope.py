@@ -793,6 +793,123 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             result["data"]["equations"]["sec_high_risk_execution"], 1, "Worker dropped security equations!"
         )
 
+    # ==============================================================================
+    # TEST 13.1: SECURITY LENS ON INERT FORMATS (#2978)
+    # ==============================================================================
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_security_lens_runs_on_inert_formats_by_default(
+        self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
+    ):
+        """
+        #2978: a hardcoded secret in a YAML/JSON/markdown/csv/plaintext config file
+        must be visible to sec_hardcoded_secrets -- Phase 5.5 no longer skips
+        SecurityLens.scan_content() for the 5 formats galaxyscope classifies inert.
+        """
+        import logging
+        from unittest.mock import mock_open
+
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+
+        mock_aperture_inst = MockAperture.return_value
+        mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        mock_aperture_inst.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+
+        mock_prism_inst = MockPrism.return_value
+        mock_prism_inst.split_streams.return_value = {
+            "code_stream": 'api_key: "R0SETTA-PLANT-SECRET-2026"',
+            "comment_stream": "",
+            "coding_loc": 1,
+            "doc_loc": 0,
+        }
+
+        mock_sec_inst = MockSecurity.return_value
+        mock_sec_inst.scan_content.return_value = {
+            "counts": {"hardcoded_secrets": 1},
+            "snippets": {"hardcoded_secrets": ['api_key: "R0SETTA-PLANT-SECRET-2026"']},
+            "positions": {"hardcoded_secrets": [1]},
+        }
+
+        for lang_id in ("yaml", "json", "markdown", "csv", "plaintext"):
+            with self.subTest(lang_id=lang_id):
+                mock_sec_inst.scan_content.reset_mock()
+                MockDetector.return_value.inspect.return_value = {
+                    "lang_id": lang_id,
+                    "intensity": 0.99,
+                    "lock_tier": 1,
+                    "source_proof": "Test",
+                }
+                self.mock_config["LANGUAGE_DEFINITIONS"] = {}  # inert langs need no lang_defs entry
+                _init_worker(
+                    root_str=".",
+                    config=self.mock_config,
+                    ext_tally={f".{lang_id}": 1},
+                    log_level=logging.INFO,
+                    git_tracked={f"config.{lang_id}"},
+                    census=set(),
+                )
+                with patch("builtins.open", mock_open(read_data='api_key: "R0SETTA-PLANT-SECRET-2026"')):
+                    result = _process_file_worker(f"config.{lang_id}")
+
+                mock_sec_inst.scan_content.assert_called_once()
+                self.assertEqual(
+                    result["data"]["equations"]["sec_hardcoded_secrets"],
+                    1,
+                    f"Security lens skipped for inert format '{lang_id}'!",
+                )
+
+    @patch("gitgalaxy.galaxyscope.ApertureFilter")
+    @patch("gitgalaxy.galaxyscope.Prism")
+    @patch("gitgalaxy.galaxyscope.LanguageDetector")
+    @patch("gitgalaxy.galaxyscope.SecurityLens")
+    @patch("gitgalaxy.galaxyscope.Path.is_file", return_value=True)
+    def test_security_lens_inert_formats_can_be_opted_out(
+        self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
+    ):
+        """
+        #2978: SECURITY_SCAN_INERT_FORMATS=False must restore the old skip
+        behavior for repos that find the lens too noisy on docs/config formats.
+        """
+        import logging
+        from unittest.mock import mock_open
+
+        from gitgalaxy.galaxyscope import _init_worker, _process_file_worker
+
+        mock_aperture_inst = MockAperture.return_value
+        mock_aperture_inst.evaluate_path_integrity.return_value = (True, 1024, "Passed")
+        mock_aperture_inst.is_in_scope.return_value = {"is_in_scope": True, "reason": None}
+
+        MockDetector.return_value.inspect.return_value = {
+            "lang_id": "yaml",
+            "intensity": 0.99,
+            "lock_tier": 1,
+            "source_proof": "Test",
+        }
+        MockPrism.return_value.split_streams.return_value = {
+            "code_stream": 'api_key: "R0SETTA-PLANT-SECRET-2026"',
+            "comment_stream": "",
+            "coding_loc": 1,
+            "doc_loc": 0,
+        }
+
+        self.mock_config["LANGUAGE_DEFINITIONS"] = {}
+        self.mock_config["SECURITY_SCAN_INERT_FORMATS"] = False
+        _init_worker(
+            root_str=".",
+            config=self.mock_config,
+            ext_tally={".yaml": 1},
+            log_level=logging.INFO,
+            git_tracked={"config.yaml"},
+            census=set(),
+        )
+        with patch("builtins.open", mock_open(read_data='api_key: "R0SETTA-PLANT-SECRET-2026"')):
+            _process_file_worker("config.yaml")
+
+        MockSecurity.return_value.scan_content.assert_not_called()
+
     @patch("gitgalaxy.galaxyscope.ApertureFilter")
     @patch("gitgalaxy.galaxyscope.Prism")
     @patch("gitgalaxy.galaxyscope.LanguageDetector")

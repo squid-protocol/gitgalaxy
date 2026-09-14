@@ -459,6 +459,19 @@ class SignalProcessor:
                     blanket_risk_vector[self.RISK_SCHEMA.index("churn")] = min(raw_churn_freq * 10, 100.0)
                 if "documentation" in self.RISK_SCHEMA:
                     blanket_risk_vector[self.RISK_SCHEMA.index("documentation")] = 0.0  # <-- The Fix! 0% Risk.
+                # #2978: a hardcoded credential in a markdown/plaintext file is a real
+                # leak even though the surrounding prose carries none of this override's
+                # other risk dimensions (no logic entropy, no authorship centralization).
+                # Mirrors the CRITICAL SECRETS EXPOSURE OVERRIDE above by carving
+                # secrets_risk out of the blanket zero, but reuses the normal graduated
+                # _calc_secrets_risk formula (same one json/yaml/csv now get via the
+                # standard path below) instead of a flat spike -- mp_map isn't computed
+                # yet at this point in the function, so this passes the same 1.0 default
+                # mp_map.get("secrets", 1.0) itself falls back to.
+                if "secrets_risk" in self.RISK_SCHEMA:
+                    secrets_score = self._calc_secrets_risk(loc, raw_signals, 1.0)
+                    if secrets_score:
+                        blanket_risk_vector[self.RISK_SCHEMA.index("secrets_risk")] = secrets_score
 
                 return {
                     "risk_vector": blanket_risk_vector,

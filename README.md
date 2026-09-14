@@ -169,11 +169,15 @@ security-lens probe — one identical hardcoded secret in every language —
 `credential_material` (formerly `risk_secrets_risk`; the `risk_*` name remains
 the DB column — see [`docs/vectors.md`](docs/vectors.md)) read a **uniform
 score across all 44 languages the lens covers**, and the two exceptions (the
-engine deliberately skips its security
-lens on data formats) and the formula's measured length dependence were
-ledgered and filed the same day
+engine deliberately skipped its security lens on inert data formats) and the
+formula's measured length dependence were ledgered and filed the same day
 ([#2978](https://github.com/squid-protocol/gitgalaxy/issues/2978),
-[#2979](https://github.com/squid-protocol/gitgalaxy/issues/2979)).
+[#2979](https://github.com/squid-protocol/gitgalaxy/issues/2979)). #2978 is
+closed: the lens now runs on all five inert formats
+(plaintext/markdown/json/yaml/csv), with a `SECURITY_SCAN_INERT_FORMATS`
+config opt-out for repos where that trades too much doc/config noise for the
+coverage; keyword-rosetta's corpus re-verification against the merged fix is
+tracked in the ledger's `secrets-lens-inert-formats` entry.
 Every deviation is recorded in a validated ledger, the work is tracked by cause
 family under the [contract roadmap](docs/contract_roadmap.md), and
 the defect classes found this way are

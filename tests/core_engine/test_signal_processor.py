@@ -429,6 +429,40 @@ def test_signal_processor_doc_and_secrets_bypass(processor):
     assert 100.0 in res_sec["risk_vector"], "Critical Leak failed to spike the Secrets Risk to 100%!"
 
 
+def test_signal_processor_doc_language_secrets_risk_not_blanket_zeroed(processor):
+    """
+    #2978: the Static Literature Override zeroes the whole risk_vector for
+    doc_languages (markdown/plaintext/rst/text) except churn/documentation --
+    but a hardcoded credential in a README or plaintext config is a real leak.
+    secrets_risk must be carved out of the blanket zero and reflect a real
+    sec_hardcoded_secrets hit the same way it does for non-doc languages,
+    instead of silently reading 0 no matter how many leaks are present.
+    """
+    idx_secrets = processor.RISK_SCHEMA.index("secrets_risk")
+
+    meta_clean, sig_clean = create_synthetic_star(processor, "readme_clean", 50)
+    meta_clean["lang_id"] = "markdown"
+    res_clean = processor.calculate_risk_vector(meta_clean, sig_clean)
+    assert res_clean["risk_vector"][idx_secrets] == 0.0, "Clean markdown should have zero secrets risk!"
+
+    meta_leaky, sig_leaky = create_synthetic_star(
+        processor, "readme_leaky", 50, {"sec_hardcoded_secrets": 5, "debug_prints": 3}
+    )
+    meta_leaky["lang_id"] = "markdown"
+    res_leaky = processor.calculate_risk_vector(meta_leaky, sig_leaky)
+    assert res_leaky["risk_vector"][idx_secrets] > 0.0, "Markdown with a real leak must not read 0 secrets risk!"
+
+    meta_plain, sig_plain = create_synthetic_star(processor, "notes_leaky", 50, {"sec_hardcoded_secrets": 5})
+    meta_plain["lang_id"] = "plaintext"
+    res_plain = processor.calculate_risk_vector(meta_plain, sig_plain)
+    assert res_plain["risk_vector"][idx_secrets] > 0.0, "Plaintext with a real leak must not read 0 secrets risk!"
+
+    # The rest of the doc_languages bypass must stay intact -- this is a narrow
+    # carve-out, not a reversion of the override.
+    idx_cog = processor.RISK_SCHEMA.index("cognitive_load")
+    assert res_leaky["risk_vector"][idx_cog] == 0.0, "Cognitive load must stay bypassed for doc languages!"
+
+
 def test_signal_processor_doc_and_secrets_churn_survives_normalization(processor):
     """
     Regression test for #245: documentation and critical-leak overrides must

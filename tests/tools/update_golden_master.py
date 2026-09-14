@@ -84,7 +84,21 @@ def main():
             ],
             check=True,
             timeout=180,
-            env={**os.environ, "GITGALAXY_LICENSE_KEY": "COMMUNITY_FREE_TIER"},
+            env={
+                **os.environ,
+                "GITGALAXY_LICENSE_KEY": "COMMUNITY_FREE_TIER",
+                # #3005: this script disagreed with test_golden_crucible.py's own
+                # comparison by ~8500 unrelated git-history-derived leaves (Architect/
+                # Authorship Centralization/Raw Churn Frequency/Instability & Volatility
+                # Exposure) for files nobody's PR ever touched. Root cause: this env var
+                # was added to test_golden_crucible.py for #2976 (the golden masters pin
+                # a corpus whose git history isn't part of the measured structure) but
+                # never propagated here, so a bless run with a full local clone of the
+                # corpus (unlike the historyless/shallow states the fixtures were
+                # actually generated against) picked up real git-log data the check path
+                # never sees and would then disagree with on every subsequent check.
+                "GITGALAXY_DISABLE_GIT_HISTORY": "1",
+            },
         )
 
         new_output_path = output_dir / "data_galaxy_audit.json"

@@ -1206,15 +1206,32 @@ def test_signal_processor_documentation_acceptance_pins(processor):
     # "functions" are all buckets is the n/a class, not 100 -- sqlite's
     # CREATE_Statement buckets put a/b/c at 100 until this filter.
     buckets = [
-        {"name": "CREATE_Statement", "is_public": False, "is_documented": False, "hit_vector": {}, "is_synthetic_slice": True},
-        {"name": "__global_context__", "is_public": False, "is_documented": False, "hit_vector": {}, "is_synthetic_slice": True},
+        {
+            "name": "CREATE_Statement",
+            "is_public": False,
+            "is_documented": False,
+            "hit_vector": {},
+            "is_synthetic_slice": True,
+        },
+        {
+            "name": "__global_context__",
+            "is_public": False,
+            "is_documented": False,
+            "hit_vector": {},
+            "is_synthetic_slice": True,
+        },
     ]
     assert processor._calc_documentation(buckets) == 0.0
     assert processor._calc_documentation(buckets + abc) == 100.0
 
     reflective = [
         {"name": "static", "is_public": False, "is_documented": False, "hit_vector": {}},
-        {"name": "dynamic", "is_public": False, "is_documented": False, "hit_vector": {"reflection_metaprogramming": 3}},
+        {
+            "name": "dynamic",
+            "is_public": False,
+            "is_documented": False,
+            "hit_vector": {"reflection_metaprogramming": 3},
+        },
     ]
     # weights 1 and 4, both exposed -> still 100; document the dynamic one -> 1/5.
     assert processor._calc_documentation(reflective) == 100.0
@@ -1696,15 +1713,9 @@ def test_function_archetype_unclassified_when_model_dims_mismatch(processor, mon
     (the length guard in signal_processor's nearest-centroid loop).
     """
     # FEATURE_NAMES declares 5 features but centroids are length 3 -> all skipped.
-    bad_model = _five_geometry_model(
-        {"0: A": [0.0, 0.0, 0.0], "1: B": [9.0, 9.0, 9.0]}, ["A", "B"]
-    )
-    monkeypatch.setattr(
-        "gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL", bad_model
-    )
-    functions = [
-        {"name": "hot_path", "loc": 30, "branch": 25, "args": 4, "keyword_density": 0.15, "hit_vector": {}}
-    ]
+    bad_model = _five_geometry_model({"0: A": [0.0, 0.0, 0.0], "1: B": [9.0, 9.0, 9.0]}, ["A", "B"])
+    monkeypatch.setattr("gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL", bad_model)
+    functions = [{"name": "hot_path", "loc": 30, "branch": 25, "args": 4, "keyword_density": 0.15, "hit_vector": {}}]
     meta, sig = create_synthetic_star(processor, "mismatch", 50, functions=functions)
     processor.calculate_risk_vector(meta, sig)
 
@@ -1722,12 +1733,8 @@ def test_function_archetype_classified_when_model_matches_live_dims(processor, m
         {"0: Tiny Stub": [0.0, 0.0, 0.0, 0.0, 0.0], "1: Dense Logic": [3.4, 3.3, 1.6, 0.15, 0.83]},
         ["Tiny Stub", "Dense Logic"],
     )
-    monkeypatch.setattr(
-        "gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL", good_model
-    )
-    functions = [
-        {"name": "mutator", "loc": 30, "branch": 25, "args": 4, "keyword_density": 0.15, "hit_vector": {}}
-    ]
+    monkeypatch.setattr("gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL", good_model)
+    functions = [{"name": "mutator", "loc": 30, "branch": 25, "args": 4, "keyword_density": 0.15, "hit_vector": {}}]
     meta, sig = create_synthetic_star(processor, "match", 50, functions=functions)
     processor.calculate_risk_vector(meta, sig)
 

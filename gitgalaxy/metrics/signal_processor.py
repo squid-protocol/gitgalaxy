@@ -640,7 +640,7 @@ class SignalProcessor:
                             elif fname == "func_internal_density":
                                 v = comp_f / denom
                             elif fname.startswith("log_density_"):
-                                col = fname[len("log_density_"):]
+                                col = fname[len("log_density_") :]
                                 hk = f_dna_sources.get(col, col)
                                 raw = (float(hv.get(hk, 0)) / denom) * 100.0
                                 cap = f_caps.get(col)
@@ -665,9 +665,7 @@ class SignalProcessor:
                             if best_dist is None or d < best_dist:
                                 best_dist, best_idx = d, ci
                         if best_idx >= 0:
-                            s["archetype"] = (
-                                f_names[best_idx] if best_idx < len(f_names) else f"Cluster {best_idx}"
-                            )
+                            s["archetype"] = f_names[best_idx] if best_idx < len(f_names) else f"Cluster {best_idx}"
 
                 # 3. Calculate Structural Inequality (Gini)
                 if len(complexities) > 1 and sum(complexities) > 0:

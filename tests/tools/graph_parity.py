@@ -88,9 +88,7 @@ def scan_graph(db_path: str) -> tuple[list[str], list[Edge]]:
         path_of = dict(conn.execute("SELECT id, file_path FROM file_data ORDER BY id"))
         edges = [
             (path_of[src], path_of[dst], weight)
-            for src, dst, weight in conn.execute(
-                "SELECT src_file_id, dst_file_id, weight FROM edge_data ORDER BY id"
-            )
+            for src, dst, weight in conn.execute("SELECT src_file_id, dst_file_id, weight FROM edge_data ORDER BY id")
         ]
     finally:
         conn.close()

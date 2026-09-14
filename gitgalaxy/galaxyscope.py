@@ -613,9 +613,13 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                             logic_data["equations"].get("sec_amplified_sql_injection", 0) + amplified_sql_injection
                         )
                         logic_data.setdefault("mitigation_telemetry", {})
-                        logic_data["mitigation_telemetry"]["amplified_sql_injection"] = (
-                            logic_data["mitigation_telemetry"].get("amplified_sql_injection", 0)
-                            + amplified_sql_injection
+                        # gitgalaxy#3018: the audit report surfaces this key title-cased,
+                        # so "amplified_sql_injection" printed "Amplified Sql Injection"
+                        # per file -- the same overclaim the DB column was renamed for.
+                        # This correlation proves CO-LOCATION (a public api within ~10
+                        # lines of a DB sink, same function), never a data-flow path.
+                        logic_data["mitigation_telemetry"]["api_near_db_sink"] = (
+                            logic_data["mitigation_telemetry"].get("api_near_db_sink", 0) + amplified_sql_injection
                         )
 
             if is_file_profiling:

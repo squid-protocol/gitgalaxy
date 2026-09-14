@@ -171,8 +171,35 @@ class SecurityLens:
                 re.I,
             ),
             # 13. Raw Database Sinks
+            # gitgalaxy#3019: the verb must be invoked ON a receiver. The previous
+            # form was bare alternatives (`\b(?:execute|query|raw|cursor|...)\b\s*\(`),
+            # which claimed 240 hits across 76 crucible files, most of them not
+            # database sinks at all:
+            #   - `Query(` x63 -- FastAPI's query-PARAMETER helper (and GraphQL's
+            #     `Query(`). This alone drove the ~0% precision of the API-near-sink
+            #     correlation (#3018): fastapi's test_annotated.py, a file with no
+            #     database code whatsoever, scored 13 "confirmed SQL injections".
+            #   - bare `execute(` x95 -- overwhelmingly DECLARATIONS, not calls
+            #     (`fun execute(): Response`, `function execute(`, `void execute(`).
+            #   - `raw(` x16, `CURSOR (` x2 (a COBOL cursor declaration, not a query).
+            #   - `\s*` let the verb and its paren sit on DIFFERENT LINES, which is
+            #     how one hit landed on the word "raw" inside an English prose comment.
+            # A receiver anchor excludes every one of those shapes by construction: a
+            # declaration has no receiver, and neither does `Query(...)`.
+            #
+            # `->` is not optional. Perl DBI's `$sth->execute()` / `$insert->execute(
+            # $value, $sortorder)` (bugzilla) are genuine sinks, and a `\.`-only anchor
+            # would silently drop every one of them -- trading a false-positive problem
+            # for a worse false-negative one.
+            #
+            # `cursor` is deliberately absent: `conn.cursor()` creates a cursor, it does
+            # not execute a query. Its execution shows up as `.execute(` on the next line.
+            #
+            # Measured on the language-crucible corpus: 240 hits/76 files -> 146/28.
             "db_hooks": re.compile(
-                r"\b(?:execute|query|raw|cursor|execute_sql|executeBatch|query_db)\b\s*\(",
+                r"(?:\.|->)[ \t]*(?:execute|executemany|executescript|executeBatch|executeQuery"
+                r"|executeUpdate|query|rawQuery|prepareStatement|createStatement)[ \t]*\("
+                r"|\b(?:execute_sql|query_db|mysqli_query|pg_query|pg_exec|sqlite3_exec|sqlite3_prepare)[ \t]*\(",
                 re.I,
             ),
             # 14. Unicode Steganography (GlassWorm-style invisible payload smuggling, #1150)

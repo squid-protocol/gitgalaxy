@@ -3,8 +3,8 @@
 `pip install gitgalaxy` installs **nothing else**. For teams where every third-party package is a supply-chain review, that is the point: the engine runs on the Python standard library alone. A handful of measurements do need optional engines, though. When any of them is missing, the scan runs in **Zero-Dependency Mode**. This page lists, field by field, what that costs, so you can tell which numbers you can trust.
 
 **Short version:**
-- **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, and **PageRank / blast radius**. PageRank is computed natively, with no networkx.
-- **What you lose:** betweenness/closeness and the repo-topology metrics, token counts, ML threat classification, and YAML config parsing.
+- **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, **PageRank / blast radius**, **closeness** and **average path length**. These are computed natively, with no networkx.
+- **What you lose:** betweenness and the rest of the repo-topology metrics, token counts, ML threat classification, and YAML config parsing.
 - **How missing metrics show up:** a metric that was not computed is **absent**: `None` in telemetry, NULL in the SQLite DB, `n/a` in the LLM brief. It is never a placeholder `0`. The one remaining exception is the ML placeholders described below (#3028).
 
 ## Getting full precision
@@ -26,16 +26,27 @@ Or add only the engines whose outputs you need (table below). Each is independen
 | `edge_data` table (the edge list) | ✓ | **identical** |
 | `pagerank_score`, `normalized_blast_radius`, `systemic_threat_vector` | native PageRank | **identical**: both modes run the same pure-Python PageRank on the same inputs (#3027), so the values cannot differ by mode or by networkx version |
 | Total upstream/downstream reach (audit JSON §8) | graph descendants/ancestors | same numbers from a pure-Python BFS (can differ by 1 on files inside a cycle, or right at the 500-node cap) |
-| `betweenness_score`, `closeness_score` | computed | **not computed**: `None` / NULL / `n/a` |
-| Repo topology: `network_modularity`, `_assortativity`, `_cyclic_density`, `_avg_path_length`, `_articulation_points` | computed | **not computed**: `None` / NULL; LLM brief §3.5 shows `n/a (not computed)` |
+| `closeness_score`, `network_avg_path_length` | native | **identical**: both modes run the same native breadth-first search (#3037) |
+| `betweenness_score` | computed | **not computed**: `None` / NULL / `n/a` |
+| Repo topology: `network_modularity`, `_assortativity`, `_cyclic_density`, `_articulation_points` | computed | **not computed**: `None` / NULL; LLM brief §3.5 shows `n/a (not computed)` |
 
-Because PageRank is computed in both modes, `--max-systemic-threat`, the agent-guardrail `requires_hitl` flag, the composition archetypes, and the brief's "undocumented critical path" ranking and blast-radius insights all work exactly as with networkx.
+Because PageRank and closeness are computed in both modes, these all work exactly as with networkx:
+- `--max-systemic-threat` and the agent-guardrail `requires_hitl` flag
+- the composition archetypes
+- the brief's "undocumented critical path" and "fragile dependency chain" rankings, and its blast-radius insights
 
-Without betweenness/closeness:
-- The "cascading state mutation" and "fragile dependency chain" bottleneck rankings are **empty**, not filled with zero-score files.
+Without betweenness:
+- The "cascading state mutation" bottleneck ranking is **empty**, not filled with zero-score files.
 - The AI-topology "Cognitive Choke Point" insight is skipped.
 
-**Even with networkx**, closeness is not computed above 1,500 files, or when the centrality computation fails. It is then `None` / NULL / `n/a` too, and the "fragile dependency chain" ranking is empty. `network_assortativity` also needs `numpy`: networkx declares no dependencies of its own, but its assortativity routine imports numpy, so with networkx alone assortativity is `None`.
+**In both modes**, closeness and average path length are computed at every repository size. The only limit is a deterministic work budget: 50 million incoming-edge scans, which counts work, never time. Past it, both are `None` / NULL / `n/a`, and the "fragile dependency chain" ranking is empty. An import graph stays far below the budget: language-crucible's 2,817 files take under 2 ms.
+
+**Even with networkx**, `network_assortativity` also needs `numpy`. networkx declares no dependencies of its own, but its assortativity routine imports numpy, so with networkx alone assortativity is `None`.
+
+**Average path length changed meaning in #3037.**
+- **Now:** the mean number of import hops from a file to each file it transitively depends on, over every such (importer, dependency) pair in the repository.
+- **Before:** the mean shortest path in the largest *undirected* component. That ignored import direction and covered only 22.5% of language-crucible's files. It was also skipped above 5,000 files.
+- The two are not comparable. Language-crucible reads 1.36 now vs 7.07 before. #3033 measured the self-scan at 1.71 vs 4.19.
 
 ### `tiktoken`: token counts
 
@@ -87,6 +98,9 @@ Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets
 - **Older snapshots:**
   - Recorded before **#3024**: zero-dependency degree values counted import *statements*, not distinct files, so they read higher wherever one file imported the same target more than once.
   - Recorded before **#3027**: zero-dependency PageRank / blast radius were `0.0` placeholders (NULL in the DB), and closeness above 1,500 files was `0.0` in every mode.
+  - Recorded before **#3037**:
+    - closeness was NULL in zero-dependency mode, and NULL above 1,500 files in every mode
+    - `network_avg_path_length` meant the undirected largest-component distance (see above), so it is not comparable with later snapshots
 
 ## For contributors
 

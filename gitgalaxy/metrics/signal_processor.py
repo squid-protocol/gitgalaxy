@@ -2164,8 +2164,8 @@ class SignalProcessor:
             p = file_data.get("path", "")
 
             # #3027: a file enters a ranking only if the metric that ranking
-            # multiplies was computed. None (no networkx for betweenness/
-            # closeness, closeness skipped above 1,500 files) used to be read as
+            # multiplies was computed. None (no networkx for betweenness,
+            # closeness past its #3037 work budget) used to be read as
             # 0.0, filling each list with five zero-score files picked by path
             # order -- a ranking of nothing. A ranking nobody could compute is empty.
             btw = net.get("betweenness_score")

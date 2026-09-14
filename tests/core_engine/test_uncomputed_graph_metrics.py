@@ -55,7 +55,9 @@ def test_zero_dependency_pagerank_family_matches_networkx():
         assert {k: zero[path][k] for k in PAGERANK_FAMILY} == {k: full_metrics[k] for k in PAGERANK_FAMILY}, path
         assert zero[path]["normalized_blast_radius"] is not None
         assert zero[path]["betweenness_score"] is None, path
-        assert zero[path]["closeness_score"] is None, path
+        # #3037: closeness is native too, so identical in both modes.
+        assert zero[path]["closeness_score"] is not None, path
+        assert zero[path]["closeness_score"] == full_metrics["closeness_score"], path
 
 
 @pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX for the full-precision side")
@@ -77,16 +79,53 @@ def test_full_precision_runs_the_native_pagerank_not_networkx():
         assert full[path]["pagerank_score"] is not None
 
 
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
-def test_closeness_skipped_for_scale_is_none_not_zero():
-    """Above 1,500 nodes closeness is bypassed: that is "not computed", not 0.0."""
-    files = [
-        {"path": f"f{i}.py", "lang_id": "python", "raw_imports": [f"f{i + 1}.py"] if i < 1500 else []}
-        for i in range(1501)
+def _chain(n):
+    """f0 imports f1 imports ... f(n-1): the longest paths a graph of n files can have."""
+    return [
+        {"path": f"f{i}.py", "lang_id": "python", "raw_imports": [f"f{i + 1}.py"] if i < n - 1 else []}
+        for i in range(n)
     ]
-    metrics = _metrics(NetworkRiskSensor().build_dependency_graph(files)[0])
+
+
+@pytest.mark.parametrize("networkx_present", [True, False])
+def test_path_metrics_are_computed_above_the_old_node_cutoffs(networkx_present):
+    """
+    #3037: closeness used to be skipped above 1,500 files, and path length above
+    5,000. Both are now computed at every size and in both modes, bounded only by
+    the work budget. The long chain here also shows the search is iterative.
+    """
+    if networkx_present and not HAS_NETWORKX:
+        pytest.skip("Requires NetworkX")
+    n = 1501
+    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", networkx_present and HAS_NETWORKX):
+        files, macro = NetworkRiskSensor().build_dependency_graph(_chain(n))
+    metrics = _metrics(files)
+
+    # The chain's end is reached by f(i) at n-1-i hops: closeness = (r/h) * (r/(n-1)).
+    r = n - 1
+    assert metrics[f"f{n - 1}.py"]["closeness_score"] == round((r / (r * (r + 1) // 2)) * (r / (n - 1)), 6)
+    assert metrics["f0.py"]["closeness_score"] == 0.0  # nothing imports it: measured, not skipped
+    # Every ordered pair i < j is reachable at j - i hops: the mean is (n + 1) / 3.
+    assert macro["avg_path_length"] == round((n + 1) / 3, 4)
+
+
+def test_path_metrics_past_the_work_budget_are_none_not_zero():
+    """A graph too large for the budget leaves closeness and path length "not computed", never 0.0."""
+    with patch("gitgalaxy.core.network_risk_sensor.PATH_METRICS_WORK_BUDGET", 100):
+        files, macro = NetworkRiskSensor().build_dependency_graph(_chain(50))
+    metrics = _metrics(files)
     assert all(m["closeness_score"] is None for m in metrics.values())
+    assert macro["avg_path_length"] is None
     assert all(m["pagerank_score"] is not None for m in metrics.values())
+
+
+def test_path_length_of_a_graph_without_imports_is_none():
+    """No file imports another: there is no reachable pair to average over, so None."""
+    files, macro = NetworkRiskSensor().build_dependency_graph(
+        [{"path": f"f{i}.py", "lang_id": "python", "raw_imports": []} for i in range(3)]
+    )
+    assert macro["avg_path_length"] is None
+    assert all(m["closeness_score"] == 0.0 for m in _metrics(files).values())
 
 
 # ==============================================================================
@@ -109,7 +148,7 @@ def test_zero_dependency_db_records_native_pagerank(tmp_path):
     conn.close()
 
     assert rows and all(pr is not None and blast is not None for pr, blast, *_ in rows)
-    assert all(btw is None and close is None for _, _, btw, close, _ in rows)
+    assert all(btw is None and close is not None for _, _, btw, close, _ in rows)  # closeness native since #3037
     assert all(ratio is not None for *_, ratio in rows)  # exact since #3024, no longer NULLed
     assert repo == (None, 1)
 

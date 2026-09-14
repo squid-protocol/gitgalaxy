@@ -16,6 +16,7 @@ networkx computing the tailored definition where #3033 chose a different one.
 
 from collections.abc import Iterable
 from operator import mul, sub, truediv
+from typing import Optional
 
 
 def _bucket(keys: list[int], n: int) -> tuple[list[int], list[int]]:
@@ -171,3 +172,77 @@ def pagerank(index: GraphIndex, alpha: float = 0.85, max_iter: int = 100, tol: f
         if err < n * tol:
             return x
     raise RuntimeError(f"pagerank failed to converge in {max_iter} iterations")
+
+
+def closeness_and_path_length(
+    index: GraphIndex, budget: Optional[WorkBudget] = None
+) -> tuple[list[float], Optional[float]]:
+    """
+    #3037: both hop-count path metrics come from ONE breadth-first search per node
+    over the reversed graph (each node's incoming runs), since both need the same
+    distances. Edge weight plays no part: it is a PageRank strength, and
+    networkx's weighted paths would read it as distance, which is backwards
+    (#3033).
+
+    - **Closeness**, one value per node id: networkx's directed closeness,
+      exactly (strict parity with `nx.closeness_centrality(G)`). It measures
+      distance TO a node, i.e. how directly the files that transitively import
+      it reach it. With r such files at summed hop count h, closeness is
+      `(r / h) * (r / (N - 1))`, the Wasserman-Faust form networkx applies
+      (wf_improved=True). It is 0.0 when nothing reaches the node.
+    - **Average path length**: the mean hop count over every ordered pair (A, B)
+      where A transitively imports B, across all files. It is None when no file
+      imports another.
+      - This replaces the mean over the largest UNDIRECTED component (#3033's
+        tailoring decisions). That version ignored import direction and covered
+        22.5% of the language-crucible files.
+      - Each pair is counted once, from B's search, so both sums are exact
+        integers.
+
+    Each node's search charges `budget` the incoming edges it scanned, plus one
+    for the node itself. A graph too large to finish raises WorkBudgetExceeded
+    instead of stalling the scan. Worst case O(N * (N + E)), but an import
+    graph's searches are short. On the language-crucible graph (2,817 nodes,
+    1,354 edges), both metrics together take 1.7 ms warm. The comparisons:
+    - 12.9 ms for nx.closeness_centrality
+    - about 1.2 s for the undirected path length it replaced, which was
+      skipped above 5,000 files
+    """
+    n = len(index.nodes)
+    in_offsets = index.in_offsets
+    in_sources = index.in_sources
+    closeness = [0.0] * n
+    total_hops = 0
+    total_pairs = 0
+    depth_of = [-1] * n  # -1 = not reached by the current search
+    for target in range(n):
+        depth_of[target] = 0
+        reached = [target]
+        frontier = [target]
+        depth = 0
+        hops = 0
+        scanned = 1
+        while frontier:
+            depth += 1
+            next_frontier = []
+            for node in frontier:
+                start, stop = in_offsets[node], in_offsets[node + 1]
+                scanned += stop - start
+                for importer in in_sources[start:stop]:
+                    if depth_of[importer] < 0:
+                        depth_of[importer] = depth
+                        next_frontier.append(importer)
+            hops += depth * len(next_frontier)
+            reached += next_frontier
+            frontier = next_frontier
+        for node in reached:
+            depth_of[node] = -1
+        if budget is not None:
+            budget.charge(scanned)
+
+        importers = len(reached) - 1
+        if hops > 0 and n > 1:
+            closeness[target] = (importers / hops) * (importers / (n - 1))
+        total_hops += hops
+        total_pairs += importers
+    return closeness, (total_hops / total_pairs if total_pairs else None)

@@ -973,9 +973,9 @@ class Orchestrator:
             logger.warning(" ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
             _box("Every structural signal is still measured. Missing engines cost:")
             if not HAS_NETWORKX:
-                _box(" - networkx: betweenness/closeness and repo topology are NOT")
-                _box("   computed (n/a / NULL). PageRank, blast radius and degree")
-                _box("   counts are computed natively and match full precision.")
+                _box(" - networkx: betweenness and most repo topology are NOT")
+                _box("   computed (n/a / NULL). PageRank, closeness, path length and")
+                _box("   degree counts are computed natively (= full precision).")
             if not HAS_TIKTOKEN:
                 _box(" - tiktoken: token mass & financial read cost are NULL.")
             if not ML_AVAILABLE:

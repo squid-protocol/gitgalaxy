@@ -401,7 +401,7 @@ class LLMRecorder:
                 f"| Cyclic Density | {_macro('cyclic_density', lambda v: f'{v * 100:.1f}%')} | % of files trapped in dependency loops (Static Friction). |"
             )
             lines.append(
-                f"| Avg Path Length | {_macro('avg_path_length')} | Hops between files. Lower = Tighter coupling. |"
+                f"| Avg Path Length | {_macro('avg_path_length')} | Mean import hops from a file to each file it transitively depends on. Higher = Longer dependency chains. |"
             )
             lines.append(
                 f"| Articulation Pts | {_macro('articulation_points')} | Number of single files that, if removed, shatter the network. |"

@@ -127,11 +127,13 @@ def test_network_fallback_mode(sensor, parsed_files_universe):
         # It should still calculate basic in/out degrees and roles using pure Python dicts
         foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
         assert foundation["telemetry"]["network_metrics"]["ecosystem_role"] == "Pure Producer (Foundation)"
-        # #3027: PageRank is computed natively (no 0.0 placeholder); the centralities
-        # networkx alone computes are None -- "not computed", not "measured zero".
+        # #3027/#3037: PageRank and closeness are computed natively (no 0.0
+        # placeholder); betweenness, still networkx-only, is None -- "not
+        # computed", not "measured zero".
         assert foundation["telemetry"]["network_metrics"]["pagerank_score"] > 0.0
+        assert foundation["telemetry"]["network_metrics"]["closeness_score"] > 0.0
         assert foundation["telemetry"]["network_metrics"]["betweenness_score"] is None
-        assert foundation["telemetry"]["network_metrics"]["closeness_score"] is None
+        assert metrics["avg_path_length"] is not None
 
 
 # ==============================================================================
@@ -415,11 +417,11 @@ def test_network_math_failure_degrades_to_none(sensor, parsed_files_universe):
     """
     Stress test: if NetworkX's centrality math itself throws (e.g. a future
     NetworkX version changes behavior, or an unexpected graph shape), the
-    sensor must leave betweenness/closeness unset rather than crashing the
+    sensor must leave betweenness unset rather than crashing the
     whole pipeline. This exercises the outer `except Exception` fallback in
     build_dependency_graph. #3027: unset is None -- it used to be 0.0, which
-    every consumer read as a measured score -- and PageRank, computed natively
-    outside that block, survives the failure.
+    every consumer read as a measured score -- and PageRank and closeness
+    (#3037), computed natively outside that block, survive the failure.
     """
     with patch("networkx.betweenness_centrality", side_effect=RuntimeError("simulated centrality failure")):
         mapped_files, _ = sensor.build_dependency_graph(parsed_files_universe)
@@ -427,7 +429,7 @@ def test_network_math_failure_degrades_to_none(sensor, parsed_files_universe):
     foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
     metrics = foundation["telemetry"]["network_metrics"]
     assert metrics["betweenness_score"] is None
-    assert metrics["closeness_score"] is None
+    assert metrics["closeness_score"] is not None
     assert metrics["pagerank_score"] is not None
     assert metrics["normalized_blast_radius"] is not None
     # Degree is exact and never depended on the centrality math.
@@ -461,7 +463,6 @@ def test_macro_metrics_individual_failures_stay_isolated(sensor, parsed_files_un
     """
     with (
         patch("networkx.degree_assortativity_coefficient", side_effect=RuntimeError("boom")),
-        patch("networkx.average_shortest_path_length", side_effect=RuntimeError("boom")),
         patch("networkx.articulation_points", side_effect=RuntimeError("boom")),
     ):
         _, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
@@ -469,8 +470,9 @@ def test_macro_metrics_individual_failures_stay_isolated(sensor, parsed_files_un
     assert macro_metrics["assortativity"] is None, (
         "A failed assortativity computation must stay None, not 0.0 or crash."
     )
-    assert macro_metrics["avg_path_length"] is None
     assert macro_metrics["articulation_points"] is None
+    # #3037: avg path length is native, computed outside the networkx block.
+    assert macro_metrics["avg_path_length"] is not None
     # Modularity and cyclic_density weren't patched to fail -- they should
     # still have computed normally, proving the try/except isolation really
     # is per-metric and not a single all-or-nothing block.
@@ -517,7 +519,10 @@ def test_macro_math_outer_failure_returns_all_none(sensor, parsed_files_universe
     with patch("networkx.DiGraph.to_undirected", side_effect=RuntimeError("boom")):
         mapped_files, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
 
-    assert all(v is None for v in macro_metrics.values()), "Outer macro-math failure should leave every metric None."
+    networkx_metrics = {k: v for k, v in macro_metrics.items() if k != "avg_path_length"}
+    assert all(v is None for v in networkx_metrics.values()), "Outer macro-math failure should leave every metric None."
+    # #3037: avg path length is native and computed outside the networkx block.
+    assert macro_metrics["avg_path_length"] is not None
     # Per-file network metrics (computed earlier in the function, before the
     # macro block) must survive even though the macro block blew up.
     foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")

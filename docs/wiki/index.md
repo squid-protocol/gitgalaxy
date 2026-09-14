@@ -68,6 +68,7 @@ This is a curated subset for first-time visitors, not the complete page list -- 
 * [03-03: Claim 3 - Taxonomy Map](03-03-claim-3-taxonomy-map.md)
 * [03-04: Claim 4 - Comparing Languages](03-04-claim-4-comparing-languages.md)
 * [03-05: Claim 5 - File Archetypes](03-05-claim-5-file-archetypes.md)
+* [03-05b: Composition Archetypes (function → file → repo)](03-05b-composition-archetypes.md)
 * [03-06: Claim 6 - Keyword Fingerprinting](03-06-claim-6-keyword-fingerprinting.md)
 * [03-07: Claim 7 - Doom Comparisons](03-07-claim-7-doom-comparisons.md)
 * [03-08: Claim 8 - AST-Free Empirical Validation](03-08-claim-8-empirical-validation-of-ast-free-parsing.md)

@@ -17,6 +17,7 @@ Traditional SBOMs lack deep structural health telemetry and traceability anchore
 - **Hierarchical Module Mapping:** Groups analyzed source files by directory path and orders them by total structural mass. Generates directory-level Architectural Fingerprints.
 - **Security & Vulnerability Triage:** Integrates raw pattern signature hits with XGBoost Machine Learning Threat Confidence scores, decoupling active malware threats from general code quality risks.
 - **Network & AppSec Posture:** Injects directed dependency network graph metrics (PageRank, blast radius) and autonomous AI security findings into each file's profile.
+- **Composition Archetype Telemetry:** Records each file's compositional archetype ("Composition Archetype") with its fit z-score ("Composition Fit (Z-Score)"), plus per-file function-archetype mix and repo-wide "Function Archetype Distribution", "File Composition Distribution", and "Repository Composition Archetype". See [03-05b: Composition Archetypes](03-05b-composition-archetypes.md).
 - **Excluded Artifact Logging:** Preserves excluded files (due to path filters, binary formats) with explicit diagnostic reasons and exact byte sizes.
 
 ### Planned Improvements
@@ -52,3 +53,4 @@ graph LR
 - Network Risk Sensor
 - AI AppSec Sensor
 - LLM Recorder
+- [Composition Archetypes (03-05b)](03-05b-composition-archetypes.md)

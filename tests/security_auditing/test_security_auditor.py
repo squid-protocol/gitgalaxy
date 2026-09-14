@@ -48,29 +48,45 @@ def mock_artifacts():
 # ==============================================================================
 # TEST 1: DEPENDENCY GRAPH RESOLUTION (NetworkX vs Pure Python Deque)
 # ==============================================================================
-def test_dependency_graph_pure_python(mock_artifacts):
-    """Proves the pure-Python O(1) Deque resolver survives circular dependencies."""
-    auditor = SecurityAuditor()
+def test_dependency_graph_counts_a_cycle_exactly(mock_artifacts):
+    """
+    #3040: main.py and utils.py import each other, so each has exactly one other
+    file upstream and one downstream. A file is never its own dependency. The
+    old pure-Python fallback counted 2 here, while networkx counted 1.
+    """
+    resolved_artifacts = SecurityAuditor()._resolve_dependency_graph(mock_artifacts)
 
-    with patch("gitgalaxy.security.security_auditor.HAS_NETWORKX", False):
-        resolved_artifacts = auditor._resolve_dependency_graph(mock_artifacts)
-
-    main_artifact = next(s for s in resolved_artifacts if s["name"] == "main.py")
-    assert "dependency_network" in main_artifact
-    # The deque BFS considers the node itself as a visited descendant/ancestor in a circular loop
-    assert main_artifact["dependency_network"]["total_upstream"] == 2
-    assert main_artifact["dependency_network"]["total_downstream"] == 2
+    for artifact in resolved_artifacts:
+        network = artifact["dependency_network"]
+        assert (network["total_upstream"], network["total_downstream"]) == (1, 1), artifact["name"]
+        assert (network["upstream_ratio"], network["downstream_ratio"]) == (0.5, 0.5), artifact["name"]
 
 
-def test_dependency_graph_networkx(mock_artifacts):
-    """Proves the C-optimized NetworkX resolver handles the exact same circular loop."""
-    auditor = SecurityAuditor()
+def test_dependency_graph_matches_networkx_without_a_cap():
+    """#3040: exact reach counts, equal to len(nx.descendants / nx.ancestors), with no 500-file cap."""
+    nx = pytest.importorskip("networkx")
+    names = [f"f{i}.py" for i in range(600)]  # a 600-file chain: the old cap clipped it at 500
+    artifacts = [{"path": n, "name": n, "raw_imports": [names[i + 1]] if i < 599 else []} for i, n in enumerate(names)]
+    resolved = {a["path"]: a["dependency_network"] for a in SecurityAuditor()._resolve_dependency_graph(artifacts)}
+    graph = nx.DiGraph((names[i], names[i + 1]) for i in range(599))
+    for n in names:
+        assert resolved[n]["total_upstream"] == len(nx.descendants(graph, n)), n
+        assert resolved[n]["total_downstream"] == len(nx.ancestors(graph, n)), n
+    assert resolved["f0.py"]["total_upstream"] == 599
 
-    with patch("gitgalaxy.security.security_auditor.HAS_NETWORKX", True):
-        resolved_artifacts = auditor._resolve_dependency_graph(mock_artifacts)
 
-    main_artifact = next(s for s in resolved_artifacts if s["name"] == "main.py")
-    assert main_artifact["dependency_network"]["total_upstream"] == 1
+def test_dependency_graph_past_its_work_budget_is_none():
+    """A graph too large for the budget leaves the totals "not computed" -- None, never 0."""
+    # A chain (not a single cycle, which condenses to one component and needs no
+    # bitset work), so the budget is charged and a zero budget is exceeded.
+    names = ["a.py", "b.py", "c.py"]
+    artifacts = [{"path": n, "name": n, "raw_imports": names[i + 1 : i + 2]} for i, n in enumerate(names)]
+    with patch("gitgalaxy.security.security_auditor.PATH_METRICS_WORK_BUDGET", 0):
+        resolved_artifacts = SecurityAuditor()._resolve_dependency_graph(artifacts)
+
+    network = resolved_artifacts[0]["dependency_network"]
+    assert (network["total_upstream"], network["total_downstream"], network["upstream_ratio"]) == (None, None, None)
+    assert network["direct_upstream"] == 1  # the direct counts never needed the graph
 
 
 # ==============================================================================

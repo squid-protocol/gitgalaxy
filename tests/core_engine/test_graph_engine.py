@@ -182,6 +182,23 @@ def test_louvain_modularity_edge_cases():
         graph_engine.louvain_modularity(ring, budget=WorkBudget(10))
 
 
+def test_reach_counts_exclude_the_start_and_never_recurse():
+    """#3040: a file is never its own dependency, even on a cycle; 5,000-file cycles and chains stay iterative."""
+    names = [f"f{i}" for i in range(5000)]
+    chain = [(names[i], names[i + 1], 1.0) for i in range(4999)]
+    descendants, ancestors = graph_engine.reach_counts(GraphIndex(names, [*chain, (names[-1], names[0], 1.0)]))
+    assert set(descendants) == set(ancestors) == {4999}
+    descendants, ancestors = graph_engine.reach_counts(GraphIndex(names, chain))
+    assert (descendants[0], ancestors[0], descendants[-1], ancestors[-1]) == (4999, 0, 0, 4999)
+
+
+def test_reach_counts_stop_at_their_work_budget():
+    names = [f"f{i}" for i in range(50)]
+    index = GraphIndex(names, [(names[i], names[i + 1], 1.0) for i in range(49)])
+    with pytest.raises(WorkBudgetExceeded):
+        graph_engine.reach_counts(index, WorkBudget(10))
+
+
 def test_every_metric_declares_an_oracle_mode():
     assert {m.oracle_mode for m in graph_parity.METRICS.values()} <= {"strict", "tailored"}
 

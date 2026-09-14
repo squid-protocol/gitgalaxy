@@ -3,7 +3,6 @@
 # GitGalaxy Phase 7.8: Advanced Machine Learning Threat Hunting (HARDENED)
 # ==============================================================================
 import logging
-from collections import deque
 from pathlib import Path
 from typing import ClassVar
 
@@ -16,15 +15,15 @@ try:
 except ImportError:
     ML_AVAILABLE = False
 
-try:
-    import networkx as nx
-
-    HAS_NETWORKX = True
-except ImportError:
-    HAS_NETWORKX = False
-
+from gitgalaxy.core.graph_engine import GraphIndex, WorkBudget, WorkBudgetExceeded, reach_counts
+from gitgalaxy.core.network_risk_sensor import PATH_METRICS_WORK_BUDGET
 from gitgalaxy.core.spatial_correlation import weighted_view
 from gitgalaxy.standards.analysis_lens import AI_THREAT_THRESHOLD, RECORDING_SCHEMAS
+
+
+def _or_nan(value):
+    """None ("not computed") as NaN for the feature matrix; anything else unchanged."""
+    return float("nan") if value is None else value
 
 
 class SecurityAuditor:
@@ -221,8 +220,24 @@ class SecurityAuditor:
 
     def _resolve_dependency_graph(self, artifacts):
         """
-        Resolves transitive fragility and Downstream Exposure using C-optimized traversals (NetworkX)
-        if available, falling back to a pure Python BFS deque if missing.
+        Resolves each file's transitive fragility and Downstream Exposure.
+        `total_upstream` counts every file it depends on, directly or
+        transitively. `total_downstream` counts every file that depends on it.
+
+        #3040: one native implementation, the same in both modes, exact, with
+        no 500-file cap. graph_engine.reach_counts condenses the graph's
+        cycles and ORs reachability bitsets along the condensation. It gives
+        the same counts as `len(nx.descendants(G, f))` /
+        `len(nx.ancestors(G, f))`.
+
+        It replaced two implementations:
+        - networkx's calls, capped at 500
+        - a pure-Python BFS fallback that disagreed with them: it counted a
+          file on a cycle as its own dependency, and its cap check could
+          overshoot 500
+
+        Past PATH_METRICS_WORK_BUDGET, both totals and their ratios are None
+        ("not computed"), never a placeholder 0.
         """
         resolution_map = {}
         for artifact in artifacts:
@@ -238,87 +253,35 @@ class SecurityAuditor:
 
         total_repo_files = max(len(artifacts), 1)
 
-        # =========================================================
-        # FAST PATH: NetworkX (C-Backend)
-        # =========================================================
-        if HAS_NETWORKX:
-            G = nx.DiGraph()
-            for artifact in artifacts:
-                curr = artifact.get("path", "")
-                G.add_node(curr)
-                for imp in artifact.get("raw_imports", []):
-                    if imp in resolution_map:
-                        target = resolution_map[imp]
-                        if target != curr:
-                            G.add_edge(curr, target)
-
-            for artifact in artifacts:
-                path = artifact.get("path", "")
-                dir_up = len(artifact.get("raw_imports", []))
-                dir_down = artifact.get("telemetry", {}).get("popularity", 0)
-
-                if path in G:
-                    # Cap depth at 500 to prevent OOM/Stalls on massive circular monoliths
-                    tot_up = min(len(nx.descendants(G, path)), 500)
-                    tot_down = min(len(nx.ancestors(G, path)), 500)
-                else:
-                    tot_up, tot_down = 0, 0
-
-                artifact["dependency_network"] = {
-                    "direct_upstream": dir_up,
-                    "direct_downstream": dir_down,
-                    "total_upstream": tot_up,
-                    "total_downstream": tot_down,
-                    "upstream_ratio": round(tot_up / total_repo_files, 4),
-                    "downstream_ratio": round(tot_down / total_repo_files, 4),
-                }
-            return artifacts
-
-        # =========================================================
-        # FALLBACK PATH: Pure Python (Deque Optimized)
-        # =========================================================
-        outbound_graph = {artifact.get("path", ""): [] for artifact in artifacts}
-        inbound_graph = {artifact.get("path", ""): [] for artifact in artifacts}
-
+        edges: dict[tuple[str, str], float] = {}
         for artifact in artifacts:
             curr = artifact.get("path", "")
             for imp in artifact.get("raw_imports", []):
                 if imp in resolution_map:
                     target = resolution_map[imp]
                     if target != curr:
-                        if target not in outbound_graph[curr]:
-                            outbound_graph[curr].append(target)
-                        if curr not in inbound_graph[target]:
-                            inbound_graph[target].append(curr)
-
-        def get_nth_degree(start, graph, max_nodes=500):
-            """BFS using collections.deque for O(1) popping."""
-            visited = set()
-            queue = deque([start])  # <--- THE O(1) MEMORY FIX
-            while queue and len(visited) < max_nodes:
-                node = queue.popleft()  # <--- No more O(N) array shifts!
-                for neighbor in graph.get(node, []):
-                    if neighbor not in visited:
-                        visited.add(neighbor)
-                        queue.append(neighbor)
-            return len(visited)
+                        edges.setdefault((curr, target), 1.0)
+        index = GraphIndex(
+            (artifact.get("path", "") for artifact in artifacts),
+            ((src, dst, weight) for (src, dst), weight in edges.items()),
+        )
+        try:
+            descendants, ancestors = reach_counts(index, WorkBudget(PATH_METRICS_WORK_BUDGET))
+            reach = {path: (descendants[i], ancestors[i]) for i, path in enumerate(index.nodes)}
+        except WorkBudgetExceeded as e:
+            self.logger.info(f"Reach counts past their work budget, leaving them unset (None): {e}")
+            reach = {}
 
         for artifact in artifacts:
             path = artifact.get("path", "")
-            dir_up = len(artifact.get("raw_imports", []))
-            dir_down = artifact.get("telemetry", {}).get("popularity", 0)
-
-            # Reduced max_nodes to 500 to match NetworkX ceiling
-            tot_up = get_nth_degree(path, outbound_graph, max_nodes=500)
-            tot_down = get_nth_degree(path, inbound_graph, max_nodes=500)
-
+            tot_up, tot_down = reach.get(path, (None, None))
             artifact["dependency_network"] = {
-                "direct_upstream": dir_up,
-                "direct_downstream": dir_down,
+                "direct_upstream": len(artifact.get("raw_imports", [])),
+                "direct_downstream": artifact.get("telemetry", {}).get("popularity", 0),
                 "total_upstream": tot_up,
                 "total_downstream": tot_down,
-                "upstream_ratio": round(tot_up / total_repo_files, 4),
-                "downstream_ratio": round(tot_down / total_repo_files, 4),
+                "upstream_ratio": None if tot_up is None else round(tot_up / total_repo_files, 4),
+                "downstream_ratio": None if tot_down is None else round(tot_down / total_repo_files, 4),
             }
 
         return artifacts
@@ -423,8 +386,10 @@ class SecurityAuditor:
                     "duplicate_logic": float(hit_dict.get("duplicate_logic", 0)),
                     "log_direct_upstream": np.log1p(np.maximum(dep.get("direct_upstream", 0), 0)),
                     "log_direct_downstream": np.log1p(np.maximum(dep.get("direct_downstream", 0), 0)),
-                    "log_total_upstream": np.log1p(np.maximum(dep.get("total_upstream", 0), 0)),
-                    "log_total_downstream": np.log1p(np.maximum(dep.get("total_downstream", 0), 0)),
+                    # #3040: a reach count past its work budget is None -> NaN,
+                    # which XGBoost reads as a missing value, never a 0.
+                    "log_total_upstream": np.log1p(np.maximum(_or_nan(dep.get("total_upstream", 0)), 0)),
+                    "log_total_downstream": np.log1p(np.maximum(_or_nan(dep.get("total_downstream", 0)), 0)),
                 }
 
                 # 3. Reconstruct Density Signatures

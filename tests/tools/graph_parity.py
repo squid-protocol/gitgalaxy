@@ -41,6 +41,7 @@ from gitgalaxy.core.graph_engine import (
     louvain_modularity,
     nodes_in_cycles,
     pagerank,
+    reach_counts,
 )
 
 try:
@@ -148,6 +149,18 @@ METRICS: dict[str, Metric] = {
         native=louvain_modularity,
         oracle=_networkx_modularity,
         places=4,  # repo_data.network_modularity
+    ),
+    "descendants": Metric(
+        oracle_mode="tailored",  # the engine used to cap it at 500
+        native=lambda index: dict(zip(index.nodes, reach_counts(index)[0])),
+        oracle=lambda graph: {node: len(nx.descendants(graph, node)) for node in graph},
+        places=0,  # a count: exact (security_auditor's total_upstream)
+    ),
+    "ancestors": Metric(
+        oracle_mode="tailored",  # the engine used to cap it at 500
+        native=lambda index: dict(zip(index.nodes, reach_counts(index)[1])),
+        oracle=lambda graph: {node: len(nx.ancestors(graph, node)) for node in graph},
+        places=0,  # a count: exact (security_auditor's total_downstream)
     ),
 }
 

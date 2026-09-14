@@ -25,7 +25,7 @@ Or add only the engines whose outputs you need (table below). Each is independen
 | `producer_ratio`, `ecosystem_role` | from degree | **identical** |
 | `edge_data` table (the edge list) | ✓ | **identical** |
 | `pagerank_score`, `normalized_blast_radius`, `systemic_threat_vector` | native PageRank | **identical**: both modes run the same pure-Python PageRank on the same inputs (#3027), so the values cannot differ by mode or by networkx version |
-| Total upstream/downstream reach (audit JSON §8) | graph descendants/ancestors | same numbers from a pure-Python BFS (can differ by 1 on files inside a cycle, or right at the 500-node cap) |
+| Total upstream/downstream reach (audit JSON §8) | native | **identical**: one exact native count in both modes, with no 500-file cap (#3040) |
 | `closeness_score`, `network_avg_path_length` | native | **identical**: both modes run the same native breadth-first search (#3037) |
 | `network_cyclic_density`, `network_articulation_points` | native | **identical**: both modes run the same native depth-first searches (#3035) |
 | `network_assortativity` | native | **identical**: both modes run the same native single pass over the edges (#3036), which needs no numpy |
@@ -109,6 +109,7 @@ Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets
   - Recorded before **#3036**: `network_assortativity` was NULL in zero-dependency mode, and also NULL when networkx was installed without numpy. The definition did not change.
   - Recorded before **#3038**: `betweenness_score` was NULL in zero-dependency mode, and sampled and weighted above 500 files in every mode (see above).
   - Recorded before **#3039**: `network_modularity` was NULL in zero-dependency mode, and NULL above 5,000 files in every mode. The definition did not change.
+  - Recorded before **#3040**: total upstream/downstream reach was capped at 500 files. In zero-dependency mode a file on a dependency cycle also counted itself, so its values read 1 higher.
 
 ## For contributors
 

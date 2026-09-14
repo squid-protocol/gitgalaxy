@@ -13,7 +13,7 @@ Traditional SAST tools rely on explicit signature hits, making them vulnerable t
 
 ## Design
 ### Current Behavior
-- **Dependency Graph Features:** Traces import connections (BFS up to 10,000 nodes) to compute transitive coupling ratios (`total_upstream`, `total_downstream`).
+- **Dependency Graph Features:** Counts every file each file transitively depends on (`total_upstream`) and every file that transitively depends on it (`total_downstream`), with their ratios. The counts are exact: #3040 replaced the 500-file-capped networkx/BFS pair with one native computation (`graph_engine.reach_counts`: cycle condensation plus reachability bitsets). It is bounded by a deterministic work budget, past which the totals are `None`.
 - **Feature Vector Sanitization:** Applies logarithmic scaling to structural counts, integrates Gini complexity coefficients, signature counts, and global architectural distances into a Pandas DataFrame.
 - **Multiclass Threat Taxonomy:** Uses `XGBClassifier` to predict probabilities across: Safe Code, Botnet/DDoS, Stealer/Trojan, Dropper/Webshell, and Native Infector.
 - **Supply Chain Integrity:** The `is_shadow_patch` flag overrides ML inference for unverified binary changes with executable logic, explicitly flagging them as critical threats.

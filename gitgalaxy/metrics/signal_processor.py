@@ -565,35 +565,29 @@ class SignalProcessor:
             avg_func_args = 0.0
             func_gini = 0.0
 
+            # Rosetta-governed function-archetype model (k=14). The classifier below
+            # builds the 38-D vector (5 geometry + 33 per-LOC DNA densities) in
+            # FEATURE_NAMES order from each function's hit_vector (via DNA_SOURCES),
+            # caps + log1p the densities, RobustScales, applies FEATURE_WEIGHTS, and
+            # takes the nearest centroid -> cluster_names[idx]. Kept in lockstep with
+            # gitgalaxy-population-analyses/kmeans_clustering (FUNCTION_ARCHETYPES.md);
+            # changing the feature contract requires a golden-master regeneration.
             func_ml_brain = getattr(analysis_lens, "GENERAL_FUNCTION_INFERENCE_MODEL", {})
             f_medians = func_ml_brain.get("SCALER_MEDIANS", [])
             f_iqrs = func_ml_brain.get("SCALER_IQRS", [])
+            f_feature_names = func_ml_brain.get("FEATURE_NAMES", [])
+            f_weights = func_ml_brain.get("FEATURE_WEIGHTS", [1.0] * len(f_feature_names))
+            f_caps = func_ml_brain.get("CAP_VALUES", {})
+            f_dna_sources = func_ml_brain.get("DNA_SOURCES", {})
+            f_names = func_ml_brain.get("cluster_names", [])
             f_arch_key = next((k for k in func_ml_brain if k.startswith("ARCHETYPES_K")), None)
-            f_centroids = func_ml_brain.get(f_arch_key, {}) if f_arch_key else {}
-
-            # Bulletproof fallback names if the model dictionary forgets them
-            f_names = func_ml_brain.get(
-                "cluster_names",
-                [
-                    "Utility/Helper",
-                    "Data Router",
-                    "State Mutator",
-                    "God Function",
-                    "Math Engine",
-                    "I/O Bridge",
-                    "Constructor",
-                    "Callback/Event",
-                    "API Endpoint",
-                    "Validator",
-                    "Renderer",
-                    "Loop Processor",
-                ],
-            )
+            # Centroids as an ordered list aligned with cluster_names.
+            f_centroid_list = list(func_ml_brain.get(f_arch_key, {}).values()) if f_arch_key else []
 
             # ---> NEW: DIAGNOSTIC ML LOGGING <---
-            if functions and not f_centroids:
+            if functions and not (f_centroid_list and f_feature_names):
                 self.logger.warning(
-                    f"⚠️ FUNCTION ML SILENT BYPASS: Brain loaded? {bool(func_ml_brain)} | Centroids: {len(f_centroids)} | Arch Key: {f_arch_key}"
+                    f"⚠️ FUNCTION ML SILENT BYPASS: Brain loaded? {bool(func_ml_brain)} | Centroids: {len(f_centroid_list)} | Features: {len(f_feature_names)}"
                 )
 
             # #2691: the slicer emits a synthetic bucket ("__global_context__" and
@@ -622,41 +616,58 @@ class SignalProcessor:
                     z_val = (c - mean_comp) / std_comp if std_comp > 0 else 0.0
                     s["z_score"] = round(z_val, 3)
 
-                    # 2. Archetype Euclidean Classification
+                    # 2. Archetype classification (rosetta-governed 38-D vector).
+                    # Build geometry + per-LOC DNA densities in FEATURE_NAMES order
+                    # from this function's hit_vector, cap + log1p densities,
+                    # RobustScale, apply FEATURE_WEIGHTS, then nearest centroid.
                     s["archetype"] = "Unclassified"
-                    if f_centroids:  # <--- REMOVED f_features STRICT REQUIREMENT
-                        raw_vec = [
-                            float(s.get("branch", 0)),
-                            float(s.get("loc", 0)),
-                            float(s.get("args", 0)),
-                            float(s.get("keyword_density", 0.0)),
-                            float(s.get("control_flow_ratio", s.get("cf_ratio", 0.0))),
-                        ]
+                    if f_centroid_list and f_feature_names:
+                        hv = s.get("hit_vector", {})
+                        loc_f = float(s.get("loc", 0))
+                        denom = loc_f if loc_f > 0 else 1.0
+                        comp_f = float(s.get("branch", 0))  # engine stores branch as complexity
 
                         scaled_vec = []
-                        for i, val in enumerate(raw_vec):
+                        for i, fname in enumerate(f_feature_names):
+                            if fname == "log_loc":
+                                v = math.log1p(loc_f)
+                            elif fname == "log_complexity":
+                                v = math.log1p(comp_f)
+                            elif fname == "log_args":
+                                v = math.log1p(float(s.get("args", 0)))
+                            elif fname == "keyword_density":
+                                v = float(s.get("keyword_density", 0.0))
+                            elif fname == "func_internal_density":
+                                v = comp_f / denom
+                            elif fname.startswith("log_density_"):
+                                col = fname[len("log_density_"):]
+                                hk = f_dna_sources.get(col, col)
+                                raw = (float(hv.get(hk, 0)) / denom) * 100.0
+                                cap = f_caps.get(col)
+                                if cap is not None and raw > cap:
+                                    raw = cap
+                                v = math.log1p(raw)
+                            else:
+                                v = 0.0
                             med = f_medians[i] if i < len(f_medians) else 0.0
                             iqr = f_iqrs[i] if i < len(f_iqrs) and f_iqrs[i] > 0 else 1.0
-                            scaled_vec.append((val - med) / iqr)
+                            w = f_weights[i] if i < len(f_weights) else 1.0
+                            scaled_vec.append(((v - med) / iqr) * w)
 
-                        # Route through the shared classifier instead of a second,
-                        # hand-rolled distance loop so function- and file-level
-                        # classification can't drift apart (#1157). The helper
-                        # refuses to compare vectors of different lengths, so a
-                        # stale model (62-dim scalers/centroids vs. the 5-dim
-                        # live vector) leaves the function "Unclassified" rather
-                        # than emitting a silently-truncated label.
-                        best_key, _, _ = self._classify_archetype(scaled_vec, f_centroids)
-                        if best_key == "Unclassified":
-                            s["archetype"] = "Unclassified"
-                        else:
-                            try:
-                                # If the key is numbered like "Cluster 0", extract the 0
-                                c_idx = int(str(best_key).split(" ")[-1])
-                                s["archetype"] = f_names[c_idx] if c_idx < len(f_names) else best_key
-                            except ValueError:
-                                # If the key is already the name (e.g., "Interfaces"), use it directly!
-                                s["archetype"] = str(best_key)
+                        best_idx, best_dist = -1, None
+                        for ci, centroid in enumerate(f_centroid_list):
+                            if len(centroid) != len(scaled_vec):
+                                continue  # length guard (stale model) -> leaves Unclassified
+                            d = 0.0
+                            for a, b in zip(scaled_vec, centroid):
+                                diff = a - b
+                                d += diff * diff
+                            if best_dist is None or d < best_dist:
+                                best_dist, best_idx = d, ci
+                        if best_idx >= 0:
+                            s["archetype"] = (
+                                f_names[best_idx] if best_idx < len(f_names) else f"Cluster {best_idx}"
+                            )
 
                 # 3. Calculate Structural Inequality (Gini)
                 if len(complexities) > 1 and sum(complexities) > 0:

@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#injection-surface-exposure" class="md-skip">
+        <a href="#injection-surface-exposure-removed-1020" class="md-skip">
           Skip to content
         </a>
       
@@ -11883,159 +11883,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#engineering-summary" class="md-nav__link">
+  <a href="#why-it-was-removed" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Engineering Summary
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#purpose" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Purpose
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#problem-being-solved" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Problem Being Solved
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#design" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Design
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Design">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-vector-formulation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Vector Formulation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-ai-hardware-guardrails" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. AI &amp; Hardware Guardrails
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-injection-mass-deterministic-spikes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Injection Mass &amp; Deterministic Spikes
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-sigmoid-mapping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Sigmoid Mapping
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pipeline-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Pipeline Integration
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#tradeoffs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Tradeoffs
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#limitations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Limitations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#performance-notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Performance Notes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#future-work" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Future Work
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-components" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Related Components
+        Why it was removed
       
     </span>
   </a>
@@ -12142,17 +11993,65 @@
   
 
 
-<h1 id="injection-surface-exposure">Injection Surface Exposure</h1>
+<h1 id="injection-surface-exposure-removed-1020">Injection Surface Exposure — REMOVED (#1020)</h1>
 <blockquote>
-<p><strong>File Reference:</strong> <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py"><code>gitgalaxy/metrics/signal_processor.py</code></a></p>
+<p><strong>Status:</strong> This metric no longer exists. <code>injection_surface</code> and its
+<code>_calc_injection_surface()</code> implementation were deleted by
+<a href="https://github.com/squid-protocol/gitgalaxy/issues/1020">#1020</a>. There is no
+<code>risk_injection_surface</code> column, no entry in <code>RISK_SCHEMA</code>, and nothing in the engine
+computes an injection score. <code>grep -rn "injection_surface" --include=*.py gitgalaxy/</code>
+returns nothing.</p>
+<p>This page is kept as a historical record rather than deleted, so the reasoning survives.
+<strong>Do not implement against anything below the line — it documents removed code.</strong></p>
 </blockquote>
-<h2 id="engineering-summary">Engineering Summary</h2>
-<p>Measures exposure to injection attack vectors by analyzing external input boundaries (network requests, user input, SSR parameters) operating near dynamic execution sinks (<code>eval</code>, <code>exec</code>, shell command execution, dynamic SQL execution) without safety validation. This subsystem evaluates the input signals to calculate a formalized risk score. In GitGalaxy, this subsystem is known as the Injection Surface Exposure metric.</p>
-<h2 id="purpose">Purpose</h2>
-<p>The metric calculates a density-based risk score (0-100) to flag files containing high-risk logic patterns and architectural deviations.</p>
-<h2 id="problem-being-solved">Problem Being Solved</h2>
-<p>Unmitigated anti-patterns and vulnerabilities often lead to hard-to-debug bugs and security flaws. By statically analyzing the codebase, this subsystem proactively identifies hazardous logic.</p>
-<h2 id="design">Design</h2>
+<h2 id="why-it-was-removed">Why it was removed</h2>
+<p>GitGalaxy is AST-less: no Data Flow Analysis (taint tracking) and no Control Flow Graph.
+It is therefore structurally unable to prove that untrusted input actually <em>reaches</em> a
+sensitive sink. The removed metric asserted exactly that proof, by observing that two
+unrelated regexes happened to fire in the same file.</p>
+<h1 id="1020-removed-five-metrics-on-that-basis-prompt_injection-agentic_rce">1020 removed five metrics on that basis — <code>prompt_injection</code>, <code>agentic_rce</code>,</h1>
+<p><code>injection_surface</code>, <code>obscured_payload</code> and <code>memory_corruption</code> — and reframed the engine
+as a structural and topographical mapper rather than a definitive SAST vulnerability
+scanner, which is the framing <code>README.md</code> uses today.</p>
+<p>The two "+500.0 confirmation spikes" described below are the clearest example of what was
+wrong: they claimed a <em>verified data-flow path</em>, which nothing in the engine ever computed.</p>
+<h2 id="what-exists-instead">What exists instead</h2>
+<p>The <code>sec_*</code> observers are still collected by <code>gitgalaxy/security/security_lens.py</code> and,
+since <a href="https://github.com/squid-protocol/gitgalaxy/pull/3017">#3017</a>, persisted as
+<code>file_data</code> columns. They are <strong>counts of observed shapes, not verdicts</strong>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">column</th>
+<th style="text-align: left;">what one hit honestly means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>threat_tainted_injection</code></td>
+<td style="text-align: left;">the lens's bounded, single-file taint heuristic linked an I/O read to an exec/DB sink</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>threat_db_sinks</code></td>
+<td style="text-align: left;">a query verb was invoked on a receiver (<code>.execute(</code>, <code>-&gt;query(</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>threat_api_near_db_sink</code></td>
+<td style="text-align: left;">a public <code>api</code> declaration sits within ~10 lines of such a sink, in the same function</td>
+</tr>
+</tbody>
+</table>
+<p>That last one is deliberately <em>not</em> called a SQL injection. Measured across the crucible
+corpus it has roughly <strong>0% precision</strong> as a vulnerability claim — <code>fastapi/tests/test_annotated.py</code>,
+a file containing no database code whatsoever, scored 13 hits purely from FastAPI's <code>Query()</code>
+parameter helper. See <a href="https://github.com/squid-protocol/gitgalaxy/issues/3018">#3018</a> and
+<a href="https://github.com/squid-protocol/gitgalaxy/issues/3019">#3019</a>. It is useful as a
+co-location signal to correlate against real CVE ground truth (#2982); it is not evidence of
+a vulnerability on its own.</p>
+<hr />
+<h1 id="historical-record-the-removed-design">Historical record: the removed design</h1>
+<p><em>Everything below describes code deleted in #1020. Retained for provenance only.</em></p>
+<h4 id="design">Design</h4>
 <p>The analysis engine evaluates input vectors and execution vectors:</p>
 <table>
 <thead>
@@ -12203,10 +12102,10 @@
 </tbody>
 </table>
 <p>&amp; Safeguards</p>
-<h3 id="1-vector-formulation">1. Vector Formulation</h3>
+<h5 id="1-vector-formulation">1. Vector Formulation</h5>
 <div class="arithmatex">\[\text{InputVectors} = \text{sec\_io} + (\text{ssr\_boundaries} \times 2.0)$$
 $$\text{ExecutionVectors} = (\text{sec\_high\_risk\_execution} \times 4.0) + (\text{sec\_safety\_bypasses} \times 2.0)\]</div>
-<h3 id="2-ai-hardware-guardrails">2. AI &amp; Hardware Guardrails</h3>
+<h5 id="2-ai-hardware-guardrails">2. AI &amp; Hardware Guardrails</h5>
 <ul>
 <li><strong>LLM Orchestration Risk:</strong> If AI orchestrator logic coexists with dynamic code execution (<code>sec_high_risk_execution &gt; 0</code> and <code>llm_orchestrator &gt; 0</code>), execution vectors are multiplied by <span class="arithmatex">\(10.0\)</span> and input vectors incremented by <span class="arithmatex">\(+5.0\)</span> (treating the AI output as an untrusted input vector).</li>
 <li><strong>Safe Agent &amp; Hardware Dampener:</strong> For standard scientific compute, local LLM inference, or hardware bridges, execution vectors are dampened:
@@ -12214,11 +12113,11 @@ $$\text{ExecutionVectors} = (\text{sec\_high\_risk\_execution} \times 4.0) + (\t
   $<span class="arithmatex">\(\text{hardware\_dampener} = 1.0 + (\text{hardware\_bridge} \times 3.0)\)</span>$
   $<span class="arithmatex">\(\text{ExecutionVectors} = \frac{\text{ExecutionVectors}}{\text{agent\_dampener} \times \text{hardware\_dampener}}\)</span>$</li>
 </ul>
-<h3 id="3-injection-mass-deterministic-spikes">3. Injection Mass &amp; Deterministic Spikes</h3>
+<h5 id="3-injection-mass-deterministic-spikes">3. Injection Mass &amp; Deterministic Spikes</h5>
 <p>$<span class="arithmatex">\(\text{InjectionMass} = (\text{InputVectors} \times \text{ExecutionVectors}) \times \text{ArchetypeMultiplier}\)</span>$
 * <strong>Confirmed Taint Spike:</strong> Adds <span class="arithmatex">\(+500.0 \times \text{sec\_tainted\_injection}\)</span>.
 * <strong>Confirmed SQLi Spike:</strong> Adds <span class="arithmatex">\(+500.0 \times \text{sec\_amplified\_sql\_injection}\)</span>.</p>
-<h3 id="4-sigmoid-mapping">4. Sigmoid Mapping</h3>
+<h5 id="4-sigmoid-mapping">4. Sigmoid Mapping</h5>
 <div class="arithmatex">\[\text{Density} = \left( \frac{\text{InjectionMass}}{\max(\text{LOC} + 150, 1)} \right) \times 100.0\]</div>
 <p>Mapped via Sigmoid (Standard mode threshold = 40.0, slope = 0.4; Paranoid mode threshold = 3.0, slope = 1.2).</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">_calc_injection_surface</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loc</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">raw_signals</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">mp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">archetype</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
@@ -12291,32 +12190,32 @@ $$\text{ExecutionVectors} = (\text{sec\_high\_risk\_execution} \times 4.0) + (\t
 * 🟦 <strong>LOW (Score 0–19):</strong> Bounded and sanitized data flow. Network input is isolated from dynamic execution sinks.
 * 🟨 <strong>MODERATE (Score 40–59):</strong> Input operations operating near dynamic evaluation in standard framework routes with framework safety nets.
 * 🟥 <strong>VERY HIGH (Score 80–100):</strong> Unsanitized untrusted input directly reaching execution sinks (confirmed static taint path or direct SQL injection funnel).</p>
-<h2 id="pipeline-integration">Pipeline Integration</h2>
+<h4 id="pipeline-integration">Pipeline Integration</h4>
 <p>Inputs received include raw static analysis signals from the AST parser and contextual multipliers. Outputs produced are a normalized risk score (0-100). The subsystem depends on upstream token parsers that feed AST information into the signal processor.
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart LR
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    A[AST Parser] --&gt; B[Signal Processor]
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    B --&gt; C[Injection Surface Exposure Metric]
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    C --&gt; D[Risk Score Output]
 </code></pre></div></p>
-<h2 id="tradeoffs">Tradeoffs</h2>
+<h4 id="tradeoffs">Tradeoffs</h4>
 <ul>
 <li>Chose static keyword counting and heuristic multipliers over dynamic symbolic execution to prioritize speed across large codebases.</li>
 <li>Specific weights are fixed heuristics that balance safety against over-penalization, sacrificing precise dynamic validation for constant-time calculation.</li>
 </ul>
-<h2 id="limitations">Limitations</h2>
+<h4 id="limitations">Limitations</h4>
 <ul>
 <li>Detection is strictly reliant on recognized keywords and standard patterns.</li>
 <li>Cannot dynamically confirm actual vulnerabilities or trace deep runtime dataflows.</li>
 <li>May produce false positives in non-standard or heavily abstracted codebases.</li>
 </ul>
-<h2 id="performance-notes">Performance Notes</h2>
+<h4 id="performance-notes">Performance Notes</h4>
 <p>The calculation operates in <span class="arithmatex">\(O(1)\)</span> time leveraging pre-computed token counts, making it suitable for real-time risk profiling on massive codebases.</p>
-<h2 id="future-work">Future Work</h2>
+<h4 id="future-work">Future Work</h4>
 <ul>
 <li>Planned improvements include integrating static dataflow tracing to verify execution paths and reduce false positives.</li>
 <li>Expand language support and framework-specific annotations.</li>
 </ul>
-<h2 id="related-components">Related Components</h2>
+<h4 id="related-components">Related Components</h4>
 <ul>
 <li><strong><a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/metrics/signal_processor.py">Signal Processor Module</a></strong></li>
 <li><strong><a href="https://gitgalaxy.io/">GitGalaxy Platform</a></strong></li>

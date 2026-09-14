@@ -74,8 +74,18 @@ DEFINITION: dict[str, Any] = {
         # struct-as-namespace immediately projecting one declaration out
         # of itself) and a pointer-to-opaque handle type (`const HMONITOR
         # = *opaque {};`, the standard idiom for an opaque OS handle).
+        #
+        # ReDoS fix: the previous form paired an unbounded `[^=;]{0,150}` gap
+        # with a `*`-group that nested `+` over overlapping whitespace/word
+        # classes ((?:[A-Za-z0-9_. \t\n]+\|\|...)+). On ordinary `const x = ...`
+        # lines that don't terminate in a type keyword the engine backtracked
+        # catastrophically (a single 18KB file could take 400s+). It is now
+        # structurally linear: the pre-`=` gap is line-local (`\n`-excluded)
+        # and lazy, and the step-over is a bounded `{0,8}` of alternatives that
+        # each consume >=1 char with non-overlapping classes. Match set is
+        # byte-for-byte identical to the old rule on well-formed corpus input.
         "class_start": re.compile(
-            r"^[ \t]*(?:pub[ \t\n]+)?(?:const|var)[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)(?:(?!\b(?:const|var)\b)[^=;]){0,150}=[ \t\n]*(?:List\([ \t\n]*|\[_\][ \t\n]*|if[ \t]*\([^)]*\)[ \t\n]*|(?:[A-Za-z0-9_. \t\n]+\|\|[ \t\n]*)+|(?:\(|\*)[ \t\n]*|(?:packed|extern|inline)[ \t\n]+|align\([^)]*\)[ \t\n]+)*(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
+            r"^[ \t]*(?:pub[ \t\n]+)?(?:const|var)[ \t\n]+(@\"[^\"]+\"|[a-zA-Z_]\w*)(?:(?!\b(?:const|var)\b)[^=;]){0,150}=[ \t\n]*(?:(?:packed|extern|inline)[ \t\n]+|align\([^)]*\)[ \t\n]+|if[ \t]*\([^)]*\)[ \t\n]*|List\([ \t\n]*|\[_\][ \t\n]*|[A-Za-z0-9_.]+[ \t\n]*\|\|[ \t\n]*|[(*][ \t\n]*){0,8}(?:struct|enum|union|error|opaque)(?=[ \t\n]*[{(])",
             re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

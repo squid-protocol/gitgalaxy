@@ -106,10 +106,21 @@ DEFINITION: dict[str, Any] = {
         # is now censused consistently with dockerfile's `RUN` -- by derivation
         # from this rule, rather than by accident of the `len(name) > 3` guard
         # that #2768 just removed.
+        # ReDoS fix: the intervening-line step-over below is bounded to 10 lines,
+        # but the previous form paired a greedy `{0,10}` over an inner alternation
+        # whose blank/comment branch (`[ \t]*(?:#.*)?`) can match many ways with a
+        # lazy `([^\n]+?)` name and optional trailing comment. On the indentation-
+        # safe stream (which blanks string/comment bodies into whitespace-only
+        # lines) a `name:` with no `run:`/`script:` within 10 lines made the engine
+        # explore that ambiguity exponentially -- a single 14KB CI YAML took 40s+.
+        # Now each step-over iteration consumes exactly one whole line via two
+        # mutually-exclusive, non-empty-ambiguous branches and the repeat is lazy,
+        # so it is linear. Match set is identical on well-formed YAML (verified by
+        # parity across 394 real ansible/esphome files' safe-streams).
         "func_start": re.compile(
             r"^[ \t]*-?[ \t]*(?:(run|script|before_script|after_script):[ \t]*[|>]*"
-            r"|name:[ \t]*([^\n]+?)(?:[ \t]+#.*)?\n"
-            r"(?:(?:[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*|[ \t]*(?:#.*)?)\n){0,10}"
+            r"|name:[ \t]*([^\n]*?)(?:[ \t]+#[^\n]*)?\n"
+            r"(?:[ \t]+[a-zA-Z0-9_-]+:[^\n]*\n|[ \t]*(?:#[^\n]*)?\n){0,10}?"
             r"[ \t]*(?:run|script|before_script|after_script):[ \t]*[|>]*)",
             re.M | re.I,
         ),
@@ -120,9 +131,14 @@ DEFINITION: dict[str, Any] = {
         # `call-workflow:\n  needs: [build]\n  uses: ./reusable.yml`. Added a bounded
         # (max 10, to stay safely linear -- real jobs never have anywhere near that many
         # top-level keys before uses:/image:) step-over for intervening key:value lines.
+        # ReDoS fix: same bounded step-over shape as func_start above and the same
+        # catastrophic backtracking on the indentation-safe stream when `uses:`/
+        # `image:` never arrives within 10 lines. Rewritten identically -- one
+        # whole line per iteration via mutually-exclusive branches, lazy repeat.
+        # Match set unchanged on well-formed YAML (parity across 393 real files).
         "class_start": re.compile(
             r"^[ \t]*(?:jobs:|workflow_call:"
-            r"|[a-zA-Z0-9_-]+:[ \t]*(?:#.*)?\n(?:(?:[ \t]+[a-zA-Z0-9_-]+:[ \t]*.*|[ \t]*(?:#.*)?)\n){0,10}[ \t]+(?:uses|image):)",
+            r"|[a-zA-Z0-9_-]+:[ \t]*(?:#[^\n]*)?\n(?:[ \t]+[a-zA-Z0-9_-]+:[^\n]*\n|[ \t]*(?:#[^\n]*)?\n){0,10}?[ \t]+(?:uses|image):)",
             re.M | re.I,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---

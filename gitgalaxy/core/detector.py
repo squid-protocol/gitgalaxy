@@ -1094,6 +1094,14 @@ def _name_boundary_pattern(func_name: str) -> str:
     return r"(?<!\w)" + re.escape(func_name) + r"(?!\w)"
 
 
+# A name that is a single maximal word token. For such names the boundary
+# pattern `(?<!\w)name(?!\w)` matches exactly the `\w+` tokens equal to `name`,
+# so occurrences can be read from a precomputed word-token index instead of
+# rescanning the whole stream. Names with non-word characters (ruby `empty?`,
+# scheme `set!`, C++ `operator==`) do NOT qualify and take the exact fallback.
+_WORD_NAME_RE = re.compile(r"\w+")
+
+
 # #2823: one name inside a `_visibility_export_list` region. The region is the
 # text between the export construct's own delimiters, so what separates two
 # names in it is whitespace, a comma, or a nested bracket -- a Haskell list
@@ -1635,6 +1643,22 @@ class StructuralExtractor:
                 else self._build_brace_safe_stream(code_stream, self.primary_lang_id)
             )
 
+            # #PERF: the class loop below converts raw string indices to line
+            # numbers. `code_stream.count("\n", 0, idx)` is O(len(code_stream))
+            # per call, so doing it per class was O(classes x filesize) -- part
+            # of the same O(N^2) family as the orphan scan. Precompute the
+            # newline offsets once; each lookup is then an O(log n) bisect.
+            # bisect_left(offsets, idx) == count of "\n" strictly before idx ==
+            # code_stream.count("\n", 0, idx), so `+ 1` still yields the line.
+            _nl_offsets: list[int] = []
+            _p = code_stream.find("\n")
+            while _p != -1:
+                _nl_offsets.append(_p)
+                _p = code_stream.find("\n", _p + 1)
+
+            def _line_at(idx: int) -> int:
+                return bisect.bisect_left(_nl_offsets, idx) + 1
+
             for i, match in enumerate(class_matches):
                 if self.primary_lang_id == "cpp":
                     if not _cpp_class_has_body(code_stream, match.end()):
@@ -1725,8 +1749,9 @@ class StructuralExtractor:
                     )
 
                 # Convert raw string indices to line numbers for spatial bounding
-                start_line = code_stream.count("\n", 0, start_idx) + 1
-                end_line = code_stream.count("\n", 0, end_idx) + 1
+                # (O(log n) bisect over precomputed newline offsets; see _line_at)
+                start_line = _line_at(start_idx)
+                end_line = _line_at(end_idx)
                 # If end_idx sits exactly at the start of a new line (the
                 # indentation resolver's dedent point, or the flat fallback,
                 # both land there by construction) that line belongs to
@@ -1819,6 +1844,22 @@ class StructuralExtractor:
             # hashing every function body would be wasted work in the common case.
             body_hash_counts: collections.Counter[tuple[str, str]] = collections.Counter()
             func_body_hashes: dict[int, str] = {}
+
+            # #PERF: `_is_orphan` asks "does this name occur outside its own
+            # span?", previously by re-scanning the WHOLE code_stream once per
+            # function -- O(functions x filesize), ~10s on a 1MB generated
+            # header with ~900 functions. Precompute a single whole-file index
+            # of maximal word-token start offsets (ascending, so already sorted)
+            # so each per-function test is an O(log n) bisect. Only names that
+            # are a single \w+ token use it; names with non-word characters
+            # (ruby `empty?`, scheme `set!`, C++ `operator==`) keep the exact
+            # boundary-regex fallback inside `_is_orphan`.
+            orphan_occ_index: Optional[dict[str, list[int]]] = None
+            if names_its_callees and functions:
+                orphan_occ_index = collections.defaultdict(list)
+                for _m in re.finditer(r"\w+", code_stream):
+                    orphan_occ_index[_m.group()].append(_m.start())
+
             for func in functions:
                 func_name = func.get("name", "")
                 if func_name and func_name_counts[func_name] > 1:
@@ -1871,7 +1912,9 @@ class StructuralExtractor:
                     ):
                         usage_status = 2  # 2 = Duplicate
                         duplicate_count += 1
-                    elif names_its_callees and self._is_orphan(code_stream, func, func_name, export_name_starts):
+                    elif names_its_callees and self._is_orphan(
+                        code_stream, func, func_name, export_name_starts, orphan_occ_index
+                    ):
                         # Nothing outside the function's own definition names it.
                         #
                         # BUG FIX #2768: a `len(func_name) > 3` conjunct used to
@@ -2528,6 +2571,22 @@ class StructuralExtractor:
 
             seg_len = len(seg_code)
 
+            # #PERF: converting each match offset to a line number below used
+            # `seg_code.count("\n", 0, m.start())` -- O(seg_len) per match, so
+            # O(matches x seg_len) per segment (the same O(N^2) family as the
+            # class-loop and orphan scans; ~3.9s on a 1MB single-segment header).
+            # Precompute this segment's newline offsets once; each conversion is
+            # then an O(log n) bisect. bisect_left(offsets, pos) == count of "\n"
+            # strictly before pos == seg_code.count("\n", 0, pos).
+            _seg_nl: list[int] = []
+            _sp = seg_code.find("\n")
+            while _sp != -1:
+                _seg_nl.append(_sp)
+                _sp = seg_code.find("\n", _sp + 1)
+
+            def _seg_line(pos: int, _nl: list[int] = _seg_nl, _offset: int = current_line_offset) -> int:
+                return _offset + bisect.bisect_left(_nl, pos) + 1
+
             # #2674: a registry may declare `_scope_filters: {rule_name: filter_name}`
             # for rules whose regex can match a construct that only *sometimes*
             # means what the rule counts, and where the deciding context is the
@@ -2579,7 +2638,7 @@ class StructuralExtractor:
 
                         # ---> NEW: Offset to LOC Conversion <---
                         for m in matches:
-                            line_number = current_line_offset + seg_code.count("\n", 0, m.start()) + 1
+                            line_number = _seg_line(m.start())
                             threat_locations.setdefault(mapped_key, []).append(line_number)
 
                         # ---> THE LINEAGE EXTRACTOR <---
@@ -2601,7 +2660,7 @@ class StructuralExtractor:
 
                         # ---> NEW: Offset to LOC Conversion <---
                         for m in matches:
-                            line_number = current_line_offset + seg_code.count("\n", 0, m.start()) + 1
+                            line_number = _seg_line(m.start())
                             threat_locations.setdefault(mapped_key, []).append(line_number)
 
                     c = len(hit_indices)
@@ -8162,6 +8221,7 @@ class StructuralExtractor:
         func: "FunctionNode",
         func_name: str,
         export_name_starts: frozenset[int] = frozenset(),
+        occ_index: "Optional[dict[str, list[int]]]" = None,
     ) -> bool:
         """Does `func_name` occur anywhere outside its own definition?
 
@@ -8212,6 +8272,35 @@ class StructuralExtractor:
         """
         start_idx = func.get("start_idx", 0)
         end_idx = func.get("end_idx", start_idx)
+
+        # #PERF fast path: when a whole-file word-token index is supplied and
+        # the name is a single \w+ token, its occurrences are exactly the index
+        # entries for that name -- read inside/outside the span by bisect
+        # (O(log n)) instead of re-running finditer over the entire code_stream
+        # (O(len(code_stream))) once per function. Semantically identical to the
+        # fallback below; verified by an old-vs-new parity harness across real
+        # files (incl. ruby/scheme/C++ special-name languages, which take the
+        # fallback and are unaffected).
+        if occ_index is not None and _WORD_NAME_RE.fullmatch(func_name):
+            offsets = occ_index.get(func_name)
+            if not offsets:
+                # No maximal-word occurrence at all -> matches the fallback's
+                # inside==outside==0 -> declaration discount -> orphan.
+                return True
+            lo = bisect.bisect_left(offsets, start_idx)
+            hi = bisect.bisect_left(offsets, end_idx)
+            inside = hi - lo
+            outside = len(offsets) - inside
+            if export_name_starts:
+                # An occurrence named in an export statement is a visibility
+                # declaration, not a use -- discount the ones outside the span,
+                # exactly as the fallback's `not in export_name_starts` does.
+                outside -= sum(1 for off in offsets[:lo] if off in export_name_starts)
+                outside -= sum(1 for off in offsets[hi:] if off in export_name_starts)
+            if inside == 0:
+                outside -= 1  # the declaration itself, which fell outside the span
+            return outside <= 0
+
         word = re.compile(_name_boundary_pattern(func_name))
         inside = outside = 0
         for m in word.finditer(code_stream):

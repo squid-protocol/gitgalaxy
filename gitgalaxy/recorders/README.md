@@ -49,7 +49,7 @@ Each file in this directory represents a specialized data exit strategy, tailore
 | `entity_imports` | how many of those were the entity (`from x import y`) form |
 | `weight` | the edge weight pagerank/betweenness read (1.0 per plain import, 1.5 per entity import) |
 
-In full-precision mode, per file, `COUNT(*)` of rows with `src_file_id = f.id` equals `internal_dependency_links` and rows with `dst_file_id = f.id` equals `popularity`. Zero-dependency mode counts import statements instead of distinct neighbours, so reconcile it with `SUM(import_statements)`. An edge is only recorded when both endpoints have a `file_data` row. The statistical audit can relegate a graph node to `excluded_artifacts` after the graph is built, and the edges that loses are counted in `repo_data.network_edges_unrecorded` (NULL when the caller supplied no edge list).
+In both modes, per file, `COUNT(*)` of rows with `src_file_id = f.id` equals `internal_dependency_links` and rows with `dst_file_id = f.id` equals `popularity`. (Before #3024, zero-dependency mode counted import statements instead of distinct neighbours; for those older snapshots, reconcile with `SUM(import_statements)`. See `docs/zero_dependency_mode.md` for everything else that differs between the modes.) An edge is only recorded when both endpoints have a `file_data` row. The statistical audit can relegate a graph node to `excluded_artifacts` after the graph is built, and the edges that loses are counted in `repo_data.network_edges_unrecorded` (NULL when the caller supplied no edge list).
 
 ```sql
 -- Neighbourhood marker load: what a file's direct imports carry, beside its own load.

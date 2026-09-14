@@ -108,10 +108,29 @@ def test_zero_dependency_mode_publishes_the_same_edges():
     assert sensor.dependency_edges == EXPECTED_EDGES
     for f in files:
         nm = f["telemetry"]["network_metrics"]
-        # The fallback has always counted every resolved import statement, so
-        # its degrees reconcile against import_statements, not the row count.
-        assert nm["out_degree"] == sum(e["import_statements"] for e in sensor.dependency_edges if e["src"] == f["path"])
-        assert nm["in_degree"] == sum(e["import_statements"] for e in sensor.dependency_edges if e["dst"] == f["path"])
+        # #3024: distinct neighbours, one per edge row -- the DiGraph's meaning.
+        assert nm["out_degree"] == sum(e["src"] == f["path"] for e in sensor.dependency_edges)
+        assert nm["in_degree"] == sum(e["dst"] == f["path"] for e in sensor.dependency_edges)
+
+
+@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
+def test_degree_family_is_identical_in_both_modes():
+    """
+    #3024: the degree-derived fields must not depend on whether networkx is
+    installed. src/app.py imports src/lib.py twice -- the case that used to
+    read out_degree 3 in zero-dependency mode against 2 with networkx.
+    """
+    degree_keys = ("in_degree", "out_degree", "producer_ratio", "ecosystem_role")
+
+    full = {f["path"]: f for f in _build(NetworkRiskSensor())}
+    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
+        zero = {f["path"]: f for f in _build(NetworkRiskSensor())}
+
+    assert zero["src/app.py"]["telemetry"]["network_metrics"]["out_degree"] == 2
+    for path, f in full.items():
+        fnm, znm = f["telemetry"]["network_metrics"], zero[path]["telemetry"]["network_metrics"]
+        assert {k: znm[k] for k in degree_keys} == {k: fnm[k] for k in degree_keys}, path
+        assert zero[path]["telemetry"]["popularity"] == f["telemetry"]["popularity"], path
 
 
 def test_a_later_build_replaces_the_edge_list():

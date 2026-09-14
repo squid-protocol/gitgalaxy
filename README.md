@@ -414,11 +414,25 @@ GitGalaxy is designed for local and air-gapped operation.
 # Installation
 
 ``` bash
-pip install gitgalaxy
+pip install gitgalaxy            # zero install dependencies
+pip install "gitgalaxy[full]"    # + networkx, tiktoken, xgboost, pandas, numpy, pyyaml
 ```
 
 See the [documentation](https://squid-protocol.github.io/gitgalaxy/) for
 current commands and configuration.
+
+### Zero-dependency mode
+
+A plain `pip install gitgalaxy` pulls in nothing, for environments where
+every third-party package is a supply-chain question. Scans still run: every
+structural signal, risk surface, dependency edge and in/out-degree count is
+measured exactly as in full precision. What needs the optional engines is
+PageRank/blast radius and centrality (`networkx`), token mass and read cost
+(`tiktoken`), ML threat classification (`xgboost`/`pandas`/`numpy`) and YAML
+config/OpenAPI parsing (`pyyaml`). Each output says when a scan ran in this
+mode, and [`docs/zero_dependency_mode.md`](docs/zero_dependency_mode.md) lists,
+field by field, what is unavailable, what is a placeholder, and what is
+identical.
 
 ### CI/CD
 

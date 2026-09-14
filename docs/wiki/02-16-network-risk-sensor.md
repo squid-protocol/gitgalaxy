@@ -17,7 +17,7 @@ Evaluating code quality in isolation is insufficient; a poorly written script ha
 - **Centrality Metrics:** Computes PageRank (Normalized Blast Radius), Betweenness Centrality (Architectural Choke Points), and Closeness Centrality.
 - **Component Roles:** Classifies modules as Producers (Foundation), Consumers (Orchestrators), Transceivers (Middle Tier), or Isolated, based on inbound/outbound edge ratios.
 - **Global Topology Metrics:** Evaluates modularity, assortativity, cyclic density, average path length, and articulation points.
-- **Zero-Dependency Mode:** Degrades gracefully if `networkx` is unavailable, calculating basic in/out degree ratios.
+- **Zero-Dependency Mode:** Without `networkx`, the same resolved edges are counted linearly: in/out degree (`popularity`, `internal_dependency_links`), producer ratio and ecosystem role are exact and identical to full-precision mode (#3024), and the `edge_data` table is identical. PageRank, blast radius, betweenness and closeness are not computed (0.0 placeholders, NULL in the SQLite DB), and the global topology metrics are `None`. See [`docs/zero_dependency_mode.md`](../zero_dependency_mode.md).
 
 ### Planned Improvements
 - Introduce community detection algorithms to auto-discover implicit package domains.

@@ -45,6 +45,14 @@ dependencies = []
 [project.optional-dependencies]
 yaml = ["PyYAML>=6.0"]
 
+# Full precision: every optional engine galaxyscope can use. Without any one of
+# them a scan runs in Zero-Dependency Mode -- see docs/zero_dependency_mode.md
+# for exactly which outputs are lost or approximated per missing package. Kept
+# unpinned, the same set CI installs ("Install GitGalaxy & Full Precision
+# Engines" in .github/workflows/gitgalaxy.yml). Opt-in like every other extra:
+# a plain `pip install gitgalaxy` still installs nothing.
+full = ["PyYAML>=6.0", "networkx", "tiktoken", "xgboost", "pandas", "numpy"]
+
 # Unlike `yaml` above, this extra is never imported by anything under gitgalaxy/ and changes no
 # behavior of the shipped engine -- it exists purely so a contributor can
 # `pip install -e .[tri-comparison]` instead of a separate manual `pip install

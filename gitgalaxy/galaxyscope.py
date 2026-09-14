@@ -961,22 +961,34 @@ class Orchestrator:
 
             pip_cmd = f"pip install {' '.join(missing_libs)}"
 
+            # What each missing engine actually costs. Values from a missing
+            # engine read as 0 in most outputs (NULL only in the SQLite DB), so
+            # a user must be told which zeros are not measurements. The full
+            # per-field inventory is docs/zero_dependency_mode.md.
+            def _box(text: str = "") -> None:
+                logger.warning(f" ┃ {text}".ljust(75) + "┃")
+
             logger.warning("")
             logger.warning(" ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓")
-            logger.warning(" ┃ ⚠️  ZERO-DEPENDENCY MODE ACTIVE                                         ┃")
+            _box("⚠️  ZERO-DEPENDENCY MODE ACTIVE")
             logger.warning(" ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
-            logger.warning(" ┃ Missing computational engines. Metrics will be safely set to NULL:      ┃")
+            _box("Every structural signal is still measured. Missing engines cost:")
             if not HAS_NETWORKX:
-                logger.warning(" ┃  - networkx (Network Topology, Downstream Exposure, Choke Points)       ┃")
+                _box(" - networkx: pagerank, blast radius, betweenness/closeness and")
+                _box("   repo topology are NOT computed (0 in reports, NULL in the DB);")
+                _box("   --max-systemic-threat is skipped. Degree counts stay exact.")
             if not HAS_TIKTOKEN:
-                logger.warning(" ┃  - tiktoken (Absolute Token Mass, Financial Read Cost)                  ┃")
+                _box(" - tiktoken: token mass & financial read cost are NULL.")
             if not ML_AVAILABLE:
-                logger.warning(" ┃  - xgboost, pandas (Advanced ML Threat Inference & Taxonomy)            ┃")
+                _box(" - xgboost/pandas/numpy: ML threat inference is skipped")
+                _box("   (--fail-on-malware cannot fire). Rule-based threats still run.")
             if not HAS_PYYAML:
-                logger.warning(" ┃  - pyyaml (Required for parsing .yaml/.yml Swagger/OpenAPI specs)       ┃")
-            logger.warning(" ┃                                                                         ┃")
-            logger.warning(" ┃ To unlock absolute precision, run:                                      ┃")
-            logger.warning(f" ┃    {pip_cmd}".ljust(75) + "┃")
+                _box(" - pyyaml: --config/.galaxyscope.yaml ignored; YAML OpenAPI")
+                _box("   specs are not parsed.")
+            _box()
+            _box("Field-by-field: docs/zero_dependency_mode.md. Full precision:")
+            _box('   pip install "gitgalaxy[full]"')
+            _box(f"   (or just the missing ones: {pip_cmd})")
             logger.warning(" ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛")
             logger.warning("")
 
@@ -1224,7 +1236,7 @@ class Orchestrator:
             # ==========================================================
             self.policy_failed = False
             max_risk_allowed = self.config.get("MAX_RISK_EXPOSURE", 0.0)
-            max_systemic_threat = self.config.get("MAX_SYSTEMIC_THREAT", 0.0)
+            max_systemic_threat = self._effective_systemic_threat_ceiling(self.config.get("MAX_SYSTEMIC_THREAT", 0.0))
 
             if (
                 self.config.get("FAIL_ON_SECRETS")
@@ -1493,9 +1505,12 @@ class Orchestrator:
             logger.info(f"--- ENGINE_TELEMETRY: Processed {total_loc:,} lines of code at {loc_per_sec:,} LOC/s ---")
             logger.info(f"--- ARCHIVES_SEALED: {gpu_output} & {audit_output} ---")
 
-            if not HAS_NETWORKX or not HAS_TIKTOKEN:
+            # Same trigger as the start-of-run banner (it used to check only
+            # networkx/tiktoken, so a scan missing xgboost or pyyaml ended silently).
+            if not HAS_NETWORKX or not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML:
                 logger.warning(
-                    " ⚠️  NOTE: Pipeline completed in Zero-Dependency Mode. Run `pip install networkx tiktoken` for full precision."
+                    ' ⚠️  NOTE: Pipeline completed in Zero-Dependency Mode. Run `pip install "gitgalaxy[full]"` for '
+                    "full precision; docs/zero_dependency_mode.md lists what this scan could not measure."
                 )
 
             if self.config.get("FILE_SPEED"):
@@ -1839,6 +1854,24 @@ class Orchestrator:
         # _summarize_anomalies() later turns iteration order directly into
         # the "unparsable_artifacts" list order.
         self.anomalies.sort(key=lambda entry: (entry["star"], entry["diagnostic"]))
+
+    @staticmethod
+    def _effective_systemic_threat_ceiling(max_systemic_threat: float) -> float:
+        """
+        The --max-systemic-threat ceiling to enforce: 0.0 (off) when it cannot be
+        evaluated. It multiplies by normalized_blast_radius, which only networkx
+        computes -- without it every file's blast radius is a 0.0 placeholder and
+        the gate could never fail, so a CI job relying on it was silently
+        unprotected. Say so and skip it rather than pretend it was evaluated.
+        """
+        if max_systemic_threat > 0.0 and not HAS_NETWORKX:
+            logger.warning(
+                f"⚠️  --max-systemic-threat {max_systemic_threat} was NOT evaluated: it needs PageRank blast "
+                "radius, which requires networkx (Zero-Dependency Mode). Install networkx (or "
+                '`pip install "gitgalaxy[full]"`) for this gate to protect the build.'
+            )
+            return 0.0
+        return max_systemic_threat
 
     def _resolve_dependency_graph(self):
         """

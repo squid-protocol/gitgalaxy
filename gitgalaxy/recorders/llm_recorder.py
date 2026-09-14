@@ -227,8 +227,14 @@ class LLMRecorder:
 
         if session_meta.get("zero_dependency_mode"):
             lines.append("> **⚠️ ZERO-DEPENDENCY MODE ACTIVE:**")
+            missing = [pkg for pkg, gone in session_meta.get("missing_dependencies", {}).items() if gone]
             lines.append(
-                "> External C-backed calculation engines (`networkx`, `tiktoken`) were not installed during this scan. Advanced metrics like Token Mass, Financial Read Cost, and N-Dimensional Network Topology (Blast Radius, Betweenness Centrality) are intentionally recorded as `null` or `0` to prevent data poisoning. Do not hallucinate values for these metrics."
+                f"> Optional engines missing during this scan: {', '.join(f'`{p}`' for p in missing) or 'unknown'}. "
+                "Metrics those engines produce were NOT computed, and any zero shown for them below is a placeholder, "
+                "not a measurement: PageRank, Blast Radius, Betweenness/Closeness and the repo network table "
+                "(`networkx`); Token Mass and Financial Read Cost (`tiktoken`); AI threat classification "
+                "(`xgboost`/`pandas`/`numpy`). Inbound/outbound connection counts are exact in every mode. "
+                "Do not infer values for the missing metrics."
             )
             lines.append("")
 

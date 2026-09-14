@@ -175,7 +175,13 @@ class SarifRecorder:
                 {
                     "level": "note",
                     "message": {
-                        "text": f"GitGalaxy executed in Zero-Dependency Mode. The following engines were bypassed and their metrics are safely reported as NULL: {', '.join(missing_list)}"
+                        "text": (
+                            f"GitGalaxy executed in Zero-Dependency Mode (missing: {', '.join(missing_list)}). "
+                            "Metrics from those engines were not computed: they are NULL in the SQLite database "
+                            "but read as 0 in the other outputs, and those zeros are not measurements. "
+                            "Structural signals are unaffected. Per-field detail: "
+                            "https://github.com/squid-protocol/gitgalaxy/blob/main/docs/zero_dependency_mode.md"
+                        )
                     },
                     "descriptor": {"id": "GG-SYS-ZERO-DEP"},
                 }

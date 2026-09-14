@@ -569,14 +569,19 @@ class NetworkRiskSensor:
         in_degrees = {f.get("path", ""): 0 for f in parsed_files}
         out_degrees = {f.get("path", ""): 0 for f in parsed_files}
 
-        # Linear counting over the same resolved edges the DiGraph path wires.
-        # Unlike the DiGraph (whose degree counts distinct neighbours), this
-        # mode has always counted every resolved import statement -- kept
-        # as-is, since the zero-dependency golden master records it.
+        # Linear counting over the same resolved edges the DiGraph path wires,
+        # one per edge -- i.e. distinct neighbours, exactly what the DiGraph's
+        # in_degree/out_degree report. #3024: this used to add each edge's
+        # import_statements instead, so a file importing the same target twice
+        # read out_degree 2 here and 1 with networkx installed, and popularity,
+        # internal_dependency_links, producer_ratio and ecosystem_role all
+        # depended on which optional engines were installed. Degree is one of
+        # the few network measurements this mode can compute exactly, so it
+        # must mean the same thing in both modes.
         edges = self._resolve_edges(parsed_files)
-        for (src, dst), attrs in edges.items():
-            out_degrees[src] = out_degrees.get(src, 0) + attrs["import_statements"]
-            in_degrees[dst] = in_degrees.get(dst, 0) + attrs["import_statements"]
+        for src, dst in edges:
+            out_degrees[src] = out_degrees.get(src, 0) + 1
+            in_degrees[dst] = in_degrees.get(dst, 0) + 1
         self._publish_edges(edges)
 
         for f in parsed_files:

@@ -414,6 +414,18 @@ class LLMRecorder:
         lines.append(f"> **Assigned Ecosystem Baseline:** `{macro_name}`")
         lines.append(f"> **Architectural Drift Z-Score:** `{z_score}`")
 
+        # Composition archetype (function-stoichiometry taxonomy): repo archetype + the
+        # file-archetype mix that composes it.
+        repo_comp = sum_data.get("repo_composition_archetype")
+        if repo_comp:
+            lines.append(f"> **Composition Archetype:** `{repo_comp}` (from the repo's file-archetype mix)")
+        fcd = sum_data.get("file_composition_distribution", {})
+        fcd_total = sum(fcd.values())
+        if fcd_total:
+            top = list(fcd.items())[:5]
+            share = ", ".join(f"{fa} {round(100 * ct / fcd_total)}%" for fa, ct in top)
+            lines.append(f"> **File Composition:** {share}")
+
         if z_score > 2.0:
             lines.append(
                 "> **⚠️ UNIQUE INTERPRETATION:** This repository has a high Z-Score. While it maps closest to this archetype, its internal structure is a highly unique or hybrid interpretation of the pattern."
@@ -871,6 +883,9 @@ class LLMRecorder:
                 arch = tel.get("archetype", "Unknown Archetype")
                 dist = tel.get("archetype_fingerprint", {}).get(arch, "N/A")
                 lines.append(f"- **Archetype:** `{arch}` (Distance: {dist} IQR)")
+                comp_arch = tel.get("composition_file_archetype")
+                if comp_arch:
+                    lines.append(f"- **Composition Archetype:** `{comp_arch}`")
                 lines.append(
                     f"- **Magnitude:** {m} | **LOC:** {loc} | **CtrlFlow:** {round(tel.get('control_flow_ratio', 0.0) * 100, 1)}% | **Authorship Centralization:** {round(tel.get('author_distribution', 0.0), 1)}%"
                 )

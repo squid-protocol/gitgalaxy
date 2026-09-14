@@ -19,6 +19,7 @@ from collections.abc import Mapping
 from typing import Any, Optional, TypedDict
 
 from gitgalaxy.core.spatial_correlation import WEIGHTED_SIGNALS, weighted_view
+from gitgalaxy.metrics import archetype_classifier
 from gitgalaxy.standards import analysis_lens
 from gitgalaxy.standards import analysis_lens as config
 from gitgalaxy.standards.fidelity_table import FIDELITY_TABLE
@@ -1333,6 +1334,24 @@ class SignalProcessor:
                 for i, d in enumerate(distances):
                     f["telemetry"][f"dist_to_{i}"] = d
 
+        # ---> FILE + REPO COMPOSITION ARCHETYPES <---
+        # Runs here (global synthesis, post-network) so pagerank/blast_radius are
+        # available. Assign each file its composition archetype (function stoichiometry
+        # + structure + graph role), then aggregate into a repo archetype.
+        for _f in parsed_files:
+            _fa = archetype_classifier.classify_file(_f)
+            if _fa is not None:
+                _f.setdefault("telemetry", {})["composition_file_archetype"] = _fa
+        repo_composition_archetype = archetype_classifier.classify_repo(parsed_files)
+        file_composition_distribution: dict[str, int] = {}
+        for _f in parsed_files:
+            _fa = (_f.get("telemetry", {}) or {}).get("composition_file_archetype")
+            if _fa:
+                file_composition_distribution[_fa] = file_composition_distribution.get(_fa, 0) + 1
+        file_composition_distribution = dict(
+            sorted(file_composition_distribution.items(), key=lambda kv: (-kv[1], kv[0]))
+        )
+
         return {
             "summary": {
                 "total_files": total_files,
@@ -1341,6 +1360,8 @@ class SignalProcessor:
                 "dominant_language": self._get_dominant_lang(lang_comp),
                 "volatility_index": volatility_idx,
                 "Percent_Visible": round((1 - darkness_ratio) * 100, 1),
+                "repo_composition_archetype": repo_composition_archetype,
+                "file_composition_distribution": file_composition_distribution,
             },
             "repo_macro_species": repo_macro_data,
             "unparsable_files": {

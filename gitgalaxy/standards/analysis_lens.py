@@ -10,8 +10,28 @@
 
 # galaxyscope:ignore sec_hardcoded_secrets, secrets_risk
 
+import json
 import re
+from pathlib import Path
 from typing import ClassVar, Optional, TypedDict
+
+# Frozen file/repo archetype brains (see gitgalaxy-population-analyses
+# freeze_archetype_brains.py). Each carries centroids + names, feature order/weights,
+# and rank-transform reference quantiles so a single scan can reproduce the corpus
+# percentile-ranks deterministically. signal_processor.py (file) and the report/
+# aggregation layer (repo) consume these.
+_BRAIN_DIR = Path(__file__).parent / "archetype_brains"
+
+
+def _load_brain(name: str) -> dict:
+    try:
+        return json.loads((_BRAIN_DIR / name).read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+FILE_ARCHETYPE_BRAIN = _load_brain("file_archetype_brain.json")
+REPO_ARCHETYPE_BRAIN = _load_brain("repo_archetype_brain.json")
 
 """
 analysis_lens.py

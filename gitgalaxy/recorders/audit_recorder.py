@@ -261,6 +261,7 @@ class AuditRecorder:
                         else {}
                     ),
                     "File Archetype": telemetry.get("local_archetype", "N/A"),
+                    "Composition Archetype": telemetry.get("composition_file_archetype", "N/A"),
                     "File Drift (Z-Score)": telemetry.get("local_drift", 0.0),
                     "File Fingerprint": (
                         {k: round(v, 3) for k, v in telemetry.get("local_fingerprint", {}).items()}
@@ -583,6 +584,18 @@ class AuditRecorder:
             summary["Repository Ecosystem Baseline (Architecture)"] = {
                 "Classification": macro.get("name", "Unclassified"),
                 "Architectural Drift (Z-Score)": macro.get("z_score", 0.0),
+            }
+
+        # Composition archetypes (function-stoichiometry taxonomy): the repo's archetype
+        # and its file-archetype distribution as % shares.
+        _inner = summary.get("summary", {})
+        if _inner.get("repo_composition_archetype"):
+            summary["Repository Composition Archetype"] = _inner["repo_composition_archetype"]
+        _fcd = _inner.get("file_composition_distribution", {})
+        _fcd_total = sum(_fcd.values())
+        if _fcd_total:
+            summary["File Composition Distribution"] = {
+                fa: f"{round(100 * ct / _fcd_total, 1)}% ({ct})" for fa, ct in _fcd.items()
             }
 
         mission_audit = {

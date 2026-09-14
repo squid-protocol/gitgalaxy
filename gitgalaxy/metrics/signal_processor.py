@@ -1259,23 +1259,27 @@ class SignalProcessor:
                 net_mets = primary_ai_node.get("telemetry", {}).get("network_metrics", {})
 
                 role = net_mets.get("ecosystem_role", "Unknown")
-                pr = net_mets.get("normalized_blast_radius") or 0.0
-                btw = net_mets.get("betweenness_score") or 0.0
+                # #3027: None = not computed (no networkx for betweenness, or a
+                # failed computation). An insight that needs the metric is
+                # skipped, never inferred from a placeholder -- a 0.0 blast
+                # radius used to yield a false "Containment (Low Risk)" verdict.
+                pr = net_mets.get("normalized_blast_radius")
+                btw = net_mets.get("betweenness_score")
 
                 ai_topology["insights"].append(
                     f"Structural Posture: The primary AI integration acts as a '{role}' within the repository."
                 )
 
-                if pr > 1.0:
+                if pr is not None and pr > 1.0:
                     ai_topology["insights"].append(
                         f"Systemic Risk (High): The AI components are deeply embedded with a massive Dependency Blast Radius (PageRank: {pr}). Hallucinations or prompt injections here will cascade catastrophically across the system."
                     )
-                elif pr < 0.2:
+                elif pr is not None and pr < 0.2:
                     ai_topology["insights"].append(
                         "Containment (Low Risk): The AI components are safely isolated at the edge of the network with a minimal dependency blast radius."
                     )
 
-                if btw > 0.05:
+                if btw is not None and btw > 0.05:
                     ai_topology["insights"].append(
                         "Cognitive Choke Point: The AI sits on the shortest path between major system domains (High Betweenness). It is acting as an intelligent router, filter, or mandatory data transformer."
                     )
@@ -2159,9 +2163,14 @@ class SignalProcessor:
             rv = raw_rv if isinstance(raw_rv, list) else []
             p = file_data.get("path", "")
 
-            btw = net.get("betweenness_score") or 0.0
-            close = net.get("closeness_score") or 0.0
-            pr = net.get("normalized_blast_radius") or 0.0
+            # #3027: a file enters a ranking only if the metric that ranking
+            # multiplies was computed. None (no networkx for betweenness/
+            # closeness, closeness skipped above 1,500 files) used to be read as
+            # 0.0, filling each list with five zero-score files picked by path
+            # order -- a ranking of nothing. A ranking nobody could compute is empty.
+            btw = net.get("betweenness_score")
+            close = net.get("closeness_score")
+            pr = net.get("normalized_blast_radius")
 
             flux_risk = (
                 float(rv[flux_idx])
@@ -2179,30 +2188,33 @@ class SignalProcessor:
                 else 0.0
             )
 
-            bottlenecks["cascading_state_mutation"].append(
-                {
-                    "path": p,
-                    "score": round(btw * flux_risk, 3),
-                    "btw": round(btw, 4),
-                    "state_mutation": flux_risk,
-                }
-            )
-            bottlenecks["fragile_dependency_chain"].append(
-                {
-                    "path": p,
-                    "score": round(close * err_risk, 3),
-                    "close": round(close, 4),
-                    "err": err_risk,
-                }
-            )
-            bottlenecks["undocumented_critical_path"].append(
-                {
-                    "path": p,
-                    "score": round(pr * doc_risk, 3),
-                    "pr": round(pr, 4),
-                    "doc": doc_risk,
-                }
-            )
+            if btw is not None:
+                bottlenecks["cascading_state_mutation"].append(
+                    {
+                        "path": p,
+                        "score": round(btw * flux_risk, 3),
+                        "btw": round(btw, 4),
+                        "state_mutation": flux_risk,
+                    }
+                )
+            if close is not None:
+                bottlenecks["fragile_dependency_chain"].append(
+                    {
+                        "path": p,
+                        "score": round(close * err_risk, 3),
+                        "close": round(close, 4),
+                        "err": err_risk,
+                    }
+                )
+            if pr is not None:
+                bottlenecks["undocumented_critical_path"].append(
+                    {
+                        "path": p,
+                        "score": round(pr * doc_risk, 3),
+                        "pr": round(pr, 4),
+                        "doc": doc_risk,
+                    }
+                )
 
         bottlenecks["cascading_state_mutation"].sort(key=lambda x: x["score"], reverse=True)
         bottlenecks["fragile_dependency_chain"].sort(key=lambda x: x["score"], reverse=True)

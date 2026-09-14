@@ -127,7 +127,11 @@ def test_network_fallback_mode(sensor, parsed_files_universe):
         # It should still calculate basic in/out degrees and roles using pure Python dicts
         foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
         assert foundation["telemetry"]["network_metrics"]["ecosystem_role"] == "Pure Producer (Foundation)"
-        assert foundation["telemetry"]["network_metrics"]["pagerank_score"] == 0.0  # Math is disabled
+        # #3027: PageRank is computed natively (no 0.0 placeholder); the centralities
+        # networkx alone computes are None -- "not computed", not "measured zero".
+        assert foundation["telemetry"]["network_metrics"]["pagerank_score"] > 0.0
+        assert foundation["telemetry"]["network_metrics"]["betweenness_score"] is None
+        assert foundation["telemetry"]["network_metrics"]["closeness_score"] is None
 
 
 # ==============================================================================
@@ -407,22 +411,27 @@ def test_network_duplicate_edge_weight_accumulates(sensor):
 # TEST 12: NETWORK MATH RESILIENCE — CENTRALITY COMPUTATION FAILURE
 # ==============================================================================
 @pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
-def test_network_math_failure_degrades_to_zero(sensor, parsed_files_universe):
+def test_network_math_failure_degrades_to_none(sensor, parsed_files_universe):
     """
     Stress test: if NetworkX's centrality math itself throws (e.g. a future
     NetworkX version changes behavior, or an unexpected graph shape), the
-    sensor must degrade every node to a 0.0 score rather than crashing the
+    sensor must leave every node's centrality unset rather than crashing the
     whole pipeline. This exercises the outer `except Exception` fallback in
-    build_dependency_graph, never previously triggered by any test.
+    build_dependency_graph. #3027: unset is None -- it used to be 0.0, which
+    every consumer read as a measured score.
     """
     with patch("networkx.pagerank", side_effect=RuntimeError("simulated convergence failure")):
         mapped_files, _ = sensor.build_dependency_graph(parsed_files_universe)
 
     foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
     metrics = foundation["telemetry"]["network_metrics"]
-    assert metrics["pagerank_score"] == 0.0
-    assert metrics["betweenness_score"] == 0.0
-    assert metrics["closeness_score"] == 0.0
+    assert metrics["pagerank_score"] is None
+    assert metrics["normalized_blast_radius"] is None
+    assert metrics["systemic_threat_vector"] is None
+    assert metrics["betweenness_score"] is None
+    assert metrics["closeness_score"] is None
+    # Degree is exact and never depended on the centrality math.
+    assert metrics["ecosystem_role"] == "Pure Producer (Foundation)"
 
 
 # ==============================================================================

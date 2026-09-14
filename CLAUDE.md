@@ -136,10 +136,12 @@ diff be" is answered from data instead of a guess informed only by the issue tex
       "SELECT directory_group, COUNT(*) files, SUM(total_loc) loc, SUM(function_count) funcs
        FROM file_data GROUP BY directory_group ORDER BY loc DESC LIMIT 8;"
     ```
-  - **Full-precision dependencies required:** `pagerank_score`, `normalized_blast_radius`, and
-    other network/ML-derived columns need `networkx`, `tiktoken`, `numpy`, `pandas`, `xgboost`,
-    and `pyyaml` importable in whatever environment runs the scan — without all of them,
-    galaxyscope silently drops into Zero-Dependency Mode and those columns come back NULL (this
+  - **Full-precision dependencies required:** `betweenness_score`, `closeness_score`, the
+    `repo_data.network_*` topology columns, token mass and the ML columns need `networkx`,
+    `tiktoken`, `numpy`, `pandas`, `xgboost`, and `pyyaml` importable in whatever environment runs
+    the scan — without all of them, galaxyscope drops into Zero-Dependency Mode and those columns
+    come back NULL (`pagerank_score`/`normalized_blast_radius` are computed natively in both modes
+    since #3027; `docs/zero_dependency_mode.md` has the per-column list) (this
     is *not* caused by `--db-only` itself, which only selects which recorder writes output; a
     local dev venv missing one of these packages was the actual cause the one time this bit us).
     `self_scan.py` now checks for all six before scanning and aborts loudly if any are missing,

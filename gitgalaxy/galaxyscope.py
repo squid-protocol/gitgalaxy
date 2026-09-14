@@ -961,10 +961,9 @@ class Orchestrator:
 
             pip_cmd = f"pip install {' '.join(missing_libs)}"
 
-            # What each missing engine actually costs. Values from a missing
-            # engine read as 0 in most outputs (NULL only in the SQLite DB), so
-            # a user must be told which zeros are not measurements. The full
-            # per-field inventory is docs/zero_dependency_mode.md.
+            # What each missing engine actually costs, so a user knows which
+            # values were not measured. The full per-field inventory is
+            # docs/zero_dependency_mode.md.
             def _box(text: str = "") -> None:
                 logger.warning(f" ┃ {text}".ljust(75) + "┃")
 
@@ -974,9 +973,9 @@ class Orchestrator:
             logger.warning(" ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
             _box("Every structural signal is still measured. Missing engines cost:")
             if not HAS_NETWORKX:
-                _box(" - networkx: pagerank, blast radius, betweenness/closeness and")
-                _box("   repo topology are NOT computed (0 in reports, NULL in the DB);")
-                _box("   --max-systemic-threat is skipped. Degree counts stay exact.")
+                _box(" - networkx: betweenness/closeness and repo topology are NOT")
+                _box("   computed (n/a / NULL). PageRank, blast radius and degree")
+                _box("   counts are computed natively and match full precision.")
             if not HAS_TIKTOKEN:
                 _box(" - tiktoken: token mass & financial read cost are NULL.")
             if not ML_AVAILABLE:
@@ -1236,7 +1235,7 @@ class Orchestrator:
             # ==========================================================
             self.policy_failed = False
             max_risk_allowed = self.config.get("MAX_RISK_EXPOSURE", 0.0)
-            max_systemic_threat = self._effective_systemic_threat_ceiling(self.config.get("MAX_SYSTEMIC_THREAT", 0.0))
+            max_systemic_threat = self.config.get("MAX_SYSTEMIC_THREAT", 0.0)
 
             if (
                 self.config.get("FAIL_ON_SECRETS")
@@ -1315,9 +1314,18 @@ class Orchestrator:
                         )
 
                         net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
-                        blast_radius = net_metrics.get("normalized_blast_radius", 0.0)
+                        # #3027: blast radius is computed in every mode now (native
+                        # PageRank without networkx); None only when that
+                        # computation failed, in which case this file's ceiling
+                        # cannot be evaluated -- say so, don't multiply a placeholder.
+                        blast_radius = net_metrics.get("normalized_blast_radius")
+                        if blast_radius is None:
+                            logger.warning(
+                                f"--max-systemic-threat not evaluated for {file_data.get('path', 'unknown')}: "
+                                "no blast radius was computed."
+                            )
 
-                        systemic_threat = cumulative_risk * blast_radius
+                        systemic_threat = cumulative_risk * (blast_radius or 0.0)
 
                         if systemic_threat >= max_systemic_threat:
                             logger.critical(
@@ -1854,24 +1862,6 @@ class Orchestrator:
         # _summarize_anomalies() later turns iteration order directly into
         # the "unparsable_artifacts" list order.
         self.anomalies.sort(key=lambda entry: (entry["star"], entry["diagnostic"]))
-
-    @staticmethod
-    def _effective_systemic_threat_ceiling(max_systemic_threat: float) -> float:
-        """
-        The --max-systemic-threat ceiling to enforce: 0.0 (off) when it cannot be
-        evaluated. It multiplies by normalized_blast_radius, which only networkx
-        computes -- without it every file's blast radius is a 0.0 placeholder and
-        the gate could never fail, so a CI job relying on it was silently
-        unprotected. Say so and skip it rather than pretend it was evaluated.
-        """
-        if max_systemic_threat > 0.0 and not HAS_NETWORKX:
-            logger.warning(
-                f"⚠️  --max-systemic-threat {max_systemic_threat} was NOT evaluated: it needs PageRank blast "
-                "radius, which requires networkx (Zero-Dependency Mode). Install networkx (or "
-                '`pip install "gitgalaxy[full]"`) for this gate to protect the build.'
-            )
-            return 0.0
-        return max_systemic_threat
 
     def _resolve_dependency_graph(self):
         """

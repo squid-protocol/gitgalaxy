@@ -230,11 +230,11 @@ class LLMRecorder:
             missing = [pkg for pkg, gone in session_meta.get("missing_dependencies", {}).items() if gone]
             lines.append(
                 f"> Optional engines missing during this scan: {', '.join(f'`{p}`' for p in missing) or 'unknown'}. "
-                "Metrics those engines produce were NOT computed, and any zero shown for them below is a placeholder, "
-                "not a measurement: PageRank, Blast Radius, Betweenness/Closeness and the repo network table "
-                "(`networkx`); Token Mass and Financial Read Cost (`tiktoken`); AI threat classification "
-                "(`xgboost`/`pandas`/`numpy`). Inbound/outbound connection counts are exact in every mode. "
-                "Do not infer values for the missing metrics."
+                "Metrics that need them were NOT computed -- shown as `n/a` or omitted, and no value shown for them "
+                "is a measurement: Betweenness/Closeness and the repo network table (`networkx`); Token Mass and "
+                "Financial Read Cost (`tiktoken`); AI threat classification (`xgboost`/`pandas`/`numpy`). "
+                "PageRank / Blast Radius and inbound/outbound connection counts are computed natively and match "
+                "full precision. Do not infer values for the missing metrics."
             )
             lines.append("")
 
@@ -383,20 +383,28 @@ class LLMRecorder:
             lines.append("## 3.5 MACRO-NETWORK TOPOLOGY (Resilience & Coupling)")
             lines.append("| Metric | Value | Interpretation |")
             lines.append("|---|---|---|")
+
+            # #3027 (and #473's contract): None = not computed -- no networkx, or
+            # skipped for scale. Render it as such; `or 0.0` here used to print
+            # "Modularity 0.0 / Cyclic Density 0.0%" for a scan that measured nothing.
+            def _macro(key: str, fmt: Any = str) -> str:
+                value = net_macro.get(key)
+                return "n/a (not computed)" if value is None else fmt(value)
+
             lines.append(
-                f"| Modularity | {(net_macro.get('modularity') or 0.0)} | High = Clean micro-boundaries. Low = Spaghetti coupling. |"
+                f"| Modularity | {_macro('modularity')} | High = Clean micro-boundaries. Low = Spaghetti coupling. |"
             )
             lines.append(
-                f"| Assortativity | {(net_macro.get('assortativity') or 0.0)} | Positive = Resilient core. Negative = Fragile single-points-of-failure. |"
+                f"| Assortativity | {_macro('assortativity')} | Positive = Resilient core. Negative = Fragile single-points-of-failure. |"
             )
             lines.append(
-                f"| Cyclic Density | {(net_macro.get('cyclic_density') or 0.0) * 100:.1f}% | % of files trapped in dependency loops (Static Friction). |"
+                f"| Cyclic Density | {_macro('cyclic_density', lambda v: f'{v * 100:.1f}%')} | % of files trapped in dependency loops (Static Friction). |"
             )
             lines.append(
-                f"| Avg Path Length | {(net_macro.get('avg_path_length') or 0.0)} | Hops between files. Lower = Tighter coupling. |"
+                f"| Avg Path Length | {_macro('avg_path_length')} | Hops between files. Lower = Tighter coupling. |"
             )
             lines.append(
-                f"| Articulation Pts | {(net_macro.get('articulation_points') or 0)} | Number of single files that, if removed, shatter the network. |"
+                f"| Articulation Pts | {_macro('articulation_points')} | Number of single files that, if removed, shatter the network. |"
             )
             lines.append("")
 
@@ -1049,9 +1057,13 @@ class LLMRecorder:
             net_mets = tel.get("network_metrics", {})
             in_d = net_mets.get("in_degree", 0)
             out_d = net_mets.get("out_degree", 0)
-            blast_rad = net_mets.get("normalized_blast_radius", 0.0)
-            between_score = net_mets.get("betweenness_score", 0.0)
-            close_score = net_mets.get("closeness_score", 0.0)
+            # #3027: None = not computed; say so rather than print a placeholder 0.0.
+            blast_rad = net_mets.get("normalized_blast_radius")
+            between_score = net_mets.get("betweenness_score")
+            close_score = net_mets.get("closeness_score")
+            blast_rad, between_score, close_score = (
+                "n/a" if v is None else v for v in (blast_rad, between_score, close_score)
+            )
             eco_role = net_mets.get("ecosystem_role", "Unknown")
 
             out_names = ", ".join([Path(x).name for x in outbound[:8]]) + ("..." if len(outbound) > 8 else "")

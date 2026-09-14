@@ -230,8 +230,10 @@ def run_firewall_audit(
         network_multiplier = 1.0
         if firewall_network_weighting:
             network_metrics = file_node.get("telemetry", {}).get("network_metrics", {})
-            blast_radius = network_metrics.get("normalized_blast_radius", 0.0)
-            betweenness = network_metrics.get("betweenness_score", 0.0)
+            # #3027: None = not computed (e.g. betweenness without networkx) -- no
+            # amplification from a metric nobody measured.
+            blast_radius = network_metrics.get("normalized_blast_radius") or 0.0
+            betweenness = network_metrics.get("betweenness_score") or 0.0
             if blast_radius > 1.0:
                 network_multiplier += blast_radius * 0.5
             if betweenness > 0.05:

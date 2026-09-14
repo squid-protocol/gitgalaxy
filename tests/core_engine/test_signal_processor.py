@@ -382,6 +382,36 @@ def test_signal_processor_aggregations(processor):
     assert "highest" in forensics["cumulative_risk"], "Forensic report missing highest risk array!"
 
 
+def test_systemic_bottlenecks_rank_only_computed_metrics(processor):
+    """
+    #3027: each bottleneck ranking multiplies one centrality metric by a risk.
+    A file whose metric was not computed (None -- betweenness/closeness without
+    networkx, closeness above 1,500 files) must not enter that ranking; read as
+    0.0 it used to fill every list with zero-score files picked by path order.
+    """
+    files = []
+    for name, net in (
+        ("computed", {"normalized_blast_radius": 2.0, "betweenness_score": 0.3, "closeness_score": 0.4}),
+        ("zero_dep", {"normalized_blast_radius": 1.0, "betweenness_score": None, "closeness_score": None}),
+    ):
+        meta, sig = create_synthetic_star(processor, name, 100, {"branch": 10, "state_mutation": 20})
+        scored = processor.calculate_risk_vector(meta, sig)
+        meta["telemetry"] = scored["telemetry"]
+        meta["risk_vector"] = scored["risk_vector"]
+        meta["file_impact"] = scored["file_impact"]
+        meta["telemetry"]["network_metrics"] = net
+        files.append(meta)
+
+    bottlenecks = processor.generate_forensic_report(files)["systemic_bottlenecks"]
+
+    def paths(key):
+        return [entry["path"] for entry in bottlenecks[key]]
+
+    assert paths("cascading_state_mutation") == ["src/computed.py"]
+    assert paths("fragile_dependency_chain") == ["src/computed.py"]
+    assert sorted(paths("undocumented_critical_path")) == ["src/computed.py", "src/zero_dep.py"]
+
+
 # ==============================================================================
 # TEST 11: THE MINIFIED VENDOR TRIPWIRE
 # ==============================================================================
@@ -654,6 +684,31 @@ def test_signal_processor_ai_topology(processor):
     insights = " ".join(topology["insights"])
     assert "catastrophically across the system" in insights, "Failed to detect high PageRank blast radius!"
     assert "Cognitive Choke Point" in insights, "Failed to detect high Betweenness!"
+
+
+def test_signal_processor_ai_topology_skips_uncomputed_metrics(processor):
+    """
+    #3027: a None blast radius / betweenness means "not computed" (no networkx,
+    or a failed computation). The posture insights that need them are skipped --
+    a placeholder 0.0 used to produce a false "Containment (Low Risk)" verdict.
+    """
+    m1, sig1 = create_synthetic_star(processor, "orchestrator", 100, {"llm_orchestrator": 10})
+    tel1 = processor.calculate_risk_vector(m1, sig1)
+    m1["telemetry"] = tel1["telemetry"]
+    m1["hit_vector"] = tel1["hit_vector"]
+    m1["telemetry"]["network_metrics"] = {
+        "pagerank_score": None,
+        "normalized_blast_radius": None,
+        "betweenness_score": None,
+        "ecosystem_role": "Core Hub",
+    }
+
+    insights = " ".join(processor.summarize_galaxy_metrics([m1], [])["ai_topology"]["insights"])
+
+    assert "Structural Posture" in insights  # ecosystem_role is exact in every mode
+    assert "Containment" not in insights
+    assert "catastrophically" not in insights
+    assert "Cognitive Choke Point" not in insights
 
 
 # ==============================================================================

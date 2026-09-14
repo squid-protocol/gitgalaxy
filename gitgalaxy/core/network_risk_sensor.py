@@ -43,6 +43,47 @@ def _without_extension(path_str: str) -> str:
     return path_str[: len(path_str) - (len(name) - dot)]
 
 
+def _pagerank(
+    nodes: list[str],
+    edges: list[tuple[str, str, float]],
+    alpha: float = 0.85,
+    max_iter: int = 100,
+    tol: float = 1.0e-6,
+) -> dict[str, float]:
+    """
+    #3027: weighted PageRank in pure Python, so zero-dependency mode computes the
+    same blast radius networkx does instead of writing a 0.0 placeholder. Mirrors
+    nx.pagerank's defaults and conventions -- alpha 0.85, uniform start and
+    teleport, a dangling node's mass spread uniformly, out-weights normalised per
+    node, converged once the L1 change is below N*tol, an error after max_iter.
+    Checked against nx.pagerank on the self-scan (395 nodes) and language-crucible
+    (2,817) graphs: max difference below 1e-15, identical after the 6-dp rounding
+    the sensor stores. O(max_iter * (N + E)).
+    """
+    n = len(nodes)
+    if n == 0:
+        return {}
+    out_weight = dict.fromkeys(nodes, 0.0)
+    incoming: dict[str, list[tuple[str, float]]] = {node: [] for node in nodes}
+    for src, dst, weight in edges:
+        out_weight[src] += weight
+        incoming[dst].append((src, weight))
+    dangling = [node for node in nodes if out_weight[node] == 0.0]
+
+    x = dict.fromkeys(nodes, 1.0 / n)
+    for _ in range(max_iter):
+        dangling_share = alpha * sum(x[node] for node in dangling) / n
+        teleport = (1.0 - alpha) / n
+        x_next = {
+            v: alpha * sum(x[u] * w / out_weight[u] for u, w in incoming[v]) + dangling_share + teleport for v in nodes
+        }
+        err = sum(abs(x_next[node] - x[node]) for node in nodes)
+        x = x_next
+        if err < n * tol:
+            return x
+    raise RuntimeError(f"pagerank failed to converge in {max_iter} iterations")
+
+
 HAS_NETWORKX = False
 try:
     import networkx as nx
@@ -361,6 +402,64 @@ class NetworkRiskSensor:
             {"src": src, "dst": dst, "edge_kind": "import", **attrs} for (src, dst), attrs in edges.items()
         ]
 
+    def _network_metrics(
+        self,
+        f: dict[str, Any],
+        pr_score: Optional[float],
+        betweenness: Optional[float],
+        closeness: Optional[float],
+        in_d: int,
+        out_d: int,
+    ) -> dict[str, Any]:
+        """
+        One file's `network_metrics`, shared by both graph builders. #3027: a
+        metric that was not computed (no networkx for betweenness/closeness,
+        closeness skipped above 1,500 nodes, a failed computation) is None, never
+        a 0.0 placeholder -- a 0.0 reads as a measurement and every consumer drew
+        conclusions from it (a "Containment (Low Risk)" verdict, zero-score
+        bottleneck rankings, zeroed archetype features).
+        """
+        total_edges = in_d + out_d
+        if total_edges == 0:
+            ecosystem_role = "Isolated/Orphan"
+            producer_ratio = 0.0
+        else:
+            producer_ratio = in_d / total_edges
+            if producer_ratio > 0.8:
+                ecosystem_role = "Pure Producer (Foundation)"
+            elif producer_ratio < 0.2:
+                ecosystem_role = "Pure Consumer (Orchestrator)"
+            else:
+                ecosystem_role = "Transceiver (Middle-Tier)"
+
+        # --- Multi-Dimensional Systemic Threat Vector ---
+        # PageRank is usually a tiny decimal (e.g., 0.0005). We normalize it
+        # by multiplying by 1000 to make the scale human/LLM readable.
+        # Systemic Threat = Dependency Blast Radius * Local Vulnerability Severity
+        pagerank_score: Optional[float] = None
+        blast_radius: Optional[float] = None
+        systemic_threat_vector: Optional[list[float]] = None
+        if pr_score is not None:
+            pr_normalized = pr_score * 1000
+            local_risk_vector = f.get("risk_vector", [0.0] * len(self.RISK_SCHEMA))
+            pagerank_score = round(pr_score, 6)
+            blast_radius = round(pr_normalized, 3)
+            systemic_threat_vector = [
+                round(pr_normalized * (local_risk / 100.0), 3) for local_risk in local_risk_vector
+            ]
+
+        return {
+            "pagerank_score": pagerank_score,
+            "normalized_blast_radius": blast_radius,
+            "betweenness_score": None if betweenness is None else round(betweenness, 6),
+            "closeness_score": None if closeness is None else round(closeness, 6),
+            "in_degree": in_d,
+            "out_degree": out_d,
+            "producer_ratio": round(producer_ratio, 3),
+            "ecosystem_role": ecosystem_role,
+            "systemic_threat_vector": systemic_threat_vector,
+        }
+
     def build_dependency_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Builds the directed graph and calculates multi-dimensional risk vectors.
@@ -408,17 +507,20 @@ class NetworkRiskSensor:
             betweenness = nx.betweenness_centrality(G, k=k_val, weight="weight", seed=42 if k_val is not None else None)
 
             # Closeness Centrality has no built-in sampling. Hard bypass at 1500 nodes.
+            # #3027: bypassed means NOT computed -- None, not a 0.0 that reads as
+            # "maximally peripheral" to every downstream ranking.
+            closeness: dict[str, Optional[float]]
             if len(G.nodes()) > 1500:
-                self.logger.debug("Graph too massive for exact Closeness Centrality. Bypassing.")
-                closeness = dict.fromkeys(G.nodes(), 0.0)
+                self.logger.debug("Graph too massive for exact Closeness Centrality. Leaving unset (None).")
+                closeness = dict.fromkeys(G.nodes())
             else:
                 closeness = nx.closeness_centrality(G)
 
         except Exception as e:
-            self.logger.warning(f"Network math failed to converge, defaulting to 0: {e}")
-            pagerank = dict.fromkeys(G.nodes(), 0.0)
-            betweenness = dict.fromkeys(G.nodes(), 0.0)
-            closeness = dict.fromkeys(G.nodes(), 0.0)
+            self.logger.warning(f"Network math failed to converge, leaving centrality unset (None): {e}")
+            pagerank = dict.fromkeys(G.nodes())
+            betweenness = dict.fromkeys(G.nodes())
+            closeness = dict.fromkeys(G.nodes())
 
         in_degrees = dict(G.in_degree())
         out_degrees = dict(G.out_degree())
@@ -429,50 +531,16 @@ class NetworkRiskSensor:
             if path not in G:
                 continue
 
-            pr_score = pagerank.get(path, 0.0)
             in_d = in_degrees.get(path, 0)
             out_d = out_degrees.get(path, 0)
-
-            # --- Ecosystem Role Ratio ---
-            total_edges = in_d + out_d
-            if total_edges == 0:
-                ecosystem_role = "Isolated/Orphan"
-                producer_ratio = 0.0
-            else:
-                producer_ratio = in_d / total_edges
-                if producer_ratio > 0.8:
-                    ecosystem_role = "Pure Producer (Foundation)"
-                elif producer_ratio < 0.2:
-                    ecosystem_role = "Pure Consumer (Orchestrator)"
-                else:
-                    ecosystem_role = "Transceiver (Middle-Tier)"
-
-            # --- Multi-Dimensional Systemic Threat Vector ---
-            # PageRank is usually a tiny decimal (e.g., 0.0005). We normalize it
-            # by multiplying by 1000 to make the scale human/LLM readable.
-            pr_normalized = pr_score * 1000
-            local_risk_vector = f.get("risk_vector", [0.0] * len(self.RISK_SCHEMA))
-
-            # Systemic Threat = Dependency Blast Radius * Local Vulnerability Severity
-            systemic_threat_vector = [
-                round(pr_normalized * (local_risk / 100.0), 3) for local_risk in local_risk_vector
-            ]
 
             # 5. Write Telemetry Back to the File Node
             if "telemetry" not in f:
                 f["telemetry"] = {}
 
-            f["telemetry"]["network_metrics"] = {
-                "pagerank_score": round(pr_score, 6),
-                "normalized_blast_radius": round(pr_normalized, 3),
-                "betweenness_score": round(betweenness.get(path, 0.0), 6),
-                "closeness_score": round(closeness.get(path, 0.0), 6),
-                "in_degree": in_d,
-                "out_degree": out_d,
-                "producer_ratio": round(producer_ratio, 3),
-                "ecosystem_role": ecosystem_role,
-                "systemic_threat_vector": systemic_threat_vector,
-            }
+            f["telemetry"]["network_metrics"] = self._network_metrics(
+                f, pagerank.get(path), betweenness.get(path), closeness.get(path), in_d, out_d
+            )
 
             # Overwrite the old "popularity" integer with the strict directed in_degree
             f["telemetry"]["popularity"] = in_d
@@ -563,7 +631,8 @@ class NetworkRiskSensor:
 
     def _fallback_build_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         self.logger.warning(
-            "[!] 'networkx' not found. Operating in Zero-Dependency Mode. Using linear counting for Ecosystem Roles."
+            "[!] 'networkx' not found. Operating in Zero-Dependency Mode: degree counts and PageRank are computed "
+            "natively; betweenness, closeness and repo topology are not computed (None)."
         )
 
         in_degrees = {f.get("path", ""): 0 for f in parsed_files}
@@ -584,38 +653,26 @@ class NetworkRiskSensor:
             in_degrees[dst] = in_degrees.get(dst, 0) + 1
         self._publish_edges(edges)
 
+        # #3027: PageRank needs nothing but the edge list, so compute it here
+        # rather than leave a 0.0 placeholder -- same node set and weights the
+        # DiGraph path hands nx.pagerank, and the same result (see _pagerank).
+        # Betweenness/closeness stay None: networkx samples 100 nodes at random
+        # above 500 files, which a native version would not reproduce exactly.
+        nodes = list(dict.fromkeys(f.get("path", "") for f in parsed_files))
+        try:
+            pagerank: dict[str, float] = _pagerank(nodes, [(s, d, a["weight"]) for (s, d), a in edges.items()])
+        except Exception as e:
+            self.logger.warning(f"Native PageRank failed to converge, leaving it unset (None): {e}")
+            pagerank = {}
+
         for f in parsed_files:
             path = f.get("path", "")
-            in_d = in_degrees.get(path, 0)
-            out_d = out_degrees.get(path, 0)
-
-            total_edges = in_d + out_d
-            if total_edges == 0:
-                ecosystem_role = "Isolated/Orphan"
-                producer_ratio = 0.0
-            else:
-                producer_ratio = in_d / total_edges
-                if producer_ratio > 0.8:
-                    ecosystem_role = "Pure Producer (Foundation)"
-                elif producer_ratio < 0.2:
-                    ecosystem_role = "Pure Consumer (Orchestrator)"
-                else:
-                    ecosystem_role = "Transceiver (Middle-Tier)"
-
             if "telemetry" not in f:
                 f["telemetry"] = {}
-            f["telemetry"]["network_metrics"] = {
-                "pagerank_score": 0.0,
-                "normalized_blast_radius": 0.0,
-                "betweenness_score": 0.0,
-                "closeness_score": 0.0,
-                "in_degree": in_d,
-                "out_degree": out_d,
-                "producer_ratio": round(producer_ratio, 3),
-                "ecosystem_role": ecosystem_role,
-                "systemic_threat_vector": [],
-            }
-            f["telemetry"]["popularity"] = in_d
+            f["telemetry"]["network_metrics"] = self._network_metrics(
+                f, pagerank.get(path), None, None, in_degrees.get(path, 0), out_degrees.get(path, 0)
+            )
+            f["telemetry"]["popularity"] = in_degrees.get(path, 0)
 
         # #473: None, not 0.0/0 -- zero-dependency mode means these were never
         # attempted at all (networkx isn't installed), not measured as zero.

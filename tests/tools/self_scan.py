@@ -82,7 +82,7 @@ def _check_full_precision_deps() -> None:
             "self-scan aborted -- missing full-precision dependencies: "
             + ", ".join(missing)
             + "\nWithout these, galaxyscope silently degrades to Zero-Dependency Mode and "
-            "pagerank_score/normalized_blast_radius (and other network/ML-derived columns) "
+            "betweenness/closeness, repo topology, token mass and the ML columns "
             "come back NULL instead of erroring. Install them into this environment first:\n"
             "    pip install " + " ".join(pkg if pkg != "yaml" else "pyyaml" for pkg in missing)
         )
@@ -219,16 +219,16 @@ def print_summary(ran: bool) -> None:
         print(f"   {total_files} files, {total_funcs} functions, {total_classes} classes indexed.")
 
         # Belt-and-suspenders: _check_full_precision_deps() confirms the
-        # packages are importABLE, not that galaxyscope actually used them --
-        # an internal exception during graph-building could still leave these
-        # NULL even with every dependency present. Verify the real output.
-        (with_pagerank,) = conn.execute("SELECT COUNT(*) FROM file_data WHERE pagerank_score IS NOT NULL").fetchone()
-        if total_files and with_pagerank == 0:
+        # packages are importABLE, not that galaxyscope actually used them.
+        # Verify the real output. #3027: this used to test "pagerank_score is
+        # NULL for every file", but PageRank is now computed natively in
+        # zero-dependency mode too, so read the scan's own mode flag instead.
+        zero_dep_row = conn.execute("SELECT MAX(is_zero_dependency_mode) FROM repo_data").fetchone()
+        if total_files and zero_dep_row and zero_dep_row[0]:
             print(
-                "⚠️  pagerank_score/normalized_blast_radius are NULL for every file -- this scan "
-                "ran in Zero-Dependency Mode despite full-precision packages being importable. "
-                "Blast-radius queries against this DB will return nothing; check galaxyscope's "
-                "stderr output above for why.",
+                "⚠️  This scan ran in Zero-Dependency Mode despite full-precision packages being "
+                "importable: betweenness/closeness, repo topology, token mass and ML columns are "
+                "NULL. Check galaxyscope's stderr output above for why.",
                 file=sys.stderr,
             )
     finally:

@@ -614,6 +614,27 @@ def test_network_weighting_amplifies_high_centrality_hub():
     assert result["threats_found"] == 1, "Hub-file amplification failed to isolate the high-centrality file."
 
 
+def test_network_weighting_tolerates_uncomputed_centrality():
+    """
+    #3027: betweenness is None without networkx (and blast radius is None if
+    PageRank failed). The multiplier must neither crash on None nor amplify off
+    a metric nobody measured.
+    """
+    config = _make_config(FIREWALL_NETWORK_WEIGHTING=True)
+    mock_ram_graph = [
+        {
+            "path": "hub.py",
+            "raw_imports": [],
+            "risk_vector": _risk_vector(secrets_risk=40.0),
+            "telemetry": {"network_metrics": {"normalized_blast_radius": None, "betweenness_score": None}},
+            "coding_loc": 50,
+        }
+    ]
+
+    result = firewall_module.run_firewall_audit(mock_ram_graph, config=config)
+    assert result["threats_found"] == 0
+
+
 # ==============================================================================
 # TEST 19: NETWORK-CENTRALITY WEIGHTING - BETWEENNESS BONUS (OPT-IN)
 # ==============================================================================

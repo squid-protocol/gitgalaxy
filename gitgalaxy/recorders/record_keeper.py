@@ -917,21 +917,22 @@ class RecordKeeper:
             # --- NETWORK TOPOLOGY EXTRACTION ---
             net_mets = tel.get("network_metrics", {})
 
+            # #3027: the network sensor is the authority on what was computed. It
+            # writes None for a metric it could not compute (betweenness/closeness
+            # without networkx, closeness above 1,500 files, a failed computation)
+            # and a real value otherwise -- including native PageRank in
+            # zero-dependency mode. So these are read straight through (None ->
+            # NULL) instead of being NULLed whenever the scan ran in zero-dependency
+            # mode, which discarded real values (the network half of #3028).
+            # ai_threat_score keeps its mode gate until #3028's ML half lands.
             if session_meta.get("zero_dependency_mode"):
                 ai_score = None
-                pagerank_score = None
-                blast_radius = None
-                betweenness_score = None
-                closeness_score = None
-                producer_ratio = None
-                ecosystem_role = None
-            else:
-                pagerank_score = net_mets.get("pagerank_score", 0.0)
-                blast_radius = net_mets.get("normalized_blast_radius", 0.0)
-                betweenness_score = net_mets.get("betweenness_score", 0.0)
-                closeness_score = net_mets.get("closeness_score", 0.0)
-                producer_ratio = net_mets.get("producer_ratio", 0.0)
-                ecosystem_role = net_mets.get("ecosystem_role", "Unknown")
+            pagerank_score = net_mets.get("pagerank_score", 0.0)
+            blast_radius = net_mets.get("normalized_blast_radius", 0.0)
+            betweenness_score = net_mets.get("betweenness_score", 0.0)
+            closeness_score = net_mets.get("closeness_score", 0.0)
+            producer_ratio = net_mets.get("producer_ratio", 0.0)
+            ecosystem_role = net_mets.get("ecosystem_role", "Unknown")
 
             class_count = len(file_data.get("classes", []))
 
@@ -1213,23 +1214,18 @@ class RecordKeeper:
         net_macro = summary.get("network_macro", {})
         audits = summary.get("ecosystem_audits", {})
 
-        if session_meta.get("zero_dependency_mode"):
-            net_modularity = None
-            net_assortativity = None
-            net_cyclic_density = None
-            net_avg_path_length = None
-            net_articulation_points = None
-        else:
-            # #473: no `, 0.0` fallback -- network_risk_sensor.py's producer
-            # now always sets these keys to either a real value or an explicit
-            # None (computation failed or was skipped for scale), never
-            # leaves them absent. Defaulting a missing key to 0.0 here would
-            # silently turn that honest None back into a fake "measured zero".
-            net_modularity = net_macro.get("modularity")
-            net_assortativity = net_macro.get("assortativity")
-            net_cyclic_density = net_macro.get("cyclic_density")
-            net_avg_path_length = net_macro.get("avg_path_length")
-            net_articulation_points = net_macro.get("articulation_points")
+        # #473: no `, 0.0` fallback -- network_risk_sensor.py's producer
+        # always sets these keys to either a real value or an explicit None
+        # (not computed: no networkx, failed, or skipped for scale), never
+        # leaves them absent. Defaulting a missing key to 0.0 here would
+        # silently turn that honest None back into a fake "measured zero".
+        # #3027: read in every mode -- the sensor's None already says "not
+        # computed", so a separate zero-dependency-mode gate adds nothing.
+        net_modularity = net_macro.get("modularity")
+        net_assortativity = net_macro.get("assortativity")
+        net_cyclic_density = net_macro.get("cyclic_density")
+        net_avg_path_length = net_macro.get("avg_path_length")
+        net_articulation_points = net_macro.get("articulation_points")
 
         repo_row_data = (
             [

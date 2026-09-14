@@ -712,6 +712,15 @@ class SignalProcessor:
                     )
             # ---> END FUNCTION-LEVEL ML CLASSIFICATION <---
 
+            # Per-file function-archetype mix (count per archetype), surfaced in the
+            # audit + LLM reports so the deterministic output carries the function
+            # taxonomy, not just the scan DB. Sorted by count for stable report output.
+            _mix = {}
+            for _s in real_functions:
+                _a = _s.get("archetype", "Unclassified")
+                _mix[_a] = _mix.get(_a, 0) + 1
+            function_archetype_mix = dict(sorted(_mix.items(), key=lambda kv: (-kv[1], kv[0])))
+
             raw_imports_count = len(meta.get("raw_imports", []))
             popularity = meta.get("popularity", 0)
 
@@ -899,6 +908,7 @@ class SignalProcessor:
                 "local_archetype": local_archetype,
                 "local_drift": local_drift,
                 "local_fingerprint": local_fingerprint,
+                "function_archetype_mix": function_archetype_mix,
                 "densities": {"cog_raw": round(cog_raw, 3)},
                 # Evidence-mass flag (#2655): consumers can tell a count-regime score
                 # (file below the floor, scored as if it were `evidence_mass` lines

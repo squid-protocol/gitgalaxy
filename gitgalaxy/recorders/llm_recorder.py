@@ -645,13 +645,22 @@ class LLMRecorder:
 
         if top_impact:
             for f, file_path in top_impact:
+                arch = f.get("archetype", "Unclassified")
                 lines.append(
-                    f"- `{f.get('name')}` (@ `{file_path}`) -> Impact: **{f.get('impact')}** | LOC: {f.get('loc')}"
+                    f"- `{f.get('name')}` **({arch})** (@ `{file_path}`) -> Impact: **{f.get('impact')}** | LOC: {f.get('loc')}"
                 )
                 doc = f.get("docstring", "").strip()
                 if doc:
                     clean_doc = " ".join(doc.split())[:150] + ("..." if len(doc) > 150 else "")
                     lines.append(f"  * *Intent:* {clean_doc}")
+            # Legend: define only the archetypes that actually appear above, so the
+            # inline "(archetype)" tags are self-explanatory without a full glossary.
+            shown = sorted({f.get("archetype", "Unclassified") for f, _ in top_impact})
+            defs = getattr(config, "FUNCTION_ARCHETYPE_DEFINITIONS", {})
+            lines.append("")
+            lines.append("*Function archetypes referenced above:*")
+            for a in shown:
+                lines.append(f"  * **{a}**: {defs.get(a, 'n/a')}")
         else:
             lines.append("*No complex functions detected.*")
         lines.append("")
@@ -882,7 +891,10 @@ class LLMRecorder:
                     reverse=True,
                 )[:3]
                 if sats:
-                    sat_strs = [f"`{sat.get('name')}` (Impact: {sat.get('impact')})" for sat in sats]
+                    sat_strs = [
+                        f"`{sat.get('name')}` ({sat.get('archetype', 'Unclassified')}, Impact: {sat.get('impact')})"
+                        for sat in sats
+                    ]
                     lines.append(f"- **Heaviest Functions:** {', '.join(sat_strs)}")
 
                 lines.append("")
@@ -978,7 +990,8 @@ class LLMRecorder:
             if sats:
                 lines.append("**Top Internal Functions/Classes:**")
                 for sat in sats:
-                    lines.append(f"  * `{sat.get('name')}` (Impact: {sat.get('impact')})")
+                    arch = sat.get("archetype", "Unclassified")
+                    lines.append(f"  * `{sat.get('name')}` **({arch})** (Impact: {sat.get('impact')})")
                     doc = sat.get("docstring", "").strip()
                     if doc:
                         clean_doc = " ".join(doc.split())[:100] + ("..." if len(doc) > 100 else "")

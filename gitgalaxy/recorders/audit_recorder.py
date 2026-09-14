@@ -162,6 +162,7 @@ class AuditRecorder:
             }
 
         folder_archetype_counts = {}
+        function_archetype_totals = {}  # repo-wide function-archetype distribution
 
         # 2. Row Reconstruction (Parsed Files) mapped into Directory Groups
         for file_data in parsed_files:
@@ -226,6 +227,9 @@ class AuditRecorder:
                 folder_archetype_counts[d_name] = {}
             folder_archetype_counts[d_name][arch] = folder_archetype_counts[d_name].get(arch, 0) + 1
 
+            for fa, fc in (telemetry.get("function_archetype_mix") or {}).items():
+                function_archetype_totals[fa] = function_archetype_totals.get(fa, 0) + fc
+
             mitigation_data = telemetry.get("mitigation_telemetry", {})
 
             # THE FIX: Cast suppression lists to dictionary tallies to support inline galaxyscope:ignores
@@ -263,6 +267,7 @@ class AuditRecorder:
                         if isinstance(telemetry.get("local_fingerprint"), dict)
                         else {}
                     ),
+                    "Function Archetype Mix": telemetry.get("function_archetype_mix", {}),
                     "Total LOC": file_data.get("total_loc", 0),
                     "Coding LOC": file_data.get("coding_loc", 0),
                     "Documentation LOC": file_data.get("doc_loc", 0),
@@ -562,6 +567,15 @@ class AuditRecorder:
             )
 
         summary["Global Architectural Fingerprint"] = pretty_global_fingerprint
+
+        # Repo-wide function-archetype distribution (rolled up from every file's mix),
+        # so the deterministic audit carries the function taxonomy as a percentage share.
+        _fn_total = sum(function_archetype_totals.values())
+        if _fn_total:
+            summary["Function Archetype Distribution"] = {
+                fa: f"{round(100 * ct / _fn_total, 1)}% ({ct})"
+                for fa, ct in sorted(function_archetype_totals.items(), key=lambda kv: (-kv[1], kv[0]))
+            }
 
         # Formalize the Repository Ecosystem Baseline mapping
         macro = summary.get("repo_macro_species", {})

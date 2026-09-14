@@ -136,9 +136,9 @@ diff be" is answered from data instead of a guess informed only by the issue tex
       "SELECT directory_group, COUNT(*) files, SUM(total_loc) loc, SUM(function_count) funcs
        FROM file_data GROUP BY directory_group ORDER BY loc DESC LIMIT 8;"
     ```
-  - **Full-precision dependencies required:** `betweenness_score`, the
-    `repo_data.network_*` topology columns (except `network_avg_path_length`, native since
-    #3037, like `closeness_score`), token mass and the ML columns need `networkx`,
+  - **Full-precision dependencies required:** `betweenness_score`,
+    `repo_data.network_modularity`/`network_assortativity` (the other `network_*` columns and
+    `closeness_score` are native since #3035/#3037), token mass and the ML columns need `networkx`,
     `tiktoken`, `numpy`, `pandas`, `xgboost`, and `pyyaml` importable in whatever environment runs
     the scan — without all of them, galaxyscope drops into Zero-Dependency Mode and those columns
     come back NULL (`pagerank_score`/`normalized_blast_radius` are computed natively in both modes

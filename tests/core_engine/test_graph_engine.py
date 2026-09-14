@@ -9,6 +9,7 @@ import sys
 
 import pytest
 
+from gitgalaxy.core import graph_engine
 from gitgalaxy.core.graph_engine import GraphIndex, WorkBudget, WorkBudgetExceeded, pagerank
 
 _TOOLS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "tools")
@@ -118,6 +119,23 @@ def test_native_metric_matches_networkx_oracle(name, seed):
     assert parity.equal, (name, metric.oracle_mode, seed, parity)
 
 
+def test_cycle_and_cut_searches_never_recurse():
+    """#3035: a 5,000-file cycle and chain run the iterative searches far past the recursion limit."""
+    names = [f"f{i}" for i in range(5000)]
+    chain = [(names[i], names[i + 1], 1.0) for i in range(4999)]
+    ring = GraphIndex(names, [*chain, (names[-1], names[0], 1.0)])
+    line = GraphIndex(names, chain)
+    assert (graph_engine.nodes_in_cycles(ring), graph_engine.articulation_point_count(ring)) == (5000, 0)
+    assert (graph_engine.nodes_in_cycles(line), graph_engine.articulation_point_count(line)) == (0, 4998)
+
+
+def test_mutual_import_is_one_undirected_edge():
+    """#3035: a <-> b is one undirected edge, as in G.to_undirected(), so in a - b - c only b is a cut vertex."""
+    index = GraphIndex(["a", "b", "c"], [("a", "b", 1.0), ("b", "a", 1.0), ("b", "c", 1.0)])
+    assert graph_engine.nodes_in_cycles(index) == 2
+    assert graph_engine.articulation_point_count(index) == 1
+
+
 def test_every_metric_declares_an_oracle_mode():
     assert {m.oracle_mode for m in graph_parity.METRICS.values()} <= {"strict", "tailored"}
 
@@ -135,10 +153,15 @@ def test_scan_graph_reads_a_galaxyscope_db(tmp_path):
     db = tmp_path / "scan.db"
     conn = sqlite3.connect(db)
     conn.execute("CREATE TABLE file_data (id INTEGER PRIMARY KEY, file_path TEXT)")
-    conn.execute("CREATE TABLE edge_data (id INTEGER PRIMARY KEY, src_file_id INTEGER, dst_file_id INTEGER, weight REAL)")
+    conn.execute(
+        "CREATE TABLE edge_data (id INTEGER PRIMARY KEY, src_file_id INTEGER, dst_file_id INTEGER, weight REAL)"
+    )
     conn.executemany("INSERT INTO file_data VALUES (?, ?)", [(1, "a.py"), (2, "b.py"), (3, "c.py")])
     conn.executemany("INSERT INTO edge_data VALUES (?, ?, ?, ?)", [(1, 3, 1, 1.5), (2, 1, 2, 1.0)])
     conn.commit()
     conn.close()
 
-    assert graph_parity.scan_graph(str(db)) == (["a.py", "b.py", "c.py"], [("c.py", "a.py", 1.5), ("a.py", "b.py", 1.0)])
+    assert graph_parity.scan_graph(str(db)) == (
+        ["a.py", "b.py", "c.py"],
+        [("c.py", "a.py", 1.5), ("a.py", "b.py", 1.0)],
+    )

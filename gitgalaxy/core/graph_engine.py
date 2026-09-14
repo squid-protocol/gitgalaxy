@@ -246,3 +246,127 @@ def closeness_and_path_length(
         total_hops += hops
         total_pairs += importers
     return closeness, (total_hops / total_pairs if total_pairs else None)
+
+
+def nodes_in_cycles(index: GraphIndex) -> int:
+    """
+    #3035: how many nodes lie on a dependency cycle, i.e. sit in a strongly
+    connected component of more than one node. Strict parity with
+    `sum(len(c) for c in nx.strongly_connected_components(G) if len(c) > 1)`.
+
+    Tarjan's algorithm, run iteratively with an explicit work stack of
+    (node, next out-edge position), so a long import chain cannot hit
+    Python's recursion limit. O(N + E).
+    """
+    n = len(index.nodes)
+    out_offsets = index.out_offsets
+    out_targets = index.out_targets
+    order = [-1] * n  # discovery order; -1 = not yet visited
+    low = [0] * n
+    on_stack = [False] * n
+    stack: list[int] = []
+    counter = 0
+    in_cycles = 0
+    for root in range(n):
+        if order[root] != -1:
+            continue
+        order[root] = low[root] = counter
+        counter += 1
+        stack.append(root)
+        on_stack[root] = True
+        work = [(root, out_offsets[root])]
+        while work:
+            node, edge = work[-1]
+            if edge < out_offsets[node + 1]:
+                work[-1] = (node, edge + 1)
+                target = out_targets[edge]
+                if order[target] == -1:
+                    order[target] = low[target] = counter
+                    counter += 1
+                    stack.append(target)
+                    on_stack[target] = True
+                    work.append((target, out_offsets[target]))
+                elif on_stack[target] and order[target] < low[node]:
+                    low[node] = order[target]
+                continue
+            work.pop()
+            if work:
+                caller = work[-1][0]
+                if low[node] < low[caller]:
+                    low[caller] = low[node]
+            if low[node] == order[node]:  # node roots a component: pop it
+                size = 0
+                while True:
+                    member = stack.pop()
+                    on_stack[member] = False
+                    size += 1
+                    if member == node:
+                        break
+                if size > 1:
+                    in_cycles += size
+    return in_cycles
+
+
+def _undirected_neighbors(index: GraphIndex) -> list[list[int]]:
+    """Each node's distinct neighbours, direction ignored: the adjacency of networkx's `G.to_undirected()`."""
+    out_offsets, out_targets = index.out_offsets, index.out_targets
+    in_offsets, in_sources = index.in_offsets, index.in_sources
+    return [
+        list(
+            dict.fromkeys(
+                out_targets[out_offsets[v] : out_offsets[v + 1]] + in_sources[in_offsets[v] : in_offsets[v + 1]]
+            )
+        )
+        for v in range(len(index.nodes))
+    ]
+
+
+def articulation_point_count(index: GraphIndex) -> int:
+    """
+    #3035: how many files are articulation points of the undirected import graph:
+    removing one disconnects files that were connected. Strict parity with
+    `len(list(nx.articulation_points(G.to_undirected())))`.
+
+    This is Hopcroft-Tarjan low-link, run iteratively with an explicit stack of
+    (node, parent, next neighbour position), so it never recurses. The parent is
+    skipped as a node, not as an edge, so a file pair importing each other forms
+    one undirected edge, exactly as in `G.to_undirected()`. O(N + E).
+    """
+    neighbors = _undirected_neighbors(index)
+    n = len(neighbors)
+    disc = [-1] * n  # discovery time; -1 = not yet visited
+    low = [0] * n
+    is_cut = [False] * n
+    clock = 0
+    for root in range(n):
+        if disc[root] != -1:
+            continue
+        disc[root] = low[root] = clock
+        clock += 1
+        root_children = 0
+        work = [(root, -1, 0)]
+        while work:
+            node, parent, position = work[-1]
+            adjacent = neighbors[node]
+            if position < len(adjacent):
+                work[-1] = (node, parent, position + 1)
+                other = adjacent[position]
+                if disc[other] == -1:
+                    disc[other] = low[other] = clock
+                    clock += 1
+                    if node == root:
+                        root_children += 1
+                    work.append((other, node, 0))
+                elif other != parent and disc[other] < low[node]:
+                    low[node] = disc[other]
+                continue
+            work.pop()
+            if work:
+                caller = work[-1][0]
+                if low[node] < low[caller]:
+                    low[caller] = low[node]
+                if caller != root and low[node] >= disc[caller]:
+                    is_cut[caller] = True
+        if root_children > 1:  # a DFS root is a cut vertex only with two or more subtrees
+            is_cut[root] = True
+    return sum(is_cut)

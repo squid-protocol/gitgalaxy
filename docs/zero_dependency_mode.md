@@ -3,8 +3,8 @@
 `pip install gitgalaxy` installs **nothing else**. For teams where every third-party package is a supply-chain review, that is the point: the engine runs on the Python standard library alone. A handful of measurements do need optional engines, though. When any of them is missing, the scan runs in **Zero-Dependency Mode**. This page lists, field by field, what that costs, so you can tell which numbers you can trust.
 
 **Short version:**
-- **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, **PageRank / blast radius**, **closeness** and **average path length**. These are computed natively, with no networkx.
-- **What you lose:** betweenness and the rest of the repo-topology metrics, token counts, ML threat classification, and YAML config parsing.
+- **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, **PageRank / blast radius**, **closeness**, **average path length**, **cyclic density** and **articulation points**. These are computed natively, with no networkx.
+- **What you lose:** betweenness, modularity and assortativity, token counts, ML threat classification, and YAML config parsing.
 - **How missing metrics show up:** a metric that was not computed is **absent**: `None` in telemetry, NULL in the SQLite DB, `n/a` in the LLM brief. It is never a placeholder `0`. The one remaining exception is the ML placeholders described below (#3028).
 
 ## Getting full precision
@@ -27,8 +27,9 @@ Or add only the engines whose outputs you need (table below). Each is independen
 | `pagerank_score`, `normalized_blast_radius`, `systemic_threat_vector` | native PageRank | **identical**: both modes run the same pure-Python PageRank on the same inputs (#3027), so the values cannot differ by mode or by networkx version |
 | Total upstream/downstream reach (audit JSON §8) | graph descendants/ancestors | same numbers from a pure-Python BFS (can differ by 1 on files inside a cycle, or right at the 500-node cap) |
 | `closeness_score`, `network_avg_path_length` | native | **identical**: both modes run the same native breadth-first search (#3037) |
+| `network_cyclic_density`, `network_articulation_points` | native | **identical**: both modes run the same native depth-first searches (#3035) |
 | `betweenness_score` | computed | **not computed**: `None` / NULL / `n/a` |
-| Repo topology: `network_modularity`, `_assortativity`, `_cyclic_density`, `_articulation_points` | computed | **not computed**: `None` / NULL; LLM brief §3.5 shows `n/a (not computed)` |
+| Repo topology: `network_modularity`, `_assortativity` | computed | **not computed**: `None` / NULL; LLM brief §3.5 shows `n/a (not computed)` |
 
 Because PageRank and closeness are computed in both modes, these all work exactly as with networkx:
 - `--max-systemic-threat` and the agent-guardrail `requires_hitl` flag
@@ -101,6 +102,7 @@ Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets
   - Recorded before **#3037**:
     - closeness was NULL in zero-dependency mode, and NULL above 1,500 files in every mode
     - `network_avg_path_length` meant the undirected largest-component distance (see above), so it is not comparable with later snapshots
+  - Recorded before **#3035**: zero-dependency `network_cyclic_density` / `network_articulation_points` were NULL. The definitions did not change, so later values compare directly with full-precision history.
 
 ## For contributors
 

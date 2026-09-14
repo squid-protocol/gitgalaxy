@@ -30,7 +30,13 @@ import time
 from dataclasses import dataclass
 from typing import Any, Callable, Optional
 
-from gitgalaxy.core.graph_engine import GraphIndex, closeness_and_path_length, pagerank
+from gitgalaxy.core.graph_engine import (
+    GraphIndex,
+    articulation_point_count,
+    closeness_and_path_length,
+    nodes_in_cycles,
+    pagerank,
+)
 
 try:
     import networkx as nx
@@ -82,6 +88,22 @@ METRICS: dict[str, Metric] = {
         native=lambda index: closeness_and_path_length(index)[1],
         oracle=_reachable_pair_path_length,
         places=4,  # repo_data.network_avg_path_length
+    ),
+    "cyclic_density": Metric(
+        oracle_mode="strict",
+        native=lambda index: nodes_in_cycles(index) / len(index.nodes) if index.nodes else None,
+        oracle=lambda graph: (
+            sum(len(c) for c in nx.strongly_connected_components(graph) if len(c) > 1) / len(graph)
+            if len(graph)
+            else None
+        ),
+        places=4,  # repo_data.network_cyclic_density
+    ),
+    "articulation_points": Metric(
+        oracle_mode="strict",
+        native=articulation_point_count,
+        oracle=lambda graph: len(list(nx.articulation_points(graph.to_undirected()))),
+        places=0,  # a count: exact
     ),
 }
 

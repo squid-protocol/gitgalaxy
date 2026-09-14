@@ -13,7 +13,9 @@ from gitgalaxy.core.graph_engine import (
     GraphIndex,
     WorkBudget,
     WorkBudgetExceeded,
+    articulation_point_count,
     closeness_and_path_length,
+    nodes_in_cycles,
     pagerank,
 )
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
@@ -478,6 +480,21 @@ class NetworkRiskSensor:
             return dict.fromkeys(index.nodes), None
         return dict(zip(index.nodes, closeness)), avg_path_length
 
+    @staticmethod
+    def _cycle_metrics(index: GraphIndex) -> dict[str, Optional[float]]:
+        """
+        #3035: cyclic density (the share of files on a dependency cycle) and the
+        articulation-point count, native in both modes, O(N + E) with no budget
+        needed. None for a graph with no files, as the networkx path left them.
+        """
+        n = len(index.nodes)
+        if n == 0:
+            return {"cyclic_density": None, "articulation_points": None}
+        return {
+            "cyclic_density": round(nodes_in_cycles(index) / n, 4),
+            "articulation_points": articulation_point_count(index),
+        }
+
     def build_dependency_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Builds the directed graph and calculates multi-dimensional risk vectors.
@@ -513,12 +530,14 @@ class NetworkRiskSensor:
         # 500 nodes it is sampled, otherwise the CI/CD pipeline would hit a
         # timeout deadlock.
         # =========================================================================
-        # PageRank, closeness and avg path length are native in BOTH modes (see
-        # _native_pagerank, _path_metrics), computed outside the networkx block so
-        # a centrality failure can't take them down.
+        # PageRank, closeness, avg path length, cyclic density and articulation
+        # points are native in BOTH modes (see _native_pagerank, _path_metrics,
+        # _cycle_metrics), computed outside the networkx block so a centrality
+        # failure can't take them down.
         index = self._graph_index(parsed_files, edges)
         pagerank = self._native_pagerank(index)
         closeness, avg_path_length = self._path_metrics(index)
+        cycle_metrics = self._cycle_metrics(index)
 
         try:
             # Force a maximum sample size of 100 nodes for any graph > 500 nodes.
@@ -569,10 +588,11 @@ class NetworkRiskSensor:
         macro_metrics: dict[str, Optional[float]] = {
             "modularity": None,
             "assortativity": None,
-            "cyclic_density": None,
+            # #3035: native (see _cycle_metrics).
+            "cyclic_density": cycle_metrics["cyclic_density"],
             # #3037: native, mean hops over directed reachable pairs (see _path_metrics).
             "avg_path_length": None if avg_path_length is None else round(avg_path_length, 4),
-            "articulation_points": None,
+            "articulation_points": cycle_metrics["articulation_points"],
         }
 
         if len(G) > 0:
@@ -608,21 +628,8 @@ class NetworkRiskSensor:
                 except Exception as e:
                     self.logger.debug(f"Assortativity computation failed, leaving unset (None): {e}")
 
-                # C. Cyclic Density (Circular Dependencies / Dependency Loops)
-                try:
-                    sccs = list(nx.strongly_connected_components(G))
-                    nodes_in_cycles = sum(len(c) for c in sccs if len(c) > 1)
-                    macro_metrics["cyclic_density"] = round(nodes_in_cycles / len(G), 4)
-                except Exception as e:
-                    self.logger.debug(f"Cyclic density computation failed, leaving unset (None): {e}")
-
-                # D. Average path length is native (#3037), set above.
-
-                # E. Articulation Points (Fragmentation Risk)
-                try:
-                    macro_metrics["articulation_points"] = len(list(nx.articulation_points(U)))
-                except Exception as e:
-                    self.logger.debug(f"Articulation points computation failed, leaving unset (None): {e}")
+                # C-E. Cyclic density, avg path length and articulation points are
+                # native (#3035, #3037), set above.
 
             except Exception as e:
                 self.logger.warning(f"Macro network math failed: {e}")
@@ -632,8 +639,9 @@ class NetworkRiskSensor:
 
     def _fallback_build_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         self.logger.warning(
-            "[!] 'networkx' not found. Operating in Zero-Dependency Mode: degree counts, PageRank, closeness and "
-            "avg path length are computed natively; betweenness and the rest of repo topology are not computed (None)."
+            "[!] 'networkx' not found. Operating in Zero-Dependency Mode: degree counts, PageRank, closeness, avg path "
+            "length, cyclic density and articulation points are computed natively; betweenness, modularity and "
+            "assortativity are not computed (None)."
         )
 
         in_degrees = {f.get("path", ""): 0 for f in parsed_files}
@@ -654,12 +662,14 @@ class NetworkRiskSensor:
             in_degrees[dst] = in_degrees.get(dst, 0) + 1
         self._publish_edges(edges)
 
-        # #3027/#3037: the same native PageRank, closeness and avg path length the
-        # DiGraph path uses -- they need nothing but the edge list. Betweenness
-        # stays None until it is native too (#3038).
+        # #3027/#3035/#3037: the same native PageRank, closeness, avg path length,
+        # cyclic density and articulation points the DiGraph path uses -- they
+        # need nothing but the edge list. Betweenness stays None until it is
+        # native too (#3038).
         index = self._graph_index(parsed_files, edges)
         pagerank = self._native_pagerank(index)
         closeness, avg_path_length = self._path_metrics(index)
+        cycle_metrics = self._cycle_metrics(index)
 
         for f in parsed_files:
             path = f.get("path", "")
@@ -676,8 +686,8 @@ class NetworkRiskSensor:
         macro_metrics: dict[str, Optional[float]] = {
             "modularity": None,
             "assortativity": None,
-            "cyclic_density": None,
+            "cyclic_density": cycle_metrics["cyclic_density"],
             "avg_path_length": None if avg_path_length is None else round(avg_path_length, 4),
-            "articulation_points": None,
+            "articulation_points": cycle_metrics["articulation_points"],
         }
         return parsed_files, macro_metrics

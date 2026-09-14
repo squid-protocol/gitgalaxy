@@ -9,6 +9,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.graph_engine import GraphIndex, pagerank
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -41,47 +42,6 @@ def _without_extension(path_str: str) -> str:
     if dot <= 0:
         return path_str
     return path_str[: len(path_str) - (len(name) - dot)]
-
-
-def _pagerank(
-    nodes: list[str],
-    edges: list[tuple[str, str, float]],
-    alpha: float = 0.85,
-    max_iter: int = 100,
-    tol: float = 1.0e-6,
-) -> dict[str, float]:
-    """
-    #3027: weighted PageRank in pure Python -- the only PageRank the engine runs,
-    in both modes (see NetworkRiskSensor._native_pagerank for why not nx.pagerank).
-    Mirrors nx.pagerank's defaults and conventions -- alpha 0.85, uniform start and
-    teleport, a dangling node's mass spread uniformly, out-weights normalised per
-    node, converged once the L1 change is below N*tol, an error after max_iter.
-    Checked against nx.pagerank on the self-scan (395 nodes) and language-crucible
-    (2,817) graphs: max difference below 1e-15, identical after the 6-dp rounding
-    the sensor stores. O(max_iter * (N + E)).
-    """
-    n = len(nodes)
-    if n == 0:
-        return {}
-    out_weight = dict.fromkeys(nodes, 0.0)
-    incoming: dict[str, list[tuple[str, float]]] = {node: [] for node in nodes}
-    for src, dst, weight in edges:
-        out_weight[src] += weight
-        incoming[dst].append((src, weight))
-    dangling = [node for node in nodes if out_weight[node] == 0.0]
-
-    x = dict.fromkeys(nodes, 1.0 / n)
-    for _ in range(max_iter):
-        dangling_share = alpha * sum(x[node] for node in dangling) / n
-        teleport = (1.0 - alpha) / n
-        x_next = {
-            v: alpha * sum(x[u] * w / out_weight[u] for u, w in incoming[v]) + dangling_share + teleport for v in nodes
-        }
-        err = sum(abs(x_next[node] - x[node]) for node in nodes)
-        x = x_next
-        if err < n * tol:
-            return x
-    raise RuntimeError(f"pagerank failed to converge in {max_iter} iterations")
 
 
 HAS_NETWORKX = False
@@ -460,12 +420,22 @@ class NetworkRiskSensor:
             "systemic_threat_vector": systemic_threat_vector,
         }
 
-    def _native_pagerank(
-        self, parsed_files: list[dict[str, Any]], edges: dict[tuple[str, str], dict[str, Any]]
-    ) -> dict[str, float]:
+    @staticmethod
+    def _graph_index(parsed_files: list[dict[str, Any]], edges: dict[tuple[str, str], dict[str, Any]]) -> GraphIndex:
         """
-        #3027: the ONE PageRank both graph builders use, fed identical nodes and
-        edges (file order, first-occurrence edge order), so the two modes produce
+        #3034: the CSR index every native graph metric reads, built once per scan
+        from the resolved edges: files in scan order, edges in first-occurrence
+        order, each edge weighted as the DiGraph's.
+        """
+        return GraphIndex(
+            (f.get("path", "") for f in parsed_files),
+            ((src, dst, attrs["weight"]) for (src, dst), attrs in edges.items()),
+        )
+
+    def _native_pagerank(self, index: GraphIndex) -> dict[str, float]:
+        """
+        #3027: the ONE PageRank both graph builders use, fed the same index
+        (file order, first-occurrence edge order), so the two modes produce
         the same floats, not merely the same rounded values. Full precision used to
         call nx.pagerank, which in networkx 3.x dispatches to a numpy/scipy backend
         that networkx itself does not install -- with networkx alone it raised and
@@ -474,9 +444,8 @@ class NetworkRiskSensor:
         and no installed version can move the numbers. Empty on failure, so every
         file reads None ("not computed"), never 0.0.
         """
-        nodes = list(dict.fromkeys(f.get("path", "") for f in parsed_files))
         try:
-            return _pagerank(nodes, [(src, dst, attrs["weight"]) for (src, dst), attrs in edges.items()])
+            return dict(zip(index.nodes, pagerank(index)))
         except Exception as e:
             self.logger.warning(f"PageRank failed to converge, leaving it unset (None): {e}")
             return {}
@@ -519,7 +488,8 @@ class NetworkRiskSensor:
         # =========================================================================
         # PageRank is the native implementation in BOTH modes (see _native_pagerank),
         # computed outside the networkx block so a centrality failure can't take it down.
-        pagerank = self._native_pagerank(parsed_files, edges)
+        index = self._graph_index(parsed_files, edges)
+        pagerank = self._native_pagerank(index)
 
         try:
             # Force a maximum sample size of 100 nodes for any graph > 500 nodes.
@@ -678,7 +648,7 @@ class NetworkRiskSensor:
         # #3027: the same native PageRank the DiGraph path uses -- PageRank needs
         # nothing but the edge list. Betweenness/closeness stay None: networkx
         # samples 100 nodes at random above 500 files (#3031).
-        pagerank = self._native_pagerank(parsed_files, edges)
+        pagerank = self._native_pagerank(self._graph_index(parsed_files, edges))
 
         for f in parsed_files:
             path = f.get("path", "")

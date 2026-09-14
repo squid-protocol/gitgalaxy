@@ -436,7 +436,7 @@ def test_network_math_failure_degrades_to_none(sensor, parsed_files_universe):
 
 def test_pagerank_failure_degrades_to_none(sensor, parsed_files_universe):
     """#3027: a PageRank that fails to converge is None ("not computed") for the PageRank family only."""
-    with patch("gitgalaxy.core.network_risk_sensor._pagerank", side_effect=RuntimeError("no convergence")):
+    with patch("gitgalaxy.core.network_risk_sensor.pagerank", side_effect=RuntimeError("no convergence")):
         mapped_files, _ = sensor.build_dependency_graph(parsed_files_universe)
 
     foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")

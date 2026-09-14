@@ -4,13 +4,12 @@ that every consumer reads as a measurement -- and zero-dependency mode computes
 PageRank natively instead of skipping it.
 """
 
-import random
 import sqlite3
 from unittest.mock import patch
 
 import pytest
 
-from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX, NetworkRiskSensor, _pagerank
+from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX, NetworkRiskSensor
 from gitgalaxy.recorders.llm_recorder import LLMRecorder
 from gitgalaxy.recorders.record_keeper import RecordKeeper
 
@@ -40,42 +39,7 @@ def _metrics(files):
     return {f["path"]: f["telemetry"]["network_metrics"] for f in files}
 
 
-def _random_graph(seed, n=60, m=150):
-    rng = random.Random(seed)
-    nodes = [f"n{i}.py" for i in range(n)]
-    edges = {}
-    while len(edges) < m:
-        src, dst = rng.sample(nodes, 2)
-        edges[(src, dst)] = rng.choice([1.0, 1.5, 2.5])
-    return nodes, [(s, d, w) for (s, d), w in edges.items()]
-
-
-# ==============================================================================
-# NATIVE PAGERANK
-# ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX as the reference")
-@pytest.mark.parametrize("seed", [0, 1, 2])
-def test_native_pagerank_matches_networkx(seed):
-    import networkx as nx
-
-    nodes, edges = _random_graph(seed)
-    graph = nx.DiGraph()
-    graph.add_nodes_from(nodes)
-    graph.add_weighted_edges_from(edges)
-
-    reference = nx.pagerank(graph, weight="weight")
-    ours = _pagerank(nodes, edges)
-
-    assert max(abs(ours[n] - reference[n]) for n in nodes) < 1e-12
-    # The sensor stores 6 dp: the two modes must agree at the precision recorded.
-    assert {n: round(ours[n], 6) for n in nodes} == {n: round(reference[n], 6) for n in nodes}
-
-
-def test_native_pagerank_edge_cases():
-    assert _pagerank([], []) == {}
-    assert _pagerank(["a.py", "b.py"], []) == pytest.approx({"a.py": 0.5, "b.py": 0.5})
-    with pytest.raises(RuntimeError):
-        _pagerank(["a", "b", "c"], [("a", "b", 1.0), ("b", "c", 1.0)], max_iter=1)
+# The native PageRank itself, and its networkx parity, are tested in test_graph_engine.py (#3034).
 
 
 # ==============================================================================

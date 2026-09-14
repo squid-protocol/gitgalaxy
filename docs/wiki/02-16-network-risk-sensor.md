@@ -14,6 +14,7 @@ Evaluating code quality in isolation is insufficient; a poorly written script ha
 ## Design
 ### Current Behavior
 - **Directed Graph Construction:** Uses pre-computed lookup maps to resolve raw import strings into target paths and assigns weighted edges based on dependency specificity.
+- **Native Graph Index:** The resolved edges are loaded once per scan into an integer-indexed CSR adjacency (`gitgalaxy/core/graph_engine.py`, #3034) that the native graph metrics read, with no networkx graph involved. `tests/tools/graph_parity.py` checks each native metric against networkx as a test-time oracle and benchmarks it on a real scan's graph.
 - **Centrality Metrics:** Computes PageRank (Normalized Blast Radius) with the engine's own pure-Python implementation in every mode (#3027: one implementation, so no mode or networkx-version drift), plus Betweenness Centrality (Architectural Choke Points) and Closeness Centrality via networkx. Closeness is not computed above 1,500 files (recorded as `None`/NULL, never 0.0), and a failed centrality computation leaves the metrics `None` (#3027).
 - **Component Roles:** Classifies modules as Producers (Foundation), Consumers (Orchestrators), Transceivers (Middle Tier), or Isolated, based on inbound/outbound edge ratios.
 - **Global Topology Metrics:** Evaluates modularity, assortativity, cyclic density, average path length, and articulation points.

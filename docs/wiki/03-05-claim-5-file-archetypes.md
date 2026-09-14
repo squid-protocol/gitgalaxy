@@ -1,5 +1,11 @@
 # Claim 5 (K-means clusters on structural DNA per file)
 
+> **Two complementary lenses.** This page describes the **structural DNA** lens — files clustered by
+> what their syntax *physically resembles*. A second, compositional lens
+> ([03-05b: Composition Archetypes](03-05b-composition-archetypes.md)) types a file *bottom-up* by
+> the mix of function-archetypes it contains, and rolls that up into repo archetypes. A scan now
+> carries both labels side by side.
+
 To truly understand software health, we need to stop judging every file by the same generic standard. A frontend UI router should not be penalized for having high concurrency, just as a low-level memory handler shouldn't be penalized for lacking dependency injection. Context matters.
 
 To map the true physical reality of how software is built, we conducted a massive unsupervised machine learning analysis. We fed the pure, structural DNA of **1,592,674 files**—representing 74 distinct dimensions of regex hit densities, control flow ratios, active security threat payloads, and syntactic markers—into a K-Means clustering algorithm. We didn't give the AI any human rules about what constitutes "good" or "bad" code. We simply asked it to group them by physical resemblance.

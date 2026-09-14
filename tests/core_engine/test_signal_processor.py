@@ -1673,67 +1673,65 @@ def test_classify_archetype_matching_dims_classifies_normally(processor):
     assert set(fingerprint) == {"cluster_near", "cluster_far"}
 
 
-def test_function_archetype_unclassified_when_model_dims_mismatch(processor, caplog):
+def _five_geometry_model(archetypes, names):
+    """A minimal new-contract function model over the 5 geometry features only
+    (no DNA densities, so hit_vector is irrelevant). Used to exercise the
+    classifier without pinning to the full 38-D shipped model."""
+    return {
+        "FEATURE_NAMES": ["log_loc", "log_complexity", "log_args", "keyword_density", "func_internal_density"],
+        "FEATURE_WEIGHTS": [1.0, 1.0, 1.0, 1.0, 1.0],
+        "SCALER_MEDIANS": [0.0, 0.0, 0.0, 0.0, 0.0],
+        "SCALER_IQRS": [1.0, 1.0, 1.0, 1.0, 1.0],
+        "CAP_VALUES": {},
+        "DNA_SOURCES": {},
+        "cluster_names": names,
+        "ARCHETYPES_K2": archetypes,
+    }
+
+
+def test_function_archetype_unclassified_when_model_dims_mismatch(processor, monkeypatch):
     """
-    The shipped GENERAL_FUNCTION_INFERENCE_MODEL is 62-dim while the live
-    per-function vector is 5-dim (#1157): classification must fail loudly and
-    leave every function "Unclassified" instead of a truncated label.
+    A model whose centroids don't match the built feature-vector length must
+    leave every function "Unclassified" rather than emit a truncated label
+    (the length guard in signal_processor's nearest-centroid loop).
     """
+    # FEATURE_NAMES declares 5 features but centroids are length 3 -> all skipped.
+    bad_model = _five_geometry_model(
+        {"0: A": [0.0, 0.0, 0.0], "1: B": [9.0, 9.0, 9.0]}, ["A", "B"]
+    )
+    monkeypatch.setattr(
+        "gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL", bad_model
+    )
     functions = [
-        {
-            "name": "hot_path",
-            "loc": 30,
-            "branch": 25,
-            "args": 4,
-            "keyword_density": 0.15,
-            "control_flow_ratio": 0.9,
-            "cf_ratio": 0.9,
-        }
+        {"name": "hot_path", "loc": 30, "branch": 25, "args": 4, "keyword_density": 0.15, "hit_vector": {}}
     ]
     meta, sig = create_synthetic_star(processor, "mismatch", 50, functions=functions)
     processor.calculate_risk_vector(meta, sig)
 
     assert functions[0]["archetype"] == "Unclassified"
-    assert any("Archetype dimension mismatch" in r.message for r in caplog.records), (
-        "The 5-vs-62 mismatch should be logged loudly"
-    )
 
 
 def test_function_archetype_classified_when_model_matches_live_dims(processor, monkeypatch):
     """
-    With a model that actually matches the 5-dim live vector, the shared
-    classifier should still classify the function (regression guard for the
-    #1157 refactor that routes function classification through
-    _classify_archetype). The shipped model keys are "fxn_cluster_N", which
-    the name-mapping code passes through verbatim (only space-numbered keys
-    like "Cluster 0" map onto the cluster_names list).
+    With a model whose centroids match the built vector length, the function is
+    classified to the nearest centroid's plain cluster name (regression guard
+    for the 38-D rosetta classifier). A loc=30/branch=25 function sits near the
+    "Dense Logic" centroid, not the zero "Tiny Stub" one.
     """
-    fake_model = {
-        "SCALER_MEDIANS": [0.0, 0.0, 0.0, 0.0, 0.0],
-        "SCALER_IQRS": [1.0, 1.0, 1.0, 1.0, 1.0],
-        "ARCHETYPES_K2": {
-            "fxn_cluster_0": [0.0, 0.0, 0.0, 0.0, 0.0],
-            "fxn_cluster_1": [10.0, 10.0, 10.0, 10.0, 10.0],
-        },
-        "cluster_names": ["Utility/Helper", "State Mutator"],
-    }
-    monkeypatch.setattr("gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL", fake_model)
-
+    good_model = _five_geometry_model(
+        {"0: Tiny Stub": [0.0, 0.0, 0.0, 0.0, 0.0], "1: Dense Logic": [3.4, 3.3, 1.6, 0.15, 0.83]},
+        ["Tiny Stub", "Dense Logic"],
+    )
+    monkeypatch.setattr(
+        "gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FUNCTION_INFERENCE_MODEL", good_model
+    )
     functions = [
-        {
-            "name": "mutator",
-            "loc": 30,
-            "branch": 25,
-            "args": 4,
-            "keyword_density": 0.15,
-            "control_flow_ratio": 0.9,
-            "cf_ratio": 0.9,
-        }
+        {"name": "mutator", "loc": 30, "branch": 25, "args": 4, "keyword_density": 0.15, "hit_vector": {}}
     ]
     meta, sig = create_synthetic_star(processor, "match", 50, functions=functions)
     processor.calculate_risk_vector(meta, sig)
 
-    assert functions[0]["archetype"] == "fxn_cluster_1"
+    assert functions[0]["archetype"] == "Dense Logic"
 
 
 def test_file_archetype_unclassified_when_model_dims_mismatch(processor, caplog):

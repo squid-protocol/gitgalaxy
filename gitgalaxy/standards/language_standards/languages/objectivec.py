@@ -224,7 +224,7 @@ DEFINITION: dict[str, Any] = {
         # (`extern void foo(T x);`, whose leading token is always a type/modifier, never a
         # keyword) are unaffected.
         "func_start": re.compile(
-            r"^[ \t]*(?:[A-Z_0-9]+\s+|__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)\s+)*[-+][ \t\n]*(?:\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)[ \t\n]*|(?:[a-zA-Z_]\w*[ \t\n]+){1,3})?([a-zA-Z_]\w*)(?=[ \t\n]*(?:__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|[A-Z_0-9]+(?:\([^)]*\))?)*[ \t\n]*[:\{;]|$)|"
+            r"^[ \t]*(?:[A-Z_0-9]+\s+|__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)\s+)*[-+][ \t\n]*(?:\([^()]*(?:\([^()]*(?:\([^()]*\)[^()]*)*\)[^()]*)*\)[ \t\n]*|(?:[a-zA-Z_]\w*[ \t\n]+){1,3})?([a-zA-Z_]\w*)(?=[ \t\n]*(?:__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|\([^)]*\)|[A-Z_0-9])*[ \t\n]*[:\{;]|$)|"
             r"^[ \t]*(?:(?:static|inline|extern|__attribute__\s*\([^()]*(?:\([^()]*\)[^()]*)*\)|template\s*<[^>]*>)[ \t\n]+)*"
             r"(?!(?:if|for|while|switch|return|else|case|default|do|break|continue|goto|sizeof|catch)\b)"
             r"(?:(?:\b[a-zA-Z_]\w*\b|extern\s+\"C\")[ \t\n]*(?:\*[ \t\n]*)*)+([a-zA-Z_]\w*)(?=[ \t\n]*\()",

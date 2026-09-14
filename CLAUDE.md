@@ -284,6 +284,13 @@ diffs were groovy and said nothing about the other 18 languages that had moved. 
 audit and diff it yourself:
 
 ```sh
+# GITGALAXY_DISABLE_GIT_HISTORY=1 is NOT optional (#2985): test_golden_crucible.py sets it
+# (and so does update_golden_master.py), so the committed fixtures have every git-derived
+# field ablated. Omit it here and you get ~8,500 phantom differences on top of the real
+# ones -- Architect ("Unknown Architect" -> your git identity), Raw Churn Frequency,
+# Authorship Centralization, Instability/Volatility Exposure -- and a wasted rescan cycle
+# before you work out none of them are yours.
+GITGALAXY_DISABLE_GIT_HISTORY=1 \
 .crucible_venvs/zero_dependency/bin/galaxyscope <language-crucible>/data \
     --output /tmp/gm/ --file-speed --splicing-speed          # same flags as tests/test_golden_crucible.py
 python -c "

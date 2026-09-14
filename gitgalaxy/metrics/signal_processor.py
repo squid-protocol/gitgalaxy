@@ -34,6 +34,41 @@ class DirectoryGroupData(TypedDict):
 
 
 # ==============================================================================
+# ARCHETYPE FEATURE FILTER (#1158 dimensional guard, hoisted in #2985)
+# ==============================================================================
+# The K-Means archetype classifier's live feature vector is NOT one slot per
+# SIGNAL_SCHEMA name: these four are dropped outright (formatting noise and two
+# domain sensors that swamped the distance metric), and so is every "sec_"
+# security-lens observer -- the lens re-counts signals the structural rules
+# already contribute, so including them double-weights those axes.
+#
+# This filter is what makes appending a "sec_" name to SIGNAL_SCHEMA free: the
+# vector's width is unchanged, so it still matches the pre-trained
+# SCALER_MEDIANS/SCALER_IQRS/centroids and _classify_archetype's strict
+# length check (which refuses to classify at all on a mismatch) keeps passing.
+# Appending a NON-sec_ name widens the vector and invalidates those models.
+# Hoisted out of _calculate_exposures' inline literal so the dimension test in
+# tests/core_engine/test_signal_processor.py derives the width from the same
+# rule the engine applies, instead of hard-coding a count that silently rots.
+ARCHETYPE_EXCLUDED_SIGNALS = frozenset(
+    {
+        "indent_tabs",
+        "indent_spaces",
+        "hardware_bridge",
+        "cryptography",
+    }
+)
+
+# The 7 engineered features appended to the per-signal densities below.
+ARCHETYPE_ENGINEERED_FEATURES = 7
+
+
+def is_archetype_feature(signal_key: str) -> bool:
+    """Does this SIGNAL_SCHEMA name occupy a slot in the archetype feature vector?"""
+    return signal_key not in ARCHETYPE_EXCLUDED_SIGNALS and not signal_key.startswith("sec_")
+
+
+# ==============================================================================
 # GitGalaxy Phase 4: Signal Processor (The Structural Signature Analysis Engine)
 # Strategy Protocol: Temporal Normalization & Universal Exposure
 # ==============================================================================
@@ -680,13 +715,8 @@ class SignalProcessor:
 
             raw_vector = []
             for key in self.SIGNAL_SCHEMA:
-                # ---> THE DIMENSIONAL FIX: Ignore hardware_bridge and cryptography <---
-                if key in {
-                    "indent_tabs",
-                    "indent_spaces",
-                    "hardware_bridge",
-                    "cryptography",
-                } or key.startswith("sec_"):
+                # ---> THE DIMENSIONAL FIX: see ARCHETYPE_EXCLUDED_SIGNALS <---
+                if not is_archetype_feature(key):
                     continue
                 raw_hit = signals.get(key, 0)
                 raw_density = (raw_hit / safe_denom) * 100.0

@@ -202,10 +202,15 @@ def test_new_tier_columns_do_not_collide_with_existing_file_data_columns():
 
 def test_family_count_and_member_totals_match_the_reconciled_design():
     """Pins the reconciliation performed for gitgalaxy#2994: 22 families
-    covering 63 of SIGNAL_SCHEMA's 95 names, the remaining 32 exempt. A
+    covering 63 of SIGNAL_SCHEMA's 97 names, the remaining 34 exempt. A
     change to either number is a deliberate edit to the taxonomy, not an
-    accident -- update this pin alongside the map."""
-    assert len(SIGNAL_SCHEMA) == 95, f"SIGNAL_SCHEMA grew/shrank ({len(SIGNAL_SCHEMA)}); re-reconcile the tier map"
+    accident -- update this pin alongside the map.
+
+    95 -> 97 / 32 -> 34 (#2985): sec_db_hooks and sec_amplified_sql_injection
+    joined SIGNAL_SCHEMA so they reach file_data, and both are exempt -- the
+    first double-counts the io family, the second is a derived correlation
+    over api + that sink rather than a raw sensor count."""
+    assert len(SIGNAL_SCHEMA) == 97, f"SIGNAL_SCHEMA grew/shrank ({len(SIGNAL_SCHEMA)}); re-reconcile the tier map"
     assert len(SURFACE_FAMILIES) == 22
     assert len(_all_family_members()) == 63
-    assert len(SURFACE_FAMILY_EXEMPT) == 32
+    assert len(SURFACE_FAMILY_EXEMPT) == 34

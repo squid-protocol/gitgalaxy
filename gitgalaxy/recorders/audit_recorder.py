@@ -408,6 +408,7 @@ class AuditRecorder:
             "sec_homoglyphs": "Unicode Homoglyphs & Typosquatting",
             "sec_unicode_steganography": "Invisible Unicode Payload Smuggling (GlassWorm-style)",
             "sec_self_propagation": "Self-Referential File Copy/Overwrite (Worm Pattern)",
+            "sec_db_hooks": "Raw Database Sinks",
         }
 
         quarantined_files = []

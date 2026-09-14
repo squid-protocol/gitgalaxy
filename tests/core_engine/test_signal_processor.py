@@ -1757,9 +1757,15 @@ def test_file_archetype_classified_when_model_matches_live_dims(monkeypatch):
     still labels files through _classify_archetype (regression guard for #1158's
     loud-failure guard not over-correcting into always-Unclassified).
     """
-    from gitgalaxy.metrics.signal_processor import SignalProcessor
+    from gitgalaxy.metrics.signal_processor import (
+        ARCHETYPE_ENGINEERED_FEATURES,
+        SignalProcessor,
+        is_archetype_feature,
+    )
 
-    n_dims = len(SignalProcessor.SIGNAL_SCHEMA) - 19 + 7  # filtered signals + 7 engineered
+    # Derived from the engine's own filter (#2985), not a hard-coded count: a
+    # new "sec_" signal must not move this, and a non-sec_ one must.
+    n_dims = sum(1 for k in SignalProcessor.SIGNAL_SCHEMA if is_archetype_feature(k)) + ARCHETYPE_ENGINEERED_FEATURES
     fake_model = {
         "SCALER_MEDIANS": [0.0] * n_dims,
         "SCALER_IQRS": [1.0] * n_dims,

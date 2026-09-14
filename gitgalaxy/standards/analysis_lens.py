@@ -1260,6 +1260,27 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         # SCALER_MEDIANS/centroid models.
         "sec_unicode_steganography",
         "sec_self_propagation",
+        # --- NEW: RAW DATABASE SINK / SQLi CONFIRMATION (#2985) ---
+        # Appended at the end for the same positional reason as the two
+        # entries above. Both were already computed per file and folded into
+        # `equations` -- "sec_db_hooks" by security_lens.py's THREAT_SIGNATURES
+        # and "sec_amplified_sql_injection" by galaxyscope.py's spatial
+        # correlation of a public `api` against that sink -- but neither name
+        # was in this list, so hit_vector dropped them and they reached no
+        # recorder: no audit-JSON signature row, no file_data column. Every
+        # other security-lens count was already persisted (13 under their
+        # threat_* SHORT_KEY_MAP name, 2 under their raw sec_ name); these two
+        # were the whole of the gap #2985 asked about.
+        #
+        # Dimension-safety note for the next append: a "sec_"-prefixed name
+        # costs the archetype classifier nothing. raw_vector skips every
+        # ARCHETYPE_EXCLUDED_SIGNALS member AND every "sec_" name
+        # (signal_processor.py), so this list grew 95 -> 97 while the live
+        # feature vector stayed at 83 dims and the pre-trained
+        # SCALER_MEDIANS/centroids still match. A NON-sec_ append would not
+        # be free.
+        "sec_db_hooks",
+        "sec_amplified_sql_injection",
     ],
     "SAT_SCHEMA": [
         "name",
@@ -1382,6 +1403,8 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "sec_hardcoded_secrets": "Embedded Credentials & Keys",
         "sec_unicode_steganography": "Invisible Unicode Payload Smuggling",
         "sec_self_propagation": "Self-Referential File Copy/Overwrite (Worm Pattern)",
+        "sec_db_hooks": "Raw Database Sinks (Query/Cursor Execution)",
+        "sec_amplified_sql_injection": "Confirmed SQL Injection Path (Public API -> Raw DB Sink)",
         # --- VULNERABILITY EXPOSURE MAPPINGS (Plain English) ---
         "secrets_risk": "Hardcoded Credential Exposure",
     },
@@ -1516,6 +1539,17 @@ SURFACE_FAMILY_EXEMPT: dict[str, str] = {
     "sec_state_mutation": "sec_* duplicate of 'state_mutation' (mutation family); would double-count",
     "sec_dead_code": "sec_* duplicate of 'dead_code' (dead_code family); would double-count",
     "sec_bitwise_ops": "sec_* duplicate of 'bitwise_ops' (structural-shape exempt); would double-count",
+    # --- injection-surface sensors (2, #2985): a raw DB sink and the spatial
+    # --- confirmation built on it. Neither is a standalone activity surface ---
+    "sec_db_hooks": (
+        "sec_* lens sink already covered by the 'io' family: every language's io rule "
+        "matches the DB drivers this fires on (python's covers sqlalchemy/psycopg2/asyncpg); "
+        "would double-count"
+    ),
+    "sec_amplified_sql_injection": (
+        "derived correlation, not a raw sensor count: a spatial confirmation over 'api' "
+        "(connectivity family) and 'sec_db_hooks'; summing it would double-count both"
+    ),
     # --- always-zero (2): detector removed (#1020), kept only for
     # --- SIGNAL_SCHEMA positional stability (see the comment at their
     # --- definition site in SIGNAL_SCHEMA above) ---

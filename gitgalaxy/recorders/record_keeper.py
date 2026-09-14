@@ -199,6 +199,14 @@ class RecordKeeper:
             "sec_state_mutation": "threat_env_mutation",
             "sec_shadow_imports": "threat_stego_imports",
             "sec_homoglyphs": "threat_homoglyphs",
+            # #2985: new columns, so naming them under the threat_* convention
+            # costs no existing query. (The three pre-existing sec_* signals with
+            # no entry here -- sec_dead_code, sec_unicode_steganography,
+            # sec_self_propagation -- keep their raw column names deliberately:
+            # mapping them now would RENAME a shipped column out from under the
+            # temporal-crucible queries this schema exists to serve.)
+            "sec_db_hooks": "threat_db_sinks",
+            "sec_amplified_sql_injection": "threat_sql_injection",
         }
 
     def record_mission(
@@ -293,6 +301,10 @@ class RecordKeeper:
                 self.logger.debug("Schema migration skipped: 'is_zero_dependency_mode' already exists.")
             else:
                 raise
+
+        # gitgalaxy#2985: repo_data's half of the hit_cols heal (see file_data's
+        # below for why the INSERTs make this mandatory, not merely tidy).
+        _ensure_columns(cursor, "repo_data", hit_cols)
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS folder_data (
@@ -393,6 +405,16 @@ class RecordKeeper:
         # fam_*/pct_fam_*/pct_vec_*/rel_* columns in with guarded ALTERs.
         _ensure_columns(cursor, "file_data", tier_cols)
 
+        # gitgalaxy#2985: the same guard, now over hit_cols. SIGNAL_SCHEMA grows
+        # (it gained sec_db_hooks/sec_amplified_sql_injection here), and the
+        # INSERTs below name every hit column explicitly -- so without this, the
+        # first scan after a schema addition dies on a pre-existing DB with
+        # "table file_data has no column named threat_db_sinks" and writes
+        # nothing at all. Verified against a DB built by the previous release.
+        # repo_data is healed further down, beside its own existing guarded
+        # ALTER; class_data carries no hit columns.
+        _ensure_columns(cursor, "file_data", hit_cols)
+
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS class_data (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -428,6 +450,9 @@ class RecordKeeper:
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
+
+        # gitgalaxy#2985: function_data's half of the hit_cols heal.
+        _ensure_columns(cursor, "function_data", hit_cols)
 
         # DEFENSIVE GUARD: Indexes to Prevent Cascade Delete Hangs
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_class_file_id ON class_data(file_id);")

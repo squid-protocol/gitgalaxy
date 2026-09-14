@@ -476,21 +476,24 @@ retired from measurement entirely in the tier model; no new tier is density-shap
 ### Tier 1 — `SURFACE_FAMILIES`
 
 `SURFACE_FAMILIES` (in [`gitgalaxy/standards/analysis_lens.py`](../gitgalaxy/standards/analysis_lens.py),
-next to `SIGNAL_SCHEMA`) groups 63 of `SIGNAL_SCHEMA`'s 95 raw-signal names into 22 families:
+next to `SIGNAL_SCHEMA`) groups 63 of `SIGNAL_SCHEMA`'s 97 raw-signal names into 22 families:
 `memory`, `cleanup`, `guards`, `danger`, `concurrency`, `connectivity`, `io`, `crypto`, `ipc`,
 `time`, `serialization`, `regex`, `events`, `tests`, `docs`, `debt`, `mutation`, `dead_code`,
 `credential`, `threat`, `ml_ai`, `ui`. A file's per-family value is a plain **integer sum** of
 its member signals' raw counts — no formula, no constant, no sigmoid.
 
-The remaining 32 names are declared exempt in `SURFACE_FAMILY_EXEMPT` (same file), each with a
-one-line reason, in four groups: structural-shape signals that are substrate for complexity
+The remaining 34 names are declared exempt in `SURFACE_FAMILY_EXEMPT` (same file), each with a
+one-line reason, in five groups: structural-shape signals that are substrate for complexity
 rather than a measurement surface in their own right (11: `branch`, `structural_boundaries`,
 `args`, `func_start`, `class_start`, `globals`, `decorators`, `import`,
 `dependency_injection`, `macros`, `bitwise_ops`); cosmetic style/naming signals (8: the
 `design_*_case`/`design_*_vars` family plus `indent_tabs`/`indent_spaces`); the single
 `ownership` signal (its own concern, not a surface); paradigm markers (3: `closures`,
 `generics`, `comprehensions`); `sec_*` lens duplicates of a signal already summed under its
-non-`sec_` counterpart's family, which would double-count if also included (7); and two
+non-`sec_` counterpart's family, which would double-count if also included (7); the two
+injection-surface sensors added by #2985 (`sec_db_hooks`, a raw DB sink the `io` family's
+rules already match, and `sec_amplified_sql_injection`, a derived spatial confirmation over
+`api` + that sink rather than a raw count of its own); and two
 permanent always-zero placeholders kept only for `SIGNAL_SCHEMA`'s positional stability
 (`prompt_injection`, `agentic_rce` — see the comment at their definition site). Every
 `SIGNAL_SCHEMA` name is in exactly one family XOR exempt — enforced by

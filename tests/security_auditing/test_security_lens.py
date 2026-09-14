@@ -603,3 +603,60 @@ def test_dead_code_ignores_prose_comments_that_merely_mention_trigger_words(lens
     assert lens.scan_content(prose_1)["counts"].get("dead_code", 0) == 0
     assert lens.scan_content(prose_2)["counts"].get("dead_code", 0) == 0
     assert lens.scan_content(prose_3)["counts"].get("dead_code", 0) == 0
+
+
+# ==============================================================================
+# gitgalaxy#2985: EVERY LENS COUNT MUST REACH THE PERSISTED SCHEMA
+# ==============================================================================
+def test_every_lens_count_is_a_signal_schema_name(lens):
+    """
+    The coupling #2985 was filed against: security_lens.py owns the sensors, but
+    SIGNAL_SCHEMA owns which of them survive. galaxyscope.py folds every key this
+    lens returns into `equations` under a "sec_" prefix, and signal_processor.py
+    then builds hit_vector as `[raw_signals.get(k) for k in SIGNAL_SCHEMA]` -- so
+    a lens key with no SIGNAL_SCHEMA entry is computed on every file of every
+    scan and then dropped on the floor: no audit-JSON signature row, no
+    file_data column, nothing for the temporal crucible to correlate against.
+
+    That is exactly how `sec_db_hooks` stayed invisible while the other 15 lens
+    counts were persisted. Adding a sensor to THREAT_SIGNATURES (or a derived
+    count to scan_content) without adding its "sec_" name here fails this test,
+    which is the only place the omission is visible before a corpus scan.
+    """
+    from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
+
+    signal_schema = set(RECORDING_SCHEMAS["SIGNAL_SCHEMA"])
+
+    # THREAT_SIGNATURES is the regex-driven half; entropy/tainted_injection are
+    # computed by scan_content itself and carry no signature entry.
+    produced = {f"sec_{key}" for key in lens.THREAT_SIGNATURES}
+    produced |= {"sec_entropy", "sec_tainted_injection"}
+    # scan_binary's own escalation keys are already "sec_"-prefixed at source.
+    produced |= {"sec_extension_mismatch", "sec_high_risk_execution", "sec_reflection_metaprogramming"}
+
+    missing = sorted(produced - signal_schema)
+    assert not missing, (
+        f"security_lens.py counts {missing} on every file, but no SIGNAL_SCHEMA entry "
+        f"carries them into hit_vector -- they are dropped before any recorder sees them. "
+        f"Append them to SIGNAL_SCHEMA (at the END: the list's order feeds the K-Means "
+        f"archetype classifier positionally) and give each a SURFACE_FAMILIES/"
+        f"SURFACE_FAMILY_EXEMPT entry."
+    )
+
+
+def test_lens_counts_survive_into_the_recorded_column_set():
+    """
+    The other end of the same chain: record_keeper.py derives the file_data
+    column list from SIGNAL_SCHEMA via SHORT_KEY_MAP, so a name that cleared the
+    test above still needs to land as a real, uniquely-named column. Pins the
+    two #2985 added by their persisted names, since those (not the "sec_" keys)
+    are what temporal-crucible queries are written against.
+    """
+    from gitgalaxy.recorders.record_keeper import RecordKeeper
+
+    keeper = RecordKeeper()
+    columns = [keeper.SHORT_KEY_MAP.get(h, h) for h in keeper.SIGNAL_SCHEMA]
+
+    assert "threat_db_sinks" in columns
+    assert "threat_sql_injection" in columns
+    assert len(columns) == len(set(columns)), "SHORT_KEY_MAP collapsed two signals onto one column"

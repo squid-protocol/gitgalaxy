@@ -151,7 +151,7 @@ def test_zero_dependency_db_records_native_pagerank(tmp_path):
     assert rows and all(pr is not None and blast is not None for pr, blast, *_ in rows)
     assert all(btw is not None and close is not None for _, _, btw, close, _ in rows)  # native: #3037, #3038
     assert all(ratio is not None for *_, ratio in rows)  # exact since #3024, no longer NULLed
-    assert repo == (None, 1)
+    assert repo[0] is not None and repo[1] == 1  # modularity native since #3039
 
 
 # ==============================================================================

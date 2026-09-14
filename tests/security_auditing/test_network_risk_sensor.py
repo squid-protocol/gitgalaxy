@@ -139,6 +139,7 @@ def test_network_fallback_mode(sensor, parsed_files_universe):
         assert metrics["cyclic_density"] > 0.0
         assert metrics["articulation_points"] is not None
         assert metrics["assortativity"] is not None  # #3036
+        assert metrics["modularity"] is not None  # #3039
 
 
 # ==============================================================================
@@ -467,28 +468,31 @@ def test_pagerank_failure_degrades_to_none(sensor, parsed_files_universe):
 # TEST 13: MACRO NETWORK MATH RESILIENCE — INDIVIDUAL METRIC FAILURES
 # ==============================================================================
 @pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
-def test_macro_metrics_individual_failures_stay_isolated(sensor, parsed_files_universe):
+def test_macro_metrics_never_call_networkx(sensor, parsed_files_universe):
     """
-    Stress test: one failing macro metric must not take the others down. Since
-    #3035-#3037, modularity is the only macro metric networkx still computes;
-    the rest are native and computed outside its try/except, so they must
-    survive its failure.
+    #3039: every macro metric is native now. networkx's community routines and
+    its to_undirected copy are never called, so failing them changes nothing.
     """
-    with patch("networkx.algorithms.community.modularity", side_effect=RuntimeError("boom")):
+    boom = RuntimeError("networkx must not be called")
+    with (
+        patch("networkx.algorithms.community.louvain_communities", side_effect=boom),
+        patch("networkx.algorithms.community.modularity", side_effect=boom),
+        patch("networkx.DiGraph.to_undirected", side_effect=boom),
+    ):
         _, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
 
-    assert macro_metrics["modularity"] is None, "A failed modularity computation must stay None, not 0.0 or crash."
-    for key in ("assortativity", "cyclic_density", "avg_path_length", "articulation_points"):
+    for key in ("modularity", "assortativity", "cyclic_density", "avg_path_length", "articulation_points"):
         assert macro_metrics[key] is not None, key
 
 
 def test_topology_metrics_are_native_in_both_modes(sensor, parsed_files_universe):
-    """#3035/#3036: assortativity, cyclic density and articulation points never call networkx; both modes agree."""
-    native = ("assortativity", "cyclic_density", "articulation_points")
+    """#3035/#3036/#3039: the native macro metrics never call networkx, and both modes agree."""
+    native = ("modularity", "assortativity", "cyclic_density", "articulation_points")
     with (
         patch("networkx.strongly_connected_components", side_effect=AssertionError("must not be called")),
         patch("networkx.articulation_points", side_effect=AssertionError("must not be called")),
         patch("networkx.degree_assortativity_coefficient", side_effect=AssertionError("must not be called")),
+        patch("networkx.algorithms.community.louvain_communities", side_effect=AssertionError("must not be called")),
     ):
         _, full = sensor.build_dependency_graph(parsed_files_universe)
     with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
@@ -497,7 +501,6 @@ def test_topology_metrics_are_native_in_both_modes(sensor, parsed_files_universe
     assert full["cyclic_density"] > 0.0  # the universe has a cycle
     assert all(full[key] is not None for key in native)
     assert {key: zero[key] for key in native} == {key: full[key] for key in native}
-    assert full["modularity"] is not None, "networkx's own macro metrics still run beside the native ones."
 
 
 def test_assortativity_needs_no_numpy(sensor, parsed_files_universe):
@@ -509,47 +512,6 @@ def test_assortativity_needs_no_numpy(sensor, parsed_files_universe):
     with patch.dict("sys.modules", {"numpy": None}):
         _, macro = sensor.build_dependency_graph(parsed_files_universe)
     assert macro["assortativity"] is not None
-
-
-def test_modularity_falls_back_to_greedy_when_louvain_unavailable(sensor, parsed_files_universe):
-    """
-    Older NetworkX versions don't have louvain_communities. The code catches
-    that specific AttributeError and falls back to greedy_modularity_communities
-    -- previously untested, so a NetworkX downgrade could have silently broken
-    modularity for anyone on an older pin without a single test noticing.
-    """
-    with patch(
-        "networkx.algorithms.community.louvain_communities",
-        side_effect=AttributeError("simulated: old networkx has no louvain_communities"),
-    ):
-        _, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
-
-    assert macro_metrics["modularity"] is not None, (
-        "Louvain AttributeError should fall back to greedy_modularity_communities, not leave modularity unset."
-    )
-
-
-def test_macro_math_outer_failure_returns_all_none(sensor, parsed_files_universe):
-    """
-    Stress test for the outermost `except Exception` around the whole macro
-    block (e.g. G.to_undirected() itself failing) -- must degrade every
-    macro metric to None rather than crashing build_dependency_graph
-    entirely and losing the per-file network metrics already computed.
-    """
-    with patch("networkx.DiGraph.to_undirected", side_effect=RuntimeError("boom")):
-        mapped_files, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
-
-    native = ("assortativity", "avg_path_length", "cyclic_density", "articulation_points")
-    networkx_metrics = {k: v for k, v in macro_metrics.items() if k not in native}
-    assert networkx_metrics and all(v is None for v in networkx_metrics.values()), (
-        "Outer macro-math failure should leave every networkx metric None."
-    )
-    # #3035-#3037: the native metrics are computed outside the networkx block.
-    assert all(macro_metrics[k] is not None for k in native)
-    # Per-file network metrics (computed earlier in the function, before the
-    # macro block) must survive even though the macro block blew up.
-    foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
-    assert "network_metrics" in foundation["telemetry"]
 
 
 # ==============================================================================

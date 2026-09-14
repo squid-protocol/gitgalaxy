@@ -973,9 +973,8 @@ class Orchestrator:
             logger.warning(" ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
             _box("Every structural signal is still measured. Missing engines cost:")
             if not HAS_NETWORKX:
-                _box(" - networkx: modularity is NOT computed (n/a / NULL).")
-                _box("   PageRank, betweenness, closeness and the other")
-                _box("   graph metrics are computed natively (= full precision).")
+                _box(" - networkx: nothing is lost. Every graph metric is computed")
+                _box("   natively and matches full precision (#3039).")
             if not HAS_TIKTOKEN:
                 _box(" - tiktoken: token mass & financial read cost are NULL.")
             if not ML_AVAILABLE:

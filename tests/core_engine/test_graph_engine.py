@@ -160,6 +160,28 @@ def test_betweenness_stops_at_its_work_budget():
         graph_engine.betweenness_centrality(index, WorkBudget(100))
 
 
+@needs_oracle
+@pytest.mark.parametrize("seed", range(25))
+def test_louvain_communities_are_identical_to_networkx(seed):
+    """#3039 is a faithful port: the same communities, in the same order, not merely the same modularity."""
+    nodes, edges = graph_parity.random_graph(seed)
+    index = GraphIndex(nodes, edges)
+    undirected = graph_parity.to_networkx(nodes, edges).to_undirected()
+    reference = graph_parity.nx.algorithms.community.louvain_communities(undirected, seed=42)
+    ours = graph_engine.louvain_communities(index)
+    assert [{index.nodes[v] for v in community} for community in ours] == reference
+
+
+def test_louvain_modularity_edge_cases():
+    """No imports: networkx divides by zero and the engine records None. A budget too small raises."""
+    assert graph_engine.louvain_modularity(GraphIndex(["a", "b"], [])) is None
+    assert graph_engine.louvain_modularity(GraphIndex([], [])) is None
+    names = [f"f{i}" for i in range(30)]
+    ring = GraphIndex(names, [(names[i], names[(i + 1) % 30], 1.0) for i in range(30)])
+    with pytest.raises(WorkBudgetExceeded):
+        graph_engine.louvain_modularity(ring, budget=WorkBudget(10))
+
+
 def test_every_metric_declares_an_oracle_mode():
     assert {m.oracle_mode for m in graph_parity.METRICS.values()} <= {"strict", "tailored"}
 

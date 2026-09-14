@@ -3,8 +3,8 @@
 `pip install gitgalaxy` installs **nothing else**. For teams where every third-party package is a supply-chain review, that is the point: the engine runs on the Python standard library alone. A handful of measurements do need optional engines, though. When any of them is missing, the scan runs in **Zero-Dependency Mode**. This page lists, field by field, what that costs, so you can tell which numbers you can trust.
 
 **Short version:**
-- **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, **PageRank / blast radius**, **closeness**, **average path length**, **cyclic density**, **articulation points**, **assortativity** and **betweenness**. These are computed natively, with no networkx.
-- **What you lose:** modularity, token counts, ML threat classification, and YAML config parsing.
+- **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, **PageRank / blast radius**, **closeness**, **average path length**, **cyclic density**, **articulation points**, **assortativity**, **betweenness** and **modularity**. These are computed natively, with no networkx.
+- **What you lose:** token counts, ML threat classification, and YAML config parsing.
 - **How missing metrics show up:** a metric that was not computed is **absent**: `None` in telemetry, NULL in the SQLite DB, `n/a` in the LLM brief. It is never a placeholder `0`. The one remaining exception is the ML placeholders described below (#3028).
 
 ## Getting full precision
@@ -17,7 +17,7 @@ Or add only the engines whose outputs you need (table below). Each is independen
 
 ## What each optional package provides
 
-### `networkx`: modularity
+### `networkx`: nothing, since #3039
 
 | Output | With networkx | Without |
 |---|---|---|
@@ -30,7 +30,9 @@ Or add only the engines whose outputs you need (table below). Each is independen
 | `network_cyclic_density`, `network_articulation_points` | native | **identical**: both modes run the same native depth-first searches (#3035) |
 | `network_assortativity` | native | **identical**: both modes run the same native single pass over the edges (#3036), which needs no numpy |
 | `betweenness_score` | native | **identical**: both modes run the same exact native search (#3038) |
-| Repo topology: `network_modularity` | computed | **not computed**: `None` / NULL; LLM brief §3.5 shows `n/a (not computed)` |
+| `network_modularity` | native | **identical**: both modes run the same port of networkx's seeded Louvain (#3039) |
+
+Since #3039 every graph metric is native, so a scan without networkx loses nothing on the graph side. #3041 removes networkx from the runtime.
 
 Because every centrality is computed in both modes, these all work exactly as with networkx:
 - `--max-systemic-threat` and the agent-guardrail `requires_hitl` flag
@@ -38,7 +40,7 @@ Because every centrality is computed in both modes, these all work exactly as wi
 - the brief's "undocumented critical path", "fragile dependency chain" and "cascading state mutation" rankings
 - its blast-radius insights and the AI-topology "Cognitive Choke Point" insight
 
-**In both modes**, betweenness, closeness and average path length are computed at every repository size. The only limit is a deterministic work budget: 50 million edge scans per search, which counts work, never time. Past it, the metric is `None` / NULL / `n/a`, and the ranking built on it is empty. An import graph stays far below the budget: language-crucible's 2,817 files take about 2 ms per search.
+**In both modes**, betweenness, closeness, average path length and modularity are computed at every repository size. The only limit is a deterministic work budget: 50 million edge scans per search, which counts work, never time. Past it, the metric is `None` / NULL / `n/a`, and the ranking built on it is empty. An import graph stays far below the budget: language-crucible's 2,817 files take about 2 ms per search.
 
 **Average path length changed meaning in #3037.**
 - **Now:** the mean number of import hops from a file to each file it transitively depends on, over every such (importer, dependency) pair in the repository.
@@ -106,6 +108,7 @@ Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets
   - Recorded before **#3035**: zero-dependency `network_cyclic_density` / `network_articulation_points` were NULL. The definitions did not change, so later values compare directly with full-precision history.
   - Recorded before **#3036**: `network_assortativity` was NULL in zero-dependency mode, and also NULL when networkx was installed without numpy. The definition did not change.
   - Recorded before **#3038**: `betweenness_score` was NULL in zero-dependency mode, and sampled and weighted above 500 files in every mode (see above).
+  - Recorded before **#3039**: `network_modularity` was NULL in zero-dependency mode, and NULL above 5,000 files in every mode. The definition did not change.
 
 ## For contributors
 

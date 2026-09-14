@@ -17,6 +17,7 @@ from gitgalaxy.core.graph_engine import (
     betweenness_centrality,
     closeness_and_path_length,
     degree_assortativity,
+    louvain_modularity,
     nodes_in_cycles,
     pagerank,
 )
@@ -39,11 +40,12 @@ CASE_INSENSITIVE_IMPORT_LANGS = frozenset(
 LEADING_RELATIVE_MARKER = re.compile(r"^(?:\.{1,2}/)+")
 
 # #3037/#3038: the deterministic work budget for each hop-count path metric.
-# Closeness and average path length share one search; betweenness runs its own.
+# Closeness and average path length share one search; betweenness and Louvain
+# modularity (#3039) each run their own.
 # It counts edges scanned across every file's breadth-first search. 50M is about
 # 3 s of pure-Python search; past it the metric is None ("not computed"), never
 # 0.0. It replaced node-count cutoffs and sampling -- closeness skipped above
-# 1,500 files, path length above 5,000, betweenness sampled to 100 sources above
+# 1,500 files, path length and modularity above 5,000, betweenness sampled to 100 sources above
 # 500 -- on graphs like the 2,817-file language-crucible one, whose searches take
 # about 2 ms each.
 PATH_METRICS_WORK_BUDGET = 50_000_000
@@ -67,7 +69,6 @@ def _without_extension(path_str: str) -> str:
 HAS_NETWORKX = False
 try:
     import networkx as nx
-    from networkx.algorithms import community
 
     HAS_NETWORKX = True
 except ImportError:
@@ -498,23 +499,31 @@ class NetworkRiskSensor:
             return dict.fromkeys(index.nodes), None
         return dict(zip(index.nodes, closeness)), avg_path_length
 
-    @staticmethod
-    def _topology_metrics(index: GraphIndex) -> dict[str, Optional[float]]:
+    def _topology_metrics(self, index: GraphIndex) -> dict[str, Optional[float]]:
         """
-        The native repo-topology metrics, in both modes. Each is O(N + E), so no
-        work budget is needed. All are None for a graph with no files, as the
-        networkx path left them.
+        The native repo-topology metrics, in both modes. All are None for a
+        graph with no files, as the networkx path left them.
         - #3035: cyclic density (the share of files on a dependency cycle) and
-          the articulation-point count
-        - #3036: degree assortativity. An undefined correlation (no edges, or a
-          degree that never varies) is 0.0: the value stored when networkx
-          returned NaN.
+          the articulation-point count, O(N + E)
+        - #3036: degree assortativity, O(N + E). An undefined correlation (no
+          edges, or a degree that never varies) is 0.0: the value stored when
+          networkx returned NaN.
+        - #3039: Louvain modularity, a faithful port of networkx's seeded
+          `louvain_communities(U, seed=42)`. It is None when no file imports
+          another (networkx divided by zero there), or past
+          PATH_METRICS_WORK_BUDGET, which replaced the V > 5000 cutoff.
         """
         n = len(index.nodes)
         if n == 0:
-            return {"assortativity": None, "cyclic_density": None, "articulation_points": None}
+            return {"modularity": None, "assortativity": None, "cyclic_density": None, "articulation_points": None}
+        try:
+            modularity = louvain_modularity(index, budget=WorkBudget(PATH_METRICS_WORK_BUDGET))
+        except WorkBudgetExceeded as e:
+            self.logger.info(f"Modularity past its work budget, leaving it unset (None): {e}")
+            modularity = None
         assortativity = degree_assortativity(index)
         return {
+            "modularity": None if modularity is None else round(modularity, 4),
             "assortativity": 0.0 if math.isnan(assortativity) else round(assortativity, 4),
             "cyclic_density": round(nodes_in_cycles(index) / n, 4),
             "articulation_points": articulation_point_count(index),
@@ -555,8 +564,8 @@ class NetworkRiskSensor:
         # budgets instead of node-count cutoffs or sampling (#3027, #3034-#3038).
         # =========================================================================
         # PageRank, betweenness, closeness, avg path length and every
-        # repo-topology metric but modularity: see _native_pagerank,
-        # _betweenness, _path_metrics and _topology_metrics.
+        # repo-topology metric: see _native_pagerank, _betweenness,
+        # _path_metrics and _topology_metrics.
         index = self._graph_index(parsed_files, edges)
         pagerank = self._native_pagerank(index)
         betweenness = self._betweenness(index)
@@ -599,7 +608,8 @@ class NetworkRiskSensor:
         # llm_recorder.py) must not paper over None with their own 0.0
         # fallback, or this fix is undone one hop downstream.
         macro_metrics: dict[str, Optional[float]] = {
-            "modularity": None,
+            # #3039: native (see _topology_metrics).
+            "modularity": topology["modularity"],
             # #3036: native (see _topology_metrics).
             "assortativity": topology["assortativity"],
             # #3035: native (see _topology_metrics).
@@ -609,42 +619,14 @@ class NetworkRiskSensor:
             "articulation_points": topology["articulation_points"],
         }
 
-        if len(G) > 0:
-            try:
-                U = G.to_undirected()
-
-                # A. Modularity (Spaghetti vs Microservice)
-                try:
-                    if len(U) > 5000:
-                        self.logger.debug("Graph too massive for Modularity. Leaving unset (None).")
-                    else:
-                        # Attempt Louvain (blazing fast), fallback to Greedy (slow)
-                        # seed is fixed so repeated scans of an unchanged repo
-                        # report the same modularity and Critical Files list
-                        # instead of a different randomized partition each run.
-                        try:
-                            communities = community.louvain_communities(U, seed=42)
-                        except AttributeError:
-                            communities = community.greedy_modularity_communities(U)
-
-                        macro_metrics["modularity"] = round(community.modularity(U, communities), 4)
-                except Exception as e:
-                    self.logger.debug(f"Modularity computation failed, leaving unset (None): {e}")
-
-                # B-E. Assortativity, cyclic density, avg path length and
-                # articulation points are native (#3035-#3037), set above.
-
-            except Exception as e:
-                self.logger.warning(f"Macro network math failed: {e}")
-
         self.logger.info("Network Risk Sensor: Vector Mathematics & Graph Topology Complete.")
         return parsed_files, macro_metrics
 
     def _fallback_build_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         self.logger.warning(
             "[!] 'networkx' not found. Operating in Zero-Dependency Mode: degree counts, PageRank, closeness, avg path "
-            "length, betweenness, assortativity, cyclic density and articulation points are computed natively; "
-            "only modularity is not computed (None)."
+            "length, betweenness, assortativity, cyclic density, articulation points and modularity are computed "
+            "natively, with the same values as full precision."
         )
 
         in_degrees = {f.get("path", ""): 0 for f in parsed_files}
@@ -665,9 +647,8 @@ class NetworkRiskSensor:
             in_degrees[dst] = in_degrees.get(dst, 0) + 1
         self._publish_edges(edges)
 
-        # #3027/#3035-#3038: the same native PageRank, betweenness, closeness,
-        # avg path length, assortativity, cyclic density and articulation points
-        # the DiGraph path uses -- they need nothing but the edge list.
+        # #3027/#3035-#3039: every graph metric the DiGraph path computes, from
+        # the same native code -- they need nothing but the edge list.
         index = self._graph_index(parsed_files, edges)
         pagerank = self._native_pagerank(index)
         betweenness = self._betweenness(index)
@@ -692,7 +673,7 @@ class NetworkRiskSensor:
         # attempted at all (networkx isn't installed), not measured as zero.
         # Same convention as the real-computation path above.
         macro_metrics: dict[str, Optional[float]] = {
-            "modularity": None,
+            "modularity": topology["modularity"],
             "assortativity": topology["assortativity"],
             "cyclic_density": topology["cyclic_density"],
             "avg_path_length": None if avg_path_length is None else round(avg_path_length, 4),

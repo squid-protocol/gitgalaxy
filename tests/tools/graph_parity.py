@@ -38,6 +38,7 @@ from gitgalaxy.core.graph_engine import (
     betweenness_centrality,
     closeness_and_path_length,
     degree_assortativity,
+    louvain_modularity,
     nodes_in_cycles,
     pagerank,
 )
@@ -83,6 +84,16 @@ def _networkx_assortativity(graph: Any) -> float:
     with warnings.catch_warnings():  # networkx warns on an undefined correlation's 0/0
         warnings.simplefilter("ignore", category=RuntimeWarning)
         return _stored_assortativity(nx.degree_assortativity_coefficient(graph))
+
+
+def _networkx_modularity(graph: Any) -> Optional[float]:
+    """The engine's former call: seeded Louvain on the undirected graph, then modularity; None where it divides by 0."""
+    undirected = graph.to_undirected()
+    community = nx.algorithms.community
+    try:
+        return community.modularity(undirected, community.louvain_communities(undirected, seed=42))
+    except ZeroDivisionError:
+        return None
 
 
 METRICS: dict[str, Metric] = {
@@ -131,6 +142,12 @@ METRICS: dict[str, Metric] = {
         native=lambda index: dict(zip(index.nodes, betweenness_centrality(index))),
         oracle=nx.betweenness_centrality,
         places=6,  # betweenness_score
+    ),
+    "modularity": Metric(
+        oracle_mode="strict",
+        native=louvain_modularity,
+        oracle=_networkx_modularity,
+        places=4,  # repo_data.network_modularity
     ),
 }
 

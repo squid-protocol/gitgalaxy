@@ -92,6 +92,23 @@ ALLOWLIST = {
     # if the model dictionary forgets them" per signal_processor.py's own
     # comment -- absence is the designed case, not a bug.
     "cluster_names": "optional ML archetype-model field, has an explicit fallback (signal_processor.py)",
+    # file/repo archetype brain keys (archetype_classifier.py): read in Python but
+    # WRITTEN in the JSON brains (standards/archetype_brains/*.json) the static walker
+    # doesn't parse -- so every key reads as write-less. Not a mismatch.
+    "stoich_archetypes": "file-archetype-brain key (JSON-written, archetype_classifier.py)",
+    "stoich_weight": "file-archetype-brain key (JSON-written, archetype_classifier.py)",
+    "aux_features": "file-archetype-brain key (JSON-written, archetype_classifier.py)",
+    "aux_quantiles": "file/repo-archetype-brain key (JSON-written, archetype_classifier.py)",
+    "noncode_languages": "file-archetype-brain key (JSON-written, archetype_classifier.py)",
+    "min_coding_loc": "file-archetype-brain key (JSON-written, archetype_classifier.py)",
+    "noncode_bucket": "file-archetype-brain key (JSON-written, archetype_classifier.py)",
+    "comp_archetypes": "repo-archetype-brain key (JSON-written, archetype_classifier.py)",
+    "comp_weight": "repo-archetype-brain key (JSON-written, archetype_classifier.py)",
+    "min_files": "repo-archetype-brain key (JSON-written, archetype_classifier.py)",
+    "micro_bucket": "repo-archetype-brain key (JSON-written, archetype_classifier.py)",
+    "log_file_count": "repo-archetype-brain aux-quantile key (JSON-written, archetype_classifier.py)",
+    "log_total_loc": "repo-archetype-brain aux-quantile key (JSON-written, archetype_classifier.py)",
+    "pagerank_gini": "repo-archetype-brain aux-quantile key (JSON-written, archetype_classifier.py)",
     # --- External YAML/env config ---
     "galaxyscope": "top-level section name in a user's .galaxyscope.yml project config file",
     "GITGALAXY_LICENSE_KEY": "environment variable (os.environ.get), not a repo-produced dict",

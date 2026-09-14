@@ -126,6 +126,46 @@ DEFINITION: dict[str, Any] = {
             r"\bPGM=(?:IKJEFT01|IKJEFT1[AB]|BPXBATCH|BPXBATSL|BPXBATA[28]|AOPBATCH|IRXJCL|SDSF)\b",
             re.I,
         ),
+        # #3002: does this rule need to read INSIDE a `//SYSIN DD *` in-stream
+        # payload for the Db2 DSN command processor / IDCAMS control-statement
+        # verbs it carries (DSN SYSTEM, RUN PROGRAM, GRANT, DROP, DELETE, BIND,
+        # DEFINE CLUSTER, REPRO, FREE -- gitgalaxy#2990's follow-up)? Checked
+        # against docs/high_risk_execution_rule_contract.md (#2878) verb by
+        # verb, not as one blob:
+        #   - RUN PROGRAM / DSN SYSTEM run *inside* a DSN session that an
+        #     IKJEFT01 step already launched -- this rule already counts that
+        #     step (this very comment block names "DB2 DSN RUN PROGRAM" as
+        #     part of what IKJEFT01 "runs whatever SYSTSIN carries"). A
+        #     payload-level hit would recount the same execution decision at
+        #     finer grain, the exact problem #2751 already fixed once for a
+        #     bare PGM=.
+        #   - GRANT / DROP / DELETE / DEFINE CLUSTER / REPRO / FREE are
+        #     IDCAMS's/DSN's own fixed command grammar for cataloging,
+        #     copying and dataset lifecycle -- the same "destructive-capable
+        #     utility, fixed command language" reasoning that already keeps
+        #     IDCAMS itself out of this rule (the rm / rm -rf analogy two
+        #     paragraphs up). Per the contract's C4, single-dataset deletion
+        #     is cleanup's question, not this rule's, and JCL's cleanup rule
+        #     already models that exact teardown idiom at the
+        #     DISP=(...,DELETE) layer -- a payload DELETE/FREE would be the
+        #     same decision restated in IDCAMS syntax. DROP (table/tablespace,
+        #     not DROP DATABASE) and GRANT don't fit any of the contract's
+        #     five families; DEFINE CLUSTER/REPRO are allocation/copy, io's
+        #     territory conceptually, not this rule's.
+        #   - BIND is the one real gap: it installs an executable Db2
+        #     package, matching contract family (c), "loading or rewriting
+        #     code" (sqlite's load_extension( is the same family), and
+        #     nothing counts it today. But no rule in this engine reads a
+        #     BOUNDED SPAN of text (open on DD */DD DATA, close on a bare /*
+        #     or the next `//` statement) -- every jcl.py rule is anchored to
+        #     a single `^//...` line. That is new engine plumbing (plus its
+        #     own golden-master bless), not a one-line regex addition, so it
+        #     is split out to gitgalaxy#3010 rather than folded in here.
+        # Net: no rule change for eight of the nine verbs (recorded none_owned
+        # in tests/tools/embedded_verb_coverage.py's EXPECTED table, the same
+        # way that tool already records cobol's EXEC SQL GRANT/REVOKE -- "same
+        # auth-surface gap as SIGNON"); BIND tracked separately as #3010.
+        #
         # I/O (Data Set Names and Sysouts)
         # #2841 contract C4/C5: one hit per DD statement that allocates an
         # external target (a cataloged dataset or spooled output); DSN=&& temps

@@ -439,6 +439,55 @@ _JCL_STMT = re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+([A-Za-z]+)\b", re.M)
 # row per arbitrary embedded key. The per-line scan below (not a single
 # compiled multi-line regex) is what enforces that anchor.
 
+# #3002: that filed follow-up, picked up. The Db2 DSN command processor /
+# IDCAMS control-statement verbs actually carried inside a `//ddname DD *` or
+# `DD DATA` payload -- real, but deliberately not one row per arbitrary
+# embedded key the way OPERAND:/STMT: are; a small fixed vocabulary instead
+# (DSN SYSTEM, RUN PROGRAM, GRANT, DROP, DELETE, BIND, DEFINE CLUSTER, REPRO,
+# FREE -- the set the issue's own corpus grep found). PAYLOAD: prefix keeps
+# these visibly separate from real `//`-anchored JCL statement vocabulary.
+_DD_INSTREAM_OPEN = re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+DD[ \t]+(?:\*|DATA\b)", re.I)
+_INSTREAM_VERB_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
+    ("PAYLOAD:DSN SYSTEM", re.compile(r"\bDSN\s+SYSTEM\b", re.I)),
+    ("PAYLOAD:RUN PROGRAM", re.compile(r"\bRUN\s+PROGRAM\b", re.I)),
+    ("PAYLOAD:DEFINE CLUSTER", re.compile(r"\bDEFINE\s+CLUSTER\b", re.I)),
+    ("PAYLOAD:GRANT", re.compile(r"\bGRANT\b", re.I)),
+    ("PAYLOAD:DROP", re.compile(r"\bDROP\b", re.I)),
+    ("PAYLOAD:DELETE", re.compile(r"\bDELETE\b", re.I)),
+    ("PAYLOAD:BIND", re.compile(r"\bBIND\b", re.I)),
+    ("PAYLOAD:REPRO", re.compile(r"\bREPRO\b", re.I)),
+    ("PAYLOAD:FREE", re.compile(r"\bFREE\b", re.I)),
+]
+# A span this long is pathological; cap the scan, not the file (mirrors
+# cobol's _MAX_BLOCK for EXEC ... END-EXEC).
+_MAX_PAYLOAD_SPAN_LINES = 500
+
+
+def _jcl_instream_verb_hits(code_stream: str) -> dict[str, list[str]]:
+    """verb -> matched lines, over every `DD *`/`DD DATA` payload span.
+    Opens on the DD statement itself, closes on a bare `/*` line or the next
+    real `//` control statement, whichever comes first -- payload data has no
+    other terminator (same anchor discipline _JCL_STMT's own comment names)."""
+    out: dict[str, list[str]] = collections.defaultdict(list)
+    lines = code_stream.splitlines()
+    i, total = 0, len(lines)
+    while i < total:
+        if not _DD_INSTREAM_OPEN.match(lines[i]):
+            i += 1
+            continue
+        i += 1
+        span_lines = 0
+        while i < total and span_lines < _MAX_PAYLOAD_SPAN_LINES:
+            line = lines[i]
+            if line.strip() == "/*" or re.match(r"^[ \t]*//(?!\*)", line):
+                break
+            for label, pat in _INSTREAM_VERB_PATTERNS:
+                if pat.search(line):
+                    out[label].append(line.strip()[:200])
+            i += 1
+            span_lines += 1
+    return out
+
 
 def parse_jcl(code_stream: str) -> collections.Counter[str]:
     counts = collections.Counter()
@@ -472,6 +521,8 @@ def parse_jcl(code_stream: str) -> collections.Counter[str]:
             counts[f"OPERAND:{m.group(1).upper()}="] += 1
         if re.search(r"\bPGM=[A-Za-z0-9#$@]+", line, re.I):
             counts["PGM:*"] += 1
+    for verb, samples in _jcl_instream_verb_hits(code_stream).items():
+        counts[verb] += len(samples)
     return counts
 
 
@@ -490,6 +541,8 @@ def block_texts_jcl(code_stream: str) -> dict[str, list[str]]:
             out[f"OPERAND:{m.group(1).upper()}="].append(line[:200])
         if re.search(r"\bPGM=[A-Za-z0-9#$@]+", line, re.I):
             out["PGM:*"].append(line[:200])
+    for verb, samples in _jcl_instream_verb_hits(code_stream).items():
+        out[verb].extend(samples)
     return out
 
 
@@ -1200,6 +1253,37 @@ EXPECTED_JCL: dict[str, Owner] = {
         )
         for k in ("JAVADIR", "PATHPREF", "TMPDIR", "TMPFILE", "USSDIR")
     },
+    # --- #3002: Db2 DSN command processor / IDCAMS verbs inside a DD */DATA
+    # payload. Checked against docs/high_risk_execution_rule_contract.md
+    # (#2878) verb by verb, not as one blob -- full reasoning in jcl.py's own
+    # comment above the high_risk_execution rule.
+    "PAYLOAD:DSN SYSTEM": none_owned(
+        "#3002: runs inside a DSN session an IKJEFT01 step already launched -- high_risk_execution already counts that step; a payload hit would recount the same execution decision at finer grain (the #2751 problem, in miniature)."
+    ),
+    "PAYLOAD:RUN PROGRAM": none_owned(
+        "#3002: same reasoning as DSN SYSTEM -- the launching IKJEFT01 step is high_risk_execution's real owner, not the command it's told to run."
+    ),
+    "PAYLOAD:GRANT": none_owned(
+        "#3002: Db2 DCL; doesn't fit any of high_risk_execution's five contract families. Same auth-surface gap as cobol's EXEC SQL GRANT/REVOKE (NATIVE:GRANT/REVOKE above) -- recorded the same way, not ad hoc."
+    ),
+    "PAYLOAD:DROP": none_owned(
+        "#3002: DSN's DROP (table/tablespace, not DROP DATABASE) is IDCAMS/DSN's own fixed command grammar -- the same reasoning that already excludes IDCAMS itself from high_risk_execution (destructive-capable utility, fixed command language, the rm/rm-rf analogy)."
+    ),
+    "PAYLOAD:DELETE": none_owned(
+        "#3002: IDCAMS DELETE removes one dataset -- per the contract's C4, single-item deletion is cleanup's question, not high_risk_execution's, and jcl's cleanup rule already models this exact teardown idiom at the DISP=(...,DELETE) layer. A payload DELETE restates that decision in IDCAMS syntax, not a new one."
+    ),
+    "PAYLOAD:BIND": none_owned(
+        "#3002: the one real gap -- installs an executable Db2 package, contract family (c) 'loading or rewriting code' (sqlite's load_extension( is the same family), and nothing counts it today. Needs a bounded DD */DATA payload scanner this engine doesn't have yet (every jcl.py rule anchors a single `//` line); split out to gitgalaxy#3010 rather than folded in here."
+    ),
+    "PAYLOAD:DEFINE CLUSTER": none_owned(
+        "#3002: IDCAMS's VSAM-allocation command -- io's territory conceptually (it names a dataset to create), not high_risk_execution's; same fixed-command-language reasoning as the rest of the IDCAMS family."
+    ),
+    "PAYLOAD:REPRO": none_owned(
+        "#3002: IDCAMS's copy-between-datasets command -- io's territory conceptually, not high_risk_execution's; same fixed-command-language reasoning as DEFINE CLUSTER."
+    ),
+    "PAYLOAD:FREE": none_owned(
+        "#3002: releases a dataset allocation -- cleanup-shaped (same family as DELETE above), not high_risk_execution's."
+    ),
 }
 
 EXPECTED: dict[str, dict[str, Owner]] = {"cobol": EXPECTED_COBOL, "jcl": EXPECTED_JCL}

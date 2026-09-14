@@ -206,7 +206,13 @@ class RecordKeeper:
             # mapping them now would RENAME a shipped column out from under the
             # temporal-crucible queries this schema exists to serve.)
             "sec_db_hooks": "threat_db_sinks",
-            "sec_amplified_sql_injection": "threat_sql_injection",
+            # gitgalaxy#3018: named for the SHAPE it measures, not a verdict. It was
+            # briefly "threat_sql_injection" (#3017, one merge); measuring it found
+            # ~0% precision -- fastapi's test_annotated.py, which contains no database
+            # code at all, scored 13 "confirmed SQL injections" off FastAPI's `Query(`
+            # parameter helper. An AST-less engine cannot prove a value reaches a query
+            # (exactly #1020's reasoning), so the column may not claim that it did.
+            "sec_amplified_sql_injection": "threat_api_near_db_sink",
         }
 
     def record_mission(

@@ -1265,7 +1265,8 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         # entries above. Both were already computed per file and folded into
         # `equations` -- "sec_db_hooks" by security_lens.py's THREAT_SIGNATURES
         # and "sec_amplified_sql_injection" by galaxyscope.py's spatial
-        # correlation of a public `api` against that sink -- but neither name
+        # correlation of a public `api` against that sink (a CO-LOCATION, not a
+        # proven data-flow path -- see #3018) -- but neither name
         # was in this list, so hit_vector dropped them and they reached no
         # recorder: no audit-JSON signature row, no file_data column. Every
         # other security-lens count was already persisted (13 under their
@@ -1404,7 +1405,7 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "sec_unicode_steganography": "Invisible Unicode Payload Smuggling",
         "sec_self_propagation": "Self-Referential File Copy/Overwrite (Worm Pattern)",
         "sec_db_hooks": "Raw Database Sinks (Query/Cursor Execution)",
-        "sec_amplified_sql_injection": "Confirmed SQL Injection Path (Public API -> Raw DB Sink)",
+        "sec_amplified_sql_injection": "Public API Declared Near Raw DB Sink",
         # --- VULNERABILITY EXPOSURE MAPPINGS (Plain English) ---
         "secrets_risk": "Hardcoded Credential Exposure",
     },

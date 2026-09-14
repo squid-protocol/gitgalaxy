@@ -658,5 +658,55 @@ def test_lens_counts_survive_into_the_recorded_column_set():
     columns = [keeper.SHORT_KEY_MAP.get(h, h) for h in keeper.SIGNAL_SCHEMA]
 
     assert "threat_db_sinks" in columns
-    assert "threat_sql_injection" in columns
+    # #3018: named for the shape, never the verdict -- see the rename note in
+    # record_keeper.py. A column asserting "sql_injection" would be an overclaim
+    # an AST-less engine cannot back.
+    assert "threat_api_near_db_sink" in columns
+    assert "threat_sql_injection" not in columns
     assert len(columns) == len(set(columns)), "SHORT_KEY_MAP collapsed two signals onto one column"
+
+
+# ==============================================================================
+# gitgalaxy#3019: db_hooks needs a receiver anchor
+# ==============================================================================
+def test_db_hooks_requires_a_receiver_and_cannot_span_a_newline(lens):
+    """
+    The regression this sensor was rewritten for. The old bare-alternative form
+    (`\\b(?:execute|query|raw|cursor|...)\\b\\s*\\(`) claimed 240 hits across 76
+    crucible files, mostly on shapes that are not database sinks at all -- and it
+    drove the ~0% precision of the API-near-sink correlation (#3018).
+
+    Each negative below is a real corpus false positive, not a hypothetical:
+    `Query()` is fastapi/test_annotated.py (13 "confirmed SQL injections" in a file
+    with no database code), the declarations are okhttp/Solidity/Apex, `CURSOR (`
+    is a COBOL cursor declaration, and the newline case is how a hit landed on the
+    word "raw" inside an English prose comment in test_kotlin.py.
+    """
+    db_hooks = lens.THREAT_SIGNATURES["db_hooks"]
+
+    # --- real sinks: a query verb invoked on a receiver ---
+    for src in (
+        'cursor.execute("SELECT 1")',
+        'conn.execute(f"DELETE FROM {t} WHERE id = ?", (i,))',
+        "$sth->execute();",  # Perl DBI -- `->`, not `.`
+        "$insert->execute($value, $sortorder);",  # bugzilla
+        "$db->rawQuery($sql)",
+        "stmt.executeQuery(sql)",
+        "sqlite3_exec(db, sql, 0, 0, 0);",
+    ):
+        assert db_hooks.search(src), f"lost a genuine DB sink: {src!r}"
+
+    # --- not sinks ---
+    for src in (
+        'async def default(foo: Annotated[str, Query()] = "foo"):',  # FastAPI param helper
+        "fun execute(): Response",  # declaration
+        "function execute(ForwardRequestData calldata request)",  # declaration
+        "public static void execute(QueueableContext qc) {",  # declaration
+        "conn.cursor()",  # cursor CREATION, not an execution
+        "raw (",
+        "template.raw(strings)",  # not a query verb at all
+    ):
+        assert not db_hooks.search(src), f"false positive: {src!r}"
+
+    # `\\s*` used to let the verb and its paren sit on different lines.
+    assert not db_hooks.search("a kotlin raw\n(string)")

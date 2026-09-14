@@ -1305,7 +1305,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
 
         self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
         self.assertEqual(result["data"]["equations"].get("sec_amplified_sql_injection", 0), 1)
-        self.assertEqual(result["data"]["mitigation_telemetry"].get("amplified_sql_injection", 0), 1)
+        # #3018: the telemetry key names the shape (api near a db sink), not a verdict.
+        self.assertEqual(result["data"]["mitigation_telemetry"].get("api_near_db_sink", 0), 1)
+        self.assertNotIn("amplified_sql_injection", result["data"]["mitigation_telemetry"])
 
     # ==============================================================================
     # TEST 14: THE MEMORY HOLE (SARIF Sanitization & Inline Suppressions)

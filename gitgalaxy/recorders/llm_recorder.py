@@ -424,7 +424,10 @@ class LLMRecorder:
         # file-archetype mix that composes it.
         repo_comp = sum_data.get("repo_composition_archetype")
         if repo_comp:
-            lines.append(f"> **Composition Archetype:** `{repo_comp}` (from the repo's file-archetype mix)")
+            rz = sum_data.get("repo_composition_z", 0.0) or 0.0
+            lines.append(
+                f"> **Composition Archetype:** `{repo_comp}` (z {rz:+.2f}; from the repo's file-archetype mix)"
+            )
         fcd = sum_data.get("file_composition_distribution", {})
         fcd_total = sum(fcd.values())
         if fcd_total:
@@ -891,7 +894,8 @@ class LLMRecorder:
                 lines.append(f"- **Archetype:** `{arch}` (Distance: {dist} IQR)")
                 comp_arch = tel.get("composition_file_archetype")
                 if comp_arch:
-                    lines.append(f"- **Composition Archetype:** `{comp_arch}`")
+                    cz = tel.get("composition_file_z", 0.0) or 0.0
+                    lines.append(f"- **Composition Archetype:** `{comp_arch}` (z {cz:+.2f})")
                 lines.append(
                     f"- **Magnitude:** {m} | **LOC:** {loc} | **CtrlFlow:** {round(tel.get('control_flow_ratio', 0.0) * 100, 1)}% | **Authorship Centralization:** {round(tel.get('author_distribution', 0.0), 1)}%"
                 )

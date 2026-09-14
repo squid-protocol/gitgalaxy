@@ -80,7 +80,7 @@ METRICS: dict[str, Metric] = {
     "closeness": Metric(
         oracle_mode="strict",
         native=lambda index: dict(zip(index.nodes, closeness_and_path_length(index)[0])),
-        oracle=lambda graph: nx.closeness_centrality(graph),
+        oracle=nx.closeness_centrality,
         places=6,  # closeness_score
     ),
     "avg_path_length": Metric(

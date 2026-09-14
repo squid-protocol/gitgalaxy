@@ -109,6 +109,9 @@ ALLOWLIST = {
     "log_file_count": "repo-archetype-brain aux-quantile key (JSON-written, archetype_classifier.py)",
     "log_total_loc": "repo-archetype-brain aux-quantile key (JSON-written, archetype_classifier.py)",
     "pagerank_gini": "repo-archetype-brain aux-quantile key (JSON-written, archetype_classifier.py)",
+    "z_score_params": "archetype-brain key: per-cluster distance stats (JSON-written, archetype_classifier.py)",
+    "mean": "archetype-brain z_score_params sub-key (JSON-written, archetype_classifier.py._fit_z)",
+    "std": "archetype-brain z_score_params sub-key (JSON-written, archetype_classifier.py._fit_z)",
     # --- External YAML/env config ---
     "galaxyscope": "top-level section name in a user's .galaxyscope.yml project config file",
     "GITGALAXY_LICENSE_KEY": "environment variable (os.environ.get), not a repo-produced dict",

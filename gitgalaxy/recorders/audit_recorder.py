@@ -262,6 +262,7 @@ class AuditRecorder:
                     ),
                     "File Archetype": telemetry.get("local_archetype", "N/A"),
                     "Composition Archetype": telemetry.get("composition_file_archetype", "N/A"),
+                    "Composition Fit (Z-Score)": round(float(telemetry.get("composition_file_z", 0.0) or 0.0), 3),
                     "File Drift (Z-Score)": telemetry.get("local_drift", 0.0),
                     "File Fingerprint": (
                         {k: round(v, 3) for k, v in telemetry.get("local_fingerprint", {}).items()}
@@ -591,6 +592,9 @@ class AuditRecorder:
         _inner = summary.get("summary", {})
         if _inner.get("repo_composition_archetype"):
             summary["Repository Composition Archetype"] = _inner["repo_composition_archetype"]
+            summary["Repository Composition Fit (Z-Score)"] = round(
+                float(_inner.get("repo_composition_z", 0.0) or 0.0), 3
+            )
         _fcd = _inner.get("file_composition_distribution", {})
         _fcd_total = sum(_fcd.values())
         if _fcd_total:

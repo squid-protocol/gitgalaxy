@@ -1347,5 +1347,67 @@
   "html"
  ],
  "min_coding_loc": 8,
- "noncode_bucket": "Data / Markup / Trivial"
+ "noncode_bucket": "Data / Markup / Trivial",
+ "z_score_params": {
+  "Annotated Framework Methods Files": {
+   "mean": 1.14047,
+   "std": 0.24309
+  },
+  "Generic / Templated Code Files": {
+   "mean": 0.99437,
+   "std": 0.28142
+  },
+  "Declarative / Non-Code": {
+   "mean": 0.73449,
+   "std": 0.28824
+  },
+  "Compute Cores Files": {
+   "mean": 0.96302,
+   "std": 0.27757
+  },
+  "Interface Declarations Files": {
+   "mean": 1.00586,
+   "std": 0.32891
+  },
+  "I/O & Config Routines Files": {
+   "mean": 0.86008,
+   "std": 0.28214
+  },
+  "Parameter Forwarders Files": {
+   "mean": 1.11351,
+   "std": 0.26412
+  },
+  "C Struct Operations Files": {
+   "mean": 0.99733,
+   "std": 0.31658
+  },
+  "Tests & Verification Files": {
+   "mean": 0.89246,
+   "std": 0.28056
+  },
+  "State Mutators Files": {
+   "mean": 1.13795,
+   "std": 0.27682
+  },
+  "Defensive Guards Files": {
+   "mean": 1.15937,
+   "std": 0.24528
+  },
+  "Large Core Modules": {
+   "mean": 1.29647,
+   "std": 0.26896
+  },
+  "Encapsulated Accessors Files": {
+   "mean": 1.19217,
+   "std": 0.21126
+  },
+  "Many-Argument Workhorses Files": {
+   "mean": 1.09469,
+   "std": 0.2469
+  },
+  "Callbacks & Closures Files": {
+   "mean": 1.04457,
+   "std": 0.29171
+  }
+ }
 }

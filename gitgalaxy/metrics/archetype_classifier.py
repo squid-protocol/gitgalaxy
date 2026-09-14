@@ -17,7 +17,7 @@ absent or a network metric (pagerank in zero-dep mode) is missing.
 
 import bisect
 import math
-from typing import Any, Optional
+from typing import Any
 
 from gitgalaxy.standards import analysis_lens
 
@@ -31,7 +31,8 @@ def _rank(value: float, ref: list) -> float:
     return bisect.bisect_right(ref, float(value)) / (len(ref) - 1)
 
 
-def _nearest(vec: list, centroids: dict) -> Optional[str]:
+def _nearest(vec: list, centroids: dict):
+    """Return (name, euclidean_distance) of the nearest centroid, or (None, None)."""
     best, best_d = None, None
     for name, c in centroids.items():
         if len(c) != len(vec):
@@ -39,20 +40,28 @@ def _nearest(vec: list, centroids: dict) -> Optional[str]:
         d = sum((a - b) * (a - b) for a, b in zip(vec, c))
         if best_d is None or d < best_d:
             best_d, best = d, name
-    return best
+    return best, (math.sqrt(best_d) if best_d is not None else None)
 
 
-def classify_file(f: dict[str, Any]) -> Optional[str]:
-    """Assign a file its composition archetype (function-stoichiometry + structure
-    + graph role). Returns None if the brain is unavailable."""
+def _fit_z(dist, name, brain) -> float:
+    """Archetype-fit z-score: (distance - cluster mean) / cluster std. 0 if unknown."""
+    zp = (brain.get("z_score_params") or {}).get(name)
+    if not zp or dist is None:
+        return 0.0
+    return round((dist - zp["mean"]) / (zp["std"] or 1.0), 3)
+
+
+def classify_file(f: dict[str, Any]):
+    """Return (composition_archetype, fit_z_score) for a file, or (None, None) if the
+    brain is unavailable. Bucket labels (non-code) carry z=0.0."""
     b = analysis_lens.FILE_ARCHETYPE_BRAIN
     if not b:
-        return None
+        return None, None
     tel = f.get("telemetry", {}) or {}
     lang = str(f.get("lang_id", "")).lower()
     coding_loc = float(f.get("coding_loc", 0) or 0)
     if lang in set(b["noncode_languages"]) or coding_loc < b["min_coding_loc"]:
-        return b["noncode_bucket"]
+        return b["noncode_bucket"], 0.0
 
     mix = tel.get("function_archetype_mix", {}) or {}
     total = sum(mix.get(a, 0) for a in b["stoich_archetypes"])
@@ -72,7 +81,10 @@ def classify_file(f: dict[str, Any]) -> Optional[str]:
         "log_blast_radius": math.log1p(max(float(net.get("normalized_blast_radius", 0.0) or 0.0), 0.0)),
     }
     aux = [_rank(raw[fn], b["aux_quantiles"][fn]) for fn in b["aux_features"]]
-    return _nearest(stoich + aux, b["centroids"]) or b["noncode_bucket"]
+    name, dist = _nearest(stoich + aux, b["centroids"])
+    if name is None:
+        return b["noncode_bucket"], 0.0
+    return name, _fit_z(dist, name, b)
 
 
 def _gini(vals: list) -> float:
@@ -83,15 +95,16 @@ def _gini(vals: list) -> float:
     return sum((2 * (i + 1) - n - 1) * x for i, x in enumerate(xs)) / (n * s)
 
 
-def classify_repo(parsed_files: list[dict[str, Any]]) -> Optional[str]:
-    """Aggregate the scan's per-file composition archetypes + scale + coupling into a
-    repo archetype. Requires classify_file to have populated composition_file_archetype."""
+def classify_repo(parsed_files: list[dict[str, Any]]):
+    """Return (repo_archetype, fit_z_score) aggregated from the scan's per-file
+    composition archetypes + scale + coupling, or (None, None). Requires classify_file
+    to have populated composition_file_archetype. Micro bucket carries z=0.0."""
     b = analysis_lens.REPO_ARCHETYPE_BRAIN
     if not b:
-        return None
+        return None, None
     file_count = len(parsed_files)
     if file_count < b["min_files"]:
-        return b["micro_bucket"]
+        return b["micro_bucket"], 0.0
 
     comp_counts: dict[str, int] = {}
     noncode = 0
@@ -115,4 +128,7 @@ def classify_repo(parsed_files: list[dict[str, Any]]) -> Optional[str]:
     scale = [_rank(math.log1p(file_count), q["log_file_count"]), _rank(math.log1p(total_loc), q["log_total_loc"])]
     ncf = [noncode / file_count if file_count else 0.0]
     coup = [_rank(_gini(pageranks), q["pagerank_gini"])]
-    return _nearest(comp + scale + ncf + coup, b["centroids"])
+    name, dist = _nearest(comp + scale + ncf + coup, b["centroids"])
+    if name is None:
+        return None, None
+    return name, _fit_z(dist, name, b)

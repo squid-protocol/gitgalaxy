@@ -1339,10 +1339,12 @@ class SignalProcessor:
         # available. Assign each file its composition archetype (function stoichiometry
         # + structure + graph role), then aggregate into a repo archetype.
         for _f in parsed_files:
-            _fa = archetype_classifier.classify_file(_f)
+            _fa, _fz = archetype_classifier.classify_file(_f)
             if _fa is not None:
-                _f.setdefault("telemetry", {})["composition_file_archetype"] = _fa
-        repo_composition_archetype = archetype_classifier.classify_repo(parsed_files)
+                _tel = _f.setdefault("telemetry", {})
+                _tel["composition_file_archetype"] = _fa
+                _tel["composition_file_z"] = _fz
+        repo_composition_archetype, repo_composition_z = archetype_classifier.classify_repo(parsed_files)
         file_composition_distribution: dict[str, int] = {}
         for _f in parsed_files:
             _fa = (_f.get("telemetry", {}) or {}).get("composition_file_archetype")
@@ -1361,6 +1363,7 @@ class SignalProcessor:
                 "volatility_index": volatility_idx,
                 "Percent_Visible": round((1 - darkness_ratio) * 100, 1),
                 "repo_composition_archetype": repo_composition_archetype,
+                "repo_composition_z": repo_composition_z,
                 "file_composition_distribution": file_composition_distribution,
             },
             "repo_macro_species": repo_macro_data,

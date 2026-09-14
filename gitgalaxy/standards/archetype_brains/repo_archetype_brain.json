@@ -482,5 +482,35 @@
    0.32529
   ]
  },
- "micro_bucket": "Micro Repo (<30 files)"
+ "micro_bucket": "Micro Repo (<30 files)",
+ "z_score_params": {
+  "Guard/Validation-Heavy": {
+   "mean": 0.67488,
+   "std": 0.20802
+  },
+  "Small Flat Repo": {
+   "mean": 0.61657,
+   "std": 0.1712
+  },
+  "Hub-Coupled Monorepo": {
+   "mean": 0.46715,
+   "std": 0.15065
+  },
+  "Typed Library": {
+   "mean": 0.49024,
+   "std": 0.13481
+  },
+  "Hub-Coupled App": {
+   "mean": 0.4981,
+   "std": 0.14391
+  },
+  "Mainframe / COBOL & Config": {
+   "mean": 0.4951,
+   "std": 0.15935
+  },
+  "Flat Modular Platform": {
+   "mean": 0.55504,
+   "std": 0.14283
+  }
+ }
 }

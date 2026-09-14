@@ -294,6 +294,8 @@ class RecordKeeper:
                 is_zero_dependency_mode INTEGER DEFAULT 0,
                 {", ".join(hit_cols)},
                 file_composition TEXT,
+                repo_composition_archetype TEXT,
+                repo_composition_z REAL,
                 UNIQUE(repo_name, commit_hash)
             )
         """)
@@ -311,6 +313,8 @@ class RecordKeeper:
         # gitgalaxy#2985: repo_data's half of the hit_cols heal (see file_data's
         # below for why the INSERTs make this mandatory, not merely tidy).
         _ensure_columns(cursor, "repo_data", hit_cols)
+        # repo composition archetype (function-stoichiometry taxonomy) + its fit z-score
+        _ensure_columns(cursor, "repo_data", ["repo_composition_archetype TEXT", "repo_composition_z REAL"])
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS folder_data (
@@ -381,8 +385,10 @@ class RecordKeeper:
                 func_z_median REAL DEFAULT 0.0, 
                 pct_z_above_5 REAL DEFAULT 0.0, 
                 pct_z_above_15 REAL DEFAULT 0.0, 
-                file_archetype TEXT, 
+                file_archetype TEXT,
                 file_fingerprint TEXT,
+                composition_file_archetype TEXT,
+                composition_file_z REAL,
                 ecosystem_baseline TEXT,
                 repo_z_score REAL,
                 ai_threat_score REAL,
@@ -420,6 +426,8 @@ class RecordKeeper:
         # repo_data is healed further down, beside its own existing guarded
         # ALTER; class_data carries no hit columns.
         _ensure_columns(cursor, "file_data", hit_cols)
+        # composition archetype (function-stoichiometry taxonomy) + its fit z-score
+        _ensure_columns(cursor, "file_data", ["composition_file_archetype TEXT", "composition_file_z REAL"])
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS class_data (
@@ -722,6 +730,8 @@ class RecordKeeper:
 
             file_archetype = tel.get("archetype", "Unknown")
             file_fingerprint_str = json.dumps(tel.get("archetype_fingerprint", {}))
+            composition_file_archetype = tel.get("composition_file_archetype", "Unclassified")
+            composition_file_z = float(tel.get("composition_file_z", 0.0) or 0.0)
 
             agg_total_loc += file_data.get("total_loc", 0)
             agg_coding_loc += file_data.get("coding_loc", 0)
@@ -938,6 +948,8 @@ class RecordKeeper:
                 pct_z_above_15,
                 file_archetype,
                 file_fingerprint_str,
+                composition_file_archetype,
+                composition_file_z,
                 repo_macro,
                 repo_z,
                 ai_score,
@@ -998,6 +1010,7 @@ class RecordKeeper:
                     author, ai_threat_class, ai_threat_confidence,
                     func_z_max, func_z_mean, func_z_median, pct_z_above_5, pct_z_above_15,
                     file_archetype, file_fingerprint,
+                    composition_file_archetype, composition_file_z,
                     ecosystem_baseline, repo_z_score,
                     ai_threat_score, is_malware, has_credentials, binary_anomaly, obfuscation_flag,
                     token_mass, financial_read_cost, agentic_isolation_risk, requires_hitl, appsec_god_mode, hallucination_zone, silent_mutation_risk,
@@ -1087,6 +1100,9 @@ class RecordKeeper:
 
         macro_info = summary.get("repo_macro_species", {})
         repo_composition_str = json.dumps(summary.get("composition", {}))
+        _repo_summary = summary.get("summary", {})
+        repo_comp_archetype = _repo_summary.get("repo_composition_archetype") or "Unclassified"
+        repo_comp_z = float(_repo_summary.get("repo_composition_z", 0.0) or 0.0)
 
         total_files = len(parsed_files)
         total_unparsable = len(unparsable_files)
@@ -1147,7 +1163,7 @@ class RecordKeeper:
                 1 if session_meta.get("zero_dependency_mode") else 0,
             ]
             + agg_hits
-            + [repo_composition_str]
+            + [repo_composition_str, repo_comp_archetype, repo_comp_z]
         )
 
         repo_placeholders = ",".join(["?"] * len(repo_row_data))
@@ -1161,7 +1177,7 @@ class RecordKeeper:
                 network_modularity, network_assortativity, network_cyclic_density, network_avg_path_length, network_articulation_points,
                 audit_shadow_apis, audit_binary_anomalies, audit_unknown_packages, is_zero_dependency_mode,
                 {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])},
-                file_composition
+                file_composition, repo_composition_archetype, repo_composition_z
             ) VALUES ({repo_placeholders})
         """,  # noqa: S608 -- SHORT_KEY_MAP/SIGNAL_SCHEMA are internal constants, values go through repo_placeholders/`?`
             repo_row_data,

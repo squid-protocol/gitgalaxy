@@ -577,9 +577,9 @@ class SignalProcessor:
             stability_score, raw_churn_freq = self._calc_raw_temporal_signals(temporal_data)
 
             # ------------------------------------------------------------------
-            # 1.5 BUILD THE ML VECTOR & CLASSIFY ARCHETYPE
+            # 1.5 FUNCTION-LEVEL ARCHETYPE CLASSIFICATION
+            # (file/local archetypes are classified in record_keeper post-assembly)
             # ------------------------------------------------------------------
-            cfr = meta.get("control_flow_ratio", 0.0)
 
             # ---> NEW: THE ENCAPSULATION RATIO <---
             # How much of the file's data is safely locked inside functions?
@@ -592,13 +592,8 @@ class SignalProcessor:
                 # 1.0 = Perfect (0 globals). 0.0 = Terrible (All globals).
                 encapsulation_ratio = max(0.0, 1.0 - (global_vars / max(total_vars + global_vars, 1)))
 
-            logic_loc = max(int(round(meta.get("coding_loc", 0) * cfr)), 1)
-            safe_denom = max(logic_loc, meta.get("coding_loc", 1))
-
             # ---> START FUNCTION-LEVEL ML CLASSIFICATION <---
             functions = meta.get("functions", [])
-            max_func_comp = 0
-            avg_func_args = 0.0
             func_gini = 0.0
 
             # Rosetta-governed function-archetype model (k=14). The classifier below
@@ -638,8 +633,6 @@ class SignalProcessor:
             real_functions = [f for f in functions if not f.get("is_synthetic_slice")]
             if real_functions:
                 complexities = [f.get("branch", 0) for f in real_functions]
-                max_func_comp = max(complexities)
-                avg_func_args = sum([f.get("args", 0) for f in real_functions]) / len(real_functions)
 
                 # 1. Z-Scores Mathematics
                 func_count = len(real_functions)
@@ -722,76 +715,26 @@ class SignalProcessor:
                 _mix[_a] = _mix.get(_a, 0) + 1
             function_archetype_mix = dict(sorted(_mix.items(), key=lambda kv: (-kv[1], kv[0])))
 
-            raw_imports_count = len(meta.get("raw_imports", []))
             popularity = meta.get("popularity", 0)
 
-            log_logic_loc = math.log1p(logic_loc)
-            log_imports_out = math.log1p(raw_imports_count)
-            log_popularity_in = math.log1p(popularity)
-            log_max_func_comp = math.log1p(max_func_comp)
-            log_avg_func_args = math.log1p(avg_func_args)
-            log_churn = math.log1p(raw_churn_freq)
+            # #ENGINE-PARITY: the file (global macro-species) and per-language
+            # (local micro-species) archetypes are now classified from the FULLY-
+            # assembled metrics in record_keeper (mirroring offline
+            # apply_file_clusters) and written back into this telemetry dict before
+            # the recorders read it. The old raw_vector built here used a hardcoded
+            # feature set that silently drifted from the trainer -- the v2.8.0
+            # file_cluster "Unclassified"/mismatch bug. These are placeholders that
+            # record_keeper overwrites once every file metric + the function->file
+            # composition rollup are available.
+            global_archetype = "Unclassified"
+            global_drift = 0.0
+            arch_fingerprint: dict[str, float] = {}
 
-            raw_vector = []
-            for key in self.SIGNAL_SCHEMA:
-                # ---> THE DIMENSIONAL FIX: see ARCHETYPE_EXCLUDED_SIGNALS <---
-                if not is_archetype_feature(key):
-                    continue
-                raw_hit = signals.get(key, 0)
-                raw_density = (raw_hit / safe_denom) * 100.0
-                raw_vector.append(math.log1p(raw_density))
-
-            raw_vector.extend(
-                [
-                    cfr,
-                    log_logic_loc,
-                    log_imports_out,
-                    log_popularity_in,
-                    log_max_func_comp,
-                    log_avg_func_args,
-                    log_churn,
-                ]
-            )
-
-            # ------------------------------------------------------------------
-            # 1.6 BIAXIAL ANOMALY DETECTION (Global vs Local)
-            # ------------------------------------------------------------------
-            # A) GLOBAL MACRO-SPECIES
-            scaled_vector_global = []
-            for i, val in enumerate(raw_vector):
-                median = self.SCALER_MEDIANS[i] if i < len(self.SCALER_MEDIANS) else 0.0
-                safe_iqr = self.SCALER_IQRS[i] if i < len(self.SCALER_IQRS) and self.SCALER_IQRS[i] > 0 else 1.0
-                scaled_vector_global.append((val - median) / safe_iqr)
-
-            global_archetype, global_drift, arch_fingerprint = self._classify_archetype(
-                scaled_vector_global, self.GLOBAL_ARCHETYPES
-            )
-
-            # B) LOCAL MICRO-SPECIES
+            # B) LOCAL MICRO-SPECIES -- classified in record_keeper from the
+            # per-language self-describing brain (see above); placeholders here.
             local_archetype = None
             local_drift = 0.0
             local_fingerprint: dict[str, float] = {}
-
-            lang_brain = self.LANGUAGE_INFERENCE_MODELS.get(lang_id.lower())
-            if lang_brain:
-                lang_medians = lang_brain.get("SCALER_MEDIANS", [])
-                lang_iqrs = lang_brain.get("SCALER_IQRS", [])
-
-                # Find the dynamic K-key (e.g., ARCHETYPES_K11)
-                arch_key = next((k for k in lang_brain if k.startswith("ARCHETYPES_K")), None)
-                lang_archetypes = lang_brain.get(arch_key, {}) if arch_key else {}
-
-                if lang_medians and lang_iqrs and lang_archetypes:
-                    scaled_vector_local = []
-                    for i, val in enumerate(raw_vector):
-                        median = lang_medians[i] if i < len(lang_medians) else self.SCALER_MEDIANS[i]
-                        iqr = lang_iqrs[i] if i < len(lang_iqrs) else self.SCALER_IQRS[i]
-                        safe_iqr = iqr if iqr > 0 else 1.0
-                        scaled_vector_local.append((val - median) / safe_iqr)
-
-                    local_archetype, local_drift, local_fingerprint = self._classify_archetype(
-                        scaled_vector_local, lang_archetypes
-                    )
 
             # ------------------------------------------------------------------
             # 2. CORE RISK EXPOSURE CALCULATIONS

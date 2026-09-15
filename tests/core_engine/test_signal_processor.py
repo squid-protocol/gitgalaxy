@@ -926,9 +926,14 @@ def test_signal_processor_extension_deception(processor):
 # ==============================================================================
 def test_signal_processor_catastrophic_fallbacks(processor):
     """Ensures the physics engine survives catastrophic type errors and empty data sets."""
-    # 1. Force a catastrophic math crash (string instead of int)
+    # 1. Force a catastrophic crash early in per-file processing (before the risk
+    # math), so the fallback must zero the risk vector. A str `functions` breaks
+    # the function-classification loop (iterating chars, `.get` on a str). coding_loc
+    # alone no longer crashes here since file archetype classification moved to
+    # record_keeper.
     m_crash, sig_crash = create_synthetic_star(processor, "crash", 100)
     m_crash["coding_loc"] = "THIS_WILL_BREAK_MATH"
+    m_crash["functions"] = "THIS_WILL_BREAK_MATH"
 
     r_crash = processor.calculate_risk_vector(m_crash, sig_crash)
 
@@ -1796,51 +1801,51 @@ def test_function_archetype_classified_when_model_matches_live_dims(processor, m
     assert functions[0]["archetype"] == "Dense Logic"
 
 
-def test_file_archetype_unclassified_when_model_dims_mismatch(processor, caplog):
-    """
-    The shipped GENERAL_FILE_INFERENCE_MODEL is 115-dim while the live
-    raw_vector is 83-dim (#1158): every executable file must become
-    "Unclassified" rather than being labeled from a truncated comparison.
-    """
-    meta, sig = create_synthetic_star(processor, "file_mismatch", 50, {"branch": 20})
+def test_file_archetype_deferred_to_record_keeper(processor):
+    """File-level archetype classification moved out of signal_processor: it now
+    happens in record_keeper post-assembly, from the fully-computed file metrics +
+    the function->file composition rollup, against the self-describing brain
+    (FEATURE_NAMES-ordered, so a dimension mismatch is structurally impossible).
+    signal_processor emits a placeholder that record_keeper overwrites."""
+    meta, sig = create_synthetic_star(processor, "file_defer", 50, {"branch": 20})
     res = processor.calculate_risk_vector(meta, sig)
-
     assert res["telemetry"]["archetype"] == "Unclassified"
-    assert any("Archetype dimension mismatch" in r.message for r in caplog.records), (
-        "The 83-vs-115 mismatch should be logged loudly"
-    )
 
 
-def test_file_archetype_classified_when_model_matches_live_dims(monkeypatch):
-    """
-    With an 83-dim model matching the live raw_vector, file-level classification
-    still labels files through _classify_archetype (regression guard for #1158's
-    loud-failure guard not over-correcting into always-Unclassified).
-    """
-    from gitgalaxy.metrics.signal_processor import (
-        ARCHETYPE_ENGINEERED_FEATURES,
-        SignalProcessor,
-        is_archetype_feature,
-    )
+def test_record_keeper_classifies_file_archetype_from_self_describing_brain(monkeypatch):
+    """record_keeper._classify_file_archetype builds the vector in FEATURE_NAMES
+    order from the file's metrics (telemetry + engineered) and per-LOC signal
+    densities (via DNA_SOURCES), RobustScales, applies FEATURE_WEIGHTS, and takes
+    the nearest centroid -- the new home of file archetype classification."""
+    from gitgalaxy.recorders import record_keeper as rk_mod
+    from gitgalaxy.recorders.record_keeper import RecordKeeper
 
-    # Derived from the engine's own filter (#2985), not a hard-coded count: a
-    # new "sec_" signal must not move this, and a non-sec_ one must.
-    n_dims = sum(1 for k in SignalProcessor.SIGNAL_SCHEMA if is_archetype_feature(k)) + ARCHETYPE_ENGINEERED_FEATURES
-    fake_model = {
-        "SCALER_MEDIANS": [0.0] * n_dims,
-        "SCALER_IQRS": [1.0] * n_dims,
-        "ARCHETYPES_K2": {
-            "file_cluster_0": [100.0] * n_dims,
-            "file_cluster_1": [0.0] * n_dims,
-        },
+    fake = {
+        "FEATURE_NAMES": ["func_z_max", "log_density_struct_branch"],
+        "FEATURE_WEIGHTS": [1.0, 1.0],
+        "CAP_VALUES": {},
+        "DNA_SOURCES": {"log_density_struct_branch": "branch"},  # column stem -> signal key
+        "SCALER_MEDIANS": [0.0, 0.0],
+        "SCALER_IQRS": [1.0, 1.0],
+        "cluster_names": ["file_cluster_0", "file_cluster_1"],
+        "ARCHETYPES_K2": {"file_cluster_0": [50.0, 10.0], "file_cluster_1": [0.0, 0.0]},
     }
-    monkeypatch.setattr("gitgalaxy.metrics.signal_processor.analysis_lens.GENERAL_FILE_INFERENCE_MODEL", fake_model)
-    processor = SignalProcessor()
-
-    meta, sig = create_synthetic_star(processor, "file_match", 50, {"branch": 20})
-    res = processor.calculate_risk_vector(meta, sig)
-
-    assert res["telemetry"]["archetype"] == "file_cluster_1"
+    monkeypatch.setattr(rk_mod, "GENERAL_FILE_INFERENCE_MODEL", fake)
+    rk = RecordKeeper()
+    rk._prep_file_brain()
+    base_ctx = {
+        "coding_loc": 100.0, "func_z_max": 0.0, "func_z_mean": 0.0, "func_z_median": 0.0,
+        "pct_z_above_5": 0.0, "pct_z_above_15": 0.0, "micro": {}, "precalc": {},
+    }
+    hv_zero = [0] * len(rk.SIGNAL_SCHEMA)
+    # A quiet, branch-free file lands on the all-zero centroid.
+    assert rk._classify_file_archetype(base_ctx, hv_zero) == "file_cluster_1"
+    # A branch-heavy, high-outlier file lands on the far centroid; the density
+    # feature is reconstructed from the `branch` signal via DNA_SOURCES.
+    hv_hot = list(hv_zero)
+    hv_hot[rk.SIGNAL_SCHEMA.index("branch")] = 100
+    hot_ctx = dict(base_ctx, func_z_max=50.0)
+    assert rk._classify_file_archetype(hot_ctx, hv_hot) == "file_cluster_0"
 
 
 # ==============================================================================

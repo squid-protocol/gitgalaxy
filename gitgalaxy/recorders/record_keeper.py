@@ -16,12 +16,19 @@
 
 import json
 import logging
+import math
 import sqlite3
 import statistics
 from pathlib import Path
 from typing import Optional, TypedDict, cast
 
-from gitgalaxy.standards.analysis_lens import ENGINE_CONSTANTS, RECORDING_SCHEMAS, SURFACE_FAMILIES
+from gitgalaxy.standards.analysis_lens import (
+    ENGINE_CONSTANTS,
+    GENERAL_FILE_INFERENCE_MODEL,
+    GENERAL_FUNCTION_INFERENCE_MODEL,
+    RECORDING_SCHEMAS,
+    SURFACE_FAMILIES,
+)
 
 # #2705: per-function evidence-mass floor (see analysis_lens.ENGINE_CONSTANTS).
 FUNC_EVIDENCE_MASS_FLOOR = float(cast("int", ENGINE_CONSTANTS["FUNC_EVIDENCE_MASS_FLOOR"]))
@@ -214,6 +221,83 @@ class RecordKeeper:
             # (exactly #1020's reasoning), so the column may not claim that it did.
             "sec_amplified_sql_injection": "threat_api_near_db_sink",
         }
+
+    def _prep_file_brain(self) -> None:
+        """#ENGINE-PARITY: cache the self-describing FILE archetype brain contract.
+        The engine builds the file vector strictly in FEATURE_NAMES order from the
+        fully-computed file record (all metrics + the function->file composition
+        rollup), so it can never drift from the trainer (cluster_files.py)."""
+        b = GENERAL_FILE_INFERENCE_MODEL
+        if not b.get("FEATURE_NAMES") or not b.get("SCALER_MEDIANS"):
+            self._file_brain = None
+            return
+        ak = next((k for k in b if k.startswith("ARCHETYPES_K")), None)
+        names = b.get("cluster_names") or list(b.get(ak, {}).keys())
+        self._file_brain = {
+            "FEATURE_NAMES": b["FEATURE_NAMES"],
+            "SCALER_MEDIANS": b["SCALER_MEDIANS"],
+            "SCALER_IQRS": b["SCALER_IQRS"],
+            "FEATURE_WEIGHTS": b.get("FEATURE_WEIGHTS", [1.0] * len(b["FEATURE_NAMES"])),
+            "CAP_VALUES": b.get("CAP_VALUES", {}),
+            "DNA_SOURCES": b.get("DNA_SOURCES", {}),
+            "names": names,
+            "centroids": list(b.get(ak, {}).values()),
+        }
+        self._file_sig_idx = {s: i for i, s in enumerate(self.SIGNAL_SCHEMA)}
+        # function cluster order defines the micro_<i> composition index (verified
+        # identical to the rollup order used to train the file model).
+        self._func_name_to_idx = {n: i for i, n in enumerate(GENERAL_FUNCTION_INFERENCE_MODEL.get("cluster_names", []))}
+
+    def _classify_file_archetype(self, ctx: dict, hv: list) -> Optional[str]:
+        """Nearest-centroid file archetype from the assembled metrics, mirroring the
+        offline apply_file_clusters. Returns the archetype name, or None if the brain
+        is unavailable/degenerate (caller keeps its fallback label)."""
+        if not hasattr(self, "_file_brain"):
+            self._prep_file_brain()
+        fb = self._file_brain
+        if not fb:
+            return None
+        cl = float(ctx.get("coding_loc", 0.0) or 0.0)
+        denom = cl if cl > 0 else 1.0
+        micro = ctx.get("micro", {})
+        precalc = ctx.get("precalc", {})
+        dna = fb["DNA_SOURCES"]
+        caps = fb["CAP_VALUES"]
+        med, iqr, wts = fb["SCALER_MEDIANS"], fb["SCALER_IQRS"], fb["FEATURE_WEIGHTS"]
+        vec = []
+        for i, fn in enumerate(fb["FEATURE_NAMES"]):
+            if fn == "log_coding_loc":
+                v = math.log1p(cl)
+            elif fn in ("func_z_max", "func_z_mean", "func_z_median", "pct_z_above_5", "pct_z_above_15"):
+                v = float(ctx.get(fn, 0.0))
+            elif fn.startswith("log_micro_") and fn.endswith("_pct"):
+                v = math.log1p(float(micro.get(int(fn[len("log_micro_") : -len("_pct")]), 0.0)))
+            elif fn.startswith("log_density_"):
+                col = fn[len("log_density_") :]
+                sidx = self._file_sig_idx.get(dna.get(fn, col))
+                hit = float(hv[sidx]) if sidx is not None and sidx < len(hv) else 0.0
+                raw = (hit / denom) * 100.0
+                cap = caps.get(col)
+                if cap is not None and raw > cap:
+                    raw = cap
+                v = math.log1p(raw)
+            elif fn.startswith("log_"):
+                v = math.log1p(float(precalc.get(fn[len("log_") :], 0.0)))
+            else:
+                v = 0.0
+            m = med[i] if i < len(med) else 0.0
+            q = iqr[i] if i < len(iqr) and iqr[i] > 0 else 1.0
+            w = wts[i] if i < len(wts) else 1.0
+            vec.append(((v - m) / q) * w)
+        best_i, best_d = -1, None
+        for ci, cen in enumerate(fb["centroids"]):
+            d = 0.0
+            for j in range(min(len(vec), len(cen))):
+                diff = vec[j] - cen[j]
+                d += diff * diff
+            if best_d is None or d < best_d:
+                best_d, best_i = d, ci
+        return fb["names"][best_i] if 0 <= best_i < len(fb["names"]) else None
 
     def record_mission(
         self,
@@ -782,6 +866,54 @@ class RecordKeeper:
             raw_orphans = int(raw_pre.get("unreferenced_by_name", adjusted_orphans))
 
             file_archetype = tel.get("archetype", "Unknown")
+            # #ENGINE-PARITY (file archetype): classify from the fully-assembled
+            # metrics + function->file composition via the self-describing file
+            # brain (Option 1 post-assembly pass, mirroring apply_file_clusters).
+            # Replaces signal_processor's hardcoded-vector value, which drifted from
+            # the trainer and read "Unclassified" for code files.
+            if not hasattr(self, "_file_brain"):
+                self._prep_file_brain()
+            # Classify any file with code (matching the trainer's coding_loc>=10
+            # population); a func-less code file just has all-zero z-score/composition
+            # features, exactly as it did during training. No functions is fine.
+            if self._file_brain and float(file_data.get("coding_loc", 0) or 0) > 0:
+                _mix: dict[int, int] = {}
+                for _f in file_data.get("functions", []) or []:
+                    _idx = self._func_name_to_idx.get(_f.get("archetype"))
+                    if _idx is not None:
+                        _mix[_idx] = _mix.get(_idx, 0) + 1
+                _tot = sum(_mix.values())
+                _micro = {k: (v / _tot) * 100.0 for k, v in _mix.items()} if _tot else {}
+                _res = self._classify_file_archetype(
+                    {
+                        "coding_loc": float(file_data.get("coding_loc", 0) or 0),
+                        "func_z_max": func_z_max,
+                        "func_z_mean": func_z_mean,
+                        "func_z_median": func_z_median,
+                        "pct_z_above_5": pct_z_above_5,
+                        "pct_z_above_15": pct_z_above_15,
+                        "micro": _micro,
+                        "precalc": {
+                            "control_flow_ratio": float(tel.get("control_flow_ratio", 0.0)),
+                            "avg_func_loc": avg_loc,
+                            "avg_func_complexity": avg_comp,
+                            "max_func_complexity": max_comp,
+                            "avg_func_args": avg_args,
+                            "func_complexity_gini": float(tel.get("func_complexity_gini", 0.0)),
+                            "func_internal_density": func_internal_density,
+                            "dependency_density": dependency_density,
+                            "encapsulation_ratio": encapsulation_ratio,
+                        },
+                    },
+                    hv,
+                )
+                if _res:
+                    file_archetype = _res
+            # Propagate the authoritative file archetype back into the shared
+            # telemetry dict so the audit/LLM recorders (which run AFTER this DB
+            # recorder, see galaxyscope recorder order) report the same value the
+            # DB stores, instead of signal_processor's now-retired placeholder.
+            tel["archetype"] = file_archetype
             file_fingerprint_str = json.dumps(tel.get("archetype_fingerprint", {}))
             composition_file_archetype = tel.get("composition_file_archetype", "Unclassified")
             composition_file_z = float(tel.get("composition_file_z", 0.0) or 0.0)

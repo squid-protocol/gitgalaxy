@@ -1382,6 +1382,30 @@ class Orchestrator:
             # Delegates the sealed state objects to output-specific engines.
             # ==========================================================
 
+            # --- Phase 12.0: SQLite Recorder (Native Database) ---
+            # #ENGINE-PARITY: runs BEFORE the audit/LLM recorders so the file
+            # archetype record_keeper classifies from the fully-assembled metrics is
+            # written back into each file's telemetry dict; the reports then report
+            # the same value the DB stores.
+            if not exclusive_mode or self.config.get("DB_ONLY"):
+                try:
+                    db_output = str(Path(output_file).with_name(f"{Path(output_file).stem}_master.db"))
+                    logger.info(f"SQLITE: Generating repository-specific database -> {db_output}")
+
+                    self.db_recorder.record_mission(
+                        parsed_files=(list(repository_graph) if repository_graph else []),
+                        unparsable_files=(list(total_unparsable) if total_unparsable else []),
+                        summary=summary,
+                        session_meta=session_meta,
+                        output_path=db_output,
+                        dependency_edges=self.network_sensor.dependency_edges,  # #2992
+                    )
+                except Exception as e:
+                    logger.error(
+                        f"SQLITE_FAILURE: Could not generate native database. {e}",
+                        exc_info=True,
+                    )
+
             # --- Phase 12.1: Audit Recorder (Forensic Log) ---
             if not exclusive_mode or self.config.get("AUDIT_ONLY"):
                 try:
@@ -1421,26 +1445,6 @@ class Orchestrator:
                 except Exception as e:
                     logger.error(
                         f"LLM_FAILURE: Could not generate AI artifacts. {e}",
-                        exc_info=True,
-                    )
-
-            # --- Phase 12.3: SQLite Recorder (Native Database) ---
-            if not exclusive_mode or self.config.get("DB_ONLY"):
-                try:
-                    db_output = str(Path(output_file).with_name(f"{Path(output_file).stem}_master.db"))
-                    logger.info(f"SQLITE: Generating repository-specific database -> {db_output}")
-
-                    self.db_recorder.record_mission(
-                        parsed_files=(list(repository_graph) if repository_graph else []),  # <--- PASS A COPY
-                        unparsable_files=(list(total_unparsable) if total_unparsable else []),  # <--- PASS A COPY
-                        summary=summary,
-                        session_meta=session_meta,
-                        output_path=db_output,
-                        dependency_edges=self.network_sensor.dependency_edges,  # #2992
-                    )
-                except Exception as e:
-                    logger.error(
-                        f"SQLITE_FAILURE: Could not generate native database. {e}",
                         exc_info=True,
                     )
 

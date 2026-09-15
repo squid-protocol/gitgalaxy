@@ -46,6 +46,7 @@ not a defect:
 | `sqlite` | `CREATE [TEMP] VIEW` / `CREATE VIRTUAL TABLE` |
 | `matlab` | a column-0 `function` declaration (a function file's callable surface) |
 | `jcl` | `//name PROC` — a cataloged or in-stream procedure, what `EXEC name` in other members invokes ([#2748](https://github.com/squid-protocol/gitgalaxy/issues/2748)) |
+| `pli` | `OPTIONS(MAIN)` / `OPTIONS(FETCHABLE)` on a procedure, a `PACKAGE`'s `EXPORTS(...)` list, a secondary `label: ENTRY` — an external procedure is public by default, but nothing in the syntax tells it from an internal one, so only the explicit entry points count ([#2502](https://github.com/squid-protocol/gitgalaxy/issues/2502)) |
 
 `matlab` is the one place where the fallback is knowingly approximate: a `.m` function file
 publishes only its *leading* function, and local functions after it are file-private, but nothing

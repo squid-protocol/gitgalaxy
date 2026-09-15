@@ -565,6 +565,9 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "objective-c",
         "perl",
         "php",
+        # #2502: pli's class_start is DEFINE STRUCTURE / DEFINE ORDINAL with the name
+        # in group 1; the generic fallback (`class|struct|...`) can never match it.
+        "pli",
         "powershell",
         "python",
         "ruby",
@@ -3278,6 +3281,13 @@ class StructuralExtractor:
                         # reached the named list). Mode A's "greedy to the next
                         # func_start match" body heuristic is a correct, direct fit.
                         "ada",
+                        # #2502: pli is ada's shape -- `label: PROC; ... END label;`, no
+                        # braces and no ScopeParsingRegistry entry, so without this it
+                        # falls through to Mode_B_Braces like ada did before #2648.
+                        # Internal procedures nest, so a nested PROC ends its parent's
+                        # body early; that is the same approximation ada's nested
+                        # subprograms already take.
+                        "pli",
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)

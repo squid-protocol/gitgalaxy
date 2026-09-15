@@ -111,6 +111,7 @@ from .languages import pbtxt as _pbtxt
 from .languages import perl as _perl
 from .languages import php as _php
 from .languages import plaintext as _plaintext
+from .languages import pli as _pli
 from .languages import powershell as _powershell
 from .languages import proto as _proto
 from .languages import python as _python
@@ -201,4 +202,5 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "batch": _batch.DEFINITION,
     "jcl": _jcl.DEFINITION,
     "ada": _ada.DEFINITION,
+    "pli": _pli.DEFINITION,
 }

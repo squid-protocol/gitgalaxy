@@ -920,7 +920,11 @@ class Orchestrator:
         # directory -- the 16th (past MICRO_MASS_GRACE_LIMIT) was silently dropped from
         # file_data with no trace but an Excluded Artifacts line, never reaching prism/
         # detector at all (#2512).
-        self.MICRO_MASS_EXEMPT_EXTENSIONS = frozenset({".cpy", ".cbl", ".cob", ".jcl", ".sql", ".ddl", ".dml"})
+        # PL/I %INCLUDE members (#2502) are the copybook shape: navikt/DSF keeps 1,473
+        # of them in one src/ directory, many a single short DECLARE.
+        self.MICRO_MASS_EXEMPT_EXTENSIONS = frozenset(
+            {".cpy", ".cbl", ".cob", ".jcl", ".sql", ".ddl", ".dml", ".pli", ".pl1", ".plinc"}
+        )
 
         self.splicing_telemetry = {
             "top_slowest": [],

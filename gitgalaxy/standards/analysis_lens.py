@@ -185,6 +185,7 @@ LANGUAGE_STRICTNESS: dict[str, Optional[tuple[bool, bool, bool, bool]]] = {
     "perl": (False, False, True, False),  # `use strict` is not the default
     "php": (False, False, True, True),  # function scope needs `global`
     "plaintext": None,
+    "pli": (True, False, False, False),  # POINTER/BASED/ALLOCATE/FREE; undeclared names get implicit attributes
     "powershell": (False, False, True, True),  # non-terminating errors continue by default
     "proto": None,
     "python": (False, False, True, True),
@@ -958,6 +959,7 @@ LANGUAGE_SECURITY_PROFILES = {
             "agc_assembly",
             "zig",
             "cobol",
+            "pli",
             "fortran",
             "micropython",
             "objective-c",

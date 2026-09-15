@@ -55,9 +55,9 @@ surface) and took jcl from 4th-worst of 46 to mid-pack. Write this section via t
 keyword-rosetta repo's `rosetta-language-sweep` skill once a language's rosetta issue gets a real
 sweep; the section template is in the `language-status` skill.
 
-## Signature-bearing languages (46)
+## Signature-bearing languages (47)
 
-`LANGUAGE_DEFINITIONS` recognizes 59 languages/formats; these 46 have at least one non-`None`
+`LANGUAGE_DEFINITIONS` recognizes 60 languages/formats; these 47 have at least one non-`None`
 structural-signature rule (`func_start`/`branch`/`io`/etc.) — the ones a per-language status doc
 in this folder is actually for. "Rules" is wired-keys/total-keys in that language's `rules` dict.
 "Extraction tests" / "Strict tests" are live `pytest --collect-only` counts for
@@ -99,6 +99,7 @@ epic #813), not that no cases exist.
 | objective-c | production | standard_block | 52/52 | 95 | 83 | not written |
 | perl | production | line_exclusive | 52/52 | 32 | 69 | not written |
 | php | production | standard_block | 51/52 | 4* | 84 | not written |
+| **[pli](pli.md)** | production | standard_block | 46/54 | 54 | 158 | **written** (#2502) |
 | powershell | production | embedded_syntax | 50/52 | 68 | 85 | not written |
 | **[python](python.md)** | production | line_exclusive | 61/64 | 60 | 92 | **written** |
 | ruby | production | line_exclusive | 51/52 | 4* | 66 | not written |

@@ -503,7 +503,9 @@ class ApertureFilter:
         # ==============================================================================
 
         # --- Gate 5.1: Lexical Monotony Sensor ---
-        if loc > 2000 and not has_intent and not low_path.endswith((".cpy", ".cbl", ".cob")):
+        # Fixed-format mainframe source (COBOL, PL/I #2502) is uniformly indented by
+        # construction, which this indentation-frequency sensor reads as machine output.
+        if loc > 2000 and not has_intent and not low_path.endswith((".cpy", ".cbl", ".cob", ".pli", ".pl1")):
             sample_lines = lines_list[:500]
             meaningful_lines = [l for l in sample_lines if l.strip()]
 

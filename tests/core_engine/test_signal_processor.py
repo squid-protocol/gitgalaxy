@@ -385,8 +385,8 @@ def test_signal_processor_aggregations(processor):
 def test_systemic_bottlenecks_rank_only_computed_metrics(processor):
     """
     #3027: each bottleneck ranking multiplies one centrality metric by a risk.
-    A file whose metric was not computed (None -- betweenness/closeness without
-    networkx, closeness above 1,500 files) must not enter that ranking; read as
+    A file whose metric was not computed (None -- a centrality past its work
+    budget, or a failed computation) must not enter that ranking; read as
     0.0 it used to fill every list with zero-score files picked by path order.
     """
     files = []
@@ -688,8 +688,8 @@ def test_signal_processor_ai_topology(processor):
 
 def test_signal_processor_ai_topology_skips_uncomputed_metrics(processor):
     """
-    #3027: a None blast radius / betweenness means "not computed" (no networkx,
-    or a failed computation). The posture insights that need them are skipped --
+    #3027: a None blast radius / betweenness means "not computed" (past its
+    work budget, or a failed computation). The posture insights that need them are skipped --
     a placeholder 0.0 used to produce a false "Containment (Low Risk)" verdict.
     """
     m1, sig1 = create_synthetic_star(processor, "orchestrator", 100, {"llm_orchestrator": 10})

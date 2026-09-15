@@ -24,7 +24,7 @@ inputs:
     required: false
     default: 'latest'
   full_precision:
-    description: 'Opt-in to install heavy physics engines (networkx, tiktoken, xgboost) for Blast Radius and ML Threat Inference.'
+    description: 'Opt-in to install the optional engines (tiktoken, xgboost/pandas/numpy) for token mass and ML Threat Inference. Graph metrics such as Blast Radius need none.'
     required: false
     default: 'false'
 
@@ -55,7 +55,7 @@ runs:
 
         if [ "$GG_FULL_PRECISION" = "true" ]; then
           echo "Unlocking Full Precision Mode..."
-          pip install networkx tiktoken xgboost pandas numpy
+          pip install tiktoken xgboost pandas numpy
         else
           echo "Running in ultra-fast Zero-Dependency Mode."
         fi

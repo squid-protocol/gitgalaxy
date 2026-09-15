@@ -1308,8 +1308,8 @@ class Orchestrator:
                         )
 
                         net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
-                        # #3027: blast radius is computed in every mode now (native
-                        # PageRank without networkx); None only when that
+                        # #3027: blast radius is computed in every mode (native
+                        # PageRank, no optional package); None only when that
                         # computation failed, in which case this file's ceiling
                         # cannot be evaluated -- say so, don't multiply a placeholder.
                         blast_radius = net_metrics.get("normalized_blast_radius")

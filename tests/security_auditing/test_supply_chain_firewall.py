@@ -616,8 +616,8 @@ def test_network_weighting_amplifies_high_centrality_hub():
 
 def test_network_weighting_tolerates_uncomputed_centrality():
     """
-    #3027: betweenness is None without networkx (and blast radius is None if
-    PageRank failed). The multiplier must neither crash on None nor amplify off
+    #3027: betweenness is None past its work budget (and blast radius is None
+    if PageRank failed). The multiplier must neither crash on None nor amplify off
     a metric nobody measured.
     """
     config = _make_config(FIREWALL_NETWORK_WEIGHTING=True)

@@ -97,9 +97,7 @@ jobs:
         run: |
           python -m venv baseline-venv
           baseline-venv/bin/pip install --upgrade pip
-          # networkx stays for the baseline: a main build from before #3041 still
-          # reads it to decide its mode, and must run at full precision.
-          baseline-venv/bin/pip install PyYAML networkx tiktoken numpy pandas xgboost
+          baseline-venv/bin/pip install PyYAML tiktoken numpy pandas xgboost
           baseline-venv/bin/pip install ./gitgalaxy-baseline
 
       - name: Run all language gates, classify against the baseline

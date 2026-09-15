@@ -61,7 +61,7 @@ gitgalaxy_scan:
     - |
       if [ "$GG_FULL_PRECISION" = "true" ]; then
         echo "Unlocking Full Precision Mode..."
-        pip install networkx tiktoken xgboost pandas numpy
+        pip install tiktoken xgboost pandas numpy
       else
         echo "Running in ultra-fast Zero-Dependency Mode."
       fi

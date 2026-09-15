@@ -384,8 +384,8 @@ class LLMRecorder:
             lines.append("| Metric | Value | Interpretation |")
             lines.append("|---|---|---|")
 
-            # #3027 (and #473's contract): None = not computed -- no networkx, or
-            # skipped for scale. Render it as such; `or 0.0` here used to print
+            # #3027 (and #473's contract): None = not computed -- failed, or past
+            # its work budget. Render it as such; `or 0.0` here used to print
             # "Modularity 0.0 / Cyclic Density 0.0%" for a scan that measured nothing.
             def _macro(key: str, fmt: Any = str) -> str:
                 value = net_macro.get(key)

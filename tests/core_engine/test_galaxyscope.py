@@ -701,8 +701,8 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     def test_zero_dependency_mode_execution(self, mock_fw, mock_xr, mock_api, mock_calc, mock_res, mock_ext, mock_cen):
         """
         DEVIOUS EDGE CASE: Running on a stripped-down Alpine Linux container without
-        Pandas, NetworkX, or Tiktoken. The pipeline must disable the ML and network
-        modules without throwing ImportError exceptions.
+        Pandas or Tiktoken. The pipeline must disable the ML module without
+        throwing ImportError exceptions.
         """
         scope = Orchestrator(".", self.mock_config)
         scope.parsed_files = [{"path": "dummy.py", "telemetry": {}}]

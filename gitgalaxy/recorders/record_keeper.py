@@ -742,8 +742,8 @@ class RecordKeeper:
             # datasets. Keeping both means the capture count stays available as external-
             # dependency surface while the graph column means its name. out_degree is a
             # pure topology count the zero-dependency fallback computes too, so it is
-            # populated in both modes -- same as popularity (in_degree), unlike the
-            # networkx-derived scores that None out further down.
+            # populated in every mode -- same as popularity (in_degree), unlike the
+            # budgeted graph scores that can be None further down.
             import_count = len(file_data.get("raw_imports", []))
             internal_dependency_links = int(tel.get("network_metrics", {}).get("out_degree", 0) or 0)
 
@@ -918,8 +918,8 @@ class RecordKeeper:
             net_mets = tel.get("network_metrics", {})
 
             # #3027: the network sensor is the authority on what was computed. It
-            # writes None for a metric it could not compute (betweenness/closeness
-            # without networkx, closeness above 1,500 files, a failed computation)
+            # writes None for a metric it could not compute (a search past its work
+            # budget, a failed computation)
             # and a real value otherwise -- including native PageRank in
             # zero-dependency mode. So these are read straight through (None ->
             # NULL) instead of being NULLed whenever the scan ran in zero-dependency
@@ -1216,7 +1216,7 @@ class RecordKeeper:
 
         # #473: no `, 0.0` fallback -- network_risk_sensor.py's producer
         # always sets these keys to either a real value or an explicit None
-        # (not computed: no networkx, failed, or skipped for scale), never
+        # (not computed: failed, or past its work budget), never
         # leaves them absent. Defaulting a missing key to 0.0 here would
         # silently turn that honest None back into a fake "measured zero".
         # #3027: read in every mode -- the sensor's None already says "not

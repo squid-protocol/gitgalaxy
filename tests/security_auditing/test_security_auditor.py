@@ -46,7 +46,7 @@ def mock_artifacts():
 
 
 # ==============================================================================
-# TEST 1: DEPENDENCY GRAPH RESOLUTION (NetworkX vs Pure Python Deque)
+# TEST 1: DEPENDENCY GRAPH RESOLUTION (exact reach counts, #3040)
 # ==============================================================================
 def test_dependency_graph_counts_a_cycle_exactly(mock_artifacts):
     """

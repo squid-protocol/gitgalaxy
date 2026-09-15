@@ -37,7 +37,7 @@ pipelines:
           - |
             if [ "$GG_FULL_PRECISION" = "true" ]; then
               echo "Unlocking Full Precision Mode..."
-              pip install networkx tiktoken xgboost pandas numpy
+              pip install tiktoken xgboost pandas numpy
             else
               echo "Running in ultra-fast Zero-Dependency Mode."
             fi
@@ -84,7 +84,7 @@ pipelines:
               fi
             - |
               if [ "$GG_FULL_PRECISION" = "true" ]; then
-                pip install networkx tiktoken xgboost pandas numpy
+                pip install tiktoken xgboost pandas numpy
               fi
             - |
               echo "Running: ${GG_TOOL} ${GG_TARGET} ${GG_ARGS}"

@@ -8,12 +8,12 @@ from gitgalaxy.metrics.signal_processor import SignalProcessor
 
 class TestZeroDependencyMode(unittest.TestCase):
     # ==============================================================================
-    # TEST 1: NETWORK TOPOLOGY FALLBACK (NetworkX)
+    # TEST 1: NETWORK TOPOLOGY -> SIGNAL PROCESSOR (no optional package)
     # ==============================================================================
     def test_fallback_does_not_crash_signal_processor(self):
         """
-        Simulates a user running GalaxyScope without 'networkx' installed.
-        Ensures that the None-type fallbacks don't crash Phase 6 Synthesis.
+        The network sensor's output (every graph metric is native since #3041)
+        must never crash Phase 6 Synthesis, including its None-typed metrics.
         """
         sensor = NetworkRiskSensor()
 
@@ -135,8 +135,8 @@ class TestZeroDependencyMode(unittest.TestCase):
     @patch("gitgalaxy.security.security_auditor.ML_AVAILABLE", False)
     def test_vacuum_pipeline_schema_survival(self):
         """
-        DEVIOUS EDGE CASE: If BOTH NetworkX and XGBoost are missing, the pipeline
-        routes the RAM state through two successive fallback methods. This proves
+        DEVIOUS EDGE CASE: With XGBoost missing, the pipeline routes the RAM state
+        through the network sensor and then the blind ML auditor. This proves
         the dictionary schema survives the multi-stage vacuum without mutating or crashing.
         """
         from gitgalaxy.security.security_auditor import SecurityAuditor

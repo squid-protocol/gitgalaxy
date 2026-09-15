@@ -22,6 +22,13 @@ import time
 from typing import Any, ClassVar, Optional, TypedDict, cast
 
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS
+from gitgalaxy.core.rule_prefilter import (
+    Gate as RulePrefilterGate,
+)
+from gitgalaxy.core.rule_prefilter import (
+    derive_literal_gate,
+    fold_haystack,
+)
 from gitgalaxy.core.spatial_correlation import (
     apply_amplifier_correlations,
     apply_dampener_correlations,
@@ -53,6 +60,12 @@ def get_token_mass(text: str) -> Optional[int]:
     if HAS_TIKTOKEN:
         return len(ENCODER.encode(text, disallowed_special=()))
     return None
+
+
+# The language-agnostic indentation signatures coding_analysis tallies per
+# segment (#3069: compiled once instead of a re-cache lookup per segment).
+_INDENT_TABS_PATTERN = re.compile(r"^\t+(?=\S)", flags=re.MULTILINE)
+_INDENT_SPACES_PATTERN = re.compile(r"^[ ]{2,}(?=\S)", flags=re.MULTILINE)
 
 
 # ==============================================================================
@@ -2565,20 +2578,26 @@ class StructuralExtractor:
     # on exactly which mapped keys are valid.
     _APPSEC_KEYS = ("memory_scraping", "exfiltration_camouflage", "rce_funnel")
 
-    def _active_coding_rules(self, seg_lang: str) -> list[tuple[str, Any, str]]:
-        """#PERF: the eligible `(rule_name, pattern, mapped_key)` rules for a
-        language, computed once and cached. The eligibility tests -- skip
+    def _active_coding_rules(self, seg_lang: str) -> list[tuple[str, Any, str, Optional[RulePrefilterGate]]]:
+        """#PERF: the eligible `(rule_name, pattern, mapped_key, gate)` rules for
+        a language, computed once and cached. The eligibility tests -- skip
         `_`-prefixed meta keys and falsy/trivial patterns, resolve the CORE_MAPPING
         key, and drop rules whose mapped key isn't in the counts schema -- depend
         only on the static ruleset, so caching them removes tens of thousands of
         redundant `pattern.pattern.replace(...)*3.strip()` calls per scan. An
-        unregistered rule is warned about once here rather than once per file."""
+        unregistered rule is warned about once here rather than once per file.
+
+        `gate` (#3069) is the rule's required-literal prefilter -- see
+        rule_prefilter.derive_literal_gate for the one-sided contract -- or
+        None for rules with no safe gate. Derived here, at cache fill, because
+        the AST walk costs ~100x a finditer over a small file; per-language
+        once-per-process is the right amortization."""
         cache = self.__dict__.setdefault("_active_rules_cache", {})
         cached = cache.get(seg_lang)
         if cached is not None:
             return cached
         valid_keys = set(self.UNIVERSAL_METRICS_SCHEMA).union(self._APPSEC_KEYS)
-        active: list[tuple[str, Any, str]] = []
+        active: list[tuple[str, Any, str, Optional[RulePrefilterGate]]] = []
         for rule_name, pattern in self.languages.get(seg_lang, {}).get("rules", {}).items():
             if rule_name.startswith("_") or not pattern:
                 continue
@@ -2592,7 +2611,8 @@ class StructuralExtractor:
             clean_pat = raw_pat.replace("(?i)", "").replace("(?m)", "").replace("(?s)", "").strip()
             if clean_pat in ("", "()", "(?:)", "^", "$"):
                 continue
-            active.append((rule_name, pattern, mapped_key))
+            gate = derive_literal_gate(pattern) if hasattr(pattern, "finditer") else None
+            active.append((rule_name, pattern, mapped_key, gate))
         cache[seg_lang] = active
         return active
 
@@ -2667,6 +2687,12 @@ class StructuralExtractor:
             # ---> NEW: Spatial Map for this segment <---
             spatial_map: dict[str, list[int]] = {}
 
+            # #3069: the fold_haystack view backing case-insensitive prefilter
+            # gates. Computed lazily -- only languages with IGNORECASE rules
+            # (cobol/powershell/sql-family, not the c/ts hot path) ever pay
+            # the folding pass, and then only once per segment.
+            seg_fold: Optional[str] = None
+
             # #PERF: rule eligibility (skip `_`-meta keys, empty/trivial
             # patterns, and rules whose mapped key isn't in the counts schema)
             # depends only on the language's static ruleset, not the file. It used
@@ -2674,9 +2700,36 @@ class StructuralExtractor:
             # `pattern.pattern.replace(...)*3.strip()` and the membership tests
             # tens of thousands of times per scan. Compute it once per language
             # and cache it (see `_active_coding_rules`).
-            for rule_name, pattern, mapped_key in self._active_coding_rules(seg_lang):
+            for rule_name, pattern, mapped_key, gate in self._active_coding_rules(seg_lang):
                 try:
                     t_rule_start = time.perf_counter()
+
+                    # #3069: the required-literal gate. If none of the rule's
+                    # required literals occur in the segment, the regex cannot
+                    # match (rule_prefilter's one-sided contract), so the
+                    # whole finditer sweep -- the dominant CPU cost on large
+                    # files -- is skipped. The skip must still mirror the
+                    # zero-match bookkeeping below: spatial_map gets its
+                    # empty-list key (spatial_correlation and the rce_funnel
+                    # amplifier do `in spatial_map` presence tests) and the
+                    # telemetry key absorbs the gate-check time so profiling
+                    # attributes the gate's own overhead.
+                    if gate is not None:
+                        gate_literals, gate_needs_fold = gate
+                        if gate_needs_fold:
+                            if seg_fold is None:
+                                seg_fold = fold_haystack(seg_code)
+                            gate_hay = seg_fold
+                        else:
+                            gate_hay = seg_code
+                        if not any(lit in gate_hay for lit in gate_literals):
+                            spatial_map.setdefault(mapped_key, [])
+                            if regex_telemetry is not None:
+                                key = f"{seg_lang}::{rule_name}"
+                                regex_telemetry[key] = regex_telemetry.get(key, 0.0) + (
+                                    time.perf_counter() - t_rule_start
+                                )
+                            continue
 
                     # ---> THE UPGRADE: Spatial Mapping instead of raw counting <---
                     if hasattr(pattern, "finditer"):
@@ -2747,7 +2800,7 @@ class StructuralExtractor:
                     counts[mapped_key] += c
                     spatial_map.setdefault(mapped_key, []).extend(hit_indices)
 
-                except Exception as e:  # noqa: PERF203 -- per-rule isolation: one rule's regex failure shouldn't abort the remaining rules for this file
+                except Exception as e:  # per-rule isolation: one rule's regex failure shouldn't abort the remaining rules for this file
                     self.logger.error(
                         f"[DIAGNOSTIC] Regex failure in rule '{rule_name}' for language '{seg_lang}': {e}"
                     )
@@ -2794,9 +2847,10 @@ class StructuralExtractor:
             # galaxyscope.py, against the persisted threat_locations ledger, via
             # spatial_correlation.correlate_against_ledger() (#348).
 
-            # Capture indentation signatures
-            counts["indent_tabs"] += len(re.findall(r"^\t+(?=\S)", seg_code, flags=re.MULTILINE))
-            counts["indent_spaces"] += len(re.findall(r"^[ ]{2,}(?=\S)", seg_code, flags=re.MULTILINE))
+            # Capture indentation signatures (#3069: precompiled -- these two
+            # ran through the re-cache lookup once per segment)
+            counts["indent_tabs"] += len(_INDENT_TABS_PATTERN.findall(seg_code))
+            counts["indent_spaces"] += len(_INDENT_SPACES_PATTERN.findall(seg_code))
             segment_spatial_maps.append(spatial_map)
 
         return counts, mitigations, segment_spatial_maps, extracted_parents, threat_locations

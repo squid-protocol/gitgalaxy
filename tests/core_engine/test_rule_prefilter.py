@@ -276,3 +276,70 @@ def test_live_gates_accept_every_rules_own_matches():
         literals, _needs_casefold = gate
         probe = f"prefix {next(iter(literals))} suffix"
         assert not _gate_rejects(gate, probe), f"{lang_id}::{rule_name} rejected its own literal"
+
+
+# ==============================================================================
+# DETECTOR INTEGRATION: GATED vs UNGATED PARITY
+# ==============================================================================
+
+_PARITY_SAMPLES = {
+    "c": (
+        "#include <stdio.h>\n"
+        "typedef struct point { int x; } point_t;\n"
+        "int main(int argc, char **argv) {\n"
+        "    char buf[8];\n"
+        "    strcpy(buf, argv[1]);\n"
+        '    for (int i = 0; i < argc; i++) { printf("%d\\n", i); }\n'
+        "    return 0;\n"
+        "}\n"
+    ),
+    "typescript": (
+        "import { readFile } from 'fs';\n"
+        "export class Loader extends Base {\n"
+        "    async load(path: string): Promise<string> {\n"
+        "        if (!path) { throw new Error('no path'); }\n"
+        "        return await readFile(path, 'utf8');\n"
+        "    }\n"
+        "}\n"
+        "const x = eval('1 + 1');\n"
+    ),
+    "cobol": (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. HELLO.\n"
+        "       PROCEDURE DIVISION USING A, B, C.\n"
+        "           DISPLAY 'HELLO'.\n"
+        "           STOP RUN.\n"
+    ),
+    "python": ("import os\ndef risky(cmd):\n    if cmd:\n        os.system(cmd)\n    return None\n"),
+}
+
+
+@pytest.mark.parametrize("lang_id", sorted(_PARITY_SAMPLES))
+def test_coding_analysis_output_identical_with_and_without_gates(lang_id):
+    # The gate may only SKIP work whose result is provably empty, so the full
+    # 5-tuple -- counts, mitigations, spatial maps (including empty-list key
+    # PRESENCE, which spatial_correlation and the rce_funnel amplifier probe
+    # with `in`), parents, threat locations -- must be byte-identical to an
+    # ungated run.
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    code = _PARITY_SAMPLES[lang_id]
+    segments = [(lang_id, code, 0)]
+
+    gated = StructuralExtractor(lang_id, LANGUAGE_DEFINITIONS)
+    ungated = StructuralExtractor(lang_id, LANGUAGE_DEFINITIONS)
+    # Seed the ungated instance's cache with gate=None quads: same rules, no
+    # prefilter, i.e. pre-#3069 behavior.
+    ungated._active_rules_cache = {
+        lang_id: [(name, pat, key, None) for name, pat, key, _gate in gated._active_coding_rules(lang_id)]
+    }
+
+    gated_telemetry: dict = {}
+    ungated_telemetry: dict = {}
+    result_gated = gated.coding_analysis(segments, regex_telemetry=gated_telemetry)
+    result_ungated = ungated.coding_analysis(segments, regex_telemetry=ungated_telemetry)
+
+    assert result_gated == result_ungated
+    # Telemetry must keep the same KEY set either way (galaxyscope sums it);
+    # only the timings may differ.
+    assert set(gated_telemetry) == set(ungated_telemetry)

@@ -1587,7 +1587,25 @@ class Prism:
         # anchor set silently erased every real class declaration as a bogus
         # comment before class_start ever ran. ABAP gets its own anchor set (just
         # `*`) and skips the column-7 check entirely.
-        anchors = {"*"} if abap_mode else self.POSITIONAL_ANCHORS
+        # The shared POSITIONAL_ANCHORS ({'*','/','C','c','!'}) is a UNION of
+        # Fortran's column-1 comment markers ('C'/'c'/'!'/'*') and COBOL's
+        # fixed-form indicators. COBOL's ONLY column-7 comment indicators are
+        # '*' (comment) and '/' (page-eject); 'C'/'c'/'!' are Fortran-specific.
+        # Feeding the full set to COBOL's column checks erased any paragraph or
+        # statement whose first token began with C/c (CLEAR-*, CLOSE, COMPUTE,
+        # CALL, ...) or '!' when it sat at the anchor column -- e.g. fps.cob's
+        # CLEAR-ENTITIES / CLEAR-WORLD / CLEAR-FRAMEBUF paragraphs, written in
+        # 6-space Area A so 'C' lands in column 7. COBOL therefore gets the
+        # narrow indicator set at both column 1 and column 7; Fortran keeps the
+        # full column-1 set (and no column-7 check); ABAP keeps its lone '*'.
+        if abap_mode:
+            col1_anchors: set[str] = {"*"}
+            col7_anchors: Optional[set[str]] = None
+        elif cobol_mode:
+            col1_anchors = col7_anchors = {"*", "/"}
+        else:
+            col1_anchors = self.POSITIONAL_ANCHORS
+            col7_anchors = None
 
         for line in text.split("\n"):
             # 1. Legacy Column-1 (Fortran/COBOL) or Column-7 (COBOL only) anchors
@@ -1601,7 +1619,9 @@ class Prism:
             # of FUNCTION at column 7, wiping the whole declaration line as a
             # bogus comment before func_start ever saw it (wrf/module_configure.F:353
             # `in_use_for_config`, wrf/module_domain.F:1693 `first_loc_integer`).
-            if (len(line) >= 1 and line[0] in anchors) or (cobol_mode and len(line) >= 7 and line[6] in anchors):
+            if (len(line) >= 1 and line[0] in col1_anchors) or (
+                col7_anchors is not None and len(line) >= 7 and line[6] in col7_anchors
+            ):
                 code.append("")
                 lits.append(line)
                 continue

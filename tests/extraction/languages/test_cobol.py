@@ -69,6 +69,7 @@ FUNCTION_CASES: dict[str, Any] = {
         "000600            CEE3DMP.",  # #2538: LE diagnostic call, Area B, not a paragraph
         "000700            CEEMOUT.",  # #2538: LE diagnostic call, Area B, not a paragraph
         "               CEEDUMP.",  # #2538: same LE-service class, free-format indent
+        "      FILE-CONTROL.",  # INPUT-OUTPUT SECTION header paragraph, not PROCEDURE logic (fps.cob FP)
     ],
     "pathological": [
         ("TargetFunc \n           SECTION.", "TargetFunc"),  # carried-forward: margin-hugging + vertical split
@@ -402,3 +403,44 @@ def test_cobol_dependency_capture_redos_immunity():
     dep = COBOL_RULES["_dependency_capture"]
     assert_redos_immune(dep, "COPY '" + "a" * 200000, timeout_sec=3.0)
     assert dep.search("COPY MYLIB.")
+
+
+# ==============================================================================
+# PRISM COLUMN-ANCHOR STRIPPING (positional_anchored family, shared with Fortran)
+# ==============================================================================
+# The shared POSITIONAL_ANCHORS set ({'*','/','C','c','!'}) unions Fortran's
+# column-1 comment markers with COBOL's fixed-form indicators. COBOL's ONLY
+# column-7 comment indicators are '*' and '/'; 'C'/'c'/'!' are Fortran-specific.
+# Feeding the full set to COBOL's column checks blanked any paragraph/statement
+# whose first token began with C/c (CLEAR-*, CLOSE, COMPUTE, ...) at the anchor
+# column -- e.g. fps.cob's CLEAR-ENTITIES / CLEAR-WORLD / CLEAR-FRAMEBUF (6-space
+# Area A -> 'C' in column 7). These lock the fix and its Fortran non-regression.
+def _prism():
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+    from gitgalaxy.core.prism import Prism
+
+    return Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+
+
+@pytest.mark.parametrize(
+    "label", ["CLEAR-ENTITIES.", "CLEAR-WORLD.", "CLEAR-FRAMEBUF.", "CLOSE-FILE.", "COMPUTE-TOTALS."]
+)
+def test_prism_keeps_cobol_c_word_paragraphs(label):
+    """A COBOL paragraph whose name starts with C survives prism (column 7 = 'C'
+    is not a COBOL comment indicator)."""
+    src = "      PROCEDURE DIVISION.\n      " + label + "\n           MOVE 0 TO X\n"
+    code_line = _prism().split_streams(src, "cobol")["code_stream"].splitlines()[1]
+    assert code_line.strip() == label, f"prism blanked COBOL paragraph {label!r}"
+
+
+def test_prism_still_strips_cobol_star_indicators():
+    """The real COBOL column-7 '*' / '/' comment indicators are still stripped."""
+    for line in ("      * a column-7 comment", "      / page eject comment"):
+        src = "      PROCEDURE DIVISION.\n" + line + "\n"
+        assert _prism().split_streams(src, "cobol")["code_stream"].splitlines()[1].strip() == ""
+
+
+def test_prism_fortran_column1_comment_unregressed():
+    """Fortran's column-1 'C' comment must still be stripped (the fix is COBOL-scoped)."""
+    cs = _prism().split_streams("C this is a fixed-form fortran comment\n      PROGRAM MAIN\n", "fortran")
+    assert cs["code_stream"].splitlines()[0].strip() == ""

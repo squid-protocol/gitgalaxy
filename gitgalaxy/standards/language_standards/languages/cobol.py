@@ -195,7 +195,13 @@ DEFINITION: dict[str, Any] = {
             # confirmed false positive against real corpus source
             # (`cics-banking-sample-application-cbsa/BNKMENU.cbl:23`).
             r"SOURCE-COMPUTER|OBJECT-COMPUTER|"
-            r"INPUT-OUTPUT|CONFIGURATION|DISPLAY|CALL|MOVE|COMPUTE|PERFORM|ADD|SUBTRACT|MULTIPLY|"
+            # FILE-CONTROL is the INPUT-OUTPUT SECTION (ENVIRONMENT DIVISION) header
+            # paragraph, never PROCEDURE DIVISION logic -- same reserved-header class
+            # as INPUT-OUTPUT/CONFIGURATION beside it. The bare `FILE` entry above
+            # can't shield it: the closing `(?=[ \t\n.])` boundary rejects `FILE`
+            # when a `-CONTROL` follows, so `FILE-CONTROL.` slipped through as a
+            # phantom paragraph (confirmed FP against data/corpus_cobol/FPS.cob).
+            r"INPUT-OUTPUT|CONFIGURATION|FILE-CONTROL|DISPLAY|CALL|MOVE|COMPUTE|PERFORM|ADD|SUBTRACT|MULTIPLY|"
             r"DIVIDE|INITIALIZE|SET|IF|ELSE|GOBACK|EXIT|STOP|EVALUATE|WHEN|READ|WRITE|REWRITE|"
             # CONTINUE is a no-op statement (COBOL's `pass`); on its own line
             # `CONTINUE.` is `<verb>.`, not a paragraph header. Confirmed FP against

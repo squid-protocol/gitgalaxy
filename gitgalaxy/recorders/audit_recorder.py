@@ -260,7 +260,7 @@ class AuditRecorder:
                         if isinstance(telemetry.get("archetype_fingerprint"), dict)
                         else {}
                     ),
-                    "File Archetype": telemetry.get("local_archetype", "N/A"),
+                    "File Archetype": telemetry.get("local_archetype") or "N/A",
                     "Composition Archetype": telemetry.get("composition_file_archetype", "N/A"),
                     "Composition Fit (Z-Score)": round(float(telemetry.get("composition_file_z", 0.0) or 0.0), 3),
                     "File Drift (Z-Score)": telemetry.get("local_drift", 0.0),

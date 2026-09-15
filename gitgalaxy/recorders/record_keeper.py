@@ -20,7 +20,7 @@ import math
 import sqlite3
 import statistics
 from pathlib import Path
-from typing import Optional, TypedDict, cast
+from typing import Any, Optional, TypedDict, cast
 
 from gitgalaxy.standards.analysis_lens import (
     ENGINE_CONSTANTS,
@@ -227,11 +227,13 @@ class RecordKeeper:
         The engine builds the file vector strictly in FEATURE_NAMES order from the
         fully-computed file record (all metrics + the function->file composition
         rollup), so it can never drift from the trainer (cluster_files.py)."""
-        b = GENERAL_FILE_INFERENCE_MODEL
+        b = cast("dict[str, Any]", GENERAL_FILE_INFERENCE_MODEL)
+        self._file_brain: Optional[dict[str, Any]] = None
         if not b.get("FEATURE_NAMES") or not b.get("SCALER_MEDIANS"):
-            self._file_brain = None
             return
         ak = next((k for k in b if k.startswith("ARCHETYPES_K")), None)
+        if ak is None:
+            return
         names = b.get("cluster_names") or list(b.get(ak, {}).keys())
         self._file_brain = {
             "FEATURE_NAMES": b["FEATURE_NAMES"],
@@ -243,10 +245,11 @@ class RecordKeeper:
             "names": names,
             "centroids": list(b.get(ak, {}).values()),
         }
-        self._file_sig_idx = {s: i for i, s in enumerate(self.SIGNAL_SCHEMA)}
+        self._file_sig_idx: dict[str, int] = {s: i for i, s in enumerate(self.SIGNAL_SCHEMA)}
         # function cluster order defines the micro_<i> composition index (verified
         # identical to the rollup order used to train the file model).
-        self._func_name_to_idx = {n: i for i, n in enumerate(GENERAL_FUNCTION_INFERENCE_MODEL.get("cluster_names", []))}
+        fn_model = cast("dict[str, Any]", GENERAL_FUNCTION_INFERENCE_MODEL)
+        self._func_name_to_idx: dict[str, int] = {n: i for i, n in enumerate(fn_model.get("cluster_names", []))}
 
     def _classify_file_archetype(self, ctx: dict, hv: list) -> Optional[str]:
         """Nearest-centroid file archetype from the assembled metrics, mirroring the

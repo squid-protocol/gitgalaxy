@@ -1834,8 +1834,14 @@ def test_record_keeper_classifies_file_archetype_from_self_describing_brain(monk
     rk = RecordKeeper()
     rk._prep_file_brain()
     base_ctx = {
-        "coding_loc": 100.0, "func_z_max": 0.0, "func_z_mean": 0.0, "func_z_median": 0.0,
-        "pct_z_above_5": 0.0, "pct_z_above_15": 0.0, "micro": {}, "precalc": {},
+        "coding_loc": 100.0,
+        "func_z_max": 0.0,
+        "func_z_mean": 0.0,
+        "func_z_median": 0.0,
+        "pct_z_above_5": 0.0,
+        "pct_z_above_15": 0.0,
+        "micro": {},
+        "precalc": {},
     }
     hv_zero = [0] * len(rk.SIGNAL_SCHEMA)
     # A quiet, branch-free file lands on the all-zero centroid.

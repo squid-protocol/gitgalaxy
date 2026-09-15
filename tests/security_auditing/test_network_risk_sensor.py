@@ -810,3 +810,44 @@ def test_relative_extension_imports_produce_a_real_dag(sensor):
     # exact fingerprint #2668 was diagnosed from.
     pageranks = {round(m["pagerank_score"], 6) for m in by_path.values()}
     assert len(pageranks) > 1, "uniform pagerank means the graph is still edgeless"
+
+
+# #perf: Stage-2 import disambiguation used to strip each candidate's extension
+# with pathlib.Path(c).with_suffix(""), constructed once per candidate. On a
+# generated SDK a single token matches thousands of same-stem candidates, so
+# that ran into the millions and dominated the whole graph phase. _stem_path
+# replaces it with the existing pure-string _without_extension, memoized per
+# path. These guard the equivalence the swap relies on.
+def test_stem_path_matches_pathlib_with_suffix(sensor):
+    from pathlib import Path
+
+    for c in [
+        "src/models/account.ts",
+        "src/models/account.d.ts",
+        "a/b.c/index.js",  # dotted directory: only the final component's ext comes off
+        "src/util",  # no extension
+        "src/.eslintrc",  # leading dot is a hidden-file marker, not an extension
+        "deep/nested/path/to/File.TSX",
+    ]:
+        expected = str(Path(c).with_suffix("")).replace("\\", "/")
+        assert sensor._stem_path(c) == expected, c
+
+
+def test_stem_path_is_memoized(sensor):
+    first = sensor._stem_path("src/models/account.ts")
+    assert sensor._stem_cache["src/models/account.ts"] == first
+    # a second call returns the cached value, not a recomputation
+    assert sensor._stem_path("src/models/account.ts") is first
+
+
+def test_stage2_disambiguation_survives_the_memo(sensor):
+    # Two files share the stem "utils"; a path-qualified token must still
+    # resolve to exactly one, using the extension-stripped candidate compare.
+    files = [
+        {"path": "/repo/core/utils.ts", "raw_imports": [], "lang_id": "typescript"},
+        {"path": "/repo/web/utils.ts", "raw_imports": [], "lang_id": "typescript"},
+        {"path": "/repo/main.ts", "raw_imports": ["./core/utils"], "lang_id": "typescript"},
+    ]
+    mapped = {f["path"]: f["telemetry"]["network_metrics"] for f in sensor.build_dependency_graph(files)[0]}
+    assert mapped["/repo/core/utils.ts"]["in_degree"] == 1
+    assert mapped["/repo/web/utils.ts"]["in_degree"] == 0

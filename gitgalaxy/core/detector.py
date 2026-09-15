@@ -1875,6 +1875,18 @@ class StructuralExtractor:
                     func_body_hashes[id(func)] = body_hash
                     body_hash_counts[(func_name, body_hash)] += 1
 
+            # #perf: is_public-A tests whether an `api` rule fired inside each
+            # unit's <=3-line header window. This scanned the WHOLE api hit list
+            # per function -- O(functions x api_hits) -- e.g. a big C header like
+            # sokol_gfx.h does 928 functions x ~2,700 api lines = 2.5M line
+            # comparisons. Hoist the hits into a set once and probe only the
+            # window's own line numbers (<=3 lookups per function); the
+            # membership result (window intersects api_hits) is identical. The
+            # comparisons were individually cheap, so this is a small win on
+            # today's corpus, but it removes a latent quadratic that scales badly
+            # on files with many functions AND many api hits.
+            _api_line_set = set(threat_locations.get("api") or ())
+
             for func in functions:
                 func_name = func.get("name", "")
                 usage_status = 0  # 0 = Normal
@@ -1951,8 +1963,7 @@ class StructuralExtractor:
                 end_line = func.get("end_line", start_line)
                 if func_name and start_line > 0:
                     api_window_end = min(start_line + 2, end_line)
-                    api_lines = threat_locations.get("api")
-                    if api_lines and any(start_line <= ln <= api_window_end for ln in api_lines):
+                    if _api_line_set and any(ln in _api_line_set for ln in range(start_line, api_window_end + 1)):
                         header_lines = self.raw_content_lines[start_line - 1 : api_window_end]
                         if header_lines and re.search(_name_boundary_pattern(func_name), "\n".join(header_lines)):
                             is_public_a = True

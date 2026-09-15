@@ -12133,7 +12133,7 @@
 <h2 id="design">Design</h2>
 <h3 id="current-behavior">Current Behavior</h3>
 <ul>
-<li><strong>Dependency Graph Features:</strong> Traces import connections (BFS up to 10,000 nodes) to compute transitive coupling ratios (<code>total_upstream</code>, <code>total_downstream</code>).</li>
+<li><strong>Dependency Graph Features:</strong> Counts every file each file transitively depends on (<code>total_upstream</code>) and every file that transitively depends on it (<code>total_downstream</code>), with their ratios. The counts are exact: #3040 replaced the 500-file-capped networkx/BFS pair with one native computation (<code>graph_engine.reach_counts</code>: cycle condensation plus reachability bitsets). It is bounded by a deterministic work budget, past which the totals are <code>None</code>.</li>
 <li><strong>Feature Vector Sanitization:</strong> Applies logarithmic scaling to structural counts, integrates Gini complexity coefficients, signature counts, and global architectural distances into a Pandas DataFrame.</li>
 <li><strong>Multiclass Threat Taxonomy:</strong> Uses <code>XGBClassifier</code> to predict probabilities across: Safe Code, Botnet/DDoS, Stealer/Trojan, Dropper/Webshell, and Native Infector.</li>
 <li><strong>Supply Chain Integrity:</strong> The <code>is_shadow_patch</code> flag overrides ML inference for unverified binary changes with executable logic, explicitly flagging them as critical threats.</li>

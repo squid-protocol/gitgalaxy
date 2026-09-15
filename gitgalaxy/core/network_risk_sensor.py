@@ -66,15 +66,6 @@ def _without_extension(path_str: str) -> str:
     return path_str[: len(path_str) - (len(name) - dot)]
 
 
-HAS_NETWORKX = False
-try:
-    import networkx as nx
-
-    HAS_NETWORKX = True
-except ImportError:
-    pass
-
-
 class NetworkRiskSensor:
     """
     The GitGalaxy Network Risk Sensor (Graph Topology & Blast Radius).
@@ -535,126 +526,31 @@ class NetworkRiskSensor:
         Modifies the 'telemetry' dictionary of each file in place, and leaves
         the resolved edge list on `self.dependency_edges` (#2992).
         """
-        if not HAS_NETWORKX:
-            return self._fallback_build_graph(parsed_files)
+        self.logger.info(f"Network Risk Sensor: resolving the import graph of {len(parsed_files)} files...")
 
-        self.logger.info(f"Network Risk Sensor: Initializing Directed Graph for {len(parsed_files)} nodes...")
-
-        G = nx.DiGraph()
-
-        # 1. Add every file as a node, edges or not
-        for f in parsed_files:
-            path = f.get("path", "")
-
-            # Add Node with Vector
-            G.add_node(
-                path,
-                risk_vector=f.get("risk_vector", [0.0] * len(self.RISK_SCHEMA)),
-            )
-
-        # 2. Wire the Edges (File-to-File Level 1 & Entity Level 2)
+        # 1. Resolve every file's imports into distinct directed edges (#2992).
         edges = self._resolve_edges(parsed_files)
-        for (src, dst), attrs in edges.items():
-            G.add_edge(src, dst, weight=attrs["weight"])
         self._publish_edges(edges)
 
-        # =========================================================================
-        # 3. NETWORK MATHEMATICS (Dependency Blast Radius & Centrality)
-        # Every centrality is native in BOTH modes, bounded by deterministic work
-        # budgets instead of node-count cutoffs or sampling (#3027, #3034-#3038).
-        # =========================================================================
-        # PageRank, betweenness, closeness, avg path length and every
-        # repo-topology metric: see _native_pagerank, _betweenness,
-        # _path_metrics and _topology_metrics.
-        index = self._graph_index(parsed_files, edges)
-        pagerank = self._native_pagerank(index)
-        betweenness = self._betweenness(index)
-        closeness, avg_path_length = self._path_metrics(index)
-        topology = self._topology_metrics(index)
-
-        in_degrees = dict(G.in_degree())
-        out_degrees = dict(G.out_degree())
-
-        # 4. Vector Cross-Multiplication & Bottleneck Identification
-        for f in parsed_files:
-            path = f.get("path", "")
-            if path not in G:
-                continue
-
-            in_d = in_degrees.get(path, 0)
-            out_d = out_degrees.get(path, 0)
-
-            # 5. Write Telemetry Back to the File Node
-            if "telemetry" not in f:
-                f["telemetry"] = {}
-
-            f["telemetry"]["network_metrics"] = self._network_metrics(
-                f, pagerank.get(path), betweenness.get(path), closeness.get(path), in_d, out_d
-            )
-
-            # Overwrite the old "popularity" integer with the strict directed in_degree
-            f["telemetry"]["popularity"] = in_d
-
-        # =========================================================================
-        # 6. MACRO-ECOSYSTEM TOPOLOGY (Repo-Level Health & Resilience)
-        # =========================================================================
-        # #473: these default to None, not 0.0/0 -- same "explicitly missing,
-        # not a specific observation" convention record_keeper.py already uses
-        # for zero_dependency_mode's pagerank/ai_score/etc (see #429's mypy
-        # session 3). A 0.0 modularity is a real, meaningful score (no
-        # community structure); collapsing "computation failed or was
-        # skipped" into that same value made a silent failure indistinguishable
-        # from a genuine measurement. Consumers (record_keeper.py,
-        # llm_recorder.py) must not paper over None with their own 0.0
-        # fallback, or this fix is undone one hop downstream.
-        macro_metrics: dict[str, Optional[float]] = {
-            # #3039: native (see _topology_metrics).
-            "modularity": topology["modularity"],
-            # #3036: native (see _topology_metrics).
-            "assortativity": topology["assortativity"],
-            # #3035: native (see _topology_metrics).
-            "cyclic_density": topology["cyclic_density"],
-            # #3037: native, mean hops over directed reachable pairs (see _path_metrics).
-            "avg_path_length": None if avg_path_length is None else round(avg_path_length, 4),
-            "articulation_points": topology["articulation_points"],
-        }
-
-        self.logger.info("Network Risk Sensor: Vector Mathematics & Graph Topology Complete.")
-        return parsed_files, macro_metrics
-
-    def _fallback_build_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-        self.logger.warning(
-            "[!] 'networkx' not found. Operating in Zero-Dependency Mode: degree counts, PageRank, closeness, avg path "
-            "length, betweenness, assortativity, cyclic density, articulation points and modularity are computed "
-            "natively, with the same values as full precision."
-        )
-
+        # 2. Degree: distinct neighbouring files, one per edge (#3024).
         in_degrees = {f.get("path", ""): 0 for f in parsed_files}
         out_degrees = {f.get("path", ""): 0 for f in parsed_files}
-
-        # Linear counting over the same resolved edges the DiGraph path wires,
-        # one per edge -- i.e. distinct neighbours, exactly what the DiGraph's
-        # in_degree/out_degree report. #3024: this used to add each edge's
-        # import_statements instead, so a file importing the same target twice
-        # read out_degree 2 here and 1 with networkx installed, and popularity,
-        # internal_dependency_links, producer_ratio and ecosystem_role all
-        # depended on which optional engines were installed. Degree is one of
-        # the few network measurements this mode can compute exactly, so it
-        # must mean the same thing in both modes.
-        edges = self._resolve_edges(parsed_files)
         for src, dst in edges:
             out_degrees[src] = out_degrees.get(src, 0) + 1
             in_degrees[dst] = in_degrees.get(dst, 0) + 1
-        self._publish_edges(edges)
 
-        # #3027/#3035-#3039: every graph metric the DiGraph path computes, from
-        # the same native code -- they need nothing but the edge list.
+        # 3. Every graph metric, from the engine's own standard-library graph code
+        # (#3027, #3034-#3040): one CSR index, then PageRank, betweenness,
+        # closeness, avg path length and the repo topology. There is one builder
+        # and no optional package: #3041 removed networkx, so every install
+        # computes the same values.
         index = self._graph_index(parsed_files, edges)
         pagerank = self._native_pagerank(index)
         betweenness = self._betweenness(index)
         closeness, avg_path_length = self._path_metrics(index)
         topology = self._topology_metrics(index)
 
+        # 4. Write telemetry back to each file.
         for f in parsed_files:
             path = f.get("path", "")
             if "telemetry" not in f:
@@ -667,11 +563,14 @@ class NetworkRiskSensor:
                 in_degrees.get(path, 0),
                 out_degrees.get(path, 0),
             )
+            # The strict directed in-degree replaces the old "popularity" integer.
             f["telemetry"]["popularity"] = in_degrees.get(path, 0)
 
-        # #473: None, not 0.0/0 -- zero-dependency mode means these were never
-        # attempted at all (networkx isn't installed), not measured as zero.
-        # Same convention as the real-computation path above.
+        # 5. Repo-level topology. #473: a metric that was not computed is None,
+        # never 0.0/0. A 0.0 modularity is a real score (no community structure),
+        # so a failed or skipped computation must not look like one, and
+        # consumers (record_keeper.py, llm_recorder.py) must not paper over None
+        # with their own 0.0 fallback.
         macro_metrics: dict[str, Optional[float]] = {
             "modularity": topology["modularity"],
             "assortativity": topology["assortativity"],
@@ -679,4 +578,6 @@ class NetworkRiskSensor:
             "avg_path_length": None if avg_path_length is None else round(avg_path_length, 4),
             "articulation_points": topology["articulation_points"],
         }
+
+        self.logger.info("Network Risk Sensor: Vector Mathematics & Graph Topology Complete.")
         return parsed_files, macro_metrics

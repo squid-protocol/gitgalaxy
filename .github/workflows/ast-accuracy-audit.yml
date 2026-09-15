@@ -47,7 +47,7 @@ jobs:
       # No full-precision extras needed: function/class/args extraction
       # (what this check measures) comes from detector.py's regex engine
       # regardless of dependency mode -- only network/ML-derived columns
-      # (pagerank, blast radius) need networkx/tiktoken/pandas/xgboost, and
+      # (token mass, ML) need tiktoken/pandas/xgboost, and
       # this check never reads those.
       - name: Install GitGalaxy
         run: |

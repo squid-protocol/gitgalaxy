@@ -415,7 +415,7 @@ GitGalaxy is designed for local and air-gapped operation.
 
 ``` bash
 pip install gitgalaxy            # zero install dependencies
-pip install "gitgalaxy[full]"    # + networkx, tiktoken, xgboost, pandas, numpy, pyyaml
+pip install "gitgalaxy[full]"    # + tiktoken, xgboost, pandas, numpy, pyyaml
 ```
 
 See the [documentation](https://squid-protocol.github.io/gitgalaxy/) for

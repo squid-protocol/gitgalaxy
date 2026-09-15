@@ -3,23 +3,25 @@
 `pip install gitgalaxy` installs **nothing else**. For teams where every third-party package is a supply-chain review, that is the point: the engine runs on the Python standard library alone. A handful of measurements do need optional engines, though. When any of them is missing, the scan runs in **Zero-Dependency Mode**. This page lists, field by field, what that costs, so you can tell which numbers you can trust.
 
 **Short version:**
-- **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, **PageRank / blast radius**, **closeness**, **average path length**, **cyclic density**, **articulation points**, **assortativity**, **betweenness** and **modularity**. These are computed natively, with no networkx.
+- **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, **PageRank / blast radius**, **closeness**, **average path length**, **cyclic density**, **articulation points**, **assortativity**, **betweenness** and **modularity**. Every graph metric is computed natively and needs no optional package: networkx is not used at all (#3041).
 - **What you lose:** token counts, ML threat classification, and YAML config parsing.
 - **How missing metrics show up:** a metric that was not computed is **absent**: `None` in telemetry, NULL in the SQLite DB, `n/a` in the LLM brief. It is never a placeholder `0`. The one remaining exception is the ML placeholders described below (#3028).
 
 ## Getting full precision
 
 ```bash
-pip install "gitgalaxy[full]"      # networkx, tiktoken, xgboost, pandas, numpy, pyyaml
+pip install "gitgalaxy[full]"      # tiktoken, xgboost, pandas, numpy, pyyaml
 ```
 
 Or add only the engines whose outputs you need (table below). Each is independent: a missing package only costs the rows under its heading. The one exception is `ai_threat_score` (see [Caveats](#caveats-in-the-current-release)).
 
 ## What each optional package provides
 
-### `networkx`: nothing, since #3039
+### Graph metrics: no optional package (#3041)
 
-| Output | With networkx | Without |
+Every graph metric comes from the engine's own standard-library graph code (`gitgalaxy/core/graph_engine.py`), the same on every install. networkx was removed from the runtime in #3041. It remains only the test-time oracle the native algorithms are checked against (`tests/tools/graph_parity.py`).
+
+| Output | How | Every install |
 |---|---|---|
 | In/out degree: `popularity`, `internal_dependency_links`, `dependency_density`, "Popularity Rank", "Direct Downstream" | distinct neighbouring files | **identical** (same resolved edges, counted linearly; #3024) |
 | `producer_ratio`, `ecosystem_role` | from degree | **identical** |
@@ -32,15 +34,13 @@ Or add only the engines whose outputs you need (table below). Each is independen
 | `betweenness_score` | native | **identical**: both modes run the same exact native search (#3038) |
 | `network_modularity` | native | **identical**: both modes run the same port of networkx's seeded Louvain (#3039) |
 
-Since #3039 every graph metric is native, so a scan without networkx loses nothing on the graph side. #3041 removes networkx from the runtime.
-
-Because every centrality is computed in both modes, these all work exactly as with networkx:
+Because every centrality is computed on every install, these all work in every mode:
 - `--max-systemic-threat` and the agent-guardrail `requires_hitl` flag
 - the composition archetypes
 - the brief's "undocumented critical path", "fragile dependency chain" and "cascading state mutation" rankings
 - its blast-radius insights and the AI-topology "Cognitive Choke Point" insight
 
-**In both modes**, betweenness, closeness, average path length and modularity are computed at every repository size. The only limit is a deterministic work budget: 50 million edge scans per search, which counts work, never time. Past it, the metric is `None` / NULL / `n/a`, and the ranking built on it is empty. An import graph stays far below the budget: language-crucible's 2,817 files take about 2 ms per search.
+**In every mode**, betweenness, closeness, average path length and modularity are computed at every repository size. The only limit is a deterministic work budget: 50 million edge scans per search, which counts work, never time. Past it, the metric is `None` / NULL / `n/a`, and the ranking built on it is empty. An import graph stays far below the budget: language-crucible's 2,817 files take about 2 ms per search.
 
 **Average path length changed meaning in #3037.**
 - **Now:** the mean number of import hops from a file to each file it transitively depends on, over every such (importer, dependency) pair in the repository.
@@ -110,6 +110,7 @@ Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets
   - Recorded before **#3038**: `betweenness_score` was NULL in zero-dependency mode, and sampled and weighted above 500 files in every mode (see above).
   - Recorded before **#3039**: `network_modularity` was NULL in zero-dependency mode, and NULL above 5,000 files in every mode. The definition did not change.
   - Recorded before **#3040**: total upstream/downstream reach was capped at 500 files. In zero-dependency mode a file on a dependency cycle also counted itself, so its values read 1 higher.
+  - Recorded before **#3041**: a scan without networkx ran in Zero-Dependency Mode and listed `networkx` under Missing Dependencies. The graph metrics themselves were already identical by then (#3040).
 
 ## For contributors
 

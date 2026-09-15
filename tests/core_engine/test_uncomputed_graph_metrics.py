@@ -9,11 +9,10 @@ from unittest.mock import patch
 
 import pytest
 
-from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX, NetworkRiskSensor
+from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
 from gitgalaxy.recorders.llm_recorder import LLMRecorder
 from gitgalaxy.recorders.record_keeper import RecordKeeper
 
-NO_NETWORKX = patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False)
 PAGERANK_FAMILY = ("pagerank_score", "normalized_blast_radius", "systemic_threat_vector")
 
 
@@ -43,41 +42,20 @@ def _metrics(files):
 
 
 # ==============================================================================
-# SENSOR: identical PageRank family in both modes, None for the rest
+# SENSOR: every per-file graph metric computed, the same floats on every build
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX for the full-precision side")
-def test_zero_dependency_pagerank_family_matches_networkx():
-    full = _metrics(NetworkRiskSensor().build_dependency_graph(_files())[0])
-    with NO_NETWORKX:
-        zero = _metrics(NetworkRiskSensor().build_dependency_graph(_files())[0])
-
-    for path, full_metrics in full.items():
-        assert {k: zero[path][k] for k in PAGERANK_FAMILY} == {k: full_metrics[k] for k in PAGERANK_FAMILY}, path
-        assert zero[path]["normalized_blast_radius"] is not None
-        # #3037/#3038: betweenness and closeness are native too, so identical in both modes.
-        assert zero[path]["betweenness_score"] is not None, path
-        assert zero[path]["betweenness_score"] == full_metrics["betweenness_score"], path
-        assert zero[path]["closeness_score"] is not None, path
-        assert zero[path]["closeness_score"] == full_metrics["closeness_score"], path
-
-
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX for the full-precision side")
-def test_full_precision_runs_the_native_pagerank_not_networkx():
+def test_every_file_gets_the_pagerank_family_and_centralities():
     """
-    One implementation in both modes: full precision must never call nx.pagerank
-    (a version-dependent, numpy/scipy-backed routine networkx does not install),
-    and both modes must produce the SAME floats, not just the same rounding.
+    #3027/#3037/#3038/#3041: one native builder, so every file gets PageRank,
+    blast radius, betweenness and closeness, and a rebuild gives the SAME floats.
     """
-    with patch("networkx.pagerank", side_effect=AssertionError("nx.pagerank must not be called")):
-        full_files, _ = NetworkRiskSensor().build_dependency_graph(_files())
-    with NO_NETWORKX:
-        zero_files, _ = NetworkRiskSensor().build_dependency_graph(_files())
+    first = _metrics(NetworkRiskSensor().build_dependency_graph(_files())[0])
+    again = _metrics(NetworkRiskSensor().build_dependency_graph(_files())[0])
 
-    full, zero = _metrics(full_files), _metrics(zero_files)
-    for path in full:
-        for key in PAGERANK_FAMILY:
-            assert full[path][key] == zero[path][key], (path, key)
-        assert full[path]["pagerank_score"] is not None
+    for path, metrics in first.items():
+        for key in (*PAGERANK_FAMILY, "betweenness_score", "closeness_score"):
+            assert metrics[key] is not None, (path, key)
+            assert again[path][key] == metrics[key], (path, key)
 
 
 def _chain(n):
@@ -88,18 +66,14 @@ def _chain(n):
     ]
 
 
-@pytest.mark.parametrize("networkx_present", [True, False])
-def test_path_metrics_are_computed_above_the_old_node_cutoffs(networkx_present):
+def test_path_metrics_are_computed_above_the_old_node_cutoffs():
     """
     #3037: closeness used to be skipped above 1,500 files, and path length above
-    5,000. Both are now computed at every size and in both modes, bounded only by
-    the work budget. The long chain here also shows the search is iterative.
+    5,000. Both are now computed at every size, bounded only by the work budget.
+    The long chain here also shows the search is iterative.
     """
-    if networkx_present and not HAS_NETWORKX:
-        pytest.skip("Requires NetworkX")
     n = 1501
-    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", networkx_present and HAS_NETWORKX):
-        files, macro = NetworkRiskSensor().build_dependency_graph(_chain(n))
+    files, macro = NetworkRiskSensor().build_dependency_graph(_chain(n))
     metrics = _metrics(files)
 
     # The chain's end is reached by f(i) at n-1-i hops: closeness = (r/h) * (r/(n-1)).
@@ -133,8 +107,7 @@ def test_path_length_of_a_graph_without_imports_is_none():
 # RECORDER: zero-dependency scans keep the native PageRank (NULL only if uncomputed)
 # ==============================================================================
 def test_zero_dependency_db_records_native_pagerank(tmp_path):
-    with NO_NETWORKX:
-        files, macro = NetworkRiskSensor().build_dependency_graph(_files())
+    files, macro = NetworkRiskSensor().build_dependency_graph(_files())
     db = tmp_path / "zero.db"
     session = {"target": "t", "git_audit": {"commit_hash": "c"}, "zero_dependency_mode": True}
 

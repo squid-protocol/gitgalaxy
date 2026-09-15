@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pytest
 
-from gitgalaxy.galaxyscope import HAS_NETWORKX, HAS_PYYAML, HAS_TIKTOKEN
+from gitgalaxy.galaxyscope import HAS_PYYAML, HAS_TIKTOKEN
 from gitgalaxy.security.security_auditor import ML_AVAILABLE
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -35,7 +35,7 @@ CRUCIBLE_DATA_PATH = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.par
 
 def _zero_dependency_mode() -> bool:
     # Same condition galaxyscope.py itself uses to decide which mode it ran in.
-    return not (HAS_NETWORKX and HAS_TIKTOKEN and ML_AVAILABLE and HAS_PYYAML)
+    return not (HAS_TIKTOKEN and ML_AVAILABLE and HAS_PYYAML)
 
 
 @pytest.mark.skipif(

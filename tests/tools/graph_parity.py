@@ -81,6 +81,17 @@ def _stored_assortativity(value: float) -> float:
     return 0.0 if math.isnan(value) else value
 
 
+def _networkx_closeness(graph: Any) -> dict[str, float]:
+    # A named function, not `nx.closeness_centrality` itself: that would read
+    # networkx at import, and this module must import (so its tests can skip)
+    # without networkx installed.
+    return nx.closeness_centrality(graph)
+
+
+def _networkx_betweenness(graph: Any) -> dict[str, float]:
+    return nx.betweenness_centrality(graph)
+
+
 def _networkx_assortativity(graph: Any) -> float:
     with warnings.catch_warnings():  # networkx warns on an undefined correlation's 0/0
         warnings.simplefilter("ignore", category=RuntimeWarning)
@@ -107,7 +118,7 @@ METRICS: dict[str, Metric] = {
     "closeness": Metric(
         oracle_mode="strict",
         native=lambda index: dict(zip(index.nodes, closeness_and_path_length(index)[0])),
-        oracle=nx.closeness_centrality,
+        oracle=_networkx_closeness,
         places=6,  # closeness_score
     ),
     "avg_path_length": Metric(
@@ -141,7 +152,7 @@ METRICS: dict[str, Metric] = {
     "betweenness": Metric(
         oracle_mode="tailored",  # the engine used to sample 100 weighted sources above 500 files
         native=lambda index: dict(zip(index.nodes, betweenness_centrality(index))),
-        oracle=nx.betweenness_centrality,
+        oracle=_networkx_betweenness,
         places=6,  # betweenness_score
     ),
     "modularity": Metric(

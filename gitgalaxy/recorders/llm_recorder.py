@@ -231,10 +231,10 @@ class LLMRecorder:
             lines.append(
                 f"> Optional engines missing during this scan: {', '.join(f'`{p}`' for p in missing) or 'unknown'}. "
                 "Metrics that need them were NOT computed -- shown as `n/a` or omitted, and no value shown for them "
-                "is a measurement: Betweenness/Closeness and the repo network table (`networkx`); Token Mass and "
-                "Financial Read Cost (`tiktoken`); AI threat classification (`xgboost`/`pandas`/`numpy`). "
-                "PageRank / Blast Radius and inbound/outbound connection counts are computed natively and match "
-                "full precision. Do not infer values for the missing metrics."
+                "is a measurement: Token Mass and Financial Read Cost (`tiktoken`); AI threat classification "
+                "(`xgboost`/`pandas`/`numpy`). Every graph metric (PageRank / Blast Radius, the centralities, the "
+                "repo network table, connection counts) is computed natively and matches full precision. Do not "
+                "infer values for the missing metrics."
             )
             lines.append("")
 

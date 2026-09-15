@@ -10,7 +10,6 @@ class TestZeroDependencyMode(unittest.TestCase):
     # ==============================================================================
     # TEST 1: NETWORK TOPOLOGY FALLBACK (NetworkX)
     # ==============================================================================
-    @patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False)
     def test_fallback_does_not_crash_signal_processor(self):
         """
         Simulates a user running GalaxyScope without 'networkx' installed.
@@ -105,7 +104,6 @@ class TestZeroDependencyMode(unittest.TestCase):
     # ==============================================================================
     # TEST 4: ORCHESTRATOR METADATA COMPLIANCE
     # ==============================================================================
-    @patch("gitgalaxy.galaxyscope.HAS_NETWORKX", False)
     @patch("gitgalaxy.galaxyscope.HAS_TIKTOKEN", False)
     @patch("gitgalaxy.galaxyscope.ML_AVAILABLE", False)
     @patch("gitgalaxy.galaxyscope.HAS_PYYAML", False)
@@ -120,7 +118,6 @@ class TestZeroDependencyMode(unittest.TestCase):
         # We manually structure the dictionary exactly as phase 11 does
         session_meta = {
             "missing_dependencies": {
-                "networkx": True,
                 "tiktoken": True,
                 "xgboost": True,
                 "pyyaml": True,
@@ -135,7 +132,6 @@ class TestZeroDependencyMode(unittest.TestCase):
     # ==============================================================================
     # TEST 5: THE VACUUM PIPELINE (Total Ecosystem Failure)
     # ==============================================================================
-    @patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False)
     @patch("gitgalaxy.security.security_auditor.ML_AVAILABLE", False)
     def test_vacuum_pipeline_schema_survival(self):
         """

@@ -15,7 +15,7 @@ from unittest.mock import patch
 
 import pytest
 
-from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX, NetworkRiskSensor
+from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
 from gitgalaxy.recorders.record_keeper import RecordKeeper
 
 UNIVERSE = [
@@ -87,50 +87,22 @@ def keeper():
 # ==============================================================================
 # SENSOR: the published edge list is the graph the degrees came from
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
-def test_digraph_mode_publishes_edges_matching_degrees():
+def test_published_edges_match_the_degrees():
+    """
+    The published edge list is exactly the graph the degrees came from: degree
+    counts distinct neighbours, one per edge row (#3024). src/app.py imports
+    src/lib.py twice -- the case that once read out_degree 3 instead of 2.
+    """
     sensor = NetworkRiskSensor()
     files = _build(sensor)
 
     assert sensor.dependency_edges == EXPECTED_EDGES
     for f in files:
         nm = f["telemetry"]["network_metrics"]
-        # DiGraph degree counts distinct neighbours: one per edge row.
         assert nm["out_degree"] == sum(e["src"] == f["path"] for e in sensor.dependency_edges)
         assert nm["in_degree"] == sum(e["dst"] == f["path"] for e in sensor.dependency_edges)
-
-
-@patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False)
-def test_zero_dependency_mode_publishes_the_same_edges():
-    sensor = NetworkRiskSensor()
-    files = _build(sensor)
-
-    assert sensor.dependency_edges == EXPECTED_EDGES
-    for f in files:
-        nm = f["telemetry"]["network_metrics"]
-        # #3024: distinct neighbours, one per edge row -- the DiGraph's meaning.
-        assert nm["out_degree"] == sum(e["src"] == f["path"] for e in sensor.dependency_edges)
-        assert nm["in_degree"] == sum(e["dst"] == f["path"] for e in sensor.dependency_edges)
-
-
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
-def test_degree_family_is_identical_in_both_modes():
-    """
-    #3024: the degree-derived fields must not depend on whether networkx is
-    installed. src/app.py imports src/lib.py twice -- the case that used to
-    read out_degree 3 in zero-dependency mode against 2 with networkx.
-    """
-    degree_keys = ("in_degree", "out_degree", "producer_ratio", "ecosystem_role")
-
-    full = {f["path"]: f for f in _build(NetworkRiskSensor())}
-    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
-        zero = {f["path"]: f for f in _build(NetworkRiskSensor())}
-
-    assert zero["src/app.py"]["telemetry"]["network_metrics"]["out_degree"] == 2
-    for path, f in full.items():
-        fnm, znm = f["telemetry"]["network_metrics"], zero[path]["telemetry"]["network_metrics"]
-        assert {k: znm[k] for k in degree_keys} == {k: fnm[k] for k in degree_keys}, path
-        assert zero[path]["telemetry"]["popularity"] == f["telemetry"]["popularity"], path
+        assert f["telemetry"]["popularity"] == nm["in_degree"]
+    assert {f["path"]: f for f in files}["src/app.py"]["telemetry"]["network_metrics"]["out_degree"] == 2
 
 
 def test_a_later_build_replaces_the_edge_list():
@@ -167,9 +139,8 @@ def test_edges_persist_keyed_to_file_data(keeper, tmp_path):
         FROM file_data f
     """).fetchall()
     conn.close()
-    if HAS_NETWORKX:
-        for path, links, popularity, out_rows, in_rows in mismatches:
-            assert (links, popularity) == (out_rows, in_rows), path
+    for path, links, popularity, out_rows, in_rows in mismatches:
+        assert (links, popularity) == (out_rows, in_rows), path
 
 
 def test_edge_to_a_relegated_file_is_counted_not_recorded(keeper, tmp_path):

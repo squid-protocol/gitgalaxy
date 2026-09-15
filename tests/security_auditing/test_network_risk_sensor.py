@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 
 # Adjust this import to match your project structure
-from gitgalaxy.core.network_risk_sensor import HAS_NETWORKX, NetworkRiskSensor
+from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
 
 # ==============================================================================
 # MOCK STELLAR TOPOLOGY
@@ -66,7 +66,6 @@ def parsed_files_universe():
 # ==============================================================================
 # TEST 1: ISOLATED ISLAND RESILIENCE
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_isolated_island(sensor, parsed_files_universe):
     """Proves that a node with 0 edges does not trigger divide-by-zero math."""
     mapped_files, metrics = sensor.build_dependency_graph(parsed_files_universe)
@@ -83,7 +82,6 @@ def test_network_isolated_island(sensor, parsed_files_universe):
 # ==============================================================================
 # TEST 2: CYCLIC DEPENDENCY RESILIENCE
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_cyclic_loop_resilience(sensor, parsed_files_universe):
     """Proves that A -> B -> A loops do not crash the PageRank / Graph traversal."""
     # If the algorithm gets stuck in infinite recursion, this test will timeout/crash.
@@ -101,7 +99,6 @@ def test_network_cyclic_loop_resilience(sensor, parsed_files_universe):
 # ==============================================================================
 # TEST 3: ECOSYSTEM ROLES
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_ecosystem_roles(sensor, parsed_files_universe):
     """Proves the engine accurately classifies Producers, Consumers, and Transceivers."""
     mapped_files, metrics = sensor.build_dependency_graph(parsed_files_universe)
@@ -119,27 +116,23 @@ def test_network_ecosystem_roles(sensor, parsed_files_universe):
 # ==============================================================================
 # TEST 5: ZERO-DEPENDENCY FALLBACK
 # ==============================================================================
-def test_network_fallback_mode(sensor, parsed_files_universe):
-    """Proves the fallback mode safely maps roles without NetworkX installed."""
-    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
-        mapped_files, metrics = sensor.build_dependency_graph(parsed_files_universe)
+def test_every_graph_metric_is_computed(sensor, parsed_files_universe):
+    """
+    #3041: one builder, no optional package. Every graph metric is computed --
+    no 0.0 placeholder and no None -- on every install.
+    """
+    mapped_files, metrics = sensor.build_dependency_graph(parsed_files_universe)
 
-        # It should still calculate basic in/out degrees and roles using pure Python dicts
-        foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
-        assert foundation["telemetry"]["network_metrics"]["ecosystem_role"] == "Pure Producer (Foundation)"
-        # #3027/#3037/#3038: PageRank, closeness and betweenness are computed
-        # natively -- no 0.0 placeholder, and no None.
-        assert foundation["telemetry"]["network_metrics"]["pagerank_score"] > 0.0
-        assert foundation["telemetry"]["network_metrics"]["closeness_score"] > 0.0
-        # orchestrator -> transceiver -> heavy_calc is the only path between them.
-        transceiver = next(f for f in mapped_files if f["path"] == "/src/utils/transceiver.py")
-        assert transceiver["telemetry"]["network_metrics"]["betweenness_score"] > 0.0
-        assert metrics["avg_path_length"] is not None
-        # #3035: cyclic density and articulation points are native too.
-        assert metrics["cyclic_density"] > 0.0
-        assert metrics["articulation_points"] is not None
-        assert metrics["assortativity"] is not None  # #3036
-        assert metrics["modularity"] is not None  # #3039
+    foundation = next(f for f in mapped_files if f["path"] == "/src/core/foundation.py")
+    assert foundation["telemetry"]["network_metrics"]["ecosystem_role"] == "Pure Producer (Foundation)"
+    assert foundation["telemetry"]["network_metrics"]["pagerank_score"] > 0.0
+    assert foundation["telemetry"]["network_metrics"]["closeness_score"] > 0.0
+    # orchestrator -> transceiver -> heavy_calc is the only path between them.
+    transceiver = next(f for f in mapped_files if f["path"] == "/src/utils/transceiver.py")
+    assert transceiver["telemetry"]["network_metrics"]["betweenness_score"] > 0.0
+    assert metrics["cyclic_density"] > 0.0
+    for key in ("modularity", "assortativity", "avg_path_length", "articulation_points"):
+        assert metrics[key] is not None, key
 
 
 # ==============================================================================
@@ -209,7 +202,6 @@ def ambiguous_only_universe():
 # ==============================================================================
 # TEST 6: DUPLICATE FILENAME — AMBIGUOUS BARE IMPORT IS SKIPPED, NOT GUESSED (#261)
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_duplicate_filename_ambiguous_import_skipped(sensor, ambiguous_only_universe):
     """
     Regression test for #261: when a bare import token ("utils") matches
@@ -233,7 +225,6 @@ def test_network_duplicate_filename_ambiguous_import_skipped(sensor, ambiguous_o
 # ==============================================================================
 # TEST 7: DUPLICATE FILENAME — PATH-QUALIFIED IMPORT DISAMBIGUATES CORRECTLY (#261)
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_duplicate_filename_path_qualified_import_resolves(sensor, duplicate_filename_universe):
     """
     Regression test for #261: when the import token carries enough path
@@ -258,18 +249,16 @@ def test_network_duplicate_filename_path_qualified_import_resolves(sensor, dupli
 # ==============================================================================
 def test_network_duplicate_filename_fallback_mode(sensor, duplicate_filename_universe):
     """
-    Regression test for #261 in the pure-Python fallback path
-    (_fallback_build_graph): the same ambiguity-safe resolution must apply
-    even when NetworkX isn't installed.
+    Regression test for #261, through the degree counts: the ambiguity-safe
+    resolution wires only the path-qualified import.
     """
-    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
-        mapped_files, metrics = sensor.build_dependency_graph(duplicate_filename_universe)
+    mapped_files, metrics = sensor.build_dependency_graph(duplicate_filename_universe)
 
-        service_a_utils = next(f for f in mapped_files if f["path"] == "/src/service_a/utils.py")
-        service_b_utils = next(f for f in mapped_files if f["path"] == "/src/service_b/utils.py")
+    service_a_utils = next(f for f in mapped_files if f["path"] == "/src/service_a/utils.py")
+    service_b_utils = next(f for f in mapped_files if f["path"] == "/src/service_b/utils.py")
 
-        assert service_a_utils["telemetry"]["network_metrics"]["in_degree"] == 0
-        assert service_b_utils["telemetry"]["network_metrics"]["in_degree"] == 1
+    assert service_a_utils["telemetry"]["network_metrics"]["in_degree"] == 0
+    assert service_b_utils["telemetry"]["network_metrics"]["in_degree"] == 1
 
 
 # ==============================================================================
@@ -379,7 +368,6 @@ def test_coverage_mapping_skips_test_functions_with_no_calls(sensor):
 # ==============================================================================
 # TEST 11: DUPLICATE-EDGE WEIGHT ACCUMULATION
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_duplicate_edge_weight_accumulates(sensor):
     """
     Two separate imports from the same file to the same target must
@@ -418,25 +406,20 @@ def test_network_duplicate_edge_weight_accumulates(sensor):
 # ==============================================================================
 # TEST 12: NETWORK MATH RESILIENCE — CENTRALITY COMPUTATION FAILURE
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
-def test_betweenness_is_native_in_both_modes(sensor, parsed_files_universe):
-    """
-    #3038: betweenness is exact and native in both modes. networkx's
-    betweenness_centrality (sampled above 500 files, weight read as distance) is
-    never called, and the two modes agree.
-    """
-    with patch("networkx.betweenness_centrality", side_effect=AssertionError("must not be called")):
-        full_files, _ = sensor.build_dependency_graph(parsed_files_universe)
-    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
-        zero_files, _ = sensor.build_dependency_graph(copy.deepcopy(MOCK_PARSED_FILES))
-
-    full = {f["path"]: f["telemetry"]["network_metrics"] for f in full_files}
-    zero = {f["path"]: f["telemetry"]["network_metrics"] for f in zero_files}
-    for path, metrics in full.items():
+def test_betweenness_is_computed_for_every_file(sensor, parsed_files_universe):
+    """#3038: exact betweenness for every file, and repeat builds give the same floats."""
+    first = {
+        f["path"]: f["telemetry"]["network_metrics"] for f in sensor.build_dependency_graph(parsed_files_universe)[0]
+    }
+    again = {
+        f["path"]: f["telemetry"]["network_metrics"]
+        for f in sensor.build_dependency_graph(copy.deepcopy(MOCK_PARSED_FILES))[0]
+    }
+    for path, metrics in first.items():
         assert metrics["betweenness_score"] is not None, path
-        assert zero[path]["betweenness_score"] == metrics["betweenness_score"], path
+        assert again[path]["betweenness_score"] == metrics["betweenness_score"], path
     # Degree is exact and never depended on the centrality math.
-    assert full["/src/core/foundation.py"]["ecosystem_role"] == "Pure Producer (Foundation)"
+    assert first["/src/core/foundation.py"]["ecosystem_role"] == "Pure Producer (Foundation)"
 
 
 def test_betweenness_past_its_work_budget_is_none(sensor, parsed_files_universe):
@@ -467,40 +450,16 @@ def test_pagerank_failure_degrades_to_none(sensor, parsed_files_universe):
 # ==============================================================================
 # TEST 13: MACRO NETWORK MATH RESILIENCE — INDIVIDUAL METRIC FAILURES
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
-def test_macro_metrics_never_call_networkx(sensor, parsed_files_universe):
+def test_macro_metrics_are_all_computed(sensor, parsed_files_universe):
     """
-    #3039: every macro metric is native now. networkx's community routines and
-    its to_undirected copy are never called, so failing them changes nothing.
+    #3035-#3039: every macro metric is native, so none is ever None on a graph with
+    imports (the engine never imports networkx: test_no_networkx_runtime.py).
     """
-    boom = RuntimeError("networkx must not be called")
-    with (
-        patch("networkx.algorithms.community.louvain_communities", side_effect=boom),
-        patch("networkx.algorithms.community.modularity", side_effect=boom),
-        patch("networkx.DiGraph.to_undirected", side_effect=boom),
-    ):
-        _, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
+    _, macro_metrics = sensor.build_dependency_graph(parsed_files_universe)
 
+    assert macro_metrics["cyclic_density"] > 0.0  # the universe has a cycle
     for key in ("modularity", "assortativity", "cyclic_density", "avg_path_length", "articulation_points"):
         assert macro_metrics[key] is not None, key
-
-
-def test_topology_metrics_are_native_in_both_modes(sensor, parsed_files_universe):
-    """#3035/#3036/#3039: the native macro metrics never call networkx, and both modes agree."""
-    native = ("modularity", "assortativity", "cyclic_density", "articulation_points")
-    with (
-        patch("networkx.strongly_connected_components", side_effect=AssertionError("must not be called")),
-        patch("networkx.articulation_points", side_effect=AssertionError("must not be called")),
-        patch("networkx.degree_assortativity_coefficient", side_effect=AssertionError("must not be called")),
-        patch("networkx.algorithms.community.louvain_communities", side_effect=AssertionError("must not be called")),
-    ):
-        _, full = sensor.build_dependency_graph(parsed_files_universe)
-    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
-        _, zero = sensor.build_dependency_graph(parsed_files_universe)
-
-    assert full["cyclic_density"] > 0.0  # the universe has a cycle
-    assert all(full[key] is not None for key in native)
-    assert {key: zero[key] for key in native} == {key: full[key] for key in native}
 
 
 def test_assortativity_needs_no_numpy(sensor, parsed_files_universe):
@@ -595,7 +554,6 @@ def case_fold_universe():
 # ==============================================================================
 # TEST 15: CASE-FOLDED RESOLUTION FOR CASE-INSENSITIVE LANGUAGES (#2540)
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_fortran_uppercase_use_resolves(sensor, case_fold_universe):
     """
     Regression test for #2540: fortran `USE A` must resolve to a.f90 even
@@ -614,7 +572,6 @@ def test_network_fortran_uppercase_use_resolves(sensor, case_fold_universe):
     assert a_f90["telemetry"]["popularity"] == 1
 
 
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_haskell_capitalized_import_resolves(sensor, case_fold_universe):
     """
     Regression test for #2540 (issue comment): haskell module names are
@@ -629,7 +586,6 @@ def test_network_haskell_capitalized_import_resolves(sensor, case_fold_universe)
     )
 
 
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_cobol_copy_statement_resolves(sensor, case_fold_universe):
     """
     Regression test for #2540 (issue comment): cobol `COPY A.` captures "A"
@@ -646,7 +602,6 @@ def test_network_cobol_copy_statement_resolves(sensor, case_fold_universe):
 # ==============================================================================
 # TEST 16: CASE-SENSITIVE LANGUAGES MUST NOT CROSS-CASE RESOLVE (#2540)
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_python_does_not_cross_case_resolve(sensor):
     """
     Guard for #2540's chosen design (per-language flag, not an unconditional
@@ -666,7 +621,6 @@ def test_network_python_does_not_cross_case_resolve(sensor):
     )
 
 
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_unknown_language_stays_case_sensitive(sensor):
     """A file with no lang_id at all (mock/legacy dicts) keeps exact-case resolution."""
     files = [
@@ -683,7 +637,6 @@ def test_network_unknown_language_stays_case_sensitive(sensor):
 # ==============================================================================
 # TEST 17: EXACT-CASE MATCH WINS BEFORE THE FOLD (#2540)
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_exact_case_match_wins_over_folded(sensor):
     """
     When both A.hs and a.hs exist, `import A` from a folding language must
@@ -711,23 +664,20 @@ def test_network_exact_case_match_wins_over_folded(sensor):
 # ==============================================================================
 def test_network_case_fold_fallback_mode(sensor, case_fold_universe):
     """
-    Regression test for #2540 in the pure-Python fallback path
-    (_fallback_build_graph): the same case-folded resolution must apply
-    even when NetworkX isn't installed.
+    Regression test for #2540, through the degree counts: case-folded
+    resolution reaches the fortran module and the cobol copybook.
     """
-    with patch("gitgalaxy.core.network_risk_sensor.HAS_NETWORKX", False):
-        mapped_files, _ = sensor.build_dependency_graph(case_fold_universe)
+    mapped_files, _ = sensor.build_dependency_graph(case_fold_universe)
 
-        a_f90 = next(f for f in mapped_files if f["path"] == "/src/orbit_math.f90")
-        assert a_f90["telemetry"]["network_metrics"]["in_degree"] == 1
-        a_cpy = next(f for f in mapped_files if f["path"] == "/cbl/payroll.cpy")
-        assert a_cpy["telemetry"]["network_metrics"]["in_degree"] == 1
+    a_f90 = next(f for f in mapped_files if f["path"] == "/src/orbit_math.f90")
+    assert a_f90["telemetry"]["network_metrics"]["in_degree"] == 1
+    a_cpy = next(f for f in mapped_files if f["path"] == "/cbl/payroll.cpy")
+    assert a_cpy["telemetry"]["network_metrics"]["in_degree"] == 1
 
 
 # ==============================================================================
 # TEST 19: THE FOLD NEVER INVENTS A CROSS-LANGUAGE EDGE (#2540)
 # ==============================================================================
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_network_fold_does_not_cross_language_resolve(sensor):
     """
     Found by the crucible corpus during the #2540 re-bless: haskell's
@@ -837,7 +787,6 @@ def test_resolve_target_uses_relative_path_context_to_disambiguate(sensor):
     assert sensor._resolve_target("./helper.js", resolution_map, "/repo/main.js") is None
 
 
-@pytest.mark.skipif(not HAS_NETWORKX, reason="Requires NetworkX")
 def test_relative_extension_imports_produce_a_real_dag(sensor):
     """
     The end-to-end symptom from #2668: keyword-rosetta's shell shell records

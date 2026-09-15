@@ -52,7 +52,7 @@ jobs:
         run: |
           cd gitgalaxy
           python -m pip install --upgrade pip setuptools wheel
-          pip install PyYAML networkx tiktoken pandas xgboost
+          pip install PyYAML tiktoken pandas xgboost
           pip install -e .
 
       - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF, same as CI)

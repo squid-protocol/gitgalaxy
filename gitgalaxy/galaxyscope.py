@@ -30,7 +30,7 @@ from typing import Any, Optional, Union
 from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.detector import HAS_TIKTOKEN
 from gitgalaxy.core.guidestar_lens import GuideStarLens
-from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, HAS_NETWORKX, NetworkRiskSensor
+from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, NetworkRiskSensor
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.core.spatial_correlation import correlate_against_ledger
 from gitgalaxy.core.spatial_mapper import SpatialMapper
@@ -948,10 +948,8 @@ class Orchestrator:
         start_time = time.time()
         logger.info(f"--- PIPELINE_START: {self.root.name} (v{self.version}) ---")
 
-        if not HAS_NETWORKX or not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML:
+        if not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML:
             missing_libs = []
-            if not HAS_NETWORKX:
-                missing_libs.append("networkx")
             if not HAS_TIKTOKEN:
                 missing_libs.append("tiktoken")
             if not ML_AVAILABLE:
@@ -972,9 +970,6 @@ class Orchestrator:
             _box("⚠️  ZERO-DEPENDENCY MODE ACTIVE")
             logger.warning(" ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
             _box("Every structural signal is still measured. Missing engines cost:")
-            if not HAS_NETWORKX:
-                _box(" - networkx: nothing is lost. Every graph metric is computed")
-                _box("   natively and matches full precision (#3039).")
             if not HAS_TIKTOKEN:
                 _box(" - tiktoken: token mass & financial read cost are NULL.")
             if not ML_AVAILABLE:
@@ -1351,12 +1346,11 @@ class Orchestrator:
                 "target_directory": str(self.root.resolve()),
                 "git_audit": self._get_git_audit(),
                 "missing_dependencies": {
-                    "networkx": not HAS_NETWORKX,
                     "tiktoken": not HAS_TIKTOKEN,
                     "xgboost": not ML_AVAILABLE,
                     "pyyaml": not HAS_PYYAML,
                 },
-                "zero_dependency_mode": (not HAS_NETWORKX or not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML),
+                "zero_dependency_mode": (not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML),
             }
 
             if "unparsable_files" not in summary:
@@ -1514,7 +1508,7 @@ class Orchestrator:
 
             # Same trigger as the start-of-run banner (it used to check only
             # networkx/tiktoken, so a scan missing xgboost or pyyaml ended silently).
-            if not HAS_NETWORKX or not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML:
+            if not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML:
                 logger.warning(
                     ' ⚠️  NOTE: Pipeline completed in Zero-Dependency Mode. Run `pip install "gitgalaxy[full]"` for '
                     "full precision; docs/zero_dependency_mode.md lists what this scan could not measure."
@@ -2957,12 +2951,11 @@ class Orchestrator:
                 "target_directory": str(self.root.resolve()),
                 "git_audit": self._get_git_audit(),  # Gets the NEW commit hash
                 "missing_dependencies": {
-                    "networkx": not HAS_NETWORKX,
                     "tiktoken": not HAS_TIKTOKEN,
                     "xgboost": not ML_AVAILABLE,
                     "pyyaml": not HAS_PYYAML,
                 },
-                "zero_dependency_mode": (not HAS_NETWORKX or not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML),
+                "zero_dependency_mode": (not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML),
             }
 
             self.db_recorder.record_mission(

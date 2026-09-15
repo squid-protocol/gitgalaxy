@@ -18,7 +18,7 @@ Evaluating code quality in isolation is insufficient; a poorly written script ha
 - **Centrality Metrics:** Computes PageRank (Normalized Blast Radius) with the engine's own pure-Python implementation in every mode (#3027: one implementation, so no mode or networkx-version drift), plus Betweenness Centrality (Architectural Choke Points, #3038) and Closeness Centrality (#3037), both native in every mode. Both are exact at every graph size, with no sampling and no file-count cutoff. Each is bounded only by a deterministic work budget (`PATH_METRICS_WORK_BUDGET` edge scans, never wall-clock time), past which it is `None`/NULL, never 0.0. A failed centrality computation leaves the metric `None` (#3027).
 - **Component Roles:** Classifies modules as Producers (Foundation), Consumers (Orchestrators), Transceivers (Middle Tier), or Isolated, based on inbound/outbound edge ratios.
 - **Global Topology Metrics:** Evaluates modularity, assortativity, cyclic density, average path length, and articulation points.
-- **Zero-Dependency Mode:** Without `networkx`, the same resolved edges are counted linearly: in/out degree (`popularity`, `internal_dependency_links`), producer ratio and ecosystem role are exact and identical to full-precision mode (#3024), and the `edge_data` table is identical. PageRank (and so blast radius and the systemic threat vector) is the same native pure-Python PageRank full precision uses (#3027), closeness and average path length are the same native search (#3037), cyclic density and articulation points are the same native depth-first searches (#3035), assortativity is the same native single pass over the edges (#3036), betweenness is the same exact native search (#3038), and modularity is the same port of networkx's seeded Louvain (#3039). Zero-dependency mode loses nothing on the graph side. See [`docs/zero_dependency_mode.md`](../zero_dependency_mode.md).
+- **One builder, no optional package (#3041):** The resolved edges are counted linearly for degree (`popularity`, `internal_dependency_links`, producer ratio and ecosystem role; #3024), the `edge_data` table persists them, and every graph metric is computed natively (#3027, #3034-#3040). Every install therefore computes the same graph values; networkx is only a test-time oracle. See [`docs/zero_dependency_mode.md`](../zero_dependency_mode.md).
 
 ### Planned Improvements
 - Introduce community detection algorithms to auto-discover implicit package domains.
@@ -44,7 +44,7 @@ graph LR
 - **Ecosystem Boundaries:** Does not map external third-party package dependencies, limiting the graph to intra-repository files.
 
 ## Performance Notes
-- Operates linearly $O(N)$ for graph construction. Path traversal and centrality metrics are heavily optimized using `networkx` heuristics and sampling for large repositories, ensuring low runtime overhead.
+- Graph construction is linear in files plus imports. Every metric is exact and native (`gitgalaxy/core/graph_engine.py`), bounded by deterministic work budgets rather than sampling.
 
 ## Future Work
 - Extend dependency parsing to map cross-repository package dependencies and internal sub-module cyclic detection.

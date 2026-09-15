@@ -82,11 +82,11 @@ CRUCIBLE_PATH = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent /
 # PyYAML is in BOTH modes' list, not just "full": since #1104 it's an optional
 # extra (`gitgalaxy[yaml]`), not a core pyproject.toml dependency, so a bare
 # `pip install -e .` no longer pulls it in for either venv. "zero-dependency"
-# here has only ever meant the optional networkx/tiktoken/pandas/xgboost stack
+# here has only ever meant the optional tiktoken/pandas/xgboost stack (networkx: none since #3041)
 # is absent -- the golden-master zero-dep fixture (tests/golden_master_zero_dep_audit.json)
 # expects PyYAML present even in that mode ("pyyaml": false, i.e. NOT missing).
 MODES = {
-    "full": ("full_precision", ["PyYAML", "networkx", "tiktoken", "pandas", "xgboost"]),
+    "full": ("full_precision", ["PyYAML", "tiktoken", "pandas", "xgboost"]),
     "zero": ("zero_dependency", ["PyYAML"]),
 }
 

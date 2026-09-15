@@ -90,13 +90,15 @@ jobs:
       - name: Install GitGalaxy PR build (full precision)
         run: |
           python -m pip install --upgrade pip
-          pip install PyYAML networkx tiktoken numpy pandas xgboost
+          pip install PyYAML tiktoken numpy pandas xgboost
           pip install -e ./gitgalaxy
 
       - name: Install GitGalaxy baseline build (full precision, separate venv)
         run: |
           python -m venv baseline-venv
           baseline-venv/bin/pip install --upgrade pip
+          # networkx stays for the baseline: a main build from before #3041 still
+          # reads it to decide its mode, and must run at full precision.
           baseline-venv/bin/pip install PyYAML networkx tiktoken numpy pandas xgboost
           baseline-venv/bin/pip install ./gitgalaxy-baseline
 

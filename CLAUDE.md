@@ -105,7 +105,7 @@ diff be" is answered from data instead of a guess informed only by the issue tex
 
 - **`docs/gitgalaxy_architecture_brief.md`** — auto-committed on every merge to main (a byproduct
   of the CI scan that also produces SARIF/SBOM), so it's always close to current HEAD. This scan
-  always installs `networkx`/`tiktoken`/`xgboost`/`pandas`/`numpy` first (`gitgalaxy.yml`'s
+  always installs `tiktoken`/`xgboost`/`pandas`/`numpy` first (`gitgalaxy.yml`'s
   "Install GitGalaxy & Full Precision Engines" step) — confirm by checking the brief's own
   Section 0 traceability table, which reports `Zero-Dependency Mode: Inactive (Full Precision)`.
   Use it for *repo-wide* framing before a large refactor: Section 7 has the actual blast-radius
@@ -136,15 +136,15 @@ diff be" is answered from data instead of a guess informed only by the issue tex
       "SELECT directory_group, COUNT(*) files, SUM(total_loc) loc, SUM(function_count) funcs
        FROM file_data GROUP BY directory_group ORDER BY loc DESC LIMIT 8;"
     ```
-  - **Full-precision dependencies required:** every graph column is native since
-    #3035-#3039 (networkx only selects the full-precision code path until #3041); token mass and the ML columns need `networkx`,
+  - **Full-precision dependencies required:** every graph column is native and needs
+    no optional package (networkx left the runtime in #3041); token mass and the ML columns need
     `tiktoken`, `numpy`, `pandas`, `xgboost`, and `pyyaml` importable in whatever environment runs
     the scan — without all of them, galaxyscope drops into Zero-Dependency Mode and those columns
     come back NULL (`pagerank_score`/`normalized_blast_radius` are computed natively in both modes
     since #3027; `docs/zero_dependency_mode.md` has the per-column list) (this
     is *not* caused by `--db-only` itself, which only selects which recorder writes output; a
     local dev venv missing one of these packages was the actual cause the one time this bit us).
-    `self_scan.py` now checks for all six before scanning and aborts loudly if any are missing,
+    `self_scan.py` now checks for all five before scanning and aborts loudly if any are missing,
     rather than silently producing a degraded DB — if you hit that, `pip install` whatever it
     lists. CI's copy (the `gitgalaxy-self-scan-db` artifact) always has these installed first, so
     it's always full-precision; only a local run can be affected.

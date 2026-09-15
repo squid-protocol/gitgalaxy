@@ -689,7 +689,6 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     # ==============================================================================
     # TEST 12: ZERO-DEPENDENCY MODE SURVIVAL
     # ==============================================================================
-    @patch("gitgalaxy.galaxyscope.HAS_NETWORKX", False)
     @patch("gitgalaxy.galaxyscope.HAS_TIKTOKEN", False)
     @patch("gitgalaxy.galaxyscope.ML_AVAILABLE", False)
     @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")

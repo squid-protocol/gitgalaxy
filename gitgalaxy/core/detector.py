@@ -2532,6 +2532,42 @@ class StructuralExtractor:
         """
         return _correlate_signals_impl(targets, dampeners, max_distance)
 
+    # The three AppSec sensor keys coding_analysis injects into every counts dict
+    # (see below); factored out so `_active_coding_rules` and coding_analysis agree
+    # on exactly which mapped keys are valid.
+    _APPSEC_KEYS = ("memory_scraping", "exfiltration_camouflage", "rce_funnel")
+
+    def _active_coding_rules(self, seg_lang: str) -> list[tuple[str, Any, str]]:
+        """#PERF: the eligible `(rule_name, pattern, mapped_key)` rules for a
+        language, computed once and cached. The eligibility tests -- skip
+        `_`-prefixed meta keys and falsy/trivial patterns, resolve the CORE_MAPPING
+        key, and drop rules whose mapped key isn't in the counts schema -- depend
+        only on the static ruleset, so caching them removes tens of thousands of
+        redundant `pattern.pattern.replace(...)*3.strip()` calls per scan. An
+        unregistered rule is warned about once here rather than once per file."""
+        cache = self.__dict__.setdefault("_active_rules_cache", {})
+        cached = cache.get(seg_lang)
+        if cached is not None:
+            return cached
+        valid_keys = set(self.UNIVERSAL_METRICS_SCHEMA).union(self._APPSEC_KEYS)
+        active: list[tuple[str, Any, str]] = []
+        for rule_name, pattern in self.languages.get(seg_lang, {}).get("rules", {}).items():
+            if rule_name.startswith("_") or not pattern:
+                continue
+            mapped_key = self.CORE_MAPPING.get(rule_name, rule_name)
+            if mapped_key not in valid_keys:
+                self.logger.warning(
+                    f"[DIAGNOSTIC] Unregistered rule '{mapped_key}' found in '{seg_lang}'. Ignoring to preserve schema."
+                )
+                continue
+            raw_pat = getattr(pattern, "pattern", str(pattern))
+            clean_pat = raw_pat.replace("(?i)", "").replace("(?m)", "").replace("(?s)", "").strip()
+            if clean_pat in ("", "()", "(?:)", "^", "$"):
+                continue
+            active.append((rule_name, pattern, mapped_key))
+        cache[seg_lang] = active
+        return active
+
     def coding_analysis(
         self, segments: list[tuple[str, str, int]], regex_telemetry: Optional[dict] = None
     ) -> tuple[dict[str, int], dict[str, int], list[dict[str, list[int]]], list[str], dict[str, list[int]]]:
@@ -2539,7 +2575,7 @@ class StructuralExtractor:
 
         # --- THE FIX: INJECT APPSEC SENSORS ---
         # Force the new Phase 4 sensors into the schema so the LogicSplicer doesn't ignore them
-        for appsec_key in ["memory_scraping", "exfiltration_camouflage", "rce_funnel"]:
+        for appsec_key in self._APPSEC_KEYS:
             if appsec_key not in counts:
                 counts[appsec_key] = 0
 
@@ -2603,26 +2639,14 @@ class StructuralExtractor:
             # ---> NEW: Spatial Map for this segment <---
             spatial_map: dict[str, list[int]] = {}
 
-            for rule_name, pattern in rules.items():
-                if rule_name.startswith("_"):
-                    continue
-
-                mapped_key = self.CORE_MAPPING.get(rule_name, rule_name)
-
-                if mapped_key not in counts:
-                    self.logger.warning(
-                        f"[DIAGNOSTIC] Unregistered rule '{mapped_key}' found in '{seg_lang}'. Ignoring to preserve schema."
-                    )
-                    continue
-
-                if not pattern:
-                    continue
-
-                raw_pat = getattr(pattern, "pattern", str(pattern))
-                clean_pat = raw_pat.replace("(?i)", "").replace("(?m)", "").replace("(?s)", "").strip()
-                if clean_pat in ("", "()", "(?:)", "^", "$"):
-                    continue
-
+            # #PERF: rule eligibility (skip `_`-meta keys, empty/trivial
+            # patterns, and rules whose mapped key isn't in the counts schema)
+            # depends only on the language's static ruleset, not the file. It used
+            # to re-run for every rule of every file -- recomputing
+            # `pattern.pattern.replace(...)*3.strip()` and the membership tests
+            # tens of thousands of times per scan. Compute it once per language
+            # and cache it (see `_active_coding_rules`).
+            for rule_name, pattern, mapped_key in self._active_coding_rules(seg_lang):
                 try:
                     t_rule_start = time.perf_counter()
 
@@ -2636,10 +2660,11 @@ class StructuralExtractor:
                             )
                         hit_indices = [m.start() for m in matches]
 
-                        # ---> NEW: Offset to LOC Conversion <---
-                        for m in matches:
-                            line_number = _seg_line(m.start())
-                            threat_locations.setdefault(mapped_key, []).append(line_number)
+                        # ---> Offset to LOC Conversion (#PERF: bind the
+                        # threat_locations list once and extend, instead of a
+                        # setdefault dict lookup per match) <---
+                        if hit_indices:
+                            threat_locations.setdefault(mapped_key, []).extend(_seg_line(idx) for idx in hit_indices)
 
                         # ---> THE LINEAGE EXTRACTOR <---
                         # In a `class Foo extends Bar` shape, group 1 is the name
@@ -2658,10 +2683,11 @@ class StructuralExtractor:
                         matches = list(re.finditer(str(pattern), seg_code))
                         hit_indices = [m.start() for m in matches]
 
-                        # ---> NEW: Offset to LOC Conversion <---
-                        for m in matches:
-                            line_number = _seg_line(m.start())
-                            threat_locations.setdefault(mapped_key, []).append(line_number)
+                        # ---> Offset to LOC Conversion (#PERF: bind the
+                        # threat_locations list once and extend, instead of a
+                        # setdefault dict lookup per match) <---
+                        if hit_indices:
+                            threat_locations.setdefault(mapped_key, []).extend(_seg_line(idx) for idx in hit_indices)
 
                     c = len(hit_indices)
 
@@ -2693,7 +2719,7 @@ class StructuralExtractor:
                     counts[mapped_key] += c
                     spatial_map.setdefault(mapped_key, []).extend(hit_indices)
 
-                except Exception as e:
+                except Exception as e:  # noqa: PERF203 -- per-rule isolation: one rule's regex failure shouldn't abort the remaining rules for this file
                     self.logger.error(
                         f"[DIAGNOSTIC] Regex failure in rule '{rule_name}' for language '{seg_lang}': {e}"
                     )

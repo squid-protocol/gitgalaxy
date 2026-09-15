@@ -2046,7 +2046,21 @@ class StructuralExtractor:
             # 0.0 for any file with a single global-state hit. The design_* buckets
             # classify each declared identifier's casing/length for style-consistency
             # and outlier signal.
-            for decl_match in self._var_decl_pattern.finditer(code_stream):
+            # #perf: _var_decl_pattern requires a bare `=` and never spans a
+            # newline, so a line with no `=` can never match -- yet the greedy
+            # `[^=\n]{0,80}` prefix backtracked across every such line before
+            # failing, which profiling put at ~a quarter of splice() on large
+            # TypeScript files. Skip `=`-less lines with a cheap membership test.
+            # `.match` per line is identical to the original re.M `^`-anchored
+            # finditer (the pattern anchors at line start and yields at most one
+            # match per line, in line order), so every equations count is
+            # byte-for-byte unchanged.
+            for _line in code_stream.split("\n"):
+                if "=" not in _line:
+                    continue
+                decl_match = self._var_decl_pattern.match(_line)
+                if decl_match is None:
+                    continue
                 equations["core_var_decl"] += 1
                 identifier = decl_match.group(1)
 

@@ -245,3 +245,27 @@ were fixed before merge:
 End to end, a real `galaxyscope` scan classifies every `.pli` in the Zowe samples (72 files, 215
 procedures) and in zopeneditor-sample (4 files, 8 procedures — every real procedure, none of the 3
 preprocessor ones), with PSAM2's two-line parameter list counted as `args = 2`.
+
+## 10. Rosetta cross-language consistency (control-corpus capstone)
+
+The `data/pli/` control folder was authored with the language (keyword-rosetta companion PR to
+#3057). Measured against this branch at full precision: `verify_language.py pli` **PASS, 74
+assertions** — every probe reads its planted count — and `language_deviations.py pli` reports **0
+red / 0 amber unexplained across 59 comparable metrics**. The corpus-wide open-defect share stays at
+0 of 2,691 cells with pli included.
+
+Grouped by the `rosetta-language-sweep` five-cause taxonomy:
+
+- **Real engine bug:** none.
+- **Missing rule with genuine morphology:** none.
+- **Corpus authoring gap:** one, fixed before the folder shipped. `c.pli` first lacked the
+  corpus-wide engine-lens secret plant (`api_key = "R0SETTA-PLANT-SECRET-2026"` in a comment), so
+  `risk_secrets_risk` read 0 against a median of 25.
+- **Intended morphology (ledgered):** `raw_arch_api` reads 1.25 against a median of 3. A PL/I
+  PACKAGE names its whole public surface once, in `EXPORTS(...)`, so api is 1 per file (2 in main,
+  where `OPTIONS(MAIN)` also counts). It is haskell's shape, and pli joins the
+  `api-export-list-morphology` entry.
+- **Median inflation:** none.
+
+The remaining out-of-band cells are `risk_churn` and `risk_stability`, which measure commit age
+(the folder is new). They are not gated.

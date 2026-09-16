@@ -5,6 +5,32 @@ The JSONL is the data; this file is the *why*. Append a row with
 `tests/tools/record_language_cost.py` (see `how_to_add_a_language.md` Step 6), then add a
 "why" bullet here if the number is surprising.
 
+## The value: a predictable cost envelope
+
+The point of this ledger is **not** to watch cost fall over time — it's that the cost of adding
+a language is a **known, forecastable quantity**. That is the real perk: you can quote a price
+and a duration for a new language *before* starting, and add essentially any language into the
+system on a budget.
+
+The three combined Claude Code additions so far land in a tight band:
+
+    ~$135 – $210   and   ~75 – 112 min   per language (engine + corpus, one runner)
+
+Flat is the win here, not decreasing. And the spread inside the band isn't noise — every dollar
+of it traces to a driver you can read off in advance, so you can predict *where in the band* a
+given language falls:
+
+- **Reuses an existing lexical family, no surprises** → low end (~$135, ~75 min — hlasm).
+- **Pioneers a new family, or a real engine bug surfaces mid-add** → high end (~$210 — db2_sql).
+- **Runs partly on Opus instead of all-Fable** → shaves cost (~2× lever — bms).
+
+So the forecast is: pick the target's nearest family template, check whether it's the family's
+anchor or a sibling, decide the model split — and you have a cost estimate before the first line
+of code. `record_language_cost.py --report` prints the measured envelope to anchor that estimate.
+
+(Different runner = different basis: an `agy`/Gemini build is priced on its own scale, not this
+one. Forecast within a runner.)
+
 ## How to read the numbers (don't get fooled)
 
 - **`est_cost_usd` and `output_tokens` are the honest comparators.** `total_tokens` on a
@@ -43,8 +69,11 @@ Cross-referenced against each addition's `started_at`:
 The story the dates tell: bms and db2 were done doc-only, and the friction they hit (the
 registration surfaces #2511 paid two CI round-trips for, the decision-table questions) is
 exactly what got distilled *into* the skill at 15:40. hlasm was then the first addition to run
-on the skill — and it was the fastest of the three combined additions (see below). Watch this
-column as more languages land: post-skill wall-clock should keep trending down.
+on the skill — and it was the fastest of the three combined additions (see below). The skill's
+job here is not to drive cost down forever but to **de-risk the high end** — the registration
+audit and decision tables remove the surprises (mis-wired surfaces, re-litigated ownership
+calls) that push an addition toward the top of the band. A tighter band is the win, not a
+falling line. Watch the *spread* as more languages land, not the trend.
 
 ## Per-language: why more or less
 
@@ -85,6 +114,8 @@ column as more languages land: post-skill wall-clock should keep trending down.
 
 ## The pattern, in one line
 
-Cheapest additions reuse a same-family template and lean on Opus; the expensive ones pioneer a
-new lexical family, hit a real engine bug mid-flight, and run all-Fable. Template proximity buys
-*time*; model choice and cache-read volume buy *dollars*.
+The cost of adding a language is bounded and predictable: a same-family sibling on Opus lands at
+the bottom of the band, a new-family pioneer that hits a real bug on all-Fable at the top — and
+you can tell which before you start. Template proximity buys *time*; model choice and cache-read
+volume buy *dollars*. The story isn't "cost is falling," it's "cost is a number I can quote for
+any language up front."

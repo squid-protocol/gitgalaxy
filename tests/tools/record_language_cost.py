@@ -188,15 +188,36 @@ def report(ledger_path):
             f"{r['runner']:11} {(str(am) + 'm' if am else '-'):>8} "
             f"{(f'{out:,}' if out else '-'):>9} {(f'${cost:,.0f}' if cost is not None else '-'):>9}"
         )
-        acc = by_runner.setdefault(r["runner"], dict(n=0, cost=0.0, out=0, measured=0))
+        acc = by_runner.setdefault(r["runner"], dict(n=0, cost=0.0, out=0, measured=0, costs=[], mins=[]))
         acc["n"] += 1
         if cost is not None:
             acc["cost"] += cost
             acc["out"] += out or 0
             acc["measured"] += 1
+            if r.get("phase") == "combined":
+                acc["costs"].append(cost)
+                if am:
+                    acc["mins"].append(am)
     print("\ntotals by runner (measured rows only; token bases NOT comparable across runners):")
     for runner, a in sorted(by_runner.items()):
         print(f"  {runner:11} {a['n']} rows ({a['measured']} measured)  output={a['out']:,}  est=${a['cost']:,.0f}")
+    # The point of the ledger is a quotable cost for a NEW language: report the min-max
+    # (and median) of full engine+corpus additions, per runner, as a forecast envelope.
+    print("\npredicted envelope for a NEW language (combined rows only -- forecast within a runner):")
+    printed = False
+    for runner, a in sorted(by_runner.items()):
+        cs = sorted(a["costs"])
+        if not cs:
+            continue
+        printed = True
+        med = cs[len(cs) // 2]
+        span = f"${cs[0]:,.0f}-${cs[-1]:,.0f} (median ${med:,.0f})"
+        if a["mins"]:
+            ms = sorted(a["mins"])
+            span += f", {ms[0]:.0f}-{ms[-1]:.0f} min"
+        print(f"  {runner:11} n={len(cs)}  {span}")
+    if not printed:
+        print("  (no combined measured rows yet)")
 
 
 def main():

@@ -122,10 +122,27 @@ DEFINITION: dict[str, Any] = {
         # so they are left out on the same reasoning that keeps `rm` (not
         # `rm -rf /`) out of shell's rule. Unanchored like the other operand
         # rules: PGM= can sit on a `//` continuation line (the #2482 shape).
+        # #3010: the second branch is Db2 BIND -- `BIND PACKAGE(`/`BIND PLAN(`
+        # installs an executable Db2 package, contract family (c) "loading or
+        # rewriting code" (sqlite's load_extension( is the same family),
+        # anchored on the statement form per the contract's C2, one hit per
+        # BIND statement. Line-initial `^[ \t]*BIND` mechanically excludes
+        # every JCL statement line (`//...`, `//*` comments, PARM='...BIND...'
+        # all start with //) and the mid-line lookalikes (WSBIND=,
+        # DYNAMICRULES(BIND), VALIDATE(BIND) bind-time options). The "only
+        # inside a DD */DD DATA in-stream payload" bound is enforced by the
+        # `jcl_instream_payload` scope filter declared in `_scope_filters`
+        # below (#2674 mechanism) -- the filter only ever inspects BIND-shaped
+        # matches, so the PGM= branch's counts cannot move. re.M is safe for
+        # the PGM= branch: it contains no ^/$ anchors.
         "high_risk_execution": re.compile(
-            r"\bPGM=(?:IKJEFT01|IKJEFT1[AB]|BPXBATCH|BPXBATSL|BPXBATA[28]|AOPBATCH|IRXJCL|SDSF)\b",
-            re.I,
+            r"\bPGM=(?:IKJEFT01|IKJEFT1[AB]|BPXBATCH|BPXBATSL|BPXBATA[28]|AOPBATCH|IRXJCL|SDSF)\b"
+            r"|^[ \t]*BIND[ \t]+(?:PACKAGE|PLAN)[ \t]*\(",
+            re.I | re.M,
         ),
+        # #3010: keep the BIND branch's hits only inside a DD */DD DATA
+        # in-stream payload span (see the rule comment above).
+        "_scope_filters": {"high_risk_execution": "jcl_instream_payload"},
         # #3002: does this rule need to read INSIDE a `//SYSIN DD *` in-stream
         # payload for the Db2 DSN command processor / IDCAMS control-statement
         # verbs it carries (DSN SYSTEM, RUN PROGRAM, GRANT, DROP, DELETE, BIND,
@@ -152,19 +169,22 @@ DEFINITION: dict[str, Any] = {
         #     not DROP DATABASE) and GRANT don't fit any of the contract's
         #     five families; DEFINE CLUSTER/REPRO are allocation/copy, io's
         #     territory conceptually, not this rule's.
-        #   - BIND is the one real gap: it installs an executable Db2
+        #   - BIND was the one real gap: it installs an executable Db2
         #     package, matching contract family (c), "loading or rewriting
-        #     code" (sqlite's load_extension( is the same family), and
-        #     nothing counts it today. But no rule in this engine reads a
-        #     BOUNDED SPAN of text (open on DD */DD DATA, close on a bare /*
-        #     or the next `//` statement) -- every jcl.py rule is anchored to
-        #     a single `^//...` line. That is new engine plumbing (plus its
-        #     own golden-master bless), not a one-line regex addition, so it
-        #     is split out to gitgalaxy#3010 rather than folded in here.
+        #     code" (sqlite's load_extension( is the same family). #3010
+        #     closed it via the branch in the rule above. The bounded-span
+        #     reading this comment once predicted would need "new engine
+        #     plumbing" turned out to be the existing #2674 scope-filter
+        #     mechanism: the `jcl_instream_payload` filter (declared in
+        #     `_scope_filters` below, implemented in detector.py's
+        #     `_apply_scope_filter`) walks the DD */DD DATA payload spans
+        #     (open on the DD statement, close on a bare /* or the next `//`
+        #     control statement) and drops any BIND-shaped match that falls
+        #     outside one.
         # Net: no rule change for eight of the nine verbs (recorded none_owned
         # in tests/tools/embedded_verb_coverage.py's EXPECTED table, the same
         # way that tool already records cobol's EXEC SQL GRANT/REVOKE -- "same
-        # auth-surface gap as SIGNON"); BIND tracked separately as #3010.
+        # auth-surface gap as SIGNON"); BIND owned by this rule since #3010.
         #
         # I/O (Data Set Names and Sysouts)
         # #2841 contract C4/C5: one hit per DD statement that allocates an

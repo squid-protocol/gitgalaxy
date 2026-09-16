@@ -142,6 +142,31 @@ _JCL_SIMPLE_CASES = [
     ("high_risk_execution", "//GRANT    EXEC PGM=IKJEFT01,DYNAMNBR=20", "//STEP1    EXEC PGM=IEFBR14"),
     ("high_risk_execution", "//SH       EXEC PGM=BPXBATCH,PARM='SH ls /tmp'", "//COBOL    EXEC PGM=IGYCRCTL,REGION=0M"),
     ("high_risk_execution", "//REXX     EXEC PGM=IRXJCL,PARM='MYEXEC'", "//DEL      EXEC PGM=IDCAMS"),
+    # #3010: the Db2 BIND branch -- the statement form only (C2), line-initial
+    # so no `//` statement line (comments, PARM= strings) can carry it. These
+    # rows exercise the raw regex; the DD */DD DATA span bound is the
+    # jcl_instream_payload scope filter's job, pinned by the pipeline test.
+    (
+        "high_risk_execution",
+        "BIND PACKAGE (GENASA1)                                    -",
+        "//* BIND PACKAGE (GENASA1) rebind note",
+    ),
+    (
+        "high_risk_execution",
+        " BIND PLAN(&SYSUID) PKLIST(&SYSUID..*) MEMBER(CBLDB21) -",
+        " WSBIND=<ZFSHOME>/genapp/wsdir/LGACUS01.wsbind",
+    ),
+    (
+        "high_risk_execution",
+        "  BIND PLAN(&BANKPLAN) -",
+        "       DYNAMICRULES(BIND)                                 -",
+    ),
+    (
+        "high_risk_execution",
+        "BIND  PACKAGE(GENASA1) OWNER(X)",
+        "//RUN      EXEC PGM=DSNTIAD,PARM='BIND PACKAGE(X)'",
+    ),
+    ("high_risk_execution", "BIND PLAN(CNVPLAN) -", "       VALIDATE(BIND) ISOLATION(CS)"),
 ]
 
 
@@ -793,6 +818,59 @@ def test_jcl_new_rules_count_through_the_real_pipeline():
     assert equations.get("high_risk_execution", 0) == 1, "IKJEFT01 only; IEFBR14 is a step"
 
 
+def test_jcl_bind_payload_counts_through_the_real_pipeline():
+    """
+    #3010 end to end: BIND PACKAGE(/BIND PLAN( counts once per statement,
+    and ONLY inside a DD */DD DATA in-stream payload span -- the
+    jcl_instream_payload scope filter's bound, which no raw-regex test can
+    see. The rogue BIND after the first span's /* is the tripwire: the raw
+    regex alone WOULD count it, so this assertion fails if the filter is
+    unhooked (e.g. a _scope_filters key typo silently falling back). The
+    deck also exercises the DD DATA form, the qualified proc-step override
+    opener (//BIND.SYSTSIN, the CBLDB2xC corpus shape), an early span close
+    by the next // statement, and the bind-time-option lookalikes
+    (DYNAMICRULES(BIND)/VALIDATE(BIND)/WSBIND=) that must never fire.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    sample = (
+        "//BINDJOB  JOB (ACCT),'BIND',CLASS=A\n"
+        "//STEP1    EXEC PGM=IKJEFT01,DYNAMNBR=20\n"
+        "//SYSTSIN  DD *\n"
+        "  DSN SYSTEM(DBCG)\n"
+        "  BIND PACKAGE (GENASA1) MEMBER(LGACDB01) -\n"
+        "       DYNAMICRULES(BIND) -\n"
+        "       VALIDATE(BIND) ISOLATION(CS)\n"
+        "  BIND PACKAGE (GENASA1) MEMBER(LGACDB02) -\n"
+        "  BIND PLAN(GENAONE) PKLIST(GENASA1.*) -\n"
+        " WSBIND=/genapp/wsdir/LGACUS01.wsbind\n"
+        "  END\n"
+        "/*\n"
+        "BIND PACKAGE (ROGUE) OWNER(X)\n"
+        "//DATA1    DD DATA\n"
+        "BIND PACKAGE (DATAPKG) MEMBER(M1)\n"
+        "/*\n"
+        "//BIND.SYSTSIN DD *,SYMBOLS=CNVTSYS\n"
+        " BIND PLAN(CNVPLAN) -\n"
+        "//LAST     EXEC PGM=IEFBR14\n"
+        "BIND PACKAGE (LATE) OWNER(X)\n"
+    )
+
+    prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+    streams = prism.split_streams(sample, "jcl")
+    equations = StructuralExtractor("jcl", LANGUAGE_DEFINITIONS).splice(
+        streams["code_stream"], streams["comment_stream"], raw_content=sample
+    )["equations"]
+
+    assert equations.get("high_risk_execution", 0) == 6, (
+        "IKJEFT01 + 3 BINDs in the SYSTSIN span + 1 in the DD DATA span + 1 in "
+        "the qualified //BIND.SYSTSIN span; never the option lines, the WSBIND "
+        "path, the rogue BIND after /*, or the BIND after the early // close"
+    )
+
+
 def test_jcl_new_rules_redos_immunity():
     """
     #2748-#2751: every new alternation is a literal keyword behind a bounded
@@ -810,11 +888,20 @@ def test_jcl_new_rules_redos_immunity():
     assert_redos_immune(JCL_RULES["globals"], "// SET " + "A" * 50000, timeout_sec=3.0)
     assert_redos_immune(JCL_RULES["high_risk_execution"], "PGM=" + "IKJEFT0" * 10000, timeout_sec=3.0)
     assert_redos_immune(JCL_RULES["high_risk_execution"], "PGM=IKJEFT01" * 10000, timeout_sec=3.0)
+    # #3010: the BIND branch's quantifiers are all single bounded classes
+    # ([ \t]* / [ \t]+) with literal landing sites; detonate them anyway.
+    assert_redos_immune(
+        JCL_RULES["high_risk_execution"], "//SYSTSIN DD *\n" + " BIND PACKAGE (X) -\n" * 20000, timeout_sec=3.0
+    )
+    assert_redos_immune(JCL_RULES["high_risk_execution"], "BIND" + " " * 100000 + "PACKAGE", timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["high_risk_execution"], "BIND PACKAGE" * 10000, timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["high_risk_execution"], " " * 100000 + "BIND PLAN(", timeout_sec=3.0)
 
     assert JCL_RULES["api"].search("//DB2JCL   PROC")
     assert JCL_RULES["cleanup"].search("//SYSLIN   DD DISP=(OLD,DELETE),DSN=&&LOADSET")
     assert JCL_RULES["globals"].search("//JOBLIB   DD DSN=X,DISP=SHR")
     assert JCL_RULES["high_risk_execution"].search("//GRANT    EXEC PGM=IKJEFT01")
+    assert JCL_RULES["high_risk_execution"].search("  BIND PACKAGE (GENASA1) MEMBER(LGACDB01) -")
 
 
 def test_jcl_lexical_family_no_block_terminator_state_to_confuse():

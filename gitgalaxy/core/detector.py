@@ -6677,9 +6677,10 @@ class StructuralExtractor:
 
     # ------------------------------------------------------------------
     # #2674: registry-declared scope filters (see `_scope_filters` in
-    # coding_analysis). Four exist today -- `lisp_body_position` (scheme),
-    # `matlab_return_channel`, `yaml_parameter_block` (#2753) and
-    # `abap_declaration_statement` (#2824); add new ones here, keyed by the
+    # coding_analysis). Six exist today -- `lisp_body_position` (scheme),
+    # `go_declaration_group` (#2859), `matlab_return_channel`,
+    # `yaml_parameter_block` (#2753), `abap_declaration_statement` (#2824)
+    # and `jcl_instream_payload` (#3010); add new ones here, keyed by the
     # name a language definition uses, so the registry stays data.
     # ------------------------------------------------------------------
 
@@ -6931,6 +6932,57 @@ class StructuralExtractor:
             offset += len(line)
         return keep
 
+    # #3010: JCL `DD *` / `DD DATA` in-stream payload spans for the
+    # `jcl_instream_payload` filter. The opener is the DD statement line
+    # itself (ddname class includes `.` for the qualified proc-step override
+    # form, `//BIND.SYSTSIN DD *,SYMBOLS=...`); the closer is a bare `/*`
+    # delimiter or the next real `//` control statement (a `//*` comment
+    # inside the span is payload data, not a closer). Both patterns are
+    # single-line, every quantifier bounded to one character class with a
+    # distinct landing site, so the scan is linear.
+    _JCL_DD_INSTREAM_OPEN: ClassVar[re.Pattern[str]] = re.compile(
+        r"^[ \t]*//[A-Za-z0-9_#$@.]*[ \t]+DD[ \t]+(?:\*|DATA\b)", re.I
+    )
+    _JCL_INSTREAM_CLOSE: ClassVar[re.Pattern[str]] = re.compile(r"^[ \t]*//(?!\*)")
+    # A span this long is pathological; cap the scan, not the file (mirrors
+    # the coverage tool's _MAX_PAYLOAD_SPAN_LINES and cobol's _MAX_BLOCK).
+    _JCL_MAX_PAYLOAD_SPAN_LINES: ClassVar[int] = 500
+
+    def _jcl_instream_payload_spans(self, code: str) -> list[tuple[int, int]]:
+        """
+        `(start, end)` offset spans of every JCL `DD *` / `DD DATA` in-stream
+        payload body (#3010). The payload starts on the line AFTER the DD
+        statement and ends at the closing line's start -- or end-of-code for
+        the delimiter-less tail form (legal for `DD *`). Mirrors
+        tests/tools/embedded_verb_coverage.py's `_jcl_instream_verb_hits`
+        walk line for line (same opener, closers and pathology cap), so the
+        engine and its coverage referee always read the same spans. A
+        `DD DATA,DLM=` custom delimiter is not modelled: its payload may
+        legally contain `//`/`/*` lines, which close the span early here --
+        an undercount only, never a false positive. One pass, O(len(code)).
+        """
+        spans: list[tuple[int, int]] = []
+        lines = code.splitlines(keepends=True)
+        i, total = 0, len(lines)
+        offset = 0
+        while i < total:
+            line = lines[i]
+            offset += len(line)
+            i += 1
+            if not self._JCL_DD_INSTREAM_OPEN.match(line):
+                continue
+            start = offset
+            span_lines = 0
+            while i < total and span_lines < self._JCL_MAX_PAYLOAD_SPAN_LINES:
+                line = lines[i]
+                if line.strip() == "/*" or self._JCL_INSTREAM_CLOSE.match(line):
+                    break
+                offset += len(line)
+                i += 1
+                span_lines += 1
+            spans.append((start, offset))
+        return spans
+
     def _apply_scope_filter(
         self,
         filter_name: str,
@@ -7016,6 +7068,26 @@ class StructuralExtractor:
                 while idx < len(code) and code[idx] in " \t":
                     idx += 1
                 if idx not in drop:
+                    kept.append(m)
+            return kept
+        if filter_name == "jcl_instream_payload":
+            # #3010: keep high_risk_execution's BIND-branch hits only when
+            # they fall inside a DD */DD DATA in-stream payload span. Only
+            # BIND-shaped matches are candidates -- the PGM= branch's matches
+            # are kept unconditionally, so this filter can never move the
+            # #2751 executor counts. Not memoized through `cache` (it holds
+            # offset SETS and this needs spans); high_risk_execution is the
+            # only rule that opts in, so the walk runs once per segment
+            # either way, same trade as the abap branch above.
+            spans = self._jcl_instream_payload_spans(code)
+            starts = [s for s, _ in spans]
+            kept = []
+            for m in matches:
+                if not m.group(0).lstrip(" \t").upper().startswith("BIND"):
+                    kept.append(m)
+                    continue
+                idx = bisect.bisect_right(starts, m.start()) - 1
+                if idx >= 0 and m.start() < spans[idx][1]:
                     kept.append(m)
             return kept
         self.logger.warning(

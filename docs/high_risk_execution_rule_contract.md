@@ -209,7 +209,7 @@ agc_assembly 2 by inherency; markdown n/a).
 | `html` | 0 | 3 |
 | `java` | 0 | 3 |
 | `javascript` | 3 -> 4 | 3 |
-| `jcl` | 61 | 3 |
+| `jcl` | 61 -> 86 | 3 |
 | `kotlin` | 0 | 3 |
 | `livecode` | 109 -> 122 | 3 |
 | `lua` | 239 -> 241 | 3 |
@@ -236,9 +236,14 @@ agc_assembly 2 by inherency; markdown n/a).
 | `yaml` | 0 | 3 |
 | `zig` | 203 -> 82 | 3 |
 
-Unchanged rules (already on the contract): ada, agc_assembly, assembly, html, jcl, m4,
+Unchanged rules (already on the contract): ada, agc_assembly, assembly, html, m4,
 scheme, swift, yacc. Scala gained the `Runtime.getRuntime().exec` spelling and
-`sys.process`; embedded_python gained `os._exit`/`os.abort`.
+`sys.process`; embedded_python gained `os._exit`/`os.abort`. jcl gained Db2
+`BIND PACKAGE(`/`BIND PLAN(` in `DD *`/`DD DATA` in-stream payloads (#3010):
+installing an executable Db2 package is family (c), sqlite `load_extension(`'s
+family, anchored on the statement form per C2 (the `DYNAMICRULES(BIND)`/
+`VALIDATE(BIND)` bind-time options and CICS `WSBIND=` operands never count) and
+span-bounded by the #2674 scope-filter mechanism (`jcl_instream_payload`).
 
 ## Known limits
 

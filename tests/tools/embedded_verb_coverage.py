@@ -446,7 +446,13 @@ _JCL_STMT = re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+([A-Za-z]+)\b", re.M)
 # (DSN SYSTEM, RUN PROGRAM, GRANT, DROP, DELETE, BIND, DEFINE CLUSTER, REPRO,
 # FREE -- the set the issue's own corpus grep found). PAYLOAD: prefix keeps
 # these visibly separate from real `//`-anchored JCL statement vocabulary.
-_DD_INSTREAM_OPEN = re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+DD[ \t]+(?:\*|DATA\b)", re.I)
+# #3010 closed the one gap that review left: BIND is owned by
+# high_risk_execution (see the EXPECTED row); the other eight stay none_owned.
+# The ddname class includes `.` for the qualified proc-step override form
+# (`//BIND.SYSTSIN DD *,SYMBOLS=...`, the cobol-programming-course CBLDB2xC
+# shape) -- #3010, kept identical to detector.py's _JCL_DD_INSTREAM_OPEN so
+# the engine and this referee always read the same spans.
+_DD_INSTREAM_OPEN = re.compile(r"^[ \t]*//[A-Za-z0-9_#$@.]*[ \t]+DD[ \t]+(?:\*|DATA\b)", re.I)
 _INSTREAM_VERB_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("PAYLOAD:DSN SYSTEM", re.compile(r"\bDSN\s+SYSTEM\b", re.I)),
     ("PAYLOAD:RUN PROGRAM", re.compile(r"\bRUN\s+PROGRAM\b", re.I)),
@@ -1272,8 +1278,10 @@ EXPECTED_JCL: dict[str, Owner] = {
     "PAYLOAD:DELETE": none_owned(
         "#3002: IDCAMS DELETE removes one dataset -- per the contract's C4, single-item deletion is cleanup's question, not high_risk_execution's, and jcl's cleanup rule already models this exact teardown idiom at the DISP=(...,DELETE) layer. A payload DELETE restates that decision in IDCAMS syntax, not a new one."
     ),
-    "PAYLOAD:BIND": none_owned(
-        "#3002: the one real gap -- installs an executable Db2 package, contract family (c) 'loading or rewriting code' (sqlite's load_extension( is the same family), and nothing counts it today. Needs a bounded DD */DATA payload scanner this engine doesn't have yet (every jcl.py rule anchors a single `//` line); split out to gitgalaxy#3010 rather than folded in here."
+    "PAYLOAD:BIND": owned(
+        "high_risk_execution",
+        min_share=0.45,
+        reason="#3010: BIND PACKAGE(/BIND PLAN( installs an executable Db2 package -- contract family (c) 'loading or rewriting code' (sqlite's load_extension( is the same family). The rule anchors on the statement form per C2, so the DYNAMICRULES(BIND)/VALIDATE(BIND) bind-time-option lines this \\bBIND\\b census also sweeps up (roughly half the samples, hence the floor) deliberately never fire; the DD */DD DATA span bound itself lives in detector.py's jcl_instream_payload scope filter, which attribute() rightly doesn't run.",
     ),
     "PAYLOAD:DEFINE CLUSTER": none_owned(
         "#3002: IDCAMS's VSAM-allocation command -- io's territory conceptually (it names a dataset to create), not high_risk_execution's; same fixed-command-language reasoning as the rest of the IDCAMS family."

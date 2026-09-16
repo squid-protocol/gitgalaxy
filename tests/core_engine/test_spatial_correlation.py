@@ -133,7 +133,6 @@ def _fresh_mitigations():
     return {
         "mitigated_danger": 0,
         "mitigated_memory_allocs": 0,
-        "amplified_rce": 0,
         "amplified_race_conditions": 0,
         "amplified_exfiltration": 0,
         "amplified_cascading_flux": 0,
@@ -224,29 +223,25 @@ def test_apply_dampener_correlations_no_satellites_matches_pre_scoping_behavior(
     assert weighted_count(counts, mitigations, "memory_alloc") == 0, "Flat fallback should still mitigate a nearby leak"
 
 
-def test_apply_amplifier_correlations_exfiltration_and_rce_tally_only():
-    """Blocks 0 and 1: the x100 exfiltration and +1 RCE corroboration are tallies
-    under their own keys; the recorded counts do not move. `amplified_exfiltration`
-    is deliberately NOT `amplified_leaks`, which galaxyscope.py's Active Hemorrhage
-    owns (#2813)."""
+def test_apply_amplifier_correlations_exfiltration_tally_only():
+    """Block 0: the x100 exfiltration corroboration is a tally under its own key;
+    the recorded counts do not move. `amplified_exfiltration` is deliberately NOT
+    `amplified_leaks`, which galaxyscope.py's Active Hemorrhage owns (#2813).
+    (The +1 RCE corroboration was removed in #3101 with the taint tracker.)"""
     satellite_ranges = [(0, 500)]
     spatial_map = {
         "memory_scraping": [10],
         "exfiltration_camouflage": [40],
-        "high_risk_execution": [100],
-        "io": [150],
     }
-    counts = {"memory_scraping": 1, "high_risk_execution": 1, "sec_tainted_injection": 0}
+    counts = {"memory_scraping": 1}
     mitigations = _fresh_mitigations()
 
     apply_amplifier_correlations(spatial_map, satellite_ranges, mitigations)
 
-    assert counts == {"memory_scraping": 1, "high_risk_execution": 1, "sec_tainted_injection": 0}
+    assert counts == {"memory_scraping": 1}
     assert mitigations["amplified_exfiltration"] == 1
-    assert mitigations["amplified_rce"] == 1
     assert "amplified_leaks" not in mitigations
     assert weighted_count(counts, mitigations, "memory_scraping") == 101
-    assert weighted_count(counts, mitigations, "sec_tainted_injection") == 1
 
 
 # ==============================================================================
@@ -412,7 +407,6 @@ def test_weighted_count_reproduces_the_old_recorded_values():
         "amplified_race_conditions": 1,
         "mitigated_memory_allocs": 2,
         "amplified_exfiltration": 1,
-        "amplified_rce": 1,
         "amplified_cascading_flux": 2,
     }
     # The old in-place edits, pair by pair (core/README.md's proximity table before #2813).
@@ -420,9 +414,10 @@ def test_weighted_count_reproduces_the_old_recorded_values():
     assert weighted_count(counts, mitigations, "concurrency") == 2 + 5 * 1
     assert weighted_count(counts, mitigations, "memory_alloc") == 5 - 2
     assert weighted_count(counts, mitigations, "memory_scraping") == 1 + 100 * 1
-    assert weighted_count(counts, mitigations, "sec_tainted_injection") == 3 + 1
     assert weighted_count(counts, mitigations, "state_mutation") == 3 + 2 * 2
-    # A signal with no proximity pair is its raw count.
+    # Signals with no proximity pair are their raw count. sec_tainted_injection lost
+    # its amplified_rce pair in #3101 (taint tracker removed), so it is now raw too.
+    assert weighted_count(counts, mitigations, "sec_tainted_injection") == 3
     assert weighted_count(counts, mitigations, "branch") == 9
     assert weighted_count(counts, mitigations, "absent") == 0
 

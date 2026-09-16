@@ -2649,13 +2649,12 @@ class StructuralExtractor:
             if appsec_key not in counts:
                 counts[appsec_key] = 0
 
-        # The proximity tally (#2813): the six spatial_correlation.py pairs write
+        # The proximity tally (#2813): the five spatial_correlation.py pairs write
         # ONLY here; the recorded counts stay raw and the score layer applies
         # these through PROXIMITY_WEIGHTS / weighted_count().
         mitigations: dict[str, int] = {
             "mitigated_danger": 0,
             "mitigated_memory_allocs": 0,
-            "amplified_rce": 0,
             "amplified_race_conditions": 0,
             "amplified_exfiltration": 0,
             "amplified_cascading_flux": 0,

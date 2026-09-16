@@ -1265,6 +1265,12 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "sec_hardcoded_secrets",
         "sec_extension_mismatch",
         "sec_entropy",
+        # sec_tainted_injection: the taint compute was removed in #3101 (score-dead
+        # since #1020, measured ~0% precision/recall). The NAME is FROZEN here as a
+        # permanent always-zero placeholder -- same reason as prompt_injection/
+        # agentic_rce below: deleting it shifts every later feature's K-Means index.
+        # It will be fully deleted together with the corpus rescan + archetype
+        # retrain tracked as the #3101 follow-up, not in the standalone landing.
         "sec_tainted_injection",
         # prompt_injection/agentic_rce (#1020): the detection logic behind
         # these is gone (security_lens.py no longer computes them), but the

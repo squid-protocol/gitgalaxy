@@ -58,7 +58,6 @@ weighted figure side by side in "6. Contextual Mitigations & Amplifications"; th
 | `concurrency` ← `state_mutation` (unless `sync_locks` ≤300 away) | 150 | `amplified_race_conditions` | +5 per race-condition pairing |
 | `memory_alloc` ← `cleanup` | 800 | `mitigated_memory_allocs` | −1 per alloc with a same-function cleanup |
 | `memory_scraping` ← `exfiltration_camouflage` | 200 | `amplified_exfiltration` | +100 per confirmed pairing |
-| `high_risk_execution` ← `io` | 250 | `amplified_rce` | +1 `sec_tainted_injection` per corroborated RCE |
 | `state_mutation` ← `branch` | 150 | `amplified_cascading_flux` | **+2 per cascading hit → ×3 net** (the flux weighting, #2546) |
 
 The flux row deserves the detail: state mutated near control flow is deliberately weighted ×3

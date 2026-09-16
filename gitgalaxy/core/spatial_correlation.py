@@ -152,9 +152,6 @@ PROXIMITY_WEIGHTS: dict[str, tuple[tuple[str, int], ...]] = {
     "memory_alloc": (("mitigated_memory_allocs", -1),),
     # Block 0, The Exfiltration Distance Check: +100 per memory read paired with an outbound socket.
     "memory_scraping": (("amplified_exfiltration", 100),),
-    # Block 1, Taint Tracking: +1 per danger hit corroborated by nearby io. The raw count here is
-    # security_lens.py's own variable-echo finding, merged additively in galaxyscope.py (#344).
-    "sec_tainted_injection": (("amplified_rce", 1),),
     # Block 6, The OOM Bomb: +2 per cascading mutation = x3 net (the flux weighting, #2546).
     "state_mutation": (("amplified_cascading_flux", 2),),
 }
@@ -288,16 +285,6 @@ def apply_amplifier_correlations(
             max_distance=200,  # If they happen within 200 chars of each other, it's a confirmed attack
         )
         mitigations["amplified_exfiltration"] = mitigations.get("amplified_exfiltration", 0) + confirmed_exfiltration
-
-    # 1. Taint Tracking (RCE Weaponization)
-    if "high_risk_execution" in spatial_map and "io" in spatial_map:
-        _, corroborated_rce = correlate_scoped(
-            targets=spatial_map["high_risk_execution"],
-            dampeners=sorted(spatial_map["io"]),
-            satellite_ranges=satellite_ranges,
-            max_distance=250,
-        )
-        mitigations["amplified_rce"] = mitigations.get("amplified_rce", 0) + corroborated_rce
 
     # 6. The OOM Bomb (Cascading State Flux) -- the x3 flux weighting (#2546).
     #

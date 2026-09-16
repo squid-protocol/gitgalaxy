@@ -973,7 +973,8 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self.assertFalse(sec_content.startswith("﻿"), "BOM leaked into the security scan!")
 
     # ==============================================================================
-    # TEST 13.5: THE DOUBLE CORROBORATION (Additive sec_ Merge, #344)
+    # TEST 13.5: security_lens findings are recorded under their sec_ signal
+    # (originally the #344 double-corroboration test; detector-side taint removed in #3101)
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.ApertureFilter")
     @patch("gitgalaxy.galaxyscope.Prism")
@@ -984,15 +985,12 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         self, mock_is_file, MockSecurity, MockDetector, MockPrism, MockAperture
     ):
         """
-        Regression test for #344: detector.py's own in-segment proximity check
-        (block 1, "Taint Tracking") and security_lens.py's independent variable-echo
-        check both contribute to the same "sec_tainted_injection" signal. Before the
-        fix, galaxyscope.py's Phase 5.5 merge used a plain assignment, so whichever
-        of the two ran second silently discarded the other's finding entirely.
-        This drives a real detector.py contribution (via a genuine
-        high_risk_execution/io proximity hit) together with a mocked
-        security_lens.py contribution, and asserts the final count is their SUM,
-        not just security_lens.py's value alone.
+        Originally a #344 regression test for the additive merge of two
+        sec_tainted_injection contributors (detector.py's block-1 taint proximity
+        check + security_lens.py's variable-echo check). The taint tracker was removed
+        in #3101, so only the Phase 5.5 sec_-prefix merge path remains under test here:
+        a security_lens.py count is recorded under its "sec_" signal and survives into
+        the equations, weighted at its raw value (no proximity pair).
         """
         import logging
         from unittest.mock import mock_open
@@ -1024,9 +1022,9 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         mock_sec_inst = MockSecurity.return_value
         mock_sec_inst.scan_content.return_value = {"counts": {"tainted_injection": 3}, "snippets": {}}
 
-        # Real per-language rules so detector.py's own block 1 correlation fires for
-        # real: "eval(" is high_risk_execution, "input(" is io, well within the
-        # 250-char proximity radius -- this should corroborate to exactly 1 hit.
+        # Real per-language rules ("eval(" -> high_risk_execution, "input(" -> io). The
+        # detector-side taint corroboration these used to trigger was removed in #3101;
+        # they are retained here only to exercise a realistic worker parse.
         self.mock_config["LANGUAGE_DEFINITIONS"] = {
             "python": {
                 "extensions": [".py"],
@@ -1049,23 +1047,20 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
             result = _process_file_worker("src/main.py")
 
         self.assertEqual(result["status"], "success", "Worker failed to successfully parse the file!")
-        # #2813: the recorded count is security_lens.py's own finding (3); detector.py's
-        # proximity corroboration is tallied as amplified_rce and the score layer adds it
-        # back through weighted_count() (1 + 3 = 4).
+        # #3101: detector.py's taint corroboration and its amplified_rce tally were removed
+        # with the taint tracker, so sec_tainted_injection is now just security_lens.py's
+        # (here mocked) finding (3), recorded raw and weighted the same (no proximity pair).
         self.assertEqual(
             result["data"]["equations"]["sec_tainted_injection"],
             3,
-            "Additive merge regressed: security_lens.py's independent finding (3) must "
-            "survive as the recorded count, not be overwritten by whichever system ran last.",
+            "security_lens.py's finding (3) must survive as the recorded sec_ count.",
         )
-        self.assertEqual(result["data"]["mitigation_telemetry"].get("amplified_rce", 0), 1)
         self.assertEqual(
             weighted_count(
                 result["data"]["equations"], result["data"]["mitigation_telemetry"], "sec_tainted_injection"
             ),
-            4,
-            "detector.py's own corroboration (1) and security_lens.py's finding (3) must both "
-            "survive in the weighted view (1 + 3 = 4).",
+            3,
+            "sec_tainted_injection has no proximity pair after #3101, so it is its raw count.",
         )
 
     # ==============================================================================

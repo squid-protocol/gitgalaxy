@@ -319,15 +319,10 @@ class SecurityLens:
 
         is_auto_gen = bool(self.auto_gen_shield.search(content[:2000]))
 
-        # PERFORMANCE OPTIMIZATION: O(1) Offset Map for Taint Analysis
-        # Only tracks lines where an actual threat signature triggered, skipping blank space.
-        threat_lines = defaultdict(set)
         # Line positions for the four signals below, keyed the same way
         # detector.py's own threat_locations are (rule_name -> [1-indexed line
         # numbers]) -- exposed via scan_content()'s return so galaxyscope.py can
-        # fold them into the shared, persisted ledger (#348). Previously this
-        # position data was computed (via threat_lines above) but only ever
-        # used internally for this function's own taint check, then discarded.
+        # fold them into the shared, persisted ledger (#348).
         positions: dict[str, list[int]] = defaultdict(list)
         if not is_auto_gen:
             line_starts = [0] + [m.end() for m in re.finditer(r"\n", safe_content)]
@@ -350,7 +345,7 @@ class SecurityLens:
                     if len(snippets[key]) < 3 and snip not in snippets[key]:
                         snippets[key].append(snip)
 
-                    # Map the exact line indexes of critical threats for the Taint Tracker
+                    # Map the exact line indexes of critical threats for the persisted ledger (#348)
                     if not is_auto_gen and key in {
                         "io",
                         "high_risk_execution",
@@ -358,7 +353,6 @@ class SecurityLens:
                         "hardcoded_secrets",
                     }:
                         line_idx = bisect.bisect_right(line_starts, match.start()) - 1
-                        threat_lines[line_idx].add(key)
                         positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
 
         # ---> 3. SHANNON ENTROPY (Obfuscation Detection) <---
@@ -382,76 +376,8 @@ class SecurityLens:
             counts["entropy"] = entropy_hits
             snippets["entropy"] = entropy_snippets
 
-        # ---> 4. DATA FLOW & TAINT TRACKING (O(H) Offset Mapper) <---
-        taint_hits = 0
-        taint_snippets: list[str] = []
-
-        has_global_io = counts.get("io", 0) > 0
-        has_global_danger = counts.get("high_risk_execution", 0) > 0
-        has_global_db = counts.get("db_hooks", 0) > 0
-
-        if has_global_io and (has_global_danger or has_global_db) and not is_auto_gen:
-            tainted_vars = set()
-            common_keywords = {
-                "const",
-                "let",
-                "var",
-                "def",
-                "String",
-                "int",
-                "val",
-                "final",
-                "char",
-                "bool",
-                "auto",
-                "global",
-                "local",
-                "new",
-                "await",
-            }
-
-            # Only iterate over the specific lines that triggered an initial threat
-            for line_idx in sorted(threat_lines.keys()):
-                threats = threat_lines[line_idx]
-                line = safe_lines[line_idx]
-
-                has_io = "io" in threats
-                has_danger = "high_risk_execution" in threats
-                has_db = "db_hooks" in threats
-
-                # Scenario A: Same-Line Detonation
-                if has_io and (has_danger or has_db):
-                    taint_hits += 1
-                    if len(taint_snippets) < 3:
-                        taint_snippets.append(f"[I/O -> Exec/DB]: {line[:60]}...")
-
-                # Scenario B: Left-Hand Side (LHS) Assignment Extraction
-                if has_io:
-                    # Prevent splitting on comparison operators (==, ===, !=, !==, <=, >=)
-                    if re.search(r"[=!<>]=", line):
-                        assign_op = None
-                    else:
-                        assign_op = ":=" if ":=" in line else "=" if "=" in line else None
-
-                    if assign_op:
-                        lhs = line.split(assign_op)[0]
-                        possible_vars = re.findall(r"\b[a-zA-Z_]\w*\b", lhs)
-                        for v in possible_vars:
-                            if v not in common_keywords:
-                                tainted_vars.add(v)
-
-                # Scenario C: Downward Flow Scan (Check Execution Sink)
-                # Because execution requires a sink, the sink line MUST be in threat_lines!
-                if (has_danger or has_db) and tainted_vars:
-                    for t_var in tainted_vars:
-                        # O(1) string check before running full regex
-                        if t_var in line and re.search(rf"\b{re.escape(t_var)}\b", line):
-                            taint_hits += 1
-                            if len(taint_snippets) < 3:
-                                taint_snippets.append(f"[Taint -> Exec/DB]: {line[:60]}...")
-
-        counts["tainted_injection"] = taint_hits
-        snippets["tainted_injection"] = taint_snippets
+        # Data-flow taint tracking removed (#3101): the tainted_injection signal was
+        # score-dead since #1020 and measured ~0% precision / ~0% recall on the corpus.
 
         return {"counts": counts, "snippets": snippets, "positions": dict(positions)}
 

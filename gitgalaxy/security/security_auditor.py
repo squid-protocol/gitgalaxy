@@ -2,23 +2,35 @@
 # security_auditor.py
 # GitGalaxy Phase 7.8: Advanced Machine Learning Threat Hunting (HARDENED)
 # ==============================================================================
+import importlib
 import logging
 from pathlib import Path
 from typing import ClassVar
-
-try:
-    import numpy as np
-    import pandas as pd
-    import xgboost as xgb
-
-    ML_AVAILABLE = True
-except ImportError:
-    ML_AVAILABLE = False
 
 from gitgalaxy.core.graph_engine import GraphIndex, WorkBudget, WorkBudgetExceeded, reach_counts
 from gitgalaxy.core.network_risk_sensor import PATH_METRICS_WORK_BUDGET
 from gitgalaxy.core.spatial_correlation import weighted_view
 from gitgalaxy.standards.analysis_lens import AI_THREAT_THRESHOLD, RECORDING_SCHEMAS
+
+
+def _optional_import(name: str):
+    """The module, or None when it is missing or cannot be imported."""
+    try:
+        return importlib.import_module(name)
+    except ImportError:
+        return None
+
+
+# #3028: each engine is detected on its own, so a scan can report exactly which
+# one it lacked (numpy and pandas used to hide behind "xgboost"). A package that
+# is installed but fails to import (numpy missing under pandas) counts as missing.
+np = _optional_import("numpy")
+pd = _optional_import("pandas")
+xgb = _optional_import("xgboost")
+HAS_NUMPY = np is not None
+HAS_PANDAS = pd is not None
+HAS_XGBOOST = xgb is not None
+ML_AVAILABLE = HAS_NUMPY and HAS_PANDAS and HAS_XGBOOST
 
 
 def _or_nan(value):
@@ -62,6 +74,11 @@ class SecurityAuditor:
 
         self.model = None
         self.feature_names = []
+        # #3028: True only once a run's XGBoost scores are written to its
+        # artifacts. Missing packages, a missing model file or a failed
+        # inference all leave it False, and the SQLite recorder then stores the
+        # AI threat columns as NULL instead of placeholder "Safe"/0.0 values.
+        self.inference_ran = False
 
         if ML_AVAILABLE:
             # DEFENSIVE GUARD: Bulletproof Path Resolution
@@ -90,13 +107,16 @@ class SecurityAuditor:
                     f"⚠️ XGBoost model not found at {local_model} OR {util_model}. Running graph resolution only."
                 )
         else:
-            self.logger.warning("⚠️ Pandas or XGBoost not installed in this environment. Running graph resolution only.")
+            self.logger.warning(
+                "⚠️ numpy, pandas or xgboost not installed in this environment. Running graph resolution only."
+            )
 
     def audit_repository(self, artifacts, is_shadow_patch=False):
         """
         Orchestrates the resolution of transitive dependency graphs and
         executes the XGBoost model against the generated feature matrix.
         """
+        self.inference_ran = False
         if not artifacts:
             return artifacts
 
@@ -211,6 +231,7 @@ class SecurityAuditor:
                 else:
                     artifact["is_ml_threat"] = False
 
+            self.inference_ran = True
             self.logger.info(f"XGBoost Inference Complete. Found {threats_found} potential threats.")
 
         except Exception as e:

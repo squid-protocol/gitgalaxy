@@ -43,7 +43,7 @@ from gitgalaxy.recorders.llm_recorder import LLMRecorder
 from gitgalaxy.recorders.record_keeper import RecordKeeper
 from gitgalaxy.recorders.sarif_recorder import SarifRecorder
 from gitgalaxy.recorders.sbom_recorder import SbomRecorder
-from gitgalaxy.security.security_auditor import ML_AVAILABLE, SecurityAuditor
+from gitgalaxy.security.security_auditor import HAS_NUMPY, HAS_PANDAS, HAS_XGBOOST, SecurityAuditor
 from gitgalaxy.security.security_lens import SecurityLens
 from gitgalaxy.standards.analysis_lens import (
     ASSET_MASKS,
@@ -67,6 +67,22 @@ from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import (
 )
 
 HAS_PYYAML = importlib.util.find_spec("yaml") is not None
+
+
+def missing_dependencies() -> dict[str, bool]:
+    """#3028: each optional engine and whether this scan lacked it (pip names).
+
+    The single source for the banner, `session_meta["missing_dependencies"]`
+    and zero-dependency mode, which is simply "any of these is missing".
+    """
+    return {
+        "tiktoken": not HAS_TIKTOKEN,
+        "numpy": not HAS_NUMPY,
+        "pandas": not HAS_PANDAS,
+        "xgboost": not HAS_XGBOOST,
+        "pyyaml": not HAS_PYYAML,
+    }
+
 
 # S607 hardening: resolve once to an absolute path rather than relying on
 # PATH lookup at every subprocess.check_output(["git", ...]) call below.
@@ -952,14 +968,10 @@ class Orchestrator:
         start_time = time.time()
         logger.info(f"--- PIPELINE_START: {self.root.name} (v{self.version}) ---")
 
-        if not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML:
-            missing_libs = []
-            if not HAS_TIKTOKEN:
-                missing_libs.append("tiktoken")
-            if not ML_AVAILABLE:
-                missing_libs.extend(["xgboost", "pandas", "numpy"])
-            if not HAS_PYYAML:
-                missing_libs.append("pyyaml")
+        missing = missing_dependencies()
+        if any(missing.values()):
+            missing_libs = [pkg for pkg, gone in missing.items() if gone]
+            missing_ml = [pkg for pkg in ("xgboost", "pandas", "numpy") if missing[pkg]]
 
             pip_cmd = f"pip install {' '.join(missing_libs)}"
 
@@ -974,12 +986,12 @@ class Orchestrator:
             _box("⚠️  ZERO-DEPENDENCY MODE ACTIVE")
             logger.warning(" ┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫")
             _box("Every structural signal is still measured. Missing engines cost:")
-            if not HAS_TIKTOKEN:
+            if missing["tiktoken"]:
                 _box(" - tiktoken: token mass & financial read cost are NULL.")
-            if not ML_AVAILABLE:
-                _box(" - xgboost/pandas/numpy: ML threat inference is skipped")
+            if missing_ml:
+                _box(f" - {'/'.join(missing_ml)}: ML threat inference is skipped")
                 _box("   (--fail-on-malware cannot fire). Rule-based threats still run.")
-            if not HAS_PYYAML:
+            if missing["pyyaml"]:
                 _box(" - pyyaml: --config/.galaxyscope.yaml ignored; YAML OpenAPI")
                 _box("   specs are not parsed.")
             _box()
@@ -1349,12 +1361,10 @@ class Orchestrator:
                 "duration_seconds": round(time.time() - start_time, 2),
                 "target_directory": str(self.root.resolve()),
                 "git_audit": self._get_git_audit(),
-                "missing_dependencies": {
-                    "tiktoken": not HAS_TIKTOKEN,
-                    "xgboost": not ML_AVAILABLE,
-                    "pyyaml": not HAS_PYYAML,
-                },
-                "zero_dependency_mode": (not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML),
+                "missing_dependencies": missing_dependencies(),
+                "zero_dependency_mode": any(missing_dependencies().values()),
+                # #3028: the AI threat columns are recorded only when scores exist.
+                "ml_inference_ran": self.model_auditor.inference_ran,
             }
 
             if "unparsable_files" not in summary:
@@ -1516,7 +1526,7 @@ class Orchestrator:
 
             # Same trigger as the start-of-run banner (it used to check only
             # networkx/tiktoken, so a scan missing xgboost or pyyaml ended silently).
-            if not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML:
+            if any(missing_dependencies().values()):
                 logger.warning(
                     ' ⚠️  NOTE: Pipeline completed in Zero-Dependency Mode. Run `pip install "gitgalaxy[full]"` for '
                     "full precision; docs/zero_dependency_mode.md lists what this scan could not measure."
@@ -2958,12 +2968,10 @@ class Orchestrator:
                 "duration_seconds": round(time.time() - start_time, 2),
                 "target_directory": str(self.root.resolve()),
                 "git_audit": self._get_git_audit(),  # Gets the NEW commit hash
-                "missing_dependencies": {
-                    "tiktoken": not HAS_TIKTOKEN,
-                    "xgboost": not ML_AVAILABLE,
-                    "pyyaml": not HAS_PYYAML,
-                },
-                "zero_dependency_mode": (not HAS_TIKTOKEN or not ML_AVAILABLE or not HAS_PYYAML),
+                "missing_dependencies": missing_dependencies(),
+                "zero_dependency_mode": any(missing_dependencies().values()),
+                # #3028: the AI threat columns are recorded only when scores exist.
+                "ml_inference_ran": self.model_auditor.inference_ran,
             }
 
             self.db_recorder.record_mission(

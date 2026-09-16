@@ -257,13 +257,7 @@ def test_asm_extension_is_a_registered_collision():
 
 
 _NASM_CONTENT = (
-    "; x86-64 bootstrap\n"
-    "section .text\n"
-    "global _start\n"
-    "_start:\n"
-    "    mov rax, 60\n"
-    "    xor rdi, rdi\n"
-    "    syscall\n"
+    "; x86-64 bootstrap\nsection .text\nglobal _start\n_start:\n    mov rax, 60\n    xor rdi, rdi\n    syscall\n"
 )
 
 

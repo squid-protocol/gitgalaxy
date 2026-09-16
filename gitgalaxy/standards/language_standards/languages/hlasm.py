@@ -110,13 +110,11 @@ DEFINITION: dict[str, Any] = {
         # conditional ASSEMBLY (AIF is compile-time, macros' -- the pli %IF
         # split verbatim).
         "branch": re.compile(
-            _STMT
-            + r"(?:B(?:E|NE|H|NH|L|NL|Z|NZ|P|NP|M|NM|O|NO)R?"
+            _STMT + r"(?:B(?:E|NE|H|NH|L|NL|Z|NZ|P|NP|M|NM|O|NO)R?"
             r"|BCR?|BRCT?G?"
             r"|J(?:E|NE|H|NH|L|NL|Z|NZ|P|NP|M|NM|O|NO)"
             r"|BCTG?R?|BXLEG?|BXHG?"
-            r"|C(?:L?G?)(?:IJ|RJ|IB|RB))"
-            + _OPEND,
+            r"|C(?:L?G?)(?:IJ|RJ|IB|RB))" + _OPEND,
             re.M | re.I,
         ),
         # args (#2773 fallback family): HLASM has no formal parameter list on
@@ -146,8 +144,7 @@ DEFINITION: dict[str, Any] = {
         # EXTRN/WXTRN linkage references #2730 excludes from api). EQU is
         # immutability_locks' alone (one owner).
         "structural_boundaries": re.compile(
-            _STMT
-            + r"(?:L|LR|LG|LGR|LGF|LH|LA|LARL|LM|LMG|LT|LTR|LTG"
+            _STMT + r"(?:L|LR|LG|LGR|LGF|LH|LA|LARL|LM|LMG|LT|LTR|LTG"
             r"|ST|STG|STH|STC|STCM|STM|STMG|IC|ICM"
             r"|MVC|MVI|MVCL|MVCLE|MVN|MVZ|MVO"
             r"|CLC|CLI|CLM|CLR|C|CR|CH|CG|CGR|CL|CLG"
@@ -155,8 +152,7 @@ DEFINITION: dict[str, Any] = {
             r"|S|SR|SH|SL|SLR|SG|SGR"
             r"|M|MR|MH|MHI|MS|MSR|D|DR"
             r"|B|BR|J|BRU|BAL|BALR|BAS|BASR|BRAS|BRASL|BSM|BASSM"
-            r"|DC|DS|USING|DROP|ORG|LTORG|CNOP|END|TITLE|EJECT|SPACE|PRINT|PUSH|POP|EXTRN|WXTRN)"
-            + _OPEND,
+            r"|DC|DS|USING|DROP|ORG|LTORG|CNOP|END|TITLE|EJECT|SPACE|PRINT|PUSH|POP|EXTRN|WXTRN)" + _OPEND,
             re.M | re.I,
         ),
         # func_start (#2503's x ask, adjusted to the #2856 contract): `name
@@ -193,7 +189,9 @@ DEFINITION: dict[str, Any] = {
         # checkpoints, and DFHRESP( response tests. `ESTAE 0` CANCELS the
         # handler and is safety_bypasses' -- the operand guard excludes it.
         "safety": re.compile(
-            _STMT + r"(?:ESTAEX?(?![ \t]+0(?:[ \t,]|$))|ESPIE|SPIE|SETRP)" + _OPEND
+            _STMT
+            + r"(?:ESTAEX?(?![ \t]+0(?:[ \t,]|$))|ESPIE|SPIE|SETRP)"
+            + _OPEND
             + r"|\bEXEC\s+CICS\s+(?:HANDLE\s+(?:CONDITION|ABEND)|PUSH\s+HANDLE|POP\s+HANDLE|SYNCPOINT|RESYNC)\b"
             r"|\bEXEC\s+SQL\s+(?:COMMIT|ROLLBACK|WHENEVER\s+(?:SQLERROR|SQLWARNING|NOT\s+FOUND)\s+GO\s*TO)\b"
             r"|\bEXEC\s+DLI\s+(?:CHKP|SYMCHKP|ROLB|ROLL|ROLS)\b"
@@ -207,8 +205,7 @@ DEFINITION: dict[str, Any] = {
         # every loop and exit path, the language's standard paradigm (Rule 2),
         # unlike cobol/pli's GO TO inside structured code.
         "safety_bypasses": re.compile(
-            _STMT + r"ESTAEX?[ \t]+0(?=[ \t,]|$)"
-            + r"|\bEXEC\s+CICS\s+IGNORE\s+CONDITION\b"
+            _STMT + r"ESTAEX?[ \t]+0(?=[ \t,]|$)" + r"|\bEXEC\s+CICS\s+IGNORE\s+CONDITION\b"
             r"|\bNOHANDLE\b"
             r"|\bEXEC\s+SQL\s+WHENEVER\s+(?:SQLERROR|SQLWARNING|NOT\s+FOUND)\s+CONTINUE\b",
             re.M | re.I,
@@ -223,9 +220,16 @@ DEFINITION: dict[str, Any] = {
         # protection-escape family's textbook member. Dynamic SQL is cobol's
         # family-2 alternative, verbatim.
         "high_risk_execution": re.compile(
-            _STMT + r"ABEND" + _OPEND
-            + r"|" + _STMT + r"(?:LOAD|DELETE)[ \t]+(?:EP|EPLOC|DE)="
-            + r"|" + _STMT + r"MODESET" + _OPEND
+            _STMT
+            + r"ABEND"
+            + _OPEND
+            + r"|"
+            + _STMT
+            + r"(?:LOAD|DELETE)[ \t]+(?:EP|EPLOC|DE)="
+            + r"|"
+            + _STMT
+            + r"MODESET"
+            + _OPEND
             + r"|\bEXEC\s+CICS\s+ABEND\b"
             r"|\bEXEC\s+SQL\s+(?:PREPARE|EXECUTE(?:\s+IMMEDIATE)?|TRUNCATE|DROP\s+DATABASE)\b",
             re.M | re.I,
@@ -258,8 +262,7 @@ DEFINITION: dict[str, Any] = {
         # in ANOTHER unit -- the opposite direction -- and are excluded
         # (assembly.py's #2730 ruling verbatim).
         "api": re.compile(
-            r"^(?:" + _NAME + r")[ \t]+(?:CSECT|RSECT|START)" + _OPEND
-            + r"|" + _STMT + r"ENTRY[ \t]+[A-Za-z@#$]",
+            r"^(?:" + _NAME + r")[ \t]+(?:CSECT|RSECT|START)" + _OPEND + r"|" + _STMT + r"ENTRY[ \t]+[A-Za-z@#$]",
             re.M | re.I,
         ),
         # An ENTRY statement names entries whose executable units are defined
@@ -319,7 +322,9 @@ DEFINITION: dict[str, Any] = {
         # DETACH ends one, WAIT/POST coordinate through ECBs -- plus the CICS
         # task-coordination vocabulary shared with cobol/pli (#2990).
         "concurrency": re.compile(
-            _STMT + r"(?:ATTACHX?|DETACH|WAIT|POST)" + _OPEND
+            _STMT
+            + r"(?:ATTACHX?|DETACH|WAIT|POST)"
+            + _OPEND
             + r"|\bEXEC\s+CICS\s+(?:ENQ|DEQ|WAIT|WAITCICS|START|RETRIEVE|CANCEL|POST|DELAY|SUSPEND"
             r"|RUN\s+(?:TRANSID|ACTIVITY|ACQPROCESS)|FETCH\s+(?:CHILD|ANY)|FREE\s+CHILD)\b",
             re.M | re.I,
@@ -415,8 +420,7 @@ DEFINITION: dict[str, Any] = {
         # widens to `.`/`&` (bms's shape).
         "macros": re.compile(
             r"^(?:[.&]?" + _NAME + r")?[ \t]+"
-            r"(?:MACRO|MEND|MEXIT|AIF|AGO|ANOP|ACTR|AREAD|MNOTE|SETA|SETB|SETC|GBLA|GBLB|GBLC|LCLA|LCLB|LCLC)"
-            + _OPEND,
+            r"(?:MACRO|MEND|MEXIT|AIF|AGO|ANOP|ACTR|AREAD|MNOTE|SETA|SETB|SETC|GBLA|GBLB|GBLC|LCLA|LCLB|LCLC)" + _OPEND,
             re.M | re.I,
         ),
         # pointers: an address CONSTANT -- `DC A(sym)` / `DC V(external)` and
@@ -434,8 +438,7 @@ DEFINITION: dict[str, Any] = {
         # GETMAIN/FREEMAIN commands (cobol/pli verbatim). FREEMAIN/RELEASE
         # are also cleanup's (pli's ALLOCATE/FREE dual).
         "memory_alloc": re.compile(
-            _STMT + r"(?:GETMAIN|FREEMAIN|CPOOL)" + _OPEND
-            + r"|" + _STMT + r"STORAGE[ \t]+(?:OBTAIN|RELEASE)\b"
+            _STMT + r"(?:GETMAIN|FREEMAIN|CPOOL)" + _OPEND + r"|" + _STMT + r"STORAGE[ \t]+(?:OBTAIN|RELEASE)\b"
             r"|\bEXEC\s+CICS\s+(?:GETMAIN|FREEMAIN)(?:64)?\b",
             re.M | re.I,
         ),
@@ -447,7 +450,9 @@ DEFINITION: dict[str, Any] = {
         # set, WTL writes to the system log, and the CICS diagnostic
         # emissions are cobol/pli verbatim (#2990).
         "telemetry": re.compile(
-            _STMT + r"(?:SNAPX?|WTL)" + _OPEND
+            _STMT
+            + r"(?:SNAPX?|WTL)"
+            + _OPEND
             + r"|\bEXEC\s+CICS\s+(?:WRITEQ\s+TD|WRITE\s+JOURNALNAME|WRITE\s+OPERATOR|DUMP\s+TRANSACTION|ENTER\s+TRACENUM)\b",
             re.M | re.I,
         ),
@@ -482,16 +487,14 @@ DEFINITION: dict[str, Any] = {
         # owner per construct) and the shifts.
         "bitwise_ops": re.compile(
             _STMT + r"(?:N|NR|NG|NGR|O|OR|OG|OGR|X|XR|XG|XGR"
-            r"|SLL|SRL|SLA|SRA|SLDL|SRDL|SLDA|SRDA|SLLG|SRLG|SLAG|SRAG)"
-            + _OPEND,
+            r"|SLL|SRL|SLA|SRA|SLDL|SRDL|SLDA|SRDA|SLLG|SRLG|SLAG|SRAG)" + _OPEND,
             re.M | re.I,
         ),
         # sync_locks: the serialization primitives -- compare-and-swap
         # (CS/CDS and 64-bit forms), TEST AND SET, the ENQ/DEQ/RESERVE
         # resource-serialization macros, and CICS ENQ (pli verbatim).
         "sync_locks": re.compile(
-            _STMT + r"(?:CS|CDS|CSG|CDSG|TS|ENQ|DEQ|RESERVE)" + _OPEND
-            + r"|\bEXEC\s+CICS\s+ENQ\b",
+            _STMT + r"(?:CS|CDS|CSG|CDSG|TS|ENQ|DEQ|RESERVE)" + _OPEND + r"|\bEXEC\s+CICS\s+ENQ\b",
             re.M | re.I,
         ),
         # immutability_locks (#2772): `name EQU value` declares a named
@@ -509,8 +512,7 @@ DEFINITION: dict[str, Any] = {
         # CLOSE and CICS browse/spool teardown are cobol/pli verbatim.
         "cleanup": re.compile(
             _STMT + r"CLOSE[ \t]+[(A-Za-z@#$]"
-            r"|" + _STMT + r"(?:FREEMAIN|FREEPOOL)" + _OPEND
-            + r"|" + _STMT + r"STORAGE[ \t]+RELEASE\b"
+            r"|" + _STMT + r"(?:FREEMAIN|FREEPOOL)" + _OPEND + r"|" + _STMT + r"STORAGE[ \t]+RELEASE\b"
             r"|\bEXEC\s+SQL\s+CLOSE\b"
             r"|\bEXEC\s+CICS\s+(?:ENDBR|SPOOLCLOSE|DELETE|FREE\s+CHILD)\b",
             re.M | re.I,
@@ -541,8 +543,7 @@ DEFINITION: dict[str, Any] = {
         # (STCK/STCKF/STCKE) and TOD conversion (CONVTOD), plus CICS
         # ASKTIME/FORMATTIME/CONVERTTIME (cobol/pli verbatim).
         "time_date_logic": re.compile(
-            _STMT + r"(?:TIME|STCK[FE]?|CONVTOD)" + _OPEND
-            + r"|\bEXEC\s+CICS\s+(?:ASKTIME|FORMATTIME|CONVERTTIME)\b",
+            _STMT + r"(?:TIME|STCK[FE]?|CONVTOD)" + _OPEND + r"|\bEXEC\s+CICS\s+(?:ASKTIME|FORMATTIME|CONVERTTIME)\b",
             re.M | re.I,
         ),
         # ipc_rpc_bridges (#2503's y ask): the CICS bridge macros DFHEIENT/
@@ -554,8 +555,12 @@ DEFINITION: dict[str, Any] = {
         # bridge, and the DL/I call interface. A plain BALR to a local label
         # crosses no boundary and never counts.
         "ipc_rpc_bridges": re.compile(
-            _STMT + r"DFHEI(?:ENT|RET)" + _OPEND
-            + r"|" + _STMT + r"(?:LINK|XCTL)[ \t]+(?:EP|EPLOC|DE|SF)="
+            _STMT
+            + r"DFHEI(?:ENT|RET)"
+            + _OPEND
+            + r"|"
+            + _STMT
+            + r"(?:LINK|XCTL)[ \t]+(?:EP|EPLOC|DE|SF)="
             + r"|\bEXEC\s+CICS\s+(?:LINK|XCTL|START|RETURN|RUN\s+TRANSID|INVOKE\s+(?:APPLICATION|SERVICE|WEBSERVICE))\b"
             r"|\bEXEC\s+CICS\s+(?:PUT|GET|MOVE)\s+CONTAINER\b"
             r"|\bEXEC\s+(?:SQL|DLI)\b"

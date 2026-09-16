@@ -4478,13 +4478,16 @@ def test_visibility_export_list_rules_capture_a_region_of_names():
         "makefile": (".PHONY: probe_globals probe_test", ["probe_globals", "probe_test"]),
         # #2502: a PL/I PACKAGE names every exported procedure in one EXPORTS list.
         "pli": ("PROBES: PACKAGE EXPORTS(PROBE_GLOBALS, PROBE_TEST);", ["PROBE_GLOBALS", "PROBE_TEST"]),
+        # #2503: an ENTRY statement publishes any number of additional entry
+        # points defined elsewhere in the same member -- the list form.
+        "hlasm": ("         ENTRY PROBEGLB,PROBETST", ["PROBEGLB", "PROBETST"]),
     }
     declared = {
         lang
         for lang, cfg in LANGUAGE_DEFINITIONS.items()
         if cfg.get("rules", {}).get("_visibility_export_list") is not None
     }
-    assert declared == set(expected), f"exactly the four export-a-list languages opt in, got {declared}"
+    assert declared == set(expected), f"exactly the five export-a-list languages opt in, got {declared}"
 
     for lang, (line, names) in expected.items():
         rule = LANGUAGE_DEFINITIONS[lang]["rules"]["_visibility_export_list"]

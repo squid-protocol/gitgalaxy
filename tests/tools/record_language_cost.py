@@ -172,7 +172,8 @@ def report(ledger_path):
     """Print the ledger as a table + per-runner totals (for eyeballing / graphing)."""
     if not os.path.exists(ledger_path):
         sys.exit(f"no ledger at {ledger_path}")
-    rows = [json.loads(l) for l in open(ledger_path) if l.strip()]
+    with open(ledger_path) as f:
+        rows = [json.loads(l) for l in f if l.strip()]
     rows.sort(key=lambda r: r.get("started_at") or "")
     hdr = f"{'started':10} {'lang':9} {'phase':8} {'runner':11} {'active':>8} {'output':>9} {'est $':>9}"
     print(hdr)

@@ -97,6 +97,20 @@ test picks its fixture from the env it runs in) — and the crucible test invoke
    and link the green dispatched run from the corpus PR. After both merge: re-run the
    PR-triggered check, and check whether `fidelity_table.py`'s FIDELITY_PROVENANCE re-pin is
    owed (the audit's --lang warning says so).
+9. **Record the cost** (last thing, once the addition is actually done): append a line to
+   the graphable ledger with
+   `python tests/tools/record_language_cost.py --lang <lang> --issue <NNNN> --phase combined --session latest --primary-model <model> --notes "<family + anything notable>"`.
+   It parses THIS session's transcript for active wall-clock, tokens (output / fresh /
+   cache-read / total), model mix, and estimated USD, and appends to
+   `gitgalaxy/standards/language_addition_costs.jsonl`. If the engine and corpus halves were
+   separate sessions (pl-i was), record each with its own `--phase engine` / `--phase corpus`,
+   or repeat `--session <uuid>` to sum them into one `combined` row. Not a Claude Code run
+   (e.g. an `agy`/Gemini fleet addition)? Use `--runner agy-gemini --manual` with the
+   `--active-min` / `--total-tokens` you have — **token bases are not comparable across
+   runners** (Claude Code totals are prompt-cache-read-inflated; a headless Gemini run is
+   not), so the `runner` field keeps the graph honest. `--report` (no other args) prints the
+   whole ledger as a table with per-runner totals — read it before you start, to sanity-check
+   your addition's cost against its nearest sibling.
 
 ## Model delegation (keep the expensive model for judgment)
 
@@ -117,3 +131,24 @@ timed detonations, which on #2503 still caught two real defects pre-merge):
 Never delegate: signal-ownership adjudication (Decision tables first, contracts second),
 engine wiring, golden-master/bias-report diff forensics, deviation-ledger entries, and the
 PR narratives. Those are the places #2511's only real mistakes happened or were caught.
+
+## Cost levers (what the ledger has taught us)
+
+`language_addition_costs.md` carries the full analysis; `record_language_cost.py --report`
+prints the table. The patterns that should shape how you run an addition:
+
+- **A real engine bug caught LATE is the biggest cost multiplier.** db2_sql's census-contract
+  violation drove it to the most tokens and dollars of any addition — and it was caught by the
+  rosetta `--report` semantic oracle. This is why the order above front-loads that oracle
+  (Step 4) ahead of the strict suite and crucible: the cheap gate that finds the bug before you
+  spend on the expensive ones is the whole game. Do not reorder it later.
+- **Sibling-in-family is cheap; first-in-family is the investment.** hlasm reused bms wholesale
+  (same positional/comment family) and was the fastest addition; bms paid the family's setup
+  cost once. When several requested languages share a lexical family, add the family's anchor
+  first, then batch its siblings — the marginal ones are cheap.
+- **Model mix moves the dollar cost ~2×.** Fable 5 is twice Opus 4.8 per token. The delegation
+  split above (cheap/other-family model drafts the machine-gated passes; the expensive model
+  only adjudicates) is also the cost story — an all-expensive-model session is the pricey one.
+- **Watch the right number.** `output_tokens` and `est_cost_usd` are the honest comparators;
+  `total_tokens` is cache-read-inflated (100M+) and the live context gauge (~150k) is a
+  peak-context reading, not throughput. Never anchor a "this cost ~150k" claim to either.

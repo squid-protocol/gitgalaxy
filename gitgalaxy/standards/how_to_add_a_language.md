@@ -476,6 +476,37 @@ are not the same thing:
 6. Re-run the full test suite once more after regenerating, to confirm the new fixtures are
    internally self-consistent with everything else.
 
+### Step 6: Record the cost of the addition
+Once the language is actually landed, log what it cost so we accumulate a graphable history of
+time and tokens per language. Append one line to
+`gitgalaxy/standards/language_addition_costs.jsonl` with:
+
+    python tests/tools/record_language_cost.py --lang <lang> --issue <NNNN> \
+        --phase combined --session latest --primary-model <model> \
+        --notes "<lexical family + anything notable>"
+
+The tool derives active wall-clock (idle gaps > 5 min excluded), tokens on four bases
+(`output` / `fresh` / `cache_read` / `total`), the per-model output split, and an estimated
+USD cost from the current pricing table — parsed straight from this session's transcript, so
+the figure is measured, not guessed. One record carries the fields a graph needs: `started_at`
+(date/time for the x-axis), `active_min`, the token bases, `est_cost_usd`, `runner`, and
+`primary_model`.
+
+Two things that keep the series honest:
+- **Which token number to trust.** `output_tokens` is the most stable "work done" proxy;
+  `est_cost_usd` is what maps to dollars. `total_tokens` on a Claude Code run is dominated by
+  prompt-cache **reads** (often 100M+) — do not read it as "150k-scale" effort; the live
+  context-window gauge you watch during a session (~150–200k) is a *peak-context* reading, a
+  different quantity entirely.
+- **Runner basis.** Token totals are **not** comparable across agents. A Claude Code total is
+  cache-read-inflated; a headless `agy`/Gemini run reports far smaller, un-inflated numbers.
+  The `runner` field records which basis a row is on — filter/group by it before comparing.
+
+If the engine and keyword-rosetta halves were separate sessions, record each with its own
+`--phase engine` / `--phase corpus`, or repeat `--session <uuid>` to fold several transcripts
+into one `combined` row. For an addition with no Claude transcript, use `--manual` with
+`--runner`, `--active-min`, and whatever token figure you have.
+
 ---
 
 ## Optional: The AI/ML & Literate-Programming Extension Pack

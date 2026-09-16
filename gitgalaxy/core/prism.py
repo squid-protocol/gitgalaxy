@@ -416,7 +416,10 @@ class Prism:
                 text,
                 abap_mode=(family == "positional_abap"),
                 cobol_mode=(lang_id == "cobol"),
-                bms_mode=(lang_id == "bms"),
+                # #2503: hlasm is the same syntax bms's mode was built for
+                # (bms IS HLASM macro source) -- '*'/'.*' column-1 comments,
+                # no column-7 check, no inline split.
+                bms_mode=(lang_id in ("bms", "hlasm")),
             )
             return positional_comments
 
@@ -826,7 +829,10 @@ class Prism:
                 text,
                 abap_mode=(family == "positional_abap"),
                 cobol_mode=(lang_id == "cobol"),
-                bms_mode=(lang_id == "bms"),
+                # #2503: hlasm shares bms's mode -- bms IS HLASM macro
+                # source, and full HLASM has the identical comment syntax
+                # ('*'/'.*' in column 1, no inline marker).
+                bms_mode=(lang_id in ("bms", "hlasm")),
             )
             if pos_lits:
                 lits.extend(pos_lits.splitlines())

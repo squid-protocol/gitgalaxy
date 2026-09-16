@@ -93,6 +93,7 @@ from .languages import glsl as _glsl
 from .languages import go as _go
 from .languages import groovy as _groovy
 from .languages import haskell as _haskell
+from .languages import hlasm as _hlasm
 from .languages import hlo as _hlo
 from .languages import html as _html
 from .languages import java as _java
@@ -207,4 +208,5 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "pli": _pli.DEFINITION,
     "bms": _bms.DEFINITION,
     "db2_sql": _db2_sql.DEFINITION,
+    "hlasm": _hlasm.DEFINITION,
 }

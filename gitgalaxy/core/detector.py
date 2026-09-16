@@ -573,6 +573,11 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "go",
         "groovy",
         "haskell",
+        # #2503: hlasm's class_start extracts the DSECT name (`WSAREA DSECT`
+        # -> "WSAREA") -- the generic fallback regex (class|struct|interface|
+        # trait|enum) can never match HLASM syntax, the bms/jcl shape above.
+        # Tree-sitter-blind; verified against planted corpus programs.
+        "hlasm",
         "java",
         "javascript",
         "kotlin",
@@ -3336,6 +3341,15 @@ class StructuralExtractor:
                         # always ends where the next DFHMDI/DFHMSD statement (or
                         # EOF) begins.
                         "bms",
+                        # #2503: hlasm is bms's syntax generalised (bms IS
+                        # HLASM macro source, #3077's entry above) -- no
+                        # braces anywhere (a `{` can only appear inside a
+                        # C'...' literal), and Mode A's "greedy to the next
+                        # func_start match" body heuristic is a correct,
+                        # direct fit: control sections never nest, so each
+                        # named CSECT/RSECT/START's real body always ends
+                        # where the next section statement (or EOF) begins.
+                        "hlasm",
                         # #1975: jcl has no ScopeParsingRegistry entry and no
                         # brace-delimited bodies at all (JCL is fixed-column
                         # mainframe syntax), so it was silently falling through to

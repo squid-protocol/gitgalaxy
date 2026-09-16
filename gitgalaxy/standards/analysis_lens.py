@@ -170,6 +170,10 @@ LANGUAGE_STRICTNESS: dict[str, Optional[tuple[bool, bool, bool, bool]]] = {
     "go": (True, False, True, True),  # errors are values; ignoring one is legal
     "groovy": (False, False, True, False),  # dynamic by default; script bindings are implicit globals
     "haskell": (True, True, True, True),
+    # #2503: raw z/Architecture assembler -- untyped storage, no enforced error
+    # channel (an ignored SQLCODE/abend code is legal), raw addresses
+    # everywhere, and every symbol is section/program scope.
+    "hlasm": (False, False, False, False),
     "hlo": None,
     "html": None,
     "java": (True, True, True, True),  # checked exceptions
@@ -967,6 +971,7 @@ LANGUAGE_SECURITY_PROFILES = {
             "cobol",
             "pli",
             "db2_sql",
+            "hlasm",
             "fortran",
             "micropython",
             "objective-c",

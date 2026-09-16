@@ -53,7 +53,12 @@ LENS_CONFIG: LensConfig = {
     # whichever profile registered last. Routing resolves through db2_sql's
     # internal_discriminator (Tier 2), mainframe-sibling ecosystem gravity
     # (Tier 1.5) or the lexical scan (Tier 3).
-    "COLLISION_FREQUENCIES": {".inc", ".h", ".py", ".cshtml", ".c", ".y", ".m", ".map", ".sql", ".ddl", ".dml"},
+    # #2503: ".asm" is claimed by BOTH assembly (x86/ARM) and hlasm (z/OS), so
+    # it may never lock at Tier 1 either -- routing resolves through hlasm's
+    # internal_discriminator (Tier 2: CSECT/DSECT/USING/... in operation-field
+    # position), mainframe-sibling ecosystem gravity (Tier 1.5) or the lexical
+    # scan (Tier 3). ".mac" and ".hlasm" are uncontested and stay Tier 1.
+    "COLLISION_FREQUENCIES": {".inc", ".h", ".py", ".cshtml", ".c", ".y", ".m", ".map", ".sql", ".ddl", ".dml", ".asm"},
     "PROSE_ANCHORS": {
         "README",
         "LICENSE",

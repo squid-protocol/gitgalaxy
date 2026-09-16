@@ -101,6 +101,58 @@ if _C is not None:
     )
 
 
+# sre's own extra case-equivalence table (re._casefix, 3.11+): the pairs
+# IGNORECASE honors beyond simple per-char tolower (dotless i, long s, Kelvin
+# sign, the Greek symbol letters, the historic Cyrillic letterforms, ...).
+# _ci_literal_is_foldsafe enumerates a literal char's case class through it.
+# Missing on <=3.10 (sre_compile._equivalences has the same data but a less
+# convenient shape) -- fall back to an empty table, which makes the safety
+# check refuse every non-ASCII literal, i.e. exactly the old conservative
+# behavior.
+try:
+    from re import _casefix  # type: ignore[attr-defined]
+
+    _EXTRA_CASES: "dict[int, list[int]]" = _casefix._EXTRA_CASES
+except ImportError:  # pragma: no cover -- exercised only on <=3.10
+    _EXTRA_CASES = {}
+
+
+def _ci_literal_is_foldsafe(lit: str) -> bool:
+    """Can this casefolded literal be matched against fold_haystack() output?
+
+    Per char c, the danger is a haystack character X that IGNORECASE treats as
+    equivalent to c but whose casefold is NOT exactly c -- then a real match
+    in the original text has no contiguous c in the folded haystack and the
+    gate would falsely reject (the dotted-capital-I failure mode). ASCII chars
+    are safe by construction: casefold restores every ASCII case class except
+    the two Turkish-i forms, which fold_haystack repairs explicitly. For a
+    non-ASCII c we enumerate its case class -- itself, its single-char
+    uppercase, and sre's extra-case equivalents (transitively, one hop) -- and
+    demand every member casefold back to exactly c. Chars whose uppercase
+    expands (the 'ß' -> 'SS' family) are refused outright: their class isn't
+    enumerable this way. The only class member this enumeration cannot see is
+    one reachable solely through a multi-char lower() -- U+0130 is the sole
+    such character in Unicode, it lands in the ASCII 'i' class, and
+    fold_haystack already repairs it.
+
+    This is what lets the multilingual TODO/FIXME debt rules gate: their
+    Cyrillic entries fold 1:1 and pass; a hypothetical 'ß' entry would refuse
+    the candidate, never mis-gate it.
+    """
+    for ch in lit:
+        if ch.isascii():
+            continue
+        upper = ch.upper()
+        if len(upper) != 1:
+            return False
+        variants = {ch, upper}
+        for v in tuple(variants):
+            variants.update(chr(cp) for cp in _EXTRA_CASES.get(ord(v), ()))
+        if any(v.casefold() != ch for v in variants):
+            return False
+    return True
+
+
 def fold_haystack(text: str) -> str:
     """Fold a haystack for matching against a case-insensitive gate.
 
@@ -193,7 +245,7 @@ def _walk_seq(seq: Any, ci: bool) -> list[_Candidate]:
     return candidates
 
 
-def derive_literal_gate(pattern: Any, max_literals: int = 24, min_literal_len: int = 2) -> "Optional[Gate]":
+def derive_literal_gate(pattern: Any, max_literals: int = 80, min_literal_len: int = 2) -> "Optional[Gate]":
     """Derive a one-of literal gate for a compiled rule regex, or None.
 
     Invariant (the only property callers may rely on): if the gate is not None
@@ -206,8 +258,13 @@ def derive_literal_gate(pattern: Any, max_literals: int = 24, min_literal_len: i
     resolves to None, never to a wrong gate.
 
     `max_literals`: a one-of set wider than this is refused -- each literal is
-    a full C-level scan of the segment, and past a point the regex is cheaper
-    (c's multilingual TODO-list rule derives 66 alternatives).
+    a (short-circuited) C-level scan of the segment. The cap sits above the
+    widest useful ruleset gate measured (the multilingual TODO/FIXME debt
+    rules derive 40-70 alternatives, and gating those is a measured ~20% of
+    the whole C rule pass on a large header): ~70 substring probes over even
+    a 1MB segment cost single-digit ms against the hundreds of ms their
+    backtracking sweeps cost, and on gate-pass files `any()` short-circuits
+    long before the full set is probed.
     `min_literal_len`: sets whose rarest member is shorter than this are
     refused -- ~500 rules bottom out at a bare `'('` or `'#'`, which nearly
     every file contains, so the gate would be pure overhead.
@@ -230,12 +287,17 @@ def derive_literal_gate(pattern: Any, max_literals: int = 24, min_literal_len: i
 
     viable: list[_Candidate] = []
     for literals, needs_casefold in candidates:
-        if len(literals) > max_literals or min(len(lit) for lit in literals) < min_literal_len:
+        # The length floor is an ASCII-only policy: a 1-char ASCII gate ('(',
+        # '#', '=') is present in nearly every file and pure overhead, but a
+        # single CJK/Arabic char (the multilingual debt rules' '坑', 'مؤقت'
+        # entries) is a high-information probe worth keeping.
+        if len(literals) > max_literals or any(len(lit) < min_literal_len and lit.isascii() for lit in literals):
             continue
         if needs_casefold:
-            if not all(lit.isascii() for lit in literals):
+            folded = frozenset(lit.casefold() for lit in literals)
+            if not all(_ci_literal_is_foldsafe(lit) for lit in folded):
                 continue
-            literals = frozenset(lit.casefold() for lit in literals)
+            literals = folded
         viable.append((literals, needs_casefold))
 
     best = _pick_best(viable)

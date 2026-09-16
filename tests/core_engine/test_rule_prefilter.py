@@ -115,11 +115,13 @@ def test_common_prefix_alternation_collapses_via_parser_factoring():
 
 
 def test_max_literals_cap_refuses_wide_sets():
-    # No common prefix to factor: 30 genuinely distinct alternatives.
+    # No common prefix to factor: 30 genuinely distinct alternatives. The
+    # default cap admits them (the multilingual debt rules run to ~70); an
+    # explicit tighter cap refuses.
     words = [a + b + "zz" for a in "abcdef" for b in "uvwxy"][:30]
     wide = re.compile(r"\b(" + "|".join(words) + r")\b")
-    assert derive_literal_gate(wide) is None
-    gate = derive_literal_gate(wide, max_literals=64)
+    assert derive_literal_gate(wide, max_literals=8) is None
+    gate = derive_literal_gate(wide)
     assert gate is not None
     assert set(gate[0]) == set(words)
 
@@ -158,8 +160,40 @@ def test_scoped_case_sensitive_override_inside_ignorecase():
                 assert not _gate_rejects(gate, text)
 
 
-def test_ignorecase_with_non_ascii_literal_refused():
-    assert derive_literal_gate(re.compile(r"straße", re.I)) is None
+def test_ignorecase_sharp_s_gates_on_its_casefold():
+    # The whole IGNORECASE class of 'ß' is {'ß', 'ẞ'} and both casefold to
+    # 'ss', so gating on the casefolded literal is sound: every text the
+    # regex matches contains 'strasse' after fold_haystack. (A haystack
+    # 'STRASSE' passes the gate spuriously but re.I never matched it anyway
+    # -- simple folding does not equate 'ß' with 'ss'.)
+    pattern = re.compile(r"straße", re.I)
+    gate = derive_literal_gate(pattern)
+    assert gate == (("strasse",), True)
+    for text in ("die straße", "DIE STRAẞE"):
+        assert pattern.search(text) is not None, "test premise: the regex matches"
+        assert not _gate_rejects(gate, text)
+
+
+def test_ignorecase_cyrillic_literals_gate_foldsafely():
+    # The multilingual debt-rule shape: Cyrillic entries fold 1:1, so the
+    # candidate survives the fold-safety check and the gate honors the
+    # invariant on every casing.
+    pattern = re.compile(r"\b(FIXME|КОСТЫЛЬ|ИСПРАВИТЬ)\b", re.I)
+    gate = derive_literal_gate(pattern)
+    assert gate is not None
+    assert set(gate[0]) == {"fixme", "костыль", "исправить"}
+    for text in ("// костыль тут", "// КОСТЫЛЬ ТУТ", "# Исправить позже"):
+        assert pattern.search(text) is not None, "test premise: the regex matches"
+        assert not _gate_rejects(gate, text)
+
+
+def test_single_cjk_char_literal_survives_length_floor():
+    # min_literal_len is an ASCII-only policy: '坑' is one char but a
+    # high-information probe, unlike '(' or '#'.
+    pattern = re.compile(r"\b(HACK|坑|临时代码)", re.I)
+    gate = derive_literal_gate(pattern)
+    assert gate is not None
+    assert "坑" in gate[0]
 
 
 @pytest.mark.parametrize(

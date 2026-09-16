@@ -93,6 +93,9 @@ justification comment — the audit's check 3 catches a mismatch either way.
 | `CREATE TRIGGER` | `func_start` **and** `events` | deliberate dual |
 | `CREATE VIEW` | `class_start`/`func_start` **and** `api` | deliberate dual (per-language which structural key) |
 | `GOTO` / `GO TO` | `safety_bypasses` | unstructured jump (pli precedent); NOT `branch` (#2822 excludes unconditional transfers) |
+| Unconditional branch/call/return mnemonic (`B`, `BR`, `JMP`, `BAL`, `BALR`, `ret`) | `structural_boundaries` | #2764/#2545 — a call is not a decision; in an assembly-family language the unconditional jump is ALSO not a bypass (it is how every loop and exit is written — Rule 2), so the GO TO row above is the structured-language exception, not the default |
+| Storage-layout / dummy section (`DSECT`, a record layout that emits no code) | `class_start` | #2503 — the #2856 record/struct family, even when the issue text asks for `func_start`; document the deviation and pin it with a test (db2_sql's cited-deviation shape) |
+| Storage RMW vs register logicals (`OI/NI/XI/OC/NC/XC` vs `NR/OR/XR`/shifts) | `state_mutation` vs `bitwise_ops` | #2503 — one owner per FORM: in-place storage ops are the re-assignment signal (assembly.py's xchg/inc ruling), register logicals are bitwise; a plain store (`ST`/`MVC`) is the language's baseline and belongs to the structural tally |
 | `STOP` / `EXIT` / process end | `high_risk_execution` **and** `panics_and_aborts` | the #2878 termination dual |
 | `END IF` / `END WHILE` / closers | nobody | #2822 C2 — guard the opener keyword with a lookbehind |
 | `SET <special register>` | `globals` (± `high_risk_execution` for auth switches) | environment, not `state_mutation` |
@@ -104,6 +107,10 @@ adjust rather than deciding all ~10 from scratch: SQL dialects (sqlite/db2_sql):
 test_skip, hardcoded_secrets` (+ `macros` if the only directive form is a comment).
 Mainframe procedural (pli): `closures, generics, comprehensions, hardcoded_secrets,
 dependency_injection, inline_asm, test_skip, regex_execution`.
+Assembler (hlasm): `closures, generics, comprehensions, test, test_skip,
+dependency_injection, inline_asm, encapsulation, regex_execution, hardcoded_secrets` —
+and remember the keyword-rosetta side reviews absences too: each `None` on a gated signal
+needs a validated deviation-ledger entry there (`tools/na_check.py --ci` says which).
 
 <br><br>
 

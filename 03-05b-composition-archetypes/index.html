@@ -12036,6 +12036,10 @@ hybrid worth a second look. (This mirrors the DNA lens's drift z-score.)</p>
 <ul>
 <li><strong>Scan DB:</strong> <code>function_data.func_archetype</code>; <code>file_data.composition_file_archetype</code> +
   <code>composition_file_z</code>; <code>repo_data.repo_composition_archetype</code> + <code>repo_composition_z</code>.</li>
+<li><strong>Ecosystem baseline:</strong> <code>repo_data.ecosystem_baseline</code> / <code>z_score</code>, the per-file
+  <code>file_data.ecosystem_baseline</code> / <code>repo_z_score</code>, and the audit's "Repository Ecosystem Baseline"
+  all carry the repo composition archetype and its fit z. They previously came from a separate
+  K-Means repo model, retired in #1159 because it labelled every repo "Cluster 3".</li>
 <li><strong>Audit JSON:</strong> each file's "Composition Archetype" + "Composition Fit (Z-Score)"; a repo-wide
   "Repository Composition Archetype", "File Composition Distribution", and "Function Archetype
   Distribution".</li>

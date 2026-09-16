@@ -346,11 +346,34 @@ inputs. See [`tests/README.md`](tests/README.md) for the breakdown, and
 [`docs/why_gitgalaxy_beats_ast_here.md`](docs/why_gitgalaxy_beats_ast_here.md)
 for specific, evidenced cases where this extraction beats an AST read.
 
-### Historical validation
+### Temporal Crucible (historical validation)
 
-The next research layer will test whether exposure measurements correspond to
-real security and maintenance events over Git history — see
+Whether the Structural Surface Profile corresponds to real security and
+maintenance events over Git history is no longer an open question — it has been
+tested. The [Temporal Crucible](https://github.com/squid-protocol/temporal-crucible)
+program scanned ~3,550 repository snapshots across two repositories (curl, nDPI)
+and three label families (CVE fix/introduce commits, bug labels, CWE families),
+with every confirmatory test pre-registered before the data was looked at. What
+it found, stated honestly:
+
+-   **Per-file standing structural risk does not predict defects** — it reduces
+    to a line count, a null confirmed by equivalence testing on a second,
+    independent repository (not merely "not significant").
+-   **Two *history* metrics do predict**: recidivism (the file that had the last
+    fix gets the next one — p<1e-4 on both repositories, the most replicated
+    result of the program) and change entropy (Hassan HCM), validated
+    out-of-selection on fresh bug labels.
+-   **Structure describes; history predicts.** More predictions died in the
+    ledger than survived it — that is the pre-registration discipline working,
+    not a disappointment.
+
+The full record is public and reproducible: the pre-registered
+[hypothesis ledger](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/HYPOTHESES.md)
+and a [predictor × outcome index](https://github.com/squid-protocol/temporal-crucible/blob/main/docs/EXPERIMENTS.md)
+of everything the program has tried to correlate. Design and method:
 [the validation program](docs/validation.md#the-next-validation-risk-over-git-history).
+
+[Temporal Crucible](https://github.com/squid-protocol/temporal-crucible)
 
 ------------------------------------------------------------------------
 

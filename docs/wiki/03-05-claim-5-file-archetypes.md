@@ -8,9 +8,10 @@
 
 > **Model version note.** The numbers below (74 dimensions, 10 clusters) describe the *original*
 > research run. The live `GENERAL_FILE_INFERENCE_MODEL` shipped in the engine has since been
-> retrained on a larger corpus and is now **115-dimensional with 18 clusters**
-> (`file_cluster_0`..`file_cluster_17`; #3061, 2026-09-15) — the engine's dimension-mismatch guard
-> (#1158) is what surfaced that this page had drifted from the shipped model. The current build
+> retrained twice: a 115-dimensional, 18-cluster model (v2.7.0 data), then the current
+> **83-feature, 18-cluster** self-describing model (`file_cluster_0`..`file_cluster_17`; v2.8.0
+> corpus, #3061, 2026-09-15) — the engine's dimension-mismatch guard (#1158) is what surfaced
+> that this page had drifted from the shipped model. The current build
 > doesn't yet ship human-readable names for the expanded 18-cluster set, so the ten named
 > archetypes below are the original research findings, not a live index into today's
 > `file_cluster_N` labels.

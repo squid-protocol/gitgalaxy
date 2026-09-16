@@ -9,7 +9,17 @@ For the mathematical proofs backing this architecture, review:
 * [Claim 10: Heuristic vs. AST Parsing](../../docs/wiki/03-10-claim-10-ast-vs-heuristic-parsing.md)
 * [Claim 8: Empirical Validation of AST-Free Parsing](../../docs/wiki/03-08-claim-8-empirical-validation-of-ast-free-parsing.md)
 
-To add a new language to the Language Classifier, you will use an advanced LLM (like Claude 3.5 Sonnet, GPT-4o, or Gemini 1.5 Pro) to generate the Structural Signatures dictionary.
+To add a new language to the Language Classifier, you will use an LLM to generate the
+Structural Signatures dictionary. The generation passes (Step 2's rules dict, Step 4's strict
+suite, the rosetta shell) are deliberately **machine-gated** — the strict harness's ReDoS
+detonation, `tests/tools/language_addition_audit.py`, `signal_contract_audit.py` and
+keyword-rosetta's `verify_language.py` judge the output, not the model — so they do not need
+the most expensive model available: a cheaper or different-family model (e.g. `gemini -p` from
+the CLI) is fine for the drafts, and for Step 4 a *different model family than the one that
+wrote the rules* is actively preferred, since the whole point of that step is an adversarial
+pass that doesn't share the generator's blind spots. Reserve the expensive model for the
+judgment work no gate covers: signal-ownership adjudication (see the Decision tables below),
+engine wiring, and golden-master diff forensics.
 
 ---
 
@@ -40,6 +50,60 @@ Copy the **Generation Prompt** below and paste it into the LLM. Replace `[TARGET
    existing case is `"objective-c"`, whose module is `languages/objectivec.py`), the file's own
    module name still needs to be identifier-safe even though the dict key itself doesn't; pick a
    concatenated or underscored slug and keep the dict key exactly as the LLM/consumers expect it.
+
+### Step 3.5: Run the registration audit (5 seconds; do this BEFORE any test suite)
+
+A language touches surfaces far from its own file, and each one missed is a CI round-trip:
+the lens's `COLLISION_FREQUENCIES` when an extension is contested, the detector's Mode
+dispatch/aliases and `_CLASS_START_NAMED_EXTRACTION_LANGS`, `analysis_lens.py`'s
+`LANGUAGE_STRICTNESS` row and `ECOSYSTEMS` set, the pinned `POSITIONAL_LANGUAGES` family in
+`tests/core_engine/test_unreferenced_by_name_contract_2806.py`, the `docs/language_status/`
+index, and the keyword-rosetta control folder. One command enumerates all of it:
+
+    python tests/tools/language_addition_audit.py --lang <lang>
+
+Hard failures there are exactly the red CI runs you would otherwise discover one at a time
+(`tests/core_engine/test_language_addition_invariants.py` runs the same checks); warnings are
+the per-language judgment surfaces with a pointer to the right skill or doc for each. The
+#2511 (db2_sql) landing paid two CI round-trips for surfaces this audit now covers — don't
+re-derive the checklist by exploration.
+
+### Decision tables (settle these by lookup, not by re-reasoning)
+
+**Dispatch ⇒ census.** If the language's statements are its extraction units — anything routed
+through the `"sql"` alias / Mode E terminator cleaving in `detector.py`'s
+`ScopeParsingRegistry` — declare top-level `"invocation_model": "positional"`, full stop. The
+units are statement buckets (`CREATE_Statement`, #2792) and no syntax reaches a bucket by its
+extracted name; whether the *language* can `CALL` a procedure by name is irrelevant, because
+the census runs over units, not database objects. This rule has now been proven twice (sqlite
+at #2866; db2_sql at #2511, where the by_name first draft read a too-clean 0-vs-2.50 census on
+the rosetta corpus and had to be corrected in a follow-up commit). Declaring it also means
+adding the language to the pinned `POSITIONAL_LANGUAGES` literal with a corollary-4
+justification comment — the audit's check 3 catches a mismatch either way.
+
+**Cross-rule ownership.** These were each adjudicated against a stated contract at least once
+(sqlite/pli/db2_sql); reuse the ruling instead of re-deriving it from the contract docs:
+
+| Construct | Owner(s) | Ruling |
+|---|---|---|
+| `CLOSE` (cursor/file/handle) | `cleanup` only | #2841 C2 — releasing a resource is cleanup's, never io's |
+| `DELETE FROM` / record delete | `cleanup` only | #2843/#2888 — removal below the store; NOT `state_mutation` |
+| `TRUNCATE`, `DROP DATABASE\|TABLESPACE\|STOGROUP` | `high_risk_execution` | whole-store destruction family (#2878) |
+| `DROP TABLE\|VIEW\|INDEX\|...` | `safety_bypasses` **and** `cleanup` | deliberate dual (sqlite's shape) |
+| `CREATE TRIGGER` | `func_start` **and** `events` | deliberate dual |
+| `CREATE VIEW` | `class_start`/`func_start` **and** `api` | deliberate dual (per-language which structural key) |
+| `GOTO` / `GO TO` | `safety_bypasses` | unstructured jump (pli precedent); NOT `branch` (#2822 excludes unconditional transfers) |
+| `STOP` / `EXIT` / process end | `high_risk_execution` **and** `panics_and_aborts` | the #2878 termination dual |
+| `END IF` / `END WHILE` / closers | nobody | #2822 C2 — guard the opener keyword with a lookbehind |
+| `SET <special register>` | `globals` (± `high_risk_execution` for auth switches) | environment, not `state_mutation` |
+| a directive living on a comment line | `None` for code-stream rules | comment surface never reaches them (Rule 18) — it can still anchor `internal_discriminator`, which reads raw text |
+
+**`None`-set starter kits.** Rule 4 wants explicit `None`s; start from the nearest family and
+adjust rather than deciding all ~10 from scratch: SQL dialects (sqlite/db2_sql):
+`ui_framework, closures, generics, pointers, inline_asm, ssr_boundaries, dependency_injection,
+test_skip, hardcoded_secrets` (+ `macros` if the only directive form is a comment).
+Mainframe procedural (pli): `closures, generics, comprehensions, hardcoded_secrets,
+dependency_injection, inline_asm, test_skip, regex_execution`.
 
 <br><br>
 
@@ -454,7 +518,18 @@ pattern, and a one-line INCLUDES description, listed under a new `### <Name> Ext
 heading naming which languages carry it. Keep extension keys out of the baseline schema above —
 that schema is the one every language is expected to implement to Strict Feature Parity (Rule
 4); extension packs are deliberately the exception, not the rule.
-## After the language lands: the control-corpus folder (keyword-rosetta)
+## The control-corpus folder (keyword-rosetta) — author it EARLY, not last
+
+**Ordering note (#2511's lesson):** despite this section's position in the doc, author the
+rosetta shell right after Step 3.5 and run
+`python tools/verify_language.py <lang> --report --engine <worktree>` *before* investing in
+the Step 4 strict suite. The report run takes ~30 seconds, is machine-checked against planted
+ground truth, and is the highest-signal semantic oracle in the whole pipeline: on db2_sql it
+caught an `invocation_model` contract violation that 141 fresh strict tests and the full
+8,000-case engine suite had no way to see (every planted count was right; the *census
+semantics* were wrong). Authoring it early also means the engine PR and the corpus PR can
+open together and reference each other, instead of the corpus PR's CI sitting red until the
+engine merges.
 
 Every language in `LANGUAGE_DEFINITIONS` has a matching control folder in
 [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) (built for issue #1096):

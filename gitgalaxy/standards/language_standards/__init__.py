@@ -77,6 +77,7 @@ from .languages import apex as _apex
 from .languages import assembly as _assembly
 from .languages import batch as _batch
 from .languages import blp as _blp
+from .languages import bms as _bms
 from .languages import c as _c
 from .languages import cobol as _cobol
 from .languages import cpp as _cpp
@@ -203,4 +204,5 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "jcl": _jcl.DEFINITION,
     "ada": _ada.DEFINITION,
     "pli": _pli.DEFINITION,
+    "bms": _bms.DEFINITION,
 }

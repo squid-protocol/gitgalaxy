@@ -44,7 +44,10 @@ class LensConfig(TypedDict):
 
 
 LENS_CONFIG: LensConfig = {
-    "COLLISION_FREQUENCIES": {".inc", ".h", ".py", ".cshtml", ".c", ".y", ".m"},
+    # #2505: ".map" is bms's (BMS screen maps) but is heavily contested in the
+    # wild (JS source maps, linker maps), so it may never lock on extension
+    # alone -- bms's internal_discriminator / the lexical scan must confirm it.
+    "COLLISION_FREQUENCIES": {".inc", ".h", ".py", ".cshtml", ".c", ".y", ".m", ".map"},
     "PROSE_ANCHORS": {
         "README",
         "LICENSE",

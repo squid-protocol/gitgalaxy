@@ -690,7 +690,7 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
     # TEST 12: ZERO-DEPENDENCY MODE SURVIVAL
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.HAS_TIKTOKEN", False)
-    @patch("gitgalaxy.galaxyscope.ML_AVAILABLE", False)
+    @patch("gitgalaxy.galaxyscope.HAS_PANDAS", False)
     @patch("gitgalaxy.galaxyscope.Orchestrator._build_file_census")
     @patch("gitgalaxy.galaxyscope.Orchestrator._extract_features_parallel")
     @patch("gitgalaxy.galaxyscope.Orchestrator._resolve_dependency_graph")

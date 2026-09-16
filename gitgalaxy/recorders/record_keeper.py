@@ -390,6 +390,9 @@ class RecordKeeper:
                 audit_binary_anomalies INTEGER DEFAULT 0,
                 audit_unknown_packages INTEGER DEFAULT 0,
                 is_zero_dependency_mode INTEGER DEFAULT 0,
+                -- #3028: JSON map of package -> missing, so snapshot history
+                -- can tell WHICH optional engine a zero-dependency scan lacked.
+                missing_dependencies TEXT,
                 {", ".join(hit_cols)},
                 file_composition TEXT,
                 repo_composition_archetype TEXT,
@@ -407,6 +410,7 @@ class RecordKeeper:
                 self.logger.debug("Schema migration skipped: 'is_zero_dependency_mode' already exists.")
             else:
                 raise
+        _ensure_columns(cursor, "repo_data", ["missing_dependencies TEXT"])
 
         # gitgalaxy#2985: repo_data's half of the hit_cols heal (see file_data's
         # below for why the INSERTs make this mandatory, not merely tidy).
@@ -851,8 +855,16 @@ class RecordKeeper:
             # Confidence" was never a real producer key here, just a dead primary
             # lookup that always fell through to this same fallback anyway.
             ai_threat_conf_str = tel.get("domain_context", {}).get("AI Threat Score", "0.0%")
-            ai_threat = float(str(ai_threat_conf_str).replace("%", "")) if ai_threat_conf_str else 0.0
-            ai_threat_class = tel.get("domain_context", {}).get("AI Threat Class", "Safe")
+            ai_threat: Optional[float] = float(str(ai_threat_conf_str).replace("%", "")) if ai_threat_conf_str else 0.0
+            ai_threat_class: Optional[str] = tel.get("domain_context", {}).get("AI Threat Class", "Safe")
+            # #3028: without a real XGBoost run (missing numpy/pandas/xgboost, no
+            # model file, or a failed inference) "Safe" and 0.0 are placeholders,
+            # not verdicts, so the AI threat columns are NULL. The key defaults to
+            # True so a caller that predates it keeps its values.
+            ml_scored = session_meta.get("ml_inference_ran", True)
+            if not ml_scored:
+                ai_threat = None
+                ai_threat_class = None
             encapsulation_ratio = float(tel.get("encapsulation_ratio", 1.0))
 
             rv = file_data.get("risk_vector", [0.0] * len(self.RISK_SCHEMA))
@@ -963,7 +975,9 @@ class RecordKeeper:
 
             # #366: security_auditor.py's real output key is "is_ml_threat", not
             # "is_malware" -- a near-miss rename that left this column always 0.
-            is_malware = 1 if file_data.get("is_ml_threat", False) else 0
+            is_malware: Optional[int] = 1 if file_data.get("is_ml_threat", False) else 0
+            if not ml_scored:
+                is_malware = None  # #3028: no inference, so no verdict either way
             # #367: no producer ever set file_data["has_credentials"]. #381 then
             # read equations["sec_hardcoded_secrets"], but file_data["equations"]
             # is not a durable carrier -- it's rebuilt/emptied/pruned across
@@ -1059,8 +1073,9 @@ class RecordKeeper:
             # zero-dependency mode. So these are read straight through (None ->
             # NULL) instead of being NULLed whenever the scan ran in zero-dependency
             # mode, which discarded real values (the network half of #3028).
-            # ai_threat_score keeps its mode gate until #3028's ML half lands.
-            if session_meta.get("zero_dependency_mode"):
+            # #3028: ai_threat_score is NULL on whether inference ran, not on the
+            # global mode flag (a missing pyyaml used to discard real scores).
+            if not ml_scored:
                 ai_score = None
             pagerank_score = net_mets.get("pagerank_score", 0.0)
             blast_radius = net_mets.get("normalized_blast_radius", 0.0)
@@ -1392,6 +1407,9 @@ class RecordKeeper:
                 int(audits.get("xray", {}).get("anomalies_found", 0)),
                 int(audits.get("firewall", {}).get("imports_unknown", 0)),
                 1 if session_meta.get("zero_dependency_mode") else 0,
+                json.dumps(session_meta["missing_dependencies"], sort_keys=True)
+                if "missing_dependencies" in session_meta
+                else None,
             ]
             + agg_hits
             + [repo_composition_str, repo_comp_archetype, repo_comp_z]
@@ -1408,6 +1426,7 @@ class RecordKeeper:
                 network_modularity, network_assortativity, network_cyclic_density, network_avg_path_length, network_articulation_points,
                 network_edges_unrecorded,
                 audit_shadow_apis, audit_binary_anomalies, audit_unknown_packages, is_zero_dependency_mode,
+                missing_dependencies,
                 {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])},
                 file_composition, repo_composition_archetype, repo_composition_z
             ) VALUES ({repo_placeholders})

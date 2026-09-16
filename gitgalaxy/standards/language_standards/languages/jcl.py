@@ -18,7 +18,11 @@ DEFINITION: dict[str, Any] = {
         "target_version": "IBM z/OS JCL",
         "status": "production",
     },
-    "extensions": [".jcl", ".prc", ".bms"],
+    # #2505: `.bms` divorced into its own `bms` profile -- a BMS map defines a
+    # 3270 UI surface via assembler macros (DFHMSD/DFHMDI/DFHMDF), not batch
+    # orchestration, so scanning it through jcl's `//`-anchored rules read
+    # every map as signal-free job control.
+    "extensions": [".jcl", ".prc"],
     "exact_matches": [],
     "discriminators": [".cbl", ".cob", ".cpy"],
     "shebangs": [],

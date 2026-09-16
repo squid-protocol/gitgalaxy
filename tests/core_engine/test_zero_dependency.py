@@ -105,29 +105,22 @@ class TestZeroDependencyMode(unittest.TestCase):
     # TEST 4: ORCHESTRATOR METADATA COMPLIANCE
     # ==============================================================================
     @patch("gitgalaxy.galaxyscope.HAS_TIKTOKEN", False)
-    @patch("gitgalaxy.galaxyscope.ML_AVAILABLE", False)
+    @patch("gitgalaxy.galaxyscope.HAS_XGBOOST", False)
     @patch("gitgalaxy.galaxyscope.HAS_PYYAML", False)
     def test_orchestrator_session_meta_flags(self):
         """
-        Proves the Orchestrator successfully detects all missing dependencies
-        and flags the session_meta object for the downstream translation layer.
+        Proves the Orchestrator detects each missing dependency on its own and
+        flags Zero-Dependency Mode for the downstream translation layer (#3028).
         """
-        # Emulate the start of execute_pipeline where the flags are evaluated
-        is_zero_dep = not all([False, False, False, False])
+        from gitgalaxy.galaxyscope import missing_dependencies
 
-        # We manually structure the dictionary exactly as phase 11 does
-        session_meta = {
-            "missing_dependencies": {
-                "tiktoken": True,
-                "xgboost": True,
-                "pyyaml": True,
-            },
-            "zero_dependency_mode": is_zero_dep,
-        }
+        missing = missing_dependencies()
 
-        self.assertTrue(session_meta["zero_dependency_mode"], "Failed to flag Zero-Dependency Mode.")
-        self.assertTrue(session_meta["missing_dependencies"]["tiktoken"], "Failed to detect missing tiktoken.")
-        self.assertTrue(session_meta["missing_dependencies"]["xgboost"], "Failed to detect missing xgboost.")
+        self.assertTrue(any(missing.values()), "Failed to flag Zero-Dependency Mode.")
+        self.assertTrue(missing["tiktoken"], "Failed to detect missing tiktoken.")
+        self.assertTrue(missing["xgboost"], "Failed to detect missing xgboost.")
+        self.assertTrue(missing["pyyaml"], "Failed to detect missing pyyaml.")
+        self.assertEqual(set(missing), {"tiktoken", "numpy", "pandas", "xgboost", "pyyaml"})
 
     # ==============================================================================
     # TEST 5: THE VACUUM PIPELINE (Total Ecosystem Failure)

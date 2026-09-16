@@ -51,7 +51,13 @@ def _declared_model(lang: str) -> str:
 # yaml's `needs:` reaches a job and `steps.<id>` reads outputs without causing
 # a run). css was measured for this family and kept OUT: `animation-name`
 # reaches a `@keyframes` unit by name, so css is censused instead.
-POSITIONAL_LANGUAGES = {"jcl", "dockerfile", "html", "sqlite", "yaml"}
+# #2505 added bms: a map is reached by `EXEC CICS SEND MAP('M') MAPSET('S')`
+# in the hosting COBOL/PL/I program -- a different file -- and no syntax
+# inside a BMS source reaches a map or mapset by its extracted name; the
+# macros assemble in written order. Corollary 4's test ("does the language
+# have ANY invoke-by-name form for the units its func_start extracts?") is
+# answered no, not "the corpus never calls them".
+POSITIONAL_LANGUAGES = {"jcl", "dockerfile", "html", "sqlite", "yaml", "bms"}
 
 
 def test_invocation_model_values_are_a_closed_set():

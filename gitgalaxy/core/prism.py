@@ -413,7 +413,10 @@ class Prism:
             # "\n": already exactly the positional shape this needs, with
             # zero new code required. Existing method, called read-only.
             _, positional_comments = self._strip_positional_comments(
-                text, abap_mode=(family == "positional_abap"), cobol_mode=(lang_id == "cobol")
+                text,
+                abap_mode=(family == "positional_abap"),
+                cobol_mode=(lang_id == "cobol"),
+                bms_mode=(lang_id == "bms"),
             )
             return positional_comments
 
@@ -820,7 +823,10 @@ class Prism:
 
         if family in ("positional_anchored", "positional_abap"):
             code, pos_lits = self._strip_positional_comments(
-                text, abap_mode=(family == "positional_abap"), cobol_mode=(lang_id == "cobol")
+                text,
+                abap_mode=(family == "positional_abap"),
+                cobol_mode=(lang_id == "cobol"),
+                bms_mode=(lang_id == "bms"),
             )
             if pos_lits:
                 lits.extend(pos_lits.splitlines())
@@ -1573,9 +1579,9 @@ class Prism:
         return "\n".join(code), lits
 
     def _strip_positional_comments(
-        self, text: str, abap_mode: bool = False, cobol_mode: bool = False
+        self, text: str, abap_mode: bool = False, cobol_mode: bool = False, bms_mode: bool = False
     ) -> tuple[str, str]:
-        """Column-anchored and Inline stripping for legacy languages (COBOL/Fortran/ABAP)."""
+        """Column-anchored and Inline stripping for legacy languages (COBOL/Fortran/ABAP/BMS)."""
         code, lits = [], []
 
         # #1898: ABAP is free-form except for its OWN column-1 `*` full-line-comment
@@ -1598,9 +1604,20 @@ class Prism:
         # 6-space Area A so 'C' lands in column 7. COBOL therefore gets the
         # narrow indicator set at both column 1 and column 7; Fortran keeps the
         # full column-1 set (and no column-7 check); ABAP keeps its lone '*'.
-        if abap_mode:
+        # #2505: BMS (HLASM macro source) is the same shape as ABAP's case: its
+        # ONLY full-line comment markers are `*` in column 1 (ordinary comment)
+        # and `.*` in column 1 (macro comment). The shared set's 'C'/'c'/'/'/'!'
+        # would erase any real macro statement whose column-1 name field starts
+        # with one of them (`CUSTMAP DFHMDI ...` -- the #1898 ABAP class-header
+        # bug, verbatim), and HLASM has no inline comment marker at all
+        # (trailing remarks are positional, not delimited), so bms skips the
+        # inline-split step below entirely.
+        if bms_mode:
             col1_anchors: set[str] = {"*"}
             col7_anchors: Optional[set[str]] = None
+        elif abap_mode:
+            col1_anchors = {"*"}
+            col7_anchors = None
         elif cobol_mode:
             col1_anchors = col7_anchors = {"*", "/"}
         else:
@@ -1619,11 +1636,21 @@ class Prism:
             # of FUNCTION at column 7, wiping the whole declaration line as a
             # bogus comment before func_start ever saw it (wrf/module_configure.F:353
             # `in_use_for_config`, wrf/module_domain.F:1693 `first_loc_integer`).
-            if (len(line) >= 1 and line[0] in col1_anchors) or (
-                col7_anchors is not None and len(line) >= 7 and line[6] in col7_anchors
+            if (
+                (len(line) >= 1 and line[0] in col1_anchors)
+                or (col7_anchors is not None and len(line) >= 7 and line[6] in col7_anchors)
+                or (bms_mode and line.startswith(".*"))
             ):
                 code.append("")
                 lits.append(line)
+                continue
+
+            # #2505: HLASM has no inline comment marker -- `!`, `*>` and `"`
+            # are ordinary characters inside a BMS operand or INITIAL literal,
+            # so the inline-split step below must never run for bms.
+            if bms_mode:
+                code.append(line)
+                lits.append("")
                 continue
 
             # 2. Modern Inline Fortran (!), COBOL (*>), and ABAP (") comments.

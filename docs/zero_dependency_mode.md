@@ -5,7 +5,7 @@
 **Short version:**
 - **Identical to full precision:** every structural signal, dependency edge, in/out-degree count, **PageRank / blast radius**, **closeness**, **average path length**, **cyclic density**, **articulation points**, **assortativity**, **betweenness** and **modularity**. Every graph metric is computed natively and needs no optional package: networkx is not used at all (#3041).
 - **What you lose:** token counts, ML threat classification, and YAML config parsing.
-- **How missing metrics show up:** a metric that was not computed is **absent**: `None` in telemetry, NULL in the SQLite DB, `n/a` in the LLM brief. It is never a placeholder `0`. The one remaining exception is the ML placeholders described below (#3028).
+- **How missing metrics show up:** a metric that was not computed is **absent**: `None` in telemetry, NULL in the SQLite DB, `n/a` in the LLM brief. It is never a placeholder `0`.
 
 ## Getting full precision
 
@@ -13,7 +13,7 @@
 pip install "gitgalaxy[full]"      # tiktoken, xgboost, pandas, numpy, pyyaml
 ```
 
-Or add only the engines whose outputs you need (table below). Each is independent: a missing package only costs the rows under its heading. The one exception is `ai_threat_score` (see [Caveats](#caveats-in-the-current-release)).
+Or add only the engines whose outputs you need (table below). Each is independent: a missing package only costs the rows under its heading (#3028).
 
 ## What each optional package provides
 
@@ -61,15 +61,16 @@ Because every centrality is computed on every install, these all work in every m
 
 ### `xgboost` + `pandas` + `numpy`: ML threat classification
 
-They are loaded together, so a missing one disables all three.
+Inference needs all three, so a missing one disables it. Each is still detected and reported under its own name, so "Missing Dependencies" says which one to install (#3028).
 
 | Output | Without |
 |---|---|
 | ML threat inference | **skipped** |
-| DB `ai_threat_class` / `ai_threat_confidence` / `is_malware` | `'Safe'` / `0.0` / `0` (placeholders, #3028) |
-| DB `ai_threat_score` | NULL |
+| DB `ai_threat_class` / `ai_threat_confidence` / `ai_threat_score` / `is_malware` | NULL |
 | Audit JSON "Infected Files Detected", GPU JSON `ai_threats`, SARIF ML results | 0 / none |
 | `--fail-on-malware` | can never fire |
+
+The DB columns follow whether inference actually **ran**, not the mode flag (#3028). So they are also NULL on a full-precision install when the model file is absent or inference fails, and they keep real values when a scan is zero-dependency only because another package (say `pyyaml`) is missing.
 
 Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets`, and the `threat_*` signal columns are regex signals.
 
@@ -85,7 +86,7 @@ Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets
 | Output | Marker |
 |---|---|
 | Console | a boxed `ZERO-DEPENDENCY MODE ACTIVE` banner at start listing what each missing package costs, plus a note at the end |
-| SQLite DB | `repo_data.is_zero_dependency_mode = 1` |
+| SQLite DB | `repo_data.is_zero_dependency_mode = 1`, and `repo_data.missing_dependencies`: a JSON map of each optional package to whether it was missing (#3028) |
 | Audit JSON | "Zero-Dependency Mode Active" and "Missing Dependencies" |
 | GPU JSON | `meta.zero_dependency_mode`, `meta.missing_dependencies` |
 | SARIF | notification `GG-SYS-ZERO-DEP` |
@@ -94,12 +95,12 @@ Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets
 
 ## Caveats in the current release
 
-- **ML placeholders and the global flag (#3028).**
-  - Without the ML engines, the DB's `ai_threat_class` / `ai_threat_confidence` / `is_malware` read as `'Safe'` / `0.0` / `0`, not NULL.
-  - `ai_threat_score` is NULLed whenever *any* optional package is missing, even when xgboost ran.
-  - `pandas` / `numpy` are reported under the `xgboost` name.
-  - (The network columns used to be NULLed the same way; since #3027 they are recorded exactly as computed.)
 - **Older snapshots:**
+  - Recorded before **#3028**:
+    - `ai_threat_class` / `ai_threat_confidence` / `is_malware` without ML inference were the placeholders `'Safe'` / `0.0` / `0`, not NULL.
+    - `ai_threat_score` was NULL whenever *any* optional package was missing, even when xgboost ran, and `0.0` on a full-precision scan with no model file.
+    - `pandas` / `numpy` were reported under the `xgboost` name.
+    - `repo_data.missing_dependencies` is NULL.
   - Recorded before **#3024**: zero-dependency degree values counted import *statements*, not distinct files, so they read higher wherever one file imported the same target more than once.
   - Recorded before **#3027**: zero-dependency PageRank / blast radius were `0.0` placeholders (NULL in the DB), and closeness above 1,500 files was `0.0` in every mode.
   - Recorded before **#3037**:

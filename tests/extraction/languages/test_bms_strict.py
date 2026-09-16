@@ -321,7 +321,33 @@ def test_bms_redos_immunity(signature, payload):
 
 
 # ==============================================================================
-# TEST 8: `.map` COLLISION RESOLUTION through the real LanguageDetector
+# TEST 8: FUNCTION SLICING through Mode A (gitgalaxy#3077)
+# ==============================================================================
+def test_bms_maps_slice_through_mode_a_as_named_units():
+    """bms is registered in detector.py's Mode A tuple (the abap/dockerfile/jcl/m4
+    slot). Without it the language falls through to brace slicing -- HLASM macro
+    source has no braces -- and 0 of the raw DFHMDI matches ever reach
+    function_data (#3077: functions_found 0, every per-function descriptor
+    undefined, found by the keyword-rosetta bias report the day #2505 landed)."""
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    functions = StructuralExtractor("bms", LANGUAGE_DEFINITIONS).splice(_REAL_MAPSET, "")["functions"]
+    names = {f["name"] for f in functions}
+    assert names == {"CUSTMAP"}, f"the named map is the unit; got {names}"
+
+
+def test_bms_is_in_the_mode_a_dispatch_and_named_class_allowlist():
+    import inspect
+
+    from gitgalaxy.core import detector
+
+    assert "bms" in detector._CLASS_START_NAMED_EXTRACTION_LANGS
+    source = inspect.getsource(detector)
+    assert '"bms",' in source
+
+
+# ==============================================================================
+# TEST 9: `.map` COLLISION RESOLUTION through the real LanguageDetector
 # ==============================================================================
 _SOURCEMAP_JSON = (
     '{"version":3,"file":"app.min.js","sources":["../src/app.js"],'

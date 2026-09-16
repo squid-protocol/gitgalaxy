@@ -538,6 +538,11 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         # list stayed empty regardless of struct_class_start's own accurate count.
         "embedded_python",
         "jcl",
+        # gitgalaxy#3077: bms's class_start regex extracts the DFHMSD mapset
+        # name (`CUSTSET DFHMSD TYPE=...` -> "CUSTSET", TYPE=FINAL excluded) --
+        # the generic fallback regex (class|struct|interface|trait|enum) can
+        # never match HLASM macro syntax, the jcl/dockerfile shape above.
+        "bms",
         # #1858: cobol's own class_start regex already matches PROGRAM-ID/CLASS-ID/
         # INTERFACE-ID/FACTORY/OBJECT correctly and identically to universal-ctags'
         # independent reading (verified directly, e.g. cics-banking-sample-application-
@@ -3306,6 +3311,19 @@ class StructuralExtractor:
                         # span exactly from its own keyword to the next
                         # RUN/CMD/ENTRYPOINT/HEALTHCHECK match, or EOF.
                         "dockerfile",
+                        # gitgalaxy#3077: bms (#2505) shipped without a routing
+                        # entry, so it fell through to Mode_B_Braces below -- the
+                        # exact abap/dockerfile/jcl/m4 shape yet again -- and 0 of
+                        # its 13 raw DFHMDI matches on the keyword-rosetta shell
+                        # ever reached function_data (functions_found 0, every
+                        # per-function descriptor undefined). HLASM macro source
+                        # has no braces (a `{` can only appear inside an
+                        # INITIAL='...' literal), and Mode A's "greedy to the next
+                        # func_start match" body heuristic is a correct, direct
+                        # fit: maps never nest, so each named DFHMDI's real body
+                        # always ends where the next DFHMDI/DFHMSD statement (or
+                        # EOF) begins.
+                        "bms",
                         # #1975: jcl has no ScopeParsingRegistry entry and no
                         # brace-delimited bodies at all (JCL is fixed-column
                         # mainframe syntax), so it was silently falling through to

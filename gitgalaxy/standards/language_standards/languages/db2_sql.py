@@ -84,12 +84,16 @@ DEFINITION: dict[str, Any] = {
     # strips `--` at all (the same defect #621 fixed for sqlite); multi_style_dash is
     # the real family for this comment shape.
     "lexical_family": "multi_style_dash",
-    # #2866 contract: NOT declared positional, deliberately diverging from sqlite.
-    # sqlite's func_start extracts statements (triggers/views/indexes), which nothing
-    # invokes by name. db2_sql's func_start extracts CREATE PROCEDURE / FUNCTION /
-    # TRIGGER -- and SQL PL DOES reach a procedure by writing its name (`CALL SP1`)
-    # and a function by invoking it in an expression, so the unreferenced_by_name
-    # census is meaningful here and the default (`by_name`) stands.
+    # #2866 contract (corollary 4, sqlite's exact position): the units func_start
+    # feeds are Mode E's STATEMENT buckets (`CREATE_Statement` / `Declarative_Block`,
+    # #2792), and no SQL syntax reaches a statement by the name the extractor gives
+    # it -- a script's statements execute top to bottom on every run. `CALL SP1`
+    # invokes the database OBJECT a statement created, not the extracted unit, so a
+    # name-recurrence census over these units measures bucket-label collisions, not
+    # reachability (proven empirically: the keyword-rosetta shell read a flat 0
+    # against a 2.50 by_name median before this declaration). TOP-LEVEL property,
+    # not a rule (the #2806 language_lens pre-compiler trap).
+    "invocation_model": "positional",
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch (#2822): SQL PL's control statements (IF / ELSEIF / ELSE, CASE and

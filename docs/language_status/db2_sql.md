@@ -124,10 +124,14 @@ Tier-2 internal_discriminator, which runs on raw content.
 3. **`DELETE`** — cleanup's, not state_mutation's (#2843/#2888 and sqlite parity: removal of
    entries from a live store). The issue's state_mutation list said
    INSERT/UPDATE/DELETE/SET/MERGE.
-4. **`invocation_model`** — NOT declared `positional`, deliberately diverging from sqlite:
-   db2_sql's `func_start` extracts procedures/functions, which SQL reaches by name
-   (`CALL SP1`, a function invoked in an expression), so the `unreferenced_by_name` census
-   applies (#2866 says declare only when NO invoke-by-name form exists).
+4. **`invocation_model: "positional"`** — sqlite's exact #2866 position (corollary 4), and
+   a correction the rosetta control corpus forced during landing: the first draft kept the
+   `by_name` default on the reasoning that `CALL SP1` reaches a procedure by name, but the
+   units `func_start` feeds are Mode E's *statement buckets* (`CREATE_Statement`), and no
+   syntax reaches a statement by its extracted name — `CALL SP1` invokes the database
+   object, not the unit. The corpus exposed it empirically: `raw_state_unreferenced` read
+   a flat 0 against a 2.50 by_name median (bucket labels always "recur"), exactly the
+   too-clean census #2866 warns about. Declared positional; the census is not computed.
 
 Each is pinned by a dedicated strict test. Intended duals also pinned: CREATE TRIGGER
 (func_start+events), CREATE VIEW (class_start+api), SET CURRENT SQLID

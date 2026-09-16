@@ -185,10 +185,12 @@ def test_db2_sql_registration():
     assert set(DB2["discriminators"]) == {".cbl", ".cob", ".cpy", ".jcl", ".bms", ".pli", ".pl1"}
     assert set(DB2["disqualifiers"]) == {".sqlite", ".sqlite3", ".db3", ".s3db", ".sl3"}
     assert DB2["shebangs"] == []
-    # NOT positional, deliberately diverging from sqlite: SQL PL reaches a procedure
-    # by writing its name (`CALL SP1`), so the unreferenced_by_name census applies
-    # (#2866 -- declare only when the language has NO invoke-by-name form).
-    assert "invocation_model" not in DB2
+    # Positional, sqlite's exact #2866 position: the extracted units are Mode E's
+    # statement buckets, and nothing reaches a statement by its extracted name --
+    # `CALL SP1` invokes the database object, not the unit. Without this the
+    # unreferenced_by_name census measures bucket-label collisions (a flat 0
+    # against a 2.50 median on the rosetta corpus).
+    assert DB2["invocation_model"] == "positional"
 
 
 # ==============================================================================

@@ -51,21 +51,24 @@ runs ungated, byte-identical to pre-#3069 behavior.
 import re
 from typing import Any, Optional
 
-try:
-    from re import _parser as _sre_parser  # type: ignore[attr-defined]  # Python 3.11+
-except ImportError:  # pragma: no cover -- exercised only on <=3.10
+# On 3.11+ the sre internals live as re submodules, already loaded by re's
+# own __init__ -- reach them as attributes (getattr, because on <=3.10 the
+# missing attribute raises AttributeError, which a `from re import ...`
+# ImportError guard would miss). CodeQL also dislikes mixing `import re` with
+# `from re import ...` in one module.
+_sre_parser: Any = getattr(re, "_parser", None)
+if _sre_parser is None:  # pragma: no cover -- exercised only on <=3.10
     try:
         import sre_parse as _sre_parser  # type: ignore[no-redef]
     except ImportError:
-        _sre_parser = None  # type: ignore[assignment]
+        _sre_parser = None
 
-try:
-    from re import _constants as _sre_constants  # type: ignore[attr-defined]  # Python 3.11+
-except ImportError:  # pragma: no cover -- exercised only on <=3.10
+_sre_constants: Any = getattr(re, "_constants", None)
+if _sre_constants is None:  # pragma: no cover -- exercised only on <=3.10
     try:
         import sre_constants as _sre_constants  # type: ignore[no-redef]
     except ImportError:
-        _sre_constants = None  # type: ignore[assignment]
+        _sre_constants = None
 
 # A gate is (literals, needs_casefold): literals ordered shortest-first so the
 # common case -- a hot rule whose gate passes -- short-circuits `any()` on the
@@ -109,12 +112,7 @@ if _C is not None:
 # convenient shape) -- fall back to an empty table, which makes the safety
 # check refuse every non-ASCII literal, i.e. exactly the old conservative
 # behavior.
-try:
-    from re import _casefix  # type: ignore[attr-defined]
-
-    _EXTRA_CASES: "dict[int, list[int]]" = _casefix._EXTRA_CASES
-except ImportError:  # pragma: no cover -- exercised only on <=3.10
-    _EXTRA_CASES = {}
+_EXTRA_CASES: "dict[int, list[int]]" = getattr(getattr(re, "_casefix", None), "_EXTRA_CASES", {})
 
 
 def _ci_literal_is_foldsafe(lit: str) -> bool:

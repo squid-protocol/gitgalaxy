@@ -266,8 +266,11 @@ DEFINITION: dict[str, Any] = {
         # elsewhere in the same file; that mention must not clear those units'
         # unreferenced_by_name flag (#2823's export-list shape -- `ENTRY
         # A,B,C` names many at once, so the capture is a REGION).
+        # The capture must OPEN on a name character: with a bare `[ \t,]`-
+        # bearing class the `[ \t]+` before it and the class overlap (the Rule
+        # 14 shape) and a blanks-only tail would "capture" an empty region.
         "_visibility_export_list": re.compile(
-            _STMT + r"ENTRY[ \t]+([A-Za-z0-9@#$, \t]{1,300})",
+            _STMT + r"ENTRY[ \t]+([A-Za-z@#$][A-Za-z0-9@#$, \t]{0,299})",
             re.M | re.I,
         ),
         # state_mutation (#2765 fallback family, assembly.py's ruling): a
@@ -283,15 +286,19 @@ DEFINITION: dict[str, Any] = {
             re.M | re.I,
         ),
         # dead_code: a `*` (or `.*`) comment line whose text is a real
-        # statement -- an instruction with a two-operand shape (the comma is
-        # the operand guard, bms's #2732 reasoning: banner prose names
-        # mnemonics as English words and must not count), a commented-out
-        # section/addressability/storage declaration with an operand, or a
-        # commented EXEC CICS/SQL command.
+        # statement, each arm operand-guarded (bms's #2732 reasoning: banner
+        # prose names mnemonics as English words and must not count) -- an
+        # instruction with a two-operand shape (the comma is the guard), a
+        # commented USING with its comma-joined operands, a commented DC/DS
+        # whose operand opens with a real type shape (`X'00'`, `CL8'..'`,
+        # `3A(0)`, `0H` -- "* DC POWER SUPPLY NOTES" has none and stays
+        # prose), or a commented EXEC CICS/SQL command.
         "dead_code": re.compile(
             r"^(?:\.\*|\*)" + _ID + r"{0,63}[ \t]+"
             r"(?:(?:L|LA|LR|LH|ST|STH|MVC|MVI|CLC|CLI|LM|STM|BAL|BALR|BAS|BASR|BCT|IC|ICM)[ \t]+[\w@#$&=.'()+*-]{1,63},"
-            r"|(?:USING|DC|DS|EQU)[ \t]+[\w@#$&=.'(*]"
+            r"|USING[ \t]+[\w@#$*.]{1,63},"
+            r"|D[CS][ \t]+[0-9]{0,4}[A-Z](?:L[0-9]{1,3})?(?:['(]|[ \t]*$)"
+            r"|EQU[ \t]+[\w@#$*'(]{1,63}[ \t]*$"
             r"|EXEC[ \t]+(?:CICS|SQL)\b)",
             re.M | re.I,
         ),

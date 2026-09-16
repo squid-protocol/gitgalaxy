@@ -6,21 +6,30 @@
 > the mix of function-archetypes it contains, and rolls that up into repo archetypes. A scan now
 > carries both labels side by side.
 
+> **Model version note.** The numbers below (74 dimensions, 10 clusters) describe the *original*
+> research run. The live `GENERAL_FILE_INFERENCE_MODEL` shipped in the engine has since been
+> retrained on a larger corpus and is now **115-dimensional with 18 clusters**
+> (`file_cluster_0`..`file_cluster_17`; #3061, 2026-09-15) — the engine's dimension-mismatch guard
+> (#1158) is what surfaced that this page had drifted from the shipped model. The current build
+> doesn't yet ship human-readable names for the expanded 18-cluster set, so the ten named
+> archetypes below are the original research findings, not a live index into today's
+> `file_cluster_N` labels.
+
 To truly understand software health, we need to stop judging every file by the same generic standard. A frontend UI router should not be penalized for having high concurrency, just as a low-level memory handler shouldn't be penalized for lacking dependency injection. Context matters.
 
-To map the true physical reality of how software is built, we conducted a massive unsupervised machine learning analysis. We fed the pure, structural DNA of **1,592,674 files**—representing 74 distinct dimensions of regex hit densities, control flow ratios, active security threat payloads, and syntactic markers—into a K-Means clustering algorithm. We didn't give the AI any human rules about what constitutes "good" or "bad" code. We simply asked it to group them by physical resemblance.
+To map the true physical reality of how software is built, we conducted a massive unsupervised machine learning analysis. We fed the pure, structural DNA of **1,592,674 files**—representing, in that original run, 74 distinct dimensions of regex hit densities, control flow ratios, active security threat payloads, and syntactic markers—into a K-Means clustering algorithm. We didn't give the AI any human rules about what constitutes "good" or "bad" code. We simply asked it to group them by physical resemblance.
 
 *Crucially, we stripped out all formatting lint (Tabs vs. Spaces).* The AI was forced to look past the "paint" and strictly evaluate the architectural "plumbing."
 
-The result? The algorithm naturally converged and separated the nearly 1.6 million files into **10 distinct architectural micro-species**.
+The result? The algorithm naturally converged and separated the nearly 1.6 million files into **10 distinct architectural micro-species** in that original run (see the version note above for the current shipped model's dimensionality).
 
 By labeling every new file we scan with its exact ML Archetype, we can measure its risk scores *relative to its cluster*. We no longer ask, "Is this file too complex?" We ask, "Is this file too complex *for a UI Framework component*?" Furthermore, because our matrix tracks security signatures, we can see exactly which architectural islands are most susceptible to specific vulnerabilities.
 
 ---
 
-## 🧬 The 10 File Archetypes
+## 🧬 The 10 File Archetypes (original research run)
 
-Here are the 10 archetypes identified by the clustering algorithm. Each micro-species represents a distinct architectural fingerprint based on structural DNA, independent of human-defined folders or logic tags.
+Here are the 10 archetypes identified by the clustering algorithm in the original research run described above. Each micro-species represents a distinct architectural fingerprint based on structural DNA, independent of human-defined folders or logic tags. (See the version note near the top of this page — the shipped model has since grown to 18 clusters without published names for the new ones.)
 
 ### **Cluster 0: Native Core & Memory Management**
 The "Meat Grinder." This is the raw, unshielded execution layer of native codebases. It is defined by extreme pointer arithmetic, complex branching, and dense state mutation, making it the highest-risk zone for memory leaks.

@@ -149,7 +149,7 @@ not "parses as accurately as an AST" in general.
 The newer program asks the opposite question: **does GitGalaxy measure
 identical intent identically in every language?** The
 [keyword-rosetta](https://github.com/squid-protocol/keyword-rosetta) corpus
-plants the same 12-probe program in all 46 supported languages with exact known
+plants the same 12-probe program in all 50 supported languages with exact known
 signal counts — so any divergence is measured language bias, by construction.
 The chart colours each deviation by *cause*, not size: red is an open engine
 defect (a rule matching the wrong construct, or a scoring weight sitting inside
@@ -157,27 +157,28 @@ a count); grey is a documented variation the ledger has validated — the langua
 cannot express the construct, a deliberate scoring choice, or an echo of another
 row. Current answer: on average 94% of languages sit within ±25% of the
 cross-language median per gated metric (56 chartable metrics, 54 holding ≥80%),
-and **the open-defect share is 0.0% (0 of 2,632 comparable cells)** — every
-remaining out-of-band cell is a variation the ledger has validated (a strictness
-stratum, a construct the language cannot express, an echo of another row, or a
-deliberate scoring choice), not an open engine defect. The weakest metrics are
-named rather than hidden — `cog_raw` holds 76% of languages in band,
-`raw_arch_api` 78%, `reflection_metaprogramming` 82% — but their sub-band cells
-are documented, not defects.
+and **the open-defect share is 0.0% (1 of 2,844 comparable cells across 59 gated
+metrics)** — a single unexplained cell, `classes_found` in the newly planted
+`bms` (CICS Basic Mapping Support) corpus; every other out-of-band cell is a
+variation the ledger has validated (a strictness stratum, a construct the
+language cannot express, an echo of another row, or a deliberate scoring
+choice), not an open engine defect. The weakest metrics are named rather than
+hidden — `cog_raw` holds 74% of languages in band, `raw_arch_api` 78%,
+`avg_func_args` 80% — but their sub-band cells are documented, not defects.
 The claim also survives expansion: when the corpus planted its first
 security-lens probe — one identical hardcoded secret in every language —
 `credential_material` (formerly `risk_secrets_risk`; the `risk_*` name remains
 the DB column — see [`docs/vectors.md`](docs/vectors.md)) read a **uniform
-score across all 44 languages the lens covers**, and the two exceptions (the
-engine deliberately skipped its security lens on inert data formats) and the
-formula's measured length dependence were ledgered and filed the same day
+score across all 50 languages** (an identical 25.000 per column). The two
+inert-format exceptions the lens originally skipped, and the formula's measured
+length dependence, were ledgered and filed the same day
 ([#2978](https://github.com/squid-protocol/gitgalaxy/issues/2978),
 [#2979](https://github.com/squid-protocol/gitgalaxy/issues/2979)). #2978 is
 closed: the lens now runs on all five inert formats
 (plaintext/markdown/json/yaml/csv), with a `SECURITY_SCAN_INERT_FORMATS`
 config opt-out for repos where that trades too much doc/config noise for the
-coverage; keyword-rosetta's corpus re-verification against the merged fix is
-tracked in the ledger's `secrets-lens-inert-formats` entry.
+coverage, and keyword-rosetta's corpus re-verification against the merged fix
+now lands entirely in band (the ledger's `secrets-lens-inert-formats` entry).
 Every deviation is recorded in a validated ledger, the work is tracked by cause
 family under the [contract roadmap](docs/contract_roadmap.md), and
 the defect classes found this way are
@@ -323,7 +324,7 @@ limits.
 
 ### Keyword Rosetta control corpus
 
-The same 12-probe program planted in all 46 supported languages with exact
+The same 12-probe program planted in all 50 supported languages with exact
 known signal counts, measuring cross-language consistency of every metric —
 with a validated deviation ledger and the resulting engine defects
 [filed as issues](https://github.com/squid-protocol/keyword-rosetta/blob/main/docs/findings_by_language.md).
@@ -477,7 +478,7 @@ guide](github-action-readme.md).
 | [Vector reference](docs/vectors.md) | The 13 per-file vectors: names, meaning, evidence, and the `risk_*` deprecation note |
 | [Vector formula facts](docs/vector_formulas.md) | Mechanical per-calculator formula audit (inputs, arithmetic, constants) |
 | [Language Crucible](https://github.com/squid-protocol/language-crucible) | Cross-language benchmark and golden corpus |
-| [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) | 46-language planted control corpus and bias reports |
+| [Keyword Rosetta](https://github.com/squid-protocol/keyword-rosetta) | 50-language planted control corpus and bias reports |
 | [Raw Output](https://github.com/squid-protocol/gitgalaxy-raw-output) | Unedited scans of real repositories |
 | [COBOL → Java examples](https://github.com/squid-protocol/cobol_to_java_examples) | 10 COBOL repos auto-translated to compiling Spring Boot architectures (`mvn clean compile` works out of the box) |
 | [Population analyses](https://github.com/squid-protocol/gitgalaxy-population-analyses) | Statistical analyses over the raw-output scan population: archetype clustering, risk distributions, threat-classifier studies |

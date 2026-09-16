@@ -47,7 +47,13 @@ LENS_CONFIG: LensConfig = {
     # #2505: ".map" is bms's (BMS screen maps) but is heavily contested in the
     # wild (JS source maps, linker maps), so it may never lock on extension
     # alone -- bms's internal_discriminator / the lexical scan must confirm it.
-    "COLLISION_FREQUENCIES": {".inc", ".h", ".py", ".cshtml", ".c", ".y", ".m", ".map"},
+    # #2511: ".sql"/".ddl"/".dml" are claimed by BOTH sqlite and db2_sql, so they
+    # may never lock at Tier 1 either -- without these entries the registration-
+    # order overwrite in _calibrate_lookup_maps would silently hand all three to
+    # whichever profile registered last. Routing resolves through db2_sql's
+    # internal_discriminator (Tier 2), mainframe-sibling ecosystem gravity
+    # (Tier 1.5) or the lexical scan (Tier 3).
+    "COLLISION_FREQUENCIES": {".inc", ".h", ".py", ".cshtml", ".c", ".y", ".m", ".map", ".sql", ".ddl", ".dml"},
     "PROSE_ANCHORS": {
         "README",
         "LICENSE",

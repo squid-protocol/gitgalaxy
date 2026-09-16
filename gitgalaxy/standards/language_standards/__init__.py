@@ -85,6 +85,7 @@ from .languages import csharp as _csharp
 from .languages import css as _css
 from .languages import csv as _csv
 from .languages import dart as _dart
+from .languages import db2_sql as _db2_sql
 from .languages import dockerfile as _dockerfile
 from .languages import embedded_python as _embedded_python
 from .languages import fortran as _fortran
@@ -205,4 +206,5 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "ada": _ada.DEFINITION,
     "pli": _pli.DEFINITION,
     "bms": _bms.DEFINITION,
+    "db2_sql": _db2_sql.DEFINITION,
 }

@@ -159,6 +159,10 @@ LANGUAGE_STRICTNESS: dict[str, Optional[tuple[bool, bool, bool, bool]]] = {
     "csharp": (True, False, True, True),  # `unsafe` is opt-in
     "css": None,
     "csv": None,
+    # #2511: DDL columns and SQL PL variables are strongly typed (no sqlite type
+    # affinity); SQLCODE/SQLSTATE can be silently ignored unless a handler is
+    # DECLAREd; variables must be DECLAREd before SET.
+    "db2_sql": (True, False, True, True),
     "dart": (True, False, True, True),
     "dockerfile": (False, False, True, False),  # RUN lines are shell; ARG/ENV are global
     "fortran": (True, False, False, False),  # IMPLICIT NONE is not the default; bounds unchecked
@@ -962,6 +966,7 @@ LANGUAGE_SECURITY_PROFILES = {
             "zig",
             "cobol",
             "pli",
+            "db2_sql",
             "fortran",
             "micropython",
             "objective-c",

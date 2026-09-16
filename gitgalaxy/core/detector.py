@@ -225,6 +225,7 @@ class ScopeParsingRegistry:
         "mysql": "sql",
         "psql": "sql",
         "sqlite": "sql",
+        "db2_sql": "sql",
         "visualbasic": "vb",
         "vba": "vb",
     }
@@ -558,6 +559,15 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "cobol",
         "cpp",
         "csharp",
+        # #2511: db2_sql's class_start extracts CREATE TABLE / VIEW / TABLESPACE
+        # names (schema-qualified, optionally double-quoted -- the quote pair is
+        # stripped below, sqlite's shape). Like sqlite/cobol/jcl it is a
+        # tree-sitter-blind language, verified against planted corpus programs
+        # rather than tree_sitter_accuracy_audit.py. Without this entry the
+        # generic fallback regex (class|struct|interface|trait|enum) can never
+        # match CREATE TABLE, so the named class list would stay permanently
+        # empty despite db2_sql's own regex working.
+        "db2_sql",
         "dart",
         "fortran",
         "go",
@@ -1701,8 +1711,10 @@ class StructuralExtractor:
                 # surrounding pair here so the stored name is the bare identifier,
                 # matching how ctags, SQLite itself, and the tri-comparison ledger
                 # refer to the table (`CREATE TABLE "User"` -> `User`).
+                # db2_sql (#2511) reuses the same convention with its one
+                # delimited-identifier style (double quotes only).
                 if (
-                    self.primary_lang_id == "sqlite"
+                    self.primary_lang_id in ("sqlite", "db2_sql")
                     and name
                     and len(name) >= 2
                     and (name[0], name[-1]) in (('"', '"'), ("`", "`"), ("[", "]"))

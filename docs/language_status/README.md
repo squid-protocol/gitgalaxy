@@ -57,7 +57,7 @@ sweep; the section template is in the `language-status` skill.
 
 ## Signature-bearing languages (47)
 
-`LANGUAGE_DEFINITIONS` recognizes 60 languages/formats; these 47 have at least one non-`None`
+`LANGUAGE_DEFINITIONS` recognizes 61 languages/formats; these 48 have at least one non-`None`
 structural-signature rule (`func_start`/`branch`/`io`/etc.) — the ones a per-language status doc
 in this folder is actually for. "Rules" is wired-keys/total-keys in that language's `rules` dict.
 "Extraction tests" / "Strict tests" are live `pytest --collect-only` counts for
@@ -79,6 +79,7 @@ epic #813), not that no cases exist.
 | **[csharp](csharp.md)** | production | standard_block | 51/52 | 61 | 106 | **written** |
 | **[css](css.md)** | production | standard_block | 30/48 | 18 | 74 | **written** |
 | dart | production | standard_block | 51/52 | 91 | 86 | not written |
+| **[db2_sql](db2_sql.md)** | production | multi_style_dash | 43/53 | | 141 | **written** (#2511) |
 | dockerfile | production | line_exclusive | 43/52 | 34 | 86 | [dockerfile.md](dockerfile.md) |
 | embedded_python | production | line_exclusive | 51/52 | 64 | 107 | not written |
 | **[fortran](fortran.md)** | production | positional_anchored | 45/52 | 35 | 101 | **written** |

@@ -57,7 +57,15 @@ def _declared_model(lang: str) -> str:
 # macros assemble in written order. Corollary 4's test ("does the language
 # have ANY invoke-by-name form for the units its func_start extracts?") is
 # answered no, not "the corpus never calls them".
-POSITIONAL_LANGUAGES = {"jcl", "dockerfile", "html", "sqlite", "yaml", "bms"}
+# #2511 added db2_sql: sqlite's entry one dialect over. Its units are the same
+# Mode E statement buckets (the "db2_sql": "sql" alias, #2792), executed top to
+# bottom by SPUFI/DSNTEP2/the CLP. The near-miss, named: `CALL SP1` and a scalar
+# function in an expression reach the database OBJECT a CREATE statement
+# defined, not the extracted unit -- no syntax reaches a statement by the name
+# the extractor gives it. Measured, not assumed: the keyword-rosetta shell read
+# a flat 0 against the 2.50 by_name median before the declaration (bucket
+# labels always recur -- corollary 4's too-clean-census warning verbatim).
+POSITIONAL_LANGUAGES = {"jcl", "dockerfile", "html", "sqlite", "yaml", "bms", "db2_sql"}
 
 
 def test_invocation_model_values_are_a_closed_set():

@@ -250,8 +250,13 @@ class SignalProcessor:
         they'd re-score every file in the corpus rather than just flagging real anomalies. Only a
         genuine ecosystem mismatch (e.g. C hiding in a JS directory) returns a penalty.
         """
-        # Default multipliers if no specific context rules apply
-        multipliers = {"memory": 1.0, "state_mutation": 1.0, "injection": 1.0}
+        # Default multipliers if no specific context rules apply. Only keys with a
+        # downstream consumer are returned: `memory` (-> _calc_safety attack_hits) and
+        # `state_mutation` (-> _calc_state_flux via mp_map). An `injection` key was
+        # dropped in #3099 -- ECOSYSTEM_MISMATCH_WEIGHTS never set it and there is no
+        # injection consumer here; per #3022/#1020 injection is a structural signal, not
+        # a scorable risk we amplify.
+        multipliers = {"memory": 1.0, "state_mutation": 1.0}
 
         file_lang = file_lang.lower()
         folder_lang = folder_lang.lower() if folder_lang else file_lang

@@ -1394,7 +1394,7 @@ class RecordKeeper:
                 agg_test_files,
                 typosquat_count,
                 macro_info.get("name", "Unclassified"),
-                float(macro_info.get("z_score", 0.0)),
+                None if macro_info.get("z_score") is None else float(macro_info["z_score"]),
                 round(avg_encapsulation, 3),
                 round(avg_imports, 3),
                 net_modularity,

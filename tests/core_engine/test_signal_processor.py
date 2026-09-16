@@ -382,6 +382,33 @@ def test_signal_processor_aggregations(processor):
     assert "highest" in forensics["cumulative_risk"], "Forensic report missing highest risk array!"
 
 
+def test_ecosystem_baseline_is_the_composition_repo_archetype(processor):
+    """
+    #1159: the retired repo K-Means model ran before file archetypes were
+    assigned, so it scored every repo as an all-zero vector ("Cluster 3").
+    The baseline now reports the composition repo archetype and its fit z,
+    and no longer writes per-file cluster telemetry.
+    """
+    stars = []
+    for i in range(3):
+        m, sig = create_synthetic_star(processor, f"f{i}", 100, {"branch": 5})
+        out = processor.calculate_risk_vector(m, sig)
+        m.update(telemetry=out["telemetry"], risk_vector=out["risk_vector"], file_impact=out["file_impact"])
+        stars.append(m)
+
+    summary = processor.summarize_galaxy_metrics(stars, [])
+
+    inner = summary["summary"]
+    assert inner["repo_composition_archetype"]
+    assert summary["repo_macro_species"] == {
+        "name": inner["repo_composition_archetype"],
+        "z_score": inner["repo_composition_z"],
+    }
+    for m in stars:
+        assert "ecosystem_baseline_cluster" not in m["telemetry"]
+        assert "dist_to_0" not in m["telemetry"]
+
+
 def test_systemic_bottlenecks_rank_only_computed_metrics(processor):
     """
     #3027: each bottleneck ranking multiplies one centrality metric by a risk.

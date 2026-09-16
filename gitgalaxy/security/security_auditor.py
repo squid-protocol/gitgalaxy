@@ -32,6 +32,17 @@ HAS_PANDAS = pd is not None
 HAS_XGBOOST = xgb is not None
 ML_AVAILABLE = HAS_NUMPY and HAS_PANDAS and HAS_XGBOOST
 
+# Distances from an all-zero repo vector to the six centroids of the retired
+# GENERAL_REPO_INFERENCE_MODEL (#1159).
+_FROZEN_REPO_CLUSTER_DISTANCES = (
+    0.598052373041024,
+    0.443572211483091,
+    0.4795366237317021,
+    0.41416056620591,
+    0.4205215049197841,
+    0.6645988084551461,
+)
+
 
 def _or_nan(value):
     """None ("not computed") as NaN for the feature matrix; anything else unchanged."""
@@ -436,12 +447,12 @@ class SecurityAuditor:
                     raw_density = (val / safe_denom) * 100.0
                     row[f"log_density_{col_name}"] = np.log1p(np.maximum(raw_density, 0))
 
-                # Bind to the new Ecosystem Baseline variables established in the Statistical Auditor
-                row["assigned_macro_species"] = tel.get("ecosystem_baseline_cluster", 0)
-                row["primary_z_score"] = float(tel.get("ecosystem_z_score", 0.0))
-
+                # #1159: frozen. The retired repo K-Means model scored every full scan
+                # as an all-zero vector, so these are the only values the model saw.
+                row["assigned_macro_species"] = 3
+                row["primary_z_score"] = 2.272
                 for i in range(11):
-                    row[f"dist_to_{i}"] = float(tel.get(f"dist_to_{i}", 0.0))
+                    row[f"dist_to_{i}"] = _FROZEN_REPO_CLUSTER_DISTANCES[i] if i < 6 else 0.0
 
                 rows.append(row)
 

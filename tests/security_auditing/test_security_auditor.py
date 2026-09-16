@@ -132,6 +132,26 @@ def test_func_internal_density_is_a_frozen_placeholder(mock_artifacts):
     assert (df["func_internal_density"] == 0.0).all()
 
 
+def test_retired_repo_cluster_columns_are_frozen(mock_artifacts):
+    """#1159: the repo K-Means columns keep the constants every full scan fed the model.
+
+    The retired model scored each repo as an all-zero vector, so it always chose
+    cluster 3 with the same z and distances. Stray telemetry must not move them.
+    """
+    auditor = SecurityAuditor()
+    auditor.SIGNAL_SCHEMA = ["high_risk_execution", "io", "state_mutation", "safety", "dead_code"]
+    mock_artifacts[0]["telemetry"].update(ecosystem_baseline_cluster=1, ecosystem_z_score=9.9, dist_to_0=5.0)
+
+    auditor._resolve_dependency_graph(mock_artifacts)
+    df = auditor._construct_feature_matrix(mock_artifacts)
+
+    assert (df["assigned_macro_species"] == 3).all()
+    assert (df["primary_z_score"] == 2.272).all()
+    assert df["dist_to_0"].tolist() == [0.598052373041024] * 2
+    assert df["dist_to_5"].tolist() == [0.6645988084551461] * 2
+    assert (df["dist_to_10"] == 0.0).all()
+
+
 def test_construct_feature_matrix_exception_fallback():
     """Proves a corrupted artifact payload generates a safe, empty fallback row."""
     auditor = SecurityAuditor()

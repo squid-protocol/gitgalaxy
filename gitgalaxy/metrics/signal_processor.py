@@ -1236,51 +1236,6 @@ class SignalProcessor:
                 "Deep Learning": dl_total,
             }
 
-        # --- NEW: Ecosystem Baseline Clustering (Global Repository Archetype) ---
-        repo_model = getattr(config, "GENERAL_REPO_INFERENCE_MODEL", None)
-        repo_macro_data = {
-            "name": "Unclassified",
-            "id": -1,
-            "z_score": 0.0,
-            "raw_drift": 0.0,
-        }
-
-        if repo_model and parsed_files:
-            # Rebuild the ratios based purely on the K-Means features
-            feature_counts = {feat: archetype_counts.get(feat, 0) for feat in repo_model["features"]}
-            live_ratios = [feature_counts[feat] / len(parsed_files) for feat in repo_model["features"]]
-
-            distances = []
-            for i in range(repo_model["k_clusters"]):
-                centroid = repo_model["centroids"][f"Cluster {i}"]
-                dist = math.sqrt(sum((a - b) ** 2 for a, b in zip(live_ratios, centroid)))
-                distances.append(dist)
-
-            assigned_idx = distances.index(min(distances))
-            raw_drift = distances[assigned_idx]
-
-            z_params = repo_model["z_score_params"][f"Cluster {assigned_idx}"]
-            z_score = (raw_drift - z_params["mean"]) / z_params["std"]
-
-            cluster_names = repo_model.get(
-                "cluster_names",
-                [f"Cluster {i}" for i in range(repo_model["k_clusters"])],
-            )
-
-            repo_macro_data = {
-                "name": cluster_names[assigned_idx],
-                "id": assigned_idx,
-                "z_score": round(z_score, 3),
-                "raw_drift": round(raw_drift, 3),
-            }
-
-            # Inject into parsed_files so security_auditor and gpu_recorder have it in RAM
-            for f in parsed_files:
-                f["telemetry"]["ecosystem_baseline_cluster"] = assigned_idx
-                f["telemetry"]["ecosystem_z_score"] = repo_macro_data["z_score"]
-                for i, d in enumerate(distances):
-                    f["telemetry"][f"dist_to_{i}"] = d
-
         # ---> FILE + REPO COMPOSITION ARCHETYPES <---
         # Runs here (global synthesis, post-network) so pagerank/blast_radius are
         # available. Assign each file its composition archetype (function stoichiometry
@@ -1300,6 +1255,14 @@ class SignalProcessor:
         file_composition_distribution = dict(
             sorted(file_composition_distribution.items(), key=lambda kv: (-kv[1], kv[0]))
         )
+
+        # #1159: the ecosystem baseline is the composition repo archetype. The old
+        # K-Means repo model ran before file archetypes were assigned, so every repo
+        # scored an all-zero vector and landed in "Cluster 3".
+        repo_macro_data = {
+            "name": repo_composition_archetype or "Unclassified",
+            "z_score": repo_composition_z,
+        }
 
         return {
             "summary": {

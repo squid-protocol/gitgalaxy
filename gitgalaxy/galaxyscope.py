@@ -1068,13 +1068,15 @@ class Orchestrator:
             summary = self.processor.summarize_galaxy_metrics(repository_graph, total_unparsable)
             summary["network_macro"] = network_macro
 
-            # #371: repo_z_score is repo-wide (only knowable once summary is
-            # computed), but record_keeper.py/llm_recorder.py read it per-file
+            # #371/#1159: the repo baseline is repo-wide (only knowable once summary
+            # is computed), but record_keeper.py/llm_recorder.py read it per-file
             # off telemetry -- thread it down now that it exists, or every file's
-            # column/report field stays permanently the 0.0 fallback.
-            repo_z_score = summary.get("repo_macro_species", {}).get("z_score", 0.0)
+            # column/report field stays permanently the fallback.
+            repo_macro = summary.get("repo_macro_species", {})
             for file_data in repository_graph or []:
-                file_data.setdefault("telemetry", {})["repo_z_score"] = repo_z_score
+                tel = file_data.setdefault("telemetry", {})
+                tel["repo_z_score"] = repo_macro.get("z_score")
+                tel["repo_macro_species"] = repo_macro.get("name", "Unclassified")
 
             report = self.processor.generate_forensic_report(repository_graph)
             logger.debug(f"⏱️ EXECUTION_TIME [Phase 8 - Metrics Synthesis]: {time.time() - t_phase:.2f}s")
@@ -2953,10 +2955,12 @@ class Orchestrator:
             summary = self.processor.summarize_galaxy_metrics(repository_graph, unparsable_audits)
             summary["network_macro"] = network_macro
 
-            # #371: see the identical backfill in the main pipeline above.
-            repo_z_score = summary.get("repo_macro_species", {}).get("z_score", 0.0)
+            # #371/#1159: see the identical backfill in the main pipeline above.
+            repo_macro = summary.get("repo_macro_species", {})
             for file_data in repository_graph or []:
-                file_data.setdefault("telemetry", {})["repo_z_score"] = repo_z_score
+                tel = file_data.setdefault("telemetry", {})
+                tel["repo_z_score"] = repo_macro.get("z_score")
+                tel["repo_macro_species"] = repo_macro.get("name", "Unclassified")
 
             # #376: see the identical backfill in the main pipeline above.
             summary["typosquat_hits"] = getattr(self, "typosquat_hits", 0)

@@ -1414,12 +1414,14 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         scope.model_auditor.audit_repository.return_value = scope.parsed_files
         scope.processor = MagicMock()
         scope.processor.summarize_galaxy_metrics.return_value = {
-            "repo_macro_species": {"z_score": 3.7},
+            "repo_macro_species": {"name": "Typed Library", "z_score": 3.7},
         }
 
         scope.execute_pipeline("fake.json")
 
         self.assertEqual(scope.parsed_files[0]["telemetry"]["repo_z_score"], 3.7)
+        # #1159: the name travels with the z, or file_data.ecosystem_baseline stays "Unknown".
+        self.assertEqual(scope.parsed_files[0]["telemetry"]["repo_macro_species"], "Typed Library")
 
     # ==============================================================================
     # TEST 14.6: THE TYPOSQUAT HITS BACKFILL (#376)

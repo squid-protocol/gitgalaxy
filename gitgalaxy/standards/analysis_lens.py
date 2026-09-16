@@ -152,6 +152,7 @@ LANGUAGE_STRICTNESS: dict[str, Optional[tuple[bool, bool, bool, bool]]] = {
     "assembly": (False, False, False, False),
     "batch": (False, False, True, False),  # every variable is the environment
     "blp": None,  # Blueprint UI markup
+    "bms": None,  # CICS 3270 screen markup (HLASM macro form, #2505) -- declarative, no risk axes
     "c": (True, False, False, True),
     "cobol": (True, False, True, False),  # PIC-typed; WORKING-STORAGE is program-global by design
     "cpp": (True, False, False, True),
@@ -304,9 +305,10 @@ ASSET_MASKS = {
         "proto",
         "graphql",
         "gql",
-        # 5. Mainframe Inert Matter (Copybooks and Job Control definitions)
+        # 5. Mainframe Inert Matter (Copybooks, Job Control and screen definitions)
         "cpy",
         "jcl",
+        "bms",
         # 6. TEST ARTIFACTS (The "Tester" Exclusions)
         # Prevents the engine from demanding test coverage on test outputs/snapshots.
         "snap",

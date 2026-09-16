@@ -9616,15 +9616,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-10-file-archetypes" class="md-nav__link">
+  <a href="#the-10-file-archetypes-original-research-run" class="md-nav__link">
     <span class="md-ellipsis">
       
-        🧬 The 10 File Archetypes
+        🧬 The 10 File Archetypes (original research run)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🧬 The 10 File Archetypes">
+    <nav class="md-nav" aria-label="🧬 The 10 File Archetypes (original research run)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -12138,15 +12138,23 @@ what their syntax <em>physically resembles</em>. A second, compositional lens
 (<a href="../03-05b-composition-archetypes/">03-05b: Composition Archetypes</a>) types a file <em>bottom-up</em> by
 the mix of function-archetypes it contains, and rolls that up into repo archetypes. A scan now
 carries both labels side by side.</p>
+<p><strong>Model version note.</strong> The numbers below (74 dimensions, 10 clusters) describe the <em>original</em>
+research run. The live <code>GENERAL_FILE_INFERENCE_MODEL</code> shipped in the engine has since been
+retrained on a larger corpus and is now <strong>115-dimensional with 18 clusters</strong>
+(<code>file_cluster_0</code>..<code>file_cluster_17</code>; #3061, 2026-09-15) — the engine's dimension-mismatch guard
+(#1158) is what surfaced that this page had drifted from the shipped model. The current build
+doesn't yet ship human-readable names for the expanded 18-cluster set, so the ten named
+archetypes below are the original research findings, not a live index into today's
+<code>file_cluster_N</code> labels.</p>
 </blockquote>
 <p>To truly understand software health, we need to stop judging every file by the same generic standard. A frontend UI router should not be penalized for having high concurrency, just as a low-level memory handler shouldn't be penalized for lacking dependency injection. Context matters.</p>
-<p>To map the true physical reality of how software is built, we conducted a massive unsupervised machine learning analysis. We fed the pure, structural DNA of <strong>1,592,674 files</strong>—representing 74 distinct dimensions of regex hit densities, control flow ratios, active security threat payloads, and syntactic markers—into a K-Means clustering algorithm. We didn't give the AI any human rules about what constitutes "good" or "bad" code. We simply asked it to group them by physical resemblance.</p>
+<p>To map the true physical reality of how software is built, we conducted a massive unsupervised machine learning analysis. We fed the pure, structural DNA of <strong>1,592,674 files</strong>—representing, in that original run, 74 distinct dimensions of regex hit densities, control flow ratios, active security threat payloads, and syntactic markers—into a K-Means clustering algorithm. We didn't give the AI any human rules about what constitutes "good" or "bad" code. We simply asked it to group them by physical resemblance.</p>
 <p><em>Crucially, we stripped out all formatting lint (Tabs vs. Spaces).</em> The AI was forced to look past the "paint" and strictly evaluate the architectural "plumbing."</p>
-<p>The result? The algorithm naturally converged and separated the nearly 1.6 million files into <strong>10 distinct architectural micro-species</strong>.</p>
+<p>The result? The algorithm naturally converged and separated the nearly 1.6 million files into <strong>10 distinct architectural micro-species</strong> in that original run (see the version note above for the current shipped model's dimensionality).</p>
 <p>By labeling every new file we scan with its exact ML Archetype, we can measure its risk scores <em>relative to its cluster</em>. We no longer ask, "Is this file too complex?" We ask, "Is this file too complex <em>for a UI Framework component</em>?" Furthermore, because our matrix tracks security signatures, we can see exactly which architectural islands are most susceptible to specific vulnerabilities.</p>
 <hr />
-<h2 id="the-10-file-archetypes">🧬 The 10 File Archetypes</h2>
-<p>Here are the 10 archetypes identified by the clustering algorithm. Each micro-species represents a distinct architectural fingerprint based on structural DNA, independent of human-defined folders or logic tags.</p>
+<h2 id="the-10-file-archetypes-original-research-run">🧬 The 10 File Archetypes (original research run)</h2>
+<p>Here are the 10 archetypes identified by the clustering algorithm in the original research run described above. Each micro-species represents a distinct architectural fingerprint based on structural DNA, independent of human-defined folders or logic tags. (See the version note near the top of this page — the shipped model has since grown to 18 clusters without published names for the new ones.)</p>
 <h3 id="cluster-0-native-core-memory-management"><strong>Cluster 0: Native Core &amp; Memory Management</strong></h3>
 <p>The "Meat Grinder." This is the raw, unshielded execution layer of native codebases. It is defined by extreme pointer arithmetic, complex branching, and dense state mutation, making it the highest-risk zone for memory leaks.
 * <strong>Size:</strong> 193,095 files (12.1%) | <strong>Dispersion:</strong> 4.58

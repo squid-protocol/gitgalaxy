@@ -15,6 +15,8 @@ numpy) so it runs in zero-dependency mode; degrades gracefully when a brain is
 absent or a network metric (pagerank in zero-dep mode) is missing.
 """
 
+from __future__ import annotations
+
 import bisect
 import logging
 import math

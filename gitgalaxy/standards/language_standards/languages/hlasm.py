@@ -78,7 +78,10 @@ DEFINITION: dict[str, Any] = {
     # (language_lens.py's Tier 2 guard). Reads RAW text, so a `*` comment line
     # can never satisfy the `^` name-field anchor.
     "internal_discriminator": re.compile(
-        r"^" + _ID + r"{0,63}[ \t]+(?:CSECT|DSECT|RSECT|AMODE|RMODE|USING|LTORG|MEND|DFHEIENT|DFHEIRET)" + _OPEND
+        r"^"
+        + _ID
+        + r"{0,63}[ \t]+(?:CSECT|DSECT|RSECT|AMODE|RMODE|USING|LTORG|MEND|DFHEIENT|DFHEIRET)"
+        + _OPEND
         + r"|^R[0-9]{1,2}[ \t]+EQU[ \t]+[0-9]{1,2}\b(?:[\s\S]*?^R[0-9]{1,2}[ \t]+EQU[ \t]+[0-9]{1,2}\b){2}",
         re.M | re.I,
     ),

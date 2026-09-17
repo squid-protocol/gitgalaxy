@@ -1265,12 +1265,17 @@ class SignalProcessor:
         # Runs here (global synthesis, post-network) so pagerank/blast_radius are
         # available. Assign each file its composition archetype (function stoichiometry
         # + structure + graph role), then aggregate into a repo archetype.
+        _arch_drift: dict = {}
         for _f in parsed_files:
-            _fa, _fz = archetype_classifier.classify_file(_f)
+            _fa, _fz = archetype_classifier.classify_file(_f, drift=_arch_drift)
             if _fa is not None:
                 _tel = _f.setdefault("telemetry", {})
                 _tel["composition_file_archetype"] = _fa
                 _tel["composition_file_z"] = _fz
+        # Quantile-range parity canary (#3125): warn if scanned feature values fell
+        # systematically outside the brain's trained range (scale/semantic drift).
+        for _msg in archetype_classifier.quantile_drift_diagnostics(_arch_drift):
+            self.logger.warning("Archetype parity: %s", _msg)
         repo_composition_archetype, repo_composition_z = archetype_classifier.classify_repo(parsed_files)
         file_composition_distribution: dict[str, int] = {}
         for _f in parsed_files:

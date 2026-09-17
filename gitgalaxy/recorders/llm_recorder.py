@@ -489,6 +489,24 @@ class LLMRecorder:
         lines.append(
             f"| **Zero-Dependency Mode** | `{'ACTIVE (Degraded Precision)' if session_meta.get('zero_dependency_mode') else 'Inactive (Full Precision)'}` |"
         )
+        # Archetype-brain provenance (#3124). Static per engine version -- a brain
+        # changes only when it is refrozen, never between two scans of the same
+        # commit -- so it satisfies section 0's "no per-scan field" rule (the
+        # constraint documented at the top of this method) while making every
+        # composition-archetype verdict traceable to the corpus that produced it.
+        for _label, _brain in (
+            ("File Archetype Brain", config.FILE_ARCHETYPE_BRAIN),
+            ("Repo Archetype Brain", config.REPO_ARCHETYPE_BRAIN),
+        ):
+            _p = (_brain or {}).get("provenance") or {}
+            if _p:
+                lines.append(
+                    f"| **{_label}** | corpus `{_p.get('corpus', '?')}` @ `{_p.get('corpus_sha256', '?')}` · "
+                    f"trainer `{_p.get('trainer_commit', '?')}` · engine `{_p.get('engine_commit', '?')}` · "
+                    f"contract `{_p.get('feature_contract_sha', '?')}` · trained `{_p.get('trained_at', '?')}` |"
+                )
+            elif _brain:
+                lines.append(f"| **{_label}** | `unversioned (no provenance baked -- see #3124)` |")
         lines.append("")
 
         if session_meta.get("zero_dependency_mode"):

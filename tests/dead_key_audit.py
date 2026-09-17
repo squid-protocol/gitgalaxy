@@ -112,6 +112,16 @@ ALLOWLIST = {
     "z_score_params": "archetype-brain key: per-cluster distance stats (JSON-written, archetype_classifier.py)",
     "mean": "archetype-brain z_score_params sub-key (JSON-written, archetype_classifier.py._fit_z)",
     "std": "archetype-brain z_score_params sub-key (JSON-written, archetype_classifier.py._fit_z)",
+    # archetype-brain provenance block (#3124/#3125): baked into the JSON brains by
+    # gitgalaxy-population-analyses/freeze_archetype_brains.py + backfill_provenance.py
+    # (a DIFFERENT repo the walker can't see), read here by archetype_parity.check_brain
+    # and llm_recorder's forensic-traceability section. Write-less by construction.
+    "provenance": "archetype-brain provenance block (cross-repo JSON-written, archetype_parity.py)",
+    "feature_contract_sha": "archetype-brain provenance key (cross-repo JSON-written, archetype_parity.py)",
+    "corpus_sha256": "archetype-brain provenance key (cross-repo JSON-written, llm_recorder.py)",
+    "engine_commit": "archetype-brain provenance key (cross-repo JSON-written, llm_recorder.py)",
+    "trained_at": "archetype-brain provenance key (cross-repo JSON-written, llm_recorder.py)",
+    "trainer_commit": "archetype-brain provenance key (cross-repo JSON-written, llm_recorder.py)",
     # --- External YAML/env config ---
     "galaxyscope": "top-level section name in a user's .galaxyscope.yml project config file",
     "GITGALAXY_LICENSE_KEY": "environment variable (os.environ.get), not a repo-produced dict",

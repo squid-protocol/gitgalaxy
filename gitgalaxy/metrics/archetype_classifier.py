@@ -16,12 +16,35 @@ absent or a network metric (pagerank in zero-dep mode) is missing.
 """
 
 import bisect
+import logging
 import math
 from typing import Any
 
 from gitgalaxy.standards import analysis_lens
 
+logger = logging.getLogger(__name__)
+
 NONCODE_FILE_ARCHETYPES = {"Declarative / Non-Code", "Data / Markup / Trivial"}
+
+# Quantile-range runtime canary (#3125, mechanism c). Each brain ships the frozen
+# reference quantiles a feature was trained over; a scan whose observed values
+# fall SYSTEMATICALLY outside that range means the feature's scale/semantics have
+# drifted since training (e.g. a changed denominator), even though dimensions
+# still match and no other guard fires. We count out-of-range observations per
+# feature and, past these thresholds, surface a real diagnostic instead of
+# classifying confidently. A handful of naturally-extreme files is expected; a
+# large fraction is the signal.
+_DRIFT_MIN_SAMPLES = 20
+_DRIFT_FRACTION = 0.05
+
+# Warn at most once per (message) so a parity break can't flood a scan log.
+_logged_parity_warnings: set[str] = set()
+
+
+def _warn_once(msg: str) -> None:
+    if msg not in _logged_parity_warnings:
+        _logged_parity_warnings.add(msg)
+        logger.warning(msg)
 
 
 def _rank(value: float, ref: list) -> float:
@@ -29,6 +52,44 @@ def _rank(value: float, ref: list) -> float:
     if not ref:
         return 0.0
     return bisect.bisect_right(ref, float(value)) / (len(ref) - 1)
+
+
+def _record_drift(drift: dict, feature: str, value: float, ref: list) -> None:
+    """Accumulate an out-of-range tally for the quantile canary. ``ref`` is the
+    feature's frozen quantile reference (ascending); values below ref[0] or above
+    ref[-1] were never seen at training scale."""
+    if not ref:
+        return
+    slot = drift.setdefault(feature, {"n": 0, "below": 0, "above": 0, "max_over": 0.0})
+    slot["n"] += 1
+    lo, hi = ref[0], ref[-1]
+    if value < lo:
+        slot["below"] += 1
+    elif value > hi:
+        slot["above"] += 1
+        slot["max_over"] = max(slot["max_over"], value - hi)
+
+
+def quantile_drift_diagnostics(drift: dict) -> list[str]:
+    """Turn an accumulated drift tally into human-readable diagnostics, one per
+    feature that fell outside its trained range on a large enough fraction of
+    files to indicate scale/semantic drift rather than a few extreme outliers.
+    Returns [] when nothing is systematically off."""
+    out: list[str] = []
+    for feature, s in sorted(drift.items()):
+        n = s["n"]
+        oor = s["below"] + s["above"]
+        if n < _DRIFT_MIN_SAMPLES or oor == 0:
+            continue
+        frac = oor / n
+        if frac >= _DRIFT_FRACTION:
+            out.append(
+                f"archetype feature '{feature}': {frac:.0%} of {n} files fell outside the range it "
+                f"was trained on ({s['below']} below / {s['above']} above; max overshoot "
+                f"{s['max_over']:.3g}) -- its scale or computation may have drifted from the brain's "
+                f"training corpus; composition archetypes for this scan may be unreliable"
+            )
+    return out
 
 
 def _nearest(vec: list, centroids: dict):
@@ -51,9 +112,11 @@ def _fit_z(dist, name, brain) -> float:
     return round((dist - zp["mean"]) / (zp["std"] or 1.0), 3)
 
 
-def classify_file(f: dict[str, Any]):
+def classify_file(f: dict[str, Any], drift: dict | None = None):
     """Return (composition_archetype, fit_z_score) for a file, or (None, None) if the
-    brain is unavailable. Bucket labels (non-code) carry z=0.0."""
+    brain is unavailable or the engine cannot honour its feature contract. Bucket
+    labels (non-code) carry z=0.0. Pass a ``drift`` dict to accumulate the
+    quantile-range canary tally (see ``quantile_drift_diagnostics``)."""
     b = analysis_lens.FILE_ARCHETYPE_BRAIN
     if not b:
         return None, None
@@ -80,7 +143,24 @@ def classify_file(f: dict[str, Any]):
         "log_pagerank": math.log1p(max(float(net.get("pagerank_score", 0.0) or 0.0), 0.0)),
         "log_blast_radius": math.log1p(max(float(net.get("normalized_blast_radius", 0.0) or 0.0), 0.0)),
     }
-    aux = [_rank(raw[fn], b["aux_quantiles"][fn]) for fn in b["aux_features"]]
+    quantiles = b.get("aux_quantiles", {})
+    aux = []
+    for fn in b["aux_features"]:
+        if fn not in raw:
+            # The brain declares an aux feature this engine has no formula for --
+            # a trainer/engine parity break. Degrade to unclassified (visible)
+            # rather than KeyError-crash the whole scan or invent a 0.0 column.
+            # test_archetype_parity fails a build long before this can ship.
+            _warn_once(
+                f"file archetype brain declares aux feature {fn!r} the engine cannot compute; "
+                f"skipping composition classification (see archetype_parity.check_brain)"
+            )
+            return None, None
+        ref = quantiles.get(fn) or []
+        val = raw[fn]
+        if drift is not None:
+            _record_drift(drift, fn, val, ref)
+        aux.append(_rank(val, ref))
     name, dist = _nearest(stoich + aux, b["centroids"])
     if name is None:
         return b["noncode_bucket"], 0.0

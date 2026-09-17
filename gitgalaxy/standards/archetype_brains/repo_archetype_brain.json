@@ -512,5 +512,52 @@
    "mean": 0.55504,
    "std": 0.14283
   }
+ },
+ "provenance": {
+  "corpus": "unrecorded",
+  "corpus_sha256": "unrecorded",
+  "trainer_commit": "unrecorded",
+  "trainer_version": "2026.09.1",
+  "engine_commit": "1fb648d8",
+  "trained_at": "unrecorded",
+  "record_count": null,
+  "language_mix": {},
+  "k": 7,
+  "feature_contract": {
+   "level": "repo",
+   "k": 7,
+   "comp_weight": 1.5,
+   "comp_archetypes": [
+    "Annotated Framework Methods Files",
+    "C Struct Operations Files",
+    "Callbacks & Closures Files",
+    "Compute Cores Files",
+    "Defensive Guards Files",
+    "Encapsulated Accessors Files",
+    "Generic / Templated Code Files",
+    "I/O & Config Routines Files",
+    "Interface Declarations Files",
+    "Large Core Modules",
+    "Many-Argument Workhorses Files",
+    "Parameter Forwarders Files",
+    "State Mutators Files",
+    "Tests & Verification Files"
+   ],
+   "scale_features": [
+    "log_file_count",
+    "log_total_loc"
+   ],
+   "coupling_feature": "pagerank_gini",
+   "feature_order": [
+    "comp*w..",
+    "scale_rank..",
+    "non_code_fraction",
+    "coupling_rank"
+   ],
+   "min_files": 30
+  },
+  "feature_contract_sha": "5858e2d9914677a1",
+  "backfilled": true,
+  "backfill_note": "Provenance backfilled onto a brain frozen before the freeze step recorded it. The feature_contract_sha and engine_commit are authentic; the training corpus was not captured and is unreproducible. The next freeze_archetype_brains.py run attaches full corpus provenance."
  }
 }

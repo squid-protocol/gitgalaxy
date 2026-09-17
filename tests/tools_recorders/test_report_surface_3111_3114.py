@@ -277,10 +277,15 @@ def test_lexicon_survives_as_an_appendix():
 
 @pytest.mark.parametrize("removed", ["## 11. CUMULATIVE RISK HITLIST", "## 12. SCANNED ARTIFACTS HITLIST"])
 def test_the_two_duplicate_hitlists_are_gone(removed):
-    """#3113 ask 3: 11 and 12 answered the same question twice."""
+    """#3113 ask 3: 11 and 12 answered the same question twice.
+
+    Reached via inspect.getmodule rather than a second `import
+    gitgalaxy.recorders.llm_recorder as module`: importing one module by both
+    `from X import Y` and `import X` in the same file is what CodeQL flagged
+    on #3145, and the module object is already reachable from the class this
+    file imports anyway.
+    """
     import inspect
 
-    import gitgalaxy.recorders.llm_recorder as module
-
-    source = inspect.getsource(module)
+    source = inspect.getsource(inspect.getmodule(LLMRecorder))
     assert removed not in source

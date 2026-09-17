@@ -1,0 +1,433 @@
+{
+  "accuracy": 0.9964,
+  "auto_accuracy": 0.9984,
+  "auto_scored": 2575,
+  "confusion": {
+    "embedded_python -> python": 7,
+    "makefile -> python": 1,
+    "powershell -> undeterminable": 1,
+    "tcl -> undeterminable": 2
+  },
+  "corpus_files": 3366,
+  "correct": 3061,
+  "explicit_accuracy": 0.9859,
+  "explicit_correct": 490,
+  "explicit_scored": 497,
+  "label_sources": {
+    "exact_filename": 18,
+    "explicit": 502,
+    "extension": 2557,
+    "unknown_extension": 289
+  },
+  "languages": {
+    "abap": {
+      "correct": 7,
+      "precision": 1.0,
+      "predicted": 7,
+      "recall": 1.0,
+      "support": 7
+    },
+    "agc_assembly": {
+      "correct": 10,
+      "precision": 1.0,
+      "predicted": 10,
+      "recall": 1.0,
+      "support": 10
+    },
+    "apex": {
+      "correct": 7,
+      "precision": 1.0,
+      "predicted": 7,
+      "recall": 1.0,
+      "support": 7
+    },
+    "assembly": {
+      "correct": 234,
+      "precision": 1.0,
+      "predicted": 234,
+      "recall": 1.0,
+      "support": 234
+    },
+    "batch": {
+      "correct": 5,
+      "precision": 1.0,
+      "predicted": 5,
+      "recall": 1.0,
+      "support": 5
+    },
+    "blp": {
+      "correct": 5,
+      "precision": 1.0,
+      "predicted": 5,
+      "recall": 1.0,
+      "support": 5
+    },
+    "c": {
+      "correct": 40,
+      "precision": 1.0,
+      "predicted": 40,
+      "recall": 1.0,
+      "support": 40
+    },
+    "cobol": {
+      "correct": 570,
+      "precision": 1.0,
+      "predicted": 570,
+      "recall": 1.0,
+      "support": 570
+    },
+    "cpp": {
+      "correct": 29,
+      "precision": 1.0,
+      "predicted": 29,
+      "recall": 1.0,
+      "support": 29
+    },
+    "csharp": {
+      "correct": 8,
+      "precision": 1.0,
+      "predicted": 8,
+      "recall": 1.0,
+      "support": 8
+    },
+    "css": {
+      "correct": 38,
+      "precision": 1.0,
+      "predicted": 38,
+      "recall": 1.0,
+      "support": 38
+    },
+    "csv": {
+      "correct": 7,
+      "precision": 1.0,
+      "predicted": 7,
+      "recall": 1.0,
+      "support": 7
+    },
+    "dart": {
+      "correct": 7,
+      "precision": 1.0,
+      "predicted": 7,
+      "recall": 1.0,
+      "support": 7
+    },
+    "dockerfile": {
+      "correct": 5,
+      "precision": 1.0,
+      "predicted": 5,
+      "recall": 1.0,
+      "support": 5
+    },
+    "embedded_python": {
+      "correct": 7,
+      "precision": 1.0,
+      "predicted": 7,
+      "recall": 0.5,
+      "support": 14
+    },
+    "fortran": {
+      "correct": 6,
+      "precision": 1.0,
+      "predicted": 6,
+      "recall": 1.0,
+      "support": 6
+    },
+    "go": {
+      "correct": 69,
+      "precision": 1.0,
+      "predicted": 69,
+      "recall": 1.0,
+      "support": 69
+    },
+    "groovy": {
+      "correct": 305,
+      "precision": 1.0,
+      "predicted": 305,
+      "recall": 1.0,
+      "support": 305
+    },
+    "haskell": {
+      "correct": 7,
+      "precision": 1.0,
+      "predicted": 7,
+      "recall": 1.0,
+      "support": 7
+    },
+    "hlo": {
+      "correct": 3,
+      "precision": 1.0,
+      "predicted": 3,
+      "recall": 1.0,
+      "support": 3
+    },
+    "html": {
+      "correct": 54,
+      "precision": 1.0,
+      "predicted": 54,
+      "recall": 1.0,
+      "support": 54
+    },
+    "java": {
+      "correct": 14,
+      "precision": 1.0,
+      "predicted": 14,
+      "recall": 1.0,
+      "support": 14
+    },
+    "javascript": {
+      "correct": 20,
+      "precision": 1.0,
+      "predicted": 20,
+      "recall": 1.0,
+      "support": 20
+    },
+    "jcl": {
+      "correct": 186,
+      "precision": 1.0,
+      "predicted": 186,
+      "recall": 1.0,
+      "support": 186
+    },
+    "json": {
+      "correct": 10,
+      "precision": 1.0,
+      "predicted": 10,
+      "recall": 1.0,
+      "support": 10
+    },
+    "kotlin": {
+      "correct": 6,
+      "precision": 1.0,
+      "predicted": 6,
+      "recall": 1.0,
+      "support": 6
+    },
+    "livecode": {
+      "correct": 98,
+      "precision": 1.0,
+      "predicted": 98,
+      "recall": 1.0,
+      "support": 98
+    },
+    "lua": {
+      "correct": 113,
+      "precision": 1.0,
+      "predicted": 113,
+      "recall": 1.0,
+      "support": 113
+    },
+    "m4": {
+      "correct": 8,
+      "precision": 1.0,
+      "predicted": 8,
+      "recall": 1.0,
+      "support": 8
+    },
+    "makefile": {
+      "correct": 3,
+      "precision": 1.0,
+      "predicted": 3,
+      "recall": 0.75,
+      "support": 4
+    },
+    "markdown": {
+      "correct": 100,
+      "precision": 1.0,
+      "predicted": 100,
+      "recall": 1.0,
+      "support": 100
+    },
+    "matlab": {
+      "correct": 6,
+      "precision": 1.0,
+      "predicted": 6,
+      "recall": 1.0,
+      "support": 6
+    },
+    "mlir": {
+      "correct": 3,
+      "precision": 1.0,
+      "predicted": 3,
+      "recall": 1.0,
+      "support": 3
+    },
+    "nix": {
+      "correct": 5,
+      "precision": 1.0,
+      "predicted": 5,
+      "recall": 1.0,
+      "support": 5
+    },
+    "objective-c": {
+      "correct": 6,
+      "precision": 1.0,
+      "predicted": 6,
+      "recall": 1.0,
+      "support": 6
+    },
+    "perl": {
+      "correct": 21,
+      "precision": 1.0,
+      "predicted": 21,
+      "recall": 1.0,
+      "support": 21
+    },
+    "php": {
+      "correct": 36,
+      "precision": 1.0,
+      "predicted": 36,
+      "recall": 1.0,
+      "support": 36
+    },
+    "plaintext": {
+      "correct": 54,
+      "precision": 1.0,
+      "predicted": 54,
+      "recall": 1.0,
+      "support": 54
+    },
+    "powershell": {
+      "correct": 126,
+      "precision": 1.0,
+      "predicted": 126,
+      "recall": 0.9921,
+      "support": 127
+    },
+    "proto": {
+      "correct": 4,
+      "precision": 1.0,
+      "predicted": 4,
+      "recall": 1.0,
+      "support": 4
+    },
+    "python": {
+      "correct": 269,
+      "precision": 0.9711,
+      "predicted": 277,
+      "recall": 1.0,
+      "support": 269
+    },
+    "ruby": {
+      "correct": 13,
+      "precision": 1.0,
+      "predicted": 13,
+      "recall": 1.0,
+      "support": 13
+    },
+    "rust": {
+      "correct": 46,
+      "precision": 1.0,
+      "predicted": 46,
+      "recall": 1.0,
+      "support": 46
+    },
+    "scala": {
+      "correct": 7,
+      "precision": 1.0,
+      "predicted": 7,
+      "recall": 1.0,
+      "support": 7
+    },
+    "scheme": {
+      "correct": 5,
+      "precision": 1.0,
+      "predicted": 5,
+      "recall": 1.0,
+      "support": 5
+    },
+    "shell": {
+      "correct": 264,
+      "precision": 1.0,
+      "predicted": 264,
+      "recall": 1.0,
+      "support": 264
+    },
+    "solidity": {
+      "correct": 7,
+      "precision": 1.0,
+      "predicted": 7,
+      "recall": 1.0,
+      "support": 7
+    },
+    "sqlite": {
+      "correct": 76,
+      "precision": 1.0,
+      "predicted": 76,
+      "recall": 1.0,
+      "support": 76
+    },
+    "swift": {
+      "correct": 6,
+      "precision": 1.0,
+      "predicted": 6,
+      "recall": 1.0,
+      "support": 6
+    },
+    "tcl": {
+      "correct": 30,
+      "precision": 1.0,
+      "predicted": 30,
+      "recall": 0.9375,
+      "support": 32
+    },
+    "td": {
+      "correct": 4,
+      "precision": 1.0,
+      "predicted": 4,
+      "recall": 1.0,
+      "support": 4
+    },
+    "typescript": {
+      "correct": 29,
+      "precision": 1.0,
+      "predicted": 29,
+      "recall": 1.0,
+      "support": 29
+    },
+    "undeterminable": {
+      "correct": 0,
+      "precision": 0.0,
+      "predicted": 3,
+      "recall": null,
+      "support": 0
+    },
+    "xml": {
+      "correct": 14,
+      "precision": 1.0,
+      "predicted": 14,
+      "recall": 1.0,
+      "support": 14
+    },
+    "yacc": {
+      "correct": 4,
+      "precision": 1.0,
+      "predicted": 4,
+      "recall": 1.0,
+      "support": 4
+    },
+    "yaml": {
+      "correct": 8,
+      "precision": 1.0,
+      "predicted": 8,
+      "recall": 1.0,
+      "support": 8
+    },
+    "zig": {
+      "correct": 37,
+      "precision": 1.0,
+      "predicted": 37,
+      "recall": 1.0,
+      "support": 37
+    }
+  },
+  "refusals": 3,
+  "scored": 3072,
+  "tier_5_conflicts": 3,
+  "tier_distribution": {
+    "0": 255,
+    "1": 155,
+    "1.5": 224,
+    "2": 2435,
+    "5": 3
+  }
+}

@@ -1,0 +1,83 @@
+name: Detection Accuracy Audit
+
+# Baseline-gated regression check for language-DETECTION accuracy (#3117),
+# the sibling of tree-sitter-accuracy-audit.yml (which covers extraction).
+# Path-filtered for the same reason that one is: it needs a language-crucible
+# clone and one detector pass over ~3.4k files, cheap enough for every
+# relevant PR but not worth paying on a PR that only touches e.g. recorders.
+#
+# Reuses the same pinned corpus as golden-crucible.yml and the tree-sitter
+# audit rather than cloning a fresh one -- see the tool's own CORPUS section.
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "gitgalaxy/standards/language_lens.py"
+      - "gitgalaxy/standards/language_standards/**"
+      - "gitgalaxy/standards/gitgalaxy_config.py"
+      - "tests/tools/detection_accuracy_audit.py"
+      - "tests/detection_accuracy_baseline.json"
+      - ".github/workflows/detection-accuracy-audit.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  detection-accuracy-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout GitGalaxy PR
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # No full-precision extras needed: classification is pure regex/metadata
+      # inference in language_lens.py, identical in both dependency modes.
+      - name: Install GitGalaxy
+        run: |
+          cd gitgalaxy
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF)
+        run: |
+          # GitHub withholds repository variables from pull_request runs raised from a
+          # fork, so `vars.LANGUAGE_CRUCIBLE_REF` is empty there. The corpus repo is
+          # PUBLIC and clones with no credentials -- the only thing a fork run lacks is
+          # the ref *string*, which is also committed as PINNED_TAG. Same escape hatch
+          # tree-sitter-accuracy-audit.yml uses; bump BOTH pins when moving the corpus.
+          ref="${{ vars.LANGUAGE_CRUCIBLE_REF }}"
+          if [ -z "$ref" ]; then
+            ref=$(sed -n 's/^PINNED_TAG = "\(.*\)"/\1/p' gitgalaxy/tests/_crucible_pin.py)
+            echo "::notice title=Corpus pin read from the repo::LANGUAGE_CRUCIBLE_REF was empty -- expected on a pull_request run raised from a fork -- so this audit pinned its corpus to '$ref', read from tests/_crucible_pin.py."
+          fi
+          if [ -z "$ref" ]; then
+            echo "::error title=Corpus pin unavailable::Could not resolve a corpus pin from either the LANGUAGE_CRUCIBLE_REF repository variable or PINNED_TAG in gitgalaxy/tests/_crucible_pin.py. See CONTRIBUTING.md, 'Corpus-backed checks'."
+            exit 1
+          fi
+          git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+
+      - name: Run baseline-gated regression check
+        run: |
+          cd gitgalaxy
+          python tests/tools/detection_accuracy_audit.py --ci
+
+      - name: List misclassified files on failure
+        if: failure()
+        run: |
+          cd gitgalaxy
+          python tests/tools/detection_accuracy_audit.py --errors || true

@@ -98,3 +98,66 @@ def test_harness_runs_against_the_corpus_when_present():
     baseline = audit._load_baseline()
     if baseline is not None:
         assert audit._compare(measured, baseline) == []
+
+
+# ==============================================================================
+# THE OBJECTIVE: 1.0 on determinable files, 1.0 rejection of ambiguous ones
+# ==============================================================================
+def test_ambiguous_files_are_keyed_by_path_with_a_stated_reason():
+    """Ambiguity is a property of the individual file, so the label is a path,
+    not an extension or a directory -- and each carries why."""
+    for rel, reason in audit._AMBIGUOUS_FILES.items():
+        assert not rel.startswith("/"), f"{rel} must be corpus-relative"
+        assert "." in rel.rsplit("/", 1)[-1] or "/" in rel, f"{rel} does not look like a file path"
+        assert len(reason) > 20, f"{rel} needs a stated reason, got {reason!r}"
+
+
+def test_ambiguous_class_is_small_and_deliberate():
+    """A growing ambiguous set is how objective 1 gets gamed: reclassify an
+    inconvenient file as 'ambiguous' and the determinable rate goes up. Keep it
+    small enough that each addition is a visible, reviewable decision."""
+    assert len(audit._AMBIGUOUS_FILES) <= 10, (
+        f"{len(audit._AMBIGUOUS_FILES)} ambiguous files is enough to hide a real defect; "
+        "each one must be a defended claim that NO single language is correct"
+    )
+
+
+def test_objective_metrics_are_present_and_gated():
+    baseline = audit._load_baseline()
+    if baseline is None:
+        pytest.skip("no committed baseline yet")
+    for key in ("determinable_accuracy", "determinable_scored", "ambiguous_rejection_rate", "ambiguous_total"):
+        assert key in baseline, f"the objective metric {key!r} must be baselined so CI gates it"
+
+
+def test_a_confident_verdict_on_an_ambiguous_file_is_a_failure():
+    """The inverted scoring must actually invert: for an ambiguous file a
+    refusal passes and a language verdict fails. Without this, the harness
+    scores its own objective backwards -- it used to count the polyglot's
+    correct refusal as an error."""
+    try:
+        audit._corpus_root()
+    except SystemExit:
+        pytest.skip("language-crucible corpus not available")
+
+    measured = audit.measure()
+    assert measured["ambiguous_total"] == len(audit._AMBIGUOUS_FILES)
+    # Every ambiguous file the engine answered confidently appears as an error
+    # whose expectation is a refusal, never as a silent pass.
+    confident = [e for e in measured["_errors"] if e["expected"] == "(refusal)"]
+    assert len(confident) == measured["ambiguous_total"] - measured["ambiguous_rejected"]
+
+
+def test_determinable_denominator_excludes_ambiguous_files():
+    """Otherwise the two objectives are not independent and one can be traded
+    against the other."""
+    try:
+        audit._corpus_root()
+    except SystemExit:
+        pytest.skip("language-crucible corpus not available")
+
+    measured = audit.measure()
+    assert measured["determinable_scored"] == measured["scored"]
+    assert measured["ambiguous_total"] not in (None,)
+    # an ambiguous file is scored by neither the auto nor the explicit subset
+    assert measured["auto_scored"] + measured["explicit_scored"] == measured["determinable_scored"]

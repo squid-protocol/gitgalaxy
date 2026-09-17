@@ -1,20 +1,25 @@
 {
-  "accuracy": 0.9984,
-  "auto_accuracy": 0.9996,
-  "auto_scored": 2575,
+  "accuracy": 0.9987,
+  "ambiguous_rejected": 1,
+  "ambiguous_rejection_rate": 1.0,
+  "ambiguous_total": 1,
+  "auto_accuracy": 1.0,
+  "auto_scored": 2574,
   "confusion": {
-    "embedded_python -> python": 4,
-    "powershell -> undeterminable": 1
+    "embedded_python -> python": 4
   },
   "corpus_files": 3366,
   "correct": 3067,
+  "determinable_accuracy": 0.9987,
+  "determinable_scored": 3071,
   "explicit_accuracy": 0.992,
   "explicit_correct": 493,
   "explicit_scored": 497,
   "label_sources": {
+    "ambiguous": 1,
     "exact_filename": 18,
     "explicit": 502,
-    "extension": 2557,
+    "extension": 2556,
     "unknown_extension": 289
   },
   "languages": {
@@ -288,8 +293,8 @@
       "correct": 126,
       "precision": 1.0,
       "predicted": 126,
-      "recall": 0.9921,
-      "support": 127
+      "recall": 1.0,
+      "support": 126
     },
     "proto": {
       "correct": 4,
@@ -382,13 +387,6 @@
       "recall": 1.0,
       "support": 29
     },
-    "undeterminable": {
-      "correct": 0,
-      "precision": 0.0,
-      "predicted": 1,
-      "recall": null,
-      "support": 0
-    },
     "xml": {
       "correct": 14,
       "precision": 1.0,
@@ -419,7 +417,7 @@
     }
   },
   "refusals": 1,
-  "scored": 3072,
+  "scored": 3071,
   "tier_5_conflicts": 1,
   "tier_distribution": {
     "0": 257,

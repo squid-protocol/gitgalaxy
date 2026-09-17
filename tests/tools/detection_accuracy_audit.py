@@ -28,6 +28,30 @@ WHY THIS EXISTS
     shebangs forced to Tier 5 `undeterminable` with an "Identity Masking"
     flag). Both are exactly what this harness makes visible.
 
+THE OBJECTIVE
+    Not "100% accuracy". The target is two separate claims, because detection
+    has two distinct failure modes and one number hides them:
+
+      1. **100% on determinable files** -- every file with a single defensible
+         language gets that language. Measured as `determinable_accuracy`.
+      2. **100% rejection of ambiguous files** -- every file with no single
+         defensible language is DECLINED (`undeterminable`), not guessed.
+         Measured as `ambiguous_rejection_rate` over `_AMBIGUOUS_FILES`, which
+         are scored inverted: a refusal passes, a confident verdict fails.
+
+    This is deliberately NOT a 1.0-accuracy goal. Pinning a single rate at 1.0
+    on a fixed corpus rewards overfitting (the figure's only value is as a
+    GENERALISATION estimate) and makes the gate brittle: any genuinely
+    ambiguous file added later fails CI, and the cheapest escape is to relabel
+    it, which corrupts the ground truth the harness exists to provide. Two
+    goals with opposite scoring cannot be gamed the same way -- driving one to
+    1.0 by guessing more aggressively drives the other down.
+
+    Status at the time of writing: objective 2 is met (1/1). Objective 1 is
+    four files short, all one root cause -- gitgalaxy#3137, ecosystem gravity
+    resolving a neighbourhood by extension counts rather than by what its
+    siblings actually classified as.
+
 !! READ THIS BEFORE QUOTING A NUMBER FROM IT !!
     The auto-labelled majority of this corpus is labelled BY EXTENSION, and
     extension is also the detector's primary signal -- so on that subset the
@@ -202,8 +226,36 @@ def _single_claimant_extensions() -> dict[str, str]:
     }
 
 
+# ==============================================================================
+# AMBIGUOUS FILES -- where REFUSING is the correct answer
+# ==============================================================================
+# A file with no single defensible language. The engine's right move is to
+# decline (`undeterminable`, Tier 5) rather than pick, so these are scored
+# INVERTED: a refusal is a pass and a confident verdict is the failure. Keyed
+# by corpus-relative path, because ambiguity is a property of the individual
+# file, not of its extension or its directory.
+#
+# Without this class the harness mis-scores its own objective: it counted
+# `download.ps1` -> `undeterminable` as an error when that is exactly the
+# behaviour we want.
+_AMBIGUOUS_FILES: dict[str, str] = {
+    # A deliberate sh/PowerShell polyglot: `#!/bin/sh` on line 1, then an
+    # `echo` whose argument opens a PowerShell block comment, so the same
+    # bytes run under both shells. It genuinely IS both languages.
+    "zig/tigerbeetle/download.ps1": "sh/PowerShell polyglot -- the same bytes execute under both",
+}
+
+
 def _label_for(path: pathlib.Path, root: pathlib.Path, by_ext: dict[str, str]) -> tuple[Optional[str], str]:
-    """(expected_language, label_source). expected None => unscored."""
+    """(expected_language, label_source).
+
+    `expected is None` => unscored. A label source of "ambiguous" means the
+    expectation is a REFUSAL, and `expected` carries the reason rather than a
+    language.
+    """
+    rel_posix = path.relative_to(root).as_posix()
+    if rel_posix in _AMBIGUOUS_FILES:
+        return _AMBIGUOUS_FILES[rel_posix], "ambiguous"
     ext = path.suffix.lower()
     if path.name in EXACT_FILE_MATCH:
         return EXACT_FILE_MATCH[path.name], "exact_filename"
@@ -246,6 +298,7 @@ def measure() -> dict[str, Any]:
         "auto": {"scored": 0, "correct": 0},
     }
     refusals = conflicts = 0
+    ambiguous_total = ambiguous_rejected = 0
 
     for path in files:
         expected, source = _label_for(path, root, by_ext)
@@ -264,8 +317,27 @@ def measure() -> dict[str, Any]:
         tiers[str(tier)] += 1
         if tier == 5:
             conflicts += 1
-        if got in ("undeterminable", "unknown"):
+        declined = got in ("undeterminable", "unknown")
+        if declined:
             refusals += 1
+
+        # An AMBIGUOUS file is scored inverted: declining is the pass.
+        if source == "ambiguous":
+            ambiguous_total += 1
+            if declined:
+                ambiguous_rejected += 1
+            else:
+                errors.append(
+                    {
+                        "path": str(path.relative_to(root)),
+                        "expected": "(refusal)",
+                        "got": got,
+                        "tier": str(tier),
+                        "proof": result["source_proof"],
+                        "label_source": f"ambiguous: {expected}",
+                    }
+                )
+            continue
 
         bucket = "explicit" if source == "explicit" else "auto"
         subset_totals[bucket]["scored"] += 1
@@ -304,6 +376,16 @@ def measure() -> dict[str, Any]:
         "scored": scored,
         "correct": correct,
         "accuracy": round(correct / scored, 4) if scored else None,
+        # --- THE OBJECTIVE (see the docstring's OBJECTIVE section) ---
+        # Determinable accuracy is `accuracy` under a different name today --
+        # they diverge the moment an AMBIGUOUS file is added, since those are
+        # excluded from this denominator and scored by the rejection rate
+        # instead. Kept as its own key so the gate reads the goal directly.
+        "determinable_scored": scored,
+        "determinable_accuracy": round(correct / scored, 4) if scored else None,
+        "ambiguous_total": ambiguous_total,
+        "ambiguous_rejected": ambiguous_rejected,
+        "ambiguous_rejection_rate": (round(ambiguous_rejected / ambiguous_total, 4) if ambiguous_total else None),
         "explicit_scored": subset_totals["explicit"]["scored"],
         "explicit_correct": subset_totals["explicit"]["correct"],
         "explicit_accuracy": (
@@ -342,6 +424,17 @@ def _report(m: dict[str, Any]) -> None:
     print("=" * 74)
     print(" LANGUAGE-DETECTION ACCURACY AUDIT (#3117)")
     print("=" * 74)
+    det, amb = m["determinable_accuracy"], m["ambiguous_rejection_rate"]
+    print("  OBJECTIVE")
+    print(
+        f"    determinable files  : {m['correct']}/{m['determinable_scored']} = {det}"
+        f"   {'MET' if det == 1.0 else 'not met'}"
+    )
+    print(
+        f"    ambiguous rejected  : {m['ambiguous_rejected']}/{m['ambiguous_total']} = {amb}"
+        f"   {'MET' if amb == 1.0 else 'not met' if amb is not None else 'n/a'}"
+    )
+    print()
     print(f"  corpus files          : {m['corpus_files']}")
     print(f"  scored                : {m['scored']}")
     print(f"  overall accuracy      : {m['accuracy']}   (partly extension-circular, see docstring)")
@@ -369,6 +462,14 @@ def _report(m: dict[str, Any]) -> None:
 
 def _compare(measured: dict[str, Any], baseline: dict[str, Any]) -> list[str]:
     regressions = []
+    # The OBJECTIVE metrics gate first, and report as goals rather than rates.
+    for key, goal in (
+        ("determinable_accuracy", "1.0 on determinable files"),
+        ("ambiguous_rejection_rate", "1.0 rejection of ambiguous files"),
+    ):
+        new_v, old_v = measured.get(key), baseline.get(key)
+        if new_v is not None and old_v is not None and new_v < old_v - _RATE_TOLERANCE:
+            regressions.append(f"OBJECTIVE ({goal}): {key} fell {old_v} -> {new_v}")
     for key in ("accuracy", "explicit_accuracy", "auto_accuracy"):
         new, old = measured.get(key), baseline.get(key)
         if new is not None and old is not None and new < old - _RATE_TOLERANCE:
@@ -436,8 +537,9 @@ def main() -> int:
             print("\nRun without --ci for the full report, or --errors to list the offending files.")
             return 1
         print(
-            f"Detection Accuracy Audit: no regression "
-            f"(overall {measured['accuracy']}, explicit {measured['explicit_accuracy']}, "
+            f"Detection Accuracy Audit: no regression (determinable "
+            f"{measured['determinable_accuracy']}, ambiguous-rejection "
+            f"{measured['ambiguous_rejection_rate']}, explicit {measured['explicit_accuracy']}, "
             f"{measured['tier_5_conflicts']} Tier 5 conflicts)."
         )
         return 0

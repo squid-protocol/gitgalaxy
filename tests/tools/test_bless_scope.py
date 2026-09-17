@@ -2,7 +2,6 @@ import json
 import sys
 import tempfile
 from pathlib import Path
-import pytest
 from io import StringIO
 
 # Add tests/ dir to sys.path so we can import golden_diff

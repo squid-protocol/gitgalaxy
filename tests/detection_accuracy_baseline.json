@@ -1,21 +1,27 @@
 {
-  "accuracy": 0.9974,
-  "auto_accuracy": 0.9996,
-  "auto_scored": 2575,
+  "accuracy": 0.9985,
+  "ambiguous_rejected": 1,
+  "ambiguous_rejection_rate": 1.0,
+  "ambiguous_total": 1,
+  "auto_accuracy": 1.0,
+  "auto_scored": 2722,
   "confusion": {
-    "embedded_python -> python": 7,
-    "powershell -> undeterminable": 1
+    "embedded_python -> python": 4,
+    "hlasm -> assembly": 1
   },
-  "corpus_files": 3366,
-  "correct": 3064,
-  "explicit_accuracy": 0.9859,
-  "explicit_correct": 490,
-  "explicit_scored": 497,
+  "corpus_files": 3531,
+  "correct": 3226,
+  "determinable_accuracy": 0.9985,
+  "determinable_scored": 3231,
+  "explicit_accuracy": 0.9902,
+  "explicit_correct": 504,
+  "explicit_scored": 509,
   "label_sources": {
+    "ambiguous": 1,
     "exact_filename": 18,
-    "explicit": 502,
-    "extension": 2557,
-    "unknown_extension": 289
+    "explicit": 514,
+    "extension": 2704,
+    "unknown_extension": 294
   },
   "languages": {
     "abap": {
@@ -24,6 +30,13 @@
       "predicted": 7,
       "recall": 1.0,
       "support": 7
+    },
+    "ada": {
+      "correct": 50,
+      "precision": 1.0,
+      "predicted": 50,
+      "recall": 1.0,
+      "support": 50
     },
     "agc_assembly": {
       "correct": 10,
@@ -41,8 +54,8 @@
     },
     "assembly": {
       "correct": 234,
-      "precision": 1.0,
-      "predicted": 234,
+      "precision": 0.9957,
+      "predicted": 235,
       "recall": 1.0,
       "support": 234
     },
@@ -59,6 +72,13 @@
       "predicted": 5,
       "recall": 1.0,
       "support": 5
+    },
+    "bms": {
+      "correct": 10,
+      "precision": 1.0,
+      "predicted": 10,
+      "recall": 1.0,
+      "support": 10
     },
     "c": {
       "correct": 40,
@@ -109,6 +129,13 @@
       "recall": 1.0,
       "support": 7
     },
+    "db2_sql": {
+      "correct": 10,
+      "precision": 1.0,
+      "predicted": 10,
+      "recall": 1.0,
+      "support": 10
+    },
     "dockerfile": {
       "correct": 5,
       "precision": 1.0,
@@ -117,10 +144,10 @@
       "support": 5
     },
     "embedded_python": {
-      "correct": 7,
+      "correct": 10,
       "precision": 1.0,
-      "predicted": 7,
-      "recall": 0.5,
+      "predicted": 10,
+      "recall": 0.7143,
       "support": 14
     },
     "fortran": {
@@ -150,6 +177,13 @@
       "predicted": 7,
       "recall": 1.0,
       "support": 7
+    },
+    "hlasm": {
+      "correct": 17,
+      "precision": 1.0,
+      "predicted": 17,
+      "recall": 0.9444,
+      "support": 18
     },
     "hlo": {
       "correct": 3,
@@ -229,11 +263,11 @@
       "support": 4
     },
     "markdown": {
-      "correct": 100,
+      "correct": 106,
       "precision": 1.0,
-      "predicted": 100,
+      "predicted": 106,
       "recall": 1.0,
-      "support": 100
+      "support": 106
     },
     "matlab": {
       "correct": 6,
@@ -278,18 +312,25 @@
       "support": 36
     },
     "plaintext": {
-      "correct": 54,
+      "correct": 55,
       "precision": 1.0,
-      "predicted": 54,
+      "predicted": 55,
       "recall": 1.0,
-      "support": 54
+      "support": 55
+    },
+    "pli": {
+      "correct": 3,
+      "precision": 1.0,
+      "predicted": 3,
+      "recall": 1.0,
+      "support": 3
     },
     "powershell": {
       "correct": 126,
       "precision": 1.0,
       "predicted": 126,
-      "recall": 0.9921,
-      "support": 127
+      "recall": 1.0,
+      "support": 126
     },
     "proto": {
       "correct": 4,
@@ -300,10 +341,17 @@
     },
     "python": {
       "correct": 269,
-      "precision": 0.9746,
-      "predicted": 276,
+      "precision": 0.9853,
+      "predicted": 273,
       "recall": 1.0,
       "support": 269
+    },
+    "rexx": {
+      "correct": 25,
+      "precision": 1.0,
+      "predicted": 25,
+      "recall": 1.0,
+      "support": 25
     },
     "ruby": {
       "correct": 13,
@@ -382,13 +430,6 @@
       "recall": 1.0,
       "support": 29
     },
-    "undeterminable": {
-      "correct": 0,
-      "precision": 0.0,
-      "predicted": 1,
-      "recall": null,
-      "support": 0
-    },
     "xml": {
       "correct": 14,
       "precision": 1.0,
@@ -404,11 +445,11 @@
       "support": 4
     },
     "yaml": {
-      "correct": 8,
+      "correct": 45,
       "precision": 1.0,
-      "predicted": 8,
+      "predicted": 45,
       "recall": 1.0,
-      "support": 8
+      "support": 45
     },
     "zig": {
       "correct": 37,
@@ -419,13 +460,13 @@
     }
   },
   "refusals": 1,
-  "scored": 3072,
+  "scored": 3231,
   "tier_5_conflicts": 1,
   "tier_distribution": {
-    "0": 257,
-    "1": 153,
-    "1.5": 224,
-    "2": 2437,
+    "0": 296,
+    "1": 160,
+    "1.5": 222,
+    "2": 2553,
     "5": 1
   }
 }

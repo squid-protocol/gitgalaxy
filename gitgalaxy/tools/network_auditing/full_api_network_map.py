@@ -430,12 +430,21 @@ def run_api_audit(source_path: Path) -> dict:
 
     shadow_apis, ghost_apis = calculate_api_drift(physical_endpoints, approved_apis)
 
+    # SORTED, not `list(...)`: both of these are sets, and `list(set)` emits in
+    # hash order, which varies run to run. They land verbatim in the golden
+    # master (`2. Global Ecosystem Summary/ecosystem_audits/api_mapper`), so an
+    # unordered collection serialised as an ordered list made `crucible-audit`
+    # nondeterministic -- two consecutive scans of the same corpus produced the
+    # same 377 `shadow_apis` in different orders, and the fixture could never be
+    # blessed clean. Found while bumping the corpus pin to v1.3.0: the cause is
+    # long-standing, but the larger corpus changed worker scheduling enough to
+    # make it reproduce every time instead of intermittently.
     return {
         "status": "success",
-        "frameworks": list(frameworks),
+        "frameworks": sorted(frameworks),
         "shadow_count": len(shadow_apis),
         "ghost_count": len(ghost_apis),
-        "shadow_apis": list(shadow_apis),
+        "shadow_apis": sorted(shadow_apis),
     }
 
 

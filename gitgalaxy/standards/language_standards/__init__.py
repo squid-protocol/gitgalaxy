@@ -58,7 +58,7 @@ for the same metrics tracked over time across pushes to main.
 | Shell | 99.8% | 97.0% | N/A | N/A |
 | Solidity | 100.0% | 94.3% | 100.0% | 100.0% |
 | Swift | 100.0% | 99.2% | 100.0% | 100.0% |
-| Tcl | 100.0% | 99.1% | N/A | N/A |
+| Tcl | 95.1% | 96.4% | N/A | N/A |
 | Typescript | 100.0% | 100.0% | 100.0% | 100.0% |
 | Zig | 100.0% | 100.0% | 100.0% | 100.0% |
 <!-- TREE_SITTER_ACCURACY_TABLE:END -->

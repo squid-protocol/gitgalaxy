@@ -410,3 +410,66 @@ def test_prefix_anchor_yields_to_a_real_extension_but_not_a_template_one(name, e
     sample = "CC = gcc\nall: main.o\n\t$(CC) -o app main.o\n"
     lang, _conf, _family = detector.focus(name, sample)
     assert lang == expected, why
+
+
+# ==============================================================================
+# #3132 (partial): a content signal beats a neighbourhood heuristic
+# ==============================================================================
+_MICROPYTHON_SUPPORT_MODULE = (
+    "# ota.py - over-the-air update helper\n"
+    "import os\n"
+    "import hashlib\n"
+    "import ubinascii\n"
+    "from lib import netcfg\n\n"
+    "def sha_of(path):\n"
+    "    h = hashlib.sha256()\n"
+    "    with open(path, 'rb') as f:\n"
+    "        h.update(f.read())\n"
+    "    return ubinascii.hexlify(h.digest())\n"
+)
+_MICROPYTHON_NATIVE_MODULE = (
+    "# tsl2591.py - ambient light sensor driver\n"
+    "import time\n"
+    "import micropython\n"
+    "from lib import i2cbus\n\n"
+    "GAIN_MED = micropython.const(0x10)\n\n"
+    "def read_lux(bus):\n"
+    "    time.sleep_ms(120)\n"
+    "    return bus.read16(GAIN_MED)\n"
+)
+
+
+@pytest.mark.parametrize(
+    ("name", "source"),
+    [
+        ("ota.py", _MICROPYTHON_SUPPORT_MODULE),
+        ("tsl2591.py", _MICROPYTHON_NATIVE_MODULE),
+    ],
+)
+def test_micropython_support_modules_resolve_by_content(name, source):
+    """#3132: a firmware project's support layer imports no hardware library,
+    so it used to fall through to ecosystem gravity and lock to `python`.
+    The `micropython` module and the `u`-prefixed reduced stdlib are
+    MicroPython-exclusive and now resolve it at Tier 2 -- BEFORE gravity runs,
+    which is the point: a content signal should settle a collision, not a
+    neighbourhood heuristic.
+    """
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    resolved, kind = detector._tier_2_fingerprint_check(source, ".py")
+    assert (resolved, kind) == ("embedded_python", "Internal Signature")
+
+
+def test_the_u_prefix_is_enumerated_not_wildcarded():
+    """`u\\w+` would claim any local module starting with u (`utils`, `ui`).
+    The reduced-stdlib names are listed explicitly instead."""
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    for benign in ("import utils\n", "from ui import Screen\n", "import unittest\n", "import uuid\n"):
+        resolved, _kind = detector._tier_2_fingerprint_check(benign, ".py")
+        assert resolved != "embedded_python", f"{benign.strip()!r} must not read as MicroPython"
+
+
+def test_plain_python_is_not_claimed_by_the_widened_discriminator():
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    plain = "import os\nimport json\nimport hashlib\n\n\ndef main():\n    print(json.dumps({'ok': True}))\n"
+    resolved, _kind = detector._tier_2_fingerprint_check(plain, ".py")
+    assert resolved != "embedded_python"

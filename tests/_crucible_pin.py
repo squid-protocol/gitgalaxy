@@ -35,4 +35,4 @@ clone. If you must change the shape, update the sed in all six workflows
 review the diff on this file as your reminder to also run that command.
 """
 
-PINNED_TAG = "v1.2.0"
+PINNED_TAG = "v1.3.0"

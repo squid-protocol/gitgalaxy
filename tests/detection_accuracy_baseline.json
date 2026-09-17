@@ -1,15 +1,13 @@
 {
-  "accuracy": 0.9964,
-  "auto_accuracy": 0.9984,
+  "accuracy": 0.9974,
+  "auto_accuracy": 0.9996,
   "auto_scored": 2575,
   "confusion": {
     "embedded_python -> python": 7,
-    "makefile -> python": 1,
-    "powershell -> undeterminable": 1,
-    "tcl -> undeterminable": 2
+    "powershell -> undeterminable": 1
   },
   "corpus_files": 3366,
-  "correct": 3061,
+  "correct": 3064,
   "explicit_accuracy": 0.9859,
   "explicit_correct": 490,
   "explicit_scored": 497,
@@ -224,10 +222,10 @@
       "support": 8
     },
     "makefile": {
-      "correct": 3,
+      "correct": 4,
       "precision": 1.0,
-      "predicted": 3,
-      "recall": 0.75,
+      "predicted": 4,
+      "recall": 1.0,
       "support": 4
     },
     "markdown": {
@@ -302,8 +300,8 @@
     },
     "python": {
       "correct": 269,
-      "precision": 0.9711,
-      "predicted": 277,
+      "precision": 0.9746,
+      "predicted": 276,
       "recall": 1.0,
       "support": 269
     },
@@ -364,10 +362,10 @@
       "support": 6
     },
     "tcl": {
-      "correct": 30,
+      "correct": 32,
       "precision": 1.0,
-      "predicted": 30,
-      "recall": 0.9375,
+      "predicted": 32,
+      "recall": 1.0,
       "support": 32
     },
     "td": {
@@ -387,7 +385,7 @@
     "undeterminable": {
       "correct": 0,
       "precision": 0.0,
-      "predicted": 3,
+      "predicted": 1,
       "recall": null,
       "support": 0
     },
@@ -420,14 +418,14 @@
       "support": 37
     }
   },
-  "refusals": 3,
+  "refusals": 1,
   "scored": 3072,
-  "tier_5_conflicts": 3,
+  "tier_5_conflicts": 1,
   "tier_distribution": {
-    "0": 255,
-    "1": 155,
+    "0": 257,
+    "1": 153,
     "1.5": 224,
-    "2": 2435,
-    "5": 3
+    "2": 2437,
+    "5": 1
   }
 }

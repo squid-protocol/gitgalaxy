@@ -339,3 +339,74 @@ def test_internal_signature_resolution_is_not_reported_as_a_shebang():
     assert result["lang_id"] == "hlasm"
     assert "Internal Signature" in result["source_proof"]
     assert "Shebang" not in result["source_proof"]
+
+
+# ==============================================================================
+# #3133 / #3134: two fixes found by the #3117 detection-accuracy harness
+# ==============================================================================
+_TCL_TRAMPOLINE = (
+    "#!/bin/sh\n"
+    "# the next line restarts using tclsh \\\n"
+    'exec tclsh "$0" ${1+"$@"}\n'
+    "#\n"
+    "set testdir [file dirname $argv0]\n"
+    "source $testdir/tester.tcl\n"
+)
+
+
+def test_trampoline_bootstrap_is_not_an_identity_conflict():
+    """#3133: `#!/bin/sh` + `exec tclsh "$0"` is the canonical Tcl portability
+    idiom (this snippet is sqlite's own test-harness header). The shebang
+    really IS `sh`, so it legitimately contradicts the `.tcl` extension -- and
+    the Identity Conflict Trap used to refuse the file at Tier 5 with an
+    "Identity Masking" flag, i.e. report a stock sqlite script as masquerading.
+    """
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    result = detector.inspect("speedtest.tcl", _TCL_TRAMPOLINE)
+    assert result["lang_id"] == "tcl"
+    assert result["lock_tier"] != 5
+    assert result["anomaly_flags"] == []
+    assert "Trampoline Exec" in result["source_proof"]
+
+
+def test_trampoline_suppression_requires_the_extension_to_claim_the_interpreter():
+    """The escape hatch is narrow: only an interpreter the EXTENSION's own
+    language claims clears the conflict, so a genuinely mislabelled executable
+    still trips the trap."""
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    # A .tcl that re-execs python is NOT a Tcl trampoline.
+    result = detector.inspect("suspicious.tcl", '#!/bin/sh\nexec python3 "$0" "$@"\nprint(1)\n')
+    assert result["lock_tier"] == 5
+    assert result["lang_id"] == "undeterminable"
+
+
+def test_trampoline_needs_a_generic_shell_shebang():
+    """A conflict raised against a SPECIFIC interpreter is never a bootstrap:
+    only the shell family is a portable-launcher vehicle."""
+    from gitgalaxy.standards.language_lens import _BOOTSTRAP_SHELL_LANGS, _trampoline_interpreter
+
+    assert _BOOTSTRAP_SHELL_LANGS == {"shell"}
+    assert _trampoline_interpreter(_TCL_TRAMPOLINE) == "tclsh"
+    assert _trampoline_interpreter("#!/bin/sh\necho hi\n") == ""
+    # bounded to the opening lines -- an `exec` deep in the body is not a bootstrap
+    assert _trampoline_interpreter("#!/bin/sh\n" + "\n" * 40 + "exec tclsh\n") == ""
+
+
+@pytest.mark.parametrize(
+    ("name", "expected", "why"),
+    [
+        ("BUILD.mk", "makefile", "a real extension outranks the Bazel BUILD prefix"),
+        ("Makefile.pre.in", "makefile", "a TEMPLATE extension does not outrank the Makefile prefix"),
+        ("Makefile", "makefile", "an exact filename match still wins outright"),
+    ],
+)
+def test_prefix_anchor_yields_to_a_real_extension_but_not_a_template_one(name, expected, why):
+    """#3134: `BUILD.mk` locked to python at Tier 1 via `Prefix Anchor (BUILD)`
+    before its own `.mk` was consulted. The fix is scoped so that a template
+    wrapper (`.in`, whose real language is whatever sits inside) does NOT
+    outrank a prefix -- otherwise `Makefile.pre.in`, which IS Makefile syntax,
+    would follow `.in` to m4."""
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    sample = "CC = gcc\nall: main.o\n\t$(CC) -o app main.o\n"
+    lang, _conf, _family = detector.focus(name, sample)
+    assert lang == expected, why

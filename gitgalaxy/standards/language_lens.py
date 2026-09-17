@@ -80,6 +80,44 @@ def _shebang_interpreter(first_line: str) -> str:
     return interpreter
 
 
+# #3130-follow-up (#3129 batch): the portable-trampoline idiom. A script whose
+# real interpreter is not guaranteed to live at a fixed path bootstraps through
+# a POSIX shell and re-execs itself:
+#     #!/bin/sh
+#     # the next line restarts using tclsh \
+#     exec tclsh "$0" ${1+"$@"}
+# That is sqlite's own test-harness header, verbatim, and the canonical Tcl
+# portability trick. The shebang really IS `sh`, so it legitimately contradicts
+# the file's `.tcl` extension -- and the Identity Conflict Trap read that as
+# masquerading and refused the file at Tier 5 with an "Identity Masking" flag.
+# A generic shell shebang is the standard bootstrap vehicle and carries almost
+# no identity weight; an `exec <interpreter>` in the opening lines is what the
+# file actually runs as. Bounded to the first 10 lines and a single line-scan.
+_TRAMPOLINE_EXEC = re.compile(r"^[ \t]*exec[ \t]+(?:\S*/)?([\w.-]{1,40})", re.M)
+# Languages whose interpreters serve as portable-LAUNCHER vehicles, i.e. whose
+# shebang says "bootstrap" rather than "this is what I am". Only a conflict
+# raised against one of these is eligible for trampoline suppression.
+_BOOTSTRAP_SHELL_LANGS = frozenset({"shell"})
+
+# #3134: extensions that mark a file as a TEMPLATE rather than naming its
+# language -- the real language is whatever sits inside (`Makefile.pre.in` is
+# Makefile syntax, `langref.html.in` is HTML). A template extension therefore
+# does NOT outrank a filename prefix: `Makefile.pre.in` should stay Makefile
+# via its `Makefile` prefix, even though `.in` is registered to m4. (The
+# separate question of whether m4 should claim `.in` at all is a registry
+# matter, not this rule's.) Distinct from SAFE_WRAPPERS, which unwraps a
+# wrapper to reach a KNOWN inner extension; these are the cases where the
+# inner extension is absent or itself unregistered.
+_TEMPLATE_EXTENSIONS = frozenset({".in", ".template", ".tmpl", ".dist"})
+
+
+def _trampoline_interpreter(content: str) -> str:
+    """The interpreter a trampoline re-execs, lowercased, or "" if none."""
+    head = "\n".join(content.split("\n", 10)[:10])
+    match = _TRAMPOLINE_EXEC.search(head)
+    return match.group(1).lower() if match else ""
+
+
 def _shebang_trigger_matches(trigger: str, interpreter: str) -> bool:
     """Whether a registry shebang trigger names this interpreter.
 
@@ -378,7 +416,14 @@ class LanguageDetector:
 
         if name in self.anchor_map:
             target_id = self.anchor_map.get(name)
-        elif name.split(".")[0] in self.anchor_map:
+        elif name.split(".")[0] in self.anchor_map and not (is_known_code_ext and ext not in _TEMPLATE_EXTENSIONS):
+            # #3134: a real extension outranks a filename PREFIX. `BUILD.mk` is
+            # a Makefile that happens to start with Bazel's `BUILD` anchor, and
+            # anchoring won it for python at Tier 1 before its own `.mk` was
+            # ever consulted (measured by the #3117 harness). An EXACT filename
+            # match still outranks an extension, above -- `Makefile` and
+            # `Dockerfile` have no meaningful extension to defer to; it is only
+            # the prefix form that yields.
             base_anchor = name.split(".")[0]
             target_id = self.anchor_map.get(base_anchor)
             anchor_proof = f"Prefix Anchor ({base_anchor})"
@@ -440,6 +485,23 @@ class LanguageDetector:
             and (shebang_lang and shebang_lang != "undeterminable")
             and (ext_lang != shebang_lang)
         )
+
+        # #3129: a generic-shell shebang that re-execs another interpreter is a
+        # portable-launcher bootstrap, not a masquerade. Only suppress the
+        # conflict when the re-exec'd interpreter is one the EXTENSION's own
+        # language claims -- so `.tcl` + `exec tclsh` is cleared while a `.txt`
+        # that re-execs something unrelated still trips the trap.
+        if is_conflict and evidence_kind == "Shebang" and shebang_lang in _BOOTSTRAP_SHELL_LANGS:
+            relaunched = _trampoline_interpreter(content_sample)
+            if relaunched:
+                claimed = self.languages.get(ext_lang or "", {}).get("shebangs", [])
+                if any(_shebang_trigger_matches(t.rsplit("/", 1)[-1].lower(), relaunched) for t in claimed):
+                    self.logger.debug(
+                        f"[{name}] Trampoline bootstrap: shell shebang re-execs '{relaunched}', "
+                        f"which {ext_lang} claims -- no identity conflict."
+                    )
+                    is_conflict = False
+                    shebang_lang, evidence_kind = ext_lang, "Trampoline Exec"
 
         if is_conflict:
             self.logger.warning(
@@ -538,6 +600,21 @@ class LanguageDetector:
         # =========================================================================
         gravity_lang = None
         # Only apply Ecosystem Consensus if we don't already have a strong Tier 2 internal signature
+        #
+        # NOTE (#3129, measured and REJECTED): gravity resolves a neighbour's
+        # extension through the single-valued `self.extension_map`, so for an
+        # extension two languages claim it always votes for the map's winner --
+        # which is why 7 of 14 real MicroPython files in
+        # `embedded_python/meow_turtle` lock to `python` here at "72% Local
+        # Dominance". Making gravity ABSTAIN on same-extension collisions looks
+        # like the principled fix and is a clear net LOSS: the #3117 harness
+        # measured overall accuracy 0.9964 -> 0.9840 and the independent
+        # contested subset 0.9859 -> 0.9034, because the files then fall to the
+        # Tier 3 lexical scan, which is worse than gravity on this corpus (32
+        # sqlite files flipped to db2_sql, 8 python to embedded_python). Gravity
+        # is a net-positive heuristic that is simply wrong for meow_turtle. Do
+        # not re-attempt the abstain without re-running that harness; the real
+        # fix is a better content signal for the claimants (see #3129).
         if ext in self.COLLISION_FREQUENCIES and ext_tally and lock_tier > 2:
             gravity_lang, dominance = self._evaluate_ecosystem_gravity(file_path, ext, ext_tally)
 
@@ -689,6 +766,21 @@ class LanguageDetector:
 
                 base_mass = sum(base_contributors.values())
 
+                # #3132, measured and NOT fixed here: the CONTESTED extension
+                # should not be evidence for one of its own claimants, and four
+                # profiles list their own contested extension as a
+                # discriminator (python `.py`, sqlite `.sql`, matlab `.m`,
+                # objective-c `.m`). Where only one rival self-references, it
+                # wins by construction -- in `embedded_python/meow_turtle`
+                # python scores base 14 + 14x2 = 42 against embedded_python's
+                # 14 + 1x2 = 16, which IS the reported "72% Local Dominance".
+                # Excluding it is a net LOSS on the #3117 harness: overall
+                # 0.9974 -> 0.9850, contested subset 0.9859 -> 0.9095, because
+                # the same accidental boost is what currently holds `.sql`
+                # together (32 sqlite files flip to db2_sql without it). The
+                # self-reference is load-bearing by accident; `.sql` needs a
+                # real content signal BEFORE this can be corrected. Measure
+                # with that harness before touching this line.
                 discriminators = data.get("discriminators", [])
                 discrim_contributors = {
                     d: tally.get(d.lower(), 0) for d in discriminators if tally.get(d.lower(), 0) > 0

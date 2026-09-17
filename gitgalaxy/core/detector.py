@@ -603,6 +603,11 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         "pli",
         "powershell",
         "python",
+        # #2504: rexx's class_start is ooRexx's `::CLASS name` with the name in
+        # group 1; the generic fallback (`class|struct|...`, lowercase-only, no
+        # `::` anchor) can never match the directive form. Tree-sitter-blind;
+        # verified against planted corpus programs.
+        "rexx",
         "ruby",
         "rust",
         "scala",
@@ -3410,6 +3415,12 @@ class StructuralExtractor:
                         # body early; that is the same approximation ada's nested
                         # subprograms already take.
                         "pli",
+                        # #2504: rexx is COBOL's own shape -- a subroutine runs from
+                        # its `label:` to its RETURN/EXIT (both already in the shared
+                        # assembly_returns terminator vocabulary) or the next label,
+                        # never a brace. Routines don't nest, so Mode A's greedy
+                        # label-to-label body is the real boundary.
+                        "rexx",
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)

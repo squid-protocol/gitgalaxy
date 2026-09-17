@@ -423,10 +423,11 @@ class Prism:
             )
             return positional_comments
 
-        if family in ("recursive_block", "recursive_block_haskell", "recursive_block_lisp"):
+        if family in ("recursive_block", "recursive_block_haskell", "recursive_block_lisp", "recursive_block_rexx"):
             # #2908 Phase 2 follow-up: rust/scala/swift (recursive_block),
-            # haskell (recursive_block_haskell) and scheme
-            # (recursive_block_lisp) -- see _positional_nested_comments.
+            # haskell (recursive_block_haskell), scheme
+            # (recursive_block_lisp) and rexx (recursive_block_rexx, #2504)
+            # -- see _positional_nested_comments.
             return self._positional_nested_comments(text, family)
 
         if lang_id == "perl":
@@ -724,17 +725,25 @@ class Prism:
         s_line, b_start, b_end = delims[0], delims[1], delims[2]
 
         # Same construction as _strip_nested_comments -- see that method's
-        # own comment for why each alternative exists and why lisp's char
-        # literal must be tried first.
+        # own comment for why each alternative exists, why lisp's char
+        # literal must be tried first, and why rexx swaps the quote branches.
         lisp_char_literal = r"#\\(?:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}|[^\s])|" if family == "recursive_block_lisp" else ""
-        combined_pattern = re.compile(
-            lisp_char_literal
-            + r'(?<!\\)"(?:\\.|[^"\\])*"'
-            + r"|(?<!\\)'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\]){0,10}'"
-            + r"|(?<!\\)`(?:\\.|[^`\\]){0,200}`"
-            + rf"|{re.escape(s_line)}[^\n]*",
-            re.S | re.M,
-        )
+        if family == "recursive_block_rexx":
+            combined_pattern = re.compile(
+                r'"(?:""|[^"\n]){0,500}"'
+                r"|'(?:''|[^'\n]){0,500}'"
+                + rf"|{re.escape(s_line)}[^\n]*",
+                re.S | re.M,
+            )
+        else:
+            combined_pattern = re.compile(
+                lisp_char_literal
+                + r'(?<!\\)"(?:\\.|[^"\\])*"'
+                + r"|(?<!\\)'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\]){0,10}'"
+                + r"|(?<!\\)`(?:\\.|[^`\\]){0,200}`"
+                + rf"|{re.escape(s_line)}[^\n]*",
+                re.S | re.M,
+            )
 
         def _neutralize(s: str) -> str:
             return "".join(ch if ch == "\n" else "\x00" for ch in s)
@@ -808,7 +817,7 @@ class Prism:
         # line_exclusive/recursive_block/positional_anchored/block_exclusive/
         # non_lexical), so none of these branches, nor the generic REGEX_MATRIX
         # stripper below, ever actually ran for any language.
-        if family in ("recursive_block", "recursive_block_haskell", "recursive_block_lisp"):
+        if family in ("recursive_block", "recursive_block_haskell", "recursive_block_lisp", "recursive_block_rexx"):
             # #621: recursive_block_haskell added because Haskell's {- -}
             # blocks genuinely nest (unlike the standard_block family's flat
             # delimiters) but use -- for line comments and {- -} rather than
@@ -1494,14 +1503,31 @@ class Prism:
         # it goes through the same mask/unmask path as a string so the code stream
         # keeps it verbatim. Bounded exactly like detector.py's _LISP_SCOPE_TOKEN.
         lisp_char_literal = r"#\\(?:[a-zA-Z0-9][a-zA-Z0-9-]{0,31}|[^\s])|" if family == "recursive_block_lisp" else ""
-        combined_pattern = re.compile(
-            lisp_char_literal
-            + r'(?<!\\)"(?:\\.|[^"\\])*"'
-            + r"|(?<!\\)'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\]){0,10}'"
-            + r"|(?<!\\)`(?:\\.|[^`\\]){0,200}`"
-            + rf"|{re.escape(s_line)}[^\n]*",
-            re.S | re.M,
-        )
+        # #2504: REXX strings double their quote to escape (`'don''t'`), never
+        # backslash, and cannot span lines -- the default single-quote branch
+        # here is char-literal-shaped (its lookahead guard rejects any real
+        # REXX string like 'ISPEXEC ...'), which would leave a `/*` inside a
+        # string un-masked and let the peel loop tear the line apart. Both
+        # quote branches are swapped for REXX's own morphology, line-bounded
+        # so an English apostrophe inside a comment can cascade at most to its
+        # own line's end (the #1302 discipline); the backtick branch is
+        # dropped (no backtick syntax in REXX).
+        if family == "recursive_block_rexx":
+            combined_pattern = re.compile(
+                r'"(?:""|[^"\n]){0,500}"'
+                r"|'(?:''|[^'\n]){0,500}'"
+                + rf"|{re.escape(s_line)}[^\n]*",
+                re.S | re.M,
+            )
+        else:
+            combined_pattern = re.compile(
+                lisp_char_literal
+                + r'(?<!\\)"(?:\\.|[^"\\])*"'
+                + r"|(?<!\\)'(?![a-zA-Z_]\w*[=<>(),&|\]\s])(?:\\.|[^'\\]){0,10}'"
+                + r"|(?<!\\)`(?:\\.|[^`\\]){0,200}`"
+                + rf"|{re.escape(s_line)}[^\n]*",
+                re.S | re.M,
+            )
         string_cache: dict[str, str] = {}
 
         def _combined_replacer(m: re.Match) -> str:

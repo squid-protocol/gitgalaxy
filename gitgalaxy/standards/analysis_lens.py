@@ -198,6 +198,11 @@ LANGUAGE_STRICTNESS: dict[str, Optional[tuple[bool, bool, bool, bool]]] = {
     "powershell": (False, False, True, True),  # non-terminating errors continue by default
     "proto": None,
     "python": (False, False, True, True),
+    # #2504: dynamically typed (everything is a string); conditions (SYNTAX/
+    # ERROR/NOVALUE) are ignored unless SIGNAL ON installs a handler; no raw
+    # memory model of its own; a routine without PROCEDURE shares the caller's
+    # whole variable pool -- implicit globals by default.
+    "rexx": (False, False, True, False),
     "ruby": (False, False, True, True),
     "rust": (True, True, True, True),
     "scala": (True, False, True, True),
@@ -991,6 +996,9 @@ LANGUAGE_SECURITY_PROFILES = {
         "infra": {
             "shell",
             "powershell",
+            # #2504: z/OS automation scripting -- ADDRESS TSO/ISPEXEC host
+            # commands are the language's purpose, shell's own profile.
+            "rexx",
             "dockerfile",
             "yaml",
             "makefile",

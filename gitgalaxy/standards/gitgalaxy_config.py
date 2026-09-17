@@ -538,6 +538,18 @@ LEXICAL_FAMILY_HEURISTICS = {
         # a stateless per-line stripper is exactly what caused the bug.
         # Examples: scheme.
         "recursive_block_lisp": {"delimiters": [";", "#|", "|#"]},
+        # 2d. Recursive Block, REXX dialect (#2504)
+        # Same nested-block-peeling algorithm as recursive_block ("comments
+        # may be nested within other comments", TSO/E REXX Reference), but
+        # WITHOUT recursive_block's `//` line token: `//` is REXX's
+        # integer-remainder operator (`a // b`), so the shared family would
+        # truncate real arithmetic lines. The line token is ooRexx/Regina/
+        # NetRexx's `--` (classic z/OS REXX has no line comment at all;
+        # adjacent `--` double-negation is legal but vanishingly rare in real
+        # source, the accepted trade). prism.py also swaps the quote-masking
+        # branches for this family: REXX strings double their quote to escape,
+        # never backslash, and cannot span lines.
+        "recursive_block_rexx": {"delimiters": ["--", "/*", "*/"]},
         # 3. Line Exclusive
         # The language possesses no native multi-line block syntax. The engine ignores closing tags.
         # Examples: Python, Shell, Makefile, Ruby, Perl, Assembly.

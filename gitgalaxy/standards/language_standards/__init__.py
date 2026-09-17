@@ -118,6 +118,7 @@ from .languages import pli as _pli
 from .languages import powershell as _powershell
 from .languages import proto as _proto
 from .languages import python as _python
+from .languages import rexx as _rexx
 from .languages import ruby as _ruby
 from .languages import rust as _rust
 from .languages import scala as _scala
@@ -209,4 +210,5 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "bms": _bms.DEFINITION,
     "db2_sql": _db2_sql.DEFINITION,
     "hlasm": _hlasm.DEFINITION,
+    "rexx": _rexx.DEFINITION,
 }

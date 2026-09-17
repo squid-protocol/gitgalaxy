@@ -190,3 +190,25 @@ class TestTclExtraction:
         code_b = "set a \"this has an ' in it\"\n# comment with '\nproc normal_proc {} {\n    puts 'hello'\n}"
         safe_b = extractor._build_brace_safe_stream(code_b, "tcl")
         assert "proc normal_proc" in safe_b
+
+    def test_unterminated_quote_does_not_swallow_procs(self):
+        from gitgalaxy.core.detector import StructuralExtractor
+        from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+        extractor = StructuralExtractor("tcl", LANGUAGE_DEFINITIONS)
+        code = """
+proc func1 {} {
+    puts "unknown option: \\"$a0\\"".  Use --help for more info."
+}
+
+proc func2 {} {
+    set x 1
+}
+
+proc func3 {} {
+    set y 2
+}
+"""
+        procs, _ = extractor._slice_by_braces(code, "tcl", LANGUAGE_DEFINITIONS["tcl"]["rules"], 0, {})
+        names = [p["name"] for p in procs]
+        assert names == ["func1", "func2", "func3"]  # noqa: S101

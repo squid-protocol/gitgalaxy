@@ -4112,7 +4112,7 @@ class StructuralExtractor:
             # over-captured this way; all 14 resolve with the branch removed.
             combined_pattern = (
                 r'""".*?"""|' + csharp_verbatim + r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'
-                r'"(?:\\.|[^"\\])*"|' + backtick
+                r'"(?:[^"\\\n]|\n(?![ \t]*proc\b)|\\.)*"|' + backtick
             )
         elif lang_id == "perl":
             # #1437: perl was falling through to the C-family default below, which shields

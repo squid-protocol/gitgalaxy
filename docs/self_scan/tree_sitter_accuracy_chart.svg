@@ -46,7 +46,7 @@
 <defs><linearGradient id="rainbow-legend" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0.0%" stop-color="#d62929"/><stop offset="8.3%" stop-color="#d66329"/><stop offset="16.7%" stop-color="#d69c29"/><stop offset="25.0%" stop-color="#d6d629"/><stop offset="33.3%" stop-color="#9cd629"/><stop offset="41.7%" stop-color="#63d629"/><stop offset="50.0%" stop-color="#29d629"/><stop offset="58.3%" stop-color="#29d663"/><stop offset="66.7%" stop-color="#29d69c"/><stop offset="75.0%" stop-color="#29d6d6"/><stop offset="83.3%" stop-color="#299cd6"/><stop offset="91.7%" stop-color="#2963d6"/><stop offset="100.0%" stop-color="#2929d6"/></linearGradient></defs>
 <rect class="surface" x="0" y="0" width="1121" height="1654"/>
 <text class="title" x="16" y="20">Tree-sitter Accuracy by Language -- GitGalaxy vs. Tree-sitter, Most Recent Run</text>
-<text class="subtitle" x="16" y="36">2026-09-17T01:37:34+00:00 &#183; commit 43f4ec2 &#183; 50 languages (30 tree-sitter-compared, 20 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
+<text class="subtitle" x="16" y="36">2026-09-17T16:59:54+00:00 &#183; commit 9e9e405 &#183; 50 languages (30 tree-sitter-compared, 20 GitGalaxy-only) &#183; source: docs/self_scan/tree_sitter_accuracy_history.csv</text>
 <text class="scope-note" x="16" y="52">Measures func_start/args/class_start NAME extraction only -- NOT GitGalaxy's structural-signature risk rules (branch/io/safety_bypasses/etc.), which are hardened and tested separately.</text>
 <text class="scope-note" x="16" y="64">Value labels are raw counts (found/real or found/found+extra), not just a percentage, so each bar's sample size is visible at a glance.</text>
 <text class="scope-note" x="16" y="76">css and html show n/a on the class panels by DESIGN, not as an unmeasured gap -- named class extraction was decided permanently out of scope for them (epic #1295): their class_start targets selectors/tags, not OOP-shaped entities. See tests/extraction/how_to_extend_class_start_named_extraction.md.</text>
@@ -144,7 +144,8 @@
 <rect x="143" y="203.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="240.0" y="210.5">124 found</text>
 <text class="na-dash" x="149" y="220.5">n/a</text>
-<text class="na-dash" x="149" y="238.5">n/a</text>
+<rect x="143" y="231.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="240.0" y="238.5">922 found</text>
 <text class="na-dash" x="149" y="248.5">n/a</text>
 <rect x="143" y="259.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="240.0" y="266.5">812 found</text>
@@ -156,7 +157,8 @@
 <rect x="143" y="315.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="240.0" y="322.5">1108 found</text>
 <text class="na-dash" x="149" y="332.5">n/a</text>
-<text class="na-dash" x="149" y="350.5">n/a</text>
+<rect x="143" y="343.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="240.0" y="350.5">15 found</text>
 <text class="na-dash" x="149" y="360.5">n/a</text>
 <rect x="143" y="371.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="378.5">1713/1713</text>
@@ -187,13 +189,14 @@
 <text class="value-label" x="240.0" y="518.5">1750/1750</text>
 <rect x="143" y="521.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="528.5">1750/1750</text>
-<text class="na-dash" x="149" y="546.5">n/a</text>
+<rect x="143" y="539.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="240.0" y="546.5">0 found</text>
 <text class="na-dash" x="149" y="556.5">n/a</text>
 <rect x="143" y="567.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="240.0" y="574.5">71 found</text>
 <text class="na-dash" x="149" y="584.5">n/a</text>
 <rect x="143" y="595.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
-<text class="value-label" x="240.0" y="602.5">82 found</text>
+<text class="value-label" x="240.0" y="602.5">107 found</text>
 <text class="na-dash" x="149" y="612.5">n/a</text>
 <rect class="diff-outline" x="128.8" y="618.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="135.5" cy="632.0" r="6" class="badge-gg"/>
@@ -213,7 +216,8 @@
 <text class="value-label" x="240.0" y="714.5">146/146</text>
 <rect x="143" y="717.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="724.5">146/146</text>
-<text class="na-dash" x="149" y="742.5">n/a</text>
+<rect x="143" y="735.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="240.0" y="742.5">1 found</text>
 <text class="na-dash" x="149" y="752.5">n/a</text>
 <rect x="143" y="763.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="770.5">37/37</text>
@@ -264,7 +268,8 @@
 <text class="value-label" x="240.0" y="1106.5">1702/1702</text>
 <rect x="143" y="1109.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="1116.5">1702/1702</text>
-<text class="na-dash" x="149" y="1134.5">n/a</text>
+<rect x="143" y="1127.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="240.0" y="1134.5">7 found</text>
 <text class="na-dash" x="149" y="1144.5">n/a</text>
 <rect x="143" y="1155.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="1162.5">257/257</text>
@@ -274,7 +279,8 @@
 <text class="value-label" x="240.0" y="1190.5">3625/3625</text>
 <rect x="143" y="1193.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="1200.5">3625/3625</text>
-<text class="na-dash" x="149" y="1218.5">n/a</text>
+<rect x="143" y="1211.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="240.0" y="1218.5">115 found</text>
 <text class="na-dash" x="149" y="1228.5">n/a</text>
 <rect x="143" y="1239.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="1246.5">124/124</text>
@@ -312,10 +318,13 @@
 <text class="value-label" x="240.0" y="1442.5">132/132</text>
 <rect x="143" y="1445.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="1452.5">132/132</text>
-<rect x="143" y="1463.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="240.0" y="1470.5">337/337</text>
+<rect class="diff-outline" x="128.8" y="1458.8" width="171.5" height="26.5" rx="3"/>
+<circle cx="135.5" cy="1472.0" r="6" class="badge-ts"/>
+<text class="badge-text" x="135.5" y="1474.5">T</text>
+<rect x="143" y="1463.0" width="87.5" height="8" rx="2.5" fill="#294bd6"/>
+<text class="value-label" x="235.5" y="1470.5">349/367</text>
 <rect x="143" y="1473.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="240.0" y="1480.5">337/337</text>
+<text class="value-label" x="240.0" y="1480.5">367/367</text>
 <rect x="143" y="1491.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="1498.5">2915/2915</text>
 <rect x="143" y="1501.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -324,7 +333,7 @@
 <text class="value-label" x="240.0" y="1526.5">27 found</text>
 <text class="na-dash" x="149" y="1536.5">n/a</text>
 <rect x="143" y="1547.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
-<text class="value-label" x="240.0" y="1554.5">0 found</text>
+<text class="value-label" x="240.0" y="1554.5">123 found</text>
 <text class="na-dash" x="149" y="1564.5">n/a</text>
 <rect x="143" y="1575.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="240.0" y="1582.5">2751/2751</text>
@@ -512,10 +521,10 @@
 <rect class="diff-outline" x="329.8" y="1458.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="336.5" cy="1472.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="336.5" y="1474.5">T</text>
-<rect x="344" y="1463.0" width="91.2" height="8" rx="2.5" fill="#292fd6"/>
-<text class="value-label" x="440.2" y="1470.5">337/340</text>
+<rect x="344" y="1463.0" width="88.7" height="8" rx="2.5" fill="#2942d6"/>
+<text class="value-label" x="437.7" y="1470.5">349/362</text>
 <rect x="344" y="1473.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="441.0" y="1480.5">337/337</text>
+<text class="value-label" x="441.0" y="1480.5">367/367</text>
 <rect x="344" y="1491.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="441.0" y="1498.5">2915/2916</text>
 <rect x="344" y="1501.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
@@ -533,7 +542,8 @@
 <rect x="545" y="203.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="642.0" y="210.5">12 found</text>
 <text class="na-dash" x="551" y="220.5">n/a</text>
-<text class="na-dash" x="551" y="238.5">n/a</text>
+<rect x="545" y="231.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="642.0" y="238.5">0 found</text>
 <text class="na-dash" x="551" y="248.5">n/a</text>
 <text class="na-dash" x="551" y="266.5">n/a</text>
 <text class="na-dash" x="551" y="276.5">n/a</text>
@@ -544,7 +554,8 @@
 <rect x="545" y="315.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="642.0" y="322.5">0 found</text>
 <text class="na-dash" x="551" y="332.5">n/a</text>
-<text class="na-dash" x="551" y="350.5">n/a</text>
+<rect x="545" y="343.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="642.0" y="350.5">10 found</text>
 <text class="na-dash" x="551" y="360.5">n/a</text>
 <rect x="545" y="371.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="642.0" y="378.5">61/61</text>
@@ -570,13 +581,14 @@
 <text class="value-label" x="642.0" y="518.5">200/200</text>
 <rect x="545" y="521.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="642.0" y="528.5">200/200</text>
-<text class="na-dash" x="551" y="546.5">n/a</text>
+<rect x="545" y="539.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="642.0" y="546.5">12 found</text>
 <text class="na-dash" x="551" y="556.5">n/a</text>
 <rect x="545" y="567.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
 <text class="value-label" x="642.0" y="574.5">77 found</text>
 <text class="na-dash" x="551" y="584.5">n/a</text>
 <rect x="545" y="595.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
-<text class="value-label" x="642.0" y="602.5">11 found</text>
+<text class="value-label" x="642.0" y="602.5">14 found</text>
 <text class="na-dash" x="551" y="612.5">n/a</text>
 <rect x="545" y="623.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="642.0" y="630.5">11/11</text>
@@ -593,7 +605,8 @@
 <text class="value-label" x="642.0" y="714.5">16/16</text>
 <rect x="545" y="717.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="642.0" y="724.5">16/16</text>
-<text class="na-dash" x="551" y="742.5">n/a</text>
+<rect x="545" y="735.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="642.0" y="742.5">0 found</text>
 <text class="na-dash" x="551" y="752.5">n/a</text>
 <text class="na-dash" x="551" y="770.5">n/a</text>
 <text class="na-dash" x="551" y="780.5">n/a</text>
@@ -635,7 +648,8 @@
 <text class="value-label" x="642.0" y="1106.5">29/29</text>
 <rect x="545" y="1109.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="642.0" y="1116.5">29/29</text>
-<text class="na-dash" x="551" y="1134.5">n/a</text>
+<rect x="545" y="1127.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="642.0" y="1134.5">0 found</text>
 <text class="na-dash" x="551" y="1144.5">n/a</text>
 <rect x="545" y="1155.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="642.0" y="1162.5">9/9</text>
@@ -645,7 +659,8 @@
 <text class="value-label" x="642.0" y="1190.5">459/459</text>
 <rect x="545" y="1193.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="642.0" y="1200.5">459/459</text>
-<text class="na-dash" x="551" y="1218.5">n/a</text>
+<rect x="545" y="1211.0" width="92.0" height="8" rx="2.5" class="bar-neutral"/>
+<text class="value-label" x="642.0" y="1218.5">0 found</text>
 <text class="na-dash" x="551" y="1228.5">n/a</text>
 <rect x="545" y="1239.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="642.0" y="1246.5">18/18</text>
@@ -1044,9 +1059,9 @@
 <rect x="947" y="1445.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
 <text class="value-label" x="1044.0" y="1452.5">132/132</text>
 <rect x="947" y="1463.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="1044.0" y="1470.5">337/337</text>
+<text class="value-label" x="1044.0" y="1470.5">349/349</text>
 <rect x="947" y="1473.0" width="92.0" height="8" rx="2.5" fill="#2929d6"/>
-<text class="value-label" x="1044.0" y="1480.5">337/337</text>
+<text class="value-label" x="1044.0" y="1480.5">349/349</text>
 <rect class="diff-outline" x="932.8" y="1486.8" width="171.5" height="26.5" rx="3"/>
 <circle cx="939.5" cy="1500.0" r="6" class="badge-ts"/>
 <text class="badge-text" x="939.5" y="1502.5">T</text>

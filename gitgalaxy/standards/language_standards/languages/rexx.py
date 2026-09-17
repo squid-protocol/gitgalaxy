@@ -118,7 +118,7 @@ DEFINITION: dict[str, Any] = {
         "branch": re.compile(
             _L + r"(?:IF|ELSE|WHEN|OTHERWISE)" + _R
             + r"|" + _L + r"SELECT(?=[ \t]*;|[ \t]*$|[ \t]+LABEL" + _R + r")"
-            + r"|" + _L + r"DO[ \t]+(?:(?:WHILE|UNTIL|FOREVER)" + _R + r"|" + _NAME + r"{1,64}(?:\." + _ID + r"{0,64}){0,4}[ \t]*=)",
+            + r"|" + _L + r"DO[ \t]+(?:(?:WHILE|UNTIL|FOREVER)" + _R + r"|" + _NAME + r"{1,64}(?:\." + _NAME + r"{0,64}){0,4}[ \t]*=)",
             re.I | re.M,
         ),
         # args (#2773 fallback family): REXX has no formal parameter list on
@@ -228,8 +228,12 @@ DEFINITION: dict[str, Any] = {
         # statement start and the comparison's lvalue does not. PARSE VAR /
         # PARSE VALUE assign through a template -- the same write (PARSE ARG
         # is args', PARSE PULL io's: one owner per form).
+        # (The compound tail's segment class is _NAME, not _ID: a dot inside
+        # the segment class overlaps the `\.` separator -- how_to Rule 14's
+        # adjacent-quantifier shape, caught by the strict suite's detonation
+        # on a long dot run. Each `\.` owns its dot; segments hold none.)
         "state_mutation": re.compile(
-            _STMT_START + _NAME + r"{1,64}(?:\." + _ID + r"{0,64}){0,6}[ \t]*=(?!=)"
+            _STMT_START + _NAME + r"{1,64}(?:\." + _NAME + r"{0,64}){0,6}[ \t]*=(?!=)"
             + r"|" + _L + r"PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?(?:VAR|VALUE)" + _R,
             re.I | re.M,
         ),

@@ -393,6 +393,14 @@ DEFINITION: dict[str, Any] = {
         # char after `(` is `)`, not a word char.
         "test_skip": re.compile(r"\b(?:IGNORE_TEST|test\.skip)\b|mock\(|fake\("),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (C Specifics) ---
+        # auth_middleware (#3004): PAM's verification conversation, the POSIX
+        # identity switches, and the Win32 logon/token queries. Call-anchored so
+        # a comment-stripped mention or an identifier never counts.
+        "auth_middleware": re.compile(
+            r"\b(?:pam_authenticate|pam_acct_mgmt|pam_open_session"
+            r"|set(?:e|res)?uid|set(?:e|res)?gid"
+            r"|LogonUser[AW]?|CheckTokenMembership)[ \t]*\("
+        ),
         "serialization_parsing": re.compile(r"\b(cJSON_Parse|json_loads|xmlReadMemory|xmlParseFile|jansson)\b"),
         "regex_execution": re.compile(r"\b(regcomp|regexec|regfree)\b"),
         "time_date_logic": re.compile(r"\b(time_t|clock_gettime|gettimeofday|localtime_r?|strftime)\b"),

@@ -179,7 +179,7 @@ DEFINITION: dict[str, Any] = {
         ),
         # high_risk_execution (#2878): running text as code (EXECUTE IMMEDIATE,
         # PREPARE ... FROM, EXECUTE of a prepared statement -- guarded so the
-        # EXECUTE *privilege* in a GRANT/REVOKE list stays encapsulation's), running
+        # EXECUTE *privilege* in a GRANT/REVOKE list stays auth_middleware's, #3004), running
         # another program (SYSPROC.ADMIN_CMD / DSNUTILU hand control to utilities),
         # whole-store destruction (DROP DATABASE / TABLESPACE / STOGROUP, TRUNCATE),
         # and the authorization-context switch SET CURRENT SQLID (protection escape;
@@ -431,13 +431,15 @@ DEFINITION: dict[str, Any] = {
             r"|\bDROP[ \t]+(?:TABLE|VIEW|INDEX|TRIGGER|PROCEDURE|FUNCTION|SEQUENCE|ALIAS|VARIABLE)\b",
             re.I,
         ),
-        # encapsulation (#2766, #2511): the GRANT / REVOKE security boundary --
-        # statement-anchored so the words only count where they gate access -- and
-        # DECLARE GLOBAL TEMPORARY TABLE, a session-private (non-public) store.
+        # encapsulation (#2766, #2511): DECLARE GLOBAL TEMPORARY TABLE, a
+        # session-private (non-public) store. GRANT / REVOKE lived here until #3004
+        # re-homed the whole privilege surface to auth_middleware (one owner across
+        # languages -- cobol/pli's embedded EXEC SQL GRANT joined the same key);
+        # SQL's only other visibility construct is the temporary table, so this
+        # cell now reads honestly thin.
         "encapsulation": re.compile(
-            r"^[ \t]*(?:GRANT|REVOKE)[ \t]+[A-Z]"
-            r"|\bDECLARE[ \t]+GLOBAL[ \t]+TEMPORARY[ \t]+TABLE\b",
-            re.I | re.M,
+            r"\bDECLARE[ \t]+GLOBAL[ \t]+TEMPORARY[ \t]+TABLE\b",
+            re.I,
         ),
         # listeners: the receiving-side wiring of a trigger -- its timing clause
         # bound to the table it watches (sqlite's dual with events, kept).
@@ -448,6 +450,16 @@ DEFINITION: dict[str, Any] = {
         # test_skip: no framework form marks a DB2 test skipped.
         "test_skip": None,
         # --- HYBRID DOMAIN SENSORS ---
+        # auth_middleware (#3004): the GRANT / REVOKE privilege boundary, re-homed
+        # from encapsulation (#2766/#2511) so the whole auth/privilege surface reads
+        # on one dimension across languages. The statement anchor is kept verbatim:
+        # the words only count where they gate access, never license-text "granted"
+        # or a comment. SET CURRENT SQLID stays high_risk_execution's (the
+        # authorization-context *switch*, not a privilege statement).
+        "auth_middleware": re.compile(
+            r"^[ \t]*(?:GRANT|REVOKE)[ \t]+[A-Z]",
+            re.I | re.M,
+        ),
         # serialization_parsing: the JSON and XML publishing/shredding built-ins, in
         # call form. XMLCAST is explicit_casts' alone.
         "serialization_parsing": re.compile(

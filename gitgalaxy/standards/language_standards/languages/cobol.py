@@ -644,6 +644,19 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"\b(IGNORE)\b", re.I),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (COBOL Specifics) ---
+        # #3004: the CICS/SQL auth surface, unowned since the #2990 census. SIGNON/SIGNOFF
+        # start and end an authenticated terminal session; VERIFY/CHANGE PASSWORD|PHRASE
+        # authenticate or rotate a credential; QUERY SECURITY asks RACF whether the task's
+        # user may touch a resource; embedded EXEC SQL GRANT/REVOKE is the DCL privilege
+        # boundary (one owner across languages -- db2_sql's moved here from encapsulation in
+        # the same pass). EXEC-anchored on purpose: carddemo's 14 bare `SIGNON` hits are
+        # paragraph names and comments (SEND-SIGNON-SCREEN), not one real command, so a bare
+        # word never counts. The EXEC SQL/CICS block dual with ipc_rpc_bridges is the
+        # existing deliberate one.
+        "auth_middleware": re.compile(
+            r"(?i)\bEXEC\s+CICS\s+(?:SIGNON|SIGNOFF|(?:VERIFY|CHANGE)\s+(?:PASSWORD|PHRASE)|QUERY\s+SECURITY)\b"
+            r"|\bEXEC\s+SQL\s+(?:GRANT|REVOKE)\b"
+        ),
         "serialization_parsing": re.compile(
             # #2990: EXEC CICS TRANSFORM DATATOXML / XMLTODATA / DATATOJSON / JSONTODATA.
             r"(?i)\b(UNSTRING|STRING|JSON\s+PARSE|JSON\s+GENERATE|XML\s+PARSE|XML\s+GENERATE|EXEC\s+CICS\s+TRANSFORM)\b"

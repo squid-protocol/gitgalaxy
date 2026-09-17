@@ -286,6 +286,10 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs) Safety Theater bypasses.
         "test_skip": re.compile(r"\b(?:assume|assumeFail|assumeTrue|assumeFalse)\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (MATLAB Specifics) ---
+        # auth_middleware (#3004): contract-level absence. A numerical computing
+        # environment; authorization is the OS's or a database's, never the
+        # language's.
+        "auth_middleware": None,
         "serialization_parsing": re.compile(r"\b(jsondecode|jsonencode|xmlread|xmlwrite|load|save|readtable)\b"),
         "regex_execution": re.compile(r"\b(regexp|regexpi|regexprep)\b"),
         "time_date_logic": re.compile(r"\b(tic|toc|datetime|clock|now|pause|cputime)\b"),

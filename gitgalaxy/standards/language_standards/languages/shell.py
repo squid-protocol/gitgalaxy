@@ -394,6 +394,17 @@ DEFINITION: dict[str, Any] = {
         # group with the leading `\b` dropped (the `#` is self-delimiting).
         "test_skip": re.compile(r"\b(test\.skip|bats_skip|mock|stub)\b|#\s*SKIP\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Shell Specifics) ---
+        # auth_middleware (#3004): identity and credential commands in command
+        # position. `sudo` is deliberately NOT here -- high_risk_execution has
+        # owned it since before this key existed, and one construct keeps one
+        # owner. kinit/kdestroy obtain and drop Kerberos credentials,
+        # passwd/chpasswd rotate one, `su -`/runuser switch identity.
+        "auth_middleware": re.compile(
+            r"(?:^|[|&;][ \t]*)[ \t]*(?:kinit|kdestroy|chpasswd|runuser)\b"
+            r"|(?:^|[|&;][ \t]*)[ \t]*passwd[ \t]"
+            r"|(?:^|[|&;][ \t]*)[ \t]*su[ \t]+-",
+            re.M,
+        ),
         # #2898: sed/awk removed -- general text processors, not format codecs
         # (sed alone was 529 crucible hits); jq/yq/xmlstarlet parse a format.
         "serialization_parsing": re.compile(r"\b(jq|yq|xmlstarlet)\b"),

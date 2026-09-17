@@ -444,6 +444,10 @@ DEFINITION: dict[str, Any] = {
         # Framework code that explicitly bypasses verification.
         "test_skip": None,
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Fortran Specifics) ---
+        # auth_middleware (#3004): contract-level absence. A numerical language:
+        # no session, credential or privilege vocabulary; OS identity is outside
+        # the language.
+        "auth_middleware": None,
         # #2898: READ(/WRITE(/OPEN( removed -- formatted record I/O is io's (its rule
         # already counts them). NAMELIST and FORMAT are fortran's serialization formats.
         "serialization_parsing": re.compile(r"(?i)\b(NAMELIST|FORMAT)\b"),

@@ -493,6 +493,13 @@ DEFINITION: dict[str, Any] = {
         # written. Never matched at all.
         "test_skip": re.compile(r"@Ignore|\b(?:test\.skip|t\.Skip|xit|mock)\b", re.I),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Dart Specifics) ---
+        # auth_middleware (#3004): Firebase/Google sign-in (flutter's dominant
+        # auth surface) and JWT verification, instance-anchored.
+        "auth_middleware": re.compile(
+            r"\bFirebaseAuth\.instance\.(?:signIn|signOut|createUser)\w*\("
+            r"|\bGoogleSignIn\("
+            r"|\bJWT\.verify\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(jsonDecode|jsonEncode|json\.decode|json\.encode|Utf8Decoder|Utf8Encoder)\b"
         ),

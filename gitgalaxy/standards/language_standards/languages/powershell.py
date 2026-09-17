@@ -376,6 +376,15 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs) Safety Theater.
         "test_skip": re.compile(r"\b(pending|skip|Ignore)\b", re.I),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (PowerShell Specifics) ---
+        # auth_middleware (#3004): the credential prompt, elevation via
+        # `-Verb RunAs`, and the WindowsPrincipal role query.
+        "auth_middleware": re.compile(
+            r"\bGet-Credential\b"
+            r"|-Verb[ \t]+RunAs\b"
+            r"|\[Security\.Principal\.WindowsPrincipal\]"
+            r"|\.IsInRole\(",
+            re.I,
+        ),
         "serialization_parsing": re.compile(
             r"(?i)\b(ConvertFrom-Json|ConvertTo-Json|Import-Clixml|ConvertFrom-Csv|Import-Csv)\b"
         ),

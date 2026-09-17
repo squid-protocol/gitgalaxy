@@ -456,6 +456,12 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"\b(XCTSkip|xit|xdescribe)\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Objective-C Specifics) ---
+        # auth_middleware (#3004): LocalAuthentication's policy evaluation
+        # (selector-anchored) and the Authorization Services calls.
+        "auth_middleware": re.compile(
+            r"\b(?:canE|e)valuatePolicy:"
+            r"|\bAuthorization(?:Create|CopyRights)[ \t]*\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(NSJSONSerialization|NSKeyedUnarchiver|NSKeyedArchiver|NSXMLParser|NSPropertyListSerialization)\b"
         ),

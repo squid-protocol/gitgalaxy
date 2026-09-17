@@ -496,6 +496,11 @@ DEFINITION: dict[str, Any] = {
         # test_skip: no test framework, no skip marker.
         "test_skip": None,
         # --- HYBRID DOMAIN SENSORS ---
+        # auth_middleware (#3004): contract-level absence. RACF administration
+        # from rexx rides quoted host-command strings through ADDRESS TSO --
+        # the bridge statement is ipc_rpc_bridges' -- and the language itself
+        # has no auth vocabulary.
+        "auth_middleware": None,
         # serialization_parsing: PARSE is template parsing of strings, not an
         # interchange format (the fortran exclusion's shape).
         "serialization_parsing": None,

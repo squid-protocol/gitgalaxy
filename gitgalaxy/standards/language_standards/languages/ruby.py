@@ -347,6 +347,18 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"\b(skip|xit|xdescribe|mock|stub|double)\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Ruby Specifics) ---
+        # auth_middleware (#3004): devise's filter registration and session query,
+        # cancancan's ability query, pundit's authorize call, and the credential
+        # check. The `!`/`?` suffixes and the `[@:]` argument anchor keep plain
+        # identifiers and definitions out.
+        "auth_middleware": re.compile(
+            r"\bbefore_action[ \t]+:authenticate_\w+!?"
+            r"|\bauthenticate_\w+!"
+            r"|\buser_signed_in\?"
+            r"|\bcan\?[ \t]*\(?[ \t]*:"
+            r"|\bauthorize[ \t]+[@:]\w"
+            r"|\.valid_password\?\("
+        ),
         "serialization_parsing": re.compile(r"\b(JSON\.parse|YAML\.load|Marshal\.load|Nokogiri::(?:XML|HTML))\b"),
         "regex_execution": re.compile(r"\b(Regexp\.new)\b|\.(match|scan|gsub|sub)\b|=~"),
         "time_date_logic": re.compile(r"\b(Time\.now|Date\.today|DateTime\.now|sleep)\b"),

@@ -308,6 +308,14 @@ site-specific symbol name — see Follow-up #2 for the surface this still leaves
    `EXEC SQL GRANT`/`REVOKE`) has no owner in the base schema. Worth a question to whichever issue governs
    the appsec pack's `auth_middleware` (`def_auth`) — is a per-language `auth`-family signal in scope, or
    is this deliberately out of the base 49-key schema.
+   **RESOLVED (#3004): in scope.** `auth_middleware` was activated as a first-class hybrid domain sensor
+   with the sibling rollout shape — a rule or contract-level `None` in every registry language that
+   carries the other four sensors (`docs/domain_sensor_contracts.md`, Addendum). The cobol rule owns
+   the four families above, EXEC-anchored so this census's `NATIVE:SIGNON` paragraph-name noise stays
+   unowned; db2_sql's standalone `GRANT`/`REVOKE` moved to the same key (from `encapsulation`,
+   deliberately reversing that half of #2766/#2511) so the whole auth/privilege surface reads on one
+   dimension. The table above is this census's measurement record and is left as measured; the
+   EXPECTED verdicts in `tests/tools/embedded_verb_coverage.py` carry the post-#3004 ownership.
 5. **gitgalaxy#3005** — found while blessing this PR's golden master, unrelated to it: the committed
    fixtures were already ~8480 diffs drifted from a clean scan of the exact pinned corpus, entirely in
    git-history-derived signals (Architect/Churn/Authorship Centralization) for files this PR never

@@ -425,6 +425,17 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"@(?:Ignore|Disabled)|test\.skip\(|mock\(|spy\(|verifyZeroInteractions"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Java Specifics) ---
+        # auth_middleware (#3004): Spring Security's method-security annotations
+        # and route authorization, JSR-250's @RolesAllowed, JAAS's LoginContext,
+        # and the SecurityManager/Shiro permission check. The SpEL inside a
+        # @PreAuthorize string (hasRole(...)) is NOT separately counted -- the
+        # annotation is the one hit.
+        "auth_middleware": re.compile(
+            r"@(?:PreAuthorize|PostAuthorize|Secured|RolesAllowed)\("
+            r"|\.authorizeHttpRequests\("
+            r"|\bnew[ \t]+LoginContext\("
+            r"|\.checkPermission\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(ObjectMapper|readValue|readTree|fromJson|ObjectInputStream|DocumentBuilder|SAXParser)\b"
         ),

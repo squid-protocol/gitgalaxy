@@ -318,6 +318,11 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Dockerfile Specifics) ---
+        # auth_middleware (#3004): contract-level absence. The identity/privilege
+        # construct here is the USER instruction, and it is already owned:
+        # `USER nonroot` is safety's hardening token and `USER root|0` is
+        # safety_bypasses' -- one construct, one owner. No auth surface remains.
+        "auth_middleware": None,
         # CRITICAL GUARDRAIL: all four sensors below MUST carry re.M -- `(?i)` alone
         # anchors `^` to the true start of the whole code_stream string (Python re
         # default), not the start of each line, which silently broke every one of

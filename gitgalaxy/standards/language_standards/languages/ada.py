@@ -366,6 +366,10 @@ DEFINITION: dict[str, Any] = {
         # falls back to a comment-marker convention.
         "test_skip": re.compile(r"--[ \t]*(?:SKIP|SKIPPED|DISABLED)\b", re.I),
         # --- HYBRID DOMAIN SENSORS ---
+        # auth_middleware (#3004): contract-level absence. Safety-critical /
+        # embedded domain; no standard auth framework or privilege vocabulary --
+        # any auth logic is bespoke identifiers this contract excludes.
+        "auth_middleware": None,
         # serialization_parsing: GNATCOLL.JSON and XML/Ada (DOM/SAX).
         "serialization_parsing": re.compile(r"\bGNATCOLL\.JSON\b|\bDOM\.Core\b|\bInput_Sources\b", re.I),
         # regex_execution: GNAT.Regpat / GNAT.Regexp, GNAT's native

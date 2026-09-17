@@ -185,3 +185,31 @@ batch's measurement record — these are the deltas against it:
   (`detector.comment_analysis`), not a regex anchor — still open on #2898's margin;
   typescript `.emit(` is best-effort, the compiler's own `emit` calls remain
   by-name indistinguishable.
+
+## Addendum: `auth_middleware` joins the family (#3004)
+
+The #2897 batch left one schema-registered domain sensor out because it had no rules to
+measure: `auth_middleware` (short key `def_auth`) sat in `SIGNAL_SCHEMA`, the DB column map,
+the density schema and the `connectivity` surface family with **zero producers in the
+registry** — an always-zero dimension. #3004 (found by the #2990 COBOL/CICS census: `EXEC
+CICS SIGNON`/`SIGNOFF`, `VERIFY PASSWORD`/`PHRASE`, `QUERY SECURITY` and embedded `EXEC SQL
+GRANT`/`REVOKE` had no owner anywhere in the base schema) activated it as a first-class
+hybrid sensor with the sibling rollout shape: a rule or a contract-level `None` in every
+registry language that carries the other four sensors.
+
+- **Sentence**: *A site that performs or gates authentication or privilege -- a sign-on or
+  sign-off, a credential verification, a permission or security query, a privilege GRANT or
+  REVOKE, or the registration of an auth middleware or filter -- at its invocation.*
+- **One owner for the whole auth/privilege surface.** db2_sql's `GRANT`/`REVOKE` moved here
+  from `encapsulation` (reversing that half of #2766/#2511 deliberately — an x-ray query for
+  "the auth surface" must light up DCL scripts, CICS sign-on handlers and framework
+  middleware on the same dimension). db2_sql's `encapsulation` keeps
+  `DECLARE GLOBAL TEMPORARY TABLE`.
+- **Bare words never count.** The #2990 census's `SIGNON n=14` was carddemo paragraph names
+  (`SEND-SIGNON-SCREEN`) and comments, not one real `EXEC CICS SIGNON`; every rule in the
+  rollout anchors to the invoking form (`EXEC CICS`/`EXEC SQL`, a call, an annotation), the
+  same #2899 discipline as the batch.
+- **Vector parity**: the slot already existed, so activating producers changes no feature
+  width and no `feature_contract_sha` — but the dimension goes from constant-zero to live,
+  so the archetype brains were retrained with the activation (see
+  `gitgalaxy-population-analyses`).

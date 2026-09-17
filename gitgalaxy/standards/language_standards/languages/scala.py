@@ -354,6 +354,14 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"\b(ignore|pending|skip|xit|xdescribe)\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Scala Specifics) ---
+        # auth_middleware (#3004): Play/Silhouette's secured action (anchored to
+        # use, never a bare mention), Spring's annotation on scala services, and
+        # the credential check.
+        "auth_middleware": re.compile(
+            r"\bSecuredAction[ \t]*[({.]"
+            r"|@PreAuthorize\("
+            r"|\bcheckPassword\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(io\.circe|decode\[|asJson|Json\.parse|Json\.toJson|upickle\.default)\b"
         ),

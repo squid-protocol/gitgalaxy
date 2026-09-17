@@ -793,6 +793,13 @@ DEFINITION: dict[str, Any] = {
         ),
         "vectorized_math": re.compile(r"\b(matmul|dot|cross|multiply)\s*\("),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (JS/TS Specifics) ---
+        # auth_middleware (#3004): javascript's vocabulary plus Nest's @UseGuards
+        # guard registration.
+        "auth_middleware": re.compile(
+            r"@UseGuards\("
+            r"|\b(?:passport\.authenticate|jwt\.verify|bcrypt\.compare(?:Sync)?|getServerSession)\("
+            r"|\breq\.(?:isAuthenticated|log(?:in|out))\("
+        ),
         "serialization_parsing": re.compile(r"\b(JSON\.parse|JSON\.stringify)\b"),
         "regex_execution": re.compile(r"\bnew\s+RegExp\b|\.(match|replace|search|split)\s*\("),
         "time_date_logic": re.compile(

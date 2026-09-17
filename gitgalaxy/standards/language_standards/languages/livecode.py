@@ -389,6 +389,9 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"\b(skip\s+test)\b", re.I),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (LiveCode Specifics) ---
+        # auth_middleware (#3004): contract-level absence. Event-handler GUI
+        # scripting with no auth framework or privilege vocabulary.
+        "auth_middleware": None,
         "serialization_parsing": re.compile(
             r"(?i)\b(jsonImport|jsonExport|arrayEncode|arrayDecode|revXMLCreateTree)\b"
         ),

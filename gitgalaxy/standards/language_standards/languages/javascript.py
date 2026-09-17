@@ -431,6 +431,14 @@ DEFINITION: dict[str, Any] = {
         "lazy_evaluation": re.compile(r"\b(yield|yield\s*\*|function\s*\*)\b"),
         "vectorized_math": re.compile(r"\b(matmul|dot|cross|multiply)\s*\("),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (JS/TS Specifics) ---
+        # auth_middleware (#3004): passport's middleware registration, the express
+        # session login/logout and check, JWT/bcrypt credential verification, and
+        # NextAuth's server-side session gate. Call-anchored: `isAuthenticated` as
+        # a variable or a function definition never counts.
+        "auth_middleware": re.compile(
+            r"\b(?:passport\.authenticate|jwt\.verify|bcrypt\.compare(?:Sync)?|getServerSession)\("
+            r"|\breq\.(?:isAuthenticated|log(?:in|out))\("
+        ),
         "serialization_parsing": re.compile(r"\b(JSON\.parse|JSON\.stringify)\b"),
         "regex_execution": re.compile(r"\bnew\s+RegExp\b|\.(match|replace|search|split)\s*\("),
         "time_date_logic": re.compile(

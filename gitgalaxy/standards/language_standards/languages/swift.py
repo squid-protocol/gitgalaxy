@@ -350,6 +350,14 @@ DEFINITION: dict[str, Any] = {
         # (`double()`), where `)` follows instead.
         "test_skip": re.compile(r"\bXCTSkip\b|\bmock\(|\bstub\(|\bfake\(|\bdouble\("),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Swift Specifics) ---
+        # auth_middleware (#3004): LocalAuthentication's context and policy
+        # evaluation, and Sign in with Apple's controller.
+        "auth_middleware": re.compile(
+            r"\.evaluatePolicy\("
+            r"|\bcanEvaluatePolicy\("
+            r"|\bLAContext\("
+            r"|\bASAuthorizationController\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(JSONDecoder|JSONEncoder|PropertyListSerialization|NSKeyedUnarchiver|XMLParser)\b"
         ),

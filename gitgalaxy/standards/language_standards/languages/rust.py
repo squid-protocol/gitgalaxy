@@ -343,6 +343,15 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"#\[ignore\]|test\.skip\(|mock\(|fake\("),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Rust Specifics) ---
+        # auth_middleware (#3004): the credential-verification crates (bcrypt,
+        # argon2), JWT decoding (signature validation), actix's extractor
+        # registration, and the nix identity switches. Path-anchored.
+        "auth_middleware": re.compile(
+            r"\b(?:bcrypt|argon2)::verify\w*\("
+            r"|\bjsonwebtoken::decode(?:::<[^>\n]{1,80}>)?\("
+            r"|\bHttpAuthentication::\w+\("
+            r"|\bnix::unistd::sete?[ug]id\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(serde_json::from_str|serde_json::to_string|serde_json::from_slice|bincode::deserialize|toml::from_str)\b"
         ),

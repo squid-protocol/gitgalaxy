@@ -186,9 +186,11 @@ DEFINITION: dict[str, Any] = {
         #     control statement) and drops any BIND-shaped match that falls
         #     outside one.
         # Net: no rule change for eight of the nine verbs (recorded none_owned
-        # in tests/tools/embedded_verb_coverage.py's EXPECTED table, the same
-        # way that tool already records cobol's EXEC SQL GRANT/REVOKE -- "same
-        # auth-surface gap as SIGNON"); BIND owned by this rule since #3010.
+        # in tests/tools/embedded_verb_coverage.py's EXPECTED table); BIND owned
+        # by this rule since #3010. (#3004 later gave cobol's EXEC SQL
+        # GRANT/REVOKE an owner -- auth_middleware -- but a payload GRANT under
+        # //SYSIN stays #3002's in-stream-grammar question: JCL's callable unit
+        # is the step, not its payload, #2751/#2486.)
         #
         # I/O (Data Set Names and Sysouts)
         # #2841 contract C4/C5: one hit per DD statement that allocates an

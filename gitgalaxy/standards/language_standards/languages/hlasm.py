@@ -536,6 +536,19 @@ DEFINITION: dict[str, Any] = {
         # test_skip: no test framework, so no skip marker.
         "test_skip": None,
         # --- HYBRID DOMAIN SENSORS ---
+        # auth_middleware (#3004): RACROUTE is the SAF interface -- REQUEST=VERIFY
+        # builds/destroys a user's ACEE (sign-on) and REQUEST=AUTH asks RACF whether
+        # the caller may touch a resource -- and RACHECK/RACINIT/RACDEF/FRACHECK are
+        # its pre-SAF ancestors, same statement shape. The CICS command-level auth
+        # vocabulary and embedded EXEC SQL GRANT/REVOKE are cobol/pli verbatim.
+        "auth_middleware": re.compile(
+            _STMT
+            + r"(?:RACROUTE|RACHECK|FRACHECK|RACINIT|RACDEF)"
+            + _OPEND
+            + r"|\bEXEC\s+CICS\s+(?:SIGNON|SIGNOFF|(?:VERIFY|CHANGE)\s+(?:PASSWORD|PHRASE)|QUERY\s+SECURITY)\b"
+            r"|\bEXEC\s+SQL\s+(?:GRANT|REVOKE)\b",
+            re.M | re.I,
+        ),
         # serialization_parsing: the CICS TRANSFORM command (pli verbatim);
         # HLASM itself has no format codec.
         "serialization_parsing": re.compile(r"\bEXEC\s+CICS\s+TRANSFORM\b", re.I),

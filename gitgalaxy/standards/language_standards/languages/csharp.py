@@ -532,6 +532,15 @@ DEFINITION: dict[str, Any] = {
             r"\[(?:Ignore|Skipped)\]|\[(?:Fact|Theory)\([^)]*Skip\s*=|test\.skip\(|mock\(|stub\(|Substitute\.For"
         ),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (C# Specifics) ---
+        # auth_middleware (#3004): ASP.NET's [Authorize] attribute, the
+        # authentication/authorization pipeline registration, Identity's sign-in
+        # and credential checks, and the principal role query.
+        "auth_middleware": re.compile(
+            r"\[Authorize[\](]"
+            r"|\.(?:UseAuthentication|UseAuthorization|SignInAsync|SignOutAsync"
+            r"|CheckPasswordAsync|VerifyHashedPassword)\("
+            r"|\.IsInRole\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(JsonSerializer\.Deserialize|JsonConvert\.DeserializeObject|XmlSerializer|BinaryFormatter)\b"
         ),

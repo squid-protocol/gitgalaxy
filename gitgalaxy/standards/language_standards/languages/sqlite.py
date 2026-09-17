@@ -378,6 +378,11 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"^[ \t]*\.testcase\s+skip\b|\bPRAGMA\s+ignore_check_constraints\b", re.I | re.M),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (SQLite / SQL Specifics) ---
+        # auth_middleware (#3004): contract-level absence. SQLite has no users, no
+        # privileges and no GRANT/REVOKE grammar -- access control is the host
+        # process's file permissions, outside the language. (db2_sql owns the DCL
+        # form for SQL dialects that have one.)
+        "auth_middleware": None,
         "serialization_parsing": re.compile(
             r"(?i)\b(json_extract|json_tree|json_each|json_object|json_array|json_type)\b"
         ),

@@ -395,6 +395,14 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs) Safety Theater.
         "test_skip": re.compile(r"\b(ignore|pending|skip|xit|xdescribe)\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Haskell Specifics) ---
+        # auth_middleware (#3004): yesod's route auth (requireAuth/maybeAuth),
+        # servant's type-level AuthProtect and BasicAuthCheck, and the
+        # credential verification -- bare-word matching is this file's house
+        # style (call is juxtaposition).
+        "auth_middleware": re.compile(
+            r"\b(?:requireAuthId?|maybeAuthId?|AuthProtect|BasicAuthCheck"
+            r"|verifyPassword|validatePassword)\b"
+        ),
         "serialization_parsing": re.compile(
             r"\b(Data\.Aeson|decode|decodeStrict|fromJSON|Data\.Binary|Data\.Serialize)\b"
         ),

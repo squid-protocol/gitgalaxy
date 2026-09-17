@@ -344,6 +344,16 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"@(?:Ignore|Disabled)|test\.skip\(|mockk|spyK|fake\("),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Kotlin Specifics) ---
+        # auth_middleware (#3004): Spring's method-security annotations, Ktor's
+        # Authentication plugin install and authenticate route block (guarded
+        # against its own `fun authenticate` definition), and route
+        # authorization.
+        "auth_middleware": re.compile(
+            r"@(?:PreAuthorize|PostAuthorize|Secured|RolesAllowed)\("
+            r"|\binstall\(Authentication\)"
+            r"|\.authorizeHttpRequests\b"
+            r"|(?<!fun )\bauthenticate[ \t]*[({]"
+        ),
         # BUG FIX: `Gson\(\)` ends on `)` -- shared trailing \b never
         # fired. Never matched.
         "serialization_parsing": re.compile(

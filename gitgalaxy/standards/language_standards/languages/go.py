@@ -395,6 +395,13 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"\bt\.Skip(?:f|Now)?\(|mock\.|gomock\."),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Go Specifics) ---
+        # auth_middleware (#3004): bcrypt's credential verification, JWT parsing
+        # (which validates the signature), and the BasicAuth middleware
+        # constructors (net/http, gin, chi share the method name).
+        "auth_middleware": re.compile(
+            r"\b(?:bcrypt\.CompareHashAndPassword|jwt\.Parse(?:WithClaims)?)\("
+            r"|\.BasicAuth\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(json\.Unmarshal|json\.Marshal|xml\.Unmarshal|xml\.Marshal|gob\.NewEncoder)\b"
         ),

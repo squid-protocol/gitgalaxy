@@ -269,6 +269,10 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"\b(xdescribe|xit|skip)\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Lua Specifics) ---
+        # auth_middleware (#3004): contract-level absence. Lua is an embedded
+        # scripting language -- authentication belongs to the host (openresty's
+        # access phase, a game engine's account service); no native vocabulary.
+        "auth_middleware": None,
         "serialization_parsing": re.compile(r"\b(string\.dump|loadstring|load|cjson\.decode|cjson\.encode)\b"),
         "regex_execution": re.compile(r"\b(string\.match|string\.gmatch|string\.find|string\.gsub)\b"),
         "time_date_logic": re.compile(r"\b(os\.time|os\.clock|os\.date|os\.difftime)\b"),

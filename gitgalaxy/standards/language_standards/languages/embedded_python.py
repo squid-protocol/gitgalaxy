@@ -329,6 +329,9 @@ DEFINITION: dict[str, Any] = {
         # 49. test_skip (Bypassed Tests / Ignored Specs)
         "test_skip": re.compile(r"\b(pytest\.mark\.skip|unittest\.skip|mock\.|MagicMock)\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Embedded Python Specifics) ---
+        # auth_middleware (#3004): contract-level absence. Single-tenant
+        # microcontroller target: no OS identity, no session, no auth framework.
+        "auth_middleware": None,
         "serialization_parsing": re.compile(r"\b(ujson\.loads?|ujson\.dumps?|ustruct\.pack|ustruct\.unpack)\b"),
         "regex_execution": re.compile(r"\b(ure\.compile|ure\.search|ure\.match|ure\.sub)\b"),
         "time_date_logic": re.compile(r"\b(utime\.sleep_ms|utime\.ticks_ms|utime\.ticks_diff|machine\.RTC)\b"),

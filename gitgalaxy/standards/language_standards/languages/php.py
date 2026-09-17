@@ -378,6 +378,16 @@ DEFINITION: dict[str, Any] = {
         # (`mock();`).
         "test_skip": re.compile(r"\b(?:markTestSkipped|test\.skip|it\.skip)\b|\bmock\(|\bfake\("),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (PHP Specifics) ---
+        # auth_middleware (#3004): laravel's Auth/Gate facades, the controller
+        # authorize call, blade's @can directive, and PHP's native
+        # password_verify. Facade-anchored so the bare words never count.
+        "auth_middleware": re.compile(
+            r"\bAuth::(?:check|attempt|user|login|logout|guard)\("
+            r"|\bGate::(?:allows|denies|authorize|check|any)\("
+            r"|->authorize\("
+            r"|\bpassword_verify\("
+            r"|@can\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(unserialize|serialize|json_decode|json_encode|simplexml_load_(?:string|file)|DOMDocument)\b"
         ),

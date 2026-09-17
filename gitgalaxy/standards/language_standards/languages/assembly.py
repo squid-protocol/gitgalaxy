@@ -335,6 +335,10 @@ DEFINITION: dict[str, Any] = {
         # Framework code that explicitly bypasses verification. [cite: 788]
         "test_skip": None,
         # --- HYBRID DOMAIN SENSORS ---
+        # auth_middleware (#3004): contract-level absence. Generic assembly has
+        # no auth macro vocabulary -- a syscall number is not a named construct.
+        # (The mainframe analogue, RACROUTE, is hlasm's own rule.)
+        "auth_middleware": None,
         # serialization_parsing: Assembly has no native or universal JSON/XML/YAML
         # parsing construct -- unlike malloc/free/printf there is no single
         # ubiquitous libc convention for this, so per Strict Feature Parity

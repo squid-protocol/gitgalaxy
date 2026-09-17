@@ -1045,7 +1045,10 @@ EXPECTED_COBOL: dict[str, Owner] = {
         "invokes an OO-COBOL method; the crucible carries only 2 occurrences and no rule owns generic method invocation for this registry."
     ),
     "NATIVE:SIGNON": none_owned(
-        "CICS terminal signon; no base-schema rule owns authentication (see the filed follow-up on cobol's auth surface -- SIGNON/SIGNOFF/VERIFY PASSWORD/QUERY SECURITY/EXEC SQL GRANT/REVOKE all land here)."
+        "bare SIGNON outside an EXEC block -- every corpus occurrence is a paragraph name or comment "
+        "(carddemo's SEND-SIGNON-SCREEN), not a command. The real EXEC CICS SIGNON/SIGNOFF/VERIFY "
+        "PASSWORD/QUERY SECURITY commands are auth_middleware's since #3004 (EXEC-anchored precisely so "
+        "these bare-word occurrences stay unowned)."
     ),
     "NATIVE:FILE STATUS clause": none_owned(
         "a data-item declaration naming the field a READ/WRITE populates with its status code, not a call or check itself; the field name is user-chosen so no keyword anchors it. The debug_prints noise (23%) is files whose status field happens to be tested near a DISPLAY, not a property of the clause."
@@ -1053,8 +1056,12 @@ EXPECTED_COBOL: dict[str, Owner] = {
     "NATIVE:ACCEPT FROM (env/arg)": none_owned(
         "reads a command-line argument or environment variable; distinct from python counting no `input()`/argv-read as io either -- kept consistent with that cross-language precedent rather than adding a COBOL-only exception."
     ),
-    "NATIVE:GRANT/REVOKE": none_owned(
-        "EXEC SQL GRANT/REVOKE; 0 occurrences in the corpus today, same auth-surface gap as SIGNON."
+    "NATIVE:GRANT/REVOKE": owned(
+        "auth_middleware",
+        reason="EXEC SQL GRANT/REVOKE, the DCL privilege boundary -- auth_middleware's since #3004 "
+        "(db2_sql's standalone GRANT/REVOKE moved to the same key in that pass). 0 occurrences in the "
+        "corpus today; the ownership row is engine-correctness ahead of corpus evidence, the same "
+        "posture as NATIVE:WHENEVER.",
     ),
     "NATIVE:WHENEVER": none_owned(
         "EXEC SQL WHENEVER; 0 occurrences in the corpus today (the safety/safety_bypasses regex additions for its GO TO/CONTINUE forms are engine-correctness additions with no corpus evidence yet, the same posture as high_risk_execution's PREPARE/EXECUTE IMMEDIATE)."

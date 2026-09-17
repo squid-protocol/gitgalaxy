@@ -414,6 +414,14 @@ DEFINITION: dict[str, Any] = {
         # skip $why, n) so a hash key or POD item spelling the word no longer counts.
         "test_skip": re.compile(r"\bskip\s*(?:\(|[\"'\$])|\btodo_skip\b"),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Perl Specifics) ---
+        # auth_middleware (#3004): a method call on an Authen:: package (the CPAN
+        # auth family), the credential check, and PAM. Arrow/call-anchored so the
+        # package name in a string and `sub check_password` never count.
+        "auth_middleware": re.compile(
+            r"\bAuthen::\w+(?:::\w+)*->\w+\("
+            r"|->check_password\("
+            r"|\bpam_authenticate\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(Storable::(?:thaw|fd_retrieve)|JSON::(?:decode_json|from_json)|YAML::(?:Load|LoadFile))\b"
         ),

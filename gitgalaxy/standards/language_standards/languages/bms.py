@@ -240,6 +240,10 @@ DEFINITION: dict[str, Any] = {
         "listeners": None,
         "test_skip": None,
         # --- HYBRID DOMAIN SENSORS ---
+        # auth_middleware (#3004): contract-level absence. Declarative 3270
+        # screen maps: field positions and attributes, no executable auth act
+        # (the SIGNON screen a map draws is cobol's EXEC CICS SIGNON to own).
+        "auth_middleware": None,
         "serialization_parsing": None,
         "regex_execution": None,
         "time_date_logic": None,

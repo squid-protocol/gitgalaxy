@@ -353,6 +353,10 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Makefile Specifics) ---
+        # auth_middleware (#3004): contract-level absence. A build DSL: identity
+        # and privilege belong to the invoking shell (whose recipes shell.py's
+        # contract covers), not the dependency graph.
+        "auth_middleware": None,
         # NOTE: `^\s*` (matching `\n` under re.M) is a confirmed real O(n^2) ReDoS on a
         # long run of blank lines with no closing keyword -- each blank-line `^` position
         # re-scans forward through the rest of the run before failing. Swapped for the

@@ -539,6 +539,15 @@ _ROWS = [
     ),
     # --- HYBRID DOMAIN SENSORS ---
     _c(
+        "auth_middleware",
+        "hybrid",
+        "site",
+        "A site that performs or gates authentication or privilege -- a sign-on or sign-off, a credential verification, a permission or security query, a privilege GRANT or REVOKE, or the registration of an auth middleware or filter -- at its invocation",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=3004,
+    ),
+    _c(
         "serialization_parsing",
         "hybrid",
         "site",

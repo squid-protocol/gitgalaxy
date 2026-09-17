@@ -598,6 +598,15 @@ DEFINITION: dict[str, Any] = {
         # test_skip: no framework form marks a PL/I test skipped.
         "test_skip": None,
         # --- HYBRID DOMAIN SENSORS ---
+        # auth_middleware (#3004): cobol's CICS/SQL auth surface verbatim -- SIGNON/SIGNOFF,
+        # VERIFY/CHANGE PASSWORD|PHRASE, QUERY SECURITY, and embedded EXEC SQL GRANT/REVOKE
+        # (the DCL privilege boundary; one owner across languages). EXEC-anchored so a bare
+        # word in a label, comment or string never counts (cobol's carddemo lesson).
+        "auth_middleware": re.compile(
+            r"\bEXEC\s+CICS\s+(?:SIGNON|SIGNOFF|(?:VERIFY|CHANGE)\s+(?:PASSWORD|PHRASE)|QUERY\s+SECURITY)\b"
+            r"|\bEXEC\s+SQL\s+(?:GRANT|REVOKE)\b",
+            re.I,
+        ),
         # serialization_parsing: Enterprise PL/I's JSON built-ins (JSONPUTVALUE,
         # JSONGETMEMBER, JSONVALID ...), its XML generation (XMLCHAR) and SAX parsers
         # (PLISAXA-D), and cobol's CICS TRANSFORM.

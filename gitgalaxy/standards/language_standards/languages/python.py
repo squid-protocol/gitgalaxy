@@ -403,6 +403,16 @@ DEFINITION: dict[str, Any] = {
             r"\b(einsum|matmul|tensordot|vdot|bmm)\b|\.dot\s*\(|(?<=[a-zA-Z0-9_\]\)])[ \t]*@[ \t]*(?=[a-zA-Z0-9_\[\(])"
         ),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (Python Specifics) ---
+        # auth_middleware (#3004): django/flask's gate decorators, the permission
+        # query on a user object, and the credential-verification and session
+        # login/logout calls. `authenticate(` is guarded against its own
+        # definition site (`def authenticate(`).
+        "auth_middleware": re.compile(
+            r"@(?:login_required|permission_required)\b"
+            r"|\.has_perm\("
+            r"|\b(?:check_password|login_user|logout_user|pam_authenticate)\("
+            r"|(?<!def )\bauthenticate\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(pickle\.loads?|pickle\.Unpickler|marshal\.loads?|ast\.literal_eval)\b"
         ),

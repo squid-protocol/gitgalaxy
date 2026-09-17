@@ -510,6 +510,15 @@ DEFINITION: dict[str, Any] = {
         # already found and fixed in C (#773).
         "test_skip": re.compile(r"\b(?:GTEST_SKIP|test\.skip|it\.skip)\b|mock\(|fake\("),
         # --- PHASE 3: HYBRID DOMAIN SENSORS (C++ Specifics) ---
+        # auth_middleware (#3004): c's PAM/POSIX/Win32 vocabulary verbatim plus
+        # the jwt-cpp verification calls.
+        "auth_middleware": re.compile(
+            r"\b(?:pam_authenticate|pam_acct_mgmt"
+            r"|set(?:e|res)?uid|set(?:e|res)?gid"
+            r"|LogonUser[AW]?|CheckTokenMembership)[ \t]*\("
+            r"|\bjwt::(?:verify|decode)\("
+            r"|\b(?:bcrypt|argon2)::(?:verify|validate)\w*\("
+        ),
         "serialization_parsing": re.compile(
             r"\b(nlohmann::json|rapidjson|boost::archive|ParseFromString|SerializeToString)\b"
         ),

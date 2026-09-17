@@ -37,6 +37,30 @@ FUNC_EVIDENCE_MASS_FLOOR = float(cast("int", ENGINE_CONSTANTS["FUNC_EVIDENCE_MAS
 EVIDENCE_MASS_FLOOR = float(cast("int", ENGINE_CONSTANTS["EVIDENCE_MASS_FLOOR"]))
 
 
+# #3126: the FILE archetype brain's per-feature value sources. The builder in
+# `_classify_file_archetype` dispatches on these kinds and `_prep_file_brain`
+# validates against them, so the two cannot disagree about which FEATURE_NAMES
+# the engine can actually compute -- the drift that used to turn a renamed
+# trainer feature into a silent 0.0 column.
+_FILE_FEATURE_ZSTATS = frozenset({"func_z_max", "func_z_mean", "func_z_median", "pct_z_above_5", "pct_z_above_15"})
+
+
+def _file_feature_kind(feature_name: str) -> Optional[str]:
+    """Which value source feeds this FEATURE_NAME, or None if the engine has none."""
+    if feature_name == "log_coding_loc":
+        return "coding_loc"
+    if feature_name in _FILE_FEATURE_ZSTATS:
+        return "zstat"
+    if feature_name.startswith("log_micro_") and feature_name.endswith("_pct"):
+        inner = feature_name[len("log_micro_") : -len("_pct")]
+        return "micro" if inner.isdigit() else None
+    if feature_name.startswith("log_density_"):
+        return "density"
+    if feature_name.startswith("log_"):
+        return "precalc"
+    return None
+
+
 def _is_already_renamed(exc: sqlite3.OperationalError) -> bool:
     """#2806: is this ALTER ... RENAME COLUMN failure the benign already-done one?
 
@@ -226,7 +250,19 @@ class RecordKeeper:
         """#ENGINE-PARITY: cache the self-describing FILE archetype brain contract.
         The engine builds the file vector strictly in FEATURE_NAMES order from the
         fully-computed file record (all metrics + the function->file composition
-        rollup), so it can never drift from the trainer (cluster_files.py)."""
+        rollup), so it can never drift from the trainer (cluster_files.py).
+
+        #3126: building in FEATURE_NAMES order guarantees the ENGINE's half of
+        that contract, but only if the brain's own scaler arrays and centroids
+        agree with its FEATURE_NAMES -- which nothing checked. Every internal
+        inconsistency is validated here, ONCE at boot, and an inconsistent
+        brain is refused outright (`_file_brain = None`, caller keeps its
+        fallback label) rather than classifying over whatever happens to line
+        up. That is `signal_processor`'s posture -- "skipping classification
+        rather than silently truncating", the principle #1157/#1158 set after
+        the v2.8.0 three-way feature-space incident -- which this path did not
+        inherit when #3061 moved classification here.
+        """
         b = cast("dict[str, Any]", GENERAL_FILE_INFERENCE_MODEL)
         self._file_brain: Optional[dict[str, Any]] = None
         if not b.get("FEATURE_NAMES") or not b.get("SCALER_MEDIANS"):
@@ -235,6 +271,39 @@ class RecordKeeper:
         if ak is None:
             return
         names = b.get("cluster_names") or list(b.get(ak, {}).keys())
+
+        # --- #3126 PARITY GATE: refuse an internally inconsistent brain ---
+        feature_names = b["FEATURE_NAMES"]
+        n = len(feature_names)
+        centroids = list(b.get(ak, {}).values())
+        weights = b.get("FEATURE_WEIGHTS", [1.0] * n)
+        problems = []
+        for key, arr in (
+            ("SCALER_MEDIANS", b["SCALER_MEDIANS"]),
+            ("SCALER_IQRS", b.get("SCALER_IQRS")),
+            ("FEATURE_WEIGHTS", weights),
+        ):
+            if arr is None or len(arr) != n:
+                problems.append(f"{key} has {None if arr is None else len(arr)} entries, expected {n}")
+        bad_centroids = {i: len(c) for i, c in enumerate(centroids) if len(c) != n}
+        if bad_centroids:
+            problems.append(f"centroid dims {sorted(set(bad_centroids.values()))} != {n} FEATURE_NAMES")
+        if len(names) != len(centroids):
+            problems.append(f"{len(names)} cluster names for {len(centroids)} centroids")
+        # An unrecognised feature name used to contribute a silent 0.0 column,
+        # which kept the vector length correct and so evaded every length
+        # check -- a renamed trainer feature became an invisible dead input.
+        unknown = [fn for fn in feature_names if _file_feature_kind(fn) is None]
+        if unknown:
+            problems.append(f"FEATURE_NAMES the engine cannot compute: {unknown}")
+        if problems:
+            self.logger.warning(
+                "FILE archetype brain is internally inconsistent; skipping file-archetype "
+                "classification rather than classifying on a partial vector (#3126): %s",
+                "; ".join(problems),
+            )
+            return
+
         self._file_brain = {
             "FEATURE_NAMES": b["FEATURE_NAMES"],
             "SCALER_MEDIANS": b["SCALER_MEDIANS"],
@@ -268,14 +337,20 @@ class RecordKeeper:
         caps = fb["CAP_VALUES"]
         med, iqr, wts = fb["SCALER_MEDIANS"], fb["SCALER_IQRS"], fb["FEATURE_WEIGHTS"]
         vec = []
+        # #3126: every length here is guaranteed equal by _prep_file_brain's
+        # parity gate, so the scaler lookups index directly and the distance
+        # loop below runs the FULL vector. The previous `med[i] if i < len(med)
+        # else 0.0` / `min(len(vec), len(cen))` forms silently padded and
+        # truncated instead, producing a confident label off a partial vector.
         for i, fn in enumerate(fb["FEATURE_NAMES"]):
-            if fn == "log_coding_loc":
+            kind = _file_feature_kind(fn)
+            if kind == "coding_loc":
                 v = math.log1p(cl)
-            elif fn in ("func_z_max", "func_z_mean", "func_z_median", "pct_z_above_5", "pct_z_above_15"):
+            elif kind == "zstat":
                 v = float(ctx.get(fn, 0.0))
-            elif fn.startswith("log_micro_") and fn.endswith("_pct"):
+            elif kind == "micro":
                 v = math.log1p(float(micro.get(int(fn[len("log_micro_") : -len("_pct")]), 0.0)))
-            elif fn.startswith("log_density_"):
+            elif kind == "density":
                 col = fn[len("log_density_") :]
                 sidx = self._file_sig_idx.get(dna.get(fn, col))
                 hit = float(hv[sidx]) if sidx is not None and sidx < len(hv) else 0.0
@@ -284,18 +359,14 @@ class RecordKeeper:
                 if cap is not None and raw > cap:
                     raw = cap
                 v = math.log1p(raw)
-            elif fn.startswith("log_"):
+            else:  # "precalc" -- the only remaining kind the gate admits
                 v = math.log1p(float(precalc.get(fn[len("log_") :], 0.0)))
-            else:
-                v = 0.0
-            m = med[i] if i < len(med) else 0.0
-            q = iqr[i] if i < len(iqr) and iqr[i] > 0 else 1.0
-            w = wts[i] if i < len(wts) else 1.0
-            vec.append(((v - m) / q) * w)
+            q = iqr[i] if iqr[i] > 0 else 1.0
+            vec.append(((v - med[i]) / q) * wts[i])
         best_i, best_d = -1, None
         for ci, cen in enumerate(fb["centroids"]):
             d = 0.0
-            for j in range(min(len(vec), len(cen))):
+            for j in range(len(vec)):
                 diff = vec[j] - cen[j]
                 d += diff * diff
             if best_d is None or d < best_d:

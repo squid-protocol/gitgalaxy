@@ -233,9 +233,7 @@ DEFINITION: dict[str, Any] = {
         # modifier, query, grant and revoke calls (solidity's GRANT/REVOKE
         # analogue). `onlyOwner` stays safety's (owned there before this key)
         # and `require(msg.sender == ...)` is safety's require.
-        "auth_middleware": re.compile(
-            r"\b(?:onlyRole|hasRole|grantRole|revokeRole|renounceRole|_checkRole)[ \t]*\("
-        ),
+        "auth_middleware": re.compile(r"\b(?:onlyRole|hasRole|grantRole|revokeRole|renounceRole|_checkRole)[ \t]*\("),
         "serialization_parsing": re.compile(r"\b(abi\.encode|abi\.encodePacked|abi\.decode)\b"),
         "regex_execution": re.compile(
             r"\b(keccak256\s*\(\s*abi\.encodePacked)\b"

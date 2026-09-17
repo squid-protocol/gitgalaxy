@@ -259,9 +259,7 @@ DEFINITION: dict[str, Any] = {
         # form -- zig has no auth framework, but a call that drops or assumes an
         # identity gates privilege. Path-anchored so std's own `pub fn setuid`
         # definitions never count.
-        "auth_middleware": re.compile(
-            r"\bstd\.(?:posix|os\.linux)\.sete?[ug]id\("
-        ),
+        "auth_middleware": re.compile(r"\bstd\.(?:posix|os\.linux)\.sete?[ug]id\("),
         "serialization_parsing": re.compile(r"\b(std\.json\.parseFrom(?:Slice|TokenSource)|std\.json\.stringify)\b"),
         "regex_execution": re.compile(
             r"\b(std\.mem\.(?:indexOf|tokenize(?:Any)?|split(?:Sequence|Any)?|replace))\b"

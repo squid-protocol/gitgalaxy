@@ -44,7 +44,16 @@ DEFINITION: dict[str, Any] = {
         "PKGBUILD",
     ],
     # Thorough Shebang mapping: Essential for identifying extensionless scripts.
-    "shebangs": ["bash", "sh", "zsh", "ksh", "dash", "ash", "rbash"],
+    # #3116: `csh`, `tcsh`, `pfsh` (Solaris profile shell) and `Shell`
+    # (SerenityOS's own) are real interpreters this list was missing. They
+    # resolved anyway while a trigger was matched as a bare SUBSTRING of the
+    # shebang line -- `sh` is inside all four -- so the substring bug was
+    # simultaneously causing false positives (`tclsh` -> shell) and covering
+    # for these false negatives. Token matching exposed them: the crucible's
+    # `#!/bin/csh`, `#!/bin/Shell` and `#!/usr/bin/pfsh` files dropped from
+    # Tier 0 consensus to Tier 2 extension-only. Named explicitly now, so the
+    # match is intentional rather than accidental.
+    "shebangs": ["bash", "sh", "zsh", "ksh", "dash", "ash", "rbash", "csh", "tcsh", "pfsh", "shell"],
     # UPGRADED: Maps to Family 3 (Pure Hash)
     # Rationale: Relies strictly on '#' for line-level Commented / Non-Executable Text; no native block delimiters.
     "lexical_family": "line_exclusive",

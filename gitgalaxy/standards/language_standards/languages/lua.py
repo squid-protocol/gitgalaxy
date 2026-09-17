@@ -27,7 +27,10 @@ DEFINITION: dict[str, Any] = {
     # ECOSYSTEM ANCHORS & DISAMBIGUATION: Primary sibling extensions, package manifests, and linting configs to resolve ambiguous files.
     "discriminators": [".lua", ".luacheckrc", "stylua.toml", ".rockspec"],
     # EXECUTION SIGNATURES: Interpreters found on Line 1 for CLI, Game-Engine, and embedded scripts.
-    "shebangs": ["lua", "luajit", "luau", "texlua"],
+    # #3116: `luatrace` (the darwin-xnu tracing scripts' interpreter) resolved
+    # only because `lua` used to match as a bare substring of the shebang line;
+    # token matching needs it named. Same shape as shell.py's csh/pfsh gap.
+    "shebangs": ["lua", "luajit", "luau", "texlua", "luatrace"],
     # Maps to Family 5 (Hybrid Dash) -- #621: this comment always said
     # "Family 5 (Hybrid Dash)" but the value below was "standard_block"
     # until now, so lua shared a regex with C-style languages and got

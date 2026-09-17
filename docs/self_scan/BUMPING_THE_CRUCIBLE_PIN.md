@@ -103,6 +103,46 @@ those are the *why*.
    local checkout makes the `corpus_path` field look like it drifted even
    when nothing about the corpus changed.
 
+## Traps found on the v1.3.0 bump (#3117 / #3138)
+
+Three things cost real time on that bump that this checklist did not warn about.
+All three are now either fixed or guarded, but the symptoms are worth
+recognising because two of them present as "CI is broken" rather than as
+anything to do with the corpus.
+
+1. **Two `Code scanning results` checks time out after 6 minutes, and the PR
+   shows "0 files changed, +0/-0".** This is not a failure of the change and
+   re-running the checks cannot fix it. A fixture that size produces a diff
+   GitHub will not generate (`/pulls/<n>/files` answers HTTP 422, "Sorry, this
+   diff is taking too long to generate"), and the code-scanning checks that
+   reconcile alerts against a diff then hang until their budget runs out.
+   `.gitattributes` now marks both fixtures `-diff linguist-generated=true`,
+   which should prevent it; if it recurs, confirm the other checks are green
+   and review the change semantically (see point 3) rather than chasing the
+   scanners. Note that the repo's *own* `CodeQL Security Scan` and `Muninn
+   Security Scan` workflow runs are separate from the `Code scanning results /`
+   check-runs and did pass — check which of the two you are looking at.
+2. **A `list(set(...))` anywhere on the recorder path makes the fixture
+   nondeterministic**, so a bless captures set-iteration order and the very
+   next check disagrees with it for no reason anybody changed. `api_mapper`'s
+   `frameworks` and `shadow_apis` did exactly this and are now `sorted(...)`
+   in `full_api_network_map.py`. If a bless shows drift you cannot attribute,
+   scan the recorders for unsorted set-to-list conversions before assuming the
+   engine changed. Beware also that verifying this from a subshell that `cd`s
+   elsewhere makes `PYTHONPATH=.` resolve to the wrong tree — the first
+   attempt at confirming that fix was invalid for exactly that reason.
+3. **Review the bless semantically; the line diff is not a review.** On #3138
+   git reported 231,550 insertions and 186,273 deletions, of which 0.5% of leaf
+   values had actually changed. `tests/tools/bless_scope.py` reduced the same
+   change to 349 substantive differences and 3,246 topological X/Y/Z re-solves
+   (the expected corpus-wide 3D coordinate shift from adding groups), bucketed
+   by section, leaf key and language:
+
+       python tests/tools/bless_scope.py --from-head tests/golden_master_audit.json --show 0 --summary
+
+   Read the topological volume as a class and spend the review on the
+   substantive bucket.
+
 ## Known gap worth fixing properly
 
 Step 5's absolute-count regression gate is the one manual, judgment-requiring

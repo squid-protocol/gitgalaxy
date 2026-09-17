@@ -1,0 +1,39 @@
+# The two golden-crucible fixtures are ~58 MB of pretty-printed JSON, about
+# 1.13 million lines each, written verbatim from galaxyscope's output by
+# tests/tools/update_golden_master.py.
+#
+# At that size a line-based diff stops being meaningful. Measured on the
+# v1.3.0 pin bump (#3138), which added 18 corpus groups: 0.5% of leaf values
+# actually changed and 4% were new, but git rewrote 37% of the file --
+# 231,550 insertions and 186,273 deletions for a net gain of 45,277 lines.
+# The excess is alignment failure, not content: a file made almost entirely of
+# near-identical "}," and '"X": 0.0,' lines gives the diff algorithm nothing to
+# anchor on, so it emits an edit script roughly ten times the semantic change.
+# (Sorting the fixture deterministically was measured too -- it cuts the churn
+# only 45%, to 230,249 lines, so it does not solve this.)
+#
+# The consequence is not cosmetic. On #3138 GitHub refused to generate the diff
+# at all ("Sorry, this diff is taking too long to generate", HTTP 422 from
+# /pulls/3138/files, PR showing "0 files +0/-0"), and both `Code scanning
+# results` check-runs -- which reconcile alerts against that diff -- hung until
+# they timed out after 6 minutes. Every one of the 30 substantive checks passed;
+# only the diff-dependent ones failed, and re-running them could not help.
+#
+# Nothing reviews these fixtures as a line diff anyway. The sanctioned path is
+# semantic, via golden_diff.deep_compare:
+#
+#     python tests/tools/bless_scope.py --from-head tests/golden_master_audit.json
+#
+# and tests/tools/update_golden_master.py prints the same deep_compare output
+# for confirmation before it will overwrite a master.
+#
+# -diff has git emit "Bin <old> -> <new> bytes" instead of computing the diff
+#   (1.79s -> 0.002s locally; removes the work GitHub was timing out on).
+# linguist-generated=true collapses them in the PR view by default and keeps
+#   them out of the repo's language statistics.
+#
+# Neither attribute affects `git diff --name-only`, so the change-detection in
+# .github/workflows/golden-master-guard.yml still fires on these paths, and
+# neither changes merge behaviour.
+tests/golden_master_audit.json          -diff linguist-generated=true
+tests/golden_master_zero_dep_audit.json -diff linguist-generated=true

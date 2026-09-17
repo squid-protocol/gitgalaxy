@@ -80,14 +80,17 @@ def _shebang_interpreter(first_line: str) -> str:
     return interpreter
 
 
-# #3130-follow-up (#3129 batch): the portable-trampoline idiom. A script whose
-# real interpreter is not guaranteed to live at a fixed path bootstraps through
-# a POSIX shell and re-execs itself:
-#     #!/bin/sh
+# #3133: the portable-trampoline idiom. A script whose real interpreter is not
+# guaranteed to live at a fixed path bootstraps through a POSIX shell and
+# re-execs itself: a plain shell shebang on line 1, then
 #     # the next line restarts using tclsh \
 #     exec tclsh "$0" ${1+"$@"}
-# That is sqlite's own test-harness header, verbatim, and the canonical Tcl
-# portability trick. The shebang really IS `sh`, so it legitimately contradicts
+# That is sqlite's own test-harness header and the canonical Tcl portability
+# trick. (The shebang line is described rather than quoted on purpose: a
+# literal `#!` + `/bin/` sequence anywhere in the first 8 KiB trips the X-Ray
+# binary-anomaly detector's embedded-execution-header check, whose exemption
+# is scoped to .sh/.bash/.zsh/.command files -- so quoting it here failed CI.)
+# The shebang really IS `sh`, so it legitimately contradicts
 # the file's `.tcl` extension -- and the Identity Conflict Trap read that as
 # masquerading and refused the file at Tier 5 with an "Identity Masking" flag.
 # A generic shell shebang is the standard bootstrap vehicle and carries almost

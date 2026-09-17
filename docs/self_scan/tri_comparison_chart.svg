@@ -1155,14 +1155,14 @@
 <text class="lang-label" x="20" y="1947.5">tcl</text>
 <rect class="bar-track" x="154" y="1927" width="88" height="34" rx="2"/>
 <rect x="154" y="1927" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="1935">374</text>
-<rect x="154" y="1939" width="86.4" height="10" rx="2" fill="#eb6834"/>
+<text class="bar-value-label" x="198.0" y="1935">392</text>
+<rect x="154" y="1939" width="82.4" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="198.0" y="1947">367</text>
-<rect x="154" y="1951" width="87.5" height="10" rx="2" fill="#1baf7a"/>
+<rect x="154" y="1951" width="83.5" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="198.0" y="1959">372</text>
 <rect class="bar-track" x="286" y="1927" width="88" height="34" rx="2"/>
 <rect x="286" y="1927" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="1935">374/374</text>
+<text class="bar-value-label" x="330.0" y="1935">392/392</text>
 <rect x="286" y="1939" width="88.0" height="10" rx="2" fill="#eb6834"/>
 <text class="bar-value-label" x="330.0" y="1947">367/367</text>
 <rect x="286" y="1951" width="88.0" height="10" rx="2" fill="#1baf7a"/>
@@ -1173,9 +1173,9 @@
 <rect class="bar-track" x="550" y="1927" width="88" height="34" rx="2"/>
 <rect class="bar-track" x="682" y="1927" width="88" height="34" rx="2"/>
 <rect x="682" y="1927" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="1935">333</text>
+<text class="bar-value-label" x="726.0" y="1935">351</text>
 <rect x="682" y="1939" width="88.0" height="10" rx="2" fill="#eb6834"/>
-<text class="bar-value-label" x="726.0" y="1947">333</text>
+<text class="bar-value-label" x="726.0" y="1947">351</text>
 <text class="lang-label" x="20" y="1991.5">typescript</text>
 <rect class="bar-track" x="154" y="1971" width="88" height="34" rx="2"/>
 <rect x="154" y="1971" width="88.0" height="10" rx="2" fill="#2a78d6"/>

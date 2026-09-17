@@ -349,29 +349,29 @@
 <text class="lang-label" x="20" y="715.5">embedded_python</text>
 <rect class="bar-track" x="154" y="695" width="88" height="34" rx="2"/>
 <rect x="154" y="695" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="198.0" y="703">82</text>
+<text class="bar-value-label" x="198.0" y="703">107</text>
 <rect x="154" y="707" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="198.0" y="715">82</text>
+<text class="bar-value-label" x="198.0" y="715">107</text>
 <rect class="bar-track" x="286" y="695" width="88" height="34" rx="2"/>
 <rect x="286" y="695" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="330.0" y="703">82/82</text>
+<text class="bar-value-label" x="330.0" y="703">107/107</text>
 <rect x="286" y="707" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="330.0" y="715">82/82</text>
+<text class="bar-value-label" x="330.0" y="715">107/107</text>
 <rect class="bar-track" x="418" y="695" width="88" height="34" rx="2"/>
 <rect x="418" y="695" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="462.0" y="703">11</text>
+<text class="bar-value-label" x="462.0" y="703">14</text>
 <rect x="418" y="707" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="462.0" y="715">11</text>
+<text class="bar-value-label" x="462.0" y="715">14</text>
 <rect class="bar-track" x="550" y="695" width="88" height="34" rx="2"/>
 <rect x="550" y="695" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="594.0" y="703">11/11</text>
+<text class="bar-value-label" x="594.0" y="703">14/14</text>
 <rect x="550" y="707" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="594.0" y="715">11/11</text>
+<text class="bar-value-label" x="594.0" y="715">14/14</text>
 <rect class="bar-track" x="682" y="695" width="88" height="34" rx="2"/>
 <rect x="682" y="695" width="88.0" height="10" rx="2" fill="#2a78d6"/>
-<text class="bar-value-label" x="726.0" y="703">82</text>
+<text class="bar-value-label" x="726.0" y="703">107</text>
 <rect x="682" y="707" width="88.0" height="10" rx="2" fill="#1baf7a"/>
-<text class="bar-value-label" x="726.0" y="715">82</text>
+<text class="bar-value-label" x="726.0" y="715">107</text>
 <text class="lang-label" x="20" y="759.5">fortran</text>
 <rect class="bar-track" x="154" y="739" width="88" height="34" rx="2"/>
 <rect x="154" y="739" width="88.0" height="10" rx="2" fill="#2a78d6"/>

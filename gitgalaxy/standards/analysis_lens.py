@@ -13,7 +13,7 @@
 import json
 import re
 from pathlib import Path
-from typing import ClassVar, Optional, TypedDict
+from typing import Any, ClassVar, Optional, TypedDict
 
 # Frozen file/repo archetype brains (see gitgalaxy-population-analyses
 # freeze_archetype_brains.py). Each carries centroids + names, feature order/weights,
@@ -1474,6 +1474,63 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         "secrets_risk": "Hardcoded Payload Artifacts",
     },
 }
+
+# ------------------------------------------------------------------------------
+# 7a2. VECTOR PRESENTATION ROLES (gitgalaxy#3111 / #3114)
+#
+# RISK_SCHEMA says what is COMPUTED. These two maps say how a vector may be
+# PRESENTED. Both are display-layer only: RISK_SCHEMA, the risk_* DB columns,
+# the JSON keys and every sigmoid formula are untouched, same additive
+# discipline as the #2994 tier model below.
+#
+# The problem both maps solve, measured on the zopeneditor-sample scan
+# (COBOL/PL-I/JCL/HLASM/REXX, 51 files): `spec_match` and `documentation` both
+# read mode=100 / median=50, because each is a "fraction NOT covered by a
+# convention" meter and neither convention is present in most codebases. The
+# brief's Primary Risk Drivers line takes the top 4 vectors by raw value, so
+# those two constants occupied 2 of 4 slots on ALL TEN top-10 entries, crowding
+# out the vectors that actually differentiate the files (State Flux, Safety
+# Score). A line meant to discriminate was reprinting two constants.
+#
+# OPTIONAL_VECTORS -- not computed unless the operator asks for it. Maps the
+# RISK_SCHEMA name to the config key that enables it. A spec-tag traceability
+# convention ([SPEC-n] and similar) is used by few shops; for everyone else the
+# vector is a constant at ceiling, so OFF is the honest default. When disabled
+# the vector is absent from every display surface -- NOT rendered as 0.0, which
+# would assert full spec alignment rather than "not measured".
+OPTIONAL_VECTORS: dict[str, str] = {
+    "spec_match": "SPEC_ALIGNMENT",
+}
+
+# CONTEXT_VECTORS -- computed and reported always, but never eligible for the
+# risk-driver narrative. Maps the RISK_SCHEMA name to the reason, which is
+# quoted in the brief so a reader sees why it sits where it does. Unlike
+# OPTIONAL_VECTORS this is reframing, not disabling: documentation coverage is
+# informative for nearly every shop (#3114 is explicit that the vector is fine
+# and only its placement is wrong), it just is not a fragility signal, and its
+# own contract (docs/risk_documentation_contract.md, #2908) defines it as a
+# weight-share of units a reader cannot recover from docs -- coverage, by
+# construction.
+CONTEXT_VECTORS: dict[str, str] = {
+    "documentation": "documentation coverage, not a fragility driver",
+}
+
+
+def inactive_vectors(scan_config: Optional[dict[str, Any]] = None) -> set[str]:
+    """RISK_SCHEMA names NOT measured on this scan (gitgalaxy#3111).
+
+    The single source of truth for "absent, not zero". Every display surface
+    -- the section 6 table, the ranked-file drivers line, the targeted vector
+    sections -- asks this instead of testing config keys itself, so adding a
+    second optional vector needs no renderer changes.
+
+    Lives here, beside OPTIONAL_VECTORS, rather than on SignalProcessor: the
+    recorders need it too and importing the processor into a recorder to reach
+    it would be a cycle for a dict lookup.
+    """
+    cfg = scan_config or {}
+    return {vector for vector, config_key in OPTIONAL_VECTORS.items() if not cfg.get(config_key)}
+
 
 # ------------------------------------------------------------------------------
 # 7b. MEASUREMENT TIERS (gitgalaxy#2994 -- successor to #2991/#2984/#2979)

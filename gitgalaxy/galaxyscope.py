@@ -845,7 +845,9 @@ class Orchestrator:
         # Audit Recorder: Emits human-readable forensic traceability reports
         self.audit_recorder = AuditRecorder(parent_logger=logger)
         # LLM Recorder: Generates token-compressed RAG context text for AI Agents
-        self.llm_recorder = LLMRecorder(parent_logger=logger)
+        # #3111: the recorder needs the scan config to know which optional
+        # vectors were measured, so it can omit the rest rather than print 0.0.
+        self.llm_recorder = LLMRecorder(parent_logger=logger, scan_config=config)
         # DB Recorder: Archives relational tables natively to SQLite3
         self.db_recorder = RecordKeeper(parent_logger=logger)
         # SARIF Recorder: Exports industry-standard JSON for enterprise security dashboards
@@ -1318,12 +1320,29 @@ class Orchestrator:
                             )
                             self.policy_failed = True
 
-                    # 4. Systemic Threat Ceiling (Cumulative Risk * Blast Radius)
+                    # 4. Systemic Threat Ceiling (Structural Magnitude * Blast Radius)
+                    #
+                    # #3112 BREAKING CHANGE: this gate used to multiply blast
+                    # radius by the Cumulative Risk composite -- a unitless
+                    # sum over all 13 risk vectors, ~31% of which was constant
+                    # or dead. That composite is gone, so the ceiling is now
+                    # structural magnitude * blast radius.
+                    #
+                    # The flag's INTENT is unchanged and is arguably better
+                    # served: "fail when something structurally heavy is also
+                    # widely depended upon". Both factors are now unit-honest
+                    # -- magnitude is explicitly "NOT a risk score" in the
+                    # brief, and blast radius is a normalized PageRank.
+                    #
+                    # THRESHOLD VALUES DO NOT CARRY OVER. The old basis summed
+                    # up to 13 sigmoid percentages (observed ~556 on a real
+                    # scan); magnitude is a different scale entirely, so any
+                    # existing --max-systemic-threat number must be re-tuned.
+                    # Deliberately NOT silently rescaled: a fabricated
+                    # conversion factor would be a worse failure than an
+                    # obvious one. See CHANGELOG.
                     if max_systemic_threat > 0.0:
-                        risk_vec = file_data.get("risk_vector", [])
-                        cumulative_risk = (
-                            sum(r for r in risk_vec if isinstance(r, (int, float)) and r > 0.0) if risk_vec else 0.0
-                        )
+                        structural_magnitude = file_data.get("file_impact", 0.0) or 0.0
 
                         net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
                         # #3027: blast radius is computed in every mode (native
@@ -1337,11 +1356,13 @@ class Orchestrator:
                                 "no blast radius was computed."
                             )
 
-                        systemic_threat = cumulative_risk * (blast_radius or 0.0)
+                        systemic_threat = structural_magnitude * (blast_radius or 0.0)
 
                         if systemic_threat >= max_systemic_threat:
                             logger.critical(
-                                f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit ({systemic_threat:.1f} >= {max_systemic_threat}). Cumulative Risk: {cumulative_risk:.1f} | Blast Radius: {blast_radius:.3f}"
+                                f"BUILD FAILED: {file_data.get('path', 'unknown')} exceeded Systemic Threat limit "
+                                f"({systemic_threat:.1f} >= {max_systemic_threat}). "
+                                f"Structural Magnitude: {structural_magnitude:.1f} | Blast Radius: {blast_radius:.3f}"
                             )
                             self.policy_failed = True
 
@@ -3076,7 +3097,11 @@ def main():
         "--max-systemic-threat",
         type=float,
         default=None,
-        help="CI/CD Gate: Fail build if systemic threat exceeds this limit (0.0 to disable)",
+        help=(
+            "CI/CD Gate: fail the build if any file's structural magnitude x normalized blast radius exceeds "
+            "this limit (0.0 to disable). NOTE (#3112): the basis changed from the removed Cumulative Risk "
+            "composite to structural magnitude, so thresholds set before that change must be re-tuned."
+        ),
     )
     parser.add_argument(
         "--incremental", type=str, metavar="DB_PATH", help="Path to baseline SQLite database for Delta Scanning"
@@ -3118,6 +3143,16 @@ def main():
         default=None,
         help="Max cache-miss files freshly scanned per package per run (default 25; deferred files are disclosed and picked up next run)",
     )
+    parser.add_argument(
+        "--spec-alignment",
+        action="store_true",
+        default=None,
+        help=(
+            "Measure and report the Spec Alignment vector (#3111). OFF by default: it scores the fraction of "
+            "functions NOT carrying a spec-tag traceability marker, so without that convention every file reads "
+            "at ceiling and the vector is a constant. Enable it only if your codebase uses spec tags."
+        ),
+    )
     parser.add_argument("--config", type=str, help="Path to project-level configuration file (e.g., .galaxyscope.yaml)")
     parser.add_argument(
         "--splicing-speed",
@@ -3149,6 +3184,7 @@ def main():
         "fail_on_malware": False,
         "max_risk_exposure": 0.0,
         "max_systemic_threat": 0.0,
+        "spec_alignment": False,
         "no_dependency_cache": False,
         "full_dependency_scan": False,
         "dependency_scan_budget": 25,
@@ -3332,6 +3368,7 @@ def main():
             "FAIL_ON_MALWARE": args.fail_on_malware,
             "MAX_RISK_EXPOSURE": args.max_risk_exposure,
             "MAX_SYSTEMIC_THREAT": args.max_systemic_threat,
+            "SPEC_ALIGNMENT": args.spec_alignment,
             "SPLICING_SPEED": args.splicing_speed,
             "FILE_SPEED": args.file_speed,
             "DEPENDENCY_CACHE_PATH": args.dependency_cache,

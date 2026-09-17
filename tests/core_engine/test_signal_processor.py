@@ -378,8 +378,13 @@ def test_signal_processor_aggregations(processor):
     assert isinstance(summary, dict)
 
     forensics = processor.generate_forensic_report(parsed)
-    assert "cumulative_risk" in forensics, "Forensic report missing cumulative risk!"
-    assert "highest" in forensics["cumulative_risk"], "Forensic report missing highest risk array!"
+    # #3112: the report no longer carries a "cumulative_risk" composite -- it
+    # was a unitless sum over 13 independently scaled vectors, ~31% of which
+    # was ceiling-defaulted or ablated to zero. file_impact is the unit-honest
+    # ranking that replaced it; assert the replacement exists rather than just
+    # asserting the absence, so this test still pins a real contract.
+    assert "cumulative_risk" not in forensics, "The cumulative-risk composite was removed in #3112"
+    assert "file_impact" in forensics, "Forensic report missing the file_impact ranking!"
 
 
 def test_ecosystem_baseline_is_the_composition_repo_archetype(processor):
@@ -742,16 +747,23 @@ def test_signal_processor_ai_topology_skips_uncomputed_metrics(processor):
 # TEST 17: STRUCTURAL METRICS (Graveyard & Spec Match)
 # ==============================================================================
 def test_signal_processor_structural_metrics(processor):
-    """Ensures Graveyard and Spec Match exposures calculate correctly."""
+    """Ensures Graveyard and Spec Match exposures calculate correctly.
+
+    #3111: spec alignment is now opt-in and OFF by default, so this test --
+    which exercises the FORMULA, not the default -- builds its own processor
+    with the vector enabled. The default-off behaviour is asserted separately
+    in tests/tools_recorders/test_report_surface_3111_3114.py.
+    """
+    spec_processor = SignalProcessor(aperture_config={"SPEC_ALIGNMENT": True})
 
     # Graveyard (High dead code)
     m_grave, sig_grave = create_synthetic_star(processor, "dead_code", 100, {"dead_code": 80})
 
     # Spec Match (0 specs for 10 functions = 100% risk)
-    m_spec, sig_spec = create_synthetic_star(processor, "spec", 100, {"func_start": 10, "spec_exposure": 0})
+    m_spec, sig_spec = create_synthetic_star(spec_processor, "spec", 100, {"func_start": 10, "spec_exposure": 0})
 
     r_grave = processor.calculate_risk_vector(m_grave, sig_grave)
-    r_spec = processor.calculate_risk_vector(m_spec, sig_spec)
+    r_spec = spec_processor.calculate_risk_vector(m_spec, sig_spec)
 
     idx_grave = processor.RISK_SCHEMA.index("dead_code")
     idx_spec = processor.RISK_SCHEMA.index("spec_match")
@@ -759,6 +771,14 @@ def test_signal_processor_structural_metrics(processor):
     assert r_grave["risk_vector"][idx_grave] > 50.0, "Graveyard risk failed to register!"
     assert r_spec["risk_vector"][idx_spec] == 100.0, (
         "Spec match risk failed to register maximum exposure on undocumented functions!"
+    )
+
+    # And the default really is off -- the same inputs measure nothing.
+    assert (
+        processor.calculate_risk_vector(*create_synthetic_star(processor, "spec", 100, {"func_start": 10}))[
+            "risk_vector"
+        ][idx_spec]
+        == 0.0
     )
 
 

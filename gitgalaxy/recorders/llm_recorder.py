@@ -44,7 +44,11 @@ class LLMRecorder:
     5. Markdown Brief: Token-compressed text for standard LLM context windows.
     """
 
-    def __init__(self, parent_logger: Optional[logging.Logger] = None):
+    def __init__(
+        self,
+        parent_logger: Optional[logging.Logger] = None,
+        scan_config: Optional[dict[str, Any]] = None,
+    ):
         if parent_logger:
             self.logger = parent_logger.getChild("llm_recorder")
             self.logger.setLevel(parent_logger.level)
@@ -69,6 +73,12 @@ class LLMRecorder:
         # itself (a standalone top-level constant). Drives section 6b of the
         # markdown brief (display-only; never golden-mastered).
         self.SURFACE_FAMILIES = getattr(config, "SURFACE_FAMILIES", {})
+        # gitgalaxy#3111/#3114: which vectors this scan may narrate, and how.
+        # inactive = measured on no file this run, so it appears nowhere
+        # (absent, not a 0.0 that would read as a measurement). context =
+        # measured and tabled, but barred from the risk-driver narrative.
+        self.inactive_vectors = config.inactive_vectors(scan_config)
+        self.CONTEXT_VECTORS = getattr(config, "CONTEXT_VECTORS", {})
 
     def _format_new_vector_name(self, new_name: str) -> str:
         """Renders a VECTOR_NAMES canonical name (e.g. 'concurrency_surface')
@@ -98,6 +108,89 @@ class LLMRecorder:
         if not new_name:
             return old_label
         return f"{self._format_new_vector_name(new_name)} (formerly {old_label})"
+
+    def _driver_labels(self, risk_vector: list[Any], limit: int = 4) -> list[str]:
+        """The highest surface vectors for one file, as display strings.
+
+        Excludes two classes of vector (#3111/#3114), which is the whole
+        point: this line is meant to DISCRIMINATE between files, and a vector
+        that reads at ceiling everywhere cannot. Measured on the
+        zopeneditor-sample scan, spec_match and documentation took 2 of the 4
+        slots on all ten top-10 entries before this filter existed.
+
+        - inactive vectors were not measured at all this run;
+        - context vectors (documentation coverage) are reported in section 6
+          and beside program length, but are not fragility drivers.
+        """
+        drivers: list[tuple[str, float]] = []
+        for i, value in enumerate(risk_vector):
+            if i >= len(self.RISK_SCHEMA):
+                break
+            slug = self.RISK_SCHEMA[i]
+            if slug in self.inactive_vectors or slug in self.CONTEXT_VECTORS:
+                continue
+            if isinstance(value, (int, float)) and value > 0:
+                drivers.append((slug, float(value)))
+
+        drivers.sort(key=lambda kv: kv[1], reverse=True)
+        # Rounded for reading: the raw sigmoid carries noise digits (99.9999%)
+        # that imply a precision the meter does not have, and section 6's
+        # table already reports these to one decimal.
+        return [
+            f"{self._surface_label(slug, slug.replace('_', ' ').title())} ({round(value, 1)}%)"
+            for slug, value in drivers[:limit]
+        ]
+
+    def _coverage_labels(self, risk_vector: list[Any]) -> list[str]:
+        """Context-family vectors for one file, phrased as coverage (#3114).
+
+        Reported so nothing is lost by removing them from the driver line --
+        the ask was to reframe the vector, not to hide it.
+        """
+        labels = []
+        for i, value in enumerate(risk_vector):
+            if i >= len(self.RISK_SCHEMA):
+                break
+            slug = self.RISK_SCHEMA[i]
+            if slug in self.CONTEXT_VECTORS and isinstance(value, (int, float)):
+                labels.append(f"{value}% of unit weight undocumented")
+        return labels
+
+    def _blast_radius_sentence(self, file_data: dict[str, Any]) -> str:
+        """What a change to this file would reach, in words (#3113).
+
+        The brief already computed every number here; it just never stated
+        the consequence. Reads the dependency edges rather than any risk
+        vector, so it says something verifiable.
+
+        Outbound count comes from raw_imports, matching section 7's
+        `_outbound` and the executive summary rather than the resolved
+        `out_degree`: the two disagree (a file listing two imports can carry
+        out_degree 0 when neither resolves to an in-repo artifact), and
+        reporting "depends on 0" directly above a line that names two imports
+        reads as a bug.
+        """
+        net_metrics = file_data.get("telemetry", {}).get("network_metrics", {})
+        raw_imports = file_data.get("raw_imports", [])
+        in_degree = net_metrics.get("in_degree", 0) or 0
+        out_degree = len(raw_imports) if isinstance(raw_imports, list) else 0
+        blast = net_metrics.get("normalized_blast_radius")
+        role = net_metrics.get("ecosystem_role", "Unknown")
+
+        if in_degree == 0 and out_degree == 0:
+            return "isolated in the scanned graph -- no in-repo artifact imports it and it imports none"
+        parts = []
+        if in_degree:
+            parts.append(f"changing it is visible to **{in_degree}** in-repo importer(s)")
+        else:
+            parts.append("nothing in-repo imports it (entrypoint or orphan)")
+        if out_degree:
+            parts.append(f"it depends on **{out_degree}**")
+        if blast is not None:
+            parts.append(f"blast radius {blast}")
+        if role and role != "Unknown":
+            parts.append(f"role: {role}")
+        return "; ".join(parts)
 
     def _parse_threat_score(self, artifact: dict) -> tuple[float, str]:
         """Safely extracts and converts the AI threat score string to a float."""
@@ -184,113 +277,105 @@ class LLMRecorder:
         except Exception as e:
             self.logger.error(f"Failed to seal LLM brief: {e}", exc_info=True)
 
-    def _build_markdown(
+    def _executive_summary_lines(
         self,
         parsed_files: list[dict[str, Any]],
-        unparsable_files: list[dict[str, Any]],
-        summary: dict[str, Any],
-        session_meta: dict[str, Any],
-        forensic_report: dict[str, Any],
-    ) -> str:
-        """Constructs a high-density, context-rich Markdown brief for LLM agents."""
-        target = session_meta.get("target", "Project")
-        sum_data = summary.get("summary", {})
-        comp = summary.get("composition", {})
-        git_audit = session_meta.get("git_audit", {})
+        sum_data: dict[str, Any],
+        comp: dict[str, Any],
+    ) -> list[str]:
+        """The answer-first section (#3113).
 
-        total_excluded = len(unparsable_files)
-        visible_count = sum_data.get("verified_files", len(parsed_files))
+        The brief's most verifiable and most differentiated content is the
+        cross-language dependency graph, and it used to sit in section 7,
+        behind ~170 lines of lexicon and statistics tables. On the
+        zopeneditor-sample audit that graph was independently confirmed
+        correct against the source (the most-depended-on copybook really had
+        three inbound PL/I includes; the top orchestrator really was the
+        compile-and-link-everything JCL job), so it earns the lead.
 
-        lines = []
-        lines.append(f"# ARCHITECTURAL_BRIEF: {target}")
+        Every number here is already computed elsewhere in the brief; this
+        section assembles them into the two questions a reader actually
+        arrives with -- what is this, and what holds it up.
+
+        Reuses section 7's zero-guard discipline (#2556): with no resolvable
+        imports anywhere, a "most depended upon" ranking is just scan order
+        wearing a superlative, so say the graph is flat instead.
+        """
+        lines = ["## 1. EXECUTIVE SUMMARY"]
+
+        visible = sum_data.get("verified_files", len(parsed_files))
+        total_loc = sum_data.get("total_loc") or sum(f.get("total_loc", 0) for f in parsed_files)
+
+        langs = comp.get("languages") if isinstance(comp.get("languages"), dict) else comp
+        lang_parts = []
+        if isinstance(langs, dict):
+            ranked = sorted(
+                ((k, v) for k, v in langs.items() if isinstance(v, (int, float))),
+                key=lambda kv: kv[1],
+                reverse=True,
+            )[:4]
+            lang_parts = [f"{name} ({value})" for name, value in ranked]
         lines.append(
-            "> INSTRUCTION: Deterministic Syntactic Analysis. Base architectural insights on Structural Magnitude, Extracted Signatures, and Risk overlays.\n"
+            f"- **Scope:** {visible} analyzed artifact(s), {total_loc} LOC."
+            + (f" Dominant languages: {', '.join(lang_parts)}." if lang_parts else "")
         )
 
-        # --- 0. FORENSIC TRACEABILITY ---
-        lines.append("## 0. FORENSIC TRACEABILITY")
-        lines.append("| Metadata | Value |")
-        lines.append("|---|---|")
-        # This brief is committed to docs/gitgalaxy_architecture_brief.md by a
-        # scheduled CI scan of main. Only fields that change when the repo's
-        # *architecture* changes belong here -- anything that varies between two
-        # scans of the same commit (Timestamp, Scan Duration, the absolute
-        # Target Path, the current Git Branch, the HEAD commit hash) made every
-        # scan produce a diff, and its PR auto-merges, so a per-scan field was a
-        # ~21-commits/day treadmill. Freshness lives in `git log` of the file.
-        lines.append(f"| **Engine** | `{session_meta.get('engine', 'Unknown')}` |")
-        lines.append(f"| **Git Remote** | `{git_audit.get('remote_url', 'N/A')}` |")
-        lines.append(
-            f"| **Zero-Dependency Mode** | `{'ACTIVE (Degraded Precision)' if session_meta.get('zero_dependency_mode') else 'Inactive (Full Precision)'}` |"
-        )
-        lines.append("")
+        def _inbound(file_data: dict[str, Any]) -> int:
+            return file_data.get("telemetry", {}).get("popularity", 0) or 0
 
-        if session_meta.get("zero_dependency_mode"):
-            lines.append("> **⚠️ ZERO-DEPENDENCY MODE ACTIVE:**")
-            missing = [pkg for pkg, gone in session_meta.get("missing_dependencies", {}).items() if gone]
+        def _outbound(file_data: dict[str, Any]) -> int:
+            raw = file_data.get("raw_imports", [])
+            return len(raw) if isinstance(raw, list) else 0
+
+        if any(_inbound(f) > 0 for f in parsed_files):
+            top = max(parsed_files, key=_inbound)
             lines.append(
-                f"> Optional engines missing during this scan: {', '.join(f'`{p}`' for p in missing) or 'unknown'}. "
-                "Metrics that need them were NOT computed -- shown as `n/a` or omitted, and no value shown for them "
-                "is a measurement: Token Mass and Financial Read Cost (`tiktoken`); AI threat classification "
-                "(`xgboost`/`pandas`/`numpy`). Every graph metric (PageRank / Blast Radius, the centralities, the "
-                "repo network table, connection counts) is computed natively and matches full precision. Do not "
-                "infer values for the missing metrics."
+                f"- **Load-bearing artifact:** `{top.get('path', 'unknown')}` -- {_inbound(top)} in-repo "
+                "importer(s) depend on it. Changes here propagate furthest."
             )
-            lines.append("")
-
-        # ---> HARVEST AI THREAT SCORES <---
-        ml_threats = []
-        for s in parsed_files:
-            score_val, score_str = self._parse_threat_score(s)
-            if s.get("is_ml_threat", False) or score_val >= 50.0:
-                ml_threats.append((s, score_val, score_str))
-
-        ml_threats.sort(key=lambda x: x[1], reverse=True)
-
-        lines.append("## 0.5 AI THREAT AUDIT STATUS")
-        if ml_threats:
-            lines.append("> **🚨 ML_CONFIRMED_THREAT_DETECTED**")
-            lines.append(f"> XGBoost Structural Signatures model identified {len(ml_threats)} malicious artifacts.")
         else:
-            lines.append("> **✅ SECURE_NO_THREATS_DETECTED**")
-            lines.append("> XGBoost Structural Signatures model found no malicious artifacts.")
+            lines.append(
+                "- **Load-bearing artifact:** none identifiable. No file in this repository is imported by "
+                "another that GitGalaxy could resolve, so there is no dependency hierarchy to report. That is "
+                "itself a finding: either this is a collection of independent scripts/documents rather than a "
+                "coupled system, or the import style is one the engine does not resolve for these languages."
+            )
+
+        if any(_outbound(f) > 0 for f in parsed_files):
+            orchestrator = max(parsed_files, key=_outbound)
+            lines.append(
+                f"- **Top orchestrator:** `{orchestrator.get('path', 'unknown')}` -- pulls in "
+                f"{_outbound(orchestrator)} dependencies, the widest assembly point in the scan."
+            )
+
+        if parsed_files:
+            heaviest = max(parsed_files, key=lambda f: f.get("file_impact", 0.0) or 0.0)
+            lines.append(
+                f"- **Heaviest artifact:** `{heaviest.get('path', 'unknown')}` at magnitude "
+                f"{heaviest.get('file_impact', 0.0)} (structural weight, not risk)."
+            )
+
+        lines.append(
+            "- **How to read this brief:** section 11 ranks artifacts by structural magnitude with a blast-radius "
+            "line each; section 7 has the full dependency graph. The surface vectors in section 6 describe what is "
+            "present in a file, not the probability of a defect -- Appendix A has the equations and the validation "
+            "record behind that distinction."
+        )
         lines.append("")
+        return lines
 
-        # --- 1. CRITICAL SYSTEM INSTRUCTIONS & LEXICON ---
-        lines.append("## 1. SYSTEM ROLE & PHILOSOPHY")
-        lines.append(
-            "> You are a Senior Technical Storyteller and Codebase Architect. GitGalaxy has translated the non-visual architecture of this repository into measurable Structural Signatures (regex-derived counts, not an AST or compiler pass). Your job is to weave those signatures into a coherent, factual narrative about how this system is built -- its architecture, design patterns, and complexity -- not to render a verdict."
-        )
-        lines.append("> ")
-        lines.append("> **CORE DIRECTIVES:**")
-        lines.append(
-            "> 1. **Narrate the Architecture, Don't Judge the Author:** Frame every observation as a blameless description of the system's physical reality. A high Structural Surface Profile reading (formerly called Risk Exposure; e.g., Complexity Load, formerly Cognitive Load Exposure) describes where the architecture may be drifting into fragile territory, not developer incompetence -- it is a prompt to investigate, never a verdict. These are activity/content surface meters, not defect-probability estimates (gitgalaxy#2991, evidence in #2982) -- describe what is there, don't imply it predicts a bug."
-        )
-        lines.append(
-            "> 2. **The Physical Reality Rule:** Base your narrative strictly on the provided Structural Signatures and the numbers derived from them. Do not hallucinate meaning, and do not restate a heuristic's raw label (e.g. a 'Logic Bomb' or 'O(2^N)' flag) as a confirmed finding of malice or a guaranteed defect -- explain what the signature actually measures, weave it into the story of the file, and let the reader draw their own conclusion."
-        )
-        lines.append(
-            "> 3. **Risk vs. Defense:** Code is a balance. A file with high `flux` (state mutation) is risky unless balanced by `freeze_hits` (immutability). High `danger` is brittle unless wrapped in `safety`. Tell that balance as part of the narrative, not as an isolated alarm."
-        )
-        lines.append("> ")
-        lines.append("> **THE STRUCTURAL SIGNATURE LEXICON:**")
-        lines.append(
-            "> * **Structure & Mass:** `branch` (splits), `linear` (paths), `args` (coupling), `func_start` (entry points)."
-        )
-        lines.append(
-            "> * **Risk & Volatility:** `danger` (dynamic execution), `flux` (state mutation), `graveyard` (commented-out logic), `safety_neg` (security bypasses)."
-        )
-        lines.append(
-            "> * **Architecture & Domain:** `io` (network latency), `concurrency` (async orchestration), `api` (public surface), `import` (dependencies)."
-        )
-        lines.append(
-            "> * **Defensive Guardrails:** `safety` (Error handling), `freeze_hits` (immutability), `cleanup` (state destruction)."
-        )
+    def _lexicon_lines(self) -> list[str]:
+        """The vector lexicon and the non-predictive disclaimer (#3113).
 
-        # --- 2. 13-POINT RISK ANALYSIS (THE EQUATIONS) ---
-        lines.append(
-            "## 2. THE 13-POINT STRUCTURAL SURFACE PROFILE (formerly Risk Exposure) ANALYSIS (EQUATIONS & CONTEXT)"
-        )
+        Was section 2, ~75 lines of formula exposition sitting between the
+        reader and every finding in the brief. #3113 asked for it to be
+        KEPT but moved: the honesty is an asset and deliberately survives
+        verbatim -- it is simply no longer the first thing a reader wades
+        through to reach the dependency story.
+        """
+        lines: list[str] = []
+        # --- APPENDIX A (was section 2): the vector lexicon ---
+        lines.append("## APPENDIX A. STRUCTURAL SURFACE LEXICON (EQUATIONS & CONTEXT)")
         lines.append(
             "> **How the SAST Engine Calculates the Structural Surface Profile (Lower 0 - Higher Surface Presence 100%):**"
         )
@@ -363,7 +448,125 @@ class LLMRecorder:
             "> **20. File Magnitude (Total Impact):** Measures the total structural impact of a file. `Sum(Function Impacts) + API + Concurrency + Flux + (LOC / 50)`. This is NOT a risk score."
         )
         lines.append("")
+        return lines
 
+    def _build_markdown(
+        self,
+        parsed_files: list[dict[str, Any]],
+        unparsable_files: list[dict[str, Any]],
+        summary: dict[str, Any],
+        session_meta: dict[str, Any],
+        forensic_report: dict[str, Any],
+    ) -> str:
+        """Constructs a high-density, context-rich Markdown brief for LLM agents."""
+        target = session_meta.get("target", "Project")
+        sum_data = summary.get("summary", {})
+        comp = summary.get("composition", {})
+        git_audit = session_meta.get("git_audit", {})
+
+        total_excluded = len(unparsable_files)
+        visible_count = sum_data.get("verified_files", len(parsed_files))
+
+        lines = []
+        lines.append(f"# ARCHITECTURAL_BRIEF: {target}")
+        lines.append(
+            "> INSTRUCTION: Deterministic Syntactic Analysis. Base architectural insights on Structural Magnitude, Extracted Signatures, and Risk overlays.\n"
+        )
+
+        # --- 0. FORENSIC TRACEABILITY ---
+        lines.append("## 0. FORENSIC TRACEABILITY")
+        lines.append("| Metadata | Value |")
+        lines.append("|---|---|")
+        # This brief is committed to docs/gitgalaxy_architecture_brief.md by a
+        # scheduled CI scan of main. Only fields that change when the repo's
+        # *architecture* changes belong here -- anything that varies between two
+        # scans of the same commit (Timestamp, Scan Duration, the absolute
+        # Target Path, the current Git Branch, the HEAD commit hash) made every
+        # scan produce a diff, and its PR auto-merges, so a per-scan field was a
+        # ~21-commits/day treadmill. Freshness lives in `git log` of the file.
+        lines.append(f"| **Engine** | `{session_meta.get('engine', 'Unknown')}` |")
+        lines.append(f"| **Git Remote** | `{git_audit.get('remote_url', 'N/A')}` |")
+        lines.append(
+            f"| **Zero-Dependency Mode** | `{'ACTIVE (Degraded Precision)' if session_meta.get('zero_dependency_mode') else 'Inactive (Full Precision)'}` |"
+        )
+        lines.append("")
+
+        if session_meta.get("zero_dependency_mode"):
+            lines.append("> **⚠️ ZERO-DEPENDENCY MODE ACTIVE:**")
+            missing = [pkg for pkg, gone in session_meta.get("missing_dependencies", {}).items() if gone]
+            lines.append(
+                f"> Optional engines missing during this scan: {', '.join(f'`{p}`' for p in missing) or 'unknown'}. "
+                "Metrics that need them were NOT computed -- shown as `n/a` or omitted, and no value shown for them "
+                "is a measurement: Token Mass and Financial Read Cost (`tiktoken`); AI threat classification "
+                "(`xgboost`/`pandas`/`numpy`). Every graph metric (PageRank / Blast Radius, the centralities, the "
+                "repo network table, connection counts) is computed natively and matches full precision. Do not "
+                "infer values for the missing metrics."
+            )
+            lines.append("")
+
+        # ---> HARVEST AI THREAT SCORES <---
+        ml_threats = []
+        for s in parsed_files:
+            score_val, score_str = self._parse_threat_score(s)
+            if s.get("is_ml_threat", False) or score_val >= 50.0:
+                ml_threats.append((s, score_val, score_str))
+
+        ml_threats.sort(key=lambda x: x[1], reverse=True)
+
+        lines.append("## 0.5 AI THREAT AUDIT STATUS")
+        if ml_threats:
+            lines.append("> **🚨 ML_CONFIRMED_THREAT_DETECTED**")
+            lines.append(f"> XGBoost Structural Signatures model identified {len(ml_threats)} malicious artifacts.")
+        else:
+            lines.append("> **✅ SECURE_NO_THREATS_DETECTED**")
+            lines.append("> XGBoost Structural Signatures model found no malicious artifacts.")
+        lines.append("")
+
+        # --- 1. EXECUTIVE SUMMARY (#3113: answer first) ---
+        lines.extend(self._executive_summary_lines(parsed_files, sum_data, comp))
+
+        # --- 1.5 CRITICAL SYSTEM INSTRUCTIONS ---
+        lines.append("## 1.5 SYSTEM ROLE & PHILOSOPHY")
+        lines.append(
+            "> You are a Senior Technical Storyteller and Codebase Architect. GitGalaxy has translated the non-visual architecture of this repository into measurable Structural Signatures (regex-derived counts, not an AST or compiler pass). Your job is to weave those signatures into a coherent, factual narrative about how this system is built -- its architecture, design patterns, and complexity -- not to render a verdict."
+        )
+        lines.append("> ")
+        lines.append("> **CORE DIRECTIVES:**")
+        lines.append(
+            "> 1. **Narrate the Architecture, Don't Judge the Author:** Frame every observation as a blameless description of the system's physical reality. A high Structural Surface Profile reading (formerly called Risk Exposure; e.g., Complexity Load, formerly Cognitive Load Exposure) describes where the architecture may be drifting into fragile territory, not developer incompetence -- it is a prompt to investigate, never a verdict. These are activity/content surface meters, not defect-probability estimates (gitgalaxy#2991, evidence in #2982) -- describe what is there, don't imply it predicts a bug."
+        )
+        lines.append(
+            "> 2. **The Physical Reality Rule:** Base your narrative strictly on the provided Structural Signatures and the numbers derived from them. Do not hallucinate meaning, and do not restate a heuristic's raw label (e.g. a 'Logic Bomb' or 'O(2^N)' flag) as a confirmed finding of malice or a guaranteed defect -- explain what the signature actually measures, weave it into the story of the file, and let the reader draw their own conclusion."
+        )
+        lines.append(
+            "> 3. **Risk vs. Defense:** Code is a balance. A file with high `flux` (state mutation) is risky unless balanced by `freeze_hits` (immutability). High `danger` is brittle unless wrapped in `safety`. Tell that balance as part of the narrative, not as an isolated alarm."
+        )
+        lines.append("> ")
+        lines.append("> **THE STRUCTURAL SIGNATURE LEXICON:**")
+        lines.append(
+            "> * **Structure & Mass:** `branch` (splits), `linear` (paths), `args` (coupling), `func_start` (entry points)."
+        )
+        lines.append(
+            "> * **Risk & Volatility:** `danger` (dynamic execution), `flux` (state mutation), `graveyard` (commented-out logic), `safety_neg` (security bypasses)."
+        )
+        lines.append(
+            "> * **Architecture & Domain:** `io` (network latency), `concurrency` (async orchestration), `api` (public surface), `import` (dependencies)."
+        )
+        lines.append(
+            "> * **Defensive Guardrails:** `safety` (Error handling), `freeze_hits` (immutability), `cleanup` (state destruction)."
+        )
+
+        # --- 2. (MOVED) VECTOR LEXICON -> APPENDIX A ---
+        # #3113: the 13-point equation exposition used to sit here, ahead of
+        # every actual finding. It is unchanged and still in this brief --
+        # see _lexicon_lines(), emitted as Appendix A at the end. The pointer
+        # below exists so a reader going in order is not left wondering what
+        # happened to section 2.
+        lines.append(
+            "> *(Section 2, the structural-surface lexicon and its equations, is now **Appendix A** at the end "
+            "of this brief -- the findings come first.)*"
+        )
+        lines.append("")
         # --- 3. MACRO ECOSYSTEM ---
         lines.append("## 3. MACRO STATE")
         lines.append("| Metric | Value |")
@@ -510,9 +713,19 @@ class LLMRecorder:
         exposure_labels = schemas.get("EXPOSURE_LABELS", {})
 
         for i, risk_slug in enumerate(self.RISK_SCHEMA):
+            # #3111: an unmeasured vector is omitted from the table entirely.
+            # Printing its slot would report 0.0 across the repo, which reads
+            # as "perfectly aligned" -- the opposite of "not measured".
+            if risk_slug in self.inactive_vectors:
+                continue
             vals = [s.get("risk_vector", [])[i] for s in parsed_files if len(s.get("risk_vector", [])) > i]
             old_label = exposure_labels.get(risk_slug, risk_slug.replace("_", " ").title())
             risk_label = self._surface_label(risk_slug, old_label)
+            # #3114: mark the coverage-family rows in the table itself, so the
+            # reframing is visible at the point of reading and not only in the
+            # ranked-file section that now excludes them.
+            if risk_slug in self.CONTEXT_VECTORS:
+                risk_label = f"{risk_label} _(coverage)_"
 
             if vals:
                 v_min, v_max = round(min(vals), 1), round(max(vals), 1)
@@ -528,6 +741,30 @@ class LLMRecorder:
             else:
                 lines.append(f"| {risk_label} | - | - | - | - | - |")
         lines.append("")
+
+        # #3114 / #3111: say plainly what the table does and does not contain.
+        for ctx_slug, ctx_reason in self.CONTEXT_VECTORS.items():
+            ctx_label = self._surface_label(ctx_slug, exposure_labels.get(ctx_slug, ctx_slug))
+            lines.append(
+                f"> `{ctx_label}` is **{ctx_reason}**. It is reported for context beside program length, and is "
+                "deliberately excluded from the ranked-file drivers in this brief: it measures the share of a "
+                "file's unit weight a reader cannot recover from documentation, so on a codebase that documents "
+                "little it sits near ceiling everywhere and describes the repo rather than distinguishing files "
+                "within it."
+            )
+        optional_vectors = getattr(config, "OPTIONAL_VECTORS", {})
+        for off_slug in sorted(self.inactive_vectors):
+            off_label = self._surface_label(off_slug, exposure_labels.get(off_slug, off_slug))
+            # Derive the CLI spelling from the config key the vector is gated
+            # on, so a second optional vector needs no edit here.
+            flag = "--" + optional_vectors.get(off_slug, off_slug).lower().replace("_", "-")
+            lines.append(
+                f"> `{off_label}` was **not measured** on this scan and is therefore absent above rather "
+                f"than reported as 0 (which would assert full alignment). Enable it with `{flag}` if this "
+                "codebase uses the corresponding convention."
+            )
+        if self.CONTEXT_VECTORS or self.inactive_vectors:
+            lines.append("")
 
         # --- 6b. SURFACE FAMILY PROFILE (gitgalaxy#2994, Tier 1/2/3) ---
         # Display-only: nothing here is golden-mastered (section 6 above
@@ -868,82 +1105,31 @@ class LLMRecorder:
         # ==============================================================================
 
         # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
-        # --- 11. CUMULATIVE RISK HITLIST ---
+        # --- 11. (REMOVED) CUMULATIVE RISK HITLIST ---
+        # ==============================================================================
+        # #3112/#3113: section 11 ranked the top 10 files by the Cumulative
+        # Risk composite and then reprinted archetype, magnitude and heaviest
+        # functions -- all of which section 11's successor below already
+        # carries for a wider set of files. Two sections answered the same
+        # question ("which files deserve attention first") in two formats, and
+        # the one that ranked did so on a unitless sum that #3112 removed.
+        #
+        # The question survives; the ranked list below is now the single
+        # answer, ordered by structural magnitude and annotated with the blast
+        # radius that says what a change would reach.
         # ==============================================================================
 
         # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
-        lines.append("## 11. CUMULATIVE RISK HITLIST (Top 10 Highest Risk Files)")
+        # --- 11. RANKED ARTIFACTS (was 12; absorbs the old section 11) ---
+        # ==============================================================================
+
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        lines.append("## 11. RANKED ARTIFACTS (Top 25 by Structural Magnitude)")
         lines.append(
-            "> Cumulative Risk is the sum of all individual risk exposures. These files represent the highest multi-dimensional technical debt and architectural fragility.\n"
-        )
-
-        cumulative_risks = forensic_report.get("cumulative_risk", {}).get("highest", [])
-        if cumulative_risks:
-            file_map = {f.get("path"): f for f in parsed_files}
-
-            for rank, cr in enumerate(cumulative_risks[:10], 1):
-                p = cr.get("path")
-                c_val = cr.get("value")
-                matched_file = file_map.get(p)
-
-                if not matched_file:
-                    lines.append(f"### {rank}. `{p}` -> Cumulative Risk: **{c_val}**")
-                    continue
-
-                l = matched_file.get("lang_id", "UNK").upper()
-                m = matched_file.get("file_impact", 0.0)
-                loc = matched_file.get("total_loc", 0)
-                tel = matched_file.get("telemetry", {})
-                rv = matched_file.get("risk_vector", [])
-
-                lines.append(f"### {rank}. `{p}` ({l}) -> Cumulative Risk: **{c_val}**")
-                arch = tel.get("archetype", "Unknown Archetype")
-                dist = tel.get("archetype_fingerprint", {}).get(arch, "N/A")
-                lines.append(f"- **Archetype:** `{arch}` (Distance: {dist} IQR)")
-                comp_arch = tel.get("composition_file_archetype")
-                if comp_arch:
-                    cz = tel.get("composition_file_z", 0.0) or 0.0
-                    lines.append(f"- **Composition Archetype:** `{comp_arch}` (z {cz:+.2f})")
-                lines.append(
-                    f"- **Magnitude:** {m} | **LOC:** {loc} | **CtrlFlow:** {round(tel.get('control_flow_ratio', 0.0) * 100, 1)}% | **Authorship Centralization:** {round(tel.get('author_distribution', 0.0), 1)}%"
-                )
-
-                file_risks = []
-                for i, r_val in enumerate(rv):
-                    if i < len(self.RISK_SCHEMA) and r_val > 0:
-                        file_risks.append((self.RISK_SCHEMA[i], r_val))
-
-                file_risks.sort(key=lambda x: x[1], reverse=True)
-                top_file_risks = [f"{k.replace('_', ' ').title()} ({r_val}%)" for k, r_val in file_risks[:4]]
-                lines.append(f"- **Primary Risk Drivers:** {', '.join(top_file_risks) if top_file_risks else 'None'}")
-
-                sats = sorted(
-                    matched_file.get("functions", []),
-                    key=lambda x: x.get("impact", 0),
-                    reverse=True,
-                )[:3]
-                if sats:
-                    sat_strs = [
-                        f"`{sat.get('name')}` ({sat.get('archetype', 'Unclassified')}, Impact: {sat.get('impact')})"
-                        for sat in sats
-                    ]
-                    lines.append(f"- **Heaviest Functions:** {', '.join(sat_strs)}")
-
-                lines.append("")
-        else:
-            lines.append("*No cumulative risk data available.*")
-            lines.append("")
-
-        # ==============================================================================
-
-        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
-        # --- 12. SCANNED ARTIFACTS HITLIST (Top 25 Heaviest Files) ---
-        # ==============================================================================
-
-        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
-        lines.append("## 12. SCANNED ARTIFACTS HITLIST (Top 25 Heaviest Files)")
-        lines.append(
-            "> *Note: 'Magnitude' represents the file's total Structural Magnitude and impact within the system. It is independent of its Risk Profile. High magnitude implies high structural importance and centralization.*\n"
+            "> Ranked by Structural Magnitude: the file's structural weight and centralization within the "
+            "system. Magnitude is **not** a risk score and is independent of the surface vectors in section 6. "
+            "Each entry carries a **Blast Radius** line stating what a change to it would reach -- that, not "
+            "the vector percentages, is the actionable part.\n"
         )
 
         sorted_files = sorted(parsed_files, key=lambda x: x.get("file_impact", 0.0), reverse=True)[:25]
@@ -970,8 +1156,6 @@ class LLMRecorder:
 
             rv = s.get("risk_vector", [])
             tel = s.get("telemetry", {})
-            cog = rv[0] if len(rv) > 0 else 0.0
-            debt = rv[2] if len(rv) > 2 else 0.0
 
             lock_tier = s.get("lock_tier", tel.get("identity_lock_tier", 4))
             purpose = tel.get("domain_context", {}).get("purpose", "")
@@ -1000,7 +1184,17 @@ class LLMRecorder:
             lines.append(
                 f"- **Magnitude:** {m} | **LOC:** {loc} | **CtrlFlow:** {round(tel.get('control_flow_ratio', 0.0) * 100, 1)}% | **Authorship Centralization:** {round(tel.get('author_distribution', 0.0), 1)}%"
             )
-            lines.append(f"- **Risk Profile:** Cognitive Load ({cog}%), Tech Debt ({debt}%)")
+            # #3113: state the consequence, from the dependency edges the
+            # brief already computes. This is the "what does it affect" line
+            # the old Primary-Risk-Drivers line never provided.
+            lines.append(f"- **Blast Radius:** {self._blast_radius_sentence(s)}")
+
+            # #3111/#3114: top surface vectors, ceiling-pinned ones excluded.
+            driver_labels = self._driver_labels(rv)
+            lines.append(f"- **Top Surface Vectors:** {', '.join(driver_labels) if driver_labels else 'None above 0%'}")
+            coverage_labels = self._coverage_labels(rv)
+            if coverage_labels:
+                lines.append(f"- **Documentation Coverage:** {', '.join(coverage_labels)}")
 
             hv = s.get("hit_vector", [])
             struct_hits, risk_hits, arch_hits, def_hits = [], [], [], []
@@ -1082,11 +1276,11 @@ class LLMRecorder:
         # ==============================================================================
 
         # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
-        # --- 13. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS ---
+        # --- 12. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS ---
         # ==============================================================================
 
         # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
-        lines.append("## 13. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS")
+        lines.append("## 12. ARCHITECTURAL DRIFT ANOMALIES & ANTI-PATTERNS")
         lines.append(
             "> **AI CONTEXT:** Pay close attention to 'Anti-Pattern' files. These files blend in globally (Low Global Drift), but heavily violate the standard conventions of their native programming language (High Local Drift). 'Mixed-Responsibility' files sit perfectly between two global archetypes (Delta <= 0.9 IQR), indicating a violation of the Single Responsibility Principle.\n"
         )
@@ -1189,7 +1383,7 @@ class LLMRecorder:
         # ==============================================================================
 
         # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
-        lines.append("## 13.5 STRATEGIC REFACTORING TARGETS (Volatility & Authorship Centralization)")
+        lines.append("## 12.5 STRATEGIC REFACTORING TARGETS (Volatility & Authorship Centralization)")
         lines.append(
             "> **AI CONTEXT:** Use these intersections to recommend pragmatic next steps. Risk is exponentially worse when combined with high churn (frequent edits) or high authorship centralization (single points of failure).\n"
         )
@@ -1251,7 +1445,7 @@ class LLMRecorder:
         # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
         sys_bots = forensic_report.get("systemic_bottlenecks", {})
         if any(v and v[0]["score"] > 0 for v in sys_bots.values()):
-            lines.append("## 13.8 SYSTEMIC NETWORK BOTTLENECKS (N-Dimensional Topology)")
+            lines.append("## 12.8 SYSTEMIC NETWORK BOTTLENECKS (N-Dimensional Topology)")
             lines.append(
                 "> **AI CONTEXT:** These metrics cross-multiply Network Graph Theory against Risk Exposure to identify the exact mechanisms of runtime failure.\n"
             )
@@ -1305,6 +1499,11 @@ class LLMRecorder:
         # ==============================================================================
 
         # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # #3113: the lexicon, verbatim but demoted from section 2 to here.
+        # Placed before the output-format directive so that directive stays
+        # the last thing the consuming model reads.
+        lines.extend(self._lexicon_lines())
+
         lines.append("## AI SYSTEM INSTRUCTIONS (OUTPUT FORMAT)")
         lines.append(
             "> **CRITICAL TONE DIRECTIVE:** Stay in the Senior Technical Storyteller persona from Section 1. Use grounded, professional software engineering terminology (e.g., coupling, cohesion, technical debt, single responsibility) woven into a cohesive narrative -- not a dry, disconnected bullet-point audit. DO NOT use sci-fi, dramatic, or sensational jargon (e.g., 'Trojan', 'violently violates', 'parasitic', 'chimeric'). Be objective and factual, but write like you're explaining the codebase to a colleague, not filing a verdict."
@@ -1322,7 +1521,7 @@ class LLMRecorder:
             "> 3. **Security & Vulnerabilities:** Immediately surface any critical threats flagged in the `AI THREAT INTELLIGENCE (XGBoost)` section. If none exist, briefly confirm the repository is secure from recognized structural threats."
         )
         lines.append(
-            "> 4. **Outliers & Extremes:** Focus strictly on statistical anomalies. Highlight files or directory groups with massive Cumulative Risk, severe Z-Scores (Architectural Drift), or extreme spikes in individual risk vectors (like State Flux or Cognitive Load). Ignore normal, healthy code."
+            "> 4. **Outliers & Extremes:** Focus strictly on statistical anomalies. Highlight files or directory groups with high Structural Magnitude combined with a wide Blast Radius, severe Z-Scores (Architectural Drift), or extreme spikes in individual surface vectors (like Mutation Surface or Complexity Load). Do NOT sum the surface vectors together or treat any total of them as a score -- they are independently scaled meters in different units (#3112). Ignore normal, healthy code."
         )
         lines.append(
             "> 5. **Recommended Next Steps (Refactoring for Stability):** Provide 2-3 highly specific, pragmatic suggestions focused strictly on reducing outliers. Instruct the user on how to refactor high Z-score files, decouple massive central nodes, or mitigate extreme risk exposures to stabilize the system's architecture."

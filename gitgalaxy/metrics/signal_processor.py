@@ -115,6 +115,11 @@ class SignalProcessor:
     # as ENGINE_CONSTANTS/APERTURE_CONFIG below.
     SURFACE_FAMILIES = getattr(config, "SURFACE_FAMILIES", {})
 
+    # gitgalaxy#3111/#3114: display-layer presentation roles, bound here for
+    # the same travel-with-the-schema reason as SURFACE_FAMILIES above.
+    OPTIONAL_VECTORS = getattr(config, "OPTIONAL_VECTORS", {})
+    CONTEXT_VECTORS = getattr(config, "CONTEXT_VECTORS", {})
+
     def __init__(
         self,
         aperture_config: Optional[dict[str, Any]] = None,
@@ -130,6 +135,10 @@ class SignalProcessor:
 
         self.logger.debug("Initializing Universal Exposure Framework...")
         self.config = aperture_config or {}
+
+        # #3111: resolved once here rather than per file -- calculate_risk_vector
+        # runs on every artifact in the scan.
+        self.spec_alignment_enabled = bool(self.config.get(self.OPTIONAL_VECTORS.get("spec_match", ""), False))
 
         # ======================================================================
         # 🧠 FETCH PRE-TRAINED INFERENCE MODELS (Global & Local)
@@ -771,7 +780,18 @@ class SignalProcessor:
                 functions,
                 doc_umbrella=ghost_meta.get("doc_umbrella", 0.0),
             )
-            spec_score = self._calc_spec_alignment(signals, mp_map.get("spec", 1.0))
+            # #3111: spec alignment is opt-in (default OFF -- see
+            # analysis_lens.OPTIONAL_VECTORS for why). Not computed when
+            # disabled; the slot stays 0.0 so the vector keeps its dense
+            # numeric contract for the ~25 positional consumers (DB columns,
+            # gpu_recorder's int(v * 10), network_risk_sensor's multiply), the
+            # same representation the engine already uses for the history
+            # vectors it ablates. Nothing renders it -- every display surface
+            # consults inactive_vectors() -- so the 0.0 is never shown as a
+            # measurement.
+            spec_score = (
+                self._calc_spec_alignment(signals, mp_map.get("spec", 1.0)) if self.spec_alignment_enabled else 0.0
+            )
 
             # The old `bureaucracy_dampener = min(loc / 15, 1)` that scaled the
             # doc/test/spec scores of sub-15-LOC files is gone (#2655): it stacked a
@@ -2047,16 +2067,30 @@ class SignalProcessor:
             active_files = parsed_files
 
         # ====================================================================
-        # CALCULATE CUMULATIVE RISK
+        # (#3112) THE CUMULATIVE RISK COMPOSITE WAS REMOVED HERE
         # ====================================================================
-        def get_cumulative_risk(f):
-            rv = f.get("risk_vector", [])
-            if not isinstance(rv, list):
-                return 0.0
-            return sum(val for val in rv if isinstance(val, (int, float)))
-
-        sorted_by_cumulative = sorted(active_files, key=get_cumulative_risk, reverse=True)
-
+        # It was `sum()` over the whole 13-entry risk_vector -- independently
+        # scaled sigmoid percentages added with no weighting and no unit,
+        # yielding figures like "Cumulative Risk: 556.29" that mean nothing
+        # and cannot be compared between repos.
+        #
+        # It was not repairable in place. Four of the 13 summands are
+        # structurally degenerate on a real scan: spec_match and documentation
+        # are ceiling-defaulted where the convention is simply absent (#3111,
+        # #3114), and stability/churn are ablated to zero in every scan today
+        # (GITGALAXY_DISABLE_GIT_HISTORY; temporal-crucible#29, promotion
+        # pending #2987) -- so ~31% of the sum was constant or dead. It also
+        # contradicted the post-#2991/#2982 framing: the vectors were renamed
+        # to activity/content SURFACE METERS precisely because the per-file
+        # standing-risk claim did not survive temporal-crucible validation,
+        # and summing them re-created the composite "risk score" that record
+        # retired.
+        #
+        # The question it answered -- "which files deserve attention first" --
+        # is legitimate and survives in the LLM brief's ranked-file section,
+        # now ordered by structural magnitude and blast radius, which are
+        # unit-honest (#3113).
+        #
         # --- NEW: CALCULATE SYSTEMIC ARCHITECTURAL BOTTLENECKS ---
         flux_idx = self.RISK_SCHEMA.index("state_flux") if "state_flux" in self.RISK_SCHEMA else -1
         err_idx = self.RISK_SCHEMA.index("safety_score") if "safety_score" in self.RISK_SCHEMA else -1
@@ -2141,25 +2175,9 @@ class SignalProcessor:
             "file_impact": self._rank_list(active_files, key_path=["file_impact"]),
             "function_impact": self._generate_function_rankings(active_files),
             "systemic_bottlenecks": {k: v[:5] for k, v in bottlenecks.items()},
-            # Inject the new Cumulative Risk ranking directly into the root of the report
-            "cumulative_risk": {
-                "highest": [
-                    {
-                        "name": f.get("name", "unknown"),
-                        "path": f.get("path", ""),
-                        "value": round(get_cumulative_risk(f), 2),
-                    }
-                    for f in sorted_by_cumulative[:10]
-                ],
-                "lowest": [
-                    {
-                        "name": f.get("name", "unknown"),
-                        "path": f.get("path", ""),
-                        "value": round(get_cumulative_risk(f), 2),
-                    }
-                    for f in reversed(sorted_by_cumulative[-3:])
-                ],
-            },
+            # #3112: the "cumulative_risk" key (highest/lowest by summed
+            # risk_vector) was removed from this report. `file_impact` above
+            # is the unit-honest ranking that replaced it.
         }
 
         for idx, rk in enumerate(self.RISK_SCHEMA):

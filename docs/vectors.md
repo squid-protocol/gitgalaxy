@@ -53,10 +53,10 @@ and surface, not defect probability — hence the rename below.
 | `concurrency_surface` | `risk_concurrency` | KEEP-DESCRIPTIVE |
 | `mutation_surface` | `risk_state_flux` | KEEP-DESCRIPTIVE (size-proxy caveat) |
 | `dead_code_surface` | `risk_dead_code` | KEEP-DESCRIPTIVE |
-| `spec_alignment` | `risk_spec_match` | KEEP-DESCRIPTIVE |
+| `spec_alignment` | `risk_spec_match` | KEEP-DESCRIPTIVE — **opt-in, default OFF** (#3111) |
 | `hist_stability` | `risk_stability` | PROMOTE (predictive layer, pending) |
 | `hist_churn` | `risk_churn` | PROMOTE (predictive layer, pending) |
-| `doc_surface` | `risk_documentation` | KEEP-DESCRIPTIVE |
+| `doc_surface` | `risk_documentation` | KEEP-DESCRIPTIVE — **coverage context, not a driver** (#3114) |
 | `credential_material` | `risk_secrets_risk` | REWORK-flagged (formula artifact, #2979) |
 
 Umbrella term: "Risk Exposure" is now **"Structural Surface Profile"** in report/brief
@@ -210,6 +210,18 @@ behavior around fix events is a null, not evidence either way about risk.
 onboarding or review-routing purposes; annotation and retrieval by documentation coverage.
 Inappropriate: ranking files by `doc_surface` as a defect-probability signal.
 
+**(5) Presented as coverage, not as a driver (gitgalaxy#3114).** The vector is fine; where it
+landed was not. Because it measures a coverage GAP, it sits near ceiling on any codebase that
+documents little, so "Documentation (100.0%)" appeared in the top-drivers line of all ten
+top-10 entries on the zopeneditor-sample scan — alongside the equally ceiling-pinned
+`spec_alignment` (#3111), leaving a line meant to differentiate files reprinting two
+constants. Unlike #3111 this vector is **reframed, not disabled**: documentation coverage is
+informative for nearly every shop. It is still computed, still in the section 6 table (marked
+_(coverage)_), and still reported per file — phrased as *"X% of unit weight undocumented"*
+beside program-length context — but it is no longer eligible for the risk-driver narrative.
+The declaration lives in `CONTEXT_VECTORS` in
+[`gitgalaxy/standards/analysis_lens.py`](../gitgalaxy/standards/analysis_lens.py).
+
 ---
 
 ## `test_surface` (formerly `risk_verification`)
@@ -328,6 +340,23 @@ about it either way.
 **(4) Appropriate vs inappropriate uses.** Appropriate: traceability annotation, retrieval of
 files carrying (or lacking) spec/audit tags. Inappropriate: risk ranking.
 
+**(5) Opt-in, default OFF (gitgalaxy#3111).** Because the tag vocabulary is absent from most
+codebases, the meter reads at or near ceiling for nearly every file — a constant, not a
+discriminator. Measured on IBM's zopeneditor-sample (COBOL/PL-I/JCL/HLASM/REXX, 51 files):
+mode 100, median 50, and "Spec Match (100.0%)" appeared in the top-drivers line of **all ten**
+top-10 entries, crowding out the vectors that actually differed between those files. It is
+therefore **not computed unless you ask for it**:
+
+```
+galaxyscope <target> --spec-alignment
+```
+
+When disabled it is absent from every display surface rather than shown as `0.0`, which would
+assert full spec alignment instead of "not measured". `risk_spec_match` remains a DB
+column/JSON key either way — off means not computed and not narrated, not renamed. The
+declaration lives in `OPTIONAL_VECTORS` in
+[`gitgalaxy/standards/analysis_lens.py`](../gitgalaxy/standards/analysis_lens.py).
+
 ---
 
 ## `mutation_surface` (formerly `risk_state_flux`)
@@ -439,6 +468,45 @@ The `risk_*` names (`risk_cognitive_load`, `risk_safety_score`, `risk_tech_debt`
 - The canonical mapping lives in code as `VECTOR_NAMES` in
   [`gitgalaxy/standards/analysis_lens.py`](../gitgalaxy/standards/analysis_lens.py), next to
   `RISK_SCHEMA`.
+
+## Retired: the Cumulative Risk composite (gitgalaxy#3112)
+
+**Removed.** `get_cumulative_risk` was a plain `sum()` over the whole 13-entry `risk_vector`.
+It added independently scaled sigmoid percentages with no weighting and no unit, producing
+figures like *"Cumulative Risk: 556.29"* that are not interpretable and cannot be compared
+across repositories.
+
+It was not repairable in place, for two reasons:
+
+- **~31% of the sum was constant or dead.** `spec_alignment` and `doc_surface` are
+  ceiling-defaulted where the convention is absent (#3111, #3114); `hist_stability` and
+  `hist_churn` are ablated to zero in every scan today (`GITGALAXY_DISABLE_GIT_HISTORY`;
+  temporal-crucible#29, promotion pending #2987).
+- **It contradicted this document.** The vectors were renamed to activity/content *surface
+  meters* precisely because the per-file standing-risk claim did not survive the
+  temporal-crucible validation (#2982, #2991). Summing them re-created exactly the composite
+  "risk score" that record retired.
+
+The question it answered — *which files deserve attention first* — is legitimate and survives
+in the LLM brief's ranked-artifacts section, now ordered by **structural magnitude** and
+annotated with **blast radius** (#3113). Both are unit-honest: magnitude is explicitly not a
+risk score, and blast radius is a normalized PageRank over resolved imports.
+
+**Breaking change to `--max-systemic-threat`.** That CI gate multiplied blast radius by this
+composite. It now multiplies blast radius by structural magnitude. The flag's intent is
+unchanged — *fail when something structurally heavy is also widely depended upon* — but
+**thresholds do not carry over**, because the scales differ (the old basis summed up to 13
+percentages; ~556 was an observed real value). Any existing threshold must be re-tuned. It
+was deliberately not silently rescaled: a fabricated conversion factor would fail more
+quietly and more confusingly than an obvious re-tune.
+
+**Historical documents are left as they stand.** `cumulative_risk` is quoted in ~115 files
+under `docs/wiki/` (the museum-of-code teardowns and per-repo agent briefs) and in
+`docs/gitgalaxy_architecture_brief.md`. Those are dated analyses of what the engine reported
+at the time; editing them to erase a metric it really did emit would falsify the record, so
+they keep their numbers and this section is the pointer explaining what those numbers were.
+(`docs/gitgalaxy_architecture_brief.md` is regenerated by the scheduled self-scan of `main`
+and will drop the metric on its next run without intervention.)
 
 ## The tier model
 

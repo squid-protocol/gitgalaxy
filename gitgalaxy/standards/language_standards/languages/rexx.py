@@ -116,9 +116,23 @@ DEFINITION: dict[str, Any] = {
         # and END a closer (#2822 C2); a plain `DO;` is a group, not a choice;
         # LEAVE / ITERATE are transfers, not decisions.
         "branch": re.compile(
-            _L + r"(?:IF|ELSE|WHEN|OTHERWISE)" + _R
-            + r"|" + _L + r"SELECT(?=[ \t]*;|[ \t]*$|[ \t]+LABEL" + _R + r")"
-            + r"|" + _L + r"DO[ \t]+(?:(?:WHILE|UNTIL|FOREVER)" + _R + r"|" + _NAME + r"{1,64}(?:\." + _NAME + r"{0,64}){0,4}[ \t]*=)",
+            _L
+            + r"(?:IF|ELSE|WHEN|OTHERWISE)"
+            + _R
+            + r"|"
+            + _L
+            + r"SELECT(?=[ \t]*;|[ \t]*$|[ \t]+LABEL"
+            + _R
+            + r")"
+            + r"|"
+            + _L
+            + r"DO[ \t]+(?:(?:WHILE|UNTIL|FOREVER)"
+            + _R
+            + r"|"
+            + _NAME
+            + r"{1,64}(?:\."
+            + _NAME
+            + r"{0,64}){0,4}[ \t]*=)",
             re.I | re.M,
         ),
         # args (#2773 fallback family): REXX has no formal parameter list on
@@ -129,8 +143,14 @@ DEFINITION: dict[str, Any] = {
         # call site) and never matches; bare ARG is anchored to a statement
         # start so `SAY ARG` stays a reference.
         "args": re.compile(
-            _L + r"PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?ARG" + _R
-            + r"|" + _STMT_START + r"(?:USE[ \t]+(?:STRICT[ \t]+)?ARG|ARG)" + _R + r"(?![ \t]*\()",
+            _L
+            + r"PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?ARG"
+            + _R
+            + r"|"
+            + _STMT_START
+            + r"(?:USE[ \t]+(?:STRICT[ \t]+)?ARG|ARG)"
+            + _R
+            + r"(?![ \t]*\()",
             re.I | re.M,
         ),
         # structural_boundaries: the vocabulary tally of REXX's block
@@ -138,8 +158,7 @@ DEFINITION: dict[str, Any] = {
         # a decision, #2764's family; CALL ON / OFF is the handler form and
         # safety's / safety_bypasses' alone).
         "structural_boundaries": re.compile(
-            _L + r"(?:RETURN|PROCEDURE|END|NOP)" + _R
-            + r"|" + _L + r"CALL" + _R + r"(?![ \t]+(?:ON|OFF)" + _R + r")",
+            _L + r"(?:RETURN|PROCEDURE|END|NOP)" + _R + r"|" + _L + r"CALL" + _R + r"(?![ \t]+(?:ON|OFF)" + _R + r")",
             re.I,
         ),
         # func_start (#2856): a label -- `name:` at a statement's line start
@@ -170,8 +189,7 @@ DEFINITION: dict[str, Any] = {
         # RC` is the response check every host-command exec writes (PL/I's
         # `IF SQLCODE` precedent). `¬` and `\` are REXX's negation characters.
         "safety": re.compile(
-            _L + r"(?:SIGNAL|CALL)[ \t]+ON[ \t]+" + _CONDS + _R
-            + r"|" + _L + r"(?:IF|WHEN)[ \t]*\(?[ \t]*RC" + _R,
+            _L + r"(?:SIGNAL|CALL)[ \t]+ON[ \t]+" + _CONDS + _R + r"|" + _L + r"(?:IF|WHEN)[ \t]*\(?[ \t]*RC" + _R,
             re.I,
         ),
         # safety_bypasses: SIGNAL OFF / CALL OFF remove an installed handler
@@ -180,8 +198,19 @@ DEFINITION: dict[str, Any] = {
         # jump alternative excludes ON / OFF so a handler install never counts
         # twice.
         "safety_bypasses": re.compile(
-            _L + r"(?:SIGNAL|CALL)[ \t]+OFF[ \t]+" + _CONDS + _R
-            + r"|" + _L + r"SIGNAL[ \t]+(?!ON" + _R + r"|OFF" + _R + r")(?:VALUE[ \t]+)?" + _NAME + r"{1,250}",
+            _L
+            + r"(?:SIGNAL|CALL)[ \t]+OFF[ \t]+"
+            + _CONDS
+            + _R
+            + r"|"
+            + _L
+            + r"SIGNAL[ \t]+(?!ON"
+            + _R
+            + r"|OFF"
+            + _R
+            + r")(?:VALUE[ \t]+)?"
+            + _NAME
+            + r"{1,250}",
             re.I,
         ),
         # high_risk_execution (#2878): INTERPRET runs text as code (the eval
@@ -190,8 +219,7 @@ DEFINITION: dict[str, Any] = {
         # dual). EXIT excludes its own label definition (`EXIT:`) and jump
         # operands (`SIGNAL EXIT`).
         "high_risk_execution": re.compile(
-            _L + r"INTERPRET" + _R
-            + r"|" + _NOT_A_TARGET + _L + r"EXIT" + _R + r"(?![ \t]*:)",
+            _L + r"INTERPRET" + _R + r"|" + _NOT_A_TARGET + _L + r"EXIT" + _R + r"(?![ \t]*:)",
             re.I,
         ),
         # io (#2841): EXECIO is z/OS REXX's dataset I/O (issued as a quoted
@@ -205,10 +233,21 @@ DEFINITION: dict[str, Any] = {
         # bare stack verbs are statement-anchored so a variable named `queue`
         # in expression position stays invisible.
         "io": re.compile(
-            _L + r"EXECIO" + _R
-            + r"|" + _L + r"(?:LINEIN|LINEOUT|CHARIN|CHAROUT|STREAM|OUTTRAP)[ \t]*\("
-            + r"|" + _L + r"PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?PULL" + _R
-            + r"|" + _STMT_START + r"(?:PULL|PUSH|QUEUE)" + _R + r"(?![ \t]*[=(])",
+            _L
+            + r"EXECIO"
+            + _R
+            + r"|"
+            + _L
+            + r"(?:LINEIN|LINEOUT|CHARIN|CHAROUT|STREAM|OUTTRAP)[ \t]*\("
+            + r"|"
+            + _L
+            + r"PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?PULL"
+            + _R
+            + r"|"
+            + _STMT_START
+            + r"(?:PULL|PUSH|QUEUE)"
+            + _R
+            + r"(?![ \t]*[=(])",
             re.I | re.M,
         ),
         # api (#2730): the explicit publishing marker REXX has -- an ooRexx
@@ -216,8 +255,12 @@ DEFINITION: dict[str, Any] = {
         # visibility syntax at all (an exec is reached by member name, not by
         # a declaration), so classic files legitimately read 0.
         "api": re.compile(
-            r"^[ \t]*::[ \t]*(?:ROUTINE|CLASS|METHOD|ATTRIBUTE)[ \t]+" + _NAME
-            + r"{1,250}(?:[ \t]+" + _NAME + r"{1,64}){0,5}[ \t]+PUBLIC" + _R,
+            r"^[ \t]*::[ \t]*(?:ROUTINE|CLASS|METHOD|ATTRIBUTE)[ \t]+"
+            + _NAME
+            + r"{1,250}(?:[ \t]+"
+            + _NAME
+            + r"{1,64}){0,5}[ \t]+PUBLIC"
+            + _R,
             re.I | re.M,
         ),
         # state_mutation (#2765): REXX has no declaration syntax, so the
@@ -233,8 +276,15 @@ DEFINITION: dict[str, Any] = {
         # adjacent-quantifier shape, caught by the strict suite's detonation
         # on a long dot run. Each `\.` owns its dot; segments hold none.)
         "state_mutation": re.compile(
-            _STMT_START + _NAME + r"{1,64}(?:\." + _NAME + r"{0,64}){0,6}[ \t]*=(?!=)"
-            + r"|" + _L + r"PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?(?:VAR|VALUE)" + _R,
+            _STMT_START
+            + _NAME
+            + r"{1,64}(?:\."
+            + _NAME
+            + r"{0,64}){0,6}[ \t]*=(?!=)"
+            + r"|"
+            + _L
+            + r"PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?(?:VAR|VALUE)"
+            + _R,
             re.I | re.M,
         ),
         # dead_code: a comment whose text is a REXX statement -- a CALL, an
@@ -245,11 +295,12 @@ DEFINITION: dict[str, Any] = {
         # in comment prose.
         "dead_code": re.compile(
             r"(?:/\*|--)[ \t]*(?:CALL[ \t]+" + _NAME + r"{1,64}"
-            r"|IF[ \t][^\n]{0,120}?" + _L + r"THEN" + _R
-            + r"|DO[ \t]+(?:WHILE|UNTIL)" + _R
-            + r"|EXECIO[ \t]"
-            r"|PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?(?:ARG|VAR|VALUE|PULL)" + _R
-            + r"|" + _NAME + r"{1,64}[ \t]*=[ \t]*[\w.!?@#$'\"])",
+            r"|IF[ \t][^\n]{0,120}?" + _L + r"THEN" + _R + r"|DO[ \t]+(?:WHILE|UNTIL)" + _R + r"|EXECIO[ \t]"
+            r"|PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?(?:ARG|VAR|VALUE|PULL)"
+            + _R
+            + r"|"
+            + _NAME
+            + r"{1,64}[ \t]*=[ \t]*[\w.!?@#$'\"])",
             re.I,
         ),
         # doc: REXX has no generator-read comment syntax of its own; the
@@ -288,9 +339,16 @@ DEFINITION: dict[str, Any] = {
         # objects (the lookbehind keeps a compound variable's `a.local` tail
         # invisible).
         "globals": re.compile(
-            _L + r"PROCEDURE[ \t]+EXPOSE" + _R
-            + r"|" + _L + r"(?:SYSVAR|MVSVAR)[ \t]*\("
-            + r"|" + _L + r"\.(?:ENVIRONMENT|LOCAL)" + _R,
+            _L
+            + r"PROCEDURE[ \t]+EXPOSE"
+            + _R
+            + r"|"
+            + _L
+            + r"(?:SYSVAR|MVSVAR)[ \t]*\("
+            + r"|"
+            + _L
+            + r"\.(?:ENVIRONMENT|LOCAL)"
+            + _R,
             re.I,
         ),
         # decorators: no attribute syntax. OPTIONS is a runtime instruction,
@@ -368,8 +426,16 @@ DEFINITION: dict[str, Any] = {
         # raises a condition (REXX's throw), anchored to its condition word so
         # an everyday identifier `raise` stays invisible.
         "panics_and_aborts": re.compile(
-            _NOT_A_TARGET + _L + r"EXIT" + _R + r"(?![ \t]*:)"
-            + r"|" + _L + r"RAISE[ \t]+(?:ERROR|FAILURE|SYNTAX|HALT|NOVALUE|NOTREADY|LOSTDIGITS|PROPAGATE|USER" + _R + r")",
+            _NOT_A_TARGET
+            + _L
+            + r"EXIT"
+            + _R
+            + r"(?![ \t]*:)"
+            + r"|"
+            + _L
+            + r"RAISE[ \t]+(?:ERROR|FAILURE|SYNTAX|HALT|NOVALUE|NOTREADY|LOSTDIGITS|PROPAGATE|USER"
+            + _R
+            + r")",
             re.I,
         ),
         # thread_sleeps: SysSleep -- RexxUtil's blocking delay (ooRexx /
@@ -393,9 +459,16 @@ DEFINITION: dict[str, Any] = {
         # F(...)` / `FI(` / `DD(` / `DDNAME(` is TSO's deallocation command in
         # the same quoted form.
         "cleanup": re.compile(
-            _L + r"DROP[ \t]+" + _NAME
-            + r"|" + _L + r"FINIS" + _R
-            + r"|" + _L + r"FREE[ \t]+(?:DDNAME|DATASET|DSNAME|DD|DA|FI|F)[ \t]*\(",
+            _L
+            + r"DROP[ \t]+"
+            + _NAME
+            + r"|"
+            + _L
+            + r"FINIS"
+            + _R
+            + r"|"
+            + _L
+            + r"FREE[ \t]+(?:DDNAME|DATASET|DSNAME|DD|DA|FI|F)[ \t]*\(",
             re.I,
         ),
         # encapsulation (#2766): an ooRexx directive declared PRIVATE -- the
@@ -403,8 +476,12 @@ DEFINITION: dict[str, Any] = {
         # surface. PROCEDURE (lexical scoping) is scope, not visibility -- the
         # perl/shell ruling -- and never counts.
         "encapsulation": re.compile(
-            r"^[ \t]*::[ \t]*(?:METHOD|ROUTINE|ATTRIBUTE)[ \t]+" + _NAME
-            + r"{1,250}(?:[ \t]+" + _NAME + r"{1,64}){0,5}[ \t]+PRIVATE" + _R,
+            r"^[ \t]*::[ \t]*(?:METHOD|ROUTINE|ATTRIBUTE)[ \t]+"
+            + _NAME
+            + r"{1,250}(?:[ \t]+"
+            + _NAME
+            + r"{1,64}){0,5}[ \t]+PRIVATE"
+            + _R,
             re.I | re.M,
         ),
         # listeners: no subscription form.

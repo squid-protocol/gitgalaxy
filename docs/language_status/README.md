@@ -104,6 +104,7 @@ epic #813), not that no cases exist.
 | **[pli](pli.md)** | production | standard_block | 46/54 | 54 | 158 | **written** (#2502) |
 | powershell | production | embedded_syntax | 50/52 | 68 | 85 | not written |
 | **[python](python.md)** | production | line_exclusive | 61/64 | 60 | 92 | **written** |
+| **[rexx](rexx.md)** | production | recursive_block_rexx | 35/53 | | 97 | **written** (#2504) |
 | ruby | production | line_exclusive | 51/52 | 4* | 66 | not written |
 | rust | production | recursive_block | 52/52 | 51 | 68 | not written |
 | scala | production | recursive_block | 51/52 | 63 | 90 | not written |

@@ -731,8 +731,7 @@ class Prism:
         if family == "recursive_block_rexx":
             combined_pattern = re.compile(
                 r'"(?:""|[^"\n]){0,500}"'
-                r"|'(?:''|[^'\n]){0,500}'"
-                + rf"|{re.escape(s_line)}[^\n]*",
+                r"|'(?:''|[^'\n]){0,500}'" + rf"|{re.escape(s_line)}[^\n]*",
                 re.S | re.M,
             )
         else:
@@ -1515,8 +1514,7 @@ class Prism:
         if family == "recursive_block_rexx":
             combined_pattern = re.compile(
                 r'"(?:""|[^"\n]){0,500}"'
-                r"|'(?:''|[^'\n]){0,500}'"
-                + rf"|{re.escape(s_line)}[^\n]*",
+                r"|'(?:''|[^'\n]){0,500}'" + rf"|{re.escape(s_line)}[^\n]*",
                 re.S | re.M,
             )
         else:

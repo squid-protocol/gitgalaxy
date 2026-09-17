@@ -62,7 +62,21 @@ LENS_CONFIG: LensConfig = {
     # OS/2), same mechanism -- rexx's internal_discriminator (a .cmd opening
     # with `/*` is REXX, the platform loaders' own dispatch rule) resolves it;
     # ".rexx" and ".exec" are uncontested and stay Tier 1.
-    "COLLISION_FREQUENCIES": {".inc", ".h", ".py", ".cshtml", ".c", ".y", ".m", ".map", ".sql", ".ddl", ".dml", ".asm", ".cmd"},
+    "COLLISION_FREQUENCIES": {
+        ".inc",
+        ".h",
+        ".py",
+        ".cshtml",
+        ".c",
+        ".y",
+        ".m",
+        ".map",
+        ".sql",
+        ".ddl",
+        ".dml",
+        ".asm",
+        ".cmd",
+    },
     "PROSE_ANCHORS": {
         "README",
         "LICENSE",

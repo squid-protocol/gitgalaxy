@@ -1,15 +1,15 @@
 {
-  "accuracy": 0.9974,
+  "accuracy": 0.9984,
   "auto_accuracy": 0.9996,
   "auto_scored": 2575,
   "confusion": {
-    "embedded_python -> python": 7,
+    "embedded_python -> python": 4,
     "powershell -> undeterminable": 1
   },
   "corpus_files": 3366,
-  "correct": 3064,
-  "explicit_accuracy": 0.9859,
-  "explicit_correct": 490,
+  "correct": 3067,
+  "explicit_accuracy": 0.992,
+  "explicit_correct": 493,
   "explicit_scored": 497,
   "label_sources": {
     "exact_filename": 18,
@@ -117,10 +117,10 @@
       "support": 5
     },
     "embedded_python": {
-      "correct": 7,
+      "correct": 10,
       "precision": 1.0,
-      "predicted": 7,
-      "recall": 0.5,
+      "predicted": 10,
+      "recall": 0.7143,
       "support": 14
     },
     "fortran": {
@@ -300,8 +300,8 @@
     },
     "python": {
       "correct": 269,
-      "precision": 0.9746,
-      "predicted": 276,
+      "precision": 0.9853,
+      "predicted": 273,
       "recall": 1.0,
       "support": 269
     },
@@ -424,8 +424,8 @@
   "tier_distribution": {
     "0": 257,
     "1": 153,
-    "1.5": 224,
-    "2": 2437,
+    "1.5": 221,
+    "2": 2440,
     "5": 1
   }
 }

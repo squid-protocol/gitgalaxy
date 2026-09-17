@@ -769,20 +769,33 @@ class LanguageDetector:
 
                 base_mass = sum(base_contributors.values())
 
-                # #3132, measured and NOT fixed here: the CONTESTED extension
-                # should not be evidence for one of its own claimants, and four
-                # profiles list their own contested extension as a
-                # discriminator (python `.py`, sqlite `.sql`, matlab `.m`,
-                # objective-c `.m`). Where only one rival self-references, it
-                # wins by construction -- in `embedded_python/meow_turtle`
-                # python scores base 14 + 14x2 = 42 against embedded_python's
-                # 14 + 1x2 = 16, which IS the reported "72% Local Dominance".
-                # Excluding it is a net LOSS on the #3117 harness: overall
-                # 0.9974 -> 0.9850, contested subset 0.9859 -> 0.9095, because
-                # the same accidental boost is what currently holds `.sql`
-                # together (32 sqlite files flip to db2_sql without it). The
-                # self-reference is load-bearing by accident; `.sql` needs a
-                # real content signal BEFORE this can be corrected. Measure
+                # #3132, measured and NOT fixed here. In principle the
+                # CONTESTED extension should not be evidence for one of its own
+                # claimants, and four profiles list their own contested
+                # extension as a discriminator (python `.py`, sqlite `.sql`,
+                # matlab `.m`, objective-c `.m`). Where only one rival
+                # self-references it wins by construction -- in
+                # `embedded_python/meow_turtle` python scores base 14 + 14x2 =
+                # 42 against embedded_python's 14 + 1x2 = 16, which IS the
+                # reported "72% Local Dominance".
+                #
+                # THREE fixes have been measured on the #3117 harness and all
+                # three are net losses. Baseline 0.9984 overall / 0.9920 on the
+                # independent contested subset:
+                #   1. gravity abstains on same-extension collisions
+                #        -> 0.9840 / 0.9034 (32 sqlite files flip to db2_sql)
+                #   2. exclude the contested ext from EVERY discriminator list
+                #        -> 0.9850 / 0.9095 (same 32 sqlite files)
+                #   3. remove ONLY python's `.py` self-reference, leaving
+                #      sqlite's intact -> 0.9964 / 0.9799: it fixes 3
+                #      MicroPython files and breaks SEVEN plain-python files
+                #      into embedded_python plus 2 into plaintext.
+                # The self-reference does real work in BOTH directions, so it
+                # cannot be removed for either claimant without a content
+                # signal to replace it -- and for `.sql` there isn't one: the
+                # strongest sqlite-only markers in the pinned corpus
+                # (AUTOINCREMENT 19 files, INTEGER PRIMARY KEY 18, PRAGMA 2)
+                # cover only about a quarter of its 80 `.sql` files. Re-measure
                 # with that harness before touching this line.
                 discriminators = data.get("discriminators", [])
                 discrim_contributors = {

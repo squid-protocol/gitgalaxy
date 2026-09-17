@@ -29,8 +29,27 @@ DEFINITION: dict[str, Any] = {
     # EXECUTION SIGNATURES: Interpreters found on Line 1 for embedded discovery and cross-compilation.
     "shebangs": ["micropython", "mpy-cross"],
     # Instantly claims any .py file utilizing embedded electronics networking or GPIO libraries
+    #
+    # #3132: the hardware-library list alone only reaches a firmware project's
+    # driver layer. Its telemetry/protocol/support modules import nothing from
+    # it, so they fell through to ecosystem gravity and locked to `python`
+    # (7 of 14 files in the crucible's meow_turtle project). Two additions,
+    # both MicroPython-exclusive, so precision is unchanged:
+    #   * the `micropython` module itself -- `micropython.const()` /
+    #     `@micropython.native` is the language's own API and has no CPython
+    #     counterpart;
+    #   * the `u`-prefixed standard library (`utime`, `ujson`, `ubinascii`,
+    #     `uasyncio`, ...), which is MicroPython's reduced-stdlib naming
+    #     convention. CPython ships none of these, so the bare `u` prefix is
+    #     safe to anchor -- but it is enumerated rather than matched as
+    #     `u\w+` so an ordinary local module (`utils`, `ui`) cannot trip it.
     "internal_discriminator": re.compile(
-        r"^[ \t]*(?:import|from)\s+(?:machine|board|microcontroller|busio|digitalio|analogio|usb_hid|neopixel|rp2|esp32|pyb|wifi|socketpool)\b",
+        r"^[ \t]*(?:import|from)\s+(?:"
+        r"machine|board|microcontroller|busio|digitalio|analogio|usb_hid|neopixel|rp2|esp32|pyb|wifi|socketpool"
+        r"|micropython"
+        r"|utime|ujson|uos|ubinascii|usocket|ussl|uselect|uasyncio|uctypes|uerrno|uhashlib|uheapq|uio|urandom"
+        r"|ure|ustruct|uzlib|ucollections|ubluetooth|ucryptolib|umqtt"
+        r")\b",
         re.M,
     ),
     # UPGRADED: Maps to Family 3 (Pure Hash)

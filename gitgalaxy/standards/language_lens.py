@@ -164,6 +164,43 @@ class LanguageDetector:
 
     def _calibrate_lookup_maps(self):
         """Builds O(1) dictionaries mapping extensions and exact filenames to languages."""
+        # #3116/#3118: the shebang trigger table, resolved ONCE at boot rather
+        # than re-derived per file. Three properties the per-call substring
+        # loop did not have:
+        #   * triggers are normalised to an interpreter basename, so a
+        #     path-shaped registry entry (tcl's `bin/expect`) still matches
+        #     `#!/usr/bin/expect`;
+        #   * a trigger claimed by MORE THAN ONE language is dropped entirely.
+        #     `deno` and `bun` run both TypeScript and JavaScript, and `csi` is
+        #     both Chicken Scheme's interpreter and the C# script runner, so the
+        #     shebang genuinely does not discriminate. Resolving it to either
+        #     claimant makes the other claimant's files contradict their own
+        #     extension and land at Tier 5 -- measured before this change:
+        #     `.ts` + `#!/usr/bin/env deno` and `.scm` + `#!/usr/bin/csi` both
+        #     returned `undeterminable` with an "Identity Masking" flag. No
+        #     verdict lets the extension decide, which is right for every
+        #     claimant (the same refuse-rather-than-guess posture as Tier 4's
+        #     margin requirement);
+        #   * sorted longest-first, so a specific trigger beats a shorter one
+        #     that is also a legitimate prefix, independent of registry order.
+        trigger_owners: dict[str, set[str]] = {}
+        for lang_id, data in self.languages.items():
+            for raw_trigger in data.get("shebangs", []):
+                trigger = raw_trigger.rsplit("/", 1)[-1].lower()
+                if trigger:
+                    trigger_owners.setdefault(trigger, set()).add(lang_id)
+
+        self._ambiguous_shebangs = {t for t, owners in trigger_owners.items() if len(owners) > 1}
+        if self._ambiguous_shebangs:
+            self.logger.debug(
+                f"Shebang triggers claimed by multiple languages, ignored as non-discriminating: "
+                f"{sorted(self._ambiguous_shebangs)}"
+            )
+        self._shebang_triggers = sorted(
+            ((t, next(iter(owners))) for t, owners in trigger_owners.items() if len(owners) == 1),
+            key=lambda pair: -len(pair[0]),
+        )
+
         for lang_id, data in self.languages.items():
             for ext in data.get("extensions", []):
                 self.extension_map[ext.lower()] = lang_id
@@ -285,13 +322,13 @@ class LanguageDetector:
 
         if ext in {".md", ".mdx", ".rst", ".rtf", ".txt", ".log"}:
             # ---> DEFENSIVE GUARD: Catch disguised payloads before early exit <---
-            shebang_lang = self._tier_2_fingerprint_check(content_sample, ext)
+            shebang_lang, evidence_kind = self._tier_2_fingerprint_check(content_sample, ext)
             if shebang_lang and shebang_lang != "undeterminable":
                 self.logger.warning(
-                    f"[{name}] IDENTITY CONFLICT: Prose Ext '{ext}' contradicts Executable Shebang '{shebang_lang}'"
+                    f"[{name}] IDENTITY CONFLICT: Prose Ext '{ext}' contradicts Executable {evidence_kind} '{shebang_lang}'"
                 )
                 result["anomaly_flags"].append(
-                    f"Identity Masking: Prose Extension ({ext}) vs Executable Shebang ({shebang_lang})"
+                    f"Identity Masking: Prose Extension ({ext}) vs Executable {evidence_kind} ({shebang_lang})"
                 )
                 # Drop to lowest trust tier
                 return self._forge_result(
@@ -391,7 +428,7 @@ class LanguageDetector:
 
         # 1. Gather Physical Signals
         ext_lang = self._tier_1_metadata_lock(ext, name)
-        shebang_lang = self._tier_2_fingerprint_check(content_sample, ext)
+        shebang_lang, evidence_kind = self._tier_2_fingerprint_check(content_sample, ext)
 
         # =========================================================================
         # DEFENSIVE GUARD: IDENTITY CONFLICT TRAP
@@ -405,10 +442,14 @@ class LanguageDetector:
         )
 
         if is_conflict:
-            self.logger.warning(f"[{name}] IDENTITY CONFLICT: Ext '{ext_lang}' contradicts Shebang '{shebang_lang}'")
+            self.logger.warning(
+                f"[{name}] IDENTITY CONFLICT: Ext '{ext_lang}' contradicts {evidence_kind} '{shebang_lang}'"
+            )
 
             # 1. Cache the threat into RAM for the SAST Engine
-            result["anomaly_flags"].append(f"Identity Masking: Extension ({ext_lang}) vs Shebang ({shebang_lang})")
+            result["anomaly_flags"].append(
+                f"Identity Masking: Extension ({ext_lang}) vs {evidence_kind} ({shebang_lang})"
+            )
 
             # 2. Force the file into the Unclassified Baseline
             return self._forge_result(
@@ -441,7 +482,7 @@ class LanguageDetector:
                 ext_lang,
                 0.999,
                 0,
-                "Absolute Consensus (Ext + Shebang)",
+                f"Absolute Consensus (Ext + {evidence_kind})",
             )
         elif ext_lang and ext_lang != "undeterminable" and prior_lang == ext_lang and prior_conf >= 0.75:
             best_lang, best_conf, lock_tier, source_proof = (
@@ -455,7 +496,7 @@ class LanguageDetector:
                 shebang_lang,
                 0.999,
                 0,
-                f"Absolute Consensus (Shebang + {prior_proof})",
+                f"Absolute Consensus ({evidence_kind} + {prior_proof})",
             )
 
         # TIER 1: HIGH-CONFIDENCE PRIOR
@@ -473,7 +514,7 @@ class LanguageDetector:
                 shebang_lang,
                 0.91,
                 2,
-                "Single Indicator (Shebang)",
+                f"Single Indicator ({evidence_kind})",
             )
         elif ext_lang and ext_lang != "undeterminable":
             best_lang, best_conf, lock_tier, source_proof = (
@@ -726,26 +767,33 @@ class LanguageDetector:
             return self.extension_map[ext]
         return None
 
-    def _tier_2_fingerprint_check(self, content: str, ext: str) -> Optional[str]:
+    def _tier_2_fingerprint_check(self, content: str, ext: str) -> tuple[Optional[str], str]:
+        """Content-evidence classification: returns `(lang_id, evidence_kind)`.
+
+        `evidence_kind` is `"Shebang"` or `"Internal Signature"` -- #3116
+        follow-up: this method has always resolved BOTH mechanisms, but every
+        caller labelled the result "Shebang", so a file resolved by its
+        internal discriminator (`ACCTPGM CSECT` in a `.asm`, `/* REXX */` in a
+        `.cmd`) reported `Single Indicator (Shebang)` with no `#!` anywhere in
+        it, and an identity conflict raised against a discriminator match
+        reported the contradiction against a shebang that did not exist.
+        `source_proof` is a load-bearing claim in this engine, so the mechanism
+        travels with the verdict. Kind is `""` when no language matched.
+        """
         # 1. Standard Executable Shebang Check
         if content.startswith("#!"):
             first_line = content.split("\n", 1)[0].lower()
             self.logger.debug(f"Fingerprint Scan: Analyzing shebang line: '{first_line.strip()}'")
 
             # #3116: token match on the interpreter basename, never a substring
-            # of the whole line. Longest trigger first so a specific trigger
-            # beats a shorter one that is also a legitimate prefix of the same
-            # interpreter, independent of registry iteration order (#3118).
+            # of the whole line, against the boot-time trigger table built in
+            # `_calibrate_lookup_maps` (already basename-normalised,
+            # longest-first, and with non-discriminating triggers removed).
             interpreter = _shebang_interpreter(first_line.strip())
             if interpreter:
-                candidates = [
-                    (trigger, lang_id)
-                    for lang_id, data in self.languages.items()
-                    for trigger in data.get("shebangs", [])
-                ]
-                for trigger, lang_id in sorted(candidates, key=lambda c: -len(c[0])):
+                for trigger, lang_id in self._shebang_triggers:
                     if _shebang_trigger_matches(trigger, interpreter):
-                        return lang_id
+                        return lang_id, "Shebang"
 
         # 2. INTERNAL DISCRIMINATOR (Collision Resolution Only)
         # DEFENSIVE GUARD: Internal discriminators are strictly for resolving known
@@ -759,9 +807,9 @@ class LanguageDetector:
                         self.logger.debug(
                             f"Fingerprint Scan: Internal discriminator matched for '{lang_id}' via '{ext}'"
                         )
-                        return lang_id
+                        return lang_id, "Internal Signature"
 
-        return None
+        return None, ""
 
     def _tier_3_lexical_scan(
         self,

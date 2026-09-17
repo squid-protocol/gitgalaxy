@@ -141,16 +141,23 @@ DEFINITION: dict[str, Any] = {
         # <template>`, statement-position `ARG <template>` (its short form)
         # and ooRexx `USE [STRICT] ARG`. `ARG(1)` is the built-in function (a
         # call site) and never matches; bare ARG is anchored to a statement
-        # start so `SAY ARG` stays a reference.
+        # start so `SAY ARG` stays a reference. Each alternative CAPTURES the
+        # template (to the statement's `;`/EOL): detector.py's per-function
+        # args counter reads the matched group, and a groupless match falls
+        # back to whitespace-splitting group(0) -- 'parse arg' = 2 forever,
+        # the ada #6169-shape artifact the bias report surfaced. REXX
+        # templates separate arguments with commas, so the comma/whitespace
+        # split over the real template is the honest count.
         "args": re.compile(
             _L
             + r"PARSE[ \t]+(?:UPPER[ \t]+|LOWER[ \t]+)?ARG"
             + _R
+            + r"([^\n;]{0,200})"
             + r"|"
             + _STMT_START
             + r"(?:USE[ \t]+(?:STRICT[ \t]+)?ARG|ARG)"
             + _R
-            + r"(?![ \t]*\()",
+            + r"(?![ \t]*\()([^\n;]{0,200})",
             re.I | re.M,
         ),
         # structural_boundaries: the vocabulary tally of REXX's block

@@ -2309,19 +2309,32 @@ class StructuralExtractor:
 
         doc_buffer: list[str] = []
 
+        from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
         # 1. Harvest Above (C, Java, JS, Rust, Go, PHP, C#)
         for j in range(i - 1, max(-1, i - 15), -1):
             prev = self.raw_content_lines[j].strip()
             if not prev:
                 continue
+
+            # Step over decorators/pragmas safely before they are accidentally matched as comments
+            is_decorator = False
+            if prev.startswith("@") or prev.startswith("["):
+                is_decorator = True
+            elif lang_id in LANGUAGE_DEFINITIONS:
+                dec_regex = LANGUAGE_DEFINITIONS[lang_id].get("rules", {}).get("decorators")
+                if dec_regex and dec_regex.search(prev):
+                    is_decorator = True
+
+            if is_decorator:
+                continue
+
             if (
                 prev.startswith(("#", "//", "/*", "*", "///", "--", "<!--", "dnl", ";", "%"))
                 or prev.endswith("*/")
                 or prev.endswith("#>")
             ):
                 doc_buffer.insert(0, prev)
-            elif prev.startswith("@") or prev.startswith("["):  # Step over decorators safely
-                continue
             else:
                 break
 

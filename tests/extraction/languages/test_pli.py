@@ -231,3 +231,44 @@ def test_pli_dependency_capture_redos_immunity():
     assert_redos_immune(dep, "%INCLUDE '" + "A" * 200000, timeout_sec=3.0)
     assert_redos_immune(dep, "%INCLUDE SYSLIB(" + " " * 200000, timeout_sec=3.0)
     assert dep.search("%INCLUDE P0019908;")
+
+# ==============================================================================
+# INTENT EXTRACTION -- verify decorators (pragmas) do not shadow doc comments
+# ==============================================================================
+def test_pli_intent_extraction_ignores_decorators():
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    extractor = StructuralExtractor("pli", LANGUAGE_DEFINITIONS)
+
+    # Case 1: %PROCESS is directly above, should be skipped
+    extractor.raw_content_lines = [
+        "%PROCESS SOURCE RULES(LAXIF);",
+        "PSAM2: PROCEDURE(CUSTFILE_RECORD, CUSTOMER_BALANCE_STATS);",
+        "END PSAM2;"
+    ]
+    intent1 = extractor._extract_documentation_tether(2, "pli")
+    assert "%PROCESS" not in intent1
+    assert intent1 == ""
+
+    # Case 2: genuine comment above IS captured
+    extractor.raw_content_lines = [
+        "/* This is actual prose intent */",
+        "PSAM2: PROCEDURE(CUSTFILE_RECORD, CUSTOMER_BALANCE_STATS);",
+        "END PSAM2;"
+    ]
+    intent2 = extractor._extract_documentation_tether(2, "pli")
+    assert "actual prose intent" in intent2
+
+    # Case 3: both exist -- comment is above the %PROCESS, or comment is below.
+    # Note: Harvest Above reads backwards. If it skips the decorator, it should
+    # find the comment if they are adjacent.
+    extractor.raw_content_lines = [
+        "/* Main processing intent */",
+        "%PROCESS SOURCE RULES(LAXIF);",
+        "PSAM2: PROCEDURE(CUSTFILE_RECORD, CUSTOMER_BALANCE_STATS);",
+        "END PSAM2;"
+    ]
+    intent3 = extractor._extract_documentation_tether(3, "pli")
+    assert "Main processing intent" in intent3
+    assert "%PROCESS" not in intent3

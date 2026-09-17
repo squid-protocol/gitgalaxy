@@ -291,6 +291,36 @@ def test_hlasm_extension_classifies_directly():
     assert lang == "hlasm"
 
 
+_HLASM_EQU_COPYBOOK = (
+    "* REGISTER EQUATES\n"
+    "R0       EQU   0\n"
+    "R1       EQU   1\n"
+    "R2       EQU   2\n"
+    "R3       EQU   3\n"
+    "R15      EQU   15\n"
+)
+
+_MASM_EQU_CONTENT = (
+    "; MASM style equates\n"
+    ".model flat, c\n"
+    ".data\n"
+    "MAX_LEN  EQU   256\n"
+    ".code\n"
+    "         mov eax, MAX_LEN\n"
+)
+
+def test_asm_extension_with_equ_only_copybook_resolves_to_hlasm():
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    lang, _conf, _family = detector.focus("ASMCOPY/REGISTRS.asm", _HLASM_EQU_COPYBOOK)
+    assert lang == "hlasm", f"EQU-only register copybook must resolve to hlasm (got {lang!r})"  # noqa: S101
+
+
+def test_asm_extension_with_masm_equ_stays_assembly():
+    detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
+    lang, _conf, _family = detector.focus("src/masm_equ.asm", _MASM_EQU_CONTENT)
+    assert lang == "assembly", f"MASM file with EQU must keep resolving to assembly (got {lang!r})"  # noqa: S101
+
+
 # ==============================================================================
 # TEST 4: LEXICAL-FAMILY SANITY (Step 4 item 8), through the real Prism
 # ==============================================================================

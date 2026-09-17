@@ -65,24 +65,40 @@ def _is_real_number(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 
-def deep_compare(expected: Any, actual: Any, path: str = "") -> list:
+class DiffLine(str):
+    segments: tuple[str, ...]
+    kind: str
+
+    def __new__(cls, text: str, segments: tuple[str, ...], kind: str):
+        obj = str.__new__(cls, text)
+        obj.segments = segments
+        obj.kind = kind
+        return obj
+
+
+def deep_compare(expected: Any, actual: Any, path: str = "", _path_segs: tuple[str, ...] | None = None) -> list:
     """Recursive diffing engine. Only runs if hashes mismatch."""
+    if _path_segs is None:
+        _path_segs = () if not path else (path.strip("/"),)
+
     differences = []
 
     if isinstance(expected, dict) and isinstance(actual, dict):
         all_keys = set(expected.keys()).union(set(actual.keys()))
         for key in all_keys:
+            next_path = f"{path}/{key}"
+            next_segs = (*_path_segs, key)
             if key not in expected:
-                differences.append(f"➕ EXTRA KEY FOUND: {path}/{key}")
+                differences.append(DiffLine(f"➕ EXTRA KEY FOUND: {next_path}", next_segs, "extra"))
             elif key not in actual:
-                differences.append(f"➖ MISSING KEY: {path}/{key}")
+                differences.append(DiffLine(f"➖ MISSING KEY: {next_path}", next_segs, "missing"))
             else:
-                differences.extend(deep_compare(expected[key], actual[key], f"{path}/{key}"))
+                differences.extend(deep_compare(expected[key], actual[key], next_path, next_segs))
     elif _is_real_number(expected) and _is_real_number(actual):
         if not math.isclose(expected, actual, rel_tol=FLOAT_REL_TOL, abs_tol=FLOAT_ABS_TOL):
-            differences.append(f"⚠️ MISMATCH at {path}: Expected {expected}, Got {actual}")
+            differences.append(DiffLine(f"⚠️ MISMATCH at {path}: Expected {expected}, Got {actual}", _path_segs, "mismatch"))
     elif expected != actual:
-        differences.append(f"⚠️ MISMATCH at {path}: Expected {expected}, Got {actual}")
+        differences.append(DiffLine(f"⚠️ MISMATCH at {path}: Expected {expected}, Got {actual}", _path_segs, "mismatch"))
 
     return differences
 

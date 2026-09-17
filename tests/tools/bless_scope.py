@@ -43,7 +43,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import golden_diff as gd
 
-_AT = re.compile(r"MISMATCH at (/[^:]+):")
 _LANG = re.compile(r"/([a-z_\-]+)/[^/]+/[^/]*\.[a-zA-Z0-9]+")
 
 
@@ -91,7 +90,7 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("old fixture required (or pass --from-head)")
 
     old, new = gd.load_and_sanitize(args.old), gd.load_and_sanitize(args.new)
-    diffs = [str(d) for d in gd.deep_compare(old, new)]
+    diffs = gd.deep_compare(old, new)
     topo_set = {d for d in diffs if "Topological Coordinates" in d or re.search(r"/[XYZ]:", d)}
     rest = [d for d in diffs if d not in topo_set]
     print(f"{len(diffs)} differences: {len(topo_set)} topological (X/Y/Z re-solve), {len(rest)} substantive")
@@ -100,12 +99,15 @@ def main(argv: list[str] | None = None) -> int:
     langs: collections.Counter = collections.Counter()
     leaves: collections.Counter = collections.Counter()
     for d in rest:
-        m = _AT.search(d)
-        path = m.group(1) if m else "?"
-        segs = path.strip("/").split("/")
-        sections[segs[0]] += 1
-        leaves[segs[-1][:48]] += 1
-        ml = _LANG.search(path)
+        if hasattr(d, "segments") and d.segments:
+            segs = d.segments
+            sections[segs[0]] += 1
+            leaves[segs[-1][:48]] += 1
+        else:
+            sections["(unparsed)"] += 1
+            leaves["(unparsed)"] += 1
+
+        ml = _LANG.search(str(d))
         if ml:
             langs[ml.group(1)] += 1
 
@@ -136,11 +138,10 @@ def main(argv: list[str] | None = None) -> int:
         # moved in it, so a reviewer sees the bless's shape without the raw diff.
         by_file: dict[str, set] = collections.defaultdict(set)
         for d in rest:
-            m = _AT.search(d)
-            if not m:
+            if not hasattr(d, "segments") or not d.segments:
                 continue
-            segs = m.group(1).strip("/").split("/")
-            ml = _LANG.search(m.group(1))
+            segs = d.segments
+            ml = _LANG.search(str(d))
             fname = next(
                 (s for s in segs if re.search(r"\.[A-Za-z0-9]{1,8}$", s) and not s[:1].isdigit()),
                 segs[0],

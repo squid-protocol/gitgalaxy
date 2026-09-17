@@ -50,6 +50,54 @@ class FocusingError(Exception):
     pass
 
 
+# #3116: a shebang's trigger used to be tested as a bare substring of the whole
+# line, so shell's "sh" fired on `tclsh`/`wish`/`jimsh`/`swift-sh`/`racketsh`
+# and javascript's "node" fired on `ts-node`. The bogus language then
+# contradicted the file's own extension, and the Identity Conflict Trap dumped
+# real Tcl/Swift/Scheme/TypeScript files to Tier 5 -- `undeterminable`,
+# intensity 0.0, plus an "Identity Masking" anomaly flag that reads as a
+# malware finding on an ordinary script. Match the interpreter as a token
+# instead: the basename of the first path word after `#!`, except for the
+# `env` form, where it is the first following token that is neither a flag
+# (`-S`, `-u`) nor a `VAR=value` assignment.
+_SHEBANG_ENV_SKIP = re.compile(r"^(?:-|[A-Za-z_]\w*=)")
+
+
+def _shebang_interpreter(first_line: str) -> str:
+    """The interpreter token of a shebang line, lowercased, or "" if absent."""
+    if not first_line.startswith("#!"):
+        return ""
+    words = first_line[2:].split()
+    if not words:
+        return ""
+    interpreter = words[0].rsplit("/", 1)[-1].lower()
+    if interpreter in ("env", "env.exe"):
+        # `#!/usr/bin/env -S python3 -u`, `#!/usr/bin/env VAR=1 python3`
+        for word in words[1:]:
+            if not _SHEBANG_ENV_SKIP.match(word):
+                return word.rsplit("/", 1)[-1].lower()
+        return ""
+    return interpreter
+
+
+def _shebang_trigger_matches(trigger: str, interpreter: str) -> bool:
+    """Whether a registry shebang trigger names this interpreter.
+
+    Exact match, or the trigger plus a pure version suffix -- `python` names
+    `python3` and `python3.12`, `perl` names `perl5.36`. Only digits and dots
+    may follow, so `python` does NOT name `micropython` (a different word, and
+    embedded_python's own trigger) and `sh` does NOT name `tclsh`.
+    """
+    if not trigger or not interpreter:
+        return False
+    if interpreter == trigger:
+        return True
+    if not interpreter.startswith(trigger):
+        return False
+    tail = interpreter[len(trigger) :]
+    return bool(tail) and all(ch in "0123456789." for ch in tail)
+
+
 class LanguageDetector:
     """
     Linguistic Classification Engine.
@@ -684,9 +732,19 @@ class LanguageDetector:
             first_line = content.split("\n", 1)[0].lower()
             self.logger.debug(f"Fingerprint Scan: Analyzing shebang line: '{first_line.strip()}'")
 
-            for lang_id, data in self.languages.items():
-                for trigger in data.get("shebangs", []):
-                    if trigger in first_line:
+            # #3116: token match on the interpreter basename, never a substring
+            # of the whole line. Longest trigger first so a specific trigger
+            # beats a shorter one that is also a legitimate prefix of the same
+            # interpreter, independent of registry iteration order (#3118).
+            interpreter = _shebang_interpreter(first_line.strip())
+            if interpreter:
+                candidates = [
+                    (trigger, lang_id)
+                    for lang_id, data in self.languages.items()
+                    for trigger in data.get("shebangs", [])
+                ]
+                for trigger, lang_id in sorted(candidates, key=lambda c: -len(c[0])):
+                    if _shebang_trigger_matches(trigger, interpreter):
                         return lang_id
 
         # 2. INTERNAL DISCRIMINATOR (Collision Resolution Only)

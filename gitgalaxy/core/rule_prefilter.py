@@ -26,10 +26,11 @@ run the rule as today") rather than toward cleverness:
   written against -- including whatever a future Python adds -- aborts the
   whole derivation. A blacklist would silently mis-gate new constructs.
 - Constructs that consume no fixed text (character classes, `.`, bounded-zero
-  repeats, lookarounds, backrefs, anchors) contribute nothing; they only
-  terminate the literal run being accumulated. Positive lookaheads DO imply
-  required text, but harvesting them is deliberately deferred -- the rules
-  that motivate #3069 gate fine without it.
+  repeats, negative lookarounds, backrefs, anchors) contribute nothing; they
+  only terminate the literal run being accumulated. POSITIVE lookarounds are
+  harvested (#3072, deferred from #3070): `(?=X)`/`(?<=X)` assert that X
+  matches, so X's required text must occur in the haystack even though the
+  match itself does not consume it.
 - Case-insensitive literals are matched against a `fold_haystack()`-folded
   haystack and are only emitted when pure ASCII. `casefold()` (not `lower()`)
   because re's IGNORECASE folds LONG S (U+017F) onto 's' and the KELVIN
@@ -87,6 +88,7 @@ if _C is not None:
     _MIN_REPEAT = _C.MIN_REPEAT
     _POSSESSIVE_REPEAT = getattr(_C, "POSSESSIVE_REPEAT", None)
     _ATOMIC_GROUP = getattr(_C, "ATOMIC_GROUP", None)
+    _ASSERT = _C.ASSERT
     _BARREN_OPS = frozenset(
         op
         for op in (
@@ -96,7 +98,6 @@ if _C is not None:
             _C.AT,
             _C.GROUPREF,
             _C.GROUPREF_EXISTS,
-            _C.ASSERT,
             _C.ASSERT_NOT,
             getattr(_C, "FAILURE", None),
         )
@@ -237,6 +238,18 @@ def _walk_seq(seq: Any, ci: bool) -> list[_Candidate]:
                 candidates.extend(_walk_seq(sub, ci))
         elif _ATOMIC_GROUP is not None and op is _ATOMIC_GROUP:
             candidates.extend(_walk_seq(av, ci))
+        elif op is _ASSERT:
+            # Positive lookaround (#3070's deferred item): `(?=X)`/`(?<=X)`
+            # asserts that X matches, so X's required text must occur in the
+            # haystack and gates the segment exactly like consumed text.
+            # CAUTION: the harvested literal is required *near* the match, not
+            # necessarily *inside* the match span -- sound for whole-segment
+            # gates; sound for per-line gates only because
+            # pattern_is_line_local also walks ASSERT contents, proving the
+            # lookaround text cannot leave the match's own line. ASSERT_NOT
+            # stays barren: `(?!X)` forbids text, requiring nothing.
+            _direction, sub = av
+            candidates.extend(_walk_seq(sub, ci))
         else:
             raise _Ungateable(str(op))
     _flush()

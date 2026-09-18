@@ -81,6 +81,30 @@ def test_negative_lookahead_contributes_nothing():
     assert derive_literal_gate(re.compile(r"(?!typedef)struct\s+\w+")) == (("struct",), False)
 
 
+def test_positive_lookahead_literal_is_harvested():
+    # (?=X) asserts X matches, so X's required text gates even though the
+    # match never consumes it (#3072, deferred from #3070). "delegate" beats
+    # the consumed 1-char run on the length policy.
+    gate = derive_literal_gate(re.compile(r"\w+(?=\s*=>\s*delegate\b)"))
+    assert gate == (("=>",), False) or gate == (("delegate",), False)
+    # A lookahead-only pattern (zero consumed text) now gates too.
+    assert derive_literal_gate(re.compile(r"(?=.*declare)")) == (("declare",), False)
+
+
+def test_positive_lookbehind_literal_is_harvested():
+    assert derive_literal_gate(re.compile(r"(?<=typedef )\w+x")) == (("typedef ",), False)
+
+
+def test_nested_lookaround_harvesting():
+    # A negative lookaround anywhere in the chain still contributes nothing,
+    # even with a positive one nested inside it.
+    assert derive_literal_gate(re.compile(r"(?!(?=inner)x)\w*")) is None
+    # Positive-inside-positive harvests the innermost required text.
+    gate = derive_literal_gate(re.compile(r"(?=(?<=prefix)suffix)\w*"))
+    assert gate is not None
+    assert set(gate[0]) <= {"prefix", "suffix"}
+
+
 def test_backref_to_unfixed_group_has_no_gate():
     assert derive_literal_gate(re.compile(r"(\w+)\1")) is None
 

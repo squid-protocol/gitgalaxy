@@ -333,27 +333,31 @@ class SecurityLens:
                 snippets.setdefault(key, [])
                 continue
 
-            # Ensure we add to the fallback screen hits rather than overwriting them.
-            # (Applying the safe_content patch here to ensure ReDoS armor remains intact).
-            new_hits = regex.findall(safe_content)
-            counts[key] = counts.get(key, 0) + len(new_hits)
+            # A single finditer pass serves both the count and the snippet/position
+            # harvest -- len(findall()) equals the number of finditer matches, so
+            # counting as we iterate is output-identical while halving the regex
+            # work on every threat-bearing file (#3173). We still ADD to any fallback
+            # screen hits rather than overwriting them, and the safe_content haystack
+            # keeps the 250-char ReDoS armor intact.
             snippets.setdefault(key, [])
+            new_hits = 0
+            for match in regex.finditer(safe_content):
+                new_hits += 1
+                snip = match.group(0).strip()
+                if len(snippets[key]) < 3 and snip not in snippets[key]:
+                    snippets[key].append(snip)
 
-            if len(new_hits) > 0:
-                for match in regex.finditer(safe_content):
-                    snip = match.group(0).strip()
-                    if len(snippets[key]) < 3 and snip not in snippets[key]:
-                        snippets[key].append(snip)
+                # Map the exact line indexes of critical threats for the persisted ledger (#348)
+                if not is_auto_gen and key in {
+                    "io",
+                    "high_risk_execution",
+                    "db_hooks",
+                    "hardcoded_secrets",
+                }:
+                    line_idx = bisect.bisect_right(line_starts, match.start()) - 1
+                    positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
 
-                    # Map the exact line indexes of critical threats for the persisted ledger (#348)
-                    if not is_auto_gen and key in {
-                        "io",
-                        "high_risk_execution",
-                        "db_hooks",
-                        "hardcoded_secrets",
-                    }:
-                        line_idx = bisect.bisect_right(line_starts, match.start()) - 1
-                        positions[key].append(line_idx + 1)  # 1-indexed, matching detector.py's convention
+            counts[key] = counts.get(key, 0) + new_hits
 
         # ---> 3. SHANNON ENTROPY (Obfuscation Detection) <---
         entropy_hits = 0

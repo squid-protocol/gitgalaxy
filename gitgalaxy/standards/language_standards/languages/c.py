@@ -410,5 +410,12 @@ DEFINITION: dict[str, Any] = {
         # file I/O (io's), indistinguishable from a data write at the language
         # layer.
         "system_config_mutation": None,
+        # #3072: state_mutation is the file-level most expensive C rule and
+        # every arm requires `=`, `++`, or `--` on the match's own line --
+        # sweep only the lines that contain one (the #3063 var-decl gate,
+        # generalized). Eligibility is re-proven from the pattern at cache
+        # build (rule_prefilter.build_line_gate); an edit that breaks
+        # line-locality demotes the rule to whole-segment, never miscounts.
+        "_line_gates": ("state_mutation",),
     },
 }

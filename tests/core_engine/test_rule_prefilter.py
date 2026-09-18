@@ -369,6 +369,31 @@ _PARITY_SAMPLES = {
         "           STOP RUN.\n"
     ),
     "python": ("import os\ndef risky(cmd):\n    if cmd:\n        os.system(cmd)\n    return None\n"),
+    # #3072: the two extra languages carry _line_gates entries, so this test
+    # also proves line-gated vs fully-ungated 5-tuple parity. The samples are
+    # deliberately mutation-dense AND contain gate-miss lines.
+    "cpp": (
+        "#include <vector>\n"
+        "int sum(std::vector<int> &v) {\n"
+        "    int total = 0;\n"
+        "    for (auto &x : v) { total += x; }\n"
+        "    v.push_back(total);\n"
+        "    v.clear();\n"
+        "    std::swap(total, v[0]);\n"
+        "    return total;\n"
+        "}\n"
+    ),
+    "go": (
+        "package main\n"
+        "func main() {\n"
+        "    ch := make(chan int, 1)\n"
+        "    ch <- 1\n"
+        "    n := 0\n"
+        "    n++\n"
+        "    m := map[string]int{}\n"
+        "    delete(m, \"k\")\n"
+        "}\n"
+    ),
 }
 
 
@@ -388,8 +413,10 @@ def test_coding_analysis_output_identical_with_and_without_gates(lang_id):
     ungated = StructuralExtractor(lang_id, LANGUAGE_DEFINITIONS)
     # Seed the ungated instance's cache with gate=None quads: same rules, no
     # prefilter, i.e. pre-#3069 behavior.
+    # (name, pat, key, None, None): no segment gate, no line gate (#3072) --
+    # i.e. pre-#3069 behavior.
     ungated._active_rules_cache = {
-        lang_id: [(name, pat, key, None) for name, pat, key, _gate in gated._active_coding_rules(lang_id)]
+        lang_id: [(name, pat, key, None, None) for name, pat, key, _gate, _line_gate in gated._active_coding_rules(lang_id)]
     }
 
     gated_telemetry: dict = {}

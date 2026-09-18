@@ -26,8 +26,10 @@ from gitgalaxy.core.rule_prefilter import (
     Gate as RulePrefilterGate,
 )
 from gitgalaxy.core.rule_prefilter import (
+    build_line_gate,
     derive_literal_gate,
     fold_haystack,
+    line_gated_finditer,
 )
 from gitgalaxy.core.spatial_correlation import (
     apply_amplifier_correlations,
@@ -2618,27 +2620,41 @@ class StructuralExtractor:
     # on exactly which mapped keys are valid.
     _APPSEC_KEYS = ("memory_scraping", "exfiltration_camouflage", "rce_funnel")
 
-    def _active_coding_rules(self, seg_lang: str) -> list[tuple[str, Any, str, Optional[RulePrefilterGate]]]:
-        """#PERF: the eligible `(rule_name, pattern, mapped_key, gate)` rules for
-        a language, computed once and cached. The eligibility tests -- skip
-        `_`-prefixed meta keys and falsy/trivial patterns, resolve the CORE_MAPPING
-        key, and drop rules whose mapped key isn't in the counts schema -- depend
-        only on the static ruleset, so caching them removes tens of thousands of
-        redundant `pattern.pattern.replace(...)*3.strip()` calls per scan. An
-        unregistered rule is warned about once here rather than once per file.
+    def _active_coding_rules(
+        self, seg_lang: str
+    ) -> list[tuple[str, Any, str, Optional[RulePrefilterGate], Optional["re.Pattern[str]"]]]:
+        """#PERF: the eligible `(rule_name, pattern, mapped_key, gate, line_gate)`
+        rules for a language, computed once and cached. The eligibility tests --
+        skip `_`-prefixed meta keys and falsy/trivial patterns, resolve the
+        CORE_MAPPING key, and drop rules whose mapped key isn't in the counts
+        schema -- depend only on the static ruleset, so caching them removes tens
+        of thousands of redundant `pattern.pattern.replace(...)*3.strip()` calls
+        per scan. An unregistered rule is warned about once here rather than once
+        per file.
 
         `gate` (#3069) is the rule's required-literal prefilter -- see
         rule_prefilter.derive_literal_gate for the one-sided contract -- or
         None for rules with no safe gate. Derived here, at cache fill, because
         the AST walk costs ~100x a finditer over a small file; per-language
-        once-per-process is the right amortization."""
+        once-per-process is the right amortization.
+
+        `line_gate` (#3072) is the candidate-line scanner for rules the
+        registry opts in via `_line_gates` -- see
+        rule_prefilter.build_line_gate -- or None. build_line_gate refusing an
+        opted-in rule (a rule edit broke line-locality) is a lost optimization,
+        never an error: the rule simply runs whole-segment. It is logged at
+        debug because the registry property test in test_line_gates.py is the
+        loud guard for that regression."""
         cache = self.__dict__.setdefault("_active_rules_cache", {})
         cached = cache.get(seg_lang)
         if cached is not None:
             return cached
+        rules_dict = self.languages.get(seg_lang, {}).get("rules", {})
+        line_gate_names = rules_dict.get("_line_gates") or ()
         valid_keys = set(self.UNIVERSAL_METRICS_SCHEMA).union(self._APPSEC_KEYS)
-        active: list[tuple[str, Any, str, Optional[RulePrefilterGate]]] = []
-        for rule_name, pattern in self.languages.get(seg_lang, {}).get("rules", {}).items():
+        active: list[tuple[str, Any, str, Optional[RulePrefilterGate], Optional["re.Pattern[str]"]]] = []
+        seen_rule_names: set[str] = set()
+        for rule_name, pattern in rules_dict.items():
             if rule_name.startswith("_") or not pattern:
                 continue
             mapped_key = self.CORE_MAPPING.get(rule_name, rule_name)
@@ -2651,8 +2667,25 @@ class StructuralExtractor:
             clean_pat = raw_pat.replace("(?i)", "").replace("(?m)", "").replace("(?s)", "").strip()
             if clean_pat in ("", "()", "(?:)", "^", "$"):
                 continue
-            gate = derive_literal_gate(pattern) if hasattr(pattern, "finditer") else None
-            active.append((rule_name, pattern, mapped_key, gate))
+            seen_rule_names.add(rule_name)
+            line_gate = None
+            if hasattr(pattern, "finditer"):
+                gate = derive_literal_gate(pattern)
+                if rule_name in line_gate_names:
+                    line_gate = build_line_gate(pattern)
+                    if line_gate is None:
+                        self.logger.debug(
+                            f"[DIAGNOSTIC] '{seg_lang}' declares a _line_gates entry for "
+                            f"'{rule_name}' but the pattern is not line-gateable; running whole-segment."
+                        )
+            else:
+                gate = None
+            active.append((rule_name, pattern, mapped_key, gate, line_gate))
+        for name in line_gate_names:
+            if name not in seen_rule_names:
+                self.logger.warning(
+                    f"[DIAGNOSTIC] '_line_gates' entry '{name}' in '{seg_lang}' names no active rule. Ignoring."
+                )
         cache[seg_lang] = active
         return active
 
@@ -2739,7 +2772,7 @@ class StructuralExtractor:
             # `pattern.pattern.replace(...)*3.strip()` and the membership tests
             # tens of thousands of times per scan. Compute it once per language
             # and cache it (see `_active_coding_rules`).
-            for rule_name, pattern, mapped_key, gate in self._active_coding_rules(seg_lang):
+            for rule_name, pattern, mapped_key, gate, line_gate in self._active_coding_rules(seg_lang):
                 try:
                     t_rule_start = time.perf_counter()
 
@@ -2772,7 +2805,19 @@ class StructuralExtractor:
 
                     # ---> THE UPGRADE: Spatial Mapping instead of raw counting <---
                     if hasattr(pattern, "finditer"):
-                        matches = list(pattern.finditer(seg_code))
+                        # #3072: rules whose pattern is provably line-local
+                        # (see rule_prefilter.line_gated_finditer's
+                        # equivalence argument) sweep only the runs of lines
+                        # containing a required literal. Same Match objects,
+                        # same order, same offsets -- everything below is
+                        # oblivious to which path produced them. The segment
+                        # gate has already passed by this point; both gates
+                        # coexist (segment gate skips whole files, line gate
+                        # thins the survivors).
+                        if line_gate is not None:
+                            matches = line_gated_finditer(pattern, line_gate, seg_code)
+                        else:
+                            matches = list(pattern.finditer(seg_code))
                         scope_filter_name = scope_filters.get(rule_name)
                         if scope_filter_name and matches:
                             matches = self._apply_scope_filter(

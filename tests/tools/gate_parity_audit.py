@@ -9,8 +9,9 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 """
-Gate parity audit (#3069): prove the required-literal prefilter one-sided on
-the real corpora, rule by rule, file by file.
+Gate parity audit (#3069/#3072): prove the required-literal prefilter
+one-sided AND the per-line gate exactly equivalent on the real corpora, rule
+by rule, file by file.
 
 For every language folder in the language-crucible AND keyword-rosetta corpora,
 and for every compiled rule of that language, this derives the rule's gate
@@ -29,6 +30,12 @@ the assert on the full text is therefore the harder test).
 
 The per-language reject rate it prints is the win metric for #3069: the
 fraction of (rule x file) finditer sweeps the gate eliminates outright.
+
+The #3072 leg is stricter: for every rule a language opts into `_line_gates`,
+the per-line evaluation (rule_prefilter.line_gated_finditer) claims EXACT
+equivalence, so every corpus file x surface must produce the identical
+`[(span, groups)]` list as a whole-text finditer. Its printed metric is the
+surviving-line rate -- the fraction of lines the heavy pattern still sweeps.
 
 USAGE
     python tests/tools/gate_parity_audit.py                 # both corpora
@@ -54,7 +61,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from rule_probe import corpus_files  # noqa: E402
 
 from gitgalaxy.core.prism import Prism  # noqa: E402
-from gitgalaxy.core.rule_prefilter import derive_literal_gate, fold_haystack  # noqa: E402
+from gitgalaxy.core.rule_prefilter import (  # noqa: E402
+    build_line_gate,
+    derive_literal_gate,
+    fold_haystack,
+    line_gated_finditer,
+)
 from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS  # noqa: E402
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS  # noqa: E402
 
@@ -78,6 +90,26 @@ def audit(corpus: str) -> tuple[dict, list[dict]]:
         ]
         if not rules:
             continue
+        lang_rules = LANGUAGE_DEFINITIONS[lang].get("rules") or {}
+        line_rules = []
+        for name in lang_rules.get("_line_gates") or ():
+            if not hasattr(lang_rules.get(name), "finditer"):
+                continue
+            gate = build_line_gate(lang_rules[name])
+            if gate is None:
+                violations.append(
+                    {
+                        "kind": "line_gate_refused",
+                        "lang": lang,
+                        "rule": name,
+                        "file": "",
+                        "surface": "",
+                        "gate": [],
+                        "first_match": "declared in _line_gates but build_line_gate refused",
+                    }
+                )
+                continue
+            line_rules.append((name, lang_rules[name], gate))
         gated_rules = sum(1 for _n, _p, g in rules if g is not None)
         stats = {
             "files": 0,
@@ -85,6 +117,10 @@ def audit(corpus: str) -> tuple[dict, list[dict]]:
             "gated_rules": gated_rules,
             "checks": 0,
             "rejects": 0,
+            "line_gate_rules": len(line_rules),
+            "line_checks": 0,
+            "line_total": 0,
+            "line_surviving": 0,
         }
 
         for _corpus_name, root, path in corpus_files(lang, corpus):
@@ -114,6 +150,31 @@ def audit(corpus: str) -> tuple[dict, list[dict]]:
                                 "first_match": first.group(0)[:120],
                             }
                         )
+            for rule_name, pattern, line_gate in line_rules:
+                for surface, text in (("raw", src), ("code_stream", code_stream)):
+                    stats["line_checks"] += 1
+                    stats["line_total"] += text.count("\n") + 1
+                    stats["line_surviving"] += sum(1 for _ in line_gate.finditer(text))
+                    expected = [(m.span(), m.groups()) for m in pattern.finditer(text)]
+                    actual = [(m.span(), m.groups()) for m in line_gated_finditer(pattern, line_gate, text)]
+                    if actual != expected:
+                        diff = next(
+                            (i for i, pair in enumerate(zip(expected, actual)) if pair[0] != pair[1]),
+                            min(len(expected), len(actual)),
+                        )
+                        violations.append(
+                            {
+                                "kind": "line_gate_parity",
+                                "lang": lang,
+                                "rule": rule_name,
+                                "file": str(path.relative_to(root)),
+                                "surface": surface,
+                                "gate": [line_gate.pattern],
+                                "first_match": f"first divergence at index {diff}: "
+                                f"expected={expected[diff] if diff < len(expected) else None} "
+                                f"actual={actual[diff] if diff < len(actual) else None}",
+                            }
+                        )
         if stats["files"]:
             report[lang] = stats
 
@@ -141,20 +202,32 @@ def main(argv: list[str] | None = None) -> int:
     overall = 100.0 * total_rejects / total_checks if total_checks else 0.0
     print(f"\nTOTAL: {total_rejects}/{total_checks} gate rejections ({overall:.1f}% of rule sweeps eliminated)")
 
+    line_langs = {lang: s for lang, s in report.items() if s.get("line_gate_rules")}
+    if line_langs:
+        print(f"\nper-line gates (#3072): exact-parity leg")
+        print(f"{'language':16s} {'rules':>5s} {'checks':>8s} {'lines':>10s} {'surviving':>10s} {'survive%':>9s}")
+        for lang, s in sorted(line_langs.items()):
+            pct = 100.0 * s["line_surviving"] / s["line_total"] if s["line_total"] else 0.0
+            print(
+                f"{lang:16s} {s['line_gate_rules']:5d} {s['line_checks']:8d} "
+                f"{s['line_total']:10d} {s['line_surviving']:10d} {pct:8.1f}%"
+            )
+
     if args.json:
         args.json.write_text(json.dumps({"report": report, "violations": violations}, indent=2))
         print(f"wrote {args.json}")
 
     if violations:
-        print(f"\n*** {len(violations)} ONE-SIDED-INVARIANT VIOLATIONS ***", file=sys.stderr)
+        print(f"\n*** {len(violations)} INVARIANT VIOLATIONS ***", file=sys.stderr)
         for v in violations[:50]:
             print(
-                f"  {v['lang']}::{v['rule']} {v['file']} [{v['surface']}] "
+                f"  [{v.get('kind', 'one_sided')}] {v['lang']}::{v['rule']} {v['file']} [{v['surface']}] "
                 f"gate={v['gate']} first_match={v['first_match']!r}",
                 file=sys.stderr,
             )
         return 1
-    print("zero violations: every gate rejection corresponds to zero real matches.")
+    print("zero violations: every gate rejection corresponds to zero real matches,")
+    print("and every line-gated sweep is exactly equivalent to its whole-text finditer.")
     return 0
 
 

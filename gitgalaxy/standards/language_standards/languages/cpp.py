@@ -303,10 +303,16 @@ DEFINITION: dict[str, Any] = {
             # `mutable` / `std::atomic` name mutable state (contract corollary 2), `std::move`
             # is a cast and `&` a borrow (corollary 3): none of them writes anything.
             # `std::swap`/`std::exchange` and the container mutators do.
+            # #3072: the call parens in the swap/mutator arms bind with `[ \t]*`,
+            # not `\s*` -- the paren must open on the same line as the method
+            # name. That loses only the pathological `x.push_back\n(v)` layout
+            # (zero occurrences corpus-wide when narrowed) and makes every arm
+            # provably newline-free, which is what lets this rule opt into
+            # `_line_gates` below.
             r"(?:^|[;{}(),])[ \t]*\**[A-Za-z_]\w*(?:(?:\.|->)[A-Za-z_]\w*|\[[^\]\n]{0,80}\])*[ \t]*(?:[-+*/%&|^]|<<|>>)?=(?![=])(?![^\n(]{0,300},[ \t]*$)"
             r"|[\w)\]][ \t]*(?:\+\+|--)|(?:\+\+|--)[ \t]*[A-Za-z_(*]"
-            r"|\bstd::(?:swap|exchange)\s*\(|\bstd::mem::(?:swap|replace)\s*\("
-            r"|\.(?:push_back|emplace_back|emplace|insert|erase|clear|pop_back|pop_front|push_front|resize|assign|swap)\s*\(",
+            r"|\bstd::(?:swap|exchange)[ \t]*\(|\bstd::mem::(?:swap|replace)[ \t]*\("
+            r"|\.(?:push_back|emplace_back|emplace|insert|erase|clear|pop_back|pop_front|push_front|resize|assign|swap)[ \t]*\(",
             re.M,
         ),
         # 12. dead_code (Commented Logic / Deprecated Trails)
@@ -530,5 +536,11 @@ DEFINITION: dict[str, Any] = {
         # system_config_mutation (#3084): contract-level absence. no dedicated
         # config-mutation form -- same file-I/O reasoning as c.
         "system_config_mutation": None,
+        # #3072: every state_mutation arm requires `=`/`++`/`--` or a
+        # swap/container-mutator method name on the match's own line (the
+        # `[ \t]*\(` narrowing above is what makes the method arms
+        # newline-free); sweep only those lines. See c.py's entry for the
+        # safety contract.
+        "_line_gates": ("state_mutation",),
     },
 }

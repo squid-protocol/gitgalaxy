@@ -249,6 +249,10 @@ DEFINITION: dict[str, Any] = {
         # which indented identifier lines are direct members of a top-level
         # `var (` / `const (` declaration group.
         "_scope_filters": {"globals": "go_declaration_group"},
+        # #3072: every state_mutation arm requires one of `=`/`++`/`--`/`<-`/
+        # `atomic.`/`delete(` on the match's own line; sweep only those lines.
+        # See c.py's entry for the safety contract.
+        "_line_gates": ("state_mutation",),
         # 19. decorators (Decorators / Annotations)
         # Go lacks @decorators; uses Struct Tags and Build Tags.
         "decorators": re.compile(r'`[^`]*?(?:json|xml|yaml|gorm|db|bson):"[^"]*"[^`]*?`|//go:build|//\s*\+build'),

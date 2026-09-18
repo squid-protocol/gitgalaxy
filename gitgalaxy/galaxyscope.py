@@ -916,6 +916,12 @@ class Orchestrator:
         # ==============================================================================
         self.census: set[str] = set()
         self.stem_map: dict[str, str] = {}
+        # #3175: physical byte size per valid file, captured for free during the
+        # Phase 0 walk and used only to dispatch the worker pool largest-first (LPT
+        # scheduling) so one mega-file cannot land in the tail and stall the pool.
+        # Purely a scheduling hint -- output order is re-anchored to path order after
+        # the pool drains (see the ram_cache re-sort in _extract_features_parallel).
+        self.file_size_map: dict[str, int] = {}
         self.ram_cache: dict[str, dict[str, Any]] = {}
         self.parsed_files: list[dict[str, Any]] = []
         self.unparsable_files: list[dict[str, Any]] = []
@@ -1646,6 +1652,7 @@ class Orchestrator:
 
                     self.census.add(stem)
                     self.stem_map[rel_path] = rel_path
+                    self.file_size_map[rel_path] = size_bytes  # #3175: largest-first dispatch key
 
                     # ---> Tally both the extension AND the full filename
                     self.ext_tally[ext] = self.ext_tally.get(ext, 0) + 1
@@ -1709,6 +1716,7 @@ class Orchestrator:
 
                     self.census.add(stem)
                     self.stem_map[rel_p] = rel_p
+                    self.file_size_map[rel_p] = size_bytes  # #3175: largest-first dispatch key
 
                     # ---> Tally both the extension AND the full filename
                     self.ext_tally[ext] = self.ext_tally.get(ext, 0) + 1
@@ -1769,9 +1777,22 @@ class Orchestrator:
                 self.census,
             ),
         ) as executor:
-            # Map futures to their file paths in a tracking dictionary
+            # Map futures to their file paths in a tracking dictionary.
+            # #3175: submit LARGEST-FIRST (LPT scheduling). A single mega-file can be
+            # 10-40% of a mega-repo's extraction wall; if it is dequeued late the pool
+            # stalls on one worker while the rest idle. Dispatching by descending byte
+            # size lets the heaviest file overlap all other work, bounding the tail.
+            # This reorders *dispatch only* -- results are re-keyed to path order after
+            # the pool drains (self.ram_cache re-sort below), so no output byte moves.
+            # Ties and any size-less incremental entries fall back to stem_map (path)
+            # order via the stable sort + .get(..., 0) default.
+            dispatch_order = sorted(
+                self.stem_map.values(),
+                key=lambda p: self.file_size_map.get(p, 0),
+                reverse=True,
+            )
             active_futures = {
-                executor.submit(_process_file_worker, rel_path): rel_path for rel_path in self.stem_map.values()
+                executor.submit(_process_file_worker, rel_path): rel_path for rel_path in dispatch_order
             }
 
             # THE STARVATION MONITOR (Event-Driven Generator)

@@ -12012,13 +12012,14 @@
 <p>Instead of relying on rigid ASTs, GitGalaxy uses a specialized <code>security_lens.py</code> to hunt for the structural DNA of an RCE funnel.</p>
 <h3 id="1-scan-the-repository">1. Scan the Repository</h3>
 <p>Run the GitGalaxy engine against your agent framework:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>galaxyscope<span class="w"> </span>/path/to/your/llm_agent_repo
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>galaxyscope<span class="w"> </span>/path/to/your/llm_agent_repo<span class="w"> </span>--ai-guardrails
 </code></pre></div>
+<p>(The <code>--ai-guardrails</code> flag enables the Zero-Trust Guardrails phase, which is off by default — an LLM agent repo is exactly the kind of target it exists for.)</p>
 <h3 id="2-identify-the-choke-points">2. Identify the Choke Points</h3>
 <p>GitGalaxy generates an <code>_llm.md</code> context brief and an <code>_audit.json</code> file. Look specifically for the <strong>Injection Surface Risk Exposure</strong>.</p>
 <p>The engine calculates this by cross-multiplying the density of external network inputs against dangerous execution vectors, removing the "Agentic Shield" if the file is explicitly designed to handle LLM orchestration.</p>
 <h3 id="3-deploy-the-dev-agent-firewall">3. Deploy the Dev Agent Firewall</h3>
-<p>Once the high-risk files are identified, deploy the GitGalaxy Dev Agent Firewall (<code>gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py</code>). </p>
+<p>Once the high-risk files are identified, deploy the GitGalaxy Dev Agent Firewall (<code>gitgalaxy/security/dev_agent_firewall.py</code>). </p>
 <p>This script evaluates the token mass and blast radius of the target file. If a file is flagged as an RCE Funnel, the firewall restricts autonomous coding agents from modifying it, requiring a "Human in the Loop" (HITL) override.</p>
 <blockquote>
 <p><strong>Read the full technical specification for the AppSec Sensor:</strong> <a href="../../02-17-ai-appsec-sensor/">AI AppSec Sensor</a></p>

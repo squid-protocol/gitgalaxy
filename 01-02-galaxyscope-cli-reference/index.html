@@ -12103,6 +12103,9 @@
 <li><strong><code>--airgap</code></strong></li>
 <li><strong>Action:</strong> Physically disables the <code>llm_recorder.py</code>, <code>ai_appsec_sensor.py</code>, and any sub-modules requiring external network requests.</li>
 <li><strong>Use Case:</strong> Enterprise compliance mode. Guarantees 100% offline execution.</li>
+<li><strong><code>--ai-guardrails</code></strong></li>
+<li><strong>Action:</strong> Enables Phase 5 (Zero-Trust AI Guardrails — <code>dev_agent_firewall.py</code> + <code>ai_appsec_sensor.py</code>). The phase is <strong>off by default</strong>; without the flag the guardrail telemetry columns (<code>agentic_isolation_risk</code>, <code>requires_hitl</code>, <code>hallucination_zone</code>, <code>silent_mutation_risk</code>, <code>appsec_god_mode</code>) record <code>NULL</code> ("not evaluated" — <code>0</code> is reserved for "evaluated, no risk found") and no <code>GG-AGENT-GUARDRAIL</code> SARIF results are emitted. Also settable as <code>ai-guardrails: true</code> under the <code>galaxyscope:</code> section of <code>.galaxyscope.yaml</code>.</li>
+<li><strong>Use Case:</strong> Repositories with a real AI/agentic surface (LLM orchestration frameworks, autonomous coding agents). Most targets — e.g. a large COBOL modernization scan — have none, which is why the phase no longer pays its full per-file cost on every scan. Enabling is always an explicit choice; the engine never auto-detects, so turning the phase on is visible in the CLI/config rather than dependent on a heuristic.</li>
 </ul>
 <h3 id="architectural-routing">Architectural Routing</h3>
 <ul>

@@ -12012,8 +12012,9 @@
 <p>GitGalaxy calculates the safety of agentic modification using <code>dev_agent_firewall.py</code>. It evaluates the repository's 3D spatial graph to trigger specific guardrails.</p>
 <h3 id="1-identify-the-ai-black-holes">1. Identify the AI Black Holes</h3>
 <p>Before assigning a ticket to an agent, run the GitGalaxy scanner:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>galaxyscope<span class="w"> </span>/path/to/repo<span class="w"> </span>--module<span class="w"> </span>dev_agent_firewall
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>galaxyscope<span class="w"> </span>/path/to/repo<span class="w"> </span>--ai-guardrails
 </code></pre></div>
+<p>The Dev Agent Firewall is part of the engine's "Phase 5: Zero-Trust Guardrails", which is off by default — the <code>--ai-guardrails</code> flag enables it for repositories with a real AI/agentic surface.</p>
 <p>The engine looks for <strong>The Context Window Shredder</strong>. If a file exceeds 8,000 tokens of mass AND contains <code>O(N^3)</code> or recursive algorithmic complexity, it is flagged as an <code>agentic_black_hole</code>. The AI will inevitably lose context and corrupt the file.</p>
 <h3 id="2-enforce-human-in-the-loop-hitl">2. Enforce Human-in-the-Loop (HITL)</h3>
 <p>GitGalaxy calculates the exact PageRank (Blast Radius) of every file. If an agent attempts to modify a foundational file (PageRank &gt; 1.0) that also carries severe Technical Debt or Cognitive Load (&gt; 200 combined risk), the firewall triggers <code>requires_hitl</code>. </p>

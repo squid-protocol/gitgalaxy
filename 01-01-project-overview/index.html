@@ -12129,19 +12129,18 @@ By bypassing the compiler bottleneck and focusing on lexical alignment, blAST ac
 <p>The backend ecosystem is organized into strict domains, separating the core graphing logic from the operational toolsets:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>gitgalaxy/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── galaxyscope.py                  # The Main CLI Entry Point
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── ai_guardrails/                  # Autonomous AI AppSec Constraints
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── core/                           # The Hub: File ingestion, network graphing, and lens routing
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── physics/                        # The Engine: Signal processing, ML analytics, and chronometers
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>├── recorders/                      # The Exporters: JSON, SQLite, and LLM-ready markdown generators
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── security/                       # The ML Models: XGBoost multiclass threat inference
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>├── standards/                      # The Universal Laws: Language heuristics and analysis schemas
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>└── tools/                          # The Spokes: Enterprise operations driven by the core graph
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    ├── cobol_to_cobol/             # Legacy modernization and JCL analysis
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    ├── cobol_to_java/              # Automated Spring Boot microservice forging
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    ├── compliance/                 # Zero-Trust SBOM generators
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    ├── network_auditing/           # API boundary mappers (Shadow API hunting)
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    ├── supply_chain_security/      # Quarantines, vault sentinels, and binary X-Rays
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    └── terabyte_log_scanning/      # High-velocity PII leak and mainframe SMF telemetry hunters
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── core/                           # The Hub: File ingestion, network graphing, and lens routing
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── physics/                        # The Engine: Signal processing, ML analytics, and chronometers
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── recorders/                      # The Exporters: JSON, SQLite, and LLM-ready markdown generators
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>├── security/                       # The Threat Layer: XGBoost inference, SAST lens, and AI guardrails
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>├── standards/                      # The Universal Laws: Language heuristics and analysis schemas
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>└── tools/                          # The Spokes: Enterprise operations driven by the core graph
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    ├── cobol_to_cobol/             # Legacy modernization and JCL analysis
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    ├── cobol_to_java/              # Automated Spring Boot microservice forging
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    ├── compliance/                 # Zero-Trust SBOM generators
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    ├── network_auditing/           # API boundary mappers (Shadow API hunting)
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    ├── supply_chain_security/      # Quarantines, vault sentinels, and binary X-Rays
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    └── terabyte_log_scanning/      # High-velocity PII leak and mainframe SMF telemetry hunters
 </code></pre></div>
 <h3 id="16-measuring-risk-exposure-not-code-quality">1.6 Measuring Risk Exposure, Not "Code Quality"</h3>
 <p>GitGalaxy assesses deviations from organizational standards and displays that info as localized heatmaps onto the 3D generated world. Importantly, GitGalaxy does not measure subjective "Code Quality." It measures <strong>Risk Exposure</strong>. Our measurements do not judge; they highlight. They function as sensors, not critics.</p>

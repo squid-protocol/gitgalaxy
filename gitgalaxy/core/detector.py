@@ -2622,7 +2622,7 @@ class StructuralExtractor:
 
     def _active_coding_rules(
         self, seg_lang: str
-    ) -> list[tuple[str, Any, str, Optional[RulePrefilterGate], Optional["re.Pattern[str]"]]]:
+    ) -> list[tuple[str, Any, str, Optional[RulePrefilterGate], Optional[re.Pattern[str]]]]:
         """#PERF: the eligible `(rule_name, pattern, mapped_key, gate, line_gate)`
         rules for a language, computed once and cached. The eligibility tests --
         skip `_`-prefixed meta keys and falsy/trivial patterns, resolve the

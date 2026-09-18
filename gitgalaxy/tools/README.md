@@ -30,9 +30,6 @@ A complete suite of deterministic architectural controllers for modernizing mono
 * **Microservice Logic Extractor:** Performs recursive data-flow taint tracking to isolate COBOL business rules.
 * **Java Spring Boot Forge:** Deterministically translates COBOL architectures into 100% compiling Java Spring `@Entity` models, `@RestController` endpoints, and Maven build systems.
 
-### [Dual-Sided AI Guardrails](./ai_guardrails/README.md)
-* **AppSec Sensor & Dev Agent Firewall:** Deep-inspection middleware sensors. They flag **Over-Permissioned Agent Bindings** (an agent-orchestration framework wired to raw I/O with weak defensive density), and constrain autonomous AI coding agents from corrupting highly complex legacy code.
-
 ---
 
 ## Execution & CI/CD Integration
@@ -59,8 +56,7 @@ api-network-map ./src
 pii-leak-hunter ./logs/dump.sql
 ```
 
-### 3. Engine Middleware (AI Guardrails)
-Note that the **AI Guardrails** do not operate as standalone CLI tools. They act as deep-inspection middleware. To utilize them, run the primary GitGalaxy analysis engine, and the sensors will automatically inject their AppSec findings and Guardrail constraints into the final project telemetry.
+> **Looking for the AI Guardrails?** The AI AppSec Sensor and Dev Agent Firewall are not standalone tools — they run inside the main analysis engine as core security phases, and now live in [`gitgalaxy/security/`](../security/README.md).
 
 ---
 

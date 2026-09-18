@@ -1,5 +1,5 @@
 # IMPORTANT: Adjust this path to match exactly where your file is located
-from gitgalaxy.tools.ai_guardrails.ai_appsec_sensor import AIAppSecSensor
+from gitgalaxy.security.ai_appsec_sensor import AIAppSecSensor
 
 
 # ==============================================================================

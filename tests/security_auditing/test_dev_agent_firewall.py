@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from gitgalaxy.tools.ai_guardrails.dev_agent_firewall import DevAgentFirewall
+from gitgalaxy.security.dev_agent_firewall import DevAgentFirewall
 
 
 @pytest.fixture
@@ -15,7 +15,7 @@ def firewall():
         "RISK_SCHEMA": ["tech_debt", "state_flux", "cognitive_load"],
         "SIGNAL_SCHEMA": ["io", "reflection_metaprogramming"],
     }
-    with patch("gitgalaxy.tools.ai_guardrails.dev_agent_firewall.RECORDING_SCHEMAS", mock_schemas):
+    with patch("gitgalaxy.security.dev_agent_firewall.RECORDING_SCHEMAS", mock_schemas):
         yield DevAgentFirewall()
 
 

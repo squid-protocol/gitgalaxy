@@ -705,6 +705,33 @@ def test_record_keeper_surface_family_telemetry_defaults_when_absent(keeper, moc
     assert row["rel_alloc_cleanup"] == 0.0
 
 
+def test_guardrail_columns_default_when_phase_skipped(keeper, mock_pipeline_state, tmp_path):
+    """gitgalaxy#1178: Phase 5 is opt-in, so on a default scan (no
+    --ai-guardrails) the ai_guardrails/ai_appsec telemetry keys are never
+    written. The recorder must insert a clean row with 0/false defaults for
+    all five guardrail columns instead of raising."""
+    db_path = tmp_path / "test_guardrails_skipped.sqlite"
+    parsed, unparsable, summary, session = mock_pipeline_state
+    parsed[0]["telemetry"].pop("ai_guardrails", None)
+    parsed[0]["telemetry"].pop("ai_appsec", None)
+
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT agentic_isolation_risk, requires_hitl, appsec_god_mode, hallucination_zone, "
+        "silent_mutation_risk FROM file_data WHERE file_name='router.py'"
+    ).fetchone()
+    conn.close()
+
+    assert row["agentic_isolation_risk"] == 0
+    assert row["requires_hitl"] == 0
+    assert row["appsec_god_mode"] == 0
+    assert row["hallucination_zone"] == 0
+    assert row["silent_mutation_risk"] == 0
+
+
 def test_record_keeper_tier_columns_migration_on_legacy_db(keeper, mock_pipeline_state, tmp_path):
     """gitgalaxy#2994: recording into a pre-reform database (missing the
     fam_*/pct_fam_*/pct_vec_*/rel_* columns) must auto-heal the schema via

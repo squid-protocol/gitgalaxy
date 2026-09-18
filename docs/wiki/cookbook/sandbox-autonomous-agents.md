@@ -14,8 +14,10 @@ GitGalaxy calculates the safety of agentic modification using `dev_agent_firewal
 Before assigning a ticket to an agent, run the GitGalaxy scanner:
 
 ```bash
-galaxyscope /path/to/repo --module dev_agent_firewall
+galaxyscope /path/to/repo --ai-guardrails
 ```
+
+The Dev Agent Firewall is part of the engine's "Phase 5: Zero-Trust Guardrails", which is off by default — the `--ai-guardrails` flag enables it for repositories with a real AI/agentic surface.
 
 The engine looks for **The Context Window Shredder**. If a file exceeds 8,000 tokens of mass AND contains `O(N^3)` or recursive algorithmic complexity, it is flagged as an `agentic_black_hole`. The AI will inevitably lose context and corrupt the file.
 

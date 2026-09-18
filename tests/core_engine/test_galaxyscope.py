@@ -2036,6 +2036,64 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         mock_sarif.assert_called_once()
 
     # ==============================================================================
+    # TEST 20b: AI GUARDRAILS SKIP FLAG (#1178)
+    # ==============================================================================
+    def _run_pipeline_with_guardrail_spies(self, config):
+        """Runs execute_pipeline with the TEST 20 phase mocks plus spies on the
+        two Phase 5 sensor classes; returns the (firewall, sensor) class mocks."""
+        scope = Orchestrator(".", config)
+
+        scope.ram_cache = {}
+        scope.stem_map = {}
+        scope.network_sensor = MagicMock()
+        scope.network_sensor.build_dependency_graph.return_value = ([], {})
+        scope.processor = MagicMock()
+        scope.processor.summarize_galaxy_metrics.return_value = {}
+        scope.auditor = MagicMock()
+        scope.auditor.audit.return_value = ([], [])
+        scope.model_auditor = MagicMock()
+        scope.model_auditor.audit_repository.return_value = []
+        scope.gpu_recorder = MagicMock()
+
+        with (
+            patch("gitgalaxy.galaxyscope.DevAgentFirewall") as mock_firewall,
+            patch("gitgalaxy.galaxyscope.AIAppSecSensor") as mock_sensor,
+            patch("gitgalaxy.recorders.sarif_recorder.SarifRecorder.generate_report"),
+            patch("gitgalaxy.galaxyscope.run_api_audit", return_value={}),
+            patch("gitgalaxy.galaxyscope.run_xray_audit", return_value={}),
+            patch("gitgalaxy.galaxyscope.run_firewall_audit", return_value={}),
+        ):
+            mock_firewall.return_value.evaluate_ecosystem.side_effect = lambda files: files
+            mock_sensor.return_value.hunt_threats.side_effect = lambda files: files
+            scope.execute_pipeline("test_output.json")
+
+        return mock_firewall, mock_sensor
+
+    def test_ai_guardrails_off_by_default(self):
+        """gitgalaxy#1178: Phase 5 is opt-in -- without AI_GUARDRAILS the
+        pipeline must bypass it entirely (neither sensor constructed) while
+        still completing."""
+        config = self.mock_config.copy()
+        config["SARIF_ONLY"] = True  # narrow the export routing, as in TEST 20
+
+        mock_firewall, mock_sensor = self._run_pipeline_with_guardrail_spies(config)
+
+        mock_firewall.assert_not_called()
+        mock_sensor.assert_not_called()
+
+    def test_ai_guardrails_run_when_enabled(self):
+        """gitgalaxy#1178: AI_GUARDRAILS=True (--ai-guardrails) must run both
+        Phase 5 sensors."""
+        config = self.mock_config.copy()
+        config["SARIF_ONLY"] = True
+        config["AI_GUARDRAILS"] = True
+
+        mock_firewall, mock_sensor = self._run_pipeline_with_guardrail_spies(config)
+
+        mock_firewall.return_value.evaluate_ecosystem.assert_called_once()
+        mock_sensor.return_value.hunt_threats.assert_called_once()
+
+    # ==============================================================================
     # TEST 21: GIT METADATA FALLBACKS
     # ==============================================================================
     @patch("subprocess.check_output")

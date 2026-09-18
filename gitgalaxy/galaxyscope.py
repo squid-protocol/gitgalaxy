@@ -43,6 +43,8 @@ from gitgalaxy.recorders.llm_recorder import LLMRecorder
 from gitgalaxy.recorders.record_keeper import RecordKeeper
 from gitgalaxy.recorders.sarif_recorder import SarifRecorder
 from gitgalaxy.recorders.sbom_recorder import SbomRecorder
+from gitgalaxy.security.ai_appsec_sensor import AIAppSecSensor
+from gitgalaxy.security.dev_agent_firewall import DevAgentFirewall
 from gitgalaxy.security.security_auditor import HAS_NUMPY, HAS_PANDAS, HAS_XGBOOST, SecurityAuditor
 from gitgalaxy.security.security_lens import SecurityLens
 from gitgalaxy.standards.analysis_lens import (
@@ -58,8 +60,6 @@ from gitgalaxy.standards.language_standards import (
     LANGUAGE_DEFINITIONS,
     PROJECT_OVERRIDES,
 )
-from gitgalaxy.tools.ai_guardrails.ai_appsec_sensor import AIAppSecSensor
-from gitgalaxy.tools.ai_guardrails.dev_agent_firewall import DevAgentFirewall
 from gitgalaxy.tools.network_auditing.full_api_network_map import run_api_audit
 from gitgalaxy.tools.supply_chain_security.binary_anomaly_detector import run_xray_audit
 from gitgalaxy.tools.supply_chain_security.supply_chain_firewall import (
@@ -1041,13 +1041,19 @@ class Orchestrator:
 
             # PHASE 5: Zero-Trust Guardrails (AI & AppSec)
             # Enforces explicit system rules identifying Prompt Injections or Context Window Exhaustion.
-            t_phase = time.time()
-            dev_firewall = DevAgentFirewall(parent_logger=logger)
-            self.parsed_files = dev_firewall.evaluate_ecosystem(self.parsed_files)
+            # Opt-in (#1178): most scan targets have no AI/agentic surface, so the phase is off by
+            # default and only runs when explicitly requested -- never auto-detected, so enabling it
+            # is always a deliberate choice visible in the config/CLI.
+            if self.config.get("AI_GUARDRAILS"):
+                t_phase = time.time()
+                dev_firewall = DevAgentFirewall(parent_logger=logger)
+                self.parsed_files = dev_firewall.evaluate_ecosystem(self.parsed_files)
 
-            appsec_sensor = AIAppSecSensor(parent_logger=logger)
-            self.parsed_files = appsec_sensor.hunt_threats(self.parsed_files)
-            logger.debug(f"⏱️ EXECUTION_TIME [Phase 5 - Zero-Trust Guardrails]: {time.time() - t_phase:.2f}s")
+                appsec_sensor = AIAppSecSensor(parent_logger=logger)
+                self.parsed_files = appsec_sensor.hunt_threats(self.parsed_files)
+                logger.debug(f"⏱️ EXECUTION_TIME [Phase 5 - Zero-Trust Guardrails]: {time.time() - t_phase:.2f}s")
+            else:
+                logger.debug("⏭️ Phase 5 (Zero-Trust Guardrails) off by default -- enable with --ai-guardrails")
 
             # PHASE 6: Spectral Audit & Verification
             # Uses standard deviations to identify and drop un-parseable data dumps or log files.
@@ -3076,6 +3082,13 @@ def main():
     parser.add_argument("--sarif-only", action="store_true", default=None, help="Run ONLY the SARIF exporter")
     parser.add_argument("--sbom-only", action="store_true", default=None, help="Run ONLY the CycloneDX SBOM generator")
     parser.add_argument(
+        "--ai-guardrails",
+        action="store_true",
+        default=None,
+        help="Enable Phase 5 (Zero-Trust AI Guardrails) for targets with an AI/agentic surface. "
+        "Off by default; when off, the guardrail columns record their 0/false defaults",
+    )
+    parser.add_argument(
         "--fail-on-secrets",
         action="store_true",
         default=None,
@@ -3180,6 +3193,7 @@ def main():
         "db_only": False,
         "sarif_only": False,
         "sbom_only": False,
+        "ai_guardrails": False,
         "fail_on_secrets": False,
         "fail_on_malware": False,
         "max_risk_exposure": 0.0,
@@ -3364,6 +3378,7 @@ def main():
             "DB_ONLY": args.db_only,
             "SARIF_ONLY": args.sarif_only,
             "SBOM_ONLY": args.sbom_only,
+            "AI_GUARDRAILS": args.ai_guardrails,
             "FAIL_ON_SECRETS": args.fail_on_secrets,
             "FAIL_ON_MALWARE": args.fail_on_malware,
             "MAX_RISK_EXPOSURE": args.max_risk_exposure,

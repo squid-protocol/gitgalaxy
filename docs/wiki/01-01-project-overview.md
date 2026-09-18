@@ -62,11 +62,10 @@ The backend ecosystem is organized into strict domains, separating the core grap
 ```text
 gitgalaxy/
 ├── galaxyscope.py                  # The Main CLI Entry Point
-├── ai_guardrails/                  # Autonomous AI AppSec Constraints
 ├── core/                           # The Hub: File ingestion, network graphing, and lens routing
 ├── physics/                        # The Engine: Signal processing, ML analytics, and chronometers
 ├── recorders/                      # The Exporters: JSON, SQLite, and LLM-ready markdown generators
-├── security/                       # The ML Models: XGBoost multiclass threat inference
+├── security/                       # The Threat Layer: XGBoost inference, SAST lens, and AI guardrails
 ├── standards/                      # The Universal Laws: Language heuristics and analysis schemas
 └── tools/                          # The Spokes: Enterprise operations driven by the core graph
     ├── cobol_to_cobol/             # Legacy modernization and JCL analysis

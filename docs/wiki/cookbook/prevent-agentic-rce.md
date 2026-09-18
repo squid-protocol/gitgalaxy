@@ -14,8 +14,10 @@ Instead of relying on rigid ASTs, GitGalaxy uses a specialized `security_lens.py
 Run the GitGalaxy engine against your agent framework:
 
 ```bash
-galaxyscope /path/to/your/llm_agent_repo
+galaxyscope /path/to/your/llm_agent_repo --ai-guardrails
 ```
+
+(The `--ai-guardrails` flag enables the Zero-Trust Guardrails phase, which is off by default — an LLM agent repo is exactly the kind of target it exists for.)
 
 ### 2. Identify the Choke Points
 GitGalaxy generates an `_llm.md` context brief and an `_audit.json` file. Look specifically for the **Injection Surface Risk Exposure**.
@@ -23,7 +25,7 @@ GitGalaxy generates an `_llm.md` context brief and an `_audit.json` file. Look s
 The engine calculates this by cross-multiplying the density of external network inputs against dangerous execution vectors, removing the "Agentic Shield" if the file is explicitly designed to handle LLM orchestration.
 
 ### 3. Deploy the Dev Agent Firewall
-Once the high-risk files are identified, deploy the GitGalaxy Dev Agent Firewall (`gitgalaxy/tools/ai_guardrails/dev_agent_firewall.py`). 
+Once the high-risk files are identified, deploy the GitGalaxy Dev Agent Firewall (`gitgalaxy/security/dev_agent_firewall.py`). 
 
 This script evaluates the token mass and blast radius of the target file. If a file is flagged as an RCE Funnel, the firewall restricts autonomous coding agents from modifying it, requiring a "Human in the Loop" (HITL) override.
 

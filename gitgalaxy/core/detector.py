@@ -5751,7 +5751,10 @@ class StructuralExtractor:
 
             # #2012: Pattern 2 - constructors with member-initializer-lists overcount.
             # Truncate at the first top-level `:` before the brace to exclude the list.
-            if lang_id in ("c", "cpp") and args_search_text is not None:
+            # The `:` guard (#3174) skips the per-signature char walk for the common
+            # case -- most C/C++ signatures carry no `:` at all, and with none present
+            # the loop's only effect (truncating at a top-level `:`) can never fire.
+            if lang_id in ("c", "cpp") and args_search_text is not None and ":" in args_search_text:
                 depth_paren = depth_angle = 0
                 for i_ch, ch in enumerate(args_search_text):
                     if ch == "(":
@@ -5797,7 +5800,10 @@ class StructuralExtractor:
             # found during review, neither is the shape this fix targets, so
             # both now fall through unchanged to pre-#1837 behavior instead
             # of being newly broken by an overly broad re-slice.
-            if lang_id in ("c", "cpp") and args_search_text is not None:
+            # The `#` guard (#3174) skips the preprocessor-branch finditer for the
+            # common case -- a signature with no `#` can hold no `#else`/`#elif`
+            # line, so the scan below can never match and the re-slice never fires.
+            if lang_id in ("c", "cpp") and args_search_text is not None and "#" in args_search_text:
                 last_branch_end = None
                 for pp_match in re.finditer(r"^[ \t]*#\s*(?:else|elif)\b.*$", args_search_text, re.M):
                     if args_search_text[: pp_match.start()].rstrip().endswith(")"):
@@ -5816,12 +5822,13 @@ class StructuralExtractor:
             if name in known_macro_positions and known_macro_positions[name] < start_idx:
                 continue
 
+            block_nl = block.count("\n")  # #3174: scan the (often large) body once, not twice
             sat, mag = self._calculate_block_metrics(
                 name,
                 block,
-                block.count("\n") + 1,
+                block_nl + 1,
                 current_line_count,
-                current_line_count + block.count("\n"),
+                current_line_count + block_nl,
                 rules,
                 start_idx,
                 end_idx,

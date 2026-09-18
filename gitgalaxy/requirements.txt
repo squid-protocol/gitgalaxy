@@ -68,7 +68,7 @@ numba==0.67.0
 numpy==2.4.3
 nvidia-nccl-cu12==2.31.2
 opencv-python==5.0.0.93
-packaging==26.2
+packaging==26.3
 paginate==0.5.7
 pandas==3.0.1
 pandocfilters==1.5.1

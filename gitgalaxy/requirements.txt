@@ -130,7 +130,7 @@ typing_extensions==4.16.0
 umap-learn==0.5.12
 urllib3==2.7.0
 watchdog==6.0.0
-wcwidth==0.8.1
+wcwidth==0.8.3
 webencodings==0.5.1
 Werkzeug==3.1.8
 wheel==0.48.0

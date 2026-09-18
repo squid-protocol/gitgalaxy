@@ -3,8 +3,8 @@
   "gitgalaxy/recorders/audit_recorder.py:310: C416": "Unnecessary dict comprehension (rewrite using `dict()`)",
   "gitgalaxy/recorders/audit_recorder.py:327: C414": "Unnecessary `list()` call within `sorted()`",
   "gitgalaxy/recorders/gpu_recorder.py:293: C414": "Unnecessary `list()` call within `sorted()`",
-  "gitgalaxy/recorders/record_keeper.py:1339: RUF005": "Consider iterable unpacking instead of concatenation",
-  "gitgalaxy/recorders/record_keeper.py:1452: RUF005": "Consider iterable unpacking instead of concatenation",
+  "gitgalaxy/recorders/record_keeper.py:1340: RUF005": "Consider iterable unpacking instead of concatenation",
+  "gitgalaxy/recorders/record_keeper.py:1453: RUF005": "Consider iterable unpacking instead of concatenation",
   "gitgalaxy/security/security_auditor.py:366: RUF046": "Value being cast to `int` is already an integer",
   "gitgalaxy/tools/cobol_to_cobol/cobol_jcl_auditor.py:107: RUF015": "Prefer `next(iter(generated_metrics[\"exec_pgms\"]))` over single element slice"
 }

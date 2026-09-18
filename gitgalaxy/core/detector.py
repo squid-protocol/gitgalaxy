@@ -1144,6 +1144,17 @@ def _name_boundary_pattern(func_name: str) -> str:
 # scheme `set!`, C++ `operator==`) do NOT qualify and take the exact fallback.
 _WORD_NAME_RE = re.compile(r"\w+")
 
+# #3182: a name that is a single maximal word-or-hyphen run. The bisect fast
+# path in `_is_orphan` accepts these too, because coding_analysis indexes the
+# segment-aligned hyphenated sub-runs of every `[\w-]+` token (see the
+# `orphan_occ_index` build). A hyphenated func_name reaching `_is_orphan` was,
+# by construction, in that build's `_wanted_hyphen` set -- so either it is a key
+# with exactly its `(?<!\w)name(?!\w)` starts, or it has zero occurrences and
+# `.get()` returns None (the same orphan verdict the boundary-regex fallback
+# reaches). Names with other non-word chars (ruby `empty?`, scheme `set!`,
+# C++ `operator==`) still fail this and take the exact fallback.
+_INDEXABLE_NAME_RE = re.compile(r"[\w-]+")
+
 
 # #2823: one name inside a `_visibility_export_list` region. The region is the
 # text between the export construct's own delimiters, so what separates two
@@ -1904,6 +1915,33 @@ class StructuralExtractor:
                 orphan_occ_index = collections.defaultdict(list)
                 for _m in re.finditer(r"\w+", code_stream):
                     orphan_occ_index[_m.group()].append(_m.start())
+                # #3182: hyphenated identifier names (COBOL paragraphs, Lisp/Scheme,
+                # the column_sensitive family) are not single `\w+` tokens, so they
+                # miss the bisect fast path above and fell to `_is_orphan`'s
+                # O(filesize) per-function boundary-regex rescan -- profiled at ~20%
+                # of a COBOL scan. Index the segment-aligned hyphenated sub-runs of
+                # every `[\w-]+` token so those names bisect too. Only the names
+                # actually queried (this file's hyphenated func_names) are stored,
+                # and segment alignment makes `occ_index[name]` exactly the set of
+                # `(?<!\w)name(?!\w)` match starts -- byte-identical to the fallback.
+                _wanted_hyphen = {n for n in func_names if "-" in n}
+                if _wanted_hyphen:
+                    for _m in re.finditer(r"[\w-]+", code_stream):
+                        _tok = _m.group()
+                        if "-" not in _tok:
+                            continue
+                        _base = _m.start()
+                        _starts = [0]
+                        for _k, _ch in enumerate(_tok):
+                            if _ch == "-":
+                                _starts.append(_k + 1)
+                        _ns = len(_starts)
+                        for _i in range(_ns):
+                            for _j in range(_i + 1, _ns):
+                                _end = _starts[_j + 1] - 1 if _j + 1 < _ns else len(_tok)
+                                _sub = _tok[_starts[_i] : _end]
+                                if _sub in _wanted_hyphen:
+                                    orphan_occ_index[_sub].append(_base + _starts[_i])
 
             for func in functions:
                 func_name = func.get("name", "")
@@ -8587,7 +8625,7 @@ class StructuralExtractor:
         # fallback below; verified by an old-vs-new parity harness across real
         # files (incl. ruby/scheme/C++ special-name languages, which take the
         # fallback and are unaffected).
-        if occ_index is not None and _WORD_NAME_RE.fullmatch(func_name):
+        if occ_index is not None and _INDEXABLE_NAME_RE.fullmatch(func_name):
             offsets = occ_index.get(func_name)
             if not offsets:
                 # No maximal-word occurrence at all -> matches the fallback's

@@ -18,8 +18,6 @@ in tests/tools/gate_parity_audit.py.
 
 import re
 
-import pytest
-
 from gitgalaxy.core.rule_prefilter import (
     build_line_gate,
     derive_line_literals,

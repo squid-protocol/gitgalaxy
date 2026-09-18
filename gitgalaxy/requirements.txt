@@ -103,7 +103,7 @@ pyzmq==27.1.0
 readme_renderer==46.0
 referencing==0.37.0
 regex==2026.7.19
-ruff==0.16.0
+ruff==0.16.7
 requests==2.34.2
 requests-toolbelt==1.0.0
 rfc3986==2.0.0

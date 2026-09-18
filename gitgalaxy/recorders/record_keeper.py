@@ -1163,15 +1163,21 @@ class RecordKeeper:
             parent_ent = tel.get("domain_context", {}).get("parent_entity", "")
 
             # --- AI GUARDRAILS & TOKEN DENSITY ---
-            guardrails = tel.get("ai_guardrails", {})
-            appsec = tel.get("ai_appsec", {})
+            # Phase 5 is opt-in (#1178). An absent key means the phase never ran,
+            # recorded as NULL ("not evaluated") -- 0 is reserved for "evaluated,
+            # no risk found".
+            guardrails = tel.get("ai_guardrails")
+            appsec = tel.get("ai_appsec")
 
-            is_black_hole = 1 if guardrails.get("is_agentic_black_hole") else 0
-            req_hitl = 1 if guardrails.get("requires_hitl") else 0
-            hallucination_zone = 1 if guardrails.get("hallucination_zone") else 0
-            silent_mutation = 1 if guardrails.get("silent_mutation_risk") else 0
+            if guardrails is None:
+                is_black_hole = req_hitl = hallucination_zone = silent_mutation = None
+            else:
+                is_black_hole = 1 if guardrails.get("is_agentic_black_hole") else 0
+                req_hitl = 1 if guardrails.get("requires_hitl") else 0
+                hallucination_zone = 1 if guardrails.get("hallucination_zone") else 0
+                silent_mutation = 1 if guardrails.get("silent_mutation_risk") else 0
 
-            god_mode = 1 if appsec.get("over_permissioned_agent") else 0
+            god_mode = None if appsec is None else (1 if appsec.get("over_permissioned_agent") else 0)
 
             file_token_mass = file_data.get("token_mass")
             file_read_cost = file_data.get("financial_read_cost")

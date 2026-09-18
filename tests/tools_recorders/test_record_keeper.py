@@ -63,6 +63,9 @@ def mock_pipeline_state():
                     "is_agentic_black_hole": True,  # Maps to agentic_isolation_risk
                     "hallucination_zone": False,
                 },
+                "ai_appsec": {
+                    "over_permissioned_agent": True,  # Maps to appsec_god_mode
+                },
             },
             "is_ml_threat": True,
             "equations": {
@@ -197,6 +200,7 @@ def test_record_keeper_data_insertion(keeper, mock_pipeline_state, tmp_path):
     assert file_row["ai_threat_class"] == "Botnet / DDoS"
     assert file_row["ai_threat_score"] == 95.5
     assert file_row["agentic_isolation_risk"] == 1
+    assert file_row["appsec_god_mode"] == 1
     # #366: is_malware reads file_data["is_ml_threat"] (security_auditor.py's
     # real output key), not the never-produced "is_malware".
     assert file_row["is_malware"] == 1
@@ -705,15 +709,42 @@ def test_record_keeper_surface_family_telemetry_defaults_when_absent(keeper, moc
     assert row["rel_alloc_cleanup"] == 0.0
 
 
-def test_guardrail_columns_default_when_phase_skipped(keeper, mock_pipeline_state, tmp_path):
+def test_guardrail_columns_null_when_phase_skipped(keeper, mock_pipeline_state, tmp_path):
     """gitgalaxy#1178: Phase 5 is opt-in, so on a default scan (no
     --ai-guardrails) the ai_guardrails/ai_appsec telemetry keys are never
-    written. The recorder must insert a clean row with 0/false defaults for
-    all five guardrail columns instead of raising."""
+    written. The recorder must insert a clean row with NULL ("not evaluated")
+    for all five guardrail columns -- NOT 0, which is reserved for "evaluated,
+    no risk found"."""
     db_path = tmp_path / "test_guardrails_skipped.sqlite"
     parsed, unparsable, summary, session = mock_pipeline_state
     parsed[0]["telemetry"].pop("ai_guardrails", None)
     parsed[0]["telemetry"].pop("ai_appsec", None)
+
+    keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
+
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    row = conn.execute(
+        "SELECT agentic_isolation_risk, requires_hitl, appsec_god_mode, hallucination_zone, "
+        "silent_mutation_risk FROM file_data WHERE file_name='router.py'"
+    ).fetchone()
+    conn.close()
+
+    assert row["agentic_isolation_risk"] is None
+    assert row["requires_hitl"] is None
+    assert row["appsec_god_mode"] is None
+    assert row["hallucination_zone"] is None
+    assert row["silent_mutation_risk"] is None
+
+
+def test_guardrail_columns_zero_when_phase_ran_clean(keeper, mock_pipeline_state, tmp_path):
+    """The counterpart to the NULL test: when Phase 5 DID run and found
+    nothing (keys present, all-false report), the columns must record real
+    0s, keeping "evaluated clean" distinguishable from "never evaluated"."""
+    db_path = tmp_path / "test_guardrails_clean.sqlite"
+    parsed, unparsable, summary, session = mock_pipeline_state
+    parsed[0]["telemetry"]["ai_guardrails"] = {}
+    parsed[0]["telemetry"]["ai_appsec"] = {}
 
     keeper.record_mission(parsed, unparsable, summary, session, str(db_path))
 

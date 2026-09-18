@@ -3086,7 +3086,7 @@ def main():
         action="store_true",
         default=None,
         help="Enable Phase 5 (Zero-Trust AI Guardrails) for targets with an AI/agentic surface. "
-        "Off by default; when off, the guardrail columns record their 0/false defaults",
+        "Off by default; when off, the guardrail columns record NULL (not evaluated)",
     )
     parser.add_argument(
         "--fail-on-secrets",

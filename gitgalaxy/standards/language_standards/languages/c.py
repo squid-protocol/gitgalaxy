@@ -405,5 +405,10 @@ DEFINITION: dict[str, Any] = {
         "regex_execution": re.compile(r"\b(regcomp|regexec|regfree)\b"),
         "time_date_logic": re.compile(r"\b(time_t|clock_gettime|gettimeofday|localtime_r?|strftime)\b"),
         "ipc_rpc_bridges": re.compile(r"\b(fork|pipe|shmget|shmat|mmap|socket|bind|listen|accept)\b"),
+        # system_config_mutation (#3084): contract-level absence. no dedicated
+        # config-mutation form -- a sysfs/registry/conf-file write is ordinary
+        # file I/O (io's), indistinguishable from a data write at the language
+        # layer.
+        "system_config_mutation": None,
     },
 }

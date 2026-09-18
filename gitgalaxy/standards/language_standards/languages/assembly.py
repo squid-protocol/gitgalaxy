@@ -362,5 +362,9 @@ DEFINITION: dict[str, Any] = {
             r"\b(?:call|bl)\s+_?(?:fork|execve|pipe|socket|clone)\b|\bsys_(?:fork|execve|pipe|clone)\b",
             re.I,
         ),
+        # system_config_mutation (#3084): contract-level absence. userland
+        # instruction stream; no OS-configuration vocabulary in the language's
+        # own morphology.
+        "system_config_mutation": None,
     },
 }

@@ -399,5 +399,9 @@ DEFINITION: dict[str, Any] = {
         # (`date("Y-m-d")`).
         "time_date_logic": re.compile(r"\b(?:strtotime|DateTime(?:Immutable)?|date_create)\b|\btime\s*\(|\bdate\s*\("),
         "ipc_rpc_bridges": re.compile(r"\b(shell_exec|exec|system|passthru|proc_open|curl_exec|fsockopen)\b"),
+        # system_config_mutation (#3084): contract-level absence. web-app layer;
+        # ini_set( tunes the current process only (program-own state, not
+        # durable), and conf-file writes are ordinary I/O.
+        "system_config_mutation": None,
     },
 }

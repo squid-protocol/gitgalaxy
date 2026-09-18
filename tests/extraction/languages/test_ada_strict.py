@@ -119,9 +119,10 @@ _BASELINE_KEYS = [
     "cleanup", "encapsulation", "listeners", "test_skip",
     "serialization_parsing", "regex_execution", "time_date_logic", "ipc_rpc_bridges",
     "auth_middleware",
+    "system_config_mutation",
 ]  # fmt: skip
 
-_EXPECTED_NONE_KEYS = {"ui_framework", "closures", "ssr_boundaries", "dependency_injection", "auth_middleware"}
+_EXPECTED_NONE_KEYS = {"ui_framework", "closures", "ssr_boundaries", "dependency_injection", "auth_middleware", "system_config_mutation"}
 
 
 def test_ada_schema_completeness():

@@ -1766,8 +1766,11 @@ def test_signal_processor_ecosystem_native_match_is_neutral(processor):
 # The pre-trained archetype models (function: 62-dim, file: 115-dim,
 # per-language: 74-dim) carry no feature-name metadata and no training script
 # lives in this repo, while the live feature vectors are 5-dim (function) and
-# 83-dim (file). They have never matched, and the old distance loops silently
-# truncated to the shorter sequence -- producing confidently-wrong labels.
+# 83-dim (file) -- 84 candidate features since #3084's system_config_mutation
+# append, but the self-describing brains keep reading their own recorded 83
+# until the owed retrain. They have never matched, and the old distance loops
+# silently truncated to the shorter sequence -- producing confidently-wrong
+# labels.
 # These tests pin the loud-failure guard: a mismatch must yield "Unclassified"
 # (plus one warning per vector/centroid length pair), never a truncated label.
 

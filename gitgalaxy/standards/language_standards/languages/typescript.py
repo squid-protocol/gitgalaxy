@@ -806,6 +806,10 @@ DEFINITION: dict[str, Any] = {
             r"\b(Date\.now|new\s+Date|setTimeout|setInterval|clearTimeout|clearInterval|performance\.now)\b"
         ),
         "ipc_rpc_bridges": re.compile(r"\b(postMessage|Worker|MessageChannel|child_process|worker_threads|cluster)\b"),
+        # system_config_mutation (#3084): contract-level absence. runtime/app
+        # layer; same reasoning as javascript -- host config only through
+        # child_process command text.
+        "system_config_mutation": None,
         # --- PHASE 4: APPSEC & AI SENSORS (Zero-Trust Pipelines) ---
         "rce_funnel": re.compile(r"child_process\.(?:spawn|exec|execSync)\s*\(\s*['\"](?:python|bash|sh|bun|node)\b"),
         # BUG FIX (Rule 11, nested-delimiter coverage): the flat `[^)]*`

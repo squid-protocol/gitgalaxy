@@ -470,5 +470,9 @@ DEFINITION: dict[str, Any] = {
             r"\b(NSDate|NSDateFormatter|NSTimer|CFAbsoluteTimeGetCurrent|NSDateComponents)\b"
         ),
         "ipc_rpc_bridges": re.compile(r"\b(NSXPCConnection|NSTask|NSPipe|NSURLConnection|NSURLSession|NSMachPort)\b"),
+        # system_config_mutation (#3084): contract-level absence. no dedicated
+        # config-mutation form -- same file-I/O reasoning as c; NSUserDefaults
+        # is the app's own state.
+        "system_config_mutation": None,
     },
 }

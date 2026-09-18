@@ -192,6 +192,22 @@ DEFINITION: dict[str, Any] = {
         # //SYSIN stays #3002's in-stream-grammar question: JCL's callable unit
         # is the step, not its payload, #2751/#2486.)
         #
+        # system_config_mutation (#3084): a durable mutation of shared
+        # subsystem configuration, owned at the step shape BY INTENT: DFHCSDUP
+        # is the CSD update utility -- its whole purpose is to rewrite the
+        # CICS system definition catalog. Execution risk is NOT the claim
+        # (#2751's exclusion of fixed-command utilities from
+        # high_risk_execution stands unchanged, see the block above), and
+        # IDCAMS stays out of THIS rule too: its intent is dataset
+        # lifecycle/catalog (io/cleanup territory; catalog-level DEFINE
+        # ALIAS/ALTER is an open boundary question on #3084). Payload verbs
+        # (DEFINE/ADD/DELETE GROUP under //SYSIN) stay #3002's
+        # in-stream-grammar question, same as GRANT's above. The PGM= prefix
+        # anchors to the invoking form: cbsa's CBSACSD.jcl names its *step*
+        # //DFHCSDUP -- a bare-word rule would count the step name too
+        # (#2899). Unanchored like the other operand rules: PGM= can sit on
+        # a `//` continuation line (the #2482 shape).
+        "system_config_mutation": re.compile(r"\bPGM=DFHCSDUP\b", re.I),
         # I/O (Data Set Names and Sysouts)
         # #2841 contract C4/C5: one hit per DD statement that allocates an
         # external target (a cataloged dataset or spooled output); DSN=&& temps

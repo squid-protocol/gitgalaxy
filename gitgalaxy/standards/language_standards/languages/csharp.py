@@ -549,5 +549,9 @@ DEFINITION: dict[str, Any] = {
             r"\b(DateTime\.Now|DateTime\.UtcNow|DateTimeOffset|TimeSpan|Stopwatch\.StartNew)\b"
         ),
         "ipc_rpc_bridges": re.compile(r"\b(Process\.Start|NamedPipeServerStream|ChannelFactory|GrpcChannel)\b"),
+        # system_config_mutation (#3084): contract-level absence. deferred, see
+        # 3084: the Microsoft.Win32.Registry/ServiceController surface is real,
+        # but crucible incidence is 0 files today.
+        "system_config_mutation": None,
     },
 }

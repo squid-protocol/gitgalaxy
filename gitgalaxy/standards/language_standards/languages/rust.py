@@ -362,5 +362,9 @@ DEFINITION: dict[str, Any] = {
         "ipc_rpc_bridges": re.compile(
             r"\b(std::process::Command|tokio::process|tonic::transport::Server|mpsc::channel)\b"
         ),
+        # system_config_mutation (#3084): contract-level absence. no dedicated
+        # config-mutation primitive -- config writes are ordinary file I/O
+        # (io's).
+        "system_config_mutation": None,
     },
 }

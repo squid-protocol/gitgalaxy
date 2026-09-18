@@ -280,5 +280,9 @@ DEFINITION: dict[str, Any] = {
         # concurrency's (its rule already counts `coroutine`); a bridge crosses a
         # process boundary, which os.execute/io.popen do.
         "ipc_rpc_bridges": re.compile(r"\b(os\.execute|io\.popen)\b"),
+        # system_config_mutation (#3084): contract-level absence. embedded
+        # scripting layer; host config is reachable only through os.execute
+        # command text (high_risk_execution's boundary).
+        "system_config_mutation": None,
     },
 }

@@ -705,5 +705,9 @@ DEFINITION: dict[str, Any] = {
             r"|\bEXEC\s+CICS\s+(?:PUT|GET|MOVE)\s+CONTAINER\b"
             r"|\bEXEC\s+(?:SQL|DLI)\b"
         ),
+        # system_config_mutation (#3084): contract-level absence. deferred, see
+        # 3084: EXEC CICS SET mutates running-CICS resource state (same intent
+        # family as DFHCSDUP); adjudication owed before owning it.
+        "system_config_mutation": None,
     },
 }

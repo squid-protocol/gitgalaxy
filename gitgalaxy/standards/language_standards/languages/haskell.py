@@ -417,5 +417,8 @@ DEFINITION: dict[str, Any] = {
         "ipc_rpc_bridges": re.compile(
             r"\b(System\.Process|createProcess|callProcess|callCommand|forkIO|Control\.Concurrent)\b"
         ),
+        # system_config_mutation (#3084): contract-level absence. no dedicated
+        # config-mutation primitive; a conf-file write is ordinary I/O (io's).
+        "system_config_mutation": None,
     },
 }

@@ -366,5 +366,9 @@ DEFINITION: dict[str, Any] = {
         # ends on non-word characters (`%` / `{`) -- the shared \b
         # boundaries could never fire for either. Neither ever matched.
         "ipc_rpc_bridges": re.compile(r"\b(?:Open3|IO\.popen|Net::HTTP|TCPSocket)\b|\bsystem\s*\(|%x\{"),
+        # system_config_mutation (#3084): contract-level absence. no dedicated
+        # config-mutation primitive; host config is file I/O or backtick command
+        # text (their owners').
+        "system_config_mutation": None,
     },
 }

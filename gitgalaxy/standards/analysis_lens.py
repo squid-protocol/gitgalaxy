@@ -1330,6 +1330,19 @@ RECORDING_SCHEMAS: RecordingSchemas = {
         # be free.
         "sec_db_hooks",
         "sec_amplified_sql_injection",
+        # --- NEW: DURABLE SHARED-CONFIG MUTATION (#3084) ---
+        # Appended at the end for the same positional reason as the entries
+        # above. This is the NON-sec_ append the #2985 dimension-safety note
+        # warned about, but the cost moved since that note was written: the
+        # v2.8.1 self-describing brains classify from their own recorded
+        # FEATURE_NAMES (see signal_processor.py's #ENGINE-PARITY block), so
+        # shipped brains simply never read the new name -- archetypes are
+        # unchanged at scan time, no dimension mismatch. The candidate
+        # feature vector widens 83 -> 84 only at the retrain owed at merge
+        # (batched with the retrain #3157's dormant-slot activation already
+        # owes); that retrain PR adds the file-model dimension and re-pins
+        # EXPECTED_CONTRACT_SHA. This landing must not touch either.
+        "system_config_mutation",
     ],
     "SAT_SCHEMA": [
         "name",
@@ -1580,7 +1593,7 @@ SURFACE_FAMILIES: dict[str, list[str]] = {
     "tests": ["test", "test_skip"],
     "docs": ["doc", "lit_code_blocks", "lit_diagrams", "lit_headers", "lit_links"],
     "debt": ["planned_debt", "fragile_debt", "debug_prints", "feature_flags", "duplicate_logic"],
-    "mutation": ["state_mutation", "core_var_decl"],
+    "mutation": ["state_mutation", "core_var_decl", "system_config_mutation"],
     "dead_code": ["dead_code", "unreferenced_by_name"],
     "credential": ["sec_hardcoded_secrets", "sec_entropy"],
     "threat": [

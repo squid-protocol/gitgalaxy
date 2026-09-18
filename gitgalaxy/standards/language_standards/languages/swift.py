@@ -373,5 +373,9 @@ DEFINITION: dict[str, Any] = {
             # (its rule already counts it); a bridge crosses a process boundary.
             r"\b(?:URLSession|NSXPCConnection|NotificationCenter)\b|\bProcess\(\)"
         ),
+        # system_config_mutation (#3084): contract-level absence. app layer;
+        # UserDefaults/plist writes are the app's own state (state_mutation's),
+        # not shared infrastructure.
+        "system_config_mutation": None,
     },
 }

@@ -344,5 +344,9 @@ DEFINITION: dict[str, Any] = {
             r"|RUN\s+[^\n]*(?:\\\r?\n[^\n]*){0,50}sleep)\b"
         ),
         "ipc_rpc_bridges": re.compile(r"(?im)^(?:EXPOSE|VOLUME|ENTRYPOINT|CMD|STOPSIGNAL)\b"),
+        # system_config_mutation (#3084): contract-level absence. every
+        # instruction mutates the image being built -- the build's own artifact,
+        # not shared infrastructure; a RUN's command text is shell's morphology.
+        "system_config_mutation": None,
     },
 }

@@ -419,6 +419,10 @@ DEFINITION: dict[str, Any] = {
         "regex_execution": re.compile(r"\b(re\.compile|re\.search|re\.match|re\.sub|re\.findall|re\.split)\b"),
         "time_date_logic": re.compile(r"\b(datetime\.datetime|timedelta|time\.sleep|time\.time|calendar)\b"),
         "ipc_rpc_bridges": re.compile(r"\b(multiprocessing|subprocess|xmlrpc|socketserver)\b"),
+        # system_config_mutation (#3084): contract-level absence. stdlib winreg
+        # exists but crucible incidence is 0; host config is otherwise file I/O
+        # or subprocess (their owners').
+        "system_config_mutation": None,
         # --- PHASE 4: APPSEC & AI SENSORS (Zero-Trust Pipelines) ---
         "memory_scraping": re.compile(r"['\"]/proc/['\"]\s*\+\s*(?:str\([^)]*\)|f?['\"]\{[^}]*\})|/proc/\w+/mem"),
         "exfiltration_camouflage": re.compile(

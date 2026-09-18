@@ -376,5 +376,8 @@ DEFINITION: dict[str, Any] = {
         # BUG FIX: `Process\s*\(` ends on `(` -- same bug. Never
         # matched the common `Process("cmd")` form (a quote follows).
         "ipc_rpc_bridges": re.compile(r"\b(?:ActorSystem|ActorRef|sys\.process\._|Future\.apply)\b|\bProcess\s*\("),
+        # system_config_mutation (#3084): contract-level absence. JVM app layer;
+        # same reasoning as java -- no host-config primitive of its own.
+        "system_config_mutation": None,
     },
 }

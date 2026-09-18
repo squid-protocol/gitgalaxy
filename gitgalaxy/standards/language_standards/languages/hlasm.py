@@ -584,5 +584,9 @@ DEFINITION: dict[str, Any] = {
             r"|" + _STMT + r"CALL[ \t]+(?:ASMTDLI|AIBTDLI|CEETDLI)\b",
             re.M | re.I,
         ),
+        # system_config_mutation (#3084): contract-level absence. deferred, see
+        # 3084: the authorized system-macro surface can rewrite system state,
+        # but no anchored idiom has measured corpus incidence yet.
+        "system_config_mutation": None,
     },
 }

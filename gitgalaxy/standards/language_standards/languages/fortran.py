@@ -462,5 +462,9 @@ DEFINITION: dict[str, Any] = {
         # word chars). `OMP_` was clearly meant as a prefix match, not an
         # exact-token match -- dropped the trailing boundary for it.
         "ipc_rpc_bridges": re.compile(r"(?i)\b(?:MPI_Init|MPI_Send|MPI_Recv|MPI_Bcast|EXECUTE_COMMAND_LINE)\b|\bOMP_"),
+        # system_config_mutation (#3084): contract-level absence. scientific-
+        # compute domain; no host-configuration vocabulary in the language's own
+        # morphology.
+        "system_config_mutation": None,
     },
 }

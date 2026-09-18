@@ -366,5 +366,9 @@ DEFINITION: dict[str, Any] = {
         "regex_execution": re.compile(r"(?m)\$\((?:filter|filter-out|patsubst)\b|^[ \t]*(?:@|-)?(?:grep|egrep|sed)\b"),
         "time_date_logic": re.compile(r"(?m)\$\(shell[ \t]+date\b|^[ \t]*(?:@|-)?(?:sleep|date)\b"),
         "ipc_rpc_bridges": re.compile(r"(?m)\$\(shell\b|^[ \t]*(?:@|-)?(?:curl|wget|ssh|scp|docker|kubectl)\b"),
+        # system_config_mutation (#3084): contract-level absence. recipe lines
+        # are shell's morphology -- a config-mutating command there is the shell
+        # rule's question (deferred there, see #3084).
+        "system_config_mutation": None,
     },
 }

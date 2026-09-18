@@ -520,5 +520,10 @@ DEFINITION: dict[str, Any] = {
         # ADDRESS( is the built-in function (reads the current environment)
         # and does not count.
         "ipc_rpc_bridges": re.compile(_L + r"ADDRESS" + _R + r"(?![ \t]*\()", re.I),
+        # system_config_mutation (#3084): contract-level absence. deferred, see
+        # 3084: ADDRESS host-command environments (16 crucible files) can
+        # durably alter system state, but the command text is opaque at the
+        # language layer and executor ownership is high_risk_execution's.
+        "system_config_mutation": None,
     },
 }

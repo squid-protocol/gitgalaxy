@@ -405,5 +405,10 @@ DEFINITION: dict[str, Any] = {
         "ipc_rpc_bridges": re.compile(
             r"(?i)\b(Invoke-Command|Invoke-RestMethod|Invoke-WebRequest|Start-Process|Start-Job|Enter-PSSession)\b"
         ),
+        # system_config_mutation (#3084): contract-level absence. deferred, see
+        # 3084: Set-ItemProperty HKLM:/New-Service/netsh measured 2/124 crucible
+        # files, one a quoted list element (#2899 FP shape) -- not worth owning
+        # yet.
+        "system_config_mutation": None,
     },
 }

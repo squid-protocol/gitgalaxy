@@ -38,6 +38,9 @@ _JCL_SIMPLE_CASES = [
     ("state_mutation", "//         SET SYMVAR=VALUE", "//STEP1   EXEC PGM=IEFBR14"),
     ("import", "//         INCLUDE MEMBER=STDPROC1", "//STEP1   EXEC PGM=IEFBR14"),
     ("ownership", "//*Author: Jane Doe", "//* just a routine comment"),
+    ("system_config_mutation", "//CSDDEFS  EXEC PGM=DFHCSDUP,REGION=1M", "//DEL      EXEC PGM=IDCAMS"),
+    # step named after the utility is not the utility (#2899 / #3084)
+    ("system_config_mutation", "//DFHCSDUP EXEC PGM=DFHCSDUP,REGION=0M", "//DFHCSDUP EXEC PGM=IEFBR14"),
     # --- ADVERSARIAL CASES ---
     # branch: anchored properly vs inline data
     ("branch", "//IF1     IF (STEP1.RC=0) THEN", "IF (STEP1.RC=0) THEN"),

@@ -418,5 +418,9 @@ DEFINITION: dict[str, Any] = {
         # alone already prevents partial-word matches like "update".
         "time_date_logic": re.compile(r"\b(date|sleep|uptime|times)\b"),
         "ipc_rpc_bridges": re.compile(r"\b(curl|wget|nc|netcat|ssh|scp|xargs|socat)\b"),
+        # system_config_mutation (#3084): contract-level absence. deferred, see
+        # 3084: sysctl -w/systemctl enable measured 4/256 crucible files, one
+        # inside a string literal (#2899 FP shape) -- not worth owning yet.
+        "system_config_mutation": None,
     },
 }

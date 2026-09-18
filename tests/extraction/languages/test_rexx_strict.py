@@ -164,6 +164,7 @@ _BASELINE_KEYS = [
     "time_date_logic",
     "ipc_rpc_bridges",
     "auth_middleware",
+    "system_config_mutation",
 ]
 
 _EXPECTED_NONE_KEYS = {
@@ -186,6 +187,7 @@ _EXPECTED_NONE_KEYS = {
     "regex_execution",
     "hardcoded_secrets",
     "auth_middleware",
+    "system_config_mutation",
 }
 
 

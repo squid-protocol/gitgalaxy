@@ -207,6 +207,7 @@ _BASELINE_KEYS = [
     "cleanup", "encapsulation", "listeners", "test_skip",
     "serialization_parsing", "regex_execution", "time_date_logic", "ipc_rpc_bridges",
     "auth_middleware",
+    "system_config_mutation",
 ]  # fmt: skip
 
 # Each absence is a stated one: no anonymous callables (closures), no
@@ -220,6 +221,7 @@ _EXPECTED_NONE_KEYS = {
     "closures", "generics", "comprehensions", "test", "test_skip",
     "dependency_injection", "inline_asm", "encapsulation", "regex_execution",
     "hardcoded_secrets",
+    "system_config_mutation",
 }  # fmt: skip
 
 

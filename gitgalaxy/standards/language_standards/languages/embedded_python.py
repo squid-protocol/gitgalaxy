@@ -339,5 +339,9 @@ DEFINITION: dict[str, Any] = {
         # removed -- io's tokens (its rule already counts them). A socket is the one
         # genuine process/host boundary this dialect has.
         "ipc_rpc_bridges": re.compile(r"\busocket\.socket\b"),
+        # system_config_mutation (#3084): contract-level absence. same surface
+        # as python: stdlib winreg exists but crucible incidence is 0; host
+        # config is otherwise file I/O or subprocess (their owners').
+        "system_config_mutation": None,
     },
 }

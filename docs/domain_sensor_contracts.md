@@ -213,3 +213,39 @@ registry language that carries the other four sensors.
   width and no `feature_contract_sha` — but the dimension goes from constant-zero to live,
   so the archetype brains were retrained with the activation (see
   `gitgalaxy-population-analyses`).
+
+## Addendum: `system_config_mutation` joins the family (#3084)
+
+The modernization need behind rejected #2486 — "which jobs/scripts durably reconfigure
+shared infrastructure?" — had no schema slot: `_dependency_capture` shows a job *touches*
+`DFHCSD`, nothing says it *mutates* it. #3084 adds the sensor as a brand-new key (the first
+family addition that widens the archetype vector, unlike #3004's dormant-slot activation).
+
+- **Sentence**: *A site that durably mutates shared infrastructure or subsystem
+  configuration -- a resource-definition update against a system catalog or control store,
+  a persistent system-parameter, registry or service-configuration write -- in the mutating
+  utility's or primitive's own invocation or statement form.*
+- **One owner, four boundaries.** A privilege `GRANT`/`REVOKE` or any auth gate is
+  `auth_middleware`'s (#3157 claimed the whole auth/privilege surface; the #3084 filing's
+  GRANT/REVOKE row predates that merge and is superseded). Execution risk is
+  `high_risk_execution`'s and #2751's exclusion of fixed-command utilities stands — this
+  signal owns the *step shape by intent* (`PGM=DFHCSDUP` is the CSD update utility), never
+  the risk. Program-own runtime writes stay `state_mutation`'s; scope-local symbols (JCL
+  `SET`, dockerfile `ENV`) stay `globals`'; single-item teardown stays `cleanup`'s. IDCAMS
+  is excluded: its intent is dataset lifecycle/catalog (`DEFINE CLUSTER` creates the job's
+  own datasets — owning it here would be a #2898 drift row); catalog-level `DEFINE
+  ALIAS`/`ALTER` is recorded as an open boundary question on #3084.
+- **v1 rollout**: one live rule (jcl `\bPGM=DFHCSDUP\b` — crucible incidence 6/186 files,
+  cics-genapp `cdef121–125.jcl` + cbsa `CBSACSD.jcl`) and a contract-level `None` in all 38
+  sibling languages. jcl carries no other domain-sensor key, so it lands as a deliberate
+  39th carrier. shell/powershell/rexx/hlasm/cobol `None`s say *deferred, see #3084*: the
+  surface exists (`sysctl -w`, `Set-ItemProperty HKLM:`) but anchored crucible incidence is
+  4/256 and 2/124 files respectively, with string-literal false-positive shapes (#2899) in
+  both — not worth owning until it is. Unplanted in keyword-rosetta; `declared`, not
+  `stated`.
+- **Vector parity**: appending the key grows `SIGNAL_SCHEMA` 97→98; the candidate archetype
+  feature set grows 83→84 but stays unread until retrained — the v2.8.1 self-describing
+  brains classify from their own recorded feature names, so shipped brains simply ignore
+  the new key and archetypes are unchanged at scan time (this is the "non-breaking"
+  property #3084's filing noted). The retrain owed at merge (batched with #3157's) makes
+  the dimension live; `feature_contract_sha` re-pins in the retrain PR, not the signal PR.

@@ -638,5 +638,9 @@ DEFINITION: dict[str, Any] = {
             r"|\bCALL[ \t]+(?:PLITDLI|AIBTDLI|CEETDLI)" + _R,
             re.I,
         ),
+        # system_config_mutation (#3084): contract-level absence. mainframe
+        # application layer; subsystem configuration is reached through
+        # utilities and JCL steps, owned at the step shape (jcl's rule).
+        "system_config_mutation": None,
     },
 }

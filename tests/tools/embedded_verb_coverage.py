@@ -1252,7 +1252,7 @@ EXPECTED_JCL: dict[str, Owner] = {
     "OPERAND:LNGPRFX=": owned("args", "api", reason="same build-utility PROC-parameter family as LIBPRFX="),
     "PGM:*": owned(
         "func_start",
-        reason="pre-#2990, unchanged: PGM= is func_start's callable unit; a minority also names one of #2751's command-executor programs (high_risk_execution, 34%) or carries COND=/PARM= on the same line (safety/args) -- real but not universal co-occurrences, not claims about PGM= itself.",
+        reason="pre-#2990, unchanged: PGM= is func_start's callable unit; a minority also names one of #2751's command-executor programs (high_risk_execution, 34%) or carries COND=/PARM= on the same line (safety/args) -- real but not universal co-occurrences, not claims about PGM= itself. #3084: PGM=DFHCSDUP (6 files) additionally fires system_config_mutation -- the CSD update step owned by intent, not execution risk; #2751's executor list is untouched.",
     ),
     "OPERAND:<installation- or application-specific>": owned(
         "func_start",

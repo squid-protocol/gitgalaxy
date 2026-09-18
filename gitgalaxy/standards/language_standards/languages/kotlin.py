@@ -379,5 +379,8 @@ DEFINITION: dict[str, Any] = {
         "ipc_rpc_bridges": re.compile(
             r"\b(?:BroadcastReceiver|ProcessBuilder|bindService)\b|\bIntent\(|\bHttpClient\("
         ),
+        # system_config_mutation (#3084): contract-level absence. JVM app layer;
+        # same reasoning as java -- no host-config primitive of its own.
+        "system_config_mutation": None,
     },
 }

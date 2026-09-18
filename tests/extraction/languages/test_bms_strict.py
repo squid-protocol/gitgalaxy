@@ -122,6 +122,7 @@ _BASELINE_KEYS = [
     "cleanup", "encapsulation", "listeners", "test_skip",
     "serialization_parsing", "regex_execution", "time_date_logic", "ipc_rpc_bridges",
     "auth_middleware",
+    "system_config_mutation",
 ]  # fmt: skip
 
 # BMS is a purely declarative screen definition: no control flow, no error
@@ -140,6 +141,7 @@ _EXPECTED_NONE_KEYS = {
     "cleanup", "encapsulation", "listeners", "test_skip",
     "serialization_parsing", "regex_execution", "time_date_logic",
     "ipc_rpc_bridges", "auth_middleware",
+    "system_config_mutation",
 }  # fmt: skip
 
 

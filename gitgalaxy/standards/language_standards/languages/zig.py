@@ -268,5 +268,9 @@ DEFINITION: dict[str, Any] = {
         "ipc_rpc_bridges": re.compile(
             r"\b(std\.process\.Child|std\.net\.tcpConnectToHost|std\.Thread\.spawn|std\.posix|std\.os\.execve)\b"
         ),
+        # system_config_mutation (#3084): contract-level absence. systems
+        # language with no dedicated config-mutation primitive -- config writes
+        # are ordinary file I/O (io's).
+        "system_config_mutation": None,
     },
 }

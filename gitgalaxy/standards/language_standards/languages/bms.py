@@ -248,5 +248,9 @@ DEFINITION: dict[str, Any] = {
         "regex_execution": None,
         "time_date_logic": None,
         "ipc_rpc_bridges": None,
+        # system_config_mutation (#3084): contract-level absence. a screen-map
+        # definition language: it declares UI maps and mutates nothing beyond
+        # its own assembly output.
+        "system_config_mutation": None,
     },
 }

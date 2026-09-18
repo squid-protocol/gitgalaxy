@@ -513,5 +513,8 @@ DEFINITION: dict[str, Any] = {
         "ipc_rpc_bridges": re.compile(
             r"\b(Isolate\.spawn|ReceivePort|SendPort|Process\.run|Process\.start|HttpClient)\b"
         ),
+        # system_config_mutation (#3084): contract-level absence. application/UI
+        # framework layer; no host-configuration vocabulary of its own.
+        "system_config_mutation": None,
     },
 }

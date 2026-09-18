@@ -385,5 +385,10 @@ DEFINITION: dict[str, Any] = {
             r"|\bpragma[ \t]+Shared_Passive\b|\bPolyORB\b",
             re.I,
         ),
+        # system_config_mutation (#3084): contract-level absence. safety-
+        # critical/embedded domain; programs do not reconfigure host
+        # infrastructure -- any tunable write is bespoke I/O this contract
+        # excludes.
+        "system_config_mutation": None,
     },
 }

@@ -411,5 +411,9 @@ DEFINITION: dict[str, Any] = {
         "ipc_rpc_bridges": re.compile(
             r"(?i)\b(open\s+socket|read\s+from\s+socket|post\s+[^\n]{0,300}to|get\s+url|open\s+process)\b|shell\s*\("
         ),
+        # system_config_mutation (#3084): contract-level absence. desktop
+        # scripting layer; no host-configuration vocabulary of its own -- file
+        # writes are io's.
+        "system_config_mutation": None,
     },
 }

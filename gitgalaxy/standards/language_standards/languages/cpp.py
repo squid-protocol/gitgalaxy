@@ -527,5 +527,8 @@ DEFINITION: dict[str, Any] = {
             r"\b(std::chrono::(?:system_clock|steady_clock|duration)|std::time_t|std::localtime)\b"
         ),
         "ipc_rpc_bridges": re.compile(r"\b(boost::interprocess|mmap|shm_open|pipe|fork|grpc::ServerBuilder)\b"),
+        # system_config_mutation (#3084): contract-level absence. no dedicated
+        # config-mutation form -- same file-I/O reasoning as c.
+        "system_config_mutation": None,
     },
 }

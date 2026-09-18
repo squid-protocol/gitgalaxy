@@ -444,5 +444,9 @@ DEFINITION: dict[str, Any] = {
             r"\b(LocalDate(?:Time)?|ZonedDateTime|Instant|Duration|System\.currentTimeMillis|Calendar\.getInstance)\b"
         ),
         "ipc_rpc_bridges": re.compile(r"\b(ProcessBuilder|KafkaTemplate|RabbitTemplate|JmsTemplate|java\.rmi)\b"),
+        # system_config_mutation (#3084): contract-level absence. no host-config
+        # primitive; java.util.prefs writes the app's own preference tree
+        # (state_mutation's territory, not shared infrastructure).
+        "system_config_mutation": None,
     },
 }

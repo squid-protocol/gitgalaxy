@@ -489,5 +489,9 @@ DEFINITION: dict[str, Any] = {
             r"|\bDBMS_(?:ALERT|PIPE)[ \t]*\.[ \t]*" + _ID + r"{1,64}",
             re.I,
         ),
+        # system_config_mutation (#3084): contract-level absence. deferred, see
+        # 3084: subsystem-tunable DDL (ALTER BUFFERPOOL/STOGROUP) exists but
+        # crucible incidence is 0; GRANT/REVOKE is auth_middleware's (#3157).
+        "system_config_mutation": None,
     },
 }

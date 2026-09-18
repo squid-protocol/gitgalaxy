@@ -303,6 +303,9 @@ DEFINITION: dict[str, Any] = {
         "ipc_rpc_bridges": re.compile(
             r"\b(system|dos|unix|tcpclient|tcpserver|parpool|parfor)\b|^[ \t]*!",
             re.M,
-        ),  # '!' is MATLAB's native shell escape
+        ),  # '!' is MATLAB's native shell escape,
+        # system_config_mutation (#3084): contract-level absence. numeric-
+        # computing environment; no host-configuration vocabulary of its own.
+        "system_config_mutation": None,
     },
 }

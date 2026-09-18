@@ -258,5 +258,9 @@ DEFINITION: dict[str, Any] = {
             # emit); what stays are genuine cross-contract call boundaries.
             r"\b(?:delegatecall|staticcall|selfdestruct)\b|\.call\{value:"
         ),
+        # system_config_mutation (#3084): contract-level absence. on-chain
+        # execution; there is no host to configure -- contract storage writes
+        # are state_mutation's.
+        "system_config_mutation": None,
     },
 }

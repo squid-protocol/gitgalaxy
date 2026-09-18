@@ -583,6 +583,15 @@ _ROWS = [
         doc="docs/domain_sensor_contracts.md",
         issue=2897,
     ),
+    _c(
+        "system_config_mutation",
+        "hybrid",
+        "site",
+        "A site that durably mutates shared infrastructure or subsystem configuration -- a resource-definition update against a system catalog or control store, a persistent system-parameter, registry or service-configuration write -- in the mutating utility's or primitive's own invocation or statement form",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=3084,
+    ),
     # --- AI/ML EXTENSION PACK (python, javascript, typescript) ---
     _c("llm_api", "ai-ml", "site", "Direct calls into a hosted LLM provider SDK"),
     _c(

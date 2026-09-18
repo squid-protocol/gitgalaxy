@@ -454,6 +454,11 @@ DEFINITION: dict[str, Any] = {
         # for the punctuation-delimited backtick form).
         "ipc_rpc_bridges": re.compile(
             r"\bsystem\s*\(|\bexec\s*\(|\bfork\b|\bIPC::Open[23]\b|\bqx\b|`.*`"
-        ),  # Backticks and qx// are shell executions
+        ),  # Backticks and qx// are shell executions,
+        # system_config_mutation (#3084): contract-level absence. config writes
+        # are file I/O or backtick/system command text (io's /
+        # high_risk_execution's); Win32::Registry-style modules are bespoke
+        # imports this contract excludes.
+        "system_config_mutation": None,
     },
 }

@@ -391,5 +391,10 @@ DEFINITION: dict[str, Any] = {
             r"(?i)\b(strftime|datetime|julianday|unixepoch|current_timestamp|current_date|current_time)\b"
         ),
         "ipc_rpc_bridges": re.compile(r"(?i)\b(ATTACH\s+DATABASE|DETACH\s+DATABASE|PRAGMA)\b"),
+        # system_config_mutation (#3084): contract-level absence. PRAGMA durably
+        # tunes the database file (2 crucible files) -- whether one database
+        # file is 'shared infrastructure' is #3084's open boundary question;
+        # None until adjudicated.
+        "system_config_mutation": None,
     },
 }

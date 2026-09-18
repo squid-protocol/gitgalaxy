@@ -824,8 +824,25 @@ class RecordKeeper:
         agg_config_files = 0
         agg_test_files = 0
 
-        # PERFORMANCE OPTIMIZATION: Global array for batched executemany inserts
+        # PERFORMANCE OPTIMIZATION: Global arrays for batched executemany inserts.
+        # #3183 (B1): file_data and class_data used to be inserted one execute()
+        # per row purely to read cursor.lastrowid for the FK children below. We
+        # now accumulate their rows and batch them with executemany, precomputing
+        # the ids the children reference. On an AUTOINCREMENT table the next id is
+        # (highest-ever id) + 1, tracked in sqlite_sequence and NOT reset by the
+        # idempotent wipe above, so we anchor to that seq; executemany then
+        # auto-assigns ids in list order (base+1, base+2, ...), byte-identical to
+        # the old per-row path.
+        all_file_rows: list = []
+        all_class_rows: list = []
         all_func_rows = []
+
+        def _seq_base(table: str) -> int:
+            row = cursor.execute("SELECT seq FROM sqlite_sequence WHERE name = ?", (table,)).fetchone()
+            return int(row[0]) if row and row[0] is not None else 0
+
+        file_id_base = _seq_base("file_data")
+        class_id_base = _seq_base("class_data")
 
         # #2992: graph node (file path) -> the file_data row it became, for edge_data.
         path_to_file_id: dict[str, int] = {}
@@ -1272,67 +1289,33 @@ class RecordKeeper:
             row_data.append(rel_values.get("guard_balance_ratio", 0.0))
             row_data.append(rel_values.get("alloc_cleanup_pairing", 0.0))
 
-            placeholders = ",".join(["?"] * len(row_data))
-
-            # Safe: f-string interpolation is limited to self.RISK_SCHEMA/
-            # self.SIGNAL_SCHEMA/self.SHORT_KEY_MAP/self.SURFACE_FAMILIES,
-            # internal hardcoded class constants (column names), not user
-            # input -- SQLite has no parameterized syntax for column names.
-            # Every actual row value goes through `placeholders`/`?` (noqa
-            # is on the closing `"""` below).
-            cursor.execute(
-                f"""
-                INSERT INTO file_data (
-                    repo_name, commit_date, commit_hash, file_name, file_path, parent_entity, language, directory_group,
-                    total_loc, coding_loc, doc_loc, structural_mass, cog_raw, ownership_entropy, silo_risk,
-                    raw_churn_freq, popularity, import_count, internal_dependency_links, pagerank_score, normalized_blast_radius, betweenness_score, closeness_score, producer_ratio, ecosystem_role,
-                    control_flow_ratio, function_count, class_count,
-                    func_complexity_vector, avg_func_loc, avg_func_complexity, max_func_complexity,
-                    avg_func_args, func_complexity_gini, func_internal_density, dependency_density, encapsulation_ratio,
-                    author, ai_threat_class, ai_threat_confidence,
-                    func_z_max, func_z_mean, func_z_median, pct_z_above_5, pct_z_above_15,
-                    file_archetype, file_fingerprint,
-                    composition_file_archetype, composition_file_z,
-                    ecosystem_baseline, repo_z_score,
-                    ai_threat_score, is_malware, has_credentials, binary_anomaly, obfuscation_flag,
-                    token_mass, financial_read_cost, agentic_isolation_risk, requires_hitl, appsec_god_mode, hallucination_zone, silent_mutation_risk,
-                    raw_arch_api, raw_state_unreferenced,
-                    {", ".join([f"risk_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
-                    {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])},
-                    {", ".join([f"fam_{fam}" for fam in self.SURFACE_FAMILIES])},
-                    {", ".join([f"pct_fam_{fam}" for fam in self.SURFACE_FAMILIES])},
-                    {", ".join([f"pct_vec_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
-                    rel_guard_balance, rel_alloc_cleanup
-                ) VALUES ({placeholders})
-            """,  # noqa: S608
-                row_data,
-            )
-
-            file_id = cursor.lastrowid
-            if file_id is not None:
-                path_to_file_id[file_data.get("path", "")] = file_id
+            # #3183 (B1): accumulate the row and precompute its AUTOINCREMENT id
+            # (assigned in list order by the executemany after the loop) instead
+            # of inserting now to read lastrowid. The loop never skips a file, so
+            # the id is exactly file_id_base + (rows so far) + 1.
+            file_id = file_id_base + len(all_file_rows) + 1
+            all_file_rows.append(row_data)
+            path_to_file_id[file_data.get("path", "")] = file_id
 
             # 1. Extract and Insert Classes
             classes = file_data.get("classes", [])
             class_id_map = {}
 
             for cls in classes:
-                cursor.execute(
-                    """
-                    INSERT INTO class_data (
-                        file_id, class_name, inheritance_parents,
-                        method_count, state_entanglement
-                    ) VALUES (?, ?, ?, ?, ?)
-                """,
+                # #3183 (B1): same precompute-then-batch treatment as file_data.
+                # class_data rows are flushed (in this same order) after the loop,
+                # before the function/edge batches, so FK parents exist first.
+                class_id = class_id_base + len(all_class_rows) + 1
+                all_class_rows.append(
                     (
                         file_id,
                         cls.get("name", "Unknown"),
                         json.dumps(cls.get("inheritance", [])),
                         cls.get("method_count", 0),
                         cls.get("state_entanglement", 0.0),
-                    ),
+                    )
                 )
-                class_id_map[cls.get("name")] = cursor.lastrowid
+                class_id_map[cls.get("name")] = class_id
 
             # 2. Extract and Accumulate Functions into Master Array
             for func in functions:
@@ -1363,6 +1346,56 @@ class RecordKeeper:
                     ]
                     + func_hits
                 )
+
+        # #3183 (B1): flush file_data then class_data in FK-safe order (parents
+        # before children) ahead of the function/edge batches below. Row order
+        # matches the loop, so the AUTOINCREMENT ids equal the values precomputed
+        # into path_to_file_id / class_id_map above.
+        if all_file_rows:
+            file_placeholders = ",".join(["?"] * len(all_file_rows[0]))
+            # Safe: f-string interpolation is limited to self.RISK_SCHEMA/
+            # self.SIGNAL_SCHEMA/self.SHORT_KEY_MAP/self.SURFACE_FAMILIES,
+            # internal hardcoded class constants (column names), not user
+            # input -- SQLite has no parameterized syntax for column names.
+            # Every actual row value goes through `file_placeholders`/`?`.
+            cursor.executemany(
+                f"""
+                INSERT INTO file_data (
+                    repo_name, commit_date, commit_hash, file_name, file_path, parent_entity, language, directory_group,
+                    total_loc, coding_loc, doc_loc, structural_mass, cog_raw, ownership_entropy, silo_risk,
+                    raw_churn_freq, popularity, import_count, internal_dependency_links, pagerank_score, normalized_blast_radius, betweenness_score, closeness_score, producer_ratio, ecosystem_role,
+                    control_flow_ratio, function_count, class_count,
+                    func_complexity_vector, avg_func_loc, avg_func_complexity, max_func_complexity,
+                    avg_func_args, func_complexity_gini, func_internal_density, dependency_density, encapsulation_ratio,
+                    author, ai_threat_class, ai_threat_confidence,
+                    func_z_max, func_z_mean, func_z_median, pct_z_above_5, pct_z_above_15,
+                    file_archetype, file_fingerprint,
+                    composition_file_archetype, composition_file_z,
+                    ecosystem_baseline, repo_z_score,
+                    ai_threat_score, is_malware, has_credentials, binary_anomaly, obfuscation_flag,
+                    token_mass, financial_read_cost, agentic_isolation_risk, requires_hitl, appsec_god_mode, hallucination_zone, silent_mutation_risk,
+                    raw_arch_api, raw_state_unreferenced,
+                    {", ".join([f"risk_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
+                    {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])},
+                    {", ".join([f"fam_{fam}" for fam in self.SURFACE_FAMILIES])},
+                    {", ".join([f"pct_fam_{fam}" for fam in self.SURFACE_FAMILIES])},
+                    {", ".join([f"pct_vec_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
+                    rel_guard_balance, rel_alloc_cleanup
+                ) VALUES ({file_placeholders})
+            """,  # noqa: S608
+                all_file_rows,
+            )
+
+        if all_class_rows:
+            cursor.executemany(
+                """
+                INSERT INTO class_data (
+                    file_id, class_name, inheritance_parents,
+                    method_count, state_entanglement
+                ) VALUES (?, ?, ?, ?, ?)
+            """,
+                all_class_rows,
+            )
 
         # PERFORMANCE OPTIMIZATION: Execute all accumulated functions in a single transaction loop
         if all_func_rows:

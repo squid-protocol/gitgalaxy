@@ -1791,9 +1791,7 @@ class Orchestrator:
                 key=lambda p: self.file_size_map.get(p, 0),
                 reverse=True,
             )
-            active_futures = {
-                executor.submit(_process_file_worker, rel_path): rel_path for rel_path in dispatch_order
-            }
+            active_futures = {executor.submit(_process_file_worker, rel_path): rel_path for rel_path in dispatch_order}
 
             # THE STARVATION MONITOR (Event-Driven Generator)
             # as_completed yields instantly upon future completion, averting O(N^2) polling wait states.

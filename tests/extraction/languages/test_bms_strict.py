@@ -121,6 +121,7 @@ _BASELINE_KEYS = [
     "thread_sleeps", "bitwise_ops", "sync_locks", "immutability_locks",
     "cleanup", "encapsulation", "listeners", "test_skip",
     "serialization_parsing", "regex_execution", "time_date_logic", "ipc_rpc_bridges",
+    "auth_middleware",
 ]  # fmt: skip
 
 # BMS is a purely declarative screen definition: no control flow, no error
@@ -138,7 +139,7 @@ _EXPECTED_NONE_KEYS = {
     "thread_sleeps", "bitwise_ops", "sync_locks", "immutability_locks",
     "cleanup", "encapsulation", "listeners", "test_skip",
     "serialization_parsing", "regex_execution", "time_date_logic",
-    "ipc_rpc_bridges",
+    "ipc_rpc_bridges", "auth_middleware",
 }  # fmt: skip
 
 

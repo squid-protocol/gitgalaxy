@@ -115,6 +115,8 @@ _PLI_SIMPLE_CASES = [
     ("time_date_logic", "EXEC CICS ASKTIME ABSTIME(T);", "X = 5;"),
     ("ipc_rpc_bridges", "EXEC CICS LINK PROGRAM('STRAC00P') COMMAREA(X) LENGTH(L);", "CALL LOCAL_PROC(X);"),
     ("ipc_rpc_bridges", "EXEC CICS PUT CONTAINER('REQ') CHANNEL('CH') FROM(REC);", "X = 5;"),
+    ("auth_middleware", "EXEC CICS SIGNON USERID(WS_USER) PASSWORD(WS_PASS);", "SIGNON_FLAG = '1'B;"),
+    ("auth_middleware", "EXEC SQL GRANT SELECT ON T1 TO PUBLIC;", "/* grant nothing */ X = 5;"),
 ]
 
 
@@ -150,6 +152,7 @@ _BASELINE_KEYS = [
     "thread_sleeps", "bitwise_ops", "sync_locks", "immutability_locks",
     "cleanup", "encapsulation", "listeners", "test_skip",
     "serialization_parsing", "regex_execution", "time_date_logic", "ipc_rpc_bridges",
+    "auth_middleware",
 ]  # fmt: skip
 
 # PL/I has none of these: no anonymous procedures, no parametric types, no transform

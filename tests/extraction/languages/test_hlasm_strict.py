@@ -167,6 +167,8 @@ _HLASM_SIMPLE_CASES = [
     ("time_date_logic", "         STCK  CLOCKVAL", None),
     ("ipc_rpc_bridges", "         DFHEIENT CODEREG=12", None),
     ("ipc_rpc_bridges", "         DFHEIRET", None),
+    ("auth_middleware", "         RACROUTE REQUEST=AUTH,CLASS='FACILITY'", "         MVC   RACROUTED,=C'X'"),
+    ("auth_middleware", "         EXEC CICS SIGNON USERID(USER1)", "SIGNONFL DS    C"),
     ("ipc_rpc_bridges", "         LINK  EP=NEXTPGM", "         LR    2,3"),
     ("ipc_rpc_bridges", "         EXEC CICS XCTL PROGRAM('NEXTPGM')", None),
 ]
@@ -204,6 +206,7 @@ _BASELINE_KEYS = [
     "thread_sleeps", "bitwise_ops", "sync_locks", "immutability_locks",
     "cleanup", "encapsulation", "listeners", "test_skip",
     "serialization_parsing", "regex_execution", "time_date_logic", "ipc_rpc_bridges",
+    "auth_middleware",
 ]  # fmt: skip
 
 # Each absence is a stated one: no anonymous callables (closures), no

@@ -163,6 +163,7 @@ _BASELINE_KEYS = [
     "regex_execution",
     "time_date_logic",
     "ipc_rpc_bridges",
+    "auth_middleware",
 ]
 
 _EXPECTED_NONE_KEYS = {
@@ -184,6 +185,7 @@ _EXPECTED_NONE_KEYS = {
     "serialization_parsing",
     "regex_execution",
     "hardcoded_secrets",
+    "auth_middleware",
 }
 
 

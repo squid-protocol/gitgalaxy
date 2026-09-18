@@ -108,9 +108,9 @@ _DB2_SQL_SIMPLE_CASES = [
     ("cleanup", "CLOSE C1;", None),
     ("cleanup", "DELETE FROM DSN8C10.EMP WHERE EMPNO = '000010';", None),
     ("cleanup", "DROP TABLE SESSION.SCRATCH;", None),
-    ("encapsulation", "GRANT SELECT ON DSN8C10.EMP TO PUBLIC;", "-- GRANT nothing"),
-    ("encapsulation", "REVOKE UPDATE ON DSN8C10.EMP FROM USER1;", None),
-    ("encapsulation", "DECLARE GLOBAL TEMPORARY TABLE SESSION.T1 (X INT);", None),
+    ("auth_middleware", "GRANT SELECT ON DSN8C10.EMP TO PUBLIC;", "-- GRANT nothing"),
+    ("auth_middleware", "REVOKE UPDATE ON DSN8C10.EMP FROM USER1;", None),
+    ("encapsulation", "DECLARE GLOBAL TEMPORARY TABLE SESSION.T1 (X INT);", "GRANT SELECT ON T1 TO PUBLIC;"),
     ("listeners", "CREATE TRIGGER TRG1 AFTER DELETE ON EMP FOR EACH ROW", "AFTER UPDATE, THE BATCH RUNS"),
     ("serialization_parsing", "SELECT JSON_VALUE(DOC, '$.name') FROM T;", None),
     ("serialization_parsing", "XMLSERIALIZE(CONTENT X AS CLOB)", None),
@@ -155,6 +155,7 @@ _BASELINE_KEYS = [
     "thread_sleeps", "bitwise_ops", "sync_locks", "immutability_locks",
     "cleanup", "encapsulation", "listeners", "test_skip",
     "serialization_parsing", "regex_execution", "time_date_logic", "ipc_rpc_bridges",
+    "auth_middleware",
 ]  # fmt: skip
 
 # DB2 SQL has none of these: no UI surface, no anonymous callable, no parametric
@@ -356,9 +357,11 @@ def test_db2_sql_enforced_separations():
     clause = "SELECT * FROM EMP FETCH FIRST 10 ROWS ONLY;"
     assert not DB2_RULES["io"].search(clause)
     assert DB2_RULES["structural_boundaries"].search("FETCH FIRST 10 ROWS ONLY")
-    # The EXECUTE *privilege* in a GRANT list is encapsulation's, not dynamic SQL.
+    # The EXECUTE *privilege* in a GRANT list is auth_middleware's (#3004,
+    # re-homed from encapsulation), not dynamic SQL.
     grant = "GRANT EXECUTE ON PROCEDURE DSN8.PGM1 TO USER1;"
-    assert DB2_RULES["encapsulation"].search(grant)
+    assert DB2_RULES["auth_middleware"].search(grant)
+    assert not DB2_RULES["encapsulation"].search(grant)
     assert not DB2_RULES["high_risk_execution"].search(grant)
     # DROP TABLE is cleanup's removal; DROP TABLESPACE is whole-store destruction.
     assert not DB2_RULES["high_risk_execution"].search("DROP TABLE DSN8C10.EMP;")
@@ -467,7 +470,7 @@ _N = 200000
         ("memory_alloc", "ALLOCATE " + "A" * _N),
         ("memory_alloc", "BUFFERPOOL " + "A" * _N),
         ("cleanup", "CLOSE " + "A" * _N),
-        ("encapsulation", "GRANT " + "A" * _N),
+        ("auth_middleware", "GRANT " + "A" * _N),
         ("import", "CONNECT TO " + "A" * _N),
         ("_dependency_capture", "CONNECT TO " + "A" * _N),
         ("ownership", "-- Author:" + " " * _N),

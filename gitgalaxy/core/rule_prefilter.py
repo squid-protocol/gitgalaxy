@@ -539,10 +539,8 @@ def derive_line_literals(pattern: Any, max_literals: int = 80) -> "Optional[tupl
         return None
     except Exception:
         return None
-    viable = [
-        (literals, ci)
-        for literals, ci in candidates
-        if not ci and len(literals) <= max_literals
+    viable: list[_Candidate] = [
+        (literals, ci) for literals, ci in candidates if not ci and len(literals) <= max_literals
     ]
     best = _pick_most_selective(viable)
     if best is None:
@@ -607,7 +605,7 @@ def line_gated_finditer(pattern: Any, line_gate: "re.Pattern[str]", text: str) -
     5. Zero-width matches cannot exist: every match consumes a required
        literal of length >= 1, so the scan always advances.
     """
-    matches: "list[re.Match[str]]" = []
+    matches: list[re.Match[str]] = []
     run_start = -1
     run_end = -1
     for candidate in line_gate.finditer(text):

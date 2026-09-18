@@ -204,7 +204,7 @@ def main(argv: list[str] | None = None) -> int:
 
     line_langs = {lang: s for lang, s in report.items() if s.get("line_gate_rules")}
     if line_langs:
-        print(f"\nper-line gates (#3072): exact-parity leg")
+        print("\nper-line gates (#3072): exact-parity leg")
         print(f"{'language':16s} {'rules':>5s} {'checks':>8s} {'lines':>10s} {'surviving':>10s} {'survive%':>9s}")
         for lang, s in sorted(line_langs.items()):
             pct = 100.0 * s["line_surviving"] / s["line_total"] if s["line_total"] else 0.0

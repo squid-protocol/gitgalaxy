@@ -2652,7 +2652,7 @@ class StructuralExtractor:
         rules_dict = self.languages.get(seg_lang, {}).get("rules", {})
         line_gate_names = rules_dict.get("_line_gates") or ()
         valid_keys = set(self.UNIVERSAL_METRICS_SCHEMA).union(self._APPSEC_KEYS)
-        active: list[tuple[str, Any, str, Optional[RulePrefilterGate], Optional["re.Pattern[str]"]]] = []
+        active: list[tuple[str, Any, str, Optional[RulePrefilterGate], Optional[re.Pattern[str]]]] = []
         seen_rule_names: set[str] = set()
         for rule_name, pattern in rules_dict.items():
             if rule_name.startswith("_") or not pattern:

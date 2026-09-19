@@ -880,9 +880,7 @@ class LanguageDetector:
 
         return None, 0.0
 
-    def _is_same_extension_neighbourhood(
-        self, candidates: list[str], ext: str, local_tally: dict[str, int]
-    ) -> bool:
+    def _is_same_extension_neighbourhood(self, candidates: list[str], ext: str, local_tally: dict[str, int]) -> bool:
         """#3137: True when the ONLY extension-shaped signal present locally is
         the contested extension itself -- no candidate has a *different*-extension
         ecosystem anchor (a support extension or an extension-shaped

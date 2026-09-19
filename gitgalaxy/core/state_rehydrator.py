@@ -14,6 +14,7 @@
 
 # galaxyscope:ignore sec_db_hooks, sec_high_risk_execution
 
+import json
 import sqlite3
 from pathlib import Path
 from typing import Any, Optional
@@ -150,6 +151,16 @@ class StateRehydrator:
                 # here -- without it, _calculate_risk_exposures recomputes every unchanged
                 # file's risk vector from an empty signal dict (all-zero drift).
                 equations = dict(zip(signal_names, hit_vector))
+                # #3220: the proximity-mitigation tally re-weights cognitive_load /
+                # safety_score / state_flux in the score layer (_proximity_tally ->
+                # _weighted). Restore it from the persisted JSON so the rehydrated file's
+                # recomputed risk vector matches a full scan exactly.
+                mitigation_telemetry: dict[str, Any] = {}
+                if "mitigation_telemetry" in row_keys and f["mitigation_telemetry"]:
+                    try:
+                        mitigation_telemetry = json.loads(f["mitigation_telemetry"])
+                    except (ValueError, TypeError):
+                        mitigation_telemetry = {}
 
                 # DEFENSIVE DESIGN: Schema Drift Protection.
                 # If an older database lacks the 'silo_risk' column, safely default to 0.0
@@ -177,6 +188,7 @@ class StateRehydrator:
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
                     "equations": equations,
+                    "mitigation_telemetry": mitigation_telemetry,
                     # #3220: a rehydrated file's language identity was already
                     # confidently locked in the baseline scan. _calculate_risk_exposures
                     # rebuilds telemetry from meta["lock_tier"]/["source_proof"], and the

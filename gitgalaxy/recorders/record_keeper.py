@@ -583,7 +583,8 @@ class RecordKeeper:
                 raw_state_unreferenced INTEGER DEFAULT 0,
                 {", ".join(risk_cols)},
                 {", ".join(hit_cols)},
-                {", ".join(tier_cols)}
+                {", ".join(tier_cols)},
+                mitigation_telemetry TEXT
             )
         """)
 
@@ -592,6 +593,14 @@ class RecordKeeper:
         # CREATE TABLE IF NOT EXISTS above is a no-op for it; heal the new
         # fam_*/pct_fam_*/pct_vec_*/rel_* columns in with guarded ALTERs.
         _ensure_columns(cursor, "file_data", tier_cols)
+
+        # #3220: mitigation_telemetry is the detector's proximity-correlation tally
+        # (mitigated_danger / amplified_cascading_flux ...) that re-weights
+        # cognitive_load / safety_score / state_flux in the score layer. It was never
+        # persisted, so a delta scan's rehydrated files lost the amplification and those
+        # three signals drifted. Persist it as JSON so StateRehydrator can restore an
+        # exact score input. Guarded-ALTER heal for pre-existing DBs, same as above.
+        _ensure_columns(cursor, "file_data", ["mitigation_telemetry TEXT"])
 
         # gitgalaxy#2985: the same guard, now over hit_cols. SIGNAL_SCHEMA grows
         # (it gained sec_db_hooks/sec_amplified_sql_injection here), and the
@@ -1288,6 +1297,9 @@ class RecordKeeper:
             row_data.extend(pct_vec_values.get(r, 0.0) for r in self.RISK_SCHEMA)
             row_data.append(rel_values.get("guard_balance_ratio", 0.0))
             row_data.append(rel_values.get("alloc_cleanup_pairing", 0.0))
+            # #3220: persist the proximity-mitigation tally so a delta rehydrate can
+            # restore the exact score-layer weighting (json, deterministic key order).
+            row_data.append(json.dumps(file_data.get("mitigation_telemetry") or {}, sort_keys=True))
 
             # #3183 (B1): accumulate the row and precompute its AUTOINCREMENT id
             # (assigned in list order by the executemany after the loop) instead
@@ -1380,7 +1392,7 @@ class RecordKeeper:
                     {", ".join([f"fam_{fam}" for fam in self.SURFACE_FAMILIES])},
                     {", ".join([f"pct_fam_{fam}" for fam in self.SURFACE_FAMILIES])},
                     {", ".join([f"pct_vec_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
-                    rel_guard_balance, rel_alloc_cleanup
+                    rel_guard_balance, rel_alloc_cleanup, mitigation_telemetry
                 ) VALUES ({file_placeholders})
             """,  # noqa: S608
                 all_file_rows,

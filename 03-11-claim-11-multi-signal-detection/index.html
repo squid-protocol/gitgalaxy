@@ -12,31 +12,31 @@
         <meta name="author" content="Joseph Michael Esquibel">
       
       
-        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/LLM-reports/fastapi_llm_report/">
+        <link rel="canonical" href="https://squid-protocol.github.io/gitgalaxy/03-11-claim-11-multi-signal-detection/">
       
       
-        <link rel="prev" href="../bootstrap_llm_report/">
+        <link rel="prev" href="../03-10-claim-10-ast-vs-heuristic-parsing/">
       
       
-        <link rel="next" href="../Chart.js_llm_report/">
+        <link rel="next" href="../03-20-future-outlooks/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>fastapi - GitGalaxy</title>
+        <title>Claim 11 (Multi-Signal Language Detection) - GitGalaxy</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,7 +55,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architectural-brief-fastapi" class="md-skip">
+        <a href="#claim-11-multi-signal-language-detection-inference-with-provenance-not-a-waterfall" class="md-skip">
           Skip to content
         </a>
       
@@ -92,7 +92,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href=".." title="GitGalaxy" class="md-header__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              fastapi
+              Claim 11 (Multi-Signal Language Detection)
             
           </span>
         </div>
@@ -218,7 +218,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../.." class="md-tabs__link">
+      <a href=".." class="md-tabs__link">
         
   
   
@@ -239,7 +239,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../cookbook/continuous-delta-monitoring/" class="md-tabs__link">
+        <a href="../cookbook/continuous-delta-monitoring/" class="md-tabs__link">
           
   
   
@@ -261,7 +261,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../museum-of-code/" class="md-tabs__link">
+        <a href="../museum-of-code/" class="md-tabs__link">
           
   
   
@@ -279,13 +279,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../agents/" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../agents/" class="md-tabs__link">
           
   
   
@@ -303,6 +301,8 @@
   
   
   
+    
+  
   
     
     
@@ -310,11 +310,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../01-01-project-overview/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../01-01-project-overview/" class="md-tabs__link">
           
   
   
@@ -355,7 +357,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
+    <a href=".." title="GitGalaxy" class="md-nav__button md-logo" aria-label="GitGalaxy" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -412,7 +414,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
@@ -547,7 +549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/continuous-delta-monitoring/" class="md-nav__link">
+      <a href="../cookbook/continuous-delta-monitoring/" class="md-nav__link">
         
   
   
@@ -575,7 +577,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/generate-llm-architecture-briefs/" class="md-nav__link">
+      <a href="../cookbook/generate-llm-architecture-briefs/" class="md-nav__link">
         
   
   
@@ -603,7 +605,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/generate-zero-trust-sbom/" class="md-nav__link">
+      <a href="../cookbook/generate-zero-trust-sbom/" class="md-nav__link">
         
   
   
@@ -631,7 +633,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/prevent-agentic-rce/" class="md-nav__link">
+      <a href="../cookbook/prevent-agentic-rce/" class="md-nav__link">
         
   
   
@@ -659,7 +661,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/sandbox-autonomous-agents/" class="md-nav__link">
+      <a href="../cookbook/sandbox-autonomous-agents/" class="md-nav__link">
         
   
   
@@ -687,7 +689,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/hunt-pii-leaks/" class="md-nav__link">
+      <a href="../cookbook/hunt-pii-leaks/" class="md-nav__link">
         
   
   
@@ -715,7 +717,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/prove-dead-code-logs/" class="md-nav__link">
+      <a href="../cookbook/prove-dead-code-logs/" class="md-nav__link">
         
   
   
@@ -743,7 +745,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/hunt-shadow-apis/" class="md-nav__link">
+      <a href="../cookbook/hunt-shadow-apis/" class="md-nav__link">
         
   
   
@@ -771,7 +773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/deploy-vault-sentinel/" class="md-nav__link">
+      <a href="../cookbook/deploy-vault-sentinel/" class="md-nav__link">
         
   
   
@@ -799,7 +801,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
+      <a href="../cookbook/enforce-supply-chain-firewall/" class="md-nav__link">
         
   
   
@@ -827,7 +829,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/detect-binary-anomalies/" class="md-nav__link">
+      <a href="../cookbook/detect-binary-anomalies/" class="md-nav__link">
         
   
   
@@ -855,7 +857,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/audit-local-ai-models/" class="md-nav__link">
+      <a href="../cookbook/audit-local-ai-models/" class="md-nav__link">
         
   
   
@@ -883,7 +885,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/detect-architectural-drift/" class="md-nav__link">
+      <a href="../cookbook/detect-architectural-drift/" class="md-nav__link">
         
   
   
@@ -911,7 +913,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/map-cobol-monoliths/" class="md-nav__link">
+      <a href="../cookbook/map-cobol-monoliths/" class="md-nav__link">
         
   
   
@@ -939,7 +941,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/scaffold-spring-boot/" class="md-nav__link">
+      <a href="../cookbook/scaffold-spring-boot/" class="md-nav__link">
         
   
   
@@ -967,7 +969,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/Cross-Cultural-M%26A-Technical-Due-Diligence/" class="md-nav__link">
+      <a href="../cookbook/Cross-Cultural-M%26A-Technical-Due-Diligence/" class="md-nav__link">
         
   
   
@@ -995,7 +997,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-microservice-slicing/" class="md-nav__link">
+      <a href="../cookbook/cobol-microservice-slicing/" class="md-nav__link">
         
   
   
@@ -1023,7 +1025,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-to-java-automated-spring-boot-build-system/" class="md-nav__link">
+      <a href="../cookbook/cobol-to-java-automated-spring-boot-build-system/" class="md-nav__link">
         
   
   
@@ -1051,7 +1053,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-to-java-mainframe-data-serialization-forge/" class="md-nav__link">
+      <a href="../cookbook/cobol-to-java-mainframe-data-serialization-forge/" class="md-nav__link">
         
   
   
@@ -1079,7 +1081,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-to-java-REST-API-generation/" class="md-nav__link">
+      <a href="../cookbook/cobol-to-java-REST-API-generation/" class="md-nav__link">
         
   
   
@@ -1107,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-to-java-spring-boot-entity-forge/" class="md-nav__link">
+      <a href="../cookbook/cobol-to-java-spring-boot-entity-forge/" class="md-nav__link">
         
   
   
@@ -1135,7 +1137,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/cobol-to-java-spring-boot-service-forge/" class="md-nav__link">
+      <a href="../cookbook/cobol-to-java-spring-boot-service-forge/" class="md-nav__link">
         
   
   
@@ -1163,7 +1165,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/creating-dag-from-cobol-files/" class="md-nav__link">
+      <a href="../cookbook/creating-dag-from-cobol-files/" class="md-nav__link">
         
   
   
@@ -1191,7 +1193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/creating-jcl-from-cobol-files/" class="md-nav__link">
+      <a href="../cookbook/creating-jcl-from-cobol-files/" class="md-nav__link">
         
   
   
@@ -1219,7 +1221,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/creating-schema-from-cobol-files/" class="md-nav__link">
+      <a href="../cookbook/creating-schema-from-cobol-files/" class="md-nav__link">
         
   
   
@@ -1247,7 +1249,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/identifying-dead-code-in-cobol/" class="md-nav__link">
+      <a href="../cookbook/identifying-dead-code-in-cobol/" class="md-nav__link">
         
   
   
@@ -1275,7 +1277,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cookbook/unpacking-etl-from-cbl-files/" class="md-nav__link">
+      <a href="../cookbook/unpacking-etl-from-cbl-files/" class="md-nav__link">
         
   
   
@@ -1333,7 +1335,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../museum-of-code/" class="md-nav__link ">
+            <a href="../museum-of-code/" class="md-nav__link ">
               
   
   
@@ -1376,8 +1378,6 @@
       
   
   
-    
-  
   
   
     
@@ -1417,23 +1417,20 @@
     
     
       
-        
-        
-      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../agents/" class="md-nav__link ">
+            <a href="../agents/" class="md-nav__link ">
               
   
   
@@ -1451,13 +1448,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="">
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1505,20 +1502,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
         
           
-          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
             
   
   
@@ -1554,7 +1548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/django_agents/" class="md-nav__link">
+      <a href="../agents/django_agents/" class="md-nav__link">
         
   
   
@@ -1582,7 +1576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/flask_agents/" class="md-nav__link">
+      <a href="../agents/flask_agents/" class="md-nav__link">
         
   
   
@@ -1610,7 +1604,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/kubernetes_agents/" class="md-nav__link">
+      <a href="../agents/kubernetes_agents/" class="md-nav__link">
         
   
   
@@ -1638,7 +1632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/linux_agents/" class="md-nav__link">
+      <a href="../agents/linux_agents/" class="md-nav__link">
         
   
   
@@ -1666,7 +1660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/Python_agents/" class="md-nav__link">
+      <a href="../agents/Python_agents/" class="md-nav__link">
         
   
   
@@ -1694,7 +1688,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/react_agents/" class="md-nav__link">
+      <a href="../agents/react_agents/" class="md-nav__link">
         
   
   
@@ -1722,7 +1716,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/rust_agents/" class="md-nav__link">
+      <a href="../agents/rust_agents/" class="md-nav__link">
         
   
   
@@ -1750,7 +1744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/tensorflow_agents/" class="md-nav__link">
+      <a href="../agents/tensorflow_agents/" class="md-nav__link">
         
   
   
@@ -1778,7 +1772,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/TypeScript_agents/" class="md-nav__link">
+      <a href="../agents/TypeScript_agents/" class="md-nav__link">
         
   
   
@@ -1806,7 +1800,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/vscode_agents/" class="md-nav__link">
+      <a href="../agents/vscode_agents/" class="md-nav__link">
         
   
   
@@ -1868,20 +1862,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
         
           
-          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
             
   
   
@@ -1917,7 +1908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/BareMetal-OS_agents/" class="md-nav__link">
+      <a href="../agents/BareMetal-OS_agents/" class="md-nav__link">
         
   
   
@@ -1945,7 +1936,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/bootloader_agents/" class="md-nav__link">
+      <a href="../agents/bootloader_agents/" class="md-nav__link">
         
   
   
@@ -1973,7 +1964,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/bootOS_agents/" class="md-nav__link">
+      <a href="../agents/bootOS_agents/" class="md-nav__link">
         
   
   
@@ -2001,7 +1992,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/ChrysaLisp_agents/" class="md-nav__link">
+      <a href="../agents/ChrysaLisp_agents/" class="md-nav__link">
         
   
   
@@ -2029,7 +2020,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cosmopolitan_agents/" class="md-nav__link">
+      <a href="../agents/cosmopolitan_agents/" class="md-nav__link">
         
   
   
@@ -2057,7 +2048,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cpm65_agents/" class="md-nav__link">
+      <a href="../agents/cpm65_agents/" class="md-nav__link">
         
   
   
@@ -2085,7 +2076,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/darwin-xnu_agents/" class="md-nav__link">
+      <a href="../agents/darwin-xnu_agents/" class="md-nav__link">
         
   
   
@@ -2113,7 +2104,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/freebsd-src_agents/" class="md-nav__link">
+      <a href="../agents/freebsd-src_agents/" class="md-nav__link">
         
   
   
@@ -2141,7 +2132,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/x86-bare-metal-examples_agents/" class="md-nav__link">
+      <a href="../agents/x86-bare-metal-examples_agents/" class="md-nav__link">
         
   
   
@@ -2219,20 +2210,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
         
           
-          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
             
   
   
@@ -2268,7 +2256,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/asm_agents/" class="md-nav__link">
+      <a href="../agents/asm_agents/" class="md-nav__link">
         
   
   
@@ -2296,7 +2284,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/assemblyscript_agents/" class="md-nav__link">
+      <a href="../agents/assemblyscript_agents/" class="md-nav__link">
         
   
   
@@ -2324,7 +2312,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/berry_agents/" class="md-nav__link">
+      <a href="../agents/berry_agents/" class="md-nav__link">
         
   
   
@@ -2352,7 +2340,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/bog_agents/" class="md-nav__link">
+      <a href="../agents/bog_agents/" class="md-nav__link">
         
   
   
@@ -2380,7 +2368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/bun_agents/" class="md-nav__link">
+      <a href="../agents/bun_agents/" class="md-nav__link">
         
   
   
@@ -2408,7 +2396,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/capy_agents/" class="md-nav__link">
+      <a href="../agents/capy_agents/" class="md-nav__link">
         
   
   
@@ -2436,7 +2424,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/Carbon_agents/" class="md-nav__link">
+      <a href="../agents/Carbon_agents/" class="md-nav__link">
         
   
   
@@ -2464,7 +2452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cpython_agents/" class="md-nav__link">
+      <a href="../agents/cpython_agents/" class="md-nav__link">
         
   
   
@@ -2492,7 +2480,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cyber_agents/" class="md-nav__link">
+      <a href="../agents/cyber_agents/" class="md-nav__link">
         
   
   
@@ -2520,7 +2508,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cython_agents/" class="md-nav__link">
+      <a href="../agents/cython_agents/" class="md-nav__link">
         
   
   
@@ -2548,7 +2536,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/deno_agents/" class="md-nav__link">
+      <a href="../agents/deno_agents/" class="md-nav__link">
         
   
   
@@ -2576,7 +2564,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/go_agents/" class="md-nav__link">
+      <a href="../agents/go_agents/" class="md-nav__link">
         
   
   
@@ -2604,7 +2592,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/kotlin_agents/" class="md-nav__link">
+      <a href="../agents/kotlin_agents/" class="md-nav__link">
         
   
   
@@ -2632,7 +2620,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/livecode_agents/" class="md-nav__link">
+      <a href="../agents/livecode_agents/" class="md-nav__link">
         
   
   
@@ -2660,7 +2648,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/roslyn_agents/" class="md-nav__link">
+      <a href="../agents/roslyn_agents/" class="md-nav__link">
         
   
   
@@ -2688,7 +2676,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/wasmtime_agents/" class="md-nav__link">
+      <a href="../agents/wasmtime_agents/" class="md-nav__link">
         
   
   
@@ -2716,7 +2704,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/zig_agents/" class="md-nav__link">
+      <a href="../agents/zig_agents/" class="md-nav__link">
         
   
   
@@ -2786,20 +2774,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
         
           
-          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
             
   
   
@@ -2835,7 +2820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/actix-web_agents/" class="md-nav__link">
+      <a href="../agents/actix-web_agents/" class="md-nav__link">
         
   
   
@@ -2863,7 +2848,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/angular_agents/" class="md-nav__link">
+      <a href="../agents/angular_agents/" class="md-nav__link">
         
   
   
@@ -2891,7 +2876,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/ant-design_agents/" class="md-nav__link">
+      <a href="../agents/ant-design_agents/" class="md-nav__link">
         
   
   
@@ -2919,7 +2904,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/bootstrap_agents/" class="md-nav__link">
+      <a href="../agents/bootstrap_agents/" class="md-nav__link">
         
   
   
@@ -2947,7 +2932,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cakephp_agents/" class="md-nav__link">
+      <a href="../agents/cakephp_agents/" class="md-nav__link">
         
   
   
@@ -2975,7 +2960,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/CodeIgniter_agents/" class="md-nav__link">
+      <a href="../agents/CodeIgniter_agents/" class="md-nav__link">
         
   
   
@@ -3003,7 +2988,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/Dancer2_agents/" class="md-nav__link">
+      <a href="../agents/Dancer2_agents/" class="md-nav__link">
         
   
   
@@ -3031,7 +3016,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/fastapi_agents/" class="md-nav__link">
+      <a href="../agents/fastapi_agents/" class="md-nav__link">
         
   
   
@@ -3059,7 +3044,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/laravel_agents/" class="md-nav__link">
+      <a href="../agents/laravel_agents/" class="md-nav__link">
         
   
   
@@ -3087,7 +3072,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/rails_agents/" class="md-nav__link">
+      <a href="../agents/rails_agents/" class="md-nav__link">
         
   
   
@@ -3115,7 +3100,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/symfony_agents/" class="md-nav__link">
+      <a href="../agents/symfony_agents/" class="md-nav__link">
         
   
   
@@ -3143,7 +3128,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/tailwindcss_agents/" class="md-nav__link">
+      <a href="../agents/tailwindcss_agents/" class="md-nav__link">
         
   
   
@@ -3171,7 +3156,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/trpc_agents/" class="md-nav__link">
+      <a href="../agents/trpc_agents/" class="md-nav__link">
         
   
   
@@ -3231,20 +3216,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_6" >
         
           
-          <label class="md-nav__link" for="__nav_5_6" id="__nav_5_6_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_6" id="__nav_5_6_label" tabindex="0">
             
   
   
@@ -3280,7 +3262,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/airflow_agents/" class="md-nav__link">
+      <a href="../agents/airflow_agents/" class="md-nav__link">
         
   
   
@@ -3308,7 +3290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/alphafold_2018_agents/" class="md-nav__link">
+      <a href="../agents/alphafold_2018_agents/" class="md-nav__link">
         
   
   
@@ -3336,7 +3318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/biopython_agents/" class="md-nav__link">
+      <a href="../agents/biopython_agents/" class="md-nav__link">
         
   
   
@@ -3364,7 +3346,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/blast_agents/" class="md-nav__link">
+      <a href="../agents/blast_agents/" class="md-nav__link">
         
   
   
@@ -3392,7 +3374,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/Chart.js_agents/" class="md-nav__link">
+      <a href="../agents/Chart.js_agents/" class="md-nav__link">
         
   
   
@@ -3420,7 +3402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cytoscape.js_agents/" class="md-nav__link">
+      <a href="../agents/cytoscape.js_agents/" class="md-nav__link">
         
   
   
@@ -3448,7 +3430,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/d3_agents/" class="md-nav__link">
+      <a href="../agents/d3_agents/" class="md-nav__link">
         
   
   
@@ -3476,7 +3458,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/eeglab_agents/" class="md-nav__link">
+      <a href="../agents/eeglab_agents/" class="md-nav__link">
         
   
   
@@ -3540,20 +3522,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_7" >
         
           
-          <label class="md-nav__link" for="__nav_5_7" id="__nav_5_7_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_7" id="__nav_5_7_label" tabindex="0">
             
   
   
@@ -3589,7 +3568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/abap2xlsx_agents/" class="md-nav__link">
+      <a href="../agents/abap2xlsx_agents/" class="md-nav__link">
         
   
   
@@ -3617,7 +3596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/abap-cleaner_agents/" class="md-nav__link">
+      <a href="../agents/abap-cleaner_agents/" class="md-nav__link">
         
   
   
@@ -3645,7 +3624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/abapGit_agents/" class="md-nav__link">
+      <a href="../agents/abapGit_agents/" class="md-nav__link">
         
   
   
@@ -3673,7 +3652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/awesome-cobol_agents/" class="md-nav__link">
+      <a href="../agents/awesome-cobol_agents/" class="md-nav__link">
         
   
   
@@ -3701,7 +3680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cash-account-cobol_agents/" class="md-nav__link">
+      <a href="../agents/cash-account-cobol_agents/" class="md-nav__link">
         
   
   
@@ -3729,7 +3708,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cics-banking-sample-application-cbsa_agents/" class="md-nav__link">
+      <a href="../agents/cics-banking-sample-application-cbsa_agents/" class="md-nav__link">
         
   
   
@@ -3757,7 +3736,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cobrix_agents/" class="md-nav__link">
+      <a href="../agents/cobrix_agents/" class="md-nav__link">
         
   
   
@@ -3785,7 +3764,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/fineract_agents/" class="md-nav__link">
+      <a href="../agents/fineract_agents/" class="md-nav__link">
         
   
   
@@ -3813,7 +3792,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/gnucobol_agents/" class="md-nav__link">
+      <a href="../agents/gnucobol_agents/" class="md-nav__link">
         
   
   
@@ -3841,7 +3820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/vscode_cobol_agents/" class="md-nav__link">
+      <a href="../agents/vscode_cobol_agents/" class="md-nav__link">
         
   
   
@@ -3919,20 +3898,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_8" >
         
           
-          <label class="md-nav__link" for="__nav_5_8" id="__nav_5_8_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_8" id="__nav_5_8_label" tabindex="0">
             
   
   
@@ -3968,7 +3944,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/ack3_agents/" class="md-nav__link">
+      <a href="../agents/ack3_agents/" class="md-nav__link">
         
   
   
@@ -3996,7 +3972,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/alacritty_agents/" class="md-nav__link">
+      <a href="../agents/alacritty_agents/" class="md-nav__link">
         
   
   
@@ -4024,7 +4000,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/ansible_agents/" class="md-nav__link">
+      <a href="../agents/ansible_agents/" class="md-nav__link">
         
   
   
@@ -4052,7 +4028,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/black_agents/" class="md-nav__link">
+      <a href="../agents/black_agents/" class="md-nav__link">
         
   
   
@@ -4080,7 +4056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/brew_agents/" class="md-nav__link">
+      <a href="../agents/brew_agents/" class="md-nav__link">
         
   
   
@@ -4108,7 +4084,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cargo_agents/" class="md-nav__link">
+      <a href="../agents/cargo_agents/" class="md-nav__link">
         
   
   
@@ -4136,7 +4112,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/curl_agents/" class="md-nav__link">
+      <a href="../agents/curl_agents/" class="md-nav__link">
         
   
   
@@ -4164,7 +4140,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cypress_agents/" class="md-nav__link">
+      <a href="../agents/cypress_agents/" class="md-nav__link">
         
   
   
@@ -4192,7 +4168,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/desktop_agents/" class="md-nav__link">
+      <a href="../agents/desktop_agents/" class="md-nav__link">
         
   
   
@@ -4220,7 +4196,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/diff-so-fancy_agents/" class="md-nav__link">
+      <a href="../agents/diff-so-fancy_agents/" class="md-nav__link">
         
   
   
@@ -4248,7 +4224,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/docker-py_agents/" class="md-nav__link">
+      <a href="../agents/docker-py_agents/" class="md-nav__link">
         
   
   
@@ -4276,7 +4252,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/elasticsearch_agents/" class="md-nav__link">
+      <a href="../agents/elasticsearch_agents/" class="md-nav__link">
         
   
   
@@ -4304,7 +4280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/exiftool_agents/" class="md-nav__link">
+      <a href="../agents/exiftool_agents/" class="md-nav__link">
         
   
   
@@ -4332,7 +4308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/ghostty_agents/" class="md-nav__link">
+      <a href="../agents/ghostty_agents/" class="md-nav__link">
         
   
   
@@ -4360,7 +4336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/gradle_agents/" class="md-nav__link">
+      <a href="../agents/gradle_agents/" class="md-nav__link">
         
   
   
@@ -4388,7 +4364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/jenkins_agents/" class="md-nav__link">
+      <a href="../agents/jenkins_agents/" class="md-nav__link">
         
   
   
@@ -4416,7 +4392,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/sqlite_agents/" class="md-nav__link">
+      <a href="../agents/sqlite_agents/" class="md-nav__link">
         
   
   
@@ -4472,20 +4448,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_9" >
         
           
-          <label class="md-nav__link" for="__nav_5_9" id="__nav_5_9_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_9" id="__nav_5_9_label" tabindex="0">
             
   
   
@@ -4521,7 +4494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/Babylon.js_agents/" class="md-nav__link">
+      <a href="../agents/Babylon.js_agents/" class="md-nav__link">
         
   
   
@@ -4549,7 +4522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/bevy_agents/" class="md-nav__link">
+      <a href="../agents/bevy_agents/" class="md-nav__link">
         
   
   
@@ -4577,7 +4550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/cesium_agents/" class="md-nav__link">
+      <a href="../agents/cesium_agents/" class="md-nav__link">
         
   
   
@@ -4605,7 +4578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/DOOM_agents/" class="md-nav__link">
+      <a href="../agents/DOOM_agents/" class="md-nav__link">
         
   
   
@@ -4633,7 +4606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/godot_agents/" class="md-nav__link">
+      <a href="../agents/godot_agents/" class="md-nav__link">
         
   
   
@@ -4661,7 +4634,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/three.js_agents/" class="md-nav__link">
+      <a href="../agents/three.js_agents/" class="md-nav__link">
         
   
   
@@ -4719,20 +4692,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_10" >
         
           
-          <label class="md-nav__link" for="__nav_5_10" id="__nav_5_10_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_10" id="__nav_5_10_label" tabindex="0">
             
   
   
@@ -4768,7 +4738,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/Adafruit_CircuitPython_Bundle_agents/" class="md-nav__link">
+      <a href="../agents/Adafruit_CircuitPython_Bundle_agents/" class="md-nav__link">
         
   
   
@@ -4796,7 +4766,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/AFNetworking_agents/" class="md-nav__link">
+      <a href="../agents/AFNetworking_agents/" class="md-nav__link">
         
   
   
@@ -4824,7 +4794,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/Alamofire_agents/" class="md-nav__link">
+      <a href="../agents/Alamofire_agents/" class="md-nav__link">
         
   
   
@@ -4852,7 +4822,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/catalyst-runtime_agents/" class="md-nav__link">
+      <a href="../agents/catalyst-runtime_agents/" class="md-nav__link">
         
   
   
@@ -4880,7 +4850,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/circuitpython_agents/" class="md-nav__link">
+      <a href="../agents/circuitpython_agents/" class="md-nav__link">
         
   
   
@@ -4908,7 +4878,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/flutter_agents/" class="md-nav__link">
+      <a href="../agents/flutter_agents/" class="md-nav__link">
         
   
   
@@ -4936,7 +4906,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/micropython_agents/" class="md-nav__link">
+      <a href="../agents/micropython_agents/" class="md-nav__link">
         
   
   
@@ -4996,20 +4966,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11" >
         
           
-          <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="0">
             
   
   
@@ -5045,7 +5012,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/apex-recipes_agents/" class="md-nav__link">
+      <a href="../agents/apex-recipes_agents/" class="md-nav__link">
         
   
   
@@ -5073,7 +5040,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/AppFlowy_agents/" class="md-nav__link">
+      <a href="../agents/AppFlowy_agents/" class="md-nav__link">
         
   
   
@@ -5101,7 +5068,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/bugzilla_agents/" class="md-nav__link">
+      <a href="../agents/bugzilla_agents/" class="md-nav__link">
         
   
   
@@ -5129,7 +5096,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/canvas-lms_agents/" class="md-nav__link">
+      <a href="../agents/canvas-lms_agents/" class="md-nav__link">
         
   
   
@@ -5157,7 +5124,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/discourse_agents/" class="md-nav__link">
+      <a href="../agents/discourse_agents/" class="md-nav__link">
         
   
   
@@ -5185,7 +5152,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/jellyfin_agents/" class="md-nav__link">
+      <a href="../agents/jellyfin_agents/" class="md-nav__link">
         
   
   
@@ -5213,7 +5180,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/mediawiki_agents/" class="md-nav__link">
+      <a href="../agents/mediawiki_agents/" class="md-nav__link">
         
   
   
@@ -5241,7 +5208,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/WordPress_agents/" class="md-nav__link">
+      <a href="../agents/WordPress_agents/" class="md-nav__link">
         
   
   
@@ -5299,20 +5266,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_12" >
         
           
-          <label class="md-nav__link" for="__nav_5_12" id="__nav_5_12_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_12" id="__nav_5_12_label" tabindex="0">
             
   
   
@@ -5348,7 +5312,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/angr_agents/" class="md-nav__link">
+      <a href="../agents/angr_agents/" class="md-nav__link">
         
   
   
@@ -5376,7 +5340,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/bitcoin-0.1.0_agents/" class="md-nav__link">
+      <a href="../agents/bitcoin-0.1.0_agents/" class="md-nav__link">
         
   
   
@@ -5404,7 +5368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/blst_agents/" class="md-nav__link">
+      <a href="../agents/blst_agents/" class="md-nav__link">
         
   
   
@@ -5432,7 +5396,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/capstone_agents/" class="md-nav__link">
+      <a href="../agents/capstone_agents/" class="md-nav__link">
         
   
   
@@ -5460,7 +5424,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/curve25519-dalek_agents/" class="md-nav__link">
+      <a href="../agents/curve25519-dalek_agents/" class="md-nav__link">
         
   
   
@@ -5488,7 +5452,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/gnupg_agents/" class="md-nav__link">
+      <a href="../agents/gnupg_agents/" class="md-nav__link">
         
   
   
@@ -5516,7 +5480,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/solana_agents/" class="md-nav__link">
+      <a href="../agents/solana_agents/" class="md-nav__link">
         
   
   
@@ -5572,20 +5536,17 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_13" >
         
           
-          <label class="md-nav__link" for="__nav_5_13" id="__nav_5_13_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5_13" id="__nav_5_13_label" tabindex="0">
             
   
   
@@ -5621,7 +5582,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/Apollo-11_agents/" class="md-nav__link">
+      <a href="../agents/Apollo-11_agents/" class="md-nav__link">
         
   
   
@@ -5649,7 +5610,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/arktype_agents/" class="md-nav__link">
+      <a href="../agents/arktype_agents/" class="md-nav__link">
         
   
   
@@ -5677,7 +5638,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/content_agents/" class="md-nav__link">
+      <a href="../agents/content_agents/" class="md-nav__link">
         
   
   
@@ -5705,7 +5666,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/core_agents/" class="md-nav__link">
+      <a href="../agents/core_agents/" class="md-nav__link">
         
   
   
@@ -5733,7 +5694,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/iwubi_agents/" class="md-nav__link">
+      <a href="../agents/iwubi_agents/" class="md-nav__link">
         
   
   
@@ -5761,7 +5722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../agents/nvda_agents/" class="md-nav__link">
+      <a href="../agents/nvda_agents/" class="md-nav__link">
         
   
   
@@ -5794,8 +5755,6 @@
                 
   
   
-    
-  
   
   
     
@@ -5835,21 +5794,18 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_14" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_14" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../LLM-reports/" class="md-nav__link ">
               
   
   
@@ -5867,13 +5823,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_14" id="__nav_5_14_label" tabindex="">
+              <label class="md-nav__link " for="__nav_5_14" id="__nav_5_14_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_14_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_14_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_14">
             <span class="md-nav__icon md-icon"></span>
             
@@ -5951,7 +5907,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../django_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/django_llm_report/" class="md-nav__link">
         
   
   
@@ -5979,7 +5935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../flask_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/flask_llm_report/" class="md-nav__link">
         
   
   
@@ -6079,7 +6035,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../BareMetal-OS_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/BareMetal-OS_llm_report/" class="md-nav__link">
         
   
   
@@ -6107,7 +6063,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cosmopolitan_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cosmopolitan_llm_report/" class="md-nav__link">
         
   
   
@@ -6135,7 +6091,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cpm65_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cpm65_llm_report/" class="md-nav__link">
         
   
   
@@ -6163,7 +6119,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../darwin-xnu_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/darwin-xnu_llm_report/" class="md-nav__link">
         
   
   
@@ -6191,7 +6147,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../freebsd-src_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/freebsd-src_llm_report/" class="md-nav__link">
         
   
   
@@ -6297,7 +6253,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Carbon_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/Carbon_llm_report/" class="md-nav__link">
         
   
   
@@ -6325,7 +6281,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../assemblyscript_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/assemblyscript_llm_report/" class="md-nav__link">
         
   
   
@@ -6353,7 +6309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../berry_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/berry_llm_report/" class="md-nav__link">
         
   
   
@@ -6381,7 +6337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bun_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/bun_llm_report/" class="md-nav__link">
         
   
   
@@ -6409,7 +6365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cpython_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cpython_llm_report/" class="md-nav__link">
         
   
   
@@ -6437,7 +6393,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cyber_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cyber_llm_report/" class="md-nav__link">
         
   
   
@@ -6465,7 +6421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cython_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cython_llm_report/" class="md-nav__link">
         
   
   
@@ -6493,7 +6449,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../fp-ts_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/fp-ts_llm_report/" class="md-nav__link">
         
   
   
@@ -6526,10 +6482,8 @@
                 
   
   
-    
   
   
-  
     
     
       
@@ -6550,11 +6504,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_14_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_14_5" >
         
           
           <label class="md-nav__link" for="__nav_5_14_5" id="__nav_5_14_5_label" tabindex="0">
@@ -6575,7 +6529,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_14_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_14_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_14_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -6593,7 +6547,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../CodeIgniter_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/CodeIgniter_llm_report/" class="md-nav__link">
         
   
   
@@ -6621,7 +6575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../angular_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/angular_llm_report/" class="md-nav__link">
         
   
   
@@ -6649,7 +6603,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bootstrap_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/bootstrap_llm_report/" class="md-nav__link">
         
   
   
@@ -6674,37 +6628,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    fastapi
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../LLM-reports/fastapi_llm_report/" class="md-nav__link">
         
   
   
@@ -6720,81 +6647,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-information-flow-purpose-the-executive-summary" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. Information Flow &amp; Purpose (The Executive Summary)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-notable-structures-architecture" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. Notable Structures &amp; Architecture
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-security-vulnerabilities" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Security &amp; Vulnerabilities
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-outliers-extremes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Outliers &amp; Extremes
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-recommended-next-steps-refactoring-for-stability" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. Recommended Next Steps (Refactoring for Stability)
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -6881,7 +6733,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Chart.js_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/Chart.js_llm_report/" class="md-nav__link">
         
   
   
@@ -6909,7 +6761,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../airflow_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/airflow_llm_report/" class="md-nav__link">
         
   
   
@@ -6937,7 +6789,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../alphafold_2018_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/alphafold_2018_llm_report/" class="md-nav__link">
         
   
   
@@ -6965,7 +6817,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../biopython_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/biopython_llm_report/" class="md-nav__link">
         
   
   
@@ -6993,7 +6845,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../blast_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/blast_llm_report/" class="md-nav__link">
         
   
   
@@ -7021,7 +6873,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../fieldtrip_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/fieldtrip_llm_report/" class="md-nav__link">
         
   
   
@@ -7121,7 +6973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../CICS-Cobol_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/CICS-Cobol_llm_report/" class="md-nav__link">
         
   
   
@@ -7149,7 +7001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../abap-cleaner_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/abap-cleaner_llm_report/" class="md-nav__link">
         
   
   
@@ -7177,7 +7029,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../abap2xlsx_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/abap2xlsx_llm_report/" class="md-nav__link">
         
   
   
@@ -7205,7 +7057,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cobrix_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cobrix_llm_report/" class="md-nav__link">
         
   
   
@@ -7233,7 +7085,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../fineract_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/fineract_llm_report/" class="md-nav__link">
         
   
   
@@ -7345,7 +7197,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ansible_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/ansible_llm_report/" class="md-nav__link">
         
   
   
@@ -7373,7 +7225,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../black_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/black_llm_report/" class="md-nav__link">
         
   
   
@@ -7401,7 +7253,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../brew_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/brew_llm_report/" class="md-nav__link">
         
   
   
@@ -7429,7 +7281,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cargo_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cargo_llm_report/" class="md-nav__link">
         
   
   
@@ -7457,7 +7309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cli_llm_report/" class="md-nav__link">
         
   
   
@@ -7485,7 +7337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../curl_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/curl_llm_report/" class="md-nav__link">
         
   
   
@@ -7513,7 +7365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cypress_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cypress_llm_report/" class="md-nav__link">
         
   
   
@@ -7541,7 +7393,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../docker-py_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/docker-py_llm_report/" class="md-nav__link">
         
   
   
@@ -7569,7 +7421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../elasticsearch_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/elasticsearch_llm_report/" class="md-nav__link">
         
   
   
@@ -7597,7 +7449,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../exiftool_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/exiftool_llm_report/" class="md-nav__link">
         
   
   
@@ -7625,7 +7477,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ghostty_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/ghostty_llm_report/" class="md-nav__link">
         
   
   
@@ -7721,7 +7573,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../DOOM_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/DOOM_llm_report/" class="md-nav__link">
         
   
   
@@ -7749,7 +7601,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bevy_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/bevy_llm_report/" class="md-nav__link">
         
   
   
@@ -7777,7 +7629,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cesium_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/cesium_llm_report/" class="md-nav__link">
         
   
   
@@ -7879,7 +7731,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AFNetworking_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/AFNetworking_llm_report/" class="md-nav__link">
         
   
   
@@ -7907,7 +7759,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Adafruit_CircuitPython_Bundle_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/Adafruit_CircuitPython_Bundle_llm_report/" class="md-nav__link">
         
   
   
@@ -7935,7 +7787,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Alamofire_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/Alamofire_llm_report/" class="md-nav__link">
         
   
   
@@ -7963,7 +7815,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../catalyst-runtime_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/catalyst-runtime_llm_report/" class="md-nav__link">
         
   
   
@@ -7991,7 +7843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../circuitpython_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/circuitpython_llm_report/" class="md-nav__link">
         
   
   
@@ -8019,7 +7871,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../flutter_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/flutter_llm_report/" class="md-nav__link">
         
   
   
@@ -8115,7 +7967,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../AppFlowy_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/AppFlowy_llm_report/" class="md-nav__link">
         
   
   
@@ -8143,7 +7995,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../discourse_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/discourse_llm_report/" class="md-nav__link">
         
   
   
@@ -8171,7 +8023,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../freeCodeCamp_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/freeCodeCamp_llm_report/" class="md-nav__link">
         
   
   
@@ -8265,7 +8117,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../angr_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/angr_llm_report/" class="md-nav__link">
         
   
   
@@ -8293,7 +8145,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bitcoin-0.1.0_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/bitcoin-0.1.0_llm_report/" class="md-nav__link">
         
   
   
@@ -8385,7 +8237,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../Apollo-11_llm_report/" class="md-nav__link">
+      <a href="../LLM-reports/Apollo-11_llm_report/" class="md-nav__link">
         
   
   
@@ -8433,8 +8285,10 @@
       
   
   
+    
   
   
+  
     
     
       
@@ -8458,19 +8312,22 @@
     
     
       
+        
+        
+      
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
@@ -8488,7 +8345,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -8530,17 +8387,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" >
         
           
-          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_1" id="__nav_6_1_label" tabindex="">
             
   
   
@@ -8576,7 +8436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-01-project-overview/" class="md-nav__link">
+      <a href="../01-01-project-overview/" class="md-nav__link">
         
   
   
@@ -8604,7 +8464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-02-galaxyscope-cli-reference/" class="md-nav__link">
+      <a href="../01-02-galaxyscope-cli-reference/" class="md-nav__link">
         
   
   
@@ -8632,7 +8492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-03-the-blast-paradigm/" class="md-nav__link">
+      <a href="../01-03-the-blast-paradigm/" class="md-nav__link">
         
   
   
@@ -8660,7 +8520,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-04-the-legacy-bridge/" class="md-nav__link">
+      <a href="../01-04-the-legacy-bridge/" class="md-nav__link">
         
   
   
@@ -8688,7 +8548,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-06-the-structural-rag-graph/" class="md-nav__link">
+      <a href="../01-06-the-structural-rag-graph/" class="md-nav__link">
         
   
   
@@ -8716,7 +8576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-07-the-shbom-standard/" class="md-nav__link">
+      <a href="../01-07-the-shbom-standard/" class="md-nav__link">
         
   
   
@@ -8744,7 +8604,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-08-autonomous-ai-guardrails/" class="md-nav__link">
+      <a href="../01-08-autonomous-ai-guardrails/" class="md-nav__link">
         
   
   
@@ -8772,7 +8632,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../01-09-the-continuous-delta-paradigm/" class="md-nav__link">
+      <a href="../01-09-the-continuous-delta-paradigm/" class="md-nav__link">
         
   
   
@@ -8858,17 +8718,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
         
           
-          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="">
             
   
   
@@ -8904,7 +8767,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-01-pipeline-overview/" class="md-nav__link">
+      <a href="../02-01-pipeline-overview/" class="md-nav__link">
         
   
   
@@ -8932,7 +8795,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-02-optical-orchestration/" class="md-nav__link">
+      <a href="../02-02-optical-orchestration/" class="md-nav__link">
         
   
   
@@ -8960,7 +8823,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-03-aperture-filter/" class="md-nav__link">
+      <a href="../02-03-aperture-filter/" class="md-nav__link">
         
   
   
@@ -8988,7 +8851,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-04-guidestar-protocol/" class="md-nav__link">
+      <a href="../02-04-guidestar-protocol/" class="md-nav__link">
         
   
   
@@ -9016,7 +8879,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-05-language-lens/" class="md-nav__link">
+      <a href="../02-05-language-lens/" class="md-nav__link">
         
   
   
@@ -9044,7 +8907,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-06-security-lens/" class="md-nav__link">
+      <a href="../02-06-security-lens/" class="md-nav__link">
         
   
   
@@ -9072,7 +8935,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-07-the-prism/" class="md-nav__link">
+      <a href="../02-07-the-prism/" class="md-nav__link">
         
   
   
@@ -9100,7 +8963,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-08-the-detector/" class="md-nav__link">
+      <a href="../02-08-the-detector/" class="md-nav__link">
         
   
   
@@ -9128,7 +8991,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-09-signal-processing/" class="md-nav__link">
+      <a href="../02-09-signal-processing/" class="md-nav__link">
         
   
   
@@ -9156,7 +9019,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-11-spectral-audit/" class="md-nav__link">
+      <a href="../02-11-spectral-audit/" class="md-nav__link">
         
   
   
@@ -9184,7 +9047,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-12-audit-recorder/" class="md-nav__link">
+      <a href="../02-12-audit-recorder/" class="md-nav__link">
         
   
   
@@ -9212,7 +9075,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-13-gpu-recorder/" class="md-nav__link">
+      <a href="../02-13-gpu-recorder/" class="md-nav__link">
         
   
   
@@ -9240,7 +9103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-14-llm-recorder/" class="md-nav__link">
+      <a href="../02-14-llm-recorder/" class="md-nav__link">
         
   
   
@@ -9268,7 +9131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-15-chronometer/" class="md-nav__link">
+      <a href="../02-15-chronometer/" class="md-nav__link">
         
   
   
@@ -9296,7 +9159,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-16-network-risk-sensor/" class="md-nav__link">
+      <a href="../02-16-network-risk-sensor/" class="md-nav__link">
         
   
   
@@ -9324,7 +9187,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-17-ai-appsec-sensor/" class="md-nav__link">
+      <a href="../02-17-ai-appsec-sensor/" class="md-nav__link">
         
   
   
@@ -9352,7 +9215,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-18-dev-agent-firewall/" class="md-nav__link">
+      <a href="../02-18-dev-agent-firewall/" class="md-nav__link">
         
   
   
@@ -9380,7 +9243,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-19-neural-auditor/" class="md-nav__link">
+      <a href="../02-19-neural-auditor/" class="md-nav__link">
         
   
   
@@ -9408,7 +9271,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-20-security-auditor/" class="md-nav__link">
+      <a href="../02-20-security-auditor/" class="md-nav__link">
         
   
   
@@ -9436,7 +9299,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-21-record-keeper/" class="md-nav__link">
+      <a href="../02-21-record-keeper/" class="md-nav__link">
         
   
   
@@ -9464,7 +9327,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../02-22-state-rehydrator/" class="md-nav__link">
+      <a href="../02-22-state-rehydrator/" class="md-nav__link">
         
   
   
@@ -9497,8 +9360,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -9531,18 +9396,21 @@
     
       
       
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
         
           
-          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="">
             
   
   
@@ -9560,7 +9428,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -9578,7 +9446,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-01-claim-1-search-strategies/" class="md-nav__link">
+      <a href="../03-01-claim-1-search-strategies/" class="md-nav__link">
         
   
   
@@ -9606,7 +9474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-02-claim-2-explicitness/" class="md-nav__link">
+      <a href="../03-02-claim-2-explicitness/" class="md-nav__link">
         
   
   
@@ -9634,7 +9502,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-03-claim-3-taxonomy-map/" class="md-nav__link">
+      <a href="../03-03-claim-3-taxonomy-map/" class="md-nav__link">
         
   
   
@@ -9662,7 +9530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-04-claim-4-comparing-languages/" class="md-nav__link">
+      <a href="../03-04-claim-4-comparing-languages/" class="md-nav__link">
         
   
   
@@ -9690,7 +9558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-05-claim-5-file-archetypes/" class="md-nav__link">
+      <a href="../03-05-claim-5-file-archetypes/" class="md-nav__link">
         
   
   
@@ -9718,7 +9586,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
+      <a href="../03-06-claim-6-keyword-fingerprinting/" class="md-nav__link">
         
   
   
@@ -9746,7 +9614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-07-claim-7-doom-comparisons/" class="md-nav__link">
+      <a href="../03-07-claim-7-doom-comparisons/" class="md-nav__link">
         
   
   
@@ -9774,7 +9642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-08-claim-8-empirical-validation-of-ast-free-parsing/" class="md-nav__link">
+      <a href="../03-08-claim-8-empirical-validation-of-ast-free-parsing/" class="md-nav__link">
         
   
   
@@ -9802,7 +9670,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-09-claim-9-universal-logic-extraction/" class="md-nav__link">
+      <a href="../03-09-claim-9-universal-logic-extraction/" class="md-nav__link">
         
   
   
@@ -9830,7 +9698,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-10-claim-10-ast-vs-heuristic-parsing/" class="md-nav__link">
+      <a href="../03-10-claim-10-ast-vs-heuristic-parsing/" class="md-nav__link">
         
   
   
@@ -9855,10 +9723,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../03-11-claim-11-multi-signal-detection/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Claim 11 (Multi-Signal Language Detection)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -9874,6 +9769,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-signals-actually-combined" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The signals actually combined
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-the-three-genuinely-differentiated-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. The three genuinely differentiated properties
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-where-it-is-convergent-not-novel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Where it is convergent, not novel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-honest-limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Honest limits
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-the-number" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The number
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -9886,7 +9856,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../03-20-future-outlooks/" class="md-nav__link">
+      <a href="../03-20-future-outlooks/" class="md-nav__link">
         
   
   
@@ -9946,17 +9916,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
         
           
-          <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="">
             
   
   
@@ -9992,7 +9965,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-00-security_landscape/" class="md-nav__link">
+      <a href="../04-00-security_landscape/" class="md-nav__link">
         
   
   
@@ -10020,7 +9993,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-01-full-api-network-map/" class="md-nav__link">
+      <a href="../04-01-full-api-network-map/" class="md-nav__link">
         
   
   
@@ -10048,7 +10021,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-02-sbom-generator/" class="md-nav__link">
+      <a href="../04-02-sbom-generator/" class="md-nav__link">
         
   
   
@@ -10076,7 +10049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-03-supply-chain-firewall/" class="md-nav__link">
+      <a href="../04-03-supply-chain-firewall/" class="md-nav__link">
         
   
   
@@ -10104,7 +10077,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-04-vault-sentinel/" class="md-nav__link">
+      <a href="../04-04-vault-sentinel/" class="md-nav__link">
         
   
   
@@ -10132,7 +10105,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-05-binary-anomaly-detector/" class="md-nav__link">
+      <a href="../04-05-binary-anomaly-detector/" class="md-nav__link">
         
   
   
@@ -10160,7 +10133,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-06-pii-leak-hunter/" class="md-nav__link">
+      <a href="../04-06-pii-leak-hunter/" class="md-nav__link">
         
   
   
@@ -10188,7 +10161,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../04-07-terabyte-log-scanner/" class="md-nav__link">
+      <a href="../04-07-terabyte-log-scanner/" class="md-nav__link">
         
   
   
@@ -10266,17 +10239,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_5" >
         
           
-          <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_5" id="__nav_6_5_label" tabindex="">
             
   
   
@@ -10312,7 +10288,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-01-legacy-refraction-controller/" class="md-nav__link">
+      <a href="../05-01-legacy-refraction-controller/" class="md-nav__link">
         
   
   
@@ -10340,7 +10316,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-02-spring-boot-scaffolding/" class="md-nav__link">
+      <a href="../05-02-spring-boot-scaffolding/" class="md-nav__link">
         
   
   
@@ -10368,7 +10344,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-03-entity-and-memory-mapping/" class="md-nav__link">
+      <a href="../05-03-entity-and-memory-mapping/" class="md-nav__link">
         
   
   
@@ -10396,7 +10372,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-04-api-and-service-contracts/" class="md-nav__link">
+      <a href="../05-04-api-and-service-contracts/" class="md-nav__link">
         
   
   
@@ -10424,7 +10400,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-05-autonomous-agent-tickets/" class="md-nav__link">
+      <a href="../05-05-autonomous-agent-tickets/" class="md-nav__link">
         
   
   
@@ -10452,7 +10428,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-06-batch-test-harness/" class="md-nav__link">
+      <a href="../05-06-batch-test-harness/" class="md-nav__link">
         
   
   
@@ -10480,7 +10456,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-07-mainframe-compiler-forge/" class="md-nav__link">
+      <a href="../05-07-mainframe-compiler-forge/" class="md-nav__link">
         
   
   
@@ -10508,7 +10484,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-08-dag-architect/" class="md-nav__link">
+      <a href="../05-08-dag-architect/" class="md-nav__link">
         
   
   
@@ -10536,7 +10512,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-09-etl-unpacker/" class="md-nav__link">
+      <a href="../05-09-etl-unpacker/" class="md-nav__link">
         
   
   
@@ -10564,7 +10540,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-10-graveyard-reaper/" class="md-nav__link">
+      <a href="../05-10-graveyard-reaper/" class="md-nav__link">
         
   
   
@@ -10592,7 +10568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-11-jcl-meta-auditor/" class="md-nav__link">
+      <a href="../05-11-jcl-meta-auditor/" class="md-nav__link">
         
   
   
@@ -10620,7 +10596,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-12-zero-trust-jcl-forge/" class="md-nav__link">
+      <a href="../05-12-zero-trust-jcl-forge/" class="md-nav__link">
         
   
   
@@ -10648,7 +10624,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-13-lexical-patcher/" class="md-nav__link">
+      <a href="../05-13-lexical-patcher/" class="md-nav__link">
         
   
   
@@ -10676,7 +10652,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-14-microservice-slicer/" class="md-nav__link">
+      <a href="../05-14-microservice-slicer/" class="md-nav__link">
         
   
   
@@ -10704,7 +10680,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-15-cloud-schema-forge/" class="md-nav__link">
+      <a href="../05-15-cloud-schema-forge/" class="md-nav__link">
         
   
   
@@ -10732,7 +10708,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-16-anomaly-agent-task-forge/" class="md-nav__link">
+      <a href="../05-16-anomaly-agent-task-forge/" class="md-nav__link">
         
   
   
@@ -10760,7 +10736,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../05-17-system-limits-reporter/" class="md-nav__link">
+      <a href="../05-17-system-limits-reporter/" class="md-nav__link">
         
   
   
@@ -10810,17 +10786,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_6" >
         
           
-          <label class="md-nav__link" for="__nav_6_6" id="__nav_6_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_6" id="__nav_6_6_label" tabindex="">
             
   
   
@@ -10856,7 +10835,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../06-01-gitgalaxy-config/" class="md-nav__link">
+      <a href="../06-01-gitgalaxy-config/" class="md-nav__link">
         
   
   
@@ -10884,7 +10863,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../06-02-language-standards/" class="md-nav__link">
+      <a href="../06-02-language-standards/" class="md-nav__link">
         
   
   
@@ -10912,7 +10891,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../06-03-analysis-lens/" class="md-nav__link">
+      <a href="../06-03-analysis-lens/" class="md-nav__link">
         
   
   
@@ -10980,17 +10959,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_7" >
         
           
-          <label class="md-nav__link" for="__nav_6_7" id="__nav_6_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_7" id="__nav_6_7_label" tabindex="">
             
   
   
@@ -11026,7 +11008,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-01-code-complexity/" class="md-nav__link">
+      <a href="../07-01-code-complexity/" class="md-nav__link">
         
   
   
@@ -11054,7 +11036,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-02-stars-size/" class="md-nav__link">
+      <a href="../07-02-stars-size/" class="md-nav__link">
         
   
   
@@ -11082,7 +11064,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-03-stars-pulse-rate/" class="md-nav__link">
+      <a href="../07-03-stars-pulse-rate/" class="md-nav__link">
         
   
   
@@ -11110,7 +11092,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-04-stars-shape/" class="md-nav__link">
+      <a href="../07-04-stars-shape/" class="md-nav__link">
         
   
   
@@ -11138,7 +11120,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-05-satellite-unit/" class="md-nav__link">
+      <a href="../07-05-satellite-unit/" class="md-nav__link">
         
   
   
@@ -11166,7 +11148,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-06-satellite-orbital-distance/" class="md-nav__link">
+      <a href="../07-06-satellite-orbital-distance/" class="md-nav__link">
         
   
   
@@ -11194,7 +11176,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-07-number-of-satellites/" class="md-nav__link">
+      <a href="../07-07-number-of-satellites/" class="md-nav__link">
         
   
   
@@ -11222,7 +11204,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-08-relative-positioning/" class="md-nav__link">
+      <a href="../07-08-relative-positioning/" class="md-nav__link">
         
   
   
@@ -11250,7 +11232,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-09-node-size/" class="md-nav__link">
+      <a href="../07-09-node-size/" class="md-nav__link">
         
   
   
@@ -11278,7 +11260,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-10-planetary-rings/" class="md-nav__link">
+      <a href="../07-10-planetary-rings/" class="md-nav__link">
         
   
   
@@ -11306,7 +11288,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-11-sequence-affinity/" class="md-nav__link">
+      <a href="../07-11-sequence-affinity/" class="md-nav__link">
         
   
   
@@ -11334,7 +11316,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../07-12-misc-equations/" class="md-nav__link">
+      <a href="../07-12-misc-equations/" class="md-nav__link">
         
   
   
@@ -11420,17 +11402,20 @@
       
       
         
+          
+          
+        
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_8" >
         
           
-          <label class="md-nav__link" for="__nav_6_8" id="__nav_6_8_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6_8" id="__nav_6_8_label" tabindex="">
             
   
   
@@ -11466,7 +11451,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-01-methodology/" class="md-nav__link">
+      <a href="../08-01-methodology/" class="md-nav__link">
         
   
   
@@ -11494,7 +11479,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-02-sub-equations/" class="md-nav__link">
+      <a href="../08-02-sub-equations/" class="md-nav__link">
         
   
   
@@ -11522,7 +11507,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-03-transforming-regex-counts/" class="md-nav__link">
+      <a href="../08-03-transforming-regex-counts/" class="md-nav__link">
         
   
   
@@ -11550,7 +11535,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-04-ownership-entropy/" class="md-nav__link">
+      <a href="../08-04-ownership-entropy/" class="md-nav__link">
         
   
   
@@ -11578,7 +11563,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-05-cognitive-load/" class="md-nav__link">
+      <a href="../08-05-cognitive-load/" class="md-nav__link">
         
   
   
@@ -11606,7 +11591,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-06-deep-churn/" class="md-nav__link">
+      <a href="../08-06-deep-churn/" class="md-nav__link">
         
   
   
@@ -11634,7 +11619,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-07-structural-fortification/" class="md-nav__link">
+      <a href="../08-07-structural-fortification/" class="md-nav__link">
         
   
   
@@ -11662,7 +11647,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-08-technical-debt/" class="md-nav__link">
+      <a href="../08-08-technical-debt/" class="md-nav__link">
         
   
   
@@ -11690,7 +11675,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-09-documentation-risk/" class="md-nav__link">
+      <a href="../08-09-documentation-risk/" class="md-nav__link">
         
   
   
@@ -11718,7 +11703,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-10-file-stability/" class="md-nav__link">
+      <a href="../08-10-file-stability/" class="md-nav__link">
         
   
   
@@ -11746,7 +11731,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-11-test-coverage/" class="md-nav__link">
+      <a href="../08-11-test-coverage/" class="md-nav__link">
         
   
   
@@ -11774,7 +11759,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-12-civil-war/" class="md-nav__link">
+      <a href="../08-12-civil-war/" class="md-nav__link">
         
   
   
@@ -11802,7 +11787,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-13-graveyard-detector/" class="md-nav__link">
+      <a href="../08-13-graveyard-detector/" class="md-nav__link">
         
   
   
@@ -11830,7 +11815,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-14-api-exposure/" class="md-nav__link">
+      <a href="../08-14-api-exposure/" class="md-nav__link">
         
   
   
@@ -11858,7 +11843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-15-concurrency-exposure/" class="md-nav__link">
+      <a href="../08-15-concurrency-exposure/" class="md-nav__link">
         
   
   
@@ -11886,7 +11871,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-16-state-flux-exposure/" class="md-nav__link">
+      <a href="../08-16-state-flux-exposure/" class="md-nav__link">
         
   
   
@@ -11914,7 +11899,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-18-specification-alignment/" class="md-nav__link">
+      <a href="../08-18-specification-alignment/" class="md-nav__link">
         
   
   
@@ -11942,7 +11927,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-19-obscured-payload-exposure/" class="md-nav__link">
+      <a href="../08-19-obscured-payload-exposure/" class="md-nav__link">
         
   
   
@@ -11970,7 +11955,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-21-injection-surface-exposure/" class="md-nav__link">
+      <a href="../08-21-injection-surface-exposure/" class="md-nav__link">
         
   
   
@@ -11998,7 +11983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-22-memory-corruption-exposure/" class="md-nav__link">
+      <a href="../08-22-memory-corruption-exposure/" class="md-nav__link">
         
   
   
@@ -12026,7 +12011,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../08-23-hardcoded-secrets-exposure/" class="md-nav__link">
+      <a href="../08-23-hardcoded-secrets-exposure/" class="md-nav__link">
         
   
   
@@ -12082,32 +12067,62 @@
   
 
 
-<h1 id="architectural-brief-fastapi">Architectural Brief: fastapi</h1>
-<h2 id="1-information-flow-purpose-the-executive-summary">1. Information Flow &amp; Purpose (The Executive Summary)</h2>
-<p>The <code>fastapi</code> repository contains the source code for the high-performance Python web framework of the same name. Written predominantly in Python (92.5%), information flows from HTTP request ingestion via decorator-based endpoints (<code>fastapi/routing.py</code>), through an expansive dependency injection system (<code>fastapi/dependencies/models.py</code>), and ultimately to OpenAPI schema generation (<code>fastapi/openapi/utils.py</code>).</p>
-<p>The architecture maps to a <code>Cluster 3</code> macro-species with a high Architectural Drift Z-Score of 4.896. This deviation, coupled with a Modularity of 0.0, is characteristic of modern microframeworks that rely on tightly bound, cross-cutting concerns (like dynamic Pydantic schema validation and automated documentation) rather than strict, decoupled service boundaries.</p>
-<h2 id="2-notable-structures-architecture">2. Notable Structures &amp; Architecture</h2>
-<p>The dependency graph indicates a highly centralized, monolithic topology where everything orbits a few internal APIs.
-* <strong>Foundational Load-Bearers:</strong> <code>fastapi/params.py</code> (22 inbound connections) and <code>fastapi/dependencies/models.py</code> (10 inbound) act as the structural bedrock. They define the dependency injection primitives and parameter schemas that the entire framework builds upon.
-* <strong>Fragile Orchestrators:</strong> Files acting as the primary execution engine, specifically <code>fastapi/routing.py</code> (19 outbound dependencies) and <code>fastapi/openapi/utils.py</code> (16 outbound), are highly fragile. They pull together underlying validation, routing, and schema components to bind HTTP interactions into unified contexts.</p>
-<h2 id="3-security-vulnerabilities">3. Security &amp; Vulnerabilities</h2>
-<p><strong>✅ SECURE: No Malware Detected.</strong> The XGBoost Structural DNA model found no malicious artifacts.</p>
-<p>The rule-based security lens flagged core routing and security modules (e.g., <code>fastapi/routing.py</code>, <code>fastapi/applications.py</code>, and <code>fastapi/security/oauth2.py</code>) for "Exploit Generation Surface." In the context of a web framework, this is the intended operational reality: these files are explicitly designed to parse unvalidated network input, manage authentication state, and evaluate dynamic execution pathways based on client requests. Ecosystem audits confirm 0 blacklisted dependencies and a clean supply chain.</p>
-<h2 id="4-outliers-extremes">4. Outliers &amp; Extremes</h2>
-<p>The repository contains localized technical debt, significant data gravity, and extreme ownership silos within its core routing and documentation engines:
-* <strong>The Routing Hotspot:</strong> <code>fastapi/routing.py</code> is a severe structural outlier. It suffers from 100% historical churn and 100% Technical Debt exposure. Its core <code>get_request_handler</code> function possesses high Database Complexity (26) and acts as the primary source of developer friction during request resolution.
-* <strong>Algorithmic Choke Points:</strong> The OpenAPI schema generation heavily relies on recursive traversals. <code>get_openapi</code> in <code>fastapi/openapi/utils.py</code> represents the heaviest function in the framework (Impact: 343.8, DB Complexity: 54), acting as a massive data-gravity well that processes the entire application routing tree.
-* <strong>Key Person Dependencies (Silos):</strong> The framework's core infrastructure is entirely siloed. Sebastián Ramírez holds 100% isolated ownership over the most critical, load-bearing files, including <code>fastapi/routing.py</code>, <code>fastapi/applications.py</code>, and <code>fastapi/openapi/utils.py</code>. This represents an extreme 'Bus Factor' risk.
-* <strong>Blind Bottlenecks:</strong> Foundational parameter definitions in <code>fastapi/params.py</code> (Blast Radius: 2.2) carry a 76.4% Documentation Risk. It operates as a critical dependency that downstream consumers must navigate with limited explicit intent definitions.</p>
-<h2 id="5-recommended-next-steps-refactoring-for-stability">5. Recommended Next Steps (Refactoring for Stability)</h2>
-<p>To stabilize the framework's internal architecture and reduce technical debt, prioritize the following engineering efforts:</p>
-<ol>
-<li><strong>Decompose the Routing Orchestrator:</strong> <code>fastapi/routing.py</code> is collapsing under technical debt and high churn. Extract the dense request parsing and dependency resolution logic currently housed in <code>get_request_handler</code> into isolated, testable utility functions to reduce the file's cognitive load and lower its 100% debt exposure.</li>
-<li><strong>Mitigate Core Knowledge Silos:</strong> Immediately distribute architectural knowledge regarding the OpenAPI generator (<code>fastapi/openapi/utils.py</code>) and the application router. Mandate cross-team code reviews and assign secondary maintainers to these critical files to break the absolute ownership isolation held by Sebastián Ramírez.</li>
-<li><strong>Illuminate the Parameter Definitions:</strong> Enforce comprehensive docstrings on the foundational types inside <code>fastapi/params.py</code>. As the primary load-bearer for the dependency injection engine, reducing its Documentation Risk will prevent silent regressions for downstream contributors modifying the framework's core API.</li>
-</ol>
+<h1 id="claim-11-multi-signal-language-detection-inference-with-provenance-not-a-waterfall">Claim 11: Multi-Signal Language Detection (Inference With Provenance, Not a Waterfall)</h1>
+<p>Most language detectors answer one question — <em>"what language is this file?"</em> — and return one thing: a label. GitGalaxy answers a different question — <em>"what language is this file, how do we know, and how much should you trust that?"</em> — and returns three things: a language, a <strong>trust tier</strong>, and a human-readable <strong>proof of how it was reached</strong>.</p>
+<p>The premise is that a file extension is an <strong>assertion, not evidence</strong>. <code>payload.json</code> can be a shell script; <code>notes.txt</code> can be a PowerShell payload with a <code>.txt</code> coat on. Treating the extension as ground truth is how a scanner gets lied to. So detection here is a multi-signal inference that weighs several independent, zero-dependency signals against each other and attaches an explicit confidence to the verdict — never a single waterfall that falls through to a bare guess.</p>
+<p>This page argues the design. For the mechanical tier-by-tier reference, see <strong><a href="../02-05-language-lens/">Language Lens</a></strong>.</p>
 <hr />
-<p><strong><a href="../../">⬅️ Back to Master Index</a></strong></p>
+<h2 id="1-the-signals-actually-combined">1. The signals actually combined</h2>
+<p>All of these are computed with <strong>no trained model and no sample corpus</strong> — pure structure, resolvable on an air-gapped box:</p>
+<ul>
+<li><strong>Exact filename anchors</strong> — <code>Makefile</code>, <code>Dockerfile</code>, <code>setup.py</code>, <code>SConstruct</code> are their language regardless of extension.</li>
+<li><strong>Extension</strong>, with multi-suffix unwrapping for wrapper extensions — <code>script.sh.template</code> resolves through <code>.template</code> to <code>.sh</code>, but only when the inner suffix is a known safe wrapper (so <code>malware.exe.txt</code> is <em>not</em> unwrapped into an executable).</li>
+<li><strong>Shebang</strong>, matched on the interpreter basename as a token — never an unanchored substring (the #3116 fix: a canonical <code>#!/usr/bin/tclsh</code> is no longer defeated by, nor confused with, an unrelated line that merely contains those characters).</li>
+<li><strong>Prose anchors</strong> — README / LICENSE / CONTRIBUTING-family files, with affix matching.</li>
+<li><strong>Sibling anchors</strong> — <code>foo.h</code> resolves to C when <code>foo.c</code> is in the directory tally, C++ when <code>foo.cpp</code> is, Objective-C when <code>foo.m</code> is.</li>
+<li><strong>Ecosystem gravity</strong> — a directory-local census combined with per-language discriminators and disqualifiers, gated on <code>ECOSYSTEM_DOMINANCE_MIN</code> (0.70). For a <em>same-extension</em> collision — where counting extensions is information-free because both rivals share the extension — gravity now weighs what the neighbours <strong>actually classified as by their own content</strong>, not merely their filenames (the #3137 sibling-classification vote).</li>
+<li><strong><code>internal_discriminator</code> content regexes</strong> — consulted <em>only</em> for registry-declared collision extensions, never as global scanners (an Objective-C <code>@implementation</code> pattern must not be free to hijack an unrelated <code>.m</code> MATLAB file).</li>
+<li><strong>A full lexical scan</strong> that scores the file against each candidate language's own structural-signature rules.</li>
+<li><strong>A discovery funnel</strong> for extensionless files that isolates the comment family first, then requires a 1.5× margin over the runner-up before it will name a language.</li>
+<li><strong>Caller-supplied context priors</strong> from upstream metadata.</li>
+</ul>
+<hr />
+<h2 id="2-the-three-genuinely-differentiated-properties">2. The three genuinely differentiated properties</h2>
+<p>This is the honest core of the claim — the part with no obvious counterpart in Linguist, enry, guesslang, Pygments, or libmagic.</p>
+<ul>
+<li>
+<p><strong>Agreement-based tiering with provenance.</strong> Two independent signals concurring (extension <em>and</em> shebang, say) lock <strong>Tier 0</strong> at 0.999; a single indicator lands <strong>Tier 2</strong> at 0.91. Every result carries a numeric <code>lock_tier</code> and a human-readable <code>source_proof</code> string — <code>"Absolute Consensus (Ext + Shebang)"</code>, <code>"Sibling Anchor (.c)"</code>, <code>"Collision Resolved (.py -&gt; embedded_python)"</code>. The engine reports not just the answer but <em>how it was reached and how much to trust it</em>. Mainstream detectors return a label and keep their reasoning to themselves.</p>
+</li>
+<li>
+<p><strong>Identity conflict as a refusal — and as a security signal.</strong> When the extension and the shebang name two different languages, the file is <strong>not</strong> resolved to a best guess. It drops to <strong>Tier 5, "Absolute Distrust"</strong>: <code>undeterminable</code>, intensity <code>0.0</code>, with an <code>Identity Masking</code> anomaly flag raised for the security engine. The contradiction <em>is</em> the finding — a <code>.txt</code> that re-execs a shell is more interesting <em>because</em> it lies about itself than any confident label could ever be. A generic-shell launcher that re-execs an interpreter its own extension already claims (a portable <code>.tcl</code> trampoline) is explicitly cleared, so the refusal fires on masquerade, not on legitimate bootstrapping.</p>
+</li>
+<li>
+<p><strong>Repo-context inference.</strong> Gravity and sibling anchors classify a file using its <strong>neighbours</strong> — something a stateless, file-by-file classifier structurally cannot express. This is what makes the mainframe family tractable: an EQU-only copybook is HLASM <em>because it sits beside JCL and COBOL</em>, and a telemetry <code>.py</code> with no hardware imports is MicroPython <em>because every resolvable file around it resolved to MicroPython by content</em>. A per-file oracle has no vocabulary for "because of where it lives."</p>
+</li>
+</ul>
+<hr />
+<h2 id="3-where-it-is-convergent-not-novel">3. Where it is convergent, not novel</h2>
+<p>Stating this plainly makes the claim <em>stronger</em>, not weaker.</p>
+<p>The collision-registry-plus-content-discriminator mechanism is, functionally, what GitHub Linguist does in <code>heuristics.yml</code>. The per-language lexical self-scoring is, architecturally, what Pygments does with <code>analyse_text()</code>. We did not invent disambiguation-by-content or scoring-by-structural-fingerprint.</p>
+<p>Arriving independently at the same disambiguation structure as the tool calibrated against millions of repositories is a <strong>validation</strong> of the design — not an embarrassment, and not something to dress up as invention. A writeup that claimed novelty for those two parts would be falsifiable in five minutes by anyone who knows the field, and would discredit the three real claims above by association.</p>
+<p>The honest framing: <em>GitGalaxy independently arrived at the field's disambiguation architecture — with no dependencies and no training data — and then added provenance tiering, identity-conflict refusal, and repo-context inference on top of it.</em></p>
+<hr />
+<h2 id="4-honest-limits">4. Honest limits</h2>
+<p>Mirroring Claim 10's own §3, because that section is what makes it credible.</p>
+<p><strong>The lexical scan's scoring constants are hand-tuned and uncalibrated.</strong> In <code>_tier_3_lexical_scan</code> the score is assembled from: per-rule-hit weights; a comment-delimiter bonus of <code>+= 15.0</code> awarded on a plain substring test (<code>if d in content</code>); two <code>1.25×</code> boosts (one for the gravity winner, one for the extension-tier claimed language); a hardcoded <code>0.4×</code> handicap for exactly three broad-ruleset languages (<code>if lid in ("abap", "fortran", "cobol")</code>); log-normalisation by lines of code (<code>raw_score / math.log1p(loc)</code>); and a final confidence derived by dividing the top signal by 50 (<code>min(top_signal / 50.0, 1.0)</code>). These numbers work on the corpus we have. None of them is calibrated against a probabilistic model, and that is the next real piece of work here, not a solved problem.</p>
+<p><strong>The design catches its own defects — and this section is the receipt.</strong> The <a href="../02-05-language-lens/">#3117 detection-accuracy harness</a> exists precisely so that a stably-wrong classification cannot hide behind green golden-master tests. On its first runs it surfaced, and the engine has since closed, four real defects: an EQU-only copybook misclassified via gravity (#3110); canonical shebangs forced to a false Tier 5 conflict by unanchored substring matching (#3116); silent tie-breaking by registry order on contested extensions (#3118); and gravity's structural blindness to same-extension collisions, which resolved by pinning to a discriminator self-reference until the sibling-classification vote replaced it (#3132 / #3137). A detector whose own harness finds real bugs and whose maintainers fix rather than relabel them is the honest kind.</p>
+<hr />
+<h2 id="5-the-number">5. The number</h2>
+<p>A claims page that asserts architectural superiority with no measured accuracy is the weakest possible form of this document. So here is the measurement, from the #3117 harness against the pinned 51-language <code>language-crucible</code> corpus (3,531 files):</p>
+<ul>
+<li><strong>Determinable accuracy: 3,231 / 3,231 = 1.0</strong> — every file with a single defensible language got that language.</li>
+<li><strong>Ambiguous rejection: 1 / 1 = 1.0</strong> — every file with <em>no</em> single defensible language was declined (<code>undeterminable</code>), not guessed. This objective is scored <em>inverted</em>: a refusal passes, a confident verdict fails. Driving one objective up by guessing harder drives the other down, so the two cannot be gamed the same way.</li>
+<li><strong>Confusion matrix: empty.</strong></li>
+</ul>
+<p>The honest caveat travels with the figure. Most of the corpus is auto-labelled <em>by extension</em>, and extension is also the detector's primary signal — so on that subset the oracle and the system under test share an input, and a high score there is partly tautological. The number that actually measures disambiguation is the <strong>hand-labelled contested subset</strong> (files on shared extensions, where content and context must decide): <strong>509 / 509 = 1.0</strong>. And 1.0 on a finite, pinned corpus is a <strong>generalisation estimate</strong>, not a proof of universal perfection — its value is as evidence that the two failure modes are both driven to target on independent ground truth, not as a guarantee about all code everywhere.</p>
+<hr />
+<p><strong>See also:</strong> <a href="../02-05-language-lens/">Language Lens</a> — the mechanical tier-by-tier reference for the engine this claim argues for.</p>
+<p><strong><a href="../">⬅️ Back to Master Index</a></strong></p>
 
 
 
@@ -12188,12 +12203,12 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "toc.integrate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.indexes", "search.suggest", "search.highlight", "content.code.copy", "toc.integrate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
-        <script src="../../javascripts/mathjax.js"></script>
+        <script src="../javascripts/mathjax.js"></script>
       
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
       

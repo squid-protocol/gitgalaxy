@@ -44,7 +44,10 @@ _NAME = r"[A-Z0-9][A-Z0-9\-]*"
 
 # A fixed-format unit header: `NAME.` or `NAME SECTION [nn].` starting in Area A
 # (cols 8-11), alone on its line.
-_UNIT_HEADER = re.compile(rf"^[^\n]{{6}} {{1,4}}({_NAME})(\s+SECTION(?:\s+[0-9]{{1,2}})?)?\s*\.[ \t]*$")
+# Built from fragments: cols 1-7, then the name starting in cols 8-11.
+_AREA_A_START = r"^[^\n]{6} {1,4}"
+_SECTION_SUFFIX = r"(\s+SECTION(?:\s+[0-9]{1,2})?)?"
+_UNIT_HEADER = re.compile(_AREA_A_START + f"({_NAME})" + _SECTION_SUFFIX + r"\s*\.[ \t]*$")
 
 # Control flow read by the reachability pass (#3203 defect 5).
 _PERFORM = re.compile(rf"\bPERFORM\s+({_NAME})(?:\s+(?:THRU|THROUGH)\s+({_NAME}))?")

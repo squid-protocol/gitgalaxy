@@ -1,4 +1,5 @@
 import sys
+import time
 from unittest.mock import patch
 
 # IMPORTANT: Adjust this path to match exactly where your file is located
@@ -343,3 +344,56 @@ def test_cics_handle_labels_and_comments(tmp_path):
         "       COMMENTED-OUT.",
         "           DISPLAY 'NEVER'.",
     ) == {"COMMENTED-OUT"}
+
+
+# ==============================================================================
+# #3222: the REPLACING pair scan starts only at a token boundary
+# ==============================================================================
+def test_replacing_pairs_are_linear_in_the_clause_length():
+    """Without the boundary lookbehind, every position inside a long name is a
+    candidate start that consumes the rest of the name before failing on the
+    required `BY`. 20k name characters cost 10s before, ~1ms after."""
+    start = time.perf_counter()
+    pairs = graveyard_module._REPLACING_PAIR.findall("A" * 20000)
+    elapsed = time.perf_counter() - start
+
+    assert pairs == []
+    assert elapsed < 5.0, f"REPLACING pair scan took {elapsed:.2f}s on a 20k-character name"
+
+
+def test_replacing_pairs_are_unchanged_by_the_boundary_anchor():
+    """The lookbehind captures the same pairs: a name run is greedy and cannot stop
+    inside a token, so a mid-token start would report the same two names anyway."""
+    clause = " ==TAG== BY ==WS-CUST== LEADING BY TRAILING ==A-1== BY ==B_2== "
+
+    assert graveyard_module._REPLACING_PAIR.findall(clause) == [
+        ("TAG", "WS-CUST"),
+        ("LEADING", "TRAILING"),
+        ("A-1", "B_2"),
+    ]
+    # Pre-existing and unchanged: `:` is outside the name class, so a `:TAG:`
+    # pseudo-text name matches neither the old pattern nor this one.
+    assert graveyard_module._REPLACING_PAIR.findall("==:TAG:== BY ==WS-CUST==") == []
+
+
+def test_replacing_clause_still_substitutes_into_the_copybook(tmp_path):
+    """End to end: the extracted pair renames the whole token, so the aliased field
+    is the one the dead-code X-ray sees referenced."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "TAGCOPY.cpy").write_text("       01 TAG-BALANCE PIC 9(5).\n", encoding="utf-8")
+    pgm = repo / "PGM.cbl"
+    pgm.write_text(
+        "       PROGRAM-ID. PGM.\n"
+        "       WORKING-STORAGE SECTION.\n"
+        "           COPY TAGCOPY REPLACING ==TAG-BALANCE== BY ==WS-CUST-BALANCE==.\n"
+        "       PROCEDURE DIVISION.\n"
+        "       A010.\n"
+        "           MOVE 1 TO WS-CUST-BALANCE.\n",
+        encoding="utf-8",
+    )
+
+    resolved = graveyard_module.resolve_copybooks(pgm.read_text(), pgm, copybook_root=repo)
+    assert "01 WS-CUST-BALANCE" in resolved
+    assert "01 TAG-BALANCE" not in resolved
+    assert graveyard_module.x_ray_dead_code(pgm, copybook_root=repo)["orphaned_vars"] == set()

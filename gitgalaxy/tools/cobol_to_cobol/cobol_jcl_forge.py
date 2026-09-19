@@ -20,6 +20,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+_FILE_ASSIGN_ANCHOR = re.compile(
+    r"SELECT\s+([A-Z0-9\-]+)\s+ASSIGN\s+(?:TO\s+)?([A-Z0-9\-]+)",
+    re.IGNORECASE,
+)
+
 
 def analyze_cobol_intent(filepath: Path) -> dict:
     """Extracts execution intent and data boundaries from legacy source code."""
@@ -52,11 +57,19 @@ def analyze_cobol_intent(filepath: Path) -> dict:
             intent["program_id"] = filepath.stem.upper()
 
         # 3. BATCH I/O: Extract all File Assignments
-        file_assign_pattern = re.compile(
-            r"SELECT\s+([A-Z0-9\-]+)\s+ASSIGN\s+(?:TO\s+)?([A-Z0-9\-]+)[^.]*\.",
-            re.IGNORECASE,
-        )
-        for match in file_assign_pattern.finditer(monolith_code):
+        # #3222: the pattern used to carry the rest of the statement as
+        # `[^.]*\.`, which rescans to the next period from every SELECT (the
+        # #3205 shape). The terminator is still required -- an ASSIGN with no
+        # period after it is not a statement -- but it is now found with
+        # str.find, which visits each character once.
+        consumed = 0
+        for match in _FILE_ASSIGN_ANCHOR.finditer(monolith_code):
+            if match.start() < consumed:
+                continue
+            stop = monolith_code.find(".", match.end())
+            if stop == -1:
+                continue
+            consumed = stop + 1
             internal_name = match.group(1).strip()
             raw_dd = match.group(2).strip()
             clean_dd = re.sub(r"^(?:UT|UR)-S-", "", raw_dd)

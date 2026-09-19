@@ -1,4 +1,5 @@
 import sys
+import time
 from unittest.mock import patch
 
 import pytest
@@ -200,3 +201,45 @@ def test_masking_covers_a_dead_section_in_sequence_numbered_source(tmp_path):
 
     assert lineage["inputs"] == {"LIVEDD"}
     assert lineage["outputs"] == set()
+
+
+# ==============================================================================
+# #3222: the OPEN operand run is sliced, not rescanned
+# ==============================================================================
+def test_open_operand_run_is_linear_on_unterminated_input(tmp_path):
+    """`[^.]*\\.` inside the pattern rescanned to the end of the program from every
+    OPEN. 20k unterminated OPENs cost 24s before, ~1ms after."""
+    pgm = tmp_path / "BIG.cbl"
+    pgm.write_text(
+        "       PROGRAM-ID. BIG.\n       PROCEDURE DIVISION.\n" + "           OPEN INPUT WS-F\n" * 20000,
+        encoding="utf-8",
+    )
+
+    start = time.perf_counter()
+    lineage = dag_module.extract_lineage(pgm)
+    elapsed = time.perf_counter() - start
+
+    # No period anywhere, so no OPEN is a statement -- the old pattern's rule, kept.
+    assert not lineage["inputs"] and not lineage["outputs"]
+    assert elapsed < 5.0, f"OPEN scan took {elapsed:.2f}s on 20k unterminated OPENs"
+
+
+def test_open_statements_still_read_every_mode_after_anchoring(tmp_path):
+    """The anchored scan keeps #3204's multi-mode walk and stops at the period."""
+    pgm = tmp_path / "IO.cbl"
+    pgm.write_text(
+        "       PROGRAM-ID. IO.\n"
+        "       FILE-CONTROL.\n"
+        "           SELECT F-IN ASSIGN TO DDIN.\n"
+        "           SELECT F-OUT ASSIGN TO DDOUT.\n"
+        "           SELECT F-UPD ASSIGN TO DDUPD.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           OPEN INPUT F-IN OUTPUT F-OUT.\n"
+        "           OPEN I-O F-UPD.\n",
+        encoding="utf-8",
+    )
+
+    lineage = dag_module.extract_lineage(pgm)
+
+    assert sorted(lineage["inputs"]) == ["DDIN", "DDUPD"]
+    assert sorted(lineage["outputs"]) == ["DDOUT", "DDUPD"]

@@ -1,4 +1,5 @@
 import sys
+import time
 from unittest.mock import patch
 
 # IMPORTANT: Adjust this path to match exactly where your file is located
@@ -163,3 +164,42 @@ def test_unterminated_exec_on_large_input_is_linear(tmp_path):
     pgm.write_text("       PROCEDURE DIVISION.\n" + "           EXEC CICS X\n" * 20000, encoding="utf-8")
 
     assert forge_module.analyze_cobol_intent(pgm)["cics_calls"] == 20000
+
+
+# ==============================================================================
+# #3222: the SELECT/ASSIGN statement tail is sliced, not rescanned
+# ==============================================================================
+def test_select_assign_is_linear_on_unterminated_input(tmp_path):
+    """`[^.]*\\.` after ASSIGN rescanned to the next period from every SELECT -- the
+    #3205 shape. 20k period-less SELECTs cost 21s before, ~1ms after."""
+    pgm = tmp_path / "BIG.cbl"
+    pgm.write_text(
+        "       FILE-CONTROL.\n" + "           SELECT F1 ASSIGN TO DD1\n" * 20000,
+        encoding="utf-8",
+    )
+
+    start = time.perf_counter()
+    intent = forge_module.analyze_cobol_intent(pgm)
+    elapsed = time.perf_counter() - start
+
+    # The terminator is still required, so none of these is a statement.
+    assert intent["files_requested"] == []
+    assert elapsed < 5.0, f"SELECT scan took {elapsed:.2f}s on 20k unterminated SELECTs"
+
+
+def test_select_assign_still_reads_every_statement_after_anchoring(tmp_path):
+    """The anchored scan keeps the UT-/UR- strip and the one-statement-per-period rule."""
+    pgm = tmp_path / "IO.cbl"
+    pgm.write_text(
+        "       FILE-CONTROL.\n"
+        "           SELECT F-IN ASSIGN TO UT-S-DDIN\n"
+        "               ORGANIZATION IS SEQUENTIAL.\n"
+        "           SELECT F-OUT ASSIGN DDOUT\n"
+        "               FILE STATUS IS WS-ST.\n",
+        encoding="utf-8",
+    )
+
+    assert forge_module.analyze_cobol_intent(pgm)["files_requested"] == [
+        {"internal": "F-IN", "dd_name": "DDIN"},
+        {"internal": "F-OUT", "dd_name": "DDOUT"},
+    ]

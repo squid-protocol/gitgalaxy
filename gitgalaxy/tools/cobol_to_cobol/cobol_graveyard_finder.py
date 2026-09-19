@@ -60,6 +60,16 @@ _CICS_TERMINAL = re.compile(r"EXEC\s+CICS\s+(?:RETURN|XCTL|ABEND)\b")
 # attention key), so a unit named in one is reached with no PERFORM or GO TO.
 _CICS_HANDLE = re.compile(r"\bEXEC\s+CICS\s+HANDLE\s+(?:ABEND|CONDITION|AID)\b(.{0,600}?)\bEND-EXEC", re.S)
 _CICS_LABEL = re.compile(rf"\(\s*({_NAME})\s*\)")
+# One `REPLACING ==A== BY ==B==` pair. #3222: the leading `(?<!...)` only lets a
+# pair start at a token boundary. Without it every position inside a long name
+# is a candidate start, each one consuming the rest of the name before failing
+# on the required `BY` -- quadratic in the clause length. It changes no pair:
+# the name run is greedy and cannot stop inside a token, so a match that starts
+# mid-token always captures the same names as the boundary start does.
+_REPLACING_PAIR = re.compile(
+    r"(?<![A-Z0-9_\-])(?:==)?([A-Z0-9_\-]+)(?:==)?\s+BY\s+(?:==)?([A-Z0-9_\-]+)(?:==)?",
+    re.IGNORECASE,
+)
 
 
 @lru_cache(maxsize=8)
@@ -305,11 +315,7 @@ def resolve_copybooks(
             # ==============================================================
             if replacing_clause:
                 # Extracts pairs, ignoring the optional == delimiters
-                pairs = re.findall(
-                    r"(?:==)?([A-Z0-9_\-]+)(?:==)?\s+BY\s+(?:==)?([A-Z0-9_\-]+)(?:==)?",
-                    replacing_clause,
-                    re.IGNORECASE,
-                )
+                pairs = _REPLACING_PAIR.findall(replacing_clause)
                 for old_val, new_val in pairs:
                     # Use negative lookarounds so we don't accidentally replace partial words with hyphens
                     cpy_content = re.sub(

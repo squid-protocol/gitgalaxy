@@ -1,37 +1,4 @@
 {
-  "offenders": [
-    {
-      "module": "gitgalaxy/tools/cobol_to_cobol/cobol_dag_architect.py",
-      "pattern": "\\bOPEN\\s+((?:INPUT|OUTPUT|I-O|EXTEND)\\b[^.]*)\\.",
-      "flags": 0,
-      "method": "finditer",
-      "reason": "slow",
-      "unit": "OPEN INPUT ",
-      "seconds": 0.4557,
-      "chars": 40000,
-      "note": "Runs over the whole masked program. `[^.]*` stops only at a period, so a program with many OPENs and no period between them (or a long unterminated tail) rescans to the end from every OPEN. Fix tracked in #3222."
-    },
-    {
-      "module": "gitgalaxy/tools/cobol_to_cobol/cobol_graveyard_finder.py",
-      "pattern": "(?:==)?([A-Z0-9_\\-]+)(?:==)?\\s+BY\\s+(?:==)?([A-Z0-9_\\-]+)(?:==)?",
-      "flags": 2,
-      "method": "findall",
-      "reason": "slow",
-      "unit": "A",
-      "seconds": 0.3783,
-      "chars": 4000,
-      "note": "Runs over one COPY statement's REPLACING clause, so real inputs are short; the unbounded name before a required `BY` is still quadratic in the clause length. Fix tracked in #3222."
-    },
-    {
-      "module": "gitgalaxy/tools/cobol_to_cobol/cobol_jcl_forge.py",
-      "pattern": "SELECT\\s+([A-Z0-9\\-]+)\\s+ASSIGN\\s+(?:TO\\s+)?([A-Z0-9\\-]+)[^.]*\\.",
-      "flags": 2,
-      "method": "findall",
-      "reason": "quadratic (15.7x for 4x the input)",
-      "unit": "SELECT X ASSIGN X ",
-      "seconds": 0.6363,
-      "chars": 160000,
-      "note": "Runs over the whole program. `[^.]*\\\\.` after ASSIGN rescans to the next period from every SELECT: the #3205 shape with a smaller constant. Fix tracked in #3222."
-    }
-  ]
+  "offenders": [],
+  "about": "#3214 ReDoS sweep baseline: known-slow refraction-tool regexes, so `--ci` fails only on a new one. Empty since #3222 bounded the last three (OPEN operands, SELECT/ASSIGN, REPLACING pairs). Add an entry only with an issue tracking its fix."
 }

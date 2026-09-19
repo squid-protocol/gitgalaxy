@@ -24,6 +24,10 @@ from typing import Optional
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import unit_header
 
 _OPEN_MODES = frozenset({"INPUT", "OUTPUT", "I-O", "EXTEND"})
+# #3222: anchor only. The operand run used to be `[^.]*\.` inside the pattern,
+# which rescans to the next period from every OPEN -- the #3205 shape. The run
+# is now sliced with str.find, which visits each character once.
+_OPEN_ANCHOR = re.compile(r"\bOPEN\s+(?=(?:INPUT|OUTPUT|I-O|EXTEND)\b)")
 
 
 def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optional[dict]:
@@ -93,9 +97,20 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optiona
     # We run this on the safe_content where unreachable logic is invisible.
     # One OPEN can carry several modes (`OPEN INPUT A B OUTPUT C D.`), so the
     # operand list is walked and the mode switches at each mode keyword (#3204).
-    for match in re.finditer(r"\bOPEN\s+((?:INPUT|OUTPUT|I-O|EXTEND)\b[^.]*)\.", safe_content):
+    consumed = 0
+    for match in _OPEN_ANCHOR.finditer(safe_content):
+        # Keep the old pattern's non-overlapping scan: an anchor inside the
+        # operand run of a statement we already read is not a second OPEN.
+        if match.start() < consumed:
+            continue
+        stop = safe_content.find(".", match.end())
+        if stop == -1:
+            # `[^.]*\.` required the terminator, so an unterminated tail matched
+            # nothing. Unchanged here.
+            continue
+        consumed = stop + 1
         mode = None
-        for internal_file in match.group(1).replace(",", " ").split():
+        for internal_file in safe_content[match.end() : stop].replace(",", " ").split():
             if internal_file in _OPEN_MODES:
                 mode = internal_file
             elif internal_file in file_map:

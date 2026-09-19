@@ -23,6 +23,9 @@ The controller uses a three-phase extraction pipeline:
    - Generates Job Control Language (JCL) execution scripts based on dataset lineage.
    - Slices business logic around target variables to output isolated JSON business rules, skipping unreachable blocks.
 
+## Engine IR Source (`--galaxy-db` / `--scan`)
+With `--galaxy-db <repo>_galaxy_master.db` (or `--scan`, which runs `galaxyscope --db-only` first), the program list, PROGRAM-ID, COPY dependency edges and paragraph inventory come from the engine's master DB via [`galaxy_ir.py`](https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py). Each IR dump gains `metadata.ir_source`, `analysis.copy_dependencies` and `analysis.engine_units`, and the audit report gains an engine inventory of every mainframe language in the repo. Dead code, dataset lineage, data items and CICS/DB2 flags stay on the tools above: the DB does not carry them yet. [`docs/refraction_engine_differential.md`](https://github.com/squid-protocol/gitgalaxy/blob/main/docs/refraction_engine_differential.md) records the measured deltas behind that split (#3120).
+
 ## Pipeline Integration
 **Inputs received:** Procedural COBOL source code files.
 **Outputs produced:** JSON Intermediate Representation (IR), PostgreSQL DDL schemas, JCL scripts.

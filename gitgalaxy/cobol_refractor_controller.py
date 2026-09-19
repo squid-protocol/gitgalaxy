@@ -38,6 +38,12 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas
 from gitgalaxy.tools.cobol_to_cobol.cobol_system_limits_reporter import (
     scan_system_limits,
 )
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import (
+    EngineFile,
+    GalaxyIR,
+    load_galaxy_ir,
+    scan_to_db,
+)
 
 # ==============================================================================
 
@@ -48,11 +54,21 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_system_limits_reporter import (
 # galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
 
-def calibrate_ir_medium(target_path: Path, max_files=2000, max_mb=200) -> tuple:
-    """Scouts the repository to determine the safest IR storage medium."""
+def calibrate_ir_medium(
+    target_path: Path,
+    max_files=2000,
+    max_mb=200,
+    cobol_files: Optional[list[Path]] = None,
+) -> tuple:
+    """Scouts the repository to determine the safest IR storage medium.
+
+    `cobol_files` is the program list when the engine's master DB supplied it
+    (#3120); otherwise the programs are found by extension.
+    """
     print("🛰️ Scouting repository mass...")
 
-    cobol_files = list(target_path.rglob("*.cbl")) + list(target_path.rglob("*.cob"))
+    if cobol_files is None:
+        cobol_files = list(target_path.rglob("*.cbl")) + list(target_path.rglob("*.cob"))
     file_count = len(cobol_files)
 
     total_bytes = sum(f.stat().st_size for f in cobol_files if f.is_file())
@@ -152,8 +168,20 @@ class IRStateManager:
 # galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
 
-def process_payload(filepath: Path, state_manager: IRStateManager, target_var: Optional[str] = None) -> dict:
-    """Processes a single COBOL payload through the enriched, shared-state pipeline."""
+def process_payload(
+    filepath: Path,
+    state_manager: IRStateManager,
+    target_var: Optional[str] = None,
+    engine_file: Optional[EngineFile] = None,
+) -> dict:
+    """Processes a single COBOL payload through the enriched, shared-state pipeline.
+
+    `engine_file` is this program's record from the engine's master DB (#3120).
+    It supplies PROGRAM-ID, the COPY dependency graph and the paragraph
+    inventory. Dead code, DD lineage and data items stay on the forge tools:
+    the DB does not carry them (see galaxy_ir.py), and `usage_status` is a
+    by-name test, not reachability, so it is recorded but never used for masking.
+    """
     print(f" ⚙️ Analyzing {filepath.name}...")
     program_id = filepath.stem
 
@@ -208,6 +236,16 @@ def process_payload(filepath: Path, state_manager: IRStateManager, target_var: O
     ir["analysis"]["base_intent"] = analyze_cobol_intent(filepath)
 
     ir["analysis"]["honesty_flags"] = scan_system_limits(filepath)
+
+    if engine_file is not None:
+        ir["metadata"]["ir_source"] = "galaxy_db"
+        if engine_file.program_ids and ir["analysis"]["base_intent"]:
+            ir["analysis"]["base_intent"]["program_id"] = engine_file.program_ids[0]
+        ir["analysis"]["copy_dependencies"] = list(engine_file.copy_deps)
+        ir["analysis"]["engine_units"] = [
+            {"name": u.name, "start_line": u.start_line, "loc": u.loc, "usage_status": u.usage_status}
+            for u in engine_file.units
+        ]
 
     # --- PHASE 2: CONTEXT-AWARE GENERATION ---
 
@@ -269,6 +307,17 @@ def main():
         type=str,
         help="Optional: A target variable to slice across the entire repository",
     )
+    ir_source = parser.add_mutually_exclusive_group()
+    ir_source.add_argument(
+        "--galaxy-db",
+        type=Path,
+        help="Use an existing galaxyscope <repo>_galaxy_master.db of TARGET as the IR source",
+    )
+    ir_source.add_argument(
+        "--scan",
+        action="store_true",
+        help="Run galaxyscope on TARGET first and use its master DB as the IR source",
+    )
     args = parser.parse_args()
 
     target_path = Path(args.target).resolve()
@@ -293,6 +342,21 @@ def main():
         slice_dir = clean_dir / "05_microservice_slices"
         directories.append(slice_dir)
 
+    # 0. Optional engine IR source (#3120)
+    galaxy_ir: Optional[GalaxyIR] = None
+    program_files: Optional[list[Path]] = None
+    if args.galaxy_db or args.scan:
+        db_path = scan_to_db(target_path, ir_dir) if args.scan else args.galaxy_db.resolve()
+        galaxy_ir = load_galaxy_ir(db_path)
+        program_files = [target_path / ef.file_path for ef in galaxy_ir.programs("cobol")]
+        missing = [p for p in program_files if not p.is_file()]
+        if missing:
+            print(
+                f"Error: {db_path.name} does not describe {target_path} ({len(missing)} programs missing, e.g. {missing[0]})."
+            )
+            sys.exit(1)
+        print(f"🔭 IR source: {db_path.name} (commit {galaxy_ir.commit_hash[:8]})")
+
     for d in directories:
         d.mkdir(parents=True, exist_ok=True)
 
@@ -304,7 +368,7 @@ def main():
     print("=" * 70 + "\n")
 
     # 1. Sense the scale of the repository
-    ir_mode, cobol_files = calibrate_ir_medium(target_path)
+    ir_mode, cobol_files = calibrate_ir_medium(target_path, cobol_files=program_files)
     if not cobol_files:
         print("⚠️ No executable COBOL files found in the target location.")
         sys.exit(0)
@@ -324,7 +388,8 @@ def main():
 
     for file_path in cobol_files:
         # Process the payload, passing the state manager for global context
-        ir_state = process_payload(file_path, state_manager, target_var=args.var)
+        engine_file = galaxy_ir.lookup(file_path, target_path) if galaxy_ir else None
+        ir_state = process_payload(file_path, state_manager, target_var=args.var, engine_file=engine_file)
 
         # Write JSON IR Dump for downstream visualizers
         ir_dump_file = ir_dir / f"{file_path.stem}_ir.json"
@@ -422,6 +487,16 @@ def main():
             f.write("  The following files contain structural anomalies that require architectural review:\n")
             for flag in master_honesty_flags:
                 f.write(f"  [!] {flag}\n")
+
+        if galaxy_ir is not None:
+            f.write("\n[5] ENGINE INVENTORY (galaxyscope master DB)\n")
+            f.write("----------------------------------------------------------\n")
+            f.write(f"  • Source DB : {galaxy_ir.db_path.name} (commit {galaxy_ir.commit_hash[:8]})\n")
+            for language, counts in galaxy_ir.inventory().items():
+                status = {"cobol": "refracted", "hlasm": "detected, wrap-or-retire (not a migration target)"}.get(
+                    language, "detected, not yet migratable"
+                )
+                f.write(f"  • {language:<10}: {counts['files']} files, {counts['units']} units ({status})\n")
         f.write("\n==========================================================\n")
 
     print("=" * 70)

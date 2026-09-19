@@ -18,6 +18,11 @@
 # Services) based on the strict COBOL structural extraction. It delegates ONLY
 # the internal business logic to the AI agent, ensuring architectural integrity
 # and guaranteed compilability out-of-the-box.
+#
+# ENGINE IR (#3120): when the staging directory came from `cobol-refractor
+# --galaxy-db/--scan`, each IR dump also carries `metadata.ir_source`,
+# `analysis.copy_dependencies` and `analysis.engine_units` from the engine's
+# master DB. Nothing here needs to change to pass them through.
 # ==============================================================================
 
 # galaxyscope:ignore sec_io

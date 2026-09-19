@@ -3,13 +3,21 @@ name: Full Suite Gate (All OS x Python)
 # Backup safety net for the full OS x Python-version matrix, now that
 # smoke-test.yml only runs the full pytest suite once per push (see that
 # file's comments for why). This workflow restores matrix coverage of the
-# entire suite at two checkpoints instead of every push:
+# entire suite at three checkpoints instead of every push:
 #   - Any label added to a pull request (an explicit "give this the full
 #     validation pass" signal -- not filtered to a specific label name, so
 #     applying ANY label triggers it).
 #   - Any release tag push (`v*`), matching publish.yml's own release
 #     trigger, as a pre-release confidence check across every supported
 #     environment.
+#   - A manual `workflow_dispatch` (#3209). The label trigger fires once, on
+#     the SHA that carried the label, so a commit pushed afterwards never runs
+#     the matrix -- #3207's Windows fix merged that way. Re-run it on a PR's
+#     current head with:
+#       gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>
+#     Add `-f full_matrix=true` for the untrimmed 12-way grid. Keeping this
+#     manual preserves the queue saving the label-only rule bought; triggering
+#     on `synchronize` would hand it back.
 #
 # The matrix is sized per checkpoint (see the `matrix` job below). Measured
 # 2026-09-09: the 12-way matrix's jobs RAN for 10-18 min but QUEUED for
@@ -23,12 +31,20 @@ name: Full Suite Gate (All OS x Python)
 # every-push ubuntu/3.12 full-suite cannot see -- while cutting macOS from
 # four jobs to two.
 # On a `v*` tag: the untrimmed 12-way matrix, unchanged.
+# On a manual run: the trimmed grid, or the untrimmed one with
+# `-f full_matrix=true`.
 on:
   pull_request:
     types: [labeled]
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      full_matrix:
+        description: "Run the untrimmed 12-way grid instead of the trimmed PR grid"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -40,6 +56,8 @@ concurrency:
   # other. cancel-in-progress is scoped to pull_request on purpose -- the
   # push/schedule/tag runs are the ones that commit (docs, history charts,
   # releases), and killing one mid-write is how you get a half-written commit.
+  # A `workflow_dispatch` groups by its ref, so a manual re-run never cancels
+  # the label run of a PR that happens to be on that branch, and vice versa.
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
@@ -56,8 +74,9 @@ jobs:
         id: pick
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
-            # Release tag: every supported environment, untrimmed.
+          if [ "${{ github.event_name }}" = "push" ] || [ "${{ inputs.full_matrix }}" = "true" ]; then
+            # Release tag, or a manual run that asked for it: every supported
+            # environment, untrimmed.
             include='[
               {"os":"ubuntu-latest","python-version":"3.9"},
               {"os":"ubuntu-latest","python-version":"3.10"},
@@ -73,7 +92,8 @@ jobs:
               {"os":"macos-latest","python-version":"3.12"}
             ]'
           else
-            # PR label: full Python coverage on ubuntu, floor+ceiling elsewhere.
+            # PR label, or a plain manual re-run: full Python coverage on
+            # ubuntu, floor+ceiling elsewhere.
             include='[
               {"os":"ubuntu-latest","python-version":"3.9"},
               {"os":"ubuntu-latest","python-version":"3.10"},

@@ -72,7 +72,9 @@ Attribute every difference to one of the differential doc's four causes: old-par
   - Check a new output with two `PYTHONHASHSEED` values.
 - **Repo `.gitignore` has a global `*.json`.** A new committed JSON needs a `!` whitelist line, or the PR ships without its data.
 - **Python 3.9 is in the matrix.** No `write_text(newline=)`, no `match`, no `X | Y` at runtime.
-- **The Full Suite Gate matrix runs only on a `labeled` event** (#3209). After a push, remove and re-add a label to re-run Windows.
+- **The Full Suite Gate matrix runs on a `labeled` event, never on a push.** A commit pushed after the
+  label never runs it. Re-run it on the branch's current head with
+  `gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>` (#3209).
 - **X-Ray fails on a dense string literal** over 64 chars. Build long regexes from short named fragments.
 
 ## Who owns what (open, as of 2026-09-19)

@@ -323,6 +323,28 @@ PATH="$PWD/.venv/bin:$PATH" .venv/bin/python tests/tools/rosetta_audit.py      #
 
 and still glance at the summary line's language count (30, 3 and 46 respectively as of 2026-09-03).
 
+## Re-running the OS x Python matrix on a PR's current head
+
+`full-suite-gate.yml` (the "Full Suite Gate (All OS x Python)" check) triggers on
+`pull_request: types: [labeled]`, not on `synchronize`. That was deliberate — per-label runs had
+put 48 jobs on one SHA and pushed the queue to 23-65 minutes — but it means **the matrix runs
+once, against the SHA that carried the label, and a commit pushed afterwards never goes through
+it.** #3207 merged a Windows-only fix that way: it was correct and test-covered, but the matrix
+never saw it.
+
+So after pushing to a PR that has already been labelled, re-run it deliberately:
+
+```bash
+gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>       # trimmed PR grid
+gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch> -f full_matrix=true   # 12-way
+gh run list --workflow full-suite-gate.yml --branch <branch> --limit 3   # find the run
+```
+
+The trimmed grid is what a label gives you (all four Pythons on ubuntu, floor+ceiling on Windows
+and macOS); `full_matrix=true` is the untrimmed 12-way grid a `v*` tag gets. Removing and
+re-adding a label still works and is equivalent to the first form. Don't reach for `synchronize`
+as a fix — that hands back the queue cost the label-only rule bought (#3209).
+
 ## Logging cases where GitGalaxy beats tree-sitter/AST ground truth
 
 The general rule, stated plainly in `README.md`'s "One Graph, Not Five Separate Tools" section, is

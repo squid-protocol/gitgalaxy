@@ -1,0 +1,21 @@
+CREATE TABLE FEEDBACK_CODE (
+    VSTRING_LENGTH                 SMALLINT,
+    VSTRING_CHAR                   VARCHAR(1),
+    VSTRING_LENGTH                 SMALLINT,
+    VSTRING_CHAR                   VARCHAR(1),
+    OUTPUT_LILLIAN                 INTEGER,
+    WS_SEVERITY                    VARCHAR(04),
+    WS_MSG_NO                      VARCHAR(04),
+    WS_RESULT                      VARCHAR(15),
+    WS_DATE                        VARCHAR(10),
+    WS_DATE_FMT                    VARCHAR(10),
+    SEVERITY                       SMALLINT,
+    MSG_NO                         SMALLINT,
+    CLASS_CODE                     SMALLINT,
+    CAUSE_CODE                     SMALLINT,
+    CASE_SEV_CTL                   VARCHAR(1),
+    FACILITY_ID                    VARCHAR(3),
+    LS_DATE                        VARCHAR(10),
+    LS_DATE_FORMAT                 VARCHAR(10),
+    LS_RESULT                      VARCHAR(80)
+);

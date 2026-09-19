@@ -1,0 +1,176 @@
+{
+  "metadata": {
+    "file_name": "CBPAUP0C.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl",
+    "corporate_header": "",
+    "loc": 386
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "CBPAUP0C.cbl",
+      "total_vars": 83,
+      "orphaned_vars": [
+        "ERR-FLG-OFF",
+        "IDX",
+        "IMS-RETURN-CODE",
+        "PA-ACCOUNT-STATUS",
+        "PA-ACQR-COUNTRY-CODE",
+        "PA-AUTH-FRAUD",
+        "PA-AUTH-ID-CODE",
+        "PA-AUTH-ORIG-DATE",
+        "PA-AUTH-ORIG-TIME",
+        "PA-AUTH-RESP-REASON",
+        "PA-AUTH-STATUS",
+        "PA-AUTH-TYPE",
+        "PA-AUTHORIZATION-KEY",
+        "PA-CARD-EXPIRY-DATE",
+        "PA-CARD-NUM",
+        "PA-CASH-BALANCE",
+        "PA-CASH-LIMIT",
+        "PA-CREDIT-BALANCE",
+        "PA-CREDIT-LIMIT",
+        "PA-CUST-ID",
+        "PA-FRAUD-RPT-DATE",
+        "PA-MATCH-STATUS",
+        "PA-MERCHANT-CATAGORY-CODE",
+        "PA-MERCHANT-CITY",
+        "PA-MERCHANT-ID",
+        "PA-MERCHANT-NAME",
+        "PA-MERCHANT-STATE",
+        "PA-MERCHANT-ZIP",
+        "PA-MESSAGE-SOURCE",
+        "PA-MESSAGE-TYPE",
+        "PA-POS-ENTRY-MODE",
+        "PA-PROCESSING-CODE",
+        "PA-TRANSACTION-ID",
+        "PCB-OFFSET",
+        "PSB-NAME",
+        "WS-CUSTID-STATUS",
+        "WS-END-OF-AUTHDB-FLAG",
+        "WS-ERR-FLG",
+        "WS-IMS-PSB-SCHD-FLG",
+        "WS-IMS-VARIABLES",
+        "WS-INFILE-STATUS",
+        "WS-MORE-AUTHS-FLAG",
+        "WS-PGMNAME",
+        "WS-QUALIFY-DELETE-FLAG",
+        "WS-TOT-REC-WRITTEN",
+        "WS-VARIABLES"
+      ],
+      "total_paras": 17,
+      "dead_paras": [
+        "9999-EXIT"
+      ],
+      "loc_saved": 56
+    },
+    "lineage": {
+      "program_id": "CBPAUP0C",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "CBPAUP0C",
+      "files_requested": [],
+      "is_cics": false,
+      "is_db2": false,
+      "cics_calls": 0,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "PENDING_AUTH_DETAILS",
+      "sql": "CREATE TABLE PENDING_AUTH_DETAILS (\n    CURRENT_DATE                   DECIMAL(6, 0),\n    CURRENT_YYDDD                  DECIMAL(5, 0),\n    WS_AUTH_DATE                   DECIMAL(5, 0),\n    WS_EXPIRY_DAYS                 SMALLINT,\n    WS_DAY_DIFF                    SMALLINT,\n    WS_CURR_APP_ID                 DECIMAL(11, 0),\n    WS_NO_CHKP                     INTEGER,\n    WS_AUTH_SMRY_PROC_CNT          INTEGER,\n    WS_NO_SUMRY_READ               INTEGER,\n    WS_NO_SUMRY_DELETED            INTEGER,\n    WS_NO_DTL_READ                 INTEGER,\n    WS_NO_DTL_DELETED              INTEGER,\n    WK_CHKPT_ID_CTR                SMALLINT,\n    PAUT_PCB_NUM                   SMALLINT,\n    P_EXPIRY_DAYS                  DECIMAL(2, 0),\n    P_CHKP_FREQ                    VARCHAR(05),\n    P_CHKP_DIS_FREQ                VARCHAR(05),\n    P_DEBUG_FLAG                   VARCHAR(01),\n    IO_PCB_MASK                    VARCHAR(1),\n    PGM_PCB_MASK                   VARCHAR(1)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "PENDING_AUTH_DETAILS",
+        "type": "object",
+        "properties": {
+          "CURRENT_DATE": {
+            "type": "number",
+            "description": "Legacy PIC: 9(06)."
+          },
+          "CURRENT_YYDDD": {
+            "type": "number",
+            "description": "Legacy PIC: 9(05)."
+          },
+          "WS_AUTH_DATE": {
+            "type": "number",
+            "description": "Legacy PIC: 9(05)."
+          },
+          "WS_EXPIRY_DAYS": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_DAY_DIFF": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_CURR_APP_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "WS_NO_CHKP": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
+          },
+          "WS_AUTH_SMRY_PROC_CNT": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
+          },
+          "WS_NO_SUMRY_READ": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_NO_SUMRY_DELETED": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_NO_DTL_READ": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_NO_DTL_DELETED": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WK_CHKPT_ID_CTR": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(04)"
+          },
+          "PAUT_PCB_NUM": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "P_EXPIRY_DAYS": {
+            "type": "number",
+            "description": "Legacy PIC: 9(02)."
+          },
+          "P_CHKP_FREQ": {
+            "type": "string",
+            "description": "Legacy PIC: X(05)."
+          },
+          "P_CHKP_DIS_FREQ": {
+            "type": "string",
+            "description": "Legacy PIC: X(05)."
+          },
+          "P_DEBUG_FLAG": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)."
+          },
+          "IO_PCB_MASK": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "PGM_PCB_MASK": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ==========================================================\n//STEP01   EXEC PGM=CBPAUP0C\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

@@ -1,0 +1,11 @@
+CREATE TABLE IO_STATUS_04 (
+    IO_STAT1                       VARCHAR(1),
+    IO_STAT2                       VARCHAR(1),
+    TWO_BYTES_BINARY               SMALLINT,
+    TWO_BYTES_RIGHT                VARCHAR(1),
+    IO_STATUS_0403                 SMALLINT,
+    APPL_RESULT                    INTEGER,
+    END_OF_FILE                    VARCHAR(01),
+    ABCODE                         INTEGER,
+    TIMING                         INTEGER
+);

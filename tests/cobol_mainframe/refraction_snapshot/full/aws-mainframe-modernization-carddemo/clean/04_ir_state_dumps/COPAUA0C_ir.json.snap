@@ -1,0 +1,286 @@
+{
+  "metadata": {
+    "file_name": "COPAUA0C.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+    "corporate_header": "",
+    "loc": 1026
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "COPAUA0C.cbl",
+      "total_vars": 179,
+      "orphaned_vars": [
+        "ACCT-ACTIVE-STATUS",
+        "ACCT-ADDR-ZIP",
+        "ACCT-CURR-CYC-CREDIT",
+        "ACCT-CURR-CYC-DEBIT",
+        "ACCT-EXPIRAION-DATE",
+        "ACCT-GROUP-ID",
+        "ACCT-OPEN-DATE",
+        "ACCT-REISSUE-DATE",
+        "CUST-ADDR-COUNTRY-CD",
+        "CUST-ADDR-LINE-1",
+        "CUST-ADDR-LINE-2",
+        "CUST-ADDR-LINE-3",
+        "CUST-ADDR-STATE-CD",
+        "CUST-ADDR-ZIP",
+        "CUST-DOB-YYYY-MM-DD",
+        "CUST-EFT-ACCOUNT-ID",
+        "CUST-FICO-CREDIT-SCORE",
+        "CUST-FIRST-NAME",
+        "CUST-GOVT-ISSUED-ID",
+        "CUST-LAST-NAME",
+        "CUST-MIDDLE-NAME",
+        "CUST-PHONE-NUM-1",
+        "CUST-PHONE-NUM-2",
+        "CUST-PRI-CARD-HOLDER-IND",
+        "CUST-SSN",
+        "DFHCOMMAREA",
+        "LK-COMMAREA",
+        "MQM-CONSTANTS",
+        "MQM-TRIGGER-DATA",
+        "PA-ACCOUNT-STATUS",
+        "PA-AUTH-STATUS",
+        "PA-AUTHORIZATION-KEY",
+        "PA-MATCH-STATUS",
+        "PCB-OFFSET",
+        "PENDING-AUTH-REQUEST",
+        "PENDING-AUTH-RESPONSE",
+        "W02-DATALEN",
+        "WS-ACCT-MASTER-READ-FLG",
+        "WS-AUTH-RESP-FLG",
+        "WS-CARD-RID-CARDNUM",
+        "WS-CARDFILENAME",
+        "WS-CARDFILENAME-ACCT-PATH",
+        "WS-CUST-MASTER-READ-FLG",
+        "WS-DECLINE-FLG",
+        "WS-DECLINE-REASON-FLG",
+        "WS-IMS-PSB-SCHD-FLG",
+        "WS-IMS-VARIABLES",
+        "WS-MSG-AVAILABLE-FLG",
+        "WS-MSG-LOOP-FLG",
+        "WS-PAUT-SMRY-SEG-FLG",
+        "WS-REPLY-MQ-FLG",
+        "WS-REQUEST-MQ-FLG",
+        "WS-SWITCHES",
+        "WS-VARIABLES",
+        "WS-XREF-READ-FLG",
+        "WS-XREF-RID"
+      ],
+      "total_paras": 42,
+      "dead_paras": [
+        "1200-EXIT",
+        "9500-EXIT",
+        "9990-EXIT"
+      ],
+      "loc_saved": 86
+    },
+    "lineage": {
+      "program_id": "COPAUA0C",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": [
+        "IF"
+      ]
+    },
+    "base_intent": {
+      "program_id": "COPAUA0C",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 12,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_PGM_AUTH                    VARCHAR(08),\n    WS_CICS_TRANID                 VARCHAR(04),\n    WS_ACCTFILENAME                VARCHAR(8),\n    WS_CUSTFILENAME                VARCHAR(8),\n    WS_CCXREF_FILE                 VARCHAR(08),\n    WS_REQSTS_PROCESS_LIMIT        SMALLINT,\n    WS_MSG_PROCESSED               SMALLINT,\n    WS_REQUEST_QNAME               VARCHAR(48),\n    WS_REPLY_QNAME                 VARCHAR(48),\n    WS_SAVE_CORRELID               VARCHAR(24),\n    WS_RESP_LENGTH                 SMALLINT,\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_ABS_TIME                    BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_CUR_DATE_X6                 VARCHAR(06),\n    WS_CUR_TIME_X6                 VARCHAR(06),\n    WS_CUR_TIME_N6                 INTEGER,\n    WS_CUR_TIME_MS                 INTEGER,\n    WS_YYDDD                       DECIMAL(5, 0),\n    WS_TIME_WITH_MS                INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    WS_OPTIONS                     INTEGER,\n    WS_COMPCODE                    INTEGER,\n    WS_REASON                      INTEGER,\n    WS_WAIT_INTERVAL               INTEGER,\n    WS_CODE_DISPLAY                DECIMAL(9, 0),\n    WS_AVAILABLE_AMT               DECIMAL(11, 2) -- Legacy: COMP-3 (Packed Decimal),\n    WS_TRANSACTION_AMT_AN          VARCHAR(13),\n    WS_TRANSACTION_AMT             DECIMAL(12, 2),\n    WS_APPROVED_AMT                DECIMAL(12, 2),\n    WS_APPROVED_AMT_DIS            DECIMAL(3, 2),\n    WS_TRIGGER_DATA                VARCHAR(64),\n    WS_CARD_RID_CUST_ID            DECIMAL(9, 0),\n    WS_CARD_RID_ACCT_ID            DECIMAL(11, 0),\n    PSB_NAME                       VARCHAR(8),\n    PAUT_PCB_NUM                   SMALLINT,\n    IMS_RETURN_CODE                VARCHAR(02),\n    W01_HCONN_REQUEST              INTEGER,\n    W01_HOBJ_REQUEST               INTEGER,\n    W01_BUFFLEN                    INTEGER,\n    W01_DATALEN                    INTEGER,\n    W01_GET_BUFFER                 VARCHAR(500),\n    W02_HCONN_REPLY                INTEGER,\n    W02_BUFFLEN                    INTEGER,\n    W02_PUT_BUFFER                 VARCHAR(200)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_PGM_AUTH": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "WS_CICS_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "WS_ACCTFILENAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_CUSTFILENAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_CCXREF_FILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "WS_REQSTS_PROCESS_LIMIT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_MSG_PROCESSED": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_REQUEST_QNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(48)."
+          },
+          "WS_REPLY_QNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(48)."
+          },
+          "WS_SAVE_CORRELID": {
+            "type": "string",
+            "description": "Legacy PIC: X(24)."
+          },
+          "WS_RESP_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_RESP_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_REAS_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_ABS_TIME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(15)"
+          },
+          "WS_CUR_DATE_X6": {
+            "type": "string",
+            "description": "Legacy PIC: X(06)"
+          },
+          "WS_CUR_TIME_X6": {
+            "type": "string",
+            "description": "Legacy PIC: X(06)"
+          },
+          "WS_CUR_TIME_N6": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(06)"
+          },
+          "WS_CUR_TIME_MS": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(08)"
+          },
+          "WS_YYDDD": {
+            "type": "number",
+            "description": "Legacy PIC: 9(05)."
+          },
+          "WS_TIME_WITH_MS": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_OPTIONS": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "WS_COMPCODE": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "WS_REASON": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "WS_WAIT_INTERVAL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "WS_CODE_DISPLAY": {
+            "type": "number",
+            "description": "Legacy PIC: 9(9)."
+          },
+          "WS_AVAILABLE_AMT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(09)V99"
+          },
+          "WS_TRANSACTION_AMT_AN": {
+            "type": "string",
+            "description": "Legacy PIC: X(13)."
+          },
+          "WS_TRANSACTION_AMT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99."
+          },
+          "WS_APPROVED_AMT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99."
+          },
+          "WS_APPROVED_AMT_DIS": {
+            "type": "number",
+            "description": "Legacy PIC: -ZZZZZZZZZ9.99."
+          },
+          "WS_TRIGGER_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(64)."
+          },
+          "WS_CARD_RID_CUST_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(09)."
+          },
+          "WS_CARD_RID_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "PSB_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "PAUT_PCB_NUM": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "IMS_RETURN_CODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "W01_HCONN_REQUEST": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "W01_HOBJ_REQUEST": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "W01_BUFFLEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "W01_DATALEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "W01_GET_BUFFER": {
+            "type": "string",
+            "description": "Legacy PIC: X(500)."
+          },
+          "W02_HCONN_REPLY": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "W02_BUFFLEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "W02_PUT_BUFFER": {
+            "type": "string",
+            "description": "Legacy PIC: X(200)."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=COPAUA0C\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

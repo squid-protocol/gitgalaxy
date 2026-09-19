@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_PGMNAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "WS_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "WS_TRANSACT_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_ERR_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "WS_RESP_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_REAS_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "CDEMO_CT01_TRNID_FIRST": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "CDEMO_CT01_TRNID_LAST": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "CDEMO_CT01_PAGE_NUM": {
+      "type": "number",
+      "description": "Legacy PIC: 9(08)."
+    },
+    "CDEMO_CT01_NEXT_PAGE_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "CDEMO_CT01_TRN_SEL_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "CDEMO_CT01_TRN_SELECTED": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    }
+  }
+}

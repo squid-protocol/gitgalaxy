@@ -1,0 +1,17 @@
+CREATE TABLE WS_ACCT_RESPONSE (
+    LIT_ACCTFILENAME               VARCHAR(8),
+    WS_RESP_CD                     INTEGER,
+    WS_REAS_CD                     INTEGER,
+    WS_CARD_RID_ACCT_ID            DECIMAL(11, 0),
+    WS_ACCT_ID                     BIGINT,
+    WS_ACCT_ACTIVE_STATUS          VARCHAR(01),
+    WS_ACCT_CURR_BAL               DECIMAL(12, 2),
+    WS_ACCT_CREDIT_LIMIT           DECIMAL(12, 2),
+    WS_ACCT_CASH_CREDIT_LIMIT      DECIMAL(12, 2),
+    WS_ACCT_OPEN_DATE              VARCHAR(10),
+    WS_ACCT_EXPIRAION_DATE         VARCHAR(10),
+    WS_ACCT_REISSUE_DATE           VARCHAR(10),
+    WS_ACCT_CURR_CYC_CREDIT        DECIMAL(12, 2),
+    WS_ACCT_CURR_CYC_DEBIT         DECIMAL(12, 2),
+    WS_ACCT_GROUP_ID               VARCHAR(10)
+);

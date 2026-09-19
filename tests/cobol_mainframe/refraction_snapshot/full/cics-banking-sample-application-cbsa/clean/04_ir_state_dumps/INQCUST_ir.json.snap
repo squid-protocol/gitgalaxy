@@ -1,0 +1,214 @@
+{
+  "metadata": {
+    "file_name": "INQCUST.cbl",
+    "path": "<WORK>/cics-banking-sample-application-cbsa/src/base/cobol_src/INQCUST.cbl",
+    "corporate_header": "",
+    "loc": 711
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "INQCUST.cbl",
+      "total_vars": 89,
+      "orphaned_vars": [
+        "ABND-VSAM-KEY",
+        "CUSTOMER-RECORD",
+        "EXIT-IMS-READ",
+        "HIGHEST-CUST-NUMBER",
+        "INQCUST-PCB-POINTER",
+        "NCS-CUST-NO-INC",
+        "NCS-CUST-NO-NAME",
+        "NCS-CUST-NO-RESP",
+        "NCS-CUST-NO-STUFF",
+        "REMIX-NUM",
+        "REMIX-SCODE",
+        "REMIX2-CREDIT-SCR",
+        "REMIX2-NUM",
+        "REQUIRED-SORT-CODE2",
+        "SQLCODE-DISPLAY",
+        "STORM-DRAIN-CONDITION",
+        "VAR-REMIX",
+        "VAR-REMIX2",
+        "WS-CICS-WORK-AREA",
+        "WS-CUSTOMER-RANGE",
+        "WS-DISP-CUST-NO-VAL",
+        "WS-INVOKING-PROGRAM",
+        "WS-ORIG-DATE-DD",
+        "WS-ORIG-DATE-DD-X",
+        "WS-ORIG-DATE-GRP",
+        "WS-ORIG-DATE-GRP-X",
+        "WS-ORIG-DATE-MM",
+        "WS-ORIG-DATE-MM-X",
+        "WS-ORIG-DATE-YYYY",
+        "WS-ORIG-DATE-YYYY-X",
+        "WS-PASSED-DATA",
+        "WS-POINTER",
+        "WS-POINTER-BYTES",
+        "WS-POINTER-NUMBER",
+        "WS-POINTER-NUMBER-DISPLAY",
+        "WS-PROGRAM",
+        "WS-SORT-CODE",
+        "WS-SORT-DIV",
+        "WS-SORT-DIV1",
+        "WS-SORT-DIV2",
+        "WS-SORT-DIV3",
+        "WS-TEST-KEY",
+        "WS-TIME-DATA"
+      ],
+      "total_paras": 27,
+      "dead_paras": [
+        "GMOFH999",
+        "P999"
+      ],
+      "loc_saved": 63
+    },
+    "lineage": {
+      "program_id": "INQCUST",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "INQCUST",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 28,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    SYSIDERR_RETRY                 DECIMAL(3, 0),\n    INQCUST_RETRY                  DECIMAL(4, 0),\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    REQUIRED_SORT_CODE             INTEGER,\n    REQUIRED_CUST_NUMBER           BIGINT,\n    REQUIRED_CUST_NUMBER2          BIGINT,\n    RANDOM_CUSTOMER                BIGINT,\n    EXIT_VSAM_READ                 VARCHAR(1),\n    EXIT_DB2_READ                  VARCHAR(1),\n    WS_V_RETRIED                   VARCHAR(1),\n    WS_D_RETRIED                   VARCHAR(1),\n    NCS_CUST_NO_ACT_NAME           VARCHAR(8),\n    NCS_CUST_NO_TEST_SORT          VARCHAR(6),\n    NCS_CUST_NO_FILL               VARCHAR(2),\n    NCS_CUST_NO_VALUE              BIGINT,\n    WS_CUSTOMER_RANGE_TOP          VARCHAR(1),\n    WS_CUSTOMER_RANGE_MIDDLE       VARCHAR(1),\n    WS_CUSTOMER_RANGE_BOTTOM       VARCHAR(1),\n    REMIX_SCODE_NUM                DECIMAL(6, 0),\n    REMIX2_CREDIT_SCR_NUM          DECIMAL(3, 0),\n    MY_ABEND_CODE                  VARCHAR(4),\n    WS_STORM_DRAIN                 VARCHAR(1),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0),\n    WS_ABEND_PGM                   VARCHAR(8)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "SYSIDERR_RETRY": {
+            "type": "number",
+            "description": "Legacy PIC: 999."
+          },
+          "INQCUST_RETRY": {
+            "type": "number",
+            "description": "Legacy PIC: 9999."
+          },
+          "WS_CICS_RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_CICS_RESP2": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "REQUIRED_SORT_CODE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
+          },
+          "REQUIRED_CUST_NUMBER": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "REQUIRED_CUST_NUMBER2": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "RANDOM_CUSTOMER": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "EXIT_VSAM_READ": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "EXIT_DB2_READ": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WS_V_RETRIED": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WS_D_RETRIED": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "NCS_CUST_NO_ACT_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "NCS_CUST_NO_TEST_SORT": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)"
+          },
+          "NCS_CUST_NO_FILL": {
+            "type": "string",
+            "description": "Legacy PIC: XX"
+          },
+          "NCS_CUST_NO_VALUE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(16)"
+          },
+          "WS_CUSTOMER_RANGE_TOP": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "WS_CUSTOMER_RANGE_MIDDLE": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "WS_CUSTOMER_RANGE_BOTTOM": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "REMIX_SCODE_NUM": {
+            "type": "number",
+            "description": "Legacy PIC: 9(6)."
+          },
+          "REMIX2_CREDIT_SCR_NUM": {
+            "type": "number",
+            "description": "Legacy PIC: 9(3)."
+          },
+          "MY_ABEND_CODE": {
+            "type": "string",
+            "description": "Legacy PIC: XXXX."
+          },
+          "WS_STORM_DRAIN": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WS_U_TIME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(15)"
+          },
+          "WS_ORIG_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "WS_TIME_NOW": {
+            "type": "number",
+            "description": "Legacy PIC: 9(6)."
+          },
+          "WS_TIME_NOW_GRP_HH": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "WS_TIME_NOW_GRP_MM": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "WS_TIME_NOW_GRP_SS": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "WS_ABEND_PGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=INQCUST\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

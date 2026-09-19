@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_PGM_AUTH_DTL": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_PGM_AUTH_SMRY": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_PGM_AUTH_FRAUD": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_CICS_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "WS_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "WS_ERR_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "WS_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "WS_AUTH_KEY": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "WS_AUTH_AMT": {
+      "type": "number",
+      "description": "Legacy PIC: -ZZZZZZZ9.99."
+    },
+    "WS_AUTH_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_AUTH_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "DECL_CODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "DECL_DESC": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "PSB_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "PAUT_PCB_NUM": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "IMS_RETURN_CODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_FRD_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "WS_FRD_CUST_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(9)."
+    },
+    "WS_FRAUD_AUTH_RECORD": {
+      "type": "string",
+      "description": "Legacy PIC: X(200)."
+    },
+    "WS_FRD_ACTION": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_FRD_UPDATE_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_FRD_ACT_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    },
+    "CDEMO_CPVD_PAU_SEL_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "CDEMO_CPVD_PAU_SELECTED": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "CDEMO_CPVD_PAUKEY_PREV_PG": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "CDEMO_CPVD_PAUKEY_LAST": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "CDEMO_CPVD_PAGE_NUM": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "CDEMO_CPVD_NEXT_PAGE_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "CDEMO_CPVD_AUTH_KEYS": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "CDEMO_CPVD_FRAUD_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(100)."
+    }
+  }
+}

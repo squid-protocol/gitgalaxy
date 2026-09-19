@@ -1,0 +1,15 @@
+CREATE TABLE DFHCOMMAREA (
+    SYSIDERR_RETRY                 DECIMAL(3, 0),
+    REQUIRED_SORT_CODE             INTEGER,
+    WS_CUSTOMER_RANGE_TOP          VARCHAR(1),
+    WS_CUSTOMER_RANGE_MIDDLE       VARCHAR(1),
+    WS_CUSTOMER_RANGE_BOTTOM       VARCHAR(1),
+    WS_CICS_RESP                   INTEGER,
+    WS_CICS_RESP2                  INTEGER,
+    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),
+    WS_ORIG_DATE                   VARCHAR(10),
+    WS_TIME_NOW                    DECIMAL(6, 0),
+    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),
+    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),
+    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0)
+);

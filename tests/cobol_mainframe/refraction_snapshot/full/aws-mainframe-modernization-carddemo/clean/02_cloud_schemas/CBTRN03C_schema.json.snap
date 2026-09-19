@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IO_STATUS_04",
+  "type": "object",
+  "properties": {
+    "FD_XREF_CARD_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "FD_TRAN_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "FD_TRAN_TYPE_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "FD_TRAN_CAT_CD": {
+      "type": "number",
+      "description": "Legacy PIC: 9(04)."
+    },
+    "FD_REPTFILE_REC": {
+      "type": "string",
+      "description": "Legacy PIC: X(133)."
+    },
+    "WS_START_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_END_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_FIRST_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_LINE_COUNTER": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_PAGE_SIZE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(03)"
+    },
+    "WS_BLANK_LINE": {
+      "type": "string",
+      "description": "Legacy PIC: X(133)"
+    },
+    "WS_PAGE_TOTAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(09)V99"
+    },
+    "WS_ACCOUNT_TOTAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(09)V99"
+    },
+    "WS_GRAND_TOTAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(09)V99"
+    },
+    "WS_CURR_CARD_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "IO_STAT1": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "IO_STAT2": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "TWO_BYTES_BINARY": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "TWO_BYTES_RIGHT": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "IO_STATUS_0403": {
+      "type": "integer",
+      "description": "Legacy PIC: 999"
+    },
+    "APPL_RESULT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "END_OF_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "ABCODE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "TIMING": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    }
+  }
+}

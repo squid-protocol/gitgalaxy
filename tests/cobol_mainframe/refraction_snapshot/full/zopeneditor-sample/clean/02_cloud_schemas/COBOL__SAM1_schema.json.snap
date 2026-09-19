@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RPT_STATS_DETAIL",
+  "type": "object",
+  "properties": {
+    "REPORT_RECORD": {
+      "type": "string",
+      "description": "Legacy PIC: X(132)."
+    },
+    "CURRENT_YEAR": {
+      "type": "number",
+      "description": "Legacy PIC: 9(2)."
+    },
+    "CURRENT_MONTH": {
+      "type": "number",
+      "description": "Legacy PIC: 9(2)."
+    },
+    "CURRENT_DAY": {
+      "type": "number",
+      "description": "Legacy PIC: 9(2)."
+    },
+    "CURRENT_HOUR": {
+      "type": "number",
+      "description": "Legacy PIC: 9(2)."
+    },
+    "CURRENT_MINUTE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(2)."
+    },
+    "CURRENT_SECOND": {
+      "type": "number",
+      "description": "Legacy PIC: 9(2)."
+    },
+    "NUM_TRAN_RECS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "NUM_TRAN_ERRORS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "NUM_ADD_REQUESTS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "NUM_ADD_PROCESSED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "NUM_UPDATE_REQUESTS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "NUM_UPDATE_PROCESSED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "NUM_DELETE_REQUESTS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "NUM_DELETE_PROCESSED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "WS_CUSTFILE_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "WS_CUSTOUT_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "WS_TRANFILE_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "WS_REPORT_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "WS_TRAN_EOF": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_TRAN_OK": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_CUST_FILE_EOF": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_TRAN_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "WS_PREV_TRAN_KEY": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)"
+    },
+    "SAM2": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "I": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "ERR_MSG_DATA1": {
+      "type": "string",
+      "description": "Legacy PIC: X(35)"
+    },
+    "ERR_MSG_DATA2": {
+      "type": "string",
+      "description": "Legacy PIC: X(66)"
+    },
+    "ERR_MSG_DATA3": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)."
+    },
+    "RPT_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "RPT_DD": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "RPT_YY": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "RPT_HH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "RPT_MIN": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "RPT_SS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "RPT_TRAN_MSG1": {
+      "type": "string",
+      "description": "Legacy PIC: X(31)"
+    },
+    "RPT_TRAN_RECORD": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "RPT_TRAN": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "RPT_NUM_TRANS": {
+      "type": "string",
+      "description": "Legacy PIC: ZZZ"
+    },
+    "RPT_NUM_TRAN_PROC": {
+      "type": "string",
+      "description": "Legacy PIC: ZZZ"
+    },
+    "RPT_NUM_TRAN_ERR": {
+      "type": "string",
+      "description": "Legacy PIC: ZZZ"
+    }
+  }
+}

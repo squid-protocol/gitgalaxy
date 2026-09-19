@@ -1,0 +1,244 @@
+{
+  "metadata": {
+    "file_name": "INQACC.cbl",
+    "path": "<WORK>/cics-banking-sample-application-cbsa/src/base/cobol_src/INQACC.cbl",
+    "corporate_header": "",
+    "loc": 1004
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "INQACC.cbl",
+      "total_vars": 106,
+      "orphaned_vars": [
+        "ABND-VSAM-KEY",
+        "ACCOUNT-KY2",
+        "DATA-STORE-TYPE",
+        "DATASTORE-TYPE-DB2",
+        "DATASTORE-TYPE-VSAM",
+        "DB2-EXIT-LOOP",
+        "DESIRED-KEY",
+        "EXIT-BROWSE-LOOP",
+        "FETCH-DATA-CNT",
+        "HOST-ACCOUNT-ROW",
+        "INQACC-LAST-STMT-GROUP",
+        "INQACC-NEXT-STMT-GROUP",
+        "INQACC-OPENED-GROUP",
+        "INQACC-PCB1-POINTER",
+        "NCS-ACC-NO-INC",
+        "NCS-ACC-NO-RESP",
+        "NCS-ACC-NO-STUFF",
+        "REQUIRED-ACC-NUM",
+        "REQUIRED-SORT-CODE2",
+        "RETURNED-ACTUAL-BALANCE",
+        "RETURNED-AVAILABLE-BALANCE",
+        "RETURNED-CUST-NO",
+        "RETURNED-DATA",
+        "RETURNED-EYE-CATCHER",
+        "RETURNED-INTEREST-RATE",
+        "RETURNED-KEY",
+        "RETURNED-LAST-STMT-DATE",
+        "RETURNED-NEXT-STMT-DATE",
+        "RETURNED-OPENED",
+        "RETURNED-OVERDRAFT-LIMIT",
+        "RETURNED-TYPE",
+        "WS-CICS-WORK-AREA",
+        "WS-CUST-ALT-KEY-LEN",
+        "WS-DISP-ACC-NO-VAL",
+        "WS-ORIG-DATE-DD",
+        "WS-ORIG-DATE-DD-X",
+        "WS-ORIG-DATE-GRP",
+        "WS-ORIG-DATE-GRP-X",
+        "WS-ORIG-DATE-MM",
+        "WS-ORIG-DATE-MM-X",
+        "WS-ORIG-DATE-YYYY",
+        "WS-ORIG-DATE-YYYY-X",
+        "WS-POINTER",
+        "WS-POINTER-BYTES",
+        "WS-POINTER-NUMBER",
+        "WS-POINTER-NUMBER-DISPLAY",
+        "WS-TIME-DATA"
+      ],
+      "total_paras": 27,
+      "dead_paras": [
+        "A999",
+        "GMOFH999"
+      ],
+      "loc_saved": 67
+    },
+    "lineage": {
+      "program_id": "INQACC",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "INQACC",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": true,
+      "cics_calls": 31,
+      "sql_calls": 7
+    },
+    "honesty_flags": [
+      "[INQACC.cbl : Line 0199] HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution."
+    ]
+  },
+  "generation": {
+    "schemas": {
+      "table": "ABNDINFO_REC",
+      "sql": "CREATE TABLE ABNDINFO_REC (\n    HV_ACCOUNT_EYECATCHER          VARCHAR(4),\n    HV_ACCOUNT_CUST_NO             VARCHAR(10),\n    HV_ACCOUNT_SORTCODE            VARCHAR(6),\n    HV_ACCOUNT_ACC_NO              VARCHAR(8),\n    HV_ACCOUNT_ACC_TYPE            VARCHAR(8),\n    HV_ACCOUNT_INT_RATE            DECIMAL(6, 2) -- Legacy: COMP-3 (Packed Decimal),\n    HV_ACCOUNT_OPENED              VARCHAR(10),\n    HV_ACCOUNT_OVERDRAFT_LIM       INTEGER,\n    HV_ACCOUNT_LAST_STMT           VARCHAR(10),\n    HV_ACCOUNT_NEXT_STMT           VARCHAR(10),\n    HV_ACCOUNT_AVAIL_BAL           DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    HV_ACCOUNT_ACTUAL_BAL          DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    RETURNED_SORT_CODE             DECIMAL(6, 0),\n    RETURNED_NUMBER                DECIMAL(8, 0),\n    DB2_DATE_REF_YR                DECIMAL(4, 0),\n    DB2_DATE_REF_MNTH              DECIMAL(2, 0),\n    DB2_DATE_REF_DAY               DECIMAL(2, 0),\n    REQUIRED_SORT_CODE             INTEGER,\n    MY_ABEND_CODE                  VARCHAR(4),\n    WS_STORM_DRAIN                 VARCHAR(1),\n    STORM_DRAIN_CONDITION          VARCHAR(20),\n    SQLCODE_DISPLAY                INTEGER,\n    NCS_ACC_NO_ACT_NAME            VARCHAR(8),\n    NCS_ACC_NO_TEST_SORT           VARCHAR(6),\n    NCS_ACC_NO_FILL                VARCHAR(2),\n    NCS_ACC_NO_VALUE               BIGINT,\n    REQUIRED_ACC_NUMBER2           INTEGER,\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0),\n    WS_ABEND_PGM                   VARCHAR(8)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "ABNDINFO_REC",
+        "type": "object",
+        "properties": {
+          "HV_ACCOUNT_EYECATCHER": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)."
+          },
+          "HV_ACCOUNT_CUST_NO": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "HV_ACCOUNT_SORTCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)."
+          },
+          "HV_ACCOUNT_ACC_NO": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)."
+          },
+          "HV_ACCOUNT_ACC_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)."
+          },
+          "HV_ACCOUNT_INT_RATE": {
+            "type": "number",
+            "description": "Legacy PIC: S9(4)V99"
+          },
+          "HV_ACCOUNT_OPENED": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "HV_ACCOUNT_OVERDRAFT_LIM": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "HV_ACCOUNT_LAST_STMT": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "HV_ACCOUNT_NEXT_STMT": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "HV_ACCOUNT_AVAIL_BAL": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99"
+          },
+          "HV_ACCOUNT_ACTUAL_BAL": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99"
+          },
+          "WS_CICS_RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_CICS_RESP2": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "RETURNED_SORT_CODE": {
+            "type": "number",
+            "description": "Legacy PIC: 9(6)."
+          },
+          "RETURNED_NUMBER": {
+            "type": "number",
+            "description": "Legacy PIC: 9(8)."
+          },
+          "DB2_DATE_REF_YR": {
+            "type": "number",
+            "description": "Legacy PIC: 9(4)."
+          },
+          "DB2_DATE_REF_MNTH": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "DB2_DATE_REF_DAY": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "REQUIRED_SORT_CODE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
+          },
+          "MY_ABEND_CODE": {
+            "type": "string",
+            "description": "Legacy PIC: XXXX."
+          },
+          "WS_STORM_DRAIN": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "STORM_DRAIN_CONDITION": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)."
+          },
+          "SQLCODE_DISPLAY": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "NCS_ACC_NO_ACT_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "NCS_ACC_NO_TEST_SORT": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)"
+          },
+          "NCS_ACC_NO_FILL": {
+            "type": "string",
+            "description": "Legacy PIC: XX"
+          },
+          "NCS_ACC_NO_VALUE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(16)"
+          },
+          "REQUIRED_ACC_NUMBER2": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
+          },
+          "WS_U_TIME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(15)"
+          },
+          "WS_ORIG_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "WS_TIME_NOW": {
+            "type": "number",
+            "description": "Legacy PIC: 9(6)."
+          },
+          "WS_TIME_NOW_GRP_HH": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "WS_TIME_NOW_GRP_MM": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "WS_TIME_NOW_GRP_SS": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "WS_ABEND_PGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS + DB2\n//* ==========================================================\n//STEP01   EXEC PGM=INQACC\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

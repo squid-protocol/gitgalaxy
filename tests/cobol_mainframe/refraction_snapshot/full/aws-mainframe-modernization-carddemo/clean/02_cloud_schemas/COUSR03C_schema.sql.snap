@@ -1,0 +1,15 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_PGMNAME                     VARCHAR(08),
+    WS_TRANID                      VARCHAR(04),
+    WS_MESSAGE                     VARCHAR(80),
+    WS_USRSEC_FILE                 VARCHAR(08),
+    WS_ERR_FLG                     VARCHAR(01),
+    WS_RESP_CD                     INTEGER,
+    WS_REAS_CD                     INTEGER,
+    CDEMO_CU03_USRID_FIRST         VARCHAR(08),
+    CDEMO_CU03_USRID_LAST          VARCHAR(08),
+    CDEMO_CU03_PAGE_NUM            DECIMAL(8, 0),
+    CDEMO_CU03_NEXT_PAGE_FLG       VARCHAR(01),
+    CDEMO_CU03_USR_SEL_FLG         VARCHAR(01),
+    CDEMO_CU03_USR_SELECTED        VARCHAR(08)
+);

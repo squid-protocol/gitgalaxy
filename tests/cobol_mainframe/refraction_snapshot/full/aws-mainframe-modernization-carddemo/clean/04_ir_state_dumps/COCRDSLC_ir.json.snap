@@ -1,0 +1,352 @@
+{
+  "metadata": {
+    "file_name": "COCRDSLC.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/COCRDSLC.cbl",
+    "corporate_header": "",
+    "loc": 887
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "COCRDSLC.cbl",
+      "total_vars": 274,
+      "orphaned_vars": [
+        "ACCTSIDF",
+        "ACCTSIDH",
+        "ACCTSIDP",
+        "ACCTSIDV",
+        "CA-CALL-CONTEXT",
+        "CARD-ACCT-ID",
+        "CARD-ACCT-ID-N",
+        "CARD-ACCT-ID-X",
+        "CARD-CARD-NUM-N",
+        "CARD-CARD-NUM-X",
+        "CARD-CVV-CD",
+        "CARD-CVV-CD-N",
+        "CARD-CVV-CD-X",
+        "CARD-EXPIRAION-DATE-N",
+        "CARD-NAME-EMBOSSED-X",
+        "CARD-STATUS-X",
+        "CARDSIDF",
+        "CARDSIDH",
+        "CARDSIDP",
+        "CARDSIDV",
+        "CC-WORK-AREAS",
+        "CCDA-COMMON-MESSAGES",
+        "CCDA-MSG-INVALID-KEY",
+        "CCDA-MSG-THANK-YOU",
+        "CCDA-SCREEN-TITLE",
+        "CCDA-THANK-YOU",
+        "CDEMO-ACCOUNT-INFO",
+        "CDEMO-CARD-INFO",
+        "CDEMO-CUSTOMER-INFO",
+        "CDEMO-GENERAL-INFO",
+        "CDEMO-MORE-INFO",
+        "CICS-OUTPUT-EDIT-VARS",
+        "CODING-TO-BE-DONE",
+        "CRDNAMEC",
+        "CRDNAMEF",
+        "CRDNAMEH",
+        "CRDNAMEI",
+        "CRDNAMEL",
+        "CRDNAMEP",
+        "CRDNAMEV",
+        "CRDSTCDC",
+        "CRDSTCDF",
+        "CRDSTCDH",
+        "CRDSTCDI",
+        "CRDSTCDL",
+        "CRDSTCDP",
+        "CRDSTCDV",
+        "CURDATEC",
+        "CURDATEF",
+        "CURDATEH",
+        "CURDATEI",
+        "CURDATEL",
+        "CURDATEP",
+        "CURDATEV",
+        "CURTIMEC",
+        "CURTIMEF",
+        "CURTIMEH",
+        "CURTIMEI",
+        "CURTIMEL",
+        "CURTIMEP",
+        "CURTIMEV",
+        "CUST-ADDR-COUNTRY-CD",
+        "CUST-ADDR-LINE-1",
+        "CUST-ADDR-LINE-2",
+        "CUST-ADDR-LINE-3",
+        "CUST-ADDR-STATE-CD",
+        "CUST-ADDR-ZIP",
+        "CUST-DOB-YYYY-MM-DD",
+        "CUST-EFT-ACCOUNT-ID",
+        "CUST-FICO-CREDIT-SCORE",
+        "CUST-FIRST-NAME",
+        "CUST-GOVT-ISSUED-ID",
+        "CUST-ID",
+        "CUST-LAST-NAME",
+        "CUST-MIDDLE-NAME",
+        "CUST-PHONE-NUM-1",
+        "CUST-PHONE-NUM-2",
+        "CUST-PRI-CARD-HOLDER-IND",
+        "CUST-SSN",
+        "CUSTOMER-RECORD",
+        "ERRMSGC",
+        "ERRMSGF",
+        "ERRMSGH",
+        "ERRMSGI",
+        "ERRMSGL",
+        "ERRMSGP",
+        "ERRMSGV",
+        "EXPMONC",
+        "EXPMONF",
+        "EXPMONH",
+        "EXPMONI",
+        "EXPMONL",
+        "EXPMONP",
+        "EXPMONV",
+        "EXPYEARC",
+        "EXPYEARF",
+        "EXPYEARH",
+        "EXPYEARI",
+        "EXPYEARL",
+        "EXPYEARP",
+        "EXPYEARV",
+        "FKEYSC",
+        "FKEYSF",
+        "FKEYSH",
+        "FKEYSI",
+        "FKEYSL",
+        "FKEYSO",
+        "FKEYSP",
+        "FKEYSV",
+        "INFOMSGF",
+        "INFOMSGH",
+        "INFOMSGI",
+        "INFOMSGL",
+        "INFOMSGP",
+        "INFOMSGV",
+        "INPUT-PENDING",
+        "LIT-CCLISTMAP",
+        "LIT-CCLISTTRANID",
+        "LIT-MENUMAP",
+        "LIT-MENUMAPSET",
+        "PGMNAMEC",
+        "PGMNAMEF",
+        "PGMNAMEH",
+        "PGMNAMEI",
+        "PGMNAMEL",
+        "PGMNAMEP",
+        "PGMNAMEV",
+        "SEARCHED-ACCT-NOT-NUMERIC",
+        "SEARCHED-ACCT-ZEROES",
+        "SEARCHED-CARD-NOT-NUMERIC",
+        "SEC-USER-DATA",
+        "SEC-USR-FILLER",
+        "SEC-USR-FNAME",
+        "SEC-USR-ID",
+        "SEC-USR-LNAME",
+        "SEC-USR-PWD",
+        "SEC-USR-TYPE",
+        "TITLE01C",
+        "TITLE01F",
+        "TITLE01H",
+        "TITLE01I",
+        "TITLE01L",
+        "TITLE01P",
+        "TITLE01V",
+        "TITLE02C",
+        "TITLE02F",
+        "TITLE02H",
+        "TITLE02I",
+        "TITLE02L",
+        "TITLE02P",
+        "TITLE02V",
+        "TRNNAMEC",
+        "TRNNAMEF",
+        "TRNNAMEH",
+        "TRNNAMEI",
+        "TRNNAMEL",
+        "TRNNAMEP",
+        "TRNNAMEV",
+        "WS-CARD-RID-ACCT-ID-X",
+        "WS-CICS-PROCESSNG-VARS",
+        "WS-CURDATE-N",
+        "WS-CURTIME-N",
+        "WS-DATE-TIME",
+        "WS-EDIT-ACCT-FLAG",
+        "WS-EDIT-CARD-FLAG",
+        "WS-EXIT-MESSAGE",
+        "WS-INPUT-FLAG",
+        "WS-LITERALS",
+        "WS-PFK-FLAG",
+        "WS-RETURN-FLAG",
+        "WS-RETURN-FLAG-OFF",
+        "WS-RETURN-FLAG-ON",
+        "WS-TIMESTAMP",
+        "WS-TIMESTAMP-DT-DD",
+        "WS-TIMESTAMP-DT-MM",
+        "WS-TIMESTAMP-DT-YYYY",
+        "WS-TIMESTAMP-TM-HH",
+        "WS-TIMESTAMP-TM-MM",
+        "WS-TIMESTAMP-TM-MS6",
+        "WS-TIMESTAMP-TM-SS",
+        "XREF-READ-ERROR"
+      ],
+      "total_paras": 34,
+      "dead_paras": [
+        "0000-MAIN-EXIT",
+        "9150-GETCARD-BYACCT",
+        "9150-GETCARD-BYACCT-EXIT",
+        "SEND-LONG-TEXT",
+        "SEND-LONG-TEXT-EXIT",
+        "SEND-PLAIN-TEXT-EXIT"
+      ],
+      "loc_saved": 241
+    },
+    "lineage": {
+      "program_id": "COCRDSLC",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "COCRDSLC",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 14,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_TRANID                      VARCHAR(4),\n    CARD_EXPIRAION_DATE_X          VARCHAR(10),\n    CARD_EXPIRY_YEAR               VARCHAR(4),\n    CARD_EXPIRY_MONTH              VARCHAR(2),\n    CARD_EXPIRY_DAY                VARCHAR(2),\n    WS_CARD_RID_CARDNUM            VARCHAR(16),\n    WS_CARD_RID_ACCT_ID            DECIMAL(11, 0),\n    ERROR_OPNAME                   VARCHAR(8),\n    ERROR_FILE                     VARCHAR(9),\n    ERROR_RESP                     VARCHAR(10),\n    ERROR_RESP2                    VARCHAR(10),\n    WS_LONG_MSG                    VARCHAR(500),\n    WS_INFO_MSG                    VARCHAR(40),\n    WS_RETURN_MSG                  VARCHAR(75),\n    LIT_THISPGM                    VARCHAR(8),\n    LIT_THISTRANID                 VARCHAR(4),\n    LIT_THISMAPSET                 VARCHAR(8),\n    LIT_THISMAP                    VARCHAR(7),\n    LIT_CCLISTPGM                  VARCHAR(8),\n    LIT_CCLISTMAPSET               VARCHAR(7),\n    LIT_MENUPGM                    VARCHAR(8),\n    LIT_MENUTRANID                 VARCHAR(4),\n    LIT_CARDFILENAME               VARCHAR(8),\n    LIT_CARDFILENAME_ACCT_PATH     VARCHAR(8),\n    CA_FROM_PROGRAM                VARCHAR(08),\n    CA_FROM_TRANID                 VARCHAR(04),\n    WS_COMMAREA                    VARCHAR(2000)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_RESP_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_REAS_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "CARD_EXPIRAION_DATE_X": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "CARD_EXPIRY_YEAR": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)."
+          },
+          "CARD_EXPIRY_MONTH": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)."
+          },
+          "CARD_EXPIRY_DAY": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)."
+          },
+          "WS_CARD_RID_CARDNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "WS_CARD_RID_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "ERROR_OPNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "ERROR_FILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "ERROR_RESP": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "ERROR_RESP2": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WS_LONG_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(500)."
+          },
+          "WS_INFO_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(40)."
+          },
+          "WS_RETURN_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(75)."
+          },
+          "LIT_THISPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_THISTRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "LIT_THISMAPSET": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_THISMAP": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_CCLISTPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_CCLISTMAPSET": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_MENUPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_MENUTRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "LIT_CARDFILENAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_CARDFILENAME_ACCT_PATH": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "CA_FROM_PROGRAM": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)."
+          },
+          "CA_FROM_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)."
+          },
+          "WS_COMMAREA": {
+            "type": "string",
+            "description": "Legacy PIC: X(2000)."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=COCRDSLC\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

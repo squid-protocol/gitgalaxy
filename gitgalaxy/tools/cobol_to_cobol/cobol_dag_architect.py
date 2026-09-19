@@ -120,7 +120,7 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optiona
         "program_id": program_id,
         "inputs": inputs,
         "outputs": outputs,
-        "unresolved_calls": list(dynamic_calls),
+        "unresolved_calls": sorted(dynamic_calls),  # a set: sorted so the IR is hash-seed independent (#3212)
     }
 
 

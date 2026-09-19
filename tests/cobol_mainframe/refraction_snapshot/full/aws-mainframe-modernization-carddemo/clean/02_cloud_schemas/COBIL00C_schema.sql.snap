@@ -1,0 +1,21 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_PGMNAME                     VARCHAR(08),
+    WS_TRANID                      VARCHAR(04),
+    WS_MESSAGE                     VARCHAR(80),
+    WS_TRANSACT_FILE               VARCHAR(08),
+    WS_ACCTDAT_FILE                VARCHAR(08),
+    WS_CXACAIX_FILE                VARCHAR(08),
+    WS_ERR_FLG                     VARCHAR(01),
+    WS_RESP_CD                     INTEGER,
+    WS_REAS_CD                     INTEGER,
+    WS_TRAN_ID_NUM                 BIGINT,
+    WS_ABS_TIME                    BIGINT -- Legacy: COMP-3 (Packed Decimal),
+    WS_CUR_DATE_X10                VARCHAR(10),
+    WS_CUR_TIME_X08                VARCHAR(08),
+    CDEMO_CB00_TRNID_FIRST         VARCHAR(16),
+    CDEMO_CB00_TRNID_LAST          VARCHAR(16),
+    CDEMO_CB00_PAGE_NUM            DECIMAL(8, 0),
+    CDEMO_CB00_NEXT_PAGE_FLG       VARCHAR(01),
+    CDEMO_CB00_TRN_SEL_FLG         VARCHAR(01),
+    CDEMO_CB00_TRN_SELECTED        VARCHAR(16)
+);

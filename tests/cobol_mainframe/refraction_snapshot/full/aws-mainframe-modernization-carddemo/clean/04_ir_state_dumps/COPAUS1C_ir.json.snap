@@ -1,0 +1,408 @@
+{
+  "metadata": {
+    "file_name": "COPAUS1C.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+    "corporate_header": "",
+    "loc": 604
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "COPAUS1C.cbl",
+      "total_vars": 336,
+      "orphaned_vars": [
+        "ABEND-CODE",
+        "ABEND-CULPRIT",
+        "ABEND-DATA",
+        "ABEND-MSG",
+        "ABEND-REASON",
+        "AUTHAMTC",
+        "AUTHAMTF",
+        "AUTHAMTH",
+        "AUTHAMTI",
+        "AUTHAMTL",
+        "AUTHAMTP",
+        "AUTHAMTV",
+        "AUTHCDC",
+        "AUTHCDF",
+        "AUTHCDH",
+        "AUTHCDI",
+        "AUTHCDL",
+        "AUTHCDP",
+        "AUTHCDV",
+        "AUTHDTC",
+        "AUTHDTF",
+        "AUTHDTH",
+        "AUTHDTI",
+        "AUTHDTL",
+        "AUTHDTP",
+        "AUTHDTV",
+        "AUTHFRDC",
+        "AUTHFRDF",
+        "AUTHFRDH",
+        "AUTHFRDI",
+        "AUTHFRDL",
+        "AUTHFRDP",
+        "AUTHFRDV",
+        "AUTHMTCC",
+        "AUTHMTCF",
+        "AUTHMTCH",
+        "AUTHMTCI",
+        "AUTHMTCL",
+        "AUTHMTCP",
+        "AUTHMTCV",
+        "AUTHRSNC",
+        "AUTHRSNF",
+        "AUTHRSNH",
+        "AUTHRSNI",
+        "AUTHRSNL",
+        "AUTHRSNP",
+        "AUTHRSNV",
+        "AUTHRSPF",
+        "AUTHRSPH",
+        "AUTHRSPI",
+        "AUTHRSPL",
+        "AUTHRSPP",
+        "AUTHRSPV",
+        "AUTHSRCC",
+        "AUTHSRCF",
+        "AUTHSRCH",
+        "AUTHSRCI",
+        "AUTHSRCL",
+        "AUTHSRCP",
+        "AUTHSRCV",
+        "AUTHTMC",
+        "AUTHTMF",
+        "AUTHTMH",
+        "AUTHTMI",
+        "AUTHTML",
+        "AUTHTMP",
+        "AUTHTMV",
+        "AUTHTYPC",
+        "AUTHTYPF",
+        "AUTHTYPH",
+        "AUTHTYPI",
+        "AUTHTYPL",
+        "AUTHTYPP",
+        "AUTHTYPV",
+        "CARDNUMC",
+        "CARDNUMF",
+        "CARDNUMH",
+        "CARDNUMI",
+        "CARDNUMP",
+        "CARDNUMV",
+        "CCDA-COMMON-MESSAGES",
+        "CCDA-MSG-THANK-YOU",
+        "CCDA-SCREEN-TITLE",
+        "CCDA-THANK-YOU",
+        "CDEMO-ACCOUNT-INFO",
+        "CDEMO-CARD-INFO",
+        "CDEMO-CPVD-INFO",
+        "CDEMO-CUSTOMER-INFO",
+        "CDEMO-GENERAL-INFO",
+        "CDEMO-MORE-INFO",
+        "CRDEXPC",
+        "CRDEXPF",
+        "CRDEXPH",
+        "CRDEXPI",
+        "CRDEXPL",
+        "CRDEXPP",
+        "CRDEXPV",
+        "CURDATEC",
+        "CURDATEF",
+        "CURDATEH",
+        "CURDATEI",
+        "CURDATEL",
+        "CURDATEP",
+        "CURDATEV",
+        "CURTIMEC",
+        "CURTIMEF",
+        "CURTIMEH",
+        "CURTIMEI",
+        "CURTIMEL",
+        "CURTIMEP",
+        "CURTIMEV",
+        "ERRMSGC",
+        "ERRMSGF",
+        "ERRMSGH",
+        "ERRMSGI",
+        "ERRMSGL",
+        "ERRMSGP",
+        "ERRMSGV",
+        "LK-COMMAREA",
+        "MCCCDC",
+        "MCCCDF",
+        "MCCCDH",
+        "MCCCDI",
+        "MCCCDL",
+        "MCCCDP",
+        "MCCCDV",
+        "MERCITYC",
+        "MERCITYF",
+        "MERCITYH",
+        "MERCITYI",
+        "MERCITYL",
+        "MERCITYP",
+        "MERCITYV",
+        "MERIDC",
+        "MERIDF",
+        "MERIDH",
+        "MERIDI",
+        "MERIDL",
+        "MERIDP",
+        "MERIDV",
+        "MERNAMEC",
+        "MERNAMEF",
+        "MERNAMEH",
+        "MERNAMEI",
+        "MERNAMEL",
+        "MERNAMEP",
+        "MERNAMEV",
+        "MERSTC",
+        "MERSTF",
+        "MERSTH",
+        "MERSTI",
+        "MERSTL",
+        "MERSTP",
+        "MERSTV",
+        "MERZIPC",
+        "MERZIPF",
+        "MERZIPH",
+        "MERZIPI",
+        "MERZIPL",
+        "MERZIPP",
+        "MERZIPV",
+        "PA-ACCOUNT-STATUS",
+        "PA-ACQR-COUNTRY-CODE",
+        "PA-APPROVED-AUTH-AMT",
+        "PA-APPROVED-AUTH-CNT",
+        "PA-AUTH-ID-CODE",
+        "PA-AUTH-STATUS",
+        "PA-CASH-BALANCE",
+        "PA-CASH-LIMIT",
+        "PA-CREDIT-BALANCE",
+        "PA-CREDIT-LIMIT",
+        "PA-CUST-ID",
+        "PA-DECLINED-AUTH-AMT",
+        "PA-DECLINED-AUTH-CNT",
+        "PA-MESSAGE-TYPE",
+        "PA-TRANSACTION-AMT",
+        "PCB-OFFSET",
+        "PGMNAMEC",
+        "PGMNAMEF",
+        "PGMNAMEH",
+        "PGMNAMEI",
+        "PGMNAMEL",
+        "PGMNAMEP",
+        "PGMNAMEV",
+        "POSEMDC",
+        "POSEMDF",
+        "POSEMDH",
+        "POSEMDI",
+        "POSEMDL",
+        "POSEMDP",
+        "POSEMDV",
+        "TITLE01C",
+        "TITLE01F",
+        "TITLE01H",
+        "TITLE01I",
+        "TITLE01L",
+        "TITLE01P",
+        "TITLE01V",
+        "TITLE02C",
+        "TITLE02F",
+        "TITLE02H",
+        "TITLE02I",
+        "TITLE02L",
+        "TITLE02P",
+        "TITLE02V",
+        "TRNIDC",
+        "TRNIDF",
+        "TRNIDH",
+        "TRNIDI",
+        "TRNIDL",
+        "TRNIDP",
+        "TRNIDV",
+        "TRNNAMEC",
+        "TRNNAMEF",
+        "TRNNAMEH",
+        "TRNNAMEI",
+        "TRNNAMEL",
+        "TRNNAMEP",
+        "TRNNAMEV",
+        "WS-AUTHS-EOF",
+        "WS-CURDATE-N",
+        "WS-CURTIME-N",
+        "WS-DATE-TIME",
+        "WS-DECLINE-REASON-TABLE",
+        "WS-FRAUD-STATUS-RECORD",
+        "WS-IMS-PSB-SCHD-FLG",
+        "WS-IMS-VARIABLES",
+        "WS-REAS-CD",
+        "WS-RESP-CD",
+        "WS-SEND-ERASE-FLG",
+        "WS-TABLES",
+        "WS-TIMESTAMP",
+        "WS-TIMESTAMP-DT-DD",
+        "WS-TIMESTAMP-DT-MM",
+        "WS-TIMESTAMP-DT-YYYY",
+        "WS-TIMESTAMP-TM-HH",
+        "WS-TIMESTAMP-TM-MM",
+        "WS-TIMESTAMP-TM-MS6",
+        "WS-TIMESTAMP-TM-SS",
+        "WS-VARIABLES"
+      ],
+      "total_paras": 15,
+      "dead_paras": [],
+      "loc_saved": 240
+    },
+    "lineage": {
+      "program_id": "COPAUS1C",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "COPAUS1C",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 8,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_PGM_AUTH_DTL                VARCHAR(08),\n    WS_PGM_AUTH_SMRY               VARCHAR(08),\n    WS_PGM_AUTH_FRAUD              VARCHAR(08),\n    WS_CICS_TRANID                 VARCHAR(04),\n    WS_MESSAGE                     VARCHAR(80),\n    WS_ERR_FLG                     VARCHAR(01),\n    WS_ACCT_ID                     DECIMAL(11, 0),\n    WS_AUTH_KEY                    VARCHAR(08),\n    WS_AUTH_AMT                    DECIMAL(3, 2),\n    WS_AUTH_DATE                   VARCHAR(08),\n    WS_AUTH_TIME                   VARCHAR(08),\n    DECL_CODE                      VARCHAR(4),\n    DECL_DESC                      VARCHAR(16),\n    PSB_NAME                       VARCHAR(8),\n    PAUT_PCB_NUM                   SMALLINT,\n    IMS_RETURN_CODE                VARCHAR(02),\n    WS_FRD_ACCT_ID                 DECIMAL(11, 0),\n    WS_FRD_CUST_ID                 DECIMAL(9, 0),\n    WS_FRAUD_AUTH_RECORD           VARCHAR(200),\n    WS_FRD_ACTION                  VARCHAR(01),\n    WS_FRD_UPDATE_STATUS           VARCHAR(01),\n    WS_FRD_ACT_MSG                 VARCHAR(50),\n    CDEMO_CPVD_PAU_SEL_FLG         VARCHAR(01),\n    CDEMO_CPVD_PAU_SELECTED        VARCHAR(08),\n    CDEMO_CPVD_PAUKEY_PREV_PG      VARCHAR(08),\n    CDEMO_CPVD_PAUKEY_LAST         VARCHAR(08),\n    CDEMO_CPVD_PAGE_NUM            SMALLINT,\n    CDEMO_CPVD_NEXT_PAGE_FLG       VARCHAR(01),\n    CDEMO_CPVD_AUTH_KEYS           VARCHAR(08),\n    CDEMO_CPVD_FRAUD_DATA          VARCHAR(100)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_PGM_AUTH_DTL": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "WS_PGM_AUTH_SMRY": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "WS_PGM_AUTH_FRAUD": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "WS_CICS_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "WS_MESSAGE": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "WS_ERR_FLG": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "WS_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "WS_AUTH_KEY": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)."
+          },
+          "WS_AUTH_AMT": {
+            "type": "number",
+            "description": "Legacy PIC: -ZZZZZZZ9.99."
+          },
+          "WS_AUTH_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "WS_AUTH_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "DECL_CODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)."
+          },
+          "DECL_DESC": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "PSB_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "PAUT_PCB_NUM": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "IMS_RETURN_CODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_FRD_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "WS_FRD_CUST_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(9)."
+          },
+          "WS_FRAUD_AUTH_RECORD": {
+            "type": "string",
+            "description": "Legacy PIC: X(200)."
+          },
+          "WS_FRD_ACTION": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)."
+          },
+          "WS_FRD_UPDATE_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)."
+          },
+          "WS_FRD_ACT_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)."
+          },
+          "CDEMO_CPVD_PAU_SEL_FLG": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)."
+          },
+          "CDEMO_CPVD_PAU_SELECTED": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)."
+          },
+          "CDEMO_CPVD_PAUKEY_PREV_PG": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "CDEMO_CPVD_PAUKEY_LAST": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)."
+          },
+          "CDEMO_CPVD_PAGE_NUM": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(04)"
+          },
+          "CDEMO_CPVD_NEXT_PAGE_FLG": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "CDEMO_CPVD_AUTH_KEYS": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "CDEMO_CPVD_FRAUD_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(100)."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=COPAUS1C\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

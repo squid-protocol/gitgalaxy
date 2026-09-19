@@ -1,0 +1,222 @@
+{
+  "metadata": {
+    "file_name": "CBTRN01C.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CBTRN01C.cbl",
+    "corporate_header": "",
+    "loc": 494
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "CBTRN01C.cbl",
+      "total_vars": 124,
+      "orphaned_vars": [
+        "ACCT-ACTIVE-STATUS",
+        "ACCT-ADDR-ZIP",
+        "ACCT-CASH-CREDIT-LIMIT",
+        "ACCT-CREDIT-LIMIT",
+        "ACCT-CURR-BAL",
+        "ACCT-CURR-CYC-CREDIT",
+        "ACCT-CURR-CYC-DEBIT",
+        "ACCT-EXPIRAION-DATE",
+        "ACCT-GROUP-ID",
+        "ACCT-OPEN-DATE",
+        "ACCT-REISSUE-DATE",
+        "ACCTFILE-STAT1",
+        "ACCTFILE-STAT2",
+        "CARD-ACCT-ID",
+        "CARD-ACTIVE-STATUS",
+        "CARD-CVV-CD",
+        "CARD-EMBOSSED-NAME",
+        "CARD-EXPIRAION-DATE",
+        "CARD-RECORD",
+        "CARDFILE-STAT1",
+        "CARDFILE-STAT2",
+        "CUST-ADDR-COUNTRY-CD",
+        "CUST-ADDR-LINE-1",
+        "CUST-ADDR-LINE-2",
+        "CUST-ADDR-LINE-3",
+        "CUST-ADDR-STATE-CD",
+        "CUST-ADDR-ZIP",
+        "CUST-DOB-YYYY-MM-DD",
+        "CUST-EFT-ACCOUNT-ID",
+        "CUST-FICO-CREDIT-SCORE",
+        "CUST-FIRST-NAME",
+        "CUST-GOVT-ISSUED-ID",
+        "CUST-LAST-NAME",
+        "CUST-MIDDLE-NAME",
+        "CUST-PHONE-NUM-1",
+        "CUST-PHONE-NUM-2",
+        "CUST-PRI-CARD-HOLDER-IND",
+        "CUST-SSN",
+        "CUSTFILE-STAT1",
+        "CUSTFILE-STAT2",
+        "CUSTOMER-RECORD",
+        "DALYTRAN-AMT",
+        "DALYTRAN-CAT-CD",
+        "DALYTRAN-DESC",
+        "DALYTRAN-MERCHANT-CITY",
+        "DALYTRAN-MERCHANT-ID",
+        "DALYTRAN-MERCHANT-NAME",
+        "DALYTRAN-MERCHANT-ZIP",
+        "DALYTRAN-ORIG-TS",
+        "DALYTRAN-PROC-TS",
+        "DALYTRAN-SOURCE",
+        "DALYTRAN-STAT1",
+        "DALYTRAN-STAT2",
+        "DALYTRAN-TYPE-CD",
+        "FD-ACCT-DATA",
+        "FD-ACCTFILE-REC",
+        "FD-CARD-DATA",
+        "FD-CARD-NUM",
+        "FD-CARDFILE-REC",
+        "FD-CUST-DATA",
+        "FD-CUST-ID",
+        "FD-CUSTFILE-REC",
+        "FD-TRAN-ID",
+        "FD-TRAN-RECORD",
+        "FD-TRANFILE-REC",
+        "FD-TRANS-ID",
+        "FD-XREF-DATA",
+        "FD-XREFFILE-REC",
+        "IO-STATUS-0401",
+        "TRAN-AMT",
+        "TRAN-CARD-NUM",
+        "TRAN-CAT-CD",
+        "TRAN-DESC",
+        "TRAN-ID",
+        "TRAN-MERCHANT-CITY",
+        "TRAN-MERCHANT-ID",
+        "TRAN-MERCHANT-NAME",
+        "TRAN-MERCHANT-ZIP",
+        "TRAN-ORIG-TS",
+        "TRAN-PROC-TS",
+        "TRAN-RECORD",
+        "TRAN-SOURCE",
+        "TRAN-TYPE-CD",
+        "TRANFILE-STAT1",
+        "TRANFILE-STAT2",
+        "TWO-BYTES-ALPHA",
+        "TWO-BYTES-LEFT",
+        "WS-MISC-VARIABLES",
+        "XREFFILE-STAT1",
+        "XREFFILE-STAT2"
+      ],
+      "total_paras": 18,
+      "dead_paras": [],
+      "loc_saved": 90
+    },
+    "lineage": {
+      "program_id": "CBTRN01C",
+      "inputs": [
+        "ACCTFILE",
+        "CARDFILE",
+        "CUSTFILE",
+        "DALYTRAN",
+        "TRANFILE",
+        "XREFFILE"
+      ],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "CBTRN01C",
+      "files_requested": [
+        {
+          "internal": "DALYTRAN-FILE",
+          "dd_name": "DALYTRAN"
+        },
+        {
+          "internal": "CUSTOMER-FILE",
+          "dd_name": "CUSTFILE"
+        },
+        {
+          "internal": "XREF-FILE",
+          "dd_name": "XREFFILE"
+        },
+        {
+          "internal": "CARD-FILE",
+          "dd_name": "CARDFILE"
+        },
+        {
+          "internal": "ACCOUNT-FILE",
+          "dd_name": "ACCTFILE"
+        },
+        {
+          "internal": "TRANSACT-FILE",
+          "dd_name": "TRANFILE"
+        }
+      ],
+      "is_cics": false,
+      "is_db2": false,
+      "cics_calls": 0,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "WS_MISC_VARIABLES",
+      "sql": "CREATE TABLE WS_MISC_VARIABLES (\n    FD_XREF_CARD_NUM               VARCHAR(16),\n    FD_ACCT_ID                     DECIMAL(11, 0),\n    IO_STAT1                       VARCHAR(1),\n    IO_STAT2                       VARCHAR(1),\n    TWO_BYTES_BINARY               SMALLINT,\n    TWO_BYTES_RIGHT                VARCHAR(1),\n    IO_STATUS_0403                 SMALLINT,\n    APPL_RESULT                    INTEGER,\n    END_OF_DAILY_TRANS_FILE        VARCHAR(01),\n    ABCODE                         INTEGER,\n    TIMING                         INTEGER,\n    WS_XREF_READ_STATUS            DECIMAL(4, 0),\n    WS_ACCT_READ_STATUS            DECIMAL(4, 0)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "WS_MISC_VARIABLES",
+        "type": "object",
+        "properties": {
+          "FD_XREF_CARD_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "FD_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "IO_STAT1": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "IO_STAT2": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "TWO_BYTES_BINARY": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "TWO_BYTES_RIGHT": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "IO_STATUS_0403": {
+            "type": "integer",
+            "description": "Legacy PIC: 999"
+          },
+          "APPL_RESULT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "END_OF_DAILY_TRANS_FILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "ABCODE": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "TIMING": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "WS_XREF_READ_STATUS": {
+            "type": "number",
+            "description": "Legacy PIC: 9(04)."
+          },
+          "WS_ACCT_READ_STATUS": {
+            "type": "number",
+            "description": "Legacy PIC: 9(04)."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ==========================================================\n//STEP01   EXEC PGM=CBTRN01C\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//* --- EXTRACTED FILE INTENT BOUNDARIES ---\n//DALYTRAN DD DSN=HERC01.DATA.DALYTRAN,\n//             DISP=SHR\n//CUSTFILE DD DSN=HERC01.DATA.CUSTFILE,\n//             DISP=SHR\n//XREFFILE DD DSN=HERC01.DATA.XREFFILE,\n//             DISP=SHR\n//CARDFILE DD DSN=HERC01.DATA.CARDFILE,\n//             DISP=SHR\n//ACCTFILE DD DSN=HERC01.DATA.ACCTFILE,\n//             DISP=SHR\n//TRANFILE DD DSN=HERC01.DATA.TRANFILE,\n//             DISP=SHR\n//"
+  }
+}

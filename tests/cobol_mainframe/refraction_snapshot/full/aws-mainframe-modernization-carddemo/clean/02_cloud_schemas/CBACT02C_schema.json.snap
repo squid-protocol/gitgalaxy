@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "IO_STATUS_04",
+  "type": "object",
+  "properties": {
+    "IO_STAT1": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "IO_STAT2": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "TWO_BYTES_BINARY": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "TWO_BYTES_RIGHT": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "IO_STATUS_0403": {
+      "type": "integer",
+      "description": "Legacy PIC: 999"
+    },
+    "APPL_RESULT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "END_OF_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "ABCODE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "TIMING": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    }
+  }
+}

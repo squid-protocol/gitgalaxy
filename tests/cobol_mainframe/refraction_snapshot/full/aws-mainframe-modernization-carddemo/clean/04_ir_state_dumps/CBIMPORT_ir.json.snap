@@ -1,0 +1,188 @@
+{
+  "metadata": {
+    "file_name": "CBIMPORT.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CBIMPORT.cbl",
+    "corporate_header": "",
+    "loc": 487
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "CBIMPORT.cbl",
+      "total_vars": 97,
+      "orphaned_vars": [
+        "EXPORT-ACCOUNT-DATA",
+        "EXPORT-BRANCH-ID",
+        "EXPORT-CARD-DATA",
+        "EXPORT-CARD-XREF-DATA",
+        "EXPORT-CUSTOMER-DATA",
+        "EXPORT-INPUT-RECORD",
+        "EXPORT-RECORD-DATA",
+        "EXPORT-REGION-CODE",
+        "EXPORT-TIMESTAMP",
+        "EXPORT-TIMESTAMP-R",
+        "EXPORT-TRANSACTION-DATA",
+        "WS-FILE-STATUS-AREA",
+        "WS-IMPORT-CONTROL",
+        "WS-IMPORT-STATISTICS"
+      ],
+      "total_paras": 16,
+      "dead_paras": [],
+      "loc_saved": 14
+    },
+    "lineage": {
+      "program_id": "CBIMPORT",
+      "inputs": [
+        "EXPFILE"
+      ],
+      "outputs": [
+        "ACCTOUT",
+        "CARDOUT",
+        "CUSTOUT",
+        "ERROUT",
+        "TRNXOUT",
+        "XREFOUT"
+      ],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "CBIMPORT",
+      "files_requested": [
+        {
+          "internal": "EXPORT-INPUT",
+          "dd_name": "EXPFILE"
+        },
+        {
+          "internal": "CUSTOMER-OUTPUT",
+          "dd_name": "CUSTOUT"
+        },
+        {
+          "internal": "ACCOUNT-OUTPUT",
+          "dd_name": "ACCTOUT"
+        },
+        {
+          "internal": "XREF-OUTPUT",
+          "dd_name": "XREFOUT"
+        },
+        {
+          "internal": "TRANSACTION-OUTPUT",
+          "dd_name": "TRNXOUT"
+        },
+        {
+          "internal": "CARD-OUTPUT",
+          "dd_name": "CARDOUT"
+        },
+        {
+          "internal": "ERROR-OUTPUT",
+          "dd_name": "ERROUT"
+        }
+      ],
+      "is_cics": false,
+      "is_db2": false,
+      "cics_calls": 0,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "WS_ERROR_RECORD",
+      "sql": "CREATE TABLE WS_ERROR_RECORD (\n    ERROR_OUTPUT_RECORD            VARCHAR(132),\n    WS_EXPORT_STATUS               VARCHAR(02),\n    WS_CUSTOMER_STATUS             VARCHAR(02),\n    WS_ACCOUNT_STATUS              VARCHAR(02),\n    WS_XREF_STATUS                 VARCHAR(02),\n    WS_TRANSACTION_STATUS          VARCHAR(02),\n    WS_CARD_STATUS                 VARCHAR(02),\n    WS_ERROR_STATUS                VARCHAR(02),\n    WS_IMPORT_DATE                 VARCHAR(10),\n    WS_IMPORT_TIME                 VARCHAR(08),\n    WS_TOTAL_RECORDS_READ          INTEGER,\n    WS_CUSTOMER_RECORDS_IMPORTED   INTEGER,\n    WS_ACCOUNT_RECORDS_IMPORTED    INTEGER,\n    WS_XREF_RECORDS_IMPORTED       INTEGER,\n    WS_TRAN_RECORDS_IMPORTED       INTEGER,\n    WS_CARD_RECORDS_IMPORTED       INTEGER,\n    WS_ERROR_RECORDS_WRITTEN       INTEGER,\n    WS_UNKNOWN_RECORD_TYPE_COUNT   INTEGER,\n    ERR_TIMESTAMP                  VARCHAR(26),\n    ERR_RECORD_TYPE                VARCHAR(01),\n    ERR_SEQUENCE                   DECIMAL(7, 0),\n    ERR_MESSAGE                    VARCHAR(50)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "WS_ERROR_RECORD",
+        "type": "object",
+        "properties": {
+          "ERROR_OUTPUT_RECORD": {
+            "type": "string",
+            "description": "Legacy PIC: X(132)."
+          },
+          "WS_EXPORT_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_CUSTOMER_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_ACCOUNT_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_XREF_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_TRANSACTION_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_CARD_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_ERROR_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_IMPORT_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "WS_IMPORT_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)."
+          },
+          "WS_TOTAL_RECORDS_READ": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_CUSTOMER_RECORDS_IMPORTED": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_ACCOUNT_RECORDS_IMPORTED": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_XREF_RECORDS_IMPORTED": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_TRAN_RECORDS_IMPORTED": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_CARD_RECORDS_IMPORTED": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_ERROR_RECORDS_WRITTEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_UNKNOWN_RECORD_TYPE_COUNT": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "ERR_TIMESTAMP": {
+            "type": "string",
+            "description": "Legacy PIC: X(26)."
+          },
+          "ERR_RECORD_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)."
+          },
+          "ERR_SEQUENCE": {
+            "type": "number",
+            "description": "Legacy PIC: 9(07)."
+          },
+          "ERR_MESSAGE": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ==========================================================\n//STEP01   EXEC PGM=CBIMPORT\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//* --- EXTRACTED FILE INTENT BOUNDARIES ---\n//EXPFILE  DD DSN=HERC01.DATA.EXPFILE,\n//             DISP=SHR\n//CUSTOUT  DD DSN=HERC01.DATA.CUSTOUT,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//ACCTOUT  DD DSN=HERC01.DATA.ACCTOUT,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//XREFOUT  DD DSN=HERC01.DATA.XREFOUT,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//TRNXOUT  DD DSN=HERC01.DATA.TRNXOUT,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//CARDOUT  DD DSN=HERC01.DATA.CARDOUT,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//ERROUT   DD DSN=HERC01.DATA.ERROUT,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//"
+  }
+}

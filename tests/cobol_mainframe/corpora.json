@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "about": "Pinned real mainframe corpora for the refraction tooling (#3213). Fetch, scan and score them with tests/tools/mainframe_corpus.py. `ref` is authoritative; `branch` only says where the ref lives upstream.",
+  "corpora": [
+    {
+      "name": "zopeneditor-sample",
+      "url": "https://github.com/IBM/zopeneditor-sample",
+      "branch": "main",
+      "ref": "8f9835308de6159eb54f226041d5f81a780cb8eb",
+      "license": "Apache-2.0",
+      "languages": [
+        "cobol",
+        "jcl",
+        "pli",
+        "rexx",
+        "hlasm"
+      ],
+      "answer_key": "tests/cobol_mainframe/answer_key/zopeneditor-sample.json",
+      "notes": "Batch COBOL with zapp.yaml copybook libraries, and the same-name COBOL/SAM2 + multiroot/sam/SAM2 layout (#3218). No .bms maps.",
+      "excerpt": {
+        "why": "Every program with its copybooks (both zapp.yaml libraries) and the one JCL that EXECs one: the #3218 same-name COBOL/SAM2 + multiroot/sam/SAM2 layout.",
+        "files": [
+          "COBOL/SAM1.cbl",
+          "COBOL/SAM1LIB.cbl",
+          "COBOL/SAM2.cbl",
+          "COPYBOOK/CUSTCOPY.cpy",
+          "COPYBOOK/TRANREC.cpy",
+          "JCL/RUN.jcl",
+          "multiroot/copybooks/cust/CUSTCOPY.cpy",
+          "multiroot/copybooks/trans/SAM2PAR5.cpy",
+          "multiroot/copybooks/trans/SAM2PARM.cpy",
+          "multiroot/copybooks/trans/TRANREC.cpy",
+          "multiroot/sam/SAM1.cbl",
+          "multiroot/sam/SAM2.cbl",
+          "multiroot/sam/zapp.yaml",
+          "zapp.yaml"
+        ]
+      }
+    },
+    {
+      "name": "cics-banking-sample-application-cbsa",
+      "url": "https://github.com/cicsdev/cics-banking-sample-application-cbsa",
+      "branch": "July2024Refresh",
+      "ref": "417334533178ab6e753cc64b0e0e5cf0b4952704",
+      "license": "EPL-2.0",
+      "languages": [
+        "cobol",
+        "bms",
+        "jcl"
+      ],
+      "answer_key": "tests/cobol_mainframe/answer_key/cics-banking-sample-application-cbsa.json",
+      "notes": "CICS online COBOL with SECTIONs. Its main branch was emptied at the 2024 sunset (README only), so the ref lives on July2024Refresh. 10 BMS maps under src/base/bms_src.",
+      "excerpt": {
+        "why": "BANKDATA (batch, dead CALC-DAY-OF-WEEK, OPEN OUTPUT behind A010), BNK1CAC (CICS SECTIONs, dead POPULATE-TIME-DATE) and ABNDPROC, with their copybooks.",
+        "files": [
+          "src/base/cobol_copy/ABNDINFO.cpy",
+          "src/base/cobol_copy/ACCTCTRL.cpy",
+          "src/base/cobol_copy/CUSTCTRL.cpy",
+          "src/base/cobol_copy/CUSTOMER.cpy",
+          "src/base/cobol_copy/SORTCODE.cpy",
+          "src/base/cobol_src/ABNDPROC.cbl",
+          "src/base/cobol_src/BANKDATA.cbl",
+          "src/base/cobol_src/BNK1CAC.cbl"
+        ]
+      }
+    },
+    {
+      "name": "aws-mainframe-modernization-carddemo",
+      "url": "https://github.com/aws-samples/aws-mainframe-modernization-carddemo",
+      "branch": "main",
+      "ref": "59cc6c2fd7ebd7ef7925cad552a01a4b8b6e4d5e",
+      "license": "Apache-2.0",
+      "languages": [
+        "cobol",
+        "bms",
+        "jcl"
+      ],
+      "answer_key": null,
+      "notes": "The real BMS corpus #3122 asked for: 21 .bms maps, each with its generated symbolic-map copybook (app/bms <-> app/cpy-bms), plus CICS/batch COBOL and JCL. No answer key yet.",
+      "excerpt": {
+        "why": "CBACT01C (batch SELECT/OPEN lineage, with READACCT.jcl) and COCRDLIC (CICS, two dynamic CALLs, a BMS symbolic-map copybook), with their copybooks.",
+        "files": [
+          "app/cbl/CBACT01C.cbl",
+          "app/cbl/COCRDLIC.cbl",
+          "app/cpy-bms/COCRDLI.CPY",
+          "app/cpy/COCOM01Y.cpy",
+          "app/cpy/CODATECN.cpy",
+          "app/cpy/COTTL01Y.cpy",
+          "app/cpy/CSDAT01Y.cpy",
+          "app/cpy/CSMSG01Y.cpy",
+          "app/cpy/CSUSR01Y.cpy",
+          "app/cpy/CVACT01Y.cpy",
+          "app/cpy/CVACT02Y.cpy",
+          "app/cpy/CVCRD01Y.cpy",
+          "app/jcl/READACCT.jcl"
+        ]
+      }
+    }
+  ]
+}

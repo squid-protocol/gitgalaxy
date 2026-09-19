@@ -42,3 +42,18 @@ python -m pytest tests/cobol_mainframe/ -v
 
 #### 6. Autonomous Agent Handoff
 * **`test_cobol_agent_task_forge.py`** — Validates the context merger for autonomous agents, checking that LLMs receive remediation tickets scoped to what's actually in the code, not speculative instructions.
+
+#### 7. Real Corpora, Generated-Output Snapshot, and ReDoS Sweep
+The unit tests above run on synthetic fixtures. These three run the tools over real mainframe source.
+
+* **`corpora.json`**: the pinned real corpora (#3213):
+  * `zopeneditor-sample`
+  * `cics-banking-sample-application-cbsa` (its `July2024Refresh` ref)
+  * `aws-mainframe-modernization-carddemo` (21 BMS maps)
+
+  Each entry lists its answer key and its CI excerpt. `python tests/tools/mainframe_corpus.py fetch | scan | score | path | excerpt` works on them. The clones and cached DBs live in the gitignored `.mainframe_corpora/`.
+* **`test_mainframe_corpus.py`**: checks the manifest and the fetch/excerpt mechanics against a local repository. It never uses the network.
+* **`test_refraction_snapshot.py`**: runs `cobol-refractor` and then `cobol-to-java` over each committed excerpt (`refraction_excerpts/`). It diffs every generated file against `refraction_snapshot/excerpts/` (#3212).
+  * Once the corpora are fetched, it also diffs the full corpora against `refraction_snapshot/full/`. This part is local only and skipped in CI.
+  * To bless an intended change, run `python tests/tools/refraction_snapshot.py update [--corpus NAME ...]`, then explain what moved in the PR.
+* **`test_tool_regex_redos.py`**: the ReDoS scaling sweep over every regex in both tool suites (#3214). A pattern outside `tool_regex_redos_baseline.json` that is slow, or that grows superlinearly, fails the test. The CLI is `python tests/tools/tool_regex_redos.py [--ci | --update-baseline]`.

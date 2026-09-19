@@ -37,3 +37,11 @@
 # neither changes merge behaviour.
 tests/golden_master_audit.json          -diff linguist-generated=true
 tests/golden_master_zero_dep_audit.json -diff linguist-generated=true
+
+# #3213: upstream mainframe source vendored byte-for-byte at a pinned ref
+# (tests/tools/mainframe_corpus.py excerpt). -text stops a Windows checkout's
+# autocrlf from rewriting it; linguist-vendored keeps it out of the language stats.
+tests/cobol_mainframe/refraction_excerpts/** -text linguist-vendored
+# #3212: generated-output snapshots, compared as text. LF on every OS; left
+# uncollapsed on purpose, because the diff is the review surface.
+tests/cobol_mainframe/refraction_snapshot/** text eol=lf

@@ -1,0 +1,226 @@
+{
+  "metadata": {
+    "file_name": "CBACT01C.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CBACT01C.cbl",
+    "corporate_header": "",
+    "loc": 430
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "CBACT01C.cbl",
+      "total_vars": 81,
+      "orphaned_vars": [
+        "ACCT-ADDR-ZIP",
+        "ACCTFILE-STAT1",
+        "ACCTFILE-STAT2",
+        "ARR-ACCT-BAL",
+        "ARR-FILLER",
+        "ARRYFILE-STAT1",
+        "ARRYFILE-STAT2",
+        "CODATECN-ERROR-MSG",
+        "CODATECN-IN-REC",
+        "CODATECN-OUT-REC",
+        "FD-ACCT-DATA",
+        "FD-ACCT-ID",
+        "FD-ACCTFILE-REC",
+        "IO-STATUS-0401",
+        "OUTFILE-STAT1",
+        "OUTFILE-STAT2",
+        "TWO-BYTES-ALPHA",
+        "TWO-BYTES-LEFT",
+        "VBRCFILE-STAT1",
+        "VBRCFILE-STAT2",
+        "WS-ACCT-REISSUE-DATE",
+        "WS-ACCT-REISSUE-DD",
+        "WS-ACCT-REISSUE-MM",
+        "WS-FILLER-1",
+        "WS-FILLER-2"
+      ],
+      "total_paras": 16,
+      "dead_paras": [],
+      "loc_saved": 25
+    },
+    "lineage": {
+      "program_id": "CBACT01C",
+      "inputs": [
+        "ACCTFILE"
+      ],
+      "outputs": [
+        "ARRYFILE",
+        "OUTFILE",
+        "VBRCFILE"
+      ],
+      "unresolved_calls": [
+        "ASSEMBLER"
+      ]
+    },
+    "base_intent": {
+      "program_id": "CBACT01C",
+      "files_requested": [
+        {
+          "internal": "ACCTFILE-FILE",
+          "dd_name": "ACCTFILE"
+        },
+        {
+          "internal": "OUT-FILE",
+          "dd_name": "OUTFILE"
+        },
+        {
+          "internal": "ARRY-FILE",
+          "dd_name": "ARRYFILE"
+        },
+        {
+          "internal": "VBRC-FILE",
+          "dd_name": "VBRCFILE"
+        }
+      ],
+      "is_cics": false,
+      "is_db2": false,
+      "cics_calls": 0,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "WS_REISSUE_DATE",
+      "sql": "CREATE TABLE WS_REISSUE_DATE (\n    OUT_ACCT_ID                    DECIMAL(11, 0),\n    OUT_ACCT_ACTIVE_STATUS         VARCHAR(01),\n    OUT_ACCT_CURR_BAL              DECIMAL(12, 2),\n    OUT_ACCT_CREDIT_LIMIT          DECIMAL(12, 2),\n    OUT_ACCT_CASH_CREDIT_LIMIT     DECIMAL(12, 2),\n    OUT_ACCT_OPEN_DATE             VARCHAR(10),\n    OUT_ACCT_EXPIRAION_DATE        VARCHAR(10),\n    OUT_ACCT_REISSUE_DATE          VARCHAR(10),\n    OUT_ACCT_CURR_CYC_CREDIT       DECIMAL(12, 2),\n    OUT_ACCT_CURR_CYC_DEBIT        DECIMAL(12, 2),\n    OUT_ACCT_GROUP_ID              VARCHAR(10),\n    ARR_ACCT_ID                    DECIMAL(11, 0),\n    ARR_ACCT_CURR_BAL              DECIMAL(12, 2),\n    ARR_ACCT_CURR_CYC_DEBIT        DECIMAL(12, 2),\n    VBR_REC                        VARCHAR(80),\n    IO_STAT1                       VARCHAR(1),\n    IO_STAT2                       VARCHAR(1),\n    TWO_BYTES_BINARY               SMALLINT,\n    TWO_BYTES_RIGHT                VARCHAR(1),\n    IO_STATUS_0403                 SMALLINT,\n    APPL_RESULT                    INTEGER,\n    END_OF_FILE                    VARCHAR(01),\n    ABCODE                         INTEGER,\n    TIMING                         INTEGER,\n    WS_RECD_LEN                    DECIMAL(4, 0),\n    VB1_ACCT_ID                    DECIMAL(11, 0),\n    VB1_ACCT_ACTIVE_STATUS         VARCHAR(01),\n    VB2_ACCT_ID                    DECIMAL(11, 0),\n    VB2_ACCT_CURR_BAL              DECIMAL(12, 2),\n    VB2_ACCT_CREDIT_LIMIT          DECIMAL(12, 2),\n    VB2_ACCT_REISSUE_YYYY          VARCHAR(04),\n    WS_ACCT_REISSUE_YYYY           VARCHAR(04)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "WS_REISSUE_DATE",
+        "type": "object",
+        "properties": {
+          "OUT_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "OUT_ACCT_ACTIVE_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)."
+          },
+          "OUT_ACCT_CURR_BAL": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99."
+          },
+          "OUT_ACCT_CREDIT_LIMIT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99."
+          },
+          "OUT_ACCT_CASH_CREDIT_LIMIT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99."
+          },
+          "OUT_ACCT_OPEN_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "OUT_ACCT_EXPIRAION_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "OUT_ACCT_REISSUE_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "OUT_ACCT_CURR_CYC_CREDIT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99."
+          },
+          "OUT_ACCT_CURR_CYC_DEBIT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99"
+          },
+          "OUT_ACCT_GROUP_ID": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "ARR_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "ARR_ACCT_CURR_BAL": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99."
+          },
+          "ARR_ACCT_CURR_CYC_DEBIT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99"
+          },
+          "VBR_REC": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)."
+          },
+          "IO_STAT1": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "IO_STAT2": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "TWO_BYTES_BINARY": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "TWO_BYTES_RIGHT": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "IO_STATUS_0403": {
+            "type": "integer",
+            "description": "Legacy PIC: 999"
+          },
+          "APPL_RESULT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "END_OF_FILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "ABCODE": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "TIMING": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "WS_RECD_LEN": {
+            "type": "number",
+            "description": "Legacy PIC: 9(04)."
+          },
+          "VB1_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "VB1_ACCT_ACTIVE_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)."
+          },
+          "VB2_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "VB2_ACCT_CURR_BAL": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99."
+          },
+          "VB2_ACCT_CREDIT_LIMIT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99."
+          },
+          "VB2_ACCT_REISSUE_YYYY": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)."
+          },
+          "WS_ACCT_REISSUE_YYYY": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ==========================================================\n//STEP01   EXEC PGM=CBACT01C\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//* --- EXTRACTED FILE INTENT BOUNDARIES ---\n//ACCTFILE DD DSN=HERC01.DATA.ACCTFILE,\n//             DISP=SHR\n//OUTFILE  DD DSN=HERC01.DATA.OUTFILE,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//ARRYFILE DD DSN=HERC01.DATA.ARRYFILE,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//VBRCFILE DD DSN=HERC01.DATA.VBRCFILE,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//"
+  }
+}

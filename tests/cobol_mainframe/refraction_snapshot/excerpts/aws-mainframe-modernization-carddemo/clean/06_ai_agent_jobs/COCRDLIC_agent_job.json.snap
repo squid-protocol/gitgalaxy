@@ -1,0 +1,19 @@
+{
+  "job_id": "COCRDLIC_REMEDIATION",
+  "status": "PENDING",
+  "task_type": "STRUCTURAL_ANOMALY_RESOLUTION",
+  "target_file": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/COCRDLIC.cbl",
+  "context": {
+    "detected_anomalies": [
+      "Unresolved Dynamic CALL to: CARD",
+      "Unresolved Dynamic CALL to: MENU"
+    ],
+    "inputs_required": [],
+    "outputs_produced": [],
+    "external_calls": [
+      "CARD",
+      "MENU"
+    ]
+  },
+  "system_prompt": "You are a deterministic legacy systems architect. Your task is to analyze the provided 'target_file' and resolve the structural issues listed in 'detected_anomalies'. Do not alter the core business logic. Return your proposed solution as a valid JSON object containing a 'diagnosis' string and a 'patched_code' string."
+}

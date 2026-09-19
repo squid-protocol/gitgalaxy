@@ -1,0 +1,302 @@
+{
+  "metadata": {
+    "file_name": "DELCUS.cbl",
+    "path": "<WORK>/cics-banking-sample-application-cbsa/src/base/cobol_src/DELCUS.cbl",
+    "corporate_header": "",
+    "loc": 761
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "DELCUS.cbl",
+      "total_vars": 161,
+      "orphaned_vars": [
+        "ABND-VSAM-KEY",
+        "ACCOUNT-ACT-BAL-STORE",
+        "ACCOUNT-DETAILS",
+        "ACCTCUST-DESIRED-KEY",
+        "COMM-CS-REVIEW-DATE",
+        "COMM-CS-REVIEW-GROUP",
+        "COMM-DOB",
+        "COMM-DOB-GROUP",
+        "COMM-FAIL-CODE",
+        "COMM-SUCCESS",
+        "CUSTOMER-FOUND",
+        "DB2-DATE-REF-DAY",
+        "DB2-DATE-REF-MNTH",
+        "DB2-DATE-REF-YR",
+        "DB2-DATE-REFORMAT",
+        "DB2-EXIT-LOOP",
+        "DELACC-COMM-ACC-TYPE",
+        "DELACC-COMM-ACTUAL-BAL",
+        "DELACC-COMM-AVAIL-BAL",
+        "DELACC-COMM-CUSTNO",
+        "DELACC-COMM-DEL-FAIL-CD",
+        "DELACC-COMM-DEL-SUCCESS",
+        "DELACC-COMM-EYE",
+        "DELACC-COMM-FAIL-CD",
+        "DELACC-COMM-INT-RATE",
+        "DELACC-COMM-LAST-STMT-DT",
+        "DELACC-COMM-NEXT-STMT-DT",
+        "DELACC-COMM-OPENED",
+        "DELACC-COMM-OVERDRAFT",
+        "DELACC-COMM-PCB2",
+        "DELACC-COMM-SCODE",
+        "DELACC-COMM-SUCCESS",
+        "DESIRED-KEY-ACCTCUST",
+        "DESIRED-KEY-CUSTOMER-ACCTCUST",
+        "DESIRED-KEY-SORTCODE-ACCTCUST",
+        "EXIT-BROWSE-LOOP",
+        "FETCH-DATA-CNT",
+        "FILE-RETRY",
+        "INQACCCU-PROGRAM",
+        "INQCUST-ADDR",
+        "INQCUST-CREDIT-SCORE",
+        "INQCUST-CS-REVIEW-DT",
+        "INQCUST-DOB",
+        "INQCUST-EYE",
+        "INQCUST-NAME",
+        "INQCUST-PCB-POINTER",
+        "INQCUST-SCODE",
+        "OUTPUT-DATA",
+        "PROC-TRAN-DATA",
+        "PROCTRAN-AREA",
+        "PROCTRAN-RETRY",
+        "PROCTRAN-RIDFLD",
+        "REMIX-CHAR",
+        "REMIX-SCODE",
+        "REMIX-STMT-DATE",
+        "RETURNED-ACTUAL-BALANCE",
+        "RETURNED-AVAILABLE-BALANCE",
+        "RETURNED-CUST-NO",
+        "RETURNED-DATA",
+        "RETURNED-EYE-CATCHER",
+        "RETURNED-INTEREST-RATE",
+        "RETURNED-KEY",
+        "RETURNED-LAST-STMT-DATE",
+        "RETURNED-NEXT-STMT-DATE",
+        "RETURNED-OPENED",
+        "RETURNED-OVERDRAFT-LIMIT",
+        "RETURNED-TYPE",
+        "STORM-DRAIN-CONDITION",
+        "VAR-REMIX",
+        "WS-ACC-KEY-LEN",
+        "WS-ACC-NUM",
+        "WS-CICS-WORK-AREA",
+        "WS-CNT",
+        "WS-CUST-ALT-KEY-LEN",
+        "WS-CUST-KEY-LEN",
+        "WS-CUST-NUM",
+        "WS-EXIT-FETCH",
+        "WS-EXIT-RETRY-LOOP",
+        "WS-NONE-LEFT",
+        "WS-ORIG-DATE-DD",
+        "WS-ORIG-DATE-DD-X",
+        "WS-ORIG-DATE-MM",
+        "WS-ORIG-DATE-MM-X",
+        "WS-ORIG-DATE-YYYY",
+        "WS-ORIG-DATE-YYYY-X",
+        "WS-STOREDC-CUSTOMER",
+        "WS-TIME-DATA"
+      ],
+      "total_paras": 24,
+      "dead_paras": [
+        "A999",
+        "GMOFH999"
+      ],
+      "loc_saved": 107
+    },
+    "lineage": {
+      "program_id": "DELCUS",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "DELCUS",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": true,
+      "cics_calls": 26,
+      "sql_calls": 3
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    SYSIDERR_RETRY                 DECIMAL(3, 0),\n    HV_PROCTRAN_EYECATCHER         VARCHAR(4),\n    HV_PROCTRAN_SORT_CODE          VARCHAR(6),\n    HV_PROCTRAN_ACC_NUMBER         VARCHAR(8),\n    HV_PROCTRAN_DATE               VARCHAR(10),\n    HV_PROCTRAN_TIME               VARCHAR(6),\n    HV_PROCTRAN_REF                VARCHAR(12),\n    HV_PROCTRAN_TYPE               VARCHAR(3),\n    HV_PROCTRAN_DESC               VARCHAR(40),\n    HV_PROCTRAN_AMOUNT             DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    RETURNED_SORT_CODE             DECIMAL(6, 0),\n    RETURNED_NUMBER                DECIMAL(8, 0),\n    WS_EIBTASKN12                  BIGINT,\n    REQUIRED_SORT_CODE             INTEGER,\n    DESIRED_KEY_SORTCODE           DECIMAL(6, 0),\n    DESIRED_KEY_CUSTOMER           DECIMAL(10, 0),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_APPLID                      VARCHAR(8),\n    REMIX_SCODE_CHAR               VARCHAR(6),\n    WS_STOREDC_EYECATCHER          VARCHAR(4),\n    WS_STOREDC_SORTCODE            DECIMAL(6, 0),\n    WS_STOREDC_NUMBER              DECIMAL(10, 0),\n    WS_STOREDC_NAME                VARCHAR(60),\n    WS_STOREDC_ADDRESS             VARCHAR(160),\n    WS_STOREDC_DATE_OF_BIRTH       VARCHAR(10),\n    WS_STOREDC_CREDIT_SCORE        DECIMAL(3, 0),\n    WS_STOREDC_CS_REVIEW_DATE      VARCHAR(10),\n    SQLCODE_DISPLAY                INTEGER,\n    DELACC_COMM_ACCNO              DECIMAL(8, 0),\n    DELACC_COMM_APPLID             VARCHAR(8),\n    WS_TOKEN                       INTEGER,\n    WS_INDEX                       INTEGER,\n    INQCUST_PROGRAM                VARCHAR(8),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0),\n    WS_ABEND_PGM                   VARCHAR(8)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "SYSIDERR_RETRY": {
+            "type": "number",
+            "description": "Legacy PIC: 999."
+          },
+          "HV_PROCTRAN_EYECATCHER": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)."
+          },
+          "HV_PROCTRAN_SORT_CODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)."
+          },
+          "HV_PROCTRAN_ACC_NUMBER": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)."
+          },
+          "HV_PROCTRAN_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "HV_PROCTRAN_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)."
+          },
+          "HV_PROCTRAN_REF": {
+            "type": "string",
+            "description": "Legacy PIC: X(12)."
+          },
+          "HV_PROCTRAN_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(3)."
+          },
+          "HV_PROCTRAN_DESC": {
+            "type": "string",
+            "description": "Legacy PIC: X(40)."
+          },
+          "HV_PROCTRAN_AMOUNT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(10)V99"
+          },
+          "WS_CICS_RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_CICS_RESP2": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "RETURNED_SORT_CODE": {
+            "type": "number",
+            "description": "Legacy PIC: 9(6)."
+          },
+          "RETURNED_NUMBER": {
+            "type": "number",
+            "description": "Legacy PIC: 9(8)."
+          },
+          "WS_EIBTASKN12": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(12)"
+          },
+          "REQUIRED_SORT_CODE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
+          },
+          "DESIRED_KEY_SORTCODE": {
+            "type": "number",
+            "description": "Legacy PIC: 9(6)."
+          },
+          "DESIRED_KEY_CUSTOMER": {
+            "type": "number",
+            "description": "Legacy PIC: 9(10)."
+          },
+          "WS_U_TIME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(15)"
+          },
+          "WS_ORIG_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "WS_APPLID": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)."
+          },
+          "REMIX_SCODE_CHAR": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)."
+          },
+          "WS_STOREDC_EYECATCHER": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)."
+          },
+          "WS_STOREDC_SORTCODE": {
+            "type": "number",
+            "description": "Legacy PIC: 9(6)."
+          },
+          "WS_STOREDC_NUMBER": {
+            "type": "number",
+            "description": "Legacy PIC: 9(10)."
+          },
+          "WS_STOREDC_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(60)."
+          },
+          "WS_STOREDC_ADDRESS": {
+            "type": "string",
+            "description": "Legacy PIC: X(160)."
+          },
+          "WS_STOREDC_DATE_OF_BIRTH": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "WS_STOREDC_CREDIT_SCORE": {
+            "type": "number",
+            "description": "Legacy PIC: 9(3)."
+          },
+          "WS_STOREDC_CS_REVIEW_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "SQLCODE_DISPLAY": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "DELACC_COMM_ACCNO": {
+            "type": "number",
+            "description": "Legacy PIC: 9(8)."
+          },
+          "DELACC_COMM_APPLID": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)."
+          },
+          "WS_TOKEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_INDEX": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "INQCUST_PROGRAM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_TIME_NOW": {
+            "type": "number",
+            "description": "Legacy PIC: 9(6)."
+          },
+          "WS_TIME_NOW_GRP_HH": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "WS_TIME_NOW_GRP_MM": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "WS_TIME_NOW_GRP_SS": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "WS_ABEND_PGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS + DB2\n//* ==========================================================\n//STEP01   EXEC PGM=DELCUS\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ABNDINFO_REC",
+  "type": "object",
+  "properties": {
+    "WS_CONT_IN_SORTCODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "WS_CONT_IN_NUMBER": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "WS_CONT_IN_BIRTH_DAY": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CONT_IN_BIRTH_MONTH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CONT_IN_BIRTH_YEAR": {
+      "type": "number",
+      "description": "Legacy PIC: 9999."
+    },
+    "WS_CONT_IN_CREDIT_SCORE": {
+      "type": "number",
+      "description": "Legacy PIC: 999."
+    },
+    "WS_CICS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_DELAY_AMT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CONTAINER_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "WS_CHANNEL_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "WS_CONTAINER_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_NEW_CREDSCORE": {
+      "type": "integer",
+      "description": "Legacy PIC: 999"
+    },
+    "WS_SEED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_U_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_ORIG_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_TIME_NOW": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "WS_TIME_NOW_GRP_HH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_SS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ABEND_PGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    }
+  }
+}

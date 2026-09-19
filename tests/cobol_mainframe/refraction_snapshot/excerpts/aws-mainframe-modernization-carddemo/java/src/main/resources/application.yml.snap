@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: aws-mainframe-modernization-carddemo
+
+  datasource:
+    # TODO: Update these credentials for your target environment
+    url: jdbc:postgresql://localhost:5432/aws_mainframe_modernization_carddemo
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update # Automatically creates tables from Entities
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  batch:
+    jdbc:
+      initialize-schema: always
+    job:
+      enabled: false # Prevents batch jobs from auto-running on startup

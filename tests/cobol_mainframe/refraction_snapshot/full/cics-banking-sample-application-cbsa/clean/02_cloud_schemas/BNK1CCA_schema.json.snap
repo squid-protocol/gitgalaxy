@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_CICS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_FAIL_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(70)"
+    },
+    "WS_CICS_RESP_DISP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "WS_CICS_RESP2_DISP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "VALID_DATA_SW": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "END_OF_SESSION_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)"
+    },
+    "WS_AVAIL_BAL_9": {
+      "type": "number",
+      "description": "Legacy PIC: 9(10)V99."
+    },
+    "WS_AVAIL_BAL_X_PND": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_AVAIL_BAL_X_PNCE": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "WS_ACT_BAL_9": {
+      "type": "number",
+      "description": "Legacy PIC: 9(10)V99."
+    },
+    "WS_ACT_BAL_X_PND": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_ACT_BAL_X_PNCE": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "INQACCCU_PROGRAM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_INDEX": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "SCODE_CHAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)."
+    },
+    "ACCNO_CHAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "NUMBER_OF_ACCOUNTS_DISPLAY": {
+      "type": "integer",
+      "description": "Legacy PIC: Z9"
+    },
+    "WS_AVAIL_BAL_SIGN": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_ACT_BAL_SIGN": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_U_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_ORIG_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_TIME_NOW": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "WS_TIME_NOW_GRP_HH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_SS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ABEND_PGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "COMM_SCODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)."
+    }
+  }
+}

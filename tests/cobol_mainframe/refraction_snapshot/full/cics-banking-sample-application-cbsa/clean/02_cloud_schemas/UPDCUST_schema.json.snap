@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_CICS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "DESIRED_SORT_CODE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "DESIRED_CUSTNO": {
+      "type": "number",
+      "description": "Legacy PIC: 9(10)."
+    },
+    "WS_CUST_REC_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_U_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_ORIG_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_CUSTOMER_RANGE_TOP": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_CUSTOMER_RANGE_MIDDLE": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_CUSTOMER_RANGE_BOTTOM": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_UNSTR_TITLE": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "WS_TITLE_VALID": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_TIME_NOW": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "WS_TIME_NOW_GRP_HH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_SS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    }
+  }
+}

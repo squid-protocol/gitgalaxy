@@ -1,0 +1,472 @@
+{
+  "metadata": {
+    "file_name": "COCRDUPC.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/COCRDUPC.cbl",
+    "corporate_header": "",
+    "loc": 1560
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "COCRDUPC.cbl",
+      "total_vars": 337,
+      "orphaned_vars": [
+        "ACCTSIDF",
+        "ACCTSIDH",
+        "ACCTSIDP",
+        "ACCTSIDV",
+        "CARD-ACCT-ID",
+        "CARD-ACCT-ID-N",
+        "CARD-ACCT-ID-X",
+        "CARD-CARD-NUM-N",
+        "CARD-CARD-NUM-X",
+        "CARD-EXPIRAION-DATE-N",
+        "CARD-EXPIRAION-DATE-X",
+        "CARD-MONTH-CHECK-N",
+        "CARD-NAME-EMBOSSED-X",
+        "CARD-STATUS-X",
+        "CARD-UPDATE-SCREEN-DATA",
+        "CARD-YEAR-CHECK-N",
+        "CARDSIDF",
+        "CARDSIDH",
+        "CARDSIDP",
+        "CARDSIDV",
+        "CC-WORK-AREAS",
+        "CCDA-COMMON-MESSAGES",
+        "CCDA-MSG-INVALID-KEY",
+        "CCDA-MSG-THANK-YOU",
+        "CCDA-SCREEN-TITLE",
+        "CCDA-THANK-YOU",
+        "CDEMO-ACCOUNT-INFO",
+        "CDEMO-CARD-INFO",
+        "CDEMO-CUSTOMER-INFO",
+        "CDEMO-GENERAL-INFO",
+        "CDEMO-MORE-INFO",
+        "CICS-OUTPUT-EDIT-VARS",
+        "CODING-TO-BE-DONE",
+        "CRDNAMEF",
+        "CRDNAMEH",
+        "CRDNAMEP",
+        "CRDNAMEV",
+        "CRDSTCDF",
+        "CRDSTCDH",
+        "CRDSTCDP",
+        "CRDSTCDV",
+        "CURDATEC",
+        "CURDATEF",
+        "CURDATEH",
+        "CURDATEI",
+        "CURDATEL",
+        "CURDATEP",
+        "CURDATEV",
+        "CURTIMEC",
+        "CURTIMEF",
+        "CURTIMEH",
+        "CURTIMEI",
+        "CURTIMEL",
+        "CURTIMEP",
+        "CURTIMEV",
+        "CUST-ADDR-COUNTRY-CD",
+        "CUST-ADDR-LINE-1",
+        "CUST-ADDR-LINE-2",
+        "CUST-ADDR-LINE-3",
+        "CUST-ADDR-STATE-CD",
+        "CUST-ADDR-ZIP",
+        "CUST-DOB-YYYY-MM-DD",
+        "CUST-EFT-ACCOUNT-ID",
+        "CUST-FICO-CREDIT-SCORE",
+        "CUST-FIRST-NAME",
+        "CUST-GOVT-ISSUED-ID",
+        "CUST-ID",
+        "CUST-LAST-NAME",
+        "CUST-MIDDLE-NAME",
+        "CUST-PHONE-NUM-1",
+        "CUST-PHONE-NUM-2",
+        "CUST-PRI-CARD-HOLDER-IND",
+        "CUST-SSN",
+        "CUSTOMER-RECORD",
+        "DID-NOT-FIND-ACCT-IN-CARDXREF",
+        "ERRMSGC",
+        "ERRMSGF",
+        "ERRMSGH",
+        "ERRMSGI",
+        "ERRMSGL",
+        "ERRMSGP",
+        "ERRMSGV",
+        "EXPDAYF",
+        "EXPDAYH",
+        "EXPDAYL",
+        "EXPDAYP",
+        "EXPDAYV",
+        "EXPMONF",
+        "EXPMONH",
+        "EXPMONP",
+        "EXPMONV",
+        "EXPYEARF",
+        "EXPYEARH",
+        "EXPYEARP",
+        "EXPYEARV",
+        "FKEYSC",
+        "FKEYSCC",
+        "FKEYSCF",
+        "FKEYSCH",
+        "FKEYSCI",
+        "FKEYSCL",
+        "FKEYSCO",
+        "FKEYSCP",
+        "FKEYSCV",
+        "FKEYSF",
+        "FKEYSH",
+        "FKEYSI",
+        "FKEYSL",
+        "FKEYSO",
+        "FKEYSP",
+        "FKEYSV",
+        "INFOMSGC",
+        "INFOMSGF",
+        "INFOMSGH",
+        "INFOMSGI",
+        "INFOMSGL",
+        "INFOMSGP",
+        "INFOMSGV",
+        "INPUT-PENDING",
+        "LIT-CARDDTLMAP",
+        "LIT-CARDDTLMAPSET",
+        "LIT-CARDDTLPGM",
+        "LIT-CARDDTLTRANID",
+        "LIT-CARDFILENAME-ACCT-PATH",
+        "LIT-CCLISTMAP",
+        "LIT-CCLISTTRANID",
+        "LIT-MENUMAP",
+        "LIT-MENUMAPSET",
+        "PGMNAMEC",
+        "PGMNAMEF",
+        "PGMNAMEH",
+        "PGMNAMEI",
+        "PGMNAMEL",
+        "PGMNAMEP",
+        "PGMNAMEV",
+        "SEARCHED-ACCT-NOT-NUMERIC",
+        "SEARCHED-ACCT-ZEROES",
+        "SEARCHED-CARD-NOT-NUMERIC",
+        "SEC-USER-DATA",
+        "SEC-USR-FILLER",
+        "SEC-USR-FNAME",
+        "SEC-USR-ID",
+        "SEC-USR-LNAME",
+        "SEC-USR-PWD",
+        "SEC-USR-TYPE",
+        "TITLE01C",
+        "TITLE01F",
+        "TITLE01H",
+        "TITLE01I",
+        "TITLE01L",
+        "TITLE01P",
+        "TITLE01V",
+        "TITLE02C",
+        "TITLE02F",
+        "TITLE02H",
+        "TITLE02I",
+        "TITLE02L",
+        "TITLE02P",
+        "TITLE02V",
+        "TRNNAMEC",
+        "TRNNAMEF",
+        "TRNNAMEH",
+        "TRNNAMEI",
+        "TRNNAMEL",
+        "TRNNAMEP",
+        "TRNNAMEV",
+        "WS-CARD-RID-ACCT-ID-X",
+        "WS-CICS-PROCESSNG-VARS",
+        "WS-CURDATE-N",
+        "WS-CURTIME-N",
+        "WS-DATE-TIME",
+        "WS-EDIT-ACCT-FLAG",
+        "WS-EDIT-CARD-FLAG",
+        "WS-EDIT-CARDEXPMON-FLAG",
+        "WS-EDIT-CARDEXPYEAR-FLAG",
+        "WS-EDIT-CARDNAME-FLAG",
+        "WS-EDIT-CARDSTATUS-FLAG",
+        "WS-EXIT-MESSAGE",
+        "WS-INPUT-FLAG",
+        "WS-LITERALS",
+        "WS-LONG-MSG",
+        "WS-PFK-FLAG",
+        "WS-RETURN-FLAG",
+        "WS-RETURN-FLAG-OFF",
+        "WS-RETURN-FLAG-ON",
+        "WS-TIMESTAMP",
+        "WS-TIMESTAMP-DT-DD",
+        "WS-TIMESTAMP-DT-MM",
+        "WS-TIMESTAMP-DT-YYYY",
+        "WS-TIMESTAMP-TM-HH",
+        "WS-TIMESTAMP-TM-MM",
+        "WS-TIMESTAMP-TM-MS6",
+        "WS-TIMESTAMP-TM-SS",
+        "XREF-READ-ERROR"
+      ],
+      "total_paras": 45,
+      "dead_paras": [
+        "0000-MAIN-EXIT"
+      ],
+      "loc_saved": 204
+    },
+    "lineage": {
+      "program_id": "COCRDUPC",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "COCRDUPC",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 12,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_TRANID                      VARCHAR(4),\n    WS_UCTRANS                     VARCHAR(4),\n    CARD_NAME_CHECK                VARCHAR(50),\n    FLG_YES_NO_CHECK               VARCHAR(1),\n    CARD_MONTH_CHECK               VARCHAR(2),\n    CARD_YEAR_CHECK                VARCHAR(4),\n    CARD_CVV_CD_X                  VARCHAR(03),\n    CARD_EXPIRY_YEAR               VARCHAR(4),\n    CARD_EXPIRY_MONTH              VARCHAR(2),\n    CARD_EXPIRY_DAY                VARCHAR(2),\n    WS_CARD_RID_CARDNUM            VARCHAR(16),\n    WS_CARD_RID_ACCT_ID            DECIMAL(11, 0),\n    ERROR_OPNAME                   VARCHAR(8),\n    ERROR_FILE                     VARCHAR(9),\n    ERROR_RESP                     VARCHAR(10),\n    ERROR_RESP2                    VARCHAR(10),\n    WS_INFO_MSG                    VARCHAR(40),\n    WS_RETURN_MSG                  VARCHAR(75),\n    LIT_THISPGM                    VARCHAR(8),\n    LIT_THISTRANID                 VARCHAR(4),\n    LIT_THISMAPSET                 VARCHAR(8),\n    LIT_THISMAP                    VARCHAR(7),\n    LIT_CCLISTPGM                  VARCHAR(8),\n    LIT_CCLISTMAPSET               VARCHAR(7),\n    LIT_MENUPGM                    VARCHAR(8),\n    LIT_MENUTRANID                 VARCHAR(4),\n    LIT_CARDFILENAME               VARCHAR(8),\n    LIT_ALL_ALPHA_FROM             VARCHAR(52),\n    LIT_ALL_SPACES_TO              VARCHAR(52),\n    LIT_UPPER                      VARCHAR(26),\n    LIT_LOWER                      VARCHAR(26),\n    CCUP_CHANGE_ACTION             VARCHAR(1),\n    CCUP_OLD_ACCTID                VARCHAR(11),\n    CCUP_OLD_CARDID                VARCHAR(16),\n    CCUP_OLD_CVV_CD                VARCHAR(3),\n    CCUP_OLD_CRDNAME               VARCHAR(50),\n    CCUP_OLD_EXPYEAR               VARCHAR(4),\n    CCUP_OLD_EXPMON                VARCHAR(2),\n    CCUP_OLD_EXPDAY                VARCHAR(2),\n    CCUP_OLD_CRDSTCD               VARCHAR(1),\n    CCUP_NEW_ACCTID                VARCHAR(11),\n    CCUP_NEW_CARDID                VARCHAR(16),\n    CCUP_NEW_CVV_CD                VARCHAR(3),\n    CCUP_NEW_CRDNAME               VARCHAR(50),\n    CCUP_NEW_EXPYEAR               VARCHAR(4),\n    CCUP_NEW_EXPMON                VARCHAR(2),\n    CCUP_NEW_EXPDAY                VARCHAR(2),\n    CCUP_NEW_CRDSTCD               VARCHAR(1),\n    CARD_UPDATE_NUM                VARCHAR(16),\n    CARD_UPDATE_ACCT_ID            DECIMAL(11, 0),\n    CARD_UPDATE_CVV_CD             DECIMAL(3, 0),\n    CARD_UPDATE_EMBOSSED_NAME      VARCHAR(50),\n    CARD_UPDATE_EXPIRAION_DATE     VARCHAR(10),\n    CARD_UPDATE_ACTIVE_STATUS      VARCHAR(01),\n    WS_COMMAREA                    VARCHAR(2000)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_RESP_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_REAS_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_UCTRANS": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "CARD_NAME_CHECK": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "FLG_YES_NO_CHECK": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "CARD_MONTH_CHECK": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)."
+          },
+          "CARD_YEAR_CHECK": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)."
+          },
+          "CARD_CVV_CD_X": {
+            "type": "string",
+            "description": "Legacy PIC: X(03)."
+          },
+          "CARD_EXPIRY_YEAR": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)."
+          },
+          "CARD_EXPIRY_MONTH": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)."
+          },
+          "CARD_EXPIRY_DAY": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)."
+          },
+          "WS_CARD_RID_CARDNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "WS_CARD_RID_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "ERROR_OPNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "ERROR_FILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "ERROR_RESP": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "ERROR_RESP2": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WS_INFO_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(40)."
+          },
+          "WS_RETURN_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(75)."
+          },
+          "LIT_THISPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_THISTRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "LIT_THISMAPSET": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_THISMAP": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_CCLISTPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_CCLISTMAPSET": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_MENUPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_MENUTRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "LIT_CARDFILENAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_ALL_ALPHA_FROM": {
+            "type": "string",
+            "description": "Legacy PIC: X(52)"
+          },
+          "LIT_ALL_SPACES_TO": {
+            "type": "string",
+            "description": "Legacy PIC: X(52)"
+          },
+          "LIT_UPPER": {
+            "type": "string",
+            "description": "Legacy PIC: X(26)"
+          },
+          "LIT_LOWER": {
+            "type": "string",
+            "description": "Legacy PIC: X(26)"
+          },
+          "CCUP_CHANGE_ACTION": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "CCUP_OLD_ACCTID": {
+            "type": "string",
+            "description": "Legacy PIC: X(11)."
+          },
+          "CCUP_OLD_CARDID": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "CCUP_OLD_CVV_CD": {
+            "type": "string",
+            "description": "Legacy PIC: X(3)."
+          },
+          "CCUP_OLD_CRDNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)."
+          },
+          "CCUP_OLD_EXPYEAR": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)."
+          },
+          "CCUP_OLD_EXPMON": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)."
+          },
+          "CCUP_OLD_EXPDAY": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)."
+          },
+          "CCUP_OLD_CRDSTCD": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)."
+          },
+          "CCUP_NEW_ACCTID": {
+            "type": "string",
+            "description": "Legacy PIC: X(11)."
+          },
+          "CCUP_NEW_CARDID": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "CCUP_NEW_CVV_CD": {
+            "type": "string",
+            "description": "Legacy PIC: X(3)."
+          },
+          "CCUP_NEW_CRDNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)."
+          },
+          "CCUP_NEW_EXPYEAR": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)."
+          },
+          "CCUP_NEW_EXPMON": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)."
+          },
+          "CCUP_NEW_EXPDAY": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)."
+          },
+          "CCUP_NEW_CRDSTCD": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)."
+          },
+          "CARD_UPDATE_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "CARD_UPDATE_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "CARD_UPDATE_CVV_CD": {
+            "type": "number",
+            "description": "Legacy PIC: 9(03)."
+          },
+          "CARD_UPDATE_EMBOSSED_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)."
+          },
+          "CARD_UPDATE_EXPIRAION_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "CARD_UPDATE_ACTIVE_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)."
+          },
+          "WS_COMMAREA": {
+            "type": "string",
+            "description": "Legacy PIC: X(2000)."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=COCRDUPC\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

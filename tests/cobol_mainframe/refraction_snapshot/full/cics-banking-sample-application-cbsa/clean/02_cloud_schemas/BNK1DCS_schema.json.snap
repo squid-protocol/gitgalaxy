@@ -1,0 +1,263 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_CICS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_FAIL_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(70)"
+    },
+    "WS_CICS_RESP_DISP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "WS_CICS_RESP2_DISP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "VALID_DATA_SW": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "END_OF_SESSION_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)"
+    },
+    "WS_UCTRANS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "STORED_UCTRANS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "COMM_DOB_SPLIT_DD": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "COMM_DOB_SPLIT_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "COMM_DOB_SPLIT_YYYY": {
+      "type": "number",
+      "description": "Legacy PIC: 9999."
+    },
+    "COMM_ADDR_SPLIT1": {
+      "type": "string",
+      "description": "Legacy PIC: X(60)."
+    },
+    "COMM_ADDR_SPLIT2": {
+      "type": "string",
+      "description": "Legacy PIC: X(60)."
+    },
+    "COMM_ADDR_SPLIT3": {
+      "type": "string",
+      "description": "Legacy PIC: X(40)."
+    },
+    "COMM_DOBX_DD": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "COMM_DOBX_MM": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "COMM_DOBX_YYYY": {
+      "type": "string",
+      "description": "Legacy PIC: XXXX."
+    },
+    "COMM_DOB9_DD": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "COMM_DOB9_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "COMM_DOB9_YYYY": {
+      "type": "number",
+      "description": "Legacy PIC: 9999."
+    },
+    "COMM_CS_REVIEWX_DD": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "COMM_CS_REVIEWX_MM": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "COMM_CS_REVIEWX_YYYY": {
+      "type": "string",
+      "description": "Legacy PIC: XXXX."
+    },
+    "COMM_CS_REVIEW9_DD": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "COMM_CS_REVIEW9_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "COMM_CS_REVIEW9_YYYY": {
+      "type": "number",
+      "description": "Legacy PIC: 9999."
+    },
+    "CREDIT_SCORE_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "CREDIT_SCORE_9": {
+      "type": "number",
+      "description": "Legacy PIC: 9(3)."
+    },
+    "COMM_ADDR_UPD1": {
+      "type": "string",
+      "description": "Legacy PIC: X(60)."
+    },
+    "COMM_ADDR_UPD2": {
+      "type": "string",
+      "description": "Legacy PIC: X(60)."
+    },
+    "COMM_ADDR_UPD3": {
+      "type": "string",
+      "description": "Legacy PIC: X(40)."
+    },
+    "WS_COMM_TERM": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_COMM_EYE": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "WS_COMM_SCODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)."
+    },
+    "WS_COMM_CUSTNO": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_COMM_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(60)."
+    },
+    "WS_COMM_ADDR": {
+      "type": "string",
+      "description": "Legacy PIC: X(160)."
+    },
+    "WS_COMM_DOB": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "WS_COMM_CREDIT_SCORE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(3)."
+    },
+    "WS_COMM_CS_REVIEW_DATE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "WS_COMM_UPDATE": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_VALIDATE_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(60)"
+    },
+    "WS_UNSTR_TITLE": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "WS_TITLE_VALID": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_U_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_ORIG_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_TIME_NOW": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "WS_TIME_NOW_GRP_HH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_SS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ABEND_PGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "COMM_TERM": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "COMM_EYE": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "COMM_SCODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)."
+    },
+    "COMM_CUSTNO": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "COMM_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(60)."
+    },
+    "COMM_ADDR": {
+      "type": "string",
+      "description": "Legacy PIC: X(160)."
+    },
+    "COMM_DOB": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "COMM_CREDIT_SCORE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(3)."
+    },
+    "COMM_CS_REVIEW_DATE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "COMM_DEL_SUCCESS": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "COMM_DEL_FAIL_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "COMM_UPD": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    }
+  }
+}

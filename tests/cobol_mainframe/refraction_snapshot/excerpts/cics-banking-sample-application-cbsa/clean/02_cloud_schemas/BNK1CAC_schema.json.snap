@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_CICS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_FAIL_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(70)"
+    },
+    "WS_CICS_RESP_DISP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "WS_CICS_RESP2_DISP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "VALID_DATA_SW": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "END_OF_SESSION_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)"
+    },
+    "WS_COMM_CUSTNO": {
+      "type": "number",
+      "description": "Legacy PIC: 9(10)."
+    },
+    "WS_COMM_ACCTYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "WS_COMM_INTRT": {
+      "type": "number",
+      "description": "Legacy PIC: 9(4)V99."
+    },
+    "WS_COMM_OVERDR": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "NSTMTDD_NUM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "NSTMTMMI_NUM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "NSTMTYYI_NUM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "NST_NUM": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "INTRT_PIC9": {
+      "type": "number",
+      "description": "Legacy PIC: 9999.99."
+    },
+    "WS_NUM_COUNT_POINT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_NUM_COUNT_TOTAL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_REVERSE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "SUBPGM_EYECATCHER": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "SUBPGM_CUSTNO": {
+      "type": "number",
+      "description": "Legacy PIC: 9(10)."
+    },
+    "SUBPGM_SORTCODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "SUBPGM_NUMBER": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "SUBPGM_ACC_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "SUBPGM_INT_RT": {
+      "type": "number",
+      "description": "Legacy PIC: 9(4)V99."
+    },
+    "SUBPGM_OPENED": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "SUBPGM_OVERDR_LIM": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "SUBPGM_LAST_STMT_DT": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "SUBPGM_NEXT_STMT_DT": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "SUBPGM_AVAIL_BAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "SUBPGM_ACT_BAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "SUBPGM_SUCCESS": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "SUBPGM_FAIL_CODE": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_U_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_ORIG_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_TIME_NOW": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "WS_TIME_NOW_GRP_HH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_SS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ABEND_PGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "COMM_CUSTNO": {
+      "type": "number",
+      "description": "Legacy PIC: 9(10)."
+    },
+    "COMM_ACCTYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "COMM_INTRT": {
+      "type": "number",
+      "description": "Legacy PIC: 9(4)V99."
+    },
+    "COMM_OVERDR": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    }
+  }
+}

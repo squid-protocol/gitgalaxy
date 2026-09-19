@@ -1,0 +1,195 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_RESP_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_REAS_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_EDIT_SELECT_FLAGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "WS_EDIT_SELECT": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "WS_EDIT_SELECT_ERROR_FLAGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)."
+    },
+    "WS_ROW_CRDSELECT_ERROR": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "I": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "I_SELECTED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "FLG_PROTECT_SELECT_ROWS": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_LONG_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(500)."
+    },
+    "WS_INFO_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(45)."
+    },
+    "WS_ERROR_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(75)."
+    },
+    "WS_CARD_RID_CARDNUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "WS_CARD_RID_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "WS_SCRN_COUNTER": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "ERROR_OPNAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "ERROR_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "ERROR_RESP": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "ERROR_RESP2": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "WS_MAX_SCREEN_LINES": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "LIT_THISPGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_THISTRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "LIT_THISMAPSET": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_THISMAP": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_MENUPGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_MENUMAPSET": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_CARDDTLPGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_CARDDTLMAPSET": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_CARDDTLMAP": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_CARDUPDPGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_CARDUPDMAPSET": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_CARDUPDMAP": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_CARD_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_CA_LAST_CARD_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "WS_CA_LAST_CARD_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "WS_CA_FIRST_CARD_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "WS_CA_FIRST_CARD_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "WS_CA_SCREEN_NUM": {
+      "type": "number",
+      "description": "Legacy PIC: 9(1)."
+    },
+    "WS_CA_LAST_PAGE_DISPLAYED": {
+      "type": "number",
+      "description": "Legacy PIC: 9(1)."
+    },
+    "WS_CA_NEXT_PAGE_IND": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_RETURN_FLAG": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_ALL_ROWS": {
+      "type": "string",
+      "description": "Legacy PIC: X(196)."
+    },
+    "WS_ROW_ACCTNO": {
+      "type": "string",
+      "description": "Legacy PIC: X(11)."
+    },
+    "WS_ROW_CARD_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "WS_ROW_CARD_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_COMMAREA": {
+      "type": "string",
+      "description": "Legacy PIC: X(2000)."
+    }
+  }
+}

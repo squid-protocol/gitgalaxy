@@ -1,0 +1,300 @@
+{
+  "metadata": {
+    "file_name": "CBACT04C.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CBACT04C.cbl",
+    "corporate_header": "",
+    "loc": 652
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "CBACT04C.cbl",
+      "total_vars": 119,
+      "orphaned_vars": [
+        "ACCT-ACTIVE-STATUS",
+        "ACCT-ADDR-ZIP",
+        "ACCT-CASH-CREDIT-LIMIT",
+        "ACCT-CREDIT-LIMIT",
+        "ACCT-EXPIRAION-DATE",
+        "ACCT-OPEN-DATE",
+        "ACCT-REISSUE-DATE",
+        "ACCTFILE-STAT1",
+        "ACCTFILE-STAT2",
+        "COB-REST",
+        "DIS-GROUP-KEY",
+        "DISCGRP-STAT1",
+        "DISCGRP-STAT2",
+        "FD-ACCT-DATA",
+        "FD-DISCGRP-DATA",
+        "FD-DISCGRP-KEY",
+        "FD-DISCGRP-REC",
+        "FD-FD-TRAN-CAT-DATA",
+        "FD-TRAN-CAT-BAL-RECORD",
+        "FD-TRAN-CAT-KEY",
+        "FD-TRANS-ID",
+        "FD-XREF-CARD-NUM",
+        "FD-XREF-CUST-NUM",
+        "FD-XREF-FILLER",
+        "FD-XREFFILE-REC",
+        "IO-STATUS-0401",
+        "PARM-LENGTH",
+        "TCATBALF-STAT1",
+        "TCATBALF-STAT2",
+        "TRAN-CAT-KEY",
+        "TRANFILE-STAT1",
+        "TRANFILE-STAT2",
+        "TWO-BYTES-ALPHA",
+        "TWO-BYTES-LEFT",
+        "WS-COUNTERS",
+        "WS-MISC-VARS",
+        "XREF-CUST-ID",
+        "XREFFILE-STAT1",
+        "XREFFILE-STAT2"
+      ],
+      "total_paras": 22,
+      "dead_paras": [],
+      "loc_saved": 39
+    },
+    "lineage": {
+      "program_id": "CBACT04C",
+      "inputs": [
+        "ACCTFILE",
+        "DISCGRP",
+        "TCATBALF",
+        "XREFFILE"
+      ],
+      "outputs": [
+        "ACCTFILE",
+        "TRANSACT"
+      ],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "CBACT04C",
+      "files_requested": [
+        {
+          "internal": "TCATBAL-FILE",
+          "dd_name": "TCATBALF"
+        },
+        {
+          "internal": "XREF-FILE",
+          "dd_name": "XREFFILE"
+        },
+        {
+          "internal": "ACCOUNT-FILE",
+          "dd_name": "ACCTFILE"
+        },
+        {
+          "internal": "DISCGRP-FILE",
+          "dd_name": "DISCGRP"
+        },
+        {
+          "internal": "TRANSACT-FILE",
+          "dd_name": "TRANSACT"
+        }
+      ],
+      "is_cics": false,
+      "is_db2": false,
+      "cics_calls": 0,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "EXTERNAL_PARMS",
+      "sql": "CREATE TABLE EXTERNAL_PARMS (\n    FD_TRANCAT_ACCT_ID             DECIMAL(11, 0),\n    FD_TRANCAT_TYPE_CD             VARCHAR(02),\n    FD_TRANCAT_CD                  DECIMAL(4, 0),\n    FD_XREF_ACCT_ID                DECIMAL(11, 0),\n    FD_DIS_ACCT_GROUP_ID           VARCHAR(10),\n    FD_DIS_TRAN_TYPE_CD            VARCHAR(02),\n    FD_DIS_TRAN_CAT_CD             DECIMAL(4, 0),\n    FD_ACCT_ID                     DECIMAL(11, 0),\n    IO_STAT1                       VARCHAR(1),\n    IO_STAT2                       VARCHAR(1),\n    TWO_BYTES_BINARY               SMALLINT,\n    TWO_BYTES_RIGHT                VARCHAR(1),\n    IO_STATUS_0403                 SMALLINT,\n    APPL_RESULT                    INTEGER,\n    END_OF_FILE                    VARCHAR(01),\n    ABCODE                         INTEGER,\n    TIMING                         INTEGER,\n    COB_YYYY                       VARCHAR(04),\n    COB_MM                         VARCHAR(02),\n    COB_DD                         VARCHAR(02),\n    COB_HH                         VARCHAR(02),\n    COB_MIN                        VARCHAR(02),\n    COB_SS                         VARCHAR(02),\n    COB_MIL                        VARCHAR(02),\n    DB2_FORMAT_TS                  VARCHAR(26),\n    DB2_YYYY                       VARCHAR(004),\n    DB2_STREEP_1                   VARCHAR(1),\n    DB2_MM                         VARCHAR(002),\n    DB2_STREEP_2                   VARCHAR(1),\n    DB2_DD                         VARCHAR(002),\n    DB2_STREEP_3                   VARCHAR(1),\n    DB2_HH                         VARCHAR(002),\n    DB2_DOT_1                      VARCHAR(1),\n    DB2_MIN                        VARCHAR(002),\n    DB2_DOT_2                      VARCHAR(1),\n    DB2_SS                         VARCHAR(002),\n    DB2_DOT_3                      VARCHAR(1),\n    DB2_MIL                        DECIMAL(2, 0),\n    DB2_REST                       VARCHAR(04),\n    WS_LAST_ACCT_NUM               VARCHAR(11),\n    WS_MONTHLY_INT                 DECIMAL(11, 2),\n    WS_TOTAL_INT                   DECIMAL(11, 2),\n    WS_FIRST_TIME                  VARCHAR(01),\n    WS_RECORD_COUNT                INTEGER,\n    WS_TRANID_SUFFIX               INTEGER,\n    PARM_DATE                      VARCHAR(10)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "EXTERNAL_PARMS",
+        "type": "object",
+        "properties": {
+          "FD_TRANCAT_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "FD_TRANCAT_TYPE_CD": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "FD_TRANCAT_CD": {
+            "type": "number",
+            "description": "Legacy PIC: 9(04)."
+          },
+          "FD_XREF_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "FD_DIS_ACCT_GROUP_ID": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "FD_DIS_TRAN_TYPE_CD": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "FD_DIS_TRAN_CAT_CD": {
+            "type": "number",
+            "description": "Legacy PIC: 9(04)."
+          },
+          "FD_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "IO_STAT1": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "IO_STAT2": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "TWO_BYTES_BINARY": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "TWO_BYTES_RIGHT": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "IO_STATUS_0403": {
+            "type": "integer",
+            "description": "Legacy PIC: 999"
+          },
+          "APPL_RESULT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "END_OF_FILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "ABCODE": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "TIMING": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "COB_YYYY": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)."
+          },
+          "COB_MM": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "COB_DD": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "COB_HH": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "COB_MIN": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "COB_SS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "COB_MIL": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "DB2_FORMAT_TS": {
+            "type": "string",
+            "description": "Legacy PIC: X(26)."
+          },
+          "DB2_YYYY": {
+            "type": "string",
+            "description": "Legacy PIC: X(004)."
+          },
+          "DB2_STREEP_1": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "DB2_MM": {
+            "type": "string",
+            "description": "Legacy PIC: X(002)."
+          },
+          "DB2_STREEP_2": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "DB2_DD": {
+            "type": "string",
+            "description": "Legacy PIC: X(002)."
+          },
+          "DB2_STREEP_3": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "DB2_HH": {
+            "type": "string",
+            "description": "Legacy PIC: X(002)."
+          },
+          "DB2_DOT_1": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "DB2_MIN": {
+            "type": "string",
+            "description": "Legacy PIC: X(002)."
+          },
+          "DB2_DOT_2": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "DB2_SS": {
+            "type": "string",
+            "description": "Legacy PIC: X(002)."
+          },
+          "DB2_DOT_3": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "DB2_MIL": {
+            "type": "number",
+            "description": "Legacy PIC: 9(002)."
+          },
+          "DB2_REST": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)."
+          },
+          "WS_LAST_ACCT_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(11)"
+          },
+          "WS_MONTHLY_INT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(09)V99."
+          },
+          "WS_TOTAL_INT": {
+            "type": "number",
+            "description": "Legacy PIC: S9(09)V99."
+          },
+          "WS_FIRST_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "WS_RECORD_COUNT": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_TRANID_SUFFIX": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(06)"
+          },
+          "PARM_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ==========================================================\n//STEP01   EXEC PGM=CBACT04C\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//* --- EXTRACTED FILE INTENT BOUNDARIES ---\n//TCATBALF DD DSN=HERC01.DATA.TCATBALF,\n//             DISP=SHR\n//XREFFILE DD DSN=HERC01.DATA.XREFFILE,\n//             DISP=SHR\n//ACCTFILE DD DSN=HERC01.DATA.ACCTFILE,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//DISCGRP  DD DSN=HERC01.DATA.DISCGRP,\n//             DISP=SHR\n//TRANSACT DD DSN=HERC01.DATA.TRANSACT,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//"
+  }
+}

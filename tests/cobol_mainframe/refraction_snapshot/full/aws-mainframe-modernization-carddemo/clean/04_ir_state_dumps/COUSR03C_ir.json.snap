@@ -1,0 +1,201 @@
+{
+  "metadata": {
+    "file_name": "COUSR03C.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/COUSR03C.cbl",
+    "corporate_header": "",
+    "loc": 359
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "COUSR03C.cbl",
+      "total_vars": 148,
+      "orphaned_vars": [
+        "CCDA-COMMON-MESSAGES",
+        "CCDA-MSG-THANK-YOU",
+        "CCDA-SCREEN-TITLE",
+        "CCDA-THANK-YOU",
+        "CDEMO-ACCOUNT-INFO",
+        "CDEMO-CARD-INFO",
+        "CDEMO-CU03-INFO",
+        "CDEMO-CUSTOMER-INFO",
+        "CDEMO-GENERAL-INFO",
+        "CDEMO-MORE-INFO",
+        "CURDATEC",
+        "CURDATEF",
+        "CURDATEH",
+        "CURDATEI",
+        "CURDATEL",
+        "CURDATEP",
+        "CURDATEV",
+        "CURTIMEC",
+        "CURTIMEF",
+        "CURTIMEH",
+        "CURTIMEI",
+        "CURTIMEL",
+        "CURTIMEP",
+        "CURTIMEV",
+        "ERRMSGF",
+        "ERRMSGH",
+        "ERRMSGI",
+        "ERRMSGL",
+        "ERRMSGP",
+        "ERRMSGV",
+        "FNAMEC",
+        "FNAMEF",
+        "FNAMEH",
+        "FNAMEO",
+        "FNAMEP",
+        "FNAMEV",
+        "LK-COMMAREA",
+        "LNAMEC",
+        "LNAMEF",
+        "LNAMEH",
+        "LNAMEL",
+        "LNAMEO",
+        "LNAMEP",
+        "LNAMEV",
+        "PGMNAMEC",
+        "PGMNAMEF",
+        "PGMNAMEH",
+        "PGMNAMEI",
+        "PGMNAMEL",
+        "PGMNAMEP",
+        "PGMNAMEV",
+        "SEC-USR-FILLER",
+        "SEC-USR-PWD",
+        "TITLE01C",
+        "TITLE01F",
+        "TITLE01H",
+        "TITLE01I",
+        "TITLE01L",
+        "TITLE01P",
+        "TITLE01V",
+        "TITLE02C",
+        "TITLE02F",
+        "TITLE02H",
+        "TITLE02I",
+        "TITLE02L",
+        "TITLE02P",
+        "TITLE02V",
+        "TRNNAMEC",
+        "TRNNAMEF",
+        "TRNNAMEH",
+        "TRNNAMEI",
+        "TRNNAMEL",
+        "TRNNAMEP",
+        "TRNNAMEV",
+        "USR-MODIFIED-YES",
+        "USRIDINC",
+        "USRIDINF",
+        "USRIDINH",
+        "USRIDINO",
+        "USRIDINP",
+        "USRIDINV",
+        "USRTYPEC",
+        "USRTYPEF",
+        "USRTYPEH",
+        "USRTYPEL",
+        "USRTYPEO",
+        "USRTYPEP",
+        "USRTYPEV",
+        "WS-CURDATE-N",
+        "WS-CURTIME-N",
+        "WS-DATE-TIME",
+        "WS-TIMESTAMP",
+        "WS-TIMESTAMP-DT-DD",
+        "WS-TIMESTAMP-DT-MM",
+        "WS-TIMESTAMP-DT-YYYY",
+        "WS-TIMESTAMP-TM-HH",
+        "WS-TIMESTAMP-TM-MM",
+        "WS-TIMESTAMP-TM-MS6",
+        "WS-TIMESTAMP-TM-SS",
+        "WS-USR-MODIFIED",
+        "WS-VARIABLES"
+      ],
+      "total_paras": 11,
+      "dead_paras": [],
+      "loc_saved": 101
+    },
+    "lineage": {
+      "program_id": "COUSR03C",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "COUSR03C",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 6,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_PGMNAME                     VARCHAR(08),\n    WS_TRANID                      VARCHAR(04),\n    WS_MESSAGE                     VARCHAR(80),\n    WS_USRSEC_FILE                 VARCHAR(08),\n    WS_ERR_FLG                     VARCHAR(01),\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    CDEMO_CU03_USRID_FIRST         VARCHAR(08),\n    CDEMO_CU03_USRID_LAST          VARCHAR(08),\n    CDEMO_CU03_PAGE_NUM            DECIMAL(8, 0),\n    CDEMO_CU03_NEXT_PAGE_FLG       VARCHAR(01),\n    CDEMO_CU03_USR_SEL_FLG         VARCHAR(01),\n    CDEMO_CU03_USR_SELECTED        VARCHAR(08)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_PGMNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "WS_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "WS_MESSAGE": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "WS_USRSEC_FILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "WS_ERR_FLG": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "WS_RESP_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_REAS_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "CDEMO_CU03_USRID_FIRST": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)."
+          },
+          "CDEMO_CU03_USRID_LAST": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)."
+          },
+          "CDEMO_CU03_PAGE_NUM": {
+            "type": "number",
+            "description": "Legacy PIC: 9(08)."
+          },
+          "CDEMO_CU03_NEXT_PAGE_FLG": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "CDEMO_CU03_USR_SEL_FLG": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)."
+          },
+          "CDEMO_CU03_USR_SELECTED": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=COUSR03C\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

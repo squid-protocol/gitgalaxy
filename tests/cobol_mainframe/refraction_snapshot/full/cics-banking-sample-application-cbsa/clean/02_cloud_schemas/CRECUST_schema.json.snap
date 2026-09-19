@@ -1,0 +1,379 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "SYSIDERR_RETRY": {
+      "type": "number",
+      "description": "Legacy PIC: 999."
+    },
+    "HV_PROCTRAN_EYECATCHER": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "HV_PROCTRAN_SORT_CODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)."
+    },
+    "HV_PROCTRAN_ACC_NUMBER": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "HV_PROCTRAN_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "HV_PROCTRAN_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)."
+    },
+    "HV_PROCTRAN_REF": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "HV_PROCTRAN_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "HV_PROCTRAN_DESC": {
+      "type": "string",
+      "description": "Legacy PIC: X(40)."
+    },
+    "HV_PROCTRAN_AMOUNT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99"
+    },
+    "WS_CICS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_TIME_NOW": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "WS_TIME_NOW_GRP_HH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_SS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ABEND_PGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "REQUIRED_SORT_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "SQLCODE_DISPLAY": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "NCS_CUST_NO_ACT_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "NCS_CUST_NO_TEST_SORT": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)"
+    },
+    "NCS_CUST_NO_FILL": {
+      "type": "string",
+      "description": "Legacy PIC: XX"
+    },
+    "NCS_CUST_NO_INC": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(16)"
+    },
+    "NCS_CUST_NO_VALUE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(16)"
+    },
+    "WS_CUST_REC_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "NCS_UPDATED": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_U_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_ORIG_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_ORIG_DATE_DD": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ORIG_DATE_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ORIG_DATE_YYYY": {
+      "type": "number",
+      "description": "Legacy PIC: 9999."
+    },
+    "STORED_SORTCODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)"
+    },
+    "STORED_CUSTNO": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "STORED_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(60)"
+    },
+    "STORED_DOB": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "WS_EIBTASKN12": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(12)"
+    },
+    "REQUIRED_CUST_NUMBER2": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "WS_CC_CNT": {
+      "type": "integer",
+      "description": "Legacy PIC: 9"
+    },
+    "WS_FINISHED_FETCHING": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_RETRIEVED_CNT": {
+      "type": "integer",
+      "description": "Legacy PIC: 9"
+    },
+    "WS_CHANNEL_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "WS_CREDIT_CHECK_ERROR": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_ACTUAL_CS_SCR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "WS_TOTAL_CS_SCR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "WS_ANY_CHILD_TKN": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "WS_ANY_CHILD_FETCH_TKN": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "WS_ANY_CHILD_FETCH_CHAN": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "WS_ANY_CHILD_FETCH_ABCODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_CHILD_ISSUED_CNT": {
+      "type": "integer",
+      "description": "Legacy PIC: 9"
+    },
+    "WS_CHILD_CHAN": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "WS_CHILD_TKN": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "WS_RECEIVE_CHILD_CHAN": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "WS_CHILD_FETCH_COMPST": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CHILD_DATA_SORTCODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "WS_CHILD_DATA_NUMBER": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "WS_CHILD_DATA_BIRTH_DAY": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CHILD_DATA_CREDIT_SCORE": {
+      "type": "number",
+      "description": "Legacy PIC: 999."
+    },
+    "WS_CONTAINER_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "WS_CHILD_CONTAINER_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_RUN_TRANSID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_CICSTS_LEVEL_NUM_VV": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CICSTS_LEVEL_NUM_RR": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CICSTS_LEVEL_NUM_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CURRENT_YYYY": {
+      "type": "number",
+      "description": "Legacy PIC: 9(4)."
+    },
+    "WS_CURRENT_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CURRENT_DD": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CURRENT_HOURS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CURRENT_MINS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CURRENT_SECS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CURRENT_MILLI": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_CURRENT_DATE_9": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "WS_TODAY_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "WS_REVIEW_DATE_ADD": {
+      "type": "integer",
+      "description": "Legacy PIC: 99"
+    },
+    "WS_NEW_REVIEW_DATE_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "WS_NEW_REVIEW_YYYYMMDD": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "WS_PUT_CONT_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "WS_PUT_CONT_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_SEED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_DATE_OF_BIRTH_ERROR": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_DATE_OF_BIRTH_LILLIAN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "CEEDAYS_YEAR": {
+      "type": "number",
+      "description": "Legacy PIC: 9999."
+    },
+    "CEEDAYS_MONTH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "CEEDAYS_DAY": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "SEVERITY": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "MSG_NO": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "CLASS_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "CAUSE_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "CASE_SEV_CTL": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "FACILITY_ID": {
+      "type": "string",
+      "description": "Legacy PIC: XXX."
+    },
+    "WS_TODAY_LILLIAN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "WS_TODAY_G_YEAR": {
+      "type": "number",
+      "description": "Legacy PIC: 9(4)."
+    },
+    "VSTRING_CHAR": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_CUSTOMER_AGE": {
+      "type": "number",
+      "description": "Legacy PIC: S9999."
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WS_ERROR_RECORD",
+  "type": "object",
+  "properties": {
+    "ERROR_OUTPUT_RECORD": {
+      "type": "string",
+      "description": "Legacy PIC: X(132)."
+    },
+    "WS_EXPORT_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_CUSTOMER_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_ACCOUNT_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_XREF_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_TRANSACTION_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_CARD_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_ERROR_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_IMPORT_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_IMPORT_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "WS_TOTAL_RECORDS_READ": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_CUSTOMER_RECORDS_IMPORTED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_ACCOUNT_RECORDS_IMPORTED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_XREF_RECORDS_IMPORTED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_TRAN_RECORDS_IMPORTED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_CARD_RECORDS_IMPORTED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_ERROR_RECORDS_WRITTEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_UNKNOWN_RECORD_TYPE_COUNT": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "ERR_TIMESTAMP": {
+      "type": "string",
+      "description": "Legacy PIC: X(26)."
+    },
+    "ERR_RECORD_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "ERR_SEQUENCE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(07)."
+    },
+    "ERR_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    }
+  }
+}

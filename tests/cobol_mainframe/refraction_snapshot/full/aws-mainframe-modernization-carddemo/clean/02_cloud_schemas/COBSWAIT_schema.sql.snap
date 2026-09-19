@@ -1,0 +1,4 @@
+CREATE TABLE COBSWAIT (
+    MVSWAIT_TIME                   INTEGER,
+    PARM_VALUE                     VARCHAR(8)
+);

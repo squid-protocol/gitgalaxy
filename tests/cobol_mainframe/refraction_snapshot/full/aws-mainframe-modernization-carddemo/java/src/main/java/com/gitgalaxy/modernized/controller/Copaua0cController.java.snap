@@ -1,0 +1,25 @@
+package com.gitgalaxy.modernized.controller;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import com.gitgalaxy.modernized.service.Copaua0cService;
+
+
+@RestController
+@RequestMapping("/api/v1/copaua0c")
+@RequiredArgsConstructor
+public class Copaua0cController {
+
+    private final Copaua0cService copaua0cService;
+
+    @PostMapping("/execute")
+    public ResponseEntity<?> executeCopaua0c(
+        /* No external data dependencies detected */
+    ) {
+        // TRANSACTIONAL PARADIGM DETECTED
+        copaua0cService.executeCopaua0c(/* pass DTOs here */);
+
+        return ResponseEntity.noContent().build();
+    }
+}

@@ -1,0 +1,11 @@
+CREATE TABLE WS_FIELDS (
+    WS_UPDATE_NUM                  DECIMAL(11, 2) -- Legacy: COMP-3 (Packed Decimal),
+    WS_UPDATE_NUM_NEG              VARCHAR(1),
+    TRAN_COUNT                     INTEGER -- Legacy: COMP-3 (Packed Decimal),
+    LOOP_COUNT                     INTEGER,
+    WORK_SUM                       BIGINT,
+    MONTH_AVERAGE                  BIGINT,
+    MONTH_SUB                      BIGINT,
+    TRAN_OK                        VARCHAR(1),
+    TRAN_MSG                       VARCHAR(50)
+);

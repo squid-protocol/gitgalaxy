@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WS_MISC_VARIABLES",
+  "type": "object",
+  "properties": {
+    "FD_XREF_CARD_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "FD_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "IO_STAT1": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "IO_STAT2": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "TWO_BYTES_BINARY": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "TWO_BYTES_RIGHT": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "IO_STATUS_0403": {
+      "type": "integer",
+      "description": "Legacy PIC: 999"
+    },
+    "APPL_RESULT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "END_OF_DAILY_TRANS_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "ABCODE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "TIMING": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "WS_XREF_READ_STATUS": {
+      "type": "number",
+      "description": "Legacy PIC: 9(04)."
+    },
+    "WS_ACCT_READ_STATUS": {
+      "type": "number",
+      "description": "Legacy PIC: 9(04)."
+    }
+  }
+}

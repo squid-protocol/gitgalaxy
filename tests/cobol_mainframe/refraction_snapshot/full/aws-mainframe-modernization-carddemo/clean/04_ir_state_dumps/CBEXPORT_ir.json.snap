@@ -1,0 +1,190 @@
+{
+  "metadata": {
+    "file_name": "CBEXPORT.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CBEXPORT.cbl",
+    "corporate_header": "",
+    "loc": 582
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "CBEXPORT.cbl",
+      "total_vars": 93,
+      "orphaned_vars": [
+        "CARD-XREF-RECORD",
+        "EXPORT-ACCOUNT-DATA",
+        "EXPORT-CARD-DATA",
+        "EXPORT-CARD-XREF-DATA",
+        "EXPORT-CUSTOMER-DATA",
+        "EXPORT-RECORD-DATA",
+        "EXPORT-TIMESTAMP-R",
+        "EXPORT-TRANSACTION-DATA",
+        "TRAN-RECORD",
+        "WS-EXPORT-CONTROL",
+        "WS-EXPORT-STATISTICS",
+        "WS-FILE-STATUS-AREA",
+        "WS-TIMESTAMP-FIELDS"
+      ],
+      "total_paras": 21,
+      "dead_paras": [],
+      "loc_saved": 13
+    },
+    "lineage": {
+      "program_id": "CBEXPORT",
+      "inputs": [
+        "ACCTFILE",
+        "CARDFILE",
+        "CUSTFILE",
+        "TRANSACT",
+        "XREFFILE"
+      ],
+      "outputs": [
+        "EXPFILE"
+      ],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "CBEXPORT",
+      "files_requested": [
+        {
+          "internal": "CUSTOMER-INPUT",
+          "dd_name": "CUSTFILE"
+        },
+        {
+          "internal": "ACCOUNT-INPUT",
+          "dd_name": "ACCTFILE"
+        },
+        {
+          "internal": "XREF-INPUT",
+          "dd_name": "XREFFILE"
+        },
+        {
+          "internal": "TRANSACTION-INPUT",
+          "dd_name": "TRANSACT"
+        },
+        {
+          "internal": "CARD-INPUT",
+          "dd_name": "CARDFILE"
+        },
+        {
+          "internal": "EXPORT-OUTPUT",
+          "dd_name": "EXPFILE"
+        }
+      ],
+      "is_cics": false,
+      "is_db2": false,
+      "cics_calls": 0,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "WS_EXPORT_STATISTICS",
+      "sql": "CREATE TABLE WS_EXPORT_STATISTICS (\n    EXPORT_OUTPUT_RECORD           VARCHAR(500),\n    WS_CUSTOMER_STATUS             VARCHAR(02),\n    WS_ACCOUNT_STATUS              VARCHAR(02),\n    WS_XREF_STATUS                 VARCHAR(02),\n    WS_TRANSACTION_STATUS          VARCHAR(02),\n    WS_CARD_STATUS                 VARCHAR(02),\n    WS_EXPORT_STATUS               VARCHAR(02),\n    WS_EXPORT_DATE                 VARCHAR(10),\n    WS_EXPORT_TIME                 VARCHAR(08),\n    WS_FORMATTED_TIMESTAMP         VARCHAR(26),\n    WS_SEQUENCE_COUNTER            INTEGER,\n    WS_CURR_YEAR                   DECIMAL(4, 0),\n    WS_CURR_MONTH                  DECIMAL(2, 0),\n    WS_CURR_DAY                    DECIMAL(2, 0),\n    WS_CURR_HOUR                   DECIMAL(2, 0),\n    WS_CURR_MINUTE                 DECIMAL(2, 0),\n    WS_CURR_SECOND                 DECIMAL(2, 0),\n    WS_CURR_HUNDREDTH              DECIMAL(2, 0),\n    WS_CUSTOMER_RECORDS_EXPORTED   INTEGER,\n    WS_ACCOUNT_RECORDS_EXPORTED    INTEGER,\n    WS_XREF_RECORDS_EXPORTED       INTEGER,\n    WS_TRAN_RECORDS_EXPORTED       INTEGER,\n    WS_CARD_RECORDS_EXPORTED       INTEGER,\n    WS_TOTAL_RECORDS_EXPORTED      INTEGER\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "WS_EXPORT_STATISTICS",
+        "type": "object",
+        "properties": {
+          "EXPORT_OUTPUT_RECORD": {
+            "type": "string",
+            "description": "Legacy PIC: X(500)."
+          },
+          "WS_CUSTOMER_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_ACCOUNT_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_XREF_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_TRANSACTION_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_CARD_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_EXPORT_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "WS_EXPORT_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "WS_EXPORT_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)."
+          },
+          "WS_FORMATTED_TIMESTAMP": {
+            "type": "string",
+            "description": "Legacy PIC: X(26)."
+          },
+          "WS_SEQUENCE_COUNTER": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_CURR_YEAR": {
+            "type": "number",
+            "description": "Legacy PIC: 9(04)."
+          },
+          "WS_CURR_MONTH": {
+            "type": "number",
+            "description": "Legacy PIC: 9(02)."
+          },
+          "WS_CURR_DAY": {
+            "type": "number",
+            "description": "Legacy PIC: 9(02)."
+          },
+          "WS_CURR_HOUR": {
+            "type": "number",
+            "description": "Legacy PIC: 9(02)."
+          },
+          "WS_CURR_MINUTE": {
+            "type": "number",
+            "description": "Legacy PIC: 9(02)."
+          },
+          "WS_CURR_SECOND": {
+            "type": "number",
+            "description": "Legacy PIC: 9(02)."
+          },
+          "WS_CURR_HUNDREDTH": {
+            "type": "number",
+            "description": "Legacy PIC: 9(02)."
+          },
+          "WS_CUSTOMER_RECORDS_EXPORTED": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_ACCOUNT_RECORDS_EXPORTED": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_XREF_RECORDS_EXPORTED": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_TRAN_RECORDS_EXPORTED": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_CARD_RECORDS_EXPORTED": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_TOTAL_RECORDS_EXPORTED": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ==========================================================\n//STEP01   EXEC PGM=CBEXPORT\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//* --- EXTRACTED FILE INTENT BOUNDARIES ---\n//CUSTFILE DD DSN=HERC01.DATA.CUSTFILE,\n//             DISP=SHR\n//ACCTFILE DD DSN=HERC01.DATA.ACCTFILE,\n//             DISP=SHR\n//XREFFILE DD DSN=HERC01.DATA.XREFFILE,\n//             DISP=SHR\n//TRANSACT DD DSN=HERC01.DATA.TRANSACT,\n//             DISP=SHR\n//CARDFILE DD DSN=HERC01.DATA.CARDFILE,\n//             DISP=SHR\n//EXPFILE  DD DSN=HERC01.DATA.EXPFILE,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//"
+  }
+}

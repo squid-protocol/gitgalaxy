@@ -1,0 +1,135 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WS_REISSUE_DATE",
+  "type": "object",
+  "properties": {
+    "OUT_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "OUT_ACCT_ACTIVE_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "OUT_ACCT_CURR_BAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "OUT_ACCT_CREDIT_LIMIT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "OUT_ACCT_CASH_CREDIT_LIMIT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "OUT_ACCT_OPEN_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "OUT_ACCT_EXPIRAION_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "OUT_ACCT_REISSUE_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "OUT_ACCT_CURR_CYC_CREDIT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "OUT_ACCT_CURR_CYC_DEBIT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99"
+    },
+    "OUT_ACCT_GROUP_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "ARR_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "ARR_ACCT_CURR_BAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "ARR_ACCT_CURR_CYC_DEBIT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99"
+    },
+    "VBR_REC": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)."
+    },
+    "IO_STAT1": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "IO_STAT2": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "TWO_BYTES_BINARY": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
+    },
+    "TWO_BYTES_RIGHT": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "IO_STATUS_0403": {
+      "type": "integer",
+      "description": "Legacy PIC: 999"
+    },
+    "APPL_RESULT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "END_OF_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "ABCODE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "TIMING": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "WS_RECD_LEN": {
+      "type": "number",
+      "description": "Legacy PIC: 9(04)."
+    },
+    "VB1_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "VB1_ACCT_ACTIVE_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "VB2_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "VB2_ACCT_CURR_BAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "VB2_ACCT_CREDIT_LIMIT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "VB2_ACCT_REISSUE_YYYY": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)."
+    },
+    "WS_ACCT_REISSUE_YYYY": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)."
+    }
+  }
+}

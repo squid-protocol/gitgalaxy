@@ -1,0 +1,23 @@
+CREATE TABLE ABNDINFO_REC (
+    WS_CONT_IN_SORTCODE            INTEGER,
+    WS_CONT_IN_NUMBER              BIGINT,
+    WS_CONT_IN_BIRTH_DAY           DECIMAL(2, 0),
+    WS_CONT_IN_BIRTH_MONTH         DECIMAL(2, 0),
+    WS_CONT_IN_BIRTH_YEAR          DECIMAL(4, 0),
+    WS_CONT_IN_CREDIT_SCORE        DECIMAL(3, 0),
+    WS_CICS_RESP                   INTEGER,
+    WS_CICS_RESP2                  INTEGER,
+    WS_DELAY_AMT                   INTEGER,
+    WS_CONTAINER_NAME              VARCHAR(16),
+    WS_CHANNEL_NAME                VARCHAR(16),
+    WS_CONTAINER_LEN               INTEGER,
+    WS_NEW_CREDSCORE               SMALLINT,
+    WS_SEED                        BIGINT,
+    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),
+    WS_ORIG_DATE                   VARCHAR(10),
+    WS_TIME_NOW                    DECIMAL(6, 0),
+    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),
+    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),
+    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0),
+    WS_ABEND_PGM                   VARCHAR(8)
+);

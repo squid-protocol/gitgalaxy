@@ -1,0 +1,26 @@
+{
+  "job_id": "SAM1LIB_REMEDIATION",
+  "status": "PENDING",
+  "task_type": "STRUCTURAL_ANOMALY_RESOLUTION",
+  "target_file": "<WORK>/zopeneditor-sample/COBOL/SAM1LIB.cbl",
+  "context": {
+    "detected_anomalies": [
+      "Unresolved Dynamic CALL to: SAM2",
+      "HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution.",
+      "HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution.",
+      "HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution."
+    ],
+    "inputs_required": [
+      "CUSTFILE",
+      "TRANFILE"
+    ],
+    "outputs_produced": [
+      "CUSTOUT",
+      "CUSTRPT"
+    ],
+    "external_calls": [
+      "SAM2"
+    ]
+  },
+  "system_prompt": "You are a deterministic legacy systems architect. Your task is to analyze the provided 'target_file' and resolve the structural issues listed in 'detected_anomalies'. Do not alter the core business logic. Return your proposed solution as a valid JSON object containing a 'diagnosis' string and a 'patched_code' string."
+}

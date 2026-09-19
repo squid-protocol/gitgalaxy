@@ -1,0 +1,25 @@
+package com.gitgalaxy.modernized.controller;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import com.gitgalaxy.modernized.service.CotrtlicService;
+
+
+@RestController
+@RequestMapping("/api/v1/cotrtlic")
+@RequiredArgsConstructor
+public class CotrtlicController {
+
+    private final CotrtlicService cotrtlicService;
+
+    @PostMapping("/execute")
+    public ResponseEntity<?> executeCotrtlic(
+        /* No external data dependencies detected */
+    ) {
+        // TRANSACTIONAL PARADIGM DETECTED
+        cotrtlicService.executeCotrtlic(/* pass DTOs here */);
+
+        return ResponseEntity.noContent().build();
+    }
+}

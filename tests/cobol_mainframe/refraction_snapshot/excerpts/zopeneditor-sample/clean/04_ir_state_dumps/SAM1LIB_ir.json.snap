@@ -1,0 +1,205 @@
+{
+  "metadata": {
+    "file_name": "SAM1LIB.cbl",
+    "path": "<WORK>/zopeneditor-sample/COBOL/SAM1LIB.cbl",
+    "corporate_header": "",
+    "loc": 488
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "SAM1LIB.cbl",
+      "total_vars": 62,
+      "orphaned_vars": [
+        "CRUNCH-CPU-LOOPS",
+        "CRUNCH-KEY",
+        "CRUNCH-PARMS",
+        "INCR-CUST-ID",
+        "MAX-CUST-ID",
+        "START-CUST-ID",
+        "TRAN-ACTION",
+        "TRAN-FIELD-NAME",
+        "TRAN-FIELD-SS",
+        "TRAN-PARMS",
+        "TRAN-UPDATE-DATA",
+        "TRAN-UPDATE-NUM",
+        "TRAN-UPDATE-NUM-HH",
+        "TRAN-UPDATE-NUMX",
+        "TRAN-UPDATE-NUMX1",
+        "TRAN-UPDATE-NUMX2-7",
+        "WORK-NUM",
+        "WORK-VARIABLES",
+        "WS-CUST-FILE-OK",
+        "WS-FIELDS"
+      ],
+      "total_paras": 16,
+      "dead_paras": [],
+      "loc_saved": 20
+    },
+    "lineage": {
+      "program_id": "SAM1",
+      "inputs": [
+        "CUSTFILE",
+        "TRANFILE"
+      ],
+      "outputs": [
+        "CUSTOUT",
+        "CUSTRPT"
+      ],
+      "unresolved_calls": [
+        "SAM2"
+      ]
+    },
+    "base_intent": {
+      "program_id": "SAM1",
+      "files_requested": [
+        {
+          "internal": "CUSTOMER-FILE",
+          "dd_name": "CUSTFILE"
+        },
+        {
+          "internal": "CUSTOMER-FILE-OUT",
+          "dd_name": "CUSTOUT"
+        },
+        {
+          "internal": "TRANSACTION-FILE",
+          "dd_name": "TRANFILE"
+        },
+        {
+          "internal": "REPORT-FILE",
+          "dd_name": "CUSTRPT"
+        }
+      ],
+      "is_cics": false,
+      "is_db2": false,
+      "cics_calls": 0,
+      "sql_calls": 0
+    },
+    "honesty_flags": [
+      "[SAM1LIB.cbl : Line 0061] HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution.",
+      "[SAM1LIB.cbl : Line 0067] HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution.",
+      "[SAM1LIB.cbl : Line 0116] HIGH LIMIT - Macro substitution detected. AST math may drift from actual compiled execution."
+    ]
+  },
+  "generation": {
+    "schemas": {
+      "table": "RPT_STATS_DETAIL",
+      "sql": "CREATE TABLE RPT_STATS_DETAIL (\n    REPORT_RECORD                  VARCHAR(132),\n    WS_CUSTFILE_STATUS             VARCHAR(2),\n    WS_CUSTOUT_STATUS              VARCHAR(2),\n    WS_TRANFILE_STATUS             VARCHAR(2),\n    WS_REPORT_STATUS               VARCHAR(2),\n    WS_TRAN_EOF                    VARCHAR(1),\n    WS_TRAN_OK                     VARCHAR(1),\n    WS_CUST_FILE_EOF               VARCHAR(1),\n    WS_TRAN_MSG                    VARCHAR(50),\n    WS_PREV_TRAN_KEY               VARCHAR(13),\n    SAM2                           VARCHAR(8),\n    I                              INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    ERR_MSG_DATA1                  VARCHAR(35),\n    ERR_MSG_DATA2                  VARCHAR(66),\n    ERR_MSG_DATA3                  VARCHAR(80),\n    RPT_MM                         DECIMAL(2, 0),\n    RPT_DD                         DECIMAL(2, 0),\n    RPT_YY                         DECIMAL(2, 0),\n    RPT_HH                         DECIMAL(2, 0),\n    RPT_MIN                        DECIMAL(2, 0),\n    RPT_SS                         DECIMAL(2, 0),\n    RPT_TRAN_MSG1                  VARCHAR(31),\n    RPT_TRAN_RECORD                VARCHAR(80),\n    RPT_TRAN                       VARCHAR(10),\n    RPT_NUM_TRANS                  TEXT,\n    RPT_NUM_TRAN_PROC              TEXT,\n    RPT_NUM_TRAN_ERR               TEXT\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "RPT_STATS_DETAIL",
+        "type": "object",
+        "properties": {
+          "REPORT_RECORD": {
+            "type": "string",
+            "description": "Legacy PIC: X(132)."
+          },
+          "WS_CUSTFILE_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_CUSTOUT_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_TRANFILE_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_REPORT_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_TRAN_EOF": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WS_TRAN_OK": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WS_CUST_FILE_EOF": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WS_TRAN_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "WS_PREV_TRAN_KEY": {
+            "type": "string",
+            "description": "Legacy PIC: X(13)"
+          },
+          "SAM2": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "I": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "ERR_MSG_DATA1": {
+            "type": "string",
+            "description": "Legacy PIC: X(35)"
+          },
+          "ERR_MSG_DATA2": {
+            "type": "string",
+            "description": "Legacy PIC: X(66)"
+          },
+          "ERR_MSG_DATA3": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)."
+          },
+          "RPT_MM": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "RPT_DD": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "RPT_YY": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "RPT_HH": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "RPT_MIN": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "RPT_SS": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "RPT_TRAN_MSG1": {
+            "type": "string",
+            "description": "Legacy PIC: X(31)"
+          },
+          "RPT_TRAN_RECORD": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "RPT_TRAN": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "RPT_NUM_TRANS": {
+            "type": "string",
+            "description": "Legacy PIC: ZZZ"
+          },
+          "RPT_NUM_TRAN_PROC": {
+            "type": "string",
+            "description": "Legacy PIC: ZZZ"
+          },
+          "RPT_NUM_TRAN_ERR": {
+            "type": "string",
+            "description": "Legacy PIC: ZZZ"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ==========================================================\n//STEP01   EXEC PGM=SAM1\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//* --- EXTRACTED FILE INTENT BOUNDARIES ---\n//CUSTFILE DD DSN=HERC01.DATA.CUSTFILE,\n//             DISP=SHR\n//CUSTOUT  DD DSN=HERC01.DATA.CUSTOUT,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//TRANFILE DD DSN=HERC01.DATA.TRANFILE,\n//             DISP=SHR\n//CUSTRPT  DD DSN=HERC01.DATA.CUSTRPT,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//"
+  }
+}

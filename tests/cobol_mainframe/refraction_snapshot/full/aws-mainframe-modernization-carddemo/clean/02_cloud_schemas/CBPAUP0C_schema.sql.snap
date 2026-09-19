@@ -1,0 +1,22 @@
+CREATE TABLE PENDING_AUTH_DETAILS (
+    CURRENT_DATE                   DECIMAL(6, 0),
+    CURRENT_YYDDD                  DECIMAL(5, 0),
+    WS_AUTH_DATE                   DECIMAL(5, 0),
+    WS_EXPIRY_DAYS                 SMALLINT,
+    WS_DAY_DIFF                    SMALLINT,
+    WS_CURR_APP_ID                 DECIMAL(11, 0),
+    WS_NO_CHKP                     INTEGER,
+    WS_AUTH_SMRY_PROC_CNT          INTEGER,
+    WS_NO_SUMRY_READ               INTEGER,
+    WS_NO_SUMRY_DELETED            INTEGER,
+    WS_NO_DTL_READ                 INTEGER,
+    WS_NO_DTL_DELETED              INTEGER,
+    WK_CHKPT_ID_CTR                SMALLINT,
+    PAUT_PCB_NUM                   SMALLINT,
+    P_EXPIRY_DAYS                  DECIMAL(2, 0),
+    P_CHKP_FREQ                    VARCHAR(05),
+    P_CHKP_DIS_FREQ                VARCHAR(05),
+    P_DEBUG_FLAG                   VARCHAR(01),
+    IO_PCB_MASK                    VARCHAR(1),
+    PGM_PCB_MASK                   VARCHAR(1)
+);

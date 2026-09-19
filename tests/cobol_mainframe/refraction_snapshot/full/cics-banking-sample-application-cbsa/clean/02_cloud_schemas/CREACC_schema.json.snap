@@ -1,0 +1,323 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "HV_ACCOUNT_EYECATCHER": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "HV_ACCOUNT_CUST_NO": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "HV_ACCOUNT_SORTCODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)."
+    },
+    "HV_ACCOUNT_ACC_NO": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "HV_ACCOUNT_ACC_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "HV_ACCOUNT_INT_RATE": {
+      "type": "number",
+      "description": "Legacy PIC: S9(4)V99"
+    },
+    "HV_ACCOUNT_OPENED": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "HV_ACCOUNT_OPENED_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "HV_ACCOUNT_OPENED_DELIM1": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "HV_ACCOUNT_OPENED_MONTH": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "HV_ACCOUNT_OPENED_DELIM2": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "HV_ACCOUNT_OPENED_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "HV_ACCOUNT_OVERDRAFT_LIM": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "HV_ACCOUNT_LAST_STMT": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "HV_ACCOUNT_LAST_STMT_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "HV_ACCOUNT_LAST_STMT_DELIM1": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "HV_ACCOUNT_LAST_STMT_MONTH": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "HV_ACCOUNT_LAST_STMT_DELIM2": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "HV_ACCOUNT_LAST_STMT_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "HV_ACCOUNT_NEXT_STMT": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "HV_ACCOUNT_NEXT_STMT_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "HV_ACCOUNT_NEXT_STMT_DELIM1": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "HV_ACCOUNT_NEXT_STMT_MONTH": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "HV_ACCOUNT_NEXT_STMT_DELIM2": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "HV_ACCOUNT_NEXT_STMT_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "HV_ACCOUNT_AVAIL_BAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99"
+    },
+    "HV_ACCOUNT_ACTUAL_BAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99"
+    },
+    "SQLCODE_DISPLAY": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "HV_PROCTRAN_EYECATCHER": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "HV_PROCTRAN_SORT_CODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)."
+    },
+    "HV_PROCTRAN_ACC_NUMBER": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "HV_PROCTRAN_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "HV_PROCTRAN_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)."
+    },
+    "HV_PROCTRAN_REF": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "HV_PROCTRAN_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "HV_PROCTRAN_DESC": {
+      "type": "string",
+      "description": "Legacy PIC: X(40)."
+    },
+    "HV_PROCTRAN_AMOUNT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99"
+    },
+    "HV_CONTROL_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)."
+    },
+    "HV_CONTROL_VALUE_NUM": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "HV_CONTROL_VALUE_STR": {
+      "type": "string",
+      "description": "Legacy PIC: X(40)."
+    },
+    "WS_CICS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "REQUIRED_SORT_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "REQUIRED_SORT_CODE2": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "NCS_ACC_NO_ACT_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "NCS_ACC_NO_TEST_SORT": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)"
+    },
+    "NCS_ACC_NO_FILL": {
+      "type": "string",
+      "description": "Legacy PIC: XX"
+    },
+    "NCS_ACC_NO_INC": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(16)"
+    },
+    "NCS_ACC_NO_VALUE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(16)"
+    },
+    "WS_U_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_ORIG_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_ORIG_DATE_DD": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ORIG_DATE_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ORIG_DATE_YYYY": {
+      "type": "number",
+      "description": "Legacy PIC: 9999."
+    },
+    "DONT_CARE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "LEAP_YEAR": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "WS_STDT_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "WS_STDT_9_NUM": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "WS_STDT_9_NUMERIC": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "WS_INTEGER": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "WS_FUTURE_DATE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "WS_FUT_9": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "WS_FUT_X_YY": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "WS_FUT_X_MM": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "WS_FUT_X_DD": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "NCS_ACC_NO_DISP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(16)"
+    },
+    "STORED_SORTCODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)"
+    },
+    "STORED_CUSTNO": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "STORED_ACCTYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "STORED_LST_STMT": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "STORED_NXT_STMT": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "STORED_ACCNO": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_EIBTASKN12": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(12)"
+    },
+    "REQUIRED_ACCT_NUMBER3": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "WS_TIME_NOW": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "WS_TIME_NOW_GRP_HH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_SS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ABEND_PGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    }
+  }
+}

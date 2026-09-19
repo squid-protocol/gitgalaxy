@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_PGMNAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "WS_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "WS_ERR_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "WS_RESP_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_REAS_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_OPTION_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_OPTION": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(02)"
+    },
+    "WS_IDX": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "WS_MENU_OPT_TXT": {
+      "type": "string",
+      "description": "Legacy PIC: X(40)"
+    }
+  }
+}

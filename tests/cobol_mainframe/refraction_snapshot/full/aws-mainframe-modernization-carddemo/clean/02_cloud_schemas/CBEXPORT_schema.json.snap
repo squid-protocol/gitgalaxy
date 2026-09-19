@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WS_EXPORT_STATISTICS",
+  "type": "object",
+  "properties": {
+    "EXPORT_OUTPUT_RECORD": {
+      "type": "string",
+      "description": "Legacy PIC: X(500)."
+    },
+    "WS_CUSTOMER_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_ACCOUNT_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_XREF_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_TRANSACTION_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_CARD_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_EXPORT_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_EXPORT_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_EXPORT_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "WS_FORMATTED_TIMESTAMP": {
+      "type": "string",
+      "description": "Legacy PIC: X(26)."
+    },
+    "WS_SEQUENCE_COUNTER": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_CURR_YEAR": {
+      "type": "number",
+      "description": "Legacy PIC: 9(04)."
+    },
+    "WS_CURR_MONTH": {
+      "type": "number",
+      "description": "Legacy PIC: 9(02)."
+    },
+    "WS_CURR_DAY": {
+      "type": "number",
+      "description": "Legacy PIC: 9(02)."
+    },
+    "WS_CURR_HOUR": {
+      "type": "number",
+      "description": "Legacy PIC: 9(02)."
+    },
+    "WS_CURR_MINUTE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(02)."
+    },
+    "WS_CURR_SECOND": {
+      "type": "number",
+      "description": "Legacy PIC: 9(02)."
+    },
+    "WS_CURR_HUNDREDTH": {
+      "type": "number",
+      "description": "Legacy PIC: 9(02)."
+    },
+    "WS_CUSTOMER_RECORDS_EXPORTED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_ACCOUNT_RECORDS_EXPORTED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_XREF_RECORDS_EXPORTED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_TRAN_RECORDS_EXPORTED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_CARD_RECORDS_EXPORTED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_TOTAL_RECORDS_EXPORTED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    }
+  }
+}

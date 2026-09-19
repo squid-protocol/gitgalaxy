@@ -1,0 +1,115 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "WS_REISSUE_DATE")
+public class WsReissueDate {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "OUT_ACCT_ID")
+    private BigDecimal outAcctId;
+
+    @Column(name = "OUT_ACCT_ACTIVE_STATUS")
+    private String outAcctActiveStatus;
+
+    @Column(name = "OUT_ACCT_CURR_BAL")
+    private BigDecimal outAcctCurrBal;
+
+    @Column(name = "OUT_ACCT_CREDIT_LIMIT")
+    private BigDecimal outAcctCreditLimit;
+
+    @Column(name = "OUT_ACCT_CASH_CREDIT_LIMIT")
+    private BigDecimal outAcctCashCreditLimit;
+
+    @Column(name = "OUT_ACCT_OPEN_DATE")
+    private String outAcctOpenDate;
+
+    @Column(name = "OUT_ACCT_EXPIRAION_DATE")
+    private String outAcctExpiraionDate;
+
+    @Column(name = "OUT_ACCT_REISSUE_DATE")
+    private String outAcctReissueDate;
+
+    @Column(name = "OUT_ACCT_CURR_CYC_CREDIT")
+    private BigDecimal outAcctCurrCycCredit;
+
+    @Column(name = "OUT_ACCT_CURR_CYC_DEBIT")
+    private BigDecimal outAcctCurrCycDebit;
+
+    @Column(name = "OUT_ACCT_GROUP_ID")
+    private String outAcctGroupId;
+
+    @Column(name = "ARR_ACCT_ID")
+    private BigDecimal arrAcctId;
+
+    @Column(name = "ARR_ACCT_CURR_BAL")
+    private BigDecimal arrAcctCurrBal;
+
+    @Column(name = "ARR_ACCT_CURR_CYC_DEBIT")
+    private BigDecimal arrAcctCurrCycDebit;
+
+    @Column(name = "VBR_REC")
+    private String vbrRec;
+
+    @Column(name = "IO_STAT1")
+    private String ioStat1;
+
+    @Column(name = "IO_STAT2")
+    private String ioStat2;
+
+    @Column(name = "TWO_BYTES_BINARY")
+    private Integer twoBytesBinary;
+
+    @Column(name = "TWO_BYTES_RIGHT")
+    private String twoBytesRight;
+
+    @Column(name = "IO_STATUS_0403")
+    private Integer ioStatus0403;
+
+    @Column(name = "APPL_RESULT")
+    private Integer applResult;
+
+    @Column(name = "END_OF_FILE")
+    private String endOfFile;
+
+    @Column(name = "ABCODE")
+    private Integer abcode;
+
+    @Column(name = "TIMING")
+    private Integer timing;
+
+    @Column(name = "WS_RECD_LEN")
+    private BigDecimal wsRecdLen;
+
+    @Column(name = "VB1_ACCT_ID")
+    private BigDecimal vb1AcctId;
+
+    @Column(name = "VB1_ACCT_ACTIVE_STATUS")
+    private String vb1AcctActiveStatus;
+
+    @Column(name = "VB2_ACCT_ID")
+    private BigDecimal vb2AcctId;
+
+    @Column(name = "VB2_ACCT_CURR_BAL")
+    private BigDecimal vb2AcctCurrBal;
+
+    @Column(name = "VB2_ACCT_CREDIT_LIMIT")
+    private BigDecimal vb2AcctCreditLimit;
+
+    @Column(name = "VB2_ACCT_REISSUE_YYYY")
+    private String vb2AcctReissueYyyy;
+
+    @Column(name = "WS_ACCT_REISSUE_YYYY")
+    private String wsAcctReissueYyyy;
+
+}

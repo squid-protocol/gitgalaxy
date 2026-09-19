@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "COBSWAIT",
+  "type": "object",
+  "properties": {
+    "MVSWAIT_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
+    },
+    "PARM_VALUE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    }
+  }
+}

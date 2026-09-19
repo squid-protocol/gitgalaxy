@@ -1,0 +1,903 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_RESP_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_REAS_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_UCTRANS": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_EDIT_VARIABLE_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)."
+    },
+    "WS_EDIT_SIGNED_NUMBER_9V2_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "WS_FLG_SIGNED_NUMBER_EDIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_ALPHANUM_ONLY": {
+      "type": "string",
+      "description": "Legacy PIC: X(256)."
+    },
+    "WS_EDIT_ALPHANUM_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_EDIT_ALPHA_ONLY_FLAGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_ALPHANUM_ONLY_FLAGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_MANDATORY_FLAGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_YES_NO": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "WS_EDIT_US_PHONE_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "WS_EDIT_US_PHONE_NUMA": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "WS_EDIT_US_PHONE_NUMB": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "WS_EDIT_US_PHONE_NUMC": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "WS_EDIT_US_PHONEA_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_EDIT_US_PHONEB": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_EDIT_PHONEC": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_US_SSN_PART1": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "WS_EDIT_US_SSN_PART2": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "WS_EDIT_US_SSN_PART3": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "WS_EDIT_US_SSN_PART1_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_US_SSN_PART2_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_US_SSN_PART3_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_ACCT_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_CREDIT_LIMIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_CASH_CREDIT_LIMIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_CURR_BAL": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_CURR_CYC_CREDIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_CURR_CYC_DEBIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_DT_OF_BIRTH_YEAR_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_DT_OF_BIRTH_MONTH": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_DT_OF_BIRTH_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_FICO_SCORE_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_OPEN_YEAR_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_OPEN_MONTH": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_OPEN_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_EXPIRY_YEAR_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_EXPIRY_MONTH": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_EXPIRY_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_REISSUE_YEAR_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_REISSUE_MONTH": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_REISSUE_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_FIRST_NAME_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_MIDDLE_NAME_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_LAST_NAME_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_ADDRESS_LINE_1_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_ADDRESS_LINE_2_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_CITY_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_STATE_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_ZIPCODE_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_COUNTRY_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_PHONE_NUM_1A_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_PHONE_NUM_1B": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_PHONE_NUM_1C": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_PHONE_NUM_2A_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_PHONE_NUM_2B": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_PHONE_NUM_2C": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EFT_ACCOUNT_ID_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_EDIT_PRI_CARDHOLDER": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)."
+    },
+    "WS_EDIT_DATE_X_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "WS_EDIT_DATE_MONTH": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "WS_EDIT_DATE_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "WS_EDIT_CURRENCY_9_2": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "WS_CARD_RID_CUST_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(09)."
+    },
+    "WS_CARD_RID_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "ERROR_OPNAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "ERROR_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "ERROR_RESP": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "ERROR_RESP2": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "ACUP_NEW_CREDIT_LIMIT_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "ACUP_NEW_CASH_CREDIT_LIMIT_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "ACUP_NEW_CURR_BAL_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "ACUP_NEW_CURR_CYC_CREDIT_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "ACUP_NEW_CURR_CYC_DEBIT_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "ACCT_UPDATE_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "ACCT_UPDATE_ACTIVE_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "ACCT_UPDATE_CURR_BAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "ACCT_UPDATE_CREDIT_LIMIT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "ACCT_UPDATE_CASH_CREDIT_LIMIT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "ACCT_UPDATE_OPEN_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "ACCT_UPDATE_EXPIRAION_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "ACCT_UPDATE_REISSUE_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "ACCT_UPDATE_CURR_CYC_CREDIT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "ACCT_UPDATE_CURR_CYC_DEBIT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "ACCT_UPDATE_GROUP_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "CUST_UPDATE_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(09)."
+    },
+    "CUST_UPDATE_FIRST_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)."
+    },
+    "CUST_UPDATE_MIDDLE_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)."
+    },
+    "CUST_UPDATE_LAST_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)."
+    },
+    "CUST_UPDATE_ADDR_LINE_1": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    },
+    "CUST_UPDATE_ADDR_LINE_2": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    },
+    "CUST_UPDATE_ADDR_LINE_3": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    },
+    "CUST_UPDATE_ADDR_STATE_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "CUST_UPDATE_ADDR_COUNTRY_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X(03)."
+    },
+    "CUST_UPDATE_ADDR_ZIP": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "CUST_UPDATE_PHONE_NUM_1": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "CUST_UPDATE_PHONE_NUM_2": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "CUST_UPDATE_SSN": {
+      "type": "number",
+      "description": "Legacy PIC: 9(09)."
+    },
+    "CUST_UPDATE_GOVT_ISSUED_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)."
+    },
+    "CUST_UPDATE_DOB_YYYY_MM_DD": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "CUST_UPDATE_EFT_ACCOUNT_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "CUST_UPDATE_PRI_CARD_IND": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "CUST_UPDATE_FICO_CREDIT_SCORE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(03)."
+    },
+    "WS_LONG_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(500)."
+    },
+    "WS_INFO_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(40)."
+    },
+    "WS_RETURN_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(75)."
+    },
+    "LIT_THISPGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_THISTRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "LIT_THISMAPSET": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_THISMAP": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_CCLISTMAPSET": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_MENUPGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_MENUTRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "LIT_ACCTFILENAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_CUSTFILENAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_CARDXREFNAME_ACCT_PATH": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_UPPER": {
+      "type": "string",
+      "description": "Legacy PIC: X(26)"
+    },
+    "LIT_LOWER": {
+      "type": "string",
+      "description": "Legacy PIC: X(26)"
+    },
+    "LIT_NUMBERS": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "LIT_ALL_ALPHA_FROM": {
+      "type": "string",
+      "description": "Legacy PIC: X(52)"
+    },
+    "LIT_ALL_ALPHANUM_FROM": {
+      "type": "string",
+      "description": "Legacy PIC: X(62)"
+    },
+    "LIT_ALPHA_SPACES_TO": {
+      "type": "string",
+      "description": "Legacy PIC: X(52)"
+    },
+    "LIT_ALPHANUM_SPACES_TO": {
+      "type": "string",
+      "description": "Legacy PIC: X(62)"
+    },
+    "ACUP_CHANGE_ACTION": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "ACUP_OLD_ACCT_ID_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(11)."
+    },
+    "ACUP_OLD_ACTIVE_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "ACUP_OLD_CURR_BAL": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "ACUP_OLD_CREDIT_LIMIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "ACUP_OLD_CASH_CREDIT_LIMIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "ACUP_OLD_OPEN_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "ACUP_OLD_OPEN_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_OLD_OPEN_MON": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_OLD_OPEN_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_OLD_EXPIRAION_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "ACUP_OLD_EXP_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_OLD_EXP_MON": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_OLD_EXP_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_OLD_REISSUE_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "ACUP_OLD_REISSUE_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_OLD_REISSUE_MON": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_OLD_REISSUE_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_OLD_CURR_CYC_CREDIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "ACUP_OLD_CURR_CYC_DEBIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "ACUP_OLD_GROUP_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "ACUP_OLD_CUST_ID_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(09)."
+    },
+    "ACUP_OLD_CUST_FIRST_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)."
+    },
+    "ACUP_OLD_CUST_MIDDLE_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)."
+    },
+    "ACUP_OLD_CUST_LAST_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)."
+    },
+    "ACUP_OLD_CUST_ADDR_LINE_1": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    },
+    "ACUP_OLD_CUST_ADDR_LINE_2": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    },
+    "ACUP_OLD_CUST_ADDR_LINE_3": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    },
+    "ACUP_OLD_CUST_ADDR_STATE_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "ACUP_OLD_CUST_ADDR_COUNTRY_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X(03)."
+    },
+    "ACUP_OLD_CUST_ADDR_ZIP": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "ACUP_OLD_CUST_PHONE_NUM_1": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "ACUP_OLD_CUST_PHONE_NUM_1A": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "ACUP_OLD_CUST_PHONE_NUM_1B": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "ACUP_OLD_CUST_PHONE_NUM_1C": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_OLD_CUST_PHONE_NUM_2": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "ACUP_OLD_CUST_PHONE_NUM_2A": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "ACUP_OLD_CUST_PHONE_NUM_2B": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "ACUP_OLD_CUST_PHONE_NUM_2C": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_OLD_CUST_SSN_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(09)."
+    },
+    "ACUP_OLD_CUST_GOVT_ISSUED_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)."
+    },
+    "ACUP_OLD_CUST_DOB_YYYY_MM_DD": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "ACUP_OLD_CUST_DOB_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_OLD_CUST_DOB_MON": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_OLD_CUST_DOB_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_OLD_CUST_EFT_ACCOUNT_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "ACUP_OLD_CUST_PRI_HOLDER_IND": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "ACUP_OLD_CUST_FICO_SCORE_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(03)."
+    },
+    "ACUP_NEW_ACCT_ID_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(11)."
+    },
+    "ACUP_NEW_ACTIVE_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "ACUP_NEW_CURR_BAL": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "ACUP_NEW_CREDIT_LIMIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "ACUP_NEW_CASH_CREDIT_LIMIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "ACUP_NEW_OPEN_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "ACUP_NEW_OPEN_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_NEW_OPEN_MON": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_NEW_OPEN_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_NEW_EXPIRAION_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "ACUP_NEW_EXP_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_NEW_EXP_MON": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_NEW_EXP_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_NEW_REISSUE_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "ACUP_NEW_REISSUE_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_NEW_REISSUE_MON": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_NEW_REISSUE_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_NEW_CURR_CYC_CREDIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "ACUP_NEW_CURR_CYC_DEBIT": {
+      "type": "string",
+      "description": "Legacy PIC: X(12)."
+    },
+    "ACUP_NEW_GROUP_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "ACUP_NEW_CUST_ID_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(09)."
+    },
+    "ACUP_NEW_CUST_FIRST_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)."
+    },
+    "ACUP_NEW_CUST_MIDDLE_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)."
+    },
+    "ACUP_NEW_CUST_LAST_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)."
+    },
+    "ACUP_NEW_CUST_ADDR_LINE_1": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    },
+    "ACUP_NEW_CUST_ADDR_LINE_2": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    },
+    "ACUP_NEW_CUST_ADDR_LINE_3": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    },
+    "ACUP_NEW_CUST_ADDR_STATE_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "ACUP_NEW_CUST_ADDR_COUNTRY_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X(03)."
+    },
+    "ACUP_NEW_CUST_ADDR_ZIP": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "ACUP_NEW_CUST_PHONE_NUM_1": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "ACUP_NEW_CUST_PHONE_NUM_1A": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "ACUP_NEW_CUST_PHONE_NUM_1B": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "ACUP_NEW_CUST_PHONE_NUM_1C": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_NEW_CUST_PHONE_NUM_2": {
+      "type": "string",
+      "description": "Legacy PIC: X(15)."
+    },
+    "ACUP_NEW_CUST_PHONE_NUM_2A": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "ACUP_NEW_CUST_PHONE_NUM_2B": {
+      "type": "string",
+      "description": "Legacy PIC: X(3)."
+    },
+    "ACUP_NEW_CUST_PHONE_NUM_2C": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_NEW_CUST_SSN_1": {
+      "type": "string",
+      "description": "Legacy PIC: X(03)."
+    },
+    "ACUP_NEW_CUST_SSN_2": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "ACUP_NEW_CUST_SSN_3": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)."
+    },
+    "ACUP_NEW_CUST_GOVT_ISSUED_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)."
+    },
+    "ACUP_NEW_CUST_DOB_YYYY_MM_DD": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "ACUP_NEW_CUST_DOB_YEAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)."
+    },
+    "ACUP_NEW_CUST_DOB_MON": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_NEW_CUST_DOB_DAY": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)."
+    },
+    "ACUP_NEW_CUST_EFT_ACCOUNT_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "ACUP_NEW_CUST_PRI_HOLDER_IND": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "ACUP_NEW_CUST_FICO_SCORE_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(03)."
+    },
+    "WS_COMMAREA": {
+      "type": "string",
+      "description": "Legacy PIC: X(2000)."
+    }
+  }
+}

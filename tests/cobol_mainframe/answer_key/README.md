@@ -48,10 +48,14 @@ A key whose programs are `draft` is not evidence. `test_key_integrity` fails on 
 
 ## Commands
 
-The corpora are not vendored; clone them at the pinned refs (#3213 will automate this). Then:
+The corpora are not vendored. `tests/cobol_mainframe/corpora.json` pins them, and `tests/tools/mainframe_corpus.py` fetches, scans and scores them (#3213):
 
 ```sh
-# score the forge tools, and the engine DB if given, against a key
+# fetch every pinned corpus, scan it (cached per engine commit), score forge + engine DB
+python tests/tools/mainframe_corpus.py fetch
+python tests/tools/mainframe_corpus.py score [<corpus> ...] [--md out.md]
+
+# the same score by hand, for a clone or DB outside the manifest
 python tests/tools/cobol_answer_key.py score <clone> --key tests/cobol_mainframe/answer_key/<corpus>.json \
     --db <scan>/<corpus>_galaxy_master.db [--md out.md] [--json out.json]
 

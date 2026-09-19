@@ -17,9 +17,15 @@ Harness: [`tests/tools/refraction_differential.py`](../tests/tools/refraction_di
 Reader: [`gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py`](../gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py).
 
 ```sh
-GITGALAXY_DISABLE_GIT_HISTORY=1 galaxyscope <repo> --db-only --output <dir>
-python tests/tools/refraction_differential.py <repo> --db <dir>/<repo>_galaxy_master.db --json d.json --md d.md
+# fetch the pinned corpus and build (or reuse) its master DB -- #3213
+python tests/tools/mainframe_corpus.py fetch <corpus>
+python tests/tools/mainframe_corpus.py scan <corpus>
+python tests/tools/refraction_differential.py "$(python tests/tools/mainframe_corpus.py path <corpus>)" \
+    --db "$(python tests/tools/mainframe_corpus.py path <corpus> --db)" --json d.json --md d.md
 ```
+
+For a repository outside the manifest, scan it yourself first:
+`GITGALAXY_DISABLE_GIT_HISTORY=1 galaxyscope <repo> --db-only --output <dir>`.
 
 ## Corpora (run 2026-09-19, engine at `44ffeb1e`)
 

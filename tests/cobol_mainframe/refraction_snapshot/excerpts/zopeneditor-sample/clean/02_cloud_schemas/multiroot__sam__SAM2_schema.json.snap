@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WS_FIELDS",
+  "type": "object",
+  "properties": {
+    "WS_UPDATE_NUM": {
+      "type": "number",
+      "description": "Legacy PIC: S9(9)V99"
+    },
+    "WS_UPDATE_NUM_NEG": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRAN_COUNT": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(5)"
+    },
+    "LOOP_COUNT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WORK_SUM": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(16)"
+    },
+    "MONTH_AVERAGE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(16)"
+    },
+    "MONTH_SUB": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(16)"
+    },
+    "TRAN_OK": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "TRAN_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    }
+  }
+}

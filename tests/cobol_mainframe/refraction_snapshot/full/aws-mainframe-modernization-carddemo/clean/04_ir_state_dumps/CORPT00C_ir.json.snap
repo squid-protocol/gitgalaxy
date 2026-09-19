@@ -1,0 +1,317 @@
+{
+  "metadata": {
+    "file_name": "CORPT00C.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CORPT00C.cbl",
+    "corporate_header": "",
+    "loc": 649
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "CORPT00C.cbl",
+      "total_vars": 230,
+      "orphaned_vars": [
+        "CCDA-COMMON-MESSAGES",
+        "CCDA-MSG-THANK-YOU",
+        "CCDA-SCREEN-TITLE",
+        "CCDA-THANK-YOU",
+        "CDEMO-ACCOUNT-INFO",
+        "CDEMO-CARD-INFO",
+        "CDEMO-CUSTOMER-INFO",
+        "CDEMO-GENERAL-INFO",
+        "CDEMO-MORE-INFO",
+        "CONFIRMC",
+        "CONFIRMF",
+        "CONFIRMH",
+        "CONFIRMO",
+        "CONFIRMP",
+        "CONFIRMV",
+        "CSUTLDTC-PARM",
+        "CURDATEC",
+        "CURDATEF",
+        "CURDATEH",
+        "CURDATEI",
+        "CURDATEL",
+        "CURDATEP",
+        "CURDATEV",
+        "CURTIMEC",
+        "CURTIMEF",
+        "CURTIMEH",
+        "CURTIMEI",
+        "CURTIMEL",
+        "CURTIMEP",
+        "CURTIMEV",
+        "CUSTOMC",
+        "CUSTOMF",
+        "CUSTOMH",
+        "CUSTOML",
+        "CUSTOMO",
+        "CUSTOMP",
+        "CUSTOMV",
+        "EDTDDC",
+        "EDTDDF",
+        "EDTDDH",
+        "EDTDDO",
+        "EDTDDP",
+        "EDTDDV",
+        "EDTMMC",
+        "EDTMMF",
+        "EDTMMH",
+        "EDTMMO",
+        "EDTMMP",
+        "EDTMMV",
+        "EDTYYYYC",
+        "EDTYYYYF",
+        "EDTYYYYH",
+        "EDTYYYYO",
+        "EDTYYYYP",
+        "EDTYYYYV",
+        "ERRMSGF",
+        "ERRMSGH",
+        "ERRMSGI",
+        "ERRMSGL",
+        "ERRMSGP",
+        "ERRMSGV",
+        "FILLER-1",
+        "FILLER-2",
+        "FILLER-3",
+        "JOB-DATA",
+        "JOB-DATA-1",
+        "JOB-DATA-2",
+        "LK-COMMAREA",
+        "MONTHLYC",
+        "MONTHLYF",
+        "MONTHLYH",
+        "MONTHLYO",
+        "MONTHLYP",
+        "MONTHLYV",
+        "PGMNAMEC",
+        "PGMNAMEF",
+        "PGMNAMEH",
+        "PGMNAMEI",
+        "PGMNAMEL",
+        "PGMNAMEP",
+        "PGMNAMEV",
+        "SDTDDC",
+        "SDTDDF",
+        "SDTDDH",
+        "SDTDDO",
+        "SDTDDP",
+        "SDTDDV",
+        "SDTMMC",
+        "SDTMMF",
+        "SDTMMH",
+        "SDTMMO",
+        "SDTMMP",
+        "SDTMMV",
+        "SDTYYYYC",
+        "SDTYYYYF",
+        "SDTYYYYH",
+        "SDTYYYYO",
+        "SDTYYYYP",
+        "SDTYYYYV",
+        "SEND-ERASE-NO",
+        "TITLE01C",
+        "TITLE01F",
+        "TITLE01H",
+        "TITLE01I",
+        "TITLE01L",
+        "TITLE01P",
+        "TITLE01V",
+        "TITLE02C",
+        "TITLE02F",
+        "TITLE02H",
+        "TITLE02I",
+        "TITLE02L",
+        "TITLE02P",
+        "TITLE02V",
+        "TRAN-AMT",
+        "TRAN-CARD-NUM",
+        "TRAN-CAT-CD",
+        "TRAN-DESC",
+        "TRAN-ID",
+        "TRAN-MERCHANT-CITY",
+        "TRAN-MERCHANT-ID",
+        "TRAN-MERCHANT-NAME",
+        "TRAN-MERCHANT-ZIP",
+        "TRAN-ORIG-TS",
+        "TRAN-PROC-TS",
+        "TRAN-RECORD",
+        "TRAN-SOURCE",
+        "TRAN-TYPE-CD",
+        "TRANSACT-EOF",
+        "TRNNAMEC",
+        "TRNNAMEF",
+        "TRNNAMEH",
+        "TRNNAMEI",
+        "TRNNAMEL",
+        "TRNNAMEP",
+        "TRNNAMEV",
+        "WS-CURTIME-N",
+        "WS-DATE-TIME",
+        "WS-END-LOOP",
+        "WS-REC-COUNT",
+        "WS-SEND-ERASE-FLG",
+        "WS-TIMESTAMP",
+        "WS-TIMESTAMP-DT-DD",
+        "WS-TIMESTAMP-DT-MM",
+        "WS-TIMESTAMP-DT-YYYY",
+        "WS-TIMESTAMP-TM-HH",
+        "WS-TIMESTAMP-TM-MM",
+        "WS-TIMESTAMP-TM-MS6",
+        "WS-TIMESTAMP-TM-SS",
+        "WS-TRAN-AMT",
+        "WS-TRAN-DATE",
+        "WS-TRANSACT-EOF",
+        "WS-TRANSACT-FILE",
+        "WS-VARIABLES",
+        "YEARLYC",
+        "YEARLYF",
+        "YEARLYH",
+        "YEARLYL",
+        "YEARLYO",
+        "YEARLYP",
+        "YEARLYV"
+      ],
+      "total_paras": 10,
+      "dead_paras": [],
+      "loc_saved": 161
+    },
+    "lineage": {
+      "program_id": "CORPT00C",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "CORPT00C",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 7,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_PGMNAME                     VARCHAR(08),\n    WS_TRANID                      VARCHAR(04),\n    WS_MESSAGE                     VARCHAR(80),\n    WS_ERR_FLG                     VARCHAR(01),\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_IDX                         SMALLINT,\n    WS_REPORT_NAME                 VARCHAR(10),\n    WS_START_DATE_YYYY             VARCHAR(04),\n    WS_START_DATE_MM               VARCHAR(02),\n    WS_START_DATE_DD               VARCHAR(02),\n    WS_END_DATE_YYYY               VARCHAR(04),\n    WS_END_DATE_MM                 VARCHAR(02),\n    WS_END_DATE_DD                 VARCHAR(02),\n    WS_DATE_FORMAT                 VARCHAR(10),\n    WS_NUM_99                      SMALLINT,\n    WS_NUM_9999                    SMALLINT,\n    JCL_RECORD                     VARCHAR(80),\n    PARM_START_DATE_1              VARCHAR(10),\n    PARM_END_DATE_1                VARCHAR(10),\n    PARM_START_DATE_2              VARCHAR(10),\n    PARM_END_DATE_2                VARCHAR(10),\n    CSUTLDTC_DATE                  VARCHAR(10),\n    CSUTLDTC_DATE_FORMAT           VARCHAR(10),\n    CSUTLDTC_RESULT_SEV_CD         VARCHAR(04),\n    CSUTLDTC_RESULT_MSG_NUM        VARCHAR(04),\n    CSUTLDTC_RESULT_MSG            VARCHAR(61)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_PGMNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(08)"
+          },
+          "WS_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "WS_MESSAGE": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "WS_ERR_FLG": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "WS_RESP_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_REAS_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_IDX": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(04)"
+          },
+          "WS_REPORT_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WS_START_DATE_YYYY": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "WS_START_DATE_MM": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "WS_START_DATE_DD": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "WS_END_DATE_YYYY": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)"
+          },
+          "WS_END_DATE_MM": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "WS_END_DATE_DD": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "WS_DATE_FORMAT": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WS_NUM_99": {
+            "type": "integer",
+            "description": "Legacy PIC: 99"
+          },
+          "WS_NUM_9999": {
+            "type": "integer",
+            "description": "Legacy PIC: 9999"
+          },
+          "JCL_RECORD": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "PARM_START_DATE_1": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "PARM_END_DATE_1": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "PARM_START_DATE_2": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "PARM_END_DATE_2": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "CSUTLDTC_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "CSUTLDTC_DATE_FORMAT": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "CSUTLDTC_RESULT_SEV_CD": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)."
+          },
+          "CSUTLDTC_RESULT_MSG_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(04)."
+          },
+          "CSUTLDTC_RESULT_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(61)."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=CORPT00C\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

@@ -1,0 +1,600 @@
+{
+  "metadata": {
+    "file_name": "COCRDLIC.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/COCRDLIC.cbl",
+    "corporate_header": "",
+    "loc": 1459
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "COCRDLIC.cbl",
+      "total_vars": 495,
+      "orphaned_vars": [
+        "ACCTNO1C",
+        "ACCTNO1F",
+        "ACCTNO1H",
+        "ACCTNO1I",
+        "ACCTNO1L",
+        "ACCTNO1P",
+        "ACCTNO1V",
+        "ACCTNO2C",
+        "ACCTNO2F",
+        "ACCTNO2H",
+        "ACCTNO2I",
+        "ACCTNO2L",
+        "ACCTNO2P",
+        "ACCTNO2V",
+        "ACCTNO3C",
+        "ACCTNO3F",
+        "ACCTNO3H",
+        "ACCTNO3I",
+        "ACCTNO3L",
+        "ACCTNO3P",
+        "ACCTNO3V",
+        "ACCTNO4C",
+        "ACCTNO4F",
+        "ACCTNO4H",
+        "ACCTNO4I",
+        "ACCTNO4L",
+        "ACCTNO4P",
+        "ACCTNO4V",
+        "ACCTNO5C",
+        "ACCTNO5F",
+        "ACCTNO5H",
+        "ACCTNO5I",
+        "ACCTNO5L",
+        "ACCTNO5P",
+        "ACCTNO5V",
+        "ACCTNO6C",
+        "ACCTNO6F",
+        "ACCTNO6H",
+        "ACCTNO6I",
+        "ACCTNO6L",
+        "ACCTNO6P",
+        "ACCTNO6V",
+        "ACCTNO7C",
+        "ACCTNO7F",
+        "ACCTNO7H",
+        "ACCTNO7I",
+        "ACCTNO7L",
+        "ACCTNO7P",
+        "ACCTNO7V",
+        "ACCTSIDF",
+        "ACCTSIDH",
+        "ACCTSIDP",
+        "ACCTSIDV",
+        "CARD-ACCT-ID-N",
+        "CARD-ACCT-ID-X",
+        "CARD-CVV-CD",
+        "CARD-CVV-CD-N",
+        "CARD-CVV-CD-X",
+        "CARD-EMBOSSED-NAME",
+        "CARD-EXPIRAION-DATE",
+        "CARDSIDF",
+        "CARDSIDH",
+        "CARDSIDP",
+        "CARDSIDV",
+        "CC-WORK-AREAS",
+        "CCDA-COMMON-MESSAGES",
+        "CCDA-MSG-INVALID-KEY",
+        "CCDA-MSG-THANK-YOU",
+        "CCDA-SCREEN-TITLE",
+        "CCDA-THANK-YOU",
+        "CDEMO-ACCOUNT-INFO",
+        "CDEMO-CARD-INFO",
+        "CDEMO-CUSTOMER-INFO",
+        "CDEMO-GENERAL-INFO",
+        "CDEMO-MORE-INFO",
+        "CICS-OUTPUT-EDIT-VARS",
+        "CRDNUM1C",
+        "CRDNUM1F",
+        "CRDNUM1H",
+        "CRDNUM1I",
+        "CRDNUM1L",
+        "CRDNUM1P",
+        "CRDNUM1V",
+        "CRDNUM2C",
+        "CRDNUM2F",
+        "CRDNUM2H",
+        "CRDNUM2I",
+        "CRDNUM2L",
+        "CRDNUM2P",
+        "CRDNUM2V",
+        "CRDNUM3C",
+        "CRDNUM3F",
+        "CRDNUM3H",
+        "CRDNUM3I",
+        "CRDNUM3L",
+        "CRDNUM3P",
+        "CRDNUM3V",
+        "CRDNUM4C",
+        "CRDNUM4F",
+        "CRDNUM4H",
+        "CRDNUM4I",
+        "CRDNUM4L",
+        "CRDNUM4P",
+        "CRDNUM4V",
+        "CRDNUM5C",
+        "CRDNUM5F",
+        "CRDNUM5H",
+        "CRDNUM5I",
+        "CRDNUM5L",
+        "CRDNUM5P",
+        "CRDNUM5V",
+        "CRDNUM6C",
+        "CRDNUM6F",
+        "CRDNUM6H",
+        "CRDNUM6I",
+        "CRDNUM6L",
+        "CRDNUM6P",
+        "CRDNUM6V",
+        "CRDNUM7C",
+        "CRDNUM7F",
+        "CRDNUM7H",
+        "CRDNUM7I",
+        "CRDNUM7L",
+        "CRDNUM7P",
+        "CRDNUM7V",
+        "CRDSEL1F",
+        "CRDSEL1H",
+        "CRDSEL1L",
+        "CRDSEL1P",
+        "CRDSEL1V",
+        "CRDSEL2F",
+        "CRDSEL2H",
+        "CRDSEL2P",
+        "CRDSEL2V",
+        "CRDSEL3F",
+        "CRDSEL3H",
+        "CRDSEL3P",
+        "CRDSEL3V",
+        "CRDSEL4F",
+        "CRDSEL4H",
+        "CRDSEL4P",
+        "CRDSEL4V",
+        "CRDSEL5F",
+        "CRDSEL5H",
+        "CRDSEL5P",
+        "CRDSEL5V",
+        "CRDSEL6F",
+        "CRDSEL6H",
+        "CRDSEL6P",
+        "CRDSEL6V",
+        "CRDSEL7F",
+        "CRDSEL7H",
+        "CRDSEL7P",
+        "CRDSEL7V",
+        "CRDSTP2C",
+        "CRDSTP2F",
+        "CRDSTP2H",
+        "CRDSTP2I",
+        "CRDSTP2L",
+        "CRDSTP2O",
+        "CRDSTP2P",
+        "CRDSTP2V",
+        "CRDSTP3C",
+        "CRDSTP3F",
+        "CRDSTP3H",
+        "CRDSTP3I",
+        "CRDSTP3L",
+        "CRDSTP3O",
+        "CRDSTP3P",
+        "CRDSTP3V",
+        "CRDSTP4C",
+        "CRDSTP4F",
+        "CRDSTP4H",
+        "CRDSTP4I",
+        "CRDSTP4L",
+        "CRDSTP4O",
+        "CRDSTP4P",
+        "CRDSTP4V",
+        "CRDSTP5C",
+        "CRDSTP5F",
+        "CRDSTP5H",
+        "CRDSTP5I",
+        "CRDSTP5L",
+        "CRDSTP5O",
+        "CRDSTP5P",
+        "CRDSTP5V",
+        "CRDSTP6C",
+        "CRDSTP6F",
+        "CRDSTP6H",
+        "CRDSTP6I",
+        "CRDSTP6L",
+        "CRDSTP6O",
+        "CRDSTP6P",
+        "CRDSTP6V",
+        "CRDSTP7C",
+        "CRDSTP7F",
+        "CRDSTP7H",
+        "CRDSTP7I",
+        "CRDSTP7L",
+        "CRDSTP7O",
+        "CRDSTP7P",
+        "CRDSTP7V",
+        "CRDSTS1C",
+        "CRDSTS1F",
+        "CRDSTS1H",
+        "CRDSTS1I",
+        "CRDSTS1L",
+        "CRDSTS1P",
+        "CRDSTS1V",
+        "CRDSTS2C",
+        "CRDSTS2F",
+        "CRDSTS2H",
+        "CRDSTS2I",
+        "CRDSTS2L",
+        "CRDSTS2P",
+        "CRDSTS2V",
+        "CRDSTS3C",
+        "CRDSTS3F",
+        "CRDSTS3H",
+        "CRDSTS3I",
+        "CRDSTS3L",
+        "CRDSTS3P",
+        "CRDSTS3V",
+        "CRDSTS4C",
+        "CRDSTS4F",
+        "CRDSTS4H",
+        "CRDSTS4I",
+        "CRDSTS4L",
+        "CRDSTS4P",
+        "CRDSTS4V",
+        "CRDSTS5C",
+        "CRDSTS5F",
+        "CRDSTS5H",
+        "CRDSTS5I",
+        "CRDSTS5L",
+        "CRDSTS5P",
+        "CRDSTS5V",
+        "CRDSTS6C",
+        "CRDSTS6F",
+        "CRDSTS6H",
+        "CRDSTS6I",
+        "CRDSTS6L",
+        "CRDSTS6P",
+        "CRDSTS6V",
+        "CRDSTS7C",
+        "CRDSTS7F",
+        "CRDSTS7H",
+        "CRDSTS7I",
+        "CRDSTS7L",
+        "CRDSTS7P",
+        "CRDSTS7V",
+        "CURDATEC",
+        "CURDATEF",
+        "CURDATEH",
+        "CURDATEI",
+        "CURDATEL",
+        "CURDATEP",
+        "CURDATEV",
+        "CURTIMEC",
+        "CURTIMEF",
+        "CURTIMEH",
+        "CURTIMEI",
+        "CURTIMEL",
+        "CURTIMEP",
+        "CURTIMEV",
+        "ERRMSGC",
+        "ERRMSGF",
+        "ERRMSGH",
+        "ERRMSGI",
+        "ERRMSGL",
+        "ERRMSGP",
+        "ERRMSGV",
+        "INFOMSGF",
+        "INFOMSGH",
+        "INFOMSGI",
+        "INFOMSGL",
+        "INFOMSGP",
+        "INFOMSGV",
+        "LIT-CARD-FILE-ACCT-PATH",
+        "LIT-CARDDTLTRANID",
+        "LIT-CARDUPDTRANID",
+        "LIT-MENUMAP",
+        "LIT-MENUTRANID",
+        "PAGENOC",
+        "PAGENOF",
+        "PAGENOH",
+        "PAGENOI",
+        "PAGENOL",
+        "PAGENOP",
+        "PAGENOV",
+        "PGMNAMEC",
+        "PGMNAMEF",
+        "PGMNAMEH",
+        "PGMNAMEI",
+        "PGMNAMEL",
+        "PGMNAMEP",
+        "PGMNAMEV",
+        "SEC-USER-DATA",
+        "SEC-USR-FILLER",
+        "SEC-USR-FNAME",
+        "SEC-USR-ID",
+        "SEC-USR-LNAME",
+        "SEC-USR-PWD",
+        "SEC-USR-TYPE",
+        "TITLE01C",
+        "TITLE01F",
+        "TITLE01H",
+        "TITLE01I",
+        "TITLE01L",
+        "TITLE01P",
+        "TITLE01V",
+        "TITLE02C",
+        "TITLE02F",
+        "TITLE02H",
+        "TITLE02I",
+        "TITLE02L",
+        "TITLE02P",
+        "TITLE02V",
+        "TRNNAMEC",
+        "TRNNAMEF",
+        "TRNNAMEH",
+        "TRNNAMEI",
+        "TRNNAMEL",
+        "TRNNAMEP",
+        "TRNNAMEV",
+        "WS-CICS-PROCESSNG-VARS",
+        "WS-CONSTANTS",
+        "WS-CONTEXT-FLAG",
+        "WS-CONTEXT-FRESH-START",
+        "WS-CONTEXT-FRESH-START-NO",
+        "WS-CURDATE-N",
+        "WS-CURTIME-N",
+        "WS-DATE-TIME",
+        "WS-EDIT-ACCT-FLAG",
+        "WS-EDIT-CARD-FLAG",
+        "WS-EDIT-SELECT-ARRAY",
+        "WS-EDIT-SELECT-COUNTER",
+        "WS-EDIT-SELECT-ERROR-FLAGX",
+        "WS-FILE-HANDLING-VARS",
+        "WS-FILTER-RECORD-FLAG",
+        "WS-INPUT-FLAG",
+        "WS-PFK-FLAG",
+        "WS-RECORDS-TO-PROCESS-FLAG",
+        "WS-RETURN-FLAG-OFF",
+        "WS-RETURN-FLAG-ON",
+        "WS-SCREEN-DATA",
+        "WS-SUBSCRIPT-VARS",
+        "WS-TIMESTAMP",
+        "WS-TIMESTAMP-DT-DD",
+        "WS-TIMESTAMP-DT-MM",
+        "WS-TIMESTAMP-DT-YYYY",
+        "WS-TIMESTAMP-TM-HH",
+        "WS-TIMESTAMP-TM-MM",
+        "WS-TIMESTAMP-TM-MS6",
+        "WS-TIMESTAMP-TM-SS"
+      ],
+      "total_paras": 39,
+      "dead_paras": [
+        "0000-MAIN-EXIT",
+        "SEND-LONG-TEXT",
+        "SEND-LONG-TEXT-EXIT",
+        "SEND-PLAIN-TEXT",
+        "SEND-PLAIN-TEXT-EXIT"
+      ],
+      "loc_saved": 405
+    },
+    "lineage": {
+      "program_id": "COCRDLIC",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": [
+        "CARD",
+        "MENU"
+      ]
+    },
+    "base_intent": {
+      "program_id": "COCRDLIC",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 18,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_TRANID                      VARCHAR(4),\n    WS_EDIT_SELECT_FLAGS           VARCHAR(7),\n    WS_EDIT_SELECT                 VARCHAR(1),\n    WS_EDIT_SELECT_ERROR_FLAGS     VARCHAR(7),\n    WS_ROW_CRDSELECT_ERROR         VARCHAR(1),\n    I                              SMALLINT,\n    I_SELECTED                     SMALLINT,\n    FLG_PROTECT_SELECT_ROWS        VARCHAR(1),\n    WS_LONG_MSG                    VARCHAR(500),\n    WS_INFO_MSG                    VARCHAR(45),\n    WS_ERROR_MSG                   VARCHAR(75),\n    WS_CARD_RID_CARDNUM            VARCHAR(16),\n    WS_CARD_RID_ACCT_ID            DECIMAL(11, 0),\n    WS_SCRN_COUNTER                SMALLINT,\n    ERROR_OPNAME                   VARCHAR(8),\n    ERROR_FILE                     VARCHAR(9),\n    ERROR_RESP                     VARCHAR(10),\n    ERROR_RESP2                    VARCHAR(10),\n    WS_MAX_SCREEN_LINES            SMALLINT,\n    LIT_THISPGM                    VARCHAR(8),\n    LIT_THISTRANID                 VARCHAR(4),\n    LIT_THISMAPSET                 VARCHAR(7),\n    LIT_THISMAP                    VARCHAR(7),\n    LIT_MENUPGM                    VARCHAR(8),\n    LIT_MENUMAPSET                 VARCHAR(7),\n    LIT_CARDDTLPGM                 VARCHAR(8),\n    LIT_CARDDTLMAPSET              VARCHAR(7),\n    LIT_CARDDTLMAP                 VARCHAR(7),\n    LIT_CARDUPDPGM                 VARCHAR(8),\n    LIT_CARDUPDMAPSET              VARCHAR(7),\n    LIT_CARDUPDMAP                 VARCHAR(7),\n    LIT_CARD_FILE                  VARCHAR(8),\n    WS_CA_LAST_CARD_NUM            VARCHAR(16),\n    WS_CA_LAST_CARD_ACCT_ID        DECIMAL(11, 0),\n    WS_CA_FIRST_CARD_NUM           VARCHAR(16),\n    WS_CA_FIRST_CARD_ACCT_ID       DECIMAL(11, 0),\n    WS_CA_SCREEN_NUM               DECIMAL(1, 0),\n    WS_CA_LAST_PAGE_DISPLAYED      DECIMAL(1, 0),\n    WS_CA_NEXT_PAGE_IND            VARCHAR(1),\n    WS_RETURN_FLAG                 VARCHAR(1),\n    WS_ALL_ROWS                    VARCHAR(196),\n    WS_ROW_ACCTNO                  VARCHAR(11),\n    WS_ROW_CARD_NUM                VARCHAR(16),\n    WS_ROW_CARD_STATUS             VARCHAR(1),\n    WS_COMMAREA                    VARCHAR(2000)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_RESP_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_REAS_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_EDIT_SELECT_FLAGS": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "WS_EDIT_SELECT": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "WS_EDIT_SELECT_ERROR_FLAGS": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)."
+          },
+          "WS_ROW_CRDSELECT_ERROR": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)."
+          },
+          "I": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "I_SELECTED": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "FLG_PROTECT_SELECT_ROWS": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)."
+          },
+          "WS_LONG_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(500)."
+          },
+          "WS_INFO_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(45)."
+          },
+          "WS_ERROR_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(75)."
+          },
+          "WS_CARD_RID_CARDNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "WS_CARD_RID_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "WS_SCRN_COUNTER": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "ERROR_OPNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "ERROR_FILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "ERROR_RESP": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "ERROR_RESP2": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WS_MAX_SCREEN_LINES": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "LIT_THISPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_THISTRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "LIT_THISMAPSET": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_THISMAP": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_MENUPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_MENUMAPSET": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_CARDDTLPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_CARDDTLMAPSET": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_CARDDTLMAP": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_CARDUPDPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_CARDUPDMAPSET": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_CARDUPDMAP": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_CARD_FILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_CA_LAST_CARD_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "WS_CA_LAST_CARD_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "WS_CA_FIRST_CARD_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "WS_CA_FIRST_CARD_ACCT_ID": {
+            "type": "number",
+            "description": "Legacy PIC: 9(11)."
+          },
+          "WS_CA_SCREEN_NUM": {
+            "type": "number",
+            "description": "Legacy PIC: 9(1)."
+          },
+          "WS_CA_LAST_PAGE_DISPLAYED": {
+            "type": "number",
+            "description": "Legacy PIC: 9(1)."
+          },
+          "WS_CA_NEXT_PAGE_IND": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)."
+          },
+          "WS_RETURN_FLAG": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)."
+          },
+          "WS_ALL_ROWS": {
+            "type": "string",
+            "description": "Legacy PIC: X(196)."
+          },
+          "WS_ROW_ACCTNO": {
+            "type": "string",
+            "description": "Legacy PIC: X(11)."
+          },
+          "WS_ROW_CARD_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "WS_ROW_CARD_STATUS": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)."
+          },
+          "WS_COMMAREA": {
+            "type": "string",
+            "description": "Legacy PIC: X(2000)."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=COCRDLIC\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

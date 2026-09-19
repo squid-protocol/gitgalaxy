@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_CICS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_FAIL_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(70)"
+    },
+    "WS_CICS_RESP_DISP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "WS_CICS_RESP2_DISP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "VALID_DATA_SW": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "END_OF_SESSION_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)"
+    },
+    "WS_NUM_COUNT_TOTAL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_NUM_COUNT_POINT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_NUM_COUNT_SPACE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_NUM_COUNT_MINUS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_AMOUNT_UNSTR": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)."
+    },
+    "WS_AMOUNT_UNSTR_L": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_AMOUNT_UNSTR_REVERSE": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)."
+    },
+    "WS_CONVERT_PIC1_1ST": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_CONVERT_PIC1_POINT": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_CONVERT_PIC1_2ND": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "WS_CONVERT_DEC": {
+      "type": "number",
+      "description": "Legacy PIC: 9(10)."
+    },
+    "WS_CONVERT_POINT": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_CONVERT_REMAIN": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "SUBPGM_FACCNO": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "SUBPGM_FSCODE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "SUBPGM_TACCNO": {
+      "type": "number",
+      "description": "Legacy PIC: 9(8)."
+    },
+    "SUBPGM_TSCODE": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "SUBPGM_AMT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "SUBPGM_FAVBAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "SUBPGM_FACTBAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "SUBPGM_TAVBAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "SUBPGM_TACTBAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "SUBPGM_FAIL_CODE": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "SUBPGM_SUCCESS": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_U_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_ORIG_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_TIME_NOW": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "WS_TIME_NOW_GRP_HH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_SS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ABEND_PGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    }
+  }
+}

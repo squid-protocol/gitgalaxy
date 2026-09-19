@@ -1,0 +1,157 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "EXTERNAL_PARMS")
+public class ExternalParms {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "FD_TRANCAT_ACCT_ID")
+    private BigDecimal fdTrancatAcctId;
+
+    @Column(name = "FD_TRANCAT_TYPE_CD")
+    private String fdTrancatTypeCd;
+
+    @Column(name = "FD_TRANCAT_CD")
+    private BigDecimal fdTrancatCd;
+
+    @Column(name = "FD_XREF_ACCT_ID")
+    private BigDecimal fdXrefAcctId;
+
+    @Column(name = "FD_DIS_ACCT_GROUP_ID")
+    private String fdDisAcctGroupId;
+
+    @Column(name = "FD_DIS_TRAN_TYPE_CD")
+    private String fdDisTranTypeCd;
+
+    @Column(name = "FD_DIS_TRAN_CAT_CD")
+    private BigDecimal fdDisTranCatCd;
+
+    @Column(name = "FD_ACCT_ID")
+    private BigDecimal fdAcctId;
+
+    @Column(name = "IO_STAT1")
+    private String ioStat1;
+
+    @Column(name = "IO_STAT2")
+    private String ioStat2;
+
+    @Column(name = "TWO_BYTES_BINARY")
+    private Integer twoBytesBinary;
+
+    @Column(name = "TWO_BYTES_RIGHT")
+    private String twoBytesRight;
+
+    @Column(name = "IO_STATUS_0403")
+    private Integer ioStatus0403;
+
+    @Column(name = "APPL_RESULT")
+    private Integer applResult;
+
+    @Column(name = "END_OF_FILE")
+    private String endOfFile;
+
+    @Column(name = "ABCODE")
+    private Integer abcode;
+
+    @Column(name = "TIMING")
+    private Integer timing;
+
+    @Column(name = "COB_YYYY")
+    private String cobYyyy;
+
+    @Column(name = "COB_MM")
+    private String cobMm;
+
+    @Column(name = "COB_DD")
+    private String cobDd;
+
+    @Column(name = "COB_HH")
+    private String cobHh;
+
+    @Column(name = "COB_MIN")
+    private String cobMin;
+
+    @Column(name = "COB_SS")
+    private String cobSs;
+
+    @Column(name = "COB_MIL")
+    private String cobMil;
+
+    @Column(name = "DB2_FORMAT_TS")
+    private String db2FormatTs;
+
+    @Column(name = "DB2_YYYY")
+    private String db2Yyyy;
+
+    @Column(name = "DB2_STREEP_1")
+    private String db2Streep1;
+
+    @Column(name = "DB2_MM")
+    private String db2Mm;
+
+    @Column(name = "DB2_STREEP_2")
+    private String db2Streep2;
+
+    @Column(name = "DB2_DD")
+    private String db2Dd;
+
+    @Column(name = "DB2_STREEP_3")
+    private String db2Streep3;
+
+    @Column(name = "DB2_HH")
+    private String db2Hh;
+
+    @Column(name = "DB2_DOT_1")
+    private String db2Dot1;
+
+    @Column(name = "DB2_MIN")
+    private String db2Min;
+
+    @Column(name = "DB2_DOT_2")
+    private String db2Dot2;
+
+    @Column(name = "DB2_SS")
+    private String db2Ss;
+
+    @Column(name = "DB2_DOT_3")
+    private String db2Dot3;
+
+    @Column(name = "DB2_MIL")
+    private BigDecimal db2Mil;
+
+    @Column(name = "DB2_REST")
+    private String db2Rest;
+
+    @Column(name = "WS_LAST_ACCT_NUM")
+    private String wsLastAcctNum;
+
+    @Column(name = "WS_MONTHLY_INT")
+    private BigDecimal wsMonthlyInt;
+
+    @Column(name = "WS_TOTAL_INT")
+    private BigDecimal wsTotalInt;
+
+    @Column(name = "WS_FIRST_TIME")
+    private String wsFirstTime;
+
+    @Column(name = "WS_RECORD_COUNT")
+    private Integer wsRecordCount;
+
+    @Column(name = "WS_TRANID_SUFFIX")
+    private Integer wsTranidSuffix;
+
+    @Column(name = "PARM_DATE")
+    private String parmDate;
+
+}

@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_PGMNAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "WS_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "WS_TRANSACT_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_CCXREF_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_CXACAIX_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_ERR_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "WS_RESP_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_REAS_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_ACCT_ID_N": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
+    },
+    "WS_CARD_NUM_N": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(16)"
+    },
+    "WS_TRAN_ID_N": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(16)"
+    },
+    "WS_TRAN_AMT_N": {
+      "type": "number",
+      "description": "Legacy PIC: S9(9)V99"
+    },
+    "WS_DATE_FORMAT": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CSUTLDTC_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "CSUTLDTC_DATE_FORMAT": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "CSUTLDTC_RESULT_SEV_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)."
+    },
+    "CSUTLDTC_RESULT_MSG_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)."
+    },
+    "CSUTLDTC_RESULT_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(61)."
+    },
+    "CDEMO_CT02_TRNID_FIRST": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "CDEMO_CT02_TRNID_LAST": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    },
+    "CDEMO_CT02_PAGE_NUM": {
+      "type": "number",
+      "description": "Legacy PIC: 9(08)."
+    },
+    "CDEMO_CT02_NEXT_PAGE_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "CDEMO_CT02_TRN_SEL_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "CDEMO_CT02_TRN_SELECTED": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)."
+    }
+  }
+}

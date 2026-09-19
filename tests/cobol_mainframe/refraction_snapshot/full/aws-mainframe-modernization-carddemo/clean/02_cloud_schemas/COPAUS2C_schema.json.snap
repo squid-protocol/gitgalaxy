@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_AUTH_TIME": {
+      "type": "number",
+      "description": "Legacy PIC: 9(09)."
+    },
+    "WS_AUTH_YY": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_AUTH_MM": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_AUTH_DD": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_AUTH_HH": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_AUTH_MI": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_AUTH_SS": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)."
+    },
+    "WS_AUTH_SSS": {
+      "type": "string",
+      "description": "Legacy PIC: X(03)."
+    },
+    "WS_ABS_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_CUR_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "WS_CUST_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(9)."
+    },
+    "WS_FRD_ACTION": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_FRD_UPDATE_STATUS": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)."
+    },
+    "WS_FRD_ACT_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)."
+    }
+  }
+}

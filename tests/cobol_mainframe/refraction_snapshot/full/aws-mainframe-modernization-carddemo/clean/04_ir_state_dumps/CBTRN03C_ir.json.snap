@@ -1,0 +1,215 @@
+{
+  "metadata": {
+    "file_name": "CBTRN03C.cbl",
+    "path": "<WORK>/aws-mainframe-modernization-carddemo/app/cbl/CBTRN03C.cbl",
+    "corporate_header": "",
+    "loc": 649,
+    "patched_path": "<WORK>/aws-mainframe-modernization-carddemo_gitgalaxy_clean_<TS>/00_patched_source/app/cbl/CBTRN03C.cbl"
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "CBTRN03C.cbl",
+      "total_vars": 108,
+      "orphaned_vars": [
+        "CARDXREF-STAT1",
+        "CARDXREF-STAT2",
+        "DATEPARM-STAT1",
+        "DATEPARM-STAT2",
+        "FD-CARDXREF-REC",
+        "FD-DATEPARM-REC",
+        "FD-FILLER",
+        "FD-TRAN-CAT-DATA",
+        "FD-TRAN-CAT-RECORD",
+        "FD-TRAN-DATA",
+        "FD-TRAN-PROC-TS",
+        "FD-TRANFILE-REC",
+        "FD-TRANS-DATA",
+        "FD-TRANTYPE-REC",
+        "FD-XREF-DATA",
+        "IO-STATUS-0401",
+        "REPT-DATE-HEADER",
+        "REPT-LONG-NAME",
+        "REPT-SHORT-NAME",
+        "REPTFILE-STAT1",
+        "REPTFILE-STAT2",
+        "TRAN-DESC",
+        "TRAN-MERCHANT-CITY",
+        "TRAN-MERCHANT-ID",
+        "TRAN-MERCHANT-NAME",
+        "TRAN-MERCHANT-ZIP",
+        "TRAN-ORIG-TS",
+        "TRANCATG-STAT1",
+        "TRANCATG-STAT2",
+        "TRANFILE-STAT1",
+        "TRANFILE-STAT2",
+        "TRANTYPE-STAT1",
+        "TRANTYPE-STAT2",
+        "TWO-BYTES-ALPHA",
+        "TWO-BYTES-LEFT",
+        "WS-REPORT-VARS",
+        "XREF-CUST-ID"
+      ],
+      "total_paras": 26,
+      "dead_paras": [],
+      "loc_saved": 37
+    },
+    "lineage": {
+      "program_id": "CBTRN03C",
+      "inputs": [
+        "CARDXREF",
+        "DATEPARM",
+        "TRANCATG",
+        "TRANFILE",
+        "TRANTYPE"
+      ],
+      "outputs": [
+        "TRANREPT"
+      ],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "CBTRN03C",
+      "files_requested": [
+        {
+          "internal": "TRANSACT-FILE",
+          "dd_name": "TRANFILE"
+        },
+        {
+          "internal": "XREF-FILE",
+          "dd_name": "CARDXREF"
+        },
+        {
+          "internal": "TRANTYPE-FILE",
+          "dd_name": "TRANTYPE"
+        },
+        {
+          "internal": "TRANCATG-FILE",
+          "dd_name": "TRANCATG"
+        },
+        {
+          "internal": "REPORT-FILE",
+          "dd_name": "TRANREPT"
+        },
+        {
+          "internal": "DATE-PARMS-FILE",
+          "dd_name": "DATEPARM"
+        }
+      ],
+      "is_cics": false,
+      "is_db2": false,
+      "cics_calls": 0,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "IO_STATUS_04",
+      "sql": "CREATE TABLE IO_STATUS_04 (\n    FD_XREF_CARD_NUM               VARCHAR(16),\n    FD_TRAN_TYPE                   VARCHAR(02),\n    FD_TRAN_TYPE_CD                VARCHAR(02),\n    FD_TRAN_CAT_CD                 DECIMAL(4, 0),\n    FD_REPTFILE_REC                VARCHAR(133),\n    WS_START_DATE                  VARCHAR(10),\n    WS_END_DATE                    VARCHAR(10),\n    WS_FIRST_TIME                  VARCHAR(1),\n    WS_LINE_COUNTER                INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    WS_PAGE_SIZE                   SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_BLANK_LINE                  VARCHAR(133),\n    WS_PAGE_TOTAL                  DECIMAL(11, 2),\n    WS_ACCOUNT_TOTAL               DECIMAL(11, 2),\n    WS_GRAND_TOTAL                 DECIMAL(11, 2),\n    WS_CURR_CARD_NUM               VARCHAR(16),\n    IO_STAT1                       VARCHAR(1),\n    IO_STAT2                       VARCHAR(1),\n    TWO_BYTES_BINARY               SMALLINT,\n    TWO_BYTES_RIGHT                VARCHAR(1),\n    IO_STATUS_0403                 SMALLINT,\n    APPL_RESULT                    INTEGER,\n    END_OF_FILE                    VARCHAR(01),\n    ABCODE                         INTEGER,\n    TIMING                         INTEGER\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "IO_STATUS_04",
+        "type": "object",
+        "properties": {
+          "FD_XREF_CARD_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)."
+          },
+          "FD_TRAN_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "FD_TRAN_TYPE_CD": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)."
+          },
+          "FD_TRAN_CAT_CD": {
+            "type": "number",
+            "description": "Legacy PIC: 9(04)."
+          },
+          "FD_REPTFILE_REC": {
+            "type": "string",
+            "description": "Legacy PIC: X(133)."
+          },
+          "WS_START_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "WS_END_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "WS_FIRST_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WS_LINE_COUNTER": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_PAGE_SIZE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(03)"
+          },
+          "WS_BLANK_LINE": {
+            "type": "string",
+            "description": "Legacy PIC: X(133)"
+          },
+          "WS_PAGE_TOTAL": {
+            "type": "number",
+            "description": "Legacy PIC: S9(09)V99"
+          },
+          "WS_ACCOUNT_TOTAL": {
+            "type": "number",
+            "description": "Legacy PIC: S9(09)V99"
+          },
+          "WS_GRAND_TOTAL": {
+            "type": "number",
+            "description": "Legacy PIC: S9(09)V99"
+          },
+          "WS_CURR_CARD_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "IO_STAT1": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "IO_STAT2": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "TWO_BYTES_BINARY": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "TWO_BYTES_RIGHT": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "IO_STATUS_0403": {
+            "type": "integer",
+            "description": "Legacy PIC: 999"
+          },
+          "APPL_RESULT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "END_OF_FILE": {
+            "type": "string",
+            "description": "Legacy PIC: X(01)"
+          },
+          "ABCODE": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "TIMING": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ==========================================================\n//STEP01   EXEC PGM=CBTRN03C\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//* --- EXTRACTED FILE INTENT BOUNDARIES ---\n//TRANFILE DD DSN=HERC01.DATA.TRANFILE,\n//             DISP=SHR\n//CARDXREF DD DSN=HERC01.DATA.CARDXREF,\n//             DISP=SHR\n//TRANTYPE DD DSN=HERC01.DATA.TRANTYPE,\n//             DISP=SHR\n//TRANCATG DD DSN=HERC01.DATA.TRANCATG,\n//             DISP=SHR\n//TRANREPT DD DSN=HERC01.DATA.TRANREPT,\n//             DISP=(NEW,CATLG,DELETE),\n//             UNIT=SYSDA,\n//             SPACE=(CYL,(5,1),RLSE),\n//             DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)\n//DATEPARM DD DSN=HERC01.DATA.DATEPARM,\n//             DISP=SHR\n//"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_RESP_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_REAS_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_CARD_RID_CUST_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(09)."
+    },
+    "WS_CARD_RID_ACCT_ID": {
+      "type": "number",
+      "description": "Legacy PIC: 9(11)."
+    },
+    "ERROR_OPNAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "ERROR_FILE": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "ERROR_RESP": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "ERROR_RESP2": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "WS_LONG_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(500)."
+    },
+    "WS_INFO_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(40)."
+    },
+    "WS_RETURN_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(75)."
+    },
+    "LIT_THISPGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_THISTRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "LIT_THISMAPSET": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_THISMAP": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_MENUPGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_MENUTRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "LIT_ACCTFILENAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_CUSTFILENAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_CARDXREFNAME_ACCT_PATH": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "CA_FROM_PROGRAM": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)."
+    },
+    "CA_FROM_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)."
+    },
+    "WS_COMMAREA": {
+      "type": "string",
+      "description": "Legacy PIC: X(2000)."
+    }
+  }
+}

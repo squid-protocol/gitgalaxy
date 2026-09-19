@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_CICS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_CICS_FAIL_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(70)"
+    },
+    "WS_CICS_RESP_DISP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "WS_CICS_RESP2_DISP": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "VALID_DATA_SW": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "END_OF_SESSION_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)"
+    },
+    "WS_NUM_COUNT_TOTAL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_NUM_COUNT_POINT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_NUM_COUNT_SPACE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_AMOUNT_UNSTR": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)."
+    },
+    "WS_AMOUNT_UNSTR_L": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_AMOUNT_UNSTR_REVERSE": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)."
+    },
+    "WS_COMM_ACCNO": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "WS_COMM_SIGN": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_COMM_AMT": {
+      "type": "number",
+      "description": "Legacy PIC: 9(12)."
+    },
+    "WS_CONVERT_PIC1_1ST": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_CONVERT_PIC1_POINT": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_CONVERT_PIC1_2ND": {
+      "type": "string",
+      "description": "Legacy PIC: XX."
+    },
+    "WS_CONVERT_DEC": {
+      "type": "number",
+      "description": "Legacy PIC: 9(10)."
+    },
+    "WS_CONVERT_POINT": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_CONVERT_REMAIN": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "SUBPGM_ACCNO": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "SUBPGM_AMT": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "SUBPGM_SORTC": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "SUBPGM_AV_BAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "SUBPGM_ACT_BAL": {
+      "type": "number",
+      "description": "Legacy PIC: S9(10)V99."
+    },
+    "SUBPGM_APPLID": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "SUBPGM_USERID": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "SUBPGM_FACILITY_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "SUBPGM_NETWRK_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "SUBPGM_FACILTYPE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "SUBPGM_SUCCESS": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "SUBPGM_FAIL_CODE": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "WS_U_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(15)"
+    },
+    "WS_ORIG_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "WS_TIME_NOW": {
+      "type": "number",
+      "description": "Legacy PIC: 9(6)."
+    },
+    "WS_TIME_NOW_GRP_HH": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_MM": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_TIME_NOW_GRP_SS": {
+      "type": "number",
+      "description": "Legacy PIC: 99."
+    },
+    "WS_ABEND_PGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "COMM_ACCNO": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)."
+    },
+    "COMM_SIGN": {
+      "type": "string",
+      "description": "Legacy PIC: X."
+    },
+    "COMM_AMT": {
+      "type": "number",
+      "description": "Legacy PIC: 9(12)."
+    }
+  }
+}

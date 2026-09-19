@@ -1,0 +1,25 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "COBSWAIT")
+public class Cobswait {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "MVSWAIT_TIME")
+    private Integer mvswaitTime;
+
+    @Column(name = "PARM_VALUE")
+    private String parmValue;
+
+}

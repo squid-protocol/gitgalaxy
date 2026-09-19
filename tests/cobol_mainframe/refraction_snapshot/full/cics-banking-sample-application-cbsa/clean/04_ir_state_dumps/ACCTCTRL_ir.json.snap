@@ -1,0 +1,159 @@
+{
+  "metadata": {
+    "file_name": "ACCTCTRL.cbl",
+    "path": "<WORK>/cics-banking-sample-application-cbsa/src/base/cobol_src/ACCTCTRL.cbl",
+    "corporate_header": "",
+    "loc": 213
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "ACCTCTRL.cbl",
+      "total_vars": 62,
+      "orphaned_vars": [
+        "ABND-APPLID",
+        "ABND-CODE",
+        "ABND-DATE",
+        "ABND-FREEFORM",
+        "ABND-PROGRAM",
+        "ABND-RESP2CODE",
+        "ABND-RESPCODE",
+        "ABND-SQLCODE",
+        "ABND-TIME",
+        "ABND-TRANID",
+        "ABND-VSAM-KEY",
+        "ABNDINFO-REC",
+        "ACCOUNT-KY",
+        "ACCOUNT-KY2",
+        "ACCOUNT-KY2-BYTES",
+        "DATA-STORE-TYPE",
+        "DATASTORE-TYPE-DB2",
+        "DATASTORE-TYPE-DLI",
+        "DATASTORE-TYPE-VSAM",
+        "EXIT-DB2-READ",
+        "HIGHEST-ACCT-NUMBER",
+        "NCS-UPDATED",
+        "PROCTRAN-RETRY",
+        "REQUIRED-ACCT-NUMBER",
+        "REQUIRED-ACCT-NUMBER2",
+        "REQUIRED-SORT-CODE2",
+        "SYSIDERR-RETRY",
+        "WS-ABEND-PGM",
+        "WS-ACCOUNT-RANGE",
+        "WS-ACCT-REC-LEN",
+        "WS-CICS-RESP",
+        "WS-CICS-RESP2",
+        "WS-D-RETRIED",
+        "WS-DISP-ACCT-NO-VAL",
+        "WS-EIBTASKN12",
+        "WS-ORIG-DATE-DD",
+        "WS-ORIG-DATE-DD-X",
+        "WS-ORIG-DATE-GRP",
+        "WS-ORIG-DATE-GRP-X",
+        "WS-ORIG-DATE-MM",
+        "WS-ORIG-DATE-MM-X",
+        "WS-ORIG-DATE-YYYY",
+        "WS-ORIG-DATE-YYYY-X",
+        "WS-PASSED-DATA",
+        "WS-SORT-CODE",
+        "WS-SORT-DIV",
+        "WS-SORT-DIV1",
+        "WS-SORT-DIV2",
+        "WS-SORT-DIV3",
+        "WS-TEST-KEY",
+        "WS-TIME-DATA",
+        "WS-TIME-NOW-GRP",
+        "WS-V-RETRIED"
+      ],
+      "total_paras": 12,
+      "dead_paras": [
+        "GMOFH999",
+        "P999",
+        "POPULATE-TIME-DATE",
+        "PTD010",
+        "PTD999"
+      ],
+      "loc_saved": 103
+    },
+    "lineage": {
+      "program_id": "ACCTCTRL",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "ACCTCTRL",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": true,
+      "cics_calls": 3,
+      "sql_calls": 2
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    REQUIRED_SORT_CODE             INTEGER,\n    SQLCODE_DISPLAY                INTEGER,\n    WS_ACCOUNT_RANGE_TOP           VARCHAR(1),\n    WS_ACCOUNT_RANGE_MIDDLE        VARCHAR(1),\n    WS_ACCOUNT_RANGE_BOTTOM        VARCHAR(1),\n    HV_NUMBER_OF_ACCOUNTS          INTEGER,\n    HV_ACCOUNT_SORTCODE            VARCHAR(6),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "REQUIRED_SORT_CODE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
+          },
+          "SQLCODE_DISPLAY": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_ACCOUNT_RANGE_TOP": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "WS_ACCOUNT_RANGE_MIDDLE": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "WS_ACCOUNT_RANGE_BOTTOM": {
+            "type": "string",
+            "description": "Legacy PIC: X."
+          },
+          "HV_NUMBER_OF_ACCOUNTS": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "HV_ACCOUNT_SORTCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)."
+          },
+          "WS_U_TIME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(15)"
+          },
+          "WS_ORIG_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)."
+          },
+          "WS_TIME_NOW": {
+            "type": "number",
+            "description": "Legacy PIC: 9(6)."
+          },
+          "WS_TIME_NOW_GRP_HH": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "WS_TIME_NOW_GRP_MM": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          },
+          "WS_TIME_NOW_GRP_SS": {
+            "type": "number",
+            "description": "Legacy PIC: 99."
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS + DB2\n//* ==========================================================\n//STEP01   EXEC PGM=ACCTCTRL\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

@@ -1,0 +1,12 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_PGMNAME                     VARCHAR(08),
+    WS_TRANID                      VARCHAR(04),
+    WS_MESSAGE                     VARCHAR(80),
+    WS_ERR_FLG                     VARCHAR(01),
+    WS_RESP_CD                     INTEGER,
+    WS_REAS_CD                     INTEGER,
+    WS_OPTION_X                    VARCHAR(02),
+    WS_OPTION                      SMALLINT,
+    WS_IDX                         SMALLINT,
+    WS_ADMIN_OPT_TXT               VARCHAR(40)
+);

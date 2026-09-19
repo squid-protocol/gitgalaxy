@@ -20,6 +20,20 @@ from pathlib import Path
 from typing import Any, Optional
 
 
+def _json_list(value: Any) -> list:
+    """Decode a persisted JSON-list column (e.g. calls_out_to) back to a list.
+    Tolerates already-decoded lists, NULLs and malformed text (-> [])."""
+    if isinstance(value, list):
+        return value
+    if not value:
+        return []
+    try:
+        out = json.loads(value)
+        return out if isinstance(out, list) else []
+    except (ValueError, TypeError):
+        return []
+
+
 # galaxyscope:ignore sec_high_risk_execution
 class StateRehydrator:
     """
@@ -270,6 +284,10 @@ class StateRehydrator:
                         ),
                         "is_public": bool(r["is_public"]) if "is_public" in rk else True,
                         "is_documented": bool(r["is_documented"]) if "is_documented" in rk else False,
+                        # calls_out_to is persisted as a JSON string but consumed as a
+                        # list (network_risk_sensor's test-coverage mapping iterates it);
+                        # decode it so risk_verification's coverage graph resolves.
+                        "calls_out_to": _json_list(r["calls_out_to"]) if "calls_out_to" in rk else [],
                         # engine stores the complexity/branch metric under "branch"
                         # (signal_processor reads func["branch"] for z-scores + archetype).
                         "branch": r["complexity"] if "complexity" in rk and r["complexity"] is not None else 0,

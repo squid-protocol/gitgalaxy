@@ -320,3 +320,70 @@ def test_ir_dump_sorts_sets():
     ir_state = {"analysis": {"dead_code": {"dead_paras": set(names)}}}
 
     assert json.loads(controller_module._ir_to_json(ir_state))["analysis"]["dead_code"]["dead_paras"] == names
+
+
+# ==============================================================================
+# TEST 11: Same-named programs keep separate outputs and IR state (#3218)
+# ==============================================================================
+def _same_stem_repo(root):
+    """Two SAM2.cbl programs. Each one's live paragraph is the other's dead one, so a
+    dead-code store keyed by stem hands the second program the first one's verdicts."""
+    head = (
+        "       PROGRAM-ID. SAM2.\n"
+        "           SELECT OUT-FILE ASSIGN TO {dd}.\n"
+        "       PROCEDURE DIVISION.\n"
+        "       MAIN-PARA.\n"
+        "           PERFORM {live}.\n"
+        "           GOBACK.\n"
+    )
+    body = "       P1.\n           {p1}\n       P2.\n           {p2}\n"
+    for sub, dd, live, p1, p2 in (
+        ("COBOL", "OUTA", "P1", "OPEN OUTPUT OUT-FILE.", "DISPLAY 'A'."),
+        ("multiroot/sam", "OUTB", "P2", "DISPLAY 'B'.", "OPEN OUTPUT OUT-FILE."),
+    ):
+        (root / sub).mkdir(parents=True)
+        (root / sub / "SAM2.cbl").write_text(
+            head.format(dd=dd, live=live) + body.format(p1=p1, p2=p2), encoding="utf-8"
+        )
+
+
+def test_output_keys_disambiguate_only_collisions(tmp_path):
+    files = [tmp_path / "COBOL" / "SAM2.cbl", tmp_path / "multiroot" / "sam" / "SAM2.cbl", tmp_path / "X" / "SOLO.cbl"]
+
+    keys = controller_module._output_keys(files, tmp_path)
+
+    assert keys == {files[0]: "COBOL__SAM2", files[1]: "multiroot__sam__SAM2", files[2]: "SOLO"}
+
+
+@pytest.mark.parametrize("ir_mode", ["RAM", "SQLITE"])
+def test_same_named_programs_do_not_share_outputs_or_dead_code(tmp_path, ir_mode):
+    repo = tmp_path / "zopen"
+    _same_stem_repo(repo)
+
+    real_calibrate = controller_module.calibrate_ir_medium
+
+    def forced(target_path, cobol_files=None):
+        _, files = real_calibrate(target_path, cobol_files=cobol_files)
+        return ir_mode, files
+
+    with (
+        patch("sys.argv", ["refract", str(repo)]),
+        patch("gitgalaxy.cobol_refractor_controller.calibrate_ir_medium", side_effect=forced),
+    ):
+        controller_module.main()
+
+    clean_dir = next(tmp_path.glob("*_gitgalaxy_clean_*"))
+    ir_dir = clean_dir / "04_ir_state_dumps"
+    assert sorted(p.name for p in ir_dir.glob("*_ir.json")) == ["COBOL__SAM2_ir.json", "multiroot__sam__SAM2_ir.json"]
+    assert sorted(p.name for p in (clean_dir / "01_zero_trust_jcls").glob("*.jcl")) == [
+        "COBOL__SAM2.jcl",
+        "multiroot__sam__SAM2.jcl",
+    ]
+
+    a = json.loads((ir_dir / "COBOL__SAM2_ir.json").read_text(encoding="utf-8"))
+    b = json.loads((ir_dir / "multiroot__sam__SAM2_ir.json").read_text(encoding="utf-8"))
+    assert a["analysis"]["dead_code"]["dead_paras"] == ["P2"]
+    assert b["analysis"]["dead_code"]["dead_paras"] == ["P1"]
+    # Masked with the other program's dead code, B's only OPEN (in its live P2) vanished.
+    assert a["analysis"]["lineage"]["outputs"] == ["OUTA"]
+    assert b["analysis"]["lineage"]["outputs"] == ["OUTB"]

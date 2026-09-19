@@ -40,8 +40,23 @@ COPY_PATTERN = re.compile(
     re.MULTILINE | re.IGNORECASE,
 )
 
-# A fixed-format paragraph header: name starts in Area A (cols 8-11), alone on its line.
-_FIXED_PARA = re.compile(r"^[^\n]{6} {1,4}([A-Z0-9][A-Z0-9\-]*)\.[ \t]*$", re.MULTILINE)
+_NAME = r"[A-Z0-9][A-Z0-9\-]*"
+
+# A fixed-format unit header: `NAME.` or `NAME SECTION [nn].` starting in Area A
+# (cols 8-11), alone on its line.
+_UNIT_HEADER = re.compile(rf"^[^\n]{{6}} {{1,4}}({_NAME})(\s+SECTION(?:\s+[0-9]{{1,2}})?)?\s*\.[ \t]*$")
+
+# Control flow read by the reachability pass (#3203 defect 5).
+_PERFORM = re.compile(rf"\bPERFORM\s+({_NAME})(?:\s+(?:THRU|THROUGH)\s+({_NAME}))?")
+_GO_TO = re.compile(rf"\bGO\s+(?:TO\s+)?({_NAME}(?:\s+{_NAME})*)")
+_SENTENCE_END = re.compile(r"\.(?=\s|$)")
+_TERMINAL_TAIL = re.compile(rf"(?:\bGOBACK|\bSTOP\s+RUN|\bEXIT\s+PROGRAM|\bGO\s+(?:TO\s+)?{_NAME})$")
+_TAIL_PERFORM = re.compile(rf"\bPERFORM ({_NAME})(?: (?:THRU|THROUGH) ({_NAME}))?$")
+_CICS_TERMINAL = re.compile(r"EXEC\s+CICS\s+(?:RETURN|XCTL|ABEND)\b")
+# CICS transfers control to these labels itself (an abend, a condition, an
+# attention key), so a unit named in one is reached with no PERFORM or GO TO.
+_CICS_HANDLE = re.compile(r"\bEXEC\s+CICS\s+HANDLE\s+(?:ABEND|CONDITION|AID)\b(.{0,600}?)\bEND-EXEC", re.S)
+_CICS_LABEL = re.compile(rf"\(\s*({_NAME})\s*\)")
 
 
 @lru_cache(maxsize=8)
@@ -81,19 +96,174 @@ def find_copybook(name: str, copybook_root: Path, origin: Path) -> Optional[Path
     return None
 
 
-def paragraph_headers(proc_div: str) -> list[str]:
-    """Paragraph names of an upper-cased PROCEDURE DIVISION, in source order.
+def _blank_literals(text: str) -> str:
+    """Blanks the inside of '...' and "..." literals, preserving offsets. Quote state
+    resets at each newline: a fixed-format literal only continues via column 7."""
+    out, quote = [], None
+    for ch in text:
+        if ch == "\n":
+            quote = None
+        elif quote:
+            if ch == quote:
+                quote = None
+            else:
+                ch = " "
+        elif ch in ("'", '"'):
+            quote = ch
+        out.append(ch)
+    return "".join(out)
 
-    A header is a lone `NAME.` whose name starts in Area A (cols 8-11). A lone
-    `NAME.` deeper in Area B is the last line of a multi-line statement or a scope
-    terminator (`END-IF.`, `GOBACK.`), not a paragraph (#3203 defect 1). Cols 1-6
-    may carry a sequence field (defect 4).
 
-    `proc_div` is the text after `PROCEDURE DIVISION`; the rest of that header line
-    (` USING DFHCOMMAREA.`) is skipped, or its operand would read as the entry paragraph.
+def _code_area(line: str) -> Optional[str]:
+    """Area A..B (cols 8-72) of a fixed-format line with literals blanked and any
+    inline `*>` comment cut, or None for a comment / debug line (column 7)."""
+    if len(line) > 6 and line[6] in "*/D":
+        return None
+    area = _blank_literals(line[7:72])
+    return area.split("*>", 1)[0]
+
+
+def unit_header(line: str) -> Optional[str]:
+    """The paragraph or section name a line declares, or None.
+
+    A header is `NAME.` / `NAME SECTION.` starting in Area A (cols 8-11), alone on
+    its line. A lone `NAME.` deeper in Area B is the last line of a multi-line
+    statement or a scope terminator (`END-IF.`, `GOBACK.`), not a unit (#3203
+    defect 1). Cols 1-6 may carry a sequence field (defect 4).
     """
-    body = proc_div.split("\n", 1)[1] if "\n" in proc_div else ""
-    return [p for p in _FIXED_PARA.findall(body) if not _NOT_A_PARAGRAPH.fullmatch(p)]
+    m = _UNIT_HEADER.match(line)
+    if m is None or _NOT_A_PARAGRAPH.fullmatch(m.group(1)):
+        return None
+    return m.group(1)
+
+
+def procedure_units(proc_div: str) -> list[dict]:
+    """The paragraphs and sections of an upper-cased PROCEDURE DIVISION, in source order.
+
+    `proc_div` is the text after `PROCEDURE DIVISION`. The rest of that header
+    sentence (` USING DFHCOMMAREA.`, possibly over several lines) is skipped, or its
+    operand would read as the entry. Each unit is {name, kind, text}; statements
+    before the first header form an unnamed `implicit` unit, the program's entry.
+    """
+    lines = proc_div.split("\n")
+    i = 0
+    if not _SENTENCE_END.search(_blank_literals(lines[0])):
+        i = 1
+        while i < len(lines) and not _SENTENCE_END.search(_code_area(lines[i]) or ""):
+            i += 1
+    units: list[dict] = [{"name": None, "kind": "implicit", "body": []}]
+    for line in lines[i + 1 :]:
+        code = _code_area(line)
+        if code is None:
+            continue
+        name = unit_header(line)
+        if name is not None:
+            header = _UNIT_HEADER.match(line)
+            kind = "section" if header and header.group(2) else "paragraph"
+            units.append({"name": name, "kind": kind, "body": []})
+        else:
+            units[-1]["body"].append(code)
+    if not "".join(units[0]["body"]).strip():
+        units.pop(0)
+    for u in units:
+        u["text"] = "\n".join(u.pop("body"))
+    return units
+
+
+def unit_headers(proc_div: str) -> list[str]:
+    """Names of the paragraphs and sections of an upper-cased PROCEDURE DIVISION."""
+    return [u["name"] for u in procedure_units(proc_div) if u["name"]]
+
+
+def _last_sentence(text: str) -> Optional[str]:
+    """The unit's last sentence, whitespace-collapsed, or None if it is still inside
+    an unterminated IF / EVALUATE (so anything at its end is conditional)."""
+    sentences = [x.strip() for x in _SENTENCE_END.split(text) if x.strip()]
+    if not sentences:
+        return None
+    last = re.sub(r"\s+", " ", sentences[-1])
+    for opener, closer in ((r"\bIF\b", r"\bEND-IF\b"), (r"\bEVALUATE\b", r"\bEND-EVALUATE\b")):
+        if len(re.findall(opener, last)) != len(re.findall(closer, last)):
+            return None
+    return last
+
+
+def _is_terminal(text: str) -> bool:
+    """Does the unit end in an unconditional transfer that never falls through?"""
+    last = _last_sentence(text)
+    if last is None:
+        return False
+    if last.endswith("END-EXEC"):
+        starts = [m.start() for m in re.finditer(r"\bEXEC\s", last)]
+        return bool(starts) and _CICS_TERMINAL.match(last[starts[-1] :]) is not None
+    return _TERMINAL_TAIL.search(last) is not None and " DEPENDING " not in last
+
+
+def reachable_units(units: list[dict]) -> set[str]:
+    """Names of the units reachable from the entry (#3203 defect 5).
+
+    Control is followed as ranges (start, end): the main flow starts at the first
+    unit and falls through until a terminal statement; PERFORM P runs (P, P),
+    PERFORM S of a section runs (S, S's last paragraph), PERFORM A THRU B runs
+    (A, B). A GO TO continues within the enclosing range when its target lies
+    inside it. A unit whose last sentence is an unconditional PERFORM of a range
+    that never returns is itself terminal. CICS HANDLE labels are entry points.
+    """
+    index = {u["name"]: i for i, u in enumerate(units) if u["name"]}
+    section_end: dict[int, int] = {}
+    for i, u in enumerate(units):
+        if u["kind"] == "section":
+            j = i
+            while j + 1 < len(units) and units[j + 1]["kind"] != "section":
+                j += 1
+            section_end[i] = j
+
+    def span(first: str, thru: Optional[str]) -> tuple[int, int]:
+        a = index[first]
+        last = index.get(thru, a) if thru else a
+        return a, section_end.get(last, last)
+
+    terminal = [_is_terminal(u["text"]) for u in units]
+    tails = []
+    for u in units:
+        last = _last_sentence(u["text"])
+        m = _TAIL_PERFORM.search(last) if last else None
+        tails.append(m.groups() if m and m.group(1) in index else None)
+    changed = True
+    while changed:  # fixpoint: "never returns" is defined through `terminal`
+        changed = False
+        for i, tail in enumerate(tails):
+            if tail and not terminal[i]:
+                a, b = span(*tail)
+                if any(terminal[a : b + 1]):
+                    terminal[i] = changed = True
+
+    queue: list[tuple[int, Optional[int]]] = [(0, None)] if units else []
+    for u in units:
+        for m in _CICS_HANDLE.finditer(u["text"]):
+            queue.extend((index[t], None) for t in _CICS_LABEL.findall(m.group(1)) if t in index)
+    reached: set[int] = set()
+    seen: set[tuple[int, Optional[int]]] = set()
+    while queue:
+        start, end = queue.pop()
+        if (start, end) in seen:
+            continue
+        seen.add((start, end))
+        k = start
+        while k < len(units):
+            reached.add(k)
+            text = units[k]["text"]
+            queue.extend(span(m.group(1), m.group(2)) for m in _PERFORM.finditer(text) if m.group(1) in index)
+            for m in _GO_TO.finditer(text):
+                for target in m.group(1).split():
+                    if target not in index:
+                        break
+                    t = index[target]
+                    queue.append((t, end if end is not None and start <= t <= end else None))
+            if (end is not None and k >= end) or terminal[k]:
+                break
+            k += 1
+    return {units[i]["name"] for i in reached if units[i]["name"]}
 
 
 def resolve_copybooks(
@@ -212,24 +382,12 @@ def x_ray_dead_code(
     # ==========================================
     # 2. ISOLATING UNREACHABLE LOGIC BLOCKS
     # ==========================================
-    paragraphs = paragraph_headers(proc_div)
-
-    # Find every explicitly called target in the code
-    call_pattern = re.compile(r"\b(?:PERFORM|GO\s+TO)\s+([A-Z0-9\-]+)\b")
-    called_targets = set(call_pattern.findall(proc_div))
-
-    dead_paragraphs = set()
-    if paragraphs:
-        # The first paragraph is the Main Entry Point. It is always reached by default.
-        entry_point = paragraphs[0]
-        reached_paragraphs = {entry_point}.union(called_targets)
-        declared_paragraphs = set(paragraphs)
-
-        # The Math: Unreachable logic is anything declared but never explicitly called
-        dead_paragraphs = declared_paragraphs - reached_paragraphs
-
-    # Ignore system paragraphs and generic loop ends (like *-EXIT)
-    dead_paragraphs = {p for p in dead_paragraphs if not p.endswith("-EXIT")}
+    # A unit (paragraph or section) is dead when no path from the entry reaches it:
+    # PERFORM, PERFORM ... THRU, GO TO, fall-through within and across sections,
+    # and CICS HANDLE labels are all followed (#3203 defect 5).
+    units = procedure_units(proc_div)
+    declared_units = {u["name"] for u in units if u["name"]}
+    dead_paragraphs = declared_units - reachable_units(units)
 
     # Calculate a rough estimate of Lines of Code (LOC) saved
     # (Assuming average 10 lines per paragraph and 1 line per variable)
@@ -239,7 +397,7 @@ def x_ray_dead_code(
         "program_id": filepath.name,
         "total_vars": len(declared_vars),
         "orphaned_vars": orphaned_vars,
-        "total_paras": len(paragraphs) if paragraphs else 0,
+        "total_paras": len(declared_units),
         "dead_paras": dead_paragraphs,
         "loc_saved": loc_saved,
     }

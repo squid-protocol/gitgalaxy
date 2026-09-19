@@ -21,6 +21,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import unit_header
+
 
 def slice_business_logic(
     filepath: Path, initial_var: str, dead_paras: Optional[set] = None, orphaned_vars: Optional[set] = None
@@ -54,10 +56,11 @@ def slice_business_logic(
         return None
 
     proc_div = content.split("PROCEDURE DIVISION")[1]
-    lines = proc_div.split("\n")
+    # Line 0 is the rest of the PROCEDURE DIVISION header; paragraphs and sections
+    # are found exactly as the graveyard finds the units it marks dead.
+    lines = proc_div.split("\n")[1:]
 
     tainted_vars = {initial_var}
-    para_pattern = re.compile(r"^[ \t]{0,7}([A-Z0-9\-]+)\.[ \t]*$")
 
     # ==========================================================================
     # PASS 1: Recursive Taint Mapping (Data Flow Engine)
@@ -71,9 +74,9 @@ def slice_business_logic(
                 continue
 
             # Update current paragraph context
-            para_match = para_pattern.match(line)
-            if para_match:
-                current_paragraph = para_match.group(1)
+            header = unit_header(line)
+            if header:
+                current_paragraph = header
                 continue
 
             # ==================================================================
@@ -112,14 +115,14 @@ def slice_business_logic(
     extracted_logic = []
     current_paragraph = "MAIN-ENTRY"
 
-    for i, line in enumerate(lines):
+    for i, line in enumerate(lines, 1):  # i indexes proc_div's lines, header line = 0
         clean_line = line.strip()
         if not clean_line or clean_line.startswith("*"):
             continue
 
-        para_match = para_pattern.match(line)
-        if para_match:
-            current_paragraph = para_match.group(1)
+        header = unit_header(line)
+        if header:
+            current_paragraph = header
             continue
 
         # ======================================================================

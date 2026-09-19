@@ -21,6 +21,8 @@ from collections import defaultdict, deque
 from pathlib import Path
 from typing import Optional
 
+from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import unit_header
+
 _OPEN_MODES = frozenset({"INPUT", "OUTPUT", "I-O", "EXTEND"})
 
 
@@ -68,12 +70,14 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optiona
 
         active_proc_lines = []
         current_paragraph = "MAIN-ENTRY"
-        para_pattern = re.compile(r"^[ \t]{0,7}([A-Z0-9\-]+)\.[ \t]*$")
 
-        for line in proc_div.split("\n"):
-            para_match = para_pattern.match(line)
-            if para_match:
-                current_paragraph = para_match.group(1)
+        # Each line belongs to the most recent paragraph or section header, found
+        # exactly as the graveyard finds the units it marks dead. Line 0 is the rest
+        # of the PROCEDURE DIVISION header, never a unit.
+        for i, line in enumerate(proc_div.split("\n")):
+            header = unit_header(line) if i else None
+            if header:
+                current_paragraph = header
 
             # If the paragraph is dead, we replace its characters with spaces
             if current_paragraph in dead_paras:

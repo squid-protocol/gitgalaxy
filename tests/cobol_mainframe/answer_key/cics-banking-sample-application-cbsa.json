@@ -1,0 +1,6636 @@
+{
+  "schema_version": 1,
+  "corpus": "cics-banking-sample-application-cbsa",
+  "url": "https://github.com/cicsdev/cics-banking-sample-application-cbsa",
+  "ref": "417334533178ab6e753cc64b0e0e5cf0b4952704",
+  "programs": {
+    "src/base/cobol_src/ABNDPROC.cbl": {
+      "program_id": "ABNDPROC",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 131
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 132
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 165
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 169
+        },
+        {
+          "name": "GMOOH010",
+          "kind": "paragraph",
+          "line": 170
+        },
+        {
+          "name": "GMOOH999",
+          "kind": "paragraph",
+          "line": 175
+        }
+      ],
+      "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOOH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 38,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/ACCTCTRL.cbl": {
+      "program_id": "ACCTCTRL",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 133
+        },
+        {
+          "name": "P010",
+          "kind": "paragraph",
+          "line": 134
+        },
+        {
+          "name": "P999",
+          "kind": "paragraph",
+          "line": 150
+        },
+        {
+          "name": "GET-NUMBER-OF-ACCOUNTS-DB2",
+          "kind": "section",
+          "line": 157
+        },
+        {
+          "name": "WCD010",
+          "kind": "paragraph",
+          "line": 158
+        },
+        {
+          "name": "WCD999",
+          "kind": "paragraph",
+          "line": 179
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 183
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 184
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 198
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 205
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 206
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 211
+        }
+      ],
+      "dead": {
+        "P999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "POPULATE-TIME-DATE": {
+          "reason": "section never PERFORMed, GO TO'd or named in an EXEC CICS HANDLE",
+          "trivial": false
+        },
+        "PTD010": {
+          "reason": "inside unreferenced section POPULATE-TIME-DATE",
+          "trivial": false
+        },
+        "PTD999": {
+          "reason": "inside unreferenced section POPULATE-TIME-DATE",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 121,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 123,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCTCTRL",
+          "via": "COPY",
+          "line": 127,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCTCTRL.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 86,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        }
+      ],
+      "files": [],
+      "calls": [],
+      "cics": true,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": [
+          "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic."
+        ]
+      }
+    },
+    "src/base/cobol_src/BANKDATA.cbl": {
+      "program_id": "BANKDATA",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 369
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 370
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 675
+        },
+        {
+          "name": "PROGRAM-DONE",
+          "kind": "section",
+          "line": 681
+        },
+        {
+          "name": "PD010",
+          "kind": "paragraph",
+          "line": 682
+        },
+        {
+          "name": "PD999",
+          "kind": "paragraph",
+          "line": 685
+        },
+        {
+          "name": "DEFINE-ACC",
+          "kind": "section",
+          "line": 691
+        },
+        {
+          "name": "DA010",
+          "kind": "paragraph",
+          "line": 692
+        },
+        {
+          "name": "DA999",
+          "kind": "paragraph",
+          "line": 710
+        },
+        {
+          "name": "POPULATE-ACC",
+          "kind": "section",
+          "line": 716
+        },
+        {
+          "name": "PA010",
+          "kind": "paragraph",
+          "line": 717
+        },
+        {
+          "name": "PA999",
+          "kind": "paragraph",
+          "line": 874
+        },
+        {
+          "name": "GENERATE-OPENED-DATE",
+          "kind": "section",
+          "line": 880
+        },
+        {
+          "name": "GOD010",
+          "kind": "paragraph",
+          "line": 881
+        },
+        {
+          "name": "GOD999",
+          "kind": "paragraph",
+          "line": 923
+        },
+        {
+          "name": "INITIALISE-ARRAYS",
+          "kind": "section",
+          "line": 930
+        },
+        {
+          "name": "IA010",
+          "kind": "paragraph",
+          "line": 931
+        },
+        {
+          "name": "IA999",
+          "kind": "paragraph",
+          "line": 1177
+        },
+        {
+          "name": "DELETE-DB2-ROWS",
+          "kind": "section",
+          "line": 1183
+        },
+        {
+          "name": "DBR010",
+          "kind": "paragraph",
+          "line": 1184
+        },
+        {
+          "name": "DBR999",
+          "kind": "paragraph",
+          "line": 1380
+        },
+        {
+          "name": "GET-TODAYS-DATE",
+          "kind": "section",
+          "line": 1392
+        },
+        {
+          "name": "GTD010",
+          "kind": "paragraph",
+          "line": 1393
+        },
+        {
+          "name": "GTD999",
+          "kind": "paragraph",
+          "line": 1403
+        },
+        {
+          "name": "CALC-DAY-OF-WEEK",
+          "kind": "section",
+          "line": 1406
+        },
+        {
+          "name": "CDW010",
+          "kind": "paragraph",
+          "line": 1407
+        },
+        {
+          "name": "CDW999",
+          "kind": "paragraph",
+          "line": 1438
+        },
+        {
+          "name": "TIMESTAMP",
+          "kind": "section",
+          "line": 1441
+        }
+      ],
+      "dead": {
+        "PD999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "CALC-DAY-OF-WEEK": {
+          "reason": "section never PERFORMed, GO TO'd or named in an EXEC CICS HANDLE",
+          "trivial": false
+        },
+        "CDW010": {
+          "reason": "inside unreferenced section CALC-DAY-OF-WEEK",
+          "trivial": false
+        },
+        "CDW999": {
+          "reason": "inside unreferenced section CALC-DAY-OF-WEEK",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "CUSTOMER",
+          "via": "COPY",
+          "line": 61,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CUSTOMER.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 240,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "CUSTCTRL",
+          "via": "COPY",
+          "line": 326,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CUSTCTRL.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCTCTRL",
+          "via": "COPY",
+          "line": 329,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCTCTRL.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCDB2",
+          "via": "SQL INCLUDE",
+          "line": 74,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 120,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        },
+        {
+          "name": "CONTDB2",
+          "via": "SQL INCLUDE",
+          "line": 333,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CONTDB2.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [
+        {
+          "internal": "CUSTOMER-FILE",
+          "assign": "VSAM",
+          "dd": "VSAM",
+          "modes": [
+            "OUTPUT"
+          ]
+        }
+      ],
+      "calls": [
+        {
+          "verb": "CALL",
+          "form": "literal",
+          "operand": "CEEGMT",
+          "line": 1442,
+          "target": "CEEGMT",
+          "resolves_to": null,
+          "note": "Language Environment callable service"
+        },
+        {
+          "verb": "CALL",
+          "form": "literal",
+          "operand": "CEEDATM",
+          "line": 1458,
+          "target": "CEEDATM",
+          "resolves_to": null,
+          "note": "Language Environment callable service"
+        }
+      ],
+      "cics": false,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": [
+          "CALC-DAY-OF-WEEK SECTION (and CDW010/CDW999) is never PERFORMed: real dead logic.",
+          "CUSTOMER-FILE is ASSIGN TO VSAM and opened OUTPUT once (line 449)."
+        ]
+      }
+    },
+    "src/base/cobol_src/BNK1CAC.cbl": {
+      "program_id": "BNK1CAC",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 160
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 161
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 316
+        },
+        {
+          "name": "PROCESS-MAP",
+          "kind": "section",
+          "line": 320
+        },
+        {
+          "name": "PM010",
+          "kind": "paragraph",
+          "line": 321
+        },
+        {
+          "name": "PM999",
+          "kind": "paragraph",
+          "line": 347
+        },
+        {
+          "name": "RECEIVE-MAP",
+          "kind": "section",
+          "line": 351
+        },
+        {
+          "name": "RM010",
+          "kind": "paragraph",
+          "line": 352
+        },
+        {
+          "name": "RM999",
+          "kind": "paragraph",
+          "line": 424
+        },
+        {
+          "name": "EDIT-DATA",
+          "kind": "section",
+          "line": 428
+        },
+        {
+          "name": "ED010",
+          "kind": "paragraph",
+          "line": 429
+        },
+        {
+          "name": "ED999",
+          "kind": "paragraph",
+          "line": 744
+        },
+        {
+          "name": "CRE-ACC-DATA",
+          "kind": "section",
+          "line": 748
+        },
+        {
+          "name": "CAD010",
+          "kind": "paragraph",
+          "line": 749
+        },
+        {
+          "name": "CAD999",
+          "kind": "paragraph",
+          "line": 956
+        },
+        {
+          "name": "SEND-MAP",
+          "kind": "section",
+          "line": 960
+        },
+        {
+          "name": "SM010",
+          "kind": "paragraph",
+          "line": 961
+        },
+        {
+          "name": "SM999",
+          "kind": "paragraph",
+          "line": 1188
+        },
+        {
+          "name": "SEND-TERMINATION-MSG",
+          "kind": "section",
+          "line": 1192
+        },
+        {
+          "name": "STM010",
+          "kind": "paragraph",
+          "line": 1193
+        },
+        {
+          "name": "STM999",
+          "kind": "paragraph",
+          "line": 1265
+        },
+        {
+          "name": "ABEND-THIS-TASK",
+          "kind": "section",
+          "line": 1269
+        },
+        {
+          "name": "ATT010",
+          "kind": "paragraph",
+          "line": 1270
+        },
+        {
+          "name": "ATT999",
+          "kind": "paragraph",
+          "line": 1279
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 1283
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 1284
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 1297
+        }
+      ],
+      "dead": {
+        "ATT999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "BNK1CAM",
+          "via": "COPY",
+          "line": 65,
+          "library": null,
+          "resolves_to": null,
+          "why": "symbolic map generated from src/base/bms_src/BNK1CAM.bms"
+        },
+        {
+          "name": "DFHAID",
+          "via": "COPY",
+          "line": 67,
+          "library": null,
+          "resolves_to": null,
+          "why": "CICS-supplied"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 150,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 309,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 416,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "CREACC",
+          "line": 775,
+          "target": "CREACC",
+          "resolves_to": "src/base/cobol_src/CREACC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 834,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1026,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1102,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1179,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1257,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CCA.cbl": {
+      "program_id": "BNK1CCA",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 153
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 154
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 292
+        },
+        {
+          "name": "PROCESS-MAP",
+          "kind": "section",
+          "line": 296
+        },
+        {
+          "name": "PM010",
+          "kind": "paragraph",
+          "line": 297
+        },
+        {
+          "name": "PM999",
+          "kind": "paragraph",
+          "line": 323
+        },
+        {
+          "name": "RECEIVE-MAP",
+          "kind": "section",
+          "line": 327
+        },
+        {
+          "name": "RM010",
+          "kind": "paragraph",
+          "line": 328
+        },
+        {
+          "name": "RM999",
+          "kind": "paragraph",
+          "line": 402
+        },
+        {
+          "name": "EDIT-DATA",
+          "kind": "section",
+          "line": 406
+        },
+        {
+          "name": "ED010",
+          "kind": "paragraph",
+          "line": 407
+        },
+        {
+          "name": "ED999",
+          "kind": "paragraph",
+          "line": 417
+        },
+        {
+          "name": "GET-CUST-DATA",
+          "kind": "section",
+          "line": 421
+        },
+        {
+          "name": "GCD010",
+          "kind": "paragraph",
+          "line": 422
+        },
+        {
+          "name": "GCD999",
+          "kind": "paragraph",
+          "line": 611
+        },
+        {
+          "name": "SEND-MAP",
+          "kind": "section",
+          "line": 615
+        },
+        {
+          "name": "SM010",
+          "kind": "paragraph",
+          "line": 616
+        },
+        {
+          "name": "SM999",
+          "kind": "paragraph",
+          "line": 845
+        },
+        {
+          "name": "SEND-TERMINATION-MSG",
+          "kind": "section",
+          "line": 849
+        },
+        {
+          "name": "STM010",
+          "kind": "paragraph",
+          "line": 850
+        },
+        {
+          "name": "STM999",
+          "kind": "paragraph",
+          "line": 921
+        },
+        {
+          "name": "ABEND-THIS-TASK",
+          "kind": "section",
+          "line": 925
+        },
+        {
+          "name": "ATT010",
+          "kind": "paragraph",
+          "line": 926
+        },
+        {
+          "name": "ATT999",
+          "kind": "paragraph",
+          "line": 933
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 937
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 938
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 951
+        }
+      ],
+      "dead": {
+        "ATT999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "BNK1ACC",
+          "via": "COPY",
+          "line": 64,
+          "library": null,
+          "resolves_to": null,
+          "why": "symbolic map generated from src/base/bms_src/BNK1ACC.bms"
+        },
+        {
+          "name": "DFHAID",
+          "via": "COPY",
+          "line": 66,
+          "library": null,
+          "resolves_to": null,
+          "why": "CICS-supplied"
+        },
+        {
+          "name": "INQACCCU",
+          "via": "COPY",
+          "line": 98,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/INQACCCU.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 139,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 280,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 389,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "INQACCCU-PROGRAM",
+          "line": 435,
+          "target": "INQACCCU",
+          "resolves_to": "src/base/cobol_src/INQACCCU.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 490,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 677,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 752,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 830,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 909,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CCS.cbl": {
+      "program_id": "BNK1CCS",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 158
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 159
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 345
+        },
+        {
+          "name": "PROCESS-MAP",
+          "kind": "section",
+          "line": 349
+        },
+        {
+          "name": "PM010",
+          "kind": "paragraph",
+          "line": 350
+        },
+        {
+          "name": "PM999",
+          "kind": "paragraph",
+          "line": 376
+        },
+        {
+          "name": "RECEIVE-MAP",
+          "kind": "section",
+          "line": 380
+        },
+        {
+          "name": "RM010",
+          "kind": "paragraph",
+          "line": 381
+        },
+        {
+          "name": "RM999",
+          "kind": "paragraph",
+          "line": 572
+        },
+        {
+          "name": "EDIT-DATA",
+          "kind": "section",
+          "line": 576
+        },
+        {
+          "name": "ED010",
+          "kind": "paragraph",
+          "line": 577
+        },
+        {
+          "name": "ED999",
+          "kind": "paragraph",
+          "line": 933
+        },
+        {
+          "name": "CRE-CUST-DATA",
+          "kind": "section",
+          "line": 937
+        },
+        {
+          "name": "CCD010",
+          "kind": "paragraph",
+          "line": 938
+        },
+        {
+          "name": "CCD999",
+          "kind": "paragraph",
+          "line": 1095
+        },
+        {
+          "name": "STORE-TERM-DEF",
+          "kind": "section",
+          "line": 1099
+        },
+        {
+          "name": "STD010",
+          "kind": "paragraph",
+          "line": 1100
+        },
+        {
+          "name": "STD999",
+          "kind": "paragraph",
+          "line": 1197
+        },
+        {
+          "name": "RESTORE-TERM-DEF",
+          "kind": "section",
+          "line": 1201
+        },
+        {
+          "name": "RTD010",
+          "kind": "paragraph",
+          "line": 1202
+        },
+        {
+          "name": "RTD999",
+          "kind": "paragraph",
+          "line": 1276
+        },
+        {
+          "name": "SEND-MAP",
+          "kind": "section",
+          "line": 1280
+        },
+        {
+          "name": "SM010",
+          "kind": "paragraph",
+          "line": 1281
+        },
+        {
+          "name": "SM999",
+          "kind": "paragraph",
+          "line": 1514
+        },
+        {
+          "name": "SEND-TERMINATION-MSG",
+          "kind": "section",
+          "line": 1518
+        },
+        {
+          "name": "STM010",
+          "kind": "paragraph",
+          "line": 1519
+        },
+        {
+          "name": "STM999",
+          "kind": "paragraph",
+          "line": 1592
+        },
+        {
+          "name": "ABEND-THIS-TASK",
+          "kind": "section",
+          "line": 1596
+        },
+        {
+          "name": "ATT010",
+          "kind": "paragraph",
+          "line": 1597
+        },
+        {
+          "name": "ATT999",
+          "kind": "paragraph",
+          "line": 1619
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 1623
+        },
+        {
+          "name": "PTD10",
+          "kind": "paragraph",
+          "line": 1624
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 1637
+        },
+        {
+          "name": "HANDLE-ABEND",
+          "kind": "section",
+          "line": 1641
+        },
+        {
+          "name": "HA010",
+          "kind": "paragraph",
+          "line": 1642
+        },
+        {
+          "name": "HA999",
+          "kind": "paragraph",
+          "line": 1656
+        }
+      ],
+      "dead": {
+        "ATT999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "HA999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "BNK1CCM",
+          "via": "COPY",
+          "line": 66,
+          "library": null,
+          "resolves_to": null,
+          "why": "symbolic map generated from src/base/bms_src/BNK1CCM.bms"
+        },
+        {
+          "name": "DFHAID",
+          "via": "COPY",
+          "line": 68,
+          "library": null,
+          "resolves_to": null,
+          "why": "CICS-supplied"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 149,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 331,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 462,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 557,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "CRECUST",
+          "line": 976,
+          "target": "CRECUST",
+          "resolves_to": "src/base/cobol_src/CRECUST.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1031,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1181,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1264,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1342,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1420,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1498,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1578,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CRA.cbl": {
+      "program_id": "BNK1CRA",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 177
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 178
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 330
+        },
+        {
+          "name": "PROCESS-MAP",
+          "kind": "section",
+          "line": 334
+        },
+        {
+          "name": "PM010",
+          "kind": "paragraph",
+          "line": 335
+        },
+        {
+          "name": "PM999",
+          "kind": "paragraph",
+          "line": 361
+        },
+        {
+          "name": "RECEIVE-MAP",
+          "kind": "section",
+          "line": 365
+        },
+        {
+          "name": "RM010",
+          "kind": "paragraph",
+          "line": 366
+        },
+        {
+          "name": "RM999",
+          "kind": "paragraph",
+          "line": 437
+        },
+        {
+          "name": "EDIT-DATA",
+          "kind": "section",
+          "line": 441
+        },
+        {
+          "name": "ED010",
+          "kind": "paragraph",
+          "line": 442
+        },
+        {
+          "name": "ED999",
+          "kind": "paragraph",
+          "line": 476
+        },
+        {
+          "name": "UPD-CRED-DATA",
+          "kind": "section",
+          "line": 480
+        },
+        {
+          "name": "UCD010",
+          "kind": "paragraph",
+          "line": 481
+        },
+        {
+          "name": "UCD999",
+          "kind": "paragraph",
+          "line": 639
+        },
+        {
+          "name": "SEND-MAP",
+          "kind": "section",
+          "line": 643
+        },
+        {
+          "name": "SM010",
+          "kind": "paragraph",
+          "line": 644
+        },
+        {
+          "name": "SM999",
+          "kind": "paragraph",
+          "line": 867
+        },
+        {
+          "name": "SEND-TERMINATION-MSG",
+          "kind": "section",
+          "line": 871
+        },
+        {
+          "name": "STM010",
+          "kind": "paragraph",
+          "line": 872
+        },
+        {
+          "name": "STM999",
+          "kind": "paragraph",
+          "line": 943
+        },
+        {
+          "name": "ABEND-THIS-TASK",
+          "kind": "section",
+          "line": 947
+        },
+        {
+          "name": "ATT010",
+          "kind": "paragraph",
+          "line": 948
+        },
+        {
+          "name": "ATT999",
+          "kind": "paragraph",
+          "line": 955
+        },
+        {
+          "name": "VALIDATE-AMOUNT",
+          "kind": "section",
+          "line": 959
+        },
+        {
+          "name": "VA010",
+          "kind": "paragraph",
+          "line": 960
+        },
+        {
+          "name": "VA999",
+          "kind": "paragraph",
+          "line": 1147
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 1151
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 1152
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 1165
+        }
+      ],
+      "dead": {
+        "ATT999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "BNK1CDM",
+          "via": "COPY",
+          "line": 66,
+          "library": null,
+          "resolves_to": null,
+          "why": "symbolic map generated from src/base/bms_src/BNK1CDM.bms"
+        },
+        {
+          "name": "DFHAID",
+          "via": "COPY",
+          "line": 68,
+          "library": null,
+          "resolves_to": null,
+          "why": "CICS-supplied"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 167,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 318,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 425,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "DBCRFUN",
+          "line": 511,
+          "target": "DBCRFUN",
+          "resolves_to": "src/base/cobol_src/DBCRFUN.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 566,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 704,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 778,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 853,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 931,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1DAC.cbl": {
+      "program_id": "BNK1DAC",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 188
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 189
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 362
+        },
+        {
+          "name": "PROCESS-MAP",
+          "kind": "section",
+          "line": 366
+        },
+        {
+          "name": "PM010",
+          "kind": "paragraph",
+          "line": 367
+        },
+        {
+          "name": "PM999",
+          "kind": "paragraph",
+          "line": 417
+        },
+        {
+          "name": "RECEIVE-MAP",
+          "kind": "section",
+          "line": 421
+        },
+        {
+          "name": "RM010",
+          "kind": "paragraph",
+          "line": 422
+        },
+        {
+          "name": "RM999",
+          "kind": "paragraph",
+          "line": 494
+        },
+        {
+          "name": "EDIT-DATA",
+          "kind": "section",
+          "line": 498
+        },
+        {
+          "name": "ED010",
+          "kind": "paragraph",
+          "line": 499
+        },
+        {
+          "name": "ED999",
+          "kind": "paragraph",
+          "line": 521
+        },
+        {
+          "name": "VALIDATE-DATA",
+          "kind": "section",
+          "line": 525
+        },
+        {
+          "name": "VD010",
+          "kind": "paragraph",
+          "line": 526
+        },
+        {
+          "name": "VD999",
+          "kind": "paragraph",
+          "line": 540
+        },
+        {
+          "name": "GET-ACC-DATA",
+          "kind": "section",
+          "line": 544
+        },
+        {
+          "name": "GAD010",
+          "kind": "paragraph",
+          "line": 545
+        },
+        {
+          "name": "GAD999",
+          "kind": "paragraph",
+          "line": 697
+        },
+        {
+          "name": "DEL-ACC-DATA",
+          "kind": "section",
+          "line": 701
+        },
+        {
+          "name": "DAD010",
+          "kind": "paragraph",
+          "line": 702
+        },
+        {
+          "name": "DAD999",
+          "kind": "paragraph",
+          "line": 816
+        },
+        {
+          "name": "SEND-MAP",
+          "kind": "section",
+          "line": 820
+        },
+        {
+          "name": "SM010",
+          "kind": "paragraph",
+          "line": 821
+        },
+        {
+          "name": "SM999",
+          "kind": "paragraph",
+          "line": 1051
+        },
+        {
+          "name": "SEND-TERMINATION-MSG",
+          "kind": "section",
+          "line": 1055
+        },
+        {
+          "name": "STM010",
+          "kind": "paragraph",
+          "line": 1056
+        },
+        {
+          "name": "STM999",
+          "kind": "paragraph",
+          "line": 1127
+        },
+        {
+          "name": "ABEND-THIS-TASK",
+          "kind": "section",
+          "line": 1131
+        },
+        {
+          "name": "ATT010",
+          "kind": "paragraph",
+          "line": 1132
+        },
+        {
+          "name": "ATT999",
+          "kind": "paragraph",
+          "line": 1138
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 1142
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 1143
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 1157
+        }
+      ],
+      "dead": {
+        "ATT999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "BNK1DAM",
+          "via": "COPY",
+          "line": 64,
+          "library": null,
+          "resolves_to": null,
+          "why": "symbolic map generated from src/base/bms_src/BNK1DAM.bms"
+        },
+        {
+          "name": "DFHAID",
+          "via": "COPY",
+          "line": 66,
+          "library": null,
+          "resolves_to": null,
+          "why": "CICS-supplied"
+        },
+        {
+          "name": "INQACC",
+          "via": "COPY",
+          "line": 106,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/INQACC.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 164,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 350,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 481,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "INQACC",
+          "line": 553,
+          "target": "INQACC",
+          "resolves_to": "src/base/cobol_src/INQACC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 608,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "DELACC",
+          "line": 712,
+          "target": "DELACC",
+          "resolves_to": "src/base/cobol_src/DELACC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 882,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 961,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1036,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1115,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1DCS.cbl": {
+      "program_id": "BNK1DCS",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 189
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 190
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 396
+        },
+        {
+          "name": "PROCESS-MAP",
+          "kind": "section",
+          "line": 400
+        },
+        {
+          "name": "PM010",
+          "kind": "paragraph",
+          "line": 401
+        },
+        {
+          "name": "PM999",
+          "kind": "paragraph",
+          "line": 492
+        },
+        {
+          "name": "RECEIVE-MAP",
+          "kind": "section",
+          "line": 496
+        },
+        {
+          "name": "RM010",
+          "kind": "paragraph",
+          "line": 497
+        },
+        {
+          "name": "RM999",
+          "kind": "paragraph",
+          "line": 671
+        },
+        {
+          "name": "EDIT-DATA",
+          "kind": "section",
+          "line": 675
+        },
+        {
+          "name": "ED010",
+          "kind": "paragraph",
+          "line": 676
+        },
+        {
+          "name": "ED999",
+          "kind": "paragraph",
+          "line": 702
+        },
+        {
+          "name": "EDIT-DATA2",
+          "kind": "section",
+          "line": 706
+        },
+        {
+          "name": "ED2010",
+          "kind": "paragraph",
+          "line": 707
+        },
+        {
+          "name": "ED2999",
+          "kind": "paragraph",
+          "line": 790
+        },
+        {
+          "name": "VALIDATE-DATA",
+          "kind": "section",
+          "line": 794
+        },
+        {
+          "name": "VD010",
+          "kind": "paragraph",
+          "line": 795
+        },
+        {
+          "name": "VD999",
+          "kind": "paragraph",
+          "line": 819
+        },
+        {
+          "name": "GET-CUST-DATA",
+          "kind": "section",
+          "line": 823
+        },
+        {
+          "name": "GCD010",
+          "kind": "paragraph",
+          "line": 824
+        },
+        {
+          "name": "GCD999",
+          "kind": "paragraph",
+          "line": 957
+        },
+        {
+          "name": "DEL-CUST-DATA",
+          "kind": "section",
+          "line": 961
+        },
+        {
+          "name": "DCD010",
+          "kind": "paragraph",
+          "line": 962
+        },
+        {
+          "name": "DCD999",
+          "kind": "paragraph",
+          "line": 1117
+        },
+        {
+          "name": "UPDATE-CUST-DATA",
+          "kind": "section",
+          "line": 1121
+        },
+        {
+          "name": "UPDCD010",
+          "kind": "paragraph",
+          "line": 1122
+        },
+        {
+          "name": "UPDCD999",
+          "kind": "paragraph",
+          "line": 1317
+        },
+        {
+          "name": "UNPROT-CUST-DATA",
+          "kind": "section",
+          "line": 1321
+        },
+        {
+          "name": "UCD010",
+          "kind": "paragraph",
+          "line": 1322
+        },
+        {
+          "name": "UCD999",
+          "kind": "paragraph",
+          "line": 1400
+        },
+        {
+          "name": "SEND-MAP",
+          "kind": "section",
+          "line": 1404
+        },
+        {
+          "name": "SM010",
+          "kind": "paragraph",
+          "line": 1405
+        },
+        {
+          "name": "SM999",
+          "kind": "paragraph",
+          "line": 1638
+        },
+        {
+          "name": "STORE-TERM-DEF",
+          "kind": "section",
+          "line": 1642
+        },
+        {
+          "name": "STD010",
+          "kind": "paragraph",
+          "line": 1643
+        },
+        {
+          "name": "STD999",
+          "kind": "paragraph",
+          "line": 1739
+        },
+        {
+          "name": "RESTORE-TERM-DEF",
+          "kind": "section",
+          "line": 1743
+        },
+        {
+          "name": "RTD010",
+          "kind": "paragraph",
+          "line": 1744
+        },
+        {
+          "name": "RTD999",
+          "kind": "paragraph",
+          "line": 1824
+        },
+        {
+          "name": "SEND-TERMINATION-MSG",
+          "kind": "section",
+          "line": 1828
+        },
+        {
+          "name": "STM010",
+          "kind": "paragraph",
+          "line": 1829
+        },
+        {
+          "name": "STM999",
+          "kind": "paragraph",
+          "line": 1903
+        },
+        {
+          "name": "ABEND-THIS-TASK",
+          "kind": "section",
+          "line": 1907
+        },
+        {
+          "name": "ATT010",
+          "kind": "paragraph",
+          "line": 1908
+        },
+        {
+          "name": "ATT999",
+          "kind": "paragraph",
+          "line": 1917
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 1921
+        },
+        {
+          "name": "PTD10",
+          "kind": "paragraph",
+          "line": 1922
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 1936
+        },
+        {
+          "name": "PROT-CUST-DATA",
+          "kind": "section",
+          "line": 1940
+        },
+        {
+          "name": "PCD010",
+          "kind": "paragraph",
+          "line": 1941
+        },
+        {
+          "name": "PCD999",
+          "kind": "paragraph",
+          "line": 2037
+        },
+        {
+          "name": "ABEND-HANDLING",
+          "kind": "section",
+          "line": 2041
+        },
+        {
+          "name": "AH010",
+          "kind": "paragraph",
+          "line": 2042
+        },
+        {
+          "name": "AH999",
+          "kind": "paragraph",
+          "line": 2052
+        }
+      ],
+      "dead": {
+        "ATT999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "AH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "BNK1DCM",
+          "via": "COPY",
+          "line": 66,
+          "library": null,
+          "resolves_to": null,
+          "why": "symbolic map generated from src/base/bms_src/BNK1DCM.bms"
+        },
+        {
+          "name": "DFHAID",
+          "via": "COPY",
+          "line": 68,
+          "library": null,
+          "resolves_to": null,
+          "why": "CICS-supplied"
+        },
+        {
+          "name": "INQCUST",
+          "via": "COPY",
+          "line": 115,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/INQCUST.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "DELCUS",
+          "via": "COPY",
+          "line": 118,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/DELCUS.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "UPDCUST",
+          "via": "COPY",
+          "line": 121,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/UPDCUST.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "DFHBMSCA",
+          "via": "COPY",
+          "line": 141,
+          "library": null,
+          "resolves_to": null,
+          "why": "CICS-supplied"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 169,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 381,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 579,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 654,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "INQCUST",
+          "line": 833,
+          "target": "INQCUST",
+          "resolves_to": "src/base/cobol_src/INQCUST.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 888,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "DELCUS",
+          "line": 969,
+          "target": "DELCUS",
+          "resolves_to": "src/base/cobol_src/DELCUS.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1024,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "UPDCUST",
+          "line": 1155,
+          "target": "UPDCUST",
+          "resolves_to": "src/base/cobol_src/UPDCUST.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1210,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1466,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1543,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1621,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1723,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1807,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1888,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1TFN.cbl": {
+      "program_id": "BNK1TFN",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 174
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 175
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 315
+        },
+        {
+          "name": "PROCESS-MAP",
+          "kind": "section",
+          "line": 319
+        },
+        {
+          "name": "PM010",
+          "kind": "paragraph",
+          "line": 320
+        },
+        {
+          "name": "PM999",
+          "kind": "paragraph",
+          "line": 347
+        },
+        {
+          "name": "RECEIVE-MAP",
+          "kind": "section",
+          "line": 351
+        },
+        {
+          "name": "RM010",
+          "kind": "paragraph",
+          "line": 352
+        },
+        {
+          "name": "RM999",
+          "kind": "paragraph",
+          "line": 424
+        },
+        {
+          "name": "EDIT-DATA",
+          "kind": "section",
+          "line": 428
+        },
+        {
+          "name": "ED010",
+          "kind": "paragraph",
+          "line": 429
+        },
+        {
+          "name": "ED999",
+          "kind": "paragraph",
+          "line": 474
+        },
+        {
+          "name": "GET-ACC-DATA",
+          "kind": "section",
+          "line": 478
+        },
+        {
+          "name": "GCD010",
+          "kind": "paragraph",
+          "line": 479
+        },
+        {
+          "name": "GCD999",
+          "kind": "paragraph",
+          "line": 658
+        },
+        {
+          "name": "SEND-MAP",
+          "kind": "section",
+          "line": 662
+        },
+        {
+          "name": "SM010",
+          "kind": "paragraph",
+          "line": 663
+        },
+        {
+          "name": "SM999",
+          "kind": "paragraph",
+          "line": 890
+        },
+        {
+          "name": "SEND-TERMINATION-MSG",
+          "kind": "section",
+          "line": 894
+        },
+        {
+          "name": "STM010",
+          "kind": "paragraph",
+          "line": 895
+        },
+        {
+          "name": "STM999",
+          "kind": "paragraph",
+          "line": 966
+        },
+        {
+          "name": "ABEND-THIS-TASK",
+          "kind": "section",
+          "line": 970
+        },
+        {
+          "name": "ATT010",
+          "kind": "paragraph",
+          "line": 971
+        },
+        {
+          "name": "ATT999",
+          "kind": "paragraph",
+          "line": 981
+        },
+        {
+          "name": "VALIDATE-AMOUNT",
+          "kind": "section",
+          "line": 985
+        },
+        {
+          "name": "VA010",
+          "kind": "paragraph",
+          "line": 986
+        },
+        {
+          "name": "VA999",
+          "kind": "paragraph",
+          "line": 1203
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 1207
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 1208
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 1223
+        }
+      ],
+      "dead": {
+        "ATT999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "BNK1TFM",
+          "via": "COPY",
+          "line": 68,
+          "library": null,
+          "resolves_to": null,
+          "why": "symbolic map generated from src/base/bms_src/BNK1TFM.bms"
+        },
+        {
+          "name": "DFHAID",
+          "via": "COPY",
+          "line": 70,
+          "library": null,
+          "resolves_to": null,
+          "why": "CICS-supplied"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 163,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 302,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 411,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "XFRFUN",
+          "line": 496,
+          "target": "XFRFUN",
+          "resolves_to": "src/base/cobol_src/XFRFUN.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 551,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 727,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 801,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 876,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 954,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1UAC.cbl": {
+      "program_id": "BNK1UAC",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 197
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 198
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 362
+        },
+        {
+          "name": "PROCESS-MAP",
+          "kind": "section",
+          "line": 366
+        },
+        {
+          "name": "PM010",
+          "kind": "paragraph",
+          "line": 367
+        },
+        {
+          "name": "PM999",
+          "kind": "paragraph",
+          "line": 410
+        },
+        {
+          "name": "RECEIVE-MAP",
+          "kind": "section",
+          "line": 414
+        },
+        {
+          "name": "RM010",
+          "kind": "paragraph",
+          "line": 415
+        },
+        {
+          "name": "RM999",
+          "kind": "paragraph",
+          "line": 487
+        },
+        {
+          "name": "EDIT-DATA",
+          "kind": "section",
+          "line": 491
+        },
+        {
+          "name": "ED010",
+          "kind": "paragraph",
+          "line": 492
+        },
+        {
+          "name": "ED999",
+          "kind": "paragraph",
+          "line": 502
+        },
+        {
+          "name": "VALIDATE-DATA",
+          "kind": "section",
+          "line": 506
+        },
+        {
+          "name": "VD010",
+          "kind": "paragraph",
+          "line": 507
+        },
+        {
+          "name": "VD999",
+          "kind": "paragraph",
+          "line": 753
+        },
+        {
+          "name": "INQ-ACC-DATA",
+          "kind": "section",
+          "line": 757
+        },
+        {
+          "name": "IAD010",
+          "kind": "paragraph",
+          "line": 758
+        },
+        {
+          "name": "IAD999",
+          "kind": "paragraph",
+          "line": 881
+        },
+        {
+          "name": "UPD-ACC-DATA",
+          "kind": "section",
+          "line": 885
+        },
+        {
+          "name": "UAD010",
+          "kind": "paragraph",
+          "line": 886
+        },
+        {
+          "name": "UAD999",
+          "kind": "paragraph",
+          "line": 1064
+        },
+        {
+          "name": "SEND-MAP",
+          "kind": "section",
+          "line": 1068
+        },
+        {
+          "name": "SM010",
+          "kind": "paragraph",
+          "line": 1069
+        },
+        {
+          "name": "SM999",
+          "kind": "paragraph",
+          "line": 1297
+        },
+        {
+          "name": "SEND-TERMINATION-MSG",
+          "kind": "section",
+          "line": 1301
+        },
+        {
+          "name": "STM010",
+          "kind": "paragraph",
+          "line": 1302
+        },
+        {
+          "name": "STM999",
+          "kind": "paragraph",
+          "line": 1374
+        },
+        {
+          "name": "ABEND-THIS-TASK",
+          "kind": "section",
+          "line": 1378
+        },
+        {
+          "name": "ATT010",
+          "kind": "paragraph",
+          "line": 1379
+        },
+        {
+          "name": "ATT999",
+          "kind": "paragraph",
+          "line": 1386
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 1390
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 1391
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 1404
+        }
+      ],
+      "dead": {
+        "ATT999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "BNK1UAM",
+          "via": "COPY",
+          "line": 66,
+          "library": null,
+          "resolves_to": null,
+          "why": "symbolic map generated from src/base/bms_src/BNK1UAM.bms"
+        },
+        {
+          "name": "DFHAID",
+          "via": "COPY",
+          "line": 68,
+          "library": null,
+          "resolves_to": null,
+          "why": "CICS-supplied"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 175,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 350,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 474,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "INQACC",
+          "line": 767,
+          "target": "INQACC",
+          "resolves_to": "src/base/cobol_src/INQACC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 822,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "UPDACC",
+          "line": 954,
+          "target": "UPDACC",
+          "resolves_to": "src/base/cobol_src/UPDACC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1009,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1130,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1206,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1282,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1361,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNKMENU.cbl": {
+      "program_id": "BNKMENU",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 108
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 109
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 237
+        },
+        {
+          "name": "PROCESS-MENU-MAP",
+          "kind": "section",
+          "line": 241
+        },
+        {
+          "name": "PMM010",
+          "kind": "paragraph",
+          "line": 242
+        },
+        {
+          "name": "PMM999",
+          "kind": "paragraph",
+          "line": 265
+        },
+        {
+          "name": "RECEIVE-MENU-MAP",
+          "kind": "section",
+          "line": 269
+        },
+        {
+          "name": "RMM010",
+          "kind": "paragraph",
+          "line": 270
+        },
+        {
+          "name": "RMM999",
+          "kind": "paragraph",
+          "line": 351
+        },
+        {
+          "name": "EDIT-MENU-DATA",
+          "kind": "section",
+          "line": 355
+        },
+        {
+          "name": "EMD010",
+          "kind": "paragraph",
+          "line": 356
+        },
+        {
+          "name": "EMD999",
+          "kind": "paragraph",
+          "line": 373
+        },
+        {
+          "name": "INVOKE-OTHER-TXNS",
+          "kind": "section",
+          "line": 377
+        },
+        {
+          "name": "IOT010",
+          "kind": "paragraph",
+          "line": 378
+        },
+        {
+          "name": "IOT999",
+          "kind": "paragraph",
+          "line": 968
+        },
+        {
+          "name": "SEND-MAP",
+          "kind": "section",
+          "line": 972
+        },
+        {
+          "name": "SMM010",
+          "kind": "paragraph",
+          "line": 973
+        },
+        {
+          "name": "SMM999",
+          "kind": "paragraph",
+          "line": 1201
+        },
+        {
+          "name": "SEND-TERMINATION-MSG",
+          "kind": "section",
+          "line": 1205
+        },
+        {
+          "name": "STM010",
+          "kind": "paragraph",
+          "line": 1206
+        },
+        {
+          "name": "STM999",
+          "kind": "paragraph",
+          "line": 1278
+        },
+        {
+          "name": "ABEND-THIS-TASK",
+          "kind": "section",
+          "line": 1282
+        },
+        {
+          "name": "ATT010",
+          "kind": "paragraph",
+          "line": 1283
+        },
+        {
+          "name": "ATT999",
+          "kind": "paragraph",
+          "line": 1291
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 1295
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 1296
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 1310
+        }
+      ],
+      "dead": {
+        "ATT999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "BNK1MAI",
+          "via": "COPY",
+          "line": 68,
+          "library": null,
+          "resolves_to": null,
+          "why": "symbolic map generated from src/base/bms_src/BNK1MAI.bms"
+        },
+        {
+          "name": "DFHAID",
+          "via": "COPY",
+          "line": 70,
+          "library": null,
+          "resolves_to": null,
+          "why": "CICS-supplied"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 99,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 225,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 337,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 441,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 513,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 586,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 659,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 732,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 805,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 878,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 952,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1034,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1109,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1186,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1265,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY1.cbl": {
+      "program_id": "CRDTAGY1",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 113
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 114
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 244
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 248
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 249
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 254
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 258
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 259
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 272
+        }
+      ],
+      "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 41,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 107,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 180,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY2.cbl": {
+      "program_id": "CRDTAGY2",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 112
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 113
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 244
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 248
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 249
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 254
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 258
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 259
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 272
+        }
+      ],
+      "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 41,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 106,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 179,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY3.cbl": {
+      "program_id": "CRDTAGY3",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 112
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 113
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 243
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 247
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 248
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 253
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 257
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 258
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 271
+        }
+      ],
+      "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 41,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 106,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 179,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY4.cbl": {
+      "program_id": "CRDTAGY4",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 113
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 114
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 246
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 250
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 251
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 256
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 260
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 261
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 274
+        }
+      ],
+      "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 42,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 106,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 180,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY5.cbl": {
+      "program_id": "CRDTAGY5",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 111
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 112
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 246
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 250
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 251
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 256
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 260
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 261
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 274
+        }
+      ],
+      "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 41,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 105,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 179,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CREACC.cbl": {
+      "program_id": "CREACC",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 287
+        },
+        {
+          "name": "P010",
+          "kind": "paragraph",
+          "line": 288
+        },
+        {
+          "name": "P999",
+          "kind": "paragraph",
+          "line": 381
+        },
+        {
+          "name": "ENQ-NAMED-COUNTER",
+          "kind": "section",
+          "line": 385
+        },
+        {
+          "name": "ENC010",
+          "kind": "paragraph",
+          "line": 386
+        },
+        {
+          "name": "ENC999",
+          "kind": "paragraph",
+          "line": 403
+        },
+        {
+          "name": "DEQ-NAMED-COUNTER",
+          "kind": "section",
+          "line": 407
+        },
+        {
+          "name": "DNC010",
+          "kind": "paragraph",
+          "line": 408
+        },
+        {
+          "name": "DNC999",
+          "kind": "paragraph",
+          "line": 425
+        },
+        {
+          "name": "FIND-NEXT-ACCOUNT",
+          "kind": "section",
+          "line": 429
+        },
+        {
+          "name": "FNA010",
+          "kind": "paragraph",
+          "line": 430
+        },
+        {
+          "name": "FNA999",
+          "kind": "paragraph",
+          "line": 767
+        },
+        {
+          "name": "WRITE-ACCOUNT-DB2",
+          "kind": "section",
+          "line": 774
+        },
+        {
+          "name": "WAD010",
+          "kind": "paragraph",
+          "line": 775
+        },
+        {
+          "name": "WAD999",
+          "kind": "paragraph",
+          "line": 916
+        },
+        {
+          "name": "WRITE-PROCTRAN",
+          "kind": "section",
+          "line": 920
+        },
+        {
+          "name": "WP010",
+          "kind": "paragraph",
+          "line": 921
+        },
+        {
+          "name": "WP999",
+          "kind": "paragraph",
+          "line": 924
+        },
+        {
+          "name": "WRITE-PROCTRAN-DB2",
+          "kind": "section",
+          "line": 928
+        },
+        {
+          "name": "WPD010",
+          "kind": "paragraph",
+          "line": 929
+        },
+        {
+          "name": "WPD999",
+          "kind": "paragraph",
+          "line": 1064
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 1068
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 1069
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 1076
+        },
+        {
+          "name": "CUSTOMER-ACCOUNT-COUNT",
+          "kind": "section",
+          "line": 1080
+        },
+        {
+          "name": "CAC010",
+          "kind": "paragraph",
+          "line": 1081
+        },
+        {
+          "name": "CAC999",
+          "kind": "paragraph",
+          "line": 1094
+        },
+        {
+          "name": "CALCULATE-DATES",
+          "kind": "section",
+          "line": 1098
+        },
+        {
+          "name": "CD010",
+          "kind": "paragraph",
+          "line": 1099
+        },
+        {
+          "name": "CD999",
+          "kind": "paragraph",
+          "line": 1205
+        },
+        {
+          "name": "ACCOUNT-TYPE-CHECK",
+          "kind": "section",
+          "line": 1209
+        },
+        {
+          "name": "ATC010",
+          "kind": "paragraph",
+          "line": 1210
+        },
+        {
+          "name": "ATC999",
+          "kind": "paragraph",
+          "line": 1227
+        },
+        {
+          "name": "POPULATE-TIME-DATE2",
+          "kind": "section",
+          "line": 1231
+        },
+        {
+          "name": "PTD2010",
+          "kind": "paragraph",
+          "line": 1232
+        },
+        {
+          "name": "PTD2999",
+          "kind": "paragraph",
+          "line": 1246
+        }
+      ],
+      "dead": {
+        "P999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 42,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCTRAN",
+          "via": "COPY",
+          "line": 122,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCTRAN.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCOUNT",
+          "via": "COPY",
+          "line": 141,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCOUNT.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "CUSTOMER",
+          "via": "COPY",
+          "line": 144,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CUSTOMER.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "INQCUST",
+          "via": "COPY",
+          "line": 257,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/INQCUST.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "INQACCCU",
+          "via": "COPY",
+          "line": 260,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/INQACCCU.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCTCTRL",
+          "via": "COPY",
+          "line": 266,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCTCTRL.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 279,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "CREACC",
+          "via": "COPY",
+          "line": 283,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CREACC.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCDB2",
+          "via": "SQL INCLUDE",
+          "line": 50,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCDB2",
+          "via": "SQL INCLUDE",
+          "line": 94,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 118,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "INQCUST",
+          "line": 304,
+          "target": "INQCUST",
+          "resolves_to": "src/base/cobol_src/INQCUST.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 508,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 586,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 674,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 751,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1055,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "INQACCCU",
+          "line": 1088,
+          "target": "INQACCCU",
+          "resolves_to": "src/base/cobol_src/INQACCCU.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRECUST.cbl": {
+      "program_id": "CRECUST",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 354
+        },
+        {
+          "name": "P010",
+          "kind": "paragraph",
+          "line": 355
+        },
+        {
+          "name": "P999",
+          "kind": "paragraph",
+          "line": 419
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 423
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 424
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 437
+        },
+        {
+          "name": "ENQ-NAMED-COUNTER",
+          "kind": "section",
+          "line": 441
+        },
+        {
+          "name": "ENC010",
+          "kind": "paragraph",
+          "line": 442
+        },
+        {
+          "name": "ENC999",
+          "kind": "paragraph",
+          "line": 459
+        },
+        {
+          "name": "DEQ-NAMED-COUNTER",
+          "kind": "section",
+          "line": 463
+        },
+        {
+          "name": "DNC010",
+          "kind": "paragraph",
+          "line": 464
+        },
+        {
+          "name": "DNC999",
+          "kind": "paragraph",
+          "line": 484
+        },
+        {
+          "name": "UPD-NCS",
+          "kind": "section",
+          "line": 488
+        },
+        {
+          "name": "UN010",
+          "kind": "paragraph",
+          "line": 489
+        },
+        {
+          "name": "UN999",
+          "kind": "paragraph",
+          "line": 499
+        },
+        {
+          "name": "CREDIT-CHECK",
+          "kind": "section",
+          "line": 505
+        },
+        {
+          "name": "CC010",
+          "kind": "paragraph",
+          "line": 506
+        },
+        {
+          "name": "CC999",
+          "kind": "paragraph",
+          "line": 1007
+        },
+        {
+          "name": "WRITE-CUSTOMER-VSAM",
+          "kind": "section",
+          "line": 1011
+        },
+        {
+          "name": "WCV010",
+          "kind": "paragraph",
+          "line": 1012
+        },
+        {
+          "name": "WCV999",
+          "kind": "paragraph",
+          "line": 1117
+        },
+        {
+          "name": "WRITE-PROCTRAN",
+          "kind": "section",
+          "line": 1121
+        },
+        {
+          "name": "WP010",
+          "kind": "paragraph",
+          "line": 1122
+        },
+        {
+          "name": "WP999",
+          "kind": "paragraph",
+          "line": 1125
+        },
+        {
+          "name": "WRITE-PROCTRAN-DB2",
+          "kind": "section",
+          "line": 1129
+        },
+        {
+          "name": "WPD010",
+          "kind": "paragraph",
+          "line": 1130
+        },
+        {
+          "name": "WPD999",
+          "kind": "paragraph",
+          "line": 1267
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 1271
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 1272
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 1279
+        },
+        {
+          "name": "GET-LAST-CUSTOMER-VSAM",
+          "kind": "section",
+          "line": 1283
+        },
+        {
+          "name": "GLCV010",
+          "kind": "paragraph",
+          "line": 1284
+        },
+        {
+          "name": "GLCV999",
+          "kind": "paragraph",
+          "line": 1360
+        },
+        {
+          "name": "DATE-OF-BIRTH-CHECK",
+          "kind": "section",
+          "line": 1364
+        },
+        {
+          "name": "DOBC010",
+          "kind": "paragraph",
+          "line": 1365
+        },
+        {
+          "name": "DOBC999",
+          "kind": "paragraph",
+          "line": 1419
+        },
+        {
+          "name": "POPULATE-TIME-DATE2",
+          "kind": "section",
+          "line": 1423
+        },
+        {
+          "name": "PTD2010",
+          "kind": "paragraph",
+          "line": 1424
+        },
+        {
+          "name": "PTD2999",
+          "kind": "paragraph",
+          "line": 1438
+        }
+      ],
+      "dead": {
+        "P999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 55,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCTRAN",
+          "via": "COPY",
+          "line": 84,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCTRAN.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 103,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "CUSTOMER",
+          "via": "COPY",
+          "line": 110,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CUSTOMER.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "CEEIGZCT",
+          "via": "COPY",
+          "line": 303,
+          "library": null,
+          "resolves_to": null,
+          "why": "Language Environment-supplied"
+        },
+        {
+          "name": "CUSTCTRL",
+          "via": "COPY",
+          "line": 345,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CUSTCTRL.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "CRECUST",
+          "via": "COPY",
+          "line": 350,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CRECUST.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCDB2",
+          "via": "SQL INCLUDE",
+          "line": 63,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 80,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "CALL",
+          "form": "literal",
+          "operand": "CEEDAYS",
+          "line": 1379,
+          "target": "CEEDAYS",
+          "resolves_to": null,
+          "note": "Language Environment callable service"
+        },
+        {
+          "verb": "CALL",
+          "form": "literal",
+          "operand": "CEELOCT",
+          "line": 1393,
+          "target": "CEELOCT",
+          "resolves_to": null,
+          "note": "Language Environment callable service"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1250,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CUSTCTRL.cbl": {
+      "program_id": "CUSTCTRL",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 132
+        },
+        {
+          "name": "P010",
+          "kind": "paragraph",
+          "line": 133
+        },
+        {
+          "name": "P999",
+          "kind": "paragraph",
+          "line": 146
+        },
+        {
+          "name": "GET-NUMBER-OF-CUSTOMERS-VSAM",
+          "kind": "section",
+          "line": 152
+        },
+        {
+          "name": "WCV010",
+          "kind": "paragraph",
+          "line": 153
+        },
+        {
+          "name": "WCV999",
+          "kind": "paragraph",
+          "line": 197
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 206
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 207
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 212
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 216
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 217
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 231
+        }
+      ],
+      "dead": {
+        "P999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "POPULATE-TIME-DATE": {
+          "reason": "section never PERFORMed, GO TO'd or named in an EXEC CICS HANDLE",
+          "trivial": false
+        },
+        "PTD010": {
+          "reason": "inside unreferenced section POPULATE-TIME-DATE",
+          "trivial": false
+        },
+        "PTD999": {
+          "reason": "inside unreferenced section POPULATE-TIME-DATE",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 32,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 121,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "CUSTCTRL",
+          "via": "COPY",
+          "line": 128,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CUSTCTRL.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 85,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        }
+      ],
+      "files": [],
+      "calls": [],
+      "cics": true,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": [
+          "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic."
+        ]
+      }
+    },
+    "src/base/cobol_src/DBCRFUN.cbl": {
+      "program_id": "DBCRFUN",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 199
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 200
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 231
+        },
+        {
+          "name": "UPDATE-ACCOUNT-DB2",
+          "kind": "section",
+          "line": 235
+        },
+        {
+          "name": "UAD010",
+          "kind": "paragraph",
+          "line": 236
+        },
+        {
+          "name": "UAD999",
+          "kind": "paragraph",
+          "line": 443
+        },
+        {
+          "name": "WRITE-TO-PROCTRAN",
+          "kind": "section",
+          "line": 447
+        },
+        {
+          "name": "WTP010",
+          "kind": "paragraph",
+          "line": 448
+        },
+        {
+          "name": "WTP999",
+          "kind": "paragraph",
+          "line": 456
+        },
+        {
+          "name": "WRITE-TO-PROCTRAN-DB2",
+          "kind": "section",
+          "line": 460
+        },
+        {
+          "name": "WTPD010",
+          "kind": "paragraph",
+          "line": 461
+        },
+        {
+          "name": "WTPD999",
+          "kind": "paragraph",
+          "line": 654
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 658
+        },
+        {
+          "name": "GMOOH010",
+          "kind": "paragraph",
+          "line": 659
+        },
+        {
+          "name": "GMOOH999",
+          "kind": "paragraph",
+          "line": 664
+        },
+        {
+          "name": "CHECK-FOR-STORM-DRAIN-DB2",
+          "kind": "section",
+          "line": 668
+        },
+        {
+          "name": "CFSDD010",
+          "kind": "paragraph",
+          "line": 669
+        },
+        {
+          "name": "CFSDD999",
+          "kind": "paragraph",
+          "line": 694
+        },
+        {
+          "name": "ABEND-HANDLING",
+          "kind": "section",
+          "line": 701
+        },
+        {
+          "name": "AH010",
+          "kind": "paragraph",
+          "line": 702
+        },
+        {
+          "name": "AH999",
+          "kind": "paragraph",
+          "line": 842
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 846
+        },
+        {
+          "name": "PTD10",
+          "kind": "paragraph",
+          "line": 847
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 860
+        }
+      ],
+      "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOOH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 48,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCOUNT",
+          "via": "COPY",
+          "line": 119,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCOUNT.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCTRAN",
+          "via": "COPY",
+          "line": 150,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCTRAN.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 188,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PAYDBCR",
+          "via": "COPY",
+          "line": 195,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PAYDBCR.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCDB2",
+          "via": "SQL INCLUDE",
+          "line": 56,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCDB2",
+          "via": "SQL INCLUDE",
+          "line": 77,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 94,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 620,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 807,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELACC.cbl": {
+      "program_id": "DELACC",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 204
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 205
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 229
+        },
+        {
+          "name": "READ-ACCOUNT-DB2",
+          "kind": "section",
+          "line": 236
+        },
+        {
+          "name": "RAD010",
+          "kind": "paragraph",
+          "line": 237
+        },
+        {
+          "name": "RAD999",
+          "kind": "paragraph",
+          "line": 427
+        },
+        {
+          "name": "DEL-ACCOUNT-DB2",
+          "kind": "section",
+          "line": 431
+        },
+        {
+          "name": "DADB010",
+          "kind": "paragraph",
+          "line": 432
+        },
+        {
+          "name": "DADB999",
+          "kind": "paragraph",
+          "line": 450
+        },
+        {
+          "name": "WRITE-PROCTRAN",
+          "kind": "section",
+          "line": 454
+        },
+        {
+          "name": "WP010",
+          "kind": "paragraph",
+          "line": 455
+        },
+        {
+          "name": "WP999",
+          "kind": "paragraph",
+          "line": 458
+        },
+        {
+          "name": "WRITE-PROCTRAN-DB2",
+          "kind": "section",
+          "line": 462
+        },
+        {
+          "name": "WPD010",
+          "kind": "paragraph",
+          "line": 463
+        },
+        {
+          "name": "WPD999",
+          "kind": "paragraph",
+          "line": 618
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 625
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 626
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 630
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 634
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 635
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 648
+        }
+      ],
+      "dead": {
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 41,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCOUNT",
+          "via": "COPY",
+          "line": 105,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCOUNT.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCTRAN",
+          "via": "COPY",
+          "line": 108,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCTRAN.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCTCTRL",
+          "via": "COPY",
+          "line": 184,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCTCTRL.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 196,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "DELACC",
+          "via": "COPY",
+          "line": 200,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/DELACC.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCDB2",
+          "via": "SQL INCLUDE",
+          "line": 51,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCDB2",
+          "via": "SQL INCLUDE",
+          "line": 71,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 88,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 603,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELCUS.cbl": {
+      "program_id": "DELCUS",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 246
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 247
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 294
+        },
+        {
+          "name": "DELETE-ACCOUNTS",
+          "kind": "section",
+          "line": 298
+        },
+        {
+          "name": "DA010",
+          "kind": "paragraph",
+          "line": 299
+        },
+        {
+          "name": "DA999",
+          "kind": "paragraph",
+          "line": 318
+        },
+        {
+          "name": "GET-ACCOUNTS",
+          "kind": "section",
+          "line": 322
+        },
+        {
+          "name": "GAC010",
+          "kind": "paragraph",
+          "line": 323
+        },
+        {
+          "name": "GAC999",
+          "kind": "paragraph",
+          "line": 339
+        },
+        {
+          "name": "DEL-CUST-VSAM",
+          "kind": "section",
+          "line": 343
+        },
+        {
+          "name": "DCV010",
+          "kind": "paragraph",
+          "line": 344
+        },
+        {
+          "name": "DCV999",
+          "kind": "paragraph",
+          "line": 582
+        },
+        {
+          "name": "WRITE-PROCTRAN-CUST",
+          "kind": "section",
+          "line": 586
+        },
+        {
+          "name": "WPC010",
+          "kind": "paragraph",
+          "line": 587
+        },
+        {
+          "name": "WPC999",
+          "kind": "paragraph",
+          "line": 593
+        },
+        {
+          "name": "WRITE-PROCTRAN-CUST-DB2",
+          "kind": "section",
+          "line": 597
+        },
+        {
+          "name": "WPCD010",
+          "kind": "paragraph",
+          "line": 598
+        },
+        {
+          "name": "WPCD999",
+          "kind": "paragraph",
+          "line": 733
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 737
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 738
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 742
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 746
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 747
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 760
+        }
+      ],
+      "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 44,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCOUNT",
+          "via": "COPY",
+          "line": 82,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCOUNT.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "CUSTOMER",
+          "via": "COPY",
+          "line": 85,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CUSTOMER.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCTRAN",
+          "via": "COPY",
+          "line": 88,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCTRAN.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "INQACCCU",
+          "via": "COPY",
+          "line": 221,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/INQACCCU.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "INQCUST",
+          "via": "COPY",
+          "line": 226,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/INQCUST.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 238,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "DELCUS",
+          "via": "COPY",
+          "line": 242,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/DELCUS.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCDB2",
+          "via": "SQL INCLUDE",
+          "line": 55,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 72,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "INQCUST-PROGRAM",
+          "line": 260,
+          "target": "INQCUST",
+          "resolves_to": "src/base/cobol_src/INQCUST.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "DELACC",
+          "line": 312,
+          "target": "DELACC",
+          "resolves_to": "src/base/cobol_src/DELACC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "INQACCCU",
+          "line": 334,
+          "target": "INQACCCU",
+          "resolves_to": "src/base/cobol_src/INQACCCU.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 439,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 565,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 717,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/GETCOMPY.cbl": {
+      "program_id": "GETCOMPY",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 36
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 37
+        }
+      ],
+      "dead": {},
+      "copybooks": [
+        {
+          "name": "GETCOMPY",
+          "via": "COPY",
+          "line": 31,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/GETCOMPY.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/GETSCODE.cbl": {
+      "program_id": "GETSCODE",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 37
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 38
+        }
+      ],
+      "dead": {},
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 28,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "GETSCODE",
+          "via": "COPY",
+          "line": 33,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/GETSCODE.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQACC.cbl": {
+      "program_id": "INQACC",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 203
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 204
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 249
+        },
+        {
+          "name": "READ-ACCOUNT-DB2",
+          "kind": "section",
+          "line": 253
+        },
+        {
+          "name": "RAD010",
+          "kind": "paragraph",
+          "line": 254
+        },
+        {
+          "name": "RAD999",
+          "kind": "paragraph",
+          "line": 422
+        },
+        {
+          "name": "FETCH-DATA",
+          "kind": "section",
+          "line": 426
+        },
+        {
+          "name": "FD010",
+          "kind": "paragraph",
+          "line": 427
+        },
+        {
+          "name": "FD999",
+          "kind": "paragraph",
+          "line": 574
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 578
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 579
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 589
+        },
+        {
+          "name": "CHECK-FOR-STORM-DRAIN-DB2",
+          "kind": "section",
+          "line": 596
+        },
+        {
+          "name": "CFSDCD010",
+          "kind": "paragraph",
+          "line": 597
+        },
+        {
+          "name": "CFSDCD999",
+          "kind": "paragraph",
+          "line": 625
+        },
+        {
+          "name": "ABEND-HANDLING",
+          "kind": "section",
+          "line": 632
+        },
+        {
+          "name": "AH010",
+          "kind": "paragraph",
+          "line": 633
+        },
+        {
+          "name": "AH999",
+          "kind": "paragraph",
+          "line": 821
+        },
+        {
+          "name": "READ-ACCOUNT-LAST",
+          "kind": "section",
+          "line": 827
+        },
+        {
+          "name": "RAN010",
+          "kind": "paragraph",
+          "line": 828
+        },
+        {
+          "name": "RAN999",
+          "kind": "paragraph",
+          "line": 833
+        },
+        {
+          "name": "GET-LAST-ACCOUNT-DB2",
+          "kind": "section",
+          "line": 837
+        },
+        {
+          "name": "GLAD010",
+          "kind": "paragraph",
+          "line": 838
+        },
+        {
+          "name": "GLAD999",
+          "kind": "paragraph",
+          "line": 983
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 987
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 988
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 1001
+        }
+      ],
+      "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 37,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCOUNT",
+          "via": "COPY",
+          "line": 94,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCOUNT.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 196,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "INQACC",
+          "via": "COPY",
+          "line": 199,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/INQACC.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCDB2",
+          "via": "SQL INCLUDE",
+          "line": 42,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 62,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 321,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 401,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 516,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 738,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 810,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 924,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQACCCU.cbl": {
+      "program_id": "INQACCCU",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 194
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 195
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 229
+        },
+        {
+          "name": "READ-ACCOUNT-DB2",
+          "kind": "section",
+          "line": 233
+        },
+        {
+          "name": "RAD010",
+          "kind": "paragraph",
+          "line": 234
+        },
+        {
+          "name": "RAD999",
+          "kind": "paragraph",
+          "line": 450
+        },
+        {
+          "name": "FETCH-DATA",
+          "kind": "section",
+          "line": 454
+        },
+        {
+          "name": "FD010",
+          "kind": "paragraph",
+          "line": 455
+        },
+        {
+          "name": "FD999",
+          "kind": "paragraph",
+          "line": 635
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 638
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 639
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 648
+        },
+        {
+          "name": "CHECK-FOR-STORM-DRAIN-DB2",
+          "kind": "section",
+          "line": 655
+        },
+        {
+          "name": "CFSDD010",
+          "kind": "paragraph",
+          "line": 656
+        },
+        {
+          "name": "CFSDD999",
+          "kind": "paragraph",
+          "line": 681
+        },
+        {
+          "name": "ABEND-HANDLING",
+          "kind": "section",
+          "line": 688
+        },
+        {
+          "name": "AH010",
+          "kind": "paragraph",
+          "line": 689
+        },
+        {
+          "name": "AH999",
+          "kind": "paragraph",
+          "line": 825
+        },
+        {
+          "name": "CUSTOMER-CHECK",
+          "kind": "section",
+          "line": 829
+        },
+        {
+          "name": "CC010",
+          "kind": "paragraph",
+          "line": 830
+        },
+        {
+          "name": "CC999",
+          "kind": "paragraph",
+          "line": 862
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 866
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 867
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 881
+        }
+      ],
+      "dead": {
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 33,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCOUNT",
+          "via": "COPY",
+          "line": 104,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCOUNT.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "CUSTOMER",
+          "via": "COPY",
+          "line": 155,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CUSTOMER.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "INQCUST",
+          "via": "COPY",
+          "line": 158,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/INQCUST.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 187,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "INQACCCU",
+          "via": "COPY",
+          "line": 191,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/INQACCCU.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCDB2",
+          "via": "SQL INCLUDE",
+          "line": 41,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 69,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 321,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 424,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 563,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 794,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "literal",
+          "operand": "INQCUST",
+          "line": 851,
+          "target": "INQCUST",
+          "resolves_to": "src/base/cobol_src/INQCUST.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQCUST.cbl": {
+      "program_id": "INQCUST",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 166
+        },
+        {
+          "name": "P010",
+          "kind": "paragraph",
+          "line": 167
+        },
+        {
+          "name": "P999",
+          "kind": "paragraph",
+          "line": 242
+        },
+        {
+          "name": "READ-CUSTOMER-NCS",
+          "kind": "section",
+          "line": 246
+        },
+        {
+          "name": "RCN010",
+          "kind": "paragraph",
+          "line": 247
+        },
+        {
+          "name": "RCN999",
+          "kind": "paragraph",
+          "line": 255
+        },
+        {
+          "name": "READ-CUSTOMER-VSAM",
+          "kind": "section",
+          "line": 258
+        },
+        {
+          "name": "RCV010",
+          "kind": "paragraph",
+          "line": 259
+        },
+        {
+          "name": "RCV999",
+          "kind": "paragraph",
+          "line": 424
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 428
+        },
+        {
+          "name": "GMOFH010",
+          "kind": "paragraph",
+          "line": 429
+        },
+        {
+          "name": "GMOFH999",
+          "kind": "paragraph",
+          "line": 436
+        },
+        {
+          "name": "ABEND-HANDLING",
+          "kind": "section",
+          "line": 440
+        },
+        {
+          "name": "AH010",
+          "kind": "paragraph",
+          "line": 441
+        },
+        {
+          "name": "AH999",
+          "kind": "paragraph",
+          "line": 560
+        },
+        {
+          "name": "GET-LAST-CUSTOMER-VSAM",
+          "kind": "section",
+          "line": 564
+        },
+        {
+          "name": "GLCV010",
+          "kind": "paragraph",
+          "line": 565
+        },
+        {
+          "name": "GLCVE999",
+          "kind": "paragraph",
+          "line": 671
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 675
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 676
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 689
+        },
+        {
+          "name": "GENERATE-RANDOM-CUSTOMER",
+          "kind": "section",
+          "line": 695
+        },
+        {
+          "name": "GRC010",
+          "kind": "paragraph",
+          "line": 696
+        },
+        {
+          "name": "GRC999",
+          "kind": "paragraph",
+          "line": 700
+        },
+        {
+          "name": "GENERATE-RANDOM-CUSTOMER-AGAIN",
+          "kind": "section",
+          "line": 705
+        },
+        {
+          "name": "GRCA10",
+          "kind": "paragraph",
+          "line": 706
+        },
+        {
+          "name": "GRCA99",
+          "kind": "paragraph",
+          "line": 710
+        }
+      ],
+      "dead": {
+        "P999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOFH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 46,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "CUSTOMER",
+          "via": "COPY",
+          "line": 51,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CUSTOMER.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 157,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "INQCUST",
+          "via": "COPY",
+          "line": 162,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/INQCUST.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 406,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 528,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/UPDACC.cbl": {
+      "program_id": "UPDACC",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 158
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 159
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 176
+        },
+        {
+          "name": "UPDATE-ACCOUNT-DB2",
+          "kind": "section",
+          "line": 180
+        },
+        {
+          "name": "UAD010",
+          "kind": "paragraph",
+          "line": 181
+        },
+        {
+          "name": "UAD999",
+          "kind": "paragraph",
+          "line": 329
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 381
+        },
+        {
+          "name": "GMOOH010",
+          "kind": "paragraph",
+          "line": 382
+        },
+        {
+          "name": "GMOOH999",
+          "kind": "paragraph",
+          "line": 387
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 391
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 392
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 405
+        }
+      ],
+      "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOOH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "POPULATE-TIME-DATE": {
+          "reason": "section never PERFORMed, GO TO'd or named in an EXEC CICS HANDLE",
+          "trivial": false
+        },
+        "PTD010": {
+          "reason": "inside unreferenced section POPULATE-TIME-DATE",
+          "trivial": false
+        },
+        "PTD999": {
+          "reason": "inside unreferenced section POPULATE-TIME-DATE",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 49,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCOUNT",
+          "via": "COPY",
+          "line": 100,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCOUNT.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 151,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "UPDACC",
+          "via": "COPY",
+          "line": 155,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/UPDACC.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCDB2",
+          "via": "SQL INCLUDE",
+          "line": 57,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 79,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        }
+      ],
+      "files": [],
+      "calls": [],
+      "cics": true,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": [
+          "POPULATE-TIME-DATE SECTION has no reference: real dead logic."
+        ]
+      }
+    },
+    "src/base/cobol_src/UPDCUST.cbl": {
+      "program_id": "UPDCUST",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 137
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 138
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 207
+        },
+        {
+          "name": "UPDATE-CUSTOMER-VSAM",
+          "kind": "section",
+          "line": 211
+        },
+        {
+          "name": "UCV010",
+          "kind": "paragraph",
+          "line": 212
+        },
+        {
+          "name": "UCV999",
+          "kind": "paragraph",
+          "line": 335
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 339
+        },
+        {
+          "name": "GMOOH010",
+          "kind": "paragraph",
+          "line": 340
+        },
+        {
+          "name": "GMOOH999",
+          "kind": "paragraph",
+          "line": 345
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 349
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 350
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 363
+        }
+      ],
+      "dead": {
+        "GMOOH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "POPULATE-TIME-DATE": {
+          "reason": "section never PERFORMed, GO TO'd or named in an EXEC CICS HANDLE",
+          "trivial": false
+        },
+        "PTD010": {
+          "reason": "inside unreferenced section POPULATE-TIME-DATE",
+          "trivial": false
+        },
+        "PTD999": {
+          "reason": "inside unreferenced section POPULATE-TIME-DATE",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 43,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "CUSTOMER",
+          "via": "COPY",
+          "line": 65,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/CUSTOMER.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 130,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "UPDCUST",
+          "via": "COPY",
+          "line": 134,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/UPDCUST.cpy",
+          "why": "only copybook with this name"
+        }
+      ],
+      "files": [],
+      "calls": [],
+      "cics": true,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": [
+          "POPULATE-TIME-DATE SECTION has no reference: real dead logic."
+        ]
+      }
+    },
+    "src/base/cobol_src/XFRFUN.cbl": {
+      "program_id": "XFRFUN",
+      "units": [
+        {
+          "name": "PREMIERE",
+          "kind": "section",
+          "line": 269
+        },
+        {
+          "name": "A010",
+          "kind": "paragraph",
+          "line": 270
+        },
+        {
+          "name": "A999",
+          "kind": "paragraph",
+          "line": 304
+        },
+        {
+          "name": "UPDATE-ACCOUNT-DB2",
+          "kind": "section",
+          "line": 308
+        },
+        {
+          "name": "UAD010",
+          "kind": "paragraph",
+          "line": 309
+        },
+        {
+          "name": "UAD999",
+          "kind": "paragraph",
+          "line": 915
+        },
+        {
+          "name": "UPDATE-ACCOUNT-DB2-FROM",
+          "kind": "section",
+          "line": 919
+        },
+        {
+          "name": "UADF010",
+          "kind": "paragraph",
+          "line": 920
+        },
+        {
+          "name": "UADF999",
+          "kind": "paragraph",
+          "line": 1037
+        },
+        {
+          "name": "UPDATE-ACCOUNT-DB2-TO",
+          "kind": "section",
+          "line": 1041
+        },
+        {
+          "name": "UADT010",
+          "kind": "paragraph",
+          "line": 1042
+        },
+        {
+          "name": "UADT999",
+          "kind": "paragraph",
+          "line": 1559
+        },
+        {
+          "name": "WRITE-TO-PROCTRAN",
+          "kind": "section",
+          "line": 1563
+        },
+        {
+          "name": "WTP010",
+          "kind": "paragraph",
+          "line": 1564
+        },
+        {
+          "name": "WTP999",
+          "kind": "paragraph",
+          "line": 1567
+        },
+        {
+          "name": "WRITE-TO-PROCTRAN-DB2",
+          "kind": "section",
+          "line": 1571
+        },
+        {
+          "name": "WTPD010",
+          "kind": "paragraph",
+          "line": 1572
+        },
+        {
+          "name": "WTPD999",
+          "kind": "paragraph",
+          "line": 1722
+        },
+        {
+          "name": "GET-ME-OUT-OF-HERE",
+          "kind": "section",
+          "line": 1726
+        },
+        {
+          "name": "GMOOH010",
+          "kind": "paragraph",
+          "line": 1727
+        },
+        {
+          "name": "GMOOH999",
+          "kind": "paragraph",
+          "line": 1733
+        },
+        {
+          "name": "CHECK-FOR-STORM-DRAIN-DB2",
+          "kind": "section",
+          "line": 1737
+        },
+        {
+          "name": "CFSDD010",
+          "kind": "paragraph",
+          "line": 1738
+        },
+        {
+          "name": "CFSDD999",
+          "kind": "paragraph",
+          "line": 1765
+        },
+        {
+          "name": "ABEND-HANDLING",
+          "kind": "section",
+          "line": 1769
+        },
+        {
+          "name": "AH010",
+          "kind": "paragraph",
+          "line": 1770
+        },
+        {
+          "name": "AH999",
+          "kind": "paragraph",
+          "line": 1905
+        },
+        {
+          "name": "POPULATE-TIME-DATE",
+          "kind": "section",
+          "line": 1909
+        },
+        {
+          "name": "PTD010",
+          "kind": "paragraph",
+          "line": 1910
+        },
+        {
+          "name": "PTD999",
+          "kind": "paragraph",
+          "line": 1923
+        }
+      ],
+      "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
+        "GMOOH999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        }
+      },
+      "copybooks": [
+        {
+          "name": "SORTCODE",
+          "via": "COPY",
+          "line": 56,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/SORTCODE.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCOUNT",
+          "via": "COPY",
+          "line": 125,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCOUNT.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCOUNT",
+          "via": "COPY",
+          "line": 128,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCOUNT.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCTRAN",
+          "via": "COPY",
+          "line": 175,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCTRAN.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ABNDINFO",
+          "via": "COPY",
+          "line": 260,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ABNDINFO.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "XFRFUN",
+          "via": "COPY",
+          "line": 265,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/XFRFUN.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "ACCDB2",
+          "via": "SQL INCLUDE",
+          "line": 61,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/ACCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "PROCDB2",
+          "via": "SQL INCLUDE",
+          "line": 82,
+          "library": null,
+          "resolves_to": "src/base/cobol_copy/PROCDB2.cpy",
+          "why": "only copybook with this name"
+        },
+        {
+          "name": "SQLCA",
+          "via": "SQL INCLUDE",
+          "line": 99,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        },
+        {
+          "name": "SQLDA",
+          "via": "SQL INCLUDE",
+          "line": 202,
+          "library": null,
+          "resolves_to": null,
+          "why": "DB2 precompiler-supplied"
+        }
+      ],
+      "files": [],
+      "calls": [
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 364,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 463,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 573,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 664,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 737,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 813,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 881,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1165,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1262,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1341,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1459,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1541,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1701,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        },
+        {
+          "verb": "LINK",
+          "form": "identifier",
+          "operand": "WS-ABEND-PGM",
+          "line": 1873,
+          "target": "ABNDPROC",
+          "resolves_to": "src/base/cobol_src/ABNDPROC.cbl"
+        }
+      ],
+      "cics": true,
+      "sql": true,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    }
+  },
+  "method": {
+    "units": "Draft Area-A headers compared with the engine's function_data: every draft unit is an engine unit, and every engine-only unit was checked to be an Area-B continuation line (gitgalaxy#3197), so the list was confirmed by two independent readings plus the source.",
+    "dead": "Every dead verdict checked: no other mention of the name anywhere in the program's code, and the unit before it ends in an unconditional EXEC CICS RETURN/ABEND, GOBACK or a PERFORM of a section that never returns (or it sits inside an unreferenced section). The draft does not count a unit as dead unless it is dead with AND without main-flow fall-through across section boundaries (0 units depend on that choice). Sections named in EXEC CICS HANDLE ABEND/CONDITION/AID LABEL(...) are live (8 CBSA abend handlers).",
+    "live": "Each live unit carries a reached-by path in the draft report (entry, PERFORM, GO TO, fall-through, CICS HANDLE label); a sample of those paths was checked against the source.",
+    "copybooks": "COPY and EXEC SQL INCLUDE statements, resolved to .cpy/.copy members only (never a program). zopeneditor resolves through its zapp.yaml libraries (syslib, and IN MYFILE / IN MYLIB). Unresolved entries say why: CICS-, LE- or DB2-supplied, or a BMS-generated symbolic map.",
+    "files": "SELECT ... ASSIGN plus every OPEN, splitting a multi-mode OPEN at each INPUT/OUTPUT/I-O/EXTEND keyword; checked against the source.",
+    "calls": "CALL and EXEC CICS LINK/XCTL PROGRAM(...): literals as written, identifiers through their working-storage VALUE clause; resolved to the program with that PROGRAM-ID (nearest when shared). CEE* targets are LE callable services.",
+    "cics_sql": "Presence of EXEC CICS / EXEC SQL in code lines; agrees with the forge's booleans on every program."
+  }
+}

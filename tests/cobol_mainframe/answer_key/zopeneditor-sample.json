@@ -1,0 +1,695 @@
+{
+  "schema_version": 1,
+  "corpus": "zopeneditor-sample",
+  "url": "https://github.com/IBM/zopeneditor-sample",
+  "ref": "8f9835308de6159eb54f226041d5f81a780cb8eb",
+  "programs": {
+    "COBOL/SAM1.cbl": {
+      "program_id": "SAM1",
+      "units": [
+        {
+          "name": "000-MAIN",
+          "kind": "paragraph",
+          "line": 217
+        },
+        {
+          "name": "100-PROCESS-TRANSACTIONS",
+          "kind": "paragraph",
+          "line": 261
+        },
+        {
+          "name": "200-PROCESS-UPDATE-TRAN",
+          "kind": "paragraph",
+          "line": 293
+        },
+        {
+          "name": "210-PROCESS-ADD-TRAN",
+          "kind": "paragraph",
+          "line": 315
+        },
+        {
+          "name": "220-PROCESS-DELETE-TRAN",
+          "kind": "paragraph",
+          "line": 335
+        },
+        {
+          "name": "299-REPORT-BAD-TRAN",
+          "kind": "paragraph",
+          "line": 347
+        },
+        {
+          "name": "700-OPEN-FILES",
+          "kind": "paragraph",
+          "line": 356
+        },
+        {
+          "name": "710-READ-TRAN-FILE",
+          "kind": "paragraph",
+          "line": 388
+        },
+        {
+          "name": "720-POSITION-CUST-FILE",
+          "kind": "paragraph",
+          "line": 409
+        },
+        {
+          "name": "721-COPY-RECORDS",
+          "kind": "paragraph",
+          "line": 418
+        },
+        {
+          "name": "730-READ-CUSTOMER-FILE",
+          "kind": "paragraph",
+          "line": 423
+        },
+        {
+          "name": "740-WRITE-CUSTOUT-FILE",
+          "kind": "paragraph",
+          "line": 440
+        },
+        {
+          "name": "790-CLOSE-FILES",
+          "kind": "paragraph",
+          "line": 457
+        },
+        {
+          "name": "800-INIT-REPORT",
+          "kind": "paragraph",
+          "line": 462
+        },
+        {
+          "name": "830-REPORT-TRAN-PROCESSED",
+          "kind": "paragraph",
+          "line": 471
+        },
+        {
+          "name": "850-REPORT-TRAN-STATS",
+          "kind": "paragraph",
+          "line": 480
+        }
+      ],
+      "dead": {},
+      "copybooks": [
+        {
+          "name": "CUSTCOPY",
+          "via": "COPY",
+          "line": 61,
+          "library": null,
+          "resolves_to": "COPYBOOK/CUSTCOPY.cpy",
+          "why": "zapp.yaml syslib"
+        },
+        {
+          "name": "CUSTCOPY",
+          "via": "COPY",
+          "line": 67,
+          "library": null,
+          "resolves_to": "COPYBOOK/CUSTCOPY.cpy",
+          "why": "zapp.yaml syslib"
+        },
+        {
+          "name": "TRANREC",
+          "via": "COPY",
+          "line": 71,
+          "library": null,
+          "resolves_to": "COPYBOOK/TRANREC.cpy",
+          "why": "zapp.yaml syslib"
+        },
+        {
+          "name": "CUSTCOPY",
+          "via": "COPY",
+          "line": 131,
+          "library": null,
+          "resolves_to": "COPYBOOK/CUSTCOPY.cpy",
+          "why": "zapp.yaml syslib"
+        }
+      ],
+      "files": [
+        {
+          "internal": "CUSTOMER-FILE",
+          "assign": "CUSTFILE",
+          "dd": "CUSTFILE",
+          "modes": [
+            "INPUT"
+          ]
+        },
+        {
+          "internal": "CUSTOMER-FILE-OUT",
+          "assign": "CUSTOUT",
+          "dd": "CUSTOUT",
+          "modes": [
+            "OUTPUT"
+          ]
+        },
+        {
+          "internal": "TRANSACTION-FILE",
+          "assign": "TRANFILE",
+          "dd": "TRANFILE",
+          "modes": [
+            "INPUT"
+          ]
+        },
+        {
+          "internal": "REPORT-FILE",
+          "assign": "CUSTRPT",
+          "dd": "CUSTRPT",
+          "modes": [
+            "OUTPUT"
+          ]
+        }
+      ],
+      "calls": [
+        {
+          "verb": "CALL",
+          "form": "identifier",
+          "operand": "SAM2",
+          "line": 304,
+          "target": "SAM2",
+          "resolves_to": "COBOL/SAM2.cbl",
+          "note": "PROGRAM-ID shared by COBOL/SAM2.cbl, multiroot/sam/SAM2.cbl; nearest taken"
+        }
+      ],
+      "cics": false,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": [
+          "OPEN INPUT TRANSACTION-FILE CUSTOMER-FILE OUTPUT CUSTOMER-FILE-OUT REPORT-FILE: CUSTOUT and CUSTRPT are outputs.",
+          "CALL SAM2 goes through 05 SAM2 PIC X(8) VALUE 'SAM2'.",
+          "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
+        ]
+      }
+    },
+    "COBOL/SAM1LIB.cbl": {
+      "program_id": "SAM1",
+      "units": [
+        {
+          "name": "000-MAIN",
+          "kind": "paragraph",
+          "line": 200
+        },
+        {
+          "name": "100-PROCESS-TRANSACTIONS",
+          "kind": "paragraph",
+          "line": 244
+        },
+        {
+          "name": "200-PROCESS-UPDATE-TRAN",
+          "kind": "paragraph",
+          "line": 276
+        },
+        {
+          "name": "210-PROCESS-ADD-TRAN",
+          "kind": "paragraph",
+          "line": 298
+        },
+        {
+          "name": "220-PROCESS-DELETE-TRAN",
+          "kind": "paragraph",
+          "line": 318
+        },
+        {
+          "name": "299-REPORT-BAD-TRAN",
+          "kind": "paragraph",
+          "line": 330
+        },
+        {
+          "name": "700-OPEN-FILES",
+          "kind": "paragraph",
+          "line": 339
+        },
+        {
+          "name": "710-READ-TRAN-FILE",
+          "kind": "paragraph",
+          "line": 371
+        },
+        {
+          "name": "720-POSITION-CUST-FILE",
+          "kind": "paragraph",
+          "line": 392
+        },
+        {
+          "name": "721-COPY-RECORDS",
+          "kind": "paragraph",
+          "line": 401
+        },
+        {
+          "name": "730-READ-CUSTOMER-FILE",
+          "kind": "paragraph",
+          "line": 406
+        },
+        {
+          "name": "740-WRITE-CUSTOUT-FILE",
+          "kind": "paragraph",
+          "line": 423
+        },
+        {
+          "name": "790-CLOSE-FILES",
+          "kind": "paragraph",
+          "line": 440
+        },
+        {
+          "name": "800-INIT-REPORT",
+          "kind": "paragraph",
+          "line": 445
+        },
+        {
+          "name": "830-REPORT-TRAN-PROCESSED",
+          "kind": "paragraph",
+          "line": 454
+        },
+        {
+          "name": "850-REPORT-TRAN-STATS",
+          "kind": "paragraph",
+          "line": 463
+        }
+      ],
+      "dead": {},
+      "copybooks": [
+        {
+          "name": "CUSTCOPY",
+          "via": "COPY",
+          "line": 61,
+          "library": null,
+          "resolves_to": "COPYBOOK/CUSTCOPY.cpy",
+          "why": "zapp.yaml syslib"
+        },
+        {
+          "name": "CUSTCOPY",
+          "via": "COPY",
+          "line": 67,
+          "library": null,
+          "resolves_to": "COPYBOOK/CUSTCOPY.cpy",
+          "why": "zapp.yaml syslib"
+        },
+        {
+          "name": "TRANREC",
+          "via": "COPY",
+          "line": 71,
+          "library": null,
+          "resolves_to": "COPYBOOK/TRANREC.cpy",
+          "why": "zapp.yaml syslib"
+        },
+        {
+          "name": "DATETIME",
+          "via": "COPY",
+          "line": 84,
+          "library": "MYFILE",
+          "resolves_to": "COPYLIB/DATETIME.cpy",
+          "why": "zapp.yaml library MYFILE"
+        },
+        {
+          "name": "REPTTOTL",
+          "via": "COPY",
+          "line": 89,
+          "library": "MYLIB",
+          "resolves_to": "COPYLIB-MVS/REPTTOTL.cpy",
+          "why": "zapp.yaml library MYLIB"
+        },
+        {
+          "name": "CUSTCOPY",
+          "via": "COPY",
+          "line": 116,
+          "library": null,
+          "resolves_to": "COPYBOOK/CUSTCOPY.cpy",
+          "why": "zapp.yaml syslib"
+        }
+      ],
+      "files": [
+        {
+          "internal": "CUSTOMER-FILE",
+          "assign": "CUSTFILE",
+          "dd": "CUSTFILE",
+          "modes": [
+            "INPUT"
+          ]
+        },
+        {
+          "internal": "CUSTOMER-FILE-OUT",
+          "assign": "CUSTOUT",
+          "dd": "CUSTOUT",
+          "modes": [
+            "OUTPUT"
+          ]
+        },
+        {
+          "internal": "TRANSACTION-FILE",
+          "assign": "TRANFILE",
+          "dd": "TRANFILE",
+          "modes": [
+            "INPUT"
+          ]
+        },
+        {
+          "internal": "REPORT-FILE",
+          "assign": "CUSTRPT",
+          "dd": "CUSTRPT",
+          "modes": [
+            "OUTPUT"
+          ]
+        }
+      ],
+      "calls": [
+        {
+          "verb": "CALL",
+          "form": "identifier",
+          "operand": "SAM2",
+          "line": 287,
+          "target": "SAM2",
+          "resolves_to": "COBOL/SAM2.cbl",
+          "note": "PROGRAM-ID shared by COBOL/SAM2.cbl, multiroot/sam/SAM2.cbl; nearest taken"
+        }
+      ],
+      "cics": false,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": [
+          "COPY DATETIME IN MYFILE and COPY REPTTOTL IN MYLIB resolve through zapp.yaml to COPYLIB/ and COPYLIB-MVS/.",
+          "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
+        ]
+      }
+    },
+    "COBOL/SAM2.cbl": {
+      "program_id": "SAM2",
+      "units": [
+        {
+          "name": "000-MAIN",
+          "kind": "paragraph",
+          "line": 57
+        },
+        {
+          "name": "100-VALIDATE-TRAN",
+          "kind": "paragraph",
+          "line": 72
+        },
+        {
+          "name": "200-PROCESS-TRAN",
+          "kind": "paragraph",
+          "line": 113
+        },
+        {
+          "name": "300-PROCESS-CPU-CRUNCH",
+          "kind": "paragraph",
+          "line": 143
+        },
+        {
+          "name": "310-CRUNCH-LOOP",
+          "kind": "paragraph",
+          "line": 148
+        }
+      ],
+      "dead": {},
+      "copybooks": [
+        {
+          "name": "CUSTCOPY",
+          "via": "COPY",
+          "line": 44,
+          "library": null,
+          "resolves_to": "COPYBOOK/CUSTCOPY.cpy",
+          "why": "zapp.yaml syslib"
+        },
+        {
+          "name": "TRANREC",
+          "via": "COPY",
+          "line": 46,
+          "library": null,
+          "resolves_to": "COPYBOOK/TRANREC.cpy",
+          "why": "zapp.yaml syslib"
+        }
+      ],
+      "files": [],
+      "calls": [],
+      "cics": false,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    },
+    "multiroot/sam/SAM1.cbl": {
+      "program_id": "SAM1",
+      "units": [
+        {
+          "name": "000-MAIN",
+          "kind": "paragraph",
+          "line": 244
+        },
+        {
+          "name": "100-PROCESS-TRANSACTIONS",
+          "kind": "paragraph",
+          "line": 288
+        },
+        {
+          "name": "200-PROCESS-UPDATE-TRAN",
+          "kind": "paragraph",
+          "line": 322
+        },
+        {
+          "name": "210-PROCESS-ADD-TRAN",
+          "kind": "paragraph",
+          "line": 354
+        },
+        {
+          "name": "220-PROCESS-DELETE-TRAN",
+          "kind": "paragraph",
+          "line": 374
+        },
+        {
+          "name": "299-REPORT-BAD-TRAN",
+          "kind": "paragraph",
+          "line": 386
+        },
+        {
+          "name": "700-OPEN-FILES",
+          "kind": "paragraph",
+          "line": 395
+        },
+        {
+          "name": "710-READ-TRAN-FILE",
+          "kind": "paragraph",
+          "line": 427
+        },
+        {
+          "name": "720-POSITION-CUST-FILE",
+          "kind": "paragraph",
+          "line": 448
+        },
+        {
+          "name": "721-COPY-RECORDS",
+          "kind": "paragraph",
+          "line": 457
+        },
+        {
+          "name": "730-READ-CUSTOMER-FILE",
+          "kind": "paragraph",
+          "line": 462
+        },
+        {
+          "name": "740-WRITE-CUSTOUT-FILE",
+          "kind": "paragraph",
+          "line": 479
+        },
+        {
+          "name": "790-CLOSE-FILES",
+          "kind": "paragraph",
+          "line": 496
+        },
+        {
+          "name": "800-INIT-REPORT",
+          "kind": "paragraph",
+          "line": 501
+        },
+        {
+          "name": "830-REPORT-TRAN-PROCESSED",
+          "kind": "paragraph",
+          "line": 510
+        },
+        {
+          "name": "850-REPORT-TRAN-STATS",
+          "kind": "paragraph",
+          "line": 527
+        }
+      ],
+      "dead": {},
+      "copybooks": [
+        {
+          "name": "CUSTCOPY",
+          "via": "COPY",
+          "line": 65,
+          "library": null,
+          "resolves_to": "multiroot/copybooks/cust/CUSTCOPY.cpy",
+          "why": "multiroot/sam/zapp.yaml syslib"
+        },
+        {
+          "name": "CUSTCOPY",
+          "via": "COPY",
+          "line": 71,
+          "library": null,
+          "resolves_to": "multiroot/copybooks/cust/CUSTCOPY.cpy",
+          "why": "multiroot/sam/zapp.yaml syslib"
+        },
+        {
+          "name": "TRANREC",
+          "via": "COPY",
+          "line": 75,
+          "library": null,
+          "resolves_to": "multiroot/copybooks/trans/TRANREC.cpy",
+          "why": "multiroot/sam/zapp.yaml syslib"
+        },
+        {
+          "name": "CUSTCOPY",
+          "via": "COPY",
+          "line": 140,
+          "library": null,
+          "resolves_to": "multiroot/copybooks/cust/CUSTCOPY.cpy",
+          "why": "multiroot/sam/zapp.yaml syslib"
+        },
+        {
+          "name": "SAM2PARM",
+          "via": "COPY",
+          "line": 142,
+          "library": null,
+          "resolves_to": "multiroot/copybooks/trans/SAM2PARM.cpy",
+          "why": "multiroot/sam/zapp.yaml syslib"
+        }
+      ],
+      "files": [
+        {
+          "internal": "CUSTOMER-FILE",
+          "assign": "CUSTFILE",
+          "dd": "CUSTFILE",
+          "modes": [
+            "INPUT"
+          ]
+        },
+        {
+          "internal": "CUSTOMER-FILE-OUT",
+          "assign": "CUSTOUT",
+          "dd": "CUSTOUT",
+          "modes": [
+            "OUTPUT"
+          ]
+        },
+        {
+          "internal": "TRANSACTION-FILE",
+          "assign": "TRANFILE",
+          "dd": "TRANFILE",
+          "modes": [
+            "INPUT"
+          ]
+        },
+        {
+          "internal": "REPORT-FILE",
+          "assign": "CUSTRPT",
+          "dd": "CUSTRPT",
+          "modes": [
+            "OUTPUT"
+          ]
+        }
+      ],
+      "calls": [
+        {
+          "verb": "CALL",
+          "form": "identifier",
+          "operand": "SAM2",
+          "line": 338,
+          "target": "SAM2",
+          "resolves_to": "multiroot/sam/SAM2.cbl",
+          "note": "PROGRAM-ID shared by COBOL/SAM2.cbl, multiroot/sam/SAM2.cbl; nearest taken"
+        }
+      ],
+      "cics": false,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": [
+          "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
+        ]
+      }
+    },
+    "multiroot/sam/SAM2.cbl": {
+      "program_id": "SAM2",
+      "units": [
+        {
+          "name": "000-MAIN",
+          "kind": "paragraph",
+          "line": 60
+        },
+        {
+          "name": "100-VALIDATE-TRAN",
+          "kind": "paragraph",
+          "line": 75
+        },
+        {
+          "name": "200-PROCESS-TRAN",
+          "kind": "paragraph",
+          "line": 116
+        },
+        {
+          "name": "300-PROCESS-CPU-CRUNCH",
+          "kind": "paragraph",
+          "line": 146
+        },
+        {
+          "name": "310-CRUNCH-LOOP",
+          "kind": "paragraph",
+          "line": 153
+        }
+      ],
+      "dead": {},
+      "copybooks": [
+        {
+          "name": "CUSTCOPY",
+          "via": "COPY",
+          "line": 44,
+          "library": null,
+          "resolves_to": "multiroot/copybooks/cust/CUSTCOPY.cpy",
+          "why": "multiroot/sam/zapp.yaml syslib"
+        },
+        {
+          "name": "TRANREC",
+          "via": "COPY",
+          "line": 46,
+          "library": null,
+          "resolves_to": "multiroot/copybooks/trans/TRANREC.cpy",
+          "why": "multiroot/sam/zapp.yaml syslib"
+        },
+        {
+          "name": "SAM2PARM",
+          "via": "COPY",
+          "line": 51,
+          "library": null,
+          "resolves_to": "multiroot/copybooks/trans/SAM2PARM.cpy",
+          "why": "multiroot/sam/zapp.yaml syslib"
+        }
+      ],
+      "files": [],
+      "calls": [],
+      "cics": false,
+      "sql": false,
+      "verification": {
+        "status": "validated",
+        "by": "claude-opus-5 (agent standing in for a human reviewer)",
+        "at": "2026-09-19",
+        "notes": []
+      }
+    }
+  },
+  "method": {
+    "units": "Draft Area-A headers compared with the engine's function_data: every draft unit is an engine unit, and every engine-only unit was checked to be an Area-B continuation line (gitgalaxy#3197), so the list was confirmed by two independent readings plus the source.",
+    "dead": "Every dead verdict checked: no other mention of the name anywhere in the program's code, and the unit before it ends in an unconditional EXEC CICS RETURN/ABEND, GOBACK or a PERFORM of a section that never returns (or it sits inside an unreferenced section). The draft does not count a unit as dead unless it is dead with AND without main-flow fall-through across section boundaries (0 units depend on that choice). Sections named in EXEC CICS HANDLE ABEND/CONDITION/AID LABEL(...) are live (8 CBSA abend handlers).",
+    "live": "Each live unit carries a reached-by path in the draft report (entry, PERFORM, GO TO, fall-through, CICS HANDLE label); a sample of those paths was checked against the source.",
+    "copybooks": "COPY and EXEC SQL INCLUDE statements, resolved to .cpy/.copy members only (never a program). zopeneditor resolves through its zapp.yaml libraries (syslib, and IN MYFILE / IN MYLIB). Unresolved entries say why: CICS-, LE- or DB2-supplied, or a BMS-generated symbolic map.",
+    "files": "SELECT ... ASSIGN plus every OPEN, splitting a multi-mode OPEN at each INPUT/OUTPUT/I-O/EXTEND keyword; checked against the source.",
+    "calls": "CALL and EXEC CICS LINK/XCTL PROGRAM(...): literals as written, identifiers through their working-storage VALUE clause; resolved to the program with that PROGRAM-ID (nearest when shared). CEE* targets are LE callable services.",
+    "cics_sql": "Presence of EXEC CICS / EXEC SQL in code lines; agrees with the forge's booleans on every program."
+  }
+}

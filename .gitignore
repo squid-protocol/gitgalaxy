@@ -111,6 +111,10 @@ museum_2/
 # no ctags -- e.g. abap): hand-reviewed and committed like the ledger above, read by
 # tests/tools/tri_comparison_chart.py but never written by it.
 !docs/self_scan/manual_verification.json
+# ...and the COBOL modernization answer key (#3210): hand-verified per-program truth,
+# committed and reviewed like the ledger above. A new key file dropped silently by
+# the *.json rule above is how its first PR shipped without its own data.
+!tests/cobol_mainframe/answer_key/*.json
 *_llm.md
 venvs/
 

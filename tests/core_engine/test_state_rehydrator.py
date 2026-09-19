@@ -25,6 +25,14 @@ def mock_db(tmp_path):
             commit_date INTEGER
         )
     """)
+    # #3220: columns here must exist in the schema the engine actually writes
+    # (recorders/record_keeper.py). This fixture previously invented
+    # total_downstream / total_upstream -- columns the real file_data schema has
+    # NEVER had -- so every test passed against a fictional DB while production
+    # crashed on the missing columns. They are transitive reach counts written
+    # only to the JSON audit, never persisted. Do NOT add them back.
+    # (doc_loc is intentionally omitted: test_rehydrator_doc_loc_* uses this
+    # fixture as a legacy DB to exercise the absent-column default.)
     cursor.execute("""
         CREATE TABLE file_data (
             repo_name TEXT,
@@ -38,9 +46,7 @@ def mock_db(tmp_path):
             popularity INTEGER,
             author TEXT,
             ai_threat_score REAL,
-            silo_risk REAL,
-            total_downstream INTEGER,
-            total_upstream INTEGER
+            silo_risk REAL
         )
     """)
 
@@ -56,7 +62,7 @@ def mock_db(tmp_path):
     cursor.execute("""
         INSERT INTO file_data VALUES (
             'test_repo', 'hash_new_456', 'src/main.py', 'python',
-            150, 100, 45.5, 0.35, 12, 'Joe Esquibel', 85.0, 12.5, 4, 2
+            150, 100, 45.5, 0.35, 12, 'Joe Esquibel', 85.0, 12.5
         )
     """)
 
@@ -116,8 +122,11 @@ def test_rehydrator_successful_load(mock_db):
     # 3. Assert nested JSON/Dictionary reconstruction
     assert file_node["telemetry"]["ownership"] == "Joe Esquibel"
     assert file_node["telemetry"]["ai_threat_score"] == 85.0
-    assert file_node["dependency_network"]["total_downstream"] == 4
-    assert file_node["dependency_network"]["total_upstream"] == 2
+    # #3220: these columns are never persisted (real file_data has no such
+    # columns), so the rehydrator defaults them to 0 instead of raising
+    # IndexError. They are recomputed by the ripple during the incremental scan.
+    assert file_node["dependency_network"]["total_downstream"] == 0
+    assert file_node["dependency_network"]["total_upstream"] == 0
 
     # 4. Assert Delta Engine defaults were injected
     assert isinstance(file_node["raw_imports"], set)
@@ -292,7 +301,7 @@ def test_explicit_baseline_selects_that_commit(mock_db):
     conn.execute("""
         INSERT INTO file_data VALUES (
             'test_repo', 'hash_old_123', 'src/legacy.py', 'python',
-            50, 40, 10.0, 0.2, 3, 'Joe Esquibel', 10.0, 1.0, 1, 0
+            50, 40, 10.0, 0.2, 3, 'Joe Esquibel', 10.0, 1.0
         )
     """)
     conn.commit()

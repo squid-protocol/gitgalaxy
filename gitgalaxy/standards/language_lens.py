@@ -1149,6 +1149,30 @@ class LanguageDetector:
             self.logger.debug(f"Tier 4 Discovery aborted: Insufficient physical mass ({coding_loc} < 20 lines).")
             return "plaintext", 0.40
 
+        # #3188: data-shape fast-exit (wordlist / dictionary / bare-token data).
+        # A file with effectively no code-structure punctuation, dominated by
+        # single-token lines, is data -- not code. The discovery scan below would
+        # run every candidate language's full ruleset against it (measured ~0.9s
+        # on haiku's 28,137-line `src/apps/mail/words`) only to find no lexical
+        # family and return `undeterminable` -- which inspect() then turns into
+        # the plaintext "Prose Fallback" anyway. Return that SAME verdict up front
+        # without the scan: byte-identical classification, ~900x cheaper on this
+        # class. Decided on a bounded prefix so the check itself stays O(1) in
+        # file size; the two conditions together (near-zero structural
+        # punctuation AND overwhelmingly one-token-per-line) cannot be met by real
+        # code, whose rules need exactly that punctuation to score at all.
+        _sample = content[:65536]
+        _data_lines = [ln.strip() for ln in _sample.splitlines() if ln.strip()]
+        if len(_data_lines) >= self.thresholds.get("TIER_4_MIN_LINES", 20):
+            _code_punct = sum(_sample.count(ch) for ch in "{}()[];=")
+            _single_token = sum(1 for ln in _data_lines if " " not in ln and "\t" not in ln)
+            if _code_punct <= len(_data_lines) // 50 and _single_token >= len(_data_lines) * 0.85:
+                self.logger.debug(
+                    f"Tier 4 [data-shape]: {_single_token}/{len(_data_lines)} single-token lines, "
+                    f"{_code_punct} structural-punct chars -> data, skipping discovery scan."
+                )
+                return "undeterminable", 0.0
+
         loc = max(coding_loc, 1)
         content_len = len(content)
 

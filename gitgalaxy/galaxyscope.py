@@ -2984,35 +2984,6 @@ class Orchestrator:
             # 4. Execute the Surgical Scan (Only parses new files)
             self._extract_features_parallel()
 
-            # 4b. #3220: inject rehydrated full objects for the UNCHANGED surviving
-            # files so the ripple + audit + persistence run over the COMPLETE repo,
-            # not just the surgically re-scanned ones. Without this only changed files
-            # were written under the new commit (the 368-vs-1134 divergence). The
-            # rehydrator now restores risk_vector/hit_vector/file_impact/telemetry, so
-            # these carry each unchanged file's true structural state; only the
-            # graph-derived columns are recomputed by the ripple below.
-            _already = {pf.get("path") for pf in self.parsed_files}
-            _changed = set(added) | set(modified)
-            for rel_path, node in self.ram_cache.items():
-                if rel_path in _changed or rel_path in _already:
-                    continue
-                self.parsed_files.append(
-                    {
-                        "path": rel_path,
-                        "name": Path(rel_path).name,
-                        "lang_id": node.get("lang_id"),
-                        "total_loc": node.get("total_loc", 0),
-                        "coding_loc": node.get("coding_loc", 0),
-                        "doc_loc": node.get("doc_loc", 0),
-                        "control_flow_ratio": node.get("control_flow_ratio", 0.0),
-                        "file_impact": node.get("file_impact", 0.0),
-                        "risk_vector": node.get("risk_vector", []),
-                        "hit_vector": node.get("hit_vector", []),
-                        "raw_imports": sorted(node.get("raw_imports", [])),
-                        "telemetry": node.get("telemetry", {}),
-                    }
-                )
-
             # 5. The Ripple Effect (Recalculate Downstream Exposure for ALL files)
             self.stem_map = {f: f for f in self.ram_cache.keys()}  # noqa: SIM118
             self._resolve_dependency_graph()

@@ -122,10 +122,12 @@ class StateRehydrator:
             # a full scan -- the root of the incremental/full divergence.
             risk_cols: list[str] = []
             hit_cols: list[str] = []
+            signal_names: list[str] = []
             try:
                 from gitgalaxy.recorders.record_keeper import RecordKeeper
 
                 _rk = RecordKeeper()
+                signal_names = list(_rk.SIGNAL_SCHEMA)
                 risk_cols = [f"risk_{r.replace('-', '_')}" for r in _rk.RISK_SCHEMA]
                 hit_cols = [_rk.SHORT_KEY_MAP.get(h, h) for h in _rk.SIGNAL_SCHEMA]
             except Exception as schema_err:  # noqa: BLE001
@@ -142,6 +144,12 @@ class StateRehydrator:
                 # #3220: full-fidelity vectors (see the schema inversion above).
                 risk_vector = [float(f[c]) if c in row_keys and f[c] is not None else 0.0 for c in risk_cols]
                 hit_vector = [int(f[c]) if c in row_keys and f[c] is not None else 0 for c in hit_cols]
+                # #3220: `equations` is the raw signal-count dict the SignalProcessor
+                # consumes (galaxyscope passes meta["equations"] as calculate_risk_vector's
+                # raw_signals). It is the exact inverse of hit_vector, so reconstruct it
+                # here -- without it, _calculate_risk_exposures recomputes every unchanged
+                # file's risk vector from an empty signal dict (all-zero drift).
+                equations = dict(zip(signal_names, hit_vector))
 
                 # DEFENSIVE DESIGN: Schema Drift Protection.
                 # If an older database lacks the 'silo_risk' column, safely default to 0.0
@@ -168,6 +176,7 @@ class StateRehydrator:
                     "raw_imports": set(),
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
+                    "equations": equations,
                     "telemetry": {
                         "popularity": f["popularity"],
                         "ownership": f["author"],

@@ -146,9 +146,16 @@ class StateRehydrator:
                         "ai_threat_score": f["ai_threat_score"],
                         "author_distribution": safe_silo_risk,
                     },
+                    # Schema Drift Protection (same pattern as silo_risk/doc_loc above).
+                    # total_upstream/total_downstream are TRANSITIVE reach counts computed
+                    # at scan time (security_auditor.reach_counts) and written only to the
+                    # JSON audit -- they were never persisted as file_data columns. An
+                    # unguarded f["total_downstream"] therefore raises IndexError on every
+                    # real DB, which the broad except below swallowed, silently dropping
+                    # EVERY delta scan back to a full scan. Recomputed by the ripple.
                     "dependency_network": {
-                        "total_downstream": f["total_downstream"],
-                        "total_upstream": f["total_upstream"],
+                        "total_downstream": f["total_downstream"] if "total_downstream" in row_keys else 0,
+                        "total_upstream": f["total_upstream"] if "total_upstream" in row_keys else 0,
                     },
                 }
 

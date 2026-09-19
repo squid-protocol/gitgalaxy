@@ -180,22 +180,30 @@ def _manual_verification_entry(manual_verification: dict, lang: str, symbol_type
     return manual_verification.get(lang, {}).get(symbol_type)
 
 
-# The 45 languages with real structural signatures (see docs/language_status/README.md) --
-# NODE_MAPS's 30 tree-sitter-baselined languages plus the 15 GitGalaxy extracts from but
+# The 50 languages with real structural signatures (see docs/language_status/README.md) --
+# NODE_MAPS's 30 tree-sitter-baselined languages plus the 20 GitGalaxy extracts from but
 # tree-sitter has no grammar for (or, for groovy, has a grammar that loads but can't parse
 # real declarations -- see tree_sitter_accuracy_audit.py's NODE_MAPS exclusion comment).
+# The mainframe family (bms, db2_sql, hlasm, pli, rexx) joined the registry + corpus at
+# language-crucible v1.3.0 (#28); tree-sitter has no grammar for any of them, so -- like
+# jcl and sqlite already here -- they only surface on this chart via this list.
 _GG_ONLY_LANGS = (
     "abap",
     "ada",
     "agc_assembly",
     "assembly",
+    "bms",
     "cobol",
+    "db2_sql",
     "dockerfile",
     "embedded_python",
     "groovy",
+    "hlasm",
     "jcl",
     "livecode",
     "m4",
+    "pli",
+    "rexx",
     "scheme",
     "sqlite",
     "yacc",

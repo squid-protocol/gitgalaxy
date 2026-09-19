@@ -153,3 +153,22 @@ Dead code and lineage can move to the DB only when the engine carries them. File
 | #3206 | forge | refractor rewrites the target's source in place |
 
 The switch for dead code needs #3198. The switch for lineage needs #3200 and #3201.
+
+## Update: forge fixes (#3203 defects 1–4, #3204, #3205, #3206)
+
+The forge-side findings above were fixed together. Scores come from the answer key (`tests/tools/cobol_answer_key.py score`, pinned refs) and show the forge before → after. `P` is correct/reported, `R` is correct/true.
+
+| field | zopeneditor-sample | CBSA |
+|---|---|---|
+| units | P 58/75 → **58/58** | P 452/729 → **452/452** (R 452/680) |
+| dead (non-trivial) | P 0/17 → nothing claimed (0 true) | P 5/571 → 5/328 |
+| copybook paths | R 0/14 → 12/14 | P 0/29 · R 0/114 → **P 99/99** · R 99/114 |
+| inputs | P 6/12 → **6/6** | — |
+| outputs | R 0/6 → **6/6** | R 0/1 → **1/1** (BANKDATA) |
+
+- **D1 paragraphs.** A header now has to start in Area A (cols 8–11). `END-*`, `GOBACK`, `EXIT` and `CONTINUE` are never headers. A sequence field in cols 1–6 is tolerated, and the operand of `PROCEDURE DIVISION USING X.` is no longer read as the entry paragraph (it was on 18 CBSA programs, which is how BANKDATA's `A010` read as dead).
+- **D3 copybooks.** Lookup covers the whole repository, nearest first. A member with a `PROGRAM-ID` is never inlined.
+- **What is left is SECTION-related (#3203 defect 5).** All 228 missing CBSA units are sections, and all 323 remaining false dead claims are in programs that use sections (fall-through is not modelled).
+- **D4.** EXEC CICS / EXEC SQL are counted per statement. They match a line-level count on all 31 CBSA programs (BNKMENU 62, XFRFUN 77, BNK1CAC 37).
+- **Target left untouched.** The refractor writes lexically patched programs to `<clean room>/00_patched_source/` and never writes to the target repository. IR dumps serialise sets sorted, so they are deterministic (#3212).
+- **Harnesses.** `refraction_differential.py` and `cobol_answer_key.py` now call the graveyard's own `paragraph_headers` / `find_copybook` instead of copies of its old regexes, and search copybooks under the repository as the refractor does.

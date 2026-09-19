@@ -125,3 +125,41 @@ def test_hygienic_cli_defaults(tmp_path):
     assert p1_jcl.exists(), "P1 JCL was not written to the hygienic directory!"
     assert p2_jcl.exists(), "P2 JCL was not written to the hygienic directory!"
     assert "EXEC PGM=P1" in p1_jcl.read_text(encoding="utf-8")
+
+
+# ==============================================================================
+# TEST: EXEC blocks counted per statement (#3205)
+# ==============================================================================
+def test_exec_blocks_without_period_are_each_counted(tmp_path):
+    """Inside IF/EVALUATE an EXEC block ends `END-EXEC` with no period. Each block
+    is still one call; none is swallowed into the next `END-EXEC.`."""
+    pgm = tmp_path / "BNKMENU.cbl"
+    pgm.write_text(
+        "       PROGRAM-ID. BNKMENU.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           IF EIBCALEN = ZERO\n"
+        "              EXEC CICS SEND MAP('M1') ERASE END-EXEC\n"
+        "           ELSE\n"
+        "              EXEC CICS RECEIVE MAP('M1') END-EXEC\n"
+        "              EXEC SQL SELECT A INTO :B FROM T END-EXEC\n"
+        "           END-IF.\n"
+        "           EXEC CICS\n"
+        "              RETURN\n"
+        "           END-EXEC.\n"
+        "           EXEC SQL COMMIT END-EXEC.\n",
+        encoding="utf-8",
+    )
+
+    intent = forge_module.analyze_cobol_intent(pgm)
+
+    assert intent["cics_calls"] == 3
+    assert intent["sql_calls"] == 2
+    assert intent["is_cics"] is True and intent["is_db2"] is True
+
+
+def test_unterminated_exec_on_large_input_is_linear(tmp_path):
+    """No lazy body match: a file of unterminated EXEC CICS lines is counted, not backtracked over."""
+    pgm = tmp_path / "BIG.cbl"
+    pgm.write_text("       PROCEDURE DIVISION.\n" + "           EXEC CICS X\n" * 20000, encoding="utf-8")
+
+    assert forge_module.analyze_cobol_intent(pgm)["cics_calls"] == 20000

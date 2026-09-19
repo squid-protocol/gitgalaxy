@@ -30,7 +30,7 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import (
     analyze_cobol_intent,
     generate_zero_trust_jcl,
 )
-from gitgalaxy.tools.cobol_to_cobol.cobol_lexical_patcher import patch_lexical_traps
+from gitgalaxy.tools.cobol_to_cobol.cobol_lexical_patcher import patch_lexical_content
 from gitgalaxy.tools.cobol_to_cobol.cobol_microservice_slicer import (
     slice_business_logic,
 )
@@ -168,11 +168,19 @@ class IRStateManager:
 # galaxyscope:ignore sec_db_hooks, sec_io, sec_high_risk_execution
 
 
+def _ir_to_json(ir_state: dict) -> str:
+    """Serialises an IR dump. Sets are written sorted, so two runs on the same
+    input produce byte-identical dumps regardless of hash randomisation (#3212)."""
+    return json.dumps(ir_state, indent=2, default=lambda o: sorted(o, key=str) if isinstance(o, set) else o)
+
+
 def process_payload(
     filepath: Path,
     state_manager: IRStateManager,
     target_var: Optional[str] = None,
     engine_file: Optional[EngineFile] = None,
+    patched_dir: Optional[Path] = None,
+    source_root: Optional[Path] = None,
 ) -> dict:
     """Processes a single COBOL payload through the enriched, shared-state pipeline.
 
@@ -181,6 +189,11 @@ def process_payload(
     inventory. Dead code, DD lineage and data items stay on the forge tools:
     the DB does not carry them (see galaxy_ir.py), and `usage_status` is a
     by-name test, not reachability, so it is recorded but never used for masking.
+
+    `filepath` is never written. When the lexical patcher rewrites the program, the
+    patched copy goes to `patched_dir` (mirroring its path under `source_root`) and
+    the forge tools read that copy (#3206). Without `patched_dir` nothing is patched.
+    `source_root` is also where copybooks are looked up.
     """
     print(f" ⚙️ Analyzing {filepath.name}...")
     program_id = filepath.stem
@@ -202,19 +215,36 @@ def process_payload(
         ir["metadata"]["corporate_header"] = header_file.read_text(encoding="utf-8", errors="ignore")
 
     try:
-        ir["metadata"]["loc"] = len(filepath.read_text(encoding="utf-8", errors="ignore").splitlines())
+        source_text = filepath.read_text(encoding="utf-8", errors="ignore")
     except Exception:
         return ir
+    ir["metadata"]["loc"] = len(source_text.splitlines())
 
     # --- PHASE 0: PRE-PROCESSING (Sanitizing the code) ---
-    was_patched = patch_lexical_traps(filepath)
-    if was_patched:
-        print(f"   ↳ [!] Lexical Patcher applied to {filepath.name} (NEXT SENTENCE neutralized)")
+    # The patch lands in the clean room, never in the target repository (#3206).
+    work_path = filepath
+    patched_content = patch_lexical_content(source_text)
+    if patched_content is not None:
+        if patched_dir is None:
+            print(
+                f"   ↳ [!] {filepath.name} needs the Lexical Patcher but no patched_dir was given; analysing it unpatched"
+            )
+        else:
+            rel = (
+                filepath.relative_to(source_root)
+                if source_root and filepath.is_relative_to(source_root)
+                else Path(filepath.name)
+            )
+            work_path = patched_dir / rel
+            work_path.parent.mkdir(parents=True, exist_ok=True)
+            work_path.write_text(patched_content, encoding="utf-8")
+            ir["metadata"]["patched_path"] = str(work_path)
+            print(f"   ↳ [!] Lexical Patcher applied to a copy of {filepath.name} (NEXT SENTENCE neutralized)")
 
     # --- PHASE 1: RECONNAISSANCE & ANALYSIS ---
 
     # A. Deprecated Trails Analyzer (Identifies Dead Memory & Unreachable Logic)
-    graveyard_data = x_ray_dead_code(filepath)
+    graveyard_data = x_ray_dead_code(work_path, copybook_root=source_root or filepath.parent, origin=filepath)
     ir["analysis"]["dead_code"] = graveyard_data
 
     if graveyard_data:
@@ -230,12 +260,12 @@ def process_payload(
     orphans = state_manager.get_orphaned_vars(program_id)
 
     # B. DAG Architect (Maps I/O Intent - Utilizing Deprecated Trails RAM to deflect Hallucinated Dependencies!)
-    ir["analysis"]["lineage"] = extract_lineage(filepath, dead_paras=dead_paras)
+    ir["analysis"]["lineage"] = extract_lineage(work_path, dead_paras=dead_paras)
 
     # C. JCL Forge (Extracts Program ID and Subsystems)
-    ir["analysis"]["base_intent"] = analyze_cobol_intent(filepath)
+    ir["analysis"]["base_intent"] = analyze_cobol_intent(work_path)
 
-    ir["analysis"]["honesty_flags"] = scan_system_limits(filepath)
+    ir["analysis"]["honesty_flags"] = scan_system_limits(work_path)
 
     if engine_file is not None:
         ir["metadata"]["ir_source"] = "galaxy_db"
@@ -251,7 +281,7 @@ def process_payload(
 
     # A. Schema Forge (Injecting Deprecated Trails RAM to prevent Schema Bloat)
     ir["generation"]["schemas"] = forge_schemas(
-        filepath,
+        work_path,
         ignore_vars=orphans,
         corporate_header=ir["metadata"]["corporate_header"],
     )
@@ -270,7 +300,7 @@ def process_payload(
     # C. Microservice Slicer (Injecting Deprecated Trails RAM to bypass dead execution blocks)
     if target_var:
         slice_result = slice_business_logic(
-            filepath,
+            work_path,
             initial_var=target_var,
             dead_paras=dead_paras,
             orphaned_vars=orphans,
@@ -334,6 +364,8 @@ def main():
     schema_dir = clean_dir / "02_cloud_schemas"
     report_dir = clean_dir / "03_audit_reports"
     ir_dir = clean_dir / "04_ir_state_dumps"
+    # Created on demand: only programs the lexical patcher rewrites are copied here (#3206)
+    patched_dir = clean_dir / "00_patched_source"
 
     directories = [jcl_dir, schema_dir, report_dir, ir_dir]
 
@@ -389,12 +421,18 @@ def main():
     for file_path in cobol_files:
         # Process the payload, passing the state manager for global context
         engine_file = galaxy_ir.lookup(file_path, target_path) if galaxy_ir else None
-        ir_state = process_payload(file_path, state_manager, target_var=args.var, engine_file=engine_file)
+        ir_state = process_payload(
+            file_path,
+            state_manager,
+            target_var=args.var,
+            engine_file=engine_file,
+            patched_dir=patched_dir,
+            source_root=target_path,
+        )
 
         # Write JSON IR Dump for downstream visualizers
         ir_dump_file = ir_dir / f"{file_path.stem}_ir.json"
-        safe_ir = json.loads(json.dumps(ir_state, default=lambda o: list(o) if isinstance(o, set) else o))
-        ir_dump_file.write_text(json.dumps(safe_ir, indent=2))
+        ir_dump_file.write_text(_ir_to_json(ir_state))
 
         # Write JCL Artifacts
         if ir_state["generation"].get("jcl"):

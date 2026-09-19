@@ -62,17 +62,19 @@ def analyze_cobol_intent(filepath: Path) -> dict:
             clean_dd = re.sub(r"^(?:UT|UR)-S-", "", raw_dd)
             intent["files_requested"].append({"internal": internal_name, "dd_name": clean_dd})
 
-        # 4. TRANSACTIONAL I/O: Detect EXEC CICS blocks
-        cics_matches = re.findall(r"EXEC\s+CICS.*?END-EXEC\.", monolith_code, re.IGNORECASE)
-        if cics_matches:
+        # 4/5. TRANSACTIONAL + DATABASE I/O: count EXEC CICS / EXEC SQL statements by
+        # their opening keywords. Matching a whole `EXEC ... END-EXEC.` body lazily
+        # merged every block that ends without a period (inside IF/EVALUATE) into the
+        # next one, and ran an unbounded lazy quantifier over the joined file (#3205).
+        cics_calls = len(re.findall(r"\bEXEC\s+CICS\b", monolith_code, re.IGNORECASE))
+        if cics_calls:
             intent["is_cics"] = True
-            intent["cics_calls"] = len(cics_matches)
+            intent["cics_calls"] = cics_calls
 
-        # 5. DATABASE I/O: Detect EXEC SQL blocks
-        sql_matches = re.findall(r"EXEC\s+SQL.*?END-EXEC\.", monolith_code, re.IGNORECASE)
-        if sql_matches:
+        sql_calls = len(re.findall(r"\bEXEC\s+SQL\b", monolith_code, re.IGNORECASE))
+        if sql_calls:
             intent["is_db2"] = True
-            intent["sql_calls"] = len(sql_matches)
+            intent["sql_calls"] = sql_calls
 
     except Exception as e:
         print(f"  [!] Intent Extraction Error on {filepath.name}: {e}")

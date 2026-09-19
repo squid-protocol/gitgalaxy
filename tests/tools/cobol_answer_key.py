@@ -517,7 +517,7 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             unverified.append(rel)
         path = repo / rel
         intent = analyze_cobol_intent(path)
-        gy = x_ray_dead_code(path) or {}
+        gy = x_ray_dead_code(path, copybook_root=repo) or {}
         lin = extract_lineage(path, dead_paras=set(gy.get("dead_paras", set()))) or {}
         ef = ir.files.get(rel) if ir else None
 
@@ -526,7 +526,7 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             "units",
             rel,
             {u["name"] for u in k["units"]},
-            old_paragraphs(path),
+            old_paragraphs(path, repo),
             {u.name.upper() for u in ef.units} if ef else None,
         )
         forge_dead = set(gy.get("dead_paras", set()))
@@ -542,13 +542,8 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             engine_dead - trivial if engine_dead is not None else None,
         )
         truth_cp = {c["resolves_to"] for c in k["copybooks"] if c["resolves_to"]}
-        _, forge_names = old_copybooks(path)
-        forge_cp = set()
-        for n in forge_names:
-            for ext in (".cpy", ".cbl", ".cob", ".CPY"):
-                if (path.parent / f"{n}{ext}").exists():
-                    forge_cp.add((path.parent / f"{n}{ext}").relative_to(repo).as_posix())
-                    break
+        _, forge_resolved = old_copybooks(path, repo)
+        forge_cp = {hit.relative_to(repo).as_posix() for hit in forge_resolved.values()}
         add("copybook paths", rel, truth_cp, forge_cp, set(ef.copy_deps) if ef else None)
         dd_modes = {f["dd"]: set(f["modes"]) for f in k["files"]}
         add("DD names", rel, set(dd_modes), {f["dd_name"] for f in intent["files_requested"]}, None)

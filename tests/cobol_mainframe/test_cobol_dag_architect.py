@@ -144,3 +144,33 @@ def test_dag_architect_cycle_detection(tmp_path, capsys):
     captured = capsys.readouterr()
     assert "WARNING: Cyclic Dependency Detected" in captured.out
     assert "Deadlocked Programs:" in captured.out
+
+
+# ==============================================================================
+# TEST: Multi-mode OPEN (#3204)
+# ==============================================================================
+def test_multi_mode_open_switches_mode_per_keyword(tmp_path):
+    """The zopeneditor SAM1.cbl shape: one OPEN with INPUT and OUTPUT operand lists.
+    The mode switches at each keyword instead of applying the first to every file."""
+    pgm = tmp_path / "SAM1.cbl"
+    pgm.write_text(
+        "       PROGRAM-ID. SAM1.\n"
+        "           SELECT TRANSACTION-FILE ASSIGN TO TRANFILE.\n"
+        "           SELECT CUSTOMER-FILE ASSIGN TO CUSTFILE.\n"
+        "           SELECT CUSTOMER-FILE-OUT ASSIGN TO CUSTOUT.\n"
+        "           SELECT REPORT-FILE ASSIGN TO CUSTRPT.\n"
+        "           SELECT AUDIT-FILE ASSIGN TO AUDITLOG.\n"
+        "       PROCEDURE DIVISION.\n"
+        "       000-MAIN.\n"
+        "           OPEN INPUT  TRANSACTION-FILE\n"
+        "                       CUSTOMER-FILE\n"
+        "                OUTPUT CUSTOMER-FILE-OUT\n"
+        "                       REPORT-FILE.\n"
+        "           OPEN EXTEND AUDIT-FILE.\n",
+        encoding="utf-8",
+    )
+
+    lineage = dag_module.extract_lineage(pgm)
+
+    assert lineage["inputs"] == {"TRANFILE", "CUSTFILE", "AUDITLOG"}
+    assert lineage["outputs"] == {"CUSTOUT", "CUSTRPT", "AUDITLOG"}

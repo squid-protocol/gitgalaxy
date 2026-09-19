@@ -1,3 +1,4 @@
+import json
 from unittest.mock import patch
 
 import pytest
@@ -168,8 +169,8 @@ def test_main_full_orchestration(tmp_path, capsys):
     with (
         patch("sys.argv", ["refract", str(repo_dir), "--var", "TARGET-VAR"]),
         patch(
-            "gitgalaxy.cobol_refractor_controller.patch_lexical_traps",
-            return_value=True,
+            "gitgalaxy.cobol_refractor_controller.patch_lexical_content",
+            return_value=None,
         ),
         patch(
             "gitgalaxy.cobol_refractor_controller.x_ray_dead_code",
@@ -266,3 +267,56 @@ def test_ir_state_manager_unsafe_conn_and_fallback(tmp_path):
     sql_mgr.record_dead_code("PGM", {"PARA"}, {"VAR"})
     assert sql_mgr.get_dead_paras("PGM") == set(), "Failed to return empty set on dropped connection!"
     assert sql_mgr.get_orphaned_vars("PGM") == set(), "Failed to return empty set on dropped connection!"
+
+
+# ==============================================================================
+# TEST 9: The target repository is never written (#3206)
+# ==============================================================================
+def test_process_payload_patches_a_copy_not_the_target(tmp_path):
+    """A program with NEXT SENTENCE is patched into patched_dir, mirroring its
+    path under source_root; the original file keeps its exact bytes."""
+    repo = tmp_path / "repo"
+    (repo / "src").mkdir(parents=True)
+    cbl_file = repo / "src" / "PATCHME.cbl"
+    original = (
+        "       PROGRAM-ID. PATCHME.\n"
+        "       PROCEDURE DIVISION.\n"
+        "       MAIN.\n"
+        "           IF A = B NEXT SENTENCE END-IF.\n"
+    )
+    cbl_file.write_text(original, encoding="utf-8")
+    patched_dir = tmp_path / "clean" / "00_patched_source"
+
+    mgr = controller_module.IRStateManager("RAM", tmp_path)
+    ir_state = controller_module.process_payload(cbl_file, mgr, patched_dir=patched_dir, source_root=repo)
+
+    assert cbl_file.read_text(encoding="utf-8") == original, "The refractor rewrote the target repository!"
+    patched = patched_dir / "src" / "PATCHME.cbl"
+    assert patched.read_text(encoding="utf-8") != original
+    assert "CONTINUE *> GitGalaxy Patch" in patched.read_text(encoding="utf-8")
+    assert ir_state["metadata"]["patched_path"] == str(patched)
+    assert ir_state["metadata"]["path"] == str(cbl_file)
+
+
+def test_process_payload_without_patched_dir_writes_nothing(tmp_path):
+    cbl_file = tmp_path / "PATCHME.cbl"
+    original = "       PROCEDURE DIVISION.\n       MAIN.\n           IF A = B NEXT SENTENCE END-IF.\n"
+    cbl_file.write_text(original, encoding="utf-8")
+
+    mgr = controller_module.IRStateManager("RAM", tmp_path)
+    ir_state = controller_module.process_payload(cbl_file, mgr)
+
+    assert cbl_file.read_text(encoding="utf-8") == original
+    assert "patched_path" not in ir_state["metadata"]
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["PATCHME.cbl"]
+
+
+# ==============================================================================
+# TEST 10: Deterministic IR dumps (#3212)
+# ==============================================================================
+def test_ir_dump_sorts_sets():
+    """Sets are written sorted, whatever their (hash-randomised) iteration order."""
+    names = [f"PARA-{i:03d}" for i in range(50)]
+    ir_state = {"analysis": {"dead_code": {"dead_paras": set(names)}}}
+
+    assert json.loads(controller_module._ir_to_json(ir_state))["analysis"]["dead_code"]["dead_paras"] == names

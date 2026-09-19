@@ -15,6 +15,7 @@
 # ==============================================================================
 import re
 from pathlib import Path
+from typing import Optional
 
 
 def detect_cobol_dialect(content: str) -> str:
@@ -32,20 +33,15 @@ def detect_cobol_dialect(content: str) -> str:
     return "COBOL-74"
 
 
-def patch_lexical_traps(filepath: Path) -> bool:
+def patch_lexical_content(content: str) -> Optional[str]:
     """
-    Scans the file for NEXT SENTENCE. If found, rewrites it safely based on the
-    compiler dialect. Returns True if the file was modified, False otherwise.
+    Rewrites NEXT SENTENCE for the detected compiler dialect. Returns the patched
+    text, or None when nothing changed. Touches no file: callers choose where the
+    result goes (the refractor writes it into its clean room, #3206).
     """
-    try:
-        content = filepath.read_text(encoding="utf-8", errors="ignore")
-    except Exception as e:
-        print(f"Error reading {filepath.name}: {e}")
-        return False
-
     # DEFENSIVE DESIGN: Fast substring check before engaging the heavy regex engine
     if not re.search(r"\bNEXT\s+SENTENCE\b", content, re.IGNORECASE):
-        return False
+        return None
 
     # 1. Sense the Execution Environment
     dialect = detect_cobol_dialect(content)
@@ -66,9 +62,26 @@ def patch_lexical_traps(filepath: Path) -> bool:
         patched_content = re.sub(r"\bNEXT\s+SENTENCE\b", "NEXT SENTENCE", content, flags=re.IGNORECASE)
         print(f"   ↳ [!] {dialect} Detected: Engaged strict legacy compliance mode. Bypassing modern injection.")
 
-    # Save the sanitized code back to the file if structural changes were made
-    if content != patched_content:
-        filepath.write_text(patched_content, encoding="utf-8")
-        return True
+    return patched_content if patched_content != content else None
 
-    return False
+
+def patch_lexical_traps(filepath: Path, dest: Optional[Path] = None) -> bool:
+    """
+    Patches `filepath` and writes the result to `dest`. Without `dest` the file is
+    rewritten IN PLACE, so never call it that way on a customer's source tree.
+    Returns True if a patched file was written, False otherwise.
+    """
+    try:
+        content = filepath.read_text(encoding="utf-8", errors="ignore")
+    except Exception as e:
+        print(f"Error reading {filepath.name}: {e}")
+        return False
+
+    patched_content = patch_lexical_content(content)
+    if patched_content is None:
+        return False
+
+    target = dest if dest is not None else filepath
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(patched_content, encoding="utf-8")
+    return True

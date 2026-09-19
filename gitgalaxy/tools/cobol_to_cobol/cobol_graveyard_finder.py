@@ -16,11 +16,92 @@
 import argparse
 import re
 import sys
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
+# Copybook members are found by stem. .cbl/.cob are allowed because some shops keep
+# copybooks under program extensions, but a member with a PROGRAM-ID is a program
+# and is never inlined (#3203: `COPY ACCTCTRL` used to inline ACCTCTRL.cbl).
+_COPYBOOK_EXTS = (".cpy", ".copy", ".cbl", ".cob")
+_PROGRAM_ID = re.compile(r"\bPROGRAM-ID\b", re.IGNORECASE)
 
-def resolve_copybooks(content: str, source_path: Path) -> str:
+# Fixed-format sequence area (cols 1-6, blanks or a sequence field) + indicator (col 7).
+_SEQ_AREA = r"(?:[^\n]{6} )?"
+
+# Scope terminators and verbs that can stand alone on a line ending in a period.
+# None of these can name a paragraph (#3203 defect 1).
+_NOT_A_PARAGRAPH = re.compile(r"END-[A-Z0-9\-]+|GOBACK|EXIT|CONTINUE|STOP|DECLARATIVES")
+
+# Matches: COPY NAME. or COPY NAME REPLACING ==A== BY ==B==., with or without
+# a sequence field in cols 1-6 (`R2     COPY SAM2PARM.`).
+COPY_PATTERN = re.compile(
+    "^" + _SEQ_AREA + r'[ \t]*COPY\s+[\'"]?([A-Z0-9_\-]+)[\'"]?(?:\s+REPLACING\s+(.+?))?\.',
+    re.MULTILINE | re.IGNORECASE,
+)
+
+# A fixed-format paragraph header: name starts in Area A (cols 8-11), alone on its line.
+_FIXED_PARA = re.compile(r"^[^\n]{6} {1,4}([A-Z0-9][A-Z0-9\-]*)\.[ \t]*$", re.MULTILINE)
+
+
+@lru_cache(maxsize=8)
+def _copybook_index(root: Path) -> dict[str, list[Path]]:
+    """Maps an upper-cased member stem to every copybook candidate under `root`.
+
+    Cached: the refractor resolves every program of a repository against the same root.
+    """
+    index: dict[str, list[Path]] = {}
+    for path in root.rglob("*"):
+        if path.suffix.lower() in _COPYBOOK_EXTS and path.is_file():
+            index.setdefault(path.stem.upper(), []).append(path)
+    return index
+
+
+def _nearest(candidates: list[Path], origin: Path) -> list[Path]:
+    """Orders candidates by how many leading path parts they share with `origin`, then by path."""
+
+    def shared(p: Path) -> int:
+        n = 0
+        for a, b in zip(p.parent.parts, origin.parent.parts):
+            if a != b:
+                break
+            n += 1
+        return n
+
+    return sorted(candidates, key=lambda p: (-shared(p), p.suffix.lower() != ".cpy", str(p)))
+
+
+def find_copybook(name: str, copybook_root: Path, origin: Path) -> Optional[Path]:
+    """The member `COPY name` resolves to: searched under `copybook_root` (the
+    repository, not just the program's directory: real layouts keep copybooks in
+    COPYBOOK/ or cobol_copy/), nearest to `origin` first, never a program (#3203)."""
+    for candidate in _nearest(_copybook_index(copybook_root).get(name.upper(), []), origin):
+        if not _PROGRAM_ID.search(candidate.read_text(encoding="utf-8", errors="ignore")):
+            return candidate
+    return None
+
+
+def paragraph_headers(proc_div: str) -> list[str]:
+    """Paragraph names of an upper-cased PROCEDURE DIVISION, in source order.
+
+    A header is a lone `NAME.` whose name starts in Area A (cols 8-11). A lone
+    `NAME.` deeper in Area B is the last line of a multi-line statement or a scope
+    terminator (`END-IF.`, `GOBACK.`), not a paragraph (#3203 defect 1). Cols 1-6
+    may carry a sequence field (defect 4).
+
+    `proc_div` is the text after `PROCEDURE DIVISION`; the rest of that header line
+    (` USING DFHCOMMAREA.`) is skipped, or its operand would read as the entry paragraph.
+    """
+    body = proc_div.split("\n", 1)[1] if "\n" in proc_div else ""
+    return [p for p in _FIXED_PARA.findall(body) if not _NOT_A_PARAGRAPH.fullmatch(p)]
+
+
+def resolve_copybooks(
+    content: str,
+    source_path: Path,
+    copybook_root: Optional[Path] = None,
+    origin: Optional[Path] = None,
+) -> str:
     """
     Recursively hunts for COBOL 'COPY' statements and injects the contents of the
     target .cpy file directly into the memory string to ensure accurate structural scanning.
@@ -34,43 +115,37 @@ def resolve_copybooks(content: str, source_path: Path) -> str:
     # dependency tracking.
     # ==========================================================================
 
-    # Matches: COPY NAME. or COPY NAME REPLACING ==A== BY ==B==.
-    copy_pattern = re.compile(
-        r'^[ \t]*COPY\s+[\'"]?([A-Z0-9_\-]+)[\'"]?(?:\s+REPLACING\s+(.+?))?\.',
-        re.MULTILINE | re.IGNORECASE,
-    )
+    root = copybook_root if copybook_root is not None else source_path.parent
+    origin = origin if origin is not None else source_path
 
     def replacer(match):
         copy_name = match.group(1).upper()
         replacing_clause = match.group(2)
-        # Scan the local neighborhood for the copybook
-        for ext in [".cpy", ".cbl", ".cob", ".CPY"]:
-            cpy_file = source_path.parent / f"{copy_name}{ext}"
-            if cpy_file.exists():
-                cpy_content = cpy_file.read_text(encoding="utf-8", errors="ignore").upper()
-
-                # ==============================================================
-                # DEFENSIVE DESIGN (DYNAMIC ALIASING):
-                # COBOL's 'REPLACING' clause allows dynamic text substitution at
-                # compile time. We must simulate this substitution in our in-memory
-                # buffer to prevent missing usage references for aliased variables.
-                # ==============================================================
-                if replacing_clause:
-                    # Extracts pairs, ignoring the optional == delimiters
-                    pairs = re.findall(
-                        r"(?:==)?([A-Z0-9_\-]+)(?:==)?\s+BY\s+(?:==)?([A-Z0-9_\-]+)(?:==)?",
-                        replacing_clause,
-                        re.IGNORECASE,
+        cpy_file = find_copybook(copy_name, root, origin)
+        if cpy_file is not None:
+            cpy_content = cpy_file.read_text(encoding="utf-8", errors="ignore").upper()
+            # ==============================================================
+            # DEFENSIVE DESIGN (DYNAMIC ALIASING):
+            # COBOL's 'REPLACING' clause allows dynamic text substitution at
+            # compile time. We must simulate this substitution in our in-memory
+            # buffer to prevent missing usage references for aliased variables.
+            # ==============================================================
+            if replacing_clause:
+                # Extracts pairs, ignoring the optional == delimiters
+                pairs = re.findall(
+                    r"(?:==)?([A-Z0-9_\-]+)(?:==)?\s+BY\s+(?:==)?([A-Z0-9_\-]+)(?:==)?",
+                    replacing_clause,
+                    re.IGNORECASE,
+                )
+                for old_val, new_val in pairs:
+                    # Use negative lookarounds so we don't accidentally replace partial words with hyphens
+                    cpy_content = re.sub(
+                        r"(?<![A-Z0-9_\-])" + re.escape(old_val) + r"(?![A-Z0-9_\-])",
+                        new_val,
+                        cpy_content,
                     )
-                    for old_val, new_val in pairs:
-                        # Use negative lookarounds so we don't accidentally replace partial words with hyphens
-                        cpy_content = re.sub(
-                            r"(?<![A-Z0-9_\-])" + re.escape(old_val) + r"(?![A-Z0-9_\-])",
-                            new_val,
-                            cpy_content,
-                        )
 
-                return f"*> --- START COPY {copy_name} ---\n{cpy_content}\n*> --- END COPY {copy_name} ---"
+            return f"*> --- START COPY {copy_name} ---\n{cpy_content}\n*> --- END COPY {copy_name} ---"
 
         # If the copybook is missing from the repo, leave the statement intact to avoid crashing
         return match.group(0)
@@ -78,20 +153,29 @@ def resolve_copybooks(content: str, source_path: Path) -> str:
     # Run the substitution up to 3 times to handle nested copybooks (COPY within a COPY)
     safe_content = content
     for _ in range(3):
-        safe_content = copy_pattern.sub(replacer, safe_content)
+        safe_content = COPY_PATTERN.sub(replacer, safe_content)
 
     return safe_content
 
 
-def x_ray_dead_code(filepath: Path) -> Optional[dict]:
-    """Parses a fully-expanded COBOL file to find mathematically unreachable logic and memory."""
+def x_ray_dead_code(
+    filepath: Path,
+    copybook_root: Optional[Path] = None,
+    origin: Optional[Path] = None,
+) -> Optional[dict]:
+    """Parses a fully-expanded COBOL file to find mathematically unreachable logic and memory.
+
+    `copybook_root` is where COPY members are searched (default: the file's own
+    directory); `origin` is the program's path in the repository when `filepath`
+    is a patched copy elsewhere, used to pick the nearest of several same-named copybooks.
+    """
     try:
         raw_content = filepath.read_text(encoding="utf-8", errors="ignore").upper()
     except Exception:
         return None
 
     # Resolve all external memory layouts into the local string before structural validation
-    content = resolve_copybooks(raw_content, filepath)
+    content = resolve_copybooks(raw_content, filepath, copybook_root, origin)
 
     # COBOL is strictly divided. We need to split the data from the execution.
     if "PROCEDURE DIVISION" not in content:
@@ -128,9 +212,7 @@ def x_ray_dead_code(filepath: Path) -> Optional[dict]:
     # ==========================================
     # 2. ISOLATING UNREACHABLE LOGIC BLOCKS
     # ==========================================
-    # Paragraphs usually start near the margin and end with a period.
-    para_pattern = re.compile(r"^[ \t]{0,11}([A-Z0-9\-]+)\.[ \t]*$", re.MULTILINE)
-    paragraphs = para_pattern.findall(proc_div)
+    paragraphs = paragraph_headers(proc_div)
 
     # Find every explicitly called target in the code
     call_pattern = re.compile(r"\b(?:PERFORM|GO\s+TO)\s+([A-Z0-9\-]+)\b")
@@ -189,7 +271,7 @@ def main():
     }
 
     for file_path in cobol_files:
-        metrics = x_ray_dead_code(file_path)
+        metrics = x_ray_dead_code(file_path, copybook_root=target_path)
         if metrics and (metrics["orphaned_vars"] or metrics["dead_paras"]):
             totals["files_with_dead_code"] += 1
             totals["loc_saved"] += metrics["loc_saved"]

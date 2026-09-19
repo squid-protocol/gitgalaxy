@@ -16,38 +16,38 @@ Omit --db to scan <repo> first (galaxyscope --db-only into a temp dir).
 
 import argparse
 import json
-import re
 import sys
 import tempfile
 from pathlib import Path
 from typing import Any
 
 from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
-from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import resolve_copybooks, x_ray_dead_code
+from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (
+    COPY_PATTERN,
+    find_copybook,
+    paragraph_headers,
+    resolve_copybooks,
+    x_ray_dead_code,
+)
 from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import analyze_cobol_intent
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import GalaxyIR, load_galaxy_ir, scan_to_db
 
 # The graveyard does not return its paragraph list, only the count and the dead
-# subset. These two patterns are copied VERBATIM from x_ray_dead_code
-# (cobol_graveyard_finder.py) so the harness measures the old parser as shipped.
-_GRAVEYARD_PARA = re.compile(r"^[ \t]{0,11}([A-Z0-9\-]+)\.[ \t]*$", re.MULTILINE)
-# COPY statement names, before resolution (resolve_copybooks' own pattern, name group only).
-_COPY_NAME = re.compile(r'^[ \t]*COPY\s+[\'"]?([A-Z0-9_\-]+)[\'"]?', re.MULTILINE | re.IGNORECASE)
-_COPY_EXTS = (".cpy", ".cbl", ".cob", ".CPY")
+# subset, so the harness calls the same helpers x_ray_dead_code uses.
 
 
-def old_paragraphs(path: Path) -> set[str]:
-    content = resolve_copybooks(path.read_text(encoding="utf-8", errors="ignore").upper(), path)
+def old_paragraphs(path: Path, repo: Path) -> set[str]:
+    content = resolve_copybooks(path.read_text(encoding="utf-8", errors="ignore").upper(), path, repo)
     if "PROCEDURE DIVISION" not in content:
         return set()
-    return set(_GRAVEYARD_PARA.findall(content.split("PROCEDURE DIVISION", 1)[1]))
+    return set(paragraph_headers(content.split("PROCEDURE DIVISION", 1)[1]))
 
 
-def old_copybooks(path: Path) -> tuple[set[str], set[str]]:
-    """(named, resolved): COPY names in the source, and those the graveyard can inline
-    (it only looks in the program's own directory)."""
-    named = {m.upper() for m in _COPY_NAME.findall(path.read_text(encoding="utf-8", errors="ignore"))}
-    resolved = {n for n in named if any((path.parent / f"{n}{e}").exists() for e in _COPY_EXTS)}
+def old_copybooks(path: Path, repo: Path) -> tuple[set[str], dict[str, Path]]:
+    """(named, resolved): COPY names in the source, and the member the graveyard
+    inlines for each name it can resolve (searched under `repo`, as the refractor does)."""
+    named = {m.group(1).upper() for m in COPY_PATTERN.finditer(path.read_text(encoding="utf-8", errors="ignore"))}
+    resolved = {n: hit for n in named if (hit := find_copybook(n, repo, path)) is not None}
     return named, resolved
 
 
@@ -56,12 +56,12 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     for ef in ir.programs("cobol"):
         path = repo / ef.file_path
         intent = analyze_cobol_intent(path)
-        graveyard = x_ray_dead_code(path) or {}
+        graveyard = x_ray_dead_code(path, copybook_root=repo) or {}
         dead_old = set(graveyard.get("dead_paras", set()))
         lineage = extract_lineage(path, dead_paras=dead_old) or {}
-        paras_old = old_paragraphs(path)
+        paras_old = old_paragraphs(path, repo)
         paras_new = {u.name.upper() for u in ef.units}
-        copy_named, copy_old = old_copybooks(path)
+        copy_named, copy_old = old_copybooks(path, repo)
         copy_new = {Path(p).stem.upper() for p in ef.copy_deps}
         rows.append(
             {

@@ -21,6 +21,8 @@ from collections import defaultdict, deque
 from pathlib import Path
 from typing import Optional
 
+_OPEN_MODES = frozenset({"INPUT", "OUTPUT", "I-O", "EXTEND"})
+
 
 def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optional[dict]:
     """
@@ -85,13 +87,14 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optiona
 
     # 3. Extract exact Functional Intent (OPEN INPUT vs OPEN OUTPUT)
     # We run this on the safe_content where unreachable logic is invisible.
-    for match in re.finditer(r"OPEN\s+(INPUT|OUTPUT|I-O|EXTEND)\s+([^.]+)\.", safe_content):
-        mode = match.group(1)
-        # Handle multiple files opened on the same line
-        files_raw = re.sub(r"\s+", " ", match.group(2)).replace(",", " ").split()
-
-        for internal_file in files_raw:
-            if internal_file in file_map:
+    # One OPEN can carry several modes (`OPEN INPUT A B OUTPUT C D.`), so the
+    # operand list is walked and the mode switches at each mode keyword (#3204).
+    for match in re.finditer(r"\bOPEN\s+((?:INPUT|OUTPUT|I-O|EXTEND)\b[^.]*)\.", safe_content):
+        mode = None
+        for internal_file in match.group(1).replace(",", " ").split():
+            if internal_file in _OPEN_MODES:
+                mode = internal_file
+            elif internal_file in file_map:
                 physical_file = file_map[internal_file]
                 # I-O and EXTEND require the file to exist (Input) but also mutate it (Output)
                 if mode in ("INPUT", "I-O", "EXTEND"):

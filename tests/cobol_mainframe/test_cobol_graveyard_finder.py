@@ -116,3 +116,128 @@ def test_graveyard_cli_e2e(tmp_path, capsys):
     assert "Unused Memory Addresses   : 2 variables" in captured.out
     assert "Unreachable Logic Blocks  : 1 paragraphs" in captured.out
     assert "Estimated Bloat Removed : ~12 Lines of Code" in captured.out
+
+
+# ==============================================================================
+# #3203 defects 1-4
+# ==============================================================================
+def _proc(*body):
+    return "       DATA DIVISION.\n       PROCEDURE DIVISION.\n" + "".join(line + "\n" for line in body)
+
+
+def test_scope_terminators_and_area_b_lines_are_not_paragraphs(tmp_path):
+    """Defect 1: `END-IF.`, `GOBACK.` and the last line of a multi-line statement
+    sit in Area B (col 12+) and are not paragraphs."""
+    pgm = tmp_path / "SAM1.cbl"
+    pgm.write_text(
+        _proc(
+            "       000-MAIN.",
+            "           IF A = B",
+            "              DISPLAY 'X'",
+            "           END-IF.",
+            "           DISPLAY 'TIME ' CURRENT-HOUR",
+            "                   CURRENT-SECOND.",
+            "           GOBACK.",
+            "       100-DEAD.",
+            "           EXIT.",
+        ),
+        encoding="utf-8",
+    )
+
+    metrics = graveyard_module.x_ray_dead_code(pgm)
+
+    assert metrics["total_paras"] == 2
+    assert metrics["dead_paras"] == {"100-DEAD"}
+
+
+def test_sequence_numbered_source(tmp_path):
+    """Defect 4: cols 1-6 may hold a sequence field; paragraphs and COPY still match."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "PARMS.cpy").write_text("       01 PARM-A PIC X.\n", encoding="utf-8")
+    pgm = repo / "SEQPGM.cbl"
+    pgm.write_text(
+        "000100 DATA DIVISION.\n"
+        "R2     COPY PARMS.\n"
+        "000300 PROCEDURE DIVISION.\n"
+        "000400 MAIN-PARA.\n"
+        "000500     DISPLAY 'HI'.\n"
+        "000600 DEAD-PARA.\n"
+        "000700     DISPLAY 'BYE'.\n",
+        encoding="utf-8",
+    )
+
+    metrics = graveyard_module.x_ray_dead_code(pgm)
+
+    assert metrics["dead_paras"] == {"DEAD-PARA"}
+    assert metrics["orphaned_vars"] == {"PARM-A"}, "The sequence-numbered COPY was not resolved"
+
+
+def test_programs_are_never_inlined_as_copybooks(tmp_path):
+    """Defect 2: `COPY ACCTCTRL` must resolve to the copybook, not to the program
+    ACCTCTRL.cbl that shares its stem (CBSA's BANKDATA shape)."""
+    repo = tmp_path / "cbsa"
+    (repo / "cobol_src").mkdir(parents=True)
+    (repo / "cobol_copy").mkdir()
+    (repo / "cobol_src" / "ACCTCTRL.cbl").write_text(
+        _proc("       PROGRAM-ID. ACCTCTRL.", "       OTHER-PROGRAM-PARA.", "           GOBACK."),
+        encoding="utf-8",
+    )
+    (repo / "cobol_copy" / "ACCTCTRL.cpy").write_text("       01 ACCOUNT-CONTROL PIC X.\n", encoding="utf-8")
+    pgm = repo / "cobol_src" / "BANKDATA.cbl"
+    pgm.write_text(
+        "       DATA DIVISION.\n"
+        "           COPY ACCTCTRL.\n"
+        "       PROCEDURE DIVISION.\n"
+        "       A010.\n"
+        "           MOVE 1 TO ACCOUNT-CONTROL.\n",
+        encoding="utf-8",
+    )
+
+    resolved = graveyard_module.resolve_copybooks(pgm.read_text(), pgm, copybook_root=repo)
+    assert "ACCOUNT-CONTROL" in resolved
+    assert "OTHER-PROGRAM-PARA" not in resolved
+
+    metrics = graveyard_module.x_ray_dead_code(pgm, copybook_root=repo)
+    assert metrics["dead_paras"] == set(), "The entry paragraph A010 must never be dead"
+    assert metrics["orphaned_vars"] == set()
+
+
+def test_copybook_lookup_searches_the_repo_and_prefers_the_nearest(tmp_path):
+    """Defect 3: copybooks live outside the program's directory; with duplicates
+    (zopeneditor's COPYBOOK/ vs multiroot/copybooks/) the nearest one wins."""
+    repo = tmp_path / "zopen"
+    for d in ("COBOL", "COPYBOOK", "multiroot/cobol", "multiroot/copybooks"):
+        (repo / d).mkdir(parents=True)
+    (repo / "COPYBOOK" / "CUSTCOPY.cpy").write_text("       01 TOP-LEVEL-FIELD PIC X.\n", encoding="utf-8")
+    (repo / "multiroot" / "copybooks" / "CUSTCOPY.cpy").write_text(
+        "       01 MULTIROOT-FIELD PIC X.\n", encoding="utf-8"
+    )
+    top = repo / "COBOL" / "SAM1.cbl"
+    nested = repo / "multiroot" / "cobol" / "SAM1.cbl"
+    for pgm in (top, nested):
+        pgm.write_text("       COPY CUSTCOPY.\n", encoding="utf-8")
+
+    assert "TOP-LEVEL-FIELD" in graveyard_module.resolve_copybooks(top.read_text(), top, copybook_root=repo)
+    assert "MULTIROOT-FIELD" in graveyard_module.resolve_copybooks(nested.read_text(), nested, copybook_root=repo)
+
+
+def test_procedure_division_using_operand_is_not_the_entry(tmp_path):
+    """CBSA shape: `PROCEDURE DIVISION USING PARM-BUFFER.` The operand is not a
+    paragraph, so the entry is A010 and it is never dead."""
+    pgm = tmp_path / "BANKDATA.cbl"
+    pgm.write_text(
+        "       DATA DIVISION.\n"
+        "       PROCEDURE DIVISION USING PARM-BUFFER.\n"
+        "       PREMIERE SECTION.\n"
+        "       A010.\n"
+        "           PERFORM B020.\n"
+        "       B020.\n"
+        "           GOBACK.\n",
+        encoding="utf-8",
+    )
+
+    metrics = graveyard_module.x_ray_dead_code(pgm)
+
+    assert metrics["total_paras"] == 2
+    assert metrics["dead_paras"] == set()

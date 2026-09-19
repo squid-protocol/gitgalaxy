@@ -86,3 +86,24 @@ def test_fast_exit_clean_file(tmp_path):
 
     # Ensure the file was absolutely not touched on disk
     assert pgm.stat().st_mtime == initial_mtime, "Patcher performed an unnecessary disk write!"
+
+
+# ==============================================================================
+# TEST 5: Patching to a destination leaves the source untouched (#3206)
+# ==============================================================================
+def test_patch_to_dest_leaves_source_untouched(tmp_path):
+    src = tmp_path / "repo" / "PGM85.cbl"
+    src.parent.mkdir()
+    original = "IF X = Y NEXT SENTENCE END-IF."
+    src.write_text(original, encoding="utf-8")
+    dest = tmp_path / "clean" / "00_patched_source" / "PGM85.cbl"
+
+    assert patcher_module.patch_lexical_traps(src, dest=dest) is True
+
+    assert src.read_text(encoding="utf-8") == original
+    assert "CONTINUE *> GitGalaxy Patch" in dest.read_text(encoding="utf-8")
+
+
+def test_patch_lexical_content_is_pure():
+    assert patcher_module.patch_lexical_content("IF A = B DISPLAY 'SAFE'.") is None
+    assert patcher_module.patch_lexical_content("IF X = Y NEXT SENTENCE END-IF.").startswith("IF X = Y CONTINUE")

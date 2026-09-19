@@ -584,7 +584,8 @@ class RecordKeeper:
                 {", ".join(risk_cols)},
                 {", ".join(hit_cols)},
                 {", ".join(tier_cols)},
-                mitigation_telemetry TEXT
+                mitigation_telemetry TEXT,
+                doc_umbrella REAL DEFAULT 0.0
             )
         """)
 
@@ -601,6 +602,12 @@ class RecordKeeper:
         # three signals drifted. Persist it as JSON so StateRehydrator can restore an
         # exact score input. Guarded-ALTER heal for pre-existing DBs, same as above.
         _ensure_columns(cursor, "file_data", ["mitigation_telemetry TEXT"])
+
+        # #3220: doc_umbrella (the documentation shield in meta["metadata"]) dampens
+        # risk_documentation in _calc_documentation. It is a parse-time value never
+        # persisted, so rehydrated files defaulted it to 0.0 and risk_documentation
+        # drifted. Persist it so the rehydrator can restore the exact shield.
+        _ensure_columns(cursor, "file_data", ["doc_umbrella REAL DEFAULT 0.0"])
 
         # gitgalaxy#2985: the same guard, now over hit_cols. SIGNAL_SCHEMA grows
         # (it gained sec_db_hooks/sec_amplified_sql_injection here), and the
@@ -1300,6 +1307,9 @@ class RecordKeeper:
             # #3220: persist the proximity-mitigation tally so a delta rehydrate can
             # restore the exact score-layer weighting (json, deterministic key order).
             row_data.append(json.dumps(file_data.get("mitigation_telemetry") or {}, sort_keys=True))
+            # #3220: persist the documentation shield so a delta rehydrate reproduces
+            # risk_documentation exactly.
+            row_data.append(float((file_data.get("metadata") or {}).get("doc_umbrella", 0.0) or 0.0))
 
             # #3183 (B1): accumulate the row and precompute its AUTOINCREMENT id
             # (assigned in list order by the executemany after the loop) instead
@@ -1392,7 +1402,7 @@ class RecordKeeper:
                     {", ".join([f"fam_{fam}" for fam in self.SURFACE_FAMILIES])},
                     {", ".join([f"pct_fam_{fam}" for fam in self.SURFACE_FAMILIES])},
                     {", ".join([f"pct_vec_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
-                    rel_guard_balance, rel_alloc_cleanup, mitigation_telemetry
+                    rel_guard_balance, rel_alloc_cleanup, mitigation_telemetry, doc_umbrella
                 ) VALUES ({file_placeholders})
             """,  # noqa: S608
                 all_file_rows,

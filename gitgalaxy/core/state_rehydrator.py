@@ -189,6 +189,18 @@ class StateRehydrator:
                     "hit_vector": hit_vector,
                     "equations": equations,
                     "mitigation_telemetry": mitigation_telemetry,
+                    # #3220: seed metadata with the persisted documentation shield.
+                    # _calculate_risk_exposures keeps an existing "metadata" dict (only
+                    # adds folder_dominant_lang), so doc_umbrella survives to
+                    # _calc_documentation. ghost_meta.get("doc_umbrella", 0.0) otherwise
+                    # defaulted to 0.0 on every rehydrated file.
+                    "metadata": {
+                        "doc_umbrella": (
+                            float(f["doc_umbrella"])
+                            if "doc_umbrella" in row_keys and f["doc_umbrella"] is not None
+                            else 0.0
+                        )
+                    },
                     # #3220: a rehydrated file's language identity was already
                     # confidently locked in the baseline scan. _calculate_risk_exposures
                     # rebuilds telemetry from meta["lock_tier"]/["source_proof"], and the

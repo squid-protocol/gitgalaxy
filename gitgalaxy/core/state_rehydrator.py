@@ -130,7 +130,7 @@ class StateRehydrator:
                 signal_names = list(_rk.SIGNAL_SCHEMA)
                 risk_cols = [f"risk_{r.replace('-', '_')}" for r in _rk.RISK_SCHEMA]
                 hit_cols = [_rk.SHORT_KEY_MAP.get(h, h) for h in _rk.SIGNAL_SCHEMA]
-            except Exception as schema_err:  # noqa: BLE001
+            except Exception as schema_err:
                 # Never let vector reconstruction take down rehydration: fall back to
                 # the pre-#3220 lossy behaviour (empty vectors) rather than a cold start.
                 print(f"⚠️ Vector schema unavailable, rehydrating without risk/hit vectors: {schema_err}")
@@ -235,7 +235,11 @@ class StateRehydrator:
                     fn = {
                         "name": r["func_name"],
                         "archetype": r["func_archetype"] if "func_archetype" in rk else None,
-                        "parent_class_name": class_name_by_id.get(r["parent_class_id"] if "parent_class_id" in rk else None),
+                        "parent_class_name": (
+                            class_name_by_id.get(r["parent_class_id"])
+                            if "parent_class_id" in rk and r["parent_class_id"] is not None
+                            else None
+                        ),
                         "is_public": bool(r["is_public"]) if "is_public" in rk else True,
                         "is_documented": bool(r["is_documented"]) if "is_documented" in rk else False,
                         # engine stores the complexity/branch metric under "branch"

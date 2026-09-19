@@ -196,6 +196,75 @@ class StateRehydrator:
                     },
                 }
 
+            # #3220: rehydrate per-file FUNCTIONS and CLASSES from function_data /
+            # class_data. named_structure = len(functions)+len(classes) is what the
+            # statistical auditor uses to keep an ambiguous file (extensionless helper
+            # scripts especially) instead of banishing it to the exclusion queue, and
+            # function_count/class_count + the func-derived risk aggregation read these
+            # lists directly. Without them, ~254 unchanged files were dropped and every
+            # file's function/class counts read 0. function_data uses the same hit-column
+            # names as file_data, so per-function hit_vector inverts identically.
+            try:
+                class_name_by_id: dict[int, str] = {}
+                for c in cursor.execute(
+                    "SELECT cd.id AS _cid, cd.class_name FROM class_data cd "
+                    "JOIN file_data fd ON cd.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ?",
+                    (repo_name, baseline_hash),
+                ):
+                    class_name_by_id[c["_cid"]] = c["class_name"]
+
+                funcs_by_file: dict[str, list] = {}
+                for r in cursor.execute(
+                    "SELECT fd.file_path AS _fp, fn.* FROM function_data fn "
+                    "JOIN file_data fd ON fn.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ?",
+                    (repo_name, baseline_hash),
+                ):
+                    rk = r.keys()
+                    fn = {
+                        "name": r["func_name"],
+                        "archetype": r["func_archetype"] if "func_archetype" in rk else None,
+                        "parent_class_name": class_name_by_id.get(r["parent_class_id"] if "parent_class_id" in rk else None),
+                        "is_public": bool(r["is_public"]) if "is_public" in rk else True,
+                        "is_documented": bool(r["is_documented"]) if "is_documented" in rk else False,
+                        # engine stores the complexity/branch metric under "branch"
+                        # (signal_processor reads func["branch"] for z-scores + archetype).
+                        "branch": r["complexity"] if "complexity" in rk and r["complexity"] is not None else 0,
+                        # PER-FUNCTION hit_vector is a DICT keyed by hit-column name
+                        # (signal_processor does hv.get(<col>)), NOT a list like the
+                        # file-level hit_vector. function_data persists the same columns.
+                        "hit_vector": {c: int(r[c]) for c in hit_cols if c in rk and r[c] is not None},
+                    }
+                    # Carry every persisted per-function column through unchanged too, so
+                    # any consumer key we did not alias above still resolves (loc, args,
+                    # complexity, usage_status, keyword_density, docstring, calls_out_to,
+                    # func_z_score, token_mass, branch/struct_* ...).
+                    for k in rk:
+                        if k not in ("_fp", "id", "file_id", "parent_class_id") and k not in fn:
+                            fn[k] = r[k]
+                    funcs_by_file.setdefault(r["_fp"], []).append(fn)
+
+                classes_by_file: dict[str, list] = {}
+                for r in cursor.execute(
+                    "SELECT fd.file_path AS _fp, cd.* FROM class_data cd "
+                    "JOIN file_data fd ON cd.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ?",
+                    (repo_name, baseline_hash),
+                ):
+                    rk = r.keys()
+                    cl = {"name": r["class_name"]}
+                    for k in rk:
+                        if k not in ("_fp", "id", "file_id") and k not in cl:
+                            cl[k] = r[k]
+                    classes_by_file.setdefault(r["_fp"], []).append(cl)
+
+                for rel_path, node in ram_state.items():
+                    node["functions"] = funcs_by_file.get(rel_path, [])
+                    node["classes"] = classes_by_file.get(rel_path, [])
+            except sqlite3.Error as fc_err:
+                print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
+
             conn.close()
 
             # Return the standardized payload

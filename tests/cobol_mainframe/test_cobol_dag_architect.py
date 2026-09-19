@@ -174,3 +174,29 @@ def test_multi_mode_open_switches_mode_per_keyword(tmp_path):
 
     assert lineage["inputs"] == {"TRANFILE", "CUSTFILE", "AUDITLOG"}
     assert lineage["outputs"] == {"CUSTOUT", "CUSTRPT", "AUDITLOG"}
+
+
+# ==============================================================================
+# TEST: Dead-unit masking follows sections and sequence-numbered headers (#3203)
+# ==============================================================================
+def test_masking_covers_a_dead_section_in_sequence_numbered_source(tmp_path):
+    """Every line belongs to the latest paragraph OR section header, found as the
+    graveyard finds them, so masking a dead section hides its body."""
+    pgm = tmp_path / "PGM.cbl"
+    pgm.write_text(
+        "000100 PROGRAM-ID. PGM.\n"
+        "000200     SELECT LIVE-FILE ASSIGN TO LIVEDD.\n"
+        "000300     SELECT DEAD-FILE ASSIGN TO DEADDD.\n"
+        "000400 PROCEDURE DIVISION.\n"
+        "000500 MAIN SECTION.\n"
+        "000600     OPEN INPUT LIVE-FILE.\n"
+        "000700     GOBACK.\n"
+        "000800 OLD-BATCH SECTION.\n"
+        "000900     OPEN OUTPUT DEAD-FILE.\n",
+        encoding="utf-8",
+    )
+
+    lineage = dag_module.extract_lineage(pgm, dead_paras={"OLD-BATCH"})
+
+    assert lineage["inputs"] == {"LIVEDD"}
+    assert lineage["outputs"] == set()

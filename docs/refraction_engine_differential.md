@@ -172,3 +172,26 @@ The forge-side findings above were fixed together. Scores come from the answer k
 - **D4.** EXEC CICS / EXEC SQL are counted per statement. They match a line-level count on all 31 CBSA programs (BNKMENU 62, XFRFUN 77, BNK1CAC 37).
 - **Target left untouched.** The refractor writes lexically patched programs to `<clean room>/00_patched_source/` and never writes to the target repository. IR dumps serialise sets sorted, so they are deterministic (#3212).
 - **Harnesses.** `refraction_differential.py` and `cobol_answer_key.py` now call the graveyard's own `paragraph_headers` / `find_copybook` instead of copies of its old regexes, and search copybooks under the repository as the refractor does.
+
+## Update: SECTION model (#3203 defect 5) and per-path output keys (#3218)
+
+`x_ray_dead_code` now runs a reachability pass instead of "named in a PERFORM or GO TO anywhere". It follows ranges from the entry:
+- fall-through until a terminal statement;
+- PERFORM of a paragraph, of a section (to its last paragraph), and PERFORM … THRU;
+- GO TO;
+- a unit ending in a PERFORM of a range that never returns counts as terminal;
+- CICS HANDLE labels are entry points.
+
+Comment lines and literals are ignored. Sections are units. The `*-EXIT` exemption is gone: an EXIT paragraph nothing reaches is dead (trivial) code.
+
+| field (forge) | zopeneditor-sample | CBSA |
+|---|---|---|
+| units | P 58/58 · R 58/58 | R 452/680 → **680/680** (P 680/680) |
+| dead | — (0 true, 0 claimed) | P 57/380 → **62/62** · R 62/62 |
+| dead (non-trivial) | — | P 5/328 → **10/10** · R 10/10 |
+
+**These scores are not independent evidence.** The pass follows the same control-flow model as the answer key's `draft` (the forge's own implementation; the drafter is still not imported by any parser). The key itself is hand-verified, but exact agreement is expected wherever the hand pass left the draft unchanged. A defect in the shared model would be invisible to this score.
+
+The DAG architect's and the microservice slicer's dead-unit masking now find headers with the graveyard's `unit_header`. Before, each used its own `^[ \t]{0,7}NAME\.`, which missed sections and sequence-numbered source.
+
+Clean-room outputs and the dead-code IR state are keyed by each program's stem when that is unique in the run, and otherwise by its path flattened with `__`. Anomaly tags carry the path under the target. On zopeneditor, `COBOL/SAM1`/`SAM2` and `multiroot/sam/SAM1`/`SAM2` used to overwrite each other; in SQLite mode they also merged their dead code (#3218).

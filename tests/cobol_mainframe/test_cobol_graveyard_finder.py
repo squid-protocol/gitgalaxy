@@ -54,11 +54,13 @@ def test_ast_dead_code_math(tmp_path):
         "       PROCEDURE DIVISION.\n"
         "       MAIN-PARA.\n"  # Entry point (Reached)
         "           PERFORM USED-PARA.\n"
+        "           GOBACK.\n"  # Terminal: the main flow never falls into what follows
         "       USED-PARA.\n"  # Reached via PERFORM
         "           DISPLAY USED-VAR.\n"
         "       DEAD-PARA.\n"  # Unreachable (Phantom)
         "           DISPLAY 'HELLO'.\n"
-        "       DEAD-EXIT.\n"  # Ends in -EXIT (Should be ignored)
+        "       DEAD-EXIT.\n"  # Only reachable by falling out of DEAD-PARA: dead too
+        "           EXIT.\n"
     )
     mock_cobol.write_text(cobol_code, encoding="utf-8")
 
@@ -73,10 +75,12 @@ def test_ast_dead_code_math(tmp_path):
     assert "DEAD-PARA" in metrics["dead_paras"]
     assert "MAIN-PARA" not in metrics["dead_paras"], "Engine flagged the entry point as dead!"
     assert "USED-PARA" not in metrics["dead_paras"]
-    assert "DEAD-EXIT" not in metrics["dead_paras"], "Engine failed to filter out *-EXIT paragraphs!"
+    # No *-EXIT exemption: an EXIT paragraph is dead when nothing reaches it
+    # (the answer key counts it as trivial dead code, #3203).
+    assert "DEAD-EXIT" in metrics["dead_paras"]
 
-    # 3. Math (1 orphaned var + 1 dead para * 10 lines = 11 LOC saved)
-    assert metrics["loc_saved"] == 11
+    # 3. Math (1 orphaned var + 2 dead paras * 10 lines = 21 LOC saved)
+    assert metrics["loc_saved"] == 21
 
 
 # ==============================================================================
@@ -92,7 +96,7 @@ def test_graveyard_cli_e2e(tmp_path, capsys):
 
     # File 1: Has 1 dead paragraph (10 LOC)
     (repo_dir / "PGM1.cbl").write_text(
-        "       DATA DIVISION.\n       PROCEDURE DIVISION.\n       MAIN.\n       DEAD-P.\n",
+        "       DATA DIVISION.\n       PROCEDURE DIVISION.\n       MAIN.\n           GOBACK.\n       DEAD-P.\n",
         encoding="utf-8",
     )
 
@@ -162,6 +166,7 @@ def test_sequence_numbered_source(tmp_path):
         "000300 PROCEDURE DIVISION.\n"
         "000400 MAIN-PARA.\n"
         "000500     DISPLAY 'HI'.\n"
+        "000550     GOBACK.\n"
         "000600 DEAD-PARA.\n"
         "000700     DISPLAY 'BYE'.\n",
         encoding="utf-8",
@@ -239,5 +244,102 @@ def test_procedure_division_using_operand_is_not_the_entry(tmp_path):
 
     metrics = graveyard_module.x_ray_dead_code(pgm)
 
-    assert metrics["total_paras"] == 2
+    assert metrics["total_paras"] == 3  # PREMIERE SECTION, A010, B020
     assert metrics["dead_paras"] == set()
+
+
+# ==============================================================================
+# #3203 defect 5: the SECTION model and reachability
+# ==============================================================================
+def _dead(tmp_path, *body):
+    pgm = tmp_path / "PGM.cbl"
+    pgm.write_text(_proc(*body), encoding="utf-8")
+    return graveyard_module.x_ray_dead_code(pgm)["dead_paras"]
+
+
+def test_performing_a_section_reaches_its_paragraphs_by_fall_through(tmp_path):
+    """CBSA's PREMIERE SECTION shape: a PERFORMed section runs to its last paragraph."""
+    assert _dead(
+        tmp_path,
+        "       PREMIERE SECTION.",
+        "       A010.",
+        "           PERFORM WORK-SECTION.",
+        "           GOBACK.",
+        "       WORK-SECTION SECTION.",
+        "       W010.",
+        "           DISPLAY 'ONE'.",
+        "       W020.",
+        "           DISPLAY 'TWO'.",
+        "       W999.",
+        "           EXIT.",
+        "       UNUSED SECTION.",
+        "       U010.",
+        "           DISPLAY 'NEVER'.",
+    ) == {"UNUSED", "U010"}
+
+
+def test_perform_thru_and_go_to(tmp_path):
+    assert _dead(
+        tmp_path,
+        "       MAIN-PARA.",
+        "           PERFORM P1 THRU P1-EXIT.",
+        "           GO TO FINISH.",
+        "       P1.",
+        "           DISPLAY 'P1'.",
+        "       P1-MIDDLE.",
+        "           DISPLAY 'IN THE RANGE'.",
+        "       P1-EXIT.",
+        "           EXIT.",
+        "       ORPHAN.",
+        "           DISPLAY 'NEVER'.",
+        "       FINISH.",
+        "           STOP RUN.",
+    ) == {"ORPHAN"}
+
+
+def test_conditional_transfer_still_falls_through(tmp_path):
+    """A GOBACK inside an unterminated IF is conditional: the next paragraph is live."""
+    assert _dead(
+        tmp_path,
+        "       MAIN-PARA.",
+        "           IF A = B",
+        "              GOBACK.",
+        "       NEXT-PARA.",
+        "           GOBACK.",
+        "       DEAD-PARA.",
+        "           DISPLAY 'NEVER'.",
+    ) == {"DEAD-PARA"}
+
+
+def test_perform_of_a_range_that_never_returns_is_terminal(tmp_path):
+    """CBSA shape: `PERFORM GET-ME-OUT-OF-HERE.` where that section RETURNs, so the
+    unit after the PERFORM is not reached by fall-through."""
+    assert _dead(
+        tmp_path,
+        "       MAIN-PARA.",
+        "           PERFORM GET-ME-OUT-OF-HERE.",
+        "       AFTER-PARA.",
+        "           DISPLAY 'NEVER'.",
+        "       GET-ME-OUT-OF-HERE SECTION.",
+        "       GMOFH010.",
+        "           EXEC CICS RETURN",
+        "           END-EXEC.",
+    ) == {"AFTER-PARA"}
+
+
+def test_cics_handle_labels_and_comments(tmp_path):
+    """A HANDLE ABEND LABEL target is reached by CICS itself; a PERFORM in a comment
+    line or inside a literal reaches nothing."""
+    assert _dead(
+        tmp_path,
+        "       MAIN-PARA.",
+        "           EXEC CICS HANDLE ABEND LABEL(ABEND-HANDLING)",
+        "           END-EXEC.",
+        "           DISPLAY 'PERFORM COMMENTED-OUT'.",
+        "      *    PERFORM COMMENTED-OUT.",
+        "           GOBACK.",
+        "       ABEND-HANDLING.",
+        "           GOBACK.",
+        "       COMMENTED-OUT.",
+        "           DISPLAY 'NEVER'.",
+    ) == {"COMMENTED-OUT"}

@@ -25,8 +25,8 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (
     COPY_PATTERN,
     find_copybook,
-    paragraph_headers,
     resolve_copybooks,
+    unit_headers,
     x_ray_dead_code,
 )
 from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import analyze_cobol_intent
@@ -40,7 +40,7 @@ def old_paragraphs(path: Path, repo: Path) -> set[str]:
     content = resolve_copybooks(path.read_text(encoding="utf-8", errors="ignore").upper(), path, repo)
     if "PROCEDURE DIVISION" not in content:
         return set()
-    return set(paragraph_headers(content.split("PROCEDURE DIVISION", 1)[1]))
+    return set(unit_headers(content.split("PROCEDURE DIVISION", 1)[1]))
 
 
 def old_copybooks(path: Path, repo: Path) -> tuple[set[str], dict[str, Path]]:

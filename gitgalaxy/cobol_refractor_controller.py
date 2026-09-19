@@ -16,6 +16,7 @@ import argparse
 import json
 import sqlite3
 import sys
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
@@ -174,6 +175,26 @@ def _ir_to_json(ir_state: dict) -> str:
     return json.dumps(ir_state, indent=2, default=lambda o: sorted(o, key=str) if isinstance(o, set) else o)
 
 
+def _output_keys(cobol_files: list[Path], target_path: Path) -> dict[Path, str]:
+    """Each program's name in the clean room's flat output directories and in the
+    IR state: its stem when no other program in the run shares it, otherwise its
+    path under the target flattened with `__` (`multiroot__sam__SAM2`). Keying by
+    stem alone let same-named programs overwrite each other's outputs and, in
+    SQLite mode, merge their dead code (#3218)."""
+    stems = Counter(f.stem.upper() for f in cobol_files)
+    keys = {}
+    for f in cobol_files:
+        if stems[f.stem.upper()] == 1:
+            keys[f] = f.stem
+        else:
+            keys[f] = "__".join(_rel(f, target_path).with_suffix("").parts)
+    return keys
+
+
+def _rel(filepath: Path, root: Optional[Path]) -> Path:
+    return filepath.relative_to(root) if root and filepath.is_relative_to(root) else Path(filepath.name)
+
+
 def process_payload(
     filepath: Path,
     state_manager: IRStateManager,
@@ -181,6 +202,7 @@ def process_payload(
     engine_file: Optional[EngineFile] = None,
     patched_dir: Optional[Path] = None,
     source_root: Optional[Path] = None,
+    program_key: Optional[str] = None,
 ) -> dict:
     """Processes a single COBOL payload through the enriched, shared-state pipeline.
 
@@ -193,10 +215,11 @@ def process_payload(
     `filepath` is never written. When the lexical patcher rewrites the program, the
     patched copy goes to `patched_dir` (mirroring its path under `source_root`) and
     the forge tools read that copy (#3206). Without `patched_dir` nothing is patched.
-    `source_root` is also where copybooks are looked up.
+    `source_root` is also where copybooks are looked up. `program_key` names the
+    program in the IR state (default: its stem; see `_output_keys`).
     """
     print(f" ⚙️ Analyzing {filepath.name}...")
-    program_id = filepath.stem
+    program_id = program_key or filepath.stem
 
     # 1. Initialize local file payload
     ir: dict[str, Any] = {
@@ -230,12 +253,7 @@ def process_payload(
                 f"   ↳ [!] {filepath.name} needs the Lexical Patcher but no patched_dir was given; analysing it unpatched"
             )
         else:
-            rel = (
-                filepath.relative_to(source_root)
-                if source_root and filepath.is_relative_to(source_root)
-                else Path(filepath.name)
-            )
-            work_path = patched_dir / rel
+            work_path = patched_dir / _rel(filepath, source_root)
             work_path.parent.mkdir(parents=True, exist_ok=True)
             work_path.write_text(patched_content, encoding="utf-8")
             ir["metadata"]["patched_path"] = str(work_path)
@@ -418,7 +436,12 @@ def main():
         "slices_extracted": 0,
     }
 
+    output_keys = _output_keys(cobol_files, target_path)
+    ir_keys: dict[str, str] = {}
     for file_path in cobol_files:
+        key = output_keys[file_path]
+        rel = _rel(file_path, target_path).as_posix()
+        ir_keys[rel] = key
         # Process the payload, passing the state manager for global context
         engine_file = galaxy_ir.lookup(file_path, target_path) if galaxy_ir else None
         ir_state = process_payload(
@@ -428,23 +451,24 @@ def main():
             engine_file=engine_file,
             patched_dir=patched_dir,
             source_root=target_path,
+            program_key=key,
         )
 
         # Write JSON IR Dump for downstream visualizers
-        ir_dump_file = ir_dir / f"{file_path.stem}_ir.json"
+        ir_dump_file = ir_dir / f"{key}_ir.json"
         ir_dump_file.write_text(_ir_to_json(ir_state))
 
         # Write JCL Artifacts
         if ir_state["generation"].get("jcl"):
-            jcl_output = jcl_dir / f"{file_path.stem}.jcl"
+            jcl_output = jcl_dir / f"{key}.jcl"
             jcl_output.write_text(ir_state["generation"]["jcl"], encoding="utf-8")
             master_scaffold_stats["jcls_forged"] += 1
 
         # Write Schema Artifacts
         if ir_state["generation"].get("schemas"):
-            schema_output = schema_dir / f"{file_path.stem}_schema.sql"
+            schema_output = schema_dir / f"{key}_schema.sql"
             schema_output.write_text(ir_state["generation"]["schemas"]["sql"], encoding="utf-8")
-            json_output = schema_dir / f"{file_path.stem}_schema.json"
+            json_output = schema_dir / f"{key}_schema.json"
             json_output.write_text(
                 json.dumps(ir_state["generation"]["schemas"]["json"], indent=2),
                 encoding="utf-8",
@@ -455,7 +479,7 @@ def main():
         if args.var and ir_state["generation"].get("microservice"):
             slice_data = ir_state["generation"]["microservice"]
             if slice_data.get("business_rules"):
-                slice_output = slice_dir / f"{file_path.stem}_slice.json"
+                slice_output = slice_dir / f"{key}_slice.json"
                 slice_output.write_text(json.dumps(slice_data, indent=2), encoding="utf-8")
                 master_scaffold_stats["slices_extracted"] += 1
 
@@ -466,16 +490,20 @@ def main():
             master_graveyard_stats["orphaned_vars"] += len(gy.get("orphaned_vars", []))
             master_graveyard_stats["dead_paras"] += len(gy.get("dead_paras", []))
 
-        # Aggregate Architectural Anomalies
+        # Aggregate Architectural Anomalies, tagged with the program's path under the
+        # target so same-named programs stay apart (#3218)
         lineage = ir_state["analysis"].get("lineage")
         if lineage and lineage.get("unresolved_calls"):
             master_honesty_flags.extend(
-                f"[{file_path.name}] Unresolved Dynamic CALL to: {call}" for call in lineage["unresolved_calls"]
+                f"[{rel}] Unresolved Dynamic CALL to: {call}" for call in lineage["unresolved_calls"]
             )
 
         system_limits = ir_state["analysis"].get("honesty_flags")
         if system_limits:
-            master_honesty_flags.extend(system_limits)
+            tag = f"[{file_path.name}"
+            master_honesty_flags.extend(
+                f"[{rel}{flag[len(tag) :]}" if flag.startswith(tag) else flag for flag in system_limits
+            )
 
     # Close DB connection if applicable
     state_manager.close()
@@ -484,7 +512,7 @@ def main():
     audit_metrics = audit_zero_trust_jcls(jcl_dir, target_path)
 
     # --- NEW: Forge the Autonomous Agent Job Tickets ---
-    agent_jobs_created = forge_agent_jobs(clean_dir, target_path, master_honesty_flags)
+    agent_jobs_created = forge_agent_jobs(clean_dir, target_path, master_honesty_flags, ir_keys=ir_keys)
 
     # Generate Master Audit Report
     report_file = report_dir / "master_refraction_audit.txt"

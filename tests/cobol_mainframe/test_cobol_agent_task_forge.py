@@ -110,3 +110,37 @@ def test_forge_agent_jobs_graceful_degradation(tmp_path):
     payload = json.loads(job_file.read_text(encoding="utf-8"))
     assert payload["context"]["inputs_required"] == [], "Graceful fallback for missing IR inputs failed!"
     assert payload["context"]["outputs_produced"] == [], "Graceful fallback for missing IR outputs failed!"
+
+
+# ==============================================================================
+# TEST: Same-named programs get separate tickets (#3218)
+# ==============================================================================
+def test_forge_agent_jobs_keeps_same_named_programs_apart(tmp_path):
+    """Anomalies are tagged with the program's path under the source dir, line
+    references included; each program gets its own ticket, source file and IR."""
+    clean_room = tmp_path / "clean_room"
+    source_dir = tmp_path / "legacy_src"
+    for sub in ("COBOL", "multiroot/sam"):
+        (source_dir / sub).mkdir(parents=True)
+        (source_dir / sub / "SAM2.cbl").write_text("IDENTIFICATION DIVISION.", encoding="utf-8")
+    ir_dir = clean_room / "04_ir_state_dumps"
+    ir_dir.mkdir(parents=True)
+    for key, dd in (("COBOL__SAM2", "OUTA"), ("multiroot__sam__SAM2", "OUTB")):
+        (ir_dir / f"{key}_ir.json").write_text(json.dumps({"analysis": {"lineage": {"outputs": [dd]}}}))
+
+    flags = [
+        "[COBOL/SAM2.cbl] Unresolved Dynamic CALL to: X",
+        "[multiroot/sam/SAM2.cbl : Line 0003] WARNING LIMIT - something",
+    ]
+    ir_keys = {"COBOL/SAM2.cbl": "COBOL__SAM2", "multiroot/sam/SAM2.cbl": "multiroot__sam__SAM2"}
+
+    assert forge_module.forge_agent_jobs(clean_room, source_dir, flags, ir_keys=ir_keys) == 2
+
+    jobs = clean_room / "06_ai_agent_jobs"
+    a = json.loads((jobs / "COBOL__SAM2_agent_job.json").read_text(encoding="utf-8"))
+    b = json.loads((jobs / "multiroot__sam__SAM2_agent_job.json").read_text(encoding="utf-8"))
+    assert a["target_file"] == str((source_dir / "COBOL" / "SAM2.cbl").resolve())
+    assert b["target_file"] == str((source_dir / "multiroot" / "sam" / "SAM2.cbl").resolve())
+    assert a["context"]["outputs_produced"] == ["OUTA"]
+    assert b["context"]["outputs_produced"] == ["OUTB"]
+    assert a["job_id"] != b["job_id"]

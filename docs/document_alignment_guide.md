@@ -36,7 +36,7 @@ either misplaced or the thesis needs updating — don't let a page just drift.
 |---|---|---|---|
 | 0 — Entry hub | `README.md` | First 90 seconds. Every claim here must be evidence-gated. | `how_to_maintain_the_readme.md`, `readme_evidence_roadmap.md` |
 | 1 — Deep hub | `docs/wiki/index.md` | Full doc-site index, routes by role (security architect, legacy team, systems engineer). | This doc |
-| 2 — Foundation & claims | `docs/wiki/01-*`, `03-*` | The thesis, spelled out: the blAST paradigm, the 10 numbered "Claims" pages, future outlook. | This doc (tone gap noted below) |
+| 2 — Foundation & claims | `docs/wiki/01-*`, `03-*` | The thesis, spelled out: the blAST paradigm, the 11 numbered "Claims" pages, future outlook. | This doc (tone gap noted below) |
 | 2 — Pipeline & math | `docs/wiki/02-*`, `06-*`, `07-*`, `08-*` | Stage-by-stage pipeline docs, per-signal risk-equation docs. One page per pipeline stage / equation, mirrors `gitgalaxy/core/README.md` and `gitgalaxy/metrics/`. | Should match the code at the path it documents — no separate rule doc yet (candidate follow-up, see below) |
 | 3 — Evidence artifacts | `docs/language_status/`, `docs/self_scan/` (chart/CSV), `language-crucible`, `gitgalaxy-raw-output` (external repos) | What backs the claims — real measurements, not prose. | `.claude/skills/language-status/SKILL.md` |
 | 4 — Applied spokes | `docs/wiki/04-*`/`05-*` (security tools, legacy tools), `cookbook/`, `agents/`, `LLM-reports/`, `museum-of-code/` | Domain-specific application of the thesis; task-oriented, not proof-oriented. | This doc |
@@ -52,6 +52,7 @@ The load-bearing claims in `README.md`, and where a reader lands if they click t
 | Correctness on real, uncompilable production code | `#proof-not-just-claims` item 2 | — | `language-crucible`, `tests/golden_master_audit.json` |
 | Runs unmodified at real-world scale | `#proof-not-just-claims` item 3 | [`museum-of-code/`](wiki/museum-of-code/index.md) (per-repo teardowns), [`LLM-reports/`](wiki/LLM-reports/index.md) | `gitgalaxy-raw-output` |
 | Measured extraction accuracy vs. Tree-sitter ground truth | `#proof-not-just-claims` item 4 | [`docs/language_status/`](language_status/README.md) | `docs/self_scan/tree_sitter_accuracy_chart.svg` + `_history.csv`, `tests/tree_sitter_accuracy_baseline_*.json` |
+| Multi-signal language detection with provenance, refusal, and repo-context | `#one-graph-not-five-separate-tools` | [`03-11-claim-11-multi-signal-detection`](wiki/03-11-claim-11-multi-signal-detection.md), [`02-05-language-lens`](wiki/02-05-language-lens.md) | `tests/detection_accuracy_baseline.json`, `language-crucible` (contested subset) |
 | Scan speed / scales near-linearly | "What Pain Point Does This Solve?" | [`03-01-claim-1-search-strategies`](wiki/03-01-claim-1-search-strategies.md) | `gitgalaxy-raw-output`'s speed telemetry |
 | One graph feeds many tools (security, legacy, SBOM, AI guardrails) | "One Graph, Not Five Separate Tools", "Enterprise Codebase Tools & Use Cases" | `docs/wiki/04-*` (security), `05-*` (legacy), `cookbook/*` | Per-tool benchmark bullets in `README.md` itself |
 | Risk scores are prioritization signals, not verdicts | "What GitGalaxy Finds — and What It Doesn't Claim" | [`08-01-methodology`](wiki/08-01-methodology.md) onward | — (methodology) |

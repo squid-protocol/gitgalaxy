@@ -329,6 +329,7 @@ nav:
         - 'Claim 8 (AST-Free Empirical Validation)': "03-08-claim-8-empirical-validation-of-ast-free-parsing.md"
         - 'Claim 9 (Universal Logic Extraction)': "03-09-claim-9-universal-logic-extraction.md"
         - 'Claim 10 (AST vs Heuristic Paradigm)': "03-10-claim-10-ast-vs-heuristic-parsing.md"
+        - 'Claim 11 (Multi-Signal Language Detection)': "03-11-claim-11-multi-signal-detection.md"
         - 'Future Outlooks': "03-20-future-outlooks.md"
     - '4. Security Tools & Spokes':
         - 'Competitive Landscape': "04-00-security_landscape.md"

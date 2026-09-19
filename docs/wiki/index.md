@@ -29,6 +29,7 @@ If you are tasked with breaking apart 40-year-old IBM monoliths without using an
 If you want to understand the mathematics driving the engine and the empirical proofs that validate our AST-free approach:
 * 🔬 [The blAST Paradigm (Heuristics vs. ASTs vs. LLMs)](01-03-the-blast-paradigm.md)
 * ⚖️ [Claim 10: The Heuristic vs. AST Paradigm](03-10-claim-10-ast-vs-heuristic-parsing.md)
+* 🔎 [Claim 11: Multi-Signal Language Detection (Inference With Provenance)](03-11-claim-11-multi-signal-detection.md)
 * 🛡️ [Claim 8: Empirical Validation of AST-Free Parsing (The Gauntlets)](03-08-claim-8-empirical-validation-of-ast-free-parsing.md)
 * 📐 [The 13-Point Structural Surface Profile](08-01-methodology.md) — formerly "Risk Exposure"; see [the vector reference & validation record](../vectors.md) for why the `risk_` framing was retired
 
@@ -74,6 +75,7 @@ This is a curated subset for first-time visitors, not the complete page list -- 
 * [03-08: Claim 8 - AST-Free Empirical Validation](03-08-claim-8-empirical-validation-of-ast-free-parsing.md)
 * [03-09: Claim 9 - Universal Logic Extraction](03-09-claim-9-universal-logic-extraction.md)
 * [03-10: Claim 10 - AST vs Heuristic Paradigm](03-10-claim-10-ast-vs-heuristic-parsing.md)
+* [03-11: Claim 11 - Multi-Signal Language Detection](03-11-claim-11-multi-signal-detection.md)
 * [03-20: Future Outlooks](03-20-future-outlooks.md)
 
 ### Pipeline & Architecture

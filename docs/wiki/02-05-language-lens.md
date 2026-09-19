@@ -50,4 +50,6 @@ Expanding the transition marker registry to better handle nested JSX/TSX and tem
 ## Related Components
 - [Guidestar Protocol](02-04-guidestar-protocol.md)
 - [The Prism](02-07-the-prism.md)
-(index.md)**
+- [Claim 11: Multi-Signal Language Detection](03-11-claim-11-multi-signal-detection.md) — the argued case for this engine (why extension is an assertion, not evidence), with the measured accuracy figures.
+
+**[⬅️ Back to Master Index](index.md)**

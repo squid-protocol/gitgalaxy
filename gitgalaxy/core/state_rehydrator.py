@@ -112,11 +112,36 @@ class StateRehydrator:
 
             file_rows = cursor.fetchall()
 
+            # #3220: Reconstruct the FULL risk_vector / hit_vector from the persisted
+            # columns by INVERTING the recorder's own write. RecordKeeper writes
+            # risk_vector -> risk_<name> columns (RISK_SCHEMA order) and hit_vector ->
+            # SHORT_KEY_MAP-renamed columns (SIGNAL_SCHEMA order); we read those same
+            # maps from the recorder so the inversion can never drift from the write.
+            # Without this, rehydrated (unchanged) files came back with hit_vector=[]
+            # and no risk_vector, so they could not be re-persisted or re-audited like
+            # a full scan -- the root of the incremental/full divergence.
+            risk_cols: list[str] = []
+            hit_cols: list[str] = []
+            try:
+                from gitgalaxy.recorders.record_keeper import RecordKeeper
+
+                _rk = RecordKeeper()
+                risk_cols = [f"risk_{r.replace('-', '_')}" for r in _rk.RISK_SCHEMA]
+                hit_cols = [_rk.SHORT_KEY_MAP.get(h, h) for h in _rk.SIGNAL_SCHEMA]
+            except Exception as schema_err:  # noqa: BLE001
+                # Never let vector reconstruction take down rehydration: fall back to
+                # the pre-#3220 lossy behaviour (empty vectors) rather than a cold start.
+                print(f"⚠️ Vector schema unavailable, rehydrating without risk/hit vectors: {schema_err}")
+
             # 3. Rebuild the orchestrator's `ram_cache` dictionary format
             ram_state = {}
             for f in file_rows:
                 rel_path = f["file_path"]
                 row_keys = f.keys()
+
+                # #3220: full-fidelity vectors (see the schema inversion above).
+                risk_vector = [float(f[c]) if c in row_keys and f[c] is not None else 0.0 for c in risk_cols]
+                hit_vector = [int(f[c]) if c in row_keys and f[c] is not None else 0 for c in hit_cols]
 
                 # DEFENSIVE DESIGN: Schema Drift Protection.
                 # If an older database lacks the 'silo_risk' column, safely default to 0.0
@@ -137,9 +162,12 @@ class StateRehydrator:
                     "doc_loc": f["doc_loc"] if "doc_loc" in row_keys else 0,
                     "file_impact": float(f["structural_mass"]),
                     "control_flow_ratio": float(f["control_flow_ratio"]),
-                    # Initialize empty collections for downstream pipeline requirements
+                    # #3220: raw_imports (import strings) are not yet persisted, so the
+                    # graph must still be re-resolved for add/delete exactness -- tracked
+                    # as the remaining piece. Vectors below ARE now fully restored.
                     "raw_imports": set(),
-                    "hit_vector": [],
+                    "risk_vector": risk_vector,
+                    "hit_vector": hit_vector,
                     "telemetry": {
                         "popularity": f["popularity"],
                         "ownership": f["author"],

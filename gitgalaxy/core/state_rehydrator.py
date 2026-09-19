@@ -177,6 +177,16 @@ class StateRehydrator:
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
                     "equations": equations,
+                    # #3220: a rehydrated file's language identity was already
+                    # confidently locked in the baseline scan. _calculate_risk_exposures
+                    # rebuilds telemetry from meta["lock_tier"]/["source_proof"], and the
+                    # statistical auditor drops a file whose tier defaults to 4 UNLESS it
+                    # has named structure -- so zero-structure config/data files (.yaml,
+                    # .txt, extensionless scripts) were banished. Restore a confident lock
+                    # (these are NOT persisted columns, so row parity is unaffected).
+                    "lock_tier": 1,
+                    "source_proof": "Rehydrated Baseline Lock",
+                    "intensity": 1.0,
                     "telemetry": {
                         "popularity": f["popularity"],
                         "ownership": f["author"],

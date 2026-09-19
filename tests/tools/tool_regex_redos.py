@@ -104,7 +104,7 @@ _GENERIC_UNITS = (
     "X(9)",
 )
 # Escapes, character classes, group names and inline flags carry no keywords.
-_ESCAPE = re.compile(r"\\[A-Za-z]|\[(?:\\.|[^\]])*\]|\(\?P?<[^>]*>|\(\?[a-zA-Z]+\)")
+_ESCAPE = re.compile(r"\\[A-Za-z]|\[(?:\\.|[^\]\\])*\]|\(\?P?<[^>]*>|\(\?[a-zA-Z]+\)")
 _KEYWORD = re.compile(r"[A-Za-z][A-Za-z0-9-]*[A-Za-z0-9]")
 
 
@@ -218,15 +218,14 @@ def collect() -> tuple[list[Site], list[dict[str, Any]]]:
                 assigned[id(node.value)] = node.targets[0].id
         for node in ast.walk(tree):
             fn = _is_re_call(node)
-            if fn is None:
+            if fn is None or not isinstance(node, ast.Call):
                 continue
-            assert isinstance(node, ast.Call)
             pat_node = _call_arg(node, 0, "pattern")
             flag_node = _call_arg(node, _FLAGS_ARG[fn], "flags")
             try:
                 pattern = _eval(pat_node, namespace) if pat_node is not None else None
                 flags = int(_eval(flag_node, namespace)) if flag_node is not None else 0
-            except Exception as exc:  # noqa: BLE001 -- any evaluation failure means "not statically known"
+            except Exception as exc:  # any evaluation failure means "not statically known"
                 skipped.append({"module": rel, "line": node.lineno, "call": f"re.{fn}", "why": type(exc).__name__})
                 continue
             if isinstance(pattern, re.Pattern):

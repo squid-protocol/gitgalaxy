@@ -197,7 +197,7 @@ def main():
     # 2. Generate JPA Entities from Schemas
     schema_dir = clean_room_path / "02_cloud_schemas"
     if schema_dir.exists():
-        for schema_file in sorted(schema_dir.glob("*_schema.json")):
+        for schema_file in sorted(schema_dir.glob("*_schema.json"), key=lambda p: p.name):
             try:
                 schema = json.loads(schema_file.read_text(encoding="utf-8"))
                 java_code = generate_java_entity(schema, args.pkg)
@@ -229,7 +229,7 @@ def main():
     # 3. Generate REST Controllers & Service Layers from IR State Files
     ir_dir = clean_room_path / "04_ir_state_dumps"
     if ir_dir.exists():
-        for ir_file in sorted(ir_dir.glob("*_ir.json")):
+        for ir_file in sorted(ir_dir.glob("*_ir.json"), key=lambda p: p.name):
             try:
                 ir_state = json.loads(ir_file.read_text(encoding="utf-8"))
                 raw_prog_id = ir_state.get("metadata", {}).get("file_name", "Unknown").split(".")[0]
@@ -293,7 +293,7 @@ def main():
     # 4. Generate Autonomous AI Agent Tickets
     slice_dir = clean_room_path / "05_microservice_slices"
     if slice_dir.exists():
-        for slice_file in sorted(slice_dir.glob("*_slice.json")):
+        for slice_file in sorted(slice_dir.glob("*_slice.json"), key=lambda p: p.name):
             try:
                 slice_data = json.loads(slice_file.read_text(encoding="utf-8"))
                 prog_id = slice_file.name.split("_")[0]

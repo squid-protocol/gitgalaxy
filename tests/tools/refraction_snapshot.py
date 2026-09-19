@@ -105,7 +105,7 @@ def run_pipeline(source: Path, work: Path) -> dict[str, str]:
     variants = _work_variants(work)
     out: dict[str, str] = {}
     for label, root in (("clean", clean), ("java", java)):
-        for path in sorted(p for p in root.rglob("*") if p.is_file()):
+        for path in sorted((p for p in root.rglob("*") if p.is_file()), key=lambda p: p.parts):
             rel = f"{label}/{path.relative_to(root).as_posix()}"
             if path.suffix in _BINARY_SUFFIXES:
                 out[rel] = "<binary>\n"

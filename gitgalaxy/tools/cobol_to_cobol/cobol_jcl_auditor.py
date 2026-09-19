@@ -77,7 +77,7 @@ def parse_jcl_intent(filepath: Path) -> dict:
 def audit_zero_trust_jcls(generated_dir: Path, original_dir: Path) -> dict:
     """Core logic to calculate architectural bloat and privilege reduction metrics."""
     # Sorted, so a tie between equal-size legacy JCLs resolves the same way on every OS (#3212)
-    legacy_jcls = sorted([*original_dir.rglob("*.[jJ][cC][lL]"), *original_dir.rglob("*.txt")])
+    legacy_jcls = sorted([*original_dir.rglob("*.[jJ][cC][lL]"), *original_dir.rglob("*.txt")], key=lambda p: p.parts)
     legacy_map: dict[str, Any] = {}
 
     # 1. Map Legacy JCLs by Intent (Handling multi-step monoliths)
@@ -91,7 +91,7 @@ def audit_zero_trust_jcls(generated_dir: Path, original_dir: Path) -> dict:
                 legacy_map[pgm] = {"file": lj, "metrics": metrics}
 
     # 2. Compare against Generated (Zero-Trust) JCLs
-    generated_files = sorted(generated_dir.glob("*.jcl"))
+    generated_files = sorted(generated_dir.glob("*.jcl"), key=lambda p: p.name)
     report: dict[str, Any] = {
         "audited": 0,
         "original_loc": 0,

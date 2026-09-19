@@ -10290,6 +10290,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#engine-ir-source-galaxy-db-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Engine IR Source (--galaxy-db / --scan)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pipeline-integration" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -12143,6 +12154,8 @@
    - Translates active variables into JSON and PostgreSQL DDL database schemas.
    - Generates Job Control Language (JCL) execution scripts based on dataset lineage.
    - Slices business logic around target variables to output isolated JSON business rules, skipping unreachable blocks.</p>
+<h2 id="engine-ir-source-galaxy-db-scan">Engine IR Source (<code>--galaxy-db</code> / <code>--scan</code>)</h2>
+<p>With <code>--galaxy-db &lt;repo&gt;_galaxy_master.db</code> (or <code>--scan</code>, which runs <code>galaxyscope --db-only</code> first), the program list, PROGRAM-ID, COPY dependency edges and paragraph inventory come from the engine's master DB via <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py"><code>galaxy_ir.py</code></a>. Each IR dump gains <code>metadata.ir_source</code>, <code>analysis.copy_dependencies</code> and <code>analysis.engine_units</code>, and the audit report gains an engine inventory of every mainframe language in the repo. Dead code, dataset lineage, data items and CICS/DB2 flags stay on the tools above: the DB does not carry them yet. <a href="https://github.com/squid-protocol/gitgalaxy/blob/main/docs/refraction_engine_differential.md"><code>docs/refraction_engine_differential.md</code></a> records the measured deltas behind that split (#3120).</p>
 <h2 id="pipeline-integration">Pipeline Integration</h2>
 <p><strong>Inputs received:</strong> Procedural COBOL source code files.
 <strong>Outputs produced:</strong> JSON Intermediate Representation (IR), PostgreSQL DDL schemas, JCL scripts.

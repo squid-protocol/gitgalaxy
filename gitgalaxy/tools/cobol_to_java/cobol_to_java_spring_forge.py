@@ -24,6 +24,9 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Optional
+
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import java_class_base, output_key
 
 
 def map_type_to_java(json_type: str, description: str) -> str:
@@ -96,24 +99,25 @@ def parse_pic_clause(description: str) -> dict:
     return constraints
 
 
-def generate_java_entity(schema_json: dict, package_name: str) -> str:
-    """Generates a JPA Entity enforcing exact COBOL memory constraints & overlaps."""
-    table_name = schema_json.get("title", "UnknownTable")
-    class_name = "".join(word.capitalize() for word in table_name.split("_"))
+def entity_class_name(schema_json: dict, unit_key: Optional[str] = None) -> str:
+    """The JPA Entity class a schema generates.
 
-    # Prevent collision with Java reserved keywords and core classes
-    reserved_classes = {
-        "Entity",
-        "Class",
-        "System",
-        "Object",
-        "String",
-        "Enum",
-        "Record",
-        "Thread",
-    }
-    if class_name in reserved_classes:
-        class_name = "Legacy" + class_name
+    #3221: a record title is not unique across a repository -- every CICS program
+    declares a `DFHCOMMAREA`, so 29 of CBSA's schemas produced one Dfhcommarea.java
+    and 28 programs' layouts were overwritten. Prefixing the owning program's
+    clean-room key makes each one its own class. Without a key the name is the
+    title alone, as before.
+    """
+    title = java_class_base(schema_json.get("title", "Entity"))
+    return java_class_base(unit_key) + title if unit_key else title
+
+
+def generate_java_entity(schema_json: dict, package_name: str, unit_key: Optional[str] = None) -> str:
+    """Generates a JPA Entity enforcing exact COBOL memory constraints & overlaps."""
+    # The table keeps the legacy record name: the class is disambiguated, the
+    # COBOL 01-level it maps is not renamed.
+    table_name = schema_json.get("title", "UnknownTable")
+    class_name = entity_class_name(schema_json, unit_key)
 
     properties = schema_json.get("properties", {})
 
@@ -268,10 +272,9 @@ def main():
 
     try:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
-        java_code = generate_java_entity(schema, args.pkg)
-
-        class_name = "".join(word.capitalize() for word in schema.get("title", "Entity").split("_"))
-        out_path = schema_path.parent / f"{class_name}.java"
+        unit_key = output_key(schema_path, "_schema")
+        java_code = generate_java_entity(schema, args.pkg, unit_key=unit_key)
+        out_path = schema_path.parent / f"{entity_class_name(schema, unit_key)}.java"
         out_path.write_text(java_code, encoding="utf-8")
 
         print(f"☕ Spring Entity Generated: {out_path.name}")

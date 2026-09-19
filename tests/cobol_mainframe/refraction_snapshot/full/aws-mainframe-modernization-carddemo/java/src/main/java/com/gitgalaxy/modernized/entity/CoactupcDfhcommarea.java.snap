@@ -1,0 +1,691 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class CoactupcDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_RESP_CD")
+    private Integer wsRespCd;
+
+    @Column(name = "WS_REAS_CD")
+    private Integer wsReasCd;
+
+    @Column(name = "WS_TRANID")
+    private String wsTranid;
+
+    @Column(name = "WS_UCTRANS")
+    private String wsUctrans;
+
+    @Column(name = "WS_EDIT_VARIABLE_NAME")
+    private String wsEditVariableName;
+
+    @Column(name = "WS_EDIT_SIGNED_NUMBER_9V2_X")
+    private String wsEditSignedNumber9V2X;
+
+    @Column(name = "WS_FLG_SIGNED_NUMBER_EDIT")
+    private String wsFlgSignedNumberEdit;
+
+    @Column(name = "WS_EDIT_ALPHANUM_ONLY")
+    private String wsEditAlphanumOnly;
+
+    @Column(name = "WS_EDIT_ALPHANUM_LENGTH")
+    private Integer wsEditAlphanumLength;
+
+    @Column(name = "WS_EDIT_ALPHA_ONLY_FLAGS")
+    private String wsEditAlphaOnlyFlags = "N/A";
+
+    @Column(name = "WS_EDIT_ALPHANUM_ONLY_FLAGS")
+    private String wsEditAlphanumOnlyFlags = "N/A";
+
+    @Column(name = "WS_EDIT_MANDATORY_FLAGS")
+    private String wsEditMandatoryFlags = "N/A";
+
+    @Column(name = "WS_EDIT_YES_NO")
+    private String wsEditYesNo;
+
+    @Column(name = "WS_EDIT_US_PHONE_NUM")
+    private String wsEditUsPhoneNum;
+
+    @Column(name = "WS_EDIT_US_PHONE_NUMA")
+    private String wsEditUsPhoneNuma;
+
+    @Column(name = "WS_EDIT_US_PHONE_NUMB")
+    private String wsEditUsPhoneNumb;
+
+    @Column(name = "WS_EDIT_US_PHONE_NUMC")
+    private String wsEditUsPhoneNumc;
+
+    @Column(name = "WS_EDIT_US_PHONEA_FLG")
+    private String wsEditUsPhoneaFlg;
+
+    @Column(name = "WS_EDIT_EDIT_US_PHONEB")
+    private String wsEditEditUsPhoneb;
+
+    @Column(name = "WS_EDIT_EDIT_PHONEC")
+    private String wsEditEditPhonec;
+
+    @Column(name = "WS_EDIT_US_SSN_PART1")
+    private String wsEditUsSsnPart1;
+
+    @Column(name = "WS_EDIT_US_SSN_PART2")
+    private String wsEditUsSsnPart2;
+
+    @Column(name = "WS_EDIT_US_SSN_PART3")
+    private String wsEditUsSsnPart3;
+
+    @Column(name = "WS_EDIT_US_SSN_PART1_FLGS")
+    private String wsEditUsSsnPart1Flgs;
+
+    @Column(name = "WS_EDIT_US_SSN_PART2_FLGS")
+    private String wsEditUsSsnPart2Flgs;
+
+    @Column(name = "WS_EDIT_US_SSN_PART3_FLGS")
+    private String wsEditUsSsnPart3Flgs;
+
+    @Column(name = "WS_EDIT_ACCT_STATUS")
+    private String wsEditAcctStatus;
+
+    @Column(name = "WS_EDIT_CREDIT_LIMIT")
+    private String wsEditCreditLimit;
+
+    @Column(name = "WS_EDIT_CASH_CREDIT_LIMIT")
+    private String wsEditCashCreditLimit;
+
+    @Column(name = "WS_EDIT_CURR_BAL")
+    private String wsEditCurrBal;
+
+    @Column(name = "WS_EDIT_CURR_CYC_CREDIT")
+    private String wsEditCurrCycCredit;
+
+    @Column(name = "WS_EDIT_CURR_CYC_DEBIT")
+    private String wsEditCurrCycDebit;
+
+    @Column(name = "WS_EDIT_DT_OF_BIRTH_YEAR_FLG")
+    private String wsEditDtOfBirthYearFlg;
+
+    @Column(name = "WS_EDIT_DT_OF_BIRTH_MONTH")
+    private String wsEditDtOfBirthMonth;
+
+    @Column(name = "WS_EDIT_DT_OF_BIRTH_DAY")
+    private String wsEditDtOfBirthDay;
+
+    @Column(name = "WS_EDIT_FICO_SCORE_FLGS")
+    private String wsEditFicoScoreFlgs;
+
+    @Column(name = "WS_EDIT_OPEN_YEAR_FLG")
+    private String wsEditOpenYearFlg;
+
+    @Column(name = "WS_EDIT_OPEN_MONTH")
+    private String wsEditOpenMonth;
+
+    @Column(name = "WS_EDIT_OPEN_DAY")
+    private String wsEditOpenDay;
+
+    @Column(name = "WS_EDIT_EXPIRY_YEAR_FLG")
+    private String wsEditExpiryYearFlg;
+
+    @Column(name = "WS_EDIT_EXPIRY_MONTH")
+    private String wsEditExpiryMonth;
+
+    @Column(name = "WS_EDIT_EXPIRY_DAY")
+    private String wsEditExpiryDay;
+
+    @Column(name = "WS_EDIT_REISSUE_YEAR_FLG")
+    private String wsEditReissueYearFlg;
+
+    @Column(name = "WS_EDIT_REISSUE_MONTH")
+    private String wsEditReissueMonth;
+
+    @Column(name = "WS_EDIT_REISSUE_DAY")
+    private String wsEditReissueDay;
+
+    @Column(name = "WS_EDIT_FIRST_NAME_FLGS")
+    private String wsEditFirstNameFlgs;
+
+    @Column(name = "WS_EDIT_MIDDLE_NAME_FLGS")
+    private String wsEditMiddleNameFlgs;
+
+    @Column(name = "WS_EDIT_LAST_NAME_FLGS")
+    private String wsEditLastNameFlgs;
+
+    @Column(name = "WS_EDIT_ADDRESS_LINE_1_FLGS")
+    private String wsEditAddressLine1Flgs;
+
+    @Column(name = "WS_EDIT_ADDRESS_LINE_2_FLGS")
+    private String wsEditAddressLine2Flgs;
+
+    @Column(name = "WS_EDIT_CITY_FLGS")
+    private String wsEditCityFlgs;
+
+    @Column(name = "WS_EDIT_STATE_FLGS")
+    private String wsEditStateFlgs;
+
+    @Column(name = "WS_EDIT_ZIPCODE_FLGS")
+    private String wsEditZipcodeFlgs;
+
+    @Column(name = "WS_EDIT_COUNTRY_FLGS")
+    private String wsEditCountryFlgs;
+
+    @Column(name = "WS_EDIT_PHONE_NUM_1A_FLG")
+    private String wsEditPhoneNum1AFlg;
+
+    @Column(name = "WS_EDIT_PHONE_NUM_1B")
+    private String wsEditPhoneNum1B;
+
+    @Column(name = "WS_EDIT_PHONE_NUM_1C")
+    private String wsEditPhoneNum1C;
+
+    @Column(name = "WS_EDIT_PHONE_NUM_2A_FLG")
+    private String wsEditPhoneNum2AFlg;
+
+    @Column(name = "WS_EDIT_PHONE_NUM_2B")
+    private String wsEditPhoneNum2B;
+
+    @Column(name = "WS_EDIT_PHONE_NUM_2C")
+    private String wsEditPhoneNum2C;
+
+    @Column(name = "WS_EFT_ACCOUNT_ID_FLGS")
+    private String wsEftAccountIdFlgs;
+
+    @Column(name = "WS_EDIT_PRI_CARDHOLDER")
+    private String wsEditPriCardholder;
+
+    @Column(name = "WS_EDIT_DATE_X_YEAR")
+    private String wsEditDateXYear;
+
+    @Column(name = "WS_EDIT_DATE_MONTH")
+    private String wsEditDateMonth;
+
+    @Column(name = "WS_EDIT_DATE_DAY")
+    private String wsEditDateDay;
+
+    @Column(name = "WS_EDIT_CURRENCY_9_2")
+    private String wsEditCurrency92;
+
+    @Column(name = "WS_CARD_RID_CUST_ID")
+    private BigDecimal wsCardRidCustId;
+
+    @Column(name = "WS_CARD_RID_ACCT_ID")
+    private BigDecimal wsCardRidAcctId;
+
+    @Column(name = "ERROR_OPNAME")
+    private String errorOpname;
+
+    @Column(name = "ERROR_FILE")
+    private String errorFile;
+
+    @Column(name = "ERROR_RESP")
+    private String errorResp;
+
+    @Column(name = "ERROR_RESP2")
+    private String errorResp2;
+
+    @Column(name = "ACUP_NEW_CREDIT_LIMIT_X")
+    private String acupNewCreditLimitX;
+
+    @Column(name = "ACUP_NEW_CASH_CREDIT_LIMIT_X")
+    private String acupNewCashCreditLimitX;
+
+    @Column(name = "ACUP_NEW_CURR_BAL_X")
+    private String acupNewCurrBalX;
+
+    @Column(name = "ACUP_NEW_CURR_CYC_CREDIT_X")
+    private String acupNewCurrCycCreditX;
+
+    @Column(name = "ACUP_NEW_CURR_CYC_DEBIT_X")
+    private String acupNewCurrCycDebitX;
+
+    @Column(name = "ACCT_UPDATE_ID")
+    private BigDecimal acctUpdateId;
+
+    @Column(name = "ACCT_UPDATE_ACTIVE_STATUS")
+    private String acctUpdateActiveStatus;
+
+    @Column(name = "ACCT_UPDATE_CURR_BAL")
+    private BigDecimal acctUpdateCurrBal;
+
+    @Column(name = "ACCT_UPDATE_CREDIT_LIMIT")
+    private BigDecimal acctUpdateCreditLimit;
+
+    @Column(name = "ACCT_UPDATE_CASH_CREDIT_LIMIT")
+    private BigDecimal acctUpdateCashCreditLimit;
+
+    @Column(name = "ACCT_UPDATE_OPEN_DATE")
+    private String acctUpdateOpenDate;
+
+    @Column(name = "ACCT_UPDATE_EXPIRAION_DATE")
+    private String acctUpdateExpiraionDate;
+
+    @Column(name = "ACCT_UPDATE_REISSUE_DATE")
+    private String acctUpdateReissueDate;
+
+    @Column(name = "ACCT_UPDATE_CURR_CYC_CREDIT")
+    private BigDecimal acctUpdateCurrCycCredit;
+
+    @Column(name = "ACCT_UPDATE_CURR_CYC_DEBIT")
+    private BigDecimal acctUpdateCurrCycDebit;
+
+    @Column(name = "ACCT_UPDATE_GROUP_ID")
+    private String acctUpdateGroupId;
+
+    @Column(name = "CUST_UPDATE_ID")
+    private BigDecimal custUpdateId;
+
+    @Column(name = "CUST_UPDATE_FIRST_NAME")
+    private String custUpdateFirstName;
+
+    @Column(name = "CUST_UPDATE_MIDDLE_NAME")
+    private String custUpdateMiddleName;
+
+    @Column(name = "CUST_UPDATE_LAST_NAME")
+    private String custUpdateLastName;
+
+    @Column(name = "CUST_UPDATE_ADDR_LINE_1")
+    private String custUpdateAddrLine1;
+
+    @Column(name = "CUST_UPDATE_ADDR_LINE_2")
+    private String custUpdateAddrLine2;
+
+    @Column(name = "CUST_UPDATE_ADDR_LINE_3")
+    private String custUpdateAddrLine3;
+
+    @Column(name = "CUST_UPDATE_ADDR_STATE_CD")
+    private String custUpdateAddrStateCd;
+
+    @Column(name = "CUST_UPDATE_ADDR_COUNTRY_CD")
+    private String custUpdateAddrCountryCd;
+
+    @Column(name = "CUST_UPDATE_ADDR_ZIP")
+    private String custUpdateAddrZip;
+
+    @Column(name = "CUST_UPDATE_PHONE_NUM_1")
+    private String custUpdatePhoneNum1;
+
+    @Column(name = "CUST_UPDATE_PHONE_NUM_2")
+    private String custUpdatePhoneNum2;
+
+    @Column(name = "CUST_UPDATE_SSN")
+    private BigDecimal custUpdateSsn;
+
+    @Column(name = "CUST_UPDATE_GOVT_ISSUED_ID")
+    private String custUpdateGovtIssuedId;
+
+    @Column(name = "CUST_UPDATE_DOB_YYYY_MM_DD")
+    private String custUpdateDobYyyyMmDd;
+
+    @Column(name = "CUST_UPDATE_EFT_ACCOUNT_ID")
+    private String custUpdateEftAccountId;
+
+    @Column(name = "CUST_UPDATE_PRI_CARD_IND")
+    private String custUpdatePriCardInd;
+
+    @Column(name = "CUST_UPDATE_FICO_CREDIT_SCORE")
+    private BigDecimal custUpdateFicoCreditScore;
+
+    @Column(name = "WS_LONG_MSG")
+    private String wsLongMsg;
+
+    @Column(name = "WS_INFO_MSG")
+    private String wsInfoMsg;
+
+    @Column(name = "WS_RETURN_MSG")
+    private String wsReturnMsg;
+
+    @Column(name = "LIT_THISPGM")
+    private String litThispgm;
+
+    @Column(name = "LIT_THISTRANID")
+    private String litThistranid;
+
+    @Column(name = "LIT_THISMAPSET")
+    private String litThismapset;
+
+    @Column(name = "LIT_THISMAP")
+    private String litThismap;
+
+    @Column(name = "LIT_CCLISTMAPSET")
+    private String litCclistmapset;
+
+    @Column(name = "LIT_MENUPGM")
+    private String litMenupgm;
+
+    @Column(name = "LIT_MENUTRANID")
+    private String litMenutranid;
+
+    @Column(name = "LIT_ACCTFILENAME")
+    private String litAcctfilename;
+
+    @Column(name = "LIT_CUSTFILENAME")
+    private String litCustfilename;
+
+    @Column(name = "LIT_CARDXREFNAME_ACCT_PATH")
+    private String litCardxrefnameAcctPath;
+
+    @Column(name = "LIT_UPPER")
+    private String litUpper;
+
+    @Column(name = "LIT_LOWER")
+    private String litLower;
+
+    @Column(name = "LIT_NUMBERS")
+    private String litNumbers;
+
+    @Column(name = "LIT_ALL_ALPHA_FROM")
+    private String litAllAlphaFrom;
+
+    @Column(name = "LIT_ALL_ALPHANUM_FROM")
+    private String litAllAlphanumFrom;
+
+    @Column(name = "LIT_ALPHA_SPACES_TO")
+    private String litAlphaSpacesTo;
+
+    @Column(name = "LIT_ALPHANUM_SPACES_TO")
+    private String litAlphanumSpacesTo;
+
+    @Column(name = "ACUP_CHANGE_ACTION")
+    private String acupChangeAction;
+
+    @Column(name = "ACUP_OLD_ACCT_ID_X")
+    private String acupOldAcctIdX;
+
+    @Column(name = "ACUP_OLD_ACTIVE_STATUS")
+    private String acupOldActiveStatus;
+
+    @Column(name = "ACUP_OLD_CURR_BAL")
+    private String acupOldCurrBal;
+
+    @Column(name = "ACUP_OLD_CREDIT_LIMIT")
+    private String acupOldCreditLimit;
+
+    @Column(name = "ACUP_OLD_CASH_CREDIT_LIMIT")
+    private String acupOldCashCreditLimit;
+
+    @Column(name = "ACUP_OLD_OPEN_DATE")
+    private String acupOldOpenDate;
+
+    @Column(name = "ACUP_OLD_OPEN_YEAR")
+    private String acupOldOpenYear;
+
+    @Column(name = "ACUP_OLD_OPEN_MON")
+    private String acupOldOpenMon;
+
+    @Column(name = "ACUP_OLD_OPEN_DAY")
+    private String acupOldOpenDay;
+
+    @Column(name = "ACUP_OLD_EXPIRAION_DATE")
+    private String acupOldExpiraionDate;
+
+    @Column(name = "ACUP_OLD_EXP_YEAR")
+    private String acupOldExpYear;
+
+    @Column(name = "ACUP_OLD_EXP_MON")
+    private String acupOldExpMon;
+
+    @Column(name = "ACUP_OLD_EXP_DAY")
+    private String acupOldExpDay;
+
+    @Column(name = "ACUP_OLD_REISSUE_DATE")
+    private String acupOldReissueDate;
+
+    @Column(name = "ACUP_OLD_REISSUE_YEAR")
+    private String acupOldReissueYear;
+
+    @Column(name = "ACUP_OLD_REISSUE_MON")
+    private String acupOldReissueMon;
+
+    @Column(name = "ACUP_OLD_REISSUE_DAY")
+    private String acupOldReissueDay;
+
+    @Column(name = "ACUP_OLD_CURR_CYC_CREDIT")
+    private String acupOldCurrCycCredit;
+
+    @Column(name = "ACUP_OLD_CURR_CYC_DEBIT")
+    private String acupOldCurrCycDebit;
+
+    @Column(name = "ACUP_OLD_GROUP_ID")
+    private String acupOldGroupId;
+
+    @Column(name = "ACUP_OLD_CUST_ID_X")
+    private String acupOldCustIdX;
+
+    @Column(name = "ACUP_OLD_CUST_FIRST_NAME")
+    private String acupOldCustFirstName;
+
+    @Column(name = "ACUP_OLD_CUST_MIDDLE_NAME")
+    private String acupOldCustMiddleName;
+
+    @Column(name = "ACUP_OLD_CUST_LAST_NAME")
+    private String acupOldCustLastName;
+
+    @Column(name = "ACUP_OLD_CUST_ADDR_LINE_1")
+    private String acupOldCustAddrLine1;
+
+    @Column(name = "ACUP_OLD_CUST_ADDR_LINE_2")
+    private String acupOldCustAddrLine2;
+
+    @Column(name = "ACUP_OLD_CUST_ADDR_LINE_3")
+    private String acupOldCustAddrLine3;
+
+    @Column(name = "ACUP_OLD_CUST_ADDR_STATE_CD")
+    private String acupOldCustAddrStateCd;
+
+    @Column(name = "ACUP_OLD_CUST_ADDR_COUNTRY_CD")
+    private String acupOldCustAddrCountryCd;
+
+    @Column(name = "ACUP_OLD_CUST_ADDR_ZIP")
+    private String acupOldCustAddrZip;
+
+    @Column(name = "ACUP_OLD_CUST_PHONE_NUM_1")
+    private String acupOldCustPhoneNum1;
+
+    @Column(name = "ACUP_OLD_CUST_PHONE_NUM_1A")
+    private String acupOldCustPhoneNum1A;
+
+    @Column(name = "ACUP_OLD_CUST_PHONE_NUM_1B")
+    private String acupOldCustPhoneNum1B;
+
+    @Column(name = "ACUP_OLD_CUST_PHONE_NUM_1C")
+    private String acupOldCustPhoneNum1C;
+
+    @Column(name = "ACUP_OLD_CUST_PHONE_NUM_2")
+    private String acupOldCustPhoneNum2;
+
+    @Column(name = "ACUP_OLD_CUST_PHONE_NUM_2A")
+    private String acupOldCustPhoneNum2A;
+
+    @Column(name = "ACUP_OLD_CUST_PHONE_NUM_2B")
+    private String acupOldCustPhoneNum2B;
+
+    @Column(name = "ACUP_OLD_CUST_PHONE_NUM_2C")
+    private String acupOldCustPhoneNum2C;
+
+    @Column(name = "ACUP_OLD_CUST_SSN_X")
+    private String acupOldCustSsnX;
+
+    @Column(name = "ACUP_OLD_CUST_GOVT_ISSUED_ID")
+    private String acupOldCustGovtIssuedId;
+
+    @Column(name = "ACUP_OLD_CUST_DOB_YYYY_MM_DD")
+    private String acupOldCustDobYyyyMmDd;
+
+    @Column(name = "ACUP_OLD_CUST_DOB_YEAR")
+    private String acupOldCustDobYear;
+
+    @Column(name = "ACUP_OLD_CUST_DOB_MON")
+    private String acupOldCustDobMon;
+
+    @Column(name = "ACUP_OLD_CUST_DOB_DAY")
+    private String acupOldCustDobDay;
+
+    @Column(name = "ACUP_OLD_CUST_EFT_ACCOUNT_ID")
+    private String acupOldCustEftAccountId;
+
+    @Column(name = "ACUP_OLD_CUST_PRI_HOLDER_IND")
+    private String acupOldCustPriHolderInd;
+
+    @Column(name = "ACUP_OLD_CUST_FICO_SCORE_X")
+    private String acupOldCustFicoScoreX;
+
+    @Column(name = "ACUP_NEW_ACCT_ID_X")
+    private String acupNewAcctIdX;
+
+    @Column(name = "ACUP_NEW_ACTIVE_STATUS")
+    private String acupNewActiveStatus;
+
+    @Column(name = "ACUP_NEW_CURR_BAL")
+    private String acupNewCurrBal;
+
+    @Column(name = "ACUP_NEW_CREDIT_LIMIT")
+    private String acupNewCreditLimit;
+
+    @Column(name = "ACUP_NEW_CASH_CREDIT_LIMIT")
+    private String acupNewCashCreditLimit;
+
+    @Column(name = "ACUP_NEW_OPEN_DATE")
+    private String acupNewOpenDate;
+
+    @Column(name = "ACUP_NEW_OPEN_YEAR")
+    private String acupNewOpenYear;
+
+    @Column(name = "ACUP_NEW_OPEN_MON")
+    private String acupNewOpenMon;
+
+    @Column(name = "ACUP_NEW_OPEN_DAY")
+    private String acupNewOpenDay;
+
+    @Column(name = "ACUP_NEW_EXPIRAION_DATE")
+    private String acupNewExpiraionDate;
+
+    @Column(name = "ACUP_NEW_EXP_YEAR")
+    private String acupNewExpYear;
+
+    @Column(name = "ACUP_NEW_EXP_MON")
+    private String acupNewExpMon;
+
+    @Column(name = "ACUP_NEW_EXP_DAY")
+    private String acupNewExpDay;
+
+    @Column(name = "ACUP_NEW_REISSUE_DATE")
+    private String acupNewReissueDate;
+
+    @Column(name = "ACUP_NEW_REISSUE_YEAR")
+    private String acupNewReissueYear;
+
+    @Column(name = "ACUP_NEW_REISSUE_MON")
+    private String acupNewReissueMon;
+
+    @Column(name = "ACUP_NEW_REISSUE_DAY")
+    private String acupNewReissueDay;
+
+    @Column(name = "ACUP_NEW_CURR_CYC_CREDIT")
+    private String acupNewCurrCycCredit;
+
+    @Column(name = "ACUP_NEW_CURR_CYC_DEBIT")
+    private String acupNewCurrCycDebit;
+
+    @Column(name = "ACUP_NEW_GROUP_ID")
+    private String acupNewGroupId;
+
+    @Column(name = "ACUP_NEW_CUST_ID_X")
+    private String acupNewCustIdX;
+
+    @Column(name = "ACUP_NEW_CUST_FIRST_NAME")
+    private String acupNewCustFirstName;
+
+    @Column(name = "ACUP_NEW_CUST_MIDDLE_NAME")
+    private String acupNewCustMiddleName;
+
+    @Column(name = "ACUP_NEW_CUST_LAST_NAME")
+    private String acupNewCustLastName;
+
+    @Column(name = "ACUP_NEW_CUST_ADDR_LINE_1")
+    private String acupNewCustAddrLine1;
+
+    @Column(name = "ACUP_NEW_CUST_ADDR_LINE_2")
+    private String acupNewCustAddrLine2;
+
+    @Column(name = "ACUP_NEW_CUST_ADDR_LINE_3")
+    private String acupNewCustAddrLine3;
+
+    @Column(name = "ACUP_NEW_CUST_ADDR_STATE_CD")
+    private String acupNewCustAddrStateCd;
+
+    @Column(name = "ACUP_NEW_CUST_ADDR_COUNTRY_CD")
+    private String acupNewCustAddrCountryCd;
+
+    @Column(name = "ACUP_NEW_CUST_ADDR_ZIP")
+    private String acupNewCustAddrZip;
+
+    @Column(name = "ACUP_NEW_CUST_PHONE_NUM_1")
+    private String acupNewCustPhoneNum1;
+
+    @Column(name = "ACUP_NEW_CUST_PHONE_NUM_1A")
+    private String acupNewCustPhoneNum1A;
+
+    @Column(name = "ACUP_NEW_CUST_PHONE_NUM_1B")
+    private String acupNewCustPhoneNum1B;
+
+    @Column(name = "ACUP_NEW_CUST_PHONE_NUM_1C")
+    private String acupNewCustPhoneNum1C;
+
+    @Column(name = "ACUP_NEW_CUST_PHONE_NUM_2")
+    private String acupNewCustPhoneNum2;
+
+    @Column(name = "ACUP_NEW_CUST_PHONE_NUM_2A")
+    private String acupNewCustPhoneNum2A;
+
+    @Column(name = "ACUP_NEW_CUST_PHONE_NUM_2B")
+    private String acupNewCustPhoneNum2B;
+
+    @Column(name = "ACUP_NEW_CUST_PHONE_NUM_2C")
+    private String acupNewCustPhoneNum2C;
+
+    @Column(name = "ACUP_NEW_CUST_SSN_1")
+    private String acupNewCustSsn1;
+
+    @Column(name = "ACUP_NEW_CUST_SSN_2")
+    private String acupNewCustSsn2;
+
+    @Column(name = "ACUP_NEW_CUST_SSN_3")
+    private String acupNewCustSsn3;
+
+    @Column(name = "ACUP_NEW_CUST_GOVT_ISSUED_ID")
+    private String acupNewCustGovtIssuedId;
+
+    @Column(name = "ACUP_NEW_CUST_DOB_YYYY_MM_DD")
+    private String acupNewCustDobYyyyMmDd;
+
+    @Column(name = "ACUP_NEW_CUST_DOB_YEAR")
+    private String acupNewCustDobYear;
+
+    @Column(name = "ACUP_NEW_CUST_DOB_MON")
+    private String acupNewCustDobMon;
+
+    @Column(name = "ACUP_NEW_CUST_DOB_DAY")
+    private String acupNewCustDobDay;
+
+    @Column(name = "ACUP_NEW_CUST_EFT_ACCOUNT_ID")
+    private String acupNewCustEftAccountId;
+
+    @Column(name = "ACUP_NEW_CUST_PRI_HOLDER_IND")
+    private String acupNewCustPriHolderInd;
+
+    @Column(name = "ACUP_NEW_CUST_FICO_SCORE_X")
+    private String acupNewCustFicoScoreX;
+
+    @Column(name = "WS_COMMAREA")
+    private String wsCommarea;
+
+}

@@ -1,0 +1,256 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class CreaccDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "HV_ACCOUNT_EYECATCHER")
+    private String hvAccountEyecatcher;
+
+    @Column(name = "HV_ACCOUNT_CUST_NO")
+    private String hvAccountCustNo;
+
+    @Column(name = "HV_ACCOUNT_SORTCODE")
+    private String hvAccountSortcode;
+
+    @Column(name = "HV_ACCOUNT_ACC_NO")
+    private String hvAccountAccNo;
+
+    @Column(name = "HV_ACCOUNT_ACC_TYPE")
+    private String hvAccountAccType;
+
+    @Column(name = "HV_ACCOUNT_INT_RATE")
+    private BigDecimal hvAccountIntRate;
+
+    @Column(name = "HV_ACCOUNT_OPENED")
+    private String hvAccountOpened;
+
+    @Column(name = "HV_ACCOUNT_OPENED_DAY")
+    private String hvAccountOpenedDay;
+
+    @Column(name = "HV_ACCOUNT_OPENED_DELIM1")
+    private String hvAccountOpenedDelim1;
+
+    @Column(name = "HV_ACCOUNT_OPENED_MONTH")
+    private String hvAccountOpenedMonth;
+
+    @Column(name = "HV_ACCOUNT_OPENED_DELIM2")
+    private String hvAccountOpenedDelim2;
+
+    @Column(name = "HV_ACCOUNT_OPENED_YEAR")
+    private String hvAccountOpenedYear;
+
+    @Column(name = "HV_ACCOUNT_OVERDRAFT_LIM")
+    private Integer hvAccountOverdraftLim;
+
+    @Column(name = "HV_ACCOUNT_LAST_STMT")
+    private String hvAccountLastStmt;
+
+    @Column(name = "HV_ACCOUNT_LAST_STMT_DAY")
+    private String hvAccountLastStmtDay;
+
+    @Column(name = "HV_ACCOUNT_LAST_STMT_DELIM1")
+    private String hvAccountLastStmtDelim1;
+
+    @Column(name = "HV_ACCOUNT_LAST_STMT_MONTH")
+    private String hvAccountLastStmtMonth;
+
+    @Column(name = "HV_ACCOUNT_LAST_STMT_DELIM2")
+    private String hvAccountLastStmtDelim2;
+
+    @Column(name = "HV_ACCOUNT_LAST_STMT_YEAR")
+    private String hvAccountLastStmtYear;
+
+    @Column(name = "HV_ACCOUNT_NEXT_STMT")
+    private String hvAccountNextStmt;
+
+    @Column(name = "HV_ACCOUNT_NEXT_STMT_DAY")
+    private String hvAccountNextStmtDay;
+
+    @Column(name = "HV_ACCOUNT_NEXT_STMT_DELIM1")
+    private String hvAccountNextStmtDelim1;
+
+    @Column(name = "HV_ACCOUNT_NEXT_STMT_MONTH")
+    private String hvAccountNextStmtMonth;
+
+    @Column(name = "HV_ACCOUNT_NEXT_STMT_DELIM2")
+    private String hvAccountNextStmtDelim2;
+
+    @Column(name = "HV_ACCOUNT_NEXT_STMT_YEAR")
+    private String hvAccountNextStmtYear;
+
+    @Column(name = "HV_ACCOUNT_AVAIL_BAL")
+    private BigDecimal hvAccountAvailBal;
+
+    @Column(name = "HV_ACCOUNT_ACTUAL_BAL")
+    private BigDecimal hvAccountActualBal;
+
+    @Column(name = "SQLCODE_DISPLAY")
+    private Integer sqlcodeDisplay;
+
+    @Column(name = "HV_PROCTRAN_EYECATCHER")
+    private String hvProctranEyecatcher;
+
+    @Column(name = "HV_PROCTRAN_SORT_CODE")
+    private String hvProctranSortCode;
+
+    @Column(name = "HV_PROCTRAN_ACC_NUMBER")
+    private String hvProctranAccNumber;
+
+    @Column(name = "HV_PROCTRAN_DATE")
+    private String hvProctranDate;
+
+    @Column(name = "HV_PROCTRAN_TIME")
+    private String hvProctranTime;
+
+    @Column(name = "HV_PROCTRAN_REF")
+    private String hvProctranRef;
+
+    @Column(name = "HV_PROCTRAN_TYPE")
+    private String hvProctranType;
+
+    @Column(name = "HV_PROCTRAN_DESC")
+    private String hvProctranDesc;
+
+    @Column(name = "HV_PROCTRAN_AMOUNT")
+    private BigDecimal hvProctranAmount;
+
+    @Column(name = "HV_CONTROL_NAME")
+    private String hvControlName;
+
+    @Column(name = "HV_CONTROL_VALUE_NUM")
+    private Integer hvControlValueNum;
+
+    @Column(name = "HV_CONTROL_VALUE_STR")
+    private String hvControlValueStr;
+
+    @Column(name = "WS_CICS_RESP")
+    private Integer wsCicsResp;
+
+    @Column(name = "WS_CICS_RESP2")
+    private Integer wsCicsResp2;
+
+    @Column(name = "REQUIRED_SORT_CODE")
+    private Integer requiredSortCode;
+
+    @Column(name = "REQUIRED_SORT_CODE2")
+    private Integer requiredSortCode2;
+
+    @Column(name = "NCS_ACC_NO_ACT_NAME")
+    private String ncsAccNoActName;
+
+    @Column(name = "NCS_ACC_NO_TEST_SORT")
+    private String ncsAccNoTestSort;
+
+    @Column(name = "NCS_ACC_NO_FILL")
+    private String ncsAccNoFill;
+
+    @Column(name = "NCS_ACC_NO_INC")
+    private Integer ncsAccNoInc;
+
+    @Column(name = "NCS_ACC_NO_VALUE")
+    private Integer ncsAccNoValue;
+
+    @Column(name = "WS_U_TIME")
+    private Integer wsUTime;
+
+    @Column(name = "WS_ORIG_DATE")
+    private String wsOrigDate;
+
+    @Column(name = "WS_ORIG_DATE_DD")
+    private BigDecimal wsOrigDateDd;
+
+    @Column(name = "WS_ORIG_DATE_MM")
+    private BigDecimal wsOrigDateMm;
+
+    @Column(name = "WS_ORIG_DATE_YYYY")
+    private BigDecimal wsOrigDateYyyy;
+
+    @Column(name = "DONT_CARE")
+    private Integer dontCare;
+
+    @Column(name = "LEAP_YEAR")
+    private Integer leapYear;
+
+    @Column(name = "WS_STDT_X")
+    private String wsStdtX;
+
+    @Column(name = "WS_STDT_9_NUM")
+    private BigDecimal wsStdt9Num;
+
+    @Column(name = "WS_STDT_9_NUMERIC")
+    private BigDecimal wsStdt9Numeric;
+
+    @Column(name = "WS_INTEGER")
+    private Integer wsInteger;
+
+    @Column(name = "WS_FUTURE_DATE")
+    private BigDecimal wsFutureDate;
+
+    @Column(name = "WS_FUT_9")
+    private BigDecimal wsFut9;
+
+    @Column(name = "WS_FUT_X_YY")
+    private String wsFutXYy;
+
+    @Column(name = "WS_FUT_X_MM")
+    private String wsFutXMm;
+
+    @Column(name = "WS_FUT_X_DD")
+    private String wsFutXDd;
+
+    @Column(name = "NCS_ACC_NO_DISP")
+    private Integer ncsAccNoDisp;
+
+    @Column(name = "STORED_SORTCODE")
+    private String storedSortcode;
+
+    @Column(name = "STORED_CUSTNO")
+    private String storedCustno;
+
+    @Column(name = "STORED_ACCTYPE")
+    private String storedAcctype;
+
+    @Column(name = "STORED_LST_STMT")
+    private String storedLstStmt;
+
+    @Column(name = "STORED_NXT_STMT")
+    private String storedNxtStmt;
+
+    @Column(name = "STORED_ACCNO")
+    private String storedAccno;
+
+    @Column(name = "WS_EIBTASKN12")
+    private Integer wsEibtaskn12;
+
+    @Column(name = "REQUIRED_ACCT_NUMBER3")
+    private Integer requiredAcctNumber3;
+
+    @Column(name = "WS_TIME_NOW")
+    private BigDecimal wsTimeNow;
+
+    @Column(name = "WS_TIME_NOW_GRP_HH")
+    private BigDecimal wsTimeNowGrpHh;
+
+    @Column(name = "WS_TIME_NOW_GRP_MM")
+    private BigDecimal wsTimeNowGrpMm;
+
+    @Column(name = "WS_TIME_NOW_GRP_SS")
+    private BigDecimal wsTimeNowGrpSs;
+
+    @Column(name = "WS_ABEND_PGM")
+    private String wsAbendPgm;
+
+}

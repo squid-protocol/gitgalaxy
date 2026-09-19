@@ -21,12 +21,24 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Optional
+
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
+    java_class_base,
+    output_key,
+    program_key_from_ir,
+)
 
 
-def generate_service_skeleton(ir_state: dict, package_name: str) -> str:
-    """Generates the Spring Boot @Service skeleton and stages DAG dependencies."""
-    prog_id = ir_state.get("metadata", {}).get("file_name", "Unknown").split(".")[0]
-    camel_prog = "".join(word.capitalize() for word in prog_id.split("-"))
+def generate_service_skeleton(ir_state: dict, package_name: str, unit_key: Optional[str] = None) -> str:
+    """Generates the Spring Boot @Service skeleton and stages DAG dependencies.
+
+    `unit_key` is the clean-room output key this IR was written under (#3221).
+    Omitted, the class is named from the IR's own file name as before, which two
+    same-stemmed programs share.
+    """
+    prog_id = program_key_from_ir(ir_state, unit_key) or "Unknown"
+    camel_prog = java_class_base(prog_id, prefix="Legacy")
 
     analysis = ir_state.get("analysis", {})
     lineage = analysis.get("lineage", {})
@@ -83,9 +95,9 @@ def main():
 
     try:
         ir_state = json.loads(ir_path.read_text(encoding="utf-8"))
-        java_code = generate_service_skeleton(ir_state, args.pkg)
-        prog_id = ir_state.get("metadata", {}).get("file_name", "Unknown").split(".")[0].capitalize()
-        out_path = ir_path.parent / f"{prog_id}Service.java"
+        unit_key = output_key(ir_path, "_ir")
+        java_code = generate_service_skeleton(ir_state, args.pkg, unit_key=unit_key)
+        out_path = ir_path.parent / f"{java_class_base(unit_key)}Service.java"
         out_path.write_text(java_code, encoding="utf-8")
         print(f"⚙️ Service Skeleton Generated: {out_path.name}")
     except Exception as e:

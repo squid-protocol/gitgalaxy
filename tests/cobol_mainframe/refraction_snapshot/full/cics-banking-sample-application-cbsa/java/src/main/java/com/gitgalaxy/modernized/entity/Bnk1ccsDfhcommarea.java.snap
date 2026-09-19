@@ -1,0 +1,133 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class Bnk1ccsDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_UCTRANS")
+    private Integer wsUctrans;
+
+    @Column(name = "STORED_UCTRANS")
+    private Integer storedUctrans;
+
+    @Column(name = "WS_CICS_RESP")
+    private Integer wsCicsResp;
+
+    @Column(name = "WS_CICS_RESP2")
+    private Integer wsCicsResp2;
+
+    @Column(name = "WS_CICS_FAIL_MSG")
+    private String wsCicsFailMsg;
+
+    @Column(name = "WS_CICS_RESP_DISP")
+    private Integer wsCicsRespDisp;
+
+    @Column(name = "WS_CICS_RESP2_DISP")
+    private Integer wsCicsResp2Disp;
+
+    @Column(name = "VALID_DATA_SW")
+    private String validDataSw;
+
+    @Column(name = "END_OF_SESSION_MESSAGE")
+    private String endOfSessionMessage;
+
+    @Column(name = "WS_COMM_TERM")
+    private Integer wsCommTerm;
+
+    @Column(name = "DOBDDI_CHAR")
+    private String dobddiChar;
+
+    @Column(name = "DOBDDI_NUM")
+    private BigDecimal dobddiNum;
+
+    @Column(name = "DOBMMI_CHAR")
+    private String dobmmiChar;
+
+    @Column(name = "DOBMMI_NUM")
+    private BigDecimal dobmmiNum;
+
+    @Column(name = "DOBYYI_NUM")
+    private BigDecimal dobyyiNum;
+
+    @Column(name = "WS_ABCODE")
+    private String wsAbcode;
+
+    @Column(name = "WS_ADDR_SPLIT1")
+    private String wsAddrSplit1;
+
+    @Column(name = "WS_ADDR_SPLIT2")
+    private String wsAddrSplit2;
+
+    @Column(name = "WS_ADDR_SPLIT3")
+    private String wsAddrSplit3;
+
+    @Column(name = "SUBPGM_EYECATCHER")
+    private String subpgmEyecatcher;
+
+    @Column(name = "SUBPGM_SORTCODE")
+    private Integer subpgmSortcode;
+
+    @Column(name = "SUBPGM_NUMBER")
+    private Integer subpgmNumber;
+
+    @Column(name = "SUBPGM_NAME")
+    private String subpgmName;
+
+    @Column(name = "SUBPGM_ADDRESS")
+    private String subpgmAddress;
+
+    @Column(name = "SUBPGM_BIRTH_DAY")
+    private BigDecimal subpgmBirthDay;
+
+    @Column(name = "SUBPGM_BIRTH_MONTH")
+    private BigDecimal subpgmBirthMonth;
+
+    @Column(name = "SUBPGM_BIRTH_YEAR")
+    private BigDecimal subpgmBirthYear;
+
+    @Column(name = "SUBPGM_CREDIT_SCORE")
+    private BigDecimal subpgmCreditScore;
+
+    @Column(name = "SUBPGM_CS_REVIEW_DATE")
+    private BigDecimal subpgmCsReviewDate;
+
+    @Column(name = "SUBPGM_SUCCESS")
+    private String subpgmSuccess;
+
+    @Column(name = "SUBPGM_FAIL_CODE")
+    private String subpgmFailCode;
+
+    @Column(name = "WS_U_TIME")
+    private Integer wsUTime;
+
+    @Column(name = "WS_ORIG_DATE")
+    private String wsOrigDate;
+
+    @Column(name = "WS_TIME_NOW")
+    private BigDecimal wsTimeNow;
+
+    @Column(name = "WS_TIME_NOW_GRP_HH")
+    private BigDecimal wsTimeNowGrpHh;
+
+    @Column(name = "WS_TIME_NOW_GRP_MM")
+    private BigDecimal wsTimeNowGrpMm;
+
+    @Column(name = "WS_TIME_NOW_GRP_SS")
+    private BigDecimal wsTimeNowGrpSs;
+
+    @Column(name = "WS_ABEND_PGM")
+    private String wsAbendPgm;
+
+}

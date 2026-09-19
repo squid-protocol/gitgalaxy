@@ -1,0 +1,190 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class CocrdupcDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_RESP_CD")
+    private Integer wsRespCd;
+
+    @Column(name = "WS_REAS_CD")
+    private Integer wsReasCd;
+
+    @Column(name = "WS_TRANID")
+    private String wsTranid;
+
+    @Column(name = "WS_UCTRANS")
+    private String wsUctrans;
+
+    @Column(name = "CARD_NAME_CHECK")
+    private String cardNameCheck;
+
+    @Column(name = "FLG_YES_NO_CHECK")
+    private String flgYesNoCheck;
+
+    @Column(name = "CARD_MONTH_CHECK")
+    private String cardMonthCheck;
+
+    @Column(name = "CARD_YEAR_CHECK")
+    private String cardYearCheck;
+
+    @Column(name = "CARD_CVV_CD_X")
+    private String cardCvvCdX;
+
+    @Column(name = "CARD_EXPIRY_YEAR")
+    private String cardExpiryYear;
+
+    @Column(name = "CARD_EXPIRY_MONTH")
+    private String cardExpiryMonth;
+
+    @Column(name = "CARD_EXPIRY_DAY")
+    private String cardExpiryDay;
+
+    @Column(name = "WS_CARD_RID_CARDNUM")
+    private String wsCardRidCardnum;
+
+    @Column(name = "WS_CARD_RID_ACCT_ID")
+    private BigDecimal wsCardRidAcctId;
+
+    @Column(name = "ERROR_OPNAME")
+    private String errorOpname;
+
+    @Column(name = "ERROR_FILE")
+    private String errorFile;
+
+    @Column(name = "ERROR_RESP")
+    private String errorResp;
+
+    @Column(name = "ERROR_RESP2")
+    private String errorResp2;
+
+    @Column(name = "WS_INFO_MSG")
+    private String wsInfoMsg;
+
+    @Column(name = "WS_RETURN_MSG")
+    private String wsReturnMsg;
+
+    @Column(name = "LIT_THISPGM")
+    private String litThispgm;
+
+    @Column(name = "LIT_THISTRANID")
+    private String litThistranid;
+
+    @Column(name = "LIT_THISMAPSET")
+    private String litThismapset;
+
+    @Column(name = "LIT_THISMAP")
+    private String litThismap;
+
+    @Column(name = "LIT_CCLISTPGM")
+    private String litCclistpgm;
+
+    @Column(name = "LIT_CCLISTMAPSET")
+    private String litCclistmapset;
+
+    @Column(name = "LIT_MENUPGM")
+    private String litMenupgm;
+
+    @Column(name = "LIT_MENUTRANID")
+    private String litMenutranid;
+
+    @Column(name = "LIT_CARDFILENAME")
+    private String litCardfilename;
+
+    @Column(name = "LIT_ALL_ALPHA_FROM")
+    private String litAllAlphaFrom;
+
+    @Column(name = "LIT_ALL_SPACES_TO")
+    private String litAllSpacesTo;
+
+    @Column(name = "LIT_UPPER")
+    private String litUpper;
+
+    @Column(name = "LIT_LOWER")
+    private String litLower;
+
+    @Column(name = "CCUP_CHANGE_ACTION")
+    private String ccupChangeAction;
+
+    @Column(name = "CCUP_OLD_ACCTID")
+    private String ccupOldAcctid;
+
+    @Column(name = "CCUP_OLD_CARDID")
+    private String ccupOldCardid;
+
+    @Column(name = "CCUP_OLD_CVV_CD")
+    private String ccupOldCvvCd;
+
+    @Column(name = "CCUP_OLD_CRDNAME")
+    private String ccupOldCrdname;
+
+    @Column(name = "CCUP_OLD_EXPYEAR")
+    private String ccupOldExpyear;
+
+    @Column(name = "CCUP_OLD_EXPMON")
+    private String ccupOldExpmon;
+
+    @Column(name = "CCUP_OLD_EXPDAY")
+    private String ccupOldExpday;
+
+    @Column(name = "CCUP_OLD_CRDSTCD")
+    private String ccupOldCrdstcd;
+
+    @Column(name = "CCUP_NEW_ACCTID")
+    private String ccupNewAcctid;
+
+    @Column(name = "CCUP_NEW_CARDID")
+    private String ccupNewCardid;
+
+    @Column(name = "CCUP_NEW_CVV_CD")
+    private String ccupNewCvvCd;
+
+    @Column(name = "CCUP_NEW_CRDNAME")
+    private String ccupNewCrdname;
+
+    @Column(name = "CCUP_NEW_EXPYEAR")
+    private String ccupNewExpyear;
+
+    @Column(name = "CCUP_NEW_EXPMON")
+    private String ccupNewExpmon;
+
+    @Column(name = "CCUP_NEW_EXPDAY")
+    private String ccupNewExpday;
+
+    @Column(name = "CCUP_NEW_CRDSTCD")
+    private String ccupNewCrdstcd;
+
+    @Column(name = "CARD_UPDATE_NUM")
+    private String cardUpdateNum;
+
+    @Column(name = "CARD_UPDATE_ACCT_ID")
+    private BigDecimal cardUpdateAcctId;
+
+    @Column(name = "CARD_UPDATE_CVV_CD")
+    private BigDecimal cardUpdateCvvCd;
+
+    @Column(name = "CARD_UPDATE_EMBOSSED_NAME")
+    private String cardUpdateEmbossedName;
+
+    @Column(name = "CARD_UPDATE_EXPIRAION_DATE")
+    private String cardUpdateExpiraionDate;
+
+    @Column(name = "CARD_UPDATE_ACTIVE_STATUS")
+    private String cardUpdateActiveStatus;
+
+    @Column(name = "WS_COMMAREA")
+    private String wsCommarea;
+
+}

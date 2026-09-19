@@ -1,0 +1,58 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class Cousr02cDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_PGMNAME")
+    private String wsPgmname;
+
+    @Column(name = "WS_TRANID")
+    private String wsTranid;
+
+    @Column(name = "WS_MESSAGE")
+    private String wsMessage;
+
+    @Column(name = "WS_USRSEC_FILE")
+    private String wsUsrsecFile;
+
+    @Column(name = "WS_ERR_FLG")
+    private String wsErrFlg;
+
+    @Column(name = "WS_RESP_CD")
+    private Integer wsRespCd;
+
+    @Column(name = "WS_REAS_CD")
+    private Integer wsReasCd;
+
+    @Column(name = "CDEMO_CU02_USRID_FIRST")
+    private String cdemoCu02UsridFirst;
+
+    @Column(name = "CDEMO_CU02_USRID_LAST")
+    private String cdemoCu02UsridLast;
+
+    @Column(name = "CDEMO_CU02_PAGE_NUM")
+    private BigDecimal cdemoCu02PageNum;
+
+    @Column(name = "CDEMO_CU02_NEXT_PAGE_FLG")
+    private String cdemoCu02NextPageFlg;
+
+    @Column(name = "CDEMO_CU02_USR_SEL_FLG")
+    private String cdemoCu02UsrSelFlg;
+
+    @Column(name = "CDEMO_CU02_USR_SELECTED")
+    private String cdemoCu02UsrSelected;
+
+}

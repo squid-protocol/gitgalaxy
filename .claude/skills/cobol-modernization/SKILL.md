@@ -65,7 +65,9 @@ Attribute every difference to one of the differential doc's four causes: old-par
 - **`edge_data` holds COPY/INCLUDE edges only.** It has no CALL, `EXEC PGM=` or SELECT/OPEN edges (#3200, #3201).
 - **The engine stores OS-native path separators.** `galaxy_ir` normalises them to `/` on load. Read the DB through it (`load_galaxy_ir`, then `lookup(file, root)`), not raw `sqlite3`, or Windows scans won't join.
 - **The forge's reachability pass and the answer key's `draft` share one control-flow model** (#3219). The forge's 680/680 and 62/62 on CBSA are therefore not independent evidence. A model defect would be invisible, so hand-check the source when a change touches reachability.
-- **Program keys:** outputs are keyed by stem when unique, else `a__b__STEM` (#3218). `cobol-to-java` still keys by file name (#3221).
+- **Program keys:** outputs are keyed by stem when unique, else `a__b__STEM` (#3218), and the Java forges
+  name every class from that key (#3221) via `cobol_to_java/cobol_to_java_names.py`. Never re-derive a
+  generated name from `metadata.file_name` or a schema `title` -- neither is unique across a repository.
 - **Determinism:**
   - Sort every set you serialise and every `glob`/`rglob` you iterate.
   - Sort by `p.parts` or `p.name`, never bare `Path`, because WindowsPath sorts case-insensitively (#3223 went red on Windows over exactly this).
@@ -79,14 +81,11 @@ Attribute every difference to one of the differential doc's four causes: old-par
 
 | issue | side | gap | unblocks |
 |---|---|---|---|
-| #3197 | engine | Area-B continuation lines ending in `.` become paragraphs (the 26 extra CBSA units) | clean unit inventory |
-| #3198 | engine | `usage_status`: entry flagged, case-sensitive, `NAME-EXIT` counts as a reference to `NAME` | dead-code switch (#3120) |
 | #3199 | engine | resolver drops ambiguous COPY targets (78/114 CBSA copybooks) | copybook switch |
 | #3200 | engine | no CALL / CICS LINK / XCTL / `EXEC PGM=` edges | lineage switch (#3120) |
 | #3201 | engine | no named SELECT/ASSIGN, OPEN modes or DD bindings | lineage switch (#3120) |
 | #3202 | engine | `calls_out_to` meaningless for COBOL | — |
 | #3211 | tooling | differential deltas carry no cause code; no unexplained-count gate | gating engine changes |
-| #3221 | forge | `cobol-to-java` collapses same-name programs | — |
 | #3222 | forge | 3 quadratic regexes (baselined) | — |
 | #3121 | CI | generated Spring Boot is never compiled | "generates" = "compiles" |
 

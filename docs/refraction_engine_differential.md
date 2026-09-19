@@ -250,3 +250,44 @@ reachability pass, which the answer key scores at 62/62 · 10/10 non-trivial on
 CBSA. A future engine-side reachability signal would be a new field beside
 `usage_status`, not a redefinition of it, and would need its own issue and
 evidence.
+
+## Update: Java names come from the clean-room key (#3221)
+
+The Java half of #3218. The clean room had already been keyed per path, but the
+forges under `gitgalaxy/tools/cobol_to_java/` re-derived their names downstream:
+a service and a controller from the IR's `metadata.file_name`, an entity from
+the schema's `title`. Neither is unique across a repository, so generation was
+not one output file per input file — the later file in filename order simply
+overwrote the earlier, with no warning.
+
+`cobol_to_java_names.py` now derives every generated name, and only, from the
+key (`output_key` → `java_class_base` / `java_url_segment`). A key that is a
+plain stem produces exactly the name the old code produced, so only a genuinely
+ambiguous program is renamed.
+
+| corpus | IR dumps | services (was) | schemas | entities (was) |
+|---|---|---|---|---|
+| zopeneditor-sample | 5 | 6 (3) | 5 | **5** (2) |
+| cics-banking-sample-application-cbsa | 31 | 31 (31) | 29 | **29** (3) |
+| aws-mainframe-modernization-carddemo | 39 | 44 (44) | 36 | **36** (13) |
+
+Service counts include mock services for unresolved CALLs, which is why they can
+exceed the IR count. Entities now match schemas exactly on all three corpora; 54
+programs' data layouts were being discarded, 26 of them on CBSA alone, because
+every CICS program titles its record `DFHCOMMAREA`.
+
+Two consequences worth naming:
+
+- **The `@Table` name is unchanged.** Only the Java class is disambiguated; the
+  COBOL 01-level it maps keeps its own name. CBSA therefore generates 26 entity
+  classes that all declare `@Table(name = "DFHCOMMAREA")`. That is a faithful
+  report of the source — they really are 26 different layouts of one CICS
+  communication area — and deciding what table each should map to is a semantic
+  question, tracked separately, not a naming one.
+- **An ambiguous CALL target now resolves to a mock.** zopeneditor's two SAM1
+  programs both `CALL SAM2`, and there are two SAM2 programs. Before, the class
+  named `Sam2Service` happened to be whichever real SAM2 was written last, so the
+  call silently bound to one of them. The real services are now
+  `CobolSam2Service` and `MultirootSamSam2Service`, and `Sam2Service` is the
+  generated mock for the unresolved call. The ambiguity was always there; it is
+  now visible in the output instead of resolved by file-write order.

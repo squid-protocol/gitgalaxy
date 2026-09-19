@@ -1,0 +1,127 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "ABNDINFO_REC")
+public class InqaccAbndinfoRec {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "HV_ACCOUNT_EYECATCHER")
+    private String hvAccountEyecatcher;
+
+    @Column(name = "HV_ACCOUNT_CUST_NO")
+    private String hvAccountCustNo;
+
+    @Column(name = "HV_ACCOUNT_SORTCODE")
+    private String hvAccountSortcode;
+
+    @Column(name = "HV_ACCOUNT_ACC_NO")
+    private String hvAccountAccNo;
+
+    @Column(name = "HV_ACCOUNT_ACC_TYPE")
+    private String hvAccountAccType;
+
+    @Column(name = "HV_ACCOUNT_INT_RATE")
+    private BigDecimal hvAccountIntRate;
+
+    @Column(name = "HV_ACCOUNT_OPENED")
+    private String hvAccountOpened;
+
+    @Column(name = "HV_ACCOUNT_OVERDRAFT_LIM")
+    private Integer hvAccountOverdraftLim;
+
+    @Column(name = "HV_ACCOUNT_LAST_STMT")
+    private String hvAccountLastStmt;
+
+    @Column(name = "HV_ACCOUNT_NEXT_STMT")
+    private String hvAccountNextStmt;
+
+    @Column(name = "HV_ACCOUNT_AVAIL_BAL")
+    private BigDecimal hvAccountAvailBal;
+
+    @Column(name = "HV_ACCOUNT_ACTUAL_BAL")
+    private BigDecimal hvAccountActualBal;
+
+    @Column(name = "WS_CICS_RESP")
+    private Integer wsCicsResp;
+
+    @Column(name = "WS_CICS_RESP2")
+    private Integer wsCicsResp2;
+
+    @Column(name = "RETURNED_SORT_CODE")
+    private BigDecimal returnedSortCode;
+
+    @Column(name = "RETURNED_NUMBER")
+    private BigDecimal returnedNumber;
+
+    @Column(name = "DB2_DATE_REF_YR")
+    private BigDecimal db2DateRefYr;
+
+    @Column(name = "DB2_DATE_REF_MNTH")
+    private BigDecimal db2DateRefMnth;
+
+    @Column(name = "DB2_DATE_REF_DAY")
+    private BigDecimal db2DateRefDay;
+
+    @Column(name = "REQUIRED_SORT_CODE")
+    private Integer requiredSortCode;
+
+    @Column(name = "MY_ABEND_CODE")
+    private String myAbendCode;
+
+    @Column(name = "WS_STORM_DRAIN")
+    private String wsStormDrain;
+
+    @Column(name = "STORM_DRAIN_CONDITION")
+    private String stormDrainCondition;
+
+    @Column(name = "SQLCODE_DISPLAY")
+    private Integer sqlcodeDisplay;
+
+    @Column(name = "NCS_ACC_NO_ACT_NAME")
+    private String ncsAccNoActName;
+
+    @Column(name = "NCS_ACC_NO_TEST_SORT")
+    private String ncsAccNoTestSort;
+
+    @Column(name = "NCS_ACC_NO_FILL")
+    private String ncsAccNoFill;
+
+    @Column(name = "NCS_ACC_NO_VALUE")
+    private Integer ncsAccNoValue;
+
+    @Column(name = "REQUIRED_ACC_NUMBER2")
+    private Integer requiredAccNumber2;
+
+    @Column(name = "WS_U_TIME")
+    private Integer wsUTime;
+
+    @Column(name = "WS_ORIG_DATE")
+    private String wsOrigDate;
+
+    @Column(name = "WS_TIME_NOW")
+    private BigDecimal wsTimeNow;
+
+    @Column(name = "WS_TIME_NOW_GRP_HH")
+    private BigDecimal wsTimeNowGrpHh;
+
+    @Column(name = "WS_TIME_NOW_GRP_MM")
+    private BigDecimal wsTimeNowGrpMm;
+
+    @Column(name = "WS_TIME_NOW_GRP_SS")
+    private BigDecimal wsTimeNowGrpSs;
+
+    @Column(name = "WS_ABEND_PGM")
+    private String wsAbendPgm;
+
+}

@@ -18,12 +18,25 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Optional
+
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
+    java_class_base,
+    java_url_segment,
+    output_key,
+    program_key_from_ir,
+)
 
 
-def generate_rest_controller(ir_state: dict, package_name: str) -> str:
-    """Generates the API endpoints and auto-wires the Service layer."""
-    prog_id = ir_state.get("metadata", {}).get("file_name", "Unknown").split(".")[0]
-    camel_prog = "".join(word.capitalize() for word in prog_id.split("-"))
+def generate_rest_controller(ir_state: dict, package_name: str, unit_key: Optional[str] = None) -> str:
+    """Generates the API endpoints and auto-wires the Service layer.
+
+    `unit_key` is the clean-room output key this IR was written under (#3221);
+    it names the class AND the `@RequestMapping` path, because two programs that
+    share a stem must not share a URL either.
+    """
+    prog_id = program_key_from_ir(ir_state, unit_key) or "Unknown"
+    camel_prog = java_class_base(prog_id, prefix="Legacy")
     service_var = camel_prog[0].lower() + camel_prog[1:] if camel_prog else "unknown"
 
     analysis = ir_state.get("analysis", {})
@@ -50,7 +63,7 @@ def generate_rest_controller(ir_state: dict, package_name: str) -> str:
     java.append("")
 
     java.append("@RestController")
-    java.append(f'@RequestMapping("/api/v1/{prog_id.lower()}")')
+    java.append(f'@RequestMapping("/api/v1/{java_url_segment(prog_id)}")')
     java.append("@RequiredArgsConstructor")
     java.append(f"public class {camel_prog}Controller {{\n")
 
@@ -149,9 +162,9 @@ def main():
 
     try:
         ir_state = json.loads(ir_path.read_text(encoding="utf-8"))
-        java_code = generate_rest_controller(ir_state, args.pkg)
-        prog_id = ir_state.get("metadata", {}).get("file_name", "Unknown").split(".")[0].capitalize()
-        out_path = ir_path.parent / f"{prog_id}Controller.java"
+        unit_key = output_key(ir_path, "_ir")
+        java_code = generate_rest_controller(ir_state, args.pkg, unit_key=unit_key)
+        out_path = ir_path.parent / f"{java_class_base(unit_key)}Controller.java"
         out_path.write_text(java_code, encoding="utf-8")
         print(f"🌐 API Contract Generated: {out_path.name}")
     except Exception as e:

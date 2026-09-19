@@ -1,0 +1,76 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class Cobil00cDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_PGMNAME")
+    private String wsPgmname;
+
+    @Column(name = "WS_TRANID")
+    private String wsTranid;
+
+    @Column(name = "WS_MESSAGE")
+    private String wsMessage;
+
+    @Column(name = "WS_TRANSACT_FILE")
+    private String wsTransactFile;
+
+    @Column(name = "WS_ACCTDAT_FILE")
+    private String wsAcctdatFile;
+
+    @Column(name = "WS_CXACAIX_FILE")
+    private String wsCxacaixFile;
+
+    @Column(name = "WS_ERR_FLG")
+    private String wsErrFlg;
+
+    @Column(name = "WS_RESP_CD")
+    private Integer wsRespCd;
+
+    @Column(name = "WS_REAS_CD")
+    private Integer wsReasCd;
+
+    @Column(name = "WS_TRAN_ID_NUM")
+    private Integer wsTranIdNum;
+
+    @Column(name = "WS_ABS_TIME")
+    private Integer wsAbsTime;
+
+    @Column(name = "WS_CUR_DATE_X10")
+    private String wsCurDateX10;
+
+    @Column(name = "WS_CUR_TIME_X08")
+    private String wsCurTimeX08;
+
+    @Column(name = "CDEMO_CB00_TRNID_FIRST")
+    private String cdemoCb00TrnidFirst;
+
+    @Column(name = "CDEMO_CB00_TRNID_LAST")
+    private String cdemoCb00TrnidLast;
+
+    @Column(name = "CDEMO_CB00_PAGE_NUM")
+    private BigDecimal cdemoCb00PageNum;
+
+    @Column(name = "CDEMO_CB00_NEXT_PAGE_FLG")
+    private String cdemoCb00NextPageFlg;
+
+    @Column(name = "CDEMO_CB00_TRN_SEL_FLG")
+    private String cdemoCb00TrnSelFlg;
+
+    @Column(name = "CDEMO_CB00_TRN_SELECTED")
+    private String cdemoCb00TrnSelected;
+
+}

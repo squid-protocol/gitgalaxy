@@ -1,0 +1,211 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class Bnk1dcsDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_CICS_RESP")
+    private Integer wsCicsResp;
+
+    @Column(name = "WS_CICS_RESP2")
+    private Integer wsCicsResp2;
+
+    @Column(name = "WS_CICS_FAIL_MSG")
+    private String wsCicsFailMsg;
+
+    @Column(name = "WS_CICS_RESP_DISP")
+    private Integer wsCicsRespDisp;
+
+    @Column(name = "WS_CICS_RESP2_DISP")
+    private Integer wsCicsResp2Disp;
+
+    @Column(name = "VALID_DATA_SW")
+    private String validDataSw;
+
+    @Column(name = "END_OF_SESSION_MESSAGE")
+    private String endOfSessionMessage;
+
+    @Column(name = "WS_UCTRANS")
+    private Integer wsUctrans;
+
+    @Column(name = "STORED_UCTRANS")
+    private Integer storedUctrans;
+
+    @Column(name = "COMM_DOB_SPLIT_DD")
+    private BigDecimal commDobSplitDd;
+
+    @Column(name = "COMM_DOB_SPLIT_MM")
+    private BigDecimal commDobSplitMm;
+
+    @Column(name = "COMM_DOB_SPLIT_YYYY")
+    private BigDecimal commDobSplitYyyy;
+
+    @Column(name = "COMM_ADDR_SPLIT1")
+    private String commAddrSplit1;
+
+    @Column(name = "COMM_ADDR_SPLIT2")
+    private String commAddrSplit2;
+
+    @Column(name = "COMM_ADDR_SPLIT3")
+    private String commAddrSplit3;
+
+    @Column(name = "COMM_DOBX_DD")
+    private String commDobxDd;
+
+    @Column(name = "COMM_DOBX_MM")
+    private String commDobxMm;
+
+    @Column(name = "COMM_DOBX_YYYY")
+    private String commDobxYyyy;
+
+    @Column(name = "COMM_DOB9_DD")
+    private BigDecimal commDob9Dd;
+
+    @Column(name = "COMM_DOB9_MM")
+    private BigDecimal commDob9Mm;
+
+    @Column(name = "COMM_DOB9_YYYY")
+    private BigDecimal commDob9Yyyy;
+
+    @Column(name = "COMM_CS_REVIEWX_DD")
+    private String commCsReviewxDd;
+
+    @Column(name = "COMM_CS_REVIEWX_MM")
+    private String commCsReviewxMm;
+
+    @Column(name = "COMM_CS_REVIEWX_YYYY")
+    private String commCsReviewxYyyy;
+
+    @Column(name = "COMM_CS_REVIEW9_DD")
+    private BigDecimal commCsReview9Dd;
+
+    @Column(name = "COMM_CS_REVIEW9_MM")
+    private BigDecimal commCsReview9Mm;
+
+    @Column(name = "COMM_CS_REVIEW9_YYYY")
+    private BigDecimal commCsReview9Yyyy;
+
+    @Column(name = "CREDIT_SCORE_X")
+    private String creditScoreX;
+
+    @Column(name = "CREDIT_SCORE_9")
+    private BigDecimal creditScore9;
+
+    @Column(name = "COMM_ADDR_UPD1")
+    private String commAddrUpd1;
+
+    @Column(name = "COMM_ADDR_UPD2")
+    private String commAddrUpd2;
+
+    @Column(name = "COMM_ADDR_UPD3")
+    private String commAddrUpd3;
+
+    @Column(name = "WS_COMM_TERM")
+    private Integer wsCommTerm;
+
+    @Column(name = "WS_COMM_EYE")
+    private String wsCommEye;
+
+    @Column(name = "WS_COMM_SCODE")
+    private String wsCommScode;
+
+    @Column(name = "WS_COMM_CUSTNO")
+    private String wsCommCustno;
+
+    @Column(name = "WS_COMM_NAME")
+    private String wsCommName;
+
+    @Column(name = "WS_COMM_ADDR")
+    private String wsCommAddr;
+
+    @Column(name = "WS_COMM_DOB")
+    private BigDecimal wsCommDob;
+
+    @Column(name = "WS_COMM_CREDIT_SCORE")
+    private BigDecimal wsCommCreditScore;
+
+    @Column(name = "WS_COMM_CS_REVIEW_DATE")
+    private BigDecimal wsCommCsReviewDate;
+
+    @Column(name = "WS_COMM_UPDATE")
+    private String wsCommUpdate;
+
+    @Column(name = "WS_VALIDATE_NAME")
+    private String wsValidateName;
+
+    @Column(name = "WS_UNSTR_TITLE")
+    private String wsUnstrTitle;
+
+    @Column(name = "WS_TITLE_VALID")
+    private String wsTitleValid;
+
+    @Column(name = "WS_U_TIME")
+    private Integer wsUTime;
+
+    @Column(name = "WS_ORIG_DATE")
+    private String wsOrigDate;
+
+    @Column(name = "WS_TIME_NOW")
+    private BigDecimal wsTimeNow;
+
+    @Column(name = "WS_TIME_NOW_GRP_HH")
+    private BigDecimal wsTimeNowGrpHh;
+
+    @Column(name = "WS_TIME_NOW_GRP_MM")
+    private BigDecimal wsTimeNowGrpMm;
+
+    @Column(name = "WS_TIME_NOW_GRP_SS")
+    private BigDecimal wsTimeNowGrpSs;
+
+    @Column(name = "WS_ABEND_PGM")
+    private String wsAbendPgm;
+
+    @Column(name = "COMM_TERM")
+    private Integer commTerm;
+
+    @Column(name = "COMM_EYE")
+    private String commEye;
+
+    @Column(name = "COMM_SCODE")
+    private String commScode;
+
+    @Column(name = "COMM_CUSTNO")
+    private String commCustno;
+
+    @Column(name = "COMM_NAME")
+    private String commName;
+
+    @Column(name = "COMM_ADDR")
+    private String commAddr;
+
+    @Column(name = "COMM_DOB")
+    private BigDecimal commDob;
+
+    @Column(name = "COMM_CREDIT_SCORE")
+    private BigDecimal commCreditScore;
+
+    @Column(name = "COMM_CS_REVIEW_DATE")
+    private BigDecimal commCsReviewDate;
+
+    @Column(name = "COMM_DEL_SUCCESS")
+    private String commDelSuccess;
+
+    @Column(name = "COMM_DEL_FAIL_CD")
+    private String commDelFailCd;
+
+    @Column(name = "COMM_UPD")
+    private String commUpd;
+
+}

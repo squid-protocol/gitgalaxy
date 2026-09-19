@@ -1,0 +1,58 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class Cotrn01cDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_PGMNAME")
+    private String wsPgmname;
+
+    @Column(name = "WS_TRANID")
+    private String wsTranid;
+
+    @Column(name = "WS_MESSAGE")
+    private String wsMessage;
+
+    @Column(name = "WS_TRANSACT_FILE")
+    private String wsTransactFile;
+
+    @Column(name = "WS_ERR_FLG")
+    private String wsErrFlg;
+
+    @Column(name = "WS_RESP_CD")
+    private Integer wsRespCd;
+
+    @Column(name = "WS_REAS_CD")
+    private Integer wsReasCd;
+
+    @Column(name = "CDEMO_CT01_TRNID_FIRST")
+    private String cdemoCt01TrnidFirst;
+
+    @Column(name = "CDEMO_CT01_TRNID_LAST")
+    private String cdemoCt01TrnidLast;
+
+    @Column(name = "CDEMO_CT01_PAGE_NUM")
+    private BigDecimal cdemoCt01PageNum;
+
+    @Column(name = "CDEMO_CT01_NEXT_PAGE_FLG")
+    private String cdemoCt01NextPageFlg;
+
+    @Column(name = "CDEMO_CT01_TRN_SEL_FLG")
+    private String cdemoCt01TrnSelFlg;
+
+    @Column(name = "CDEMO_CT01_TRN_SELECTED")
+    private String cdemoCt01TrnSelected;
+
+}

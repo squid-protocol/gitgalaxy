@@ -1,0 +1,100 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class Corpt00cDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_PGMNAME")
+    private String wsPgmname;
+
+    @Column(name = "WS_TRANID")
+    private String wsTranid;
+
+    @Column(name = "WS_MESSAGE")
+    private String wsMessage;
+
+    @Column(name = "WS_ERR_FLG")
+    private String wsErrFlg;
+
+    @Column(name = "WS_RESP_CD")
+    private Integer wsRespCd;
+
+    @Column(name = "WS_REAS_CD")
+    private Integer wsReasCd;
+
+    @Column(name = "WS_IDX")
+    private Integer wsIdx;
+
+    @Column(name = "WS_REPORT_NAME")
+    private String wsReportName;
+
+    @Column(name = "WS_START_DATE_YYYY")
+    private String wsStartDateYyyy;
+
+    @Column(name = "WS_START_DATE_MM")
+    private String wsStartDateMm;
+
+    @Column(name = "WS_START_DATE_DD")
+    private String wsStartDateDd;
+
+    @Column(name = "WS_END_DATE_YYYY")
+    private String wsEndDateYyyy;
+
+    @Column(name = "WS_END_DATE_MM")
+    private String wsEndDateMm;
+
+    @Column(name = "WS_END_DATE_DD")
+    private String wsEndDateDd;
+
+    @Column(name = "WS_DATE_FORMAT")
+    private String wsDateFormat;
+
+    @Column(name = "WS_NUM_99")
+    private Integer wsNum99;
+
+    @Column(name = "WS_NUM_9999")
+    private Integer wsNum9999;
+
+    @Column(name = "JCL_RECORD")
+    private String jclRecord;
+
+    @Column(name = "PARM_START_DATE_1")
+    private String parmStartDate1;
+
+    @Column(name = "PARM_END_DATE_1")
+    private String parmEndDate1;
+
+    @Column(name = "PARM_START_DATE_2")
+    private String parmStartDate2;
+
+    @Column(name = "PARM_END_DATE_2")
+    private String parmEndDate2;
+
+    @Column(name = "CSUTLDTC_DATE")
+    private String csutldtcDate;
+
+    @Column(name = "CSUTLDTC_DATE_FORMAT")
+    private String csutldtcDateFormat;
+
+    @Column(name = "CSUTLDTC_RESULT_SEV_CD")
+    private String csutldtcResultSevCd;
+
+    @Column(name = "CSUTLDTC_RESULT_MSG_NUM")
+    private String csutldtcResultMsgNum;
+
+    @Column(name = "CSUTLDTC_RESULT_MSG")
+    private String csutldtcResultMsg;
+
+}

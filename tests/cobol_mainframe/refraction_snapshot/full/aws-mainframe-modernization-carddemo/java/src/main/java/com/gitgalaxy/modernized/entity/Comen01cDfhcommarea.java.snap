@@ -1,0 +1,49 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class Comen01cDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_PGMNAME")
+    private String wsPgmname;
+
+    @Column(name = "WS_TRANID")
+    private String wsTranid;
+
+    @Column(name = "WS_MESSAGE")
+    private String wsMessage;
+
+    @Column(name = "WS_ERR_FLG")
+    private String wsErrFlg;
+
+    @Column(name = "WS_RESP_CD")
+    private Integer wsRespCd;
+
+    @Column(name = "WS_REAS_CD")
+    private Integer wsReasCd;
+
+    @Column(name = "WS_OPTION_X")
+    private String wsOptionX;
+
+    @Column(name = "WS_OPTION")
+    private Integer wsOption;
+
+    @Column(name = "WS_IDX")
+    private Integer wsIdx;
+
+    @Column(name = "WS_MENU_OPT_TXT")
+    private String wsMenuOptTxt;
+
+}

@@ -1,0 +1,64 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class Copaus2cDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_AUTH_TIME")
+    private BigDecimal wsAuthTime;
+
+    @Column(name = "WS_AUTH_YY")
+    private String wsAuthYy;
+
+    @Column(name = "WS_AUTH_MM")
+    private String wsAuthMm;
+
+    @Column(name = "WS_AUTH_DD")
+    private String wsAuthDd;
+
+    @Column(name = "WS_AUTH_HH")
+    private String wsAuthHh;
+
+    @Column(name = "WS_AUTH_MI")
+    private String wsAuthMi;
+
+    @Column(name = "WS_AUTH_SS")
+    private String wsAuthSs;
+
+    @Column(name = "WS_AUTH_SSS")
+    private String wsAuthSss;
+
+    @Column(name = "WS_ABS_TIME")
+    private Integer wsAbsTime;
+
+    @Column(name = "WS_CUR_DATE")
+    private String wsCurDate;
+
+    @Column(name = "WS_ACCT_ID")
+    private BigDecimal wsAcctId;
+
+    @Column(name = "WS_CUST_ID")
+    private BigDecimal wsCustId;
+
+    @Column(name = "WS_FRD_ACTION")
+    private String wsFrdAction;
+
+    @Column(name = "WS_FRD_UPDATE_STATUS")
+    private String wsFrdUpdateStatus;
+
+    @Column(name = "WS_FRD_ACT_MSG")
+    private String wsFrdActMsg;
+
+}

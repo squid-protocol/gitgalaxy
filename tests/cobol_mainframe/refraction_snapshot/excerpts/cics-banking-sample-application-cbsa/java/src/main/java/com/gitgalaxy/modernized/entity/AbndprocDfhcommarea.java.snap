@@ -1,0 +1,40 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class AbndprocDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_CICS_RESP")
+    private Integer wsCicsResp;
+
+    @Column(name = "WS_CICS_RESP2")
+    private Integer wsCicsResp2;
+
+    @Column(name = "WS_CUSTOMER_RANGE_TOP")
+    private String wsCustomerRangeTop;
+
+    @Column(name = "WS_CUSTOMER_RANGE_MIDDLE")
+    private String wsCustomerRangeMiddle;
+
+    @Column(name = "WS_CUSTOMER_RANGE_BOTTOM")
+    private String wsCustomerRangeBottom;
+
+    @Column(name = "COMM_UTIME_KEY")
+    private Integer commUtimeKey;
+
+    @Column(name = "COMM_TASKNO_KEY")
+    private BigDecimal commTasknoKey;
+
+}

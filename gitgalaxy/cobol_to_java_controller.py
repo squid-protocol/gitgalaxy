@@ -49,12 +49,17 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_build_forge import (
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_decoder_forge import (
     generate_decoder_util,
 )
+from gitgalaxy.tools.cobol_to_java.cobol_to_java_names import (
+    java_class_base,
+    output_key,
+)
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_service_forge import (
     generate_service_skeleton,
 )
 
 # Current Imports
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
+    entity_class_name,
     generate_java_entity,
 )
 
@@ -200,24 +205,13 @@ def main():
         for schema_file in sorted(schema_dir.glob("*_schema.json"), key=lambda p: p.name):
             try:
                 schema = json.loads(schema_file.read_text(encoding="utf-8"))
-                java_code = generate_java_entity(schema, args.pkg)
+                unit_key = output_key(schema_file, "_schema")
+                java_code = generate_java_entity(schema, args.pkg, unit_key=unit_key)
                 if java_header:
                     java_code = java_header + java_code
-                class_name = "".join(word.capitalize() for word in schema.get("title", "Entity").split("_"))
-
-                # Apply the exact same reserved word sanitization to the file name
-                reserved_classes = {
-                    "Entity",
-                    "Class",
-                    "System",
-                    "Object",
-                    "String",
-                    "Enum",
-                    "Record",
-                    "Thread",
-                }
-                if class_name in reserved_classes:
-                    class_name = "Legacy" + class_name
+                # #3221: named from the schema's own clean-room key, so two
+                # programs that both declare a DFHCOMMAREA get two classes.
+                class_name = entity_class_name(schema, unit_key)
 
                 out_path = java_dirs["entity"] / f"{class_name}.java"
                 out_path.write_text(java_code, encoding="utf-8")
@@ -232,7 +226,11 @@ def main():
         for ir_file in sorted(ir_dir.glob("*_ir.json"), key=lambda p: p.name):
             try:
                 ir_state = json.loads(ir_file.read_text(encoding="utf-8"))
-                raw_prog_id = ir_state.get("metadata", {}).get("file_name", "Unknown").split(".")[0]
+                # #3221: the clean room already disambiguated same-stemmed programs
+                # into COBOL__SAM2 / multiroot__sam__SAM2 (#3218). Name the Java
+                # from that key, not from metadata.file_name, which is SAM2.cbl for
+                # both and made the later one overwrite the earlier.
+                raw_prog_id = output_key(ir_file, "_ir")
 
                 # 🛡️ Prevent collision with Spring Boot's @Service annotation AND handle empty names
                 if not raw_prog_id or raw_prog_id.strip() == "":
@@ -240,14 +238,10 @@ def main():
                 elif raw_prog_id.lower() == "service":
                     raw_prog_id = "legacy-service"
 
-                # ⚠️ CRITICAL: Inject the safe raw name back into IR State so the generators process it correctly
-                ir_state.setdefault("metadata", {})["file_name"] = raw_prog_id + ".cbl"
-
-                # Ensure file names are perfectly camel-cased with no hyphens for this controller
-                safe_file_name = "".join(word.capitalize() for word in raw_prog_id.split("-"))
+                safe_file_name = java_class_base(raw_prog_id)
 
                 # 3A. Generate the @Service Skeleton
-                service_code = generate_service_skeleton(ir_state, args.pkg)
+                service_code = generate_service_skeleton(ir_state, args.pkg, unit_key=raw_prog_id)
                 if java_header:
                     service_code = java_header + service_code
                 out_path_svc = java_dirs["service"] / f"{safe_file_name}Service.java"
@@ -257,7 +251,7 @@ def main():
                 # 3B. Generate the @RestController
                 lineage = ir_state.get("analysis", {}).get("lineage", {})
                 if lineage and (lineage.get("inputs") or lineage.get("outputs") or lineage.get("unresolved_calls")):
-                    java_code = generate_rest_controller(ir_state, args.pkg)
+                    java_code = generate_rest_controller(ir_state, args.pkg, unit_key=raw_prog_id)
                     if java_header:
                         java_code = java_header + java_code
                     out_path_ctrl = java_dirs["controller"] / f"{safe_file_name}Controller.java"
@@ -272,7 +266,7 @@ def main():
                     if not sub or not sub.strip():
                         continue
 
-                    safe_sub_name = "".join(word.capitalize() for word in sub.replace("-", "_").split("_"))
+                    safe_sub_name = java_class_base(sub, prefix="")
 
                     # If it stripped down to nothing, skip it to prevent writing "Service.java"
                     if not safe_sub_name:
@@ -296,7 +290,9 @@ def main():
         for slice_file in sorted(slice_dir.glob("*_slice.json"), key=lambda p: p.name):
             try:
                 slice_data = json.loads(slice_file.read_text(encoding="utf-8"))
-                prog_id = slice_file.name.split("_")[0]
+                # #3221: `name.split("_")[0]` returned COBOL for COBOL__SAM2_slice.json,
+                # so the IR never resolved and two programs shared one job file.
+                prog_id = output_key(slice_file, "_slice")
                 ir_file = ir_dir / f"{prog_id}_ir.json"
                 ir_state = json.loads(ir_file.read_text(encoding="utf-8")) if ir_file.exists() else None
 

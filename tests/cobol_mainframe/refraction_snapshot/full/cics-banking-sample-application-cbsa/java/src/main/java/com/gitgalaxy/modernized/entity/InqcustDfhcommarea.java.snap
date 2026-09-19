@@ -1,0 +1,109 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class InqcustDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "SYSIDERR_RETRY")
+    private BigDecimal sysiderrRetry;
+
+    @Column(name = "INQCUST_RETRY")
+    private BigDecimal inqcustRetry;
+
+    @Column(name = "WS_CICS_RESP")
+    private Integer wsCicsResp;
+
+    @Column(name = "WS_CICS_RESP2")
+    private Integer wsCicsResp2;
+
+    @Column(name = "REQUIRED_SORT_CODE")
+    private Integer requiredSortCode;
+
+    @Column(name = "REQUIRED_CUST_NUMBER")
+    private Integer requiredCustNumber;
+
+    @Column(name = "REQUIRED_CUST_NUMBER2")
+    private Integer requiredCustNumber2;
+
+    @Column(name = "RANDOM_CUSTOMER")
+    private Integer randomCustomer;
+
+    @Column(name = "EXIT_VSAM_READ")
+    private String exitVsamRead;
+
+    @Column(name = "EXIT_DB2_READ")
+    private String exitDb2Read;
+
+    @Column(name = "WS_V_RETRIED")
+    private String wsVRetried;
+
+    @Column(name = "WS_D_RETRIED")
+    private String wsDRetried;
+
+    @Column(name = "NCS_CUST_NO_ACT_NAME")
+    private String ncsCustNoActName;
+
+    @Column(name = "NCS_CUST_NO_TEST_SORT")
+    private String ncsCustNoTestSort;
+
+    @Column(name = "NCS_CUST_NO_FILL")
+    private String ncsCustNoFill;
+
+    @Column(name = "NCS_CUST_NO_VALUE")
+    private Integer ncsCustNoValue;
+
+    @Column(name = "WS_CUSTOMER_RANGE_TOP")
+    private String wsCustomerRangeTop;
+
+    @Column(name = "WS_CUSTOMER_RANGE_MIDDLE")
+    private String wsCustomerRangeMiddle;
+
+    @Column(name = "WS_CUSTOMER_RANGE_BOTTOM")
+    private String wsCustomerRangeBottom;
+
+    @Column(name = "REMIX_SCODE_NUM")
+    private BigDecimal remixScodeNum;
+
+    @Column(name = "REMIX2_CREDIT_SCR_NUM")
+    private BigDecimal remix2CreditScrNum;
+
+    @Column(name = "MY_ABEND_CODE")
+    private String myAbendCode;
+
+    @Column(name = "WS_STORM_DRAIN")
+    private String wsStormDrain;
+
+    @Column(name = "WS_U_TIME")
+    private Integer wsUTime;
+
+    @Column(name = "WS_ORIG_DATE")
+    private String wsOrigDate;
+
+    @Column(name = "WS_TIME_NOW")
+    private BigDecimal wsTimeNow;
+
+    @Column(name = "WS_TIME_NOW_GRP_HH")
+    private BigDecimal wsTimeNowGrpHh;
+
+    @Column(name = "WS_TIME_NOW_GRP_MM")
+    private BigDecimal wsTimeNowGrpMm;
+
+    @Column(name = "WS_TIME_NOW_GRP_SS")
+    private BigDecimal wsTimeNowGrpSs;
+
+    @Column(name = "WS_ABEND_PGM")
+    private String wsAbendPgm;
+
+}

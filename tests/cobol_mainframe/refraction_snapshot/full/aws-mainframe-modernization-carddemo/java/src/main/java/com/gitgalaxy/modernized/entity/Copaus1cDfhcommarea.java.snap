@@ -1,0 +1,109 @@
+package com.gitgalaxy.modernized.entity;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@Entity
+@Table(name = "DFHCOMMAREA")
+public class Copaus1cDfhcommarea {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "sys_id")
+    private Long sysId;
+
+    @Column(name = "WS_PGM_AUTH_DTL")
+    private String wsPgmAuthDtl;
+
+    @Column(name = "WS_PGM_AUTH_SMRY")
+    private String wsPgmAuthSmry;
+
+    @Column(name = "WS_PGM_AUTH_FRAUD")
+    private String wsPgmAuthFraud;
+
+    @Column(name = "WS_CICS_TRANID")
+    private String wsCicsTranid;
+
+    @Column(name = "WS_MESSAGE")
+    private String wsMessage;
+
+    @Column(name = "WS_ERR_FLG")
+    private String wsErrFlg;
+
+    @Column(name = "WS_ACCT_ID")
+    private BigDecimal wsAcctId;
+
+    @Column(name = "WS_AUTH_KEY")
+    private String wsAuthKey;
+
+    @Column(name = "WS_AUTH_AMT")
+    private BigDecimal wsAuthAmt;
+
+    @Column(name = "WS_AUTH_DATE")
+    private String wsAuthDate;
+
+    @Column(name = "WS_AUTH_TIME")
+    private String wsAuthTime;
+
+    @Column(name = "DECL_CODE")
+    private String declCode;
+
+    @Column(name = "DECL_DESC")
+    private String declDesc;
+
+    @Column(name = "PSB_NAME")
+    private String psbName;
+
+    @Column(name = "PAUT_PCB_NUM")
+    private Integer pautPcbNum;
+
+    @Column(name = "IMS_RETURN_CODE")
+    private String imsReturnCode;
+
+    @Column(name = "WS_FRD_ACCT_ID")
+    private BigDecimal wsFrdAcctId;
+
+    @Column(name = "WS_FRD_CUST_ID")
+    private BigDecimal wsFrdCustId;
+
+    @Column(name = "WS_FRAUD_AUTH_RECORD")
+    private String wsFraudAuthRecord;
+
+    @Column(name = "WS_FRD_ACTION")
+    private String wsFrdAction;
+
+    @Column(name = "WS_FRD_UPDATE_STATUS")
+    private String wsFrdUpdateStatus;
+
+    @Column(name = "WS_FRD_ACT_MSG")
+    private String wsFrdActMsg;
+
+    @Column(name = "CDEMO_CPVD_PAU_SEL_FLG")
+    private String cdemoCpvdPauSelFlg;
+
+    @Column(name = "CDEMO_CPVD_PAU_SELECTED")
+    private String cdemoCpvdPauSelected;
+
+    @Column(name = "CDEMO_CPVD_PAUKEY_PREV_PG")
+    private String cdemoCpvdPaukeyPrevPg;
+
+    @Column(name = "CDEMO_CPVD_PAUKEY_LAST")
+    private String cdemoCpvdPaukeyLast;
+
+    @Column(name = "CDEMO_CPVD_PAGE_NUM")
+    private Integer cdemoCpvdPageNum;
+
+    @Column(name = "CDEMO_CPVD_NEXT_PAGE_FLG")
+    private String cdemoCpvdNextPageFlg;
+
+    @Column(name = "CDEMO_CPVD_AUTH_KEYS")
+    private String cdemoCpvdAuthKeys;
+
+    @Column(name = "CDEMO_CPVD_FRAUD_DATA")
+    private String cdemoCpvdFraudData;
+
+}

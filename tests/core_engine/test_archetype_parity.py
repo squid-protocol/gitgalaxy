@@ -31,7 +31,12 @@ from gitgalaxy.standards import analysis_lens
 # blindly to make the test pass.
 EXPECTED_CONTRACT_SHA = {
     "file": "92c0b8a801d69bb0",
-    "repo": "5858e2d9914677a1",
+    # repo contract changed by the v2.9.0-corpus refreeze: the repo brain's
+    # per-repo composition features (c_<file-archetype>) follow the file
+    # composition archetypes, which were retrained on the 739-repo v2.9.0 scan.
+    # Engine review: parity scan classifies functions/files/composition/repo
+    # with no dimension mismatch and no Unclassified flood.
+    "repo": "7f4885b42206d553",
 }
 
 REQUIRED_PROVENANCE_KEYS = {

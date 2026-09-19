@@ -653,12 +653,19 @@ class RecordKeeper:
                 is_public INTEGER DEFAULT 0,
                 is_documented INTEGER DEFAULT 0,
                 {", ".join(hit_cols)},
+                impact REAL DEFAULT 0.0,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
 
         # gitgalaxy#2985: function_data's half of the hit_cols heal.
         _ensure_columns(cursor, "function_data", hit_cols)
+
+        # #3220: func["impact"] (round(magnitude,1)) is a parse-time per-function
+        # structural weight _calc_verification reads to size untested impact. It was
+        # never persisted, so rehydrated functions defaulted it to 0.0 and
+        # risk_verification drifted. Persist it so a delta rehydrate reproduces it.
+        _ensure_columns(cursor, "function_data", ["impact REAL DEFAULT 0.0"])
 
         # DEFENSIVE GUARD: Indexes to Prevent Cascade Delete Hangs
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_class_file_id ON class_data(file_id);")
@@ -1367,6 +1374,8 @@ class RecordKeeper:
                         int(bool(func.get("is_documented", False))),
                     ]
                     + func_hits
+                    # #3220: trailing impact column (matches the INSERT list below).
+                    + [round(float(func.get("impact", 0.0) or 0.0), 1)]
                 )
 
         # #3183 (B1): flush file_data then class_data in FK-safe order (parents
@@ -1427,7 +1436,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])})
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

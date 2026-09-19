@@ -124,6 +124,19 @@ def test_a_multi_repo_db_needs_an_explicit_repo_name(scanned, tmp_path):
     assert load_galaxy_ir(copy, repo_name="legacy").programs()[0].program_ids == ["PAYROLL"]
 
 
+def test_windows_separators_are_normalized(scanned, tmp_path):
+    """A DB scanned on Windows stores `src\\PAYROLL.cbl`; the reader keys by POSIX form."""
+    repo, db = scanned
+    copy = tmp_path / "windows.db"
+    shutil.copy(db, copy)
+    with sqlite3.connect(copy) as conn:
+        conn.execute("UPDATE file_data SET file_path = REPLACE(file_path, '/', '\\')")
+    ir = load_galaxy_ir(copy)
+    assert [f.file_path for f in ir.programs()] == ["src/PAYROLL.cbl"]
+    assert ir.files["src/PAYROLL.cbl"].copy_deps == ["copy/EMPREC.cpy"]
+    assert ir.lookup(repo / "src" / "PAYROLL.cbl", repo) is ir.files["src/PAYROLL.cbl"]
+
+
 # ==============================================================================
 # Refractor wiring
 # ==============================================================================

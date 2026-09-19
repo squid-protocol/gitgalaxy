@@ -126,7 +126,10 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
             (repo_name, commit_hash),
         ):
             ef = EngineFile(
-                file_path=rec[1],
+                # The engine records OS-native separators (backslashes on
+                # Windows); key everything by POSIX form so lookup() and
+                # `target / file_path` agree on every platform.
+                file_path=(rec[1] or "").replace("\\", "/"),
                 language=rec[2] or "",
                 total_loc=int(rec[3]),
                 signals={c: int(v) for c, v in zip(SIGNAL_COLUMNS, rec[4:])},

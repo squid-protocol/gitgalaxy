@@ -241,10 +241,19 @@ class StateRehydrator:
                         # engine stores the complexity/branch metric under "branch"
                         # (signal_processor reads func["branch"] for z-scores + archetype).
                         "branch": r["complexity"] if "complexity" in rk and r["complexity"] is not None else 0,
-                        # PER-FUNCTION hit_vector is a DICT keyed by hit-column name
-                        # (signal_processor does hv.get(<col>)), NOT a list like the
-                        # file-level hit_vector. function_data persists the same columns.
-                        "hit_vector": {c: int(r[c]) for c in hit_cols if c in rk and r[c] is not None},
+                        # PER-FUNCTION hit_vector is a DICT keyed by SIGNAL_SCHEMA NAME
+                        # (network_risk_sensor / signal_processor do hv.get("test"),
+                        # hv.get("decorators"), hv.get("branch") ...), NOT by the persisted
+                        # column name and NOT a list like the file-level hit_vector. The
+                        # value comes from the SHORT_KEY_MAP-renamed column function_data
+                        # stores. Keying by column name (struct_branch/def_test) made every
+                        # hv.get(<signal>) miss -> zeroed density features -> wrong function
+                        # archetype -> cognitive_load/safety_score/state_flux drift.
+                        "hit_vector": {
+                            signal_names[i]: int(r[hit_cols[i]])
+                            for i in range(len(signal_names))
+                            if hit_cols[i] in rk and r[hit_cols[i]] is not None
+                        },
                     }
                     # Carry every persisted per-function column through unchanged too, so
                     # any consumer key we did not alias above still resolves (loc, args,

@@ -29,7 +29,14 @@ from __future__ import annotations
 
 import pytest
 
-from gitgalaxy.core.detector import INVOCATION_BY_NAME, INVOCATION_MODELS, INVOCATION_POSITIONAL, StructuralExtractor
+from gitgalaxy.core.detector import (
+    IDENTIFIER_CASE_SENSITIVE,
+    IDENTIFIER_CASES,
+    INVOCATION_BY_NAME,
+    INVOCATION_MODELS,
+    INVOCATION_POSITIONAL,
+    StructuralExtractor,
+)
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
 
@@ -305,3 +312,80 @@ def test_synthetic_slicer_buckets_are_not_censused():
     """#2547/#2728: a keyword cannot be unreferenced, because it is not a name."""
     docker = "FROM scratch\nRUN echo one\nRUN echo two\n"
     assert _census("dockerfile", docker) == 0
+
+
+# --- corollary 7: an occurrence is judged by the language's own lexicon -------
+
+
+def _lexicon(lang: str) -> tuple[str, str]:
+    definition = LANGUAGE_DEFINITIONS[lang]
+    return (
+        definition.get("identifier_case", IDENTIFIER_CASE_SENSITIVE),
+        definition.get("identifier_extra_chars", "") or "",
+    )
+
+
+def test_identifier_case_values_are_a_closed_set():
+    """A typo in a registry must not silently mean "case-sensitive" (the #2806
+    argument for `invocation_model`, applied to the same shape)."""
+    for lang in LANGUAGE_DEFINITIONS:
+        case, _ = _lexicon(lang)
+        assert case in IDENTIFIER_CASES, f"{lang} declares identifier_case={case!r}"
+
+
+def test_exactly_the_declared_languages_carry_a_lexicon():
+    """Kept as a literal so WIDENING the family is a reviewed edit. Every other
+    language keeps the case-sensitive, `\\w`-only reading and is unchanged by
+    construction (#3198).
+
+    cobol is first because the refraction pipeline reads its census; the other
+    case-insensitive languages (fortran, pli, rexx, hlasm, abap, ...) are audited
+    per language in #3225 -- declaring one is a behaviour change that needs its
+    own corpus evidence, not a bulk edit.
+    """
+    declared = {lang for lang in LANGUAGE_DEFINITIONS if _lexicon(lang) != (IDENTIFIER_CASE_SENSITIVE, "")}
+    assert declared == {"cobol"}
+
+
+def test_a_case_insensitive_language_sees_a_differently_cased_call():
+    """COBOL names are case-insensitive: `perform a-para` names `A-PARA`."""
+    code = (
+        "       PROCEDURE DIVISION.\n"
+        "       MAIN-PARA.\n"
+        "           perform a-para.\n"
+        "           STOP RUN.\n"
+        "       A-PARA.\n"
+        "           DISPLAY 'A'.\n"
+    )
+    status = {
+        f["name"]: f["usage_status"]
+        for f in StructuralExtractor("cobol", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    }
+    assert status["A-PARA"] == 0, "a lower-case PERFORM is still a reference"
+
+
+def test_a_longer_name_is_not_a_mention_of_the_name_it_begins_with():
+    """`-` is a COBOL name character, so `B-PARA-EXIT` does not name `B-PARA`."""
+    code = (
+        "       PROCEDURE DIVISION.\n"
+        "       MAIN-PARA.\n"
+        "           PERFORM B-PARA-EXIT.\n"
+        "           STOP RUN.\n"
+        "       B-PARA.\n"
+        "           DISPLAY 'B'.\n"
+        "       B-PARA-EXIT.\n"
+        "           EXIT.\n"
+    )
+    status = {
+        f["name"]: f["usage_status"]
+        for f in StructuralExtractor("cobol", LANGUAGE_DEFINITIONS).splice(code, "")["functions"]
+    }
+    assert status["B-PARA"] == 1, "only named as the prefix of a different paragraph"
+    assert status["B-PARA-EXIT"] == 0
+
+
+def test_a_hyphen_is_still_a_boundary_for_a_language_that_declares_nothing():
+    """The default reading is unchanged: scheme's `set-x!` mentions `set`'s name
+    the way it always did, because scheme declares no extra name characters."""
+    case, extra = _lexicon("scheme")
+    assert (case, extra) == (IDENTIFIER_CASE_SENSITIVE, "")

@@ -15,6 +15,7 @@
 # galaxyscope:ignore sec_high_risk_execution
 
 import bisect
+import functools
 import logging
 import math
 import re
@@ -982,6 +983,37 @@ INVOCATION_BY_NAME = "by_name"
 INVOCATION_POSITIONAL = "positional"
 INVOCATION_MODELS = frozenset({INVOCATION_BY_NAME, INVOCATION_POSITIONAL})
 
+# #3198: a registry may declare the lexical rules its own identifiers follow,
+# through two top-level keys (beside `lexical_family`, never inside `rules` --
+# `language_lens.py` compiles every string value in `rules` into a regex).
+# The `unreferenced_by_name` census asks whether a name occurs outside its own
+# unit, and "occurs" has to mean what the LANGUAGE means by it:
+#   `identifier_case: "insensitive"` -- `perform a-para` names `A-PARA`. COBOL,
+#       and every other case-insensitive language, writes call sites in whatever
+#       case it likes; a case-sensitive test reads them as no reference at all.
+#   `identifier_extra_chars` -- characters that are part of a name beyond `\w`.
+#       COBOL's `-` is the common case: without it the boundary `(?!\w)` lets
+#       `B-PARA-EXIT` count as a mention of `B-PARA`, and a paragraph reads as
+#       referenced because a DIFFERENT paragraph's name starts with its name.
+# Both default to the case-sensitive, `\w`-only reading, so a language that
+# declares neither is unchanged by construction. See
+# `docs/unreferenced_by_name_contract.md`, corollary 7.
+IDENTIFIER_CASE_SENSITIVE = "sensitive"
+IDENTIFIER_CASE_INSENSITIVE = "insensitive"
+IDENTIFIER_CASES = frozenset({IDENTIFIER_CASE_SENSITIVE, IDENTIFIER_CASE_INSENSITIVE})
+
+
+@functools.lru_cache(maxsize=8)
+def _name_token_re(extra_chars: str) -> "re.Pattern[str]":
+    """Compiled whole-identifier-token matcher for a language's declared alphabet."""
+    return re.compile(_name_token_pattern(extra_chars))
+
+
+def _name_token_pattern(extra_chars: str) -> str:
+    r"""The character class of a whole identifier token, `\w` plus any declared extras."""
+    return r"[\w" + "".join(re.escape(c) for c in sorted(set(extra_chars))) + r"]+"
+
+
 # #2904: the export-visibility models a registry may declare through the
 # top-level `export_visibility` key. `standard` is the default and needs no
 # declaration: a symbol an `export`/visibility construct marks is an ordinary
@@ -1135,6 +1167,16 @@ def _name_boundary_pattern(func_name: str) -> str:
     to `\b` for an all-`\w` name, so no currently-correct language moves.
     """
     return r"(?<!\w)" + re.escape(func_name) + r"(?!\w)"
+
+
+def _name_boundary_pattern_for(func_name: str, extra_chars: str) -> str:
+    """`_name_boundary_pattern` with a language's declared extra name characters
+    treated as part of a name (#3198): with `-` declared, `B-PARA-EXIT` no longer
+    contains an occurrence of `B-PARA`."""
+    if not extra_chars:
+        return _name_boundary_pattern(func_name)
+    cls = r"\w" + "".join(re.escape(c) for c in sorted(set(extra_chars)))
+    return r"(?<![" + cls + r"])" + re.escape(func_name) + r"(?![" + cls + r"])"
 
 
 # A name that is a single maximal word token. For such names the boundary
@@ -1910,8 +1952,23 @@ class StructuralExtractor:
             # are a single \w+ token use it; names with non-word characters
             # (ruby `empty?`, scheme `set!`, C++ `operator==`) keep the exact
             # boundary-regex fallback inside `_is_orphan`.
+            # #3198: the language's own identifier lexicon (see
+            # IDENTIFIER_CASE_INSENSITIVE). A language that declares either key
+            # indexes WHOLE tokens of its own alphabet -- so `B-PARA-EXIT` is one
+            # token and contains no occurrence of `B-PARA` -- case-folded when its
+            # names are case-insensitive, so `perform a-para` names `A-PARA`.
+            _lang_def = self.languages.get(self.primary_lang_id, {})
+            _name_extra_chars: str = _lang_def.get("identifier_extra_chars", "") or ""
+            _name_fold_case: bool = _lang_def.get("identifier_case") == IDENTIFIER_CASE_INSENSITIVE
+            _declared_lexicon = bool(_name_extra_chars or _name_fold_case)
+
             orphan_occ_index: Optional[dict[str, list[int]]] = None
-            if names_its_callees and functions:
+            if names_its_callees and functions and _declared_lexicon:
+                orphan_occ_index = collections.defaultdict(list)
+                for _m in _name_token_re(_name_extra_chars).finditer(code_stream):
+                    _tok = _m.group()
+                    orphan_occ_index[_tok.casefold() if _name_fold_case else _tok].append(_m.start())
+            elif names_its_callees and functions:
                 orphan_occ_index = collections.defaultdict(list)
                 for _m in re.finditer(r"\w+", code_stream):
                     orphan_occ_index[_m.group()].append(_m.start())
@@ -1925,7 +1982,7 @@ class StructuralExtractor:
                 # and segment alignment makes `occ_index[name]` exactly the set of
                 # `(?<!\w)name(?!\w)` match starts -- byte-identical to the fallback.
                 _wanted_hyphen = {n for n in func_names if "-" in n}
-                if _wanted_hyphen:
+                if _wanted_hyphen and not _declared_lexicon:
                     for _m in re.finditer(r"[\w-]+", code_stream):
                         _tok = _m.group()
                         if "-" not in _tok:
@@ -2008,7 +2065,13 @@ class StructuralExtractor:
                         usage_status = 2  # 2 = Duplicate
                         duplicate_count += 1
                     elif names_its_callees and self._is_orphan(
-                        code_stream, func, func_name, export_name_starts, orphan_occ_index
+                        code_stream,
+                        func,
+                        func_name,
+                        export_name_starts,
+                        orphan_occ_index,
+                        fold_case=_name_fold_case,
+                        extra_name_chars=_name_extra_chars,
                     ):
                         # Nothing outside the function's own definition names it.
                         #
@@ -3903,6 +3966,17 @@ class StructuralExtractor:
             matches = list(func_start.finditer(code))  # type: ignore[union-attr]
         except Exception:
             return [], 0.0
+
+        # #3197: a `_scope_filters` entry for `func_start` has to reach THIS
+        # consumer too. coding_analysis applies it to the COUNT; the unit list
+        # is built here, and a filter only one of them honours would make
+        # `func_start` and `function_data` disagree about the same file
+        # (the #2753 unfiltered-consumer trap).
+        _fs_filter = (rules.get("_scope_filters") or {}).get("func_start")
+        if _fs_filter and matches:
+            matches = self._apply_scope_filter(_fs_filter, self.primary_lang_id, "func_start", code, matches, {})
+            if not matches:
+                return [], 0.0
 
         # #1918: built once per file, not per function -- ABAP's real parameter
         # declarations live in the DEFINITION section, never in the IMPLEMENTATION body
@@ -7292,6 +7366,18 @@ class StructuralExtractor:
                 if idx not in drop:
                     kept.append(m)
             return kept
+        if filter_name == "cobol_sentence_start":
+            # #3197: keep only the paragraph/section headers that begin a new
+            # SENTENCE. A COBOL header can only appear where the previous
+            # sentence has ended, so the last line of a multi-line statement
+            # (`DISPLAY 'x: '` / `WS-COUNT.`) is not a paragraph, however it is
+            # indented. Anchoring on Area A instead would be wrong: real
+            # paragraphs sit in Area B in accepted source (a compiler warns and
+            # carries on), measured on language-crucible v1.3.0.
+            if filter_name not in cache:
+                cache[filter_name] = self._cobol_sentence_start_offsets(code)
+            keep = cache[filter_name]
+            return [m for m in matches if m.start() in keep]
         if filter_name == "jcl_instream_payload":
             # #3010: keep high_risk_execution's BIND-branch hits only when
             # they fall inside a DD */DD DATA in-stream payload span. Only
@@ -7392,6 +7478,55 @@ class StructuralExtractor:
                 stack.pop()
             i += 1
         return members
+
+    # #3197: a COBOL line whose content is only one of these keywords plus its
+    # period is a header paragraph whose OPERAND is written on the next line
+    # (`PROGRAM-ID.` / `COACTUPC.`, `DATE-COMPILED.` / `Today.`,
+    # `OBJECT-COMPUTER.` / `XXXXX083.`). The period ends a sentence, so the
+    # operand would otherwise read as a paragraph header. Confirmed on
+    # aws-mainframe-modernization-carddemo and the crucible's NIST CCVS85 set.
+    _COBOL_OPERAND_ON_NEXT_LINE: ClassVar[re.Pattern[str]] = re.compile(
+        r"(?:PROGRAM-ID|CLASS-ID|FUNCTION-ID|METHOD-ID|AUTHOR|INSTALLATION|DATE-WRITTEN|DATE-COMPILED"
+        r"|SECURITY|REMARKS|SOURCE-COMPUTER|OBJECT-COMPUTER)\.$",
+        re.I,
+    )
+    # A fixed-format sequence area: six digits, or six blanks. Free-format
+    # source has real content in those columns (`PROCEDURE DIVISION.` at
+    # column 1), and its first six characters match neither.
+    _COBOL_SEQUENCE_AREA: ClassVar[re.Pattern[str]] = re.compile(r"^(?:[0-9]{6}|[ ]{6})")
+
+    def _cobol_sentence_start_offsets(self, code: str) -> set[int]:
+        """Line-start offsets in `code` where a new COBOL sentence may begin.
+
+        A paragraph or section header is only a header where the previous
+        sentence has ended, which is what separates a real one from the last
+        line of a multi-line statement or data description (#3197). The scan is
+        format-independent: it reads each line's content area (dropping a
+        fixed-format sequence area and anything past column 72, the
+        identification area) and asks whether it ends in a period.
+
+        `func_start` is `^`-anchored under re.M, so a match starts exactly at
+        one of these line offsets.
+        """
+        starts: set[int] = set()
+        opens_sentence = True  # the first line of the stream
+        pos = 0
+        for line in code.splitlines(keepends=True):
+            if opens_sentence:
+                starts.add(pos)
+            stripped = line.rstrip("\r\n")
+            content = stripped[:72] if len(stripped) > 72 else stripped
+            if self._COBOL_SEQUENCE_AREA.match(content):
+                indicator = content[6:7]
+                content = content[7:] if indicator and indicator not in " -" else content[6:]
+            text = content.strip()
+            if text:
+                # A continuation line (`-` in column 7) belongs to the sentence
+                # above it, and a blank line decides nothing -- only a line with
+                # real content updates the verdict.
+                opens_sentence = text.endswith(".") and not self._COBOL_OPERAND_ON_NEXT_LINE.search(text)
+            pos += len(line)
+        return starts
 
     def _matlab_return_channel_offsets(self, code: str) -> set[int]:
         """
@@ -8566,6 +8701,8 @@ class StructuralExtractor:
         func_name: str,
         export_name_starts: frozenset[int] = frozenset(),
         occ_index: "Optional[dict[str, list[int]]]" = None,
+        fold_case: bool = False,
+        extra_name_chars: str = "",
     ) -> bool:
         """Does `func_name` occur anywhere outside its own definition?
 
@@ -8589,6 +8726,11 @@ class StructuralExtractor:
         definition site is outside it by construction and exactly one outside
         occurrence is that declaration -- discount it. With the correction no
         language decreases; the crucible total moves 7397 -> 8385.
+
+        #3198: `fold_case` and `extra_name_chars` carry the language's own
+        lexical rules for what counts as an occurrence (see
+        IDENTIFIER_CASE_INSENSITIVE). Both default off, so a language that
+        declares neither is byte-identical to the pre-#3198 test.
 
         A recursive self-call stays inside the span, so a recursive-but-uncalled
         function still reads as unused. A call from anywhere else in the file is
@@ -8625,8 +8767,12 @@ class StructuralExtractor:
         # fallback below; verified by an old-vs-new parity harness across real
         # files (incl. ruby/scheme/C++ special-name languages, which take the
         # fallback and are unaffected).
-        if occ_index is not None and _INDEXABLE_NAME_RE.fullmatch(func_name):
-            offsets = occ_index.get(func_name)
+        if occ_index is not None and (
+            _name_token_re(extra_name_chars).fullmatch(func_name)
+            if (extra_name_chars or fold_case)
+            else _INDEXABLE_NAME_RE.fullmatch(func_name)
+        ):
+            offsets = occ_index.get(func_name.casefold() if fold_case else func_name)
             if not offsets:
                 # No maximal-word occurrence at all -> matches the fallback's
                 # inside==outside==0 -> declaration discount -> orphan.
@@ -8645,7 +8791,7 @@ class StructuralExtractor:
                 outside -= 1  # the declaration itself, which fell outside the span
             return outside <= 0
 
-        word = re.compile(_name_boundary_pattern(func_name))
+        word = re.compile(_name_boundary_pattern_for(func_name, extra_name_chars), re.IGNORECASE if fold_case else 0)
         inside = outside = 0
         for m in word.finditer(code_stream):
             if start_idx <= m.start() < end_idx:

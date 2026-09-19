@@ -14,7 +14,7 @@
 > **One hit is one extracted callable unit whose name occurs nowhere in the file outside its own
 > definition.**
 
-Six corollaries, each pinned by a test in
+Seven corollaries, each pinned by a test in
 `tests/core_engine/test_unreferenced_by_name_contract_2806.py`:
 
 1. **One unit is at most one hit.** The census counts callable units, not name occurrences. A
@@ -53,6 +53,22 @@ Six corollaries, each pinned by a test in
    after a keyword (dockerfile `RUN`, css `keyframes`, html `script`) are excluded: a keyword
    cannot be unreferenced, and counting it measures the slicer's bucketing rather than the code
    (#2547, #2728).
+7. **An occurrence is judged by the language's own identifier lexicon.** "The name occurs" is a
+   question about the language's names, not about ASCII. A registry declares the two ways its
+   lexicon differs from the `\w`-only, case-sensitive default, as top-level keys beside
+   `lexical_family` (#3198):
+   - `identifier_case: "insensitive"` — the language resolves names without regard to case, so
+     COBOL's `perform a-para` names `A-PARA`. A case-sensitive test reads a correctly-cased call
+     site as no reference at all.
+   - `identifier_extra_chars` — characters that are part of a name beyond `\w`. COBOL's `-` is the
+     case in hand: with the default boundary, `B-PARA-EXIT` counted as a mention of `B-PARA`, so a
+     paragraph read as referenced because a *different* paragraph's name began with its name.
+
+   Both default to the old reading, so a language that declares neither is unchanged by
+   construction. Declaring one is a measured behaviour change, not a tidy-up: it moves the census
+   for that language and needs its own corpus evidence. **cobol is the only language that declares
+   either today** — the other case-insensitive languages (fortran, pli, rexx, hlasm, abap, and the
+   sql family) have the same defect latent and are audited per language in #3225, not bulk-edited.
 
 `kind` is a **census** over the extracted function population and its `unit` is **functions** —
 not hits, and not lines. A formula that adds it to a rule's hit count is adding unlike things;

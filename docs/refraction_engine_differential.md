@@ -159,6 +159,8 @@ Dead code and lineage can move to the DB only when the engine carries them. File
 | #3206 | forge | refractor rewrites the target's source in place |
 
 The switch for dead code needs #3198. The switch for lineage needs #3200 and #3201.
+(Superseded for dead code by the #3197/#3198 update at the end of this page: the
+census cannot be dead code under its own contract, so the forge keeps that half.)
 
 ## Update: forge fixes (#3203 defects 1–4, #3204, #3205, #3206)
 
@@ -201,3 +203,50 @@ Comment lines and literals are ignored. Sections are units. The `*-EXIT` exempti
 The DAG architect's and the microservice slicer's dead-unit masking now find headers with the graveyard's `unit_header`. Before, each used its own `^[ \t]{0,7}NAME\.`, which missed sections and sequence-numbered source.
 
 Clean-room outputs and the dead-code IR state are keyed by each program's stem when that is unique in the run, and otherwise by its path flattened with `__`. Anomaly tags carry the path under the target. On zopeneditor, `COBOL/SAM1`/`SAM2` and `multiroot/sam/SAM1`/`SAM2` used to overwrite each other; in SQLite mode they also merged their dead code (#3218).
+
+## Update: engine paragraph inventory (#3197) and the census lexicon (#3198)
+
+Both findings D1 and D2 filed against the engine are addressed here. Scores from
+`python tests/tools/mainframe_corpus.py score` (#3213), engine column, before → after:
+
+| field | zopeneditor-sample | CBSA |
+|---|---|---|
+| units | P 58/67 → **58/58** | P 680/706 → **680/680** |
+| `usage_status` claims | 5 → 4 | 248 → 247 |
+
+**D1 — paragraph inventory (#3197).** A paragraph or section header begins a
+SENTENCE, so the previous code line must end with a period. The last line of a
+multi-line statement or data description is therefore not a paragraph, however
+it is indented. Recall was already complete, so the phantoms were pure
+precision loss: the engine's units now agree exactly with the hand-verified key
+on both corpora, and with the forge.
+
+The fix is not the file-level fixed/free-format detection #2538 deferred, and
+not an Area-A column anchor. Measured over language-crucible v1.3.0,
+keyword-rosetta and all three pinned corpora: **every** Area-A header follows a
+completed sentence (0 exceptions), and real paragraphs DO appear in Area B in
+accepted source, so a column anchor would have dropped them. The deciding
+context is the previous line, which no lookbehind can span, so this is a
+registry-declared scope filter honoured by both `func_start` consumers — the
+count in `coding_analysis` and the unit list in `_slice_by_labels`.
+
+**D2 — `usage_status` (#3198).** Two defects of the name test itself are fixed,
+under the census's own contract:
+- COBOL names are case-insensitive, so `perform a-para` now names `A-PARA`.
+- `-` is a COBOL name character, so `B-PARA-EXIT` is no longer a mention of
+  `B-PARA` (13 units across the corpora were cleared by a *different*
+  paragraph's name).
+
+**What does NOT change, and why the D2 verdict stands.** The entry paragraph is
+still flagged. Nothing in the file names it — it is reached by fall-through —
+and `docs/unreferenced_by_name_contract.md` corollary 3 says plainly that the
+census reports "nothing else in this file names this unit", never "this unit is
+dead". Making it mean reachability would change the signal for every consumer of
+`state_unreferenced`.
+
+So **#3120's dead-code switch is re-scoped, not pending**: the engine supplies
+the unit inventory (now exact), and dead code stays with the forge's own
+reachability pass, which the answer key scores at 62/62 · 10/10 non-trivial on
+CBSA. A future engine-side reachability signal would be a new field beside
+`usage_status`, not a redefinition of it, and would need its own issue and
+evidence.

@@ -36,6 +36,14 @@ DEFINITION: dict[str, Any] = {
     # same copybook as `copy a.`), so the dependency DAG's import-token ->
     # file lookup (network_risk_sensor.py) case-folds for this language.
     "case_insensitive_imports": True,
+    # #3198: COBOL's own identifier lexicon, for the `unreferenced_by_name`
+    # census. Names are case-insensitive (`perform a-para` reaches `A-PARA`),
+    # and `-` is a name character -- without that, `B-PARA-EXIT` counted as a
+    # mention of `B-PARA` and cleared its flag, so a paragraph read as
+    # referenced because a DIFFERENT paragraph's name began with its name.
+    # Verified on the #3198 micro-repro and both mainframe corpora.
+    "identifier_case": "insensitive",
+    "identifier_extra_chars": "-",
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: Entscheidungslogik. Control flow that splits execution paths.
@@ -709,5 +717,19 @@ DEFINITION: dict[str, Any] = {
         # 3084: EXEC CICS SET mutates running-CICS resource state (same intent
         # family as DFHCSDUP); adjudication owed before owning it.
         "system_config_mutation": None,
+        # #3197: a paragraph/section header begins a SENTENCE. `func_start`
+        # alone cannot see that -- the deciding context is the PREVIOUS line,
+        # and a lookbehind cannot span one -- so the last line of a multi-line
+        # statement or data description (`DISPLAY 'Total: '` then
+        # `WS-COUNT.`, `... REDEFINES` then `ACUP-OLD-OPEN-DATE.`) read as a
+        # paragraph: 9 phantom units on IBM/zopeneditor-sample and 26 + 4 on
+        # cics-banking-sample-application-cbsa, each one also splitting the
+        # real paragraph's span. #2538 shielded three LE tokens of this shape
+        # and deferred the structural fix to "file-level fixed/free-format
+        # detection"; the sentence rule needs no such detection, and unlike an
+        # Area-A column anchor it keeps the real Area-B paragraphs that accepted
+        # source contains (crucible CBL0601v01InOutLineLoop.cbl et al).
+        # Implemented by detector.py's `_cobol_sentence_start_offsets`.
+        "_scope_filters": {"func_start": "cobol_sentence_start"},
     },
 }

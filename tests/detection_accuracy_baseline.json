@@ -1,20 +1,17 @@
 {
-  "accuracy": 0.9985,
+  "accuracy": 1.0,
   "ambiguous_rejected": 1,
   "ambiguous_rejection_rate": 1.0,
   "ambiguous_total": 1,
   "auto_accuracy": 1.0,
   "auto_scored": 2722,
-  "confusion": {
-    "embedded_python -> python": 4,
-    "hlasm -> assembly": 1
-  },
+  "confusion": {},
   "corpus_files": 3531,
-  "correct": 3226,
-  "determinable_accuracy": 0.9985,
+  "correct": 3231,
+  "determinable_accuracy": 1.0,
   "determinable_scored": 3231,
-  "explicit_accuracy": 0.9902,
-  "explicit_correct": 504,
+  "explicit_accuracy": 1.0,
+  "explicit_correct": 509,
   "explicit_scored": 509,
   "label_sources": {
     "ambiguous": 1,
@@ -54,8 +51,8 @@
     },
     "assembly": {
       "correct": 234,
-      "precision": 0.9957,
-      "predicted": 235,
+      "precision": 1.0,
+      "predicted": 234,
       "recall": 1.0,
       "support": 234
     },
@@ -144,10 +141,10 @@
       "support": 5
     },
     "embedded_python": {
-      "correct": 10,
+      "correct": 14,
       "precision": 1.0,
-      "predicted": 10,
-      "recall": 0.7143,
+      "predicted": 14,
+      "recall": 1.0,
       "support": 14
     },
     "fortran": {
@@ -179,10 +176,10 @@
       "support": 7
     },
     "hlasm": {
-      "correct": 17,
+      "correct": 18,
       "precision": 1.0,
-      "predicted": 17,
-      "recall": 0.9444,
+      "predicted": 18,
+      "recall": 1.0,
       "support": 18
     },
     "hlo": {
@@ -341,8 +338,8 @@
     },
     "python": {
       "correct": 269,
-      "precision": 0.9853,
-      "predicted": 273,
+      "precision": 1.0,
+      "predicted": 269,
       "recall": 1.0,
       "support": 269
     },
@@ -465,8 +462,8 @@
   "tier_distribution": {
     "0": 296,
     "1": 160,
-    "1.5": 222,
-    "2": 2553,
+    "1.5": 221,
+    "2": 2554,
     "5": 1
   }
 }

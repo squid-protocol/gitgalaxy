@@ -186,6 +186,18 @@ class LanguageDetector:
         self.COLLISION_FREQUENCIES = set(LENS_CONFIG.get("COLLISION_FREQUENCIES", set()))
         self.PROSE_ANCHORS = set(LENS_CONFIG.get("PROSE_ANCHORS", set()))
 
+        # #3137: memoised sibling-content vote, keyed by (directory, contested
+        # ext). Any file that reaches ecosystem gravity has already FAILED
+        # content resolution (a Tier 2 internal-discriminator match locks at
+        # tier 2 and never calls gravity), so the neighbourhood's verdict is
+        # independent of which sibling triggered it -- one census per directory,
+        # deterministic, and O(files) instead of O(files^2) over a folder.
+        self._sibling_vote_cache: dict[tuple[str, str], tuple[Optional[str], float]] = {}
+        # Bytes read per sibling for that vote. Internal discriminators anchor on
+        # imports/headers near the top of a file, so a bounded sniff is enough
+        # and keeps the extra reads cheap on mega-repos.
+        self.SIBLING_SNIFF_BYTES = 65536
+
         # Compile syntactic disqualifiers on boot to save CPU cycles per file
         self.DISQUALIFIERS = {}
         for key, regex_str in LENS_CONFIG.get("DISQUALIFIERS", {}).items():
@@ -604,20 +616,19 @@ class LanguageDetector:
         gravity_lang = None
         # Only apply Ecosystem Consensus if we don't already have a strong Tier 2 internal signature
         #
-        # NOTE (#3129, measured and REJECTED): gravity resolves a neighbour's
-        # extension through the single-valued `self.extension_map`, so for an
-        # extension two languages claim it always votes for the map's winner --
-        # which is why 7 of 14 real MicroPython files in
-        # `embedded_python/meow_turtle` lock to `python` here at "72% Local
-        # Dominance". Making gravity ABSTAIN on same-extension collisions looks
-        # like the principled fix and is a clear net LOSS: the #3117 harness
-        # measured overall accuracy 0.9964 -> 0.9840 and the independent
-        # contested subset 0.9859 -> 0.9034, because the files then fall to the
-        # Tier 3 lexical scan, which is worse than gravity on this corpus (32
-        # sqlite files flipped to db2_sql, 8 python to embedded_python). Gravity
-        # is a net-positive heuristic that is simply wrong for meow_turtle. Do
-        # not re-attempt the abstain without re-running that harness; the real
-        # fix is a better content signal for the claimants (see #3129).
+        # NOTE (#3129/#3132/#3137): a SAME-extension collision (both rivals
+        # claim `ext`) cannot be resolved by counting extensions -- both score
+        # over the identical files -- which is why 7 of 14 real MicroPython
+        # files in `embedded_python/meow_turtle` once locked to `python` here at
+        # "72% Local Dominance". Two cheap fixes were measured on the #3117
+        # harness and both LOST: making gravity ABSTAIN on same-extension
+        # collisions (0.9964 -> 0.9840, 32 sqlite files fall to db2_sql at Tier
+        # 3), and stripping the contested ext from every discriminator list
+        # (same loss). The fix that landed is inside `_evaluate_ecosystem_gravity`
+        # (#3137): for a same-extension neighbourhood it votes on what the
+        # siblings actually RESOLVED to by content, not their filenames, and
+        # abstains to Tier 3 only when that vote is empty or split. Mixed
+        # neighbourhoods (.h beside .c) still take the extension-count physics.
         if ext in self.COLLISION_FREQUENCIES and ext_tally and lock_tier > 2:
             gravity_lang, dominance = self._evaluate_ecosystem_gravity(file_path, ext, ext_tally)
 
@@ -749,6 +760,25 @@ class LanguageDetector:
         except Exception as e:
             self.logger.debug(f"Local folder census failed for '{file_path}': {e}")
 
+        # 2b. SIBLING-CLASSIFICATION VOTE (#3137, closes the #3132 residual)
+        # For a SAME-extension collision the extension-count physics below is
+        # information-free by construction: both rivals score over the identical
+        # set of contested-extension files, so the base-mass fallback (:~780)
+        # counts the same files for each, and the only tie-breaker left is a
+        # `discriminators` self-reference -- python lists its own `.py`, which is
+        # literally where the reported "72% Local Dominance" comes from (base 14
+        # + 14x2 = 42 vs embedded_python's 14 + 1x2 = 16). Counting filenames
+        # cannot separate two languages that share the extension. So when the
+        # neighbourhood carries no DIFFERENT extension-shaped anchor -- the exact
+        # regime where physics is blind -- weigh what the siblings actually
+        # RESOLVED to via their own content instead. The mixed-extension
+        # neighbourhoods gravity was built for (.h beside .c, .asm beside
+        # .jcl/.cbl) keep the extension-count physics untouched.
+        if len(candidates) >= 2 and self._is_same_extension_neighbourhood(candidates, ext, local_tally):
+            sib_lang, sib_dominance = self._resolve_by_sibling_content(file_path, ext, candidates)
+            if sib_lang:
+                return sib_lang, sib_dominance
+
         # 3. TWO-PASS PHYSICS (Local Neighborhood -> Global Repository)
         for scope_name, tally in [("Local", local_tally), ("Global", global_tally)]:
             if not tally:
@@ -769,34 +799,22 @@ class LanguageDetector:
 
                 base_mass = sum(base_contributors.values())
 
-                # #3132, measured and NOT fixed here. In principle the
-                # CONTESTED extension should not be evidence for one of its own
-                # claimants, and four profiles list their own contested
-                # extension as a discriminator (python `.py`, sqlite `.sql`,
-                # matlab `.m`, objective-c `.m`). Where only one rival
-                # self-references it wins by construction -- in
-                # `embedded_python/meow_turtle` python scores base 14 + 14x2 =
-                # 42 against embedded_python's 14 + 1x2 = 16, which IS the
-                # reported "72% Local Dominance".
-                #
-                # THREE fixes have been measured on the #3117 harness and all
-                # three are net losses. Baseline 0.9984 overall / 0.9920 on the
-                # independent contested subset:
-                #   1. gravity abstains on same-extension collisions
-                #        -> 0.9840 / 0.9034 (32 sqlite files flip to db2_sql)
-                #   2. exclude the contested ext from EVERY discriminator list
-                #        -> 0.9850 / 0.9095 (same 32 sqlite files)
-                #   3. remove ONLY python's `.py` self-reference, leaving
-                #      sqlite's intact -> 0.9964 / 0.9799: it fixes 3
-                #      MicroPython files and breaks SEVEN plain-python files
-                #      into embedded_python plus 2 into plaintext.
-                # The self-reference does real work in BOTH directions, so it
-                # cannot be removed for either claimant without a content
-                # signal to replace it -- and for `.sql` there isn't one: the
-                # strongest sqlite-only markers in the pinned corpus
-                # (AUTOINCREMENT 19 files, INTEGER PRIMARY KEY 18, PRAGMA 2)
-                # cover only about a quarter of its 80 `.sql` files. Re-measure
-                # with that harness before touching this line.
+                # #3132/#3137: the CONTESTED extension is counted here as
+                # positive evidence for one of its own claimants -- four profiles
+                # list their own contested ext as a discriminator (python `.py`,
+                # sqlite `.sql`, matlab `.m`, objective-c `.m`) -- and where only
+                # one rival self-references it wins by construction (python 14 +
+                # 14x2 = 42 vs embedded_python's 14 + 1x2 = 16, the old "72%
+                # Local Dominance"). This self-reference cannot simply be removed:
+                # it does real work in BOTH directions on the #3117 corpus
+                # (removing only python's `.py` broke SEVEN plain-python files
+                # into embedded_python), and `.sql` has no content signal to
+                # replace it with -- sqlite's strongest markers cover ~a quarter
+                # of its 80 files. So this physics is LEFT AS IS for the
+                # mixed-extension neighbourhoods it handles well; the
+                # same-extension collisions it is structurally blind to are
+                # short-circuited before this loop by the sibling-content vote
+                # (step 2b above), which never reaches here.
                 discriminators = data.get("discriminators", [])
                 discrim_contributors = {
                     d: tally.get(d.lower(), 0) for d in discriminators if tally.get(d.lower(), 0) > 0
@@ -861,6 +879,104 @@ class LanguageDetector:
                 return top_lid, dominance
 
         return None, 0.0
+
+    def _is_same_extension_neighbourhood(
+        self, candidates: list[str], ext: str, local_tally: dict[str, int]
+    ) -> bool:
+        """#3137: True when the ONLY extension-shaped signal present locally is
+        the contested extension itself -- no candidate has a *different*-extension
+        ecosystem anchor (a support extension or an extension-shaped
+        `discriminators` entry, e.g. `.c`, `.mpy`, `.jcl`, `.db`) in this folder.
+
+        That is exactly the regime where the extension-count physics is
+        information-free and the sibling-content vote should decide. A
+        mixed-extension neighbourhood -- `.h` beside `.c`, `.asm` beside
+        `.jcl`/`.cbl` -- has a real cross-extension signal and stays with the
+        physics, which was built for it. Filename discriminators (`boot.py`,
+        `requirements.txt`) are deliberately NOT treated as extension anchors:
+        they are too weak to make counting reliable (embedded_python's `boot.py`
+        is the single point that the physics already fails on in #3132).
+        """
+        for lid in candidates:
+            data = self.languages.get(lid, {})
+            for token in list(data.get("extensions", [])) + list(data.get("discriminators", [])):
+                t = token.lower()
+                if t == ext or not t.startswith("."):
+                    continue
+                if local_tally.get(t, 0) > 0:
+                    return False
+        return True
+
+    def _resolve_by_sibling_content(
+        self, file_path: Union[str, Path], ext: str, candidates: list[str]
+    ) -> tuple[Optional[str], float]:
+        """#3137: weigh a same-extension neighbourhood by what its siblings
+        actually RESOLVED to via their own content (shebang / internal
+        discriminator), not by their filenames.
+
+        Returns ``(lang, dominance)`` on a strict, high-dominance content
+        majority among ``candidates``, else ``(None, 0.0)`` so the caller falls
+        back to the extension-count physics. A sibling that classified as
+        ``embedded_python`` because it imports ``machine`` is real evidence about
+        its neighbours; a sibling that merely SHARES the contested extension is
+        not evidence at all and casts no vote. An evenly split or empty
+        neighbourhood abstains -- Tier 3 then decides -- rather than letting
+        ``max()`` iteration order pick a winner (the #3118 silent
+        order-dependence). Memoised per directory+extension (see
+        ``self._sibling_vote_cache``).
+        """
+        try:
+            parent_dir = Path(file_path).parent
+        except Exception:
+            return None, 0.0
+
+        cache_key = (str(parent_dir), ext)
+        cached = self._sibling_vote_cache.get(cache_key)
+        if cached is not None:
+            return cached
+
+        result: tuple[Optional[str], float] = (None, 0.0)
+        candidate_set = set(candidates)
+        try:
+            siblings = sorted(
+                (c for c in parent_dir.iterdir() if c.is_file() and c.suffix.lower() == ext),
+                key=lambda p: p.name,
+            )
+        except Exception as e:
+            self.logger.debug(f"Sibling-content census failed for '{file_path}': {e}")
+            self._sibling_vote_cache[cache_key] = result
+            return result
+
+        votes: dict[str, int] = {}
+        for sib in siblings:
+            try:
+                with sib.open("r", encoding="utf-8", errors="ignore") as fh:
+                    sample = fh.read(self.SIBLING_SNIFF_BYTES)
+            except OSError as e:
+                self.logger.debug(f"Sibling read failed for '{sib}': {e}")
+                continue
+            sib_lang, _kind = self._tier_2_fingerprint_check(sample, ext)
+            if sib_lang in candidate_set:
+                votes[sib_lang] = votes.get(sib_lang, 0) + 1
+
+        total = sum(votes.values())
+        if total:
+            # deterministic order: highest vote first, ties broken by name so the
+            # abstain-on-tie test below never depends on filesystem order.
+            ranked = sorted(votes.items(), key=lambda kv: (-kv[1], kv[0]))
+            top_lang, top_count = ranked[0]
+            runner_up = ranked[1][1] if len(ranked) > 1 else 0
+            dominance = top_count / total
+            threshold = self.thresholds.get("ECOSYSTEM_DOMINANCE_MIN", 0.70)
+            if top_count > runner_up and dominance >= threshold:
+                self.logger.debug(
+                    f"[{parent_dir.name}] Sibling-content consensus for '{ext}': "
+                    f"{top_lang} ({dominance * 100:.0f}% of {total} resolved siblings, votes={votes})"
+                )
+                result = (top_lang, dominance)
+
+        self._sibling_vote_cache[cache_key] = result
+        return result
 
     def _tier_1_metadata_lock(self, ext: str, file_name: str) -> Optional[str]:
         if file_name in self.anchor_map:

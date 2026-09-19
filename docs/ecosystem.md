@@ -66,7 +66,7 @@ to the same directory so non-Claude agents find them at a vendor-neutral path.
 
 | Repo | Skills |
 |---|---|
-| gitgalaxy | `harden-language-extraction`, `harden-strict-signatures`, `harden-class-start-extraction`, `tri-comparison-ledger-sweep`, `tree-sitter-accuracy-sweep`, `language-status`, `ci-push-checklist`, `self-scan-query`, `issue-generation`, `pipeline-check`, `readme-maintenance`, `release-notes`, `rule-contract-audit` (take one signal's contract from draft to stated across all corpus languages) |
+| gitgalaxy | `harden-language-extraction`, `harden-strict-signatures`, `harden-class-start-extraction`, `tri-comparison-ledger-sweep`, `tree-sitter-accuracy-sweep`, `language-status`, `ci-push-checklist`, `self-scan-query`, `issue-generation`, `pipeline-check`, `readme-maintenance`, `release-notes`, `rule-contract-audit` (take one signal's contract from draft to stated across all corpus languages), `cobol-modernization` (the refraction tools + engine COBOL loop: fetch pinned corpora, scan, differential, answer-key score, snapshot bless) |
 | keyword-rosetta | `rosetta-language-sweep` (classify one language's out-of-band cells by cause; the per-language instrument a family audit calls -- the per-language tracking issues were closed 2026-09-06) |
 | language-crucible | `expand-language-coverage` (fill a `data/<lang>/` category from the source pool) |
 

@@ -130,7 +130,16 @@ def test_rehydrator_successful_load(mock_db):
 
     # 4. Assert Delta Engine defaults were injected
     assert isinstance(file_node["raw_imports"], set)
-    assert file_node["hit_vector"] == []
+
+    # #3220: the rehydrator now reconstructs FULL vectors by inverting the recorder's
+    # schema (risk_<name> / SHORT_KEY_MAP hit columns). This mock DB has none of those
+    # columns, so both vectors come back as the correctly-sized all-zero lists (not the
+    # old lossy []). equations mirror the hit_vector as the signal-count dict.
+    assert isinstance(file_node["hit_vector"], list)
+    assert set(file_node["hit_vector"]) <= {0}
+    assert isinstance(file_node["risk_vector"], list)
+    assert set(file_node["risk_vector"]) <= {0.0}
+    assert isinstance(file_node["equations"], dict)
 
 
 # ==============================================================================

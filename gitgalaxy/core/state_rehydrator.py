@@ -181,10 +181,14 @@ class StateRehydrator:
                     "doc_loc": f["doc_loc"] if "doc_loc" in row_keys else 0,
                     "file_impact": float(f["structural_mass"]),
                     "control_flow_ratio": float(f["control_flow_ratio"]),
-                    # #3220: raw_imports (import strings) are not yet persisted, so the
-                    # graph must still be re-resolved for add/delete exactness -- tracked
-                    # as the remaining piece. Vectors below ARE now fully restored.
-                    "raw_imports": set(),
+                    # #3220: restore the file's raw import strings so the delta graph
+                    # resolver rebuilds every edge FROM this file (popularity/pagerank/
+                    # api_exposure of imported files depend on it). Persisted as JSON.
+                    "raw_imports": (
+                        set(json.loads(f["raw_imports"]))
+                        if "raw_imports" in row_keys and f["raw_imports"]
+                        else set()
+                    ),
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
                     "equations": equations,

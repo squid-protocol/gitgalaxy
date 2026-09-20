@@ -311,27 +311,33 @@ def test_extraction_reads_whatever_stream_it_is_given():
 # ==============================================================================
 # REDOS: every pattern is bounded
 # ==============================================================================
+# Each entry BUILDS its payload rather than being one. A parametrized literal
+# becomes part of pytest's test id, which pytest exports as PYTEST_CURRENT_TEST
+# -- and a 40,000-character id blows the Windows 32,767-character environment
+# variable limit, erroring at SETUP on every one of these before the test body
+# ever runs (windows-latest 3.9/3.12, 28 errors). Short ids, built payloads.
+_PATHOLOGICAL = {
+    "call_verb": lambda: "CALL " + "A" * 40000,
+    "cics_program_operand": lambda: "EXEC CICS LINK PROGRAM(" + "B" * 40000,
+    "select_no_assign": lambda: "SELECT " + "C" * 20000 + " ASSIGN TO ",
+    "unterminated_value_literal": lambda: "       01 X PIC X VALUE '" + "D" * 40000,
+    "jcl_dsn": lambda: "//DD1 DD DSN=" + "E" * 40000,
+    "jcl_blank_statement": lambda: "//" + " " * 40000,
+    "open_operand_run": lambda: ("OPEN INPUT " + "F" * 200 + " ") * 200,
+    "all_periods": lambda: "." * 40000,
+}
+
+
 @pytest.mark.parametrize("dialect", BOUNDARY_DIALECTS)
-@pytest.mark.parametrize(
-    "payload",
-    [
-        "CALL " + "A" * 40000,
-        "EXEC CICS LINK PROGRAM(" + "B" * 40000,
-        "SELECT " + "C" * 20000 + " ASSIGN TO ",
-        "       01 X PIC X VALUE '" + "D" * 40000,
-        "//DD1 DD DSN=" + "E" * 40000,
-        "//" + " " * 40000,
-        ("OPEN INPUT " + "F" * 200 + " ") * 200,
-        "." * 40000,
-    ],
-)
-def test_pathological_input_is_bounded(dialect, payload):
+@pytest.mark.parametrize("shape", sorted(_PATHOLOGICAL))
+def test_pathological_input_is_bounded(dialect, shape):
     """No input may take super-linear time: every scan here is a bounded one."""
     import time
 
+    payload = _PATHOLOGICAL[shape]()
     start = time.perf_counter()
     extract_boundary(dialect, payload)
-    assert time.perf_counter() - start < 2.0, f"{dialect} took too long on a {len(payload)}-char payload"
+    assert time.perf_counter() - start < 2.0, f"{dialect}/{shape} took too long on {len(payload)} chars"
 
 
 def test_an_unterminated_exec_cics_cannot_scan_the_whole_file():

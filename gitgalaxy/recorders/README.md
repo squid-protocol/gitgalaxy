@@ -44,19 +44,19 @@ Each file in this directory represents a specialized data exit strategy, tailore
 | `repo_name`, `commit_hash` | the snapshot |
 | `src_file_id` → `file_data.id` | the importing file |
 | `dst_file_id` → `file_data.id` | the imported file |
-| `edge_kind` | `'import'` (the only relation recorded today) |
+| `edge_kind` | `'import'` (the dependency graph), or `'call'` / `'exec'` (the mainframe call graph, #3200). **Always filter on this.** |
 | `import_statements` | resolved import captures from src to dst (repeats collapse into one row) |
 | `entity_imports` | how many of those were the entity (`from x import y`) form |
 | `weight` | the edge weight pagerank/betweenness read (1.0 per plain import, 1.5 per entity import) |
 
-In both modes, per file, `COUNT(*)` of rows with `src_file_id = f.id` equals `internal_dependency_links` and rows with `dst_file_id = f.id` equals `popularity`. (Before #3024, zero-dependency mode counted import statements instead of distinct neighbours; for those older snapshots, reconcile with `SUM(import_statements)`. See `docs/zero_dependency_mode.md` for everything else that differs between the modes.) An edge is only recorded when both endpoints have a `file_data` row. The statistical audit can relegate a graph node to `excluded_artifacts` after the graph is built, and the edges that loses are counted in `repo_data.network_edges_unrecorded` (NULL when the caller supplied no edge list).
+In both modes, per file, `COUNT(*)` of rows **with `edge_kind = 'import'`** and `src_file_id = f.id` equals `internal_dependency_links`, and rows with `dst_file_id = f.id` equals `popularity`. (Before #3024, zero-dependency mode counted import statements instead of distinct neighbours; for those older snapshots, reconcile with `SUM(import_statements)`. See `docs/zero_dependency_mode.md` for everything else that differs between the modes.) An edge is only recorded when both endpoints have a `file_data` row. The statistical audit can relegate a graph node to `excluded_artifacts` after the graph is built, and the edges that loses are counted in `repo_data.network_edges_unrecorded` (NULL when the caller supplied no edge list).
 
 ```sql
 -- Neighbourhood marker load: what a file's direct imports carry, beside its own load.
 SELECT f.file_path, f.arch_concurrency AS own_concurrency,
        SUM(d.arch_globals + d.state_flux) AS neighbour_shared_state
 FROM file_data f
-JOIN edge_data e ON e.src_file_id = f.id
+JOIN edge_data e ON e.src_file_id = f.id AND e.edge_kind = 'import'
 JOIN file_data d ON d.id = e.dst_file_id
 WHERE f.repo_name = ? AND f.commit_hash = ?
 GROUP BY f.id;
@@ -64,13 +64,75 @@ GROUP BY f.id;
 -- Per-language edge coverage: how much of the raw import surface resolves to an in-scan edge.
 SELECT f.language, COUNT(*) AS files, SUM(f.import_count) AS captures,
        SUM(f.import_count > 0) AS files_with_captures,
-       SUM(EXISTS (SELECT 1 FROM edge_data e WHERE e.src_file_id = f.id)) AS files_with_edges,
+       SUM(EXISTS (SELECT 1 FROM edge_data e WHERE e.src_file_id = f.id AND e.edge_kind = 'import')) AS files_with_edges,
        (SELECT COUNT(*) FROM edge_data e JOIN file_data s ON s.id = e.src_file_id
-         WHERE s.language = f.language AND s.repo_name = f.repo_name AND s.commit_hash = f.commit_hash) AS edges
+         WHERE e.edge_kind = 'import' AND s.language = f.language
+           AND s.repo_name = f.repo_name AND s.commit_hash = f.commit_hash) AS edges
 FROM file_data f
 WHERE f.repo_name = ? AND f.commit_hash = ?
 GROUP BY f.language ORDER BY captures DESC;
 ```
+
+---
+
+## The Mainframe Boundary in `_master.db` (`call_site_data`, `dataset_data`, #3200/#3201)
+
+`ipc_rpc_bridges` and `io` count *that* a COBOL program calls out and touches files. These two tables carry *what*, extracted by `core/mainframe_boundary.py` off the prism code stream and resolved by `core/invocation_resolver.py`. A language opts in with a top-level `boundary_extraction` declaration (cobol, jcl).
+
+### `call_site_data` — one row per invocation site
+
+COBOL `CALL`, CICS `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`.
+
+| column | meaning |
+|---|---|
+| `src_file_id` → `file_data.id` | the calling file |
+| `verb` | `CALL`, `LINK`, `XCTL`, `EXEC PGM` |
+| `form` | `literal` (static, link-edited) or `identifier` (dynamic dispatch, read through the data item's `VALUE` clause) |
+| `operand` | the operand as written (`WS-ABEND-PGM`) |
+| `target` | the program name it denotes (`ABNDPROC`), or NULL when even the name could not be read |
+| `dst_file_id` → `file_data.id` | the file declaring that PROGRAM-ID, or NULL |
+| `line_number` | the source line of the verb |
+
+The unresolved rows are the point, not a gap — they are what the refraction pipeline's `unresolved_calls` used to be, with the level of failure distinguishable:
+
+| shape | meaning |
+|---|---|
+| `target IS NULL` | dynamic dispatch the engine could not follow (the `VALUE` clause lives in a copybook) |
+| `target NOT NULL, dst_file_id IS NULL` | named, but external — an LE service (`CEEGMT`), a system utility (`IEFBR14`), or a module this repository does not contain |
+| `dst_file_id NOT NULL` | resolved; there is a matching `edge_data` row of kind `'call'`/`'exec'` |
+
+Resolution is by **PROGRAM-ID** (`class_data`), not by filename, and when a PROGRAM-ID is shared the **nearest** declaration wins — a different rule from the import resolver, which refuses to guess on an ambiguous stem (#3199). The two relations differ: a copybook is named by file, a called program is chosen by library concatenation order.
+
+### `dataset_data` — one row per dataset boundary fact
+
+| column | COBOL row | JCL row |
+|---|---|---|
+| `internal_name` | the `SELECT` file name (`CUSTOMER-FILE`) | NULL |
+| `assign_name` | the `ASSIGN TO` operand as written (`UT-S-CUSTFILE`) | NULL |
+| `dd_name` | that operand with its device prefix stripped (`CUSTFILE`) | the ddname |
+| `access_modes` | the `OPEN` modes actually used, comma-joined (`INPUT`, `I-O,OUTPUT`) | NULL |
+| `step_name` | NULL | the `EXEC` step the DD belongs to |
+| `dsn` | NULL (`dsn IS NULL` identifies a COBOL row) | the dataset the DD binds |
+
+Joining the two halves on `dd_name` is the dataset lineage:
+
+```sql
+-- "program P opens DD X for MODE; job J step S binds DD X to dataset D"
+SELECT pf.file_path AS program, p.dd_name, p.access_modes,
+       jf.file_path AS job, j.step_name, j.dsn AS dataset
+FROM dataset_data p
+JOIN file_data pf ON p.file_id = pf.id
+JOIN call_site_data c ON c.dst_file_id = pf.id AND c.verb = 'EXEC PGM'
+JOIN file_data jf ON c.src_file_id = jf.id
+JOIN dataset_data j ON j.file_id = jf.id AND j.dd_name = p.dd_name
+WHERE p.dsn IS NULL;
+```
+
+`gitgalaxy/tools/cobol_to_cobol/galaxy_ir.py` exposes both as `GalaxyIR.dataset_lineage()` and `GalaxyIR.unresolved_calls()`.
+
+**Delta mode.** `state_rehydrator.py` restores both tables for unchanged files, the same way it restores `raw_imports` (#3220) — without that, an incremental scan would describe only the files that changed in the last commit. Resolution (`dst_file_id` / `resolved_path`) is deliberately *not* restored and is redone every scan, because a file added or deleted this commit can change what an unchanged file's `CALL` resolves to.
+
+**What these tables are not.** The call edges are a separate `edge_kind` and are never handed to the DiGraph, so `pagerank_score`, `popularity`, `internal_dependency_links`, betweenness and every risk score are unchanged by them. There is no reachability here: an `OPEN` inside an unreachable paragraph is still extracted, because the engine has no reachability model (`docs/unreferenced_by_name_contract.md` corollary 3). FD/01 record layouts are not extracted.
 
 ---
 

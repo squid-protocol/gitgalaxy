@@ -47,6 +47,16 @@ DEFINITION: dict[str, Any] = {
     # and silently read as "not positional".
     "invocation_model": "positional",
     "lexical_family": "line_exclusive",
+    # #3200/#3201: opts jcl into the named mainframe boundary channel --
+    # `EXEC PGM=` (which program a step runs) and the `DD` statement's ddname ->
+    # dataset binding. `_dependency_capture` already takes the DSN= value into
+    # raw_imports, but drops the ddname it binds, which is the half the lineage
+    # join needs: a COBOL program names a DD, and only the job says which
+    # dataset that DD is. `EXEC name` / `EXEC PROC=name` is a PROCEDURE
+    # reference and stays with the `api` rule; this channel is programs only.
+    # Top level, not inside `rules` -- see cobol.py's note on the
+    # language_lens.py string-compilation trap (#2806).
+    "boundary_extraction": "jcl",
     "rules": {
         # Control flow in JCL (IF/THEN/ELSE/ENDIF)
         "branch": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:IF|ELSE)\b", re.M | re.I),

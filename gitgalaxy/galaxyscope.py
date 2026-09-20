@@ -30,6 +30,8 @@ from typing import Any, Optional, Union
 from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.detector import HAS_TIKTOKEN
 from gitgalaxy.core.guidestar_lens import GuideStarLens
+from gitgalaxy.core.invocation_resolver import resolve_invocations
+from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, NetworkRiskSensor
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.core.spatial_correlation import correlate_against_ledger
@@ -646,6 +648,10 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             t_imports = time.perf_counter()
             raw_imports = set()
             named_tokens = set()  # <--- NEW: Initialize token tracker
+            # #3200/#3201: named mainframe boundary facts, empty for every
+            # language that does not declare `boundary_extraction`.
+            call_sites: list = []
+            dataset_bindings: list = []
 
             # 1. Extract raw file dependencies. An inert (static-asset) language
             # normally skips this whole phase, but one that explicitly DECLARES
@@ -684,6 +690,27 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                                         named_tokens.add(clean_token)
                     except Exception:
                         logging.exception("Named token extraction failed for language '%s'.", lang_id)
+
+            # 3. #3200/#3201: the named mainframe boundary channel. A language
+            # opts in with a top-level `boundary_extraction` declaration (cobol,
+            # jcl). TOP LEVEL, not `rules`: language_lens.py re.compile()s every
+            # string value inside `rules`, so a helper key put there arrives here
+            # as a Pattern and silently extracts nothing (#2806).
+            # Unlike raw_imports above this reads the CODE STREAM,
+            # not `content_buffer`: a `CALL` in a comment or a `//* EXEC PGM=`
+            # banner must not produce a call edge, and the code stream is the
+            # only view with comments already removed. Failure is contained the
+            # same way the two extractors above contain theirs -- boundary facts
+            # are additive, so losing them degrades the DB to its pre-#3200
+            # state rather than failing the file.
+            boundary_dialect = lang_defs.get(lang_id, {}).get("boundary_extraction")
+            if boundary_dialect:
+                try:
+                    boundary = extract_boundary(boundary_dialect, refraction["code_stream"])
+                    call_sites = boundary["calls"]
+                    dataset_bindings = boundary["datasets"]
+                except Exception:
+                    logging.exception("Boundary extraction failed for language '%s'.", lang_id)
 
             if is_file_profiling:
                 phase_times["6_Import_Regex"] = time.perf_counter() - t_imports
@@ -733,6 +760,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "mitigations": refraction.get("mitigations", []),  # <--- THE FIX: Route the suppressions
             "raw_imports": sorted(raw_imports),
             "named_tokens": sorted(named_tokens),
+            # #3200/#3201: already deterministically ordered by the extractor.
+            "call_sites": call_sites,
+            "dataset_bindings": dataset_bindings,
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }
@@ -924,6 +954,11 @@ class Orchestrator:
         self.file_size_map: dict[str, int] = {}
         self.ram_cache: dict[str, dict[str, Any]] = {}
         self.parsed_files: list[dict[str, Any]] = []
+        # #3200/#3201: the resolved mainframe call sites and the 'call'/'exec'
+        # edges aggregated from them. Empty for a repository with no mainframe
+        # source, and on any path that never reaches the resolver.
+        self.call_sites: list[dict[str, Any]] = []
+        self.invocation_edges: list[dict[str, Any]] = []
         self.unparsable_files: list[dict[str, Any]] = []
         self.anomalies: list[dict[str, str]] = []
         self.popularity_scores: dict[str, int] = {}
@@ -1044,6 +1079,13 @@ class Orchestrator:
             t_phase = time.time()
             self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(self.parsed_files)
             logger.debug(f"⏱️ EXECUTION_TIME [Phase 4 - Network Topology]: {time.time() - t_phase:.2f}s")
+
+            # #3200/#3201: resolve the mainframe call graph AFTER the dependency
+            # graph, and entirely beside it. These edges carry edge_kind
+            # 'call'/'exec' and are never handed to the DiGraph, so pagerank,
+            # popularity, blast radius and every risk score are unchanged --
+            # see invocation_resolver.py's header for why that is deliberate.
+            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
 
             # PHASE 5: Zero-Trust Guardrails (AI & AppSec)
             # Enforces explicit system rules identifying Prompt Injections or Context Window Exhaustion.
@@ -1448,6 +1490,8 @@ class Orchestrator:
                         session_meta=session_meta,
                         output_path=db_output,
                         dependency_edges=self.network_sensor.dependency_edges,  # #2992
+                        call_sites=self.call_sites,  # #3200/#3201
+                        invocation_edges=self.invocation_edges,  # #3200
                     )
                 except Exception as e:
                     logger.error(
@@ -2992,6 +3036,9 @@ class Orchestrator:
             # Re-map the directed graph because nodes/edges have mutated
             self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(self.parsed_files)
 
+            # #3200/#3201: same resolution in delta mode.
+            self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
+
             # 6. Audit Verification & ML Threat Inference
             repository_graph, unparsable_audits = self.auditor.audit(self.parsed_files)
             if repository_graph:
@@ -3031,6 +3078,8 @@ class Orchestrator:
                 session_meta=session_meta,
                 output_path=db_output_path,
                 dependency_edges=self.network_sensor.dependency_edges,  # #2992
+                call_sites=self.call_sites,  # #3200/#3201
+                invocation_edges=self.invocation_edges,  # #3200
             )
 
             logger.info(

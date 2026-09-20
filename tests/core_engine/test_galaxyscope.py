@@ -2150,6 +2150,18 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         mock_module = MagicMock()
         mock_module.StateRehydrator = mock_rehydrator_cls
 
+        # #3200: these entries used to be injected and never restored, so EVERY
+        # later test in the session that imported StateRehydrator got a MagicMock
+        # whose load_state returns `{"commit_hash": "old", "ram_cache": {}}`.
+        # That is a silent, action-at-a-distance failure -- a rehydration test
+        # elsewhere passes alone and fails in the full suite with an empty cache
+        # and no traceback pointing here. Restore what was there.
+        for _mod in ("gitgalaxy.state_rehydrator", "gitgalaxy.core.state_rehydrator"):
+            self.addCleanup(
+                lambda name=_mod, prev=sys.modules.get(_mod): (
+                    sys.modules.__setitem__(name, prev) if prev is not None else sys.modules.pop(name, None)
+                )
+            )
         # Inject into sys.modules to ensure any underlying import passes smoothly
         sys.modules["gitgalaxy.state_rehydrator"] = mock_module
         sys.modules["gitgalaxy.core.state_rehydrator"] = mock_module
@@ -2257,6 +2269,18 @@ class TestGalaxyScopeOrchestrator(unittest.TestCase):
         mock_rehydrator_cls = MagicMock()
         mock_module = MagicMock()
         mock_module.StateRehydrator = mock_rehydrator_cls
+        # #3200: these entries used to be injected and never restored, so EVERY
+        # later test in the session that imported StateRehydrator got a MagicMock
+        # whose load_state returns `{"commit_hash": "old", "ram_cache": {}}`.
+        # That is a silent, action-at-a-distance failure -- a rehydration test
+        # elsewhere passes alone and fails in the full suite with an empty cache
+        # and no traceback pointing here. Restore what was there.
+        for _mod in ("gitgalaxy.state_rehydrator", "gitgalaxy.core.state_rehydrator"):
+            self.addCleanup(
+                lambda name=_mod, prev=sys.modules.get(_mod): (
+                    sys.modules.__setitem__(name, prev) if prev is not None else sys.modules.pop(name, None)
+                )
+            )
         sys.modules["gitgalaxy.state_rehydrator"] = mock_module
         sys.modules["gitgalaxy.core.state_rehydrator"] = mock_module
 

@@ -132,10 +132,16 @@ def test_edges_persist_keyed_to_file_data(keeper, tmp_path):
     assert conn.execute("SELECT DISTINCT repo_name, commit_hash FROM edge_data").fetchall() == [("EdgeRepo", "c0ffee")]
     assert conn.execute("SELECT network_edges_unrecorded FROM repo_data").fetchone() == (0,)
     # Per file, the rows reconcile with the node summaries already in file_data.
+    # #3200 scoped this to edge_kind='import': edge_data now also carries
+    # 'call'/'exec' rows (the mainframe call graph), which are resolved by a
+    # different rule and deliberately never entered the DiGraph -- so they must
+    # NOT appear in a degree that pagerank and blast radius were computed from.
+    # Without the filter this invariant would silently start asserting that the
+    # call graph is part of the dependency graph.
     mismatches = conn.execute("""
         SELECT f.file_path, f.internal_dependency_links, f.popularity,
-               (SELECT COUNT(*) FROM edge_data e WHERE e.src_file_id = f.id),
-               (SELECT COUNT(*) FROM edge_data e WHERE e.dst_file_id = f.id)
+               (SELECT COUNT(*) FROM edge_data e WHERE e.src_file_id = f.id AND e.edge_kind = 'import'),
+               (SELECT COUNT(*) FROM edge_data e WHERE e.dst_file_id = f.id AND e.edge_kind = 'import')
         FROM file_data f
     """).fetchall()
     conn.close()

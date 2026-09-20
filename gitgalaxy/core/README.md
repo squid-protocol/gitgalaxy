@@ -77,6 +77,15 @@ the `rce_funnel` ×50 in `detector.py`'s `coding_analysis()` and the Active Hemo
 **Role:** Dependency Graphing.
 Once files are structurally parsed, this module wires them together into a Directed Acyclic Graph (DAG) using their raw import statements. It executes PageRank mathematics to determine each file's absolute **Dependency Blast Radius**, identifies **Architectural Choke Points**, and classifies their **Ecosystem Role** (Producer vs. Consumer).
 
+### 5a. `mainframe_boundary.py` + `invocation_resolver.py` (The Mainframe Boundary, #3200/#3201)
+**Role:** The named call graph and dataset lineage, beside the dependency graph.
+The counted rules say *that* a COBOL program calls out and touches files (`ipc_rpc_bridges` → `arch_ipc`, `io` → `arch_io`); they cannot say *what*. `mainframe_boundary.py` extracts the names — COBOL `CALL`, CICS `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`, and `SELECT ... ASSIGN TO <ddname>` with the `OPEN` modes actually used — reading the **prism code stream**, so a commented-out `CALL` can never draw an edge. `invocation_resolver.py` then resolves those names across the whole repository and emits the `call`/`exec` rows of `edge_data`.
+
+Three properties worth knowing before extending either:
+* **A language opts in with a top-level `boundary_extraction` declaration**, never a key inside `rules` — `language_lens.py` re.compile()s every string value in `rules` (#2806).
+* **Resolution is by PROGRAM-ID, nearest-wins.** That is deliberately *not* `network_risk_sensor.py`'s rule, which refuses to guess on an ambiguous stem (#3199): an import names a file, a called program is chosen by library concatenation order.
+* **These edges never enter the DAG.** PageRank, popularity, blast radius and every risk score are unaffected; only `edge_data` grows, under its own `edge_kind`.
+
 ### 6. `spatial_mapper.py` (The Positioning Engine)
 **Role:** 3D Geometric Resolution.
 Transforms the mathematical DAG into a deterministic 3D Cartesian coordinate map for the WebGPU visualizer. It groups files into directory clusters relative to high-impact central nodes.

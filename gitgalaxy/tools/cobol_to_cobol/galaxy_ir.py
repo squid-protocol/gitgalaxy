@@ -12,12 +12,13 @@
 # The master DB does NOT yet carry everything the forge parsers derive. Taken
 # from the DB here: the per-language file inventory, PROGRAM-ID (class_data),
 # the paragraph/section inventory (function_data), resolved COPY/INCLUDE edges
-# (edge_data) and subsystem hit counts. NOT in the DB, so still owned by the
-# forge tools: SELECT/ASSIGN DD names, OPEN modes, CALL targets, data-division
-# items, and reachability-based dead code. `usage_status` is a same-file
-# "name mentioned elsewhere" test, not reachability -- it is carried as data
-# and must not be fed to dead-code masking. See
-# docs/refraction_engine_differential.md for the measured deltas.
+# (edge_data, edge_kind 'import'), subsystem hit counts, and since #3200/#3201
+# the mainframe call graph (call_site_data, plus edge_data kinds 'call'/'exec')
+# and dataset boundary (dataset_data). NOT in the DB, so still owned by the
+# forge tools: data-division items, FD record layouts, and reachability-based
+# dead code. `usage_status` is a same-file "name mentioned elsewhere" test, not
+# reachability -- it is carried as data and must not be fed to dead-code
+# masking. See docs/refraction_engine_differential.md for the measured deltas.
 # ==============================================================================
 import os
 import sqlite3
@@ -45,6 +46,50 @@ class EngineUnit:
 
 
 @dataclass
+class EngineCall:
+    """One invocation site (#3200): COBOL CALL, CICS LINK/XCTL, JCL EXEC PGM=.
+
+    `target` is the program NAME (a literal as written, or an identifier read
+    through its working-storage VALUE clause) and is None when even the name
+    could not be determined. `resolves_to` is the repository file declaring that
+    PROGRAM-ID, and is None for a Language Environment service, a system utility
+    or any program that simply is not in this repository. Both Nones are data,
+    not gaps: they are what the old pipeline's `unresolved_calls` was about.
+    """
+
+    verb: str
+    form: str
+    operand: Optional[str]
+    target: Optional[str]
+    resolves_to: Optional[str]
+    line: int
+
+
+@dataclass
+class EngineDataset:
+    """One dataset boundary fact (#3201).
+
+    A COBOL row is a `SELECT ... ASSIGN` with the OPEN modes actually used
+    (`internal_name`, `dd_name`, `modes`); a JCL row is a DD binding
+    (`step_name`, `dd_name`, `dsn`). Joining the two on `dd_name` is the
+    dataset lineage -- see `GalaxyIR.dataset_lineage`.
+    """
+
+    step_name: Optional[str]
+    internal_name: Optional[str]
+    assign_name: Optional[str]
+    dd_name: str
+    modes: list
+    dsn: Optional[str]
+    line: int
+
+    @property
+    def is_binding(self) -> bool:
+        """True for a JCL DD -> dataset binding, False for a COBOL SELECT."""
+        return self.dsn is not None
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -53,6 +98,8 @@ class EngineFile:
     units: list[EngineUnit] = field(default_factory=list)
     copy_deps: list[str] = field(default_factory=list)
     signals: dict[str, int] = field(default_factory=dict)
+    calls: list = field(default_factory=list)  # EngineCall, #3200
+    datasets: list = field(default_factory=list)  # EngineDataset, #3201
 
     @property
     def is_program(self) -> bool:
@@ -85,12 +132,111 @@ class GalaxyIR:
             row["units"] += len(f.units)
         return dict(sorted(out.items(), key=lambda kv: -kv[1]["units"]))
 
+    def dataset_lineage(self, language: str = "cobol") -> list:
+        """Program P opens DD X for MODE; job J step S binds DD X to dataset D.
+
+        #3201's question, answered from the DB alone. Each entry is a dict with
+        `program`, `dd_name`, `modes`, `job`, `step` and `dsn`. A program DD
+        that no job in the repository binds still appears, with `job`/`dsn`
+        None: an unbound DD is a real finding (the dataset is allocated by a
+        job that is not in this repository), not something to drop silently.
+
+        The job is found through the `EXEC PGM=` call sites that resolve to the
+        program, so this only reports a binding a real step actually made.
+        """
+        # ddname -> the JCL bindings for it, per (job path, step).
+        bindings: dict[tuple[str, Optional[str], str], list] = {}
+        for f in self.files.values():
+            for ds in f.datasets:
+                if ds.is_binding:
+                    bindings.setdefault((f.file_path, ds.step_name, ds.dd_name), []).append(ds.dsn)
+
+        # program path -> the (job, step) pairs that EXEC PGM= it.
+        runners: dict[str, list] = {}
+        for f in self.files.values():
+            for call in f.calls:
+                if call.verb == "EXEC PGM" and call.resolves_to:
+                    runners.setdefault(call.resolves_to, []).append((f.file_path, None))
+
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            if f.language != language:
+                continue
+            for ds in f.datasets:
+                if ds.is_binding:
+                    continue
+                matched = False
+                for job_path, _ in runners.get(f.file_path, []):
+                    for (bj, bstep, bdd), dsns in bindings.items():
+                        if bj != job_path or bdd != ds.dd_name:
+                            continue
+                        for dsn in dsns:
+                            matched = True
+                            out.append(
+                                {
+                                    "program": f.file_path,
+                                    "dd_name": ds.dd_name,
+                                    "modes": list(ds.modes),
+                                    "job": bj,
+                                    "step": bstep,
+                                    "dsn": dsn,
+                                }
+                            )
+                if not matched:
+                    out.append(
+                        {
+                            "program": f.file_path,
+                            "dd_name": ds.dd_name,
+                            "modes": list(ds.modes),
+                            "job": None,
+                            "step": None,
+                            "dsn": None,
+                        }
+                    )
+        return out
+
+    def unresolved_calls(self) -> list:
+        """Every call site that did not reach a file in this repository (#3200).
+
+        Each entry carries `file`, `verb`, `form`, `operand`, `target` and
+        `line`. `target is None` means the program name itself was unreadable (a
+        dynamic CALL whose VALUE clause is in a copybook); a `target` with no
+        resolution is an external program -- an LE service, a system utility, or
+        a module this repository does not contain.
+        """
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for call in f.calls:
+                if call.resolves_to:
+                    continue
+                out.append(
+                    {
+                        "file": f.file_path,
+                        "verb": call.verb,
+                        "form": call.form,
+                        "operand": call.operand,
+                        "target": call.target,
+                        "line": call.line,
+                    }
+                )
+        return out
+
     def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
         try:
             rel = path.resolve().relative_to(target_root.resolve()).as_posix()
         except ValueError:
             return None
         return self.files.get(rel)
+
+
+def _has_table(cur: sqlite3.Cursor, name: str) -> bool:
+    """Whether this database carries `name`, so an older scan still loads.
+
+    A master DB written before #3200 has no call_site_data / dataset_data. The
+    refraction tools read whatever scan they are pointed at, so a missing table
+    means "this snapshot predates the channel", not a failure.
+    """
+    return cur.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone() is not None
 
 
 def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
@@ -152,14 +298,50 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
             if file_id in by_id:
                 by_id[file_id].units.append(EngineUnit(name or "", int(start or 0), int(loc or 0), int(status or 0)))
 
+        # #3200: edge_kind is load-bearing now. edge_data carries 'call' and
+        # 'exec' rows alongside the 'import' ones, and copy_deps means COPY /
+        # EXEC SQL INCLUDE only -- without this filter a CICS LINK would read as
+        # a copybook dependency.
         for src, dst in cur.execute(
-            "SELECT src_file_id, dst_file_id FROM edge_data WHERE repo_name = ? AND commit_hash = ?",
+            "SELECT src_file_id, dst_file_id FROM edge_data "
+            "WHERE repo_name = ? AND commit_hash = ? AND COALESCE(edge_kind, 'import') = 'import'",
             (repo_name, commit_hash),
         ):
             if src in by_id and dst in by_id:
                 by_id[src].copy_deps.append(by_id[dst].file_path)
         for ef in files.values():
             ef.copy_deps.sort()
+
+        # #3200: the call sites, resolved and unresolved alike. A pre-#3200
+        # database has no such table, so a missing table is "no data", never an
+        # error -- the refraction tools must keep reading an older scan.
+        if _has_table(cur, "call_site_data"):
+            for file_id, verb, form, operand, target, dst_id, line in cur.execute(
+                "SELECT src_file_id, verb, form, operand, target, dst_file_id, line_number "
+                "FROM call_site_data WHERE repo_name = ? AND commit_hash = ? ORDER BY src_file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if file_id not in by_id:
+                    continue
+                resolved = by_id[dst_id].file_path if dst_id in by_id else None
+                by_id[file_id].calls.append(
+                    EngineCall(verb or "", form or "", operand, target, resolved, int(line or 0))
+                )
+
+        # #3201: the dataset boundary, both the COBOL and the JCL half.
+        if _has_table(cur, "dataset_data"):
+            for file_id, step, internal, assign, dd, modes, dsn, line in cur.execute(
+                "SELECT file_id, step_name, internal_name, assign_name, dd_name, access_modes, dsn, line_number "
+                "FROM dataset_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if file_id not in by_id:
+                    continue
+                by_id[file_id].datasets.append(
+                    EngineDataset(
+                        step, internal, assign, dd or "", (modes or "").split(",") if modes else [], dsn, int(line or 0)
+                    )
+                )
     finally:
         conn.close()
 

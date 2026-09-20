@@ -46,9 +46,9 @@ hlasm 1). pli reads 8 instead of the issue's 7.
 | COPY dependencies | `resolve_copybooks` (same directory only) | `edge_data` | **DB**, though both are incomplete (see D3) |
 | paragraph inventory | graveyard regex | `function_data` | **neither is clean** (D1). The DB is carried as data only |
 | dead paragraphs | graveyard reachability | `usage_status` | **not replaceable** (D2) |
-| orphaned variables | graveyard | — | **stated absence**: no data items are extracted |
-| DD names, OPEN modes, dataset lineage | forge / DAG architect | — | **stated absence**: `edge_data` holds only COPY/INCLUDE edges |
-| unresolved CALLs | DAG architect | — | **stated absence**: CALL produces no edge and no record |
+| orphaned variables, FD record layouts | graveyard | — | **stated absence**: no data items are extracted (explicitly out of #3201's scope) |
+| DD names, OPEN modes, dataset lineage | forge / DAG architect | `dataset_data` | **DB** since #3201 — exact against the answer key on both corpora (see the #3200/#3201 update) |
+| unresolved CALLs | DAG architect | `call_site_data` | **DB** since #3200 — every call site, resolved or not, with its verb, form and line |
 | CICS / DB2 presence | forge regex | hit columns | **forge**. Presence agrees 36/36 with a line-level check. The hit columns (`arch_io`, `arch_ipc`) mix CICS verbs, SQL, DLI and CALL, so they cannot give a clean flag (D4) |
 
 The refractor therefore takes the program list, PROGRAM-ID, COPY edges and the unit inventory
@@ -150,15 +150,15 @@ Dead code and lineage can move to the DB only when the engine carries them. File
 | #3197 | engine | Area-B continuation lines become paragraphs (D1) |
 | #3198 | engine | `usage_status`: entry flagged, case-sensitive, `NAME-EXIT` counts as a reference (D2) |
 | #3199 | engine | resolver drops ambiguous COPY targets (D3) |
-| #3200 | engine | no CALL / CICS LINK / JCL `EXEC PGM=` edges; unresolved CALLs unrecorded |
-| #3201 | engine | no named SELECT/ASSIGN / OPEN-mode / DD extraction |
+| #3200 | engine | no CALL / CICS LINK / JCL `EXEC PGM=` edges; unresolved CALLs unrecorded — **fixed** |
+| #3201 | engine | no named SELECT/ASSIGN / OPEN-mode / DD extraction — **fixed** |
 | #3202 | engine | `calls_out_to` is meaningless for COBOL |
 | #3203 | forge | graveyard finder defects (D1–D3) |
 | #3204 | forge | DAG architect's multi-mode OPEN: no outputs, every DD `DISP=SHR` |
 | #3205 | forge | JCL forge's EXEC CICS/SQL counts and unbounded regex (D4) |
 | #3206 | forge | refractor rewrites the target's source in place |
 
-The switch for dead code needs #3198. The switch for lineage needs #3200 and #3201.
+The switch for dead code needs #3198. The switch for lineage needs #3200 and #3201 (**both landed** — see the #3200/#3201 update at the end of this page; the forge-side switch itself is still to do).
 (Superseded for dead code by the #3197/#3198 update at the end of this page: the
 census cannot be dead code under its own contract, so the forge keeps that half.)
 
@@ -291,3 +291,88 @@ Two consequences worth naming:
   `CobolSam2Service` and `MultirootSamSam2Service`, and `Sam2Service` is the
   generated mock for the unresolved call. The ambiguity was always there; it is
   now visible in the output instead of resolved by file-write order.
+
+## Update: the mainframe call graph and dataset boundary (#3200, #3201) — 2026-09-20
+
+Two of this page's stated absences are gone. The engine now extracts the named
+invocation and dataset facts, and the master DB persists them, so the DB can
+answer "program P opens DD X for INPUT; job J step S binds DD X to dataset D"
+without the forge's own SELECT/OPEN parser.
+
+**What the DB carries now.** A language opts in with a top-level
+`boundary_extraction` declaration (cobol, jcl); `core/mainframe_boundary.py`
+reads the prism **code stream**, and `core/invocation_resolver.py` resolves names
+to files across the repository.
+
+| table | content |
+|---|---|
+| `call_site_data` | one row per COBOL `CALL`, CICS `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=` — with `verb`, `form` (literal / identifier), the operand as written, the target program name, the resolved file (or NULL), and the line |
+| `dataset_data` | COBOL `SELECT ... ASSIGN` + the `OPEN` modes actually used; JCL `DD` ddname → DSN with its step |
+| `edge_data` | gains `edge_kind` `'call'` and `'exec'` for the resolved program-to-program invocations |
+
+**Scores against the answer key** (engine column; the forge column is unchanged
+by this PR, and no snapshot moved):
+
+| corpus | field | before | after |
+|---|---|---|---|
+| zopeneditor-sample | DD names | not carried | P 12/12 · R 12/12 |
+| zopeneditor-sample | inputs | not carried | P 6/6 · R 6/6 |
+| zopeneditor-sample | outputs | not carried | P 6/6 · R 6/6 |
+| zopeneditor-sample | dynamic CALLs | not carried | P 3/3 · R 3/3 |
+| zopeneditor-sample | call targets | not carried | P 3/3 · R 3/3 |
+| cics-banking-sample-application-cbsa | DD names | not carried | P 1/1 · R 1/1 |
+| cics-banking-sample-application-cbsa | outputs | not carried | P 1/1 · R 1/1 |
+| cics-banking-sample-application-cbsa | call targets | not carried | P 45/45 · R 45/45 |
+
+`call targets` is a new scored field: every program name a call site denotes,
+literal or resolved through a working-storage `VALUE`. It has no forge column —
+the DAG architect records only non-literal `CALL` operands and never sees
+`EXEC CICS LINK`/`XCTL` at all, which is 140 of CBSA's 144 call sites.
+
+The extraction was verified site-by-site before any of it was wired in: all 147
+call sites across both corpora match the key on verb, form, operand, target
+**and line**, and all 13 dataset records match on internal name, DD and modes,
+with no false positives. JCL has no answer key, so `EXEC PGM=` was checked
+against an independent raw-file scan instead: 24 / 77 / 150 steps on the three
+corpora, exactly matching.
+
+**Three readings worth recording, because each one is a decision:**
+
+- **A call edge is not a dependency edge.** `edge_kind` is `'call'`/`'exec'` and
+  these never enter the DiGraph, so `pagerank_score`, `popularity`,
+  `internal_dependency_links`, betweenness, the archetypes and every risk score
+  are byte-for-byte unchanged. Whether a runtime invocation *should* count as
+  architectural coupling is a scoring question with its own measured
+  before/after; it is deliberately not settled here, and is filed as #3237. One consequence: #2992's
+  per-file reconciliation is now scoped to `WHERE edge_kind = 'import'`, and so
+  is `galaxy_ir`'s `copy_deps`.
+- **A CALL resolves by PROGRAM-ID, nearest-wins — the import resolver's rule is
+  wrong for this relation.** An import names a file, so an ambiguous stem is
+  refused rather than guessed (#3199). A called program is chosen by library
+  concatenation order at link-edit or CICS-install time, which is what the
+  answer key records for zopeneditor's two `SAM2` programs. Nothing is lost when
+  the choice is debatable: `target` keeps the name regardless of which file it
+  was attributed to.
+- **Unresolved is data, not a gap.** Most real call sites resolve to nothing —
+  `CALL 'CEEGMT'` is an LE service and `EXEC PGM=IEFBR14` a system utility — and
+  those rows are the answer to "the old pipeline's `unresolved_calls` has no DB
+  equivalent". The table distinguishes "the name itself was unreadable"
+  (`target IS NULL`, dynamic dispatch through a copybook's `VALUE`) from "named
+  but external" (`dst_file_id IS NULL`).
+
+**Delta mode carries it too.** `state_rehydrator.py` restores both tables for
+unchanged files, the way #3220 restores `raw_imports`; a full scan and an
+incremental scan of zopeneditor produce byte-identical `call_site_data` and
+`dataset_data`. Resolution is not restored and is redone every scan, because a
+file added or deleted this commit can change what an unchanged file's `CALL`
+resolves to.
+
+**Still absent, deliberately:** FD/01 record layouts. That is data-division item
+extraction — the same channel as this page's "no data items are extracted"
+absence — and needs a level-number/PIC/OCCURS/REDEFINES walker. Dataset lineage
+does not need it.
+
+**Still absent, structurally:** reachability. An `OPEN` in an unreachable
+paragraph is extracted, because the engine has no reachability model and
+inventing one in this channel would repeat the mistake #3198 corrected. The
+forge keeps dead-code masking.

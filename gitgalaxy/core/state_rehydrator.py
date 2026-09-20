@@ -34,6 +34,15 @@ def _json_list(value: Any) -> list:
         return []
 
 
+def _has_table(cursor: sqlite3.Cursor, name: str) -> bool:
+    """Whether the baseline DB carries `name` (#3200).
+
+    A baseline written before a table existed is a normal state to rehydrate
+    from, not a failure: the scan simply has no prior value for that channel.
+    """
+    return cursor.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone() is not None
+
+
 def _json_import_set(value: Any) -> set:
     """Decode a persisted raw_imports column back to a set. Entries can be import
     strings or (module, alias) tuples that JSON stored as lists; restore the tuples
@@ -331,9 +340,63 @@ class StateRehydrator:
                             cl[k] = r[k]
                     classes_by_file.setdefault(r["_fp"], []).append(cl)
 
+                # #3200/#3201: the mainframe boundary channel, restored for the
+                # same reason #3220 restores raw_imports. An unchanged file is
+                # never re-parsed, so without this an incremental scan drops
+                # every call site and dataset binding it already knew about --
+                # the DB would end up describing only the files that happened to
+                # change in the last commit. Both tables are optional: a
+                # baseline written before #3200 simply has neither.
+                calls_by_file: dict[str, list] = {}
+                datasets_by_file: dict[str, list] = {}
+                if _has_table(cursor, "call_site_data"):
+                    for r in cursor.execute(
+                        # Aliased to the payload's own key names, so the row reads
+                        # exactly like the dict the extractor produces.
+                        "SELECT fd.file_path AS _fp, cs.verb, cs.form, cs.operand, cs.target, "
+                        "cs.line_number AS line "
+                        "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
+                        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id",
+                        (repo_name, baseline_hash),
+                    ):
+                        # `resolved_path`/`dst_file_id` are deliberately NOT
+                        # restored: resolution is repo-wide and is redone every
+                        # scan, because a file added or deleted this commit can
+                        # change what an unchanged file's CALL resolves to.
+                        calls_by_file.setdefault(r["_fp"], []).append(
+                            {
+                                "verb": r["verb"],
+                                "form": r["form"],
+                                "operand": r["operand"],
+                                "target": r["target"],
+                                "line": int(r["line"] or 0),
+                            }
+                        )
+                if _has_table(cursor, "dataset_data"):
+                    for r in cursor.execute(
+                        "SELECT fd.file_path AS _fp, ds.step_name, ds.internal_name, ds.assign_name, "
+                        "ds.dd_name, ds.access_modes AS modes, ds.dsn, ds.line_number AS line "
+                        "FROM dataset_data ds JOIN file_data fd ON ds.file_id = fd.id "
+                        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ds.id",
+                        (repo_name, baseline_hash),
+                    ):
+                        datasets_by_file.setdefault(r["_fp"], []).append(
+                            {
+                                "step_name": r["step_name"],
+                                "internal_name": r["internal_name"],
+                                "assign_name": r["assign_name"],
+                                "dd_name": r["dd_name"],
+                                "modes": (r["modes"] or "").split(",") if r["modes"] else [],
+                                "dsn": r["dsn"],
+                                "line": int(r["line"] or 0),
+                            }
+                        )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
+                    node["call_sites"] = calls_by_file.get(rel_path, [])
+                    node["dataset_bindings"] = datasets_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

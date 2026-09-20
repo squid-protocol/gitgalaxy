@@ -502,6 +502,12 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         "inputs",
         "outputs",
         "dynamic CALLs",
+        # #3200: every call target the program names, literal or resolved
+        # through a working-storage VALUE. The forge has no equivalent -- its
+        # lineage tool only records non-literal `CALL` operands, and never sees
+        # `EXEC CICS LINK`/`XCTL` at all -- so this row measures the engine
+        # against the key with no forge column.
+        "call targets",
         "cics/sql",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
@@ -546,27 +552,57 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         forge_cp = {hit.relative_to(repo).as_posix() for hit in forge_resolved.values()}
         add("copybook paths", rel, truth_cp, forge_cp, set(ef.copy_deps) if ef else None)
         dd_modes = {f["dd"]: set(f["modes"]) for f in k["files"]}
-        add("DD names", rel, set(dd_modes), {f["dd_name"] for f in intent["files_requested"]}, None)
+        # #3201: the engine's own SELECT/ASSIGN + OPEN-mode extraction
+        # (dataset_data, the COBOL half -- a JCL DD binding is not a program's
+        # file). Before #3201 every one of these was `None` -> "not carried".
+        engine_files = [d for d in ef.datasets if not d.is_binding] if ef else None
+        engine_modes = {d.dd_name: set(d.modes) for d in engine_files} if engine_files is not None else None
+        add(
+            "DD names",
+            rel,
+            set(dd_modes),
+            {f["dd_name"] for f in intent["files_requested"]},
+            set(engine_modes) if engine_modes is not None else None,
+        )
         add(
             "inputs",
             rel,
             {d for d, m in dd_modes.items() if m & {"INPUT", "I-O", "EXTEND"}},
             set(lin.get("inputs", set())),
-            None,
+            (
+                {d for d, m in engine_modes.items() if m & {"INPUT", "I-O", "EXTEND"}}
+                if engine_modes is not None
+                else None
+            ),
         )
         add(
             "outputs",
             rel,
             {d for d, m in dd_modes.items() if m & {"OUTPUT", "I-O", "EXTEND"}},
             set(lin.get("outputs", set())),
-            None,
+            (
+                {d for d, m in engine_modes.items() if m & {"OUTPUT", "I-O", "EXTEND"}}
+                if engine_modes is not None
+                else None
+            ),
         )
         add(
             "dynamic CALLs",
             rel,
             {c["operand"] for c in k["calls"] if c["verb"] == "CALL" and c["form"] == "identifier"},
             set(lin.get("unresolved_calls", [])),
+            (
+                {c.operand for c in ef.calls if c.verb == "CALL" and c.form == "identifier" and c.operand}
+                if ef
+                else None
+            ),
+        )
+        add(
+            "call targets",
+            rel,
+            {c["target"] for c in k["calls"] if c["target"]},
             None,
+            ({c.target for c in ef.calls if c.target} if ef else None),
         )
         add(
             "cics/sql",

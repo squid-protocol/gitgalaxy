@@ -106,3 +106,42 @@ What the scores say, with the issue that owns each:
   - The forge resolves 0 real copybooks (#3203).
 - **Outputs.** The forge reports none, on either corpus (#3204). On BANKDATA even the single-mode `OPEN OUTPUT` is lost. The forge marks the entry paragraph `A010` itself dead, because the programs it inlines as copybooks shift which paragraph comes first (#3203), and that masks the OPEN. With no dead list, the lineage tool finds the `VSAM` output.
 - **Units.** The engine's recall is complete. Its extra units are the Area-B continuation phantoms (#3197).
+
+## Update: engine lineage and call graph (#3200 / #3201), 2026-09-20
+
+Every field the engine column reported as `not carried` is now carried, and
+exact. Also adds a new scored field, `call targets`.
+
+**cics-banking-sample-application-cbsa**
+
+| field | forge | engine DB |
+|---|---|---|
+| DD names | P 1/1 · R 1/1 | P 1/1 · R 1/1 |
+| outputs | P 1/1 · R 1/1 | P 1/1 · R 1/1 |
+| call targets | n/a | P 45/45 · R 45/45 |
+
+**zopeneditor-sample**
+
+| field | forge | engine DB |
+|---|---|---|
+| DD names | P 12/12 · R 12/12 | P 12/12 · R 12/12 |
+| inputs | P 6/6 · R 6/6 | P 6/6 · R 6/6 |
+| outputs | P 6/6 · R 6/6 | P 6/6 · R 6/6 |
+| dynamic CALLs | P 3/3 · R 3/3 | P 3/3 · R 3/3 |
+| call targets | n/a | P 3/3 · R 3/3 |
+
+`call targets` is every program name a call site denotes — a literal, or an
+identifier read through its working-storage `VALUE` clause. It has **no forge
+column**: the DAG architect records only non-literal `CALL` operands and never
+sees `EXEC CICS LINK`/`XCTL`, which is 140 of CBSA's 144 call sites.
+
+Before any of this was wired into the engine, the extractor was scored directly
+against the key's `calls` and `files` blocks: **147/147 call sites** match on
+verb, form, operand, target *and line*, and **13/13 dataset records** match on
+internal name, DD and modes, with no false positives on either corpus.
+
+The `calls` field is now a first-class scoring target rather than key-only data.
+Note what it measures and what it does not: `resolves_to` is compared only
+through `call targets`' name set, because which of two files sharing a
+PROGRAM-ID a call binds to is a link-edit-order question the key answers with
+"nearest" and the engine reproduces — not an independent check.

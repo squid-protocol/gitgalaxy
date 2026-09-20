@@ -397,6 +397,8 @@ class RecordKeeper:
         session_meta: dict,
         output_path: str,
         dependency_edges: Optional[list[dict]] = None,
+        call_sites: Optional[list[dict]] = None,
+        invocation_edges: Optional[list[dict]] = None,
     ):
         """
         Builds the formal relational SQLite database directly from pipeline RAM state.
@@ -405,6 +407,17 @@ class RecordKeeper:
         (`NetworkRiskSensor.dependency_edges`), persisted as edge_data. None --
         a caller with no graph -- writes no edges and leaves
         repo_data.network_edges_unrecorded NULL rather than a fake 0.
+
+        `call_sites` / `invocation_edges` (#3200, #3201) are the mainframe
+        boundary channel: `invocation_resolver.resolve_invocations()`'s two
+        return values. `call_sites` becomes call_site_data -- EVERY site,
+        including the ones that resolved to nothing, which is the whole point
+        of the table -- and `invocation_edges` becomes edge_data rows with
+        edge_kind 'call'/'exec'. The COBOL dataset bindings ride along on each
+        file's own `dataset_bindings` and become dataset_data.
+
+        Both default to None, so a caller predating #3200 writes no boundary
+        rows rather than empty ones.
         """
         repo_name = session_meta.get("target", "Unknown")
         git_audit = session_meta.get("git_audit", {})
@@ -724,6 +737,76 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_edge_src_file_id ON edge_data(src_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_edge_dst_file_id ON edge_data(dst_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_edge_snapshot ON edge_data(repo_name, commit_hash);")
+
+        # #3200: one row per mainframe INVOCATION SITE -- COBOL `CALL`, CICS
+        # `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`. edge_data carries the
+        # resolved program-to-program edges aggregated from these, but it
+        # structurally cannot carry the rest: its src/dst are file_data FKs, and
+        # the majority of real call sites do not resolve to a file in the
+        # repository at all. `CALL 'CEEGMT'` is a Language Environment service,
+        # `EXEC PGM=IEFBR14` is a system utility, and a `CALL WS-PGM` whose
+        # VALUE clause lives in a copybook has no readable target name. Those
+        # were #3200's "unresolved targets are recorded nowhere"; they are rows
+        # here, with the level of failure distinguishable:
+        #   target IS NULL             -- the name itself could not be read
+        #   target NOT NULL, dst NULL  -- named, but not a program in this repo
+        #   dst_file_id NOT NULL       -- resolved; also an edge_data row
+        # `form` ('literal' | 'identifier' | 'unknown') keeps the architectural
+        # distinction the old pipeline's `unresolved_calls` was really about: a
+        # literal CALL is a static, link-edited dependency, an identifier CALL
+        # is dynamic dispatch that a compile-time DAG cannot see.
+        # No FK to repo_data, for the same cascade-delete reason as edge_data.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS call_site_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                src_file_id INTEGER,
+                verb TEXT,
+                form TEXT,
+                operand TEXT,
+                target TEXT,
+                dst_file_id INTEGER,
+                line_number INTEGER,
+                FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE,
+                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_src_file_id ON call_site_data(src_file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_dst_file_id ON call_site_data(dst_file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_target ON call_site_data(target);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_snapshot ON call_site_data(repo_name, commit_hash);")
+
+        # #3201: the dataset boundary, from both ends of the same ddname.
+        #   COBOL row: internal_name + assign_name + dd_name + access_modes
+        #              ("program P opens DD CUSTFILE for INPUT")
+        #   JCL row:   step_name + dd_name + dsn
+        #              ("job J step SAM1 binds DD CUSTFILE to SAMPLE.CUSTFILE")
+        # Joining the two on dd_name is the dataset lineage that the refraction
+        # pipeline kept its own SELECT/OPEN parser for. It is deliberately NOT
+        # an edge_data kind: a ddname and a dataset are not files in the
+        # repository, so neither end could be a file_data FK.
+        # access_modes is a comma-joined sorted list rather than a row per mode,
+        # because "INPUT and OUTPUT" is one fact about one file, not two.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS dataset_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                step_name TEXT,
+                internal_name TEXT,
+                assign_name TEXT,
+                dd_name TEXT,
+                access_modes TEXT,
+                dsn TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_file_id ON dataset_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_dd_name ON dataset_data(dd_name);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_snapshot ON dataset_data(repo_name, commit_hash);")
 
         # #2908 Phase 2: per-unit is_public/is_documented (function_data.
         # docs/risk_documentation_contract.md). Auto-heal for a pre-#2908
@@ -1522,6 +1605,111 @@ class RecordKeeper:
                 """,
                     edge_rows,
                 )
+
+        # #3200: the 'call'/'exec' edges. Same table, same shape, resolved by a
+        # different rule (invocation_resolver.py) and NOT part of the graph, so
+        # they are inserted separately from the import edges above and never
+        # counted into network_edges_unrecorded, which is a statement about the
+        # DiGraph. `import_statements` carries the call-site count: the column
+        # counts the statements an edge was built from, which for this kind is
+        # call sites rather than import statements.
+        if invocation_edges:
+            invocation_rows = []
+            for edge in invocation_edges:
+                src_id = path_to_file_id.get(edge.get("src", ""))
+                dst_id = path_to_file_id.get(edge.get("dst", ""))
+                if src_id is None or dst_id is None:
+                    continue
+                invocation_rows.append(
+                    (
+                        repo_name,
+                        commit_hash,
+                        src_id,
+                        dst_id,
+                        edge.get("edge_kind", "call"),
+                        float(edge.get("weight", 0.0)),
+                        int(edge.get("call_sites", 0)),
+                        0,
+                    )
+                )
+            if invocation_rows:
+                cursor.executemany(
+                    """
+                    INSERT INTO edge_data (
+                        repo_name, commit_hash, src_file_id, dst_file_id,
+                        edge_kind, weight, import_statements, entity_imports
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                    invocation_rows,
+                )
+
+        # #3200: every call site, resolved or not. Unlike the edges above, a
+        # site with no destination is exactly what this table exists to keep,
+        # so there is no `continue` on an unresolved target -- only on a source
+        # file that has no file_data row at all (the statistical auditor can
+        # relegate one after extraction, the same gap edge_data has).
+        if call_sites:
+            call_rows = []
+            for site in call_sites:
+                src_id = path_to_file_id.get(site.get("src_path", ""))
+                if src_id is None:
+                    continue
+                call_rows.append(
+                    (
+                        repo_name,
+                        commit_hash,
+                        src_id,
+                        site.get("verb"),
+                        site.get("form"),
+                        site.get("operand"),
+                        site.get("target"),
+                        path_to_file_id.get(site.get("resolved_path") or ""),
+                        int(site.get("line", 0) or 0),
+                    )
+                )
+            if call_rows:
+                cursor.executemany(
+                    """
+                    INSERT INTO call_site_data (
+                        repo_name, commit_hash, src_file_id, verb, form,
+                        operand, target, dst_file_id, line_number
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                    call_rows,
+                )
+
+        # #3201: the dataset bindings, taken from each file's own payload
+        # because they are a per-file fact with no cross-file resolution step.
+        dataset_rows: list[tuple] = []
+        for file_data in parsed_files:
+            dataset_file_id = path_to_file_id.get(file_data.get("path", ""))
+            if dataset_file_id is None:
+                continue
+            dataset_rows.extend(
+                (
+                    repo_name,
+                    commit_hash,
+                    dataset_file_id,
+                    binding.get("step_name"),
+                    binding.get("internal_name"),
+                    binding.get("assign_name"),
+                    binding.get("dd_name"),
+                    ",".join(binding.get("modes") or []) or None,
+                    binding.get("dsn"),
+                    int(binding.get("line", 0) or 0),
+                )
+                for binding in file_data.get("dataset_bindings", []) or []
+            )
+        if dataset_rows:
+            cursor.executemany(
+                """
+                INSERT INTO dataset_data (
+                    repo_name, commit_hash, file_id, step_name, internal_name,
+                    assign_name, dd_name, access_modes, dsn, line_number
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+                dataset_rows,
+            )
 
         # 3. REPO DATA INSERTION
         class_start_idx = self.SIGNAL_SCHEMA.index("class_start") if "class_start" in self.SIGNAL_SCHEMA else -1

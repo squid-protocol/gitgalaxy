@@ -44,6 +44,21 @@ DEFINITION: dict[str, Any] = {
     # Verified on the #3198 micro-repro and both mainframe corpora.
     "identifier_case": "insensitive",
     "identifier_extra_chars": "-",
+    # #3200/#3201: opts cobol into the named mainframe boundary channel --
+    # CALL / CICS LINK / XCTL targets, and SELECT/ASSIGN ddnames with their
+    # OPEN modes. The counted rules (`ipc_rpc_bridges`, `io`) say THAT this
+    # program calls out and touches files; they cannot say WHAT, so the call
+    # graph and the dataset lineage were stated absences in the DB.
+    # Implemented by core/mainframe_boundary.py, which reads the prism code
+    # stream (never the raw file, so a commented-out CALL draws no edge).
+    #
+    # TOP LEVEL, not inside `rules`, and that is load-bearing: language_lens.py's
+    # `_calibrate_lookup_maps` re.compile()s every STRING value inside `rules`
+    # (a guard for definitions loaded from external JSON). A string helper key
+    # put there becomes `re.compile("cobol")` in a real scan while every unit
+    # test -- which builds from LANGUAGE_DEFINITIONS directly -- stays green.
+    # That is exactly how #2806 blessed a wrong golden master.
+    "boundary_extraction": "cobol",
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: Entscheidungslogik. Control flow that splits execution paths.

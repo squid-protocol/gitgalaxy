@@ -3,7 +3,7 @@ name: cobol-modernization
 description: Work on the COBOL modernization track (epic #3122) -- the refraction tools in gitgalaxy/tools/cobol_to_cobol/ + cobol_to_java/ and both controllers ("the forge"), or the engine's COBOL/mainframe extraction that the forge reads through galaxy_ir.py. Covers the loop (fetch pinned corpus -> scan -> differential -> explain deltas -> score against the answer key -> bless the refraction snapshot), how to prove a forge-side vs an engine-side change, and which open issue owns which gap. Use when the user says "work on #3197/#3198/#3199/#3200/#3201/#3202/#3221/#3222", "fix the refractor/forge/graveyard/JCL forge", "score against the answer key", "run the differential", or anything under #3122/#3120. Not for adding a mainframe language (add-language) or a per-signal contract audit with no refraction consumer (rule-contract-audit).
 ---
 
-The pipeline is `cobol-refractor` → clean room (JCL, schemas, IR dumps, agent jobs) → `cobol-to-java` → a Spring Boot tree. It can take its program list, PROGRAM-IDs, COPY edges and paragraph inventory from the engine's master DB (`--galaxy-db/--scan`, #3120). Dead code and dataset lineage still come from the forge's own parsers, because the engine does not carry them yet.
+The pipeline is `cobol-refractor` → clean room (JCL, schemas, IR dumps, agent jobs) → `cobol-to-java` → a Spring Boot tree. It can take its program list, PROGRAM-IDs, COPY edges and paragraph inventory from the engine's master DB (`--galaxy-db/--scan`, #3120). Since #3200/#3201 the DB also carries the call graph and the dataset boundary, so the lineage switch is unblocked on the engine side — but the forge has not switched yet. Dead code stays with the forge by decision (#3198): the census is not reachability.
 
 **Neither side is the oracle.** The answer key is.
 
@@ -62,7 +62,14 @@ Attribute every difference to one of the differential doc's four causes: old-par
 - **CBSA's ref is on branch `July2024Refresh`.** Its `main` was emptied at the 2024 sunset. The manifest handles it; don't re-clone by hand.
 - **The refractor writes its clean room next to its target.** Run it on a copy (the snapshot harness does). It no longer edits the target in place (#3206), but siblings still appear.
 - **`usage_status` is a by-name census, not reachability** (#3198). Never mask or report dead code from it.
-- **`edge_data` holds COPY/INCLUDE edges only.** It has no CALL, `EXEC PGM=` or SELECT/OPEN edges (#3200, #3201).
+- **`edge_data` is multi-kind now (#3200).** `'import'` is COPY/INCLUDE; `'call'`/`'exec'` is the
+  mainframe call graph. **Filter on `edge_kind` in every query** -- an unfiltered join reads a CICS
+  LINK as a copybook dependency. The call graph is NOT in the DiGraph, so it moves no pagerank,
+  popularity or risk score.
+- **The named boundary lives in `call_site_data` and `dataset_data` (#3200/#3201).** Call sites
+  (resolved and unresolved), SELECT/ASSIGN ddnames with their OPEN modes, and JCL DD->DSN bindings.
+  Read them through `galaxy_ir`'s `dataset_lineage()` / `unresolved_calls()`. A CALL resolves by
+  PROGRAM-ID nearest-wins, which is deliberately NOT the import resolver's refuse-to-guess rule.
 - **The engine stores OS-native path separators.** `galaxy_ir` normalises them to `/` on load. Read the DB through it (`load_galaxy_ir`, then `lookup(file, root)`), not raw `sqlite3`, or Windows scans won't join.
 - **The forge's reachability pass and the answer key's `draft` share one control-flow model** (#3219). The forge's 680/680 and 62/62 on CBSA are therefore not independent evidence. A model defect would be invisible, so hand-check the source when a change touches reachability.
 - **Program keys:** outputs are keyed by stem when unique, else `a__b__STEM` (#3218), and the Java forges
@@ -79,13 +86,12 @@ Attribute every difference to one of the differential doc's four causes: old-par
   `gh workflow run "Full Suite Gate (All OS x Python)" --ref <branch>` (#3209).
 - **X-Ray fails on a dense string literal** over 64 chars. Build long regexes from short named fragments.
 
-## Who owns what (open, as of 2026-09-19)
+## Who owns what (open, as of 2026-09-20)
 
 | issue | side | gap | unblocks |
 |---|---|---|---|
 | #3199 | engine | resolver drops ambiguous COPY targets (78/114 CBSA copybooks) | copybook switch |
-| #3200 | engine | no CALL / CICS LINK / XCTL / `EXEC PGM=` edges | lineage switch (#3120) |
-| #3201 | engine | no named SELECT/ASSIGN, OPEN modes or DD bindings | lineage switch (#3120) |
+| #3120 | forge | lineage still comes from the forge's own SELECT/OPEN parser, though the DB now carries it (#3200/#3201) | — |
 | #3202 | engine | `calls_out_to` meaningless for COBOL | — |
 | #3211 | tooling | differential deltas carry no cause code; no unexplained-count gate | gating engine changes |
 | #3222 | forge | 3 quadratic regexes (baselined) | — |

@@ -87,6 +87,16 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "positional_anchored",
     # COPY members resolve to PDS members, which are case-insensitive.
     "case_insensitive_imports": True,
+    # #3199: this language's import statement names a library MEMBER that the
+    # compiler pastes into the importing compilation unit (BMS `COPY`). A member is
+    # source in this same language by construction, so when a copied name is
+    # ambiguous the resolver only ever chooses a candidate in it, and drops the
+    # edge when there is none. Without that, CBSA's `COPY BNK1CAM` -- a BMS
+    # symbolic map, generated at build time and absent from the repository --
+    # resolved to whichever same-named file happened to be nearest, which is the
+    # map's own build JCL. Every other language keeps unconstrained
+    # cross-language resolution (an HTML page importing a .css file).
+    "imports_are_source_members": True,
     "rules": {
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: a screen definition makes no runtime choice. HLASM conditional

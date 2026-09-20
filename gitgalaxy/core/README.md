@@ -83,7 +83,7 @@ The counted rules say *that* a COBOL program calls out and touches files (`ipc_r
 
 Three properties worth knowing before extending either:
 * **A language opts in with a top-level `boundary_extraction` declaration**, never a key inside `rules` — `language_lens.py` re.compile()s every string value in `rules` (#2806).
-* **Resolution is by PROGRAM-ID, nearest-wins.** That is deliberately *not* `network_risk_sensor.py`'s rule, which refuses to guess on an ambiguous stem (#3199): an import names a file, a called program is chosen by library concatenation order.
+* **Resolution is by PROGRAM-ID, nearest-wins.** That is deliberately *not* `network_risk_sensor.py`'s rule: an import names a file, a called program is chosen by library concatenation order. Both share one proximity definition (`path_proximity.py`), and they disagree about what a tie means — a call picks one, an import that is still ambiguous draws nothing (#3199). The import resolver additionally disqualifies a candidate that declares a PROGRAM-ID, which is exactly the file a `CALL` wants.
 * **These edges never enter the DAG.** PageRank, popularity, blast radius and every risk score are unaffected; only `edge_data` grows, under its own `edge_kind`.
 
 ### 6. `spatial_mapper.py` (The Positioning Engine)

@@ -851,3 +851,165 @@ def test_stage2_disambiguation_survives_the_memo(sensor):
     mapped = {f["path"]: f["telemetry"]["network_metrics"] for f in sensor.build_dependency_graph(files)[0]}
     assert mapped["/repo/core/utils.ts"]["in_degree"] == 1
     assert mapped["/repo/web/utils.ts"]["in_degree"] == 0
+
+
+# ==============================================================================
+# TEST 21: AMBIGUOUS IMPORT TARGETS (#3199)
+# ==============================================================================
+# Before #3199 an import token matching more than one file produced NO edge.
+# On real mainframe repositories that threw away most copybook dependencies:
+# all 12 COPY statements in IBM's zopeneditor-sample (every copybook ships
+# twice, under COPYBOOK/ and multiroot/copybooks/) and 36 of CBSA's 119
+# (`COPY ACCTCTRL` matches ACCTCTRL.cpy AND the ACCTCTRL.cbl program, .jcl and
+# .lked beside it). The fixtures below are those two shapes, reduced.
+def _cobol(path, imports=(), classes=()):
+    return {
+        "path": path,
+        "lang_id": "cobol",
+        "raw_imports": list(imports),
+        "classes": [{"name": c} for c in classes],
+    }
+
+
+def _resolve(sensor, files, src_path, token):
+    """`_resolve_target` with the Stage-3 inputs the real graph builder passes."""
+    src = next(f for f in files if f["path"] == src_path)
+    return sensor._resolve_target(
+        token,
+        sensor._build_resolution_map(files),
+        src_path,
+        folded_maps=sensor._build_folded_resolution_map(files),
+        fold_lang=sensor._fold_lang(src),
+        src_lang=str(src.get("lang_id", "")).lower(),
+        file_facts=sensor._build_file_facts(files),
+    )
+
+
+def test_copy_prefers_the_member_over_the_program_of_the_same_name(sensor):
+    """CBSA: `COPY ACCTCTRL` in BANKDATA is the copybook, never the program.
+
+    The nearest same-named file is the .cbl in BANKDATA's own directory, so
+    proximity alone gets this wrong -- the PROGRAM-ID is what disqualifies it.
+    """
+    files = [
+        _cobol("src/base/cobol_src/BANKDATA.cbl", imports=["ACCTCTRL"], classes=["BANKDATA"]),
+        _cobol("src/base/cobol_src/ACCTCTRL.cbl", classes=["ACCTCTRL"]),
+        _cobol("src/base/cobol_copy/ACCTCTRL.cpy"),
+        {"path": "etc/install/base/buildjcl/ACCTCTRL.jcl", "lang_id": "jcl", "raw_imports": []},
+    ]
+    assert _resolve(sensor, files, "src/base/cobol_src/BANKDATA.cbl", "ACCTCTRL") == "src/base/cobol_copy/ACCTCTRL.cpy"
+
+
+def test_copy_of_its_own_name_is_the_copybook_not_the_program_itself(sensor):
+    """CBSA's CREACC.cbl copies CREACC: the .cpy, and not a self-edge."""
+    files = [
+        _cobol("src/base/cobol_src/CREACC.cbl", imports=["CREACC"], classes=["CREACC"]),
+        _cobol("src/base/cobol_copy/CREACC.cpy"),
+    ]
+    assert _resolve(sensor, files, "src/base/cobol_src/CREACC.cbl", "CREACC") == "src/base/cobol_copy/CREACC.cpy"
+
+
+def test_copy_prefers_the_importers_own_language(sensor):
+    """CBSA: `COPY CUSTOMER` matches CUSTOMER.cpy and an exact-case CUSTOMER.java."""
+    files = [
+        _cobol("src/base/cobol_src/INQCUST.cbl", imports=["CUSTOMER"], classes=["INQCUST"]),
+        _cobol("src/base/cobol_copy/CUSTOMER.cpy"),
+        {"path": "src/webui/src/main/java/datainterfaces/CUSTOMER.java", "lang_id": "java", "raw_imports": []},
+    ]
+    assert _resolve(sensor, files, "src/base/cobol_src/INQCUST.cbl", "CUSTOMER") == "src/base/cobol_copy/CUSTOMER.cpy"
+
+
+def test_copy_takes_the_library_its_own_workspace_root_owns(sensor):
+    """zopeneditor: the same copybook exists under two roots.
+
+    `COBOL/SAM1.cbl` takes the shallower repository-wide `COPYBOOK/`, and
+    `multiroot/sam/SAM1.cbl` takes the one inside its own subtree -- which is
+    what the zapp.yaml library search order resolves to, per the answer key.
+    """
+    files = [
+        _cobol("COBOL/SAM1.cbl", imports=["CUSTCOPY"], classes=["SAM1"]),
+        _cobol("multiroot/sam/SAM1.cbl", imports=["CUSTCOPY"], classes=["SAM1"]),
+        _cobol("COPYBOOK/CUSTCOPY.cpy"),
+        _cobol("multiroot/copybooks/cust/CUSTCOPY.cpy"),
+    ]
+    assert _resolve(sensor, files, "COBOL/SAM1.cbl", "CUSTCOPY") == "COPYBOOK/CUSTCOPY.cpy"
+    assert _resolve(sensor, files, "multiroot/sam/SAM1.cbl", "CUSTCOPY") == "multiroot/copybooks/cust/CUSTCOPY.cpy"
+
+
+def test_copy_of_a_member_absent_from_the_repo_draws_no_edge(sensor):
+    """CBSA: `COPY BNK1CAM` is a BMS symbolic map generated at build time.
+
+    No copybook of that name exists. The nearest same-named files are the BMS
+    source and its build JCL, and neither is the member COBOL copies -- a
+    copybook is COBOL source by definition, so the edge is dropped (the
+    cross-language link belongs to the BMS work, #3122).
+    """
+    files = [
+        _cobol("src/base/cobol_src/BNK1CAC.cbl", imports=["BNK1CAM"], classes=["BNK1CAC"]),
+        {"path": "src/base/bms_src/BNK1CAM.bms", "lang_id": "bms", "raw_imports": []},
+        {"path": "etc/install/base/buildjcl/BNK1CAM.jcl", "lang_id": "jcl", "raw_imports": []},
+    ]
+    assert _resolve(sensor, files, "src/base/cobol_src/BNK1CAC.cbl", "BNK1CAM") is None
+
+
+def test_equally_near_and_equally_shallow_candidates_still_draw_no_edge(sensor):
+    """Nothing in the repository separates these two, so the resolver still refuses.
+
+    The proximity tiebreak is deliberately NOT a total order: alphabetical
+    order is not a reason to believe an edge.
+    """
+    files = [
+        _cobol("src/PROG.cbl", imports=["SHARED"], classes=["PROG"]),
+        _cobol("lib_a/SHARED.cpy"),
+        _cobol("lib_b/SHARED.cpy"),
+    ]
+    assert _resolve(sensor, files, "src/PROG.cbl", "SHARED") is None
+
+
+def test_a_relative_include_that_matches_nothing_exactly_draws_no_edge(sensor):
+    """`%INCLUDE './x.inc'` names one location. If nothing is there, no near miss counts.
+
+    PL/I is the member language whose capture can carry a quoted path, so it
+    is the one that can reach Stage 3 with a relative token.
+    """
+    files = [
+        {"path": "pli/MAIN.pli", "lang_id": "pli", "raw_imports": ["./shared.inc"], "classes": []},
+        {"path": "pli/lib/shared.inc", "lang_id": "pli", "raw_imports": [], "classes": []},
+        {"path": "pli/lib/deep/shared.inc", "lang_id": "pli", "raw_imports": [], "classes": []},
+    ]
+    assert _resolve(sensor, files, "pli/MAIN.pli", "./shared.inc") is None
+    mapped = {f["path"]: f["telemetry"]["network_metrics"] for f in sensor.build_dependency_graph(files)[0]}
+    assert mapped["pli/lib/shared.inc"]["in_degree"] == 0
+
+
+def test_an_ambiguous_bare_stem_outside_the_member_languages_still_draws_no_edge(sensor):
+    """#261's contract is untouched: Stage 3 is scoped to the member languages.
+
+    The same shape that now resolves for a COBOL `COPY` -- a bare ambiguous
+    stem with a nearest candidate in the importer's own directory -- must
+    still draw nothing for an ordinary `import utils`.
+    """
+    files = [
+        {"path": "/src/service_a/handler.py", "lang_id": "python", "raw_imports": ["utils"], "classes": []},
+        {"path": "/src/service_a/utils.py", "lang_id": "python", "raw_imports": [], "classes": []},
+        {"path": "/src/service_b/utils.py", "lang_id": "python", "raw_imports": [], "classes": []},
+    ]
+    assert _resolve(sensor, files, "/src/service_a/handler.py", "utils") is None
+
+
+def test_ambiguous_copybook_edges_reach_the_real_graph_and_edge_data(sensor):
+    """End to end: the recovered edges are real DAG edges, not just resolutions."""
+    files = [
+        _cobol("src/base/cobol_src/BANKDATA.cbl", imports=["ACCTCTRL", "CUSTOMER"], classes=["BANKDATA"]),
+        _cobol("src/base/cobol_src/ACCTCTRL.cbl", classes=["ACCTCTRL"]),
+        _cobol("src/base/cobol_copy/ACCTCTRL.cpy"),
+        _cobol("src/base/cobol_copy/CUSTOMER.cpy"),
+    ]
+    mapped = {f["path"]: f["telemetry"]["network_metrics"] for f in sensor.build_dependency_graph(files)[0]}
+    assert mapped["src/base/cobol_copy/ACCTCTRL.cpy"]["in_degree"] == 1
+    assert mapped["src/base/cobol_copy/CUSTOMER.cpy"]["in_degree"] == 1
+    assert mapped["src/base/cobol_src/ACCTCTRL.cbl"]["in_degree"] == 0
+    assert {(e["src"], e["dst"]) for e in sensor.dependency_edges} == {
+        ("src/base/cobol_src/BANKDATA.cbl", "src/base/cobol_copy/ACCTCTRL.cpy"),
+        ("src/base/cobol_src/BANKDATA.cbl", "src/base/cobol_copy/CUSTOMER.cpy"),
+    }

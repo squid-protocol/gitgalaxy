@@ -10,8 +10,9 @@
 # WHY NOT `NetworkRiskSensor._resolve_target`:
 # Two different relations with two different truths.
 #   - An IMPORT names a FILE (`COPY CUSTCOPY` -> CUSTCOPY.cpy), so the import
-#     resolver matches on path and stem, and REFUSES to guess when a stem is
-#     ambiguous (#3199) -- a wrong copybook edge is a wrong dependency.
+#     resolver matches on path and stem, and a candidate that declares a
+#     PROGRAM-ID is DISQUALIFIED: a copybook is a fragment, never a program
+#     (#3199).
 #   - A CALL names a PROGRAM (`CALL 'SAM2'` -> whichever file declares
 #     PROGRAM-ID SAM2), which is the class_data name, not the filename. Those
 #     usually coincide and sometimes do not, and a stem lookup cannot tell a
@@ -20,8 +21,9 @@
 # several files (zopeneditor's COBOL/SAM2.cbl and multiroot/sam/SAM2.cbl) the
 # NEAREST one wins -- the reading the answer key records, and the one that
 # matches how the target is really chosen, by library concatenation order at
-# link-edit or CICS-install time. The import resolver's refuse-to-guess rule is
-# right for its relation and wrong for this one.
+# link-edit or CICS-install time. Both resolvers now break a tie on proximity
+# (core/path_proximity.py), but they still disagree about what a tie MEANS: a
+# call picks one, an import that is still ambiguous draws nothing.
 #
 # THE EDGES ARE A SEPARATE KIND AND DO NOT ENTER THE GRAPH.
 # `edge_kind` is 'call'/'exec', never 'import'. They are NOT handed to the
@@ -35,13 +37,20 @@
 # `WHERE edge_kind = 'import'`, which is what tests/tools_recorders/
 # test_edge_data.py asserts.
 # ==============================================================================
-from typing import Any, Optional
+from typing import Any
+
+from gitgalaxy.core.path_proximity import nearest_path
 
 # Languages whose `classes` entries are program declarations a call can target.
 # cobol only today: a JCL `EXEC PGM=` and a COBOL `CALL` both name a COBOL
 # program. pli/rexx declare callable units too, but neither is a documented
 # target of these verbs yet, so widening this is a measured change, not a guess.
-_PROGRAM_LANGUAGES = ("cobol",)
+#
+# #3199 reads the same fact from the other side: if a `classes` entry here is a
+# whole program, then a candidate file that has one is not a copybook, which is
+# how `COPY ACCTCTRL` tells ACCTCTRL.cpy from the ACCTCTRL.cbl beside it. Adding
+# a language here therefore has to be right for both readings.
+PROGRAM_DECLARING_LANGUAGES = ("cobol",)
 
 # `CALL`/`LINK`/`XCTL` are COBOL-side invocations; `EXEC PGM` is JCL's.
 _EXEC_VERBS = ("EXEC PGM",)
@@ -51,48 +60,13 @@ def _program_index(parsed_files: list[dict[str, Any]]) -> dict[str, list[str]]:
     """PROGRAM-ID (upper-cased) -> the paths declaring it, in scan order."""
     index: dict[str, list[str]] = {}
     for f in parsed_files:
-        if str(f.get("lang_id", "")).lower() not in _PROGRAM_LANGUAGES:
+        if str(f.get("lang_id", "")).lower() not in PROGRAM_DECLARING_LANGUAGES:
             continue
         for cls in f.get("classes", []) or []:
             name = str(cls.get("name", "")).strip().upper()
             if name:
                 index.setdefault(name, []).append(f.get("path", ""))
     return index
-
-
-def _nearest(candidates: list[str], src_path: str) -> Optional[str]:
-    """The candidate sharing the longest directory prefix with `src_path`.
-
-    Ties break on the shallower path and then alphabetically, so the choice is
-    deterministic and independent of scan order -- a repository scanned on two
-    machines must produce the same edge.
-
-    EVERY comparison normalises separators first. The engine stores OS-native
-    paths, so on Windows an un-normalised depth count (`c.count("/")`) is 0 for
-    every candidate and the tiebreak silently degrades to alphabetical -- a
-    resolution that disagrees with Linux for the same repository. #3223 went red
-    on exactly this class of thing.
-    """
-    if not candidates:
-        return None
-    if len(candidates) == 1:
-        return candidates[0]
-
-    def _posix(path: str) -> str:
-        return path.replace("\\", "/")
-
-    src_dirs = _posix(src_path).split("/")[:-1]
-
-    def _shared(candidate: str) -> int:
-        dirs = _posix(candidate).split("/")[:-1]
-        depth = 0
-        for a, b in zip(src_dirs, dirs):
-            if a != b:
-                break
-            depth += 1
-        return depth
-
-    return sorted(candidates, key=lambda c: (-_shared(c), _posix(c).count("/"), _posix(c)))[0]
 
 
 def resolve_invocations(
@@ -120,7 +94,7 @@ def resolve_invocations(
             target = site.get("target")
             resolved = None
             if target:
-                resolved = _nearest(index.get(str(target).upper(), []), src_path)
+                resolved = nearest_path(index.get(str(target).upper(), []), src_path)
                 # A program calling itself is recursion, not an edge: the
                 # import graph drops self-edges for the same reason.
                 if resolved == src_path:

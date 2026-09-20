@@ -36,6 +36,16 @@ DEFINITION: dict[str, Any] = {
     # same copybook as `copy a.`), so the dependency DAG's import-token ->
     # file lookup (network_risk_sensor.py) case-folds for this language.
     "case_insensitive_imports": True,
+    # #3199: this language's import statement names a library MEMBER that the
+    # compiler pastes into the importing compilation unit (COBOL `COPY` / `EXEC SQL INCLUDE`). A member is
+    # source in this same language by construction, so when a copied name is
+    # ambiguous the resolver only ever chooses a candidate in it, and drops the
+    # edge when there is none. Without that, CBSA's `COPY BNK1CAM` -- a BMS
+    # symbolic map, generated at build time and absent from the repository --
+    # resolved to whichever same-named file happened to be nearest, which is the
+    # map's own build JCL. Every other language keeps unconstrained
+    # cross-language resolution (an HTML page importing a .css file).
+    "imports_are_source_members": True,
     # #3198: COBOL's own identifier lexicon, for the `unreferenced_by_name`
     # census. Names are case-insensitive (`perform a-para` reaches `A-PARA`),
     # and `-` is a name character -- without that, `B-PARA-EXIT` counted as a

@@ -21,6 +21,8 @@ from gitgalaxy.core.graph_engine import (
     nodes_in_cycles,
     pagerank,
 )
+from gitgalaxy.core.invocation_resolver import PROGRAM_DECLARING_LANGUAGES
+from gitgalaxy.core.path_proximity import proximity_rank
 from gitgalaxy.standards.analysis_lens import RECORDING_SCHEMAS
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 
@@ -31,6 +33,15 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # resolution for every other language stays strictly case-sensitive.
 CASE_INSENSITIVE_IMPORT_LANGS = frozenset(
     lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("case_insensitive_imports")
+)
+
+# #3199: languages whose import statement names a library member that is pasted
+# into the importing compilation unit -- cobol/hlasm/bms `COPY`, pli `%INCLUDE`.
+# A member is source in the importing language by construction, so an ambiguous
+# copied name is resolved within that language or not at all. Declared per
+# language via the "imports_are_source_members" flag on each DEFINITION.
+SOURCE_MEMBER_IMPORT_LANGS = frozenset(
+    lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("imports_are_source_members")
 )
 
 # #2668: leading relative-path markers are path syntax, not part of the
@@ -150,6 +161,23 @@ class NetworkRiskSensor:
                 lang_map[stem.lower()].append(path)
         return folded_maps
 
+    @staticmethod
+    def _build_file_facts(files: list[dict[str, Any]]) -> dict[str, tuple[str, bool]]:
+        """#3199: path -> (language id, declares a program), for Stage-3 narrowing.
+
+        Both facts are already in the parsed file; this is only the lookup the
+        resolver needs, keyed by the same path strings the resolution map
+        stores. `declares a program` is "has at least one `classes` entry", and
+        it is meaningful only for the languages where that means a compilation
+        unit -- `_narrow_ambiguous` is what limits its use to those.
+        """
+        facts: dict[str, tuple[str, bool]] = {}
+        for f in files:
+            path = f.get("path", "")
+            if path:
+                facts[path] = (str(f.get("lang_id", "")).lower(), bool(f.get("classes")))
+        return facts
+
     def _stem_path(self, candidate: str) -> str:
         """Extension-stripped, slash-normalized candidate path, memoized per path.
 
@@ -173,6 +201,8 @@ class NetworkRiskSensor:
         curr_path: str,
         folded_maps: Optional[dict[str, dict[str, list[str]]]] = None,
         fold_lang: Optional[str] = None,
+        src_lang: Optional[str] = None,
+        file_facts: Optional[dict[str, tuple[str, bool]]] = None,
     ) -> Optional[str]:
         """
         Resolves an import token to a single file path, refusing to guess when
@@ -183,6 +213,11 @@ class NetworkRiskSensor:
         lookup retries against that language's own folded map with a
         lowercased token. Exact matches always win first, so mixed-case repos
         keep their precise edges.
+
+        `src_lang` (the importing file's language) and `file_facts` (see
+        `_build_file_facts`) feed #3199's Stage 3, which decides an otherwise
+        ambiguous stem from the repository's own facts. Without them the
+        resolver behaves exactly as it did before #3199 and drops the edge.
         """
         # The historical form: every dot becomes a separator, which is what
         # lets a package-style token ("pkg.utils") find utils.py.
@@ -266,11 +301,93 @@ class NetworkRiskSensor:
         if len(path_matches) == 1:
             return path_matches[0]
 
+        # Stage 3 (#3199): the token carries no path context that separates
+        # these candidates. Dropping the edge outright threw away most real
+        # COBOL copybook dependencies -- every `COPY CUSTCOPY` in
+        # zopeneditor-sample (the member exists under two libraries) and 36 of
+        # CBSA's 119 (`ACCTCTRL` names a .cpy, a .cbl, a .jcl and a .lked).
+        # Narrow on what the repository actually knows, and only then give up.
+        #
+        # SCOPED TO `SOURCE_MEMBER_IMPORT_LANGS`, deliberately. #261 decided
+        # that an ambiguous bare stem draws no edge, and for an ordinary
+        # `import utils` that is still the honest answer: the resolver has no
+        # model of the language's own module search order, and the nearest
+        # same-named file is a guess dressed up as a rule. A `COPY` names a
+        # library MEMBER, which is a much narrower relation -- same-language
+        # source, never a program, found by searching a library list -- and
+        # that is what the steps below can actually reason about. Widening this
+        # to another language means overturning #261 for it, with evidence.
+        #
+        # Two shapes are NOT narrowed even there, because both are positive
+        # evidence against every candidate rather than an absence of evidence:
+        # an empty `path_matches` (the token spelled out a path no candidate
+        # has), and a token that led with `./` or `../`, which names one exact
+        # location relative to the importer -- PL/I's `%INCLUDE` is the member
+        # form that can carry a quoted path.
+        is_relative = target_token.replace("\\", "/").startswith(("./", "../"))
+        if file_facts and path_matches and not is_relative and src_lang in SOURCE_MEMBER_IMPORT_LANGS:
+            narrowed = self._narrow_ambiguous(path_matches, curr_path, src_lang, file_facts)
+            if narrowed is not None:
+                return narrowed
+
         # Still ambiguous — skip rather than misattribute.
         self.logger.debug(
             f"Ambiguous import token '{target_token}' matches {len(candidates)} "
             f"files {candidates}; skipping edge from '{curr_path}'."
         )
+        return None
+
+    def _narrow_ambiguous(
+        self,
+        candidates: list[str],
+        curr_path: str,
+        src_lang: Optional[str],
+        file_facts: dict[str, tuple[str, bool]],
+    ) -> Optional[str]:
+        """#3199: the one copied member the repository's own facts single out, or None.
+
+        Called only for a `SOURCE_MEMBER_IMPORT_LANGS` importer (see the caller
+        for why). Three narrowings, in order:
+
+        1. **The importer's own language.** A copybook is source in the
+           language that copies it, so `COPY CUSTOMER` in a COBOL program means
+           CUSTOMER.cpy and not the CUSTOMER.java beside it -- and when NO
+           candidate is in that language the edge is dropped rather than
+           guessed across the boundary. CBSA proves what the alternative costs:
+           `COPY BNK1CAM` names a BMS symbolic map generated at build time and
+           absent from the repository, and the nearest same-named file is the
+           map's build JCL. (That cross-language link belongs to #3122.)
+        2. **Not itself a program**, for the languages whose `classes` entries
+           are whole compilation units (`PROGRAM_DECLARING_LANGUAGES`, cobol
+           today). COBOL's `COPY` names a library MEMBER, which is a fragment
+           pasted into a program and therefore never a program itself: given
+           ACCTCTRL.cpy and ACCTCTRL.cbl, the PROGRAM-ID disqualifies the .cbl.
+           This is what step 3 alone gets wrong -- BANKDATA.cbl's nearest
+           ACCTCTRL is the program in its own directory.
+        3. **Nearest** (`proximity_rank`): the longest shared directory prefix,
+           then the shallower path -- the closest stand-in for the library
+           concatenation order a real COPY is resolved by. That is the
+           zopeneditor reading the answer key records: `COBOL/SAM1.cbl` takes
+           the repository-wide `COPYBOOK/` library and `multiroot/sam/SAM1.cbl`
+           takes the `multiroot/copybooks/` one inside its own workspace root.
+
+        If two candidates are still equally near and equally shallow, nothing
+        in the repository distinguishes them and the edge is dropped, exactly
+        as before. Alphabetical order is not a reason to believe an edge.
+        """
+        candidates = [c for c in candidates if (file_facts.get(c) or ("", False))[0] == src_lang]
+        if not candidates:
+            return None
+        if len(candidates) > 1 and src_lang in PROGRAM_DECLARING_LANGUAGES:
+            members = [c for c in candidates if not (file_facts.get(c) or ("", False))[1]]
+            if members:
+                candidates = members
+
+        if len(candidates) == 1:
+            return candidates[0]
+        ranked = sorted(candidates, key=lambda c: proximity_rank(c, curr_path))
+        if proximity_rank(ranked[0], curr_path) != proximity_rank(ranked[1], curr_path):
+            return ranked[0]
         return None
 
     @staticmethod
@@ -291,6 +408,7 @@ class NetworkRiskSensor:
         coverage_map: dict[str, dict[str, list[dict[str, Any]]]] = {}
         resolution_map = self._build_resolution_map(files)
         folded_maps = self._build_folded_resolution_map(files)
+        file_facts = self._build_file_facts(files)
 
         # 2. Identify Test Files and extract their outgoing invocations
         for f in files:
@@ -307,7 +425,13 @@ class NetworkRiskSensor:
             for imp in f.get("raw_imports", []):
                 target_token = imp[0] if isinstance(imp, tuple) and len(imp) == 2 else imp
                 target_path = self._resolve_target(
-                    target_token, resolution_map, path, folded_maps=folded_maps, fold_lang=self._fold_lang(f)
+                    target_token,
+                    resolution_map,
+                    path,
+                    folded_maps=folded_maps,
+                    fold_lang=self._fold_lang(f),
+                    src_lang=str(f.get("lang_id", "")).lower(),
+                    file_facts=file_facts,
                 )
 
                 if target_path and target_path != path:
@@ -357,11 +481,13 @@ class NetworkRiskSensor:
         """
         resolution_map = self._build_resolution_map(parsed_files)
         folded_maps = self._build_folded_resolution_map(parsed_files)
+        file_facts = self._build_file_facts(parsed_files)
         edges: dict[tuple[str, str], dict[str, Any]] = {}
 
         for f in parsed_files:
             curr_path = f.get("path", "")
             fold_lang = self._fold_lang(f)
+            src_lang = str(f.get("lang_id", "")).lower()
 
             for imp in f.get("raw_imports", []):
                 # Check if it's a Level 2 Tuple (Entity Import) or Level 1 String
@@ -372,7 +498,13 @@ class NetworkRiskSensor:
                     entity = None
 
                 target_path = self._resolve_target(
-                    target_token, resolution_map, curr_path, folded_maps=folded_maps, fold_lang=fold_lang
+                    target_token,
+                    resolution_map,
+                    curr_path,
+                    folded_maps=folded_maps,
+                    fold_lang=fold_lang,
+                    src_lang=src_lang,
+                    file_facts=file_facts,
                 )
                 if target_path and target_path != curr_path:
                     edge = edges.setdefault(

@@ -101,7 +101,7 @@ The unresolved rows are the point, not a gap — they are what the refraction pi
 | `target NOT NULL, dst_file_id IS NULL` | named, but external — an LE service (`CEEGMT`), a system utility (`IEFBR14`), or a module this repository does not contain |
 | `dst_file_id NOT NULL` | resolved; there is a matching `edge_data` row of kind `'call'`/`'exec'` |
 
-Resolution is by **PROGRAM-ID** (`class_data`), not by filename, and when a PROGRAM-ID is shared the **nearest** declaration wins — a different rule from the import resolver, which refuses to guess on an ambiguous stem (#3199). The two relations differ: a copybook is named by file, a called program is chosen by library concatenation order.
+Resolution is by **PROGRAM-ID** (`class_data`), not by filename, and when a PROGRAM-ID is shared the **nearest** declaration wins — a different rule from the import resolver, which disqualifies any candidate declaring a PROGRAM-ID and draws nothing when its own narrowing leaves a tie (#3199). The two relations differ: a copybook is named by file, a called program is chosen by library concatenation order.
 
 ### `dataset_data` — one row per dataset boundary fact
 

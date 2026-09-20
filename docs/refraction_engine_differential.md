@@ -118,12 +118,15 @@ fed to dead-code masking (`extract_lineage`, the slicer, the schema forge).
   - **Same directory only.** Resolution looks only in the program's own directory, so zopeneditor's `COPYBOOK/` and CBSA's `cobol_copy/` are never found.
   - **Sequence-number fields.** The patterns require blanks before `COPY`, so `R2     COPY SAM2PARM.` is missed. The DB's 2 zopeneditor edges are exactly these lines.
   - **`EXEC SQL INCLUDE` ignored.** The DB's 15 extra CBSA edges are these (`ACCDB2` ×8, `PROCDB2` ×6, `CONTDB2` ×1).
-- **Engine defect: ambiguous targets are dropped.** An ambiguous target produces no edge at all. This drops all 12 zopeneditor COPYs, and 36 CBSA COPYs whose copybook does exist in `cobol_copy/`:
+- **Engine defect: ambiguous targets are dropped (fixed by #3199).** An ambiguous target produced no edge at all. This dropped all 12 zopeneditor COPYs, and 36 CBSA COPYs whose copybook does exist in `cobol_copy/`:
   - zopeneditor ships each copybook twice (`COPYBOOK/` and `multiroot/copybooks/`).
   - CBSA's `ACCTCTRL` stem matches `.cbl`, `.cpy`, `.jcl` and `.lked`.
   - CBSA's `CUSTOMER` stem matches `CUSTOMER.cpy` and `CUSTOMER.java`.
 
-  A COPY target should prefer a copybook in the same language, then the nearest path.
+  A COPY target now prefers a copybook in the same language, then one that is not itself a
+  program (a PROGRAM-ID disqualifies the `.cbl`), then the nearest path; a remaining tie still
+  draws nothing. Engine `copybook paths` went from P 78/78 · R 78/114 to P 114/114 · R 114/114
+  on CBSA and from P 2/2 · R 2/14 to P 14/14 · R 14/14 on zopeneditor.
 - **Semantic difference.**
   - 11 CBSA names are system-supplied (CICS `DFHAID` ×9 and `DFHBMSCA`, Language Environment `CEEIGZCT`) and absent from the repo; unresolvable by construction.
   - 9 CBSA names are BMS symbolic-map copybooks (`BNK1CAM` …), generated from `bms_src/*.bms` at build time. That edge belongs to the Phase-2 BMS work (#3122).
@@ -149,7 +152,7 @@ Dead code and lineage can move to the DB only when the engine carries them. File
 |---|---|---|
 | #3197 | engine | Area-B continuation lines become paragraphs (D1) |
 | #3198 | engine | `usage_status`: entry flagged, case-sensitive, `NAME-EXIT` counts as a reference (D2) |
-| #3199 | engine | resolver drops ambiguous COPY targets (D3) |
+| #3199 | engine | resolver drops ambiguous COPY targets (D3) — **fixed**; both corpora now score `copybook paths` exact |
 | #3200 | engine | no CALL / CICS LINK / JCL `EXEC PGM=` edges; unresolved CALLs unrecorded — **fixed** |
 | #3201 | engine | no named SELECT/ASSIGN / OPEN-mode / DD extraction — **fixed** |
 | #3202 | engine | `calls_out_to` is meaningless for COBOL |

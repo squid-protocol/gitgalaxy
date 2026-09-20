@@ -102,7 +102,7 @@ What the scores say, with the issue that owns each:
   - The forge finds 5 of the 10 among 571 claims (#3203).
   - The engine's `usage_status` finds 2 among 221 (#3198).
 - **Copybooks.**
-  - The engine is always right when it draws an edge (78/78), but draws only 68% of them, because ambiguous targets are dropped (#3199). It also has no view of `zapp.yaml` libraries.
+  - The engine is always right when it draws an edge (78/78), but draws only 68% of them, because ambiguous targets are dropped (#3199). It also has no view of `zapp.yaml` libraries. **Superseded below.**
   - The forge resolves 0 real copybooks (#3203).
 - **Outputs.** The forge reports none, on either corpus (#3204). On BANKDATA even the single-mode `OPEN OUTPUT` is lost. The forge marks the entry paragraph `A010` itself dead, because the programs it inlines as copybooks shift which paragraph comes first (#3203), and that masks the OPEN. With no dead list, the lineage tool finds the `VSAM` output.
 - **Units.** The engine's recall is complete. Its extra units are the Area-B continuation phantoms (#3197).
@@ -145,3 +145,25 @@ Note what it measures and what it does not: `resolves_to` is compared only
 through `call targets`' name set, because which of two files sharing a
 PROGRAM-ID a call binds to is a link-edit-order question the key answers with
 "nearest" and the engine reproduces — not an independent check.
+
+## Update: ambiguous COPY targets (#3199), 2026-09-20
+
+`copybook paths` was the last engine column short of the key. The resolver drew
+no edge at all when a copied name matched more than one file, which is the
+normal case on a real mainframe repository — CBSA's `ACCTCTRL` names a `.cpy`,
+a `.cbl`, a `.jcl` and a `.lked`; zopeneditor ships every copybook twice.
+
+| corpus | forge | engine DB, before | engine DB, now |
+|---|---|---|---|
+| cics-banking-sample-application-cbsa | P 99/99 · R 99/114 | P 78/78 · R 78/114 | **P 114/114 · R 114/114** |
+| zopeneditor-sample | P 12/12 · R 12/14 | P 2/2 · R 2/14 | **P 14/14 · R 14/14** |
+
+Both corpora are now exact, and on zopeneditor the engine reads the two
+`zapp.yaml` copybook libraries correctly without parsing `zapp.yaml` at all: a
+copied member is same-language source, is never a program, and otherwise the
+nearest one wins — which is what the library search order resolves to for both
+the repository-root and the `multiroot/` workspace.
+
+The 11 CICS/LE system copybooks and 9 BMS symbolic maps the key records as
+`resolves_to: null` still draw nothing, which is correct — neither exists in
+the repository. The BMS cross-language link belongs to #3122.

@@ -112,9 +112,10 @@ def _rows(db, sql):
 def test_a_shared_program_id_resolves_to_the_nearest_declaration():
     """COBOL/SAM1.cbl's `CALL SAM2` is COBOL/SAM2.cbl, not multiroot/sam/SAM2.cbl.
 
-    The import resolver refuses to guess on an ambiguous stem (#3199), which is
-    right for a copybook. A CALL is chosen by library concatenation order, so
-    nearest-wins is the reading the answer key records.
+    The import resolver would disqualify both -- each declares PROGRAM-ID SAM2,
+    and a copybook is never a program (#3199). A CALL wants exactly that file,
+    and is chosen by library concatenation order, so nearest-wins is the
+    reading the answer key records.
     """
     sites, _ = resolve_invocations(UNIVERSE)
     by_operand = {s["operand"]: s for s in sites if s["src_path"] == "COBOL/SAM1.cbl"}

@@ -450,6 +450,125 @@ class LLMRecorder:
         lines.append("")
         return lines
 
+    def _mainframe_facts_lines(self, parsed_files: list[dict[str, Any]]) -> list[str]:
+        """The Named System Facts section (#3200/#3201/#3246) -- ABSENT unless a
+        file carries them.
+
+        These are the named mainframe relations/schemas the per-file signal
+        counts flatten: the call graph, the dataset boundary, and DATA DIVISION
+        record layouts. They exist only for COBOL/JCL programs, so for the vast
+        majority of repositories this section renders nothing at all -- an
+        occasional, opt-in section keyed purely on data presence (the same way
+        the macro-network topology section only appears when there is a graph).
+
+        Token-conscious like the rest of the brief: per file it summarises the
+        distinct call targets, the DD/dataset bindings, and the record layout
+        ROOTS with a field count -- never the full item tree (a single COBOL
+        program can carry hundreds of items). Files are capped and ordered by
+        fact volume, the same top-N discipline sections 7-11 use.
+        """
+
+        def _volume(f: dict[str, Any]) -> int:
+            return (
+                len(f.get("call_sites") or [])
+                + len(f.get("dataset_bindings") or [])
+                + len(f.get("record_layouts") or [])
+            )
+
+        carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
+        if not carriers:
+            return []
+
+        total_calls = sum(len(f.get("call_sites") or []) for f in carriers)
+        total_ds = sum(len(f.get("dataset_bindings") or []) for f in carriers)
+        total_items = sum(len(f.get("record_layouts") or []) for f in carriers)
+
+        lines = ["## 13. MAINFRAME SYSTEM FACTS (Named Relations & Record Layouts)"]
+        lines.append(
+            "> **AI CONTEXT:** Named mainframe relations the structural signal counts flatten -- "
+            "the call graph (`CALL`/CICS `LINK`·`XCTL`/JCL `EXEC PGM=`), the dataset boundary "
+            "(`SELECT…ASSIGN` + `OPEN` modes, JCL `DD`→dataset), and DATA DIVISION record layouts. "
+            "These are the schema of the system: use them to trace which program runs which, which "
+            "dataset a job binds, and the shape of the records that flow between them. Extracted by "
+            "the engine (`core/mainframe_boundary.py`) and carried in the master DB "
+            "(`call_site_data`/`dataset_data`/`record_data`); resolution to files is redone per scan.\n"
+        )
+        lines.append(
+            f"- **Coverage:** `{len(carriers)}` files carry mainframe facts -- "
+            f"`{total_calls}` call sites, `{total_ds}` dataset bindings, `{total_items}` record items.\n"
+        )
+
+        for f in carriers[:20]:
+            path = f.get("path", "UNK")
+            lang = f.get("lang_id", "UNK").upper()
+            lines.append(f"### `{path}` ({lang})")
+
+            calls = f.get("call_sites") or []
+            if calls:
+                seen: list[str] = []
+                for c in calls:
+                    label = f"{c.get('verb', 'CALL')} {c.get('operand') or c.get('target') or '?'}".strip()
+                    if label not in seen:
+                        seen.append(label)
+                more = f" … (+{len(seen) - 12})" if len(seen) > 12 else ""
+                lines.append(f"- **Calls:** {', '.join(f'`{s}`' for s in seen[:12])}{more}")
+
+            datasets = f.get("dataset_bindings") or []
+            if datasets:
+                parts = []
+                for d in datasets:
+                    dd = d.get("dd_name") or d.get("internal_name") or "?"
+                    if d.get("dsn"):  # a JCL DD -> dataset binding
+                        parts.append(f"{dd}→{d['dsn']}")
+                    else:  # a COBOL SELECT with its OPEN modes
+                        modes = "/".join(d.get("modes") or []) or "declared"
+                        parts.append(f"{dd}({modes})")
+                more = f" … (+{len(parts) - 12})" if len(parts) > 12 else ""
+                lines.append(f"- **Datasets:** {', '.join(f'`{p}`' for p in parts[:12])}{more}")
+
+            items = f.get("record_layouts") or []
+            if items:
+                # Field counts per top-level record (01/77 or FD-bound), by
+                # walking parent_ordinal to the root -- roots are the schema, the
+                # full item tree is in record_data for anything that needs it.
+                by_ord = {it.get("ordinal"): it for it in items}
+
+                # `_by` is bound as a default arg (not captured) so the closure is
+                # tied to THIS file's item map, not the loop variable (ruff B023).
+                def _root(it: dict[str, Any], _by: dict = by_ord) -> dict[str, Any]:
+                    guard = 0
+                    while it.get("parent_ordinal") is not None and it["parent_ordinal"] in _by and guard < 1000:
+                        it = _by[it["parent_ordinal"]]
+                        guard += 1
+                    return it
+
+                counts: dict[int, int] = {}
+                for it in items:
+                    root = _root(it)
+                    counts[root.get("ordinal")] = counts.get(root.get("ordinal"), 0) + 1
+                roots = sorted(
+                    (by_ord[o] for o in counts),
+                    key=lambda r: counts[r.get("ordinal")],
+                    reverse=True,
+                )
+                labels = []
+                for r in roots[:12]:
+                    name = r.get("name", "?")
+                    fd = f"⟵{r['fd_name']}" if r.get("fd_name") else ""
+                    labels.append(f"{name}{fd} ({counts[r.get('ordinal')]})")
+                more = f" … (+{len(roots) - 12} more)" if len(roots) > 12 else ""
+                lines.append(
+                    f"- **Record layouts ({len(items)} items):** {', '.join(f'`{lbl}`' for lbl in labels)}{more}"
+                )
+            lines.append("")
+
+        if len(carriers) > 20:
+            lines.append(
+                f"*(+{len(carriers) - 20} more files with mainframe facts; full detail in `record_data`/`call_site_data`/`dataset_data`.)*"
+            )
+            lines.append("")
+        return lines
+
     def _build_markdown(
         self,
         parsed_files: list[dict[str, Any]],
@@ -1509,6 +1628,15 @@ class LLMRecorder:
                     if b["score"] > 0
                 )
                 lines.append("")
+
+        # ==============================================================================
+
+        # galaxyscope:ignore sec_high_risk_execution, sec_db_hooks
+        # --- 13. MAINFRAME SYSTEM FACTS (#3200/#3201/#3246) ---
+        # Optional: renders only when a file carries named mainframe facts, so it
+        # is absent from every non-mainframe brief.
+        # ==============================================================================
+        lines.extend(self._mainframe_facts_lines(parsed_files))
 
         # ==============================================================================
 

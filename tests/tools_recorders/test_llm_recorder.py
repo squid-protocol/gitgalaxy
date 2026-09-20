@@ -439,3 +439,62 @@ def test_surface_family_profile_empty_galaxy_renders_dash_rows(recorder):
 
     assert "## 6b. SURFACE FAMILY PROFILE" in md_text
     assert "| guards | - | - | - | - |" in md_text
+
+
+# ==============================================================================
+# #3200/#3201/#3246: the optional Named System Facts section
+# ==============================================================================
+_MF_SESSION = {
+    "engine": "GitGalaxy Scope vtest",
+    "target": "Repo",
+    "git_audit": {"commit_hash": "cafe", "remote_url": "https://example.invalid/r"},
+}
+
+
+def test_mainframe_facts_section_renders_only_when_facts_present(recorder):
+    """The section is keyed purely on data presence: a COBOL file carrying call
+    sites, dataset bindings and record layouts gets it, summarised (record ROOTS
+    with a field count, not the full item tree)."""
+    parsed = [
+        {
+            "path": "app/cbl/ACCT.cbl",
+            "lang_id": "cobol",
+            "total_loc": 40,
+            "call_sites": [{"verb": "CALL", "form": "literal", "operand": "SAM2", "target": "SAM2", "line": 10}],
+            "dataset_bindings": [
+                {"dd_name": "CUSTFILE", "internal_name": "CUST-FILE", "modes": ["INPUT"], "dsn": None, "line": 5}
+            ],
+            "record_layouts": [
+                {
+                    "ordinal": 0,
+                    "parent_ordinal": None,
+                    "level": 1,
+                    "name": "ACCT-REC",
+                    "fd_name": "ACCTFILE",
+                    "pic": None,
+                },
+                {
+                    "ordinal": 1,
+                    "parent_ordinal": 0,
+                    "level": 5,
+                    "name": "ACCT-ID",
+                    "fd_name": "ACCTFILE",
+                    "pic": "9(11)",
+                },
+            ],
+        }
+    ]
+    md = "\n".join(recorder._mainframe_facts_lines(parsed))
+    assert "## 13. MAINFRAME SYSTEM FACTS" in md
+    assert "`1` files carry mainframe facts" in md
+    assert "CALL SAM2" in md
+    assert "CUSTFILE(INPUT)" in md
+    # A record root is shown with its FD binding and the count of items under it.
+    assert "ACCT-REC⟵ACCTFILE (2)" in md
+
+
+def test_mainframe_facts_section_absent_for_a_non_mainframe_repo(recorder):
+    """No file carries the keys -> the section renders nothing at all (the whole
+    point of an optional, presence-keyed section)."""
+    parsed = [{"path": "src/app.py", "lang_id": "python", "total_loc": 10}]
+    assert recorder._mainframe_facts_lines(parsed) == []

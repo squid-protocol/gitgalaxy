@@ -1530,45 +1530,43 @@ class RecordKeeper:
         net_avg_path_length = net_macro.get("avg_path_length")
         net_articulation_points = net_macro.get("articulation_points")
 
-        repo_row_data = (
-            [
-                repo_name,
-                commit_date,
-                commit_hash,
-                total_files,
-                total_unparsable,
-                agg_total_loc,
-                agg_coding_loc,
-                agg_func_count,
-                total_classes,
-                agg_doc_files,
-                agg_build_files,
-                agg_config_files,
-                agg_test_files,
-                typosquat_count,
-                macro_info.get("name", "Unclassified"),
-                None if macro_info.get("z_score") is None else float(macro_info["z_score"]),
-                round(avg_encapsulation, 3),
-                round(avg_imports, 3),
-                net_modularity,
-                net_assortativity,
-                net_cyclic_density,
-                net_avg_path_length,
-                net_articulation_points,
-                edges_unrecorded,
-                int(audits.get("api_mapper", {}).get("shadow_count", 0)),
-                int(audits.get("xray", {}).get("anomalies_found", 0)),
-                int(audits.get("firewall", {}).get("imports_unknown", 0)),
-                1 if session_meta.get("zero_dependency_mode") else 0,
-                json.dumps(session_meta["missing_dependencies"], sort_keys=True)
-                if "missing_dependencies" in session_meta
-                else None,
-                *agg_hits,
-                repo_composition_str,
-                repo_comp_archetype,
-                repo_comp_z,
-            ]
-        )
+        repo_row_data = [
+            repo_name,
+            commit_date,
+            commit_hash,
+            total_files,
+            total_unparsable,
+            agg_total_loc,
+            agg_coding_loc,
+            agg_func_count,
+            total_classes,
+            agg_doc_files,
+            agg_build_files,
+            agg_config_files,
+            agg_test_files,
+            typosquat_count,
+            macro_info.get("name", "Unclassified"),
+            None if macro_info.get("z_score") is None else float(macro_info["z_score"]),
+            round(avg_encapsulation, 3),
+            round(avg_imports, 3),
+            net_modularity,
+            net_assortativity,
+            net_cyclic_density,
+            net_avg_path_length,
+            net_articulation_points,
+            edges_unrecorded,
+            int(audits.get("api_mapper", {}).get("shadow_count", 0)),
+            int(audits.get("xray", {}).get("anomalies_found", 0)),
+            int(audits.get("firewall", {}).get("imports_unknown", 0)),
+            1 if session_meta.get("zero_dependency_mode") else 0,
+            json.dumps(session_meta["missing_dependencies"], sort_keys=True)
+            if "missing_dependencies" in session_meta
+            else None,
+            *agg_hits,
+            repo_composition_str,
+            repo_comp_archetype,
+            repo_comp_z,
+        ]
 
         repo_placeholders = ",".join(["?"] * len(repo_row_data))
         cursor.execute(

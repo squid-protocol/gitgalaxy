@@ -289,5 +289,85 @@ def test_audit_recorder_output_keyset_unchanged_by_tier_telemetry(recorder, tmp_
 
     # 2. Belt-and-suspenders: none of the new tier vocabulary leaked in as a key anywhere.
     all_keys = _collect_keys(baseline_payload) | _collect_keys(tiered_payload)
-    for forbidden in ("surface_families", "surface_percentiles", "surface_relations", "fam_guards", "rel_guard_balance"):
+    for forbidden in (
+        "surface_families",
+        "surface_percentiles",
+        "surface_relations",
+        "fam_guards",
+        "rel_guard_balance",
+    ):
         assert forbidden not in all_keys, f"tier vocabulary {forbidden!r} leaked into the audit_recorder JSON"
+
+
+# ==============================================================================
+# #3200/#3201/#3246: Named System Facts block (present only when facts exist)
+# ==============================================================================
+def test_audit_recorder_carries_mainframe_facts_only_when_present(recorder, tmp_path):
+    """The full forensic report gets a per-file '10. Mainframe System Facts' block
+    with the COMPLETE detail (every call, binding, and record item) -- but only for
+    a file that carries them; a non-mainframe file has no such key."""
+    output_file = tmp_path / "mf_audit.json"
+    mock_parsed = [
+        {
+            "path": "app/cbl/ACCT.cbl",
+            "name": "ACCT.cbl",
+            "lang_id": "cobol",
+            "directory_group": "app/cbl",
+            "total_loc": 40,
+            "telemetry": {},
+            "call_sites": [{"verb": "CALL", "form": "literal", "operand": "SAM2", "target": "SAM2", "line": 10}],
+            "dataset_bindings": [
+                {"dd_name": "CUSTFILE", "internal_name": "CUST-FILE", "modes": ["INPUT"], "dsn": None, "line": 5}
+            ],
+            "record_layouts": [
+                {
+                    "section": "FILE",
+                    "fd_name": "ACCTFILE",
+                    "ordinal": 0,
+                    "parent_ordinal": None,
+                    "level": 1,
+                    "name": "ACCT-REC",
+                    "pic": None,
+                },
+                {
+                    "section": "FILE",
+                    "fd_name": "ACCTFILE",
+                    "ordinal": 1,
+                    "parent_ordinal": 0,
+                    "level": 5,
+                    "name": "ACCT-ID",
+                    "pic": "9(11)",
+                },
+            ],
+        },
+        {
+            "path": "src/app.py",
+            "name": "app.py",
+            "lang_id": "python",
+            "directory_group": "src",
+            "total_loc": 10,
+            "telemetry": {},
+        },
+    ]
+    recorder.generate_report(
+        mock_parsed,
+        [],
+        {"directory_groups": {}},
+        {},
+        {"engine": "Test", "target_directory": str(tmp_path)},
+        str(output_file),
+    )
+
+    with open(output_file, encoding="utf-8") as f:
+        payload = json.load(f)
+    files = payload["6. Parsed Files (Scanned Artifacts)"]
+
+    facts = files["app/cbl"]["Files"]["app/cbl/ACCT.cbl"]["10. Mainframe System Facts"]
+    assert facts["Call Sites"][0]["Operand"] == "SAM2"
+    assert facts["Dataset Bindings"][0]["DD Name"] == "CUSTFILE"
+    assert facts["Dataset Bindings"][0]["Access Modes"] == ["INPUT"]
+    assert [it["Name"] for it in facts["Record Layout"]] == ["ACCT-REC", "ACCT-ID"]
+    assert facts["Record Layout"][1]["PIC"] == "9(11)"
+
+    # A non-mainframe file carries no such block.
+    assert "10. Mainframe System Facts" not in files["src"]["Files"]["src/app.py"]

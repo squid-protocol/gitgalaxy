@@ -54,9 +54,13 @@ count, you're in the wrong skill — use `add-signal`.**
 ## Invariants that cost incidents (the whole reason this skill exists)
 
 - **#2806**: declaration top-level, not `rules`.
-- **Golden master is safe only because the JSON audit recorder ignores per-file payload extras** —
-  confirm `grep <key> *_galaxy_audit.json` is 0, or you move the crucible-audit baseline. A channel
-  touches only its own DB table.
+- **The full audit report carries the facts (#3246 step 4b), so a channel MOVES the golden master**
+  — `*_galaxy_audit.json` is crucible-audit's fixture and the corpus has cobol/jcl, so re-bless BOTH
+  `golden_master_audit.json` + `golden_master_zero_dep_audit.json` with `crucible_check.py --update`
+  and confirm the diff is only your fact keys (plus the topological X/Y/Z ripple).
+- **Match CI's pinned tool versions before regenerating any baseline** — ruff is pinned in
+  `.github/workflows/ruff-audit.yml` (a newer local ruff drops findings CI still emits, so a local
+  regen silently breaks CI). `pip install "ruff==<pinned>"` first.
 - **FK cascade + delta-scan restore** both required; prove byte-identical full-vs-incremental
   (excluding the autoincrement `id`, which drifts on delete+reinsert).
 - **Hyphen boundary**: `\bBINARY\b` matches inside `TWO-BYTES-BINARY`; use

@@ -87,6 +87,20 @@ dialect that predates the channel is not a missing-key error. It then propagates
   those columns. (This is for **per-file** facts. The call graph is different — see "Per-file vs
   global" below.)
 
+### 4b. Report it in the two output surfaces (both optional/presence-keyed)
+
+The master DB is the machine-readable store; two human/LLM-facing reports also carry the fact,
+each rendering **nothing** for a file that has none (so a non-mainframe scan is unchanged):
+
+- **Full audit report (`audit_recorder.py`)** — the VERBOSE forensic JSON. Add a
+  `_<name>_facts_block(file_data)` returning the FULL detail (every item/edge, mirroring the DB
+  table) and attach it as a numbered per-file key only when non-empty. **This is the golden-master
+  source (`data_galaxy_audit.json`)** — see invariant #2: adding it here DOES move the golden
+  master for any mainframe file in the crucible corpus, so re-bless (`crucible_check.py --update`).
+- **LLM brief (`llm_recorder.py`)** — the TOKEN-OPTIMIZED markdown. Add a presence-keyed
+  `_<name>_facts_lines(parsed_files)` that returns `[]` unless a file carries the fact, and
+  SUMMARISE (e.g. record *roots* with a field count, not the whole tree). Not golden-mastered.
+
 ### 5. Restore on delta scans (`state_rehydrator.py`) — NOT optional
 
 An unchanged file is never re-parsed, so without this an incremental scan drops every fact for
@@ -149,10 +163,14 @@ classifier/scorer cases in the differential + answer-key tests.
 ## Invariants (hard rules — each cost a real incident)
 
 1. **Declaration is top level, not `rules`** (#2806). Config compiles `rules` strings to regexes.
-2. **Golden master is only safe because the JSON audit recorder does not serialize per-file payload
-   extras.** `call_sites`/`dataset_bindings`/`record_layouts` are absent from
-   `*_galaxy_audit.json` — confirm your key is too (`grep <key> *_galaxy_audit.json` → 0), or you
-   silently move the ~80-repo `crucible-audit` baseline. A channel touches only its own DB table.
+2. **The full audit report carries the facts, so a channel MOVES the golden master — re-bless it.**
+   (This reversed with #3246 step 4b: the forensic report used to omit these, which is why the
+   original channels were golden-master-neutral.) `*_galaxy_audit.json` is `crucible-audit`'s
+   fixture, and the crucible corpus contains cobol/jcl, so adding your block changes
+   `golden_master_audit.json` + `golden_master_zero_dep_audit.json`. Regenerate BOTH with
+   `crucible_check.py --update` and confirm the diff is only your new fact keys (plus the usual
+   topological X/Y/Z ripple). Do NOT put the facts in the LLM brief's SQLite graph or hand-edit the
+   fixtures.
 3. **FK cascade + delta-scan restore, or incremental scans lie.** Both are required; prove
    byte-identical full-vs-incremental.
 4. **COBOL/mainframe hyphen boundary:** `-` is a name character, so `\bBINARY\b` matches inside
@@ -163,6 +181,10 @@ classifier/scorer cases in the differential + answer-key tests.
 6. **The answer key is an independent oracle only if it stays independent.** Its reader must not
    import the engine or the forge, and a drafted field must not adjudicate a verdict until signed
    off.
+7. **Match CI's pinned tool versions before regenerating ANY baseline.** ruff is pinned in
+   `.github/workflows/ruff-audit.yml`; a newer local ruff produces a different finding set, so a
+   full local regen drops entries CI still emits and silently breaks the ruff gate. `pip install
+   "ruff==<pinned>"` first, or update only the specific line-shifted keys your edit caused.
 
 ## Verify (the full gate)
 

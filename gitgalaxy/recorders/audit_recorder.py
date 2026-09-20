@@ -96,6 +96,66 @@ class AuditRecorder:
             return round(value / default_scalar, 3)
         return value
 
+    def _mainframe_facts_block(self, file_data):
+        """The Named System Facts for one file (#3200/#3201/#3246), or {} if none.
+
+        The forensic report is the VERBOSE surface (unlike the token-optimized LLM
+        brief, which shows only record roots), so this carries the FULL detail:
+        every call site, every dataset binding, and the complete DATA DIVISION
+        item tree, mirroring the master DB's call_site_data/dataset_data/record_data.
+        Each sub-list is omitted when empty, so the block only ever describes facts
+        that are actually present.
+        """
+        block = {}
+        calls = file_data.get("call_sites") or []
+        if calls:
+            block["Call Sites"] = [
+                {
+                    "Verb": c.get("verb"),
+                    "Form": c.get("form"),
+                    "Operand": c.get("operand"),
+                    "Target": c.get("target"),
+                    "Line": c.get("line", 0),
+                }
+                for c in calls
+            ]
+        datasets = file_data.get("dataset_bindings") or []
+        if datasets:
+            block["Dataset Bindings"] = [
+                {
+                    "DD Name": d.get("dd_name"),
+                    "Internal Name": d.get("internal_name"),
+                    "Assign Name": d.get("assign_name"),
+                    "Access Modes": d.get("modes") or [],
+                    "DSN": d.get("dsn"),
+                    "Step": d.get("step_name"),
+                    "Line": d.get("line", 0),
+                }
+                for d in datasets
+            ]
+        records = file_data.get("record_layouts") or []
+        if records:
+            block["Record Layout"] = [
+                {
+                    "Level": it.get("level"),
+                    "Name": it.get("name"),
+                    "Section": it.get("section"),
+                    "FD": it.get("fd_name"),
+                    "PIC": it.get("pic"),
+                    "Usage": it.get("usage"),
+                    "Occurs Min": it.get("occurs_min"),
+                    "Occurs Max": it.get("occurs_max"),
+                    "Occurs Depending On": it.get("occurs_depending_on"),
+                    "Redefines": it.get("redefines"),
+                    "Value": it.get("value"),
+                    "Ordinal": it.get("ordinal"),
+                    "Parent Ordinal": it.get("parent_ordinal"),
+                    "Line": it.get("line", 0),
+                }
+                for it in records
+            ]
+        return block
+
     def generate_report(
         self,
         parsed_files,
@@ -326,6 +386,12 @@ class AuditRecorder:
                 },
                 "9. Extracted Dependencies": sorted(list(file_data.get("raw_imports", []))),
             }
+
+            # #3200/#3201/#3246: the named mainframe facts, present only for the
+            # COBOL/JCL files that carry them -- absent from every other artifact.
+            mainframe_facts = self._mainframe_facts_block(file_data)
+            if mainframe_facts:
+                file_profile["10. Mainframe System Facts"] = mainframe_facts
 
             # Map the file into its parent directory group
             if d_name not in pretty_directory_groups:

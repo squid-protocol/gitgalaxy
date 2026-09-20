@@ -3,10 +3,8 @@ import sqlite3
 
 import pytest
 
-import gitgalaxy.core.state_rehydrator as sr
-
 # Adjust this import to match your actual directory structure
-from gitgalaxy.core.state_rehydrator import StateRehydrator
+from gitgalaxy.core.state_rehydrator import StateRehydrator, _json_import_set
 from gitgalaxy.recorders.record_keeper import _ordered_raw_imports
 
 # ==============================================================================
@@ -373,7 +371,7 @@ def test_raw_imports_ordering_round_trips_through_the_rehydrator():
     (a set needs hashable members, and the resolver distinguishes the two shapes)."""
     entries = {"src/lib.py", ("src/lib.py", "helper"), "missing_pkg"}
 
-    restored = sr._json_import_set(json.dumps(_ordered_raw_imports(entries)))
+    restored = _json_import_set(json.dumps(_ordered_raw_imports(entries)))
 
     assert restored == entries
     assert ("src/lib.py", "helper") in restored

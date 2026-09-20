@@ -53,6 +53,7 @@ from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (  # noqa: E40
     x_ray_dead_code,
 )
 from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import analyze_cobol_intent  # noqa: E402
+from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import GalaxyIR, load_galaxy_ir, scan_to_db  # noqa: E402
 
 # The sibling readers/scorer. It has no top-level engine imports, so importing it
@@ -80,13 +81,37 @@ CAUSES = (
     "sequence_number_field",
     "system_copybook",
     "bms_symbolic_map",
+    "forge_flat_schema",
     "stated_absence",
 )
 UNEXPLAINED = "unexplained"
 # Fields where the answer key is an INDEPENDENT oracle. For units/dead the key's
 # `draft` shares the forge's control-flow model (#3219), so an agreement there is
-# not evidence about the forge and never clears `unexplained` on its own.
-INDEPENDENT_FIELDS = {"program_id", "copybook"}
+# not evidence about the forge and never clears `unexplained` on its own. The
+# record layout key (#3246) is drafted by the key's own fixed-format reader, a
+# third parser independent of both the forge and the engine, so it too can
+# adjudicate a record delta once validated.
+INDEPENDENT_FIELDS = {"program_id", "copybook", "record"}
+
+
+def _record_fields(items: list) -> set[str]:
+    """Elementary, named, non-FILLER DATA DIVISION fields, keyed for cross-parser
+    comparison (hyphens folded to underscores, upper-cased). This is the exact
+    subset `cobol_schema_forge` emits as SQL columns -- group items, FILLER and
+    88-level condition names are not fields either side turns into a column."""
+    out: set[str] = set()
+    for it in items:
+        if it.pic and it.name and it.name != "FILLER" and it.level not in (66, 88):
+            out.add(it.name.replace("-", "_").upper())
+    return out
+
+
+def _forge_record_fields(path: Path) -> set[str]:
+    """The forge's own record fields for `path` (cobol_schema_forge), same key form."""
+    schema = forge_schemas(path)
+    if not schema:
+        return set()
+    return {name.replace("-", "_").upper() for name in schema["json"]["properties"]}
 
 
 def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
@@ -101,6 +126,11 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
         paras_new = {u.name.upper() for u in ef.units}
         copy_named, copy_old = old_copybooks(path, repo)
         copy_new = {Path(p).stem.upper() for p in ef.copy_deps}
+        # #3246: record layouts are a real forge-vs-engine datum now. Both sides
+        # read this file's own DATA DIVISION (neither expands COPY), so the field
+        # sets are directly comparable.
+        rec_old = _forge_record_fields(path)
+        rec_new = _record_fields(ef.data_items)
         rows.append(
             {
                 "file": ef.file_path,
@@ -124,6 +154,11 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                     "old_cics": intent["cics_calls"],
                     "old_sql": intent["sql_calls"],
                     "db_signals": ef.signals,
+                },
+                # #3246: DATA DIVISION record fields, forge vs engine.
+                "records": {
+                    "old": sorted(rec_old),
+                    "db": sorted(rec_new),
                 },
                 # Stated absences: the DB carries no equivalent (see galaxy_ir.py SCOPE).
                 "forge_only": {
@@ -161,6 +196,9 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
         "sql_programs_old": count(lambda r: r["subsystems"]["old_sql"] > 0),
         "programs_with_outputs_old": count(lambda r: r["forge_only"]["outputs"]),
         "programs_with_dd_old": count(lambda r: r["forge_only"]["dd_files"]),
+        "record_fields_old": sum(len(r["records"]["old"]) for r in rows),
+        "record_fields_db": sum(len(r["records"]["db"]) for r in rows),
+        "record_fields_agree": sum(len(set(r["records"]["old"]) & set(r["records"]["db"])) for r in rows),
     }
 
 
@@ -226,6 +264,12 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
             {"program": prog, "field": "copybook", "side": "old", "value": v, "unresolved": True}
             for v in sorted(named - old_res - db_edges)
         ]
+        # #3246: record-layout fields, forge vs engine. A real comparison (both
+        # sides carry data), so a delta gets a real cause, not stated_absence.
+        rec = r["records"]
+        rec_old, rec_db = set(rec["old"]), set(rec["db"])
+        deltas += [{"program": prog, "field": "record", "side": "old", "value": v} for v in sorted(rec_old - rec_db)]
+        deltas += [{"program": prog, "field": "record", "side": "db", "value": v} for v in sorted(rec_db - rec_old)]
         # D4: presence agrees, but the DB's hit columns cannot give a clean flag.
         ss = r["subsystems"]
         deltas += [
@@ -336,6 +380,15 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
         return "section_header" if ctx["unit_kind"].get(v) == "section" else UNEXPLAINED
     if field == "copybook":
         return _classify_copybook(d, ctx)
+    if field == "record":
+        # The engine now carries the full DATA DIVISION item tree (#3246). The
+        # forge's cobol_schema_forge is a flat, single-line schema reader: it
+        # drops group items and any elementary item whose PIC or level wraps onto
+        # a continuation line. A field the engine has and the forge does not is
+        # that known forge limitation -- explained, not a bug to chase. A field
+        # the forge has and the engine does not is a real gap in the walker, so
+        # it stays UNEXPLAINED until the validated key adjudicates it.
+        return "forge_flat_schema" if side == "db" else UNEXPLAINED
     return UNEXPLAINED
 
 
@@ -355,6 +408,18 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
         truth = set(prog["dead"])
     elif field == "copybook":
         truth = {Path(c["resolves_to"]).stem.upper() for c in prog["copybooks"] if c.get("resolves_to")}
+    elif field == "record":
+        # Record layouts are auto-drafted (#3246) even on a program whose other
+        # fields are hand-validated, so they only adjudicate once explicitly
+        # signed off with a per-program `records_validated` flag -- "draft now,
+        # validate incrementally". Until then a record delta stays on its cause.
+        if not prog.get("records_validated"):
+            return None
+        truth = {
+            r["name"].replace("-", "_").upper()
+            for r in prog.get("records", [])
+            if r.get("pic") and r.get("name") and r["name"] != "FILLER" and r.get("level") not in (66, 88)
+        }
     else:
         return None
     present = v in truth

@@ -54,6 +54,26 @@ _SYSTEM_COPY = (
     ("SQLDA", "DB2 precompiler-supplied"),
 )
 
+# #3246: DATA DIVISION record layouts, read with THIS tool's own fixed-format
+# model (Source), independent of both the engine's mainframe_boundary walker and
+# the forge's cobol_schema_forge -- so the key can adjudicate a record delta
+# between them. Each clause is read inside one entry (level number to the next).
+_DATA_DIVISION = re.compile(r"\bDATA\s+DIVISION\b")
+_PROC_DIVISION = re.compile(r"\bPROCEDURE\s+DIVISION\b")
+_DD_SECTION = re.compile(r"\b(FILE|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE|COMMUNICATION|REPORT|SCREEN)\s+SECTION\b")
+_DD_FD = re.compile(rf"^\s*(?:FD|SD)\s+({NAME})", re.M)
+_DD_LEVEL = re.compile(rf"^\s*(\d{{1,2}})\s+({NAME})(?![A-Z0-9-])", re.M)
+_DD_PIC = re.compile(r"\bPIC(?:TURE)?\s+(?:IS\s+)?([-A-Z0-9(),.$/*+]+)")
+_DD_USAGE = re.compile(
+    r"(?:\bUSAGE\s+(?:IS\s+)?)?(?<![A-Z0-9-])"
+    r"(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)(?![A-Z0-9-])"
+)
+_DD_OCCURS = re.compile(r"\bOCCURS\s+(\d+)(?:\s+TO\s+(\d+))?")
+_DD_DEPENDING = re.compile(rf"\bDEPENDING\s+(?:ON\s+)?({NAME})")
+_DD_REDEFINES = re.compile(rf"\bREDEFINES\s+({NAME})")
+_DD_VALUE = re.compile(r"\bVALUE\s+(?:IS\s+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z0-9][A-Z0-9+.-]*))")
+_DD_ENTRY_LIMIT = 600
+
 
 # ==============================================================================
 # Source reading (fixed reference format: cols 1-6 sequence, 7 indicator,
@@ -327,6 +347,104 @@ def resolve_copybook(name: str, library: Optional[str], program: Path, repo: Pat
 
 
 # ==============================================================================
+# DATA DIVISION record layouts (#3246)
+# ==============================================================================
+def record_field_key(name: str) -> str:
+    """The cross-parser comparison key for a field name: hyphens folded to
+    underscores, upper-cased -- the form cobol_schema_forge emits as a column."""
+    return name.replace("-", "_").upper()
+
+
+def is_record_field(item: dict[str, Any]) -> bool:
+    """A named, non-FILLER elementary item with a PIC -- what all three sides turn
+    into a column. Group items, FILLER and 66/88 levels are not fields."""
+    return (
+        bool(item.get("pic")) and bool(item.get("name")) and item["name"] != "FILLER" and item["level"] not in (66, 88)
+    )
+
+
+def _data_items(src: Source) -> list[dict[str, Any]]:
+    """The DATA DIVISION item tree of one program, this tool's own reading.
+
+    One dict per data description entry in source order, with `parent` the
+    ordinal of the enclosing group (None for an 01/77 root). Read from the
+    literal-preserving raw text so a VALUE clause is intact; only entries between
+    DATA DIVISION and PROCEDURE DIVISION are taken (a copybook has neither header
+    and is read whole, but this runs on programs)."""
+    text = src.raw_text
+    dd = _DATA_DIVISION.search(text)
+    start = dd.end() if dd else 0
+    proc = _PROC_DIVISION.search(text, start)
+    end = proc.start() if proc else len(text)
+    sections = [(m.start(), m.group(1)) for m in _DD_SECTION.finditer(text)]
+    fds = [(m.start(), m.group(1)) for m in _DD_FD.finditer(text)]
+
+    def _context(off: int) -> tuple[Optional[str], Optional[str]]:
+        section = next((name for pos, name in reversed(sections) if pos <= off), None)
+        fd_name = None
+        if section == "FILE":
+            sec_off = next((pos for pos, name in reversed(sections) if pos <= off), -1)
+            fd_name = next((name for pos, name in reversed(fds) if sec_off <= pos <= off), None)
+        return section, fd_name
+
+    entries = list(_DD_LEVEL.finditer(text))
+    items: list[dict[str, Any]] = []
+    stack: list[tuple[int, int]] = []
+    last_item = None
+    for pos, m in enumerate(entries):
+        if m.start() < start or m.start() >= end:
+            continue
+        level = int(m.group(1))
+        name = m.group(2).upper()
+        stop = entries[pos + 1].start() if pos + 1 < len(entries) else len(text)
+        window = text[m.end() : min(stop, m.end() + _DD_ENTRY_LIMIT)]
+        ordinal = len(items)
+        if level in (66, 88):
+            parent = last_item
+        else:
+            while stack and stack[-1][0] >= level:
+                stack.pop()
+            parent = stack[-1][1] if stack else None
+            stack.append((level, ordinal))
+            last_item = ordinal
+        pic_m = _DD_PIC.search(window)
+        use_m = _DD_USAGE.search(window)
+        occ_m = _DD_OCCURS.search(window)
+        occ_min = int(occ_m.group(1)) if occ_m else None
+        occ_max = int(occ_m.group(2)) if occ_m and occ_m.group(2) else occ_min
+        dep_m = _DD_DEPENDING.search(window) if occ_m else None
+        redef_m = _DD_REDEFINES.search(window)
+        val_m = _DD_VALUE.search(window)
+        value = None
+        if val_m:
+            value = (
+                (val_m.group(1) if val_m.group(1) is not None else val_m.group(2))
+                if (val_m.group(1) is not None or val_m.group(2) is not None)
+                else val_m.group(3).rstrip(".")
+            )
+        section, fd_name = _context(m.start())
+        items.append(
+            {
+                "ordinal": ordinal,
+                "parent": parent,
+                "level": level,
+                "name": name,
+                "section": section,
+                "fd": fd_name,
+                "pic": pic_m.group(1).rstrip(".") if pic_m else None,
+                "usage": use_m.group(1).upper() if use_m else None,
+                "occurs_min": occ_min,
+                "occurs_max": occ_max,
+                "occurs_depending_on": dep_m.group(1).upper() if dep_m else None,
+                "redefines": redef_m.group(1).upper() if redef_m else None,
+                "value": value,
+                "line": src.line_of(m.start()),
+            }
+        )
+    return items
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -440,6 +558,7 @@ def draft_program(
         "copybooks": copybooks,
         "files": files_,
         "calls": calls,
+        "records": _data_items(src),  # #3246: DATA DIVISION item tree + FD layouts
         "cics": bool(re.search(r"\bEXEC\s+CICS\b", src.text)),
         "sql": bool(re.search(r"\bEXEC\s+SQL\b", src.text)),
         "verification": {"status": "draft", "notes": []},
@@ -505,6 +624,7 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
     from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
     from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code
     from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import analyze_cobol_intent
+    from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas
 
     ir = None
     if db is not None:
@@ -528,6 +648,11 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # `EXEC CICS LINK`/`XCTL` at all -- so this row measures the engine
         # against the key with no forge column.
         "call targets",
+        # #3246: DATA DIVISION record fields. All three sides read a program's own
+        # DATA DIVISION into columns; the forge's cobol_schema_forge is the flat
+        # reader, the engine carries the full tree (record_data), and the key is
+        # this tool's own independent reading.
+        "record fields",
         "cics/sql",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
@@ -623,6 +748,23 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             {c["target"] for c in k["calls"] if c["target"]},
             None,
             ({c.target for c in ef.calls if c.target} if ef else None),
+        )
+        forge_schema = forge_schemas(path)
+        forge_records = {record_field_key(n) for n in forge_schema["json"]["properties"]} if forge_schema else set()
+        add(
+            "record fields",
+            rel,
+            {record_field_key(r["name"]) for r in k.get("records", []) if is_record_field(r)},
+            forge_records,
+            (
+                {
+                    record_field_key(it.name)
+                    for it in ef.data_items
+                    if it.pic and it.name != "FILLER" and it.level not in (66, 88)
+                }
+                if ef
+                else None
+            ),
         )
         add(
             "cics/sql",

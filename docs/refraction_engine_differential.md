@@ -46,7 +46,8 @@ hlasm 1). pli reads 8 instead of the issue's 7.
 | COPY dependencies | `resolve_copybooks` (same directory only) | `edge_data` | **DB**, though both are incomplete (see D3) |
 | paragraph inventory | graveyard regex | `function_data` | **neither is clean** (D1). The DB is carried as data only |
 | dead paragraphs | graveyard reachability | `usage_status` | **not replaceable** (D2) |
-| orphaned variables, FD record layouts | graveyard | — | **stated absence**: no data items are extracted (explicitly out of #3201's scope) |
+| DATA DIVISION items, FD record layouts | `cobol_schema_forge` (flat) | `record_data` | **DB** since #3246 — the full item tree (level/PIC/USAGE/OCCURS/REDEFINES/VALUE) and FD→file binding; a field the engine carries and the forge's flat single-line reader drops is `forge_flat_schema` |
+| orphaned variables | graveyard | — | **stated absence**: the by-name unused-variable count is a graveyard signal, not a layout |
 | DD names, OPEN modes, dataset lineage | forge / DAG architect | `dataset_data` | **DB** since #3201 — exact against the answer key on both corpora (see the #3200/#3201 update) |
 | unresolved CALLs | DAG architect | `call_site_data` | **DB** since #3200 — every call site, resolved or not, with its verb, form and line |
 | CICS / DB2 presence | forge regex | hit columns | **forge**. Presence agrees 36/36 with a line-level check. The hit columns (`arch_io`, `arch_ipc`) mix CICS verbs, SQL, DLI and CALL, so they cannot give a clean flag (D4) |
@@ -372,10 +373,10 @@ incremental scan of zopeneditor produce byte-identical `call_site_data` and
 file added or deleted this commit can change what an unchanged file's `CALL`
 resolves to.
 
-**Still absent, deliberately:** FD/01 record layouts. That is data-division item
-extraction — the same channel as this page's "no data items are extracted"
-absence — and needs a level-number/PIC/OCCURS/REDEFINES walker. Dataset lineage
-does not need it.
+**Since delivered (#3246):** FD/01 record layouts. What this update called
+data-division item extraction — a level-number/PIC/OCCURS/REDEFINES walker — now
+lives in the same `core/mainframe_boundary.py` channel and persists to
+`record_data`; see the #3246 update below. Dataset lineage never needed it.
 
 **Still absent, structurally:** reachability. An `OPEN` in an unreachable
 paragraph is extracted, because the engine has no reachability model and
@@ -445,6 +446,7 @@ a cause is never a fourth parser's opinion:
 | `sequence_number_field` | a COPY behind a cols-1..6 sequence field | D3 |
 | `system_copybook` | a `DFH`/`CEE`/`SQLCA`/`SQLDA` member, unresolvable by construction | D3 |
 | `bms_symbolic_map` | a member generated from a `.bms` map at build time | D3 |
+| `forge_flat_schema` | a DATA DIVISION field the engine carries that the forge's flat single-line `cobol_schema_forge` reader drops (group item, continuation-line PIC, copybook layout) | #3246 |
 | `stated_absence` | every `forge_only` datum and the CICS/SQL flags — the DB carries no equivalent (`galaxy_ir.py` SCOPE) | D4 |
 
 **A verdict from the key.** Where the corpus has a *validated* answer key (#3210), a delta on an
@@ -474,3 +476,26 @@ residual is baselined with a note:
 
 So the #3120 gate is now a command: `--corpus` returns 0 unexplained on both keyed corpora, and
 names precisely what the one remaining corpus is waiting on (a fix, #3244, and a key).
+
+## Update: DATA DIVISION items and FD record layouts (#3246) — 2026-09-20
+
+The last structural datum this page listed as a stated absence — "no data items are extracted" — is
+gone. `core/mainframe_boundary.py` now walks the DATA DIVISION (WORKING-STORAGE / LINKAGE /
+LOCAL-STORAGE and the FILE SECTION `FD`/`01`), one row per data description entry: level, name, PIC,
+USAGE/COMP-3, OCCURS `[DEPENDING ON]`, REDEFINES and VALUE, with each `01` bound to the `FD`/`SD`
+file it describes. The master DB persists it as `record_data` (a per-file table, cascade-deleted with
+`file_data`, restored on delta scans like the other boundary tables), and `galaxy_ir.py` rebuilds the
+`01/05/10/...` tree as `EngineFile.records` from `ordinal`/`parent_ordinal`. It is **same-file only**,
+like the value map: a copybook carries its own layout, and cross-file COPY assembly stays a consumer's
+job. Byte offsets, COMP-3 width and REDEFINES overlays are not computed here — that is a layer on top.
+
+**In the differential.** Record layouts are now a real forge-vs-engine datum (`records`), not a
+stated absence. Both sides read this file's own DATA DIVISION — the engine's `data_items` vs the
+forge's `cobol_schema_forge` columns — and a delta gets a real cause: a field the engine carries that
+the forge's flat single-line reader drops is `forge_flat_schema` (group items, continuation-line PICs,
+copybook layouts). A field the forge reads that the engine's walker misses stays `unexplained` (a real
+engine gap) until a validated key adjudicates it — `record` is an INDEPENDENT key field. On the three
+committed excerpts this is `forge_flat_schema` 4 / 5 / 7 with **0** engine-side gaps, so the gate holds
+at 0 unexplained. The answer keys carry a drafted `records` field (`status: draft`), validated
+incrementally; the forge's own entity/DTO generators sourcing these fields from the DB instead of
+re-parsing is the tracked follow-up under epic #3122.

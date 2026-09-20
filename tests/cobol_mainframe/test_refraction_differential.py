@@ -134,6 +134,7 @@ def _row(**kw):
             "db_edges": sorted(kw.get("cb_db", [])),
         },
         "subsystems": {"old_cics": kw.get("cics", 0), "old_sql": kw.get("sql", 0), "db_signals": []},
+        "records": {"old": sorted(kw.get("rec_old", [])), "db": sorted(kw.get("rec_db", []))},
         "forge_only": {
             "dd_files": sorted(kw.get("dd", [])),
             "inputs": sorted(kw.get("inputs", [])),
@@ -199,6 +200,19 @@ def test_subsystem_is_stated_absence(mini_repo):
     assert _cause(mini_repo, cics=5) == "stated_absence"
 
 
+def test_engine_only_record_field_is_forge_flat_schema(mini_repo):
+    """#3246: a field the engine carries that the forge's flat reader dropped is
+    explained by the forge's known limitation -- NOT stated_absence (the DB now
+    carries record layouts), which is exactly what this issue set out to change."""
+    assert _cause(mini_repo, rec_db=["ACCT_ID"]) == "forge_flat_schema"
+
+
+def test_forge_only_record_field_is_unexplained(mini_repo):
+    """A field the forge read that the engine's walker missed is a real engine gap,
+    left unexplained until a validated key adjudicates it."""
+    assert _cause(mini_repo, rec_old=["ACCT_ID"]) == rd.UNEXPLAINED
+
+
 def test_usage_status_not_reachability(mini_repo):
     # Forge calls a real own unit dead; the engine's usage_status does not flag it.
     # The two signals differ by design (#3198) -- explained, not a bug.
@@ -240,3 +254,19 @@ def test_key_verdict_clears_independent_field(mini_repo):
     summary = rd.summarize_causes(classified)
     assert summary["unexplained"] == 0
     assert summary["by_cause"].get("key:old-parser defect") == 1
+
+
+def test_record_verdict_needs_explicit_validation(mini_repo):
+    """#3246: record layouts are auto-drafted even on an otherwise-validated
+    program, so a forge-only record delta stays `unexplained` until the program
+    is signed off with `records_validated` -- then the key (independent) clears
+    it. `ACCT_ID` is a real field of the key here, so the forge is right and the
+    engine has the gap."""
+    rec = [{"name": "ACCT-ID", "level": 5, "pic": "9(11)"}]
+    unvalidated = rd.classify(mini_repo, [_row(rec_old=["ACCT_ID"])], _key(records=rec))
+    assert rd.summarize_causes(unvalidated)["unexplained"] == 1
+
+    validated = rd.classify(mini_repo, [_row(rec_old=["ACCT_ID"])], _key(records=rec, records_validated=True))
+    summary = rd.summarize_causes(validated)
+    assert summary["unexplained"] == 0
+    assert summary["by_cause"].get("key:engine defect") == 1

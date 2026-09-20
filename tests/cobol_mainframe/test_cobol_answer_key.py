@@ -273,3 +273,33 @@ def test_score_measures_the_forge_against_a_key(tmp_path):
     assert result["fields"]["dead"]["forge"]["truth"] == 1
     assert result["fields"]["units"]["engine"] is None  # no DB given
     assert "| dead |" in md
+
+
+def test_data_items_reads_the_record_layout_independently(tmp_path):
+    """#3246: the key's own DATA DIVISION reader -- nesting, PIC, COMP-3, OCCURS,
+    REDEFINES and a group item, read with this tool's Source (not the engine or
+    the forge), so the key can adjudicate a record delta between them."""
+    path = _program(
+        tmp_path,
+        "       MAIN-PARA.\n           GOBACK.\n",
+        data=(
+            "       01  CUST-REC.\n"
+            "           05  CUST-ID       PIC 9(6).\n"
+            "           05  CUST-BAL      PIC S9(9)V99 USAGE COMP-3.\n"
+            "           05  CUST-FLAGS    OCCURS 3 TIMES PIC X.\n"
+            "       01  CUST-ALT REDEFINES CUST-REC PIC X(20).\n"
+        ),
+    )
+    items = {r["name"]: r for r in ak._data_items(ak.Source(path))}
+    assert items["CUST-REC"]["pic"] is None  # a group item
+    assert items["CUST-ID"]["parent"] == items["CUST-REC"]["ordinal"]
+    assert items["CUST-BAL"]["usage"] == "COMP-3"
+    assert (items["CUST-FLAGS"]["occurs_min"], items["CUST-FLAGS"]["occurs_max"]) == (3, 3)
+    assert items["CUST-ALT"]["redefines"] == "CUST-REC"
+    # Only the elementary, non-group fields are what all three sides turn into columns.
+    assert {r["name"] for r in ak._data_items(ak.Source(path)) if ak.is_record_field(r)} == {
+        "CUST-ID",
+        "CUST-BAL",
+        "CUST-FLAGS",
+        "CUST-ALT",
+    }

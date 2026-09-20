@@ -414,7 +414,9 @@ class RecordKeeper:
         including the ones that resolved to nothing, which is the whole point
         of the table -- and `invocation_edges` becomes edge_data rows with
         edge_kind 'call'/'exec'. The COBOL dataset bindings ride along on each
-        file's own `dataset_bindings` and become dataset_data.
+        file's own `dataset_bindings` and become dataset_data, and the DATA
+        DIVISION item tree + FD record layouts (#3246) ride along on each file's
+        own `record_layouts` and become record_data.
 
         Both default to None, so a caller predating #3200 writes no boundary
         rows rather than empty ones.
@@ -807,6 +809,41 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_file_id ON dataset_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_dd_name ON dataset_data(dd_name);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_snapshot ON dataset_data(repo_name, commit_hash);")
+
+        # #3246: the DATA DIVISION item tree and FD record layouts -- the last
+        # structural datum the forge parsers owned and the DB did not carry. One
+        # row per data description entry, in source order; the tree is rebuilt by
+        # the reader (galaxy_ir.py) from `ordinal`/`parent_ordinal`, the same way
+        # a flat function_data list rebuilds nothing more than it has to. A
+        # per-file fact like dataset_data (no cross-file resolution), so it hangs
+        # off file_data with the same cascade-delete. `fd_name` is the FILE
+        # SECTION `FD`/`SD` a `01` record binds to (NULL in WORKING-STORAGE /
+        # LINKAGE); `section` is the owning DATA DIVISION section.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS record_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                section TEXT,
+                fd_name TEXT,
+                ordinal INTEGER,
+                parent_ordinal INTEGER,
+                level_number INTEGER,
+                item_name TEXT,
+                pic TEXT,
+                usage TEXT,
+                occurs_min INTEGER,
+                occurs_max INTEGER,
+                occurs_depending_on TEXT,
+                redefines TEXT,
+                value_literal TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);")
 
         # #2908 Phase 2: per-unit is_public/is_documented (function_data.
         # docs/risk_documentation_contract.md). Auto-heal for a pre-#2908
@@ -1709,6 +1746,48 @@ class RecordKeeper:
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
                 dataset_rows,
+            )
+
+        # #3246: the DATA DIVISION item tree + FD record layouts, taken from each
+        # file's own payload -- a per-file fact like the dataset bindings above.
+        record_rows: list[tuple] = []
+        for file_data in parsed_files:
+            record_file_id = path_to_file_id.get(file_data.get("path", ""))
+            if record_file_id is None:
+                continue
+            record_rows.extend(
+                (
+                    repo_name,
+                    commit_hash,
+                    record_file_id,
+                    item.get("section"),
+                    item.get("fd_name"),
+                    int(item.get("ordinal", 0) or 0),
+                    item.get("parent_ordinal"),
+                    int(item.get("level", 0) or 0),
+                    item.get("name"),
+                    item.get("pic"),
+                    item.get("usage"),
+                    item.get("occurs_min"),
+                    item.get("occurs_max"),
+                    item.get("occurs_depending_on"),
+                    item.get("redefines"),
+                    item.get("value"),
+                    int(item.get("line", 0) or 0),
+                )
+                for item in file_data.get("record_layouts", []) or []
+            )
+        if record_rows:
+            cursor.executemany(
+                """
+                INSERT INTO record_data (
+                    repo_name, commit_hash, file_id, section, fd_name, ordinal,
+                    parent_ordinal, level_number, item_name, pic, usage,
+                    occurs_min, occurs_max, occurs_depending_on, redefines,
+                    value_literal, line_number
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+                record_rows,
             )
 
         # 3. REPO DATA INSERTION

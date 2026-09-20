@@ -9,16 +9,17 @@
 # the audited engine already extracted instead of re-parsing it.
 #
 # SCOPE (read before extending):
-# The master DB does NOT yet carry everything the forge parsers derive. Taken
+# The master DB now carries almost everything the forge parsers derive. Taken
 # from the DB here: the per-language file inventory, PROGRAM-ID (class_data),
 # the paragraph/section inventory (function_data), resolved COPY/INCLUDE edges
-# (edge_data, edge_kind 'import'), subsystem hit counts, and since #3200/#3201
-# the mainframe call graph (call_site_data, plus edge_data kinds 'call'/'exec')
-# and dataset boundary (dataset_data). NOT in the DB, so still owned by the
-# forge tools: data-division items, FD record layouts, and reachability-based
-# dead code. `usage_status` is a same-file "name mentioned elsewhere" test, not
-# reachability -- it is carried as data and must not be fed to dead-code
-# masking. See docs/refraction_engine_differential.md for the measured deltas.
+# (edge_data, edge_kind 'import'), subsystem hit counts, since #3200/#3201 the
+# mainframe call graph (call_site_data, plus edge_data kinds 'call'/'exec') and
+# dataset boundary (dataset_data), and since #3246 the DATA DIVISION item tree +
+# FD record layouts (record_data). NOT in the DB, so still owned by the forge
+# tools: reachability-based dead code. `usage_status` is a same-file "name
+# mentioned elsewhere" test, not reachability -- it is carried as data and must
+# not be fed to dead-code masking. See docs/refraction_engine_differential.md
+# for the measured deltas.
 # ==============================================================================
 import os
 import sqlite3
@@ -90,6 +91,48 @@ class EngineDataset:
 
 
 @dataclass
+class EngineDataItem:
+    """One DATA DIVISION data description entry (#3246).
+
+    A flat record straight out of `record_data`, plus the `children` the reader
+    threads onto it so callers can walk the `01/05/10/...` tree. `section` is the
+    owning DATA DIVISION section (WORKING-STORAGE / LINKAGE / LOCAL-STORAGE /
+    FILE); `fd_name` is the FILE SECTION `FD`/`SD` a `01` binds to, None outside
+    the FILE SECTION. `pic`/`usage`/`value` are None on a group item; `occurs_max`
+    is None when the item is not a table, and `occurs_depending_on` names the
+    controlling item of a variable-length OCCURS. `redefines` names the item this
+    one overlays. Levels 66/88 describe the item above them and never carry
+    children.
+    """
+
+    ordinal: int
+    parent_ordinal: Optional[int]
+    level: int
+    name: str
+    section: Optional[str]
+    fd_name: Optional[str]
+    pic: Optional[str]
+    usage: Optional[str]
+    occurs_min: Optional[int]
+    occurs_max: Optional[int]
+    occurs_depending_on: Optional[str]
+    redefines: Optional[str]
+    value: Optional[str]
+    line: int
+    children: list = field(default_factory=list)  # EngineDataItem
+
+    @property
+    def is_group(self) -> bool:
+        """A group item has subordinate items and no PIC of its own."""
+        return not self.pic and self.level not in (66, 88)
+
+    @property
+    def occurs(self) -> Optional[int]:
+        """The (max) table size, or None when the item is not a table."""
+        return self.occurs_max
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -100,6 +143,8 @@ class EngineFile:
     signals: dict[str, int] = field(default_factory=dict)
     calls: list = field(default_factory=list)  # EngineCall, #3200
     datasets: list = field(default_factory=list)  # EngineDataset, #3201
+    data_items: list = field(default_factory=list)  # EngineDataItem, flat source order, #3246
+    records: list = field(default_factory=list)  # EngineDataItem tree roots (01/77), #3246
 
     @property
     def is_program(self) -> bool:
@@ -342,6 +387,66 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         step, internal, assign, dd or "", (modes or "").split(",") if modes else [], dsn, int(line or 0)
                     )
                 )
+
+        # #3246: the DATA DIVISION item tree + FD record layouts. A pre-#3246
+        # database has no such table, so a missing table is "no records", never
+        # an error -- the same back-compat rule as call_site_data/dataset_data.
+        # Rows arrive in source order (ORDER BY ordinal); the tree is rethreaded
+        # from parent_ordinal, which the extractor computed with a level stack.
+        if _has_table(cur, "record_data"):
+            for (
+                file_id,
+                ordinal,
+                parent,
+                level,
+                name,
+                section,
+                fd,
+                pic,
+                usage,
+                omin,
+                omax,
+                dep,
+                redef,
+                val,
+                line,
+            ) in cur.execute(
+                "SELECT file_id, ordinal, parent_ordinal, level_number, item_name, section, fd_name, pic, "
+                "usage, occurs_min, occurs_max, occurs_depending_on, redefines, value_literal, line_number "
+                "FROM record_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, ordinal",
+                (repo_name, commit_hash),
+            ):
+                if file_id not in by_id:
+                    continue
+                by_id[file_id].data_items.append(
+                    EngineDataItem(
+                        ordinal=int(ordinal or 0),
+                        parent_ordinal=parent,
+                        level=int(level or 0),
+                        name=name or "",
+                        section=section,
+                        fd_name=fd,
+                        pic=pic,
+                        usage=usage,
+                        occurs_min=omin,
+                        occurs_max=omax,
+                        occurs_depending_on=dep,
+                        redefines=redef,
+                        value=val,
+                        line=int(line or 0),
+                    )
+                )
+            # Thread children onto parents and collect the roots. `data_items` is
+            # ordered by ordinal, so a parent is always seen before its children.
+            for ef in files.values():
+                if not ef.data_items:
+                    continue
+                by_ordinal = {item.ordinal: item for item in ef.data_items}
+                for item in ef.data_items:
+                    if item.parent_ordinal is not None and item.parent_ordinal in by_ordinal:
+                        by_ordinal[item.parent_ordinal].children.append(item)
+                    else:
+                        ef.records.append(item)
     finally:
         conn.close()
 

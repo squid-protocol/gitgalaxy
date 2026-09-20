@@ -1,21 +1,26 @@
 # ==============================================================================
-# GitGalaxy Core: Mainframe Boundary Extraction (#3200, #3201)
+# GitGalaxy Core: Mainframe Boundary Extraction (#3200, #3201, #3246)
 #
 # PURPOSE:
 # The counted rules tell you THAT a COBOL program calls something and THAT a JCL
 # job allocates a dataset (`ipc_rpc_bridges` -> arch_ipc, `io` -> arch_io). They
-# never say WHAT. This module is the named channel for the two mainframe
-# relations that the hit counts flatten:
+# never say WHAT. This module is the named channel for the mainframe relations
+# that the hit counts flatten:
 #
 #   1. invocation  -- COBOL `CALL`, CICS `LINK`/`XCTL PROGRAM(...)`, JCL
 #                     `EXEC PGM=`: who runs whom (#3200).
 #   2. dataset     -- COBOL `SELECT ... ASSIGN TO <ddname>` with the `OPEN`
 #                     modes actually used, and the JCL `DD` statement that binds
 #                     that ddname to a real dataset (#3201).
+#   3. records     -- the DATA DIVISION item tree (WORKING-STORAGE / LINKAGE /
+#                     LOCAL-STORAGE) and FILE SECTION `FD`/`01` record layouts:
+#                     level, name, PIC, USAGE/COMP-3, OCCURS [DEPENDING ON],
+#                     REDEFINES, VALUE -- the schema of the system (#3246).
 #
-# Together they are the mainframe call graph and the dataset lineage that
-# `docs/refraction_engine_differential.md` recorded as stated absences: "program
-# P reads DD X, job J binds DD X to dataset D" was unanswerable from the DB.
+# Together they are the mainframe call graph, the dataset lineage and the record
+# layouts that `docs/refraction_engine_differential.md` recorded as stated
+# absences: "program P reads DD X, job J binds DD X to dataset D" and "no data
+# items are extracted" were both unanswerable from the DB.
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only. Nothing here resolves a name to a file; that is
@@ -27,10 +32,12 @@
 #     extracted; the engine has no reachability model (docs/
 #     unreferenced_by_name_contract.md corollary 3) and inventing one here would
 #     repeat exactly the mistake #3198 corrected.
-#   - FD/01 record layouts are NOT extracted. That is data-division item
-#     extraction -- the differential doc's separate "no data items are
-#     extracted" absence -- and needs a level-number/PIC/OCCURS/REDEFINES
-#     walker. Lineage does not need it.
+#   - Record layouts are SAME-FILE ONLY (#3246), like `_cobol_value_map`: a
+#     copybook's items are extracted when the copybook itself is scanned, so a
+#     `.cpy` carries its own layout and cross-file COPY assembly stays the
+#     reader's job (mirrors how `copy_deps` works). Byte offsets, COMP-3 width
+#     and REDEFINES overlay resolution are NOT computed here -- that is a
+#     consumer's job on top of this tree, the same split the forge kept.
 #
 # WHY A STATEMENT WALKER AND NOT ONE BIG REGEX:
 # Every construct here is a COBOL SENTENCE or a JCL STATEMENT, and all four span
@@ -123,6 +130,58 @@ _JCL_EXEC_PGM = re.compile(r"\bPGM=([A-Z0-9_#$@]+)", re.I)
 # opens an in-stream payload -- neither is an external binding, and jcl.py's
 # `_dependency_capture` already excludes both for the same reason.
 _JCL_DSN = re.compile(r"\bDSN(?:AME)?=(?!(?:&&|\*))([A-Z0-9_#$@.&()-]+)", re.I)
+
+# ---- #3246: DATA DIVISION record-layout clauses ----------------------------
+# All of these are searched INSIDE one already-bounded data-description entry
+# (`_LEVEL_START` to the next level number, capped at `_ENTRY_LIMIT`), so none
+# can run away across the whole file -- the same bounding `_cobol_value_map`
+# relies on. `[ \t\n]` where a clause can wrap onto a continuation line, which
+# real source does constantly (`USAGE\n IS COMP-3.`, `REDEFINES\n WS-FOO.`).
+
+# The division/section that owns the entries that follow it. Only the data
+# sections matter; `FILE SECTION` additionally carries FD record layouts.
+_SECTION_HEADER = re.compile(
+    _COBOL_AREA_A + r"(FILE|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE|COMMUNICATION|REPORT|SCREEN)[ \t]+SECTION[ \t]*\.",
+    re.I | re.M,
+)
+# The DATA DIVISION / PROCEDURE DIVISION boundaries: record layouts live only
+# between them (a copybook has neither header and is parsed whole).
+_DATA_DIVISION = re.compile(_COBOL_AREA_A + r"DATA[ \t]+DIVISION[ \t]*\.", re.I | re.M)
+_PROCEDURE_DIVISION = re.compile(_COBOL_AREA_A + r"PROCEDURE[ \t]+DIVISION", re.I | re.M)
+# `FD <file>` / `SD <sort-file>` binds the `01` record(s) that follow it in the
+# FILE SECTION to a logical file. It is not a data-description entry (no level
+# number), so it is tracked separately and joined by position.
+_FD_START = re.compile(_COBOL_AREA_A + r"(?:FD|SD)[ \t]+([A-Z][A-Z0-9-]*)(?![A-Z0-9-])", re.I | re.M)
+# `PIC`/`PICTURE [IS] <chars>`. The character class is the COBOL picture symbol
+# set (X A 9 S V P Z * B / , . $ + - CR/DB and the `(n)` repeat); it contains no
+# whitespace, so it stops at the first space and cannot cross into the next
+# clause. A clause-terminating period is stripped by the caller.
+_PIC_CLAUSE = re.compile(r"\bPIC(?:TURE)?[ \t]+(?:IS[ \t]+)?([-A-Z0-9(),.$/*+]+)", re.I)
+# USAGE, with or without the `USAGE [IS]` keyword (COBOL allows a bare `COMP-3`).
+# The keyword is delimited by COBOL name-character boundaries, not `\b`: `-` is a
+# name character, so `\bBINARY\b` otherwise matches inside `TWO-BYTES-BINARY`
+# (the name in a `REDEFINES TWO-BYTES-BINARY` clause) and mislabels a group item.
+_USAGE_CLAUSE = re.compile(
+    r"(?:\bUSAGE[ \t\n]+(?:IS[ \t\n]+)?)?"
+    r"(?<![A-Z0-9-])(COMPUTATIONAL(?:-[1-6])?|COMP(?:-[1-6])?|BINARY|PACKED-DECIMAL|DISPLAY(?:-1)?|INDEX|POINTER)"
+    r"(?![A-Z0-9-])",
+    re.I,
+)
+# `OCCURS <n> [TO <m>] [TIMES]` plus the optional `DEPENDING [ON] <name>`.
+_OCCURS_CLAUSE = re.compile(r"\bOCCURS[ \t\n]+(\d+)(?:[ \t\n]+TO[ \t\n]+(\d+))?", re.I)
+_DEPENDING_CLAUSE = re.compile(r"\bDEPENDING[ \t\n]+(?:ON[ \t\n]+)?([A-Z][A-Z0-9-]*)", re.I)
+# `REDEFINES <name>` -- the storage-overlay pointer.
+_REDEFINES_CLAUSE = re.compile(r"\bREDEFINES[ \t\n]+([A-Z][A-Z0-9-]*)", re.I)
+# `VALUE [IS] <literal>`: a quoted string, or a numeric / figurative constant
+# (`ZERO`, `SPACES`, `HIGH-VALUES`, `-1`, `12.5`).
+_VALUE_CLAUSE = re.compile(
+    r"\bVALUE[ \t\n]+(?:IS[ \t\n]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z0-9][A-Z0-9+.-]*))",
+    re.I,
+)
+# The special levels: 88 condition-names and 66 RENAMES describe the item above
+# them rather than nesting by level number, so they attach to the last real
+# item and are never pushed as a potential parent themselves.
+_CONDITION_LEVELS = (66, 88)
 
 
 def _opens_inside_literal(code_stream: str, line_start: int, offset: int) -> bool:
@@ -351,6 +410,127 @@ def _cobol_datasets(code_stream: str) -> list[dict[str, Any]]:
     return out
 
 
+def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
+    """The DATA DIVISION item tree and FD record layouts of one COBOL file (#3246).
+
+    Each entry is a flat dict; the tree is rebuilt by the reader from `ordinal`
+    and `parent_ordinal`, so the row order here IS the source order:
+
+        {section, fd_name, ordinal, parent_ordinal, level, name, pic, usage,
+         occurs_min, occurs_max, occurs_depending_on, redefines, value, line}
+
+    A data description entry runs from its level number to the next one, capped
+    at `_ENTRY_LIMIT`, so every clause is read inside one bounded window -- the
+    same guard `_cobol_value_map` uses. Only entries between `DATA DIVISION` and
+    `PROCEDURE DIVISION` are emitted; a copybook has neither header, so its bare
+    `01`/`05` items are read from the whole stream. Nesting is by level number
+    (a level opens a child of the nearest shallower level still open); `66`/`88`
+    describe the item above them and never become a parent.
+    """
+    newlines = [i for i, ch in enumerate(code_stream) if ch == "\n"]
+
+    def _line_of(offset: int) -> int:
+        return bisect.bisect_left(newlines, offset) + 1
+
+    # The data-division window. A copybook (no headers) is read whole; a program
+    # is read only between its own two division headers so a numbered PROCEDURE
+    # construct can never be mistaken for a level number.
+    dd_match = _DATA_DIVISION.search(code_stream)
+    data_start = dd_match.end() if dd_match else 0
+    proc_match = _PROCEDURE_DIVISION.search(code_stream, data_start)
+    data_end = proc_match.start() if proc_match else len(code_stream)
+
+    # Section and FD markers, joined to the entries below them by position.
+    sections = [(m.start(), m.group(1).upper()) for m in _SECTION_HEADER.finditer(code_stream)]
+    fds = [(m.start(), m.group(1).upper()) for m in _FD_START.finditer(code_stream)]
+    section_offsets = [s[0] for s in sections]
+    fd_offsets = [f[0] for f in fds]
+
+    def _context(offset: int) -> tuple[Optional[str], Optional[str]]:
+        """The (section, fd_name) in force at `offset`. fd only inside FILE SECTION."""
+        s_idx = bisect.bisect_right(section_offsets, offset) - 1
+        section = sections[s_idx][1] if s_idx >= 0 else None
+        fd_name = None
+        if section == "FILE":
+            f_idx = bisect.bisect_right(fd_offsets, offset) - 1
+            # The FD must fall inside the current FILE SECTION, not an earlier one.
+            if f_idx >= 0 and fd_offsets[f_idx] >= section_offsets[s_idx]:
+                fd_name = fds[f_idx][1]
+        return section, fd_name
+
+    entries = list(_LEVEL_START.finditer(code_stream))
+    records: list[dict[str, Any]] = []
+    stack: list[tuple[int, int]] = []  # (level, ordinal) of the open group items
+    last_item_ordinal: Optional[int] = None
+
+    for pos, level_match in enumerate(entries):
+        start = level_match.start()
+        if start < data_start or start >= data_end:
+            continue
+        level = int(level_match.group(1))
+        name = level_match.group(2).upper()
+
+        # The entry body: from just after the name to the next level number.
+        stop = entries[pos + 1].start() if pos + 1 < len(entries) else len(code_stream)
+        window = code_stream[level_match.end() : min(stop, level_match.end() + _ENTRY_LIMIT)]
+
+        ordinal = len(records)
+        if level in _CONDITION_LEVELS:
+            parent_ordinal: Optional[int] = last_item_ordinal
+        else:
+            while stack and stack[-1][0] >= level:
+                stack.pop()
+            parent_ordinal = stack[-1][1] if stack else None
+            stack.append((level, ordinal))
+            last_item_ordinal = ordinal
+
+        pic_match = _PIC_CLAUSE.search(window)
+        pic = pic_match.group(1).rstrip(".") if pic_match else None
+        usage_match = _USAGE_CLAUSE.search(window)
+        usage = usage_match.group(1).upper() if usage_match else None
+        occurs_match = _OCCURS_CLAUSE.search(window)
+        occurs_min = occurs_max = None
+        depending = None
+        if occurs_match:
+            occurs_min = int(occurs_match.group(1))
+            occurs_max = int(occurs_match.group(2)) if occurs_match.group(2) else occurs_min
+            dep_match = _DEPENDING_CLAUSE.search(window)
+            depending = dep_match.group(1).upper() if dep_match else None
+        redefines_match = _REDEFINES_CLAUSE.search(window)
+        redefines = redefines_match.group(1).upper() if redefines_match else None
+        value_match = _VALUE_CLAUSE.search(window)
+        value = None
+        if value_match:
+            if value_match.group(1) is not None or value_match.group(2) is not None:
+                # A quoted literal is kept verbatim (it may legitimately end in a period).
+                value = value_match.group(1) if value_match.group(1) is not None else value_match.group(2)
+            else:
+                # A bareword numeric / figurative constant: strip the clause-terminating
+                # period the character class swallowed (`VALUE 0.` -> `0`, not `0.`).
+                value = value_match.group(3).rstrip(".")
+
+        section, fd_name = _context(start)
+        records.append(
+            {
+                "section": section,
+                "fd_name": fd_name,
+                "ordinal": ordinal,
+                "parent_ordinal": parent_ordinal,
+                "level": level,
+                "name": name,
+                "pic": pic,
+                "usage": usage,
+                "occurs_min": occurs_min,
+                "occurs_max": occurs_max,
+                "occurs_depending_on": depending,
+                "redefines": redefines,
+                "value": value,
+                "line": _line_of(start),
+            }
+        )
+    return records
+
+
 def _jcl_statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     """Logical JCL statements as (line, name, operation, operands).
 
@@ -442,18 +622,26 @@ def _jcl_boundary(code_stream: str) -> dict[str, list[dict[str, Any]]]:
 
 
 def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str, Any]]]:
-    """The named invocation and dataset facts for one mainframe file.
+    """The named invocation, dataset and record-layout facts for one mainframe file.
 
     `dialect` is the language's `boundary_extraction` declaration, not its
     language id, so a future dialect can share COBOL's reading without being
     named cobol. Returns empty lists for anything else, so an unrecognised
-    declaration degrades to "no facts" rather than raising in a worker.
+    declaration degrades to "no facts" rather than raising in a worker. Every
+    caller reads keys with a default, so a dialect that carries only some of the
+    three channels (JCL has no record layouts) is not a missing-key error.
     """
     if not code_stream:
-        return {"calls": [], "datasets": []}
+        return {"calls": [], "datasets": [], "records": []}
     if dialect == "cobol":
         values = _cobol_value_map(code_stream)
-        return {"calls": _cobol_calls(code_stream, values), "datasets": _cobol_datasets(code_stream)}
+        return {
+            "calls": _cobol_calls(code_stream, values),
+            "datasets": _cobol_datasets(code_stream),
+            "records": _cobol_records(code_stream),
+        }
     if dialect == "jcl":
-        return _jcl_boundary(code_stream)
-    return {"calls": [], "datasets": []}
+        boundary = _jcl_boundary(code_stream)
+        boundary["records"] = []
+        return boundary
+    return {"calls": [], "datasets": [], "records": []}

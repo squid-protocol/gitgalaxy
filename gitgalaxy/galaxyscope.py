@@ -648,10 +648,11 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             t_imports = time.perf_counter()
             raw_imports = set()
             named_tokens = set()  # <--- NEW: Initialize token tracker
-            # #3200/#3201: named mainframe boundary facts, empty for every
+            # #3200/#3201/#3246: named mainframe boundary facts, empty for every
             # language that does not declare `boundary_extraction`.
             call_sites: list = []
             dataset_bindings: list = []
+            record_layouts: list = []
 
             # 1. Extract raw file dependencies. An inert (static-asset) language
             # normally skips this whole phase, but one that explicitly DECLARES
@@ -709,6 +710,10 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     boundary = extract_boundary(boundary_dialect, refraction["code_stream"])
                     call_sites = boundary["calls"]
                     dataset_bindings = boundary["datasets"]
+                    # #3246: the DATA DIVISION item tree + FD record layouts, read
+                    # with a default so a dialect that predates the channel (or
+                    # carries no records, like JCL) is not a missing-key error.
+                    record_layouts = boundary.get("records", [])
                 except Exception:
                     logging.exception("Boundary extraction failed for language '%s'.", lang_id)
 
@@ -760,9 +765,10 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "mitigations": refraction.get("mitigations", []),  # <--- THE FIX: Route the suppressions
             "raw_imports": sorted(raw_imports),
             "named_tokens": sorted(named_tokens),
-            # #3200/#3201: already deterministically ordered by the extractor.
+            # #3200/#3201/#3246: already deterministically ordered by the extractor.
             "call_sites": call_sites,
             "dataset_bindings": dataset_bindings,
+            "record_layouts": record_layouts,
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }

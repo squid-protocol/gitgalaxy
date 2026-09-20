@@ -121,8 +121,12 @@ def test_the_declaration_is_top_level_not_a_rule():
 
 def test_only_the_declared_dialects_extract_anything():
     """An undeclared language degrades to no facts, never to an exception."""
-    assert extract_boundary("python", "CALL 'X'\nSELECT A ASSIGN TO B.") == {"calls": [], "datasets": []}
-    assert extract_boundary("cobol", "") == {"calls": [], "datasets": []}
+    assert extract_boundary("python", "CALL 'X'\nSELECT A ASSIGN TO B.") == {
+        "calls": [],
+        "datasets": [],
+        "records": [],
+    }
+    assert extract_boundary("cobol", "") == {"calls": [], "datasets": [], "records": []}
 
 
 # ==============================================================================

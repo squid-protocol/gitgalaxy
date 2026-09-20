@@ -87,6 +87,34 @@ def test_program_id_units_and_copy_edge(scanned):
     assert payroll.copy_deps == ["copy/EMPREC.cpy"]
 
 
+def test_records_carry_fd_layouts_and_the_item_tree(scanned):
+    """#3246: PAYROLL's own DATA DIVISION is its FILE SECTION `01 EMP-REC` bound
+    to FD EMP-FILE; the WORKING-STORAGE `COPY EMPREC` layout belongs to the
+    copybook file, not the program (same-file only, like copy_deps)."""
+    ir = load_galaxy_ir(scanned[1])
+    payroll = ir.files["src/PAYROLL.cbl"]
+    assert [(r.name, r.fd_name, r.pic, r.section) for r in payroll.records] == [
+        ("EMP-REC", "EMP-FILE", "X(80)", "FILE")
+    ]
+    # The copybook carries its own tree: EMP-WS group with an EMP-ID field under it.
+    emprec = ir.files["copy/EMPREC.cpy"]
+    root = emprec.records[0]
+    assert (root.name, root.is_group) == ("EMP-WS", True)
+    assert [c.name for c in root.children] == ["EMP-ID"]
+    assert root.children[0].pic == "9(5)"
+
+
+def test_a_pre_3246_db_loads_with_no_records(scanned, tmp_path):
+    """A master DB written before #3246 has no record_data table; the reader must
+    treat it as 'no records', not fail -- the same rule as call_site/dataset_data."""
+    copy = tmp_path / "old.db"
+    shutil.copy(scanned[1], copy)
+    with sqlite3.connect(copy) as conn:
+        conn.execute("DROP TABLE record_data")
+    ir = load_galaxy_ir(copy)
+    assert all(not f.records and not f.data_items for f in ir.files.values())
+
+
 def test_inventory_spans_the_mainframe_family(scanned):
     _, db = scanned
     ir = load_galaxy_ir(db)

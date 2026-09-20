@@ -340,15 +340,16 @@ class StateRehydrator:
                             cl[k] = r[k]
                     classes_by_file.setdefault(r["_fp"], []).append(cl)
 
-                # #3200/#3201: the mainframe boundary channel, restored for the
-                # same reason #3220 restores raw_imports. An unchanged file is
+                # #3200/#3201/#3246: the mainframe boundary channel, restored for
+                # the same reason #3220 restores raw_imports. An unchanged file is
                 # never re-parsed, so without this an incremental scan drops
-                # every call site and dataset binding it already knew about --
-                # the DB would end up describing only the files that happened to
-                # change in the last commit. Both tables are optional: a
-                # baseline written before #3200 simply has neither.
+                # every call site, dataset binding and record layout it already
+                # knew about -- the DB would end up describing only the files that
+                # happened to change in the last commit. Every table is optional:
+                # a baseline written before #3200/#3246 simply has fewer of them.
                 calls_by_file: dict[str, list] = {}
                 datasets_by_file: dict[str, list] = {}
+                records_by_file: dict[str, list] = {}
                 if _has_table(cursor, "call_site_data"):
                     for r in cursor.execute(
                         # Aliased to the payload's own key names, so the row reads
@@ -391,12 +392,43 @@ class StateRehydrator:
                                 "line": int(r["line"] or 0),
                             }
                         )
+                if _has_table(cursor, "record_data"):
+                    for r in cursor.execute(
+                        # Aliased to the extractor's own payload key names
+                        # (level_number -> level, item_name -> name, etc.).
+                        "SELECT fd.file_path AS _fp, rd.section, rd.fd_name, rd.ordinal, rd.parent_ordinal, "
+                        "rd.level_number AS level, rd.item_name AS name, rd.pic, rd.usage, rd.occurs_min, "
+                        "rd.occurs_max, rd.occurs_depending_on, rd.redefines, rd.value_literal AS value, "
+                        "rd.line_number AS line "
+                        "FROM record_data rd JOIN file_data fd ON rd.file_id = fd.id "
+                        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY rd.file_id, rd.ordinal",
+                        (repo_name, baseline_hash),
+                    ):
+                        records_by_file.setdefault(r["_fp"], []).append(
+                            {
+                                "section": r["section"],
+                                "fd_name": r["fd_name"],
+                                "ordinal": int(r["ordinal"] or 0),
+                                "parent_ordinal": r["parent_ordinal"],
+                                "level": int(r["level"] or 0),
+                                "name": r["name"],
+                                "pic": r["pic"],
+                                "usage": r["usage"],
+                                "occurs_min": r["occurs_min"],
+                                "occurs_max": r["occurs_max"],
+                                "occurs_depending_on": r["occurs_depending_on"],
+                                "redefines": r["redefines"],
+                                "value": r["value"],
+                                "line": int(r["line"] or 0),
+                            }
+                        )
 
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
                     node["call_sites"] = calls_by_file.get(rel_path, [])
                     node["dataset_bindings"] = datasets_by_file.get(rel_path, [])
+                    node["record_layouts"] = records_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

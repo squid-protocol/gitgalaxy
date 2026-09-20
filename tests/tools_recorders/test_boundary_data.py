@@ -121,6 +121,36 @@ def test_a_shared_program_id_resolves_to_the_nearest_declaration():
     assert by_operand["SAM2"]["resolved_path"] == "COBOL/SAM2.cbl"
 
 
+def test_nearest_resolves_identically_on_windows_native_paths():
+    """The engine stores OS-native separators, so resolution must normalise them.
+
+    The shallower-path tiebreak only applies when two candidates share the same
+    prefix depth with the caller. `zz/P.cbl` (depth 1) and `aa/bb/P.cbl`
+    (depth 2) is that case, and the two rules disagree: depth picks `zz`,
+    alphabetical picks `aa`. With an un-normalised `count("/")` every Windows
+    path scores 0, so the tiebreak silently degrades to alphabetical and Windows
+    resolves the call to a DIFFERENT file than Linux for the same repository
+    (#3223 went red on this class of thing).
+    """
+    universe = [
+        {
+            "path": "JCL/RUN.jcl",
+            "lang_id": "jcl",
+            "raw_imports": [],
+            "call_sites": [{"verb": "EXEC PGM", "form": "literal", "operand": "P", "target": "P", "line": 1}],
+        },
+        {"path": "zz/P.cbl", "lang_id": "cobol", "raw_imports": [], "classes": [{"name": "P"}]},
+        {"path": "aa/bb/P.cbl", "lang_id": "cobol", "raw_imports": [], "classes": [{"name": "P"}]},
+    ]
+    windows = [{**f, "path": f["path"].replace("/", "\\")} for f in universe]
+
+    (posix_site,) = resolve_invocations(universe)[0]
+    (windows_site,) = resolve_invocations(windows)[0]
+
+    assert posix_site["resolved_path"] == "zz/P.cbl", "the SHALLOWER path wins, not the alphabetical one"
+    assert windows_site["resolved_path"] == "zz\\P.cbl", "Windows must reach the same decision"
+
+
 def test_nearest_is_deterministic_regardless_of_scan_order():
     """A repository scanned on two machines must produce the same edge."""
     import copy

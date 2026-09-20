@@ -66,16 +66,25 @@ def _nearest(candidates: list[str], src_path: str) -> Optional[str]:
     Ties break on the shallower path and then alphabetically, so the choice is
     deterministic and independent of scan order -- a repository scanned on two
     machines must produce the same edge.
+
+    EVERY comparison normalises separators first. The engine stores OS-native
+    paths, so on Windows an un-normalised depth count (`c.count("/")`) is 0 for
+    every candidate and the tiebreak silently degrades to alphabetical -- a
+    resolution that disagrees with Linux for the same repository. #3223 went red
+    on exactly this class of thing.
     """
     if not candidates:
         return None
     if len(candidates) == 1:
         return candidates[0]
 
-    src_dirs = src_path.replace("\\", "/").split("/")[:-1]
+    def _posix(path: str) -> str:
+        return path.replace("\\", "/")
+
+    src_dirs = _posix(src_path).split("/")[:-1]
 
     def _shared(candidate: str) -> int:
-        dirs = candidate.replace("\\", "/").split("/")[:-1]
+        dirs = _posix(candidate).split("/")[:-1]
         depth = 0
         for a, b in zip(src_dirs, dirs):
             if a != b:
@@ -83,7 +92,7 @@ def _nearest(candidates: list[str], src_path: str) -> Optional[str]:
             depth += 1
         return depth
 
-    return sorted(candidates, key=lambda c: (-_shared(c), c.count("/"), c))[0]
+    return sorted(candidates, key=lambda c: (-_shared(c), _posix(c).count("/"), _posix(c)))[0]
 
 
 def resolve_invocations(

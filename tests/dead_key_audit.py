@@ -171,6 +171,19 @@ ALLOWLIST = {
     # dict this walker can trace a producer for.
     "comment": "regex named-capture-group (?P<comment>...), not a dict key (detector.py, #1184)",
     "heredoc": "regex named-capture-group (?P<heredoc>...) in _apply_literal_shield, not a dict key (detector.py, #2405)",
+    # --- Delta rehydrate: sqlite Row COLUMN reads (#3220) ---
+    # state_rehydrator.load_state reconstructs functions/classes from function_data /
+    # class_data via literal sqlite3.Row subscripts (r["func_name"], r["func_archetype"],
+    # r["parent_class_id"], r["complexity"], c["_cid"] AS-alias). These are DB columns the
+    # recorder wrote, not dicts this repo produces then drops -- the walker can't trace a
+    # producer for a Row column, same class as the manifest/model-file keys above.
+    "func_name": "function_data column read in state_rehydrator (delta rehydrate, #3220)",
+    "func_archetype": "function_data column read in state_rehydrator (delta rehydrate, #3220)",
+    "parent_class_id": "function_data column read in state_rehydrator (delta rehydrate, #3220)",
+    "complexity": "function_data column read (aliased to func['branch']) in state_rehydrator (#3220)",
+    "_cid": "class_data 'cd.id AS _cid' alias read in state_rehydrator (delta rehydrate, #3220)",
+    "_fp": "'fd.file_path AS _fp' join alias read in state_rehydrator (delta rehydrate, #3220)",
+    "class_name": "class_data column read in state_rehydrator (delta rehydrate, #3220)",
 }
 
 

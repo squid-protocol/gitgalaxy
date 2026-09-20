@@ -199,9 +199,7 @@ class StateRehydrator:
                     # resolver rebuilds every edge FROM this file (popularity/pagerank/
                     # api_exposure of imported files depend on it). Persisted as JSON.
                     "raw_imports": (
-                        set(json.loads(f["raw_imports"]))
-                        if "raw_imports" in row_keys and f["raw_imports"]
-                        else set()
+                        set(json.loads(f["raw_imports"])) if "raw_imports" in row_keys and f["raw_imports"] else set()
                     ),
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,

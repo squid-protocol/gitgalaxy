@@ -101,6 +101,44 @@ def _ensure_columns(cursor: sqlite3.Cursor, table: str, col_defs: list[str]) -> 
                 raise
 
 
+def _insert_per_file_child(
+    cursor: sqlite3.Cursor,
+    parsed_files: list,
+    path_to_file_id: dict,
+    repo_name: str,
+    commit_hash: str,
+    table: str,
+    columns: tuple,
+    payload_key: str,
+    to_row,
+) -> None:
+    """Insert a per-file fact-channel child table (#3200/#3201/#3246).
+
+    A per-file fact rides on the file's own `payload_key` list and cascade-deletes
+    with file_data (no cross-file resolution, unlike call_site_data). Each row is
+    `(repo_name, commit_hash, file_id, *to_row(item))`; `columns` names the columns
+    AFTER those three standard ones. See `gitgalaxy/core/how_to_add_a_fact_channel.md`.
+
+    `table`/`columns` are module-internal literals (never user input); SQLite has
+    no parameterized syntax for identifiers, same as the CREATE TABLE f-strings
+    elsewhere in this module.
+    """
+    rows = []
+    for file_data in parsed_files:
+        file_id = path_to_file_id.get(file_data.get("path", ""))
+        if file_id is None:
+            continue
+        rows.extend((repo_name, commit_hash, file_id, *to_row(item)) for item in file_data.get(payload_key, []) or [])
+    if not rows:
+        return
+    all_columns = ("repo_name", "commit_hash", "file_id", *columns)
+    placeholders = ", ".join(["?"] * len(all_columns))
+    cursor.executemany(
+        f"INSERT INTO {table} ({', '.join(all_columns)}) VALUES ({placeholders})",  # noqa: S608 -- identifiers are module constants
+        rows,
+    )
+
+
 class FolderStats(TypedDict):
     """Accumulator shape for the folder-level rollup below -- without this,
     the mixed int/float/list values collapse to "object" under mypy, which
@@ -1715,80 +1753,71 @@ class RecordKeeper:
                     call_rows,
                 )
 
-        # #3201: the dataset bindings, taken from each file's own payload
-        # because they are a per-file fact with no cross-file resolution step.
-        dataset_rows: list[tuple] = []
-        for file_data in parsed_files:
-            dataset_file_id = path_to_file_id.get(file_data.get("path", ""))
-            if dataset_file_id is None:
-                continue
-            dataset_rows.extend(
-                (
-                    repo_name,
-                    commit_hash,
-                    dataset_file_id,
-                    binding.get("step_name"),
-                    binding.get("internal_name"),
-                    binding.get("assign_name"),
-                    binding.get("dd_name"),
-                    ",".join(binding.get("modes") or []) or None,
-                    binding.get("dsn"),
-                    int(binding.get("line", 0) or 0),
-                )
-                for binding in file_data.get("dataset_bindings", []) or []
-            )
-        if dataset_rows:
-            cursor.executemany(
-                """
-                INSERT INTO dataset_data (
-                    repo_name, commit_hash, file_id, step_name, internal_name,
-                    assign_name, dd_name, access_modes, dsn, line_number
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-                dataset_rows,
-            )
+        # #3201: the dataset bindings -- a per-file fact channel (no cross-file
+        # resolution, unlike call_site_data above).
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "dataset_data",
+            ("step_name", "internal_name", "assign_name", "dd_name", "access_modes", "dsn", "line_number"),
+            "dataset_bindings",
+            lambda b: (
+                b.get("step_name"),
+                b.get("internal_name"),
+                b.get("assign_name"),
+                b.get("dd_name"),
+                ",".join(b.get("modes") or []) or None,
+                b.get("dsn"),
+                int(b.get("line", 0) or 0),
+            ),
+        )
 
-        # #3246: the DATA DIVISION item tree + FD record layouts, taken from each
-        # file's own payload -- a per-file fact like the dataset bindings above.
-        record_rows: list[tuple] = []
-        for file_data in parsed_files:
-            record_file_id = path_to_file_id.get(file_data.get("path", ""))
-            if record_file_id is None:
-                continue
-            record_rows.extend(
-                (
-                    repo_name,
-                    commit_hash,
-                    record_file_id,
-                    item.get("section"),
-                    item.get("fd_name"),
-                    int(item.get("ordinal", 0) or 0),
-                    item.get("parent_ordinal"),
-                    int(item.get("level", 0) or 0),
-                    item.get("name"),
-                    item.get("pic"),
-                    item.get("usage"),
-                    item.get("occurs_min"),
-                    item.get("occurs_max"),
-                    item.get("occurs_depending_on"),
-                    item.get("redefines"),
-                    item.get("value"),
-                    int(item.get("line", 0) or 0),
-                )
-                for item in file_data.get("record_layouts", []) or []
-            )
-        if record_rows:
-            cursor.executemany(
-                """
-                INSERT INTO record_data (
-                    repo_name, commit_hash, file_id, section, fd_name, ordinal,
-                    parent_ordinal, level_number, item_name, pic, usage,
-                    occurs_min, occurs_max, occurs_depending_on, redefines,
-                    value_literal, line_number
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-                record_rows,
-            )
+        # #3246: the DATA DIVISION item tree + FD record layouts -- the same
+        # per-file fact-channel shape as the dataset bindings above.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "record_data",
+            (
+                "section",
+                "fd_name",
+                "ordinal",
+                "parent_ordinal",
+                "level_number",
+                "item_name",
+                "pic",
+                "usage",
+                "occurs_min",
+                "occurs_max",
+                "occurs_depending_on",
+                "redefines",
+                "value_literal",
+                "line_number",
+            ),
+            "record_layouts",
+            lambda it: (
+                it.get("section"),
+                it.get("fd_name"),
+                int(it.get("ordinal", 0) or 0),
+                it.get("parent_ordinal"),
+                int(it.get("level", 0) or 0),
+                it.get("name"),
+                it.get("pic"),
+                it.get("usage"),
+                it.get("occurs_min"),
+                it.get("occurs_max"),
+                it.get("occurs_depending_on"),
+                it.get("redefines"),
+                it.get("value"),
+                int(it.get("line", 0) or 0),
+            ),
+        )
 
         # 3. REPO DATA INSERTION
         class_start_idx = self.SIGNAL_SCHEMA.index("class_start") if "class_start" in self.SIGNAL_SCHEMA else -1

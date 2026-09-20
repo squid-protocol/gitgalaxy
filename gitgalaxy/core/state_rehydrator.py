@@ -43,6 +43,21 @@ def _has_table(cursor: sqlite3.Cursor, name: str) -> bool:
     return cursor.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone() is not None
 
 
+def _restore_child_table(cursor, repo_name, baseline_hash, table, select_sql, to_payload) -> dict:
+    """Restore one per-file fact channel's payload for unchanged files (#3200/#3201/#3246).
+
+    Returns `{file_path: [payload_dict, ...]}`; a baseline predating `table` yields
+    `{}`. `select_sql` aliases the file path AS `_fp`, aliases every other column to
+    the extractor's own payload key names, and takes `(repo_name, baseline_hash)`.
+    See `gitgalaxy/core/how_to_add_a_fact_channel.md`.
+    """
+    by_file: dict[str, list] = {}
+    if _has_table(cursor, table):
+        for r in cursor.execute(select_sql, (repo_name, baseline_hash)):
+            by_file.setdefault(r["_fp"], []).append(to_payload(r))
+    return by_file
+
+
 def _json_import_set(value: Any) -> set:
     """Decode a persisted raw_imports column back to a set. Entries can be import
     strings or (module, alias) tuples that JSON stored as lists; restore the tuples
@@ -347,81 +362,75 @@ class StateRehydrator:
                 # knew about -- the DB would end up describing only the files that
                 # happened to change in the last commit. Every table is optional:
                 # a baseline written before #3200/#3246 simply has fewer of them.
-                calls_by_file: dict[str, list] = {}
-                datasets_by_file: dict[str, list] = {}
-                records_by_file: dict[str, list] = {}
-                if _has_table(cursor, "call_site_data"):
-                    for r in cursor.execute(
-                        # Aliased to the payload's own key names, so the row reads
-                        # exactly like the dict the extractor produces.
-                        "SELECT fd.file_path AS _fp, cs.verb, cs.form, cs.operand, cs.target, "
-                        "cs.line_number AS line "
-                        "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
-                        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id",
-                        (repo_name, baseline_hash),
-                    ):
-                        # `resolved_path`/`dst_file_id` are deliberately NOT
-                        # restored: resolution is repo-wide and is redone every
-                        # scan, because a file added or deleted this commit can
-                        # change what an unchanged file's CALL resolves to.
-                        calls_by_file.setdefault(r["_fp"], []).append(
-                            {
-                                "verb": r["verb"],
-                                "form": r["form"],
-                                "operand": r["operand"],
-                                "target": r["target"],
-                                "line": int(r["line"] or 0),
-                            }
-                        )
-                if _has_table(cursor, "dataset_data"):
-                    for r in cursor.execute(
-                        "SELECT fd.file_path AS _fp, ds.step_name, ds.internal_name, ds.assign_name, "
-                        "ds.dd_name, ds.access_modes AS modes, ds.dsn, ds.line_number AS line "
-                        "FROM dataset_data ds JOIN file_data fd ON ds.file_id = fd.id "
-                        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ds.id",
-                        (repo_name, baseline_hash),
-                    ):
-                        datasets_by_file.setdefault(r["_fp"], []).append(
-                            {
-                                "step_name": r["step_name"],
-                                "internal_name": r["internal_name"],
-                                "assign_name": r["assign_name"],
-                                "dd_name": r["dd_name"],
-                                "modes": (r["modes"] or "").split(",") if r["modes"] else [],
-                                "dsn": r["dsn"],
-                                "line": int(r["line"] or 0),
-                            }
-                        )
-                if _has_table(cursor, "record_data"):
-                    for r in cursor.execute(
-                        # Aliased to the extractor's own payload key names
-                        # (level_number -> level, item_name -> name, etc.).
-                        "SELECT fd.file_path AS _fp, rd.section, rd.fd_name, rd.ordinal, rd.parent_ordinal, "
-                        "rd.level_number AS level, rd.item_name AS name, rd.pic, rd.usage, rd.occurs_min, "
-                        "rd.occurs_max, rd.occurs_depending_on, rd.redefines, rd.value_literal AS value, "
-                        "rd.line_number AS line "
-                        "FROM record_data rd JOIN file_data fd ON rd.file_id = fd.id "
-                        "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY rd.file_id, rd.ordinal",
-                        (repo_name, baseline_hash),
-                    ):
-                        records_by_file.setdefault(r["_fp"], []).append(
-                            {
-                                "section": r["section"],
-                                "fd_name": r["fd_name"],
-                                "ordinal": int(r["ordinal"] or 0),
-                                "parent_ordinal": r["parent_ordinal"],
-                                "level": int(r["level"] or 0),
-                                "name": r["name"],
-                                "pic": r["pic"],
-                                "usage": r["usage"],
-                                "occurs_min": r["occurs_min"],
-                                "occurs_max": r["occurs_max"],
-                                "occurs_depending_on": r["occurs_depending_on"],
-                                "redefines": r["redefines"],
-                                "value": r["value"],
-                                "line": int(r["line"] or 0),
-                            }
-                        )
+                # `resolved_path`/`dst_file_id` are deliberately NOT restored for
+                # calls: resolution is repo-wide and redone every scan, because a
+                # file added or deleted this commit can change what an unchanged
+                # file's CALL resolves to.
+                calls_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "call_site_data",
+                    "SELECT fd.file_path AS _fp, cs.verb, cs.form, cs.operand, cs.target, cs.line_number AS line "
+                    "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id",
+                    lambda r: {
+                        "verb": r["verb"],
+                        "form": r["form"],
+                        "operand": r["operand"],
+                        "target": r["target"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+                datasets_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "dataset_data",
+                    "SELECT fd.file_path AS _fp, ds.step_name, ds.internal_name, ds.assign_name, "
+                    "ds.dd_name, ds.access_modes AS modes, ds.dsn, ds.line_number AS line "
+                    "FROM dataset_data ds JOIN file_data fd ON ds.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ds.id",
+                    lambda r: {
+                        "step_name": r["step_name"],
+                        "internal_name": r["internal_name"],
+                        "assign_name": r["assign_name"],
+                        "dd_name": r["dd_name"],
+                        "modes": (r["modes"] or "").split(",") if r["modes"] else [],
+                        "dsn": r["dsn"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+                # Aliased to the extractor's own payload key names (level_number ->
+                # level, item_name -> name, value_literal -> value).
+                records_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "record_data",
+                    "SELECT fd.file_path AS _fp, rd.section, rd.fd_name, rd.ordinal, rd.parent_ordinal, "
+                    "rd.level_number AS level, rd.item_name AS name, rd.pic, rd.usage, rd.occurs_min, "
+                    "rd.occurs_max, rd.occurs_depending_on, rd.redefines, rd.value_literal AS value, "
+                    "rd.line_number AS line "
+                    "FROM record_data rd JOIN file_data fd ON rd.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY rd.file_id, rd.ordinal",
+                    lambda r: {
+                        "section": r["section"],
+                        "fd_name": r["fd_name"],
+                        "ordinal": int(r["ordinal"] or 0),
+                        "parent_ordinal": r["parent_ordinal"],
+                        "level": int(r["level"] or 0),
+                        "name": r["name"],
+                        "pic": r["pic"],
+                        "usage": r["usage"],
+                        "occurs_min": r["occurs_min"],
+                        "occurs_max": r["occurs_max"],
+                        "occurs_depending_on": r["occurs_depending_on"],
+                        "redefines": r["redefines"],
+                        "value": r["value"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
 
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])

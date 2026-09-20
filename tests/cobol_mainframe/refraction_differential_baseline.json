@@ -22,7 +22,6 @@
     },
     "zopeneditor-sample": {
       "by_cause": {
-        "ambiguous_copy_target": 10,
         "entry_point": 5,
         "stated_absence": 32
       },
@@ -33,34 +32,33 @@
   "full": {
     "aws-mainframe-modernization-carddemo": {
       "by_cause": {
-        "ambiguous_copy_target": 19,
         "entry_point": 40,
         "exec_sql_include": 1,
-        "sequence_number_field": 17,
+        "sequence_number_field": 15,
         "stated_absence": 197,
         "system_copybook": 42,
-        "unexplained": 167
+        "unexplained": 157,
+        "usage_status_not_reachability": 10
       },
-      "note": "No answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth. 142 of these are real paragraphs the forge's reader misses that both the engine and the answer-key drafter find, plus dead/copybook disagreements. Pins the count for regression detection until a carddemo key lands.",
-      "unexplained": 167
+      "note": "No answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth. 142 of the 157 are real paragraphs the forge's reader drops because carddemo uses cols-73-80 right-margin sequence numbers (#3244); the rest are copybook disagreements. Pins the count for regression detection; expected to fall to ~15 once #3244 lands and to 0 with a carddemo key.",
+      "unexplained": 157
     },
     "cics-banking-sample-application-cbsa": {
       "by_cause": {
-        "ambiguous_copy_target": 36,
         "bms_symbolic_map": 9,
         "entry_point": 218,
         "exec_sql_include": 15,
         "stated_absence": 75,
         "system_copybook": 11,
-        "unexplained": 33
+        "usage_status_not_reachability": 33
       },
-      "note": "All 33 are dead/old: the forge (and the hand-verified key) call these paragraphs dead, but the engine's usage_status is unreferenced-by-name, not reachability (D2). The key's dead reasoning shares the forge's control-flow model (#3219), so it cannot independently clear them. This is exactly what #3120's dead-code switch is gated on: #3198.",
-      "unexplained": 33
+      "note": "0 unexplained. The 33 usage_status_not_reachability cells are the forge's reachability-based dead vs the engine's unreferenced-by-name usage_status -- a deliberately different signal (#3198 closed by design; docs/unreferenced_by_name_contract.md). Not a pending fix.",
+      "unexplained": 0
     },
     "zopeneditor-sample": {
       "by_cause": {
-        "ambiguous_copy_target": 10,
         "entry_point": 4,
+        "key:old-parser defect": 2,
         "stated_absence": 32
       },
       "note": null,

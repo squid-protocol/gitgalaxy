@@ -199,10 +199,16 @@ def test_subsystem_is_stated_absence(mini_repo):
     assert _cause(mini_repo, cics=5) == "stated_absence"
 
 
+def test_usage_status_not_reachability(mini_repo):
+    # Forge calls a real own unit dead; the engine's usage_status does not flag it.
+    # The two signals differ by design (#3198) -- explained, not a bug.
+    assert _cause(mini_repo, dead_old=["SUB-PARA"]) == "usage_status_not_reachability"
+
+
 def test_unexplained_when_no_cause(mini_repo):
-    # A real own paragraph the forge calls dead and the engine does not: no
-    # mechanism, and (here) no key -> unexplained.
-    assert _cause(mini_repo, dead_old=["SUB-PARA"]) == rd.UNEXPLAINED
+    # A real own paragraph the forge reports and the engine does not: no mechanism,
+    # and (here) no key to adjudicate -> unexplained.
+    assert _cause(mini_repo, para_old=["SUB-PARA"]) == rd.UNEXPLAINED
 
 
 def _key(**prog):
@@ -218,9 +224,10 @@ def _key(**prog):
 
 
 def test_key_verdict_shared_model_does_not_clear_unexplained(mini_repo):
-    """#3219: for dead/units the key shares the forge's control-flow model, so its
-    agreement is not independent evidence and never clears `unexplained`."""
-    classified = rd.classify(mini_repo, [_row(dead_old=["SUB-PARA"])], _key())
+    """#3219: for units/dead the key shares the forge's control-flow model, so its
+    agreement is not independent evidence and never clears `unexplained`. A real
+    own paragraph the forge reports (no mechanism cause) is the case to check."""
+    classified = rd.classify(mini_repo, [_row(para_old=["SUB-PARA"])], _key())
     summary = rd.summarize_causes(classified)
     assert summary["unexplained"] == 1
     assert classified[0]["verdict"]["confidence"] == "shared_model"

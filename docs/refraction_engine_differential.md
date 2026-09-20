@@ -439,6 +439,7 @@ a cause is never a fourth parser's opinion:
 | `section_header` | a DB unit that is a real `SECTION` header | D1 |
 | `area_b_header` | a DB unit that is a lone `NAME.` the engine read in Area B, not a real header | D1 |
 | `entry_point` | a DB `usage_status` "dead" that is a real unit reached by fall-through/entry (not by name) | D2 |
+| `usage_status_not_reachability` | a forge-dead unit the engine's `usage_status` does not flag — the two measure different things (#3198, by design) | D2 |
 | `ambiguous_copy_target` | a COPY whose stem is shared across members/extensions (`resolve_copybook` "AMBIGUOUS", or a shared stem the engine drops) | D3 |
 | `exec_sql_include` | a DB edge from `EXEC SQL INCLUDE` | D3 |
 | `sequence_number_field` | a COPY behind a cols-1..6 sequence field | D3 |
@@ -462,14 +463,14 @@ a run ADDS unexplained deltas over `tests/cobol_mainframe/refraction_differentia
 gate. CI runs the excerpts only (it does not clone the corpora); `test_refraction_differential.py`
 wraps both, the full-corpus half skipped unless the clone is present, exactly as the snapshot test.
 
-**Where the corpora stand.** zopeneditor-sample reaches **0 unexplained** on both the excerpt and
-the full corpus. The residuals are baselined with a note:
+**Where the corpora stand.** Both keyed corpora reach **0 unexplained** on the full run; carddemo's
+residual is baselined with a note:
 
 | corpus (full) | unexplained | why it stands |
 |---|---|---|
 | zopeneditor-sample | 0 | fully classified / key-adjudicated |
-| cics-banking-sample-application-cbsa | 33 | all `dead/old`: the forge (and the key) call these dead, but `usage_status` is unreferenced-by-name, not reachability (D2). The key's dead model is shared with the forge (#3219), so it cannot independently clear them. This is exactly what #3120's dead-code switch is gated on: **#3198** |
-| aws-mainframe-modernization-carddemo | 167 | no answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth; 142 are real paragraphs the forge's reader misses that the engine and the drafter both find |
+| cics-banking-sample-application-cbsa | 0 | 33 `usage_status_not_reachability` cells (forge-dead vs the engine's by-name `usage_status`) are an explained, by-design semantic difference (#3198 closed; `docs/unreferenced_by_name_contract.md`), not a pending fix |
+| aws-mainframe-modernization-carddemo | 157 | no answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth. 142 are real paragraphs the forge's reader drops on cols-73-80 right-margin sequence numbers (**#3244**); expected to fall to ~15 once #3244 lands and to 0 with a carddemo key |
 
-So the #3120 gate is now a command: `--corpus` returns 0 unexplained on every corpus that has a
-key and a landed engine fix, and names precisely what each remaining switch is still waiting on.
+So the #3120 gate is now a command: `--corpus` returns 0 unexplained on both keyed corpora, and
+names precisely what the one remaining corpus is waiting on (a fix, #3244, and a key).

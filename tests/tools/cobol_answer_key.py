@@ -478,10 +478,30 @@ def _pr(truth: set, got: set) -> str:
     return f"P {p} · R {r}"
 
 
-def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str, Any], str]:
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
-    from refraction_differential import old_copybooks, old_paragraphs
+def old_paragraphs(path: Path, repo: Path) -> set[str]:
+    """The forge (graveyard) view of a program's paragraph/section names, with
+    copybooks inlined as the refractor does. Lives here, beside the other COBOL
+    readers, so the harness and the scorer share one implementation without
+    importing each other (#3211: refraction_differential is the harness on top)."""
+    from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import resolve_copybooks, unit_headers
 
+    content = resolve_copybooks(path.read_text(encoding="utf-8", errors="ignore").upper(), path, repo)
+    if "PROCEDURE DIVISION" not in content:
+        return set()
+    return set(unit_headers(content.split("PROCEDURE DIVISION", 1)[1]))
+
+
+def old_copybooks(path: Path, repo: Path) -> tuple[set[str], dict[str, Path]]:
+    """(named, resolved): the COPY names the forge sees and the member it resolves
+    each to (searched under `repo`, as the refractor does)."""
+    from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import COPY_PATTERN, find_copybook
+
+    named = {m.group(1).upper() for m in COPY_PATTERN.finditer(path.read_text(encoding="utf-8", errors="ignore"))}
+    resolved = {n: hit for n in named if (hit := find_copybook(n, repo, path)) is not None}
+    return named, resolved
+
+
+def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str, Any], str]:
     from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
     from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code
     from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import analyze_cobol_intent

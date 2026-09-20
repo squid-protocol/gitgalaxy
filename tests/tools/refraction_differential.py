@@ -30,6 +30,7 @@ and fails when a run adds any over a committed per-corpus baseline.
 """
 
 import argparse
+import contextlib
 import json
 import os
 import re
@@ -48,14 +49,16 @@ if str(REPO_ROOT) not in sys.path:
 from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (  # noqa: E402
     _NOT_A_PARAGRAPH,
-    COPY_PATTERN,
-    find_copybook,
-    resolve_copybooks,
-    unit_headers,
     x_ray_dead_code,
 )
 from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import analyze_cobol_intent  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import GalaxyIR, load_galaxy_ir, scan_to_db  # noqa: E402
+
+# The sibling readers/scorer. It has no top-level engine imports, so importing it
+# here is cheap and one-directional -- it no longer imports this module (#3211).
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import cobol_answer_key as ak  # noqa: E402
+from cobol_answer_key import old_copybooks, old_paragraphs  # noqa: E402
 
 MAINFRAME = REPO_ROOT / "tests" / "cobol_mainframe"
 EXCERPTS = MAINFRAME / "refraction_excerpts"
@@ -82,24 +85,6 @@ UNEXPLAINED = "unexplained"
 # `draft` shares the forge's control-flow model (#3219), so an agreement there is
 # not evidence about the forge and never clears `unexplained` on its own.
 INDEPENDENT_FIELDS = {"program_id", "copybook"}
-
-# The graveyard does not return its paragraph list, only the count and the dead
-# subset, so the harness calls the same helpers x_ray_dead_code uses.
-
-
-def old_paragraphs(path: Path, repo: Path) -> set[str]:
-    content = resolve_copybooks(path.read_text(encoding="utf-8", errors="ignore").upper(), path, repo)
-    if "PROCEDURE DIVISION" not in content:
-        return set()
-    return set(unit_headers(content.split("PROCEDURE DIVISION", 1)[1]))
-
-
-def old_copybooks(path: Path, repo: Path) -> tuple[set[str], dict[str, Path]]:
-    """(named, resolved): COPY names in the source, and the member the graveyard
-    inlines for each name it can resolve (searched under `repo`, as the refractor does)."""
-    named = {m.group(1).upper() for m in COPY_PATTERN.finditer(path.read_text(encoding="utf-8", errors="ignore"))}
-    resolved = {n: hit for n in named if (hit := find_copybook(n, repo, path)) is not None}
-    return named, resolved
 
 
 def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
@@ -376,11 +361,7 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
 
 def classify(repo: Path, rows: list[dict[str, Any]], key: Optional[dict[str, Any]]) -> list[Delta]:
     """Attaches a `cause` (and, where a validated key adjudicates, a `verdict`) to
-    every delta. Imported lazily so the raw report path stays free of the answer
-    key (which imports this module inside score())."""
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
-    import cobol_answer_key as ak  # lazy: breaks the score() import cycle
-
+    every delta, reading source with the answer key's own fixed-format model."""
     files = [p for p in repo.rglob("*") if p.is_file() and ".git" not in p.parts]
     stem_counts = Counter(p.stem.upper() for p in files)
     ctx_cache: dict[str, dict[str, Any]] = {}
@@ -473,15 +454,37 @@ def _targets(names: Optional[list[str]]) -> list[tuple[str, Path, Optional[dict[
     return [(d.name, d, keys.get(d.name), None) for d in sorted(p for p in EXCERPTS.iterdir() if p.is_dir())]
 
 
-def run_target(source: Path, key: Optional[dict[str, Any]], db: Optional[Path]) -> tuple[dict[str, Any], list[Delta]]:
-    """Scan (or load) one target and classify its deltas."""
+@contextlib.contextmanager
+def _scan_env():
+    """Set the scan environment for the in-process `scan_to_db`, then restore it.
+
+    An excerpt lives inside this repository, so the scan must not read the parent's
+    git history, and it should not need a license. These are set process-wide, so
+    they MUST be restored: `GITGALAXY_DISABLE_GIT_HISTORY` would otherwise disable
+    git for every later test in a pytest session (it broke test_chronometer)."""
+    keys = ("GITGALAXY_LICENSE_KEY", "GITGALAXY_DISABLE_GIT_HISTORY")
+    saved = {k: os.environ.get(k) for k in keys}
     os.environ.setdefault("GITGALAXY_LICENSE_KEY", "COMMUNITY_FREE_TIER")
-    os.environ.setdefault("GITGALAXY_DISABLE_GIT_HISTORY", "1")
+    os.environ["GITGALAXY_DISABLE_GIT_HISTORY"] = "1"
+    try:
+        yield
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+
+
+def run_target(source: Path, key: Optional[dict[str, Any]], db: Optional[Path]) -> tuple[dict[str, Any], list[Delta]]:
+    """Scan (or load) one target and classify its deltas. The full corpora arrive
+    with a `db` already scanned by mainframe_corpus (its own subprocess env); only
+    the in-process excerpt scan needs, and scopes, the scan environment."""
     if db is not None:
         ir = load_galaxy_ir(db)
         classified = classify(source, compare(source, ir), key)
     else:
-        with tempfile.TemporaryDirectory() as tmp:
+        with _scan_env(), tempfile.TemporaryDirectory() as tmp:
             ir = load_galaxy_ir(scan_to_db(source, Path(tmp)))
             classified = classify(source, compare(source, ir), key)
     return summarize_causes(classified), classified

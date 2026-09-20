@@ -418,3 +418,55 @@ actually reads or writes to a file (its SELECT/ASSIGN and OPEN lineage), DTO the
 — needs named dataset lineage from the engine and is **blocked on #3201**; until then
 other working-storage records (`WS_FIELDS`, `PARM_BUFFER`, …) stay entities. Whether
 the generated tree actually *compiles and boots* is a separate gap, tracked in #3121.
+
+## Update: cause codes, a key verdict and a zero-unexplained gate (#3211)
+
+The attributions above (D1–D4) were made with throwaway scripts and recorded here in prose.
+#3211 moves the classifiers into the harness: `refraction_differential.py` now attaches a
+`cause` to every delta, so "every delta explained" is a command, not an afternoon.
+
+**Mechanism causes.** Each delta is read off the source with the same fixed-format model the
+answer key uses (`cobol_answer_key.Source` / `_units` / `reachability` / `resolve_copybook`), so
+a cause is never a fourth parser's opinion:
+
+| cause | the delta it explains | D-section |
+|---|---|---|
+| `scope_terminator` | a forge unit/dead that is `END-*`/`GOBACK`/`EXIT`/… (`cobol_graveyard_finder._NOT_A_PARAGRAPH`) | D1 |
+| `program_inlined_as_copybook` | a forge unit/dead that is not one of this program's own Area-A units | D1/D3 |
+| `section_header` | a DB unit that is a real `SECTION` header | D1 |
+| `area_b_header` | a DB unit that is a lone `NAME.` the engine read in Area B, not a real header | D1 |
+| `entry_point` | a DB `usage_status` "dead" that is a real unit reached by fall-through/entry (not by name) | D2 |
+| `ambiguous_copy_target` | a COPY whose stem is shared across members/extensions (`resolve_copybook` "AMBIGUOUS", or a shared stem the engine drops) | D3 |
+| `exec_sql_include` | a DB edge from `EXEC SQL INCLUDE` | D3 |
+| `sequence_number_field` | a COPY behind a cols-1..6 sequence field | D3 |
+| `system_copybook` | a `DFH`/`CEE`/`SQLCA`/`SQLDA` member, unresolvable by construction | D3 |
+| `bms_symbolic_map` | a member generated from a `.bms` map at build time | D3 |
+| `stated_absence` | every `forge_only` datum and the CICS/SQL flags — the DB carries no equivalent (`galaxy_ir.py` SCOPE) | D4 |
+
+**A verdict from the key.** Where the corpus has a *validated* answer key (#3210), a delta on an
+**independent** field — `program_id` or `copybook` — is adjudicated directly from truth
+(`db` side carries a true value → old-parser defect; a false one → engine defect; and the mirror
+for the `old` side). This clears the delta with no mechanism cause needed. For `units`/`dead` the
+key's `draft` shares the forge's control-flow model (#3219), so an agreement there is **not**
+independent evidence and never clears a delta on its own — those verdicts are recorded with
+`confidence: shared_model`.
+
+**The gate.** A delta neither a mechanism nor an independent key verdict explains is
+`unexplained`. `refraction_differential.py --ci` classifies the committed excerpts and fails when
+a run ADDS unexplained deltas over `tests/cobol_mainframe/refraction_differential_baseline.json`;
+`--corpus NAME …` does the same over the full pinned corpora (local, needs a fetch+scan), and
+`--update-baseline` blesses the matching scope. `by_cause` is recorded for visibility and does not
+gate. CI runs the excerpts only (it does not clone the corpora); `test_refraction_differential.py`
+wraps both, the full-corpus half skipped unless the clone is present, exactly as the snapshot test.
+
+**Where the corpora stand.** zopeneditor-sample reaches **0 unexplained** on both the excerpt and
+the full corpus. The residuals are baselined with a note:
+
+| corpus (full) | unexplained | why it stands |
+|---|---|---|
+| zopeneditor-sample | 0 | fully classified / key-adjudicated |
+| cics-banking-sample-application-cbsa | 33 | all `dead/old`: the forge (and the key) call these dead, but `usage_status` is unreferenced-by-name, not reachability (D2). The key's dead model is shared with the forge (#3219), so it cannot independently clear them. This is exactly what #3120's dead-code switch is gated on: **#3198** |
+| aws-mainframe-modernization-carddemo | 167 | no answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth; 142 are real paragraphs the forge's reader misses that the engine and the drafter both find |
+
+So the #3120 gate is now a command: `--corpus` returns 0 unexplained on every corpus that has a
+key and a landed engine fix, and names precisely what each remaining switch is still waiting on.

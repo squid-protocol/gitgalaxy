@@ -95,19 +95,27 @@ def test_each_controller_gets_its_own_request_mapping(clean_room):
     ]
 
 
-def test_one_entity_per_schema_even_when_every_title_is_dfhcommarea(clean_room):
-    """CBSA has 29 schemas and three distinct titles; before this, three entities."""
+def test_one_dto_per_schema_when_every_title_is_dfhcommarea(clean_room):
+    """#3233: a DFHCOMMAREA is a transient communication area, not a table, so each
+    schema becomes a DTO -- but still one distinct class per clean-room key (#3221),
+    never a collision on `@Table(name = "DFHCOMMAREA")`. No entity is generated."""
     java = _run(clean_room)
     entity_dir = java / "src/main/java/com/gitgalaxy/modernized/entity"
+    dto_dir = java / "src/main/java/com/gitgalaxy/modernized/dto"
 
-    assert sorted(p.name for p in entity_dir.glob("*.java")) == [
-        "CobolSam2Dfhcommarea.java",
-        "MultirootSamSam2Dfhcommarea.java",
-        "Sam1libDfhcommarea.java",
+    assert sorted(p.name for p in dto_dir.glob("*.java")) == [
+        "CobolSam2DfhcommareaDto.java",
+        "MultirootSamSam2DfhcommareaDto.java",
+        "Sam1libDfhcommareaDto.java",
     ]
-    # The class is disambiguated; the legacy record it maps is not renamed.
-    for path in entity_dir.glob("*.java"):
-        assert '@Table(name = "DFHCOMMAREA")' in path.read_text(encoding="utf-8")
+    # Every title was DFHCOMMAREA, so nothing persistent was generated.
+    assert list(entity_dir.glob("*.java")) == []
+    # A DTO carries no persistence mapping.
+    for path in dto_dir.glob("*.java"):
+        text = path.read_text(encoding="utf-8")
+        assert "package com.gitgalaxy.modernized.dto;" in text
+        assert "@Entity" not in text
+        assert "@Table" not in text
 
 
 def test_agent_job_keys_survive_a_flattened_key(clean_room):

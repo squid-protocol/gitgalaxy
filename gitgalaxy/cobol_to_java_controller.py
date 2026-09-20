@@ -59,8 +59,11 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_service_forge import (
 
 # Current Imports
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
+    dto_class_name,
     entity_class_name,
+    generate_java_dto,
     generate_java_entity,
+    is_transient_record,
 )
 
 
@@ -75,6 +78,7 @@ def build_spring_boot_scaffold(output_dir: Path, package_name: str) -> dict:
         "base_pkg": base_dir,
         "resources": resources_dir,
         "entity": base_dir / "entity",
+        "dto": base_dir / "dto",
         "controller": base_dir / "controller",
         "service": base_dir / "service",
         "repository": base_dir / "repository",
@@ -170,7 +174,7 @@ def main():
 
     # 1. Build the Folder Structure & Scaffolding
     java_dirs = build_spring_boot_scaffold(java_out_dir, args.pkg)
-    stats = {"entities": 0, "controllers": 0, "agent_jobs": 0, "config_files": 0}
+    stats = {"entities": 0, "dtos": 0, "controllers": 0, "agent_jobs": 0, "config_files": 0}
 
     # Generate pom.xml
     pom_content = generate_pom_xml(group_id=args.pkg, artifact_id=artifact_id)
@@ -206,17 +210,26 @@ def main():
             try:
                 schema = json.loads(schema_file.read_text(encoding="utf-8"))
                 unit_key = output_key(schema_file, "_schema")
-                java_code = generate_java_entity(schema, args.pkg, unit_key=unit_key)
+                # #3233: a DFHCOMMAREA is a CICS communication area, not persistent
+                # state. Every CICS program declares one, so mapping each to an
+                # @Entity produced N classes on one @Table(name="DFHCOMMAREA") that
+                # Hibernate refuses to start. Such a record becomes a plain DTO.
+                if is_transient_record(schema):
+                    java_code = generate_java_dto(schema, args.pkg, unit_key=unit_key)
+                    class_name = dto_class_name(schema, unit_key)
+                    out_dir, stat_key, label = java_dirs["dto"], "dtos", "DTO   "
+                else:
+                    java_code = generate_java_entity(schema, args.pkg, unit_key=unit_key)
+                    # #3221: named from the schema's own clean-room key, so two
+                    # programs that both declare a DFHCOMMAREA get two classes.
+                    class_name = entity_class_name(schema, unit_key)
+                    out_dir, stat_key, label = java_dirs["entity"], "entities", "Entity"
+
                 if java_header:
                     java_code = java_header + java_code
-                # #3221: named from the schema's own clean-room key, so two
-                # programs that both declare a DFHCOMMAREA get two classes.
-                class_name = entity_class_name(schema, unit_key)
-
-                out_path = java_dirs["entity"] / f"{class_name}.java"
-                out_path.write_text(java_code, encoding="utf-8")
-                stats["entities"] += 1
-                print(f"  [+] Generated Entity: {class_name}.java")
+                (out_dir / f"{class_name}.java").write_text(java_code, encoding="utf-8")
+                stats[stat_key] += 1
+                print(f"  [+] Generated {label}: {class_name}.java")
             except Exception as e:  # noqa: PERF203 -- per-iteration isolation: skip a malformed file, keep generating the rest of the batch
                 print(f"  [!] Failed to generate entity from {schema_file.name}: {e}")
 
@@ -319,6 +332,7 @@ def main():
         f.write("----------------------------------------------------------\n")
         f.write(f"  • Build & Config Files Scaffolded : {stats['config_files']}\n")
         f.write(f"  • JPA Entities Generated          : {stats['entities']}\n")
+        f.write(f"  • Transient DTOs Generated        : {stats['dtos']}\n")
         f.write(f"  • REST Controllers Generated      : {stats['controllers']}\n")
         f.write(f"  • AI Agent Tickets Generated      : {stats['agent_jobs']}\n\n")
         f.write("==========================================================\n")
@@ -329,6 +343,7 @@ def main():
     print("----------------------------------------------------------------------")
     print(f"  • Build & Config Files Scaffolded : {stats['config_files']}")
     print(f"  • JPA Entities Generated          : {stats['entities']}")
+    print(f"  • Transient DTOs Generated        : {stats['dtos']}")
     print(f"  • REST Controllers Generated      : {stats['controllers']}")
     print(f"  • AI Agent Tickets Generated      : {stats['agent_jobs']}")
     print("======================================================================\n")

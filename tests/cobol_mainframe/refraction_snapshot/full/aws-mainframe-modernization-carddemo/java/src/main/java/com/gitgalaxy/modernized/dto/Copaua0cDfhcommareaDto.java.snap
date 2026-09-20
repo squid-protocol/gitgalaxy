@@ -1,0 +1,99 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class Copaua0cDfhcommareaDto {
+
+    private String wsPgmAuth;
+
+    private String wsCicsTranid;
+
+    private String wsAcctfilename;
+
+    private String wsCustfilename;
+
+    private String wsCcxrefFile;
+
+    private Integer wsReqstsProcessLimit;
+
+    private Integer wsMsgProcessed;
+
+    private String wsRequestQname;
+
+    private String wsReplyQname;
+
+    private String wsSaveCorrelid;
+
+    private Integer wsRespLength;
+
+    private Integer wsRespCd;
+
+    private Integer wsReasCd;
+
+    private Integer wsAbsTime;
+
+    private String wsCurDateX6;
+
+    private String wsCurTimeX6;
+
+    private Integer wsCurTimeN6;
+
+    private Integer wsCurTimeMs;
+
+    private BigDecimal wsYyddd;
+
+    private Integer wsTimeWithMs;
+
+    private Integer wsOptions;
+
+    private Integer wsCompcode;
+
+    private Integer wsReason;
+
+    private Integer wsWaitInterval;
+
+    private BigDecimal wsCodeDisplay;
+
+    private BigDecimal wsAvailableAmt;
+
+    private String wsTransactionAmtAn;
+
+    private BigDecimal wsTransactionAmt;
+
+    private BigDecimal wsApprovedAmt;
+
+    private BigDecimal wsApprovedAmtDis;
+
+    private String wsTriggerData;
+
+    private BigDecimal wsCardRidCustId;
+
+    private BigDecimal wsCardRidAcctId;
+
+    private String psbName;
+
+    private Integer pautPcbNum;
+
+    private String imsReturnCode;
+
+    private Integer w01HconnRequest;
+
+    private Integer w01HobjRequest;
+
+    private Integer w01Bufflen;
+
+    private Integer w01Datalen;
+
+    private String w01GetBuffer;
+
+    private Integer w02HconnReply;
+
+    private Integer w02Bufflen;
+
+    private String w02PutBuffer;
+
+}

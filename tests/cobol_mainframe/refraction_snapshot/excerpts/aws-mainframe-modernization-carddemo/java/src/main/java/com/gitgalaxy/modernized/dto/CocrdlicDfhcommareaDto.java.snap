@@ -1,0 +1,105 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class CocrdlicDfhcommareaDto {
+
+    private Integer wsRespCd;
+
+    private Integer wsReasCd;
+
+    private String wsTranid;
+
+    private String wsEditSelectFlags = "N/A";
+
+    private String wsEditSelect;
+
+    private String wsEditSelectErrorFlags = "N/A";
+
+    private String wsRowCrdselectError;
+
+    private Integer i;
+
+    private Integer iSelected;
+
+    private String flgProtectSelectRows;
+
+    private String wsLongMsg;
+
+    private String wsInfoMsg;
+
+    private String wsErrorMsg;
+
+    private String wsCardRidCardnum;
+
+    private BigDecimal wsCardRidAcctId;
+
+    private Integer wsScrnCounter;
+
+    private String errorOpname;
+
+    private String errorFile;
+
+    private String errorResp;
+
+    private String errorResp2;
+
+    private Integer wsMaxScreenLines;
+
+    private String litThispgm;
+
+    private String litThistranid;
+
+    private String litThismapset;
+
+    private String litThismap;
+
+    private String litMenupgm;
+
+    private String litMenumapset;
+
+    private String litCarddtlpgm;
+
+    private String litCarddtlmapset;
+
+    private String litCarddtlmap;
+
+    private String litCardupdpgm;
+
+    private String litCardupdmapset;
+
+    private String litCardupdmap;
+
+    private String litCardFile;
+
+    private String wsCaLastCardNum;
+
+    private BigDecimal wsCaLastCardAcctId;
+
+    private String wsCaFirstCardNum;
+
+    private BigDecimal wsCaFirstCardAcctId;
+
+    private BigDecimal wsCaScreenNum;
+
+    private BigDecimal wsCaLastPageDisplayed;
+
+    private String wsCaNextPageInd;
+
+    private String wsReturnFlag = "N/A";
+
+    private String wsAllRows;
+
+    private String wsRowAcctno;
+
+    private String wsRowCardNum;
+
+    private String wsRowCardStatus;
+
+    private String wsCommarea;
+
+}

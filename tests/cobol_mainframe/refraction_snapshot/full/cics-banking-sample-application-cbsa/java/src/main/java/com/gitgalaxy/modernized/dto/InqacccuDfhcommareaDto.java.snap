@@ -1,0 +1,73 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class InqacccuDfhcommareaDto {
+
+    private String hvAccountEyecatcher;
+
+    private String hvAccountCustNo;
+
+    private String hvAccountSortcode;
+
+    private String hvAccountAccNo;
+
+    private String hvAccountAccType;
+
+    private BigDecimal hvAccountIntRate;
+
+    private String hvAccountOpened;
+
+    private Integer hvAccountOverdraftLim;
+
+    private String hvAccountLastStmt;
+
+    private String hvAccountNextStmt;
+
+    private BigDecimal hvAccountAvailBal;
+
+    private BigDecimal hvAccountActualBal;
+
+    private Integer wsCicsResp;
+
+    private Integer wsCicsResp2;
+
+    private BigDecimal returnedSortCode;
+
+    private BigDecimal returnedNumber;
+
+    private BigDecimal db2DateRefYr;
+
+    private BigDecimal db2DateRefMnth;
+
+    private BigDecimal db2DateRefDay;
+
+    private Integer requiredSortCode;
+
+    private Integer sqlcodeDisplay;
+
+    private String myAbendCode;
+
+    private String wsStormDrain;
+
+    private String stormDrainCondition;
+
+    private Integer wsUTime;
+
+    private String wsOrigDate;
+
+    private BigDecimal wsTimeNow;
+
+    private BigDecimal wsTimeNowGrpHh;
+
+    private BigDecimal wsTimeNowGrpMm;
+
+    private BigDecimal wsTimeNowGrpSs;
+
+    private String wsAbendPgm;
+
+}

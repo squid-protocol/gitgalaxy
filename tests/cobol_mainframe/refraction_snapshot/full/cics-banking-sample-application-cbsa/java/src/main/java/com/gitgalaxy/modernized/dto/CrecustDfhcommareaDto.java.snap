@@ -1,0 +1,197 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class CrecustDfhcommareaDto {
+
+    private BigDecimal sysiderrRetry;
+
+    private String hvProctranEyecatcher;
+
+    private String hvProctranSortCode;
+
+    private String hvProctranAccNumber;
+
+    private String hvProctranDate;
+
+    private String hvProctranTime;
+
+    private String hvProctranRef;
+
+    private String hvProctranType;
+
+    private String hvProctranDesc;
+
+    private BigDecimal hvProctranAmount;
+
+    private Integer wsCicsResp;
+
+    private Integer wsCicsResp2;
+
+    private BigDecimal wsTimeNow;
+
+    private BigDecimal wsTimeNowGrpHh;
+
+    private BigDecimal wsTimeNowGrpMm;
+
+    private BigDecimal wsTimeNowGrpSs;
+
+    private String wsAbendPgm;
+
+    private Integer requiredSortCode;
+
+    private Integer sqlcodeDisplay;
+
+    private String ncsCustNoActName;
+
+    private String ncsCustNoTestSort;
+
+    private String ncsCustNoFill;
+
+    private Integer ncsCustNoInc;
+
+    private Integer ncsCustNoValue;
+
+    private Integer wsCustRecLen;
+
+    private String ncsUpdated;
+
+    private Integer wsUTime;
+
+    private String wsOrigDate;
+
+    private BigDecimal wsOrigDateDd;
+
+    private BigDecimal wsOrigDateMm;
+
+    private BigDecimal wsOrigDateYyyy;
+
+    private String storedSortcode;
+
+    private String storedCustno;
+
+    private String storedName;
+
+    private String storedDob;
+
+    private Integer wsEibtaskn12;
+
+    private Integer requiredCustNumber2;
+
+    private Integer wsCcCnt;
+
+    private String wsFinishedFetching;
+
+    private Integer wsRetrievedCnt;
+
+    private String wsChannelName;
+
+    private String wsCreditCheckError;
+
+    private Integer wsActualCsScr;
+
+    private Integer wsTotalCsScr;
+
+    private String wsAnyChildTkn;
+
+    private String wsAnyChildFetchTkn;
+
+    private String wsAnyChildFetchChan;
+
+    private String wsAnyChildFetchAbcode;
+
+    private Integer wsChildIssuedCnt;
+
+    private String wsChildChan;
+
+    private String wsChildTkn;
+
+    private String wsReceiveChildChan;
+
+    private Integer wsChildFetchCompst;
+
+    private Integer wsChildDataSortcode;
+
+    private Integer wsChildDataNumber;
+
+    private BigDecimal wsChildDataBirthDay;
+
+    private BigDecimal wsChildDataCreditScore;
+
+    private String wsContainerName;
+
+    private Integer wsChildContainerLen;
+
+    private String wsRunTransid;
+
+    private BigDecimal wsCicstsLevelNumVv;
+
+    private BigDecimal wsCicstsLevelNumRr;
+
+    private BigDecimal wsCicstsLevelNumMm;
+
+    private BigDecimal wsCurrentYyyy;
+
+    private BigDecimal wsCurrentMm;
+
+    private BigDecimal wsCurrentDd;
+
+    private BigDecimal wsCurrentHours;
+
+    private BigDecimal wsCurrentMins;
+
+    private BigDecimal wsCurrentSecs;
+
+    private BigDecimal wsCurrentMilli;
+
+    private Integer wsCurrentDate9;
+
+    private Integer wsTodayInt;
+
+    private Integer wsReviewDateAdd;
+
+    private Integer wsNewReviewDateInt;
+
+    private Integer wsNewReviewYyyymmdd;
+
+    private String wsPutContName;
+
+    private Integer wsPutContLen;
+
+    private Integer wsSeed;
+
+    private String wsDateOfBirthError;
+
+    private Integer wsDateOfBirthLillian;
+
+    private BigDecimal ceedaysYear;
+
+    private BigDecimal ceedaysMonth;
+
+    private BigDecimal ceedaysDay;
+
+    private Integer severity;
+
+    private Integer msgNo;
+
+    private Integer classCode;
+
+    private Integer causeCode;
+
+    private String caseSevCtl;
+
+    private String facilityId;
+
+    private Integer wsTodayLillian;
+
+    private BigDecimal wsTodayGYear;
+
+    private String vstringChar;
+
+    private BigDecimal wsCustomerAge;
+
+}

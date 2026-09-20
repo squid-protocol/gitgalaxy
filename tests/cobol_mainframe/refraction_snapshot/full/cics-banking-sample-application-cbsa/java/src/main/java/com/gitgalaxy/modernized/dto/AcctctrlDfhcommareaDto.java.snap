@@ -1,0 +1,37 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class AcctctrlDfhcommareaDto {
+
+    private Integer requiredSortCode;
+
+    private Integer sqlcodeDisplay;
+
+    private String wsAccountRangeTop;
+
+    private String wsAccountRangeMiddle;
+
+    private String wsAccountRangeBottom;
+
+    private Integer hvNumberOfAccounts;
+
+    private String hvAccountSortcode;
+
+    private Integer wsUTime;
+
+    private String wsOrigDate;
+
+    private BigDecimal wsTimeNow;
+
+    private BigDecimal wsTimeNowGrpHh;
+
+    private BigDecimal wsTimeNowGrpMm;
+
+    private BigDecimal wsTimeNowGrpSs;
+
+}

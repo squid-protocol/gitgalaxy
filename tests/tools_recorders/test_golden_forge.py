@@ -3,6 +3,7 @@ from gitgalaxy.tools.cobol_to_java.cobol_to_java_api_contract_forge import (
     generate_rest_controller,
 )
 from gitgalaxy.tools.cobol_to_java.cobol_to_java_spring_forge import (
+    generate_java_dto,
     generate_java_entity,
 )
 
@@ -26,6 +27,19 @@ MOCK_SCHEMA_STATE = {
         "EMP-ID": {"type": "integer", "description": "PIC 9(6)"},
         "EMP-NAME": {"type": "string", "description": "PIC X(50)"},
         "SALARY": {"type": "decimal", "description": "PIC 9(5)V99"},
+    },
+}
+
+# #3233: a DFHCOMMAREA is a transient CICS communication area, not a table, so it
+# becomes a plain DTO (no @Entity/@Table/@Id/@Column, no jakarta.persistence import).
+MOCK_DFHCOMMAREA_STATE = {
+    "title": "DFHCOMMAREA",
+    "properties": {
+        "WS-CUSTNO": {"type": "number", "description": "PIC 9(10)"},
+        "WS-ACCTYPE": {"type": "string", "description": "PIC X(8)"},
+        "WS-BALANCE": {"type": "decimal", "description": "PIC S9(10)V99"},
+        "WS-FILLER": {"type": "string", "description": "PIC X(8) REDEFINES WS-ACCTYPE"},
+        "WS-HISTORY": {"type": "number", "description": "PIC 9(6) OCCURS 12"},
     },
 }
 
@@ -87,6 +101,31 @@ public class EmployeeTable {
 
 }"""
 
+GOLDEN_DTO = """package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+import java.util.List;
+
+@Data
+@NoArgsConstructor
+public class Bnk1cacDfhcommareaDto {
+
+    private BigDecimal wsCustno;
+
+    private String wsAcctype;
+
+    private BigDecimal wsBalance;
+
+    // ⚠️ REDEFINES ALIAS: Maps to ws-acctype in memory
+    private String wsFiller;
+
+    // ⚠️ ARRAY: OCCURS 12 TIMES
+    private List<BigDecimal> wsHistory;
+
+}"""
+
 # ==============================================================================
 # THE TESTS
 # ==============================================================================
@@ -119,3 +158,23 @@ def test_spring_entity_golden_image():
     assert " ".join(generated_java.split()) == " ".join(GOLDEN_ENTITY.split()), (
         "Spring Entity generation drifted from the Golden Image! Check PIC clause parsing logic."
     )
+
+
+def test_spring_dto_golden_image():
+    """
+    #3233: a DFHCOMMAREA schema is a transient communication area, so the forge
+    emits a plain Lombok POJO DTO (no @Entity/@Table/@Id/@Column, no jakarta
+    import) in the .dto package. Verifies the DTO matches its Golden Image and,
+    explicitly, that no JPA persistence markers leaked in.
+    """
+    # 1. Generate the DTO using the mock DFHCOMMAREA schema
+    generated_java = generate_java_dto(MOCK_DFHCOMMAREA_STATE, "com.gitgalaxy.modernized", unit_key="BNK1CAC")
+
+    # 2. Compare against the Golden Image
+    assert " ".join(generated_java.split()) == " ".join(GOLDEN_DTO.split()), (
+        "Spring DTO generation drifted from the Golden Image! Check the transient-record (#3233) path."
+    )
+
+    # 3. A DTO must carry no persistence mapping.
+    for marker in ("@Entity", "@Table", "@Id", "@Column", "jakarta.persistence"):
+        assert marker not in generated_java, f"DTO unexpectedly contains JPA marker {marker!r}"

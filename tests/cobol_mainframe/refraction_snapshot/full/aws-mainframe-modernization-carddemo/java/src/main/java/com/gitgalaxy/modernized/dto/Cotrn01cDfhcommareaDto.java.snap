@@ -1,0 +1,37 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class Cotrn01cDfhcommareaDto {
+
+    private String wsPgmname;
+
+    private String wsTranid;
+
+    private String wsMessage;
+
+    private String wsTransactFile;
+
+    private String wsErrFlg;
+
+    private Integer wsRespCd;
+
+    private Integer wsReasCd;
+
+    private String cdemoCt01TrnidFirst;
+
+    private String cdemoCt01TrnidLast;
+
+    private BigDecimal cdemoCt01PageNum;
+
+    private String cdemoCt01NextPageFlg;
+
+    private String cdemoCt01TrnSelFlg;
+
+    private String cdemoCt01TrnSelected;
+
+}

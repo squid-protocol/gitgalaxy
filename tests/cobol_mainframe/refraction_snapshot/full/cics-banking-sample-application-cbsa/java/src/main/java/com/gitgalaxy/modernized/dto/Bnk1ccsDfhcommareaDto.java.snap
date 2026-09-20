@@ -1,0 +1,87 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class Bnk1ccsDfhcommareaDto {
+
+    private Integer wsUctrans;
+
+    private Integer storedUctrans;
+
+    private Integer wsCicsResp;
+
+    private Integer wsCicsResp2;
+
+    private String wsCicsFailMsg;
+
+    private Integer wsCicsRespDisp;
+
+    private Integer wsCicsResp2Disp;
+
+    private String validDataSw;
+
+    private String endOfSessionMessage;
+
+    private Integer wsCommTerm;
+
+    private String dobddiChar;
+
+    private BigDecimal dobddiNum;
+
+    private String dobmmiChar;
+
+    private BigDecimal dobmmiNum;
+
+    private BigDecimal dobyyiNum;
+
+    private String wsAbcode;
+
+    private String wsAddrSplit1;
+
+    private String wsAddrSplit2;
+
+    private String wsAddrSplit3;
+
+    private String subpgmEyecatcher;
+
+    private Integer subpgmSortcode;
+
+    private Integer subpgmNumber;
+
+    private String subpgmName;
+
+    private String subpgmAddress;
+
+    private BigDecimal subpgmBirthDay;
+
+    private BigDecimal subpgmBirthMonth;
+
+    private BigDecimal subpgmBirthYear;
+
+    private BigDecimal subpgmCreditScore;
+
+    private BigDecimal subpgmCsReviewDate;
+
+    private String subpgmSuccess;
+
+    private String subpgmFailCode;
+
+    private Integer wsUTime;
+
+    private String wsOrigDate;
+
+    private BigDecimal wsTimeNow;
+
+    private BigDecimal wsTimeNowGrpHh;
+
+    private BigDecimal wsTimeNowGrpMm;
+
+    private BigDecimal wsTimeNowGrpSs;
+
+    private String wsAbendPgm;
+
+}

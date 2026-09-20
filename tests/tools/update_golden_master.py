@@ -39,6 +39,10 @@ from gitgalaxy.security.security_auditor import ML_AVAILABLE
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 CRUCIBLE_DATA_PATH = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible")) / "data"
+# Match the check path (test_golden_crucible.py): a generous, override-able cap on
+# the full-corpus scan. It guards against a hung scan, not slowness -- the #3246
+# bless hit the old 180s on a loaded machine. Override via GITGALAXY_GOLDEN_SCAN_TIMEOUT.
+GOLDEN_SCAN_TIMEOUT = int(os.environ.get("GITGALAXY_GOLDEN_SCAN_TIMEOUT", "600"))
 
 
 def zero_dependency_mode() -> bool:
@@ -83,7 +87,7 @@ def main():
                 "--splicing-speed",
             ],
             check=True,
-            timeout=180,
+            timeout=GOLDEN_SCAN_TIMEOUT,
             env={
                 **os.environ,
                 "GITGALAXY_LICENSE_KEY": "COMMUNITY_FREE_TIER",

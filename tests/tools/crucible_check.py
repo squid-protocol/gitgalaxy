@@ -271,13 +271,16 @@ def ensure_venv(mode_key: str, repo_root: Path = REPO_ROOT) -> Path:
 
 
 def run_check(mode_key: str, py: Path) -> bool:
+    # The wrapped pytest runs the full-corpus scan (GITGALAXY_GOLDEN_SCAN_TIMEOUT,
+    # default 600s) plus test overhead, so this outer cap must sit above it.
+    check_timeout = int(os.environ.get("GITGALAXY_GOLDEN_SCAN_TIMEOUT", "600")) + 180
     result = subprocess.run(
         [str(py), "-m", "pytest", "-m", "golden_crucible", "tests/test_golden_crucible.py", "-q"],
         cwd=REPO_ROOT,
         env=_venv_env(py),
         capture_output=True,
         text=True,
-        timeout=300,
+        timeout=check_timeout,
     )
     passed = result.returncode == 0
     label = MODES[mode_key][0]

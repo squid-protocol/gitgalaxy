@@ -31,6 +31,11 @@ pytestmark = pytest.mark.golden_crucible
 
 REPO_ROOT = Path(__file__).parent.parent
 CRUCIBLE_DATA_PATH = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible")) / "data"
+# The full-corpus scan grows with the corpus and can exceed a tight cap on a
+# loaded machine or a slow runner (the #3246 bless hit the old 180s). This is a
+# hung-scan guard, not a perf gate (a hang is unbounded, so a generous cap still
+# catches it); override with GITGALAXY_GOLDEN_SCAN_TIMEOUT when a host needs more.
+GOLDEN_SCAN_TIMEOUT = int(os.environ.get("GITGALAXY_GOLDEN_SCAN_TIMEOUT", "600"))
 
 
 def _zero_dependency_mode() -> bool:
@@ -65,7 +70,7 @@ def test_golden_crucible_matches_baseline(tmp_path):
             "--splicing-speed",
         ],
         check=True,
-        timeout=180,
+        timeout=GOLDEN_SCAN_TIMEOUT,
         env={
             **os.environ,
             "GITGALAXY_LICENSE_KEY": "COMMUNITY_FREE_TIER",

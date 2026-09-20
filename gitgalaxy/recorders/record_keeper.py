@@ -123,7 +123,7 @@ def _insert_per_file_child(
     no parameterized syntax for identifiers, same as the CREATE TABLE f-strings
     elsewhere in this module.
     """
-    rows = []
+    rows: list[tuple] = []
     for file_data in parsed_files:
         file_id = path_to_file_id.get(file_data.get("path", ""))
         if file_id is None:

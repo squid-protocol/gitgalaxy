@@ -542,7 +542,9 @@ class LLMRecorder:
                         guard += 1
                     return it
 
-                counts: dict[int, int] = {}
+                # Keyed by ordinal, which is Any off a payload dict -- dict[Any, int]
+                # so the ordinal key type does not fight mypy.
+                counts: dict[Any, int] = {}
                 for it in items:
                     root = _root(it)
                     counts[root.get("ordinal")] = counts.get(root.get("ordinal"), 0) + 1

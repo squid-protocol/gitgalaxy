@@ -444,13 +444,6 @@ def test_surface_family_profile_empty_galaxy_renders_dash_rows(recorder):
 # ==============================================================================
 # #3200/#3201/#3246: the optional Named System Facts section
 # ==============================================================================
-_MF_SESSION = {
-    "engine": "GitGalaxy Scope vtest",
-    "target": "Repo",
-    "git_audit": {"commit_hash": "cafe", "remote_url": "https://example.invalid/r"},
-}
-
-
 def test_mainframe_facts_section_renders_only_when_facts_present(recorder):
     """The section is keyed purely on data presence: a COBOL file carrying call
     sites, dataset bindings and record layouts gets it, summarised (record ROOTS

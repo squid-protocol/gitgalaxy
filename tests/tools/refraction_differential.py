@@ -17,8 +17,9 @@ Omit --db to scan <repo> first (galaxyscope --db-only into a temp dir).
 #3211: every delta now carries a `cause` code, so "explained" is a run, not an
 afternoon of reading source. classify() attributes each delta by mechanism
 (scope_terminator, area_b_header, section_header, entry_point,
-program_inlined_as_copybook, ambiguous_copy_target, exec_sql_include,
-sequence_number_field, system_copybook, bms_symbolic_map) or as stated_absence
+usage_status_not_reachability, program_inlined_as_copybook,
+ambiguous_copy_target, exec_sql_include, sequence_number_field,
+system_copybook, bms_symbolic_map) or as stated_absence
 by construction; where the corpus has a validated answer key (#3210), an
 INDEPENDENT-field delta (program_id, copybook) is also adjudicated to a verdict
 from the key directly. The gate counts what neither explains -- `unexplained` --
@@ -73,6 +74,7 @@ CAUSES = (
     "section_header",
     "area_b_header",
     "entry_point",
+    "usage_status_not_reachability",
     "ambiguous_copy_target",
     "exec_sql_include",
     "sequence_number_field",
@@ -318,6 +320,13 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
                 return "scope_terminator"
             if v not in ctx["own_units"]:  # came from an inlined member, not this program
                 return "program_inlined_as_copybook"
+            if field == "dead":
+                # The forge's reachability calls this unit dead; the engine's
+                # usage_status is unreferenced-BY-NAME, a deliberately different
+                # signal (#3198, by design -- see unreferenced_by_name_contract.md).
+                # The two disagreeing IS the semantic difference, not a bug; whether
+                # the forge is right is the answer key's job, not the differential's.
+                return "usage_status_not_reachability"
             return UNEXPLAINED
         # db-only: the engine saw a name the forge did not
         if v not in ctx["own_units"]:

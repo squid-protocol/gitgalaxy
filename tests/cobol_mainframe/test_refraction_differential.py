@@ -134,13 +134,16 @@ def _row(**kw):
             "db_edges": sorted(kw.get("cb_db", [])),
         },
         "subsystems": {"old_cics": kw.get("cics", 0), "old_sql": kw.get("sql", 0), "db_signals": []},
-        "forge_only": {
-            "dd_files": sorted(kw.get("dd", [])),
-            "inputs": sorted(kw.get("inputs", [])),
-            "outputs": sorted(kw.get("outputs", [])),
-            "unresolved_calls": sorted(kw.get("calls", [])),
-            "orphaned_vars": kw.get("orphaned", 0),
+        "datasets": {
+            "dd_old": sorted(kw.get("dd_old", [])),
+            "dd_db": sorted(kw.get("dd_db", [])),
+            "inputs_old": sorted(kw.get("in_old", [])),
+            "inputs_db": sorted(kw.get("in_db", [])),
+            "outputs_old": sorted(kw.get("out_old", [])),
+            "outputs_db": sorted(kw.get("out_db", [])),
         },
+        "calls": {"dynamic_old": sorted(kw.get("dyn_old", [])), "dynamic_db": sorted(kw.get("dyn_db", []))},
+        "forge_only": {"orphaned_vars": kw.get("orphaned", 0)},
     }
 
 
@@ -191,12 +194,20 @@ def test_bms_symbolic_map(mini_repo):
     assert _cause(mini_repo, cb_named=["MAPSET"]) == "bms_symbolic_map"
 
 
-def test_forge_only_is_stated_absence(mini_repo):
-    assert _cause(mini_repo, dd=["CUSTFILE"]) == "stated_absence"
+def test_orphaned_vars_is_stated_absence(mini_repo):
+    # Data items / record layouts are the one datum the DB still does not carry (#3246).
+    assert _cause(mini_repo, orphaned=5) == "stated_absence"
 
 
 def test_subsystem_is_stated_absence(mini_repo):
     assert _cause(mini_repo, cics=5) == "stated_absence"
+
+
+def test_dataset_and_call_are_compared_not_absent(mini_repo):
+    # #3200/#3201: a forge DD/call the engine lacks is a real comparison delta,
+    # not stated_absence. Without a key to adjudicate it is unexplained.
+    assert _cause(mini_repo, dd_old=["CUSTFILE"]) == rd.UNEXPLAINED
+    assert _cause(mini_repo, dyn_old=["WS-PROG"]) == rd.UNEXPLAINED
 
 
 def test_usage_status_not_reachability(mini_repo):
@@ -217,6 +228,8 @@ def _key(**prog):
         "units": [{"name": "MAIN-PARA", "kind": "paragraph"}, {"name": "SUB-PARA", "kind": "paragraph"}],
         "dead": {"SUB-PARA": {"reason": "unreachable", "trivial": False}},
         "copybooks": [],
+        "files": [{"internal": "IN-FILE", "dd": "CUSTFILE", "modes": ["INPUT"]}],
+        "calls": [],
         "verification": {"status": "validated"},
     }
     entry.update(prog)
@@ -240,3 +253,12 @@ def test_key_verdict_clears_independent_field(mini_repo):
     summary = rd.summarize_causes(classified)
     assert summary["unexplained"] == 0
     assert summary["by_cause"].get("key:old-parser defect") == 1
+
+
+def test_key_adjudicates_dataset_delta(mini_repo):
+    """A DD the engine reports and the forge misses is adjudicated from the key
+    (an independent oracle for datasets): CUSTFILE is true, so the forge is at fault."""
+    classified = rd.classify(mini_repo, [_row(dd_db=["CUSTFILE"])], _key())
+    summary = rd.summarize_causes(classified)
+    assert summary["unexplained"] == 0
+    assert classified[0]["verdict"] == {"verdict": "old-parser defect", "confidence": "independent", "decided": True}

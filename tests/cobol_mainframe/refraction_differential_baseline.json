@@ -4,17 +4,18 @@
     "aws-mainframe-modernization-carddemo": {
       "by_cause": {
         "entry_point": 1,
-        "stated_absence": 14,
-        "system_copybook": 2
+        "stated_absence": 3,
+        "system_copybook": 2,
+        "unexplained": 3
       },
-      "note": "No answer key yet (#3210 pending for carddemo); this excerpt classifies by mechanism only and lands at 0 unexplained.",
-      "unexplained": 0
+      "note": "No answer key yet (#3210 pending for carddemo), so the dataset/call cells now compared (#3200/#3201) can't be adjudicated -> 3 unexplained on this excerpt. Mechanism causes otherwise cover it.",
+      "unexplained": 3
     },
     "cics-banking-sample-application-cbsa": {
       "by_cause": {
         "entry_point": 33,
         "key:old-parser defect": 1,
-        "stated_absence": 8,
+        "stated_absence": 6,
         "system_copybook": 1
       },
       "note": null,
@@ -23,7 +24,7 @@
     "zopeneditor-sample": {
       "by_cause": {
         "entry_point": 5,
-        "stated_absence": 32
+        "stated_absence": 5
       },
       "note": null,
       "unexplained": 0
@@ -35,20 +36,20 @@
         "entry_point": 40,
         "exec_sql_include": 1,
         "sequence_number_field": 15,
-        "stated_absence": 197,
+        "stated_absence": 72,
         "system_copybook": 42,
-        "unexplained": 157,
+        "unexplained": 171,
         "usage_status_not_reachability": 10
       },
-      "note": "No answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth. 142 of the 157 are real paragraphs the forge's reader drops because carddemo uses cols-73-80 right-margin sequence numbers (#3244); the rest are copybook disagreements. Pins the count for regression detection; expected to fall to ~15 once #3244 lands and to 0 with a carddemo key.",
-      "unexplained": 157
+      "note": "No answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth. 142 are real paragraphs the forge's reader drops on carddemo's cols-73-80 right-margin sequence numbers (#3244); the rest are dataset/call (#3200/#3201) and copybook cells a key would adjudicate. Pins the count for regression detection; expected to fall sharply once #3244 lands and to 0 with a carddemo key.",
+      "unexplained": 171
     },
     "cics-banking-sample-application-cbsa": {
       "by_cause": {
         "bms_symbolic_map": 9,
         "entry_point": 218,
         "exec_sql_include": 15,
-        "stated_absence": 75,
+        "stated_absence": 73,
         "system_copybook": 11,
         "usage_status_not_reachability": 33
       },
@@ -59,7 +60,7 @@
       "by_cause": {
         "entry_point": 4,
         "key:old-parser defect": 2,
-        "stated_absence": 32
+        "stated_absence": 5
       },
       "note": null,
       "unexplained": 0

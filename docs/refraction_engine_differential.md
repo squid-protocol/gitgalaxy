@@ -445,10 +445,16 @@ a cause is never a fourth parser's opinion:
 | `sequence_number_field` | a COPY behind a cols-1..6 sequence field | D3 |
 | `system_copybook` | a `DFH`/`CEE`/`SQLCA`/`SQLDA` member, unresolvable by construction | D3 |
 | `bms_symbolic_map` | a member generated from a `.bms` map at build time | D3 |
-| `stated_absence` | every `forge_only` datum and the CICS/SQL flags — the DB carries no equivalent (`galaxy_ir.py` SCOPE) | D4 |
+| `stated_absence` | data items / FD record layouts (still forge-only, #3246) and the CICS/SQL flags — the DB carries no clean equivalent (`galaxy_ir.py` SCOPE) | D4 |
+
+Since #3200/#3201 the DB carries the dynamic call graph and dataset lineage, so DD names, OPEN
+modes and identifier `CALL` operands are now **compared** (fields `dataset_dd` / `dataset_input`
+/ `dataset_output` / `dynamic_call`), not counted as stated absences. Only data-division items
+(`orphaned_vars`, #3246) and the un-clean subsystem flags remain `stated_absence`.
 
 **A verdict from the key.** Where the corpus has a *validated* answer key (#3210), a delta on an
-**independent** field — `program_id` or `copybook` — is adjudicated directly from truth
+**independent** field — `program_id`, `copybook`, or a dataset/call field, all read by the key's
+own pass rather than the forge's control-flow model — is adjudicated directly from truth
 (`db` side carries a true value → old-parser defect; a false one → engine defect; and the mirror
 for the `old` side). This clears the delta with no mechanism cause needed. For `units`/`dead` the
 key's `draft` shares the forge's control-flow model (#3219), so an agreement there is **not**
@@ -470,7 +476,7 @@ residual is baselined with a note:
 |---|---|---|
 | zopeneditor-sample | 0 | fully classified / key-adjudicated |
 | cics-banking-sample-application-cbsa | 0 | 33 `usage_status_not_reachability` cells (forge-dead vs the engine's by-name `usage_status`) are an explained, by-design semantic difference (#3198 closed; `docs/unreferenced_by_name_contract.md`), not a pending fix |
-| aws-mainframe-modernization-carddemo | 157 | no answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth. 142 are real paragraphs the forge's reader drops on cols-73-80 right-margin sequence numbers (**#3244**); expected to fall to ~15 once #3244 lands and to 0 with a carddemo key |
+| aws-mainframe-modernization-carddemo | 171 | no answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth. 142 are real paragraphs the forge's reader drops on cols-73-80 right-margin sequence numbers (**#3244**); the rest are dataset/call (#3200/#3201) and copybook cells a key would adjudicate. Falls sharply once #3244 lands, and to 0 with a carddemo key |
 
 So the #3120 gate is now a command: `--corpus` returns 0 unexplained on both keyed corpora, and
 names precisely what the one remaining corpus is waiting on (a fix, #3244, and a key).

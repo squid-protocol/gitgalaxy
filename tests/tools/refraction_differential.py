@@ -83,10 +83,11 @@ CAUSES = (
     "stated_absence",
 )
 UNEXPLAINED = "unexplained"
-# Fields where the answer key is an INDEPENDENT oracle. For units/dead the key's
-# `draft` shares the forge's control-flow model (#3219), so an agreement there is
-# not evidence about the forge and never clears `unexplained` on its own.
-INDEPENDENT_FIELDS = {"program_id", "copybook"}
+# Fields where the answer key is an INDEPENDENT oracle -- its drafter reads them
+# with its own fixed-format pass, not the forge's control-flow model. For
+# units/dead the key's `draft` DOES share that model (#3219), so an agreement
+# there is not evidence about the forge and never clears `unexplained` on its own.
+INDEPENDENT_FIELDS = {"program_id", "copybook", "dataset_dd", "dataset_input", "dataset_output", "dynamic_call"}
 
 
 def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
@@ -101,6 +102,19 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
         paras_new = {u.name.upper() for u in ef.units}
         copy_named, copy_old = old_copybooks(path, repo)
         copy_new = {Path(p).stem.upper() for p in ef.copy_deps}
+        # #3200/#3201: the DB now carries the call graph and dataset lineage, so
+        # these are COMPARED, not stated absences. A COBOL dataset row is a
+        # SELECT/ASSIGN (is_binding is False; the JCL DD bindings are the engine's
+        # other half). Input/output split mirrors cobol_answer_key.score().
+        eng_ds = [d for d in ef.datasets if not d.is_binding]
+        eng_dd = {d.dd_name for d in eng_ds}
+        eng_in = {d.dd_name for d in eng_ds if set(d.modes) & {"INPUT", "I-O", "EXTEND"}}
+        eng_out = {d.dd_name for d in eng_ds if set(d.modes) & {"OUTPUT", "I-O", "EXTEND"}}
+        # Scope to COBOL CALL, identifier form -- what the forge's DAG architect
+        # reports as unresolved_calls and what the key counts. The engine's call
+        # graph also carries CICS LINK/XCTL and literal targets, but the forge has
+        # no comparable set for those, so diffing them would be apples-to-oranges.
+        eng_dyn = {c.operand for c in ef.calls if c.verb == "CALL" and c.form == "identifier" and c.operand}
         rows.append(
             {
                 "file": ef.file_path,
@@ -125,12 +139,23 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                     "old_sql": intent["sql_calls"],
                     "db_signals": ef.signals,
                 },
-                # Stated absences: the DB carries no equivalent (see galaxy_ir.py SCOPE).
+                # Dataset lineage (#3201) and the dynamic call graph (#3200): both
+                # sides carry these now, so they are compared like the others.
+                "datasets": {
+                    "dd_old": sorted(f["dd_name"] for f in intent["files_requested"]),
+                    "dd_db": sorted(eng_dd),
+                    "inputs_old": sorted(lineage.get("inputs", set())),
+                    "inputs_db": sorted(eng_in),
+                    "outputs_old": sorted(lineage.get("outputs", set())),
+                    "outputs_db": sorted(eng_out),
+                },
+                "calls": {
+                    "dynamic_old": sorted(lineage.get("unresolved_calls", [])),
+                    "dynamic_db": sorted(eng_dyn),
+                },
+                # Still a stated absence -- data items / FD record layouts are the
+                # one structural datum the DB does not carry (galaxy_ir.py SCOPE, #3246).
                 "forge_only": {
-                    "dd_files": sorted(f["dd_name"] for f in intent["files_requested"]),
-                    "inputs": sorted(lineage.get("inputs", set())),
-                    "outputs": sorted(lineage.get("outputs", set())),
-                    "unresolved_calls": sorted(lineage.get("unresolved_calls", [])),
                     "orphaned_vars": len(graveyard.get("orphaned_vars", set())),
                 },
             }
@@ -159,8 +184,11 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
         "copy_db_edges": sum(len(r["copybooks"]["db_edges"]) for r in rows),
         "cics_programs_old": count(lambda r: r["subsystems"]["old_cics"] > 0),
         "sql_programs_old": count(lambda r: r["subsystems"]["old_sql"] > 0),
-        "programs_with_outputs_old": count(lambda r: r["forge_only"]["outputs"]),
-        "programs_with_dd_old": count(lambda r: r["forge_only"]["dd_files"]),
+        "dd_agree": sum(len(set(r["datasets"]["dd_old"]) & set(r["datasets"]["dd_db"])) for r in rows),
+        "dd_old_only": sum(len(set(r["datasets"]["dd_old"]) - set(r["datasets"]["dd_db"])) for r in rows),
+        "dd_db_only": sum(len(set(r["datasets"]["dd_db"]) - set(r["datasets"]["dd_old"])) for r in rows),
+        "dynamic_calls_old": sum(len(r["calls"]["dynamic_old"]) for r in rows),
+        "dynamic_calls_db": sum(len(r["calls"]["dynamic_db"]) for r in rows),
     }
 
 
@@ -226,6 +254,17 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
             {"program": prog, "field": "copybook", "side": "old", "value": v, "unresolved": True}
             for v in sorted(named - old_res - db_edges)
         ]
+        # Dataset lineage (#3201) and dynamic calls (#3200): compared, both sides.
+        ds = r["datasets"]
+        for kind, fld in (("dd", "dataset_dd"), ("inputs", "dataset_input"), ("outputs", "dataset_output")):
+            old = {x.upper() for x in ds[f"{kind}_old"]}
+            db = {x.upper() for x in ds[f"{kind}_db"]}
+            deltas += [{"program": prog, "field": fld, "side": "old", "value": v} for v in sorted(old - db)]
+            deltas += [{"program": prog, "field": fld, "side": "db", "value": v} for v in sorted(db - old)]
+        c_old = {x.upper() for x in r["calls"]["dynamic_old"]}
+        c_db = {x.upper() for x in r["calls"]["dynamic_db"]}
+        deltas += [{"program": prog, "field": "dynamic_call", "side": "old", "value": v} for v in sorted(c_old - c_db)]
+        deltas += [{"program": prog, "field": "dynamic_call", "side": "db", "value": v} for v in sorted(c_db - c_old)]
         # D4: presence agrees, but the DB's hit columns cannot give a clean flag.
         ss = r["subsystems"]
         deltas += [
@@ -233,10 +272,8 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
             for v, on in (("cics", ss["old_cics"] > 0), ("sql", ss["old_sql"] > 0))
             if on
         ]
-        # Stated absences: the DB carries no equivalent (galaxy_ir.py SCOPE).
+        # Still a stated absence: data items / FD record layouts (galaxy_ir.py SCOPE, #3246).
         fo = r["forge_only"]
-        for kind in ("dd_files", "inputs", "outputs", "unresolved_calls"):
-            deltas += [{"program": prog, "field": f"forge_only:{kind}", "side": "old", "value": v} for v in fo[kind]]
         if fo["orphaned_vars"]:
             deltas.append(
                 {"program": prog, "field": "forge_only:orphaned_vars", "side": "old", "value": str(fo["orphaned_vars"])}
@@ -355,6 +392,11 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
         truth = set(prog["dead"])
     elif field == "copybook":
         truth = {Path(c["resolves_to"]).stem.upper() for c in prog["copybooks"] if c.get("resolves_to")}
+    elif field in ("dataset_dd", "dataset_input", "dataset_output"):
+        want = {"dataset_input": {"INPUT", "I-O", "EXTEND"}, "dataset_output": {"OUTPUT", "I-O", "EXTEND"}}.get(field)
+        truth = {f["dd"] for f in prog["files"] if want is None or set(f["modes"]) & want}
+    elif field == "dynamic_call":
+        truth = {c["operand"] for c in prog["calls"] if c["verb"] == "CALL" and c["form"] == "identifier"}
     else:
         return None
     present = v in truth

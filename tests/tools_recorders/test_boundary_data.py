@@ -323,8 +323,6 @@ def test_a_rehydrated_call_site_carries_no_stale_resolution(recorded):
 
 def test_a_baseline_written_before_3200_still_rehydrates(recorded):
     """A DB with no boundary tables is a normal baseline, not a failure."""
-    import sqlite3
-
     from gitgalaxy.core.state_rehydrator import StateRehydrator
 
     conn = sqlite3.connect(recorded)

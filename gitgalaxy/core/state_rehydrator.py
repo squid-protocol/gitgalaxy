@@ -34,6 +34,13 @@ def _json_list(value: Any) -> list:
         return []
 
 
+def _json_import_set(value: Any) -> set:
+    """Decode a persisted raw_imports column back to a set. Entries can be import
+    strings or (module, alias) tuples that JSON stored as lists; restore the tuples
+    (a set needs hashable members, and the resolver distinguishes the two)."""
+    return {tuple(x) if isinstance(x, list) else x for x in _json_list(value)}
+
+
 # galaxyscope:ignore sec_high_risk_execution
 class StateRehydrator:
     """
@@ -198,9 +205,7 @@ class StateRehydrator:
                     # #3220: restore the file's raw import strings so the delta graph
                     # resolver rebuilds every edge FROM this file (popularity/pagerank/
                     # api_exposure of imported files depend on it). Persisted as JSON.
-                    "raw_imports": (
-                        set(json.loads(f["raw_imports"])) if "raw_imports" in row_keys and f["raw_imports"] else set()
-                    ),
+                    "raw_imports": _json_import_set(f["raw_imports"]) if "raw_imports" in row_keys else set(),
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
                     "equations": equations,

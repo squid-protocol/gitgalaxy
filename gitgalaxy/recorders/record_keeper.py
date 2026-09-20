@@ -1325,9 +1325,14 @@ class RecordKeeper:
             # #3220: persist the documentation shield so a delta rehydrate reproduces
             # risk_documentation exactly.
             row_data.append(float((file_data.get("metadata") or {}).get("doc_umbrella", 0.0) or 0.0))
-            # #3220: persist the raw import strings so a delta rehydrate rebuilds the
-            # dependency graph (popularity/pagerank/api_exposure) exactly.
-            row_data.append(json.dumps(sorted(file_data.get("raw_imports", []) or [])))
+            # #3220: persist raw_imports so a delta rehydrate rebuilds the dependency
+            # graph (popularity/pagerank/api_exposure) exactly. Entries are usually import
+            # strings but can be (module, alias) TUPLES, so don't sort (mixed str/tuple is
+            # unorderable) and encode tuples as lists; the rehydrator restores them. Order
+            # is irrelevant -- it round-trips into a set.
+            row_data.append(
+                json.dumps([list(x) if isinstance(x, tuple) else x for x in (file_data.get("raw_imports") or [])])
+            )
 
             # #3183 (B1): accumulate the row and precompute its AUTOINCREMENT id
             # (assigned in list order by the executemany after the loop) instead

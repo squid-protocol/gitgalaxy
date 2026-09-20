@@ -662,6 +662,7 @@ class RecordKeeper:
                 is_documented INTEGER DEFAULT 0,
                 {", ".join(hit_cols)},
                 impact REAL DEFAULT 0.0,
+                is_synthetic_slice INTEGER DEFAULT 0,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
@@ -674,6 +675,14 @@ class RecordKeeper:
         # never persisted, so rehydrated functions defaulted it to 0.0 and
         # risk_verification drifted. Persist it so a delta rehydrate reproduces it.
         _ensure_columns(cursor, "function_data", ["impact REAL DEFAULT 0.0"])
+
+        # #3220: the slicer's synthetic top-level buckets (__global_context__ /
+        # Anonymous_Block) are excluded from function_count/aggregations, but
+        # _calc_verification DOES sum their impact. They were never persisted, so a
+        # delta rehydrate saw zero functions for files whose only "functions" are
+        # synthetic (shell/config scripts) and risk_verification drifted. Persist them
+        # too, flagged, so the rehydrator restores them while counts still exclude them.
+        _ensure_columns(cursor, "function_data", ["is_synthetic_slice INTEGER DEFAULT 0"])
 
         # DEFENSIVE GUARD: Indexes to Prevent Cascade Delete Hangs
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_class_file_id ON class_data(file_id);")
@@ -1357,8 +1366,12 @@ class RecordKeeper:
                 )
                 class_id_map[cls.get("name")] = class_id
 
-            # 2. Extract and Accumulate Functions into Master Array
-            for func in functions:
+            # 2. Extract and Accumulate Functions into Master Array.
+            # #3220: persist ALL functions incl. synthetic slices (the filtered
+            # `functions` above drives counts/aggregations; the DB keeps the full set,
+            # flagged, so a delta rehydrate can restore the synthetics _calc_verification
+            # reads). function_count/aggregations are unaffected (they use `functions`).
+            for func in file_data.get("functions", []):
                 raw_hv = func.get("hit_vector", {})
                 func_hits = [int(raw_hv.get(h, 0)) for h in self.SIGNAL_SCHEMA]
 
@@ -1385,8 +1398,11 @@ class RecordKeeper:
                         int(bool(func.get("is_documented", False))),
                     ]
                     + func_hits
-                    # #3220: trailing impact column (matches the INSERT list below).
-                    + [round(float(func.get("impact", 0.0) or 0.0), 1)]
+                    # #3220: trailing impact + synthetic-slice flag (match INSERT below).
+                    + [
+                        round(float(func.get("impact", 0.0) or 0.0), 1),
+                        int(bool(func.get("is_synthetic_slice", False))),
+                    ]
                 )
 
         # #3183 (B1): flush file_data then class_data in FK-safe order (parents
@@ -1447,7 +1463,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact, is_synthetic_slice)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

@@ -1,0 +1,41 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class Copaus2cDfhcommareaDto {
+
+    private BigDecimal wsAuthTime;
+
+    private String wsAuthYy;
+
+    private String wsAuthMm;
+
+    private String wsAuthDd;
+
+    private String wsAuthHh;
+
+    private String wsAuthMi;
+
+    private String wsAuthSs;
+
+    private String wsAuthSss;
+
+    private Integer wsAbsTime;
+
+    private String wsCurDate;
+
+    private BigDecimal wsAcctId;
+
+    private BigDecimal wsCustId;
+
+    private String wsFrdAction;
+
+    private String wsFrdUpdateStatus;
+
+    private String wsFrdActMsg;
+
+}

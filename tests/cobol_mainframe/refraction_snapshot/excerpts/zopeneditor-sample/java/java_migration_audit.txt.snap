@@ -11,6 +11,7 @@
 ----------------------------------------------------------
   • Build & Config Files Scaffolded : 4
   • JPA Entities Generated          : 5
+  • Transient DTOs Generated        : 0
   • REST Controllers Generated      : 3
   • AI Agent Tickets Generated      : 0
 

@@ -1,0 +1,135 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class Bnk1uacDfhcommareaDto {
+
+    private Integer wsCicsResp;
+
+    private Integer wsCicsResp2;
+
+    private String wsCicsFailMsg;
+
+    private Integer wsCicsRespDisp;
+
+    private Integer wsCicsResp2Disp;
+
+    private String validDataSw;
+
+    private String endOfSessionMessage;
+
+    private BigDecimal wsCommAvBalUnsign;
+
+    private BigDecimal wsLstmtddi;
+
+    private BigDecimal wsLstmtmmi;
+
+    private BigDecimal wsLstmtyyi;
+
+    private BigDecimal wsNstmtddi;
+
+    private BigDecimal wsNstmtmmi;
+
+    private BigDecimal wsNstmtyyi;
+
+    private BigDecimal wsDateSplitDd;
+
+    private BigDecimal wsDateSplitMm;
+
+    private BigDecimal wsDateSplitYy;
+
+    private String wsConvertPicx;
+
+    private String wsConvertSign;
+
+    private BigDecimal wsConvertDec;
+
+    private String wsConvertPoint;
+
+    private BigDecimal wsConvertRemain;
+
+    private BigDecimal wsConvertedVal1;
+
+    private BigDecimal wsConvertedVal2;
+
+    private BigDecimal wsConvertedVal3;
+
+    private BigDecimal wsConvertedVal4;
+
+    private BigDecimal intRt9;
+
+    private String wsCommEye;
+
+    private String wsCommCustno;
+
+    private String wsCommScode;
+
+    private BigDecimal wsCommAccno;
+
+    private String wsCommAccType;
+
+    private BigDecimal wsCommIntRate;
+
+    private BigDecimal wsCommOpened;
+
+    private BigDecimal wsCommOverdraft;
+
+    private BigDecimal wsCommLastStmtDt;
+
+    private BigDecimal wsCommNextStmtDt;
+
+    private BigDecimal wsCommAvailBal;
+
+    private BigDecimal wsCommActualBal;
+
+    private BigDecimal intrtPic9;
+
+    private Integer wsNumCountPoint;
+
+    private Integer wsNumCountTotal;
+
+    private Integer wsUTime;
+
+    private String wsOrigDate;
+
+    private BigDecimal wsTimeNow;
+
+    private BigDecimal wsTimeNowGrpHh;
+
+    private BigDecimal wsTimeNowGrpMm;
+
+    private BigDecimal wsTimeNowGrpSs;
+
+    private String wsAbendPgm;
+
+    private String commEye;
+
+    private String commCustno;
+
+    private String commScode;
+
+    private BigDecimal commAccno;
+
+    private String commAccType;
+
+    private BigDecimal commIntRate;
+
+    private BigDecimal commOpened;
+
+    private BigDecimal commOverdraft;
+
+    private BigDecimal commLastStmtDt;
+
+    private BigDecimal commNextStmtDt;
+
+    private BigDecimal commAvailBal;
+
+    private BigDecimal commActualBal;
+
+    private String commSuccess;
+
+}

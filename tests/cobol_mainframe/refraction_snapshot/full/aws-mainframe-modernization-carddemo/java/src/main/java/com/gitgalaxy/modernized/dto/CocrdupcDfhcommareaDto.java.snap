@@ -1,0 +1,125 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class CocrdupcDfhcommareaDto {
+
+    private Integer wsRespCd;
+
+    private Integer wsReasCd;
+
+    private String wsTranid;
+
+    private String wsUctrans;
+
+    private String cardNameCheck;
+
+    private String flgYesNoCheck;
+
+    private String cardMonthCheck;
+
+    private String cardYearCheck;
+
+    private String cardCvvCdX;
+
+    private String cardExpiryYear;
+
+    private String cardExpiryMonth;
+
+    private String cardExpiryDay;
+
+    private String wsCardRidCardnum;
+
+    private BigDecimal wsCardRidAcctId;
+
+    private String errorOpname;
+
+    private String errorFile;
+
+    private String errorResp;
+
+    private String errorResp2;
+
+    private String wsInfoMsg;
+
+    private String wsReturnMsg;
+
+    private String litThispgm;
+
+    private String litThistranid;
+
+    private String litThismapset;
+
+    private String litThismap;
+
+    private String litCclistpgm;
+
+    private String litCclistmapset;
+
+    private String litMenupgm;
+
+    private String litMenutranid;
+
+    private String litCardfilename;
+
+    private String litAllAlphaFrom;
+
+    private String litAllSpacesTo;
+
+    private String litUpper;
+
+    private String litLower;
+
+    private String ccupChangeAction;
+
+    private String ccupOldAcctid;
+
+    private String ccupOldCardid;
+
+    private String ccupOldCvvCd;
+
+    private String ccupOldCrdname;
+
+    private String ccupOldExpyear;
+
+    private String ccupOldExpmon;
+
+    private String ccupOldExpday;
+
+    private String ccupOldCrdstcd;
+
+    private String ccupNewAcctid;
+
+    private String ccupNewCardid;
+
+    private String ccupNewCvvCd;
+
+    private String ccupNewCrdname;
+
+    private String ccupNewExpyear;
+
+    private String ccupNewExpmon;
+
+    private String ccupNewExpday;
+
+    private String ccupNewCrdstcd;
+
+    private String cardUpdateNum;
+
+    private BigDecimal cardUpdateAcctId;
+
+    private BigDecimal cardUpdateCvvCd;
+
+    private String cardUpdateEmbossedName;
+
+    private String cardUpdateExpiraionDate;
+
+    private String cardUpdateActiveStatus;
+
+    private String wsCommarea;
+
+}

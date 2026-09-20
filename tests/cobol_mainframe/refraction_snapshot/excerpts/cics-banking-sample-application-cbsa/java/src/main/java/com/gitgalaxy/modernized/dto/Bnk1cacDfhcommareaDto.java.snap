@@ -1,0 +1,99 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class Bnk1cacDfhcommareaDto {
+
+    private Integer wsCicsResp;
+
+    private Integer wsCicsResp2;
+
+    private String wsCicsFailMsg;
+
+    private Integer wsCicsRespDisp;
+
+    private Integer wsCicsResp2Disp;
+
+    private String validDataSw;
+
+    private String endOfSessionMessage;
+
+    private BigDecimal wsCommCustno;
+
+    private String wsCommAcctype;
+
+    private BigDecimal wsCommIntrt;
+
+    private BigDecimal wsCommOverdr;
+
+    private BigDecimal nstmtddNum;
+
+    private BigDecimal nstmtmmiNum;
+
+    private BigDecimal nstmtyyiNum;
+
+    private BigDecimal nstNum;
+
+    private BigDecimal intrtPic9;
+
+    private Integer wsNumCountPoint;
+
+    private Integer wsNumCountTotal;
+
+    private String wsReverse;
+
+    private String subpgmEyecatcher;
+
+    private BigDecimal subpgmCustno;
+
+    private Integer subpgmSortcode;
+
+    private Integer subpgmNumber;
+
+    private String subpgmAccType;
+
+    private BigDecimal subpgmIntRt;
+
+    private BigDecimal subpgmOpened;
+
+    private BigDecimal subpgmOverdrLim;
+
+    private BigDecimal subpgmLastStmtDt;
+
+    private BigDecimal subpgmNextStmtDt;
+
+    private BigDecimal subpgmAvailBal;
+
+    private BigDecimal subpgmActBal;
+
+    private String subpgmSuccess;
+
+    private String subpgmFailCode;
+
+    private Integer wsUTime;
+
+    private String wsOrigDate;
+
+    private BigDecimal wsTimeNow;
+
+    private BigDecimal wsTimeNowGrpHh;
+
+    private BigDecimal wsTimeNowGrpMm;
+
+    private BigDecimal wsTimeNowGrpSs;
+
+    private String wsAbendPgm;
+
+    private BigDecimal commCustno;
+
+    private String commAcctype;
+
+    private BigDecimal commIntrt;
+
+    private BigDecimal commOverdr;
+
+}

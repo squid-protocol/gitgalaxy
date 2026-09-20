@@ -1,0 +1,81 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class Copaus0cDfhcommareaDto {
+
+    private String wsPgmAuthSmry;
+
+    private String wsPgmAuthDtl;
+
+    private String wsPgmMenu;
+
+    private String wsCicsTranid;
+
+    private String wsMessage;
+
+    private String wsAcctfilename;
+
+    private String wsCustfilename;
+
+    private String wsCardxrefnameAcctPath;
+
+    private String wsAcctId;
+
+    private String wsAuthKeySave;
+
+    private String wsAuthAprvStat;
+
+    private Integer wsRespCd;
+
+    private Integer wsReasCd;
+
+    private BigDecimal wsRespCdDis;
+
+    private BigDecimal wsReasCdDis;
+
+    private Integer wsIdx;
+
+    private BigDecimal wsAuthAmt;
+
+    private BigDecimal wsDisplayAmt12;
+
+    private BigDecimal wsDisplayAmt9;
+
+    private BigDecimal wsDisplayCount;
+
+    private String wsAuthDate;
+
+    private String wsAuthTime;
+
+    private BigDecimal wsCardRidCustId;
+
+    private BigDecimal wsCardRidAcctId;
+
+    private String psbName;
+
+    private Integer pautPcbNum;
+
+    private String imsReturnCode;
+
+    private String wsErrFlg;
+
+    private String cdemoCpvsPauSelFlg;
+
+    private String cdemoCpvsPauSelected;
+
+    private String cdemoCpvsPaukeyPrevPg;
+
+    private String cdemoCpvsPaukeyLast;
+
+    private Integer cdemoCpvsPageNum;
+
+    private String cdemoCpvsNextPageFlg;
+
+    private String cdemoCpvsAuthKeys;
+
+}

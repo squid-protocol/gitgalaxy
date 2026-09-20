@@ -10,7 +10,8 @@
 [1] GENERATED CLOUD SCAFFOLDING
 ----------------------------------------------------------
   • Build & Config Files Scaffolded : 4
-  • JPA Entities Generated          : 29
+  • JPA Entities Generated          : 9
+  • Transient DTOs Generated        : 20
   • REST Controllers Generated      : 1
   • AI Agent Tickets Generated      : 0
 

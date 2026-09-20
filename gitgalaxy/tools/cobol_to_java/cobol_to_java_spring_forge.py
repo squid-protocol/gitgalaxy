@@ -99,6 +99,143 @@ def parse_pic_clause(description: str) -> dict:
     return constraints
 
 
+# COBOL variable names that are protected keywords in Java (or would start with a
+# digit); the field renderer sanitizes against these so the output always compiles.
+_RESERVED_VARS = {
+    "class",
+    "static",
+    "public",
+    "private",
+    "protected",
+    "return",
+    "new",
+    "system",
+    "default",
+    "enum",
+    "interface",
+    "void",
+    "try",
+    "catch",
+    "finally",
+    "import",
+    "package",
+    "super",
+    "this",
+    "const",
+    "goto",
+    "byte",
+    "int",
+    "char",
+    "short",
+    "long",
+    "float",
+    "double",
+    "boolean",
+    "null",
+    "true",
+    "false",
+}
+
+
+def _java_field_name(col_name: str) -> str:
+    """The sanitized camelCase Java field name for a COBOL column.
+
+    COBOL names use hyphens, Java keywords and leading digits freely; we normalise
+    so the generated field is always a legal, non-colliding Java identifier.
+    """
+    # Replace hyphens with underscores before splitting to catch all legacy variations
+    clean_col = col_name.lower().replace("-", "_")
+    parts = clean_col.split("_")
+    camel_name = parts[0] + "".join(word.title() for word in parts[1:])
+
+    # Java variables cannot start with a number. Prefix with 'v'.
+    if camel_name and camel_name[0].isdigit():
+        camel_name = "v" + camel_name
+
+    if camel_name in _RESERVED_VARS:
+        camel_name += "Val"
+    return camel_name
+
+
+def _render_field(col_name: str, col_data: dict, table_name: str, *, jpa: bool) -> list[str]:
+    """Render one COBOL column as Java field lines.
+
+    Shared by the JPA entity and the plain DTO paths. With ``jpa=True`` the field
+    carries persistence annotations (``@Column`` / ``@Transient`` /
+    ``@ElementCollection``); with ``jpa=False`` it is a bare POJO field, because a
+    DFHCOMMAREA is a transient communication area, not persistent state (#3233).
+    The structural comments (REDEFINES alias, OCCURS array) are kept either way.
+    """
+    description = col_data.get("description", "")
+    base_java_type = map_type_to_java(col_data.get("type", ""), description)
+    constraints = parse_pic_clause(description)
+    camel_name = _java_field_name(col_name)
+
+    lines: list[str] = []
+
+    # ======================================================================
+    # SCENARIO 1: MEMORY OVERLAY (REDEFINES)
+    # In COBOL, REDEFINES creates an alias pointing to the same physical byte
+    # address. As a persistent entity we map the alias @Transient so it is not
+    # a duplicate SQL column; as a DTO the alias is just a plain field.
+    # ======================================================================
+    if "redefines" in constraints:
+        target_camel = constraints["redefines"].lower().split("_")
+        target_camel = target_camel[0] + "".join(w.title() for w in target_camel[1:])
+
+        lines.append(f"    // ⚠️ REDEFINES ALIAS: Maps to {target_camel} in memory")
+        if jpa:
+            lines.append("    @Transient")
+        lines.append(f"    private {base_java_type} {camel_name};\n")
+        return lines
+
+    # --- SCENARIO 2: ARRAY (OCCURS) ---
+    if "occurs" in constraints:
+        lines.append(f"    // ⚠️ ARRAY: OCCURS {constraints['occurs']} TIMES")
+        if jpa:
+            lines.append("    @ElementCollection")
+            lines.append(
+                f'    @CollectionTable(name = "{table_name}_{col_name.lower()}", joinColumns = @JoinColumn(name = "{table_name.lower()}_id"))'
+            )
+            lines.append(f'    @Column(name = "{col_name.lower()}_item")')
+        lines.append(f"    private List<{base_java_type}> {camel_name};\n")
+        return lines
+
+    # --- SCENARIO 3: STANDARD COLUMN ---
+    if jpa:
+        col_attrs = [f'name = "{col_name}"']
+        if base_java_type == "String" and "length" in constraints:
+            col_attrs.append(f"length = {constraints['length']}")
+        elif base_java_type == "BigDecimal":
+            if "precision" in constraints:
+                col_attrs.append(f"precision = {constraints['precision']}")
+            if "scale" in constraints:
+                col_attrs.append(f"scale = {constraints['scale']}")
+        lines.append(f"    @Column({', '.join(col_attrs)})")
+
+    # 🛡️ STRICT STATE INITIALIZATION
+    # For network metrics, initialize to "N/A" instead of leaving null or defaulting to 0.
+    if base_java_type == "String" and any(keyword in camel_name.lower() for keyword in ["ping", "lag", "latency"]):
+        lines.append(f'    private {base_java_type} {camel_name} = "N/A";\n')
+    else:
+        lines.append(f"    private {base_java_type} {camel_name};\n")
+    return lines
+
+
+def is_transient_record(schema_json: dict) -> bool:
+    """Whether a schema describes transient state rather than a persistent table.
+
+    #3233: a CICS `DFHCOMMAREA` is the program's communication area -- a parameter
+    block passed between programs, not a shared table. Every CICS program declares
+    one, so mapping each to a JPA `@Entity` produced N classes all bound to
+    `@Table(name = "DFHCOMMAREA")`, which Hibernate refuses to start. Such a record
+    becomes a plain DTO instead. The signal is the 01-level title alone -- the only
+    datum the schema carries; a lineage-driven rule (persist only records a program
+    reads/writes to a file) is the more faithful successor, blocked on #3201.
+    """
+    return (schema_json.get("title") or "").upper() == "DFHCOMMAREA"
+
+
 def entity_class_name(schema_json: dict, unit_key: Optional[str] = None) -> str:
     """The JPA Entity class a schema generates.
 
@@ -110,6 +247,12 @@ def entity_class_name(schema_json: dict, unit_key: Optional[str] = None) -> str:
     """
     title = java_class_base(schema_json.get("title", "Entity"))
     return java_class_base(unit_key) + title if unit_key else title
+
+
+def dto_class_name(schema_json: dict, unit_key: Optional[str] = None) -> str:
+    """The DTO class a transient schema generates: the entity name plus a `Dto`
+    suffix (e.g. `Bnk1cacDfhcommareaDto`), so it never collides with a real entity."""
+    return entity_class_name(schema_json, unit_key) + "Dto"
 
 
 def generate_java_entity(schema_json: dict, package_name: str, unit_key: Optional[str] = None) -> str:
@@ -147,110 +290,41 @@ def generate_java_entity(schema_json: dict, package_name: str, unit_key: Optiona
     java.append("    private Long sysId;\n")
 
     for col_name, col_data in properties.items():
-        description = col_data.get("description", "")
-        base_java_type = map_type_to_java(col_data.get("type"), description)
-        constraints = parse_pic_clause(description)
+        java.extend(_render_field(col_name, col_data, table_name, jpa=True))
 
-        # Replace hyphens with underscores before splitting to catch all legacy variations
-        clean_col = col_name.lower().replace("-", "_")
-        parts = clean_col.split("_")
-        camel_name = parts[0] + "".join(word.title() for word in parts[1:])
+    java.append("}")
+    return "\n".join(java)
 
-        # ======================================================================
-        # DEFENSIVE DESIGN (JAVA SYNTAX SANITIZATION):
-        # COBOL variables frequently use names that are protected keywords in Java
-        # (e.g., CLASS, NEW, DEFAULT) or start with numeric characters. We strictly
-        # sanitize the target variable names to guarantee the output is 100% compilable
-        # before the AI agent touches it.
-        # ======================================================================
 
-        # Java variables cannot start with a number. Prefix with 'v'.
-        if camel_name and camel_name[0].isdigit():
-            camel_name = "v" + camel_name
+def generate_java_dto(schema_json: dict, package_name: str, unit_key: Optional[str] = None) -> str:
+    """Generates a plain Lombok POJO DTO for a transient record (#3233).
 
-        reserved_vars = {
-            "class",
-            "static",
-            "public",
-            "private",
-            "protected",
-            "return",
-            "new",
-            "system",
-            "default",
-            "enum",
-            "interface",
-            "void",
-            "try",
-            "catch",
-            "finally",
-            "import",
-            "package",
-            "super",
-            "this",
-            "const",
-            "goto",
-            "byte",
-            "int",
-            "char",
-            "short",
-            "long",
-            "float",
-            "double",
-            "boolean",
-            "null",
-            "true",
-            "false",
-        }
-        if camel_name in reserved_vars:
-            camel_name += "Val"
+    A DFHCOMMAREA is a CICS communication area -- a parameter block, not persistent
+    state -- so it carries no JPA mapping: no `@Entity`/`@Table`, no synthetic `@Id`
+    surrogate key, no `@Column`. The exact COBOL layout (field order, precision,
+    OCCURS arrays, REDEFINES aliases) is preserved as plain fields, since the block
+    is still read and written by the migrated business logic.
+    """
+    class_name = dto_class_name(schema_json, unit_key)
+    properties = schema_json.get("properties", {})
 
-        # ======================================================================
-        # SCENARIO 1: MEMORY OVERLAY (REDEFINES)
-        # DEFENSIVE DESIGN: In COBOL, REDEFINES creates an alias pointing to the
-        # same physical byte address. In JPA, mapping both variables as standard
-        # columns would duplicate the data in the SQL table. We map the alias
-        # as `@Transient` so it can be used in business logic without persisting
-        # a duplicate column to the database.
-        # ======================================================================
-        if "redefines" in constraints:
-            target_camel = constraints["redefines"].lower().split("_")
-            target_camel = target_camel[0] + "".join(w.title() for w in target_camel[1:])
+    requires_list = any("OCCURS" in col_data.get("description", "").upper() for col_data in properties.values())
 
-            java.append(f"    // ⚠️ REDEFINES ALIAS: Maps to {target_camel} in memory")
-            java.append("    @Transient")
-            java.append(f"    private {base_java_type} {camel_name};\n")
-            continue
+    java = []
+    java.append(f"package {package_name}.dto;\n")
+    java.append("import lombok.Data;")
+    java.append("import lombok.NoArgsConstructor;")
+    java.append("import java.math.BigDecimal;")
+    if requires_list:
+        java.append("import java.util.List;")
+    java.append("")
 
-        # --- SCENARIO 2: ARRAY (OCCURS) ---
-        if "occurs" in constraints:
-            java.append(f"    // ⚠️ ARRAY: OCCURS {constraints['occurs']} TIMES")
-            java.append("    @ElementCollection")
-            java.append(
-                f'    @CollectionTable(name = "{table_name}_{col_name.lower()}", joinColumns = @JoinColumn(name = "{table_name.lower()}_id"))'
-            )
-            java.append(f'    @Column(name = "{col_name.lower()}_item")')
-            java.append(f"    private List<{base_java_type}> {camel_name};\n")
-            continue
+    java.append("@Data")
+    java.append("@NoArgsConstructor")
+    java.append(f"public class {class_name} {{\n")
 
-        # --- SCENARIO 3: STANDARD PERSISTENT COLUMN ---
-        col_attrs = [f'name = "{col_name}"']
-        if base_java_type == "String" and "length" in constraints:
-            col_attrs.append(f"length = {constraints['length']}")
-        elif base_java_type == "BigDecimal":
-            if "precision" in constraints:
-                col_attrs.append(f"precision = {constraints['precision']}")
-            if "scale" in constraints:
-                col_attrs.append(f"scale = {constraints['scale']}")
-
-        java.append(f"    @Column({', '.join(col_attrs)})")
-
-        # 🛡️ STRICT STATE INITIALIZATION
-        # For network metrics, initialize to "N/A" instead of leaving null or defaulting to 0.
-        if base_java_type == "String" and any(keyword in camel_name.lower() for keyword in ["ping", "lag", "latency"]):
-            java.append(f'    private {base_java_type} {camel_name} = "N/A";\n')
-        else:
-            java.append(f"    private {base_java_type} {camel_name};\n")
+    for col_name, col_data in properties.items():
+        java.extend(_render_field(col_name, col_data, class_name, jpa=False))
 
     java.append("}")
     return "\n".join(java)
@@ -273,13 +347,18 @@ def main():
     try:
         schema = json.loads(schema_path.read_text(encoding="utf-8"))
         unit_key = output_key(schema_path, "_schema")
-        java_code = generate_java_entity(schema, args.pkg, unit_key=unit_key)
-        out_path = schema_path.parent / f"{entity_class_name(schema, unit_key)}.java"
-        out_path.write_text(java_code, encoding="utf-8")
-
-        print(f"☕ Spring Entity Generated: {out_path.name}")
+        if is_transient_record(schema):
+            java_code = generate_java_dto(schema, args.pkg, unit_key=unit_key)
+            out_path = schema_path.parent / f"{dto_class_name(schema, unit_key)}.java"
+            out_path.write_text(java_code, encoding="utf-8")
+            print(f"☕ Spring DTO Generated: {out_path.name}")
+        else:
+            java_code = generate_java_entity(schema, args.pkg, unit_key=unit_key)
+            out_path = schema_path.parent / f"{entity_class_name(schema, unit_key)}.java"
+            out_path.write_text(java_code, encoding="utf-8")
+            print(f"☕ Spring Entity Generated: {out_path.name}")
     except Exception as e:
-        print(f"Error generating Java Entity: {e}")
+        print(f"Error generating Java class: {e}")
 
 
 if __name__ == "__main__":

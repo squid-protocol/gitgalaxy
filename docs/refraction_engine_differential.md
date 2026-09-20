@@ -279,11 +279,13 @@ every CICS program titles its record `DFHCOMMAREA`.
 Two consequences worth naming:
 
 - **The `@Table` name is unchanged.** Only the Java class is disambiguated; the
-  COBOL 01-level it maps keeps its own name. CBSA therefore generates 26 entity
-  classes that all declare `@Table(name = "DFHCOMMAREA")`. That is a faithful
-  report of the source — they really are 26 different layouts of one CICS
-  communication area — and deciding what table each should map to is a semantic
-  question, tracked separately, not a naming one.
+  COBOL 01-level it maps keeps its own name. CBSA therefore generates 20 entity
+  classes that all declare `@Table(name = "DFHCOMMAREA")` (the 26 discarded layouts
+  above are across all three colliding titles — 20 `DFHCOMMAREA`, plus the
+  `ABNDINFO_REC` and `PARM_BUFFER` collisions). That is a faithful report of the
+  source — they really are 20 different layouts of one CICS communication area —
+  and deciding what table each should map to is a semantic question, tracked
+  separately, not a naming one.
 - **An ambiguous CALL target now resolves to a mock.** zopeneditor's two SAM1
   programs both `CALL SAM2`, and there are two SAM2 programs. Before, the class
   named `Sam2Service` happened to be whichever real SAM2 was written last, so the
@@ -291,3 +293,44 @@ Two consequences worth naming:
   `CobolSam2Service` and `MultirootSamSam2Service`, and `Sam2Service` is the
   generated mock for the unresolved call. The ambiguity was always there; it is
   now visible in the output instead of resolved by file-write order.
+
+## Update: a DFHCOMMAREA maps to a DTO, not an entity (#3233)
+
+This is the "tracked separately" semantic question the #3221 update left open. Once
+every CICS program got its own entity class, the `@Table` name it kept exposed the
+real defect: a program's `DFHCOMMAREA` is its **communication area** — a parameter
+block passed on `EXEC CICS LINK`/`XCTL`, not a shared table. Every CICS program
+declares one, so the forge emitted N entity classes, each a different layout, all
+bound to `@Table(name = "DFHCOMMAREA")`. Hibernate refuses to start on that
+(`Multiple entities mapped to table DFHCOMMAREA`), so the generated tree could not
+boot — a faithful *report* of the source that is not a runnable *mapping* of it.
+
+**The rule.** A record whose 01-level title is `DFHCOMMAREA` is transient state and
+generates a **plain Lombok POJO DTO** in the `dto` package instead of a JPA entity:
+`@Data @NoArgsConstructor`, no `@Entity`/`@Table`, no synthetic `@Id` surrogate key,
+no `@Column`/`@Transient`/`@ElementCollection`, no `jakarta.persistence` import. The
+COBOL layout is preserved as plain fields (order, `BigDecimal` precision, OCCURS as
+`List<>`, REDEFINES aliases as fields) because the block is still read and written by
+the migrated logic — it simply is not persisted. The class keeps its clean-room-keyed
+name with a `Dto` suffix (`Bnk1cacDfhcommareaDto`), so it never collides with an
+entity. Applied by `cobol_to_java_spring_forge.generate_java_dto`, selected by
+`is_transient_record`, wired through `cobol_to_java_controller`.
+
+| corpus | JPA entities | DFHCOMMAREA DTOs (was entities) |
+|---|---|---|
+| zopeneditor-sample | 5 | 0 |
+| cics-banking-sample-application-cbsa | 9 | **20** |
+| aws-mainframe-modernization-carddemo | 15 | **21** |
+
+Totals are unchanged from the #3221 table (CBSA 29, carddemo 36, zopeneditor 5); the
+DFHCOMMAREA rows have moved from `entity/` to `dto/`. No generated service,
+controller or repository referenced these classes, so nothing else moved except the
+per-corpus `java_migration_audit.txt` count line.
+
+**Why the title, and only the title.** The schema JSON the forge consumes carries
+`title`/`type`/`properties` and nothing else, so the 01-level name is the only signal
+at the forge boundary. The more faithful rule — persist only records a program
+actually reads or writes to a file (its SELECT/ASSIGN and OPEN lineage), DTO the rest
+— needs named dataset lineage from the engine and is **blocked on #3201**; until then
+other working-storage records (`WS_FIELDS`, `PARM_BUFFER`, …) stay entities. Whether
+the generated tree actually *compiles and boots* is a separate gap, tracked in #3121.

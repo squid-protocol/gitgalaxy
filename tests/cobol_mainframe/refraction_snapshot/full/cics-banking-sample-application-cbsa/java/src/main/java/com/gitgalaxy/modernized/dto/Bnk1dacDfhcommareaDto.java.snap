@@ -1,0 +1,117 @@
+package com.gitgalaxy.modernized.dto;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+public class Bnk1dacDfhcommareaDto {
+
+    private Integer wsCicsResp;
+
+    private Integer wsCicsResp2;
+
+    private String wsCicsFailMsg;
+
+    private Integer wsCicsRespDisp;
+
+    private Integer wsCicsResp2Disp;
+
+    private String validDataSw;
+
+    private String endOfSessionMessage;
+
+    private BigDecimal commOpenedSplitDd;
+
+    private BigDecimal commOpenedSplitMm;
+
+    private BigDecimal commOpenedSplitYy;
+
+    private BigDecimal commLastStDd;
+
+    private BigDecimal commLastStMm;
+
+    private BigDecimal commLastStYy;
+
+    private BigDecimal commNextStDd;
+
+    private BigDecimal commNextStMm;
+
+    private BigDecimal commNextStYy;
+
+    private String parmsSubpgmScode;
+
+    private BigDecimal parmsSubpgmAccno;
+
+    private String parmsSubpgmDelSuccess;
+
+    private String parmsSubpgmDelFailCd;
+
+    private String wsCommEye;
+
+    private String wsCommCustno;
+
+    private String wsCommScode;
+
+    private BigDecimal wsCommAccno;
+
+    private String wsCommAccType;
+
+    private BigDecimal wsCommIntRate;
+
+    private BigDecimal wsCommOpened;
+
+    private BigDecimal wsCommOverdraft;
+
+    private BigDecimal wsCommLastStmtDt;
+
+    private BigDecimal wsCommNextStmtDt;
+
+    private BigDecimal wsCommAvailBal;
+
+    private BigDecimal wsCommActualBal;
+
+    private String wsCommSuccess;
+
+    private Integer wsUTime;
+
+    private String wsOrigDate;
+
+    private BigDecimal wsTimeNow;
+
+    private BigDecimal wsTimeNowGrpHh;
+
+    private BigDecimal wsTimeNowGrpMm;
+
+    private BigDecimal wsTimeNowGrpSs;
+
+    private String wsAbendPgm;
+
+    private String commEye;
+
+    private String commCustno;
+
+    private String commScode;
+
+    private BigDecimal commAccno;
+
+    private String commAccType;
+
+    private BigDecimal commIntRate;
+
+    private BigDecimal commOpened;
+
+    private BigDecimal commOverdraft;
+
+    private BigDecimal commLastStmtDt;
+
+    private BigDecimal commNextStmtDt;
+
+    private BigDecimal commAvailBal;
+
+    private BigDecimal commActualBal;
+
+    private String commSuccess;
+
+}

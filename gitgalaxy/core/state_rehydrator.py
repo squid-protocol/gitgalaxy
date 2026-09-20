@@ -358,14 +358,14 @@ class StateRehydrator:
                 # #3200/#3201/#3246: the mainframe boundary channel, restored for
                 # the same reason #3220 restores raw_imports. An unchanged file is
                 # never re-parsed, so without this an incremental scan drops
-                # every call site, dataset binding and record layout it already
-                # knew about -- the DB would end up describing only the files that
-                # happened to change in the last commit. Every table is optional:
-                # a baseline written before #3200/#3246 simply has fewer of them.
-                # `resolved_path`/`dst_file_id` are deliberately NOT restored for
-                # calls: resolution is repo-wide and redone every scan, because a
-                # file added or deleted this commit can change what an unchanged
-                # file's CALL resolves to.
+                # every call site, dataset binding, record layout and transaction
+                # it already knew about -- the DB would end up describing only the
+                # files that happened to change in the last commit. Every table is
+                # optional: a baseline written before #3200/#3246/#3211-followup
+                # simply has fewer of them. `resolved_path`/`dst_file_id` are
+                # deliberately NOT restored for calls or transactions: resolution
+                # is repo-wide and redone every scan, because a file added or
+                # deleted this commit can change what an unchanged file resolves to.
                 calls_by_file = _restore_child_table(
                     cursor,
                     repo_name,
@@ -431,6 +431,27 @@ class StateRehydrator:
                         "line": int(r["line"] or 0),
                     },
                 )
+                # #3211-followup: the CSD transaction definitions, restored per
+                # deck so an unchanged .csd/JCL keeps its transactions through a
+                # delta scan. `group_name` is aliased to the extractor's `group`
+                # payload key.
+                transactions_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "transaction_data",
+                    "SELECT fd.file_path AS _fp, td.transid, td.program, td.group_name AS _group, "
+                    "td.profile, td.line_number AS line "
+                    "FROM transaction_data td JOIN file_data fd ON td.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY td.id",
+                    lambda r: {
+                        "transid": r["transid"],
+                        "program": r["program"],
+                        "group": r["_group"],
+                        "profile": r["profile"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
 
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
@@ -438,6 +459,7 @@ class StateRehydrator:
                     node["call_sites"] = calls_by_file.get(rel_path, [])
                     node["dataset_bindings"] = datasets_by_file.get(rel_path, [])
                     node["record_layouts"] = records_by_file.get(rel_path, [])
+                    node["transaction_defs"] = transactions_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

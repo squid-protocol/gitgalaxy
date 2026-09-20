@@ -75,9 +75,23 @@ GROUP BY f.language ORDER BY captures DESC;
 
 ---
 
-## The Mainframe Boundary in `_master.db` (`call_site_data`, `dataset_data`, #3200/#3201)
+## The Mainframe Boundary in `_master.db` (`call_site_data`, `dataset_data`, `transaction_data`, #3200/#3201/#3211-followup)
 
-`ipc_rpc_bridges` and `io` count *that* a COBOL program calls out and touches files. These two tables carry *what*, extracted by `core/mainframe_boundary.py` off the prism code stream and resolved by `core/invocation_resolver.py`. A language opts in with a top-level `boundary_extraction` declaration (cobol, jcl).
+`ipc_rpc_bridges` and `io` count *that* a COBOL program calls out and touches files. These tables carry *what*, extracted by `core/mainframe_boundary.py` off the prism code stream and resolved by `core/invocation_resolver.py`. A language opts in with a top-level `boundary_extraction` declaration (cobol, jcl, csd).
+
+### `transaction_data` — the CICS transaction map (#3211-followup)
+
+The CSD `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (and PROGRAM autoinstall `TRANSID(...)` pairings), from `.csd` decks and DFHCSDUP SYSIN inside JCL. This is the external front door: which 4-char transaction id a user submits and which program CICS routes it to — the entry points a modernizer turns into service/API boundaries.
+
+| column | meaning |
+|---|---|
+| `file_id` → `file_data.id` | the `.csd`/JCL deck the definition lives in |
+| `transid` | the transaction id (a name, not a file — like `dataset_data.dd_name`) |
+| `program` | the PROGRAM-ID it routes to, as written |
+| `dst_file_id` → `file_data.id` | the file declaring that PROGRAM-ID, or NULL for a program not in this repository |
+| `group_name` / `profile` | the CSD GROUP and PROFILE attributes |
+
+The in-source routing (`EXEC CICS RETURN/START/RUN TRANSID(...)`) rides in `call_site_data` under its own verbs; `galaxy_ir.transaction_map` joins the two. Like `dataset_data`, this is deliberately *not* an `edge_data` kind — a transaction id is not a file.
 
 ### `call_site_data` — one row per invocation site
 

@@ -81,6 +81,7 @@ from .languages import bms as _bms
 from .languages import c as _c
 from .languages import cobol as _cobol
 from .languages import cpp as _cpp
+from .languages import csd as _csd
 from .languages import csharp as _csharp
 from .languages import css as _css
 from .languages import csv as _csv
@@ -211,4 +212,5 @@ LANGUAGE_DEFINITIONS: dict[str, Any] = {
     "db2_sql": _db2_sql.DEFINITION,
     "hlasm": _hlasm.DEFINITION,
     "rexx": _rexx.DEFINITION,
+    "csd": _csd.DEFINITION,
 }

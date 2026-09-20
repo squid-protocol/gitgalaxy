@@ -221,3 +221,84 @@ def test_main_refuses_a_db_of_another_target(scanned, tmp_path, capsys):
     assert exc.value.code == 1
     assert "does not describe" in capsys.readouterr().out
     assert not list(tmp_path.glob("other_gitgalaxy_clean_*")), "a rejected DB must not leave a clean room behind"
+
+
+# ==============================================================================
+# #3211-followup: THE CICS TRANSACTION MAP
+# ==============================================================================
+# A menu program that routes to a transaction (RETURN TRANSID) and hands control
+# to another program (XCTL), the program it routes to, and the CSD deck that maps
+# the two transactions to their programs.
+MENU = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. MENU.
+       PROCEDURE DIVISION.
+       000-MAIN.
+           EXEC CICS XCTL PROGRAM('PAYPGM') END-EXEC.
+           EXEC CICS RETURN TRANSID('PAYT') END-EXEC.
+"""
+
+PAYPGM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PAYPGM.
+       PROCEDURE DIVISION.
+       000-MAIN.
+           STOP RUN.
+"""
+
+APPCSD = """\
+ DEFINE TRANSACTION(MENU) GROUP(APP)
+        PROGRAM(MENU) PROFILE(DFHCICST) STATUS(ENABLED)
+ DEFINE TRANSACTION(PAYT) GROUP(APP)
+        PROGRAM(PAYPGM) STATUS(ENABLED)
+ DEFINE TRANSACTION(EXTN) GROUP(APP)
+        PROGRAM(NOTHERE) STATUS(ENABLED)
+"""
+
+
+@pytest.fixture(scope="module")
+def txn_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_txn")
+    repo = base / "cicsapp"
+    for rel, text in {"src/MENU.cbl": MENU, "src/PAYPGM.cbl": PAYPGM, "csd/APP.csd": APPCSD}.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    db = scan_to_db(repo, base / "scan")
+    return repo, db
+
+
+def test_transaction_map_names_each_program_entry_transaction(txn_scanned):
+    """The CSD deck resolves each transaction to the program it entry-points."""
+    _, db = txn_scanned
+    entries = {(t["transid"], t["resolves_to"]) for t in load_galaxy_ir(db).transaction_map()}
+    assert ("MENU", "src/MENU.cbl") in entries
+    assert ("PAYT", "src/PAYPGM.cbl") in entries
+
+
+def test_a_transaction_whose_program_is_absent_resolves_to_none(txn_scanned):
+    """A transaction pointing at a program this repository does not contain is a
+    real front door, kept with resolves_to None rather than dropped."""
+    _, db = txn_scanned
+    extn = [t for t in load_galaxy_ir(db).transaction_map() if t["transid"] == "EXTN"]
+    assert extn and extn[0]["program"] == "NOTHERE" and extn[0]["resolves_to"] is None
+
+
+def test_the_csd_deck_carries_the_transactions_not_the_cobol_file(txn_scanned):
+    """transaction_data hangs off the DEFINING deck; the program files carry none."""
+    _, db = txn_scanned
+    ir = load_galaxy_ir(db)
+    assert {t.transid for t in ir.files["csd/APP.csd"].transactions} == {"MENU", "PAYT", "EXTN"}
+    assert ir.files["src/MENU.cbl"].transactions == []
+
+
+def test_return_transid_routing_rides_in_calls_but_not_unresolved(txn_scanned):
+    """The in-source `RETURN TRANSID('PAYT')` is a call site on the program, yet a
+    transaction target is never an unresolved PROGRAM call."""
+    _, db = txn_scanned
+    ir = load_galaxy_ir(db)
+    menu = ir.files["src/MENU.cbl"]
+    assert any(c.verb == "RETURN TRANSID" and c.target == "PAYT" for c in menu.calls)
+    # XCTL PROGRAM('PAYPGM') resolves to a file; RETURN TRANSID is excluded -- so
+    # MENU has no unresolved PROGRAM calls at all.
+    assert [c for c in ir.unresolved_calls() if c["file"] == "src/MENU.cbl"] == []

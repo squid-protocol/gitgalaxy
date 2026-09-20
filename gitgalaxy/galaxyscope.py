@@ -30,7 +30,7 @@ from typing import Any, Optional, Union
 from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.detector import HAS_TIKTOKEN
 from gitgalaxy.core.guidestar_lens import GuideStarLens
-from gitgalaxy.core.invocation_resolver import resolve_invocations
+from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
 from gitgalaxy.core.mainframe_boundary import extract_boundary
 from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, NetworkRiskSensor
 from gitgalaxy.core.prism import Prism
@@ -648,11 +648,12 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             t_imports = time.perf_counter()
             raw_imports = set()
             named_tokens = set()  # <--- NEW: Initialize token tracker
-            # #3200/#3201/#3246: named mainframe boundary facts, empty for every
-            # language that does not declare `boundary_extraction`.
+            # #3200/#3201/#3246/#3211-followup: named mainframe boundary facts,
+            # empty for every language that does not declare `boundary_extraction`.
             call_sites: list = []
             dataset_bindings: list = []
             record_layouts: list = []
+            transaction_defs: list = []
 
             # 1. Extract raw file dependencies. An inert (static-asset) language
             # normally skips this whole phase, but one that explicitly DECLARES
@@ -714,6 +715,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     # with a default so a dialect that predates the channel (or
                     # carries no records, like JCL) is not a missing-key error.
                     record_layouts = boundary.get("records", [])
+                    # #3211-followup: CSD transaction definitions (csd deck, or a
+                    # DFHCSDUP deck inline in JCL), same default-read discipline.
+                    transaction_defs = boundary.get("transactions", [])
                 except Exception:
                     logging.exception("Boundary extraction failed for language '%s'.", lang_id)
 
@@ -765,10 +769,13 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "mitigations": refraction.get("mitigations", []),  # <--- THE FIX: Route the suppressions
             "raw_imports": sorted(raw_imports),
             "named_tokens": sorted(named_tokens),
-            # #3200/#3201/#3246: already deterministically ordered by the extractor.
+            # #3200/#3201/#3246/#3211-followup: already deterministically ordered by the extractor.
             "call_sites": call_sites,
             "dataset_bindings": dataset_bindings,
             "record_layouts": record_layouts,
+            # #3211-followup: CSD transaction definitions, resolved to programs
+            # cross-file at aggregation (resolve_transactions).
+            "transaction_defs": transaction_defs,
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }
@@ -965,6 +972,7 @@ class Orchestrator:
         # source, and on any path that never reaches the resolver.
         self.call_sites: list[dict[str, Any]] = []
         self.invocation_edges: list[dict[str, Any]] = []
+        self.transactions: list[dict[str, Any]] = []  # #3211-followup: CICS transaction map
         self.unparsable_files: list[dict[str, Any]] = []
         self.anomalies: list[dict[str, str]] = []
         self.popularity_scores: dict[str, int] = {}
@@ -1092,6 +1100,8 @@ class Orchestrator:
             # popularity, blast radius and every risk score are unchanged --
             # see invocation_resolver.py's header for why that is deliberate.
             self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
+            # #3211-followup: the CICS transaction map, resolved the same way.
+            self.transactions = resolve_transactions(self.parsed_files)
 
             # PHASE 5: Zero-Trust Guardrails (AI & AppSec)
             # Enforces explicit system rules identifying Prompt Injections or Context Window Exhaustion.
@@ -1498,6 +1508,7 @@ class Orchestrator:
                         dependency_edges=self.network_sensor.dependency_edges,  # #2992
                         call_sites=self.call_sites,  # #3200/#3201
                         invocation_edges=self.invocation_edges,  # #3200
+                        transactions=self.transactions,  # #3211-followup
                     )
                 except Exception as e:
                     logger.error(
@@ -3044,6 +3055,8 @@ class Orchestrator:
 
             # #3200/#3201: same resolution in delta mode.
             self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
+            # #3211-followup: the CICS transaction map, same resolution in delta mode.
+            self.transactions = resolve_transactions(self.parsed_files)
 
             # 6. Audit Verification & ML Threat Inference
             repository_graph, unparsable_audits = self.auditor.audit(self.parsed_files)
@@ -3086,6 +3099,7 @@ class Orchestrator:
                 dependency_edges=self.network_sensor.dependency_edges,  # #2992
                 call_sites=self.call_sites,  # #3200/#3201
                 invocation_edges=self.invocation_edges,  # #3200
+                transactions=self.transactions,  # #3211-followup
             )
 
             logger.info(

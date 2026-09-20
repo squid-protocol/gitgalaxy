@@ -14,12 +14,15 @@
 # the paragraph/section inventory (function_data), resolved COPY/INCLUDE edges
 # (edge_data, edge_kind 'import'), subsystem hit counts, since #3200/#3201 the
 # mainframe call graph (call_site_data, plus edge_data kinds 'call'/'exec') and
-# dataset boundary (dataset_data), and since #3246 the DATA DIVISION item tree +
-# FD record layouts (record_data). NOT in the DB, so still owned by the forge
-# tools: reachability-based dead code. `usage_status` is a same-file "name
-# mentioned elsewhere" test, not reachability -- it is carried as data and must
-# not be fed to dead-code masking. See docs/refraction_engine_differential.md
-# for the measured deltas.
+# dataset boundary (dataset_data), since #3246 the DATA DIVISION item tree + FD
+# record layouts (record_data), and since #3211-followup the CICS transaction
+# map (transaction_data: which transaction id entry-points into which program,
+# plus the in-source routing verbs 'RETURN/START/RUN TRANSID' carried in
+# call_site_data). NOT in the DB, so still owned by the forge tools:
+# reachability-based dead code. `usage_status` is a same-file "name mentioned
+# elsewhere" test, not reachability -- it is carried as data and must not be fed
+# to dead-code masking. See docs/refraction_engine_differential.md for the
+# measured deltas.
 # ==============================================================================
 import os
 import sqlite3
@@ -35,7 +38,16 @@ SIGNAL_COLUMNS = ("arch_io", "arch_ipc", "arch_ui_framework", "arch_concurrency"
 
 # The IBM mainframe language family (#2516). hlasm is detected but is a
 # wrap-or-retire boundary, not a migration target (#3122 scope note 1).
-MAINFRAME_LANGUAGES = ("cobol", "jcl", "bms", "pli", "db2_sql", "rexx", "hlasm")
+MAINFRAME_LANGUAGES = ("cobol", "jcl", "bms", "pli", "db2_sql", "rexx", "hlasm", "csd")
+
+# #3211-followup: the call_site_data verbs whose target is a TRANSACTION, not a
+# program. They ride in call_site_data next to program invocations, so
+# unresolved_calls() must not count them as unresolved program calls -- their
+# target resolves through the transaction map, never the PROGRAM-ID index.
+# Kept local (not imported from gitgalaxy.core) so this reader stays loadable
+# against any master DB without pulling in the engine; the producer's canonical
+# copy is mainframe_boundary.TRANSACTION_ROUTING_VERBS.
+TRANSACTION_ROUTING_VERBS = ("RETURN TRANSID", "START TRANSID", "RUN TRANSID")
 
 
 @dataclass
@@ -133,6 +145,27 @@ class EngineDataItem:
 
 
 @dataclass
+class EngineTransaction:
+    """One CICS transaction definition (#3211-followup).
+
+    A `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` in a CSD deck (or a PROGRAM
+    autoinstall `TRANSID(...)` pairing). `transid` is the 4-char id a user
+    submits; `program` is the PROGRAM-ID it routes to as written; `resolves_to`
+    is the repository file declaring that PROGRAM-ID, or None for a program this
+    repository does not contain (a system transaction or an external module).
+    This dataclass hangs off the DEFINING deck's EngineFile; the join to the
+    program it entry-points is `GalaxyIR.transaction_map`.
+    """
+
+    transid: str
+    program: Optional[str]
+    group: Optional[str]
+    profile: Optional[str]
+    resolves_to: Optional[str]
+    line: int
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -145,6 +178,7 @@ class EngineFile:
     datasets: list = field(default_factory=list)  # EngineDataset, #3201
     data_items: list = field(default_factory=list)  # EngineDataItem, flat source order, #3246
     records: list = field(default_factory=list)  # EngineDataItem tree roots (01/77), #3246
+    transactions: list = field(default_factory=list)  # EngineTransaction, #3211-followup
 
     @property
     def is_program(self) -> bool:
@@ -254,6 +288,11 @@ class GalaxyIR:
             for call in f.calls:
                 if call.resolves_to:
                     continue
+                # A TRANSID-routing verb's target is a transaction, not a
+                # program: it is never an unresolved PROGRAM call. Its
+                # transaction is joined by transaction_map, not counted here.
+                if call.verb in TRANSACTION_ROUTING_VERBS:
+                    continue
                 out.append(
                     {
                         "file": f.file_path,
@@ -264,6 +303,43 @@ class GalaxyIR:
                         "line": call.line,
                     }
                 )
+        return out
+
+    def transaction_map(self, language: str = "cobol") -> list:
+        """The CICS transaction map: which transaction entry-points into which program.
+
+        #3211-followup's question, answered from the DB alone. Each entry is a
+        dict with `transid`, `program` (the PROGRAM-ID as the CSD wrote it),
+        `resolves_to` (the program's file, or None when the program is not in
+        this repository), `group`, `profile`, `defined_in` (the CSD/JCL deck the
+        DEFINE lives in) and `line`.
+
+        `language` filters the RESOLVED program's language: with the default a
+        transaction whose program is a COBOL file in the repo is reported, and so
+        is one whose program does not resolve at all (an external module is still
+        a real front door). A transaction that resolves to a non-`language` file
+        is dropped. The COBOL in-source routing (RETURN/START/RUN TRANSID) is the
+        other half and reads directly off each program's `EngineFile.calls`.
+        """
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for txn in f.transactions:
+                if txn.resolves_to is not None:
+                    target = self.files.get(txn.resolves_to)
+                    if target is not None and target.language != language:
+                        continue
+                out.append(
+                    {
+                        "transid": txn.transid,
+                        "program": txn.program,
+                        "resolves_to": txn.resolves_to,
+                        "group": txn.group,
+                        "profile": txn.profile,
+                        "defined_in": f.file_path,
+                        "line": txn.line,
+                    }
+                )
+        out.sort(key=lambda t: (t["transid"], t["program"] or "", t["defined_in"]))
         return out
 
     def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
@@ -447,6 +523,23 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         by_ordinal[item.parent_ordinal].children.append(item)
                     else:
                         ef.records.append(item)
+
+        # #3211-followup: the CICS transaction map. Hangs off the DEFINING deck's
+        # file (the .csd/JCL), with dst_file_id resolved to the program's file.
+        # A pre-#3211-followup database has no such table, so a missing table is
+        # "no data", never an error.
+        if _has_table(cur, "transaction_data"):
+            for file_id, transid, program, group_name, profile, dst_id, line in cur.execute(
+                "SELECT file_id, transid, program, group_name, profile, dst_file_id, line_number "
+                "FROM transaction_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if file_id not in by_id:
+                    continue
+                resolved = by_id[dst_id].file_path if dst_id in by_id else None
+                by_id[file_id].transactions.append(
+                    EngineTransaction(transid or "", program, group_name, profile, resolved, int(line or 0))
+                )
     finally:
         conn.close()
 

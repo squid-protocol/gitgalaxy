@@ -157,6 +157,7 @@ LANGUAGE_STRICTNESS: dict[str, Optional[tuple[bool, bool, bool, bool]]] = {
     "cobol": (True, False, True, False),  # PIC-typed; WORKING-STORAGE is program-global by design
     "cpp": (True, False, False, True),
     "csharp": (True, False, True, True),  # `unsafe` is opt-in
+    "csd": None,  # CICS resource-definition deck (DFHCSDUP/CEDA, #3211-followup) -- declarative, no risk axes
     "css": None,
     "csv": None,
     # #2511: DDL columns and SQL PL variables are strongly typed (no sqlite type

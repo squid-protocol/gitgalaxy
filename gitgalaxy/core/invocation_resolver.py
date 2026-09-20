@@ -39,6 +39,7 @@
 # ==============================================================================
 from typing import Any
 
+from gitgalaxy.core.mainframe_boundary import TRANSACTION_ROUTING_VERBS
 from gitgalaxy.core.path_proximity import nearest_path
 
 # Languages whose `classes` entries are program declarations a call can target.
@@ -93,7 +94,11 @@ def resolve_invocations(
         for site in f.get("call_sites", []) or []:
             target = site.get("target")
             resolved = None
-            if target:
+            # A TRANSID-routing site's target is a transaction id, not a program:
+            # it resolves through the CSD map (resolve_transactions), so it is
+            # never matched against the PROGRAM-ID index here. It still rides in
+            # call_site_data as a row, just with no program destination.
+            if target and site.get("verb") not in TRANSACTION_ROUTING_VERBS:
                 resolved = nearest_path(index.get(str(target).upper(), []), src_path)
                 # A program calling itself is recursion, not an edge: the
                 # import graph drops self-edges for the same reason.
@@ -120,3 +125,32 @@ def resolve_invocations(
 
     ordered = sorted(edges.values(), key=lambda e: (e["src"], e["dst"], e["edge_kind"]))
     return sites, ordered
+
+
+def resolve_transactions(parsed_files: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Resolve each CSD transaction's PROGRAM to the file that declares it (#3211-followup).
+
+    A `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` record (extracted from a `.csd`
+    deck or a DFHCSDUP SYSIN inside a JCL job) names a program by PROGRAM-ID, the
+    same relation `resolve_invocations` resolves for a CALL -- so it reuses the
+    PROGRAM-ID index and the nearest-match tie-break. Each returned record keeps
+    the transaction fields and adds `src_path` (the deck that defines it) and
+    `resolved_path` (the program's file, or None for a program not in this
+    repository -- a system transaction or one whose module is external).
+
+    Unlike calls, a transaction never self-resolves: a CSD deck is not a program,
+    so `resolved_path == src_path` cannot happen and is not special-cased.
+    """
+    index = _program_index(parsed_files)
+    out: list[dict[str, Any]] = []
+    for f in parsed_files:
+        src_path = f.get("path", "")
+        for txn in f.get("transaction_defs", []) or []:
+            program = txn.get("program")
+            resolved = nearest_path(index.get(str(program).upper(), []), src_path) if program else None
+            record = dict(txn)
+            record["src_path"] = src_path
+            record["resolved_path"] = resolved
+            out.append(record)
+    out.sort(key=lambda t: (t.get("src_path", ""), int(t.get("line", 0) or 0), t.get("transid", "")))
+    return out

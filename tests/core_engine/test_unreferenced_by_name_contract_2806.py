@@ -72,7 +72,13 @@ def _declared_model(lang: str) -> str:
 # the extractor gives it. Measured, not assumed: the keyword-rosetta shell read
 # a flat 0 against the 2.50 by_name median before the declaration (bucket
 # labels always recur -- corollary 4's too-clean-census warning verbatim).
-POSITIONAL_LANGUAGES = {"jcl", "dockerfile", "html", "sqlite", "yaml", "bms", "db2_sql"}
+# #3211-followup added csd: a CICS CSD deck's units (the TRANSACTION/PROGRAM
+# resources func_start/class_start extract) are reached when a terminal user
+# submits the 4-char transaction id, or when an EXEC CICS RETURN/START/RUN
+# TRANSID in a COBOL program -- a different file -- routes to it. No syntax inside
+# the deck reaches a resource by the name the extractor gives it; DEFINE records
+# install in written order. Corollary 4 answered no.
+POSITIONAL_LANGUAGES = {"jcl", "dockerfile", "html", "sqlite", "yaml", "bms", "db2_sql", "csd"}
 
 
 def test_invocation_model_values_are_a_closed_set():

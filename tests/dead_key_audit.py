@@ -184,6 +184,15 @@ ALLOWLIST = {
     "_cid": "class_data 'cd.id AS _cid' alias read in state_rehydrator (delta rehydrate, #3220)",
     "_fp": "'fd.file_path AS _fp' join alias read in state_rehydrator (delta rehydrate, #3220)",
     "class_name": "class_data column read in state_rehydrator (delta rehydrate, #3220)",
+    "_group": "'td.group_name AS _group' alias read in state_rehydrator (transaction rehydrate, #3211-followup)",
+    # --- CSD attribute dict, written by a paren-balanced tokenizer (#3211-followup) ---
+    # mainframe_boundary._csd_attributes builds attrs[key] = value where `key` is
+    # the regex-captured KEYWORD, so PROGRAM/GROUP/PROFILE/TRANSID ARE written --
+    # just never as a literal the static walker can trace to a producer.
+    "PROGRAM": "CSD attribute, written via _csd_attributes' dynamic setdefault (mainframe_boundary.py, #3211-followup)",
+    "GROUP": "CSD attribute, written via _csd_attributes' dynamic setdefault (mainframe_boundary.py, #3211-followup)",
+    "PROFILE": "CSD attribute, written via _csd_attributes' dynamic setdefault (mainframe_boundary.py, #3211-followup)",
+    "TRANSID": "CSD attribute, written via _csd_attributes' dynamic setdefault (mainframe_boundary.py, #3211-followup)",
 }
 
 

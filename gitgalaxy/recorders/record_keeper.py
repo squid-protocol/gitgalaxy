@@ -437,6 +437,7 @@ class RecordKeeper:
         dependency_edges: Optional[list[dict]] = None,
         call_sites: Optional[list[dict]] = None,
         invocation_edges: Optional[list[dict]] = None,
+        transactions: Optional[list[dict]] = None,
     ):
         """
         Builds the formal relational SQLite database directly from pipeline RAM state.
@@ -456,8 +457,13 @@ class RecordKeeper:
         DIVISION item tree + FD record layouts (#3246) ride along on each file's
         own `record_layouts` and become record_data.
 
-        Both default to None, so a caller predating #3200 writes no boundary
-        rows rather than empty ones.
+        `transactions` (#3211-followup) is the CICS transaction map:
+        `invocation_resolver.resolve_transactions()`'s resolved records, persisted
+        as transaction_data. Each names a transaction id, the program it routes to
+        and the file declaring that program.
+
+        All three default to None, so a caller predating #3200/#3211-followup
+        writes no boundary rows rather than empty ones.
         """
         repo_name = session_meta.get("target", "Unknown")
         git_audit = session_meta.get("git_audit", {})
@@ -882,6 +888,43 @@ class RecordKeeper:
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);")
+
+        # #3211-followup: the CICS transaction map -- which 4-char transaction id a
+        # user submits and which program CICS routes it to. Extracted from the CSD
+        # `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (and PROGRAM
+        # autoinstall `TRANSID(...)` pairings), then resolved to the program's file
+        # by invocation_resolver.resolve_transactions.
+        #   file_id     -- the .csd/JCL deck the definition lives in
+        #   transid     -- the transaction id (like dataset_data.dd_name, a name,
+        #                  not a file)
+        #   program     -- the PROGRAM-ID it routes to, as written
+        #   dst_file_id -- the file declaring that PROGRAM-ID, or NULL for a
+        #                  program not in this repository
+        # Like dataset_data this is deliberately NOT an edge_data kind: a
+        # transaction id is not a file, so it cannot be a file_data FK. The COBOL
+        # in-source routing (EXEC CICS RETURN/START/RUN TRANSID) rides in
+        # call_site_data; galaxy_ir.transaction_map joins the two.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS transaction_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                transid TEXT,
+                program TEXT,
+                group_name TEXT,
+                profile TEXT,
+                dst_file_id INTEGER,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE,
+                FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_transaction_file_id ON transaction_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_transaction_transid ON transaction_data(transid);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_transaction_snapshot ON transaction_data(repo_name, commit_hash);"
+        )
 
         # #2908 Phase 2: per-unit is_public/is_documented (function_data.
         # docs/risk_documentation_contract.md). Auto-heal for a pre-#2908
@@ -1818,6 +1861,41 @@ class RecordKeeper:
                 int(it.get("line", 0) or 0),
             ),
         )
+
+        # #3211-followup: the transaction map, resolved cross-file (transid ->
+        # program -> the program's file) like call_sites, so it is passed in
+        # rather than read per-file. A definition whose deck has no file_data row
+        # is skipped (the same extraction gap edge_data/call_site_data tolerate);
+        # a program the repository does not contain keeps dst_file_id NULL.
+        if transactions:
+            txn_rows = []
+            for txn in transactions:
+                deck_file_id = path_to_file_id.get(txn.get("src_path", ""))
+                if deck_file_id is None:
+                    continue
+                txn_rows.append(
+                    (
+                        repo_name,
+                        commit_hash,
+                        deck_file_id,
+                        txn.get("transid"),
+                        txn.get("program"),
+                        txn.get("group"),
+                        txn.get("profile"),
+                        path_to_file_id.get(txn.get("resolved_path") or ""),
+                        int(txn.get("line", 0) or 0),
+                    )
+                )
+            if txn_rows:
+                cursor.executemany(
+                    """
+                    INSERT INTO transaction_data (
+                        repo_name, commit_hash, file_id, transid, program,
+                        group_name, profile, dst_file_id, line_number
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                    txn_rows,
+                )
 
         # 3. REPO DATA INSERTION
         class_start_idx = self.SIGNAL_SCHEMA.index("class_start") if "class_start" in self.SIGNAL_SCHEMA else -1

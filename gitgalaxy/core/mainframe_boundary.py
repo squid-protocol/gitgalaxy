@@ -1,5 +1,5 @@
 # ==============================================================================
-# GitGalaxy Core: Mainframe Boundary Extraction (#3200, #3201, #3246)
+# GitGalaxy Core: Mainframe Boundary Extraction (#3200, #3201, #3246, #3211-followup)
 #
 # PURPOSE:
 # The counted rules tell you THAT a COBOL program calls something and THAT a JCL
@@ -16,11 +16,23 @@
 #                     LOCAL-STORAGE) and FILE SECTION `FD`/`01` record layouts:
 #                     level, name, PIC, USAGE/COMP-3, OCCURS [DEPENDING ON],
 #                     REDEFINES, VALUE -- the schema of the system (#3246).
+#   4. transaction -- the CICS transaction map (#3211-followup): the CSD
+#                     `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (and
+#                     `DEFINE PROGRAM(PPPP) ... TRANSID(TTTT)` autoinstall
+#                     pairings), from `.csd` decks and from DFHCSDUP SYSIN inside
+#                     JCL; plus the in-source routing verbs a COBOL program uses
+#                     to hand control to a transaction -- `EXEC CICS
+#                     RETURN/START/RUN TRANSID(...)`. The transaction is the
+#                     external front door: a user submits a 4-char id and CICS
+#                     routes it to a program. Without it the DB has the internal
+#                     call graph but not the entry points a modernizer turns into
+#                     service/API boundaries.
 #
-# Together they are the mainframe call graph, the dataset lineage and the record
-# layouts that `docs/refraction_engine_differential.md` recorded as stated
-# absences: "program P reads DD X, job J binds DD X to dataset D" and "no data
-# items are extracted" were both unanswerable from the DB.
+# Together they are the mainframe call graph, the dataset lineage, the record
+# layouts and the transaction map that `docs/refraction_engine_differential.md`
+# recorded as stated absences: "program P reads DD X, job J binds DD X to dataset
+# D", "no data items are extracted", and "transaction T entry-points into program
+# P", were all unanswerable from the DB.
 #
 # SCOPE AND NON-SCOPE:
 #   - Extraction only. Nothing here resolves a name to a file; that is
@@ -51,10 +63,18 @@ import bisect
 import re
 from typing import Any, Optional
 
-# The two dialects that carry a top-level `boundary_extraction` declaration.
-# It is top level rather than inside `rules` because language_lens.py
-# re.compile()s every string value in `rules` (#2806).
-BOUNDARY_DIALECTS = ("cobol", "jcl")
+# The dialects that carry a top-level `boundary_extraction` declaration. It is
+# top level rather than inside `rules` because language_lens.py re.compile()s
+# every string value in `rules` (#2806). `csd` is the CICS resource-definition
+# deck (#3211-followup); jcl additionally carries a DFHCSDUP SYSIN deck inline.
+BOUNDARY_DIALECTS = ("cobol", "jcl", "csd")
+
+# #3211-followup: the call-site verbs whose `target` is a TRANSACTION, not a
+# program. They ride in call_site_data alongside program invocations, but their
+# target resolves through the CSD transaction map (transid -> program), never the
+# PROGRAM-ID index -- so invocation_resolver does not program-resolve them and
+# galaxy_ir.unresolved_calls does not count them as unresolved program calls.
+TRANSACTION_ROUTING_VERBS = ("RETURN TRANSID", "START TRANSID", "RUN TRANSID")
 
 # COBOL's optional sequence-number area (cols 1-6) plus the indicator column,
 # the same prefix cobol.py's own anchored rules carry. Accepted source may or
@@ -119,6 +139,19 @@ _CICS_PROGRAM_OPERAND = re.compile(r"\bPROGRAM[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"(
 # leaves an order of magnitude of headroom without ever crossing a paragraph.
 _CICS_BLOCK_LIMIT = 2000
 
+# #3211-followup: the CICS in-source routing verbs whose operand is a
+# TRANSACTION, not a program. `RETURN TRANSID(...)` sets the next transaction of
+# a pseudo-conversational task; `START`/`RUN TRANSID(...)` dispatch one. Plain
+# `EXEC CICS RETURN` (no TRANSID) is not routing and draws nothing. `START` is
+# `\bSTART\b`, so `STARTBR` (a file browse) cannot match. Read as an EXEC block
+# up to END-EXEC, the same bounded shape as the LINK/XCTL transfer above.
+_CICS_TRANSID_VERB = re.compile(r"\bEXEC[ \t\n]+CICS[ \t\n]+(RETURN|START|RUN)\b", re.I)
+# The TRANSID operand: a 4-char literal (`TRANSID('OCRA')`) or a data-name
+# resolved through its working-storage VALUE (`TRANSID(WS-TRANID)` where
+# `05 WS-TRANID PIC X(4) VALUE 'CC00'`). A name with no readable VALUE (populated
+# at runtime, `VALUE SPACES`) resolves to None -- data, not a gap.
+_CICS_TRANSID_OPERAND = re.compile(r"\bTRANSID[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z][A-Z0-9-]*))", re.I)
+
 # A JCL statement: `//name operation operands`. The name field is optional --
 # unnamed DD and EXEC statements are valid and common.
 _JCL_STATEMENT = re.compile(r"^//([A-Z0-9_#$@]*)[ \t]+([A-Z]+)(?:[ \t]+(.*))?$", re.I)
@@ -182,6 +215,33 @@ _VALUE_CLAUSE = re.compile(
 # them rather than nesting by level number, so they attach to the last real
 # item and are never pushed as a potential parent themselves.
 _CONDITION_LEVELS = (66, 88)
+
+# --- #3211-followup: the CICS CSD (resource-definition) deck ----------------
+# A DFHCSDUP/CEDA deck runs DFHCSDUP; a JCL that does not is not a CSD deck and
+# the inline pass is skipped entirely.
+_DFHCSDUP = re.compile(r"\bPGM=DFHCSDUP\b", re.I)
+# A CSD command opens a line (tolerating a leading blank column or JCL-inline
+# indentation): DEFINE a resource, or a structural command (DELETE/ADD/LIST/...).
+# Only DEFINE carries a resource we capture; the rest merely terminate the record
+# that precedes them.
+_CSD_COMMAND = re.compile(r"^[ \t]*(DEFINE|DELETE|ALTER|ADD|REMOVE|LIST|UPGRADE|COPY)\b", re.I)
+# The head of a DEFINE record: the resource type and its name. The name run is
+# permissive (a CICS transaction id is 4 chars, a program 8; an over-long name is
+# DFHCSDUP's diagnostic, not ours).
+_CSD_DEFINE_HEAD = re.compile(r"^[ \t]*DEFINE[ \t]+([A-Z0-9]+)[ \t]*\([ \t]*([A-Z0-9@#$]+)[ \t]*\)", re.I)
+# A `KEYWORD(` attribute opener. The value is read by a paren-balanced scan
+# (values carry spaces, commas `WAITTIME(0,0,0)`, slashes and quoted strings), so
+# this only finds the keyword and the opening paren.
+_CSD_ATTR_KEY = re.compile(r"\b([A-Z][A-Z0-9]*)[ \t]*\(", re.I)
+# Attribute-name abbreviations DFHCSDUP accepts (seen in carddemo inline JCL).
+# Only the ones that touch a field we keep need mapping; the rest pass through.
+_CSD_ATTR_SYNONYMS = {"DA": "DATALOCATION", "TASKDATAL": "TASKDATALOC", "DESC": "DESCRIPTION"}
+# The two resource types the transaction map is built from, plus the DB2TRAN type
+# whose `TRANSID(...)` is a DB2 attribute -- NOT a transaction definition -- and
+# must be excluded.
+_CSD_TXN_RESOURCE = "TRANSACTION"
+_CSD_PGM_RESOURCE = "PROGRAM"
+_CSD_EXCLUDED_RESOURCES = frozenset({"DB2TRAN", "DB2ENTRY", "DB2CONN"})
 
 
 def _opens_inside_literal(code_stream: str, line_start: int, offset: int) -> bool:
@@ -348,6 +408,39 @@ def _cobol_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any
                 "form": "identifier",
                 "operand": operand,
                 "target": values.get(operand),
+                "line": _line_of(match.start()),
+            }
+        )
+
+    # 4. #3211-followup: CICS RETURN/START/RUN TRANSID -- the in-source routing
+    #    to a TRANSACTION. The `verb` names the transaction target ("RETURN
+    #    TRANSID"), so galaxy_ir.transaction_map joins it against the CSD map and
+    #    galaxy_ir.unresolved_calls skips it (its target is a transaction id, not
+    #    a program, so program resolution would only ever add a false unresolved).
+    for match in _CICS_TRANSID_VERB.finditer(code_stream):
+        if _shielded(match.start()):
+            continue
+        block = code_stream[match.end() : match.end() + _CICS_BLOCK_LIMIT]
+        end = block.upper().find("END-EXEC")
+        if end != -1:
+            block = block[:end]
+        operand_match = _CICS_TRANSID_OPERAND.search(block)
+        if not operand_match:
+            # A plain RETURN with no TRANSID is an ordinary return, not routing;
+            # START/RUN always carry TRANSID, so a miss there is malformed source.
+            continue
+        literal = operand_match.group(1) if operand_match.group(1) is not None else operand_match.group(2)
+        if literal is not None:
+            form, operand, target = "literal", literal.strip(), literal.strip()
+        else:
+            operand = operand_match.group(3).upper()
+            form, target = "identifier", values.get(operand)
+        calls.append(
+            {
+                "verb": f"{match.group(1).upper()} TRANSID",
+                "form": form,
+                "operand": operand or None,
+                "target": (target or None),
                 "line": _line_of(match.start()),
             }
         )
@@ -621,27 +714,169 @@ def _jcl_boundary(code_stream: str) -> dict[str, list[dict[str, Any]]]:
     return {"calls": calls, "datasets": datasets}
 
 
+def _csd_attributes(record: str) -> dict[str, str]:
+    """Every `KEYWORD(value)` attribute in one DEFINE record, first value winning.
+
+    Paren-balanced and quote-aware because real attribute values carry commas
+    (`WAITTIME(0,0,0)`), spaces and slashes (`DESCRIPTION('Credit/Debit')`) and
+    the audit trailers embed spaces (`DEFINETIME(22/06/10 20:05:10)`). A flat
+    `KEYWORD\\(([^)]*)\\)` would truncate the first and misread the rest.
+    """
+    attrs: dict[str, str] = {}
+    for m in _CSD_ATTR_KEY.finditer(record):
+        key = m.group(1).upper()
+        key = _CSD_ATTR_SYNONYMS.get(key, key)
+        depth = 1
+        i = m.end()
+        quote: Optional[str] = None
+        chars: list[str] = []
+        while i < len(record) and depth > 0:
+            ch = record[i]
+            if quote is not None:
+                if ch == quote:
+                    quote = None
+                chars.append(ch)
+            elif ch in "'\"":
+                quote = ch
+                chars.append(ch)
+            elif ch == "(":
+                depth += 1
+                chars.append(ch)
+            elif ch == ")":
+                depth -= 1
+                if depth > 0:
+                    chars.append(ch)
+            else:
+                chars.append(ch)
+            i += 1
+        # First declaration wins, matching the value-map reading elsewhere: a
+        # keyword repeated in one record is DFHCSDUP-illegal, so the first is it.
+        attrs.setdefault(key, "".join(chars).strip())
+    return attrs
+
+
+def _csd_records(code_stream: str) -> list[tuple[int, str]]:
+    """Split a CSD deck into (1-based start line, record text) DEFINE records.
+
+    A CSD record has NO continuation character: a DEFINE runs until the next
+    command, a `*` (or `//*`) comment, a JCL `//` statement line, a blank line,
+    or end of deck. That tolerance is what lets ONE reader serve a standalone
+    `.csd` file, a hand-written DFHCSDUP SYSIN member and the inline SYSIN inside
+    a JCL job -- in the last, the `SET`/`EXEC`/`DD` control lines all begin `//`
+    and so cleanly separate the DEFINE records they surround.
+    """
+    records: list[tuple[int, list[str]]] = []
+    current: Optional[tuple[int, list[str]]] = None
+
+    def _flush() -> None:
+        nonlocal current
+        if current is not None:
+            records.append(current)
+            current = None
+
+    for lineno, raw in enumerate(code_stream.split("\n"), start=1):
+        stripped = raw.strip()
+        # A JCL control/comment line, a CSD `*` comment, or a blank line ends the
+        # record in progress and is never part of one.
+        if not stripped or stripped.startswith("*") or raw.lstrip().startswith("//"):
+            _flush()
+            continue
+        command = _CSD_COMMAND.match(raw)
+        if command:
+            _flush()
+            if command.group(1).upper() == "DEFINE":
+                current = (lineno, [raw])
+            # A DELETE/ADD/LIST/... command starts no record we keep; it only
+            # terminated the one above.
+            continue
+        # A continuation/attribute line belongs to the DEFINE in progress.
+        if current is not None:
+            current[1].append(raw)
+
+    _flush()
+    return [(start, "\n".join(lines)) for start, lines in records]
+
+
+def _csd_transactions(code_stream: str) -> list[dict[str, Any]]:
+    """The CICS transaction map: transaction id -> program, from a CSD deck.
+
+    Two record shapes yield the same fact:
+      - `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` -- the transaction names its
+        program directly.
+      - `DEFINE PROGRAM(PPPP) ... TRANSID(TTTT)` -- an autoinstall pairing that
+        declares the same edge from the program's side (carddemo's inline JCL).
+    `DEFINE DB2TRAN(...)` also carries a `TRANSID(...)`, but that is a DB2 plan
+    attribute, not a CICS transaction definition, and is excluded.
+    """
+    out: list[dict[str, Any]] = []
+    for line_no, record in _csd_records(code_stream):
+        head = _CSD_DEFINE_HEAD.match(record)
+        if not head:
+            continue
+        resource = head.group(1).upper()
+        name = head.group(2).upper()
+        if resource in _CSD_EXCLUDED_RESOURCES:
+            continue
+        attrs = _csd_attributes(record)
+        if resource == _CSD_TXN_RESOURCE:
+            transid, program = name, (attrs.get("PROGRAM") or "").upper() or None
+        elif resource == _CSD_PGM_RESOURCE and attrs.get("TRANSID"):
+            transid, program = attrs["TRANSID"].upper(), name
+        else:
+            continue
+        out.append(
+            {
+                "transid": transid,
+                "program": program,
+                "group": (attrs.get("GROUP") or "").upper() or None,
+                "profile": (attrs.get("PROFILE") or "").upper() or None,
+                "line": line_no,
+            }
+        )
+    out.sort(key=lambda t: (t["line"], t["transid"]))
+    return out
+
+
+def _jcl_csd_transactions(code_stream: str) -> list[dict[str, Any]]:
+    """A DFHCSDUP SYSIN deck carried inline in a JCL job, or [] if the job is not one.
+
+    The DEFINE records sit in the in-stream `//SYSIN DD *` payload; `_csd_records`
+    already treats every `//` control line as a separator, so handing it the whole
+    job reads the deck and ignores the JCL around it. A job that runs DFHCSDUP but
+    points SYSIN at a separate member (a `.csd` file the csd dialect reads on its
+    own) simply has no inline DEFINEs and yields nothing here -- no double count.
+    """
+    if not _DFHCSDUP.search(code_stream):
+        return []
+    return _csd_transactions(code_stream)
+
+
 def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str, Any]]]:
-    """The named invocation, dataset and record-layout facts for one mainframe file.
+    """The named invocation, dataset, record-layout and transaction facts for one mainframe file.
 
     `dialect` is the language's `boundary_extraction` declaration, not its
     language id, so a future dialect can share COBOL's reading without being
-    named cobol. Returns empty lists for anything else, so an unrecognised
-    declaration degrades to "no facts" rather than raising in a worker. Every
-    caller reads keys with a default, so a dialect that carries only some of the
-    three channels (JCL has no record layouts) is not a missing-key error.
+    named cobol. Every return carries all four keys (`calls`, `datasets`,
+    `records`, `transactions`) so the caller reads a uniform shape; a dialect that
+    carries only some channels (JCL has no record layouts; CSD only transactions)
+    fills the rest with empty lists, and an unrecognised declaration degrades to
+    "no facts" rather than raising in a worker.
     """
     if not code_stream:
-        return {"calls": [], "datasets": [], "records": []}
+        return {"calls": [], "datasets": [], "records": [], "transactions": []}
     if dialect == "cobol":
         values = _cobol_value_map(code_stream)
         return {
             "calls": _cobol_calls(code_stream, values),
             "datasets": _cobol_datasets(code_stream),
             "records": _cobol_records(code_stream),
+            "transactions": [],
         }
     if dialect == "jcl":
         boundary = _jcl_boundary(code_stream)
         boundary["records"] = []
+        boundary["transactions"] = _jcl_csd_transactions(code_stream)
         return boundary
-    return {"calls": [], "datasets": [], "records": []}
+    if dialect == "csd":
+        return {"calls": [], "datasets": [], "records": [], "transactions": _csd_transactions(code_stream)}
+    return {"calls": [], "datasets": [], "records": [], "transactions": []}

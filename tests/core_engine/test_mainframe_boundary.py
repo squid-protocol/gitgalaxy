@@ -120,13 +120,19 @@ def test_the_declaration_is_top_level_not_a_rule():
 
 
 def test_only_the_declared_dialects_extract_anything():
-    """An undeclared language degrades to no facts, never to an exception."""
+    """An undeclared language degrades to no facts, never to an exception.
+
+    Every return carries the uniform key shape (#3246 added `records`,
+    #3211-followup added `transactions`, alongside `calls`/`datasets`), so a
+    caller reads one shape whatever the dialect.
+    """
     assert extract_boundary("python", "CALL 'X'\nSELECT A ASSIGN TO B.") == {
         "calls": [],
         "datasets": [],
         "records": [],
+        "transactions": [],
     }
-    assert extract_boundary("cobol", "") == {"calls": [], "datasets": [], "records": []}
+    assert extract_boundary("cobol", "") == {"calls": [], "datasets": [], "records": [], "transactions": []}
 
 
 # ==============================================================================
@@ -349,3 +355,146 @@ def test_an_unterminated_exec_cics_cannot_scan_the_whole_file():
     src = "       EXEC CICS LINK\n" + "           MOVE X TO Y\n" * 500 + "           PROGRAM('TOOFAR')\n"
     (call,) = _calls("cobol", src)
     assert call["target"] is None, "a PROGRAM operand thousands of chars away is not this block's"
+
+
+# ==============================================================================
+# #3211-followup: THE CICS TRANSACTION MAP
+# ==============================================================================
+def _transactions(dialect, source):
+    return extract_boundary(dialect, source)["transactions"]
+
+
+# A CEDA/DFHCSDUP EXTRACT dump (carddemo CARDDEMO.CSD's shape): a leading blank
+# column, attributes continued across indented lines with no continuation char,
+# a DESCRIPTION whose unquoted value carries spaces, audit trailers whose values
+# embed spaces (DEFINETIME), and a PROGRAM record that carries a TRANSID.
+CSD_EXTRACT = """\
+ DEFINE TRANSACTION(CAUP) GROUP(CARDDEMO)
+ DESCRIPTION(CREDIT CARD DEMO ACCOUNT UPDATE)
+        PROGRAM(COACTUPC) TWASIZE(0) PROFILE(DFHCICST) STATUS(ENABLED)
+        WAITTIME(0,0,0) RESSEC(NO) CMDSEC(NO)
+        DEFINETIME(22/06/10 20:05:10) CHANGEAGENT(CSDAPI)
+ DEFINE PROGRAM(COSGN00C) GROUP(CARDDEMO)
+        LANGUAGE(COBOL) CONCURRENCY(QUASIRENT) DYNAMIC(NO) TRANSID(CC00)
+        CHANGEAGENT(CSDBATCH) CHANGEAGREL(0730)
+"""
+
+# A hand-written DFHCSDUP SYSIN member (CBSA BANK.csd's shape): `*` column-1
+# comments, quoted DESCRIPTIONs, a DELETE and an ADD command wrapping the DEFINEs,
+# and a DB2TRAN whose TRANSID(...) is a DB2 attribute, not a transaction.
+CSD_SYSIN = """\
+*
+* Copyright IBM Corp. 2023
+*
+ DELETE GROUP(BANK)
+
+DEFINE TRANSACTION(OCR1) GROUP(BANK)
+ DESCRIPTION('Txn to Credit Agency 1')
+        PROGRAM(CRDTAGY1) TWASIZE(0) PROFILE(DFHCICST) STATUS(ENABLED)
+ DEFINE PROGRAM(CRDTAGY1) GROUP(BANK)
+ DESCRIPTION('BANK Credit Agency 1')
+        LANGUAGE(COBOL) STATUS(ENABLED)
+ DEFINE DB2TRAN(BKB2) GROUP(BANK) ENTRY(HBANK) TRANSID(BKB2)
+ ADD GROUP(BANK) LIST(CICSTS61)
+"""
+
+# A DFHCSDUP deck carried inline in a JCL job (carddemo CBADMCDJ.jcl's shape):
+# in-stream SYSIN with SET substitution lines and a commented-out DEFINE, all of
+# which the record splitter treats as separators around the real DEFINEs.
+JCL_INLINE_CSD = """\
+//STEP1   EXEC PGM=DFHCSDUP,REGION=0M
+//SYSIN    DD  *,SYMBOLS=JCLONLY
+//   SET HLQ=AWS.M2.CARDDEMO
+* DELETE GROUP(CARDDEMO)
+  DEFINE PROGRAM(COSGN00C) GROUP(CARDDEMO) DA(ANY) TRANSID(CC00)
+         DESCRIPTION(LOGIN)
+  DEFINE TRANSACTION(CCDM) GROUP(CARDDEMO)
+                PROGRAM(COADM00C) TASKDATAL(ANY)
+  LIST   GROUP(CARDDEMO)
+/*
+"""
+
+
+def test_csd_extract_dump_reads_transaction_and_program_autoinstall():
+    """A CEDA EXTRACT dump yields the TRANSACTION->PROGRAM edge and the PROGRAM
+    record's autoinstall TRANSID pairing, with GROUP/PROFILE attributes."""
+    txns = _transactions("csd", CSD_EXTRACT)
+    assert txns == [
+        {"transid": "CAUP", "program": "COACTUPC", "group": "CARDDEMO", "profile": "DFHCICST", "line": 1},
+        {"transid": "CC00", "program": "COSGN00C", "group": "CARDDEMO", "profile": None, "line": 6},
+    ]
+
+
+def test_csd_attribute_values_with_spaces_and_commas_do_not_truncate():
+    """The paren-balanced reader keeps WAITTIME(0,0,0) and a spaced DESCRIPTION
+    from truncating the attributes after them (PROGRAM still reads)."""
+    (txn,) = [t for t in _transactions("csd", CSD_EXTRACT) if t["transid"] == "CAUP"]
+    assert txn["program"] == "COACTUPC"
+    assert txn["profile"] == "DFHCICST"
+
+
+def test_csd_sysin_excludes_db2tran_transid_and_ignores_commands():
+    """A hand-written SYSIN member yields only the real TRANSACTION; the
+    DB2TRAN's TRANSID and the DELETE/ADD commands are not transactions."""
+    txns = _transactions("csd", CSD_SYSIN)
+    assert txns == [{"transid": "OCR1", "program": "CRDTAGY1", "group": "BANK", "profile": "DFHCICST", "line": 6}]
+
+
+def test_jcl_inline_dfhcsdup_deck_is_read_and_a_commented_define_is_skipped():
+    """A DFHCSDUP deck inline in a JCL SYSIN is read (the abbreviated DA/TASKDATAL
+    attrs and SET lines do not interfere); a `*`-commented DEFINE draws nothing."""
+    txns = _transactions("jcl", JCL_INLINE_CSD)
+    assert txns == [
+        {"transid": "CC00", "program": "COSGN00C", "group": "CARDDEMO", "profile": None, "line": 5},
+        {"transid": "CCDM", "program": "COADM00C", "group": "CARDDEMO", "profile": None, "line": 7},
+    ]
+
+
+def test_a_jcl_job_that_does_not_run_dfhcsdup_yields_no_transactions():
+    """The inline deck is only read for a DFHCSDUP step, so an ordinary job with
+    a stray DEFINE-like word draws nothing."""
+    ordinary = "//STEP1 EXEC PGM=IEFBR14\n//SYSIN DD *\n  DEFINE TRANSACTION(XXXX) PROGRAM(YYYY)\n/*\n"
+    assert _transactions("jcl", ordinary) == []
+
+
+def test_csd_dialect_produces_no_calls_or_datasets():
+    """A CSD deck is a resource map, not a program: it carries only transactions."""
+    boundary = extract_boundary("csd", CSD_EXTRACT)
+    assert boundary["calls"] == []
+    assert boundary["datasets"] == []
+
+
+# ------------------------------------------------------------------ routing ---
+def test_cics_return_transid_literal_is_a_routing_site():
+    """`EXEC CICS RETURN TRANSID('OCRA')` records a routing site whose verb names
+    the transaction target."""
+    (site,) = [c for c in _calls("cobol", "       EXEC CICS RETURN TRANSID('OCRA') END-EXEC.")]
+    assert site == {"verb": "RETURN TRANSID", "form": "literal", "operand": "OCRA", "target": "OCRA", "line": 1}
+
+
+def test_cics_return_transid_identifier_resolves_through_working_storage_value():
+    """`RETURN TRANSID(WS-TRANID)` resolves to the data item's VALUE literal, the
+    dominant carddemo idiom."""
+    src = "       01 WS-TRANID PIC X(4) VALUE 'CC00'.\n       EXEC CICS RETURN TRANSID(WS-TRANID) END-EXEC.\n"
+    (site,) = _calls("cobol", src)
+    assert site["verb"] == "RETURN TRANSID"
+    assert site["form"] == "identifier"
+    assert site["operand"] == "WS-TRANID"
+    assert site["target"] == "CC00"
+
+
+def test_a_runtime_populated_transid_is_recorded_with_no_target():
+    """A TRANSID variable with no readable VALUE (populated at runtime) keeps the
+    site but resolves to no transaction -- data, not a gap."""
+    src = "       01 WS-RUN-TRANSID PIC X(4) VALUE SPACES.\n       EXEC CICS RUN TRANSID(WS-RUN-TRANSID) END-EXEC.\n"
+    (site,) = _calls("cobol", src)
+    assert site["verb"] == "RUN TRANSID"
+    assert site["target"] is None
+
+
+def test_plain_cics_return_without_transid_is_not_a_routing_site():
+    """An ordinary `EXEC CICS RETURN` (no TRANSID) is not routing and draws
+    nothing; STARTBR (a file browse) is not START TRANSID either."""
+    assert _calls("cobol", "       EXEC CICS RETURN END-EXEC.") == []
+    browse = [c for c in _calls("cobol", "       EXEC CICS STARTBR FILE('CUST') END-EXEC.") if "TRANSID" in c["verb"]]
+    assert browse == []

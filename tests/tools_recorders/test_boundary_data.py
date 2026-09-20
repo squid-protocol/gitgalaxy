@@ -15,7 +15,7 @@ import sqlite3
 
 import pytest
 
-from gitgalaxy.core.invocation_resolver import resolve_invocations
+from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
 from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
 from gitgalaxy.recorders.record_keeper import RecordKeeper
 
@@ -350,3 +350,105 @@ def test_a_caller_predating_3200_writes_no_boundary_rows(tmp_path):
     RecordKeeper().record_mission(files, [], {}, SESSION, str(db), dependency_edges=sensor.dependency_edges)
     assert _rows(db, "SELECT COUNT(*) FROM call_site_data") == [(0,)]
     assert _rows(db, "SELECT COUNT(*) FROM edge_data WHERE edge_kind <> 'import'") == [(0,)]
+
+
+# ==============================================================================
+# #3211-followup: THE CICS TRANSACTION MAP
+# ==============================================================================
+# A CSD deck that maps two transactions to programs (one present, one absent), a
+# COBOL program the transaction routes to, and a menu program whose in-source
+# RETURN TRANSID routes to the transaction.
+TXN_UNIVERSE = [
+    {
+        "path": "csd/APP.csd",
+        "lang_id": "csd",
+        "raw_imports": [],
+        "transaction_defs": [
+            {"transid": "PAYT", "program": "PAYPGM", "group": "APP", "profile": "DFHCICST", "line": 1},
+            {"transid": "EXTN", "program": "NOTHERE", "group": "APP", "profile": None, "line": 3},
+        ],
+    },
+    {
+        "path": "src/PAYPGM.cbl",
+        "lang_id": "cobol",
+        "raw_imports": [],
+        "classes": [{"name": "PAYPGM"}],
+        "call_sites": [
+            {"verb": "RETURN TRANSID", "form": "literal", "operand": "PAYT", "target": "PAYT", "line": 42},
+        ],
+    },
+]
+
+
+@pytest.fixture
+def txn_recorded(tmp_path):
+    import copy
+
+    sensor = NetworkRiskSensor()
+    files, _ = sensor.build_dependency_graph(copy.deepcopy(TXN_UNIVERSE))
+    call_sites, invocation_edges = resolve_invocations(files)
+    transactions = resolve_transactions(files)
+    db = tmp_path / "txn.db"
+    RecordKeeper().record_mission(
+        files,
+        [],
+        {},
+        SESSION,
+        str(db),
+        dependency_edges=sensor.dependency_edges,
+        call_sites=call_sites,
+        invocation_edges=invocation_edges,
+        transactions=transactions,
+    )
+    return db
+
+
+def test_transaction_data_persists_with_resolution(txn_recorded):
+    """A transaction whose program is in the repo resolves to that file; one whose
+    program is absent keeps a NULL dst_file_id."""
+    assert _rows(
+        txn_recorded,
+        """
+        SELECT t.transid, t.program, t.group_name, df.file_path, sf.file_path
+        FROM transaction_data t
+        JOIN file_data sf ON t.file_id = sf.id
+        LEFT JOIN file_data df ON t.dst_file_id = df.id
+        ORDER BY t.transid
+        """,
+    ) == [
+        ("EXTN", "NOTHERE", "APP", None, "csd/APP.csd"),
+        ("PAYT", "PAYPGM", "APP", "src/PAYPGM.cbl", "csd/APP.csd"),
+    ]
+
+
+def test_a_transid_routing_site_is_a_call_row_with_no_program_destination(txn_recorded):
+    """The COBOL `RETURN TRANSID('PAYT')` rides in call_site_data, but its target
+    is a transaction, so program resolution leaves dst_file_id NULL."""
+    assert _rows(
+        txn_recorded,
+        "SELECT verb, target, dst_file_id FROM call_site_data WHERE verb = 'RETURN TRANSID'",
+    ) == [("RETURN TRANSID", "PAYT", None)]
+
+
+def test_the_transaction_map_join_is_answerable_in_sql(txn_recorded):
+    """The whole point: name each program's entry transaction from the DB alone."""
+    assert _rows(
+        txn_recorded,
+        """
+        SELECT df.file_path, t.transid
+        FROM transaction_data t JOIN file_data df ON t.dst_file_id = df.id
+        ORDER BY df.file_path
+        """,
+    ) == [("src/PAYPGM.cbl", "PAYT")]
+
+
+def test_an_unchanged_csd_keeps_its_transactions_through_a_delta_scan(txn_recorded):
+    """The rehydrator restores transaction_defs so an incremental scan does not
+    drop an unchanged deck's transactions (the #3220 rule, for transactions)."""
+    from gitgalaxy.core.state_rehydrator import StateRehydrator
+
+    cache = StateRehydrator(str(txn_recorded)).load_state("MainframeRepo")["ram_cache"]
+    assert [(t["transid"], t["program"], t["group"]) for t in cache["csd/APP.csd"]["transaction_defs"]] == [
+        ("PAYT", "PAYPGM", "APP"),
+        ("EXTN", "NOTHERE", "APP"),
+    ]

@@ -117,6 +117,21 @@ class FolderStats(TypedDict):
     churns: list[float]
 
 
+def _ordered_raw_imports(raw_imports: Any) -> list:
+    """`raw_imports` as a deterministic JSON-safe list (#3220, ordering per #3227).
+
+    Entries are import strings, or `(module, entity)` tuples for a Level 2 entity
+    import. A rehydrated file's `raw_imports` is a set, so iteration order is
+    hash-seed dependent; `sorted()` over the mixed list is a TypeError. Sorting the
+    two shapes in separate groups gives a stable order without ever comparing a
+    string to a tuple.
+    """
+    return sorted(
+        (list(x) if isinstance(x, tuple) else x for x in (raw_imports or [])),
+        key=lambda x: (1, x) if isinstance(x, list) else (0, [x]),
+    )
+
+
 class RecordKeeper:
     """
     SQLite Telemetry Recorder.
@@ -1327,12 +1342,18 @@ class RecordKeeper:
             row_data.append(float((file_data.get("metadata") or {}).get("doc_umbrella", 0.0) or 0.0))
             # #3220: persist raw_imports so a delta rehydrate rebuilds the dependency
             # graph (popularity/pagerank/api_exposure) exactly. Entries are usually import
-            # strings but can be (module, alias) TUPLES, so don't sort (mixed str/tuple is
-            # unorderable) and encode tuples as lists; the rehydrator restores them. Order
-            # is irrelevant -- it round-trips into a set.
-            row_data.append(
-                json.dumps([list(x) if isinstance(x, tuple) else x for x in (file_data.get("raw_imports") or [])])
-            )
+            # strings but can be (module, entity) TUPLES, which the resolver treats as a
+            # Level 2 entity import, so they are encoded as lists and restored by the
+            # rehydrator.
+            #
+            # The order is NOT irrelevant. A rehydrated file's raw_imports is a set
+            # (state_rehydrator._json_import_set), so persisting it in iteration order
+            # made the column hash-seed dependent, and with it the order
+            # `_publish_edges` emits rows -- which is the order #3183 assigns
+            # edge/file ids in. A plain sorted() is what raised
+            # TypeError('<' not supported between tuple and str) in the first place, so
+            # sort in two groups and never compare a str to a tuple.
+            row_data.append(json.dumps(_ordered_raw_imports(file_data.get("raw_imports"))))
 
             # #3183 (B1): accumulate the row and precompute its AUTOINCREMENT id
             # (assigned in list order by the executemany after the loop) instead

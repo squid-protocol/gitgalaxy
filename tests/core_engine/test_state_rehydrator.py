@@ -1,9 +1,13 @@
+import json
 import sqlite3
 
 import pytest
 
+import gitgalaxy.core.state_rehydrator as sr
+
 # Adjust this import to match your actual directory structure
 from gitgalaxy.core.state_rehydrator import StateRehydrator
+from gitgalaxy.recorders.record_keeper import _ordered_raw_imports
 
 # ==============================================================================
 # MOCK DATABASE CALIBRATION
@@ -337,3 +341,45 @@ def test_load_state_none_matches_legacy_latest(mock_db):
     r = StateRehydrator(mock_db)
     assert r.load_state("test_repo")["commit_hash"] == "hash_new_456"
     assert r.load_state("test_repo")["commit_hash"] == r.load_latest_state("test_repo")["commit_hash"]
+
+
+# ==============================================================================
+# #3227 follow-up: the persisted raw_imports column must be hash-seed stable
+# ==============================================================================
+def test_raw_imports_persist_in_a_deterministic_order():
+    """A rehydrated file's `raw_imports` is a set, so persisting it in iteration
+    order made the column (and the edge row order #3183 assigns ids in) depend on
+    PYTHONHASHSEED. A plain sorted() is what raised TypeError over the mixed
+    str/tuple list, so the two shapes sort in separate groups."""
+    entries = {"src/util.py", "src/lib.py", "missing_pkg", ("src/lib.py", "helper"), "a/b.py"}
+
+    ordered = _ordered_raw_imports(entries)
+
+    assert ordered == [
+        "a/b.py",
+        "missing_pkg",
+        "src/lib.py",
+        "src/util.py",
+        ["src/lib.py", "helper"],
+    ]
+    # Same members in any other iteration order give the same list.
+    for _ in range(50):
+        assert _ordered_raw_imports(set(entries)) == ordered
+    assert _ordered_raw_imports(list(entries)) == ordered
+
+
+def test_raw_imports_ordering_round_trips_through_the_rehydrator():
+    """Ordering is only safe if it survives the decode: tuples come back as tuples
+    (a set needs hashable members, and the resolver distinguishes the two shapes)."""
+    entries = {"src/lib.py", ("src/lib.py", "helper"), "missing_pkg"}
+
+    restored = sr._json_import_set(json.dumps(_ordered_raw_imports(entries)))
+
+    assert restored == entries
+    assert ("src/lib.py", "helper") in restored
+
+
+def test_raw_imports_ordering_handles_the_empty_and_missing_cases():
+    assert _ordered_raw_imports(None) == []
+    assert _ordered_raw_imports([]) == []
+    assert _ordered_raw_imports(set()) == []

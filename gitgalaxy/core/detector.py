@@ -3222,10 +3222,21 @@ class StructuralExtractor:
             if lang_id in ("shell", "bash")
             else ""
         )
+        # C-family and many others use /* ... */ for multi-line comments.
+        # HTML/XML use <!-- ... -->
+        block_comment_alt = ""
+        if lang_id in ("html", "xml", "markdown"):
+            block_comment_alt = r"<!--[\s\S]*?-->|"
+        elif lang_id == "haskell":
+            block_comment_alt = r"\{-[\s\S]*?-\}|"
+        elif lang_id not in ("python", "ruby", "shell", "bash", "perl", "lua", "r", "yaml", "elixir", "cobol", "fortran", "abap"):
+            # Default to C-style block comments for the vast majority of C-family / web languages
+            block_comment_alt = r"/\*[\s\S]*?\*/|"
 
         atomic_string_pattern = (
             heredoc_opener_alt + r'""".*?"""|'  # Python Triple Double
             r"'''.*?'''|"  # Python Triple Single
+            + block_comment_alt + 
             r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'  # C++ Raw String Literal (e.g. R"EOF(...)EOF")
             r'@"[^"]*(?:""[^"]*)*"|'  # THE FIX: Unrolled C# Verbatim Shield (O(N) safe)
             f"{standard_double}|"  # Standard Double

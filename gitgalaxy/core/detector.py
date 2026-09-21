@@ -8527,7 +8527,11 @@ class StructuralExtractor:
         # ---> NEW: LEVEL 3 WIRING (Function Call Chains) <---
         # We scan the block for any word followed by a parenthesis, minus common language keywords.
         invocation_pattern = re.compile(r"\b([a-zA-Z_]\w*)\s*\(")
-        raw_calls = invocation_pattern.findall(block)
+
+        # Apply literal shield to avoid capturing words inside strings
+        safe_block = self._apply_literal_shield(block, self.primary_lang_id)
+        raw_calls = invocation_pattern.findall(safe_block)
+
         ignore_keywords = {
             "if",
             "for",
@@ -8597,7 +8601,7 @@ class StructuralExtractor:
             "Boolean",
         }
         # Deduplicate and filter (excluding the function calling itself recursively)
-        calls_out = list({c for c in raw_calls if c not in ignore_keywords and c != name})[:20]
+        calls_out = list(dict.fromkeys(c for c in raw_calls if c not in ignore_keywords and c != name))
 
         sat: FunctionNode = {
             "name": name,

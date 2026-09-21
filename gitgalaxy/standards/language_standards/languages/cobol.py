@@ -745,9 +745,7 @@ DEFINITION: dict[str, Any] = {
         # 50. calls_out (Information Flow / Call Graph)
         # Replaces the generic `name(` regex which falsely captured intrinsics/subscripts.
         # Captures explicit subroutine execution and cross-module linkages.
-        "calls_out": re.compile(
-            r"(?i)\b(?:PERFORM|CALL|GO\s+TO)\s+['\"]?([A-Za-z0-9_-]+)['\"]?"
-        ),
+        "calls_out": re.compile(r"(?i)\b(?:PERFORM|CALL|GO\s+TO)\s+['\"]?([A-Za-z0-9_-]+)['\"]?"),
         # #3197: a paragraph/section header begins a SENTENCE. `func_start`
         # alone cannot see that -- the deciding context is the PREVIOUS line,
         # and a lookbehind cannot span one -- so the last line of a multi-line

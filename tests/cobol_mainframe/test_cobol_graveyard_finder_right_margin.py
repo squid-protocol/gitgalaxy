@@ -10,7 +10,7 @@ def test_fixed_format_right_margin_sequence_numbers_are_ignored(tmp_path: Path):
         "       PROCEDURE DIVISION.\n"
         "       000-MAIN.\n"
         "           DISPLAY 'X'.\n"
-        "       100-OK.                                              12345678\n"
+        "       100-OK.                                                          12345678\n"
         "           DISPLAY 'Y'.\n"
     )
 
@@ -27,7 +27,7 @@ def test_fixed_format_right_margin_sequence_numbers_are_ignored(tmp_path: Path):
         "       IDENTIFICATION DIVISION.\n"
         "       PROGRAM-ID. PROG.\n"
         "       DATA DIVISION.\n"
-        "      COPY COPYBOOK.                                            56789012\n"
+        "      COPY COPYBOOK.                                                    56789012\n"
         "       PROCEDURE DIVISION.\n"
         "       P000.\n"
         "           GOBACK.\n",

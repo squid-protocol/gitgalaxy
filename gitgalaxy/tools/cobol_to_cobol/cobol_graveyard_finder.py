@@ -36,7 +36,7 @@ _NOT_A_PARAGRAPH = re.compile(r"END-[A-Z0-9\-]+|GOBACK|EXIT|CONTINUE|STOP|DECLAR
 # Matches: COPY NAME. or COPY NAME REPLACING ==A== BY ==B==., with or without
 # a sequence field in cols 1-6 (`R2     COPY SAM2PARM.`).
 COPY_PATTERN = re.compile(
-    "^" + _SEQ_AREA + r'[ \t]*COPY\s+[\'\"]?([A-Z0-9_\-]+)[\'\"]?(?:\s+REPLACING\s+(.+?))?\.',
+    "^" + _SEQ_AREA + r"[ \t]*COPY\s+[\'\"]?([A-Z0-9_\-]+)[\'\"]?(?:\s+REPLACING\s+(.+?))?\.",
     re.MULTILINE | re.IGNORECASE,
 )
 

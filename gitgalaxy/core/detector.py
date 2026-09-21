@@ -3236,7 +3236,7 @@ class StructuralExtractor:
         atomic_string_pattern = (
             heredoc_opener_alt + r'""".*?"""|'  # Python Triple Double
             r"'''.*?'''|"  # Python Triple Single
-            + block_comment_alt + 
+            + block_comment_alt +
             r'R"([a-zA-Z0-9_]*)\(.*?\)\1"|'  # C++ Raw String Literal (e.g. R"EOF(...)EOF")
             r'@"[^"]*(?:""[^"]*)*"|'  # THE FIX: Unrolled C# Verbatim Shield (O(N) safe)
             f"{standard_double}|"  # Standard Double

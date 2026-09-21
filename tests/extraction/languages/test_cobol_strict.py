@@ -748,3 +748,27 @@ def test_cobol_2990_redos_immunity_sweep():
     assert COBOL_RULES["concurrency"].search("EXEC CICS RUN TRANSID('T') END-EXEC")
     assert COBOL_RULES["safety"].search("DFHRESP(NORMAL)")
     assert COBOL_RULES["high_risk_execution"].search("CANCEL 'SUBPROG'.")
+
+def test_cobol_calls_out_strict():
+    """
+    Epic #3264: Asserts that COBOL extracts targets from PERFORM/CALL/GO TO, 
+    not from the generic name() parenthesis fallback which falsely captured 
+    intrinsics and array subscripts.
+    """
+    cobol = LANGUAGE_DEFINITIONS["cobol"]
+    calls_out = cobol["rules"]["calls_out"]
+    
+    # 1. Signature Tests (Positive matches)
+    assert calls_out.findall("PERFORM 310-CRUNCH-LOOP") == ["310-CRUNCH-LOOP"]
+    assert calls_out.findall("CALL 'SUBPROG' USING ARGV") == ["SUBPROG"]
+    assert calls_out.findall("CALL \"SUBPROG\"") == ["SUBPROG"]
+    assert calls_out.findall("GO TO ERROR-ROUTINE") == ["ERROR-ROUTINE"]
+    
+    # 2. Negative Tests (Issue #3202)
+    assert calls_out.findall("WS-TAB(I)") == [] # no subscript captured
+    assert calls_out.findall("FUNCTION CURRENT-DATE()") == [] # no intrinsics
+    
+    # 3. ReDoS Scale Testing
+    # Verify the pattern is O(n) linear against adversarial repetition
+    payload = "PERFORM " + ("A-" * 10000)
+    assert_redos_immune(calls_out, payload)

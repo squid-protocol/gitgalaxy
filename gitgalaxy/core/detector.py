@@ -8548,8 +8548,12 @@ class StructuralExtractor:
         docstring = self._extract_documentation_tether(start_line, self.primary_lang_id)
 
         # ---> NEW: LEVEL 3 WIRING (Function Call Chains) <---
-        # We scan the block for any word followed by a parenthesis, minus common language keywords.
-        invocation_pattern = re.compile(r"\b([a-zA-Z_]\w*)\s*\(")
+        # We scan the block for explicit function invocation edges.
+        # Epic #3264: Route via the language's specific paradigm first (e.g. COBOL's PERFORM),
+        # falling back to the generic C-family parenthesis-invocation shape if unconfigured.
+        invocation_pattern = rules.get("calls_out")
+        if not invocation_pattern:
+            invocation_pattern = re.compile(r"\b([a-zA-Z_]\w*)\s*\(")
 
         # Apply literal shield to avoid capturing words inside strings
         safe_block = self._apply_literal_shield(block, self.primary_lang_id)

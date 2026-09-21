@@ -396,10 +396,7 @@ fine":
    up independently in 7+ languages for the exact same copy-pasted `spec_exposure` pattern, and can
    be *far* more explosive than a typical nested-delimiter ReDoS (one real case hung for 9+ seconds
    at just n=2000) — start the scaling sweep at a small n, not just n=32000.
-4. **Comment-style audit (Rule 12).** If the language's `lexical_family` supports more than one
-   comment style, verify `dead_code` (and `doc`/`ownership`, if they're anchored to a specific
-   comment marker rather than the family's full delimiter set) fires under each of them, not just
-   the one it was seemingly written against.
+4. **Comment-style audit (Rule 12).** All comment styles supported by the language (single-line, multi-line, block, string-as-comment, etc.) MUST be tried out for testing rules. Verify `dead_code` (and `doc`/`ownership`, if they're anchored to a specific comment marker rather than the family's full delimiter set) fires under each of them, not just the one it was seemingly written against. You must explicitly author tests proving that every supported comment style is handled properly by the relevant rules.
 5. **ReDoS adversarial payloads, verified by scaling — not a single timing.** For every rule with
    an unbounded-looking quantifier, construct the "never closes" adversarial payload (e.g. `"{" *
    n` for a rule expecting a closing `}`, `"(" * n` for one expecting `)`) and measure actual

@@ -164,6 +164,15 @@ def _c(name, phase, kind, contract, **kw):  # tabular constructor, see rows belo
 _ROWS = [
     # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
     _c(
+        "calls_out",
+        "structure",
+        "site",
+        "Explicit subroutine execution and cross-module linkages",
+        status="declared",
+        doc="docs/domain_sensor_contracts.md",
+        issue=3264,
+    ),
+    _c(
         "branch",
         "structure",
         "site",

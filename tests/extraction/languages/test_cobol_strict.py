@@ -757,17 +757,17 @@ def test_cobol_calls_out_strict():
     """
     cobol = LANGUAGE_DEFINITIONS["cobol"]
     calls_out = cobol["rules"]["calls_out"]
-    
+
     # 1. Signature Tests (Positive matches)
     assert calls_out.findall("PERFORM 310-CRUNCH-LOOP") == ["310-CRUNCH-LOOP"]
     assert calls_out.findall("CALL 'SUBPROG' USING ARGV") == ["SUBPROG"]
     assert calls_out.findall("CALL \"SUBPROG\"") == ["SUBPROG"]
     assert calls_out.findall("GO TO ERROR-ROUTINE") == ["ERROR-ROUTINE"]
-    
+
     # 2. Negative Tests (Issue #3202)
     assert calls_out.findall("WS-TAB(I)") == [] # no subscript captured
     assert calls_out.findall("FUNCTION CURRENT-DATE()") == [] # no intrinsics
-    
+
     # 3. ReDoS Scale Testing
     # Verify the pattern is O(n) linear against adversarial repetition
     payload = "PERFORM " + ("A-" * 10000)

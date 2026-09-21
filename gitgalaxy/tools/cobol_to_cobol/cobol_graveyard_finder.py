@@ -145,7 +145,7 @@ def _code_area(line: str) -> Optional[str]:
     if len(line) > 6 and line[6] in "*/D":
         return None
     area = _blank_literals(_trim_fixed_format(line)[7:72])
-    return area.split(">*", 1)[0]
+    return area.split("*>", 1)[0]
 
 
 def unit_header(line: str) -> Optional[str]:

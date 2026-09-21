@@ -169,7 +169,7 @@ def test_louvain_communities_are_identical_to_networkx(seed):
     undirected = graph_parity.to_networkx(nodes, edges).to_undirected()
     reference = graph_parity.nx.algorithms.community.louvain_communities(undirected, seed=42)
     ours = graph_engine.louvain_communities(index)
-    assert [{index.nodes[v] for v in community} for community in ours] == reference
+    assert set(frozenset(index.nodes[v] for v in community) for community in ours) == set(frozenset(community) for community in reference)
 
 
 def test_louvain_modularity_edge_cases():

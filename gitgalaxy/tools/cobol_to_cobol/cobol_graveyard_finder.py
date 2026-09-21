@@ -36,7 +36,7 @@ _NOT_A_PARAGRAPH = re.compile(r"END-[A-Z0-9\-]+|GOBACK|EXIT|CONTINUE|STOP|DECLAR
 # Matches: COPY NAME. or COPY NAME REPLACING ==A== BY ==B==., with or without
 # a sequence field in cols 1-6 (`R2     COPY SAM2PARM.`).
 COPY_PATTERN = re.compile(
-    "^" + _SEQ_AREA + r'[ \t]*COPY\s+[\'"]?([A-Z0-9_\-]+)[\'"]?(?:\s+REPLACING\s+(.+?))?\.',
+    "^" + _SEQ_AREA + r'[ \t]*COPY\s+[\'\"]?([A-Z0-9_\-]+)[\'\"]?(?:\s+REPLACING\s+(.+?))?\.',
     re.MULTILINE | re.IGNORECASE,
 )
 
@@ -70,6 +70,18 @@ _REPLACING_PAIR = re.compile(
     r"(?<![A-Z0-9_\-])(?:==)?([A-Z0-9_\-]+)(?:==)?\s+BY\s+(?:==)?([A-Z0-9_\-]+)(?:==)?",
     re.IGNORECASE,
 )
+
+
+def _trim_fixed_format(line: str) -> str:
+    """Trim fixed-format right-margin sequence numbers (cols 73-80) before matching.
+
+    COBOL fixed-format source uses columns 73-80 for sequence numbers, which are not
+    part of the executable code or paragraph/COPY headers. The parser already treats
+    cols 8-72 as the meaningful code region; this helper keeps that model consistent.
+    """
+    if len(line) > 72:
+        return line[:72]
+    return line
 
 
 @lru_cache(maxsize=8)
@@ -132,8 +144,8 @@ def _code_area(line: str) -> Optional[str]:
     inline `*>` comment cut, or None for a comment / debug line (column 7)."""
     if len(line) > 6 and line[6] in "*/D":
         return None
-    area = _blank_literals(line[7:72])
-    return area.split("*>", 1)[0]
+    area = _blank_literals(_trim_fixed_format(line)[7:72])
+    return area.split(">*", 1)[0]
 
 
 def unit_header(line: str) -> Optional[str]:
@@ -142,8 +154,10 @@ def unit_header(line: str) -> Optional[str]:
     A header is `NAME.` / `NAME SECTION.` starting in Area A (cols 8-11), alone on
     its line. A lone `NAME.` deeper in Area B is the last line of a multi-line
     statement or a scope terminator (`END-IF.`, `GOBACK.`), not a unit (#3203
-    defect 1). Cols 1-6 may carry a sequence field (defect 4).
+    defect 1). Cols 1-6 may carry a sequence field (defect 4), and cols 73-80 are
+    ignored as a right-margin sequence number field (#3244).
     """
+    line = _trim_fixed_format(line)
     m = _UNIT_HEADER.match(line)
     if m is None or _NOT_A_PARAGRAPH.fullmatch(m.group(1)):
         return None
@@ -160,12 +174,13 @@ def procedure_units(proc_div: str) -> list[dict]:
     """
     lines = proc_div.split("\n")
     i = 0
-    if not _SENTENCE_END.search(_blank_literals(lines[0])):
+    if not _SENTENCE_END.search(_blank_literals(_trim_fixed_format(lines[0]))):
         i = 1
-        while i < len(lines) and not _SENTENCE_END.search(_code_area(lines[i]) or ""):
+        while i < len(lines) and not _SENTENCE_END.search(_code_area(_trim_fixed_format(lines[i])) or ""):
             i += 1
     units: list[dict] = [{"name": None, "kind": "implicit", "body": []}]
     for line in lines[i + 1 :]:
+        line = _trim_fixed_format(line)
         code = _code_area(line)
         if code is None:
             continue
@@ -329,8 +344,10 @@ def resolve_copybooks(
         # If the copybook is missing from the repo, leave the statement intact to avoid crashing
         return match.group(0)
 
+    # Right-margin sequence numbers (cols 73-80) are not part of the effective COBOL
+    # source, so trim them before matching COPY headers. This fixes #3244.
+    safe_content = "\n".join(_trim_fixed_format(line.rstrip("\n")) for line in content.splitlines())
     # Run the substitution up to 3 times to handle nested copybooks (COPY within a COPY)
-    safe_content = content
     for _ in range(3):
         safe_content = COPY_PATTERN.sub(replacer, safe_content)
 

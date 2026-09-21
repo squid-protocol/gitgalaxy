@@ -178,6 +178,25 @@ def test_sequence_numbered_source(tmp_path):
     assert metrics["dead_paras"] == {"DEAD-PARA"}
     assert metrics["orphaned_vars"] == {"PARM-A"}, "The sequence-numbered COPY was not resolved"
 
+    # Right-margin sequence field (cols 73-80) is ignored; paragraph and COPY names
+    # still match even when the fixed-format tail carries an ID.
+    pgm2 = repo / "SEQPGM2.cbl"
+    pgm2.write_text(
+        "000100 DATA DIVISION.\n"
+        "R2     COPY PARMS.                                     08490000\n"
+        "000300 PROCEDURE DIVISION.\n"
+        "000400 MAIN-PARA.                                        08490000\n"
+        "000500     DISPLAY 'HI'.                                  08490000\n"
+        "000550     GOBACK.                                        08490000\n"
+        "000600 DEAD-PARA.                                       08490000\n"
+        "000700     DISPLAY 'BYE'.                                08490000\n",
+        encoding="utf-8",
+    )
+
+    metrics2 = graveyard_module.x_ray_dead_code(pgm2)
+    assert metrics2["dead_paras"] == {"DEAD-PARA"}
+    assert metrics2["orphaned_vars"] == {"PARM-A"}, "The right-margin sequence field was not ignored"
+
 
 def test_programs_are_never_inlined_as_copybooks(tmp_path):
     """Defect 2: `COPY ACCTCTRL` must resolve to the copybook, not to the program

@@ -8597,7 +8597,7 @@ class StructuralExtractor:
             "Boolean",
         }
         # Deduplicate and filter (excluding the function calling itself recursively)
-        calls_out = list({c for c in raw_calls if c not in ignore_keywords and c != name})[:20]
+        calls_out = list(dict.fromkeys(c for c in raw_calls if c not in ignore_keywords and c != name))[:20]
 
         sat: FunctionNode = {
             "name": name,

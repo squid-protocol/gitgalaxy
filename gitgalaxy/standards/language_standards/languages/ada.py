@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -48,6 +48,8 @@ DEFINITION: dict[str, Any] = {
     # LEXICAL_FAMILY_HEURISTICS and prism.py's _compile_regex_matrix.
     "lexical_family": "line_exclusive_dash",
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_C_STYLE,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: Ada's short-circuit forms are the two-word "and then"/
         # "or else" (no && / || symbols exist in Ada).

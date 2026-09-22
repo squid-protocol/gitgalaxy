@@ -13,6 +13,7 @@ from typing import Any
 
 from .._shared_patterns import (
     _HTML_NONEXECUTABLE_SCRIPT_TYPES,
+    CALLS_OUT_UNSUPPORTED,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_PLANNED_DEBT,
 )
@@ -65,6 +66,8 @@ DEFINITION: dict[str, Any] = {
     "invocation_model": "positional",
     "lexical_family": "block_exclusive",
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # User-driven branching and declarative framework conditionals.

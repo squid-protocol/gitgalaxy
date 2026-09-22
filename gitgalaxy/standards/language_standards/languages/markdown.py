@@ -11,6 +11,8 @@
 import re
 from typing import Any
 
+from .._shared_patterns import CALLS_OUT_UNSUPPORTED
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "CommonMark / GitHub Flavored / AsciiDoc",
@@ -43,6 +45,8 @@ DEFINITION: dict[str, Any] = {
     # Mapping this to 'hybrid_dash' would cause the engine to miss hidden documentation mass.
     "lexical_family": "line_exclusive",
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_UNSUPPORTED,
         # Relative-link dependency capture (#2638): a doc that links a sibling file
         # depends on it the same way code imports a module -- the target feeds the
         # DAG (popularity / orphaned-docs detection). Scheme URLs (http:, mailto:),

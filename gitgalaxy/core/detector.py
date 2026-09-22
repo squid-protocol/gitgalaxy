@@ -2756,7 +2756,7 @@ class StructuralExtractor:
         active: list[tuple[str, Any, str, Optional[RulePrefilterGate], Optional[re.Pattern[str]]]] = []
         seen_rule_names: set[str] = set()
         for rule_name, pattern in rules_dict.items():
-            if rule_name.startswith("_") or not pattern:
+            if rule_name.startswith("_") or rule_name == "calls_out" or not pattern:
                 continue
             mapped_key = self.CORE_MAPPING.get(rule_name, rule_name)
             if mapped_key not in valid_keys:
@@ -8549,11 +8549,13 @@ class StructuralExtractor:
 
         # ---> NEW: LEVEL 3 WIRING (Function Call Chains) <---
         # We scan the block for explicit function invocation edges.
-        # Epic #3264: Route via the language's specific paradigm first (e.g. COBOL's PERFORM),
-        # falling back to the generic C-family parenthesis-invocation shape if unconfigured.
+        # Epic #3264: Route via the language's specific paradigm.
+        # Fallback is explicitly removed: if a language does not configure calls_out,
+        # it is returned as empty (intentional blindness) rather than guessing.
         invocation_pattern = rules.get("calls_out")
+        
         if not invocation_pattern:
-            invocation_pattern = re.compile(r"\b([a-zA-Z_]\w*)\s*\(")
+            return []
 
         # Apply literal shield to avoid capturing words inside strings
         safe_block = self._apply_literal_shield(block, self.primary_lang_id)

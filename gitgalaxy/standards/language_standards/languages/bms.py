@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # #2505: BMS (Basic Mapping Support) -- the CICS 3270 screen-definition language.
 # A BMS map source is HLASM macro code: a name field starting in column 1, an
@@ -32,6 +32,7 @@ _NAME = r"[A-Za-z@#$][A-Za-z0-9@#$]{0,30}"
 # The name class contains no whitespace, so `{0,31}` + `[ \t]+` partitions at
 # exactly one position (no backtracking ambiguity, how_to Rule 5/14).
 _STMT = r"^[A-Za-z0-9@#$]{0,31}[ \t]+"
+
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -98,6 +99,8 @@ DEFINITION: dict[str, Any] = {
     # cross-language resolution (an HTML page importing a .css file).
     "imports_are_source_members": True,
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: a screen definition makes no runtime choice. HLASM conditional
         # assembly (AIF/AGO) is compile-time and is macros' below (#2822's

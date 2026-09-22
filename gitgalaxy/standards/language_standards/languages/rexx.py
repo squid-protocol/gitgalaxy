@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # #2504: REXX -- z/OS TSO/E REXX and classic (SAA) REXX, plus the ooRexx
 # directive surface (`::requires` / `::routine` / `::class` / `::method`),
@@ -46,6 +46,7 @@ _NOT_A_TARGET = r"(?<!SIGNAL\s)(?<!SIGNAL\s\s)(?<!CALL\s)(?<!CALL\s\s)"
 # The conditions SIGNAL ON / CALL ON can install a handler for (TSO/E REXX
 # Reference, "Conditions"; ooRexx adds USER conditions and ANY).
 _CONDS = r"(?:ERROR|FAILURE|HALT|NOVALUE|SYNTAX|LOSTDIGITS|NOTREADY|ANY|USER[ \t]+" + _NAME + r"{1,64})"
+
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -108,6 +109,8 @@ DEFINITION: dict[str, Any] = {
     # func_start extracts by writing their names -- `CALL PROBE_IO`, the
     # function form `probe_io(x)`, and `SIGNAL label`. The #2866 census applies.
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch (#2822): IF / ELSE and the SELECT group's WHEN / OTHERWISE
         # arms; SELECT itself needs its `;`/end-of-line (or LABEL) shape so

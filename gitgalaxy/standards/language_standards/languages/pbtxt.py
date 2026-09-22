@@ -10,6 +10,8 @@
 
 from typing import Any
 
+from .._shared_patterns import CALLS_OUT_C_STYLE
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Protobuf Text Format",
@@ -29,5 +31,8 @@ DEFINITION: dict[str, Any] = {
     # Rationale: While standard .proto schemas use C-style (//) comments, the instantiated
     # Text Format (.pbtxt) strictly uses '#' for comments.
     "lexical_family": "line_exclusive",
-    "rules": {},
+    "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_C_STYLE,
+    },
 }

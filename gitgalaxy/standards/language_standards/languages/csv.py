@@ -10,6 +10,8 @@
 
 from typing import Any
 
+from .._shared_patterns import CALLS_OUT_C_STYLE
+
 DEFINITION: dict[str, Any] = {
     "_meta": {"target_version": "Comma Separated Values", "status": "production"},
     # COMPREHENSIVE SURFACE AREA: Comma, tab, and pipe-separated value formats.
@@ -24,5 +26,8 @@ DEFINITION: dict[str, Any] = {
     # Rationale: While strictly data, when CSVs *do* contain comments (supported by
     # parsers like Pandas or DuckDB), they almost exclusively use the '#' symbol at the start of a line.
     "lexical_family": "line_exclusive",
-    "rules": {},
+    "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_C_STYLE,
+    },
 }

@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # #2851: the pieces of the `dead_code` target alternatives (see the rule for the reasoning).
 # One Make prerequisite token: bare name / path / pattern chars, or a `$(...)` / `${...}` ref.
@@ -30,6 +30,7 @@ _MK_LIFECYCLE_TARGET = (
 _MK_FILE_TARGET = r"(?!-)(?=[./%+@~-]*[A-Za-z0-9$])(?:[A-Za-z0-9_+@~-]*[./%][A-Za-z0-9_./%+@~-]*|\$[({][^ \t\n)}]*[)}][A-Za-z0-9_./%+@~-]*)(?<!\.)"
 # Any target name a commented recipe can vouch for: lowercase-initial, digit, or a file form.
 _MK_PLAIN_TARGET = r"(?:[a-z0-9_./%+@~][A-Za-z0-9_./%+@~-]*|\$[({][^ \t\n)}]*[)}][A-Za-z0-9_./%+@~-]*)(?<!\.)"
+
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -68,6 +69,8 @@ DEFINITION: dict[str, Any] = {
     # tests/core_engine/test_export_visibility_contract_2904.py.
     "export_visibility": "external_entry_points",
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_C_STYLE,
         # --------------------------------------------------------------------------
         # 1. GEOMETRY & SHAPE (Geometry & Shape)
         # --------------------------------------------------------------------------

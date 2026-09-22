@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -36,6 +36,8 @@ DEFINITION: dict[str, Any] = {
     # Rationale: Uses standard '//' for lines and '/*' '*/' for block-level Commented / Non-Executable Text.
     "lexical_family": "standard_block",
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_C_STYLE,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes switch on/when and DML try-catch.
         # #2545: `return` removed -- was phantom-counting every early-return method as a

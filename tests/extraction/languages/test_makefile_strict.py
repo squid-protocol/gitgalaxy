@@ -700,3 +700,27 @@ def test_makefile_test_and_regex_execution_no_false_collision():
         "shell 'test' builtin should not satisfy makefile's test-framework signature"
     )
     assert not regex_execution.search(shell_test_builtin)
+
+
+def test_makefile_calls_out_strict():
+    makefile = LANGUAGE_DEFINITIONS["makefile"]
+    calls_out = makefile["rules"]["calls_out"]
+
+    # 1. Positives
+    assert calls_out.findall("\t$(call probe_branch)") == ["probe_branch"]
+    assert calls_out.findall("$(call probe_io)") == ["probe_io"]
+    assert calls_out.findall("$(call probe_risk,arg1)") == ["probe_risk"]
+
+    # 2. Negatives (ignored keywords or structure)
+    # The prompt explicitly forbids ifeq, PHONY, MAKE, SHELL, but our regex is very strict `$(call ...)`
+    assert calls_out.findall("ifeq ($(OS),Windows_NT)") == []
+    assert calls_out.findall(".PHONY: probe_branch") == []
+    assert calls_out.findall("$(MAKE) build") == []
+    assert calls_out.findall("$(SHELL) build.sh") == []
+
+    # 3. Capture groups
+    assert calls_out.groups == 1
+
+    # 4. ReDoS immunity
+    payload = "$(call " + "a" * 100000 + ")"
+    assert_redos_immune(calls_out, payload)

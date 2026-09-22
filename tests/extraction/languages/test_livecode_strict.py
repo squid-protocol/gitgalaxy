@@ -726,3 +726,27 @@ def test_livecode_safety_bypasses_global_ownership_regression():
     assert safety_bypasses.search("unlock screen"), "unlock screen must still count as safety_bypasses"
     assert safety_bypasses.search("unlock messages"), "unlock messages must still count as safety_bypasses"
     assert safety_bypasses.search('do "put 1 into x"'), "dynamic do must still count as safety_bypasses"
+
+
+def test_livecode_calls_out_strict():
+    livecode = LANGUAGE_DEFINITIONS["livecode"]
+    calls_out = livecode["rules"]["calls_out"]
+    ignore = livecode["rules"]["calls_out_ignore"]
+
+    # 1. Positives
+    assert calls_out.findall("  probe_branch pArgv") == ["probe_branch"]
+    assert calls_out.findall("  probe_io pArgv") == ["probe_io"]
+    assert calls_out.findall("  probe_risk pArgv") == ["probe_risk"]
+    assert calls_out.findall("open file") == ["open"]
+
+    # 2. Negatives (ignored keywords)
+    assert calls_out.findall("on probe_branch pFlag")[0].casefold() in ignore
+    assert calls_out.findall("end probe_branch")[0].casefold() in ignore
+    assert calls_out.findall("repeat for each item")[0].casefold() in ignore
+
+    # 3. Capture groups
+    assert calls_out.groups == 1
+
+    # 4. ReDoS immunity
+    payload = " " * 100000 + "probe_branch"
+    assert_redos_immune(calls_out, payload)

@@ -352,3 +352,28 @@ def test_tcl_2763_url_in_source_does_not_unbalance_the_brace_shield():
     sats = _tcl_slice(code)
     assert sats["probe_url"]["loc"] == 4, "must stop at its own `}`, not run into the next proc"
     assert sats["probe_next"]["loc"] == 3
+
+
+def test_tcl_calls_out_strict():
+    tcl = LANGUAGE_DEFINITIONS["tcl"]
+    calls_out = tcl["rules"]["calls_out"]
+    ignore = tcl["rules"]["calls_out_ignore"]
+
+    # 1. Positives
+    assert calls_out.findall("    probe_branch $argv") == ["probe_branch"]
+    assert calls_out.findall("    probe_io $argv") == ["probe_io"]
+    assert calls_out.findall("    probe_risk $argv") == ["probe_risk"]
+    assert calls_out.findall("open file.txt") == ["open"]
+    assert calls_out.findall("exec ls -la") == ["exec"]
+
+    # 2. Negatives (ignored keywords)
+    assert calls_out.findall("proc probe_branch {flag} {")[0].casefold() in ignore
+    assert calls_out.findall("namespace export probe_branch")[0].casefold() in ignore
+    assert calls_out.findall("elseif {$x > 0} {")[0].casefold() in ignore
+
+    # 3. Capture groups
+    assert calls_out.groups == 1
+
+    # 4. ReDoS immunity
+    payload = " " * 100000 + "probe_branch"
+    assert_redos_immune(calls_out, payload)

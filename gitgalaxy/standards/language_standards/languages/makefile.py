@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # #2851: the pieces of the `dead_code` target alternatives (see the rule for the reasoning).
 # One Make prerequisite token: bare name / path / pattern chars, or a `$(...)` / `${...}` ref.
@@ -70,7 +70,7 @@ DEFINITION: dict[str, Any] = {
     "export_visibility": "external_entry_points",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": re.compile(r"\$\(call\s+([A-Za-z_][\w-]*)"),
         # --------------------------------------------------------------------------
         # 1. GEOMETRY & SHAPE (Geometry & Shape)
         # --------------------------------------------------------------------------

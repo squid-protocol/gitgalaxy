@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_COMMAND_POSITION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -33,7 +33,29 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "multi_style_live",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": CALLS_OUT_COMMAND_POSITION,
+        "calls_out_ignore": frozenset(
+            {
+                "on",
+                "end",
+                "then",
+                "else",
+                "repeat",
+                "into",
+                "exit",
+                "pass",
+                "send",
+                "add",
+                "subtract",
+                "answer",
+                "ask",
+                "wait",
+                "local",
+                "get",
+                "put",
+                "global",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes English-like loops and try-catch.
         "branch": re.compile(

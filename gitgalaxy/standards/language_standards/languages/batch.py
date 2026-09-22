@@ -11,8 +11,6 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_C_STYLE
-
 DEFINITION: dict[str, Any] = {
     "_meta": {"target_version": "Windows CMD/Batch", "status": "production"},
     "extensions": [".bat", ".cmd"],
@@ -43,6 +41,6 @@ DEFINITION: dict[str, Any] = {
     ),
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": re.compile(r"^[ \t]*call[ \t]+:?([A-Za-z_][\w.-]*)", re.I | re.M),
     },
 }

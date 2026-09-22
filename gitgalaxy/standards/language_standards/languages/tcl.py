@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_COMMAND_POSITION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -34,7 +34,28 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "line_exclusive",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_UNSUPPORTED,
+        "calls_out": CALLS_OUT_COMMAND_POSITION,
+        "calls_out_ignore": frozenset(
+            {
+                "proc",
+                "namespace",
+                "source",
+                "elseif",
+                "else",
+                "foreach",
+                "expr",
+                "incr",
+                "variable",
+                "package",
+                "global",
+                "then",
+                "break",
+                "continue",
+                "error",
+                "after",
+                "update",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Tcl control flow keywords.

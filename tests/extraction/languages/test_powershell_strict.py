@@ -519,3 +519,27 @@ def test_powershell_api_no_control_flow_false_positives():
     assert api.search("Export-ModuleMember -Function 'Get-Foo'"), "Export-ModuleMember must count as API"
     assert api.search("New-Alias -Name gf -Value Get-Foo"), "New-Alias must count as API"
     assert api.search("[CmdletBinding()]"), "CmdletBinding must count as API"
+
+
+def test_powershell_calls_out_strict():
+    powershell = LANGUAGE_DEFINITIONS["powershell"]
+    calls_out = powershell["rules"]["calls_out"]
+    ignore = powershell["rules"]["calls_out_ignore"]
+
+    # 1. Positives
+    assert calls_out.findall("    probe_branch") == ["probe_branch"]
+    assert calls_out.findall("    probe_io") == ["probe_io"]
+    assert calls_out.findall("    probe_risk") == ["probe_risk"]
+    assert calls_out.findall("Write-Verbose 'hello'") == ["Write-Verbose"]
+
+    # 2. Negatives (ignored keywords)
+    assert calls_out.findall("param($flag)")[0].casefold() in ignore
+    assert calls_out.findall("begin {")[0].casefold() in ignore
+    assert calls_out.findall("foreach ($x in $y) {")[0].casefold() in ignore
+
+    # 3. Capture groups
+    assert calls_out.groups == 1
+
+    # 4. ReDoS immunity
+    payload = " " * 100000 + "probe_branch"
+    assert_redos_immune(calls_out, payload)

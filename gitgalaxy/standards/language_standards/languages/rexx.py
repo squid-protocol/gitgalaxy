@@ -111,7 +111,7 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_CALL_VERB,
-        "calls_out_ignore": frozenset({"on", "off", "error"}),
+        "_calls_out_ignore": frozenset({"on", "off", "error"}),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch (#2822): IF / ELSE and the SELECT group's WHEN / OTHERWISE
         # arms; SELECT itself needs its `;`/end-of-line (or LABEL) shape so

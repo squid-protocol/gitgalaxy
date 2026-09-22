@@ -108,7 +108,7 @@ def test_every_non_none_rule_has_a_simple_case():
     covered = {sig for sig, _, _ in _REXX_SIMPLE_CASES}
     # calls_out_ignore is a frozenset consumed by the detector's filter, not a
     # searchable rule -- its behavior is asserted in test_rexx_calls_out_strict.
-    live = {k for k, v in REXX_RULES.items() if v is not None and not k.startswith("_") and k != "calls_out_ignore"}
+    live = {k for k, v in REXX_RULES.items() if v is not None and not k.startswith("_") and k != "_calls_out_ignore"}
     assert live - covered == set(), f"rules with no positive/negative case: {sorted(live - covered)}"
 
 
@@ -199,7 +199,7 @@ def test_rexx_schema_completeness():
     baseline = set(_BASELINE_KEYS)
     missing = baseline - set(REXX_RULES)
     assert not missing, f"rexx rules dict is missing baseline keys entirely (not even None): {missing}"
-    extra = set(REXX_RULES) - baseline - {"_visibility_export_list", "calls_out_ignore"}
+    extra = set(REXX_RULES) - baseline - {"_visibility_export_list", "_calls_out_ignore"}
     assert extra == set(), f"unexpected non-baseline keys: {extra}"
 
 
@@ -454,7 +454,7 @@ def test_rexx_calls_out_strict():
     """
     rexx = LANGUAGE_DEFINITIONS["rexx"]
     calls_out = rexx["rules"]["calls_out"]
-    ignore_set = rexx["rules"]["calls_out_ignore"]
+    ignore_set = rexx["rules"]["_calls_out_ignore"]
 
     # 1. Signature Tests (Positive matches)
     assert calls_out.findall("call probe_branch 1") == ["probe_branch"]

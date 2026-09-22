@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -47,7 +47,25 @@ DEFINITION: dict[str, Any] = {
     "case_insensitive_imports": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": re.compile(r"\b(?:(?<=\()\s*|(?=[a-zA-Z][\w']*\s*\())([a-z][\w']*)\b"),
+        "_calls_out_ignore": frozenset(
+            {
+                "where",
+                "module",
+                "data",
+                "import",
+                "if",
+                "then",
+                "else",
+                "let",
+                "in",
+                "case",
+                "of",
+                "do",
+                "as",
+                "qualified",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: decisions that split flow. Includes guards (|) and modern \cases.
         "branch": re.compile(r"\b(if|else|case|MultiWayIf)\b|\\cases?|^[ \t]*\|", re.M),

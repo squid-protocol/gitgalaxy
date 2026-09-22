@@ -8,9 +8,8 @@
 # of this project, or at https://polyformproject.org/licenses/noncommercial/1.0.0/
 # ==============================================================================
 
+import re
 from typing import Any
-
-from .._shared_patterns import CALLS_OUT_C_STYLE
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -32,6 +31,6 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "standard_block",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": re.compile(r"(?:calls|to_apply)\s*=\s*\{?%?([\w.-]+)"),
     },
 }

@@ -362,3 +362,26 @@ def test_objectivec_api_contract_2730():
 
     # ReDoS detonation on an unclosed method type cast.
     assert_redos_immune(api, "- (" + "a " * 40000, timeout_sec=3.0)
+
+def test_objectivec_calls_out():
+    from gitgalaxy.standards.language_standards.languages.objectivec import DEFINITION
+    from _strict_harness import assert_redos_immune
+    pattern = DEFINITION["rules"]["calls_out"]
+    ignore_set = DEFINITION["rules"]["_calls_out_ignore"]
+    
+    assert pattern.groups == 1
+    assert pattern.findall("[self probeBranch:argv]") == ["probeBranch"]
+    assert pattern.findall("[self probeIo:argv]") == ["probeIo"]
+    assert pattern.findall("[self probeRisk:argv]") == ["probeRisk"]
+    assert pattern.findall("free(x)") == ["free"]
+    assert pattern.findall("abort()") == ["abort"]
+    assert pattern.findall("exit(payload)") == ["exit"]
+    
+    assert "self" in ignore_set
+    
+    # Negatives
+    assert pattern.findall("id x = condition ? self: other;") == ["self"] # The regex captures it without space, but it's in the ignore set
+    assert pattern.findall("goto fail;") == []
+    
+    # ReDoS check
+    assert_redos_immune(pattern, "a" * 50000 + " (", timeout_sec=2.0)

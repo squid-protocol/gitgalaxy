@@ -545,3 +545,27 @@ def test_scheme_scope_walk_is_linear_on_pathological_input():
         assert time.perf_counter() - t0 < 3.0, f"scope walk too slow on {payload[:12]!r}..."
     # unterminated string only blinds its own line
     assert len(d._lisp_module_level_define_offsets(payloads[0])) == 19999
+
+def test_scheme_calls_out():
+    from gitgalaxy.standards.language_standards.languages.scheme import DEFINITION
+    from _strict_harness import assert_redos_immune
+    pattern = DEFINITION["rules"]["calls_out"]
+    ignore_set = DEFINITION["rules"]["_calls_out_ignore"]
+    
+    assert pattern.groups == 1
+    # Scheme calls_out is CALLS_OUT_LISP_FAMILY which is r"\(\s*([a-zA-Z0-9_!?*+/<>=.~$%^&:-]+)"
+    assert pattern.findall("(probe-branch flag)") == ["probe-branch"]
+    assert pattern.findall("(probe-io route)") == ["probe-io"]
+    assert pattern.findall("(probe-risk payload)") == ["probe-risk"]
+    assert pattern.findall("(test-assert (probe-branch 1))") == ["test-assert", "probe-branch"]
+    assert pattern.findall("(set-car! pair value)") == ["set-car!"]
+    assert pattern.findall("(close-input-port port)") == ["close-input-port"]
+
+    assert "define" in ignore_set
+    assert "cond" in ignore_set
+    assert "lambda" in ignore_set
+    assert "export" in ignore_set
+    assert "set!" in ignore_set
+    
+    # ReDoS check
+    assert_redos_immune(pattern, "(" + " " * 50000 + "x", timeout_sec=2.0)

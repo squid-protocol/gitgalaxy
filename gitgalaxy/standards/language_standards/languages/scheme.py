@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_LISP_FAMILY, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -45,7 +45,30 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "recursive_block_lisp",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": CALLS_OUT_LISP_FAMILY,
+        "_calls_out_ignore": frozenset(
+            {
+                "define",
+                "cond",
+                "lambda",
+                "quote",
+                "begin",
+                "let",
+                "when",
+                "unless",
+                "do",
+                "and",
+                "or",
+                "case",
+                "else",
+                "delay",
+                "force",
+                "export",
+                "define-syntax",
+                "syntax-rules",
+                "set!",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Lisp control flow branches. Uses custom S-expression boundaries.

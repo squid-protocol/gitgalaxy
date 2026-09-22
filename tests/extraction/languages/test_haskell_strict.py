@@ -265,3 +265,23 @@ def test_haskell_redos_immunity_sweep():
     assert_redos_immune(HS_RULES["class_start"], "data Foo " + "bar " * 30000, timeout_sec=3.0)
     assert_redos_immune(HS_RULES["generics"], "forall " + "a" * 100000, timeout_sec=3.0)
     assert_redos_immune(HS_RULES["globals"], "counter :: IORef Int" + "\n" * 100000, timeout_sec=3.0)
+
+def test_haskell_calls_out():
+    from gitgalaxy.standards.language_standards.languages.haskell import DEFINITION
+    from _strict_harness import assert_redos_immune
+    pattern = DEFINITION["rules"]["calls_out"]
+    
+    assert pattern.findall("probeRisk (probeIo (probeBranch argv))") == ["probeRisk", "probeIo", "probeBranch"]
+    assert pattern.groups == 1
+    
+    # Negatives
+    assert pattern.findall("name :: Int -> Int") == []
+    
+    # Asserting ignore set handles the rest or regex drops them
+    ignore_set = DEFINITION["rules"]["_calls_out_ignore"]
+    assert "where" in ignore_set
+    assert "module" in ignore_set
+    assert "data" in ignore_set
+
+    # ReDoS check
+    assert_redos_immune(pattern, "a " + " " * 50000 + "(", timeout_sec=2.0)

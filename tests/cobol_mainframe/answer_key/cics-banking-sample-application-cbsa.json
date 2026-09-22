@@ -1061,7 +1061,9 @@
           "value": null,
           "line": 126
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/ACCTCTRL.cbl": {
       "program_id": "ACCTCTRL",
@@ -2156,7 +2158,9 @@
           "value": null,
           "line": 126
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/BANKDATA.cbl": {
       "program_id": "BANKDATA",
@@ -5396,7 +5400,9 @@
           "value": null,
           "line": 362
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/BNK1CAC.cbl": {
       "program_id": "BNK1CAC",
@@ -7213,7 +7219,11 @@
           "value": "TO",
           "line": 157
         }
-      ]
+      ],
+      "transactions": [
+        "OCAC"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/BNK1CCA.cbl": {
       "program_id": "BNK1CCA",
@@ -8862,7 +8872,11 @@
           "value": "TO",
           "line": 148
         }
-      ]
+      ],
+      "transactions": [
+        "OCCA"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/BNK1CCS.cbl": {
       "program_id": "BNK1CCS",
@@ -10688,7 +10702,11 @@
           "value": "TO",
           "line": 154
         }
-      ]
+      ],
+      "transactions": [
+        "OCCS"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/BNK1CRA.cbl": {
       "program_id": "BNK1CRA",
@@ -12680,7 +12698,11 @@
           "value": "TO",
           "line": 173
         }
-      ]
+      ],
+      "transactions": [
+        "OCRA"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/BNK1DAC.cbl": {
       "program_id": "BNK1DAC",
@@ -14927,7 +14949,11 @@
           "value": "TO",
           "line": 184
         }
-      ]
+      ],
+      "transactions": [
+        "ODAC"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/BNK1DCS.cbl": {
       "program_id": "BNK1DCS",
@@ -17243,7 +17269,11 @@
           "value": "TO",
           "line": 185
         }
-      ]
+      ],
+      "transactions": [
+        "ODCS"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/BNK1TFN.cbl": {
       "program_id": "BNK1TFN",
@@ -19155,7 +19185,11 @@
           "value": "TO",
           "line": 170
         }
-      ]
+      ],
+      "transactions": [
+        "OTFN"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/BNK1UAC.cbl": {
       "program_id": "BNK1UAC",
@@ -21370,7 +21404,11 @@
           "value": "TO",
           "line": 193
         }
-      ]
+      ],
+      "transactions": [
+        "OUAC"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/BNKMENU.cbl": {
       "program_id": "BNKMENU",
@@ -22419,7 +22457,11 @@
           "value": "TO",
           "line": 103
         }
-      ]
+      ],
+      "transactions": [
+        "OMEN"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/CRDTAGY1.cbl": {
       "program_id": "CRDTAGY1",
@@ -23270,7 +23312,11 @@
           "value": null,
           "line": 105
         }
-      ]
+      ],
+      "transactions": [
+        "OCR1"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/CRDTAGY2.cbl": {
       "program_id": "CRDTAGY2",
@@ -24121,7 +24167,11 @@
           "value": null,
           "line": 104
         }
-      ]
+      ],
+      "transactions": [
+        "OCR2"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/CRDTAGY3.cbl": {
       "program_id": "CRDTAGY3",
@@ -24972,7 +25022,11 @@
           "value": null,
           "line": 104
         }
-      ]
+      ],
+      "transactions": [
+        "OCR3"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/CRDTAGY4.cbl": {
       "program_id": "CRDTAGY4",
@@ -25823,7 +25877,11 @@
           "value": null,
           "line": 104
         }
-      ]
+      ],
+      "transactions": [
+        "OCR4"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/CRDTAGY5.cbl": {
       "program_id": "CRDTAGY5",
@@ -26674,7 +26732,11 @@
           "value": null,
           "line": 103
         }
-      ]
+      ],
+      "transactions": [
+        "OCR5"
+      ],
+      "transactions_validated": true
     },
     "src/base/cobol_src/CREACC.cbl": {
       "program_id": "CREACC",
@@ -29372,7 +29434,9 @@
           "value": null,
           "line": 282
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/CRECUST.cbl": {
       "program_id": "CRECUST",
@@ -32751,7 +32815,9 @@
           "value": null,
           "line": 349
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/CUSTCTRL.cbl": {
       "program_id": "CUSTCTRL",
@@ -33798,7 +33864,9 @@
           "value": null,
           "line": 127
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/DBCRFUN.cbl": {
       "program_id": "DBCRFUN",
@@ -35436,7 +35504,9 @@
           "value": null,
           "line": 194
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/DELACC.cbl": {
       "program_id": "DELACC",
@@ -37215,7 +37285,9 @@
           "value": null,
           "line": 194
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/DELCUS.cbl": {
       "program_id": "DELCUS",
@@ -39557,7 +39629,9 @@
           "value": null,
           "line": 241
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/GETCOMPY.cbl": {
       "program_id": "GETCOMPY",
@@ -39611,7 +39685,9 @@
           "value": null,
           "line": 30
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/GETSCODE.cbl": {
       "program_id": "GETSCODE",
@@ -39673,7 +39749,9 @@
           "value": null,
           "line": 32
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/INQACC.cbl": {
       "program_id": "INQACC",
@@ -41374,7 +41452,9 @@
           "value": null,
           "line": 194
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/INQACCCU.cbl": {
       "program_id": "INQACCCU",
@@ -43016,7 +43096,9 @@
           "value": null,
           "line": 190
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/INQCUST.cbl": {
       "program_id": "INQCUST",
@@ -44509,7 +44591,9 @@
           "value": "TO",
           "line": 161
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/UPDACC.cbl": {
       "program_id": "UPDACC",
@@ -45652,7 +45736,9 @@
           "value": null,
           "line": 154
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/UPDCUST.cbl": {
       "program_id": "UPDCUST",
@@ -46711,7 +46797,9 @@
           "value": null,
           "line": 133
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "src/base/cobol_src/XFRFUN.cbl": {
       "program_id": "XFRFUN",
@@ -48939,7 +49027,9 @@
           "value": null,
           "line": 263
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     }
   },
   "method": {

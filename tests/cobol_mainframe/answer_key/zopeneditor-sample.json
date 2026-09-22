@@ -1845,7 +1845,9 @@
           "value": "SPACES",
           "line": 211
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "COBOL/SAM1LIB.cbl": {
       "program_id": "SAM1",
@@ -3303,7 +3305,9 @@
           "value": "SPACES",
           "line": 195
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "COBOL/SAM2.cbl": {
       "program_id": "SAM2",
@@ -3524,7 +3528,9 @@
           "value": null,
           "line": 49
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "multiroot/sam/SAM1.cbl": {
       "program_id": "SAM1",
@@ -5645,7 +5651,9 @@
           "value": "SPACES",
           "line": 239
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     },
     "multiroot/sam/SAM2.cbl": {
       "program_id": "SAM2",
@@ -5874,7 +5882,9 @@
           "value": null,
           "line": 49
         }
-      ]
+      ],
+      "transactions": [],
+      "transactions_validated": true
     }
   },
   "method": {

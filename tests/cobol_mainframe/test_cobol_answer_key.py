@@ -220,6 +220,29 @@ def test_multi_mode_open_and_call_through_a_value_clause(tmp_path):
     assert (call["form"], call["target"], call["resolves_to"]) == ("identifier", "SUB1", "SUB1.cbl")
 
 
+def test_key_transactions_reads_the_csd_map(tmp_path):
+    """#3247: the key's own CSD reader yields program-id -> entry transaction ids
+    from a repo's `.csd` decks, excluding a DB2TRAN's TRANSID."""
+    (tmp_path / "BANK.csd").write_text(
+        " DEFINE TRANSACTION(OPRG) GROUP(G) PROGRAM(PROG)\n DEFINE DB2TRAN(DB2T) GROUP(G) TRANSID(XXXX) ENTRY(E)\n",
+        encoding="utf-8",
+    )
+    assert ak._key_transactions(tmp_path) == {"PROG": {"OPRG"}}
+
+
+def test_draft_program_carries_entry_transactions(tmp_path):
+    """draft_program fills the drafted `transactions` block from the repo CSD map,
+    and defaults to an empty list when no map is supplied (older callers)."""
+    path = _program(tmp_path, "       MAIN-PARA.\n           GOBACK.\n")
+    (tmp_path / "BANK.csd").write_text(" DEFINE TRANSACTION(OPRG) GROUP(G) PROGRAM(PROG)\n", encoding="utf-8")
+    tx_map = ak._key_transactions(tmp_path)
+    entry, _ = ak.draft_program(path, tmp_path, [path], {"PROG": ["PROG.cbl"]}, tx_map)
+    assert entry["transactions"] == ["OPRG"]
+
+    entry_no_map, _ = ak.draft_program(path, tmp_path, [path], {"PROG": ["PROG.cbl"]})
+    assert entry_no_map["transactions"] == []
+
+
 def test_copybooks_resolve_to_members_through_zapp_libraries(tmp_path):
     (tmp_path / "zapp.yaml").write_text(
         "propertyGroups:\n"

@@ -50,6 +50,7 @@ hlasm 1). pli reads 8 instead of the issue's 7.
 | orphaned variables | graveyard | — | **stated absence**: the by-name unused-variable count is a graveyard signal, not a layout |
 | DD names, OPEN modes, dataset lineage | forge / DAG architect | `dataset_data` | **DB** since #3201 — exact against the answer key on both corpora (see the #3200/#3201 update) |
 | unresolved CALLs | DAG architect | `call_site_data` | **DB** since #3200 — every call site, resolved or not, with its verb, form and line |
+| CICS transaction map | `cics_transaction_reader` (CSD) | `transaction_data` | **DB** since #3247 — which transaction id entry-points into which program, from the CSD decks; exact against the key on CBSA (14/14). `transaction` is an INDEPENDENT key field |
 | CICS / DB2 presence | forge regex | hit columns | **forge**. Presence agrees 36/36 with a line-level check. The hit columns (`arch_io`, `arch_ipc`) mix CICS verbs, SQL, DLI and CALL, so they cannot give a clean flag (D4) |
 
 The refractor therefore takes the program list, PROGRAM-ID, COPY edges and the unit inventory
@@ -499,3 +500,30 @@ committed excerpts this is `forge_flat_schema` 4 / 5 / 7 with **0** engine-side 
 at 0 unexplained. The answer keys carry a drafted `records` field (`status: draft`), validated
 incrementally; the forge's own entity/DTO generators sourcing these fields from the DB instead of
 re-parsing is the tracked follow-up under epic #3122.
+
+## Update: the CICS transaction map (#3247) — 2026-09-22
+
+The engine's CICS extraction (`transaction_data`, landed in the #3211-followup PR) is now a
+compared datum. In a CICS application the transaction is the *front door*: a terminal user submits a
+4-character transaction id and CICS routes it to a program. `refraction_differential.py` now reports,
+per COBOL program, the entry transaction id(s) that route into it — `transactions_old` /
+`transactions_db` / `transactions_agree` in the summary, and per-program `transaction` deltas.
+
+**Three independent parses of the same decks.** The comparison is genuinely three-sided, which is
+what lets `transaction` adjudicate a verdict (an INDEPENDENT key field):
+
+- **forge / old side** — `gitgalaxy/tools/cobol_to_cobol/cics_transaction_reader.py`, a self-contained
+  CSD reader that imports neither the engine nor the answer key.
+- **engine / db side** — `galaxy_ir.transaction_map()`, read from `transaction_data`.
+- **answer-key oracle** — `cobol_answer_key._key_transactions`, a third CSD parser (the two operands
+  the key keeps, `PROGRAM`/`TRANSID`, are bare names, so it needs no paren-balanced attribute scan).
+
+All three read a repo's `.csd` decks (standalone files and DFHCSDUP SYSIN carried inline in JCL),
+the `DEFINE TRANSACTION(T) ... PROGRAM(P)` records plus the `DEFINE PROGRAM(P) ... TRANSID(T)`
+autoinstall pairing, excluding `DEFINE DB2TRAN`'s TRANSID. On the pinned corpora the three agree
+exactly — CBSA 14/14 (14 of its 17 transactions route to in-repo COBOL programs; 3 are external),
+carddemo 33/33, zopeneditor none — so the datum adds **0** unexplained deltas and the `--corpus`
+gate holds at its prior counts. The CBSA and zopeneditor answer keys carry the `transactions` field
+with `transactions_validated: true`; carddemo stays `answer_key: null` (differential-only). Surfacing
+the transaction map in the audit/LLM reports (`audit_recorder`/`llm_recorder`) is the tracked
+follow-up under epic #3122 — it moves the golden master, so it ships on its own.

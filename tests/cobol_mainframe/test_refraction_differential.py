@@ -135,6 +135,7 @@ def _row(**kw):
         },
         "subsystems": {"old_cics": kw.get("cics", 0), "old_sql": kw.get("sql", 0), "db_signals": []},
         "records": {"old": sorted(kw.get("rec_old", [])), "db": sorted(kw.get("rec_db", []))},
+        "transactions": {"old": sorted(kw.get("tx_old", [])), "db": sorted(kw.get("tx_db", []))},
         "forge_only": {
             "dd_files": sorted(kw.get("dd", [])),
             "inputs": sorted(kw.get("inputs", [])),
@@ -213,6 +214,15 @@ def test_forge_only_record_field_is_unexplained(mini_repo):
     assert _cause(mini_repo, rec_old=["ACCT_ID"]) == rd.UNEXPLAINED
 
 
+def test_transaction_delta_is_unexplained(mini_repo):
+    """#3247: both the forge reader and the engine parse the same CSD decks, so a
+    transaction delta is a real parser defect on one side with no mechanism cause --
+    left unexplained until a validated key adjudicates it (transaction is
+    INDEPENDENT)."""
+    assert _cause(mini_repo, tx_db=["OCRA"]) == rd.UNEXPLAINED
+    assert _cause(mini_repo, tx_old=["OCRA"]) == rd.UNEXPLAINED
+
+
 def test_usage_status_not_reachability(mini_repo):
     # Forge calls a real own unit dead; the engine's usage_status does not flag it.
     # The two signals differ by design (#3198) -- explained, not a bug.
@@ -267,6 +277,23 @@ def test_record_verdict_needs_explicit_validation(mini_repo):
     assert rd.summarize_causes(unvalidated)["unexplained"] == 1
 
     validated = rd.classify(mini_repo, [_row(rec_old=["ACCT_ID"])], _key(records=rec, records_validated=True))
+    summary = rd.summarize_causes(validated)
+    assert summary["unexplained"] == 0
+    assert summary["by_cause"].get("key:engine defect") == 1
+
+
+def test_transaction_verdict_needs_explicit_validation(mini_repo):
+    """#3247: transactions are auto-drafted from the key's own CSD reader, so a
+    forge-only transaction delta stays `unexplained` until the program is signed
+    off with `transactions_validated` -- then the key (independent) clears it.
+    `OCRA` is a key transaction here, so the forge is right and the engine has the
+    gap."""
+    unvalidated = rd.classify(mini_repo, [_row(tx_old=["OCRA"])], _key(transactions=["OCRA"]))
+    assert rd.summarize_causes(unvalidated)["unexplained"] == 1
+
+    validated = rd.classify(
+        mini_repo, [_row(tx_old=["OCRA"])], _key(transactions=["OCRA"], transactions_validated=True)
+    )
     summary = rd.summarize_causes(validated)
     assert summary["unexplained"] == 0
     assert summary["by_cause"].get("key:engine defect") == 1

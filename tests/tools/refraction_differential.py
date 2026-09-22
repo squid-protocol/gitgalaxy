@@ -21,8 +21,11 @@ usage_status_not_reachability, program_inlined_as_copybook,
 ambiguous_copy_target, exec_sql_include, sequence_number_field,
 system_copybook, bms_symbolic_map) or as stated_absence
 by construction; where the corpus has a validated answer key (#3210), an
-INDEPENDENT-field delta (program_id, copybook) is also adjudicated to a verdict
-from the key directly. The gate counts what neither explains -- `unexplained` --
+INDEPENDENT-field delta (program_id, copybook, record, transaction) is also
+adjudicated to a verdict from the key directly. Since #3247 the CICS transaction
+map (which transaction id entry-points into which program) is a compared datum:
+an independent CSD read (cics_transaction_reader) vs the engine's transaction_map.
+The gate counts what neither explains -- `unexplained` --
 and fails when a run adds any over a committed per-corpus baseline.
 
     python tests/tools/refraction_differential.py --ci               # gate the committed excerpts
@@ -47,6 +50,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from gitgalaxy.tools.cobol_to_cobol.cics_transaction_reader import extract_transactions  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage  # noqa: E402
 from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (  # noqa: E402
     _NOT_A_PARAGRAPH,
@@ -90,8 +94,10 @@ UNEXPLAINED = "unexplained"
 # not evidence about the forge and never clears `unexplained` on its own. The
 # record layout key (#3246) is drafted by the key's own fixed-format reader, a
 # third parser independent of both the forge and the engine, so it too can
-# adjudicate a record delta once validated.
-INDEPENDENT_FIELDS = {"program_id", "copybook", "record"}
+# adjudicate a record delta once validated. The transaction map (#3247) is read
+# by cics_transaction_reader, a self-contained CSD parser that imports neither the
+# engine nor the forge, so it too is an independent oracle once validated.
+INDEPENDENT_FIELDS = {"program_id", "copybook", "record", "transaction"}
 
 
 def _record_fields(items: list) -> set[str]:
@@ -114,8 +120,24 @@ def _forge_record_fields(path: Path) -> set[str]:
     return {name.replace("-", "_").upper() for name in schema["json"]["properties"]}
 
 
+def _engine_transactions(ir: GalaxyIR) -> dict[str, set[str]]:
+    """program-id (upper) -> the transaction ids that entry-point into it, from the
+    engine's DB (`transaction_map`). The forge/engine comparison unit for #3247."""
+    out: dict[str, set[str]] = {}
+    for t in ir.transaction_map("cobol"):
+        if t["program"]:
+            out.setdefault(t["program"].upper(), set()).add(t["transid"].upper())
+    return out
+
+
 def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     rows = []
+    # #3247: the CICS transaction map, forge (an independent CSD read of the whole
+    # repo) vs engine (transaction_map from the DB). Both are repo-wide maps keyed
+    # by PROGRAM-ID, looked up per COBOL program below -- a transaction is defined
+    # in a `.csd` deck, not in the program it routes to.
+    forge_tx = extract_transactions(repo)
+    engine_tx = _engine_transactions(ir)
     for ef in ir.programs("cobol"):
         path = repo / ef.file_path
         intent = analyze_cobol_intent(path)
@@ -131,6 +153,10 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
         # sets are directly comparable.
         rec_old = _forge_record_fields(path)
         rec_new = _record_fields(ef.data_items)
+        # #3247: entry transactions for this program, unioned over its PROGRAM-IDs.
+        pids = {p.upper() for p in ef.program_ids}
+        tx_old: set[str] = set().union(*(forge_tx.get(p, set()) for p in pids)) if pids else set()
+        tx_db: set[str] = set().union(*(engine_tx.get(p, set()) for p in pids)) if pids else set()
         rows.append(
             {
                 "file": ef.file_path,
@@ -159,6 +185,11 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                 "records": {
                     "old": sorted(rec_old),
                     "db": sorted(rec_new),
+                },
+                # #3247: CICS entry transactions for this program, forge vs engine.
+                "transactions": {
+                    "old": sorted(tx_old),
+                    "db": sorted(tx_db),
                 },
                 # Stated absences: the DB carries no equivalent (see galaxy_ir.py SCOPE).
                 "forge_only": {
@@ -199,6 +230,9 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
         "record_fields_old": sum(len(r["records"]["old"]) for r in rows),
         "record_fields_db": sum(len(r["records"]["db"]) for r in rows),
         "record_fields_agree": sum(len(set(r["records"]["old"]) & set(r["records"]["db"])) for r in rows),
+        "transactions_old": sum(len(r["transactions"]["old"]) for r in rows),
+        "transactions_db": sum(len(r["transactions"]["db"]) for r in rows),
+        "transactions_agree": sum(len(set(r["transactions"]["old"]) & set(r["transactions"]["db"])) for r in rows),
     }
 
 
@@ -270,6 +304,13 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
         rec_old, rec_db = set(rec["old"]), set(rec["db"])
         deltas += [{"program": prog, "field": "record", "side": "old", "value": v} for v in sorted(rec_old - rec_db)]
         deltas += [{"program": prog, "field": "record", "side": "db", "value": v} for v in sorted(rec_db - rec_old)]
+        # #3247: entry-transaction fields, forge vs engine. Both sides read the same
+        # CSD decks with independent parsers, so a delta is a real parser defect on
+        # one side, adjudicated by the validated key (transaction is INDEPENDENT).
+        tx = r["transactions"]
+        tx_old, tx_db = set(tx["old"]), set(tx["db"])
+        deltas += [{"program": prog, "field": "transaction", "side": "old", "value": v} for v in sorted(tx_old - tx_db)]
+        deltas += [{"program": prog, "field": "transaction", "side": "db", "value": v} for v in sorted(tx_db - tx_old)]
         # D4: presence agrees, but the DB's hit columns cannot give a clean flag.
         ss = r["subsystems"]
         deltas += [
@@ -389,6 +430,11 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
         # the forge has and the engine does not is a real gap in the walker, so
         # it stays UNEXPLAINED until the validated key adjudicates it.
         return "forge_flat_schema" if side == "db" else UNEXPLAINED
+    if field == "transaction":
+        # Both the forge reader and the engine parse the same CSD decks, so a
+        # delta is a real parser defect on one side, not an explainable mechanism.
+        # Left to the validated key (transaction is an INDEPENDENT field).
+        return UNEXPLAINED
     return UNEXPLAINED
 
 
@@ -420,6 +466,14 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
             for r in prog.get("records", [])
             if r.get("pic") and r.get("name") and r["name"] != "FILLER" and r.get("level") not in (66, 88)
         }
+    elif field == "transaction":
+        # Entry transactions are auto-drafted from the key's own CSD reader, so
+        # they only adjudicate once explicitly signed off with a per-program
+        # `transactions_validated` flag -- "draft now, validate incrementally",
+        # the records_validated precedent (#3246).
+        if not prog.get("transactions_validated"):
+            return None
+        truth = {t.upper() for t in prog.get("transactions", [])}
     else:
         return None
     present = v in truth

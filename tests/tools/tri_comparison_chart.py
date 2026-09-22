@@ -194,6 +194,7 @@ _GG_ONLY_LANGS = (
     "assembly",
     "bms",
     "cobol",
+    "csd",
     "db2_sql",
     "dockerfile",
     "embedded_python",
@@ -256,6 +257,11 @@ ARGS_GRANULARITY: dict[str, str] = {
     "dockerfile": "none",
     "yaml": "none",
     "jcl": "none",
+    # csd (#3252): a CICS CSD/RDO deck is a stream of DEFINE TRANSACTION/PROGRAM/...
+    # resource records; func_start matches the DEFINE statement as a pseudo-callable,
+    # but a resource definition has no parameter-list concept -- same category as
+    # jcl/dockerfile/yaml, never a per-callable args count.
+    "csd": "none",
     "assembly": "proxy",
     "agc_assembly": "proxy",
 }

@@ -475,7 +475,11 @@ def _common_prefix(a: str, b: str) -> list[str]:
 
 
 def draft_program(
-    path: Path, repo: Path, files: list[Path], pid_to_path: dict[str, list[str]]
+    path: Path,
+    repo: Path,
+    files: list[Path],
+    pid_to_path: dict[str, list[str]],
+    tx_map: Optional[dict[str, set[str]]] = None,
 ) -> tuple[dict[str, Any], dict[str, str]]:
     src = Source(path)
     units = _units(src)
@@ -559,6 +563,11 @@ def draft_program(
         "files": files_,
         "calls": calls,
         "records": _data_items(src),  # #3246: DATA DIVISION item tree + FD layouts
+        # #3247: the CICS transaction ids that entry-point into this program, from
+        # the repo's CSD decks. Drafted; adjudicates a differential delta only once
+        # a program is explicitly signed off with `transactions_validated` (the
+        # records_validated precedent).
+        "transactions": sorted(tx_map.get(src.program_id(), set())) if tx_map else [],
         "cics": bool(re.search(r"\bEXEC\s+CICS\b", src.text)),
         "sql": bool(re.search(r"\bEXEC\s+SQL\b", src.text)),
         "verification": {"status": "draft", "notes": []},
@@ -572,11 +581,12 @@ def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], 
     pid_to_path: dict[str, list[str]] = {}
     for p in programs:
         pid_to_path.setdefault(Source(p).program_id(), []).append(p.relative_to(repo).as_posix())
+    tx_map = _key_transactions(repo)  # #3247: repo-wide CSD read, once
     key: dict[str, Any] = {"schema_version": SCHEMA_VERSION, "corpus": corpus, "url": url, "ref": ref, "programs": {}}
     report = [f"# Draft reachability evidence: {corpus} @ {ref[:8]}", ""]
     for p in programs:
         rel = p.relative_to(repo).as_posix()
-        entry, reached = draft_program(p, repo, files, pid_to_path)
+        entry, reached = draft_program(p, repo, files, pid_to_path, tx_map)
         key["programs"][rel] = entry
         report += [f"## {rel} ({entry['program_id']})", "", "| unit | line | reached by |", "|---|---|---|"]
         for u in entry["units"]:
@@ -620,17 +630,91 @@ def old_copybooks(path: Path, repo: Path) -> tuple[set[str], dict[str, Path]]:
     return named, resolved
 
 
+# #3247: the answer key's OWN CICS transaction reader -- a third CSD parser,
+# independent of the engine (core.mainframe_boundary) and the forge
+# (cics_transaction_reader), so `transaction` can adjudicate a forge-vs-engine
+# delta. The two operands the key keeps (PROGRAM/TRANSID) are always bare resource
+# names, so unlike the other two readers this one needs no paren-balanced attribute
+# scan -- a genuinely simpler, independent parse of the same decks.
+_CSD_CMD = re.compile(r"^[ \t]*(?:DEFINE|DELETE|ALTER|ADD|REMOVE|LIST|UPGRADE|COPY)\b", re.I)
+_CSD_HEAD = re.compile(r"^[ \t]*DEFINE[ \t]+([A-Z0-9]+)[ \t]*\([ \t]*([A-Z0-9@#$]+)[ \t]*\)", re.I)
+_CSD_OPERAND = re.compile(r"\b(PROGRAM|TRANSID)[ \t]*\([ \t]*([A-Z0-9@#$]+)", re.I)
+_CSD_DFHCSDUP = re.compile(r"\bPGM=DFHCSDUP\b", re.I)
+_CSD_EXCLUDED = frozenset({"DB2TRAN", "DB2ENTRY", "DB2CONN"})
+
+
+def _csd_pairs(text: str) -> list[tuple[str, str]]:
+    """The (transid, program) pairs a CSD deck declares. A DEFINE record has no
+    continuation character, so it runs to the next command / `*` comment / `//`
+    line / blank line. Both record shapes yield the same edge:
+    `DEFINE TRANSACTION(T) ... PROGRAM(P)` and the `DEFINE PROGRAM(P) ...
+    TRANSID(T)` autoinstall pairing; `DEFINE DB2TRAN`'s TRANSID is excluded."""
+    pairs: list[tuple[str, str]] = []
+    lines = text.split("\n")
+    i = 0
+    while i < len(lines):
+        head = _CSD_HEAD.match(lines[i])
+        if not (head and _CSD_CMD.match(lines[i])):
+            i += 1
+            continue
+        record = [lines[i]]
+        j = i + 1
+        while j < len(lines):
+            nxt = lines[j]
+            stripped = nxt.strip()
+            if not stripped or stripped.startswith("*") or nxt.lstrip().startswith("//") or _CSD_CMD.match(nxt):
+                break
+            record.append(nxt)
+            j += 1
+        resource, name = head.group(1).upper(), head.group(2).upper()
+        if resource not in _CSD_EXCLUDED:
+            operands = {m.group(1).upper(): m.group(2).upper() for m in _CSD_OPERAND.finditer("\n".join(record))}
+            if resource == "TRANSACTION" and operands.get("PROGRAM"):
+                pairs.append((name, operands["PROGRAM"]))
+            elif resource == "PROGRAM" and operands.get("TRANSID"):
+                pairs.append((operands["TRANSID"], name))
+        i = j
+    return pairs
+
+
+def _key_transactions(repo: Path) -> dict[str, set[str]]:
+    """program-id (upper) -> the entry transaction ids that route into it, read
+    from every `.csd` deck and every DFHCSDUP-inline JCL job under `repo`."""
+    by_program: dict[str, set[str]] = {}
+    for path in repo.rglob("*"):
+        if not path.is_file() or ".git" in path.parts:
+            continue
+        suffix = path.suffix.lower()
+        if suffix == ".csd":
+            text = path.read_text(encoding="utf-8", errors="ignore")
+        elif suffix == ".jcl":
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            if not _CSD_DFHCSDUP.search(text):
+                continue
+        else:
+            continue
+        for transid, program in _csd_pairs(text):
+            by_program.setdefault(program, set()).add(transid)
+    return by_program
+
+
 def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str, Any], str]:
+    from gitgalaxy.tools.cobol_to_cobol.cics_transaction_reader import extract_transactions
     from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
     from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import x_ray_dead_code
     from gitgalaxy.tools.cobol_to_cobol.cobol_jcl_forge import analyze_cobol_intent
     from gitgalaxy.tools.cobol_to_cobol.cobol_schema_forge import forge_schemas
 
     ir = None
+    engine_tx: dict[str, set[str]] = {}
     if db is not None:
         from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir
 
         ir = load_galaxy_ir(db)
+        for t in ir.transaction_map("cobol"):  # #3247: engine entry transactions per program
+            if t["program"]:
+                engine_tx.setdefault(t["program"].upper(), set()).add(t["transid"].upper())
+    forge_tx = extract_transactions(repo)  # #3247: forge/independent CSD read, once
 
     fields = [
         "program_id",
@@ -653,6 +737,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # reader, the engine carries the full tree (record_data), and the key is
         # this tool's own independent reading.
         "record fields",
+        # #3247: CICS entry transactions (which transaction id routes into this
+        # program). Truth is the key's own CSD read, forge is cics_transaction_reader,
+        # engine is transaction_map from the DB.
+        "entry transactions",
         "cics/sql",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
@@ -765,6 +853,14 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
                 if ef
                 else None
             ),
+        )
+        pid = (k["program_id"] or "").upper()
+        add(
+            "entry transactions",
+            rel,
+            set(k.get("transactions", [])),
+            forge_tx.get(pid, set()),
+            engine_tx.get(pid, set()) if ir else None,
         )
         add(
             "cics/sql",

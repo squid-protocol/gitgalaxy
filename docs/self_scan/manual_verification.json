@@ -1,100 +1,177 @@
 {
-  "languages": {
-    "abap": {
-      "args": {
-        "note": "Per-function declared-parameter count, spot-checked against direct source reading for 9 functions across 4 different corpus files (constructor, create_empty, create_from, build_asx_node, parse, push, serialize, deserialize, deserialize_checks) after fixing #1917 (args regex correctness) and #1918 (DEFINITION-section span lookup + dedicated counter, gitgalaxy/core/detector.py's _count_abap_declared_params) -- zero discrepancies found. Total is the sum of every real function's own args count across the corpus, not a per-clause or per-file signal count (distinct from the file-level struct_args structural signature).",
-        "total": 265,
-        "verified": 265,
-        "verified_at": "2026-08-20",
-        "verified_by": "Claude Sonnet 5"
-      },
-      "class": {
-        "note": "class_start regex applied directly to source text, cross-checked against every real CLASS DEFINITION/IMPLEMENTATION pair in the corpus by direct reading -- see docs/language_status/abap.md \u00a79.",
-        "total": 12,
-        "verified": 12,
-        "verified_at": "2026-08-19",
-        "verified_by": "Claude Sonnet 5"
-      },
-      "function": {
-        "note": "func_start regex applied directly to source text, cross-checked against an independent grep (grep -nE \"^\\s*METHOD\\s+[a-zA-Z]\") that shares no implementation with the primary regex -- see docs/language_status/abap.md \u00a79.",
-        "total": 124,
-        "verified": 124,
-        "verified_at": "2026-08-19",
-        "verified_by": "Claude Sonnet 5"
-      }
-    },
-    "agc_assembly": {
-      "args": {
-        "note": "AGC subroutines have no formal parameter list (why_gitgalaxy_beats_ast_here.md Claim 1's shape) -- args is a real body-idiom proxy: the number of DISTINCT accumulator-style registers (A/Q/L/Z) a function's body demonstrably reads via a real math/memory opcode, plus one more if an EBANK=/FBANK=/BBANK= bank-context assignment is present. Fixed in gitgalaxy/core/detector.py's new _count_agc_register_args (#1949 follow-up) to scan every match in the body (findall) instead of deriving from only the first regex match (search-then-split), which previously produced a near-meaningless 0/1/2 categorical value regardless of how many registers a function actually touched. Spot-checked by hand against direct source reading for 5 functions across 4 different corpus files (P40AUTO=1 register A, TESTBIT=1 register A via CCS A before a TC Q early-return truncates the rest, SMODECHK=0 no coupled-register opcode present, KILLTASK=3 registers A+Q plus an EBANK= bank assignment, CGCALC=3 registers A+L plus an EBANK= bank assignment) -- zero discrepancies found. Total is the sum of every real function's own distinct-register-plus-bank-flag count across the corpus, computed via the same struct_func_start/function_data pipeline path abap's own args entry uses. ctags emits no signature: field for Asm-parsed files, so no second tool can ever corroborate this metric -- confirmed via `ctags --fields=+S`, same structural limitation as the whole-language 1-tool case, scoped here to just the args metric (agc_assembly has real ctags coverage for func/class existence).",
-        "total": 296,
-        "verified": 296,
-        "verified_at": "2026-08-20",
-        "verified_by": "Claude Sonnet 5"
-      }
-    },
-    "dockerfile": {
-      "class": {
-        "note": "class_start (FROM, one per build stage) named-extraction verified two ways across the same 4-file corpus after #1974 (which added dockerfile to _CLASS_START_NAMED_EXTRACTION_LANGS and extended the regex to capture the real AS <alias> stage name, or fall back to the bare base-image reference for an unaliased stage): (1) class_data row counts match struct_class_start exactly (69/6/1/1). (2) independent grep -icE '^[ \\t]*FROM([ \\t]|\\\\)' cross-check (not the naive '^[ \\t]*FROM' alone, which false-positive-matches an unrelated ENV var named FROM_DOCKERFILE in windows.Dockerfile:185 -- confirmed a real regex-boundary requirement, not a bug) also matches 1/6/1/69 exactly. Extracted stage NAMES independently spot-checked against direct source reading: generate-files.Dockerfile's all 6 aliased stages (base/src/tools/generated/update/validate) match exactly; syscall.Dockerfile's one unaliased stage correctly falls back to its base-image reference (debian:${BASE_DEBIAN_DISTRO}-slim); daemon.Dockerfile's first 5 and last 5 of 69 stages (including two --platform=$VAR-prefixed ones, xx and build-dummy) all match exactly. Prior to #1974, dockerfile had no named class extraction at all (class_data was always empty regardless of struct_class_start's own accurate count) -- see docs/language_status/dockerfile.md \u00a79 for the earlier, narrower raw-signal-only verification this entry supersedes for the 'Classes Found'/'Class Precision' chart panels specifically.",
-        "total": 77,
-        "verified": 77,
-        "verified_at": "2026-08-21",
-        "verified_by": "Claude Sonnet 5"
-      },
-      "function": {
-        "note": "func_start (RUN/CMD/ENTRYPOINT/HEALTHCHECK) verified two ways across the 4 real Dockerfiles in language-crucible/data/dockerfile/moby/test_targets/ (syscall/generate-files/windows/daemon, 1030 total lines): (1) raw regex applied directly to source text, cross-checked against an independent grep -icE '^[ \\t]*(RUN|CMD|ENTRYPOINT|HEALTHCHECK)([ \\t\\[]|\\\\)' -- exact match on all 4 files (3/6/4/58). (2) real pipeline DB output (galaxyscope --db-only, file_data.struct_func_start vs. function_count) -- pre-fix, function_count catastrophically undercounted the raw signal (15/1/0/1 vs. the correct 58/6/3/4) because dockerfile had no ScopeParsingRegistry entry and fell through to Mode_B_Braces, which only 'succeeded' when a `{` happened to appear by coincidence within the search window (almost always an unrelated LATER instruction's `${VAR}` template-substitution brace, e.g. RUN at daemon.Dockerfile:57 was 'sliced' using the `{`/`}` from an unrelated FROM line's ${GOLANG_IMAGE} five lines and one build-stage boundary later). Fixed by routing dockerfile to Mode A (_slice_by_labels, the same greedy-to-next-match heuristic already used for abap/cobol/fortran/assembly -- correct here too since Dockerfile instructions have no brace-delimited bodies at all, they simply end at the next instruction). Re-verified post-fix: function_count == struct_func_start exactly on all 4 files (58/6/3/4). Full differential scan against the ~80-repo crucible corpus confirmed the fix generalizes (a 5th real occurrence, shell/brew/Dockerfile, also corrected) with zero unrelated-language diffs. See docs/language_status/dockerfile.md \u00a79 and GitHub issue #1973 for a distinct, narrower follow-on (Mode A's per-function args count can spuriously attribute an unrelated ARG line swept into the greedy body span -- doesn't affect this function-existence verification).",
-        "total": 71,
-        "verified": 71,
-        "verified_at": "2026-08-20",
-        "verified_by": "Claude Sonnet 5"
-      }
-    },
-    "groovy": {
-      "class": {
-        "note": "class_start verified against the same 188-file language-crucible v1.2.0 groovy corpus, same independent grep-based ground-truth methodology as the function entry above (zero shared implementation, triple-quoted-string-aware). Fixed one real GitGalaxy defect found in the process: class_start's capture group was entirely missing (pattern.groups() == 0) -- class *existence* was detected correctly (struct_class_start's raw count matched real declarations exactly), but detector.py's _resolve_class_start_match could never extract a name from a group that didn't exist, so every single one of the 286 pre-fix class_data rows was literally named the generic placeholder 'Anonymous_Class' instead of its real name -- confirmed the only language in _CLASS_START_NAMED_EXTRACTION_LANGS with this defect (checked all 36). Post-fix: zero unexplained recall gaps found across the whole corpus, and a precision spot-check found no false-positive class of the kind found for functions (class_start requires an explicit class/interface/trait/enum/record keyword, a far more constrained grammar shape than func_start's zero-prefix branch, so the MarkupBuilder/DSL-call ambiguity filed as #2530 doesn't apply here). See docs/language_status/groovy.md \u00a79.",
-        "total": 222,
-        "verified": 222,
-        "verified_at": "2026-08-31",
-        "verified_by": "Claude Sonnet 5"
-      },
-      "function": {
-        "note": "func_start verified against the language-crucible v1.2.0 groovy corpus (188 files, 9 real-world repos -- fineract's Gradle plugin, Gradle's own build-logic/integTest sources, Spock's own core+smoke+spec suites, Jenkins .groovy view templates). tree-sitter has no usable grammar for this language (see NODE_MAPS's own groovy exclusion comment in tree_sitter_accuracy_audit.py) and ctags has zero Groovy support at all (confirmed via `ctags --list-languages`), so this is a genuine 1-tool language despite tree-sitter nominally loading a 'groovy' grammar. Verification method: an independent grep-based ground-truth scan (no shared implementation with func_start) across every one of the 188 files, cross-checked against the real pipeline's function_data output by name, with triple-quoted string spans excluded via quote-parity tracking (both sides must agree a candidate is real top-level code, not fixture text embedded in a multi-line string) -- zero unexplained recall gaps found after fixing three real GitGalaxy defects surfaced along the way: func_start's zero-prefix branch matched the bare 'def' keyword once a quoted Spock feature-method name got correctly blanked for brace-safety (fixed by excluding 'def' from the branch's own exclusion lookahead, plus preserving the quoted name in detector.py's brace-safety shield instead of blanking it); Prism never shielded groovy's \"\"\"/''' multi-line strings at all, letting embedded fixture/template code (Gradle build-script snippets, Spock's own compiler-smoke-test source samples) leak into the real code stream and corrupt extraction for the rest of the file; and _extract_name's generic last-token heuristic silently reduced a quoted multi-word Spock description down to its last word. A manual precision spot-check (50+ random named entries read against source) found one remaining defect class: MarkupBuilder/Jenkins-Pipeline-DSL calls with a trailing closure (`button(name: \"clear\") { ... }`) syntactically indistinguishable from a real zero-prefix declaration, filed as #2530 -- confirmed confined to the jenkins_view_groovy/ corpus folder (29 files), all 57 functions detected there this shape. #2530 mostly fixed the same week: a real Groovy declaration's parameter list can never contain a `key:` token (call-site named-argument sugar only), so func_start's zero-prefix branch now rejects a candidate whose parenthesized argument list contains an identifier immediately followed by `:` with no intervening whitespace. 44 of the 57 resolved; full 201-file corpus differential scan confirmed zero legitimate bare constructors lost recall anywhere. 13 residual (single-positional-arg DSL calls with no `key:` token to key off -- stage/node/dir/withChecks/recordIssues -- plus 2 pre-existing Unknown_Block-fallback qualified-call cases) remain open under #2530 as a known, scoped-out limitation (a curated builder-tag-name denylist would be fragile/incomplete by construction). Fixing #2530's button(...) false positive also unmasked one new, unrelated func_start defect (branch 1 treating a bare identifier before a paren-less call as a modifier/type prefix -- 'raw _(\"Dismiss\")' misdetected once no longer masked by the nested button false positive), filed separately as #2558. total/verified below reflect the #2530-fixed state: 675 total (718 - 44 removed + 1 from #2558), 661 still verified-correct (unchanged; the 14 remaining are all still-open false positives). See docs/language_status/groovy.md \u00a75/\u00a79.",
-        "total": 675,
-        "verified": 661,
-        "verified_at": "2026-08-31",
-        "verified_by": "Claude Sonnet 5"
-      }
-    },
-    "jcl": {
-      "class": {
-        "note": "class_start (JCL JOB cards) verified against the language-crucible v1.2.0 corpus (186 .jcl files, 6 repos; 185 pipeline-scanned, same DFH$SIP1.jcl zero-density exclusion as the function entry). Three checks over the whole corpus: (1) GitGalaxy's class_start regex vs. an independent JOB-card grep (^//[A-Za-z0-9@#$][A-Za-z0-9@#$]{0,7}[ \\t]+JOB([ \\t]|$), no shared implementation, independently rejects //*-commented job cards) -- exact agreement, 118 == 118, zero per-file mismatches. The 12 cics-banking-sample-application-cbsa/CREL0*.jcl + CREDB2L.jcl files whose entire JOB card is commented out (//*NAME JOB ...) and the 2 cics-genapp sampcma/sampwui.jcl angle-bracket placeholders (//<CMASAPPL> JOB) remain correctly NOT counted. (2) real pipeline DB output: struct_class_start == class_count == 118 on every file, class_data carries 118 rows (JCL is in _CLASS_START_NAMED_EXTRACTION_LANGS since #2203, no brace-slice fallback). (3) direct source read of the v1.2.0 delta: cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl contributes exactly one JOB card (//DEFVSAM JOB). Every corpus file carries at most one JOB card. Count moved 117 -> 118 on 2026-08-30 solely from that one new file (crucible v1.1.0 -> v1.2.0, gitgalaxy pin bump #2478). Zero false positives. See docs/language_status/jcl.md #9.",
-        "total": 118,
-        "verified": 118,
-        "verified_at": "2026-08-30",
-        "verified_by": "Claude Sonnet 5"
-      },
-      "function": {
-        "note": "func_start (JCL EXEC steps) verified against the language-crucible v1.2.0 corpus (186 .jcl files, 6 repos; 185 pipeline-scanned -- cics-banking-sample-application-cbsa/DFH$SIP1.jcl is a bare SIP parameter deck with no // statements and is correctly aperture-excluded at zero-density). Three checks over the whole corpus: (1) GitGalaxy's func_start regex applied directly to raw source text, cross-checked line-for-line against an independent grep (^//[A-Za-z0-9@#$]{0,8}[ \\t]+EXEC([ \\t]|$), which shares no implementation with the primary regex and independently excludes //* comment lines) -- exact agreement, 376 == 376, zero per-file mismatches. (2) real pipeline DB output (galaxyscope --db-only): file_data.struct_func_start == function_count == 376 on every file, and function_data carries 376 rows, so neither prism.py's comment splitter nor detector.py's Mode A (_slice_by_labels) body slicing drops or corrupts any match. (3) direct source read of the v1.2.0 delta: cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl contributes exactly one EXEC step (//DEFINE EXEC PGM=IDCAMS); its instream IDCAMS SYSIN control statements (DELETE / DEFINE CLUSTER) are correctly NOT matched. Count moved 375 -> 376 on 2026-08-30 solely from that one new file (crucible v1.1.0 -> v1.2.0, gitgalaxy pin bump #2478). Zero false positives. See docs/language_status/jcl.md #9.",
-        "total": 376,
-        "verified": 376,
-        "verified_at": "2026-08-30",
-        "verified_by": "Claude Sonnet 5"
-      }
-    },
-    "livecode": {
-      "class": {
-        "note": "class_start named extraction, verified by a string-aware independent scanner + full name-diff of EVERY detected class against its (BOM-stripped) declaration line across the whole language-crucible/data/livecode corpus (98 ingested files): 97/97 correct, ZERO false positives, ZERO missed. Two real declaration forms, both handled: `.livecodescript` `script \"Name\"` (quoted object-script export header) and `.lcb` `module com.x.y` (bareword reverse-DNS). `total` is GitGalaxy's own live class-claim count (97), the chart's staleness anchor; this is a PRECISION record. History: 2026-08-28 added the quoted-name branch + `_CLASS_START_NAMED_EXTRACTION_LANGS` entry (0 -> 57); #2415 aperture fix restored `testlib.lcb` (57 -> 58); #2411 (this PR) strips a leading UTF-8 BOM at ingestion, un-blocking the `^`-anchored line-1 `script \"Name\"` on 39 more `.livecodescript` files (58 -> 97) -- every one verified correct. The former BOM recall gap is now closed; `map.lcb` is still correctly NOT counted (its `module` line is commented out). See docs/language_status/livecode.md.",
-        "total": 97,
-        "verified": 97,
-        "verified_at": "2026-08-29",
-        "verified_by": "Claude Sonnet 5"
-      },
-      "function": {
-        "note": "func_start named extraction, verified by a string-aware independent scanner + full name-diff against EVERY detected handler across the whole language-crucible/data/livecode corpus (98 ingested files): 964/964 handler headers map 1:1 to a real definition, ZERO false positives, ZERO missed. Both dialects handled after #2409/#2410: LiveCode Script `[public|private] on|command|function|getprop|setprop <name>` (unparenthesized args) and LiveCode Builder `.lcb` `[public|private] handler <name>(...)` (typed, parenthesized). `foreign handler` FFI binding declarations (C-prototype shaped, `binds to \"<builtin>\"`, no body) are correctly NOT counted, and `handler type <Name>()` (a function-pointer typedef) is not counted. `total` is GitGalaxy's own live func-claim count (964), the chart's staleness anchor (matches both func_recall.matched_consensus and func_precision.total_slots); this is a PRECISION record for handler *existence*. #2410 routed livecode to detector.py Mode D (keyword depth-tracking) -- before that, Mode B brace-slicing produced ONE FunctionNode for the entire corpus. Count moved 934 -> 964 on 2026-08-29 when #2419 was fixed: `_apply_literal_shield` / prism's `multi_style_live` string mask was C-escape-aware, so `\"\\\\\"` (a real one-char LiveCode string containing a backslash) was misread as an escaped quote, desyncing quote pairing until a `/*` inside a later string literal (`\"Android/*\"`) opened a bogus block comment that blanked ~30 real handlers in revsaveasandroidstandalone.livecodescript alone. Both the earlier 934 count AND its verification undercounted for the same reason. No truncation markers remain anywhere in the corpus. See docs/language_status/livecode.md \u00a79.",
-        "total": 964,
-        "verified": 964,
-        "verified_at": "2026-08-29",
-        "verified_by": "Claude Sonnet 5"
-      }
-    }
+ "languages": {
+  "abap": {
+   "args": {
+    "note": "Per-function declared-parameter count, spot-checked against direct source reading for 9 functions across 4 different corpus files (constructor, create_empty, create_from, build_asx_node, parse, push, serialize, deserialize, deserialize_checks) after fixing #1917 (args regex correctness) and #1918 (DEFINITION-section span lookup + dedicated counter, gitgalaxy/core/detector.py's _count_abap_declared_params) -- zero discrepancies found. Total is the sum of every real function's own args count across the corpus, not a per-clause or per-file signal count (distinct from the file-level struct_args structural signature).",
+    "total": 265,
+    "verified": 265,
+    "verified_at": "2026-08-20",
+    "verified_by": "Claude Sonnet 5"
+   },
+   "class": {
+    "note": "class_start regex applied directly to source text, cross-checked against every real CLASS DEFINITION/IMPLEMENTATION pair in the corpus by direct reading -- see docs/language_status/abap.md \u00a79.",
+    "total": 12,
+    "verified": 12,
+    "verified_at": "2026-08-19",
+    "verified_by": "Claude Sonnet 5"
+   },
+   "function": {
+    "note": "func_start regex applied directly to source text, cross-checked against an independent grep (grep -nE \"^\\s*METHOD\\s+[a-zA-Z]\") that shares no implementation with the primary regex -- see docs/language_status/abap.md \u00a79.",
+    "total": 124,
+    "verified": 124,
+    "verified_at": "2026-08-19",
+    "verified_by": "Claude Sonnet 5"
+   }
+  },
+  "agc_assembly": {
+   "args": {
+    "note": "AGC subroutines have no formal parameter list (why_gitgalaxy_beats_ast_here.md Claim 1's shape) -- args is a real body-idiom proxy: the number of DISTINCT accumulator-style registers (A/Q/L/Z) a function's body demonstrably reads via a real math/memory opcode, plus one more if an EBANK=/FBANK=/BBANK= bank-context assignment is present. Fixed in gitgalaxy/core/detector.py's new _count_agc_register_args (#1949 follow-up) to scan every match in the body (findall) instead of deriving from only the first regex match (search-then-split), which previously produced a near-meaningless 0/1/2 categorical value regardless of how many registers a function actually touched. Spot-checked by hand against direct source reading for 5 functions across 4 different corpus files (P40AUTO=1 register A, TESTBIT=1 register A via CCS A before a TC Q early-return truncates the rest, SMODECHK=0 no coupled-register opcode present, KILLTASK=3 registers A+Q plus an EBANK= bank assignment, CGCALC=3 registers A+L plus an EBANK= bank assignment) -- zero discrepancies found. Total is the sum of every real function's own distinct-register-plus-bank-flag count across the corpus, computed via the same struct_func_start/function_data pipeline path abap's own args entry uses. ctags emits no signature: field for Asm-parsed files, so no second tool can ever corroborate this metric -- confirmed via `ctags --fields=+S`, same structural limitation as the whole-language 1-tool case, scoped here to just the args metric (agc_assembly has real ctags coverage for func/class existence).",
+    "total": 296,
+    "verified": 296,
+    "verified_at": "2026-08-20",
+    "verified_by": "Claude Sonnet 5"
+   }
+  },
+  "dockerfile": {
+   "class": {
+    "note": "class_start (FROM, one per build stage) named-extraction verified two ways across the same 4-file corpus after #1974 (which added dockerfile to _CLASS_START_NAMED_EXTRACTION_LANGS and extended the regex to capture the real AS <alias> stage name, or fall back to the bare base-image reference for an unaliased stage): (1) class_data row counts match struct_class_start exactly (69/6/1/1). (2) independent grep -icE '^[ \\t]*FROM([ \\t]|\\\\)' cross-check (not the naive '^[ \\t]*FROM' alone, which false-positive-matches an unrelated ENV var named FROM_DOCKERFILE in windows.Dockerfile:185 -- confirmed a real regex-boundary requirement, not a bug) also matches 1/6/1/69 exactly. Extracted stage NAMES independently spot-checked against direct source reading: generate-files.Dockerfile's all 6 aliased stages (base/src/tools/generated/update/validate) match exactly; syscall.Dockerfile's one unaliased stage correctly falls back to its base-image reference (debian:${BASE_DEBIAN_DISTRO}-slim); daemon.Dockerfile's first 5 and last 5 of 69 stages (including two --platform=$VAR-prefixed ones, xx and build-dummy) all match exactly. Prior to #1974, dockerfile had no named class extraction at all (class_data was always empty regardless of struct_class_start's own accurate count) -- see docs/language_status/dockerfile.md \u00a79 for the earlier, narrower raw-signal-only verification this entry supersedes for the 'Classes Found'/'Class Precision' chart panels specifically.",
+    "total": 77,
+    "verified": 77,
+    "verified_at": "2026-08-21",
+    "verified_by": "Claude Sonnet 5"
+   },
+   "function": {
+    "note": "func_start (RUN/CMD/ENTRYPOINT/HEALTHCHECK) verified two ways across the 4 real Dockerfiles in language-crucible/data/dockerfile/moby/test_targets/ (syscall/generate-files/windows/daemon, 1030 total lines): (1) raw regex applied directly to source text, cross-checked against an independent grep -icE '^[ \\t]*(RUN|CMD|ENTRYPOINT|HEALTHCHECK)([ \\t\\[]|\\\\)' -- exact match on all 4 files (3/6/4/58). (2) real pipeline DB output (galaxyscope --db-only, file_data.struct_func_start vs. function_count) -- pre-fix, function_count catastrophically undercounted the raw signal (15/1/0/1 vs. the correct 58/6/3/4) because dockerfile had no ScopeParsingRegistry entry and fell through to Mode_B_Braces, which only 'succeeded' when a `{` happened to appear by coincidence within the search window (almost always an unrelated LATER instruction's `${VAR}` template-substitution brace, e.g. RUN at daemon.Dockerfile:57 was 'sliced' using the `{`/`}` from an unrelated FROM line's ${GOLANG_IMAGE} five lines and one build-stage boundary later). Fixed by routing dockerfile to Mode A (_slice_by_labels, the same greedy-to-next-match heuristic already used for abap/cobol/fortran/assembly -- correct here too since Dockerfile instructions have no brace-delimited bodies at all, they simply end at the next instruction). Re-verified post-fix: function_count == struct_func_start exactly on all 4 files (58/6/3/4). Full differential scan against the ~80-repo crucible corpus confirmed the fix generalizes (a 5th real occurrence, shell/brew/Dockerfile, also corrected) with zero unrelated-language diffs. See docs/language_status/dockerfile.md \u00a79 and GitHub issue #1973 for a distinct, narrower follow-on (Mode A's per-function args count can spuriously attribute an unrelated ARG line swept into the greedy body span -- doesn't affect this function-existence verification).",
+    "total": 71,
+    "verified": 71,
+    "verified_at": "2026-08-20",
+    "verified_by": "Claude Sonnet 5"
+   }
+  },
+  "groovy": {
+   "class": {
+    "note": "class_start verified against the same 188-file language-crucible v1.2.0 groovy corpus, same independent grep-based ground-truth methodology as the function entry above (zero shared implementation, triple-quoted-string-aware). Fixed one real GitGalaxy defect found in the process: class_start's capture group was entirely missing (pattern.groups() == 0) -- class *existence* was detected correctly (struct_class_start's raw count matched real declarations exactly), but detector.py's _resolve_class_start_match could never extract a name from a group that didn't exist, so every single one of the 286 pre-fix class_data rows was literally named the generic placeholder 'Anonymous_Class' instead of its real name -- confirmed the only language in _CLASS_START_NAMED_EXTRACTION_LANGS with this defect (checked all 36). Post-fix: zero unexplained recall gaps found across the whole corpus, and a precision spot-check found no false-positive class of the kind found for functions (class_start requires an explicit class/interface/trait/enum/record keyword, a far more constrained grammar shape than func_start's zero-prefix branch, so the MarkupBuilder/DSL-call ambiguity filed as #2530 doesn't apply here). See docs/language_status/groovy.md \u00a79.",
+    "total": 222,
+    "verified": 222,
+    "verified_at": "2026-08-31",
+    "verified_by": "Claude Sonnet 5"
+   },
+   "function": {
+    "note": "func_start re-verified against the pinned language-crucible v1.4.0 groovy corpus (188 files; the corpus shifted substantially from the v1.2.0 verification -- jenkins_view_groovy collapsed from 29 files to a single Jenkinsfile, and fineract's Gradle plugin + more Gradle/Spock sources were added, so the old 661/675 no longer maps and the staleness guard correctly fell back to 0/N). tree-sitter has no usable groovy grammar (NODE_MAPS exclusion) and ctags has zero groovy support, so this stays a genuine 1-tool language. (1) Pipeline DB: struct_func_start 734 vs function_count 659 -- the 75-signal gap is ENTIRELY bodyless abstract/interface method DECLARATIONS that correctly do not become function units (a unit needs a sliceable body): Retrofit interface methods (`@GET(\"...\") Call<...> getX(...)` in JiraService/ConfluenceService/GitHubApi) and `abstract` class methods (`abstract DirectoryProperty getX()` in Docbook2Xhtml, `protected abstract boolean changed(...)` in AbstractSuperClassChangesRule). Verified across all 11 drop files -- zero bodied methods lost, so no recall defect. (2) Independent cross-check of the 659 named concrete methods vs source: 643 are real Groovy method declarations (def/static/protected methods, constructors, and Spock quoted feature methods -- 15-method spot-check across folders all confirmed real). The 16 remaining are the known, scoped-out #2530/#2558 DSL-builder false-positive class -- zero-prefix single-positional-arg builder CALLS with a trailing closure, syntactically indistinguishable from a bare declaration and carrying no `key:` token to reject on: jenkins Pipeline `stage(...)`/`node(...)`/`dir(...)` (8), Gradle `dir(...)`/`create(\"libs\")` and godot publishing `templateDebug/templateRelease/toolsRelease(MavenPublication)` (5), Spock `with(...)`/`verifyAll(...)` (3). A curated builder-tag denylist would be fragile by construction (#2530). total/verified below: 659 total (live named count), 643 verified-correct (659 - 16 open DSL false positives). Partial verification -> honest 643/659** (no full badge). See docs/language_status/groovy.md \u00a75/\u00a79 and #2530/#2558.",
+    "total": 659,
+    "verified": 643,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   }
+  },
+  "jcl": {
+   "class": {
+    "note": "class_start (JCL JOB cards) verified against the language-crucible v1.2.0 corpus (186 .jcl files, 6 repos; 185 pipeline-scanned, same DFH$SIP1.jcl zero-density exclusion as the function entry). Three checks over the whole corpus: (1) GitGalaxy's class_start regex vs. an independent JOB-card grep (^//[A-Za-z0-9@#$][A-Za-z0-9@#$]{0,7}[ \\t]+JOB([ \\t]|$), no shared implementation, independently rejects //*-commented job cards) -- exact agreement, 118 == 118, zero per-file mismatches. The 12 cics-banking-sample-application-cbsa/CREL0*.jcl + CREDB2L.jcl files whose entire JOB card is commented out (//*NAME JOB ...) and the 2 cics-genapp sampcma/sampwui.jcl angle-bracket placeholders (//<CMASAPPL> JOB) remain correctly NOT counted. (2) real pipeline DB output: struct_class_start == class_count == 118 on every file, class_data carries 118 rows (JCL is in _CLASS_START_NAMED_EXTRACTION_LANGS since #2203, no brace-slice fallback). (3) direct source read of the v1.2.0 delta: cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl contributes exactly one JOB card (//DEFVSAM JOB). Every corpus file carries at most one JOB card. Count moved 117 -> 118 on 2026-08-30 solely from that one new file (crucible v1.1.0 -> v1.2.0, gitgalaxy pin bump #2478). Zero false positives. See docs/language_status/jcl.md #9.",
+    "total": 118,
+    "verified": 118,
+    "verified_at": "2026-08-30",
+    "verified_by": "Claude Sonnet 5"
+   },
+   "function": {
+    "note": "func_start (JCL EXEC steps) verified against the language-crucible v1.2.0 corpus (186 .jcl files, 6 repos; 185 pipeline-scanned -- cics-banking-sample-application-cbsa/DFH$SIP1.jcl is a bare SIP parameter deck with no // statements and is correctly aperture-excluded at zero-density). Three checks over the whole corpus: (1) GitGalaxy's func_start regex applied directly to raw source text, cross-checked line-for-line against an independent grep (^//[A-Za-z0-9@#$]{0,8}[ \\t]+EXEC([ \\t]|$), which shares no implementation with the primary regex and independently excludes //* comment lines) -- exact agreement, 376 == 376, zero per-file mismatches. (2) real pipeline DB output (galaxyscope --db-only): file_data.struct_func_start == function_count == 376 on every file, and function_data carries 376 rows, so neither prism.py's comment splitter nor detector.py's Mode A (_slice_by_labels) body slicing drops or corrupts any match. (3) direct source read of the v1.2.0 delta: cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl contributes exactly one EXEC step (//DEFINE EXEC PGM=IDCAMS); its instream IDCAMS SYSIN control statements (DELETE / DEFINE CLUSTER) are correctly NOT matched. Count moved 375 -> 376 on 2026-08-30 solely from that one new file (crucible v1.1.0 -> v1.2.0, gitgalaxy pin bump #2478). Zero false positives. See docs/language_status/jcl.md #9.",
+    "total": 376,
+    "verified": 376,
+    "verified_at": "2026-08-30",
+    "verified_by": "Claude Sonnet 5"
+   }
+  },
+  "livecode": {
+   "class": {
+    "note": "class_start named extraction, verified by a string-aware independent scanner + full name-diff of EVERY detected class against its (BOM-stripped) declaration line across the whole language-crucible/data/livecode corpus (98 ingested files): 97/97 correct, ZERO false positives, ZERO missed. Two real declaration forms, both handled: `.livecodescript` `script \"Name\"` (quoted object-script export header) and `.lcb` `module com.x.y` (bareword reverse-DNS). `total` is GitGalaxy's own live class-claim count (97), the chart's staleness anchor; this is a PRECISION record. History: 2026-08-28 added the quoted-name branch + `_CLASS_START_NAMED_EXTRACTION_LANGS` entry (0 -> 57); #2415 aperture fix restored `testlib.lcb` (57 -> 58); #2411 (this PR) strips a leading UTF-8 BOM at ingestion, un-blocking the `^`-anchored line-1 `script \"Name\"` on 39 more `.livecodescript` files (58 -> 97) -- every one verified correct. The former BOM recall gap is now closed; `map.lcb` is still correctly NOT counted (its `module` line is commented out). See docs/language_status/livecode.md.",
+    "total": 97,
+    "verified": 97,
+    "verified_at": "2026-08-29",
+    "verified_by": "Claude Sonnet 5"
+   },
+   "function": {
+    "note": "func_start named extraction, verified by a string-aware independent scanner + full name-diff against EVERY detected handler across the whole language-crucible/data/livecode corpus (98 ingested files): 964/964 handler headers map 1:1 to a real definition, ZERO false positives, ZERO missed. Both dialects handled after #2409/#2410: LiveCode Script `[public|private] on|command|function|getprop|setprop <name>` (unparenthesized args) and LiveCode Builder `.lcb` `[public|private] handler <name>(...)` (typed, parenthesized). `foreign handler` FFI binding declarations (C-prototype shaped, `binds to \"<builtin>\"`, no body) are correctly NOT counted, and `handler type <Name>()` (a function-pointer typedef) is not counted. `total` is GitGalaxy's own live func-claim count (964), the chart's staleness anchor (matches both func_recall.matched_consensus and func_precision.total_slots); this is a PRECISION record for handler *existence*. #2410 routed livecode to detector.py Mode D (keyword depth-tracking) -- before that, Mode B brace-slicing produced ONE FunctionNode for the entire corpus. Count moved 934 -> 964 on 2026-08-29 when #2419 was fixed: `_apply_literal_shield` / prism's `multi_style_live` string mask was C-escape-aware, so `\"\\\\\"` (a real one-char LiveCode string containing a backslash) was misread as an escaped quote, desyncing quote pairing until a `/*` inside a later string literal (`\"Android/*\"`) opened a bogus block comment that blanked ~30 real handlers in revsaveasandroidstandalone.livecodescript alone. Both the earlier 934 count AND its verification undercounted for the same reason. No truncation markers remain anywhere in the corpus. See docs/language_status/livecode.md \u00a79.",
+    "total": 964,
+    "verified": 964,
+    "verified_at": "2026-08-29",
+    "verified_by": "Claude Sonnet 5"
+   }
+  },
+  "pli": {
+   "function": {
+    "note": "Verified against the pinned language-crucible v1.4.0 corpus by the three-way method in the tri-comparison-ledger-sweep skill (gg-only: no tree-sitter, no ctags). (1) real pipeline DB (galaxyscope --db-only): struct_func_start == function_count == 7 on every file, so neither prism.py's comment splitter nor detector.py's Mode A (_slice_by_labels) body-slicing drops or corrupts a match. (2) GitGalaxy's own func_start (label: PROC/PROCEDURE) regex cross-checked against an independent second parse of the raw source -- EXACT match, 7 == 7, zero false positives, zero false negatives. The class panel is a genuine absence (0): the corpus contains no DEFINE STRUCTURE/ORDINAL, PL/I's class_start construct.",
+    "total": 7,
+    "verified": 7,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   }
+  },
+  "hlasm": {
+   "function": {
+    "note": "Verified against the pinned language-crucible v1.4.0 corpus by the three-way method in the tri-comparison-ledger-sweep skill (gg-only: no tree-sitter, no ctags). (1) real pipeline DB (galaxyscope --db-only): struct_func_start == function_count == 1 on every file, so neither prism.py's comment splitter nor detector.py's Mode A (_slice_by_labels) body-slicing drops or corrupts a match. (2) GitGalaxy's own func_start (NAME CSECT/RSECT/START) regex cross-checked against an independent second parse of the raw source -- EXACT match, 1 == 1, zero false positives, zero false negatives. One control section across the 18-file corpus; the rest are macro/copy members with no CSECT/RSECT/START. The class panel is a genuine absence (0): the corpus contains no NAME DSECT line.",
+    "total": 1,
+    "verified": 1,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   }
+  },
+  "bms": {
+   "function": {
+    "note": "Verified against the pinned language-crucible v1.4.0 corpus by the three-way method in the tri-comparison-ledger-sweep skill (gg-only: no tree-sitter, no ctags). (1) real pipeline DB (galaxyscope --db-only): struct_func_start == function_count == 15 on every file, so neither prism.py's comment splitter nor detector.py's Mode A (_slice_by_labels) body-slicing drops or corrupts a match. (2) GitGalaxy's own func_start (NAME DFHMDI map) regex cross-checked against an independent second parse of the raw source -- EXACT match, 15 == 15, zero false positives, zero false negatives. The 15 DFHMDI maps across 10 mapsets.",
+    "total": 15,
+    "verified": 15,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   },
+   "class": {
+    "note": "Verified against the pinned language-crucible v1.4.0 corpus by the three-way method in the tri-comparison-ledger-sweep skill (gg-only: no tree-sitter, no ctags). (1) real pipeline DB (galaxyscope --db-only): struct_class_start == class_count == 10 on every file, so neither prism.py's comment splitter nor detector.py's Mode A (_slice_by_labels) body-slicing drops or corrupts a match. (2) GitGalaxy's own class_start (NAME DFHMSD mapset, TYPE=FINAL excluded) regex cross-checked against an independent second parse of the raw source -- EXACT match, 10 == 10, zero false positives, zero false negatives. One DFHMSD mapset header per file; the TYPE=FINAL closers are correctly excluded.",
+    "total": 10,
+    "verified": 10,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   }
+  },
+  "rexx": {
+   "function": {
+    "note": "Verified against the pinned language-crucible v1.4.0 corpus by the three-way method in the tri-comparison-ledger-sweep skill (gg-only: no tree-sitter, no ctags). (1) real pipeline DB (galaxyscope --db-only): struct_func_start == function_count == 115 on every file, so neither prism.py's comment splitter nor detector.py's Mode A (_slice_by_labels) body-slicing drops or corrupts a match. (2) GitGalaxy's own func_start (label: / ::ROUTINE / ::METHOD) regex cross-checked against an independent second parse of the raw source -- EXACT match, 115 == 115, zero false positives, zero false negatives. The independent raw-text grep initially over-matched 8 (a PROVENANCE.md markdown 'Sources:' header, and labels such as HZSLSTRT:/HZSLSTOP:/HZSLFMSG: sitting inside /* ... */ REXX comment blocks in domchk.rexx, and AUTHOR:/DESCRIPTION:/OPTIONS: inside header comment blocks) -- all correctly stripped by prism.py / language classification, confirming GitGalaxy has zero false positives on real labels. The class panel is a genuine absence (0): the corpus contains no ::CLASS directive.",
+    "total": 115,
+    "verified": 115,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   }
+  },
+  "db2_sql": {
+   "class": {
+    "note": "Verified against the pinned language-crucible v1.4.0 corpus by the three-way method in the tri-comparison-ledger-sweep skill (gg-only: no tree-sitter, no ctags). (1) real pipeline DB (galaxyscope --db-only): struct_class_start == class_count == 12 on every file, so neither prism.py's comment splitter nor detector.py's Mode A (_slice_by_labels) body-slicing drops or corrupts a match. (2) GitGalaxy's own class_start (CREATE TABLE/VIEW/TABLESPACE) regex cross-checked against an independent second parse of the raw source -- EXACT match, 12 == 12, zero false positives, zero false negatives. Schema-qualified and quoted names handled. The function panel is a genuine absence (0): the corpus contains no CREATE PROCEDURE/FUNCTION/TRIGGER (the only textual hit is inside a PROVENANCE.md, correctly classified markdown).",
+    "total": 12,
+    "verified": 12,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   }
+  },
+  "csd": {
+   "function": {
+    "note": "func_start (DEFINE TRANSACTION) verified against the pinned language-crucible v1.4.0 csd corpus (5 decks: carddemo CARDDEMO.CSD + 3 variants, cbsa BANK.csd), gg-only (no tree-sitter, no ctags). (1) real pipeline DB: struct_func_start == function_count == 39 on every file -- no prism/detector drop (csd extracts via Mode A _slice_by_labels since gitgalaxy#3211-followup / PR #3274). (2) GitGalaxy's func_start cross-checked against an independent DEFINE TRANSACTION(name) parse of the raw decks (excluding *-comment lines and DB2TRAN) -- EXACT match, 39==39, zero false positives, zero false negatives. Each transaction is a CICS entry point.",
+    "total": 39,
+    "verified": 39,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   },
+   "class": {
+    "note": "class_start (DEFINE PROGRAM) verified the same way against the v1.4.0 csd corpus: struct_class_start == class_count == 56 on every file, and GitGalaxy's class_start cross-checked against an independent DEFINE PROGRAM(name) parse -- EXACT match, 56==56, zero false positives/negatives. Each program is the deployable module a transaction routes to.",
+    "total": 56,
+    "verified": 56,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   }
+  },
+  "yaml": {
+   "function": {
+    "note": "func_start (CI steps: `run`/`script`/`before_script`/`after_script`, and `name:`-anchored steps whose script follows) verified against the pinned language-crucible v1.4.0 yaml corpus after the #3277 block-scalar fix. yaml is a genuine 1-tool language (no tree-sitter grammar, no ctags). (1) Pipeline DB: struct_func_start == function_count == 127 on every scanned file -- the #3277 fix (blank `|`/`>` block-scalar content before the indentation shield) closed the prior 127->123 drop, where an apostrophe embedded in a github-script `script:` JS block cascade-paired and blanked four real steps in api-proposal-version-check.yml while a lone `script:` unit ran to EOF. (2) Independent cross-check: per-file, GitGalaxy's named count vs an independent count of `run`/`script`/`before_script`/`after_script` step keys (on block-scalar-blanked text) -- EXACT match on all 32 scanned files, 127 == 127, zero per-file mismatches. Spot-checked moby/arm64.yml by hand: 11 raw `run:` keys == 11 named. Scope: the 127 is over the 32 files GitGalaxy classifies as yaml; ~9 CI workflow files in the corpus (dotfiles like `.test.yml`, and `pr-*-test.yml`) are not classified/scanned as yaml at all -- a separate aperture/classification gap tracked in #3278, which lowers the found-count but not the precision of what IS found. Precision on the extracted set is exact.",
+    "total": 127,
+    "verified": 127,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   }
   }
+ }
 }

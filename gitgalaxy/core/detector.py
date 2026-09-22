@@ -571,6 +571,16 @@ _CLASS_START_NAMED_EXTRACTION_LANGS = frozenset(
         # match CREATE TABLE, so the named class list would stay permanently
         # empty despite db2_sql's own regex working.
         "db2_sql",
+        # #3211-followup: csd's class_start extracts the CICS PROGRAM a transaction
+        # routes to (`DEFINE PROGRAM(BNK1CRA)` -> "BNK1CRA") and its func_start the
+        # transaction (`DEFINE TRANSACTION(OCRA)` -> "OCRA") -- the deployable-module
+        # / entry-point pair of a CSD deck. Tree-sitter-blind and ctags-blind like
+        # the rest of the mainframe family; verified against the pinned corpus. csd
+        # was overlooked here when it landed (#3251), so its DEFINE records counted
+        # as signals (struct_func_start/struct_class_start) but the generic fallback
+        # regex (class|struct|interface|trait|enum) never matched DEFINE, leaving
+        # csd the one language on the tri-comparison chart with no named units.
+        "csd",
         "dart",
         "fortran",
         "go",
@@ -3603,6 +3613,18 @@ class StructuralExtractor:
                         # never a brace. Routines don't nest, so Mode A's greedy
                         # label-to-label body is the real boundary.
                         "rexx",
+                        # #3211-followup: csd is bms's shape again -- a CSD deck has
+                        # no braces (a `{` can only appear inside an INITIAL='...'/
+                        # DESCRIPTION(...) literal) and no ScopeParsingRegistry entry,
+                        # so without this it fell through to Mode_B_Braces like bms
+                        # did before #3077 and 0 of its DEFINE TRANSACTION matches
+                        # (func_start) reached function_data -- csd was the one
+                        # language on the tri-comparison chart with no named units.
+                        # Records never nest, so Mode A's "greedy to the next
+                        # func_start match" body is the real boundary: each
+                        # transaction runs from its own `DEFINE TRANSACTION(...)` to
+                        # the next DEFINE (or EOF), exactly like jcl's steps.
+                        "csd",
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)

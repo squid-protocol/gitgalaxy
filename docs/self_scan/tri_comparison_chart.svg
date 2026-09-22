@@ -259,7 +259,21 @@
 <rect x="682" y="543" width="88.0" height="10" rx="2" fill="#1baf7a"/>
 <text class="bar-value-label" x="726.0" y="551">1333</text>
 <text class="lang-label" x="20" y="583.5">csd</text>
-<text class="awaiting" x="154" y="583.5">no functions/classes found in this corpus by any tool</text>
+<rect class="bar-track" x="154" y="563" width="88" height="34" rx="2"/>
+<rect x="154" y="563" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="198.0" y="571">39</text>
+<rect class="bar-track" x="286" y="563" width="88" height="34" rx="2"/>
+<rect x="286" y="563" width="2.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="330.0" y="571">0/39</text>
+<rect class="bar-track" x="418" y="563" width="88" height="34" rx="2"/>
+<rect x="418" y="563" width="88.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="462.0" y="571">56</text>
+<rect class="bar-track" x="550" y="563" width="88" height="34" rx="2"/>
+<rect x="550" y="563" width="2.0" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="594.0" y="571">0/56</text>
+<rect class="bar-track" x="682" y="563" width="88" height="34" rx="2"/>
+<rect x="682" y="563" width="88" height="10" rx="2" fill="#2a78d6"/>
+<text class="bar-value-label" x="726.0" y="571">78‡</text>
 <rect class="stripe" x="16" y="602" width="780" height="44"/>
 <text class="lang-label" x="20" y="627.5">csharp</text>
 <rect class="bar-track" x="154" y="607" width="88" height="34" rx="2"/>

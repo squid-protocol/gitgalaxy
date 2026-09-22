@@ -1,10 +1,7 @@
 """batch strict structural-signature coverage."""
 
-import re
 import sys
 from pathlib import Path
-
-import pytest
 
 from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 

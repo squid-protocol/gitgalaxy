@@ -867,7 +867,7 @@ _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
 # control-flow keywords and cross-language builtins the invocation regexes
 # cannot distinguish from user calls. Case-sensitive on purpose: languages
 # whose keywords are case-insensitive (fortran, abap, pli, rexx, db2_sql, ada)
-# declare their own lowercase words via the per-language `calls_out_ignore`
+# declare their own lowercase words via the per-language `_calls_out_ignore`
 # rule, which is compared casefolded at the filter site.
 _CALLS_OUT_GLOBAL_IGNORE = frozenset(
     {
@@ -8708,7 +8708,7 @@ class StructuralExtractor:
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).
         # Authored lowercase in the profile and compared casefolded, so
         # case-insensitive languages filter their keywords in any spelling.
-        lang_ignore = rules.get("calls_out_ignore") or frozenset()
+        lang_ignore = rules.get("_calls_out_ignore") or frozenset()
         # Deduplicate and filter (excluding the function calling itself recursively)
         calls_out = list(
             dict.fromkeys(

@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # #3211-followup: CSD/RDO -- the CICS resource-definition language. A CSD deck is
 # the output of (or the input to) DFHCSDUP/CEDA: a stream of
@@ -104,7 +104,7 @@ DEFINITION: dict[str, Any] = {
     "case_insensitive_imports": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: a resource definition makes no runtime choice.
         "branch": None,

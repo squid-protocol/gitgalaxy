@@ -524,7 +524,7 @@ def test_powershell_api_no_control_flow_false_positives():
 def test_powershell_calls_out_strict():
     powershell = LANGUAGE_DEFINITIONS["powershell"]
     calls_out = powershell["rules"]["calls_out"]
-    ignore = powershell["rules"]["calls_out_ignore"]
+    ignore = powershell["rules"]["_calls_out_ignore"]
 
     # 1. Positives
     assert calls_out.findall("    probe_branch") == ["probe_branch"]

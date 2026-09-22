@@ -14,7 +14,6 @@ if _LANGUAGES_DIR not in sys.path:
 
 from _strict_harness import assert_redos_immune
 
-
 def test_batch_calls_out_strict():
     batch = LANGUAGE_DEFINITIONS["batch"]
     calls_out = batch["rules"]["calls_out"]

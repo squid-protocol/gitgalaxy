@@ -357,7 +357,7 @@ def test_tcl_2763_url_in_source_does_not_unbalance_the_brace_shield():
 def test_tcl_calls_out_strict():
     tcl = LANGUAGE_DEFINITIONS["tcl"]
     calls_out = tcl["rules"]["calls_out"]
-    ignore = tcl["rules"]["calls_out_ignore"]
+    ignore = tcl["rules"]["_calls_out_ignore"]
 
     # 1. Positives
     assert calls_out.findall("    probe_branch $argv") == ["probe_branch"]

@@ -34,7 +34,7 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_COMMAND_POSITION,
-        "calls_out_ignore": frozenset(
+        "_calls_out_ignore": frozenset(
             {
                 "on",
                 "end",

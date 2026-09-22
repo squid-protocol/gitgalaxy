@@ -731,7 +731,7 @@ def test_livecode_safety_bypasses_global_ownership_regression():
 def test_livecode_calls_out_strict():
     livecode = LANGUAGE_DEFINITIONS["livecode"]
     calls_out = livecode["rules"]["calls_out"]
-    ignore = livecode["rules"]["calls_out_ignore"]
+    ignore = livecode["rules"]["_calls_out_ignore"]
 
     # 1. Positives
     assert calls_out.findall("  probe_branch pArgv") == ["probe_branch"]

@@ -1,4 +1,3 @@
-import pytest
 from gitgalaxy.standards.language_standards._shared_patterns import CALLS_OUT_C_STYLE
 
 from _strict_harness import assert_redos_immune

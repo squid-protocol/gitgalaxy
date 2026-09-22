@@ -110,6 +110,7 @@ def test_every_non_none_rule_has_a_simple_case():
 
 
 _BASELINE_KEYS = [
+    "calls_out",  # Epic #3264
     "branch",
     "args",
     "structural_boundaries",
@@ -168,6 +169,7 @@ _BASELINE_KEYS = [
 ]
 
 _EXPECTED_NONE_KEYS = {
+    "calls_out",  # Epic #3264: declared paradigm, no call-out in this declarative language
     "test",
     "concurrency",
     "closures",

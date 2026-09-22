@@ -105,6 +105,7 @@ def test_ada_signature_positive_and_negative(signature, positive, negative):
 # pattern or an explicit None -- never silently absent.
 # ==============================================================================
 _BASELINE_KEYS = [
+    "calls_out",  # Epic #3264
     "branch", "args", "structural_boundaries", "func_start", "class_start",
     "safety", "safety_bypasses", "high_risk_execution", "io", "api",
     "state_mutation", "dead_code", "doc", "test",

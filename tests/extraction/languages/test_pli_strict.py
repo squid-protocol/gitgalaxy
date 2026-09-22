@@ -139,6 +139,7 @@ def test_every_non_none_rule_has_a_simple_case():
 # TEST 2: SCHEMA COMPLETENESS (Rule 4 / Step 4 item 9)
 # ==============================================================================
 _BASELINE_KEYS = [
+    "calls_out",  # Epic #3264
     "branch", "args", "structural_boundaries", "func_start", "class_start",
     "safety", "safety_bypasses", "high_risk_execution", "io", "api",
     "state_mutation", "dead_code", "doc", "test",
@@ -161,6 +162,7 @@ _BASELINE_KEYS = [
 # hardcoded_secrets is a baseline rule in three languages only (the security lens covers
 # the rest).
 _EXPECTED_NONE_KEYS = {
+    "calls_out",  # Epic #3264: declared paradigm, no call-out in this declarative language
     "closures", "generics", "comprehensions", "hardcoded_secrets", "dependency_injection",
     "inline_asm", "test_skip", "regex_execution",
     "system_config_mutation",

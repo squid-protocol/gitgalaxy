@@ -108,6 +108,7 @@ def test_every_non_none_rule_has_a_simple_case():
 # TEST 2: SCHEMA COMPLETENESS (Rule 4 / Step 4 item 9)
 # ==============================================================================
 _BASELINE_KEYS = [
+    "calls_out",  # Epic #3264
     "branch", "args", "structural_boundaries", "func_start", "class_start",
     "safety", "safety_bypasses", "high_risk_execution", "io", "api",
     "state_mutation", "dead_code", "doc", "test",
@@ -131,6 +132,7 @@ _BASELINE_KEYS = [
 # HAS is the UI surface (ui_framework), the mapset/map/field structure, HLASM's
 # COPY and conditional assembly, and the `*` comment surface.
 _EXPECTED_NONE_KEYS = {
+    "calls_out",  # Epic #3264: declared paradigm, no call-out in this declarative language
     "branch", "safety", "safety_bypasses", "high_risk_execution", "io",
     "state_mutation", "doc", "test", "concurrency", "closures", "globals",
     "decorators", "generics", "comprehensions", "scientific",

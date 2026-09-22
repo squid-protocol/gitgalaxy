@@ -20,6 +20,9 @@ MOCK_LANG_DEFS = {
         "lexical_family": "single_line_only",
         "rules": {
             "func_start": re.compile(r"^[ \t]*def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(", re.M),
+            # Epic #3264: calls_out_to now requires an explicit paradigm declaration
+            # (the fallback was removed), so the mock must declare one too.
+            "calls_out": re.compile(r"\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\("),
             "branch": re.compile(r"\b(if|elif|for|while)\b"),
             "structural_boundaries": re.compile(r"\b(print|return|assign)\b"),
             "ownership": re.compile(r"#\s*Architect:\s*(.*)"),

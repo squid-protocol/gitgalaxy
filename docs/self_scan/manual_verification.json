@@ -147,6 +147,22 @@
     "verified_at": "2026-09-22",
     "verified_by": "Claude Opus 4.8"
    }
+  },
+  "csd": {
+   "function": {
+    "note": "func_start (DEFINE TRANSACTION) verified against the pinned language-crucible v1.4.0 csd corpus (5 decks: carddemo CARDDEMO.CSD + 3 variants, cbsa BANK.csd), gg-only (no tree-sitter, no ctags). (1) real pipeline DB: struct_func_start == function_count == 39 on every file -- no prism/detector drop (csd extracts via Mode A _slice_by_labels since gitgalaxy#3211-followup / PR #3274). (2) GitGalaxy's func_start cross-checked against an independent DEFINE TRANSACTION(name) parse of the raw decks (excluding *-comment lines and DB2TRAN) -- EXACT match, 39==39, zero false positives, zero false negatives. Each transaction is a CICS entry point.",
+    "total": 39,
+    "verified": 39,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   },
+   "class": {
+    "note": "class_start (DEFINE PROGRAM) verified the same way against the v1.4.0 csd corpus: struct_class_start == class_count == 56 on every file, and GitGalaxy's class_start cross-checked against an independent DEFINE PROGRAM(name) parse -- EXACT match, 56==56, zero false positives/negatives. Each program is the deployable module a transaction routes to.",
+    "total": 56,
+    "verified": 56,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   }
   }
  }
 }

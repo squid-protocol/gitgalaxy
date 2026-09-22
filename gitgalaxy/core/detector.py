@@ -8553,13 +8553,13 @@ class StructuralExtractor:
         # Fallback is explicitly removed: if a language does not configure calls_out,
         # it is returned as empty (intentional blindness) rather than guessing.
         invocation_pattern = rules.get("calls_out")
-        
-        if not invocation_pattern:
-            return []
 
-        # Apply literal shield to avoid capturing words inside strings
-        safe_block = self._apply_literal_shield(block, self.primary_lang_id)
-        raw_calls = invocation_pattern.findall(safe_block)
+        if not invocation_pattern:
+            raw_calls = []
+        else:
+            # Apply literal shield to avoid capturing words inside strings
+            safe_block = self._apply_literal_shield(block, self.primary_lang_id)
+            raw_calls = invocation_pattern.findall(safe_block)
 
         ignore_keywords = {
             "if",

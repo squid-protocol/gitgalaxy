@@ -10,6 +10,8 @@
 
 from typing import Any
 
+from .._shared_patterns import CALLS_OUT_C_STYLE
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "Standard XML 1.0 / UI Layouts",
@@ -39,5 +41,8 @@ DEFINITION: dict[str, Any] = {
     # Rationale: (CORRECTION) Consolidated 'xml_angle' into 'singular'. Like HTML, XML
     # exclusively uses SGML-style block delimiters () for its Commented / Non-Executable Text.
     "lexical_family": "block_exclusive",
-    "rules": {},
+    "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_C_STYLE,
+    },
 }

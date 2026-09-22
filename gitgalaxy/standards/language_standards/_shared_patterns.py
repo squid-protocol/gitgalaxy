@@ -138,3 +138,15 @@ HTML_NONEXECUTABLE_SCRIPT_TAG = re.compile(
 # 4. LANGUAGE DEFINITIONS (The Structural Signature Matrix)
 # Consumed by: detector.py, language_lens.py, prism.py
 # ------------------------------------------------------------------------------
+
+# ------------------------------------------------------------------------------
+# 5. STRUCTURAL INVOCATION PARADIGMS (Epic #3264)
+# Consumed by: detector.py (calls_out_to extraction)
+# ------------------------------------------------------------------------------
+
+# C-Family / Algol-Family (name followed by optional space and open parenthesis)
+CALLS_OUT_C_STYLE = re.compile(r"\b([a-zA-Z_]\w*)\s*\(")
+
+# Unsupported / AST-Required (Shell, Markup, Data, Config)
+# Mapped to None to officially declare intentional blindness rather than extracting garbage.
+CALLS_OUT_UNSUPPORTED = None

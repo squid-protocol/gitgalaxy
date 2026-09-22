@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # PL/I identifiers are letters, digits, `_`, `@`, `#` and `$` (IBM Enterprise PL/I
 # Language Reference, "Identifiers"), and real mainframe source also carries national
@@ -65,6 +65,7 @@ _STMT_START = (
 # procedure may be named STOP (`CALL STOP;`). One fixed-width lookbehind per spacing.
 _NOT_A_TARGET = r"(?<!TO\s)(?<!TO\s\s)(?<!CALL\s)"
 
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "IBM Enterprise PL/I for z/OS 6.1 (also the ANSI X3.53-1976 subset)",
@@ -105,6 +106,8 @@ DEFINITION: dict[str, Any] = {
     # cross-language resolution (an HTML page importing a .css file).
     "imports_are_source_members": True,
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: IF / ELSE, the SELECT group and its WHEN / OTHERWISE arms, and the loop
         # openers (DO WHILE / UNTIL / LOOP / FOREVER and the iterative `DO I = ...`). A

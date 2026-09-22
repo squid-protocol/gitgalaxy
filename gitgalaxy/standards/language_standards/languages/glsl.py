@@ -10,6 +10,8 @@
 
 from typing import Any
 
+from .._shared_patterns import CALLS_OUT_C_STYLE
+
 DEFINITION: dict[str, Any] = {
     "_meta": {"target_version": "OpenGL Shading Language", "status": "production"},
     "extensions": [".glsl", ".vert", ".frag", ".geom", ".comp"],
@@ -17,5 +19,8 @@ DEFINITION: dict[str, Any] = {
     "discriminators": [".glsl", ".vert", ".frag"],
     "shebangs": [],
     "lexical_family": "standard_block",
-    "rules": {},
+    "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_C_STYLE,
+    },
 }

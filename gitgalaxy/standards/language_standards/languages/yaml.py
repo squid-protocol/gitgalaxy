@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -45,6 +45,8 @@ DEFINITION: dict[str, Any] = {
     "invocation_model": "positional",
     "lexical_family": "line_exclusive",
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         "branch": re.compile(r"\b(?:if|else|elif|case|for|while)\b|&&|\|\|", re.I),
         # BUG FIX (#2753): the rule was narrower than the language on two axes.

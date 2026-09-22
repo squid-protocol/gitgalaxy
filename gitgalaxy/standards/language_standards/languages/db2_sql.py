@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # Db2 ordinary identifiers allow the national characters `#`, `$` and `@` alongside
 # letters, digits and `_` (IBM Db2 13 for z/OS SQL Reference, "Identifiers") -- the
@@ -29,6 +29,7 @@ _QUAL = r"(?:" + _NAME + r"[ \t]*\.[ \t]*){0,2}"
 # `END WHILE`, `END REPEAT`) -- continuation/closing words are excluded from branch
 # (#2822 C2). One fixed-width lookbehind per spacing character.
 _NOT_END = r"(?<!END )(?<!END\t)"
+
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -95,6 +96,8 @@ DEFINITION: dict[str, Any] = {
     # not a rule (the #2806 language_lens pre-compiler trap).
     "invocation_model": "positional",
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_UNSUPPORTED,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch (#2822): SQL PL's control statements (IF / ELSEIF / ELSE, CASE and
         # its WHEN arms, WHILE, REPEAT ... UNTIL, the cursor FOR-loop) plus SQL's

@@ -12,6 +12,7 @@ import re
 from typing import Any
 
 from .._shared_patterns import (
+    CALLS_OUT_C_STYLE,
     GLOBAL_DL_FRAMEWORKS,
     GLOBAL_FRAGILE_DEBT,
     GLOBAL_LLM_API,
@@ -80,6 +81,8 @@ DEFINITION: dict[str, Any] = {
     # (docstrings) is handled by the Section 2.3.C.3 Heuristic Pass.
     "lexical_family": "line_exclusive",
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_C_STYLE,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Includes match/case (3.10+) and logical short-circuits. EXCLUDES exceptions.

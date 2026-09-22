@@ -10,6 +10,8 @@
 
 from typing import Any
 
+from .._shared_patterns import CALLS_OUT_C_STYLE
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "XLA High-Level Optimizer IR",
@@ -28,5 +30,8 @@ DEFINITION: dict[str, Any] = {
     # UPGRADED: Maps to Family 1 (Standard C-Style)
     # Rationale: HLO text format exclusively utilizes '//' for line-level comments, maintaining C++ ecosystem alignment.
     "lexical_family": "standard_block",
-    "rules": {},
+    "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_C_STYLE,
+    },
 }

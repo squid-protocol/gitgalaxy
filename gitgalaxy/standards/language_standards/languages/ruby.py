@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -63,6 +63,8 @@ DEFINITION: dict[str, Any] = {
     # utilizes the `=begin ... =end` block syntax, requiring hybrid parsing rules.
     "lexical_family": "line_exclusive",
     "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_C_STYLE,
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. EXCLUDES raise/throw (bailout_hits).
         "branch": re.compile(r"\b(if|unless|elsif|else|case|when|in|for|while|until)\b|&&|\|\||(?<!\w)\?"),

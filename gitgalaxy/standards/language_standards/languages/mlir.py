@@ -10,6 +10,8 @@
 
 from typing import Any
 
+from .._shared_patterns import CALLS_OUT_C_STYLE
+
 DEFINITION: dict[str, Any] = {
     "_meta": {
         "target_version": "LLVM MLIR",
@@ -29,5 +31,8 @@ DEFINITION: dict[str, Any] = {
     # Rationale: MLIR intentionally adopts standard LLVM assembly syntax conventions,
     # using '//' exclusively for line comments to maintain C++ ecosystem familiarity.
     "lexical_family": "standard_block",
-    "rules": {},
+    "rules": {
+        # Epic #3264: Explicitly declare the structural invocation paradigm
+        "calls_out": CALLS_OUT_C_STYLE,
+    },
 }

@@ -50,6 +50,22 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
+        "_calls_out_ignore": frozenset(
+            {
+                "pragma",
+                "volatile",
+                "suppress",
+                "delay",
+                "accept",
+                "entry",
+                "raise",
+                "abs",
+                "mod",
+                "rem",
+                "others",
+                "aliased",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: Ada's short-circuit forms are the two-word "and then"/
         # "or else" (no && / || symbols exist in Ada).

@@ -354,3 +354,44 @@ def test_m4_dependency_capture_does_not_claim_embedded_c_includes():
     """
     embedded = "AC_CHECK_TYPES([sig_atomic_t], [], [], [[#include <signal.h>]])\n\t#include <gmp.h>\n"
     assert not M4_RULES["_dependency_capture"].search(embedded)
+
+def test_m4_calls_out_strict():
+    """Epic #3264 Phase 3: m4 calls_out extraction and ignore tuning."""
+    from _strict_harness import assert_redos_immune
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    
+    m4 = LANGUAGE_DEFINITIONS["m4"]
+    calls_out = m4["rules"]["calls_out"]
+    
+    assert calls_out.groups == 1
+    
+    code = """
+define(`test_m4', `
+    ifelse(A, B)
+    ifdef(C, D)
+    m4_define(E, F)
+    
+    probe_dispatch(1)
+    probe_branch(1)
+    probe_io(1)
+    syscmd(ls)
+    esyscmd(ls)
+')
+"""
+    extractor = StructuralExtractor("m4", {"m4": m4})
+    res = extractor.splice(code, "")
+    calls = res["functions"][0]["calls_out_to"]
+    
+    assert "probe_dispatch" in calls
+    assert "probe_branch" in calls
+    assert "probe_io" in calls
+    assert "syscmd" in calls
+    assert "esyscmd" in calls
+    
+    assert "ifelse" not in calls
+    assert "ifdef" not in calls
+    assert "m4_define" not in calls
+    
+    payload = "ifelse" + (" " * 10000) + "("
+    assert_redos_immune(calls_out, payload)

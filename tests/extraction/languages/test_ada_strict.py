@@ -106,6 +106,7 @@ def test_ada_signature_positive_and_negative(signature, positive, negative):
 # ==============================================================================
 _BASELINE_KEYS = [
     "calls_out",  # Epic #3264
+    "_calls_out_ignore",
     "branch", "args", "structural_boundaries", "func_start", "class_start",
     "safety", "safety_bypasses", "high_risk_execution", "io", "api",
     "state_mutation", "dead_code", "doc", "test",
@@ -505,3 +506,45 @@ def test_ada_api_contract_2730():
     # Not declarations -- must not match.
     assert not api.search('   procedure Helper (X : Integer) is'), 'nested (body-local) procedure'
     assert not api.search('package body Foo is'), 'package body'
+
+def test_ada_calls_out_strict():
+    """Epic #3264 Phase 3: Ada calls_out extraction and ignore tuning."""
+    from _strict_harness import assert_redos_immune
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    
+    ada = LANGUAGE_DEFINITIONS["ada"]
+    calls_out = ada["rules"]["calls_out"]
+    
+    assert calls_out.groups == 1
+    
+    code = """
+procedure test_ada is
+begin
+    pragma Volatile (Region);
+    pragma Suppress (All_Checks);
+    delay(10);
+    raise(Error);
+    
+    Probe_Branch(1);
+    Probe_Io(1);
+    Ada.Text_IO.Open (File);
+    Read(1);
+end test_ada;
+"""
+    extractor = StructuralExtractor("ada", {"ada": ada})
+    res = extractor.splice(code, "")
+    calls = res["functions"][0]["calls_out_to"]
+    
+    assert "Probe_Branch" in calls
+    assert "Probe_Io" in calls
+    assert "Open" in calls
+    assert "Read" in calls
+    
+    assert "Volatile" not in calls
+    assert "Suppress" not in calls
+    assert "delay" not in calls
+    assert "raise" not in calls
+    
+    payload = "pragma" + (" " * 10000) + "("
+    assert_redos_immune(calls_out, payload)

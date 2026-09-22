@@ -266,3 +266,50 @@ def test_ruby_api_contract_2730():
 
     # Not declarations -- must not match.
     assert not api.search('def probe_globals(env)'), 'top-level def is private on Object'
+
+def test_ruby_calls_out_strict():
+    """Epic #3264 Phase 3: Ruby calls_out extraction and ignore tuning."""
+    from _strict_harness import assert_redos_immune
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+    
+    ruby = LANGUAGE_DEFINITIONS["ruby"]
+    calls_out = ruby["rules"]["calls_out"]
+    
+    assert calls_out.groups == 1
+    
+    code = """
+def test_method()
+    elsif (condition)
+    module_function (:sym)
+    attr_accessor (:prop)
+    lambda { }
+    puts("hello")
+    raise("error")
+    
+    probe_branch(1)
+    probe_io(1)
+    abort(1)
+    spawn(1)
+    describe("test")
+end
+"""
+    extractor = StructuralExtractor("ruby", {"ruby": ruby})
+    res = extractor.splice(code, "")
+    calls = res["functions"][0]["calls_out_to"]
+    
+    assert "probe_branch" in calls
+    assert "probe_io" in calls
+    assert "abort" in calls
+    assert "spawn" in calls
+    assert "describe" in calls
+    
+    assert "elsif" not in calls
+    assert "module_function" not in calls
+    assert "attr_accessor" not in calls
+    assert "lambda" not in calls
+    assert "puts" not in calls
+    assert "raise" not in calls
+    
+    payload = "puts" + (" " * 10000) + "("
+    assert_redos_immune(calls_out, payload)

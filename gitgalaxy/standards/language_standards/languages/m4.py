@@ -41,6 +41,22 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
+        "_calls_out_ignore": frozenset(
+            {
+                "ifelse",
+                "ifdef",
+                "define",
+                "m4_define",
+                "m4_if",
+                "m4_ifdef",
+                "dnl",
+                "divert",
+                "undivert",
+                "m4_provide",
+                "include",
+                "sinclude",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # M4 branching logic and Autoconf shell-generation branches.

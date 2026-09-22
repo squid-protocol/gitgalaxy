@@ -50,6 +50,28 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
+        "_calls_out_ignore": frozenset(
+            {
+                "my",
+                "our",
+                "local",
+                "unless",
+                "elsif",
+                "foreach",
+                "defined",
+                "wantarray",
+                "ref",
+                "bless",
+                "scalar",
+                "exists",
+                "delete",
+                "shift",
+                "unshift",
+                "chomp",
+                "die",
+                "warn",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: Decisions that split the flow. Includes modern try/catch/finally and defer.
         "branch": re.compile(

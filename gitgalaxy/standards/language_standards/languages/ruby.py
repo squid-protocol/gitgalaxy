@@ -65,6 +65,21 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
+        "_calls_out_ignore": frozenset(
+            {
+                "elsif",
+                "module_function",
+                "attr_accessor",
+                "attr_reader",
+                "attr_writer",
+                "lambda",
+                "proc",
+                "puts",
+                "raise",
+                "loop",
+                "yield",
+            }
+        ),
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. EXCLUDES raise/throw (bailout_hits).
         "branch": re.compile(r"\b(if|unless|elsif|else|case|when|in|for|while|until)\b|&&|\|\||(?<!\w)\?"),

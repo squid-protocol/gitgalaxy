@@ -59,7 +59,7 @@ DEFINITION: dict[str, Any] = {
     "boundary_extraction": "jcl",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_UNSUPPORTED,
+        "calls_out": CALLS_OUT_UNSUPPORTED,  # step-card EXEC sits on the signature line, outside the scanned body (#3292)
         # Control flow in JCL (IF/THEN/ELSE/ENDIF)
         "branch": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:IF|ELSE)\b", re.M | re.I),
         # Extract arguments from EXEC PARM= strings or PROC symbolics definitions.

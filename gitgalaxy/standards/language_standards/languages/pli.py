@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # PL/I identifiers are letters, digits, `_`, `@`, `#` and `$` (IBM Enterprise PL/I
 # Language Reference, "Identifiers"), and real mainframe source also carries national
@@ -107,7 +107,7 @@ DEFINITION: dict[str, Any] = {
     "imports_are_source_members": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_UNSUPPORTED,
+        "calls_out": CALLS_OUT_CALL_VERB,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: IF / ELSE, the SELECT group and its WHEN / OTHERWISE arms, and the loop
         # openers (DO WHILE / UNTIL / LOOP / FOREVER and the iterative `DO I = ...`). A

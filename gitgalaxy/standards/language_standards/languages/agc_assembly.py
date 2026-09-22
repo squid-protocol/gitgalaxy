@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -34,7 +34,7 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "line_exclusive",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_UNSUPPORTED,
+        "calls_out": re.compile(r"(?m)\bTC\s+([A-Z][A-Z0-9]*)"),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Decisions only. EXCLUDES fatal alarms (bailout_hits) and, since #2764,

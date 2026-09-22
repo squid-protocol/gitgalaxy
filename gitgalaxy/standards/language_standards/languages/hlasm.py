@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # #2503: HLASM (IBM High Level Assembler) -- full z/Architecture assembler
 # source, the language bms.py's mapset macros are a dialect of. An HLASM
@@ -115,7 +115,7 @@ DEFINITION: dict[str, Any] = {
     # `USING dsectname,reg`. The #2866 census applies.
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_UNSUPPORTED,
+        "calls_out": re.compile(r"(?i)=V\(([A-Z@#$][\w@#$]*)\)"),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch (#2822): the CONDITIONAL branch mnemonics -- branch-on-
         # condition and its extended mnemonics (BE/BNE/BH/BNL/... and register

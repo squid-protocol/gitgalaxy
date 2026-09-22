@@ -360,3 +360,26 @@ def test_agc_structural_boundaries_redos_immunity_2764():
     """ReDoS detonation for the alternation widened by #2764."""
     assert_redos_immune(AGC_RULES["structural_boundaries"], "TC" * 50000, timeout_sec=3.0)
     assert_redos_immune(AGC_RULES["branch"], "B" * 100000, timeout_sec=3.0)
+
+
+def test_agc_assembly_calls_out_strict():
+    """
+    Epic #3264: Asserts that AGC Assembly extracts targets from TC only.
+    """
+    agc = LANGUAGE_DEFINITIONS["agc_assembly"]
+    calls_out = agc["rules"]["calls_out"]
+
+    # 1. Signature Tests (Positive matches)
+    assert calls_out.findall("DISPATCH TC PROBEBR") == ["PROBEBR"]
+    assert calls_out.findall("TC PROBEBR") == ["PROBEBR"]
+
+    # 2. Negative Tests
+    assert calls_out.findall("BZF PROBEIO") == []
+    assert calls_out.findall("BZMF PROBEIO") == []
+    assert calls_out.findall("CA PROBEBR") == []
+
+    assert calls_out.groups == 1
+
+    # 3. ReDoS Scale Testing
+    payload = "TC " + ("A" * 10000)
+    assert_redos_immune(calls_out, payload)

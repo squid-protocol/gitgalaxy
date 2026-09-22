@@ -639,3 +639,28 @@ def test_fortran_signature_deep_cases(signature, positive, negative):
         assert not pattern.search(negative), (
             f"fortran {signature!r} incorrectly matched deep excluded case: {negative!r}"
         )
+
+
+def test_fortran_calls_out_strict():
+    """
+    Epic #3264: Asserts that Fortran extracts targets from CALL,
+    and not from paren-attached statements like OPEN/READ/REWIND.
+    """
+    fortran = LANGUAGE_DEFINITIONS["fortran"]
+    calls_out = fortran["rules"]["calls_out"]
+
+    # 1. Signature Tests (Positive matches)
+    assert calls_out.findall("call log_info") == ["log_info"]
+    assert calls_out.findall("CALL PROBE_BRANCH(1)") == ["PROBE_BRANCH"]
+    assert calls_out.findall("CALL my_func") == ["my_func"]
+
+    # 2. Negative Tests
+    assert calls_out.findall("OPEN(UNIT=1)") == []
+    assert calls_out.findall("READ(UNIT=1)") == []
+    assert calls_out.findall("IF (X .EQ. 1)") == []
+
+    assert calls_out.groups == 1
+
+    # 3. ReDoS Scale Testing
+    payload = "CALL " + ("A" * 10000)
+    assert_redos_immune(calls_out, payload)

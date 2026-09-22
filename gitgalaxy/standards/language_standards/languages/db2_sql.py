@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # Db2 ordinary identifiers allow the national characters `#`, `$` and `@` alongside
 # letters, digits and `_` (IBM Db2 13 for z/OS SQL Reference, "Identifiers") -- the
@@ -97,7 +97,7 @@ DEFINITION: dict[str, Any] = {
     "invocation_model": "positional",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_UNSUPPORTED,
+        "calls_out": CALLS_OUT_CALL_VERB,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch (#2822): SQL PL's control statements (IF / ELSEIF / ELSE, CASE and
         # its WHEN arms, WHILE, REPEAT ... UNTIL, the cursor FOR-loop) plus SQL's

@@ -948,3 +948,10 @@ def test_jcl_redos_immunity():
     # sanity: all still match their real positive cases after the sweep
     assert JCL_RULES["branch"].search("//         IF (STEP1.RC = 0) THEN")
     assert JCL_RULES["structural_boundaries"].search("//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR")
+
+
+def test_jcl_calls_out_stays_unsupported():
+    """jcl's step-card EXEC lives on the signature line, outside the scanned
+    body block -- no calls_out regex can fire there. Re-enabling needs detector
+    signature-line scanning (gitgalaxy#3292)."""
+    assert LANGUAGE_DEFINITIONS["jcl"]["rules"]["calls_out"] is None

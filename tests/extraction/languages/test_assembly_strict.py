@@ -293,7 +293,9 @@ def test_assembly_test_vs_regex_execution_no_false_collision():
     test_rule = ASM_RULES["test"]
     regex_execution = ASM_RULES["regex_execution"]
 
-    assertion = "testcase {"  # #2853: assembly's test surface is the nasm `testcase` macro (bare `assert` prose dropped)
+    assertion = (
+        "testcase {"  # #2853: assembly's test surface is the nasm `testcase` macro (bare `assert` prose dropped)
+    )
     assert test_rule.search(assertion)
     assert not regex_execution.search(assertion)
 
@@ -505,3 +507,26 @@ def test_assembly_structural_boundaries_redos_immunity_2764():
     assert_redos_immune(ASM_RULES["structural_boundaries"], "b" * 100000, timeout_sec=3.0)
     assert_redos_immune(ASM_RULES["structural_boundaries"], "mov" * 50000, timeout_sec=3.0)
     assert_redos_immune(ASM_RULES["branch"], "j" * 100000, timeout_sec=3.0)
+
+
+def test_assembly_calls_out_strict():
+    """
+    Epic #3264: Asserts that Assembly extracts targets from call, and ignores branches.
+    """
+    assembly = LANGUAGE_DEFINITIONS["assembly"]
+    calls_out = assembly["rules"]["calls_out"]
+
+    # 1. Signature Tests (Positive matches)
+    assert calls_out.findall("call probe_branch") == ["probe_branch"]
+    assert calls_out.findall("CALL my_func") == ["my_func"]
+
+    # 2. Negative Tests
+    assert calls_out.findall("jz probe_branch") == []
+    assert calls_out.findall("je probe_branch") == []
+    assert calls_out.findall("jne probe_branch") == []
+
+    assert calls_out.groups == 1
+
+    # 3. ReDoS Scale Testing
+    payload = "CALL " + ("A" * 10000)
+    assert_redos_immune(calls_out, payload)

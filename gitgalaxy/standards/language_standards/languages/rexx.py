@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 # #2504: REXX -- z/OS TSO/E REXX and classic (SAA) REXX, plus the ooRexx
 # directive surface (`::requires` / `::routine` / `::class` / `::method`),
@@ -110,7 +110,8 @@ DEFINITION: dict[str, Any] = {
     # function form `probe_io(x)`, and `SIGNAL label`. The #2866 census applies.
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_UNSUPPORTED,
+        "calls_out": CALLS_OUT_CALL_VERB,
+        "calls_out_ignore": frozenset({"on", "off", "error"}),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch (#2822): IF / ELSE and the SELECT group's WHEN / OTHERWISE
         # arms; SELECT itself needs its `;`/end-of-line (or LABEL) shape so

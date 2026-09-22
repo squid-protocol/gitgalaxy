@@ -81,6 +81,7 @@ _REAL_MEMBER = (
 # realistic near-miss the rule's own documentation claims to exclude.
 # ==============================================================================
 _HLASM_SIMPLE_CASES = [
+    ("calls_out", "         L     15,=V(PROBEBR)", "         BALR  14,15"),
     # Conditional branches only; the unconditional B/BR is structural (#2764).
     ("branch", "         BE    NOTFOUND", "         B     NOTFOUND"),
     ("branch", "         BNER  14", "         BR    14"),
@@ -219,7 +220,6 @@ _BASELINE_KEYS = [
 # visibility, the perl/shell precedent), TR/TRT take no pattern
 # (regex_execution), and hardcoded_secrets is the security lens's.
 _EXPECTED_NONE_KEYS = {
-    "calls_out",  # Epic #3264: declared paradigm, no call-out in this declarative language
     "closures", "generics", "comprehensions", "test", "test_skip",
     "dependency_injection", "inline_asm", "encapsulation", "regex_execution",
     "hardcoded_secrets",
@@ -299,22 +299,13 @@ def test_hlasm_extension_classifies_directly():
 
 
 _HLASM_EQU_COPYBOOK = (
-    "* REGISTER EQUATES\n"
-    "R0       EQU   0\n"
-    "R1       EQU   1\n"
-    "R2       EQU   2\n"
-    "R3       EQU   3\n"
-    "R15      EQU   15\n"
+    "* REGISTER EQUATES\nR0       EQU   0\nR1       EQU   1\nR2       EQU   2\nR3       EQU   3\nR15      EQU   15\n"
 )
 
 _MASM_EQU_CONTENT = (
-    "; MASM style equates\n"
-    ".model flat, c\n"
-    ".data\n"
-    "MAX_LEN  EQU   256\n"
-    ".code\n"
-    "         mov eax, MAX_LEN\n"
+    "; MASM style equates\n.model flat, c\n.data\nMAX_LEN  EQU   256\n.code\n         mov eax, MAX_LEN\n"
 )
+
 
 def test_asm_extension_with_equ_only_copybook_resolves_to_hlasm():
     detector = LanguageDetector(LANGUAGE_DEFINITIONS, {})
@@ -577,3 +568,25 @@ def test_hlasm_dsect_is_class_start_not_func_start():
     assert not HLASM_RULES["func_start"].search("WSAREA   DSECT")
     m = HLASM_RULES["class_start"].search("WSAREA   DSECT")
     assert m.group(1) == "WSAREA"
+
+
+def test_hlasm_calls_out_strict():
+    """
+    Epic #3264: Asserts that HLASM extracts targets from =V() constants only.
+    """
+    hlasm = LANGUAGE_DEFINITIONS["hlasm"]
+    calls_out = hlasm["rules"]["calls_out"]
+
+    # 1. Signature Tests (Positive matches)
+    assert calls_out.findall("L 15,=V(PROBEBR)") == ["PROBEBR"]
+
+    # 2. Negative Tests
+    assert calls_out.findall("BALR 14,15") == []
+    assert calls_out.findall("BR 14") == []
+    assert calls_out.findall("OPEN (DCB)") == []
+
+    assert calls_out.groups == 1
+
+    # 3. ReDoS Scale Testing
+    payload = "=V(" + ("A" * 10000) + ")"
+    assert_redos_immune(calls_out, payload)

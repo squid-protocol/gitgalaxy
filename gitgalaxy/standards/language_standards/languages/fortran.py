@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_CALL_VERB, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -58,7 +58,7 @@ DEFINITION: dict[str, Any] = {
     "case_insensitive_imports": True,
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": CALLS_OUT_CALL_VERB,
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Control flow that forces the CPU to make a decision or jump. High density creates jagged shapes.

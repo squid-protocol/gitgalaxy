@@ -31,6 +31,7 @@ COBOL_RULES = LANGUAGE_DEFINITIONS["cobol"]["rules"]
 # TEST 1: PER-SIGNATURE POSITIVE/NEGATIVE COVERAGE
 # ==============================================================================
 _PLI_SIMPLE_CASES = [
+    ("calls_out", "CALL PROBE_BRANCH(1);", "OPEN FILE(NOTES);"),
     ("branch", "IF B02.TT_16_66(IND) > 0 THEN", "X = 5;"),
     ("branch", "SELECT (TRANS_OPPL_OMR.BLANKETTYPE);", "EXEC SQL SELECT A INTO :A FROM T;"),
     ("branch", "DO WHILE (MORE_DATA);", "DO;"),
@@ -162,7 +163,6 @@ _BASELINE_KEYS = [
 # hardcoded_secrets is a baseline rule in three languages only (the security lens covers
 # the rest).
 _EXPECTED_NONE_KEYS = {
-    "calls_out",  # Epic #3264: declared paradigm, no call-out in this declarative language
     "closures", "generics", "comprehensions", "hardcoded_secrets", "dependency_injection",
     "inline_asm", "test_skip", "regex_execution",
     "system_config_mutation",
@@ -500,3 +500,29 @@ def test_pli_export_list_captures_the_exported_names():
     rx = PLI_RULES["_visibility_export_list"]
     m = rx.search("PACK: PACKAGE EXPORTS(PROBE_GLOBALS, PROBE_TEST, PROBE_SAFETY);")
     assert m and [n.strip() for n in m.group(1).split(",")] == ["PROBE_GLOBALS", "PROBE_TEST", "PROBE_SAFETY"]
+
+
+def test_pli_calls_out_strict():
+    """
+    Epic #3264: Asserts that PL/I extracts targets from CALL, and condition-prefixed calls.
+    """
+    pli = LANGUAGE_DEFINITIONS["pli"]
+    calls_out = pli["rules"]["calls_out"]
+
+    # 1. Signature Tests (Positive matches)
+    assert calls_out.findall("CALL PROBE_BRANCH(1);") == ["PROBE_BRANCH"]
+    assert calls_out.findall("(STRINGRANGE): CALL NOTE_FIVE(2);") == ["NOTE_FIVE"]
+    assert calls_out.findall("ON ERROR CALL NOTE_FOUR(1);") == ["NOTE_FOUR"]
+    assert calls_out.findall("CALL 'SUBPROG'") == ["SUBPROG"]
+
+    # 2. Negative Tests
+    assert calls_out.findall("FILE(SYSPRINT)") == []
+    assert calls_out.findall("OPTIONS(MAIN)") == []
+    assert calls_out.findall("INIT(0)") == []
+    assert calls_out.findall("WHILE(1)") == []
+
+    assert calls_out.groups == 1
+
+    # 3. ReDoS Scale Testing
+    payload = "CALL " + ("A" * 10000)
+    assert_redos_immune(calls_out, payload)

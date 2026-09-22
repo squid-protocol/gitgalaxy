@@ -536,3 +536,27 @@ def test_abap_scope_filter_redos_immunity():
     t0 = time.perf_counter()
     assert ext._abap_statement_opener(payload, 0, len(payload)) is None
     assert time.perf_counter() - t0 < 1.0
+
+
+def test_abap_calls_out_strict():
+    """
+    Epic #3264: Asserts that ABAP extracts targets from PERFORM and CALL FUNCTION/METHOD/TRANSACTION,
+    and ignores the FUNCTION/METHOD/TRANSACTION words themselves.
+    """
+    abap = LANGUAGE_DEFINITIONS["abap"]
+    calls_out = abap["rules"]["calls_out"]
+
+    # 1. Signature Tests (Positive matches)
+    assert calls_out.findall("PERFORM probe_branch") == ["probe_branch"]
+    assert calls_out.findall("CALL FUNCTION 'Z_NAME'") == ["Z_NAME"]
+    assert calls_out.findall("CALL METHOD my_method") == ["my_method"]
+    assert calls_out.findall("CALL TRANSACTION 'TCODE'") == ["TCODE"]
+
+    # 2. Negative Tests
+    assert calls_out.findall("WRITE probe_branch") == []
+
+    assert calls_out.groups == 1
+
+    # 3. ReDoS Scale Testing
+    payload = "CALL FUNCTION " + ("A" * 10000)
+    assert_redos_immune(calls_out, payload)

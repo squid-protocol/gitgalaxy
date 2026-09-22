@@ -33,6 +33,7 @@ SQLITE = LANGUAGE_DEFINITIONS["sqlite"]
 # TEST 1: PER-SIGNATURE POSITIVE/NEGATIVE COVERAGE
 # ==============================================================================
 _DB2_SQL_SIMPLE_CASES = [
+    ("calls_out", "CALL PROBE_BRANCH(1);", "FETCH C1 INTO V1;"),
     ("branch", "IF RATING = 1 THEN", "END IF;"),
     ("branch", "WHILE V_COUNTER < P_MAX DO", "END WHILE;"),
     ("branch", "REPEAT FETCH C1 INTO V_ID; UNTIL SQLCODE <> 0 END REPEAT;", None),
@@ -45,8 +46,16 @@ _DB2_SQL_SIMPLE_CASES = [
     ("func_start", "CREATE PROCEDURE DSN8.PGM1 (IN X INT) LANGUAGE SQL", "CALL DSN8.PGM1(1);"),
     ("func_start", 'CREATE OR REPLACE FUNCTION "Tax_Rate" (P DECIMAL(15,2))', "DROP FUNCTION TAX_RATE;"),
     ("func_start", "CREATE TRIGGER NEW_HIRE AFTER INSERT ON EMP", "CREATE TABLE EMP (X INT);"),
-    ("class_start", "CREATE TABLE DSN8C10.EMP (EMPNO CHAR(6) NOT NULL)", "DECLARE GLOBAL TEMPORARY TABLE SESSION.T1 (X INT);"),
-    ("class_start", "CREATE LARGE TABLESPACE DSN8S13E IN DSN8D13A", "ALTER TABLESPACE DSN8D13A.DSN8S13E BUFFERPOOL BP2;"),
+    (
+        "class_start",
+        "CREATE TABLE DSN8C10.EMP (EMPNO CHAR(6) NOT NULL)",
+        "DECLARE GLOBAL TEMPORARY TABLE SESSION.T1 (X INT);",
+    ),
+    (
+        "class_start",
+        "CREATE LARGE TABLESPACE DSN8S13E IN DSN8D13A",
+        "ALTER TABLESPACE DSN8D13A.DSN8S13E BUFFERPOOL BP2;",
+    ),
     ("class_start", "CREATE VIEW DSN8C10.VDEPT AS SELECT DEPTNO FROM DSN8C10.DEPT", None),
     ("safety", "DECLARE EXIT HANDLER FOR SQLEXCEPTION SET RC = -1;", None),
     ("safety", "PRIMARY KEY (EMPNO)", None),
@@ -166,7 +175,6 @@ _BASELINE_KEYS = [
 # line the code stream never carries (macros); hardcoded_secrets is a baseline rule
 # in three languages only (the security lens covers the rest).
 _EXPECTED_NONE_KEYS = {
-    "calls_out",  # Epic #3264: declared paradigm, no call-out in this declarative language
     "ui_framework", "closures", "generics", "hardcoded_secrets", "dependency_injection",
     "ssr_boundaries", "macros", "pointers", "inline_asm", "test_skip",
     "system_config_mutation",
@@ -510,3 +518,24 @@ def test_db2_sql_delete_is_cleanups_not_state_mutations():
     stmt = "DELETE FROM DSN8C10.EMP WHERE EMPNO = '000010';"
     assert DB2_RULES["cleanup"].search(stmt)
     assert not DB2_RULES["state_mutation"].search(stmt)
+
+
+def test_db2_sql_calls_out_strict():
+    """
+    Epic #3264: Asserts that DB2 SQL extracts targets from CALL inside procedures.
+    """
+    db2_sql = LANGUAGE_DEFINITIONS["db2_sql"]
+    calls_out = db2_sql["rules"]["calls_out"]
+
+    # 1. Signature Tests (Positive matches)
+    assert calls_out.findall("CALL PROBE_BRANCH(1);") == ["PROBE_BRANCH"]
+    assert calls_out.findall("CALL NOTE_ONE(1)") == ["NOTE_ONE"]
+
+    # 2. Negative Tests
+    assert calls_out.findall("SELECT * FROM PROBE_BRANCH") == []
+
+    assert calls_out.groups == 1
+
+    # 3. ReDoS Scale Testing
+    payload = "CALL " + ("A" * 10000)
+    assert_redos_immune(calls_out, payload)

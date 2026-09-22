@@ -35,6 +35,7 @@ REXX = LANGUAGE_DEFINITIONS["rexx"]
 REXX_RULES = REXX["rules"]
 
 _REXX_SIMPLE_CASES = [
+    ("calls_out", "call probe_branch 1", "parse arg run_mode"),
     ("branch", "  IF RC ~= 0 THEN", "  end   /* closer, #2822 C2 */"),
     ("branch", "  SELECT;", "  SELECT = 1"),
     ("branch", "  DO WHILE I < MAX", "  DO_WHILE = 1"),
@@ -105,7 +106,9 @@ def test_rexx_signature_positive_and_negative(signature, positive, negative):
 
 def test_every_non_none_rule_has_a_simple_case():
     covered = {sig for sig, _, _ in _REXX_SIMPLE_CASES}
-    live = {k for k, v in REXX_RULES.items() if v is not None and not k.startswith("_")}
+    # calls_out_ignore is a frozenset consumed by the detector's filter, not a
+    # searchable rule -- its behavior is asserted in test_rexx_calls_out_strict.
+    live = {k for k, v in REXX_RULES.items() if v is not None and not k.startswith("_") and k != "calls_out_ignore"}
     assert live - covered == set(), f"rules with no positive/negative case: {sorted(live - covered)}"
 
 
@@ -169,7 +172,6 @@ _BASELINE_KEYS = [
 ]
 
 _EXPECTED_NONE_KEYS = {
-    "calls_out",  # Epic #3264: declared paradigm, no call-out in this declarative language
     "test",
     "concurrency",
     "closures",
@@ -197,7 +199,7 @@ def test_rexx_schema_completeness():
     baseline = set(_BASELINE_KEYS)
     missing = baseline - set(REXX_RULES)
     assert not missing, f"rexx rules dict is missing baseline keys entirely (not even None): {missing}"
-    extra = set(REXX_RULES) - baseline - {"_visibility_export_list"}
+    extra = set(REXX_RULES) - baseline - {"_visibility_export_list", "calls_out_ignore"}
     assert extra == set(), f"unexpected non-baseline keys: {extra}"
 
 
@@ -444,3 +446,29 @@ def test_rexx_when_rc_branch_safety_dual_is_deliberate():
     stmt = "  when rc = 8 then nop"
     assert REXX_RULES["branch"].search(stmt)
     assert REXX_RULES["safety"].search(stmt)
+
+
+def test_rexx_calls_out_strict():
+    """
+    Epic #3264: Asserts that REXX extracts targets from CALL, and ignores condition traps.
+    """
+    rexx = LANGUAGE_DEFINITIONS["rexx"]
+    calls_out = rexx["rules"]["calls_out"]
+    ignore_set = rexx["rules"]["calls_out_ignore"]
+
+    # 1. Signature Tests (Positive matches)
+    assert calls_out.findall("call probe_branch 1") == ["probe_branch"]
+    assert calls_out.findall("CALL MY_FUNC") == ["MY_FUNC"]
+
+    # 2. Negative Tests & ignore logic
+    assert calls_out.findall("call on error") == ["on"]
+    assert "on" in ignore_set
+    assert calls_out.findall("call off") == ["off"]
+    assert "off" in ignore_set
+    assert "error" in ignore_set
+
+    assert calls_out.groups == 1
+
+    # 3. ReDoS Scale Testing
+    payload = "CALL " + ("A" * 10000)
+    assert_redos_immune(calls_out, payload)

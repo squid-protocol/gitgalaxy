@@ -1012,6 +1012,37 @@ def test_detector_mode_c_indentation():
     assert parent["loc"] == 4, "Mode C failed to accurately count lines inside the indentation block!"
 
 
+def test_detector_yaml_block_scalar_does_not_swallow_following_steps():
+    """#3277: a YAML `|`/`>` block scalar's embedded literal content (a shell or
+    github-script JS body, complete with apostrophes/quotes) must not corrupt the
+    indentation shield and blank out the real steps after it. Before the fix, the
+    single-quote in `console.log('done')` paired with a later quote and erased the
+    second step's `- name:`/`run:` keys, dropping it and letting the `script:` unit
+    run to EOF."""
+    from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
+
+    detector = StructuralExtractor("yaml", LANGUAGE_DEFINITIONS)
+    code = (
+        "jobs:\n"
+        "  build:\n"
+        "    steps:\n"
+        "      - name: First step\n"
+        "        uses: actions/github-script@v7\n"
+        "        with:\n"
+        "          script: |\n"
+        "            const x = 'it\\'s here';\n"
+        "            console.log('done');\n"
+        "            if (x) { console.log('ok'); }\n"
+        "      - name: Second step\n"
+        "        run: |\n"
+        "          echo 'second'\n"
+    )
+    result = detector.splice(code, "")
+    names = {f["name"] for f in result["functions"]}
+    assert "Second step" in names, f"block scalar swallowed the following step; got {names}"
+    assert len(result["functions"]) == 2, f"expected 2 steps, got {len(result['functions'])}: {names}"
+
+
 def test_detector_nested_function_is_counted_as_own_node_indentation():
     """
     Same #1041 regression as the brace-mode test above, for indentation-

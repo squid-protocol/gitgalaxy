@@ -163,6 +163,15 @@
     "verified_at": "2026-09-22",
     "verified_by": "Claude Opus 4.8"
    }
+  },
+  "yaml": {
+   "function": {
+    "note": "func_start (CI steps: `run`/`script`/`before_script`/`after_script`, and `name:`-anchored steps whose script follows) verified against the pinned language-crucible v1.4.0 yaml corpus after the #3277 block-scalar fix. yaml is a genuine 1-tool language (no tree-sitter grammar, no ctags). (1) Pipeline DB: struct_func_start == function_count == 127 on every scanned file -- the #3277 fix (blank `|`/`>` block-scalar content before the indentation shield) closed the prior 127->123 drop, where an apostrophe embedded in a github-script `script:` JS block cascade-paired and blanked four real steps in api-proposal-version-check.yml while a lone `script:` unit ran to EOF. (2) Independent cross-check: per-file, GitGalaxy's named count vs an independent count of `run`/`script`/`before_script`/`after_script` step keys (on block-scalar-blanked text) -- EXACT match on all 32 scanned files, 127 == 127, zero per-file mismatches. Spot-checked moby/arm64.yml by hand: 11 raw `run:` keys == 11 named. Scope: the 127 is over the 32 files GitGalaxy classifies as yaml; ~9 CI workflow files in the corpus (dotfiles like `.test.yml`, and `pr-*-test.yml`) are not classified/scanned as yaml at all -- a separate aperture/classification gap tracked in #3278, which lowers the found-count but not the precision of what IS found. Precision on the extracted set is exact.",
+    "total": 127,
+    "verified": 127,
+    "verified_at": "2026-09-22",
+    "verified_by": "Claude Opus 4.8"
+   }
   }
  }
 }

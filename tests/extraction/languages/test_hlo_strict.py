@@ -1,4 +1,3 @@
-import pytest
 from gitgalaxy.standards.language_standards.languages.hlo import DEFINITION
 from _strict_harness import assert_redos_immune
 

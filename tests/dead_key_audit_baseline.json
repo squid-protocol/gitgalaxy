@@ -1,1 +1,3 @@
-{}
+{
+  "calls_out_ignore": "Read added by the #3282 foundation (Epic #3264 Phase 3) ahead of its writers by design: the per-language ignore sets land in #3284-#3287, and the foundation must merge first while staying output-neutral. Remove this entry in the first batch PR that ships a rules['calls_out_ignore'] set."
+}

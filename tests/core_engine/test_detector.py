@@ -1109,7 +1109,7 @@ def test_detector_classification_and_wiring():
 
 def test_detector_calls_out_language_ignore_union():
     """
-    Proves the per-language `calls_out_ignore` rule (Epic #3264 Phase 3) is
+    Proves the per-language `_calls_out_ignore` rule (Epic #3264 Phase 3) is
     unioned with the global ignore set and compared casefolded: a language
     authoring lowercase words filters them in any spelling (case-insensitive
     languages get correct behavior for free), while the global set keeps
@@ -1121,7 +1121,7 @@ def test_detector_calls_out_language_ignore_union():
             "rules": {
                 "func_start": re.compile(r"^[ \t]*def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(", re.M),
                 "calls_out": re.compile(r"\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\("),
-                "calls_out_ignore": frozenset({"open"}),
+                "_calls_out_ignore": frozenset({"open"}),
             },
         }
     }
@@ -1132,7 +1132,7 @@ def test_detector_calls_out_language_ignore_union():
     func = result["functions"][0]
 
     assert func["calls_out_to"] == ["db_insert"], (
-        "calls_out_ignore must filter casefolded (OPEN/Open) and the global "
+        "_calls_out_ignore must filter casefolded (OPEN/Open) and the global "
         f"set must keep filtering (print); got {func['calls_out_to']}"
     )
 

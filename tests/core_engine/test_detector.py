@@ -1107,6 +1107,36 @@ def test_detector_classification_and_wiring():
     assert func["type_id"] == "mutation", "Failed to classify 'save_user_data' as a mutation!"
 
 
+def test_detector_calls_out_language_ignore_union():
+    """
+    Proves the per-language `calls_out_ignore` rule (Epic #3264 Phase 3) is
+    unioned with the global ignore set and compared casefolded: a language
+    authoring lowercase words filters them in any spelling (case-insensitive
+    languages get correct behavior for free), while the global set keeps
+    filtering exactly as before.
+    """
+    defs = {
+        "fortranish": {
+            "lexical_family": "single_line_only",
+            "rules": {
+                "func_start": re.compile(r"^[ \t]*def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(", re.M),
+                "calls_out": re.compile(r"\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\("),
+                "calls_out_ignore": frozenset({"open"}),
+            },
+        }
+    }
+    opt_detector = StructuralExtractor("fortranish", defs)
+    code = "def dispatch(unit):\n    OPEN(unit)\n    Open(unit)\n    print(unit)\n    db_insert(unit)\n"
+
+    result = opt_detector.splice(code, "")
+    func = result["functions"][0]
+
+    assert func["calls_out_to"] == ["db_insert"], (
+        "calls_out_ignore must filter casefolded (OPEN/Open) and the global "
+        f"set must keep filtering (print); got {func['calls_out_to']}"
+    )
+
+
 # ==============================================================================
 # TEST 9: GHOST TETHER & METADATA EXTRACTION
 # ==============================================================================

@@ -150,3 +150,21 @@ CALLS_OUT_C_STYLE = re.compile(r"\b([a-zA-Z_]\w*)\s*\(")
 # Unsupported / AST-Required (Shell, Markup, Data, Config)
 # Mapped to None to officially declare intentional blindness rather than extracting garbage.
 CALLS_OUT_UNSUPPORTED = None
+
+# Verb-invocation family (FORTRAN, PL/I, REXX, DB2 SQL, assembly): `CALL name`.
+# Deliberately NOT cobol's paradigm: PERFORM is cobol-only, and `GO\s+TO` would
+# capture numeric statement labels (FORTRAN `GO TO 100`), so cobol keeps its
+# language-local rule. Charset admits `$#@` (mainframe identifiers) and `-`.
+CALLS_OUT_CALL_VERB = re.compile(r"(?i)\bCALL\s+['\"]?([A-Za-z_][\w$#@-]*)")
+
+# Lisp family (scheme): the callee is the first symbol after an open paren.
+# Charset includes lisp identifier punctuation (probe-branch, null?, set!).
+CALLS_OUT_LISP_FAMILY = re.compile(r"\(\s*([A-Za-z_][A-Za-z0-9_!?*<>=+-]*)")
+
+# Command-position family (tcl, powershell, livecode): the callee is the first
+# word on a statement line. Charset covers tcl `ns::proc` interior colons and
+# PS `Verb-Noun`; a leading-`::` fully-qualified tcl call is a known recall gap
+# (the first character must be a letter/underscore for precision).
+# Consumers MUST pair this with a `calls_out_ignore` set of the language's
+# statement keywords, since those also appear in command position.
+CALLS_OUT_COMMAND_POSITION = re.compile(r"(?m)^[ \t]*([A-Za-z_][\w:-]*)\b")

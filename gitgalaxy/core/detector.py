@@ -863,6 +863,83 @@ _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
 # `assembly` only: agc_assembly's own data pseudo-ops are different (`EQUALS`,
 # `EBANK=`, ...) and its single-line rescues were confirmed all real via #1949's
 # own repro.
+# Epic #3264 Phase 3: callee names never emitted as calls_out_to edges --
+# control-flow keywords and cross-language builtins the invocation regexes
+# cannot distinguish from user calls. Case-sensitive on purpose: languages
+# whose keywords are case-insensitive (fortran, abap, pli, rexx, db2_sql, ada)
+# declare their own lowercase words via the per-language `calls_out_ignore`
+# rule, which is compared casefolded at the filter site.
+_CALLS_OUT_GLOBAL_IGNORE = frozenset(
+    {
+        "if",
+        "for",
+        "while",
+        "switch",
+        "catch",
+        "return",
+        "sizeof",
+        "typeof",
+        "alignof",
+        "decltype",
+        "using",
+        "throw",
+        "await",
+        "import",
+        "require",
+        "include",
+        "def",
+        "function",
+        "class",
+        "print",
+        "println",
+        "console",
+        "log",
+        "echo",
+        "printf",
+        "fmt",
+        "assert",
+        "expect",
+        "require_once",
+        "include_once",
+        "cast",
+        "isinstance",
+        "issubclass",
+        "hasattr",
+        "getattr",
+        "setattr",
+        "delattr",
+        "len",
+        "max",
+        "min",
+        "range",
+        "xrange",
+        "enumerate",
+        "zip",
+        "map",
+        "filter",
+        "list",
+        "dict",
+        "set",
+        "tuple",
+        "bool",
+        "int",
+        "float",
+        "str",
+        "bytes",
+        "bytearray",
+        "memoryview",
+        "super",
+        "try",
+        "except",
+        "finally",
+        "String",
+        "Array",
+        "Object",
+        "Number",
+        "Boolean",
+    }
+)
+
 _ASSEMBLY_DATA_DIRECTIVE_RE = re.compile(
     r"^[A-Za-z_?@.][A-Za-z0-9_.$?@]*[ \t]*:[ \t\n]{0,80}"
     r"(?:equ|db|dw|dd|dq|dt|do|resb|resw|resd|resq|rest|reso|times"
@@ -8628,76 +8705,18 @@ class StructuralExtractor:
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
             raw_calls = invocation_pattern.findall(safe_block)
 
-        ignore_keywords = {
-            "if",
-            "for",
-            "while",
-            "switch",
-            "catch",
-            "return",
-            "sizeof",
-            "typeof",
-            "alignof",
-            "decltype",
-            "using",
-            "throw",
-            "await",
-            "import",
-            "require",
-            "include",
-            "def",
-            "function",
-            "class",
-            "print",
-            "println",
-            "console",
-            "log",
-            "echo",
-            "printf",
-            "fmt",
-            "assert",
-            "expect",
-            "require_once",
-            "include_once",
-            "cast",
-            "isinstance",
-            "issubclass",
-            "hasattr",
-            "getattr",
-            "setattr",
-            "delattr",
-            "len",
-            "max",
-            "min",
-            "range",
-            "xrange",
-            "enumerate",
-            "zip",
-            "map",
-            "filter",
-            "list",
-            "dict",
-            "set",
-            "tuple",
-            "bool",
-            "int",
-            "float",
-            "str",
-            "bytes",
-            "bytearray",
-            "memoryview",
-            "super",
-            "try",
-            "except",
-            "finally",
-            "String",
-            "Array",
-            "Object",
-            "Number",
-            "Boolean",
-        }
+        # Per-language additions to the global ignore set (Epic #3264 Phase 3).
+        # Authored lowercase in the profile and compared casefolded, so
+        # case-insensitive languages filter their keywords in any spelling.
+        lang_ignore = rules.get("calls_out_ignore") or frozenset()
         # Deduplicate and filter (excluding the function calling itself recursively)
-        calls_out = list(dict.fromkeys(c for c in raw_calls if c not in ignore_keywords and c != name))
+        calls_out = list(
+            dict.fromkeys(
+                c
+                for c in raw_calls
+                if c not in _CALLS_OUT_GLOBAL_IGNORE and c.casefold() not in lang_ignore and c != name
+            )
+        )
 
         sat: FunctionNode = {
             "name": name,

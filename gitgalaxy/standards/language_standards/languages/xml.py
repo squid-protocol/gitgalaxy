@@ -10,7 +10,7 @@
 
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_C_STYLE
+from .._shared_patterns import CALLS_OUT_UNSUPPORTED
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -43,6 +43,6 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "block_exclusive",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
+        "calls_out": CALLS_OUT_UNSUPPORTED,
     },
 }

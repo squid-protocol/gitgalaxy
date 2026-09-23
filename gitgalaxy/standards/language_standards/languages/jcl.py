@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -59,7 +59,22 @@ DEFINITION: dict[str, Any] = {
     "boundary_extraction": "jcl",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_UNSUPPORTED,  # step-card EXEC sits on the signature line, outside the scanned body (#3292)
+        # #3292: a step's call edge is the first positional operand of its own
+        # EXEC card -- `EXEC PGM=name` (a program) or `EXEC name` /
+        # `EXEC PROC=name` (a cataloged or in-stream procedure). Mode A's block
+        # starts AT the func_start match, so the card is inside the scanned
+        # text; what hid it until #3292 was the literal shield eating every
+        # `//`-prefixed line as a C-style comment (see _apply_literal_shield).
+        # Only the operand right after EXEC is read, so a `PGM=` spelled inside
+        # a later PARM='...' string (already blanked by the shield anyway) or
+        # on a DD card never edges. The trailing lookahead rejects a keyword
+        # operand (`PGM=` itself, `COND=`), a referback (`PGM=*.LKED.SYSLMOD`)
+        # and a symbolic (`PGM=&PROG`): none names a resolvable callee.
+        "calls_out": re.compile(
+            r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+EXEC[ \t]+(?:(?:PGM|PROC)=)?"
+            r"([A-Za-z#$@][A-Za-z0-9#$@]*)(?![=A-Za-z0-9#$@.*&])",
+            re.M | re.I,
+        ),
         # Control flow in JCL (IF/THEN/ELSE/ENDIF)
         "branch": re.compile(r"^[ \t]*//[A-Za-z0-9_#$@]*[ \t]+(?:IF|ELSE)\b", re.M | re.I),
         # Extract arguments from EXEC PARM= strings or PROC symbolics definitions.

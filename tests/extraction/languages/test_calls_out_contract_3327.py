@@ -4,7 +4,7 @@ The `calls_out` contract (#3327, docs/calls_out_rule_contract.md), pinned end to
 the global/per-language ignore sets, which a bare-regex test would miss.
 
 The corollaries the engine already honours are ordinary tests. The disagreements the audit
-filed (#3359, #3360) are strict xfails: each one flips to XPASS, and fails the suite, the day its
+filed (#3359) are strict xfails: each one flips to XPASS, and fails the suite, the day its
 fix lands, so the fix PR has to move the pin from here into the passing set.
 """
 
@@ -136,7 +136,6 @@ def test_blind_languages_declare_blindness():
 # --- Filed disagreements: strict xfails that flip when the follow-up lands -------------------
 
 
-@pytest.mark.xfail(strict=True, reason="#3360: a nested declaration header is captured as a call")
 def test_nested_declaration_is_not_a_call():
     code = "def outer(x):\n    def inner(y):\n        return y\n    return inner\n"
     assert "inner" not in _calls("python", code)["outer"]

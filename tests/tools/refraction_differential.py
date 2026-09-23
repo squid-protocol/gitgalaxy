@@ -42,6 +42,11 @@ Since #3345 each JCL DD binding's symbol-resolved DSN is one too: no JCL forge
 exists either, so the compared side is the key's own JCL reader
 (jcl_dataset_bindings) vs dataset_data's dsn_resolved/dsn_resolution, per JCL
 member, as `jcl_dsn` deltas.
+Since #3356 every CSD resource definition (FILE, TDQUEUE, DB2TRAN, MAPSET, ...) is
+one too, on the same footing (no forge reads them): the key's own CSD tokenizer
+(csd_resource_definitions) vs the engine's csd_resource_data, per deck (`.csd`, or
+a DFHCSDUP JCL job), as `csd_resource` deltas keyed on type, name, line and the
+key attributes.
 The gate counts what neither explains -- `unexplained` --
 and fails when a run adds any over a committed per-corpus baseline.
 
@@ -123,6 +128,8 @@ UNEXPLAINED = "unexplained"
 # a `bms_field` delta is adjudicated once a map is `fields_validated`.
 # The JCL resolved DSN (#3345) is read by the key's own JCL scanner over the raw
 # member, sharing no code with the engine, so it adjudicates once `dsns_validated`.
+# The CSD resource definitions (#3356) are read by the key's own raw-deck CSD
+# tokenizer, so a `csd_resource` delta adjudicates once `resources_validated`.
 INDEPENDENT_FIELDS = {
     "program_id",
     "copybook",
@@ -132,6 +139,7 @@ INDEPENDENT_FIELDS = {
     "sql_column",
     "bms_field",
     "jcl_dsn",
+    "csd_resource",
 }
 
 
@@ -319,6 +327,30 @@ def compare_jcl(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     return rows
 
 
+def compare_csd(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
+    """#3356: one row per CSD deck -- the key's independent reader vs csd_resource_data.
+
+    A deck is a `.csd` file or a JCL job that runs DFHCSDUP (its SYSIN inline).
+    `old` is that reader (there is no CSD-resource forge); `db` is the engine.
+    Each value is `TYPE(NAME)@line k=v ...` over the key attributes, so a missed
+    DEFINE, a misread DSNAME/PLAN/ENTRY and a record split differently are each
+    a delta."""
+    rows = []
+    for ef in sorted(ir.files.values(), key=lambda f: f.file_path):
+        if ef.language not in ("csd", "jcl"):
+            continue
+        path = repo / ef.file_path
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        if not ak.is_csd_deck(path, text) and not ef.csd_resources:
+            continue
+        old = ak.csd_resource_values(ak.csd_resource_definitions(text)) if ak.is_csd_deck(path, text) else set()
+        db = ak.csd_resource_values([r.__dict__ for r in ef.csd_resources])
+        if not old and not db:
+            continue
+        rows.append({"file": ef.file_path, "language": "csd_deck", "csd": {"old": sorted(old), "db": sorted(db)}})
+    return rows
+
+
 def _cobol_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [r for r in rows if r.get("language", "cobol") == "cobol"]
 
@@ -394,7 +426,14 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                 },
             }
         )
-    return rows + compare_pli(repo, ir) + compare_sql_tables(repo, ir) + compare_bms(repo, ir) + compare_jcl(repo, ir)
+    return (
+        rows
+        + compare_pli(repo, ir)
+        + compare_sql_tables(repo, ir)
+        + compare_bms(repo, ir)
+        + compare_jcl(repo, ir)
+        + compare_csd(repo, ir)
+    )
 
 
 def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -403,6 +442,7 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
     symbolic = [r["bms_symbolic"] for r in bms if r["bms_symbolic"]]
     sql = [r for r in rows if r.get("language") == "sql_table"]
     jcl = [r for r in rows if r.get("language") == "jcl"]
+    csd = [r for r in rows if r.get("language") == "csd_deck"]
     rows = _cobol_rows(rows)
 
     def count(pred) -> int:
@@ -452,6 +492,10 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
         "jcl_dsns_key": sum(len(r["jcl_dsns"]["old"]) for r in jcl),
         "jcl_dsns_db": sum(len(r["jcl_dsns"]["db"]) for r in jcl),
         "jcl_dsns_agree": sum(len(set(r["jcl_dsns"]["old"]) & set(r["jcl_dsns"]["db"])) for r in jcl),
+        "csd_decks": len(csd),
+        "csd_resources_key": sum(len(r["csd"]["old"]) for r in csd),
+        "csd_resources_db": sum(len(r["csd"]["db"]) for r in csd),
+        "csd_resources_agree": sum(len(set(r["csd"]["old"]) & set(r["csd"]["db"])) for r in csd),
     }
 
 
@@ -521,6 +565,13 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
             old, db = set(jd["old"]), set(jd["db"])
             deltas += [{"program": prog, "field": "jcl_dsn", "side": "old", "value": v} for v in sorted(old - db)]
             deltas += [{"program": prog, "field": "jcl_dsn", "side": "db", "value": v} for v in sorted(db - old)]
+            continue
+        if r.get("language") == "csd_deck":
+            # #3356: CSD resource definitions, the key's reader vs the engine.
+            cd = r["csd"]
+            old, db = set(cd["old"]), set(cd["db"])
+            deltas += [{"program": prog, "field": "csd_resource", "side": "old", "value": v} for v in sorted(old - db)]
+            deltas += [{"program": prog, "field": "csd_resource", "side": "db", "value": v} for v in sorted(db - old)]
             continue
         pid = r["program_id"]
         # Only the genuine mismatch. A db file legitimately carrying several
@@ -706,6 +757,10 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
         # #3345: two independent JCL readers disagree on a binding or on how its
         # DSN resolved -- a real defect on one side. Left to the validated key.
         return UNEXPLAINED
+    if field == "csd_resource":
+        # #3356: two independent CSD readers disagree on a DEFINE or one of its key
+        # attributes -- a real defect on one side. Left to the validated key.
+        return UNEXPLAINED
     return UNEXPLAINED
 
 
@@ -713,6 +768,19 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
     """The answer key's verdict on a delta, or None when it cannot adjudicate."""
     if not key:
         return None
+    if d["field"] == "csd_resource":
+        # #3356: drafted, so it adjudicates only once the deck is signed off with
+        # `resources_validated`.
+        deck = key.get("csd_decks", {}).get(d["program"])
+        if not deck or not deck.get("resources_validated"):
+            return None
+        present = d["value"] in ak.csd_resource_values(deck.get("resources", []))
+        verdict = (
+            ("old-parser defect" if present else "engine defect")
+            if d["side"] == "db"
+            else ("engine defect" if present else "old-parser defect")
+        )
+        return {"verdict": verdict, "confidence": "independent", "decided": True}
     if d["field"] == "jcl_dsn":
         # #3345: drafted, so it adjudicates only once the member is signed off
         # with `dsns_validated`.
@@ -817,7 +885,7 @@ def classify(repo: Path, rows: list[dict[str, Any]], key: Optional[dict[str, Any
     ctx_cache: dict[str, dict[str, Any]] = {}
     out: list[Delta] = []
     for d in flatten(rows):
-        if d["field"] in ("pli_record", "sql_column", "bms_field", "bms_symbolic_field", "jcl_dsn"):
+        if d["field"] in ("pli_record", "sql_column", "bms_field", "bms_symbolic_field", "jcl_dsn", "csd_resource"):
             # The COBOL fixed-format context is meaningless for a PL/I or JCL file, and a
             # DECLARE TABLE column delta (#3344) has no mechanism cause to read.
             out.append({**d, "cause": _classify_cause(d, {}), "verdict": _key_verdict(d, key)})

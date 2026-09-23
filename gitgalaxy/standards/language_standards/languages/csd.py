@@ -22,6 +22,10 @@ from .._shared_patterns import CALLS_OUT_UNSUPPORTED, GLOBAL_FRAGILE_DEBT, GLOBA
 # turns into service/API boundaries. Before this handler the definitions shipped
 # in the corpora (carddemo's CARDDEMO.CSD, CBSA's BANK.csd) were never read.
 #
+# #3356: the same boundary extractor also keeps EVERY DEFINE record, of any
+# resource type, as `csd_resources` (csd_resource_data): FILE -> DSNAME, TDQUEUE,
+# DB2TRAN -> DB2ENTRY -> PLAN, MAPSET, LIBRARY, URIMAP/WEBSERVICE, ...
+#
 # The structured transaction -> program map is NOT produced here; the DEFINITION
 # below is the classification/census layer only. The named channel that yields
 # transaction resources into the master DB is the boundary extractor

@@ -55,8 +55,9 @@
       "answer_key": "tests/cobol_mainframe/answer_key/cics-banking-sample-application-cbsa.json",
       "notes": "CICS online COBOL with SECTIONs. Its main branch was emptied at the 2024 sunset (README only), so the ref lives on July2024Refresh. 10 BMS maps under src/base/bms_src.",
       "excerpt": {
-        "why": "BANKDATA (batch, dead CALC-DAY-OF-WEEK, OPEN OUTPUT behind A010), BNK1CAC (CICS SECTIONs, dead POPULATE-TIME-DATE) and ABNDPROC, with their copybooks -- including BANKDATA's EXEC SQL INCLUDEd DB2 DECLARE TABLE members ACCDB2/CONTDB2 (#3344). Plus three BMS maps (#3347): BNK1CAM (the map BNK1CAC COPYs; an INITIAL literal continued mid-word), BNK1ACC (OCCURS=10) and BNK1UAM (PICOUT).",
+        "why": "BANKDATA (batch, dead CALC-DAY-OF-WEEK, OPEN OUTPUT behind A010), BNK1CAC (CICS SECTIONs, dead POPULATE-TIME-DATE) and ABNDPROC, with their copybooks -- including BANKDATA's EXEC SQL INCLUDEd DB2 DECLARE TABLE members ACCDB2/CONTDB2 (#3344). Plus three BMS maps (#3347): BNK1CAM (the map BNK1CAC COPYs; an INITIAL literal continued mid-word), BNK1ACC (OCCURS=10) and BNK1UAM (PICOUT). Plus the BANK.csd DFHCSDUP deck (#3356): FILE with KEYLENGTH/RECORDSIZE, DB2CONN/DB2ENTRY/DB2TRAN, MAPSET, TCPIPSERVICE and the transaction map.",
         "files": [
+          "etc/install/base/installjcl/BANK.csd",
           "src/base/bms_src/BNK1ACC.bms",
           "src/base/bms_src/BNK1CAM.bms",
           "src/base/bms_src/BNK1UAM.bms",
@@ -87,8 +88,9 @@
       "answer_key": null,
       "notes": "The real BMS corpus #3122 asked for: 21 .bms maps, each with its generated symbolic-map copybook (app/bms <-> app/cpy-bms), plus CICS/batch COBOL and JCL. No answer key yet.",
       "excerpt": {
-        "why": "CBACT01C (batch SELECT/OPEN lineage, with READACCT.jcl) and COCRDLIC (CICS, two dynamic CALLs, a BMS symbolic-map copybook), with their copybooks. Plus COCRDLI.bms (#3347), the map that symbolic-map copybook is generated from, so the differential checks one against the other.",
+        "why": "CBACT01C (batch SELECT/OPEN lineage, with READACCT.jcl) and COCRDLIC (CICS, two dynamic CALLs, a BMS symbolic-map copybook), with their copybooks. Plus COCRDLI.bms (#3347), the map that symbolic-map copybook is generated from, so the differential checks one against the other. Plus two CSD decks (#3356): CARDDEMO.CSD (the FILE -> DSNAME definitions READACCT.jcl's dataset joins to, an extrapartition TDQUEUE, LIBRARY) and CRDDEMOD.csd (DB2TRAN -> DB2ENTRY -> PLAN).",
         "files": [
+          "app/app-transaction-type-db2/csd/CRDDEMOD.csd",
           "app/bms/COCRDLI.bms",
           "app/cbl/CBACT01C.cbl",
           "app/cbl/COCRDLIC.cbl",
@@ -102,6 +104,7 @@
           "app/cpy/CVACT01Y.cpy",
           "app/cpy/CVACT02Y.cpy",
           "app/cpy/CVCRD01Y.cpy",
+          "app/csd/CARDDEMO.CSD",
           "app/jcl/READACCT.jcl"
         ]
       }

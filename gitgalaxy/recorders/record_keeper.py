@@ -466,7 +466,9 @@ class RecordKeeper:
         own `record_layouts` and become record_data (PL/I DECLAREd structures
         too, #3250).
         DB2 `EXEC SQL DECLARE ... TABLE` columns (#3344) ride on each file's
-        own `sql_tables` and become sql_table_data.
+        own `sql_tables` and become sql_table_data. CSD resource definitions
+        (#3356) ride on each deck's own `csd_resources` and become
+        csd_resource_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1016,6 +1018,60 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_transaction_transid ON transaction_data(transid);")
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_transaction_snapshot ON transaction_data(repo_name, commit_hash);"
+        )
+
+        # #3356: the CICS resource inventory -- one row per CSD `DEFINE
+        # <type>(<name>)` record of ANY resource type (FILE, MAPSET, TDQUEUE,
+        # DB2ENTRY/DB2TRAN/DB2CONN, LIBRARY, URIMAP, WEBSERVICE, TRANSACTION,
+        # PROGRAM ...), from `.csd` decks and DFHCSDUP SYSIN inside JCL. ONE
+        # generic table rather than new transaction_data columns or a table per
+        # resource type, because transaction_data is a resolved routing map
+        # (transid -> program -> dst_file_id) with one row per ROUTE, while this is the deck's raw
+        # inventory with one row per DEFINE, and the per-type facts are sparse
+        # (a FILE has a DSNAME, a DB2TRAN an ENTRY, a MAPSET nothing), so the
+        # attributes that JOIN the online system to something else get their own
+        # columns and everything else rides in `attributes`:
+        #   dsname         FILE/TDQUEUE DSNAME, LIBRARY DSNAME01 -> dataset_data
+        #   ddname         TDQUEUE DDNAME (bound in the CICS region's JCL)
+        #   record_format / key_length / record_size   FILE / TDQUEUE shape
+        #   queue_type     TDQUEUE TYPE (EXTRA / INTRA / INDIRECT)
+        #   plan           DB2ENTRY / DB2CONN PLAN
+        #   db2_entry      DB2TRAN ENTRY (-> the DB2ENTRY carrying the plan)
+        #   transid        a TRANSACTION's own id, TRANSID(...) or TRANSACTION(...)
+        #   program        a PROGRAM's own name, or a PROGRAM(...) operand
+        #   attributes     the record's full operand text, whitespace-folded
+        # Per-file (every fact is in the deck itself), cascade-deleted with
+        # file_data and restored on delta scans; nothing here is resolved.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS csd_resource_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                resource_type TEXT,
+                resource_name TEXT,
+                group_name TEXT,
+                dsname TEXT,
+                ddname TEXT,
+                record_format TEXT,
+                key_length INTEGER,
+                record_size INTEGER,
+                queue_type TEXT,
+                plan TEXT,
+                db2_entry TEXT,
+                transid TEXT,
+                program TEXT,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_csd_resource_file_id ON csd_resource_data(file_id);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_csd_resource_name ON csd_resource_data(resource_type, resource_name);"
+        )
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_csd_resource_snapshot ON csd_resource_data(repo_name, commit_hash);"
         )
 
         # #3344: the DB2 table shape a program binds to -- one row per column of
@@ -2038,6 +2094,51 @@ class RecordKeeper:
                 it.get("value"),
                 int(it.get("line", 0) or 0),
                 it.get("attributes"),
+            ),
+        )
+
+        # #3356: CSD resource definitions -- per-file, like sql_table_data.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "csd_resource_data",
+            (
+                "resource_type",
+                "resource_name",
+                "group_name",
+                "dsname",
+                "ddname",
+                "record_format",
+                "key_length",
+                "record_size",
+                "queue_type",
+                "plan",
+                "db2_entry",
+                "transid",
+                "program",
+                "attributes",
+                "line_number",
+            ),
+            "csd_resources",
+            lambda r: (
+                r.get("resource_type"),
+                r.get("name"),
+                r.get("group"),
+                r.get("dsname"),
+                r.get("ddname"),
+                r.get("record_format"),
+                r.get("key_length"),
+                r.get("record_size"),
+                r.get("queue_type"),
+                r.get("plan"),
+                r.get("db2_entry"),
+                r.get("transid"),
+                r.get("program"),
+                r.get("attributes"),
+                int(r.get("line", 0) or 0),
             ),
         )
 

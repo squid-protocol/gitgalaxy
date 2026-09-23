@@ -10,6 +10,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-sql-tables <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-bms <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-jcl <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-csd <repo> --key key.json
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
 <repo> into the key's `pli_programs`, leaving every COBOL program (and its
@@ -18,7 +19,8 @@ tools and the engine's master DB against it.
 columns (inline or DCLGEN members) into the key's `sql_tables`. `add-bms` (#3347)
 does the same for every BMS map source's screen fields, into `bms_maps`.
 `add-jcl` (#3345) does the same for every JCL member's DD bindings and
-symbol-resolved DSNs, into `jcl_jobs`.
+symbol-resolved DSNs, into `jcl_jobs`. `add-csd` (#3356) does the same for every
+CSD deck's resource definitions (FILE, TDQUEUE, DB2TRAN, ...), into `csd_decks`.
 
 AUTHORITY. `draft` computes CANDIDATE values with its own fixed-format reading
 (Area A headers, PERFORM ... THRU, GO TO, SECTION fall-through, terminal
@@ -1273,6 +1275,180 @@ def draft_jcl(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# CSD resource definitions beyond TRANSACTION/PROGRAM (#3356)
+# ==============================================================================
+# This tool's own reading of a CSD deck (a `.csd` file, or the DFHCSDUP SYSIN
+# inline in a JCL job): the RAW file, split into DEFINE records by a line walk,
+# each record tokenized by a character scanner into (KEYWORD, value) operands.
+# It models DFHCSDUP's quoting rule directly -- a value is quoted only when it
+# BEGINS with an apostrophe, `''` inside it is an escaped apostrophe -- where the
+# engine tracks quotes anywhere in a value and bounds its scan. It shares the
+# engine's CONTRACT (which operand feeds which key column) and none of its code,
+# so an agreement is evidence and a disagreement is a finding.
+CSD_EXTS = (".csd",)
+_CSD_KEY_COMMANDS = {"DEFINE", "DELETE", "ALTER", "ADD", "REMOVE", "LIST", "UPGRADE", "COPY"}
+# The comparison unit's attributes, in a fixed order.
+CSD_KEY_FIELDS = (
+    "group", "dsname", "ddname", "record_format", "key_length", "record_size",
+    "queue_type", "plan", "db2_entry", "transid", "program",
+)  # fmt: skip
+
+
+def _csd_key_operands(text: str) -> list[tuple[str, Optional[str]]]:
+    """(KEYWORD, value or None) per operand of one record, in order."""
+    out: list[tuple[str, Optional[str]]] = []
+    i, n = 0, len(text)
+    while i < n:
+        if not (text[i].isalpha() or text[i] in "@#$"):
+            i += 1
+            continue
+        j = i
+        while j < n and (text[j].isalnum() or text[j] in "@#$"):
+            j += 1
+        word = text[i:j].upper()
+        k = j
+        while k < n and text[k] in " \t":
+            k += 1
+        if k >= n or text[k] != "(":
+            out.append((word, None))
+            i = j
+            continue
+        k += 1
+        while k < n and text[k] in " \t":
+            k += 1
+        buf: list[str] = []
+        if k < n and text[k] == "'":  # a quoted value: to the closing apostrophe
+            k += 1
+            while k < n:
+                if text[k] == "'" and text[k + 1 : k + 2] == "'":
+                    buf.append("'")
+                    k += 2
+                elif text[k] == "'":
+                    k += 1
+                    break
+                else:
+                    buf.append(text[k])
+                    k += 1
+            while k < n and text[k] != ")":
+                k += 1
+            k += 1
+        else:  # an unquoted value: to the matching close paren
+            depth = 1
+            while k < n:
+                if text[k] == "(":
+                    depth += 1
+                elif text[k] == ")":
+                    depth -= 1
+                    if depth == 0:
+                        break
+                buf.append(text[k])
+                k += 1
+            k += 1
+        out.append((word, "".join(buf).strip()))
+        i = k
+    return out
+
+
+def csd_resource_definitions(text: str) -> list[dict[str, Any]]:
+    """Every `DEFINE <type>(<name>)` record in one CSD deck, with its key columns.
+
+    A record starts at a DEFINE line and runs to the next CSD command, `*` or `//`
+    line, blank line, or end of text. Rows carry `line`, `resource_type`, `name`
+    and the CSD_KEY_FIELDS (None when the record does not carry the operand)."""
+    records: list[tuple[int, list[str]]] = []
+    for no, raw in enumerate(text.split("\n"), 1):
+        stripped = raw.strip()
+        first = stripped.split(None, 1)[0].upper() if stripped else ""
+        if not stripped or stripped.startswith(("*", "//", "/*")):
+            records.append((0, []))  # a separator
+            continue
+        if first in _CSD_KEY_COMMANDS:
+            records.append((no if first == "DEFINE" else 0, [stripped]))
+            continue
+        if records and records[-1][0]:
+            records[-1][1].append(stripped)
+    rows: list[dict[str, Any]] = []
+    for no, lines in records:
+        if not no:
+            continue
+        ops = _csd_key_operands(" ".join(lines))
+        if len(ops) < 2 or ops[0] != ("DEFINE", None) or ops[1][1] is None:
+            continue
+        # The engine's name contract: A-Z 0-9 @ # $ only. A template placeholder
+        # (cics-genapp's `DB2CONN(<DB2SSID>)`) is not a resource either side keeps.
+        if not ops[1][1] or not all(c.isalnum() or c in "@#$" for c in ops[1][1]):
+            continue
+        rtype, name = ops[1][0], ops[1][1].upper()
+        vals: dict[str, str] = {}
+        for word, value in ops[2:]:
+            if value is not None and word not in vals:
+                vals[word] = value
+
+        def up(key: str, _vals: dict = vals) -> Optional[str]:
+            return _vals[key].upper() if _vals.get(key) else None
+
+        def num(key: str, _vals: dict = vals) -> Optional[int]:
+            v = _vals.get(key, "")
+            return int(v) if v.isdigit() else None
+
+        rows.append(
+            {
+                "line": no,
+                "resource_type": rtype,
+                "name": name,
+                "group": up("GROUP"),
+                "dsname": up("DSNAME") or up("DSNAME01"),
+                "ddname": up("DDNAME"),
+                "record_format": up("RECORDFORMAT"),
+                "key_length": num("KEYLENGTH"),
+                "record_size": num("RECORDSIZE"),
+                "queue_type": up("TYPE") if rtype == "TDQUEUE" else None,
+                "plan": up("PLAN"),
+                "db2_entry": up("ENTRY") if rtype == "DB2TRAN" else None,
+                "transid": name if rtype == "TRANSACTION" else (up("TRANSID") or up("TRANSACTION")),
+                "program": name if rtype == "PROGRAM" else up("PROGRAM"),
+            }
+        )
+    return rows
+
+
+def csd_resource_values(rows: list[dict[str, Any]]) -> set[str]:
+    """The comparison unit: `TYPE(NAME)@line k=v ...` over the key columns that are
+    set. Works on this reader's rows and on the engine's EngineCsdResource dicts."""
+    out = set()
+    for r in rows:
+        attrs = " ".join(f"{k}={r[k]}" for k in CSD_KEY_FIELDS if r.get(k) is not None)
+        out.add(f"{r['resource_type']}({r['name']})@{r['line']} {attrs}".rstrip())
+    return out
+
+
+def is_csd_deck(path: Path, text: str) -> bool:
+    """A `.csd` file, or a JCL job that runs DFHCSDUP (its SYSIN may be inline)."""
+    suffix = path.suffix.lower()
+    return suffix in CSD_EXTS or (suffix in JCL_EXTS and "PGM=DFHCSDUP" in text.upper())
+
+
+def draft_csd(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted CSD resource definitions for every deck in `repo` (#3356). They
+    adjudicate a differential delta only once a deck is signed off with
+    `resources_validated` -- the records_validated precedent (#3246)."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if not p.is_file() or ".git" in p.parts:
+            continue
+        text = p.read_text(encoding="utf-8", errors="ignore") if p.suffix.lower() in CSD_EXTS + JCL_EXTS else ""
+        if text and is_csd_deck(p, text):
+            rows = csd_resource_definitions(text)
+            if rows:
+                out[p.relative_to(repo).as_posix()] = {
+                    "resources": rows,
+                    "resources_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -1420,6 +1596,7 @@ def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], 
         "sql_tables": draft_sql_tables(repo),  # #3344
         "bms_maps": draft_bms(repo),  # #3347
         "jcl_jobs": draft_jcl(repo),  # #3345
+        "csd_decks": draft_csd(repo),  # #3356
     }
     report = [f"# Draft reachability evidence: {corpus} @ {ref[:8]}", ""]
     for p in programs:
@@ -1595,6 +1772,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # member. Truth is this tool's own JCL reader; there is no JCL forge; engine
         # is dataset_data (dsn_resolved + dsn_resolution).
         "JCL resolved DSNs",
+        # #3356: CSD resource definitions (type, name and key attributes), per deck.
+        # Truth is this tool's own CSD tokenizer; there is no forge for them; engine
+        # is csd_resource_data.
+        "CSD resources",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -1793,6 +1974,16 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             ),
         )
 
+    for rel, k in key.get("csd_decks", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "CSD resources",
+            rel,
+            csd_resource_values(k.get("resources", [])),
+            None,
+            csd_resource_values([r.__dict__ for r in ef.csd_resources]) if ef else None,
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -1852,6 +2043,9 @@ def main() -> int:
     j = sub.add_parser("add-jcl")
     j.add_argument("repo", type=Path)
     j.add_argument("--key", type=Path, required=True)
+    c = sub.add_parser("add-csd")
+    c.add_argument("repo", type=Path)
+    c.add_argument("--key", type=Path, required=True)
     args = ap.parse_args()
 
     repo = args.repo.resolve()
@@ -1903,6 +2097,16 @@ def main() -> int:
         key["jcl_jobs"] = jobs
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(jobs)} JCL members -> {args.key}")
+        return 0
+    if args.cmd == "add-csd":
+        # #3356: the add-pli discipline -- refresh drafts, keep signed-off decks.
+        decks = key.get("csd_decks", {})
+        for rel, entry in draft_csd(repo).items():
+            if not decks.get(rel, {}).get("resources_validated"):
+                decks[rel] = entry
+        key["csd_decks"] = decks
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(decks)} CSD decks -> {args.key}")
         return 0
     result, md = score(repo, key, args.db)
     if args.md:

@@ -193,6 +193,23 @@ ALLOWLIST = {
     "GROUP": "CSD attribute, written via _csd_attributes' dynamic setdefault (mainframe_boundary.py, #3211-followup)",
     "PROFILE": "CSD attribute, written via _csd_attributes' dynamic setdefault (mainframe_boundary.py, #3211-followup)",
     "TRANSID": "CSD attribute, written via _csd_attributes' dynamic setdefault (mainframe_boundary.py, #3211-followup)",
+    # #3356: the same tokenizer's attributes that _csd_resources lifts into
+    # csd_resource_data's join columns.
+    **{
+        k: "CSD attribute, written via _csd_attributes' dynamic setdefault (mainframe_boundary.py, #3356)"
+        for k in (
+            "DDNAME",
+            "DSNAME",
+            "DSNAME01",
+            "ENTRY",
+            "KEYLENGTH",
+            "PLAN",
+            "RECORDFORMAT",
+            "RECORDSIZE",
+            "TRANSACTION",
+            "TYPE",
+        )
+    },
 }
 
 

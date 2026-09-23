@@ -52,6 +52,7 @@ hlasm 1). pli reads 8 instead of the issue's 7.
 | DD names, OPEN modes, dataset lineage | forge / DAG architect | `dataset_data` | **DB** since #3201 — exact against the answer key on both corpora (see the #3200/#3201 update) |
 | unresolved CALLs | DAG architect | `call_site_data` | **DB** since #3200 — every call site, resolved or not, with its verb, form and line |
 | CICS transaction map | `cics_transaction_reader` (CSD) | `transaction_data` | **DB** since #3247 — which transaction id entry-points into which program, from the CSD decks; exact against the key on CBSA (14/14). `transaction` is an INDEPENDENT key field |
+| CSD resource definitions (FILE, TDQUEUE, DB2TRAN, MAPSET, ...) | — (no forge reads them) | `csd_resource_data` | **DB** since #3356 — compared against the answer key's own CSD tokenizer as `csd_resource` deltas (type, name, line, key attributes); 100/100 on CBSA, 134/134 on carddemo |
 | CICS / DB2 presence | forge regex | hit columns | **forge**. Presence agrees 36/36 with a line-level check. The hit columns (`arch_io`, `arch_ipc`) mix CICS verbs, SQL, DLI and CALL, so they cannot give a clean flag (D4) |
 
 The refractor therefore takes the program list, PROGRAM-ID, COPY edges and the unit inventory
@@ -586,3 +587,24 @@ agrees with all 17 of carddemo's generated symbolic-map copybooks. The excerpts 
 `COCRDLI.bms` (beside its committed `COCRDLI.CPY`) and CBSA's `BNK1CAM`/`BNK1ACC`/`BNK1UAM`; CBSA's
 excerpt `COPY BNK1CAM` delta now classifies as `bms_symbolic_map` (the map is present) instead of
 the key's `old-parser defect`, and unexplained stays 0 on every excerpt and full corpus.
+
+## Update: CSD resource definitions (#3356) — 2026-09-23
+
+Every CSD `DEFINE` record -- not only TRANSACTION/PROGRAM -- is now a fact channel
+(`csd_resource_data`, `EngineFile.csd_resources`) and a compared datum. No forge reads them, so the
+compared side is the answer key's own reader (`cobol_answer_key.csd_resource_definitions`: the RAW
+deck, split by a line walk and tokenized by a character scanner that applies DFHCSDUP's own quoting
+rule -- a value is quoted only when it begins with an apostrophe -- where the engine walks the PRISM
+stream with a paren-balanced, quote-tracking, length-bounded scan). The unit is
+`TYPE(NAME)@line group=... dsname=... plan=... db2_entry=... transid=...` over the key columns,
+reported as `csd_resource` deltas and `csd_resources_key` / `_db` / `_agree` in the summary; a delta
+is `unexplained` until the deck is signed off with `resources_validated`.
+
+Measured on the pinned corpora: the two agree on every definition, CBSA's `BANK.csd` (100/100) and
+carddemo's four `.csd` decks plus the DFHCSDUP JCL `CBADMCDJ.jcl` (134/134). Adding the crucible's
+decks and DFHCSDUP jobs (13 decks, 431 definitions, all agreeing), the only disagreement found was 8
+cics-genapp template placeholders (`DB2CONN(<DB2SSID>)`), which the key now skips under the engine's
+name contract. The
+excerpts gained CBSA's `BANK.csd` and carddemo's `CARDDEMO.CSD` + `CRDDEMOD.csd`; unexplained stays 0
+and the transaction datum is unchanged (CBSA 1/1, carddemo 2/2 on the excerpts).
+

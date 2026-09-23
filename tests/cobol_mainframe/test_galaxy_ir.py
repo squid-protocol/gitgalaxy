@@ -482,3 +482,189 @@ def test_a_pre_3344_db_loads_with_no_sql_tables(scanned_db2, tmp_path):
     ir = load_galaxy_ir(copy)
     assert all(ef.sql_tables == [] for ef in ir.files.values())
     assert "copy/ACCDB2.cpy" in ir.files
+
+
+# ==============================================================================
+# #3356: CSD RESOURCE DEFINITIONS (csd_resource_data) AND THEIR JOINS
+# ==============================================================================
+# A CICS deck (carddemo/CBSA shapes) naming a VSAM file, two extrapartition queues
+# (one by DSNAME, one by the region's DDNAME), an intrapartition queue, and the
+# DB2TRAN -> DB2ENTRY -> PLAN chain for a transaction; plus the batch side: a
+# COBOL program that reads the file's dataset under a job that spells the DSN
+# through a SET symbol (#3345), so the join must go through dsn_resolved.
+BANKCSD = """\
+ DEFINE FILE(CUSTOMER) GROUP(BANK)
+ DESCRIPTION(Bank Customer VSAM)
+        DSNAME(CBSA.CICSBSA.CUSTOMER) RLSACCESS(NO)
+        RECORDSIZE(259) KEYLENGTH(16) RECORDFORMAT(V)
+ DEFINE FILE(NOJOB) GROUP(BANK)
+        DSNAME(CBSA.CICSBSA.ELSEWHERE) RECORDFORMAT(F)
+ DEFINE TDQUEUE(AUDT) GROUP(BANK)
+        TYPE(EXTRA) DSNAME(CBSA.AUDIT.LOG) RECORDFORMAT(VARIABLE)
+ DEFINE TDQUEUE(JOBS) GROUP(BANK)
+        TYPE(EXTRA) DDNAME(INREADER) RECORDSIZE(80) RECORDFORMAT(FIXED)
+ DEFINE TDQUEUE(CSSD) GROUP(BANK) TYPE(INTRA)
+ DEFINE MAPSET(BNK1ACC) GROUP(BANK)
+ DESCRIPTION('BANK Online Inquire Account for Customer')
+ DEFINE TRANSACTION(OCAC) GROUP(BANK)
+        PROGRAM(BNK1CAC) PROFILE(DFHCICST)
+ DEFINE DB2ENTRY(HBANK) GROUP(BANK)
+       ACCOUNTREC(NONE) AUTHTYPE(USERID) PLAN(CBSA)
+ DEFINE DB2TRAN(OCAC) GROUP(BANK)
+       ENTRY(HBANK) TRANSID(OCAC)
+ DEFINE DB2TRAN(ORPH) GROUP(BANK)
+       ENTRY(NOENTRY) TRANSID(ORPH)
+"""
+
+CUSTRPT = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CUSTRPT.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CUST-FILE ASSIGN TO CUSTIN.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  CUST-FILE.
+       01  CUST-REC PIC X(259).
+       PROCEDURE DIVISION.
+       000-MAIN.
+           OPEN INPUT CUST-FILE.
+           CLOSE CUST-FILE.
+           STOP RUN.
+"""
+
+CUSTJOB = """\
+//CUSTJOB  JOB (ACCT),'CUSTOMER REPORT'
+//   SET HLQ=CBSA.CICSBSA
+//STEP01   EXEC PGM=CUSTRPT
+//CUSTIN   DD DSN=&HLQ..CUSTOMER,DISP=SHR
+//AUDIT    DD DSN=CBSA.AUDIT.LOG,DISP=SHR
+"""
+
+BNK1CAC = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BNK1CAC.
+       PROCEDURE DIVISION.
+       000-MAIN.
+           EXEC CICS RETURN END-EXEC.
+"""
+
+
+@pytest.fixture(scope="module")
+def csd_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_csd")
+    repo = base / "bank"
+    files = {
+        "csd/BANK.csd": BANKCSD,
+        "src/CUSTRPT.cbl": CUSTRPT,
+        "src/BNK1CAC.cbl": BNK1CAC,
+        "jcl/CUSTJOB.jcl": CUSTJOB,
+    }
+    for rel, text in files.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_csd_resources_load_per_deck_of_every_type(csd_scanned):
+    ir = load_galaxy_ir(csd_scanned)
+    deck = ir.files["csd/BANK.csd"].csd_resources
+    assert [(r.resource_type, r.name) for r in deck] == [
+        ("FILE", "CUSTOMER"),
+        ("FILE", "NOJOB"),
+        ("TDQUEUE", "AUDT"),
+        ("TDQUEUE", "JOBS"),
+        ("TDQUEUE", "CSSD"),
+        ("MAPSET", "BNK1ACC"),
+        ("TRANSACTION", "OCAC"),
+        ("DB2ENTRY", "HBANK"),
+        ("DB2TRAN", "OCAC"),
+        ("DB2TRAN", "ORPH"),
+    ]
+    cust = deck[0]
+    assert (cust.dsname, cust.key_length, cust.record_size, cust.record_format) == (
+        "CBSA.CICSBSA.CUSTOMER",
+        16,
+        259,
+        "V",
+    )
+    assert ir.files["src/CUSTRPT.cbl"].csd_resources == []
+    # transaction_data is untouched: still one transaction, no DB2TRAN leak.
+    assert [t.transid for t in ir.files["csd/BANK.csd"].transactions] == ["OCAC"]
+    assert [r["name"] for r in ir.csd_resources("db2tran")] == ["OCAC", "ORPH"]
+
+
+def test_a_cics_file_joins_its_dataset_to_the_batch_lineage(csd_scanned):
+    """CICS FILE -> DSNAME -> the JCL DD that binds it (through the #3345 resolved
+    DSN, `&HLQ..CUSTOMER`) -> the batch program that opens that DD."""
+    ir = load_galaxy_ir(csd_scanned)
+    files = {e["file"]: e for e in ir.cics_file_datasets()}
+    cust = files["CUSTOMER"]
+    assert cust["dsname"] == "CBSA.CICSBSA.CUSTOMER"
+    assert [(b["job"], b["dd_name"], b["dsn"], b["dsn_resolved"]) for b in cust["bindings"]] == [
+        ("jcl/CUSTJOB.jcl", "CUSTIN", "&HLQ..CUSTOMER", "CBSA.CICSBSA.CUSTOMER")
+    ]
+    assert [(p["program"], p["modes"], p["job"]) for p in cust["batch_programs"]] == [
+        ("src/CUSTRPT.cbl", ["INPUT"], "jcl/CUSTJOB.jcl")
+    ]
+    # A file no job in the repository binds is kept, with nothing joined.
+    assert (files["NOJOB"]["bindings"], files["NOJOB"]["batch_programs"]) == ([], [])
+
+
+def test_extrapartition_tdqueues_join_by_dsname_or_candidate_ddname(csd_scanned):
+    ir = load_galaxy_ir(csd_scanned)
+    queues = {q["queue"]: q for q in ir.tdqueue_datasets()}
+    assert set(queues) == {"AUDT", "JOBS"}  # the INTRA queue is not a dataset
+    assert queues["AUDT"]["via"] == "dsname"
+    assert [(b["job"], b["dd_name"]) for b in queues["AUDT"]["bindings"]] == [("jcl/CUSTJOB.jcl", "AUDIT")]
+    # DDNAME(INREADER) is bound in the CICS region's JCL, which is not here.
+    assert (queues["JOBS"]["via"], queues["JOBS"]["ddname"], queues["JOBS"]["bindings"]) == ("ddname", "INREADER", [])
+
+
+def test_a_transaction_reaches_its_db2_plan_through_db2tran_and_db2entry(csd_scanned):
+    ir = load_galaxy_ir(csd_scanned)
+    plans = {p["transid"]: p for p in ir.transaction_db2_plans()}
+    assert (plans["OCAC"]["db2_entry"], plans["OCAC"]["plan"], plans["OCAC"]["programs"]) == (
+        "HBANK",
+        "CBSA",
+        ["BNK1CAC"],
+    )
+    # A DB2TRAN naming an undefined DB2ENTRY keeps the edge with no plan.
+    assert (plans["ORPH"]["plan"], plans["ORPH"]["programs"]) == (None, [])
+
+
+def test_a_pre_3356_db_loads_with_no_csd_resources(csd_scanned, tmp_path):
+    copy = tmp_path / "old.db"
+    shutil.copy(csd_scanned, copy)
+    with sqlite3.connect(copy) as conn:
+        conn.execute("DROP TABLE csd_resource_data")
+    ir = load_galaxy_ir(copy)
+    assert all(ef.csd_resources == [] for ef in ir.files.values())
+    assert ir.cics_file_datasets() == [] and ir.tdqueue_datasets() == [] and ir.transaction_db2_plans() == []
+    # The transaction map is a separate table and still loads.
+    assert [t["transid"] for t in ir.transaction_map()] == ["OCAC"]
+
+
+def test_a_db2entry_may_assign_a_generic_transid_itself(tmp_path):
+    """cics-genapp's shape: `DB2ENTRY(E) TRANSID(SS*) PLAN(P)` assigns every
+    transaction matching SS* (CICS `*`, and `+` for one character) to P directly."""
+    repo = tmp_path / "genapp"
+    files = {
+        "csd/GENA.csd": (
+            " DEFINE DB2ENTRY(GENALU2) GROUP(GENA) TRANSID(SS*) PLAN(GENAONE)\n"
+            " DEFINE DB2ENTRY(GENALU3) GROUP(GENA) TRANSID(S+ZZ) PLAN(GENATWO)\n"
+            " DEFINE TRANSACTION(SSC1) GROUP(GENA) PROGRAM(LGTESTC1)\n"
+            " DEFINE TRANSACTION(SSP1) GROUP(GENA) PROGRAM(LGTESTP1)\n"
+            " DEFINE TRANSACTION(DSC1) GROUP(GENA) PROGRAM(LGTESTD1)\n"
+        ),
+    }
+    for rel, text in files.items():
+        (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+        (repo / rel).write_text(text, encoding="utf-8")
+    ir = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
+    plans = {p["transid"]: p for p in ir.transaction_db2_plans()}
+    assert (plans["SS*"]["via"], plans["SS*"]["db2tran"], plans["SS*"]["plan"]) == ("db2entry", None, "GENAONE")
+    assert plans["SS*"]["programs"] == ["LGTESTC1", "LGTESTP1"]
+    assert plans["S+ZZ"]["programs"] == []

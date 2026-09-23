@@ -97,7 +97,7 @@ class AuditRecorder:
         return value
 
     def _mainframe_facts_block(self, file_data):
-        """The Named System Facts for one file (#3200/#3201/#3246/#3250/#3344), or {} if none.
+        """The Named System Facts for one file (#3200/#3201/#3246/#3250/#3344/#3356), or {} if none.
 
         The forensic report is the VERBOSE surface (unlike the token-optimized LLM
         brief, which shows only record roots), so this carries the FULL detail:
@@ -202,6 +202,34 @@ class AuditRecorder:
                     "Line": sf.get("line", 0),
                 }
                 for sf in screen
+            ]
+        # #3356: CSD resource definitions, mirroring csd_resource_data. A key
+        # attribute is listed only when the record carries it, so a MAPSET row
+        # stays a type, name, group and its attribute text.
+        csd = file_data.get("csd_resources") or []
+        if csd:
+            labels = (
+                ("dsname", "DSNAME"),
+                ("ddname", "DDNAME"),
+                ("record_format", "Record Format"),
+                ("key_length", "Key Length"),
+                ("record_size", "Record Size"),
+                ("queue_type", "Queue Type"),
+                ("plan", "Plan"),
+                ("db2_entry", "DB2 Entry"),
+                ("transid", "Transid"),
+                ("program", "Program"),
+            )
+            block["CSD Resources"] = [
+                {
+                    "Type": r.get("resource_type"),
+                    "Name": r.get("name"),
+                    "Group": r.get("group"),
+                    **{label: r[key] for key, label in labels if r.get(key) is not None},
+                    "Attributes": r.get("attributes"),
+                    "Line": r.get("line", 0),
+                }
+                for r in csd
             ]
         return block
 

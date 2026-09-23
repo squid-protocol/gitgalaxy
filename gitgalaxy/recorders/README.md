@@ -119,6 +119,25 @@ The CSD `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (and PROGRAM autoin
 
 The in-source routing (`EXEC CICS RETURN/START/RUN TRANSID(...)`) rides in `call_site_data` under its own verbs; `galaxy_ir.transaction_map` joins the two. Like `dataset_data`, this is deliberately *not* an `edge_data` kind — a transaction id is not a file.
 
+### `csd_resource_data` — every CSD resource definition (#3356)
+
+One row per CSD `DEFINE <type>(<name>)` record of **any** resource type — FILE, MAPSET, TDQUEUE, DB2ENTRY/DB2TRAN/DB2CONN, LIBRARY, URIMAP, WEBSERVICE, PIPELINE, TCPIPSERVICE, and TRANSACTION/PROGRAM too — from the same `.csd` decks and DFHCSDUP SYSIN that feed `transaction_data`. One generic table, not new `transaction_data` columns: that table is a resolved routing map (one row per route, with `dst_file_id`), this is the deck's raw inventory (one row per DEFINE), and per-type facts are sparse. The attributes that join the online system to something else get columns; everything else stays in `attributes`.
+
+| column | meaning |
+|---|---|
+| `file_id` → `file_data.id` | the `.csd`/JCL deck the DEFINE lives in |
+| `resource_type` / `resource_name` / `group_name` | `FILE` / `ACCTDAT` / `CARDDEMO` |
+| `dsname` | FILE / TDQUEUE `DSNAME`, LIBRARY `DSNAME01` — joins `dataset_data` |
+| `ddname` | TDQUEUE `DDNAME` (a DD of the CICS region's own JCL) |
+| `record_format` / `key_length` / `record_size` | FILE / TDQUEUE record shape, NULL when the DEFINE omits it |
+| `queue_type` | TDQUEUE `TYPE` (`EXTRA` / `INTRA` / `INDIRECT`) |
+| `plan` | DB2ENTRY / DB2CONN `PLAN` |
+| `db2_entry` | DB2TRAN `ENTRY` — the DB2ENTRY carrying the plan |
+| `transid` / `program` | a TRANSACTION's own id or a `TRANSID(...)`/`TRANSACTION(...)` operand; a PROGRAM's own name or a `PROGRAM(...)` operand |
+| `attributes` | the record's full operand text, whitespace-folded |
+
+Per-file, cascade-deleted with `file_data`, restored on delta scans; nothing is resolved. `galaxy_ir` joins it: `cics_file_datasets` (CICS file → dataset → the JCL bindings and batch programs of `dataset_data`, on the #3345 resolved name), `tdqueue_datasets` (extrapartition queue → dataset) and `transaction_db2_plans` (transaction → DB2TRAN/DB2ENTRY → plan).
+
 ### `call_site_data` — one row per invocation site
 
 COBOL `CALL`, CICS `LINK`/`XCTL PROGRAM(...)`, JCL `EXEC PGM=`.

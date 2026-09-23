@@ -543,6 +543,39 @@ class StateRehydrator:
                     },
                 )
 
+                # #3356: CSD resource definitions, aliased back to the extractor's
+                # payload keys (resource_name -> name, group_name -> group). A
+                # pre-#3356 baseline has no table and restores nothing.
+                csd_resources_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "csd_resource_data",
+                    "SELECT fd.file_path AS _fp, cr.resource_type, cr.resource_name AS name, "
+                    'cr.group_name AS "group", cr.dsname, cr.ddname, cr.record_format, cr.key_length, '
+                    "cr.record_size, cr.queue_type, cr.plan, cr.db2_entry, cr.transid, cr.program, "
+                    "cr.attributes, cr.line_number AS line "
+                    "FROM csd_resource_data cr JOIN file_data fd ON cr.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cr.id",
+                    lambda r: {
+                        "resource_type": r["resource_type"],
+                        "name": r["name"],
+                        "group": r["group"],
+                        "dsname": r["dsname"],
+                        "ddname": r["ddname"],
+                        "record_format": r["record_format"],
+                        "key_length": r["key_length"],
+                        "record_size": r["record_size"],
+                        "queue_type": r["queue_type"],
+                        "plan": r["plan"],
+                        "db2_entry": r["db2_entry"],
+                        "transid": r["transid"],
+                        "program": r["program"],
+                        "attributes": r["attributes"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
@@ -552,6 +585,7 @@ class StateRehydrator:
                     node["transaction_defs"] = transactions_by_file.get(rel_path, [])
                     node["sql_tables"] = sql_tables_by_file.get(rel_path, [])
                     node["screen_fields"] = screen_fields_by_file.get(rel_path, [])
+                    node["csd_resources"] = csd_resources_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

@@ -28,13 +28,19 @@
 # EngineFile.screen_fields), and since #3345 each JCL DD's DSN with its symbolic
 # parameters (SET / PROC defaults / EXEC overrides) resolved where one file
 # determines it (dataset_data.dsn_resolved + dsn_resolution; cross-member
-# cataloged-PROC callers are left `unresolved`/`proc_default`, never guessed).
+# cataloged-PROC callers are left `unresolved`/`proc_default`, never guessed),
+# and since #3356 every CSD resource definition beyond the transaction map
+# (csd_resource_data: FILE -> DSNAME, TDQUEUE TYPE/DDNAME/DSNAME, DB2TRAN ->
+# DB2ENTRY -> PLAN, MAPSET, LIBRARY, URIMAP/WEBSERVICE..., per
+# EngineFile.csd_resources; joined by cics_file_datasets (CICS file -> dataset
+# -> the batch lineage), tdqueue_datasets and transaction_db2_plans).
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
 # to dead-code masking. See docs/refraction_engine_differential.md for the
 # measured deltas.
 # ==============================================================================
+import fnmatch
 import os
 import sqlite3
 import subprocess
@@ -283,6 +289,37 @@ class EngineScreenField:
 
 
 @dataclass
+class EngineCsdResource:
+    """One CSD `DEFINE <type>(<name>)` record, of any resource type (#3356).
+
+    Hangs off the DEFINING deck (a `.csd` file, or a JCL job carrying a DFHCSDUP
+    SYSIN deck inline). The attributes that join the online system to something
+    else are lifted out -- `dsname` (FILE/TDQUEUE DSNAME, LIBRARY DSNAME01),
+    `ddname` (TDQUEUE), `record_format`/`key_length`/`record_size`, `queue_type`
+    (TDQUEUE TYPE), `plan` (DB2ENTRY/DB2CONN), `db2_entry` (DB2TRAN ENTRY),
+    `transid` and `program` -- and `attributes` is the record's full operand text.
+    Nothing is resolved: the joins are `GalaxyIR.cics_file_datasets`,
+    `tdqueue_datasets` and `transaction_db2_plans`.
+    """
+
+    resource_type: str
+    name: str
+    group: Optional[str]
+    dsname: Optional[str]
+    ddname: Optional[str]
+    record_format: Optional[str]
+    key_length: Optional[int]
+    record_size: Optional[int]
+    queue_type: Optional[str]
+    plan: Optional[str]
+    db2_entry: Optional[str]
+    transid: Optional[str]
+    program: Optional[str]
+    attributes: Optional[str]
+    line: int
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -298,6 +335,7 @@ class EngineFile:
     transactions: list = field(default_factory=list)  # EngineTransaction, #3211-followup
     sql_tables: list = field(default_factory=list)  # EngineSqlTable, #3344
     screen_fields: list = field(default_factory=list)  # EngineScreenField, flat source order, #3347
+    csd_resources: list = field(default_factory=list)  # EngineCsdResource, source order, #3356
 
     @property
     def is_program(self) -> bool:
@@ -532,6 +570,198 @@ class GalaxyIR:
                     }
                 )
         out.sort(key=lambda t: (t["transid"], t["program"] or "", t["defined_in"]))
+        return out
+
+    def csd_resources(self, resource_type: Optional[str] = None) -> list:
+        """Every CSD resource definition in the repository (#3356), optionally one type.
+
+        Each entry is a dict of the EngineCsdResource fields plus `defined_in` (the
+        deck). `resource_type` is matched upper-case (`"FILE"`, `"DB2TRAN"`).
+        """
+        want = resource_type.upper() if resource_type else None
+        return [
+            {**r.__dict__, "defined_in": f.file_path}
+            for f in sorted(self.files.values(), key=lambda x: x.file_path)
+            for r in f.csd_resources
+            if want is None or r.resource_type == want
+        ]
+
+    def _bindings_by_dataset(self) -> dict[str, list]:
+        """Joinable dataset name (member/generation suffix dropped) -> its JCL DD bindings."""
+        by_name: dict[str, list] = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for ds in f.datasets:
+                name = ds.dataset_name
+                if name:
+                    by_name.setdefault(name.split("(", 1)[0], []).append(
+                        {
+                            "job": f.file_path,
+                            "step": ds.step_name,
+                            "dd_name": ds.dd_name,
+                            "dsn": ds.dsn,
+                            "dsn_resolved": ds.dsn_resolved,
+                        }
+                    )
+        return by_name
+
+    def _programs_by_dataset(self) -> dict[str, list]:
+        """Joinable dataset name -> the batch programs whose lineage reaches it."""
+        by_name: dict[str, list] = {}
+        for e in self.dataset_lineage():
+            if e["dataset"]:
+                by_name.setdefault(e["dataset"].split("(", 1)[0], []).append(
+                    {"program": e["program"], "dd_name": e["dd_name"], "modes": e["modes"], "job": e["job"]}
+                )
+        return by_name
+
+    def cics_file_datasets(self) -> list:
+        """CICS file name -> dataset, joined to the batch dataset lineage (#3356).
+
+        A CSD `DEFINE FILE(F) ... DSNAME(D)` is how CICS names a dataset: an
+        online program's `EXEC CICS READ FILE('F')` reads D. Each entry carries the
+        CICS side (`file`, `group`, `dsname`, `record_format`, `key_length`,
+        `record_size`, `defined_in`, `line`) and the batch side joined on the
+        dataset NAME (`dataset_data`, #3201, through the #3345 resolved DSN):
+        `bindings` -- every JCL DD that binds D (`job`, `step`, `dd_name`, `dsn`,
+        `dsn_resolved`) -- and `batch_programs` -- every program whose
+        `dataset_lineage` reaches D (`program`, `dd_name`, `modes`, `job`). A FILE
+        no job in the repository binds still appears with both lists empty: the
+        dataset is maintained outside this repository, a real finding. A FILE
+        with no DSNAME (resolved at run time from the region's DD) has
+        `dsname` None and joins nothing.
+        """
+        bindings = self._bindings_by_dataset()
+        programs = self._programs_by_dataset()
+        out = []
+        for r in self.csd_resources("FILE"):
+            key = (r["dsname"] or "").split("(", 1)[0]
+            out.append(
+                {
+                    "file": r["name"],
+                    "group": r["group"],
+                    "dsname": r["dsname"],
+                    "record_format": r["record_format"],
+                    "key_length": r["key_length"],
+                    "record_size": r["record_size"],
+                    "defined_in": r["defined_in"],
+                    "line": r["line"],
+                    "bindings": list(bindings.get(key, [])) if key else [],
+                    "batch_programs": list(programs.get(key, [])) if key else [],
+                }
+            )
+        return out
+
+    def tdqueue_datasets(self) -> list:
+        """Extrapartition transient-data queue -> dataset (#3356).
+
+        A `DEFINE TDQUEUE(Q) TYPE(EXTRA)` is a sequential dataset CICS writes or
+        reads: either named outright (`DSNAME(D)`, `via` "dsname", joined to JCL
+        bindings of D exactly as `cics_file_datasets` does) or through a DD of the
+        CICS region's own startup JCL (`DDNAME(X)`, `via` "ddname"). For the
+        latter, `bindings` lists every JCL DD in the repository named X -- CANDIDATE
+        region bindings, since nothing in the CSD says which job starts the region;
+        empty when the region JCL is not in the repository (the usual case). Only
+        TYPE(EXTRA) queues: an intrapartition queue lives in CICS's own DFHINTRA
+        and an INDIRECT one names another queue, not a dataset.
+        """
+        by_name = self._bindings_by_dataset()
+        by_dd: dict[str, list] = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for ds in f.datasets:
+                if ds.is_binding:
+                    by_dd.setdefault(ds.dd_name.upper(), []).append(
+                        {
+                            "job": f.file_path,
+                            "step": ds.step_name,
+                            "dd_name": ds.dd_name,
+                            "dsn": ds.dsn,
+                            "dsn_resolved": ds.dsn_resolved,
+                        }
+                    )
+        out = []
+        for r in self.csd_resources("TDQUEUE"):
+            if r["queue_type"] != "EXTRA":
+                continue
+            if r["dsname"]:
+                via, bound = "dsname", by_name.get(r["dsname"].split("(", 1)[0], [])
+            elif r["ddname"]:
+                via, bound = "ddname", by_dd.get(r["ddname"], [])
+            else:
+                via, bound = None, []
+            out.append(
+                {
+                    "queue": r["name"],
+                    "group": r["group"],
+                    "dsname": r["dsname"],
+                    "ddname": r["ddname"],
+                    "record_format": r["record_format"],
+                    "record_size": r["record_size"],
+                    "via": via,
+                    "bindings": list(bound),
+                    "defined_in": r["defined_in"],
+                    "line": r["line"],
+                }
+            )
+        return out
+
+    def transaction_db2_plans(self) -> list:
+        """Transaction -> DB2 plan, through DB2TRAN -> DB2ENTRY (#3356).
+
+        `DEFINE DB2TRAN(N) ENTRY(E) TRANSID(T)` assigns transaction T to the
+        DB2ENTRY E, and `DEFINE DB2ENTRY(E) PLAN(P)` gives E its plan; a DB2ENTRY
+        may also name one transaction itself (`DB2ENTRY(E) TRANSID(T) PLAN(P)`,
+        `via` "db2entry" -- `db2tran` None). Each entry: `transid` (possibly
+        generic: `*` any run, `+` one character, as CICS matches them), `db2tran`,
+        `db2_entry`, `plan` (None when no DB2ENTRY of that name is defined, or it
+        names its plan through PLANEXITNAME), `programs` -- the programs the
+        matching transactions route to per `transaction_map` (empty when none is
+        defined in this repository) -- and `group`/`defined_in`/`line` of the
+        assigning record. A DB2ENTRY of the same GROUP is preferred when names
+        collide across groups. A transaction with no DB2TRAN/DB2ENTRY runs on the
+        DB2CONN pool thread; that plan is not attributed here -- which
+        transactions issue SQL at all is not a CSD fact.
+        """
+        entries: dict[str, list] = {}
+        for r in self.csd_resources("DB2ENTRY"):
+            entries.setdefault(r["name"], []).append(r)
+        routes: dict[str, list] = {}
+        for t in self.transaction_map():
+            if t["program"] and t["program"] not in routes.setdefault(t["transid"], []):
+                routes[t["transid"]].append(t["program"])
+
+        def _programs(transid: Optional[str]) -> list:
+            if not transid:
+                return []
+            if "*" not in transid and "+" not in transid:
+                return list(routes.get(transid, []))
+            pattern = transid.replace("+", "?")  # CICS `+` is fnmatch `?`; `*` is the same
+            matched: list = []
+            for tid in sorted(routes):
+                if fnmatch.fnmatchcase(tid, pattern):
+                    matched += [p for p in routes[tid] if p not in matched]
+            return matched
+
+        out = []
+        assignments = [(r, "db2tran", r["db2_entry"]) for r in self.csd_resources("DB2TRAN")]
+        assignments += [(r, "db2entry", r["name"]) for r in self.csd_resources("DB2ENTRY") if r["transid"]]
+        for r, via, entry_name in assignments:
+            candidates = entries.get(entry_name or "", [])
+            same_group = [e for e in candidates if e["group"] == r["group"]]
+            entry = (same_group or candidates or [None])[0]
+            out.append(
+                {
+                    "transid": r["transid"],
+                    "via": via,
+                    "db2tran": r["name"] if via == "db2tran" else None,
+                    "db2_entry": entry_name,
+                    "plan": entry["plan"] if entry else None,
+                    "programs": _programs(r["transid"]),
+                    "group": r["group"],
+                    "defined_in": r["defined_in"],
+                    "line": r["line"],
+                }
+            )
+        out.sort(key=lambda e: (e["transid"] or "", e["defined_in"], e["line"]))
         return out
 
     def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
@@ -811,6 +1041,36 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         occurs=row[12],
                         attributes=row[13],
                         line=int(row[14] or 0),
+                    )
+                )
+        # #3356: CSD resource definitions. A pre-#3356 database has no such table,
+        # so a missing table is "no data", never an error.
+        if _has_table(cur, "csd_resource_data"):
+            for row in cur.execute(
+                "SELECT file_id, resource_type, resource_name, group_name, dsname, ddname, record_format, "
+                "key_length, record_size, queue_type, plan, db2_entry, transid, program, attributes, line_number "
+                "FROM csd_resource_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] not in by_id:
+                    continue
+                by_id[row[0]].csd_resources.append(
+                    EngineCsdResource(
+                        resource_type=row[1] or "",
+                        name=row[2] or "",
+                        group=row[3],
+                        dsname=row[4],
+                        ddname=row[5],
+                        record_format=row[6],
+                        key_length=row[7],
+                        record_size=row[8],
+                        queue_type=row[9],
+                        plan=row[10],
+                        db2_entry=row[11],
+                        transid=row[12],
+                        program=row[13],
+                        attributes=row[14],
+                        line=int(row[15] or 0),
                     )
                 )
     finally:

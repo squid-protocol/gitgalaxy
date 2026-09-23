@@ -515,6 +515,7 @@ class LLMRecorder:
                 + len(f.get("record_layouts") or [])
                 + len(f.get("sql_tables") or [])  # #3344
                 + len(f.get("screen_fields") or [])  # #3347
+                + len(f.get("csd_resources") or [])  # #3356
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -549,6 +550,14 @@ class LLMRecorder:
             lines.append(
                 f"- **DB2 schemas:** `{total_sql}` columns of `EXEC SQL DECLARE ... TABLE` "
                 "(inline or DCLGEN members), full shape in `sql_table_data`.\n"
+            )
+
+        # #3356: named only when present, so a scan without CSD decks is unchanged.
+        total_csd = sum(len(f.get("csd_resources") or []) for f in carriers)
+        if total_csd:
+            lines.append(
+                f"- **CICS resources:** `{total_csd}` CSD `DEFINE` records (FILE→DSNAME, TDQUEUE, "
+                "DB2TRAN→DB2ENTRY→PLAN, MAPSET, LIBRARY, ...), full attributes in `csd_resource_data`.\n"
             )
 
         for f in carriers[:20]:
@@ -641,6 +650,22 @@ class LLMRecorder:
                     labels.append(f"{m.get('name') or '?'} ({named} named / {len(own)} fields)")
                 more = f" … (+{len(maps) - 12} more)" if len(maps) > 12 else ""
                 lines.append(f"- **Screen maps:** {', '.join(f'`{lbl}`' for lbl in labels)}{more}")
+            # #3356: CSD resources -- a count per type, then the join-carrying
+            # definitions (a FILE's dataset, a TDQUEUE's DD/dataset, a DB2 plan).
+            csd = f.get("csd_resources") or []
+            if csd:
+                per_type: dict[str, int] = {}
+                for r in csd:
+                    per_type[r.get("resource_type") or "?"] = per_type.get(r.get("resource_type") or "?", 0) + 1
+                lines.append("- **CSD resources:** " + ", ".join(f"`{t} x{n}`" for t, n in sorted(per_type.items())))
+                joins = []
+                for r in csd:
+                    target = r.get("dsname") or r.get("ddname") or r.get("plan") or r.get("db2_entry")
+                    if target and r.get("resource_type") in ("FILE", "TDQUEUE", "DB2ENTRY", "DB2TRAN", "DB2CONN"):
+                        joins.append(f"{r.get('resource_type')} {r.get('name')}→{target}")
+                if joins:
+                    more = f" … (+{len(joins) - 12})" if len(joins) > 12 else ""
+                    lines.append(f"- **CICS bindings:** {', '.join(f'`{j}`' for j in joins[:12])}{more}")
             lines.append("")
 
         if len(carriers) > 20:

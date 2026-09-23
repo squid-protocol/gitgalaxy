@@ -679,6 +679,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             transaction_defs: list = []
             sql_tables: list = []  # #3344: DB2 DECLARE TABLE / DCLGEN columns
             screen_fields: list = []  # #3347: BMS map field layouts
+            csd_resources: list = []  # #3356: every CSD DEFINE record (csd deck / DFHCSDUP JCL)
 
             # 1. Extract raw file dependencies. An inert (static-asset) language
             # normally skips this whole phase, but one that explicitly DECLARES
@@ -748,6 +749,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     sql_tables = boundary.get("sql_tables", [])
                     # #3347: BMS mapset -> map -> field layouts (bms only).
                     screen_fields = boundary.get("screen_fields", [])
+                    # #3356: CSD resource definitions (csd, or DFHCSDUP inline in jcl).
+                    csd_resources = boundary.get("csd_resources", [])
                 except Exception:
                     logging.exception("Boundary extraction failed for language '%s'.", lang_id)
 
@@ -814,6 +817,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "sql_tables": sql_tables,
             # #3347: BMS screen-field layouts, a per-file fact (screen_field_data).
             "screen_fields": screen_fields,
+            # #3356: CSD resource definitions -> csd_resource_data.
+            "csd_resources": csd_resources,
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }

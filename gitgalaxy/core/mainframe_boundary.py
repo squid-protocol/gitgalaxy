@@ -31,6 +31,10 @@
 #                     routes it to a program. Without it the DB has the internal
 #                     call graph but not the entry points a modernizer turns into
 #                     service/API boundaries.
+#                     Since #3356 the same CSD records are also kept whole, one
+#                     row per DEFINE of any resource type (FILE -> DSNAME,
+#                     TDQUEUE -> DDNAME/DSNAME, DB2TRAN -> DB2ENTRY -> PLAN,
+#                     MAPSET, LIBRARY, URIMAP, ...), as `csd_resources`.
 #
 # Together they are the mainframe call graph, the dataset lineage, the record
 # layouts and the transaction map that `docs/refraction_engine_differential.md`
@@ -286,6 +290,8 @@ _CSD_DEFINE_HEAD = re.compile(r"^[ \t]*DEFINE[ \t]+([A-Z0-9]+)[ \t]*\([ \t]*([A-
 _CSD_ATTR_KEY = re.compile(r"\b([A-Z][A-Z0-9]*)[ \t]*\(", re.I)
 # Attribute-name abbreviations DFHCSDUP accepts (seen in carddemo inline JCL).
 # Only the ones that touch a field we keep need mapping; the rest pass through.
+# #3356: the longest value `_csd_attributes` will scan before calling it unterminated.
+_CSD_VALUE_MAX = 1024
 _CSD_ATTR_SYNONYMS = {"DA": "DATALOCATION", "TASKDATAL": "TASKDATALOC", "DESC": "DESCRIPTION"}
 # The two resource types the transaction map is built from, plus the DB2TRAN type
 # whose `TRANSID(...)` is a DB2 attribute -- NOT a transaction definition -- and
@@ -1415,14 +1421,22 @@ def _csd_attributes(record: str) -> dict[str, str]:
     `KEYWORD\\(([^)]*)\\)` would truncate the first and misread the rest.
     """
     attrs: dict[str, str] = {}
-    for m in _CSD_ATTR_KEY.finditer(record):
+    pos = 0
+    # #3356: resume the keyword search AFTER each value, so a `WORD(` inside a
+    # value (`DESCRIPTION(RETRY FOR PLAN(X))`) is never read as an attribute.
+    while (m := _CSD_ATTR_KEY.search(record, pos)) is not None:
         key = m.group(1).upper()
         key = _CSD_ATTR_SYNONYMS.get(key, key)
         depth = 1
         i = m.end()
+        # #3356: bound the value scan. The longest CSD operand is a 255-char path
+        # (URIMAP PATH, PIPELINE CONFIGFILE); a value still open after this many
+        # characters is unterminated, and without the bound a record of stray
+        # parens or quotes rescans to its end from every keyword (quadratic).
+        stop = min(len(record), i + _CSD_VALUE_MAX)
         quote: Optional[str] = None
         chars: list[str] = []
-        while i < len(record) and depth > 0:
+        while i < stop and depth > 0:
             ch = record[i]
             if quote is not None:
                 if ch == quote:
@@ -1441,6 +1455,10 @@ def _csd_attributes(record: str) -> dict[str, str]:
             else:
                 chars.append(ch)
             i += 1
+        # An unterminated value (a stray apostrophe: `DESCRIPTION(Bank's file)`)
+        # ran to the end of the record; resume right after its keyword instead,
+        # so the attributes after it are still found.
+        pos = i if depth == 0 else m.end()
         # First declaration wins, matching the value-map reading elsewhere: a
         # keyword repeated in one record is DFHCSDUP-illegal, so the first is it.
         attrs.setdefault(key, "".join(chars).strip())
@@ -1543,6 +1561,93 @@ def _jcl_csd_transactions(code_stream: str) -> list[dict[str, Any]]:
     return _csd_transactions(code_stream)
 
 
+def _csd_int(value: Optional[str]) -> Optional[int]:
+    """A numeric CSD attribute (`KEYLENGTH(16)`), or None when absent or not a number."""
+    value = (value or "").strip()
+    return int(value) if value.isdigit() and len(value) <= 9 else None
+
+
+def _csd_upper(value: Optional[str]) -> Optional[str]:
+    """A name-valued CSD attribute, upper-cased, or None when absent or empty."""
+    return (value or "").strip().upper() or None
+
+
+def _csd_resources(code_stream: str) -> list[dict[str, Any]]:
+    """Every CSD `DEFINE <type>(<name>)` record as one resource row (#3356).
+
+    The transaction map (`_csd_transactions`) keeps only the transaction ->
+    program routing. This is the whole resource inventory the same records
+    declare, one generic row per DEFINE of ANY type -- FILE, MAPSET, TDQUEUE,
+    DB2ENTRY/DB2TRAN/DB2CONN, LIBRARY, URIMAP, WEBSERVICE, PIPELINE,
+    TCPIPSERVICE, ... and TRANSACTION/PROGRAM too, whose non-routing attributes
+    (LANGUAGE, DATALOCATION, TWASIZE) the map drops. The attributes that JOIN the
+    online system to something else are lifted into their own keys; everything
+    else rides in `attributes`, the record's full operand text:
+
+      - `dsname`        FILE / TDQUEUE `DSNAME`, LIBRARY `DSNAME01` (the first of
+                        its concatenation) -- the dataset, joinable to JCL lineage
+      - `ddname`        TDQUEUE `DDNAME` -- bound by the CICS region's own JCL
+      - `record_format` / `key_length` / `record_size`  FILE and TDQUEUE shape
+      - `queue_type`    TDQUEUE `TYPE` (EXTRA / INTRA / INDIRECT)
+      - `plan`          DB2ENTRY / DB2CONN `PLAN`
+      - `db2_entry`     DB2TRAN `ENTRY` -- the DB2ENTRY it assigns its transid to
+      - `transid`       the transaction the resource names: a TRANSACTION's own
+                        name, `TRANSID(...)` (PROGRAM autoinstall, DB2TRAN), or a
+                        `TRANSACTION(...)` operand (TCPIPSERVICE, URIMAP)
+      - `program`       a PROGRAM's own name, or a `PROGRAM(...)` operand
+                        (TRANSACTION, URIMAP)
+
+    `attributes` is the record text after `DEFINE <type>(<name>)` with every
+    whitespace run folded to one blank (a CSD record has no continuation
+    character, so its line breaks carry no meaning). Nothing is resolved here:
+    joining a FILE's DSNAME to dataset_data or a DB2TRAN to its DB2ENTRY is the
+    reader's job (galaxy_ir), as for every other channel.
+    """
+    out: list[dict[str, Any]] = []
+    for line_no, record in _csd_records(code_stream):
+        head = _CSD_DEFINE_HEAD.match(record)
+        if not head:
+            continue
+        resource = head.group(1).upper()
+        name = head.group(2).upper()
+        attrs = _csd_attributes(record[head.end() :])
+        if resource == _CSD_TXN_RESOURCE:
+            transid: Optional[str] = name
+        else:
+            transid = _csd_upper(attrs.get("TRANSID") or attrs.get("TRANSACTION"))
+        program = name if resource == _CSD_PGM_RESOURCE else _csd_upper(attrs.get("PROGRAM"))
+        out.append(
+            {
+                "resource_type": resource,
+                "name": name,
+                "group": _csd_upper(attrs.get("GROUP")),
+                "dsname": _csd_upper(attrs.get("DSNAME") or attrs.get("DSNAME01")),
+                "ddname": _csd_upper(attrs.get("DDNAME")),
+                "record_format": _csd_upper(attrs.get("RECORDFORMAT")),
+                "key_length": _csd_int(attrs.get("KEYLENGTH")),
+                "record_size": _csd_int(attrs.get("RECORDSIZE")),
+                "queue_type": _csd_upper(attrs.get("TYPE")) if resource == "TDQUEUE" else None,
+                "plan": _csd_upper(attrs.get("PLAN")),
+                "db2_entry": _csd_upper(attrs.get("ENTRY")) if resource == "DB2TRAN" else None,
+                "transid": transid,
+                "program": program,
+                "attributes": " ".join(record[head.end() :].split()) or None,
+                "line": line_no,
+            }
+        )
+    return out
+
+
+def _jcl_csd_resources(code_stream: str) -> list[dict[str, Any]]:
+    """The CSD resources of a DFHCSDUP SYSIN deck inline in a JCL job (#3356), or [].
+
+    Same gate as `_jcl_csd_transactions`: only a job that runs DFHCSDUP carries a
+    deck, and one that points SYSIN at a separate member yields nothing here."""
+    if not _DFHCSDUP.search(code_stream):
+        return []
+    return _csd_resources(code_stream)
+
+
 def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str, Any]]]:
     """The named invocation, dataset, record-layout and transaction facts for one mainframe file.
 
@@ -1553,6 +1658,9 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     carries only some channels (JCL has no record layouts; CSD only transactions;
     PL/I only records, #3250) fills the rest with empty lists, and an unrecognised
     declaration degrades to "no facts" rather than raising in a worker.
+
+    #3356: csd (and jcl, for an inline DFHCSDUP deck) additionally carry
+    `csd_resources` -- every CSD DEFINE record, of any resource type.
 
     #3344: cobol and pli additionally carry `sql_tables` -- the DB2 `EXEC SQL
     DECLARE <table> TABLE (...)` columns (db2_declare_table). Callers read it
@@ -1573,9 +1681,17 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         boundary = _jcl_boundary(code_stream)
         boundary["records"] = []
         boundary["transactions"] = _jcl_csd_transactions(code_stream)
+        boundary["csd_resources"] = _jcl_csd_resources(code_stream)  # #3356
         return boundary
     if dialect == "csd":
-        return {"calls": [], "datasets": [], "records": [], "transactions": _csd_transactions(code_stream)}
+        return {
+            "calls": [],
+            "datasets": [],
+            "records": [],
+            "transactions": _csd_transactions(code_stream),
+            # #3356: every DEFINE as a resource row (FILE, TDQUEUE, DB2..., ...).
+            "csd_resources": _csd_resources(code_stream),
+        }
     if dialect == "pli":
         return {
             "calls": [],

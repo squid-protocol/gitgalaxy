@@ -37,9 +37,8 @@ DEFINITION: dict[str, Any] = {
         # #3359 (contract C7): command position, minus the upper-case SQL keywords
         # that start the lines of a brace-quoted query (`db eval { SELECT ...\n
         # WHERE ... }`). Tcl cannot shield braces, which are also code bodies, so
-        # the SQL words are excluded by name. Case-SENSITIVE on purpose: the
-        # `_calls_out_ignore` set below is casefolded, and `set`/`update` are real
-        # Tcl commands. The lookahead is one bounded alternation (Rule 5).
+        # the SQL words are excluded by name, upper-case only: `set`/`update` are
+        # real Tcl commands. The lookahead is one bounded alternation (Rule 5).
         "calls_out": re.compile(
             r"(?m)^[ \t]*(?!(?:SELECT|INSERT|UPDATE|DELETE|REPLACE|FROM|WHERE|SET|VALUES|INTO|AND|OR|NOT"
             r"|UNION|WITH|AS|ON|USING|JOIN|INNER|OUTER|LEFT|CROSS|NATURAL|ORDER|GROUP|HAVING|LIMIT|OFFSET"

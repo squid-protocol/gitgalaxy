@@ -188,10 +188,10 @@ form, annotation or string word (no real callee dropped).
   `factory.This()`, perl `$self->Warn(`).
 - **A:** `CALLS_OUT_C_STYLE_NO_ANNOTATION` (`(?<!@)`) for java, kotlin, swift, dart, groovy and
   scala. Python/TypeScript/JavaScript keep the plain pattern: `@retry(3)` is a call.
-- **S:** tcl's command-position rule skips upper-case SQL keywords (case-sensitive, since tcl's
-  ignore set would casefold `SET` onto the real `set` command).
+- **S:** tcl's command-position rule skips upper-case SQL keywords that start the lines of a
+  brace-quoted query (upper-case only: `set`/`update` are real Tcl commands).
 - **cobol:** `END-PERFORM`/`END-CALL` no longer hand the next statement's first word to the
-  verb (`(?<![\w-])`), which also recovered 2 real `PERFORM` targets; inline
+  verb (`(?<![\w-])`), which also recovered a real `PERFORM` target; inline
   `PERFORM VARYING/UNTIL/WITH TEST` names no paragraph. **agc:** `TC Q` (the return) is ignored.
 
 Left open (a regex change too invasive for a keyword list, or not a keyword after all):

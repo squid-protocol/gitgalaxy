@@ -89,9 +89,13 @@ Wrapper *detection* is epic gitgalaxy#3313. The design keeps
 the literal signal exactly as it is and records wrappers as a **fact**, not a count, the same
 signal/fact split the fact channels use (`gitgalaxy/core/how_to_add_a_fact_channel.md`):
 
-- **Repo-wide detection pass.** After every file is parsed, find thin wrappers: short functions
-  whose body is essentially one call that hits a rule. Record `wrapper → primitive → rule` in the
-  master DB.
+- **Repo-wide detection pass.** After every file is parsed, find thin wrappers of two kinds:
+  - short functions whose body hits a rule;
+  - function-like `#define` aliases in C-preprocessor languages, such as curl's
+    `#define curlx_malloc(size) malloc(size)`.
+
+  A bounded closure links the two (a function calling an alias, an alias calling a function).
+  Record `wrapper → kind → primitive → rule` in the master DB.
 - **A separate wrapper-aware count reported beside the literal one.** For example, `memory_alloc`
   171 plus N calls through K detected wrappers. The literal signal stays syntactic and comparable;
   the derived figure explains a refactor like curl 8.18 instead of hiding it.
@@ -103,7 +107,15 @@ configured what.
 ### What detection will still not see
 
 Even with the planned pass, these stay blind and belong on this page:
-- **Macro wrappers.** `#define xmalloc malloc` is a preprocessor rewrite, not a function.
+- **Object-like macro redirects.** `#define malloc(size) Curl_cmalloc(size)` (curl 8.17) or
+  `#define xmalloc malloc` silently re-points an existing name. The literal call is still counted,
+  so the count is right, but *which* allocator runs is invisible. Function-like *aliases* under a
+  new name are **not** blind: epic step 2 (#3324) measured them on curl 8.18, where the
+  `curlx_*` alias layer carries 1,625 allocator call sites and literal plus aliases stays
+  continuous (+4%) across the refactor that dropped the literal count 82%.
+- **Function-pointer tables reached only through a pointer.** CPython's `_PyMem_RawMalloc` is
+  never called by name. Its callers go through `_PyMem.malloc(ctx, size)`, which the C rule
+  happens to match, so here the table's callers are still counted.
 - **Thick wrappers.** A helper that allocates *and* does real work (logging, pooling, accounting)
   is not a thin pass-through, and treating it as one would over-count.
 - **Library delegation.** The `def_auth` case: the primitive never appears in the repository at

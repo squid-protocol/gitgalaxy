@@ -1063,7 +1063,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "src/base/cobol_src/ACCTCTRL.cbl": {
       "program_id": "ACCTCTRL",
@@ -2160,7 +2162,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "src/base/cobol_src/BANKDATA.cbl": {
       "program_id": "BANKDATA",
@@ -5402,7 +5406,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "src/base/cobol_src/BNK1CAC.cbl": {
       "program_id": "BNK1CAC",
@@ -7223,7 +7229,73 @@
       "transactions": [
         "OCAC"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "RETURN TRANSID",
+          "line": 248,
+          "commarea": "WS-COMM-AREA",
+          "length": "32",
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 309,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 416,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 775,
+          "commarea": "SUBPGM-PARMS",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 834,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1026,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1102,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1179,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1257,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/BNK1CCA.cbl": {
       "program_id": "BNK1CCA",
@@ -8876,7 +8948,73 @@
       "transactions": [
         "OCCA"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "RETURN TRANSID",
+          "line": 225,
+          "commarea": "WS-COMM-AREA",
+          "length": "248",
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 280,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 389,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 435,
+          "commarea": "INQACCCU-COMMAREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 490,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 677,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 752,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 830,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 909,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/BNK1CCS.cbl": {
       "program_id": "BNK1CCS",
@@ -10706,7 +10844,101 @@
       "transactions": [
         "OCCS"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "RETURN TRANSID",
+          "line": 249,
+          "commarea": "WS-COMM-AREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "RETURN TRANSID",
+          "line": 276,
+          "commarea": "WS-COMM-AREA",
+          "length": "248",
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 331,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 462,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 557,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 976,
+          "commarea": "SUBPGM-PARMS",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1031,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1181,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1264,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1342,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1420,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1498,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1578,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/BNK1CRA.cbl": {
       "program_id": "BNK1CRA",
@@ -12702,7 +12934,73 @@
       "transactions": [
         "OCRA"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "RETURN TRANSID",
+          "line": 263,
+          "commarea": "WS-COMM-AREA",
+          "length": "21",
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 318,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 425,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 511,
+          "commarea": "SUBPGM-PARMS",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 566,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 704,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 778,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 853,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 931,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/BNK1DAC.cbl": {
       "program_id": "BNK1DAC",
@@ -14953,7 +15251,80 @@
       "transactions": [
         "ODAC"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "RETURN TRANSID",
+          "line": 295,
+          "commarea": "WS-COMM-AREA",
+          "length": "102",
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 350,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 481,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 553,
+          "commarea": "INQACC-COMMAREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 608,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 712,
+          "commarea": "PARMS-SUBPGM",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 882,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 961,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1036,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1115,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/BNK1DCS.cbl": {
       "program_id": "BNK1DCS",
@@ -17273,7 +17644,122 @@
       "transactions": [
         "ODCS"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "RETURN TRANSID",
+          "line": 326,
+          "commarea": "WS-COMM-AREA",
+          "length": "266",
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 381,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 579,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 654,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 833,
+          "commarea": "INQCUST-COMMAREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 888,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 969,
+          "commarea": "DELCUS-COMMAREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1024,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1155,
+          "commarea": "UPDCUST-COMMAREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1210,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1466,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1543,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1621,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1723,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1807,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1888,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/BNK1TFN.cbl": {
       "program_id": "BNK1TFN",
@@ -19189,7 +19675,73 @@
       "transactions": [
         "OTFN"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "RETURN TRANSID",
+          "line": 247,
+          "commarea": "WS-COMMAREA",
+          "length": "29",
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 302,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 411,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 496,
+          "commarea": "SUBPGM-PARMS",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 551,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 727,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 801,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 876,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 954,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/BNK1UAC.cbl": {
       "program_id": "BNK1UAC",
@@ -21408,7 +21960,87 @@
       "transactions": [
         "OUAC"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "RETURN TRANSID",
+          "line": 295,
+          "commarea": "WS-COMM-AREA",
+          "length": "99",
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 350,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 474,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 767,
+          "commarea": "DFHCOMMAREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 822,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 954,
+          "commarea": "DFHCOMMAREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1009,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1130,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1206,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1282,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1361,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/BNKMENU.cbl": {
       "program_id": "BNKMENU",
@@ -22461,7 +23093,115 @@
       "transactions": [
         "OMEN"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "RETURN TRANSID",
+          "line": 170,
+          "commarea": "COMMUNICATION-AREA",
+          "length": "1",
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 225,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 337,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 441,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 513,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 586,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 659,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 732,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 805,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 878,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 952,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1034,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1109,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1186,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1265,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/CRDTAGY1.cbl": {
       "program_id": "CRDTAGY1",
@@ -23316,7 +24056,17 @@
       "transactions": [
         "OCR1"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 180,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/CRDTAGY2.cbl": {
       "program_id": "CRDTAGY2",
@@ -24171,7 +24921,17 @@
       "transactions": [
         "OCR2"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 179,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/CRDTAGY3.cbl": {
       "program_id": "CRDTAGY3",
@@ -25026,7 +25786,17 @@
       "transactions": [
         "OCR3"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 179,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/CRDTAGY4.cbl": {
       "program_id": "CRDTAGY4",
@@ -25881,7 +26651,17 @@
       "transactions": [
         "OCR4"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 180,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/CRDTAGY5.cbl": {
       "program_id": "CRDTAGY5",
@@ -26736,7 +27516,17 @@
       "transactions": [
         "OCR5"
       ],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 179,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/CREACC.cbl": {
       "program_id": "CREACC",
@@ -29436,7 +30226,59 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 304,
+          "commarea": "INQCUST-COMMAREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 508,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 586,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 674,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 751,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1055,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1088,
+          "commarea": "INQACCCU-COMMAREA",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/CRECUST.cbl": {
       "program_id": "CRECUST",
@@ -32817,7 +33659,17 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 1250,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/CUSTCTRL.cbl": {
       "program_id": "CUSTCTRL",
@@ -33866,7 +34718,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "src/base/cobol_src/DBCRFUN.cbl": {
       "program_id": "DBCRFUN",
@@ -35506,7 +36360,24 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 620,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 807,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/DELACC.cbl": {
       "program_id": "DELACC",
@@ -37287,7 +38158,17 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 603,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/DELCUS.cbl": {
       "program_id": "DELCUS",
@@ -39631,7 +40512,52 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 260,
+          "commarea": "INQCUST-COMMAREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 312,
+          "commarea": "DELACC-COMMAREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 334,
+          "commarea": "INQACCCU-COMMAREA",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 439,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 565,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 717,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/GETCOMPY.cbl": {
       "program_id": "GETCOMPY",
@@ -39687,7 +40613,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "src/base/cobol_src/GETSCODE.cbl": {
       "program_id": "GETSCODE",
@@ -39751,7 +40679,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "src/base/cobol_src/INQACC.cbl": {
       "program_id": "INQACC",
@@ -41454,7 +42384,52 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 321,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 401,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 516,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 738,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 810,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 924,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/INQACCCU.cbl": {
       "program_id": "INQACCCU",
@@ -43098,7 +44073,45 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 321,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 424,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 563,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 794,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 851,
+          "commarea": "INQCUST-COMMAREA",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/INQCUST.cbl": {
       "program_id": "INQCUST",
@@ -44593,7 +45606,24 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 406,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 528,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     },
     "src/base/cobol_src/UPDACC.cbl": {
       "program_id": "UPDACC",
@@ -45738,7 +46768,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "src/base/cobol_src/UPDCUST.cbl": {
       "program_id": "UPDCUST",
@@ -46799,7 +47831,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "src/base/cobol_src/XFRFUN.cbl": {
       "program_id": "XFRFUN",
@@ -49029,7 +50063,108 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [
+        {
+          "verb": "LINK",
+          "line": 364,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 463,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 573,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 664,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 737,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 813,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 881,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1165,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1262,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1341,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1459,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1541,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1701,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        },
+        {
+          "verb": "LINK",
+          "line": 1873,
+          "commarea": "ABNDINFO-REC",
+          "length": null,
+          "datalength": null
+        }
+      ],
+      "commareas_validated": false
     }
   },
   "method": {

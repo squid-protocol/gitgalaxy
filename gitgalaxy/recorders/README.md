@@ -95,6 +95,8 @@ Scope, from measurement (`core/wrapper_resolver.py`'s header): `debug_prints`/`p
 
 `record_data` (#3246) carries COBOL DATA DIVISION items and, since #3250, PL/I `DECLARE`d structures in the same columns: `pic` is the PICTURE, `usage` the data type as written (`FIXED DEC(7,2)`, `CHAR(10) VARYING`), `section` the root's storage class (`STATIC`/`AUTOMATIC`/`BASED`/`CONTROLLED`), `redefines` the `DEFINED` base, `occurs_*` the first dimension and `occurs_depending_on` its `REFER`, `value_literal` the `INIT`. `attributes` holds a PL/I item's full attribute text (`BASED(ADDR(REC)) UNALIGNED`) and is NULL for COBOL.
 
+`call_site_data` (#3200) carries, since #3355, `commarea` / `commarea_length` / `commarea_datalength` — a CICS LINK/XCTL/RETURN TRANSID site's `COMMAREA(x)`, `LENGTH(...)` and `DATALENGTH(...)` operands as written (NULL on every other site) — and `record_data` carries `copy_members`, the COPY member(s) that expand right after an entry. Both are per-file and restored on delta scans. `galaxy_ir.commarea_contracts` joins the passed record (COPY-expanded) to the callee's LINKAGE `DFHCOMMAREA` and reports length/shape mismatches as data.
+
 `dataset_data` (#3201) carries, since #3345, `dsn_resolved` (the JCL DSN with its SET / PROC-default / EXEC-override symbols substituted, NULL unless every one resolved) and `dsn_resolution` (`literal`, `resolved`, `proc_default` — only a PROC's own defaults, a caller elsewhere may override — `ambiguous` or `unresolved`) beside the raw `dsn`; both NULL on a COBOL row. `galaxy_ir` joins lineage on the resolved name (`shared_datasets`, `dataset_flows`).
 
 ### `sql_table_data` — DB2 DECLARE TABLE / DCLGEN schemas (#3344)

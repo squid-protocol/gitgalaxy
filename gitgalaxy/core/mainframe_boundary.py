@@ -9,6 +9,9 @@
 #
 #   1. invocation  -- COBOL `CALL`, CICS `LINK`/`XCTL PROGRAM(...)`, JCL
 #                     `EXEC PGM=`: who runs whom (#3200).
+#                     A CICS LINK/XCTL/RETURN TRANSID site also carries
+#                     the record it passes -- `COMMAREA(x)` with its
+#                     `LENGTH(...)`/`DATALENGTH(...)` as written (#3355).
 #   2. dataset     -- COBOL `SELECT ... ASSIGN TO <ddname>` with the `OPEN`
 #                     modes actually used, and the JCL `DD` statement that binds
 #                     that ddname to a real dataset (#3201). A JCL DSN built
@@ -167,6 +170,20 @@ _CICS_TRANSID_VERB = re.compile(r"\bEXEC[ \t\n]+CICS[ \t\n]+(RETURN|START|RUN)\b
 # at runtime, `VALUE SPACES`) resolves to None -- data, not a gap.
 _CICS_TRANSID_OPERAND = re.compile(r"\bTRANSID[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z][A-Z0-9-]*))", re.I)
 
+# #3355: the COMMAREA contract operands of a LINK/XCTL/RETURN block -- which
+# record the call passes (`COMMAREA(x)`) and how many bytes it says it passes
+# (`LENGTH(...)`, and LINK's `DATALENGTH(...)`). Each keyword is delimited by COBOL
+# name-character boundaries, so `DFHCOMMAREA(` is not a COMMAREA operand and
+# `DATALENGTH(` / `INPUTMSGLEN(` are not LENGTH. The operand body is read by a
+# paren-balanced scan (`LENGTH(LENGTH OF X)`, `COMMAREA(WS-AREA(1:10))`) capped at
+# `_CICS_OPERAND_LIMIT`, inside the already END-EXEC-bounded block.
+_CICS_CONTRACT_OPERANDS = (
+    ("commarea", re.compile(r"(?<![A-Z0-9-])COMMAREA[ \t\n]*\(", re.I)),
+    ("commarea_length", re.compile(r"(?<![A-Z0-9-])LENGTH[ \t\n]*\(", re.I)),
+    ("commarea_datalength", re.compile(r"(?<![A-Z0-9-])DATALENGTH[ \t\n]*\(", re.I)),
+)
+_CICS_OPERAND_LIMIT = 160
+
 # A JCL statement: `//name operation operands`. The name field is optional --
 # unnamed DD and EXEC statements are valid and common.
 _JCL_STATEMENT = re.compile(r"^//([A-Z0-9_#$@]*)[ \t]+([A-Z]+)(?:[ \t]+(.*))?$", re.I)
@@ -266,6 +283,12 @@ _VALUE_CLAUSE = re.compile(
     r"\bVALUE[ \t\n]+(?:IS[ \t\n]+)?(?:'([^']*)'|\"([^\"]*)\"|([A-Z0-9][A-Z0-9+.-]*))",
     re.I,
 )
+# #3355: `COPY <member>` inside one data-description entry's window -- the
+# copybook that expands at that point (`01 DFHCOMMAREA.` + `COPY INQCUST.`). The
+# member is recorded on the entry it follows (`copy_members`); expanding it is the
+# reader's job (galaxy_ir), exactly as for every other cross-file layout. Quotes
+# and a trailing `OF/IN library` are allowed; the member name is what is kept.
+_COPY_IN_ENTRY = re.compile(r"(?<![A-Z0-9-])COPY[ \t\n]+['\"]?([A-Z0-9@#$][A-Z0-9@#$-]*)", re.I)
 # The special levels: 88 condition-names and 66 RENAMES describe the item above
 # them rather than nesting by level number, so they attach to the last real
 # item and are never pushed as a potential parent themselves.
@@ -381,6 +404,39 @@ def _cobol_value_map(code_stream: str) -> dict[str, str]:
     return values
 
 
+def _cics_contract_operands(block: str) -> dict[str, str]:
+    """The COMMAREA / LENGTH / DATALENGTH operands of one CICS block, as written (#3355).
+
+    `block` is the text between the verb and END-EXEC. Each operand body is read
+    to its balancing `)` (at most `_CICS_OPERAND_LIMIT` chars -- an unbalanced
+    paren yields nothing rather than a runaway), whitespace-collapsed and
+    upper-cased. Only the operands the block carries are returned, so a site with
+    no COMMAREA keeps exactly the shape it had before #3355.
+    """
+    out: dict[str, str] = {}
+    for key, pattern in _CICS_CONTRACT_OPERANDS:
+        match = pattern.search(block)
+        if not match:
+            continue
+        depth, body_end = 1, None
+        limit = min(len(block), match.end() + _CICS_OPERAND_LIMIT)
+        for i in range(match.end(), limit):
+            ch = block[i]
+            if ch == "(":
+                depth += 1
+            elif ch == ")":
+                depth -= 1
+                if depth == 0:
+                    body_end = i
+                    break
+        if body_end is None:
+            continue
+        body = " ".join(block[match.end() : body_end].split()).upper()
+        if body:
+            out[key] = body
+    return out
+
+
 def _cobol_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any]]:
     """Every COBOL invocation site: `CALL`, and CICS `LINK`/`XCTL PROGRAM(...)`."""
     calls: list[dict[str, Any]] = []
@@ -409,6 +465,8 @@ def _cobol_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any
         if end != -1:
             block = block[:end]
         operand_match = _CICS_PROGRAM_OPERAND.search(block)
+        # #3355: the record this transfer passes, and its declared length(s).
+        contract = _cics_contract_operands(block)
         if not operand_match:
             # A LINK with no PROGRAM operand is a CHANNEL-only transfer or
             # malformed source. Recorded with no operand: the site exists.
@@ -419,6 +477,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any
                     "operand": None,
                     "target": None,
                     "line": _line_of(match.start()),
+                    **contract,
                 }
             )
             continue
@@ -435,6 +494,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any
                 "operand": operand or None,
                 "target": (target or None),
                 "line": _line_of(match.start()),
+                **contract,
             }
         )
 
@@ -499,6 +559,11 @@ def _cobol_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any
                 "operand": operand or None,
                 "target": (target or None),
                 "line": _line_of(match.start()),
+                # #3355: `RETURN TRANSID(t) COMMAREA(x)` hands x to the next task
+                # of t. Plain RETURN (no TRANSID) draws no row, and none is added
+                # for it: that would change the call graph (#3355 keeps it
+                # byte-identical) for a COMMAREA with no named receiver.
+                **_cics_contract_operands(block),
             }
         )
 
@@ -659,6 +724,19 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
                 # period the character class swallowed (`VALUE 0.` -> `0`, not `0.`).
                 value = value_match.group(3).rstrip(".")
 
+        # #3355: the copybook(s) that expand right after this entry. Searched only
+        # up to the next section header / FD and the PROCEDURE DIVISION, so a
+        # section-level `LINKAGE SECTION.` + `COPY X.` (a COPY that belongs to no
+        # entry) and a procedure-division COPY are never attributed to the entry
+        # above them.
+        copy_stop = min(stop, level_match.end() + _ENTRY_LIMIT, data_end)
+        for offsets in (section_offsets, fd_offsets):
+            nxt = bisect.bisect_right(offsets, level_match.end())
+            if nxt < len(offsets):
+                copy_stop = min(copy_stop, offsets[nxt])
+        copy_window = code_stream[level_match.end() : max(copy_stop, level_match.end())]
+        copy_members = [m.group(1).upper() for m in _COPY_IN_ENTRY.finditer(copy_window)]
+
         section, fd_name = _context(start)
         records.append(
             {
@@ -676,6 +754,8 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
                 "redefines": redefines,
                 "value": value,
                 "line": _line_of(start),
+                # Presence-keyed: an entry with no COPY after it keeps its pre-#3355 shape.
+                **({"copy_members": ",".join(copy_members)} if copy_members else {}),
             }
         )
     return records

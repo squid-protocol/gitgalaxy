@@ -15,6 +15,7 @@ before writing anything:
 | invocation (call graph) | #3200 | `core/mainframe_boundary.py` + `core/invocation_resolver.py` | `call_site_data` | `EngineFile.calls` |
 | dataset boundary/lineage | #3201 | `core/mainframe_boundary.py` | `dataset_data` | `EngineFile.datasets` |
 | JCL PROC/SET symbol resolution (resolved columns beside a raw one) | #3345 | `core/mainframe_boundary.py` (`_jcl_resolve_datasets`) | `dataset_data` (+ `dsn_resolved`, `dsn_resolution`) | `EngineFile.datasets` (`dataset_name`; `GalaxyIR.shared_datasets`/`dataset_flows`) |
+| CICS COMMAREA contract (operand columns on an existing global table + a reader-side join) | #3355 | `core/mainframe_boundary.py` (`_cics_contract_operands`, `copy_members` on records) | `call_site_data` (+ `commarea`, `commarea_length`, `commarea_datalength`), `record_data` (+ `copy_members`) | `EngineCall.commarea*`; `GalaxyIR.commarea_contracts`/`record_layout` |
 | DATA DIVISION record layouts | #3246 | `core/mainframe_boundary.py` | `record_data` | `EngineFile.records` |
 | PL/I DECLARE structures (a second dialect on an existing table) | #3250 | `core/mainframe_boundary.py` (`_pli_records`) | `record_data` (+ `attributes`) | `EngineFile.records` |
 | CSD resource definitions of every type (one generic table beside the resolved transaction map) | #3356 | `core/mainframe_boundary.py` (`_csd_resources`) | `csd_resource_data` | `EngineFile.csd_resources` (`GalaxyIR.cics_file_datasets`/`tdqueue_datasets`/`transaction_db2_plans`) |

@@ -608,3 +608,15 @@ name contract. The
 excerpts gained CBSA's `BANK.csd` and carddemo's `CARDDEMO.CSD` + `CRDDEMOD.csd`; unexplained stays 0
 and the transaction datum is unchanged (CBSA 1/1, carddemo 2/2 on the excerpts).
 
+## Update: CICS COMMAREA operands (#3355) — 2026-09-23
+
+Each CICS `LINK`/`XCTL`/`RETURN TRANSID` site's COMMAREA operands are now a compared datum,
+`commarea`. No forge reads them, so the compared side is the answer key's own reader
+(`cobol_answer_key.cics_commareas`, over its fixed-format Source model) vs call_site_data's
+`commarea`/`commarea_length`/`commarea_datalength`. The unit is `VERB@line=COMMAREA|LENGTH|DATALENGTH`,
+so a missed site, a different record and a different LENGTH expression are each a delta; `unexplained`
+on a delta, never `stated_absence`, INDEPENDENT once a program is `commareas_validated` (drafted today
+as `commareas` on every keyed program). Measured: the two readers agree on all 150 CBSA sites and all
+55 carddemo sites; zopeneditor (batch) has none. Unexplained stays 0 on every excerpt and on the full
+CBSA/zopeneditor corpora, and carddemo's full corpus stays at its #3364 baseline.
+

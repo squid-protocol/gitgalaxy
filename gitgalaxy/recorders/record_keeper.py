@@ -866,10 +866,21 @@ class RecordKeeper:
                 target TEXT,
                 dst_file_id INTEGER,
                 line_number INTEGER,
+                commarea TEXT,
+                commarea_length TEXT,
+                commarea_datalength TEXT,
                 FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE,
                 FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
+        # #3355: the COMMAREA contract of a CICS LINK/XCTL/RETURN TRANSID site --
+        # the record it passes (`COMMAREA(x)`) and its `LENGTH(...)` /
+        # `DATALENGTH(...)` operands, each as written (whitespace-collapsed,
+        # upper-cased). NULL when the site carries no such operand (every CALL and
+        # EXEC PGM row). Per-file, so restored on delta scans like `operand`.
+        # Joining x to the callee's LINKAGE DFHCOMMAREA is galaxy_ir's job
+        # (GalaxyIR.commarea_contracts). Healed onto a table created before #3355.
+        _ensure_columns(cursor, "call_site_data", ["commarea TEXT", "commarea_length TEXT", "commarea_datalength TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_src_file_id ON call_site_data(src_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_dst_file_id ON call_site_data(dst_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_target ON call_site_data(target);")
@@ -951,11 +962,18 @@ class RecordKeeper:
                 value_literal TEXT,
                 line_number INTEGER,
                 attributes TEXT,
+                copy_members TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
         # #3250: heal a record_data table created before `attributes` existed.
         _ensure_columns(cursor, "record_data", ["attributes TEXT"])
+        # #3355: `copy_members` -- the COPY member(s) that expand right after this
+        # entry (`01 DFHCOMMAREA.` + `COPY INQCUST.` -> 'INQCUST'), comma-separated
+        # in source order; NULL for an entry no COPY follows. Only the position is
+        # recorded: expanding the member is the reader's job (galaxy_ir), so a
+        # COMMAREA record and a callee's DFHCOMMAREA can be compared field by field.
+        _ensure_columns(cursor, "record_data", ["copy_members TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);")
 
@@ -2136,6 +2154,9 @@ class RecordKeeper:
                         site.get("target"),
                         path_to_file_id.get(site.get("resolved_path") or ""),
                         int(site.get("line", 0) or 0),
+                        site.get("commarea"),  # #3355
+                        site.get("commarea_length"),
+                        site.get("commarea_datalength"),
                     )
                 )
             if call_rows:
@@ -2143,8 +2164,9 @@ class RecordKeeper:
                     """
                     INSERT INTO call_site_data (
                         repo_name, commit_hash, src_file_id, verb, form,
-                        operand, target, dst_file_id, line_number
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        operand, target, dst_file_id, line_number,
+                        commarea, commarea_length, commarea_datalength
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     call_rows,
                 )
@@ -2208,6 +2230,7 @@ class RecordKeeper:
                 "value_literal",
                 "line_number",
                 "attributes",
+                "copy_members",
             ),
             "record_layouts",
             lambda it: (
@@ -2226,6 +2249,7 @@ class RecordKeeper:
                 it.get("value"),
                 int(it.get("line", 0) or 0),
                 it.get("attributes"),
+                it.get("copy_members"),  # #3355
             ),
         )
 

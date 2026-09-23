@@ -387,12 +387,23 @@ class StateRehydrator:
                 # deliberately NOT restored for calls or transactions: resolution
                 # is repo-wide and redone every scan, because a file added or
                 # deleted this commit can change what an unchanged file resolves to.
+                # #3355: the COMMAREA contract operands are per-file (the site's own
+                # EXEC block), so they are restored like `operand`. A baseline
+                # written before #3355 lacks the columns; its rows come back
+                # without the keys, the shape the extractor gives a site with no
+                # COMMAREA -- so a restored row is identical to a re-extracted one.
+                commarea_cols = (
+                    "cs.commarea, cs.commarea_length, cs.commarea_datalength"
+                    if _has_table(cursor, "call_site_data") and _has_column(cursor, "call_site_data", "commarea")
+                    else "NULL AS commarea, NULL AS commarea_length, NULL AS commarea_datalength"
+                )
                 calls_by_file = _restore_child_table(
                     cursor,
                     repo_name,
                     baseline_hash,
                     "call_site_data",
-                    "SELECT fd.file_path AS _fp, cs.verb, cs.form, cs.operand, cs.target, cs.line_number AS line "
+                    "SELECT fd.file_path AS _fp, cs.verb, cs.form, cs.operand, cs.target, cs.line_number AS line, "  # noqa: S608 -- commarea_cols is one of two literals; values are bound
+                    f"{commarea_cols} "
                     "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id",
                     lambda r: {
@@ -401,6 +412,7 @@ class StateRehydrator:
                         "operand": r["operand"],
                         "target": r["target"],
                         "line": int(r["line"] or 0),
+                        **{k: r[k] for k in ("commarea", "commarea_length", "commarea_datalength") if r[k]},
                     },
                 )
                 # #3345: the resolved-DSN pair is per-file (one JCL file determines
@@ -445,6 +457,14 @@ class StateRehydrator:
                     if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", "attributes")
                     else "NULL"
                 )
+                # #3355: `copy_members` is per-file (the entry's own window); NULL on
+                # a baseline written before it existed, and then left off the payload
+                # exactly as the extractor leaves it off an entry no COPY follows.
+                copy_col = (
+                    "rd.copy_members"
+                    if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", "copy_members")
+                    else "NULL"
+                )
                 records_by_file = _restore_child_table(
                     cursor,
                     repo_name,
@@ -453,7 +473,7 @@ class StateRehydrator:
                     "SELECT fd.file_path AS _fp, rd.section, rd.fd_name, rd.ordinal, rd.parent_ordinal, "  # noqa: S608 -- attributes_col is one of two literals; values are bound
                     "rd.level_number AS level, rd.item_name AS name, rd.pic, rd.usage, rd.occurs_min, "
                     "rd.occurs_max, rd.occurs_depending_on, rd.redefines, rd.value_literal AS value, "
-                    f"rd.line_number AS line, {attributes_col} AS attributes "
+                    f"rd.line_number AS line, {attributes_col} AS attributes, {copy_col} AS copy_members "
                     "FROM record_data rd JOIN file_data fd ON rd.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY rd.file_id, rd.ordinal",
                     lambda r: {
@@ -472,6 +492,7 @@ class StateRehydrator:
                         "value": r["value"],
                         "line": int(r["line"] or 0),
                         "attributes": r["attributes"],
+                        **({"copy_members": r["copy_members"]} if r["copy_members"] else {}),
                     },
                 )
                 # #3211-followup: the CSD transaction definitions, restored per

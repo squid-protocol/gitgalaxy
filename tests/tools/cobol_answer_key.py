@@ -11,6 +11,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-bms <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-jcl <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-csd <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-commarea <repo> --key key.json
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
 <repo> into the key's `pli_programs`, leaving every COBOL program (and its
@@ -21,6 +22,9 @@ does the same for every BMS map source's screen fields, into `bms_maps`.
 `add-jcl` (#3345) does the same for every JCL member's DD bindings and
 symbol-resolved DSNs, into `jcl_jobs`. `add-csd` (#3356) does the same for every
 CSD deck's resource definitions (FILE, TDQUEUE, DB2TRAN, ...), into `csd_decks`.
+`add-commarea` (#3355) drafts each keyed COBOL program's CICS LINK/XCTL/RETURN
+TRANSID COMMAREA operands (with LENGTH/DATALENGTH) into its `commareas`, leaving
+every other field -- and a program already `commareas_validated` -- untouched.
 
 AUTHORITY. `draft` computes CANDIDATE values with its own fixed-format reading
 (Area A headers, PERFORM ... THRU, GO TO, SECTION fall-through, terminal
@@ -1449,6 +1453,66 @@ def draft_csd(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# #3355: CICS COMMAREA operands -- this tool's own reader over its fixed-format
+# Source model (comments dropped, literals blanked), sharing no code with the
+# engine's PRISM-stream walker in mainframe_boundary.
+# ==============================================================================
+_KEY_CICS_EXEC = re.compile(r"\bEXEC\s+CICS\s+(LINK|XCTL|RETURN)\b")
+
+
+def _key_paren_operand(block: str, keyword: str) -> Optional[str]:
+    """`KEYWORD( ... )` inside one EXEC block, paren-balanced, whitespace-collapsed.
+    The keyword must stand alone (`DFHCOMMAREA(`/`DATALENGTH(` are other words)."""
+    for m in re.finditer(rf"(?<![A-Z0-9-]){keyword}\s*\(", block):
+        depth = 1
+        for i in range(m.end(), len(block)):
+            depth += {"(": 1, ")": -1}.get(block[i], 0)
+            if depth == 0:
+                return " ".join(block[m.end() : i].split()) or None
+        return None
+    return None
+
+
+def cics_commareas(src: Source) -> list[dict[str, Any]]:
+    """Every CICS LINK/XCTL (and RETURN with a TRANSID) that passes a COMMAREA:
+    `verb`, `line` (of the EXEC), `commarea`, `length`, `datalength` as written."""
+    out = []
+    for m in _KEY_CICS_EXEC.finditer(src.text):
+        seg = src.text[m.end() : m.end() + 600]
+        end = seg.find("END-EXEC")
+        block = src.raw_text[m.end() : m.end() + (end if end >= 0 else 600)]
+        verb = m.group(1)
+        if verb == "RETURN":
+            if _key_paren_operand(block, "TRANSID") is None:
+                continue
+            verb = "RETURN TRANSID"
+        area = _key_paren_operand(block, "COMMAREA")
+        if area is None:
+            continue
+        out.append(
+            {
+                "verb": verb,
+                "line": src.line_of(m.start()),
+                "commarea": area,
+                "length": _key_paren_operand(block, "LENGTH"),
+                "datalength": _key_paren_operand(block, "DATALENGTH"),
+            }
+        )
+    return out
+
+
+def commarea_values(rows: list[dict[str, Any]]) -> set[str]:
+    """The comparison unit: `VERB@line=COMMAREA|LENGTH|DATALENGTH` ('-' for none).
+    Works on this reader's rows and on the engine's (commarea_length/_datalength)."""
+    out = set()
+    for r in rows:
+        length = r.get("length", r.get("commarea_length")) or "-"
+        datalength = r.get("datalength", r.get("commarea_datalength")) or "-"
+        out.add(f"{r['verb']}@{r['line']}={r['commarea']}|{length}|{datalength}")
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -1566,6 +1630,9 @@ def draft_program(
         "copybooks": copybooks,
         "files": files_,
         "calls": calls,
+        # #3355: the COMMAREA each CICS transfer passes. Drafted; adjudicates a
+        # differential delta only once the program is `commareas_validated`.
+        "commareas": cics_commareas(src),
         "records": _data_items(src),  # #3246: DATA DIVISION item tree + FD layouts
         # #3247: the CICS transaction ids that entry-point into this program, from
         # the repo's CSD decks. Drafted; adjudicates a differential delta only once
@@ -2046,6 +2113,9 @@ def main() -> int:
     c = sub.add_parser("add-csd")
     c.add_argument("repo", type=Path)
     c.add_argument("--key", type=Path, required=True)
+    cm = sub.add_parser("add-commarea")
+    cm.add_argument("repo", type=Path)
+    cm.add_argument("--key", type=Path, required=True)
     args = ap.parse_args()
 
     repo = args.repo.resolve()
@@ -2107,6 +2177,21 @@ def main() -> int:
         key["csd_decks"] = decks
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(decks)} CSD decks -> {args.key}")
+        return 0
+    if args.cmd == "add-commarea":
+        # #3355: the add-pli discipline, per keyed program -- refresh the drafted
+        # `commareas` field only, never a program signed off with `commareas_validated`.
+        programs = key.get("programs", {})
+        drafted = 0
+        for rel, entry in programs.items():
+            path = repo / rel
+            if entry.get("commareas_validated") or not path.is_file():
+                continue
+            entry["commareas"] = cics_commareas(Source(path))
+            entry.setdefault("commareas_validated", False)
+            drafted += len(entry["commareas"])
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {drafted} COMMAREA operands over {len(programs)} programs -> {args.key}")
         return 0
     result, md = score(repo, key, args.db)
     if args.md:

@@ -574,6 +574,20 @@ class LLMRecorder:
                         seen.append(label)
                 more = f" … (+{len(seen) - 12})" if len(seen) > 12 else ""
                 lines.append(f"- **Calls:** {', '.join(f'`{s}`' for s in seen[:12])}{more}")
+                # #3355: the record each CICS transfer passes (`COMMAREA(x)`), with a
+                # declared LENGTH when the site states one. Distinct pairs only; the
+                # contract join to the callee's DFHCOMMAREA is galaxy_ir's.
+                passed: list[str] = []
+                for c in calls:
+                    if not c.get("commarea"):
+                        continue
+                    length = f" LENGTH({c['commarea_length']})" if c.get("commarea_length") else ""
+                    label = f"{c.get('verb')} {c.get('target') or c.get('operand') or '?'} ← {c['commarea']}{length}"
+                    if label not in passed:
+                        passed.append(label)
+                if passed:
+                    more = f" … (+{len(passed) - 12})" if len(passed) > 12 else ""
+                    lines.append(f"- **COMMAREA passed:** {', '.join(f'`{s}`' for s in passed[:12])}{more}")
 
             datasets = f.get("dataset_bindings") or []
             if datasets:

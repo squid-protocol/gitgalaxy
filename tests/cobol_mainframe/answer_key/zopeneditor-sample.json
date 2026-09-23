@@ -1847,7 +1847,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "COBOL/SAM1LIB.cbl": {
       "program_id": "SAM1",
@@ -3307,7 +3309,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "COBOL/SAM2.cbl": {
       "program_id": "SAM2",
@@ -3530,7 +3534,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "multiroot/sam/SAM1.cbl": {
       "program_id": "SAM1",
@@ -5653,7 +5659,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     },
     "multiroot/sam/SAM2.cbl": {
       "program_id": "SAM2",
@@ -5884,7 +5892,9 @@
         }
       ],
       "transactions": [],
-      "transactions_validated": true
+      "transactions_validated": true,
+      "commareas": [],
+      "commareas_validated": false
     }
   },
   "method": {

@@ -1,0 +1,105 @@
+name: Call Resolution History
+
+# #3331 (Epic #3265 step 4): after a change to call extraction or the call resolver lands
+# on main, re-measure how the resolver fares on language-crucible and append one row per
+# language to docs/self_scan/call_resolution_history.csv -- the same accumulating-time-
+# series shape as tree-sitter-accuracy-history.yml, whose comments explain the PR-then-
+# merge mechanism and the loop guard. `call_resolution_rates.py --history` skips the append
+# when the batch is identical to the last one, so a push that moves no number opens no PR.
+#
+# The numbers are the resolver's CONFIDENCE (scoped/unique/ambiguous/external shares),
+# not its accuracy -- that is #3332's benchmark. Nothing here gates a PR.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "gitgalaxy/core/detector.py"
+      - "gitgalaxy/core/call_resolver.py"
+      - "gitgalaxy/core/network_risk_sensor.py"
+      - "gitgalaxy/standards/language_standards/**"
+      - "tests/tools/call_resolution_rates.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  call-resolution-history:
+    # Loop guard: this job's own bot commit must not re-trigger it.
+    if: |
+      !startsWith(github.event.head_commit.message, 'docs: auto-update call resolution data')
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy
+        run: |
+          cd gitgalaxy
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Fetch Language Crucible corpus (pinned via LANGUAGE_CRUCIBLE_REF)
+        run: |
+          # Same pin resolution as tree-sitter-accuracy-history.yml (see its comments).
+          ref="${{ vars.LANGUAGE_CRUCIBLE_REF }}"
+          if [ -z "$ref" ]; then
+            ref=$(sed -n 's/^PINNED_TAG = "\(.*\)"/\1/p' gitgalaxy/tests/_crucible_pin.py)
+          fi
+          if [ -z "$ref" ]; then
+            echo "::error title=Corpus pin unavailable::No LANGUAGE_CRUCIBLE_REF and no PINNED_TAG in tests/_crucible_pin.py."
+            exit 1
+          fi
+          git clone --branch "$ref" --depth 1 https://github.com/squid-protocol/language-crucible.git language-crucible
+
+      - name: Append call-resolution history
+        env:
+          GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/call_resolution_rates.py --history
+
+      - name: Open PR with updated history
+        id: call-resolution-history-pr
+        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
+        with:
+          token: ${{ secrets.AUTOMATION_PAT }}
+          path: gitgalaxy
+          commit-message: "docs: auto-update call resolution data"
+          title: "docs: auto-update call resolution data"
+          body: |
+            Automated update from the latest call-resolution measurement on `main` (#3331).
+
+            Appends one row per language to `docs/self_scan/call_resolution_history.csv`.
+            The shares are the resolver's confidence, not its accuracy (#3332).
+          branch: auto/call-resolution-history
+          delete-branch: true
+          add-paths: |
+            docs/self_scan/call_resolution_history.csv
+
+      - name: Merge the call resolution history PR
+        if: steps.call-resolution-history-pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: |
+          PR="${{ steps.call-resolution-history-pr.outputs.pull-request-number }}"
+          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
+            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}

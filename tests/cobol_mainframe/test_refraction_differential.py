@@ -380,7 +380,6 @@ def test_sql_column_verdict_needs_explicit_validation(mini_repo):
     assert summary["by_cause"] == {"key:engine defect": 2}
 
 
-
 # ==============================================================================
 # #3347: BMS screen fields -- the key's independent reader vs the engine, and the
 # generated symbolic-map copybook vs the engine's named fields

@@ -431,7 +431,6 @@ def test_sql_table_key_entries_are_drafts_until_signed_off(key_path):
             assert {"table", "colno", "name", "sql_type", "length", "scale", "nullable", "line"} <= set(c)
 
 
-
 # ==============================================================================
 # #3347: BMS screen-field layouts -- the key's own reader
 # ==============================================================================

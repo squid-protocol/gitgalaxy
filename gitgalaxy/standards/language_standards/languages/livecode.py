@@ -31,6 +31,12 @@ DEFINITION: dict[str, Any] = {
     # UPGRADED: Maps to Family 1d (multi_style_live)
     # Rationale: Accepts '--', '//', '#', and '/* */' to support both its legacy HyperTalk roots and modern C-style syntax.
     "lexical_family": "multi_style_live",
+    # #3225: the identifier lexicon of the `unreferenced_by_name` census
+    # (docs/unreferenced_by_name_contract.md corollary 7, #3198). LiveCode (xTalk) handler names
+    # are case-insensitive. Measured: four crucible handlers read as uncalled although called in
+    # another case, e.g. engine_builder's `engineBuilderBuildiOS` for `engineBuilderBuildIOS`. TOP
+    # LEVEL, never inside `rules` (#2806).
+    "identifier_case": "insensitive",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_COMMAND_POSITION,

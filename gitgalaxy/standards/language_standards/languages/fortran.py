@@ -50,6 +50,15 @@ DEFINITION: dict[str, Any] = {
     # UPGRADED: Maps to Family 7 (The Positional Ancients)
     # Rationale: Fixed-format requires Column 1 monitoring ('C' or '*'); Free-format uses '!'.
     "lexical_family": "positional_anchored",
+    # #3225: the identifier lexicon of the `unreferenced_by_name` census
+    # (docs/unreferenced_by_name_contract.md corollary 7, #3198). Fortran names are
+    # case-insensitive (FORTRAN 77 onward). Measured: crucible wrf/module_domain.F calls
+    # `domain_ClockIsSimStartTime(grid)` for `domain_clockissimstarttime`, which the
+    # case-sensitive test read as uncalled; wrf/module_sf_noahdrv.F's `lsm` now reads as
+    # referenced only by a string literal (`'... Noah LSM RELATED TABLES'`), the stated
+    # corollary-3 limit (#2535) that folding exposes but does not introduce. TOP LEVEL, never
+    # inside `rules` (#2806).
+    "identifier_case": "insensitive",
     # #2540: Fortran resolves module names case-insensitively (`USE A` and
     # `use a` both bind module a). The dependency DAG's import-token ->
     # file lookup (network_risk_sensor.py) must case-fold for this

@@ -87,6 +87,12 @@ DEFINITION: dict[str, Any] = {
     # in real source) and REXX quote morphology (quotes double to escape, no
     # backslash escapes, strings never span lines).
     "lexical_family": "recursive_block_rexx",
+    # #3225: the identifier lexicon of the `unreferenced_by_name` census
+    # (docs/unreferenced_by_name_contract.md corollary 7, #3198). REXX symbols are
+    # case-insensitive (they fold to upper case). Measured: crucible ibm_z_zos/domchk.rexx calls
+    # `Process_DOM_Main()` for `PROCESS_DOM_MAIN`, which the case-sensitive test read as uncalled.
+    # TOP LEVEL, never inside `rules` (#2806).
+    "identifier_case": "insensitive",
     # External execs and ::REQUIRES members resolve to PDS members / host
     # filesystems where case is not significant.
     "case_insensitive_imports": True,

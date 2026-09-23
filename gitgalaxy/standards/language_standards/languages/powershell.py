@@ -41,6 +41,12 @@ DEFINITION: dict[str, Any] = {
     # Rationale: PowerShell uses '#' for single-line comments but relies on
     # a unique '<# #>' syntax for multi-line block comments, requiring hybrid parsing logic.
     "lexical_family": "embedded_syntax",
+    # #3225: the identifier lexicon of the `unreferenced_by_name` census
+    # (docs/unreferenced_by_name_contract.md corollary 7, #3198). PowerShell command and function
+    # names are case-insensitive. Measured: crucible roslyn/build-utils.ps1 calls
+    # `Ensure-DotNetSdk` for `Ensure-DotnetSdk`, which the case-sensitive test read as uncalled.
+    # TOP LEVEL, never inside `rules` (#2806).
+    "identifier_case": "insensitive",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_COMMAND_POSITION,

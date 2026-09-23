@@ -30,6 +30,7 @@ from __future__ import annotations
 import pytest
 
 from gitgalaxy.core.detector import (
+    IDENTIFIER_CASE_INSENSITIVE,
     IDENTIFIER_CASE_SENSITIVE,
     IDENTIFIER_CASES,
     INVOCATION_BY_NAME,
@@ -344,13 +345,29 @@ def test_exactly_the_declared_languages_carry_a_lexicon():
     language keeps the case-sensitive, `\\w`-only reading and is unchanged by
     construction (#3198).
 
-    cobol is first because the refraction pipeline reads its census; the other
-    case-insensitive languages (fortran, pli, rexx, hlasm, abap, ...) are audited
-    per language in #3225 -- declaring one is a behaviour change that needs its
-    own corpus evidence, not a bulk edit.
+    cobol was first because the refraction pipeline reads its census; #3225
+    audited the other case-insensitive by-name languages one at a time against the
+    crucible and keyword-rosetta and declared `identifier_case` for each (evidence
+    in each registry's comment). Only cobol declares extra name characters.
+    Deliberately absent: batch (no crucible unit to measure), the positional
+    family (bms, sqlite, db2_sql -- no census, the key would be inert), and
+    haskell (`case_insensitive_imports` is about module resolution; its
+    identifiers are case-sensitive).
     """
     declared = {lang for lang in LANGUAGE_DEFINITIONS if _lexicon(lang) != (IDENTIFIER_CASE_SENSITIVE, "")}
-    assert declared == {"cobol"}
+    assert declared == {
+        "cobol",
+        "fortran",
+        "pli",
+        "rexx",
+        "hlasm",
+        "abap",
+        "powershell",
+        "ada",
+        "apex",
+        "livecode",
+    }
+    assert {lang for lang in declared if _lexicon(lang)[1]} == {"cobol"}
 
 
 def test_a_case_insensitive_language_sees_a_differently_cased_call():
@@ -395,3 +412,56 @@ def test_a_hyphen_is_still_a_boundary_for_a_language_that_declares_nothing():
     the way it always did, because scheme declares no extra name characters."""
     case, extra = _lexicon("scheme")
     assert (case, extra) == (IDENTIFIER_CASE_SENSITIVE, "")
+
+
+# #3225: each case-insensitive language, on the crucible shape that proved it.
+# The unit is written in one case and called in another; the case-sensitive
+# default read every one of these as unreferenced.
+_CASE_FOLD_SHAPES = {
+    # wrf/module_domain.F: `domain_ClockIsSimStartTime(grid)` for `domain_clockissimstarttime`.
+    "fortran": (
+        "      PROGRAM MAIN\n      LOGICAL S\n      S = Clock_Is_Start(1)\n      END PROGRAM MAIN\n\n"
+        "      LOGICAL FUNCTION clock_is_start(G)\n      INTEGER G\n      clock_is_start = .TRUE.\n"
+        "      END FUNCTION clock_is_start\n",
+        "clock_is_start",
+    ),
+    # ibm_z_zos/domchk.rexx: `Process_DOM_Main()` for `PROCESS_DOM_MAIN`.
+    "rexx": (
+        "/* REXX */\nrc = Process_Dom_Main()\nexit rc\n\nPROCESS_DOM_MAIN:\n  say 'main'\n  return 0\n",
+        "PROCESS_DOM_MAIN",
+    ),
+    # roslyn/build-utils.ps1: `Ensure-DotNetSdk` for `Ensure-DotnetSdk`.
+    "powershell": ("function Ensure-DotnetSdk {\n    return 1\n}\n\n$dotnet = Ensure-DotNetSdk\n", "Ensure-DotnetSdk"),
+    # livecode/engine_builder.livecodescript: `engineBuilderBuildiOS` for `engineBuilderBuildIOS`.
+    "livecode": (
+        "on mouseUp\n   engineBuilderBuildiOS 1, 2\nend mouseUp\n\n"
+        "command engineBuilderBuildIOS pEdition, pVersion\n   put pEdition into tX\nend engineBuilderBuildIOS\n",
+        "engineBuilderBuildIOS",
+    ),
+    "ada": (
+        "package body Probe is\n   procedure Run is\n   begin\n      clone_repo;\n   end Run;\n\n"
+        "   procedure Clone_Repo is\n   begin\n      null;\n   end Clone_Repo;\nend Probe;\n",
+        "Clone_Repo",
+    ),
+}
+
+
+@pytest.mark.parametrize("lang", sorted(_CASE_FOLD_SHAPES))
+def test_a_call_in_another_case_is_a_reference(lang):
+    """With the declaration the call counts; with the key stripped the same code
+    reads the unit as unreferenced -- so the declaration is what does the work."""
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    source, unit = _CASE_FOLD_SHAPES[lang]
+    code = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS).split_streams(source, lang)["code_stream"]
+
+    def status(registry):
+        functions = StructuralExtractor(lang, registry).splice(code, "")["functions"]
+        return {f["name"]: f["usage_status"] for f in functions}[unit]
+
+    assert _lexicon(lang) == (IDENTIFIER_CASE_INSENSITIVE, "")
+    assert status(LANGUAGE_DEFINITIONS) == 0
+    stripped = dict(LANGUAGE_DEFINITIONS)
+    stripped[lang] = {k: v for k, v in LANGUAGE_DEFINITIONS[lang].items() if k != "identifier_case"}
+    assert status(stripped) == 1

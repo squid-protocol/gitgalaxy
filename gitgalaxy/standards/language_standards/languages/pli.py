@@ -92,6 +92,11 @@ DEFINITION: dict[str, Any] = {
     # It is NOT positional_anchored like COBOL: PL/I's margins (2-72) are a compiler
     # option, not a column-indicator comment syntax.
     "lexical_family": "standard_block",
+    # #3225: the identifier lexicon of the `unreferenced_by_name` census
+    # (docs/unreferenced_by_name_contract.md corollary 7, #3198). PL/I names are case-insensitive.
+    # Measured: no crucible or keyword-rosetta unit moves -- every call there is written in its
+    # declaration's case. TOP LEVEL, never inside `rules` (#2806).
+    "identifier_case": "insensitive",
     # #3250: the named record-layout fact channel. PL/I DECLAREd structures (a
     # level-number hierarchy of named items with attributes) are the analog of a
     # COBOL DATA DIVISION record layout and feed the same `record_data` table via

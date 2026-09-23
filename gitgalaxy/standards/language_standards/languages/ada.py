@@ -47,6 +47,13 @@ DEFINITION: dict[str, Any] = {
     # `--` delimiter, no block form) -- see gitgalaxy_config.py's
     # LEXICAL_FAMILY_HEURISTICS and prism.py's _compile_regex_matrix.
     "lexical_family": "line_exclusive_dash",
+    # #3225: the identifier lexicon of the `unreferenced_by_name` census
+    # (docs/unreferenced_by_name_contract.md corollary 7, #3198). Ada identifiers are
+    # case-insensitive (RM 2.3). Measured: two crucible alire units now read as referenced, both
+    # only by an English word in a string literal (`"No changes between ..."`, `"clone"`) -- the
+    # stated corollary-3 limit (#2535: nothing shields literals), which folding exposes but does
+    # not introduce. TOP LEVEL, never inside `rules` (#2806).
+    "identifier_case": "insensitive",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,

@@ -35,6 +35,11 @@ DEFINITION: dict[str, Any] = {
     "shebangs": [],
     # Rationale: Uses standard '//' for lines and '/*' '*/' for block-level Commented / Non-Executable Text.
     "lexical_family": "standard_block",
+    # #3225: the identifier lexicon of the `unreferenced_by_name` census
+    # (docs/unreferenced_by_name_contract.md corollary 7, #3198). Apex identifiers are
+    # case-insensitive. Measured: no crucible or keyword-rosetta unit moves. TOP LEVEL, never
+    # inside `rules` (#2806).
+    "identifier_case": "insensitive",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,

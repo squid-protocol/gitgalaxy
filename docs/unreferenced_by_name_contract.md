@@ -66,9 +66,15 @@ Seven corollaries, each pinned by a test in
 
    Both default to the old reading, so a language that declares neither is unchanged by
    construction. Declaring one is a measured behaviour change, not a tidy-up: it moves the census
-   for that language and needs its own corpus evidence. **cobol is the only language that declares
-   either today** — the other case-insensitive languages (fortran, pli, rexx, hlasm, abap, and the
-   sql family) have the same defect latent and are audited per language in #3225, not bulk-edited.
+   for that language and needs its own corpus evidence. cobol declared both first (#3198). #3225
+   audited the other case-insensitive by-name languages one at a time and declared
+   `identifier_case: "insensitive"` for fortran, pli, rexx, hlasm, abap, powershell, ada, apex and
+   livecode (none needs extra name characters). Across the crucible and keyword-rosetta that moved
+   10 of 3,043 units from unreferenced to referenced: 7 genuine calls written in another case, and
+   3 only by a word in a string literal (Ada `Between`/`Clone`, Fortran `lsm`) — corollary 3's
+   literal limit, which folding exposes but does not introduce. Not declared: batch (no crucible
+   unit to measure), the positional family (bms, sqlite, db2_sql; no census, the key would be
+   inert), and haskell, whose `case_insensitive_imports` is about modules, not identifiers.
 
 `kind` is a **census** over the extracted function population and its `unit` is **functions** —
 not hits, and not lines. A formula that adds it to a rule's hit count is adding unlike things;

@@ -97,6 +97,11 @@ DEFINITION: dict[str, Any] = {
     # 'C'/'c'/'/'/'!' would erase any real statement whose column-1 name field
     # starts with one of them (`CHECKPT LR ...` -- the #1898 shape).
     "lexical_family": "positional_anchored",
+    # #3225: the identifier lexicon of the `unreferenced_by_name` census
+    # (docs/unreferenced_by_name_contract.md corollary 7, #3198). HLASM folds lower-case symbols
+    # to upper case (COMPAT(NOCASE), the default). Measured: no crucible or keyword-rosetta unit
+    # moves. TOP LEVEL, never inside `rules` (#2806).
+    "identifier_case": "insensitive",
     # COPY members resolve to PDS members, which are case-insensitive.
     "case_insensitive_imports": True,
     # #3199: this language's import statement names a library MEMBER that the

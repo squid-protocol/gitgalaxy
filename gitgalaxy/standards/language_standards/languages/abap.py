@@ -33,6 +33,11 @@ DEFINITION: dict[str, Any] = {
     # for an asterisk '*' to identify line-level Commented / Non-Executable Text, while allowing '"' for inline.
     # ABAP code uses " as inline comment, requiring a specialized positional family
     "lexical_family": "positional_abap",
+    # #3225: the identifier lexicon of the `unreferenced_by_name` census
+    # (docs/unreferenced_by_name_contract.md corollary 7, #3198). ABAP names are case-insensitive
+    # (`PERFORM probe_branch` reaches `FORM PROBE_BRANCH`). Measured: no crucible or
+    # keyword-rosetta unit moves. TOP LEVEL, never inside `rules` (#2806).
+    "identifier_case": "insensitive",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": re.compile(r"(?i)\b(?:PERFORM|CALL\s+(?:FUNCTION|METHOD|TRANSACTION))\s+'?([A-Za-z_/][\w/]*)"),

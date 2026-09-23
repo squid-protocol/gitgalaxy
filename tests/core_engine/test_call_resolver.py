@@ -257,3 +257,37 @@ def test_resolution_rates_rows_per_language_and_repo():
         {"language": "python", "scoped": 1, "unique": 0, "ambiguous": 0, "external": 0, "total": 1},
     ]
     assert resolution_rates({}) == []
+
+
+def test_shared_class_name_prefers_the_callers_own_file():
+    # #3332 found it: zopeneditor's SAM1.cbl and SAM1LIB.cbl both declare
+    # PROGRAM-ID SAM1, and SAM1LIB's own PERFORMs landed in SAM1.cbl.
+    files = [
+        _file("COBOL/SAM1.cbl", "cobol", [_fn("READ-FILE", 5, owner="SAM1")]),
+        _file(
+            "COBOL/SAM1LIB.cbl",
+            "cobol",
+            [_fn("MAIN", 1, owner="SAM1", calls=["READ-FILE"]), _fn("READ-FILE", 9, owner="SAM1")],
+        ),
+    ]
+    row = _site(resolve_calls(files)[0], "READ-FILE")
+    assert (row["step"], row["dst_path"], row["dst_line"]) == ("class", "COBOL/SAM1LIB.cbl", 9)
+
+
+def test_untyped_receiver_with_several_visible_classes_is_ambiguous():
+    # #3332: `self.body.generate()` where the caller's own file defines `generate`
+    # on two classes -- the receiver's type decides, and the engine cannot know it.
+    files = [
+        _file(
+            "nodes.py",
+            "python",
+            [
+                _fn("generate", 3, owner="A"),
+                _fn("generate", 9, owner="B"),
+                _fn("run", 20, owner="C", calls=["generate"], quals={"generate": ["self.body"]}),
+            ],
+            [{"name": n, "inheritance": []} for n in "ABC"],
+        )
+    ]
+    row = _site(resolve_calls(files)[0], "generate")
+    assert (row["step"], row["resolution"]) == ("receiver", "ambiguous")

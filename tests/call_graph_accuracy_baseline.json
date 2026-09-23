@@ -1,0 +1,101 @@
+{
+  "c": {
+    "fn": 557,
+    "fp": 84,
+    "matched_functions": 2559,
+    "parse_failures": 0,
+    "precision_pct": 99.3,
+    "recall_pct": 95.7,
+    "tp": 12501
+  },
+  "cpp": {
+    "fn": 513,
+    "fp": 1045,
+    "matched_functions": 1280,
+    "parse_failures": 0,
+    "precision_pct": 87.4,
+    "recall_pct": 93.4,
+    "tp": 7257
+  },
+  "csharp": {
+    "fn": 76,
+    "fp": 306,
+    "matched_functions": 650,
+    "parse_failures": 0,
+    "precision_pct": 89.5,
+    "recall_pct": 97.2,
+    "tp": 2612
+  },
+  "go": {
+    "fn": 515,
+    "fp": 652,
+    "matched_functions": 1294,
+    "parse_failures": 0,
+    "precision_pct": 90.3,
+    "recall_pct": 92.2,
+    "tp": 6061
+  },
+  "java": {
+    "fn": 60,
+    "fp": 60,
+    "matched_functions": 735,
+    "parse_failures": 0,
+    "precision_pct": 96.9,
+    "recall_pct": 96.9,
+    "tp": 1886
+  },
+  "javascript": {
+    "fn": 120,
+    "fp": 559,
+    "matched_functions": 619,
+    "parse_failures": 0,
+    "precision_pct": 78.4,
+    "recall_pct": 94.4,
+    "tp": 2028
+  },
+  "php": {
+    "fn": 97,
+    "fp": 766,
+    "matched_functions": 1548,
+    "parse_failures": 0,
+    "precision_pct": 88.1,
+    "recall_pct": 98.3,
+    "tp": 5647
+  },
+  "python": {
+    "fn": 1161,
+    "fp": 861,
+    "matched_functions": 4045,
+    "parse_failures": 0,
+    "precision_pct": 92.1,
+    "recall_pct": 89.7,
+    "tp": 10069
+  },
+  "ruby": {
+    "fn": 660,
+    "fp": 38,
+    "matched_functions": 338,
+    "parse_failures": 0,
+    "precision_pct": 89.8,
+    "recall_pct": 33.7,
+    "tp": 336
+  },
+  "rust": {
+    "fn": 1042,
+    "fp": 1092,
+    "matched_functions": 1774,
+    "parse_failures": 0,
+    "precision_pct": 84.9,
+    "recall_pct": 85.5,
+    "tp": 6150
+  },
+  "typescript": {
+    "fn": 546,
+    "fp": 1253,
+    "matched_functions": 2847,
+    "parse_failures": 0,
+    "precision_pct": 80.7,
+    "recall_pct": 90.6,
+    "tp": 5241
+  }
+}

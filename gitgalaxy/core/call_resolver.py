@@ -203,13 +203,16 @@ class _Definition:
 class _Set:
     """One filtered candidate list with the lookups the ladder needs, built once."""
 
-    __slots__ = ("_prefix", "by_dir", "by_path", "defs", "n_paths")
+    __slots__ = ("_prefix", "by_dir", "by_path", "defs", "n_paths", "owners")
 
     def __init__(self, defs: list[_Definition]) -> None:
         self.defs = defs
         self.by_path: dict[str, _Definition] = {}  # path -> first definition in it
         self.by_dir: dict[str, list[_Definition]] = {}
+        # path -> the distinct owners (classes; None = free) defining the name there
+        self.owners: dict[str, set[Optional[str]]] = {}
         for d in defs:
+            self.owners.setdefault(d.path, set()).add(d.owner_key)
             if d.path not in self.by_path:
                 self.by_path[d.path] = d
                 self.by_dir.setdefault(d.dir, []).append(d)
@@ -249,7 +252,10 @@ class _Bucket:
 
     def __init__(self) -> None:
         self.defs: list[_Definition] = []
-        self.by_owner: dict[str, _Definition] = {}
+        # owner key -> every definition of this name on a class of that name.
+        # Several: two programs can share a PROGRAM-ID (zopeneditor's SAM1 and
+        # SAM1LIB), two packages a class name -- `owned()` picks among them.
+        self.by_owner: dict[str, list[_Definition]] = {}
         self._all: Optional[_Set] = None
         self._free: Optional[_Set] = None
         self._methods: Optional[_Set] = None
@@ -257,7 +263,7 @@ class _Bucket:
     def add(self, d: _Definition) -> None:
         self.defs.append(d)
         if d.kind == "function" and d.owner_key is not None:
-            self.by_owner.setdefault(d.owner_key, d)
+            self.by_owner.setdefault(d.owner_key, []).append(d)
 
     @property
     def all(self) -> _Set:
@@ -416,6 +422,32 @@ def _nearest_local(cset: _Set, caller: _File, cache: _Cache) -> Optional[_Defini
     return cache[ck]
 
 
+def _visible_receiver(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, Optional[_Definition]]:
+    """An untyped receiver (`x.save()`): confident only when exactly ONE visible
+    class defines the method -- in the caller's own file, else among the files
+    it imports, else in its own directory. Several classes at the first level
+    that has any (cython's Nodes.py defines `generate_execution_code` on ~40
+    node classes; `self.body.generate_execution_code()` could be any of them)
+    is the ambiguous `receiver` step, with the nearest as its guess (#3332)."""
+
+    def classes(paths) -> int:
+        return len({(p, o) for p in paths for o in cset.owners.get(p, ())})
+
+    own = cset.by_path.get(caller.path)
+    if own is not None:
+        return ("file", own) if classes([caller.path]) == 1 else ("receiver", own)
+    if caller.imported:
+        hit = _nearest_imported(cset, caller, cache)
+        if hit is not None:
+            visible = [p for p in caller.imported if p in cset.owners]
+            return ("import", hit) if classes(visible) == 1 else ("receiver", hit)
+    hit = _nearest_local(cset, caller, cache)
+    if hit is not None:
+        local = [d.path for d in cset.by_dir.get(caller.dir, [])]
+        return ("import", hit) if classes(local) == 1 else ("receiver", hit)
+    return "receiver", _nearest(cset, caller, cache)
+
+
 def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tuple[str, Optional[_Definition]]:
     """Steps file -> import -> unique -> nearest -> tie over an already-filtered set.
 
@@ -426,6 +458,8 @@ def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tup
     """
     if not cset.n_paths:
         return "none", None
+    if visible_only:
+        return _visible_receiver(cset, caller, cache)
     own = cset.by_path.get(caller.path)
     if own is not None:
         return "file", own
@@ -433,11 +467,6 @@ def _ladder(cset: _Set, caller: _File, visible_only: bool, cache: _Cache) -> tup
         hit = _nearest_imported(cset, caller, cache)
         if hit is not None:
             return "import", hit
-    if visible_only:
-        hit = _nearest_local(cset, caller, cache)
-        if hit is not None:
-            return "import", hit
-        return "receiver", _nearest(cset, caller, cache)
     if cset.n_paths == 1:
         return "unique", cset.defs[0]
     near = _nearest(cset, caller, cache)
@@ -455,11 +484,22 @@ def _resolve_one(
     if bucket is None:
         return "none", None
     by_owner = bucket.by_owner
+
+    def owned(owner_key: str) -> Optional[_Definition]:
+        """The caller's own file's definition on that class, else the nearest one."""
+        defs = by_owner.get(owner_key)
+        if not defs:
+            return None
+        for d in defs:
+            if d.path == caller.path:
+                return d
+        return _nearest_of(defs, caller.parts) or min(defs, key=lambda d: d.path)
+
     ownerless = caller.lang in _OWNERLESS_METHOD_LANGS
 
     if qualifier is None or qualifier == "":
         for owner_key in lineage:
-            d = by_owner.get(owner_key)
+            d = owned(owner_key)
             if d is not None:
                 return "class", d
         # A bare call cannot reach another class's method: only a free
@@ -470,19 +510,19 @@ def _resolve_one(
 
     if qualifier in _SELF_RECEIVERS:
         for owner_key in lineage:
-            d = by_owner.get(owner_key)
+            d = owned(owner_key)
             if d is not None:
                 return "class", d
         return _ladder(bucket.methods, caller, True, cache)
     if qualifier in _SUPER_RECEIVERS:
         for owner_key in lineage[1:]:
-            d = by_owner.get(owner_key)
+            d = owned(owner_key)
             if d is not None:
                 return "class", d
         return "none", None
     head = qualifier.split(".", 1)[0]
     last = qualifier.rsplit(".", 1)[-1]
-    d = by_owner.get(_key(last, caller.lang))
+    d = owned(_key(last, caller.lang))
     if d is not None:
         return "qualified", d
     if head in caller.imported_stems or last in caller.imported_stems or last in caller.imported_dirs:

@@ -196,10 +196,10 @@ nothing else that is gated -- `AtomicInteger` was carrying an unplanted `concurr
 - `docs/<signal>_rule_contract.md` in the api/args/state_mutation shape; the audit table comes
   from `rule_probe.py --compare`.
 - Bless from the clean corpus worktree and scope it before committing:
-  `git show HEAD:tests/golden_master_zero_dep_audit.json > /tmp/old.json`
+  `$PY tests/golden_store.py export --rev HEAD tests/golden_master_zero_dep_audit /tmp/old.json`
   `LANGUAGE_CRUCIBLE_PATH=... $PY tests/tools/crucible_check.py --update --yes` (background,
   first run in a worktree builds two venvs, ~4 min; later runs ~2 min)
-  `$PY tests/tools/bless_scope.py /tmp/old.json tests/golden_master_zero_dep_audit.json`
+  `$PY tests/tools/bless_scope.py /tmp/old.json tests/golden_master_zero_dep_audit`
   -- the leaf-key table must name only the signal and the formulas that read it; a file in
   "newly parsed / newly excluded" means a rule change crossed the aperture's density guard.
 - Gauntlet legs, all in the background: full `pytest tests/`, `ruff_audit --ci`,

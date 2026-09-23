@@ -49,7 +49,7 @@ The load-bearing claims in `README.md`, and where a reader lands if they click t
 |---|---|---|---|
 | Signature-based extraction instead of an AST, and why | `#one-graph-not-five-separate-tools` | [`01-03-the-blast-paradigm`](wiki/01-03-the-blast-paradigm.md), [`03-10-claim-10-ast-vs-heuristic-parsing`](wiki/03-10-claim-10-ast-vs-heuristic-parsing.md) | — (conceptual) |
 | Regex signatures survive adversarial/pathological input | `#proof-not-just-claims` item 1 | [`03-08-claim-8-empirical-validation-of-ast-free-parsing`](wiki/03-08-claim-8-empirical-validation-of-ast-free-parsing.md) | `tests/README.md`, 3,649 regression tests |
-| Correctness on real, uncompilable production code | `#proof-not-just-claims` item 2 | — | `language-crucible`, `tests/golden_master_audit.json` |
+| Correctness on real, uncompilable production code | `#proof-not-just-claims` item 2 | — | `language-crucible`, `tests/golden_master_audit/` |
 | Runs unmodified at real-world scale | `#proof-not-just-claims` item 3 | [`museum-of-code/`](wiki/museum-of-code/index.md) (per-repo teardowns), [`LLM-reports/`](wiki/LLM-reports/index.md) | `gitgalaxy-raw-output` |
 | Measured extraction accuracy vs. Tree-sitter ground truth | `#proof-not-just-claims` item 4 | [`docs/language_status/`](language_status/README.md) | `docs/self_scan/tree_sitter_accuracy_chart.svg` + `_history.csv`, `tests/tree_sitter_accuracy_baseline_*.json` |
 | Multi-signal language detection with provenance, refusal, and repo-context | `#one-graph-not-five-separate-tools` | [`03-11-claim-11-multi-signal-detection`](wiki/03-11-claim-11-multi-signal-detection.md), [`02-05-language-lens`](wiki/02-05-language-lens.md) | `tests/detection_accuracy_baseline.json`, `language-crucible` (contested subset) |

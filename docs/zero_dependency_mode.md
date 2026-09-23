@@ -115,4 +115,4 @@ Rule-based threat detection is unaffected: hardcoded secrets, `--fail-on-secrets
 
 ## For contributors
 
-Zero-dependency output is pinned by its own golden master, `tests/golden_master_zero_dep_audit.json`, checked by the `crucible-audit (zero-dependency)` CI job. `python tests/tools/crucible_check.py` verifies both modes locally. When you add a feature that needs an optional package, add its row here and to the console banner in `galaxyscope.py`. Record a metric you could not compute as `None`, never a placeholder `0`.
+Zero-dependency output is pinned by its own golden master, `tests/golden_master_zero_dep_audit/`, checked by the `crucible-audit (zero-dependency)` CI job. `python tests/tools/crucible_check.py` verifies both modes locally. When you add a feature that needs an optional package, add its row here and to the console banner in `galaxyscope.py`. Record a metric you could not compute as `None`, never a placeholder `0`.

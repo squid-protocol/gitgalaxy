@@ -1,0 +1,161 @@
+{
+  "groups": {
+    "abap/abapGit": {
+      "abap/abapGit/zcl_abapgit_ajson.clas.abap": 11,
+      "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap": 0,
+      "abap/abapGit/zcl_abapgit_objects.clas.abap": 7
+    },
+    "ada/alire": {
+      "ada/alire/alire-directories.adb": 4,
+      "ada/alire/alire-roots.adb": 2,
+      "ada/alire/alire-roots.ads": 1
+    },
+    "ada/functional": {
+      "ada/functional/functional-scoped.ads": 0
+    },
+    "agc_assembly/apollo-11": {
+      "agc_assembly/apollo-11/ALARM_AND_ABORT.agc": 1,
+      "agc_assembly/apollo-11/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc": 1,
+      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 8,
+      "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": 2
+    },
+    "c/doom": {
+      "c/doom/d_main.c": 8,
+      "c/doom/w_wad.c": 2
+    },
+    "c/sqlite": {
+      "c/sqlite/lemon.c": 1
+    },
+    "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/fileio.c": 0,
+      "cobol/gnucobol_internals/numeric.c": 0
+    },
+    "dockerfile/moby/builder/dockerfile": {
+      "dockerfile/moby/builder/dockerfile/evaluator_test.go": 0
+    },
+    "dockerfile/moby/builder/remotecontext/internal/tarsum": {
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 0,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0
+    },
+    "fortran/wrf": {
+      "fortran/wrf/module_configure.F": 4,
+      "fortran/wrf/module_domain.F": 6,
+      "fortran/wrf/module_initialize_real.F": 13,
+      "fortran/wrf/module_physics_init.F": 3,
+      "fortran/wrf/wrf_timeseries.F": 4
+    },
+    "go/core": {
+      "go/core/server.go": 23
+    },
+    "lua/cosmopolitan": {
+      "lua/cosmopolitan/all.lua": 2,
+      "lua/cosmopolitan/api.lua": 4,
+      "lua/cosmopolitan/calls.lua": 0,
+      "lua/cosmopolitan/closure.lua": 0,
+      "lua/cosmopolitan/coroutine.lua": 0,
+      "lua/cosmopolitan/db.lua": 0,
+      "lua/cosmopolitan/errors.lua": 0,
+      "lua/cosmopolitan/events.lua": 0,
+      "lua/cosmopolitan/files.lua": 0,
+      "lua/cosmopolitan/gc.lua": 3,
+      "lua/cosmopolitan/gengc.lua": 0,
+      "lua/cosmopolitan/goto.lua": 0,
+      "lua/cosmopolitan/heavy.lua": 0,
+      "lua/cosmopolitan/locals.lua": 0,
+      "lua/cosmopolitan/main.lua": 0,
+      "lua/cosmopolitan/nextvar.lua": 2,
+      "lua/cosmopolitan/sort.lua": 0,
+      "lua/cosmopolitan/tracegc.lua": 0
+    },
+    "objective-c/worldwideweb": {
+      "objective-c/worldwideweb/Anchor.m": 8,
+      "objective-c/worldwideweb/HText.c": 6,
+      "objective-c/worldwideweb/HyperManager.m": 5
+    },
+    "perl/bugzilla": {
+      "perl/bugzilla/Bug.pm": 83
+    },
+    "perl/exiftool": {
+      "perl/exiftool/ExifTool.pm": 157,
+      "perl/exiftool/exiftool": 21
+    },
+    "perl/mojo": {
+      "perl/mojo/WebSocket.pm": 1
+    },
+    "perl/spamassassin": {
+      "perl/spamassassin/HTML.pm": 1,
+      "perl/spamassassin/Message.pm": 5,
+      "perl/spamassassin/PerMsgStatus.pm": 29,
+      "perl/spamassassin/SpamAssassin.pm": 6
+    },
+    "php/guzzle": {
+      "php/guzzle/Client.php": 4,
+      "php/guzzle/CurlFactory.php": 7,
+      "php/guzzle/CurlMultiHandler.php": 1,
+      "php/guzzle/StreamHandler.php": 13
+    },
+    "php/laravel_core": {
+      "php/laravel_core/Model.php": 19
+    },
+    "php/magento2": {
+      "php/magento2/Mysql.php": 4
+    },
+    "php/symfony": {
+      "php/symfony/Application.php": 47,
+      "php/symfony/ContainerBuilder.php": 44,
+      "php/symfony/Parser.php": 29,
+      "php/symfony/Request.php": 33,
+      "php/symfony/Router.php": 3
+    },
+    "php/wordpress": {
+      "php/wordpress/class-wp-query.php": 2,
+      "php/wordpress/wp-settings.php": 0
+    },
+    "scheme/racket": {
+      "scheme/racket/eval.c": 1,
+      "scheme/racket/fun.c": 1
+    },
+    "yacc/freebsd": {
+      "yacc/freebsd/config.y": 3,
+      "yacc/freebsd/jailparse.y": 0
+    },
+    "zig/bun": {
+      "zig/bun/MimallocArena.zig": 7,
+      "zig/bun/Parser.zig": 15
+    },
+    "zig/tigerbeetle": {
+      "zig/tigerbeetle/aof.zig": 0,
+      "zig/tigerbeetle/build.zig": 3,
+      "zig/tigerbeetle/cluster.zig": 0,
+      "zig/tigerbeetle/copyhound.zig": 0,
+      "zig/tigerbeetle/counting_allocator.zig": 1,
+      "zig/tigerbeetle/state_machine.zig": 0
+    },
+    "zig/zig": {
+      "zig/zig/Compilation.zig": 1,
+      "zig/zig/InternPool.zig": 5,
+      "zig/zig/Type.zig": 1,
+      "zig/zig/main.zig": 1
+    },
+    "zig/zls": {
+      "zig/zls/DocumentScope.zig": 1,
+      "zig/zls/DocumentStore.zig": 9,
+      "zig/zls/Server.zig": 33,
+      "zig/zls/analysis.zig": 20,
+      "zig/zls/ast.zig": 6,
+      "zig/zls/config_gen.zig": 4,
+      "zig/zls/print_ast.zig": 1
+    },
+    "zig/zls/mach": {
+      "zig/zls/mach/Core.zig": 2,
+      "zig/zls/mach/StringTable.zig": 1,
+      "zig/zls/mach/graph.zig": 9,
+      "zig/zls/mach/module.zig": 4
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "6. Contextual Mitigations & Amplifications",
+    "Manual Memory Allocation (Weighted View)"
+  ]
+}

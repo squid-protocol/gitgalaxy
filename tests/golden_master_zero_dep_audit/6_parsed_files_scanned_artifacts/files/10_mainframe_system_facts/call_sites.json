@@ -1,0 +1,6241 @@
+{
+  "groups": {
+    "cobol/aws-mainframe-modernization-carddemo": {
+      "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": [
+        {
+          "Form": "literal",
+          "Line": 173,
+          "Operand": "CEE3ABD",
+          "Target": "CEE3ABD",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": [
+        {
+          "Form": "literal",
+          "Line": 158,
+          "Operand": "CEE3ABD",
+          "Target": "CEE3ABD",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": [
+        {
+          "Form": "literal",
+          "Line": 158,
+          "Operand": "CEE3ABD",
+          "Target": "CEE3ABD",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": [
+        {
+          "Form": "literal",
+          "Line": 632,
+          "Operand": "CEE3ABD",
+          "Target": "CEE3ABD",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": [
+        {
+          "Form": "literal",
+          "Line": 158,
+          "Operand": "CEE3ABD",
+          "Target": "CEE3ABD",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN01C.cbl": [
+        {
+          "Form": "literal",
+          "Line": 471,
+          "Operand": "CEE3ABD",
+          "Target": "CEE3ABD",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": [
+        {
+          "Form": "literal",
+          "Line": 711,
+          "Operand": "CEE3ABD",
+          "Target": "CEE3ABD",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": [
+        {
+          "Form": "literal",
+          "Line": 630,
+          "Operand": "CEE3ABD",
+          "Target": "CEE3ABD",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 964,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "WS-COMMAREA",
+          "COMMAREA Length": "LENGTH OF WS-COMMAREA",
+          "Form": "identifier",
+          "Line": 1023,
+          "Operand": "LIT-THISTRANID",
+          "Target": "CAUP",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 349,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "WS-COMMAREA",
+          "COMMAREA Length": "LENGTH OF WS-COMMAREA",
+          "Form": "identifier",
+          "Line": 402,
+          "Operand": "LIT-THISTRANID",
+          "Target": "CAVW",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 107,
+          "Operand": "WS-TRANID",
+          "Target": "CA00",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 142,
+          "Operand": "CDEMO-ADMIN-OPT-PGMNAME",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 165,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COBIL00C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 146,
+          "Operand": "WS-TRANID",
+          "Target": "CB00",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 281,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COCRDLIC.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 402,
+          "Operand": "LIT-MENUPGM",
+          "Target": "COMEN01C",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 538,
+          "Operand": "CCARD-NEXT-PROG",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 566,
+          "Operand": "CCARD-NEXT-PROG",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "WS-COMMAREA",
+          "COMMAREA Length": "LENGTH OF WS-COMMAREA",
+          "Form": "identifier",
+          "Line": 615,
+          "Operand": "LIT-THISTRANID",
+          "Target": "CCLI",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COCRDSLC.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 331,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "WS-COMMAREA",
+          "COMMAREA Length": "LENGTH OF WS-COMMAREA",
+          "Form": "identifier",
+          "Line": 402,
+          "Operand": "LIT-THISTRANID",
+          "Target": "CCDL",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COCRDUPC.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 473,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "WS-COMMAREA",
+          "COMMAREA Length": "LENGTH OF WS-COMMAREA",
+          "Form": "identifier",
+          "Line": 554,
+          "Operand": "LIT-THISTRANID",
+          "Target": "CCUP",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COMEN01C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 107,
+          "Operand": "WS-TRANID",
+          "Target": "CM00",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 152,
+          "Operand": "CDEMO-MENU-OPT-PGMNAME",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 175,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CORPT00C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 199,
+          "Operand": "WS-TRANID",
+          "Target": "CR00",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "Form": "literal",
+          "Line": 392,
+          "Operand": "CSUTLDTC",
+          "Target": "CSUTLDTC",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 412,
+          "Operand": "CSUTLDTC",
+          "Target": "CSUTLDTC",
+          "Verb": "CALL"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 548,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 587,
+          "Operand": "WS-TRANID",
+          "Target": "CR00",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COSGN00C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "COMMAREA Length": "LENGTH OF CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 98,
+          "Operand": "WS-TRANID",
+          "Target": "CC00",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "literal",
+          "Line": 231,
+          "Operand": "COADM01C",
+          "Target": "COADM01C",
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "literal",
+          "Line": 236,
+          "Operand": "COMEN01C",
+          "Target": "COMEN01C",
+          "Verb": "XCTL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COTRN00C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 138,
+          "Operand": "WS-TRANID",
+          "Target": "CT00",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 192,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 518,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COTRN01C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 136,
+          "Operand": "WS-TRANID",
+          "Target": "CT01",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 205,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COTRN02C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 156,
+          "Operand": "WS-TRANID",
+          "Target": "CT02",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "Form": "literal",
+          "Line": 393,
+          "Operand": "CSUTLDTC",
+          "Target": "CSUTLDTC",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 413,
+          "Operand": "CSUTLDTC",
+          "Target": "CSUTLDTC",
+          "Verb": "CALL"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 508,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 530,
+          "Operand": "WS-TRANID",
+          "Target": "CT02",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COUSR00C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 141,
+          "Operand": "WS-TRANID",
+          "Target": "CU00",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 196,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 206,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 514,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COUSR01C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 107,
+          "Operand": "WS-TRANID",
+          "Target": "CU01",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 175,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COUSR02C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 135,
+          "Operand": "WS-TRANID",
+          "Target": "CU02",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 258,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COUSR03C.cbl": [
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 134,
+          "Operand": "WS-TRANID",
+          "Target": "CU03",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "CARDDEMO-COMMAREA",
+          "Form": "identifier",
+          "Line": 205,
+          "Operand": "CDEMO-TO-PROGRAM",
+          "Target": null,
+          "Verb": "XCTL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CSUTLDPY.cpy": [
+        {
+          "Form": "literal",
+          "Line": 293,
+          "Operand": "CSUTLDTC",
+          "Target": "CSUTLDTC",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": [
+        {
+          "Form": "literal",
+          "Line": 116,
+          "Operand": "CEEDAYS",
+          "Target": "CEEDAYS",
+          "Verb": "CALL"
+        }
+      ]
+    },
+    "cobol/che-che4z_lsp_project_fixtures": {
+      "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": [
+        {
+          "Form": "literal",
+          "Line": 57,
+          "Operand": "TRTMNT",
+          "Target": "TRTMNT",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 58,
+          "Operand": "MODULE-NAME-1",
+          "Target": "STRLTH",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 59,
+          "Operand": "XCTL1",
+          "Target": "DTEVAL",
+          "Verb": "XCTL"
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": [
+        {
+          "Form": "literal",
+          "Line": 21,
+          "Operand": "SUB1",
+          "Target": "SUB1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 22,
+          "Operand": "SUB2",
+          "Target": "SUB2",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 23,
+          "Operand": "SUB3",
+          "Target": "SUB3",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": [
+        {
+          "Form": "identifier",
+          "Line": 21,
+          "Operand": "SUBNAME",
+          "Target": null,
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 22,
+          "Operand": "SUBNAME",
+          "Target": null,
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 23,
+          "Operand": "SUBNAME",
+          "Target": null,
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 24,
+          "Operand": "SUBNAME",
+          "Target": null,
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/cobol-idms_IDMSSMPL.cbl": [
+        {
+          "Form": "identifier",
+          "Line": 40,
+          "Operand": "LMNDKU-XW1",
+          "Target": null,
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 47,
+          "Operand": "LMNDKU-XW1",
+          "Target": null,
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_lsp_project_fixtures/cobol-vanila_IDMSSMPL.cbl": [
+        {
+          "Form": "identifier",
+          "Line": 40,
+          "Operand": "LMNDKU-XW1",
+          "Target": null,
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 47,
+          "Operand": "LMNDKU-XW1",
+          "Target": null,
+          "Verb": "CALL"
+        }
+      ]
+    },
+    "cobol/che-che4z_nist_ccvs85": {
+      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 310,
+          "Operand": "IC102A",
+          "Target": "IC102A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 323,
+          "Operand": "IC102A",
+          "Target": "IC102A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 337,
+          "Operand": "IC102A",
+          "Target": "IC102A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 349,
+          "Operand": "IC102A",
+          "Target": "IC102A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 364,
+          "Operand": "IC102A",
+          "Target": "IC102A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 319,
+          "Operand": "IC105A",
+          "Target": "IC105A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 335,
+          "Operand": "IC105A",
+          "Target": "IC105A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 351,
+          "Operand": "IC105A",
+          "Target": "IC105A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 368,
+          "Operand": "IC105A",
+          "Target": "IC105A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 410,
+          "Operand": "IC104A",
+          "Target": "IC104A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1064.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 318,
+          "Operand": "IC107A",
+          "Target": "IC107A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1084.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 313,
+          "Operand": "IC109A",
+          "Target": "IC109A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1094.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 58,
+          "Operand": "IC110A",
+          "Target": "IC110A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 60,
+          "Operand": "IC111A",
+          "Target": "IC111A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1144.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 333,
+          "Operand": "IC115A",
+          "Target": "IC115A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 354,
+          "Operand": "IC115A",
+          "Target": "IC115A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 378,
+          "Operand": "IC115A",
+          "Target": "IC115A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 383,
+          "Operand": "IC115A",
+          "Target": "IC115A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 436,
+          "Operand": "IC115A",
+          "Target": "IC115A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 444,
+          "Operand": "IC115A",
+          "Target": "IC115A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 448,
+          "Operand": "IC115A",
+          "Target": "IC115A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 461,
+          "Operand": "IC115A",
+          "Target": "IC115A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1164.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 317,
+          "Operand": "IC117M",
+          "Target": "IC117M",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1174.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 58,
+          "Operand": "IC118M",
+          "Target": "IC118M",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2014.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 319,
+          "Operand": "IC202A",
+          "Target": "IC202A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 333,
+          "Operand": "ID1",
+          "Target": "IC202A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 348,
+          "Operand": "ID2",
+          "Target": null,
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 363,
+          "Operand": "ID2",
+          "Target": null,
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 383,
+          "Operand": "IC202A",
+          "Target": "IC202A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 425,
+          "Operand": "ID1",
+          "Target": "IC202A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 469,
+          "Operand": "ID1",
+          "Target": "IC202A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 522,
+          "Operand": "IC202A",
+          "Target": "IC202A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 537,
+          "Operand": "IC202A",
+          "Target": "IC202A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 552,
+          "Operand": "ID1",
+          "Target": "IC202A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 567,
+          "Operand": "ID1",
+          "Target": "IC202A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2034.2.cbl": [
+        {
+          "Form": "identifier",
+          "Line": 317,
+          "Operand": "ID1",
+          "Target": "IC204A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 367,
+          "Operand": "ID1",
+          "Target": "IC204A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 415,
+          "Operand": "IC204A",
+          "Target": "IC204A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 420,
+          "Operand": "IC204A",
+          "Target": "IC204A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 468,
+          "Operand": "IC204A",
+          "Target": "IC204A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 473,
+          "Operand": "ID1",
+          "Target": "IC204A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 523,
+          "Operand": "IC204A",
+          "Target": "IC204A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 529,
+          "Operand": "ID1",
+          "Target": "IC204A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 596,
+          "Operand": "IC205A",
+          "Target": "IC205A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 622,
+          "Operand": "ID1",
+          "Target": "IC204A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2054.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 50,
+          "Operand": "IC206A",
+          "Target": "IC206A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 51,
+          "Operand": "IC206A",
+          "Target": "IC206A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 52,
+          "Operand": "IC206A",
+          "Target": "IC206A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 58,
+          "Operand": "IC206A",
+          "Target": "IC206A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": [
+        {
+          "Form": "identifier",
+          "Line": 315,
+          "Operand": "ID1",
+          "Target": "IC208A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 298,
+          "Operand": "IC210A",
+          "Target": "IC210A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2104.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 35,
+          "Operand": "IC211A",
+          "Target": "IC211A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 39,
+          "Operand": "IC212A",
+          "Target": "IC212A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 298,
+          "Operand": "IC214A",
+          "Target": "IC214A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 312,
+          "Operand": "IC215A",
+          "Target": "IC215A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 304,
+          "Operand": "IC217A",
+          "Target": "IC217A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 341,
+          "Operand": "IC224A-1",
+          "Target": "IC224A-1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 352,
+          "Operand": "ID1",
+          "Target": "IC224A-1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 363,
+          "Operand": "ID2",
+          "Target": null,
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 374,
+          "Operand": "ID2",
+          "Target": null,
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 396,
+          "Operand": "IC224A-1",
+          "Target": "IC224A-1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 412,
+          "Operand": "IC224A-1",
+          "Target": "IC224A-1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 430,
+          "Operand": "ID1",
+          "Target": "IC224A-1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 453,
+          "Operand": "IC224A-1",
+          "Target": "IC224A-1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 472,
+          "Operand": "IC224A-1",
+          "Target": "IC224A-1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 490,
+          "Operand": "ID1",
+          "Target": "IC224A-1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 508,
+          "Operand": "ID1",
+          "Target": "IC224A-1",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 325,
+          "Operand": "IC226A-1",
+          "Target": "IC226A-1",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 327,
+          "Operand": "IC228A-1",
+          "Target": "IC228A-1",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 382,
+          "Operand": "IC233A-1",
+          "Target": "IC233A-1",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 342,
+          "Operand": "IC234A-1",
+          "Target": "IC234A-1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 479,
+          "Operand": "IC234A-2",
+          "Target": "IC234A-2",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 598,
+          "Operand": "IC234A-3",
+          "Target": "IC234A-3",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 306,
+          "Operand": "IC237A-1",
+          "Target": "IC237A-1",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 44,
+          "Operand": "NESTEDPROG",
+          "Target": "NESTEDPROG",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 49,
+          "Operand": "FIC401M",
+          "Target": "FIC401M",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBIC14.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 56,
+          "Operand": "OBIC2A",
+          "Target": "OBIC2A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 69,
+          "Operand": "OBIC3A",
+          "Target": "OBIC3A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 71,
+          "Operand": "OBIC3A",
+          "Target": "OBIC3A",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": [
+        {
+          "Form": "literal",
+          "Line": 220,
+          "Operand": "OBIC3A",
+          "Target": "OBIC3A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 261,
+          "Operand": "OBIC3A",
+          "Target": "OBIC3A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 264,
+          "Operand": "OBIC3A",
+          "Target": "OBIC3A",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 301,
+          "Operand": "OBIC3A",
+          "Target": "OBIC3A",
+          "Verb": "CALL"
+        }
+      ]
+    },
+    "cobol/cics-banking-sample-application-cbsa": {
+      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": [
+        {
+          "Form": "literal",
+          "Line": 1442,
+          "Operand": "CEEGMT",
+          "Target": "CEEGMT",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 1458,
+          "Operand": "CEEDATM",
+          "Target": "CEEDATM",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": [
+        {
+          "Form": "literal",
+          "Line": 186,
+          "Operand": "OMEN",
+          "Target": "OMEN",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "WS-COMM-AREA",
+          "COMMAREA Length": "32",
+          "Form": "literal",
+          "Line": 248,
+          "Operand": "OCAC",
+          "Target": "OCAC",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 309,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 416,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "SUBPGM-PARMS",
+          "Form": "literal",
+          "Line": 775,
+          "Operand": "CREACC",
+          "Target": "CREACC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 834,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1027,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1104,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1182,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1260,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": [
+        {
+          "Form": "literal",
+          "Line": 178,
+          "Operand": "OMEN",
+          "Target": "OMEN",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "WS-COMM-AREA",
+          "COMMAREA Length": "248",
+          "Form": "literal",
+          "Line": 225,
+          "Operand": "OCCA",
+          "Target": "OCCA",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 280,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 389,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "INQACCCU-COMMAREA",
+          "Form": "identifier",
+          "Line": 435,
+          "Operand": "INQACCCU-PROGRAM",
+          "Target": "INQACCCU",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 490,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 678,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 754,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 833,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 912,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl": [
+        {
+          "Form": "literal",
+          "Line": 208,
+          "Operand": "OMEN",
+          "Target": "OMEN",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "WS-COMM-AREA",
+          "Form": "literal",
+          "Line": 249,
+          "Operand": "OCCS",
+          "Target": "OCCS",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "WS-COMM-AREA",
+          "COMMAREA Length": "248",
+          "Form": "literal",
+          "Line": 276,
+          "Operand": "OCCS",
+          "Target": "OCCS",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 331,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 462,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 557,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "SUBPGM-PARMS",
+          "Form": "literal",
+          "Line": 976,
+          "Operand": "CRECUST",
+          "Target": "CRECUST",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1031,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1181,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1264,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1343,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1422,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1501,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1581,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": [
+        {
+          "Form": "literal",
+          "Line": 201,
+          "Operand": "OMEN",
+          "Target": "OMEN",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "WS-COMM-AREA",
+          "COMMAREA Length": "21",
+          "Form": "literal",
+          "Line": 263,
+          "Operand": "OCRA",
+          "Target": "OCRA",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 318,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 425,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "SUBPGM-PARMS",
+          "Form": "literal",
+          "Line": 511,
+          "Operand": "DBCRFUN",
+          "Target": "DBCRFUN",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 566,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 705,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 780,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 856,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 934,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": [
+        {
+          "Form": "literal",
+          "Line": 213,
+          "Operand": "OMEN",
+          "Target": "OMEN",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "WS-COMM-AREA",
+          "COMMAREA Length": "102",
+          "Form": "literal",
+          "Line": 295,
+          "Operand": "ODAC",
+          "Target": "ODAC",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 350,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 481,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "INQACC-COMMAREA",
+          "Form": "literal",
+          "Line": 553,
+          "Operand": "INQACC",
+          "Target": "INQACC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 608,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "PARMS-SUBPGM",
+          "Form": "literal",
+          "Line": 712,
+          "Operand": "DELACC",
+          "Target": "DELACC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 883,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 963,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1039,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1118,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": [
+        {
+          "Form": "literal",
+          "Line": 233,
+          "Operand": "OMEN",
+          "Target": "OMEN",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "WS-COMM-AREA",
+          "COMMAREA Length": "266",
+          "Form": "literal",
+          "Line": 326,
+          "Operand": "ODCS",
+          "Target": "ODCS",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 381,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 579,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 654,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "INQCUST-COMMAREA",
+          "Form": "literal",
+          "Line": 833,
+          "Operand": "INQCUST",
+          "Target": "INQCUST",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 888,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "DELCUS-COMMAREA",
+          "Form": "literal",
+          "Line": 969,
+          "Operand": "DELCUS",
+          "Target": "DELCUS",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1024,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "UPDCUST-COMMAREA",
+          "Form": "literal",
+          "Line": 1155,
+          "Operand": "UPDCUST",
+          "Target": "UPDCUST",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1210,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1467,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1545,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1624,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1726,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1810,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1891,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": [
+        {
+          "Form": "literal",
+          "Line": 198,
+          "Operand": "OMEN",
+          "Target": "OMEN",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "WS-COMMAREA",
+          "COMMAREA Length": "29",
+          "Form": "literal",
+          "Line": 247,
+          "Operand": "OTFN",
+          "Target": "OTFN",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 302,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 411,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "SUBPGM-PARMS",
+          "Form": "literal",
+          "Line": 496,
+          "Operand": "XFRFUN",
+          "Target": "XFRFUN",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 551,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 728,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 803,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 879,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 957,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1UAC.cbl": [
+        {
+          "Form": "literal",
+          "Line": 222,
+          "Operand": "OMEN",
+          "Target": "OMEN",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "WS-COMM-AREA",
+          "COMMAREA Length": "99",
+          "Form": "literal",
+          "Line": 295,
+          "Operand": "OUAC",
+          "Target": "OUAC",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 350,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 474,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "Form": "literal",
+          "Line": 767,
+          "Operand": "INQACC",
+          "Target": "INQACC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 822,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "Form": "literal",
+          "Line": 954,
+          "Operand": "UPDACC",
+          "Target": "UPDACC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1009,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1131,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1208,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1285,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1364,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNKMENU.cbl": [
+        {
+          "COMMAREA": "COMMUNICATION-AREA",
+          "COMMAREA Length": "1",
+          "Form": "literal",
+          "Line": 170,
+          "Operand": "OMEN",
+          "Target": "OMEN",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 225,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 337,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "Form": "literal",
+          "Line": 387,
+          "Operand": "ODCS",
+          "Target": "ODCS",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 441,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "Form": "literal",
+          "Line": 459,
+          "Operand": "ODAC",
+          "Target": "ODAC",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 513,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "Form": "literal",
+          "Line": 532,
+          "Operand": "OCCS",
+          "Target": "OCCS",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 586,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "Form": "literal",
+          "Line": 605,
+          "Operand": "OCAC",
+          "Target": "OCAC",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 659,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "Form": "literal",
+          "Line": 678,
+          "Operand": "OUAC",
+          "Target": "OUAC",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 732,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "Form": "literal",
+          "Line": 751,
+          "Operand": "OCRA",
+          "Target": "OCRA",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 805,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "Form": "literal",
+          "Line": 824,
+          "Operand": "OTFN",
+          "Target": "OTFN",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 878,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "Form": "literal",
+          "Line": 898,
+          "Operand": "OCCA",
+          "Target": "OCCA",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 952,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1035,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1111,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1189,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1268,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY1.cbl": [
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 180,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY2.cbl": [
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 179,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY3.cbl": [
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 179,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY4.cbl": [
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 180,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY5.cbl": [
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 179,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": [
+        {
+          "COMMAREA": "INQCUST-COMMAREA",
+          "Form": "literal",
+          "Line": 304,
+          "Operand": "INQCUST",
+          "Target": "INQCUST",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 508,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 586,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 674,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 751,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1055,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "INQACCCU-COMMAREA",
+          "Form": "literal",
+          "Line": 1088,
+          "Operand": "INQACCCU",
+          "Target": "INQACCCU",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": [
+        {
+          "Form": "identifier",
+          "Line": 640,
+          "Operand": "WS-RUN-TRANSID",
+          "Target": null,
+          "Verb": "RUN TRANSID"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1308,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "Form": "literal",
+          "Line": 1437,
+          "Operand": "CEEDAYS",
+          "Target": "CEEDAYS",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 1451,
+          "Operand": "CEELOCT",
+          "Target": "CEELOCT",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": [
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 620,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 807,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DELACC.cbl": [
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 603,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": [
+        {
+          "COMMAREA": "INQCUST-COMMAREA",
+          "Form": "identifier",
+          "Line": 260,
+          "Operand": "INQCUST-PROGRAM",
+          "Target": "INQCUST",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "DELACC-COMMAREA",
+          "Form": "literal",
+          "Line": 312,
+          "Operand": "DELACC",
+          "Target": "DELACC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "INQACCCU-COMMAREA",
+          "Form": "literal",
+          "Line": 334,
+          "Operand": "INQACCCU",
+          "Target": "INQACCCU",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 439,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 565,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 717,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQACC.cbl": [
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 321,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 401,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 516,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 738,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 810,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 924,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cbl": [
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 321,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 424,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 563,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 794,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "INQCUST-COMMAREA",
+          "Form": "literal",
+          "Line": 851,
+          "Operand": "INQCUST",
+          "Target": "INQCUST",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": [
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 406,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 528,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": [
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 364,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 463,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 573,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 664,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 737,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 813,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 881,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1165,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1262,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1341,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1459,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1541,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1701,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ABNDINFO-REC",
+          "Form": "identifier",
+          "Line": 1873,
+          "Operand": "WS-ABEND-PGM",
+          "Target": "ABNDPROC",
+          "Verb": "LINK"
+        }
+      ]
+    },
+    "cobol/cics-genapp": {
+      "cobol/cics-genapp/lgacdb01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "225",
+          "Form": "identifier",
+          "Line": 174,
+          "Operand": "LGACVS01",
+          "Target": "LGACVS01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CDB2AREA",
+          "COMMAREA Length": "32500",
+          "Form": "identifier",
+          "Line": 186,
+          "Operand": "LGACDB02",
+          "Target": "LGACDB02",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 308,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 316,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 322,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgacdb02.cbl": [
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 205,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 213,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 219,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgacus01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "32500",
+          "Form": "identifier",
+          "Line": 134,
+          "Operand": "LGACDB01",
+          "Target": "LGACDB01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 159,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 167,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 173,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgacvs01.cbl": [
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 102,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 109,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 115,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgapdb01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "32500",
+          "Form": "identifier",
+          "Line": 243,
+          "Operand": "LGAPVS01",
+          "Target": "LGAPVS01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 575,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 583,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 589,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgapol01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "32500",
+          "Form": "identifier",
+          "Line": 121,
+          "Operand": "LGAPDB01",
+          "Target": "LGAPDB01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 149,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 157,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 163,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgapvs01.cbl": [
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 169,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 176,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 182,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgdpdb01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "32500",
+          "Form": "identifier",
+          "Line": 168,
+          "Operand": "LGDPVS01",
+          "Target": "LGDPVS01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 225,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 233,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 239,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgdpol01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "32500",
+          "Form": "identifier",
+          "Line": 141,
+          "Operand": "LGDPDB01",
+          "Target": "LGDPDB01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 166,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 174,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 180,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgdpvs01.cbl": [
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 113,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 120,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 126,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgicdb01.cbl": [
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 225,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 233,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 239,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgicus01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "32500",
+          "Form": "identifier",
+          "Line": 122,
+          "Operand": "LGICDB01",
+          "Target": "LGICDB01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 146,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 154,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 160,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgipdb01.cbl": [
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 1010,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 1018,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 1024,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgipol01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "32500",
+          "Form": "identifier",
+          "Line": 91,
+          "Operand": "LGIPDB01",
+          "Target": "LGIPDB01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 119,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 127,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 133,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgtestc1.cbl": [
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 89,
+          "Operand": "LGICUS01",
+          "Target": "LGICUS01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 128,
+          "Operand": "LGACUS01",
+          "Target": "LGACUS01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 151,
+          "Operand": "LGICUS01",
+          "Target": "LGICUS01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 190,
+          "Operand": "LGUCUS01",
+          "Target": "LGUCUS01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "Form": "literal",
+          "Line": 231,
+          "Operand": "SSC1",
+          "Target": "SSC1",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "Form": "literal",
+          "Line": 254,
+          "Operand": "SSC1",
+          "Target": "SSC1",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/cics-genapp/lgtestp1.cbl": [
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 72,
+          "Operand": "LGIPOL01",
+          "Target": "LGIPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 115,
+          "Operand": "LGAPOL01",
+          "Target": "LGAPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 139,
+          "Operand": "LGDPOL01",
+          "Target": "LGDPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 173,
+          "Operand": "LGIPOL01",
+          "Target": "LGIPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 216,
+          "Operand": "LGUPOL01",
+          "Target": "LGUPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "Form": "literal",
+          "Line": 258,
+          "Operand": "SSP1",
+          "Target": "SSP1",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "Form": "literal",
+          "Line": 281,
+          "Operand": "SSP1",
+          "Target": "SSP1",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/cics-genapp/lgtestp2.cbl": [
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 67,
+          "Operand": "LGIPOL01",
+          "Target": "LGIPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 105,
+          "Operand": "LGAPOL01",
+          "Target": "LGAPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 129,
+          "Operand": "LGDPOL01",
+          "Target": "LGDPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 159,
+          "Operand": "LGIPOL01",
+          "Target": "LGIPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 198,
+          "Operand": "LGUPOL01",
+          "Target": "LGUPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "Form": "literal",
+          "Line": 240,
+          "Operand": "SSP2",
+          "Target": "SSP2",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "Form": "literal",
+          "Line": 263,
+          "Operand": "SSP2",
+          "Target": "SSP2",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/cics-genapp/lgtestp3.cbl": [
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 70,
+          "Operand": "LGIPOL01",
+          "Target": "LGIPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 106,
+          "Operand": "LGAPOL01",
+          "Target": "LGAPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 129,
+          "Operand": "LGDPOL01",
+          "Target": "LGDPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 159,
+          "Operand": "LGIPOL01",
+          "Target": "LGIPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 196,
+          "Operand": "LGUPOL01",
+          "Target": "LGUPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "Form": "literal",
+          "Line": 239,
+          "Operand": "SSP3",
+          "Target": "SSP3",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "Form": "literal",
+          "Line": 262,
+          "Operand": "SSP3",
+          "Target": "SSP3",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/cics-genapp/lgtestp4.cbl": [
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 122,
+          "Operand": "LGIPOL01",
+          "Target": "LGIPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 178,
+          "Operand": "LGAPOL01",
+          "Target": "LGAPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "COMMAREA Length": "32500",
+          "Form": "literal",
+          "Line": 201,
+          "Operand": "LGDPOL01",
+          "Target": "LGDPOL01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "Form": "literal",
+          "Line": 258,
+          "Operand": "SSP4",
+          "Target": "SSP4",
+          "Verb": "RETURN TRANSID"
+        },
+        {
+          "COMMAREA": "COMM-AREA",
+          "Form": "literal",
+          "Line": 281,
+          "Operand": "SSP4",
+          "Target": "SSP4",
+          "Verb": "RETURN TRANSID"
+        }
+      ],
+      "cobol/cics-genapp/lgucdb01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "225",
+          "Form": "identifier",
+          "Line": 136,
+          "Operand": "LGUCVS01",
+          "Target": "LGUCVS01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 202,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 210,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 216,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgucus01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "32500",
+          "Form": "identifier",
+          "Line": 128,
+          "Operand": "LGUCDB01",
+          "Target": "LGUCDB01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 152,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 160,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 166,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgucvs01.cbl": [
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 117,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 124,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 130,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgupdb01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "225",
+          "Form": "identifier",
+          "Line": 209,
+          "Operand": "LGUPVS01",
+          "Target": "LGUPVS01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 515,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 523,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 529,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgupol01.cbl": [
+        {
+          "COMMAREA": "DFHCOMMAREA",
+          "COMMAREA Length": "32500",
+          "Form": "identifier",
+          "Line": 157,
+          "Operand": "LGUPDB01",
+          "Target": "LGUPDB01",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 181,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 189,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 195,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgupvs01.cbl": [
+        {
+          "COMMAREA": "ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF ERROR-MSG",
+          "Form": "literal",
+          "Line": 187,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 194,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        },
+        {
+          "COMMAREA": "CA-ERROR-MSG",
+          "COMMAREA Length": "LENGTH OF CA-ERROR-MSG",
+          "Form": "literal",
+          "Line": 200,
+          "Operand": "LGSTSQ",
+          "Target": "LGSTSQ",
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-genapp/lgwebst5.cbl": [
+        {
+          "Form": "literal",
+          "Line": 761,
+          "Operand": "SSST",
+          "Target": "SSST",
+          "Verb": "START TRANSID"
+        }
+      ]
+    },
+    "cobol/cobol-check": {
+      "cobol/cobol-check/src_main_cobol_MOCK.CBL": [
+        {
+          "Form": "literal",
+          "Line": 95,
+          "Operand": "PROG1",
+          "Target": "PROG1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 102,
+          "Operand": "MYCOBOL",
+          "Target": "MYCOBOL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 113,
+          "Operand": "MYCOBOL",
+          "Target": "MYCOBOL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 123,
+          "Operand": "VALUE-2",
+          "Target": null,
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 124,
+          "Operand": "VALUE-2",
+          "Target": null,
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 131,
+          "Operand": "PROG3",
+          "Target": "PROG3",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 135,
+          "Operand": "PROG3",
+          "Target": "PROG3",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 139,
+          "Operand": "PROG3",
+          "Target": "PROG3",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": [
+        {
+          "Form": "literal",
+          "Line": 85,
+          "Operand": "PROG1",
+          "Target": "PROG1",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 92,
+          "Operand": "MYCOBOL",
+          "Target": "MYCOBOL",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 102,
+          "Operand": "VALUE-2",
+          "Target": "initial",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "identifier",
+          "Line": 103,
+          "Operand": "VALUE-2",
+          "Target": "initial",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 110,
+          "Operand": "PROG3",
+          "Target": "PROG3",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 114,
+          "Operand": "PROG3",
+          "Target": "PROG3",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 118,
+          "Operand": "PROG3",
+          "Target": "PROG3",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 121,
+          "Operand": "PROGRAM",
+          "Target": "PROGRAM",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 127,
+          "Operand": "PROGRAM",
+          "Target": "PROGRAM",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 133,
+          "Operand": "PROGRAM",
+          "Target": "PROGRAM",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 135,
+          "Operand": "PROGRAM2",
+          "Target": "PROGRAM2",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 142,
+          "Operand": "PROGRAM",
+          "Target": "PROGRAM",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 144,
+          "Operand": "PROGRAM2",
+          "Target": "PROGRAM2",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 150,
+          "Operand": "PROGRAM",
+          "Target": "PROGRAM",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 154,
+          "Operand": "PROGRAM",
+          "Target": "PROGRAM",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": [
+        {
+          "Form": "literal",
+          "Line": 20,
+          "Operand": "PROG1",
+          "Target": "PROG1",
+          "Verb": "CALL"
+        }
+      ]
+    },
+    "cobol/cobol-programming-course": {
+      "cobol/cobol-programming-course/CBLDB21.cbl": [
+        {
+          "Form": "literal",
+          "Line": 134,
+          "Operand": "DSNTIAR",
+          "Target": "DSNTIAR",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB22.cbl": [
+        {
+          "Form": "literal",
+          "Line": 191,
+          "Operand": "DSNTIAR",
+          "Target": "DSNTIAR",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB23.cbl": [
+        {
+          "Form": "literal",
+          "Line": 178,
+          "Operand": "DSNTIAR",
+          "Target": "DSNTIAR",
+          "Verb": "CALL"
+        }
+      ]
+    },
+    "cobol/gnucobol": {
+      "cobol/gnucobol/CBL_OC_DUMP.cob": [
+        {
+          "Form": "literal",
+          "Line": 161,
+          "Operand": "C$PARAMSIZE",
+          "Target": "C$PARAMSIZE",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 247,
+          "Operand": "CBL_GC_PRINTABLE",
+          "Target": "CBL_GC_PRINTABLE",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/gnucobol/numeric-dump.cob": [
+        {
+          "Form": "literal",
+          "Line": 167,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 169,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 171,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 173,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 175,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 177,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 179,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 181,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 183,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 185,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 187,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 189,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 191,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 193,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 195,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 197,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 199,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 201,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 203,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 205,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 207,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 209,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 211,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 213,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 215,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 217,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 219,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 221,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 223,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 225,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 227,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 229,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 231,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 233,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 235,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 237,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 240,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 243,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 246,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 249,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 252,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 255,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 258,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 261,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 264,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 267,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 270,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 273,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 276,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 279,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 282,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 285,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 288,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 291,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 294,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 297,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 300,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 303,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 306,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 309,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 312,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 315,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 318,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 321,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 324,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 327,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 330,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 333,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 336,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 339,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 342,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 345,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 348,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 351,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 354,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 357,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 360,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 363,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 366,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 369,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 372,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 375,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 378,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 381,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 384,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 387,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 390,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 393,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 396,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 399,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 402,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 405,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 408,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 411,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 414,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 417,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 420,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 423,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 426,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 429,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 432,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 435,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 438,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 441,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 444,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 447,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 450,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        },
+        {
+          "Form": "literal",
+          "Line": 453,
+          "Operand": "dump",
+          "Target": "dump",
+          "Verb": "CALL"
+        }
+      ],
+      "cobol/gnucobol/tutorial.cob": [
+        {
+          "Form": "literal",
+          "Line": 189,
+          "Operand": "EXTFH",
+          "Target": "EXTFH",
+          "Verb": "CALL"
+        }
+      ]
+    },
+    "cobol/zopeneditor-sample": {
+      "cobol/zopeneditor-sample/SAM1.cbl": [
+        {
+          "Form": "identifier",
+          "Line": 304,
+          "Operand": "SAM2",
+          "Target": "SAM2",
+          "Verb": "CALL"
+        }
+      ]
+    },
+    "jcl/cash-account-cobol": {
+      "jcl/cash-account-cobol/DB2BIND.jcl": [
+        {
+          "Form": "literal",
+          "Line": 6,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cash-account-cobol/DB2DDL.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 36,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 68,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 87,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cash-account-cobol/DEFKSDS.jcl": [
+        {
+          "Form": "literal",
+          "Line": 6,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        }
+      ]
+    },
+    "jcl/cics-banking-sample-application-cbsa": {
+      "jcl/cics-banking-sample-application-cbsa/BANKDATA.jcl": [
+        {
+          "Form": "literal",
+          "Line": 36,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 56,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 94,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BATCH.jcl": [
+        {
+          "Form": "literal",
+          "Line": 5,
+          "Operand": "IGYCRCTL",
+          "Target": "IGYCRCTL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 42,
+          "Operand": "IEWL",
+          "Target": "IEWL",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BTCHSQL.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CBSACSD.jcl": [
+        {
+          "Form": "literal",
+          "Line": 17,
+          "Operand": "DFHCSDUP",
+          "Target": "DFHCSDUP",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CICS.jcl": [
+        {
+          "Form": "literal",
+          "Line": 5,
+          "Operand": "IGYCRCTL",
+          "Target": "IGYCRCTL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 43,
+          "Operand": "IEWL",
+          "Target": "IEWL",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CICSTS56.jcl": [
+        {
+          "Form": "literal",
+          "Line": 28,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 35,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 43,
+          "Operand": "DFHSIP",
+          "Target": "DFHSIP",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 143,
+          "Operand": "DFHDU730",
+          "Target": "DFHDU730",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 154,
+          "Operand": "DFHDU730",
+          "Target": "DFHDU730",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 167,
+          "Operand": "DFHTU730",
+          "Target": "DFHTU730",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 177,
+          "Operand": "DFHTU730",
+          "Target": "DFHTU730",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREDB00.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREDB2L.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 21,
+          "Operand": "ICEGENER",
+          "Target": "ICEGENER",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREI101.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREI201.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREI301.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL001.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 20,
+          "Operand": "ICEGENER",
+          "Target": "ICEGENER",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL002.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL003.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL004.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL005.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL006.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 20,
+          "Operand": "ICEGENER",
+          "Target": "ICEGENER",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL007.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL008.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL009.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 20,
+          "Operand": "ICEGENER",
+          "Target": "ICEGENER",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL010.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 20,
+          "Operand": "ICEGENER",
+          "Target": "ICEGENER",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL011.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 20,
+          "Operand": "ICEGENER",
+          "Target": "ICEGENER",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRESG01.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRESG02.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRESG03.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETB01.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETB02.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETB03.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETS01.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETS02.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETS03.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DB2BIND.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 90,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DROPDB2.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPDB00.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPI101.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPI201.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPI301.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPSG01.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPSG02.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPSG03.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTB01.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTB02.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTB03.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTS01.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTS02.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTS03.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/INSTDB2.jcl": [
+        {
+          "Form": "literal",
+          "Line": 16,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/MAPGEN.jcl": [
+        {
+          "Form": "literal",
+          "Line": 13,
+          "Operand": "IEBGENER",
+          "Target": "IEBGENER",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 33,
+          "Operand": "IEWL",
+          "Target": "IEWL",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/RACF001.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/REPLCICS.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IEBCOPY",
+          "Target": "IEBCOPY",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/REPLSIP.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IEBCOPY",
+          "Target": "IEBCOPY",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/RESTCICS.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/RESTZOSC.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/SHUTCICS.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/SHUTZOSC.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/ZOSCSEC.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "BPXBATCH",
+          "Target": "BPXBATCH",
+          "Verb": "EXEC PGM"
+        }
+      ]
+    },
+    "jcl/cics-genapp": {
+      "jcl/cics-genapp/adef121.jcl": [
+        {
+          "Form": "literal",
+          "Line": 5,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 30,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 37,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 55,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 65,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/asmmap.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IEBGENER",
+          "Target": "IEBGENER",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 20,
+          "Operand": "ASMA90",
+          "Target": "ASMA90",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 39,
+          "Operand": "IEWL",
+          "Target": "IEWL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 52,
+          "Operand": "ASMA90",
+          "Target": "ASMA90",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/cdef121.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "DFHCSDUP",
+          "Target": "DFHCSDUP",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/cdef122.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "DFHCSDUP",
+          "Target": "DFHCSDUP",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/cdef123.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "DFHCSDUP",
+          "Target": "DFHCSDUP",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/cdef124.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "DFHCSDUP",
+          "Target": "DFHCSDUP",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/cdef125.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "DFHCSDUP",
+          "Target": "DFHCSDUP",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/cobol.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "IGYCRCTL",
+          "Target": "IGYCRCTL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 56,
+          "Operand": "IEBGENER",
+          "Target": "IEBGENER",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 67,
+          "Operand": "HEWL",
+          "Target": "HEWL",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/db2bind.jcl": [
+        {
+          "Form": "literal",
+          "Line": 6,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/db2cre.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 91,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 142,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 184,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 221,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 256,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 294,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 342,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 375,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 404,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/db2del.jcl": [
+        {
+          "Form": "literal",
+          "Line": 11,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/defdrep.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 19,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 37,
+          "Operand": "EYU9XDUT",
+          "Target": "EYU9XDUT",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/defwrep.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 19,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/itpentr.jcl": [
+        {
+          "Form": "literal",
+          "Line": 6,
+          "Operand": "ITPENTER",
+          "Target": "ITPENTER",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/itpll.jcl": [
+        {
+          "Form": "literal",
+          "Line": 6,
+          "Operand": "ITPLL",
+          "Target": "ITPLL",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/itpstl.jcl": [
+        {
+          "Form": "literal",
+          "Line": 7,
+          "Operand": "ITPSTL",
+          "Target": "ITPSTL",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/sampcma.jcl": [
+        {
+          "Form": "literal",
+          "Line": 6,
+          "Operand": "EYU9XECS",
+          "Target": "EYU9XECS",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/sampncs.jcl": [
+        {
+          "Form": "literal",
+          "Line": 5,
+          "Operand": "DFHNCMN",
+          "Target": "DFHNCMN",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/samptsq.jcl": [
+        {
+          "Form": "literal",
+          "Line": 5,
+          "Operand": "DFHXQMN",
+          "Target": "DFHXQMN",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cics-genapp/sampwui.jcl": [
+        {
+          "Form": "literal",
+          "Line": 5,
+          "Operand": "DFHSIP",
+          "Target": "DFHSIP",
+          "Verb": "EXEC PGM"
+        }
+      ]
+    },
+    "jcl/cics-java-jcics-samples": {
+      "jcl/cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl": [
+        {
+          "Form": "literal",
+          "Line": 4,
+          "Operand": "IDCAMS",
+          "Target": "IDCAMS",
+          "Verb": "EXEC PGM"
+        }
+      ]
+    },
+    "jcl/cobol-programming-course": {
+      "jcl/cobol-programming-course/ADDAMT.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "ADDAMT",
+          "Target": "ADDAMT",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0001J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0001",
+          "Target": "CBL0001",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0002J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0002",
+          "Target": "CBL0002",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0003J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0001",
+          "Target": "CBL0001",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0004J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0004",
+          "Target": "CBL0004",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0005J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0005",
+          "Target": "CBL0005",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0006J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0006",
+          "Target": "CBL0006",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0007J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0007",
+          "Target": "CBL0007",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0008J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0008",
+          "Target": "CBL0008",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0009J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0009",
+          "Target": "CBL0009",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0010J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0010",
+          "Target": "CBL0010",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0011J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0011",
+          "Target": "CBL0011",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0012J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0012",
+          "Target": "CBL0012",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0013J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "CBL0013",
+          "Target": "CBL0013",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0014J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "CBL0014",
+          "Target": "CBL0014",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0033J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 19,
+          "Operand": "CBL0033",
+          "Target": "CBL0033",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL006AJ.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL006A",
+          "Target": "CBL006A",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0106J.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "CBL0106",
+          "Target": "CBL0106",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB21R.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB22R.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB23R.jcl": [
+        {
+          "Form": "literal",
+          "Line": 8,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/COBRUN.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "COBEXEC",
+          "Target": "COBEXEC",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/DB2CBL.jcl": [
+        {
+          "Form": "literal",
+          "Line": 9,
+          "Operand": "IGYCRCTL",
+          "Target": "IGYCRCTL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 41,
+          "Operand": "IEWBLINK",
+          "Target": "IEWBLINK",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 53,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/DB2JCL.jcl": [
+        {
+          "Form": "literal",
+          "Line": 6,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/DB2SETUP.jcl": [
+        {
+          "Form": "literal",
+          "Line": 6,
+          "Operand": "IEBCOPY",
+          "Target": "IEBCOPY",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 33,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/DBRMLIB.jcl": [
+        {
+          "Form": "literal",
+          "Line": 7,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/DEPTPAY.JCL": [
+        {
+          "Form": "literal",
+          "Line": 2,
+          "Operand": "IKJEFT01",
+          "Target": "IKJEFT01",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 13,
+          "Operand": "DEPTPAY",
+          "Target": "DEPTPAY",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/DSNUPROC.jcl": [
+        {
+          "Form": "literal",
+          "Line": 3,
+          "Operand": "DSNUTILB",
+          "Target": "DSNUTILB",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/EMPPAY.JCL": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "EMPPAY",
+          "Target": "EMPPAY",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/IGYWC.jcl": [
+        {
+          "Form": "literal",
+          "Line": 6,
+          "Operand": "IGYCRCTL",
+          "Target": "IGYCRCTL",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/IGYWCL.jcl": [
+        {
+          "Form": "literal",
+          "Line": 6,
+          "Operand": "IGYCRCTL",
+          "Target": "IGYCRCTL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 31,
+          "Operand": "IEWBLINK",
+          "Target": "IEWBLINK",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/IGYWCLG.jcl": [
+        {
+          "Form": "literal",
+          "Line": 6,
+          "Operand": "IGYCRCTL",
+          "Target": "IGYCRCTL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 33,
+          "Operand": "IEWBLINK",
+          "Target": "IEWBLINK",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/SRCHBINJ.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "SRCHBIN",
+          "Target": "SRCHBIN",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/cobol-programming-course/SRCHSERJ.jcl": [
+        {
+          "Form": "literal",
+          "Line": 12,
+          "Operand": "SRCHSER",
+          "Target": "SRCHSER",
+          "Verb": "EXEC PGM"
+        }
+      ]
+    },
+    "jcl/zopeneditor-sample": {
+      "jcl/zopeneditor-sample/ALLOCATE.jcl": [
+        {
+          "Form": "literal",
+          "Line": 21,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 50,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/zopeneditor-sample/ASMALLOC.jcl": [
+        {
+          "Form": "literal",
+          "Line": 21,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 44,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/zopeneditor-sample/COMPROC.jcl": [
+        {
+          "Form": "literal",
+          "Line": 30,
+          "Operand": "IGYCRCTL",
+          "Target": "IGYCRCTL",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/zopeneditor-sample/PLIALLOC.jcl": [
+        {
+          "Form": "literal",
+          "Line": 21,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 50,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/zopeneditor-sample/REXALLOC.jcl": [
+        {
+          "Form": "literal",
+          "Line": 21,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 41,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/zopeneditor-sample/RUN.jcl": [
+        {
+          "Form": "literal",
+          "Line": 42,
+          "Operand": "IGYCRCTL",
+          "Target": "IGYCRCTL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 72,
+          "Operand": "IGYCRCTL",
+          "Target": "IGYCRCTL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 103,
+          "Operand": "IEWL",
+          "Target": "IEWL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 120,
+          "Operand": "IEWL",
+          "Target": "IEWL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 135,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 147,
+          "Operand": "SAM1",
+          "Target": "SAM1",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/zopeneditor-sample/RUNASAM1.jcl": [
+        {
+          "Form": "literal",
+          "Line": 26,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 36,
+          "Operand": "ASMA90",
+          "Target": "ASMA90",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 51,
+          "Operand": "IEWL",
+          "Target": "IEWL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 64,
+          "Operand": "ASAM1",
+          "Target": "ASAM1",
+          "Verb": "EXEC PGM"
+        }
+      ],
+      "jcl/zopeneditor-sample/RUNPSAM1.jcl": [
+        {
+          "Form": "literal",
+          "Line": 25,
+          "Operand": "IEFBR14",
+          "Target": "IEFBR14",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 35,
+          "Operand": "IBMZPLI",
+          "Target": "IBMZPLI",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 46,
+          "Operand": "IBMZPLI",
+          "Target": "IBMZPLI",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 59,
+          "Operand": "IEWL",
+          "Target": "IEWL",
+          "Verb": "EXEC PGM"
+        },
+        {
+          "Form": "literal",
+          "Line": 74,
+          "Operand": "PSAM1",
+          "Target": "PSAM1",
+          "Verb": "EXEC PGM"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "Call Sites"
+  ]
+}

@@ -4,8 +4,16 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import sys
 from typing import Any, Dict
+
+# golden_store lives beside this file; callers put tests/ on sys.path already,
+# but don't depend on it (tests/ has no __init__.py -- see CLAUDE.md).
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+import golden_store
 
 # Parallel file processing means per-language/per-repo float sums (e.g.
 # "impact") land in a different accumulation order each run, producing
@@ -16,9 +24,13 @@ FLOAT_ABS_TOL = 1e-6
 
 
 def load_and_sanitize(filepath: str) -> Dict[str, Any]:
-    """Loads JSON and strips volatile execution metadata."""
-    with open(filepath, encoding="utf-8") as f:
-        data = json.load(f)
+    """Loads a golden master (a split fixture directory, #3384) or a plain JSON
+    audit file (a fresh scan's output) and strips volatile execution metadata."""
+    return sanitize(golden_store.load(filepath))
+
+
+def sanitize(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Strips volatile execution metadata in place (and returns `data`)."""
 
     # Strip out volatile metadata that changes every run
     if "1. Forensic Trail (Traceability)" in data:
@@ -98,7 +110,9 @@ def deep_compare(expected: Any, actual: Any, path: str = "", _path_segs: tuple[s
                 differences.extend(deep_compare(expected[key], actual[key], next_path, next_segs))
     elif _is_real_number(expected) and _is_real_number(actual):
         if not math.isclose(expected, actual, rel_tol=FLOAT_REL_TOL, abs_tol=FLOAT_ABS_TOL):
-            differences.append(DiffLine(f"⚠️ MISMATCH at {path}: Expected {expected}, Got {actual}", _path_segs, "mismatch"))
+            differences.append(
+                DiffLine(f"⚠️ MISMATCH at {path}: Expected {expected}, Got {actual}", _path_segs, "mismatch")
+            )
     elif expected != actual:
         differences.append(DiffLine(f"⚠️ MISMATCH at {path}: Expected {expected}, Got {actual}", _path_segs, "mismatch"))
 
@@ -107,7 +121,7 @@ def deep_compare(expected: Any, actual: Any, path: str = "", _path_segs: tuple[s
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python golden_diff.py <golden_master.json> <new_output.json>")
+        print("Usage: python golden_diff.py <golden_master_dir_or.json> <new_output.json>")
         sys.exit(1)
 
     golden_path = sys.argv[1]

@@ -97,7 +97,7 @@ without `-x` and triage the tally instead.
    the branch engine (`PYTHONPATH` beats the editable install, so the venv's `galaxyscope`
    runs your worktree): `GITGALAXY_DISABLE_GIT_HISTORY=1` + the license key, then diff with
    `tests/golden_diff.py`. Every structural mismatch must be your signal's leaves; patch
-   exactly those into BOTH `golden_master_audit.json` and `golden_master_zero_dep_audit.json`
+   exactly those into BOTH `golden_master_audit/` and `golden_master_zero_dep_audit/`
    — never `--update` wholesale. Traversal: group keys are directory paths
    (`"solidity/openzeppelin"`), files live under `[group]["Files"][path]`, the per-file node
    is `"7. Structural Signatures (Net Mitigated Signals)"` keyed by the FRIENDLY name

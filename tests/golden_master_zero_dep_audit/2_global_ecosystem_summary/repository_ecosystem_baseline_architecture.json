@@ -1,0 +1,10 @@
+{
+  "path": [
+    "2. Global Ecosystem Summary",
+    "Repository Ecosystem Baseline (Architecture)"
+  ],
+  "value": {
+    "Architectural Drift (Z-Score)": 5.555,
+    "Classification": "Hub-Coupled Monorepo"
+  }
+}

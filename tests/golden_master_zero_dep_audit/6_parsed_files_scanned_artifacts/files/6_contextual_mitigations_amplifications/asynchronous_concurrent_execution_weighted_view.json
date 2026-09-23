@@ -1,0 +1,283 @@
+{
+  "groups": {
+    "ada/alire": {
+      "ada/alire/alire-toolchains.adb": 11,
+      "ada/alire/alr-commands-init.adb": 12
+    },
+    "agc_assembly/apollo-11": {
+      "agc_assembly/apollo-11/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc": 123,
+      "agc_assembly/apollo-11/EXECUTIVE.agc": 24,
+      "agc_assembly/apollo-11/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc": 14,
+      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": 135,
+      "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": 6,
+      "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": 15,
+      "agc_assembly/apollo-11/WAITLIST.agc": 9
+    },
+    "apex/apex-recipes": {
+      "apex/apex-recipes/QueueableRecipes.cls": 7
+    },
+    "cobol/cics-banking-sample-application-cbsa": {
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY1.cbl": 6,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY2.cbl": 6,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY3.cbl": 6,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY4.cbl": 6,
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY5.cbl": 6,
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": 12,
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": 58
+    },
+    "cobol/cics-genapp": {
+      "cobol/cics-genapp/lgicvs01.cbl": 12,
+      "cobol/cics-genapp/lgtestc1.cbl": 7
+    },
+    "cpp/NVDA": {
+      "cpp/NVDA/braille.py": 13,
+      "cpp/NVDA/core.py": 22
+    },
+    "cpp/powertoys": {
+      "cpp/powertoys/FancyZones.cpp": 6
+    },
+    "csharp/roslyn": {
+      "csharp/roslyn/CSharpCompilation.cs": 73,
+      "csharp/roslyn/CSharpSyntaxTree.cs": 17,
+      "csharp/roslyn/MethodCompiler.cs": 35
+    },
+    "dart/flutter": {
+      "dart/flutter/editable_text.dart": 86,
+      "dart/flutter/framework.dart": 44
+    },
+    "dockerfile/moby/builder/dockerfile": {
+      "dockerfile/moby/builder/dockerfile/builder.go": 7,
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": 49
+    },
+    "embedded_python/meow_turtle": {
+      "embedded_python/meow_turtle/actuators.py": 18,
+      "embedded_python/meow_turtle/app.py": 16,
+      "embedded_python/meow_turtle/logging.py": 18,
+      "embedded_python/meow_turtle/sensors.py": 19
+    },
+    "go/core": {
+      "go/core/mgc.go": 31,
+      "go/core/proc.go": 20,
+      "go/core/server.go": 83
+    },
+    "go/kubernetes": {
+      "go/kubernetes/csi_plugin.go": 15,
+      "go/kubernetes/generic.go": 19,
+      "go/kubernetes/kubelet.go": 12,
+      "go/kubernetes/replica_set.go": 20,
+      "go/kubernetes/scheduler.go": 7
+    },
+    "groovy/godot_android_gradle": {
+      "groovy/godot_android_gradle/java_app_build.gradle": 8
+    },
+    "groovy/gradle": {
+      "groovy/gradle/DefaultPluginManager.java": 34,
+      "groovy/gradle/DefaultProject.java": 6
+    },
+    "groovy/gradle_integtest_specs": {
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": 8,
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": 12
+    },
+    "groovy/gradle_sample_task_classes": {
+      "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": 6
+    },
+    "groovy/retrofit_gradle": {
+      "groovy/retrofit_gradle/build.gradle": 24
+    },
+    "groovy/spock_core_groovy": {
+      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": 27
+    },
+    "html/cesium_sandcastle": {
+      "html/cesium_sandcastle/gallery_cylinders_and_cones.html": 7
+    },
+    "html/vscode_webviews": {
+      "html/vscode_webviews/github_auth_media_index.html": 6,
+      "html/vscode_webviews/webWorkerExtensionHostIframe.html": 35
+    },
+    "java/springboot": {
+      "java/springboot/OnClassCondition.java": 8,
+      "java/springboot/SpringApplication.java": 29
+    },
+    "javascript/jquery": {
+      "javascript/jquery/ajax.js": 13,
+      "javascript/jquery/deferred.js": 13
+    },
+    "javascript/react": {
+      "javascript/react/ReactFiberWorkLoop.js": 7,
+      "javascript/react/ReactFlightServer.js": 107,
+      "javascript/react/build.js": 22
+    },
+    "javascript/threejs": {
+      "javascript/threejs/Editor.js": 8,
+      "javascript/threejs/GLTFLoader.js": 400,
+      "javascript/threejs/WebGLRenderer.js": 10
+    },
+    "livecode/livecode": {
+      "livecode/livecode/automaticactivationprocessinggroupbehavior.livecodescript": 6,
+      "livecode/livecode/builder_utilities.livecodescript": 27,
+      "livecode/livecode/installer_utilities.livecodescript": 18,
+      "livecode/livecode/installeruiinstallcardbehavior.livecodescript": 26,
+      "livecode/livecode/revdeploylibraryandroid.livecodescript": 6,
+      "livecode/livecode/revdeploylibraryemscripten.livecodescript": 6,
+      "livecode/livecode/revdeploylibraryios.livecodescript": 24,
+      "livecode/livecode/revliburl.livecodescript": 87,
+      "livecode/livecode/revsaveasandroidstandalone.livecodescript": 31
+    },
+    "lua/cosmopolitan": {
+      "lua/cosmopolitan/big.lua": 19,
+      "lua/cosmopolitan/calls.lua": 6,
+      "lua/cosmopolitan/coroutine.lua": 689,
+      "lua/cosmopolitan/cstack.lua": 56,
+      "lua/cosmopolitan/db.lua": 93,
+      "lua/cosmopolitan/errors.lua": 20,
+      "lua/cosmopolitan/files.lua": 18,
+      "lua/cosmopolitan/gc.lua": 50,
+      "lua/cosmopolitan/gengc.lua": 30,
+      "lua/cosmopolitan/locals.lua": 130,
+      "lua/cosmopolitan/nextvar.lua": 9
+    },
+    "matlab/eeglab": {
+      "matlab/eeglab/eeg_eval.m": 6
+    },
+    "perl/exiftool": {
+      "perl/exiftool/ExifTool.pm": 10
+    },
+    "perl/mojo": {
+      "perl/mojo/IOLoop.pm": 89,
+      "perl/mojo/Promise.pm": 115
+    },
+    "perl/spamassassin": {
+      "perl/spamassassin/AsyncLoop.pm": 240
+    },
+    "php/magento2": {
+      "php/magento2/AbstractBlock.php": 13
+    },
+    "php/symfony": {
+      "php/symfony/ContainerBuilder.php": 6
+    },
+    "php/wordpress": {
+      "php/wordpress/functions.php": 30
+    },
+    "powershell/core": {
+      "powershell/core/RegisterMicrosoftUpdate.ps1": 18,
+      "powershell/core/SSHRemoting.Basic.Tests.ps1": 6
+    },
+    "python/airflow": {
+      "python/airflow/s3.py": 115,
+      "python/airflow/scheduler_job_runner.py": 14
+    },
+    "python/cython": {
+      "python/cython/Nodes.py": 12
+    },
+    "python/fastapi/fastapi": {
+      "python/fastapi/fastapi/applications.py": 31,
+      "python/fastapi/fastapi/concurrency.py": 19,
+      "python/fastapi/fastapi/exception_handlers.py": 9,
+      "python/fastapi/fastapi/routing.py": 193
+    },
+    "python/fastapi/tests": {
+      "python/fastapi/tests/test_custom_middleware_exception.py": 25,
+      "python/fastapi/tests/test_datastructures.py": 22,
+      "python/fastapi/tests/test_dependency_class.py": 40,
+      "python/fastapi/tests/test_dependency_contextmanager.py": 113,
+      "python/fastapi/tests/test_dependency_contextvars.py": 18,
+      "python/fastapi/tests/test_dependency_wrapped.py": 143,
+      "python/fastapi/tests/test_dependency_yield_except_httpexception.py": 6,
+      "python/fastapi/tests/test_dependency_yield_scope_websockets.py": 25,
+      "python/fastapi/tests/test_include_router_defaults_overrides.py": 52,
+      "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": 19,
+      "python/fastapi/tests/test_reponse_set_reponse_code_empty.py": 6,
+      "python/fastapi/tests/test_response_change_status_code.py": 8,
+      "python/fastapi/tests/test_response_model_data_filter.py": 13,
+      "python/fastapi/tests/test_response_model_data_filter_no_inheritance.py": 13,
+      "python/fastapi/tests/test_router_events.py": 43,
+      "python/fastapi/tests/test_sse.py": 25,
+      "python/fastapi/tests/test_stream_bare_type.py": 13,
+      "python/fastapi/tests/test_stream_cancellation.py": 46,
+      "python/fastapi/tests/test_stringified_annotation_dependency.py": 16,
+      "python/fastapi/tests/test_ws_router.py": 67
+    },
+    "rust/bevy": {
+      "rust/bevy/bevy_ecs_world.rs": 29
+    },
+    "rust/tokio": {
+      "rust/tokio/builder.rs": 114
+    },
+    "scala/kafka": {
+      "scala/kafka/ReplicaManager.scala": 9
+    },
+    "shell/freebsd-src": {
+      "shell/freebsd-src/dd2_test.sh": 24,
+      "shell/freebsd-src/dtest.sh": 12,
+      "shell/freebsd-src/pgrep-_f_test.sh": 6,
+      "shell/freebsd-src/pwait_test.sh": 91
+    },
+    "shell/haiku": {
+      "shell/haiku/HardwareChecker.sh": 13,
+      "shell/haiku/catmerge.sh": 14
+    },
+    "shell/kubernetes": {
+      "shell/kubernetes/_update-generated-proto-bindings-dockerized.sh": 6,
+      "shell/kubernetes/common.sh": 12,
+      "shell/kubernetes/configure-helper.sh": 21,
+      "shell/kubernetes/etcd.sh": 14,
+      "shell/kubernetes/log-dump.sh": 63
+    },
+    "shell/moby": {
+      "shell/moby/support.sh": 6,
+      "shell/moby/validate-swagger-gen.sh": 6
+    },
+    "shell/reactos": {
+      "shell/reactos/remaster.sh": 6
+    },
+    "shell/serenity": {
+      "shell/serenity/builtin.sh": 12
+    },
+    "swift/alamofire": {
+      "swift/alamofire/Request.swift": 125,
+      "swift/alamofire/Session.swift": 80
+    },
+    "tcl/macports_port_api": {
+      "tcl/macports_port_api/portlint.tcl": 6
+    },
+    "tcl/sqlite": {
+      "tcl/sqlite/tester.tcl": 9,
+      "tcl/sqlite/testrunner.tcl": 32
+    },
+    "typescript/playwright": {
+      "typescript/playwright/bidiConnection.ts": 10,
+      "typescript/playwright/connection.ts": 33,
+      "typescript/playwright/crConnection.ts": 31,
+      "typescript/playwright/dispatcher.ts": 63,
+      "typescript/playwright/frames.ts": 552
+    },
+    "typescript/vscode": {
+      "typescript/vscode/async.ts": 663,
+      "typescript/vscode/codeEditorWidget.ts": 10,
+      "typescript/vscode/extHost.api.impl.ts": 49,
+      "typescript/vscode/gulpfile.vscode.ts": 37,
+      "typescript/vscode/ipc.ts": 106,
+      "typescript/vscode/lifecycle.ts": 13
+    },
+    "yaml/vscode_workflows": {
+      "yaml/vscode_workflows/pr.yml": 6
+    },
+    "zig/zig": {
+      "zig/zig/InternPool.zig": 269,
+      "zig/zig/Zcu.zig": 7
+    },
+    "zig/zls": {
+      "zig/zls/DocumentStore.zig": 19,
+      "zig/zls/Server.zig": 6
+    },
+    "zig/zls/mach": {
+      "zig/zls/mach/graph.zig": 17,
+      "zig/zls/mach/module.zig": 7
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "6. Contextual Mitigations & Amplifications",
+    "Asynchronous/Concurrent Execution (Weighted View)"
+  ]
+}

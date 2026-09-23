@@ -171,7 +171,7 @@ own-drift constraint automatically; until it lands, do this by hand and don't sk
 - **#2806**: declaration top-level, not `rules`.
 - **The full audit report carries the facts (#3246 step 4b), so a channel MOVES the golden master**
   — `*_galaxy_audit.json` is crucible-audit's fixture and the corpus has cobol/jcl, so re-bless BOTH
-  `golden_master_audit.json` + `golden_master_zero_dep_audit.json` with `crucible_check.py --update`
+  `golden_master_audit/` + `golden_master_zero_dep_audit/` with `crucible_check.py --update`
   and confirm the diff is only your fact keys (plus the topological X/Y/Z ripple).
 - **Match CI's pinned tool versions before regenerating any baseline** — ruff is pinned in
   `.github/workflows/ruff-audit.yml` (a newer local ruff drops findings CI still emits, so a local

@@ -671,7 +671,7 @@ GitHub auto-merge (`gh pr merge <n> --auto --squash`) on this skill's accumulati
 any sibling engine-fix PR opened alongside it in the same sweep, right after `gh pr create`
 succeeds -- do this proactively, don't wait to be asked each time. This was granted specifically
 in response to a real stacked-PR conflict incident (PR #1929 vs. #1927, both touching
-`tests/golden_master_audit.json`/`tests/golden_master_zero_dep_audit.json` -- see step 0's
+`tests/golden_master_audit/`/`tests/golden_master_zero_dep_audit/` -- see step 0's
 false-conflict guidance for the resolution mechanics once one does occur despite auto-merge).
 This is narrower than a blanket "always auto-merge" rule: it covers PRs from an active sweep
 session, not merging judgment calls about a ledger verdict's TRUTH -- the verdict content itself

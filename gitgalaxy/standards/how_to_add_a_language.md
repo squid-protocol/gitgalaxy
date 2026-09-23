@@ -447,7 +447,7 @@ fine":
 The project maintains `tests/test_golden_crucible.py`, which runs the real `galaxyscope` CLI
 against the `language-crucible` corpus (a pinned checkout of real open-source repos, cloned as a
 sibling directory or pointed to via `LANGUAGE_CRUCIBLE_PATH`) and diffs the result against
-`tests/golden_master_audit.json` / `tests/golden_master_zero_dep_audit.json` using
+`tests/golden_master_audit/` / `tests/golden_master_zero_dep_audit/` using
 `tests/golden_diff.py`. Run it explicitly via `pytest -m golden_crucible` (it's opt-in, excluded
 from the default run) — once with a full-precision environment installed, once with a
 zero-dependency one, since each maintains its own golden master fixture.

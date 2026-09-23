@@ -1,0 +1,257 @@
+{
+  "groups": {
+    "agc_assembly/apollo-11": {
+      "agc_assembly/apollo-11/ALARM_AND_ABORT.agc": 3
+    },
+    "c/sqlite": {
+      "c/sqlite/lemon.c": 23
+    },
+    "cobol/cobol-programming-course": {
+      "cobol/cobol-programming-course/CBLDB21.cbl": 0,
+      "cobol/cobol-programming-course/CBLDB22.cbl": 0,
+      "cobol/cobol-programming-course/CBLDB23.cbl": 0
+    },
+    "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/fileio.c": 8
+    },
+    "cpp/NVDA": {
+      "cpp/NVDA/ensureuv.ps1": 1
+    },
+    "dockerfile/moby/builder/dockerfile": {
+      "dockerfile/moby/builder/dockerfile/copy_windows.go": 0
+    },
+    "dockerfile/moby/builder/remotecontext": {
+      "dockerfile/moby/builder/remotecontext/detect_test.go": 0
+    },
+    "dockerfile/moby/builder/remotecontext/git": {
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": 1
+    },
+    "embedded_python/meow_turtle": {
+      "embedded_python/meow_turtle/app.py": 1,
+      "embedded_python/meow_turtle/boot.py": 1
+    },
+    "fortran/wrf": {
+      "fortran/wrf/module_physics_init.F": 1
+    },
+    "go/core": {
+      "go/core/main.go": 2,
+      "go/core/server.go": 10,
+      "go/core/syscall_linux.go": 0
+    },
+    "haskell/pandoc": {
+      "haskell/pandoc/App.hs": 1
+    },
+    "javascript/react": {
+      "javascript/react/build.js": 1
+    },
+    "jcl/cash-account-cobol": {
+      "jcl/cash-account-cobol/DB2DDL.jcl": 1
+    },
+    "jcl/cics-genapp": {
+      "jcl/cics-genapp/db2cre.jcl": 2
+    },
+    "livecode/livecode": {
+      "livecode/livecode/builder_utilities.livecodescript": 11,
+      "livecode/livecode/ext-urls.livecodescript": 1,
+      "livecode/livecode/installer_utilities.livecodescript": 20,
+      "livecode/livecode/revdeploylibraryemscripten.livecodescript": 3,
+      "livecode/livecode/revdeploylibraryios.livecodescript": 12,
+      "livecode/livecode/revliburl.livecodescript": 27
+    },
+    "lua/cosmopolitan": {
+      "lua/cosmopolitan/all.lua": 0,
+      "lua/cosmopolitan/api.lua": 7,
+      "lua/cosmopolitan/attrib.lua": 0,
+      "lua/cosmopolitan/big.lua": 0,
+      "lua/cosmopolitan/bitwise.lua": 0,
+      "lua/cosmopolitan/calls.lua": 2,
+      "lua/cosmopolitan/constructs.lua": 0,
+      "lua/cosmopolitan/db.lua": 1,
+      "lua/cosmopolitan/errors.lua": 0,
+      "lua/cosmopolitan/files.lua": 0,
+      "lua/cosmopolitan/gc.lua": 0,
+      "lua/cosmopolitan/goto.lua": 0,
+      "lua/cosmopolitan/heavy.lua": 2,
+      "lua/cosmopolitan/literals.lua": 0,
+      "lua/cosmopolitan/locals.lua": 2,
+      "lua/cosmopolitan/main.lua": 3,
+      "lua/cosmopolitan/math.lua": 0,
+      "lua/cosmopolitan/nextvar.lua": 0,
+      "lua/cosmopolitan/pm.lua": 0,
+      "lua/cosmopolitan/strings.lua": 0
+    },
+    "lua/freebsd-src": {
+      "lua/freebsd-src/config.lua": 17
+    },
+    "lua/redis": {
+      "lua/redis/luac.lua": 0
+    },
+    "objective-c/worldwideweb": {
+      "objective-c/worldwideweb/HText.c": 0
+    },
+    "perl/exiftool": {
+      "perl/exiftool/exiftool": 6
+    },
+    "php/symfony": {
+      "php/symfony/Application.php": 1,
+      "php/symfony/ContainerBuilder.php": 0
+    },
+    "php/wordpress": {
+      "php/wordpress/functions.php": 10,
+      "php/wordpress/wp-login.php": 2
+    },
+    "powershell/PowerToys": {
+      "powershell/PowerToys/BuildSDKHelper.ps1": 1,
+      "powershell/PowerToys/BuildSparsePackage.ps1": 0,
+      "powershell/PowerToys/Capture-MonitorLayout.ps1": 1,
+      "powershell/PowerToys/Delete-Worktree.ps1": 0,
+      "powershell/PowerToys/Get-GitHubPrFilePatch.ps1": 0,
+      "powershell/PowerToys/Get-GitHubRawFile.ps1": 0,
+      "powershell/PowerToys/Update-WinMdCache.ps1": 4,
+      "powershell/PowerToys/UpdateVersions.ps1": 4,
+      "powershell/PowerToys/collect-or-apply-milestones.ps1": 3
+    },
+    "powershell/core": {
+      "powershell/core/PowerShell__build.psm1": 4,
+      "powershell/core/RegisterManifest.ps1": 2,
+      "powershell/core/Run-AttackSurfaceAnalyzer.ps1": 6,
+      "powershell/core/analyze-pr-test-failures.ps1": 3,
+      "powershell/core/build.psm1": 4,
+      "powershell/core/packaging.psm1": 0
+    },
+    "powershell/nvda": {
+      "powershell/nvda/ensureuv.ps1": 1,
+      "powershell/nvda/installNVDA.ps1": 0
+    },
+    "powershell/roslyn": {
+      "powershell/roslyn/Get-CIStatus.ps1": 9,
+      "powershell/roslyn/Get-CodeflowStatus.ps1": 1,
+      "powershell/roslyn/build-utils.ps1": 2,
+      "powershell/roslyn/build.ps1": 8,
+      "powershell/roslyn/check-for-loc-changes.ps1": 0,
+      "powershell/roslyn/cleanup_perf.ps1": 0,
+      "powershell/roslyn/common__build.ps1": 1,
+      "powershell/roslyn/configure-sdl-tool.ps1": 0,
+      "powershell/roslyn/execute-all-sdl-tools.ps1": 3,
+      "powershell/roslyn/install-tool.ps1": 4,
+      "powershell/roslyn/mark-shipped.ps1": 0,
+      "powershell/roslyn/nuget-verification.ps1": 1
+    },
+    "powershell/runtime": {
+      "powershell/runtime/build-docker-sdk.ps1": 1
+    },
+    "python/fastapi/tests": {
+      "python/fastapi/tests/test_fastapi_cli.py": 0
+    },
+    "python/numpy": {
+      "python/numpy/crackfortran.py": 1
+    },
+    "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/cmpsc.rexx": 24,
+      "rexx/hercules_hyperion/hcommand.rexx": 2,
+      "rexx/hercules_hyperion/hexecio.rexx": 0
+    },
+    "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/colonies.rexx": 0,
+      "rexx/ibm_z_zos/domchk.rexx": 0,
+      "rexx/ibm_z_zos/i.rexx": 2,
+      "rexx/ibm_z_zos/jobwait.rexx": 1,
+      "rexx/ibm_z_zos/rangelks2.rexx": 5,
+      "rexx/ibm_z_zos/wjscrck.rexx": 5
+    },
+    "ruby/rails": {
+      "ruby/rails/Rakefile": 3
+    },
+    "rust/bevy": {
+      "rust/bevy/bevy_ecs_query.rs": 0,
+      "rust/bevy/bevy_ecs_world.rs": 8
+    },
+    "rust/holylang": {
+      "rust/holylang/parser.rs": 6,
+      "rust/holylang/semantic.rs": 2,
+      "rust/holylang/transpiler.rs": 2
+    },
+    "rust/serde": {
+      "rust/serde/serde_derive_de.rs": 1
+    },
+    "rust/tokio": {
+      "rust/tokio/maybe_done.rs": 1,
+      "rust/tokio/tokio_mpsc_bounded.rs": 0
+    },
+    "rust/wasmtime": {
+      "rust/wasmtime/wasmtime_instance.rs": 9,
+      "rust/wasmtime/wasmtime_pulley_interp.rs": 3
+    },
+    "shell/brew": {
+      "shell/brew/download_strategy.rb": 2
+    },
+    "shell/kubernetes": {
+      "shell/kubernetes/configure-helper.sh": 4,
+      "shell/kubernetes/etcd.sh": 0,
+      "shell/kubernetes/iks__config-default.sh": 0,
+      "shell/kubernetes/log-dump.sh": 5
+    },
+    "shell/linux": {
+      "shell/linux/deflate_xip_data.sh": 0
+    },
+    "shell/moby": {
+      "shell/moby/dockerd-rootless-setuptool.sh": 5
+    },
+    "shell/serenity": {
+      "shell/serenity/analyze-qemu-coverage.sh": 0
+    },
+    "solidity/openzeppelin": {
+      "solidity/openzeppelin/Proxy.sol": 0
+    },
+    "swift/alamofire": {
+      "swift/alamofire/AFError.swift": 0,
+      "swift/alamofire/Session.swift": 0
+    },
+    "tcl/macports_port_api": {
+      "tcl/macports_port_api/portbump.tcl": 0,
+      "tcl/macports_port_api/portchecksum.tcl": 0,
+      "tcl/macports_port_api/portinstall.tcl": 0,
+      "tcl/macports_port_api/portlivecheck.tcl": 0,
+      "tcl/macports_port_api/portmain.tcl": 0
+    },
+    "tcl/macports_registry": {
+      "tcl/macports_registry/common.tcl": 0,
+      "tcl/macports_registry/receipt_flat.tcl": 2
+    },
+    "tcl/sqlite": {
+      "tcl/sqlite/tester.tcl": 3,
+      "tcl/sqlite/testrunner.tcl": 20
+    },
+    "typescript/playwright": {
+      "typescript/playwright/frames.ts": 1
+    },
+    "typescript/vscode": {
+      "typescript/vscode/eslint.config.js": 0
+    },
+    "zig/bun": {
+      "zig/bun/MimallocArena.zig": 0,
+      "zig/bun/Parser.zig": 0,
+      "zig/bun/napi.zig": 0
+    },
+    "zig/tigerbeetle": {
+      "zig/tigerbeetle/aof.zig": 0,
+      "zig/tigerbeetle/build.zig": 5,
+      "zig/tigerbeetle/build_multiversion.zig": 0,
+      "zig/tigerbeetle/cluster.zig": 0
+    },
+    "zig/zig": {
+      "zig/zig/Compilation.zig": 0,
+      "zig/zig/InternPool.zig": 2,
+      "zig/zig/main.zig": 0
+    },
+    "zig/zls/mach": {
+      "zig/zls/mach/Core.zig": 7,
+      "zig/zls/mach/module.zig": 3
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "6. Contextual Mitigations & Amplifications",
+    "High-Risk Execution Commands (Weighted View)"
+  ]
+}

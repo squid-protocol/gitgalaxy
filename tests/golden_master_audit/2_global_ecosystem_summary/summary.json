@@ -1,0 +1,32 @@
+{
+  "path": [
+    "2. Global Ecosystem Summary",
+    "summary"
+  ],
+  "value": {
+    "Percent_Visible": 90.4,
+    "dominant_language": "c",
+    "file_composition_distribution": {
+      "Callbacks & Closures Files": 56,
+      "Compute Cores Files": 72,
+      "Data / Markup / Trivial": 619,
+      "Declarative / Non-Code": 727,
+      "Encapsulated Accessors Files": 56,
+      "Generic / Templated Code Files": 65,
+      "Interface Declarations Files": 403,
+      "Large Core Modules": 333,
+      "Large Core Modules (2)": 243,
+      "Large Core Modules (3)": 314,
+      "Many-Argument Workhorses Files": 73,
+      "Parameter Forwarders Files": 152,
+      "State Mutators Files": 74,
+      "Type Conversions Files": 11
+    },
+    "repo_composition_archetype": "Hub-Coupled Monorepo",
+    "repo_composition_z": 5.555,
+    "total_files": 3538,
+    "total_loc": 909762,
+    "verified_files": 3198,
+    "volatility_index": 0.0
+  }
+}

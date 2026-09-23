@@ -1,0 +1,476 @@
+{
+  "path": [
+    "4. High-Value Forensic Report",
+    "exposures"
+  ],
+  "value": {
+    "api_exposure": {
+      "highest": [
+        {
+          "name": "main.py",
+          "path": "python/fastapi/tests/main.py",
+          "value": 100.0
+        },
+        {
+          "name": "HyperText.h",
+          "path": "objective-c/worldwideweb/HyperText.h",
+          "value": 100.0
+        },
+        {
+          "name": "constants.zig",
+          "path": "zig/tigerbeetle/constants.zig",
+          "value": 91.6143
+        }
+      ],
+      "lowest": [
+        {
+          "name": "testrunner.tcl",
+          "path": "tcl/sqlite/testrunner.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "tester.tcl",
+          "path": "tcl/sqlite/tester.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "speedtest.tcl",
+          "path": "tcl/sqlite/speedtest.tcl",
+          "value": 0.0
+        }
+      ]
+    },
+    "churn": {
+      "highest": [
+        {
+          "name": "zabapgit.prog.abap",
+          "path": "abap/abapGit/zabapgit.prog.abap",
+          "value": 0.0
+        },
+        {
+          "name": "zcl_abapgit_ajson.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_ajson.clas.abap",
+          "value": 0.0
+        },
+        {
+          "name": "zcl_abapgit_git_porcelain.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap",
+          "value": 0.0
+        }
+      ],
+      "lowest": [
+        {
+          "name": "testrunner.tcl",
+          "path": "tcl/sqlite/testrunner.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "tester.tcl",
+          "path": "tcl/sqlite/tester.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "speedtest.tcl",
+          "path": "tcl/sqlite/speedtest.tcl",
+          "value": 0.0
+        }
+      ]
+    },
+    "cognitive_load": {
+      "highest": [
+        {
+          "name": "library.tcl",
+          "path": "tcl/macports_port_api/library.tcl",
+          "value": 99.9997
+        },
+        {
+          "name": "coroutine.lua",
+          "path": "lua/cosmopolitan/coroutine.lua",
+          "value": 99.9964
+        },
+        {
+          "name": "events.lua",
+          "path": "lua/cosmopolitan/events.lua",
+          "value": 99.9553
+        }
+      ],
+      "lowest": [
+        {
+          "name": "entry.tcl",
+          "path": "tcl/macports_registry/entry.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "depends.tcl",
+          "path": "tcl/macports_registry/depends.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "Package.swift",
+          "path": "swift/alamofire/Package.swift",
+          "value": 0.0
+        }
+      ]
+    },
+    "concurrency": {
+      "highest": [
+        {
+          "name": "concurrency.py",
+          "path": "python/fastapi/fastapi/concurrency.py",
+          "value": 100.0
+        },
+        {
+          "name": "test_custom_middleware_exception.py",
+          "path": "python/fastapi/tests/test_custom_middleware_exception.py",
+          "value": 100.0
+        },
+        {
+          "name": "test_datastructures.py",
+          "path": "python/fastapi/tests/test_datastructures.py",
+          "value": 100.0
+        }
+      ],
+      "lowest": [
+        {
+          "name": "speedtest.tcl",
+          "path": "tcl/sqlite/speedtest.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "malloc_common.tcl",
+          "path": "tcl/sqlite/malloc_common.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "registry_util.tcl",
+          "path": "tcl/macports_registry/registry_util.tcl",
+          "value": 0.0
+        }
+      ]
+    },
+    "dead_code": {
+      "highest": [
+        {
+          "name": "Chapter_02_movexamps.s",
+          "path": "assembly/hellosilicon_aarch64/Chapter_02_movexamps.s",
+          "value": 99.959
+        },
+        {
+          "name": "tokio_named_pipe.rs",
+          "path": "rust/tokio/tokio_named_pipe.rs",
+          "value": 99.7975
+        },
+        {
+          "name": "comments.hlasm",
+          "path": "hlasm/che4z_hlasm/comments.hlasm",
+          "value": 99.7527
+        }
+      ],
+      "lowest": [
+        {
+          "name": "speedtest.tcl",
+          "path": "tcl/sqlite/speedtest.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "entry.tcl",
+          "path": "tcl/macports_registry/entry.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "depends.tcl",
+          "path": "tcl/macports_registry/depends.tcl",
+          "value": 0.0
+        }
+      ]
+    },
+    "documentation": {
+      "highest": [
+        {
+          "name": "zcl_abapgit_ajson.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_ajson.clas.abap",
+          "value": 100.0
+        },
+        {
+          "name": "zcl_abapgit_git_porcelain.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap",
+          "value": 100.0
+        },
+        {
+          "name": "zcl_abapgit_http_client.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_http_client.clas.abap",
+          "value": 100.0
+        }
+      ],
+      "lowest": [
+        {
+          "name": "speedtest.tcl",
+          "path": "tcl/sqlite/speedtest.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "Package.swift",
+          "path": "swift/alamofire/Package.swift",
+          "value": 0.0
+        },
+        {
+          "name": "AFError.swift",
+          "path": "swift/alamofire/AFError.swift",
+          "value": 0.0
+        }
+      ]
+    },
+    "safety_score": {
+      "highest": [
+        {
+          "name": "build-toolchain.sh",
+          "path": "shell/haiku/build-toolchain.sh",
+          "value": 100.0
+        },
+        {
+          "name": "config3270.sh",
+          "path": "shell/linux/config3270.sh",
+          "value": 100.0
+        },
+        {
+          "name": "mach_install_mig.sh",
+          "path": "shell/darwin-xnu/mach_install_mig.sh",
+          "value": 99.9999
+        }
+      ],
+      "lowest": [
+        {
+          "name": "Package.swift",
+          "path": "swift/alamofire/Package.swift",
+          "value": 0.0
+        },
+        {
+          "name": "wasm_001-sudoku.sql",
+          "path": "sqlite/sqlite_cli_scripts/wasm_001-sudoku.sql",
+          "value": 0.0
+        },
+        {
+          "name": "wasm_000-mandelbrot.sql",
+          "path": "sqlite/sqlite_cli_scripts/wasm_000-mandelbrot.sql",
+          "value": 0.0
+        }
+      ]
+    },
+    "secrets_risk": {
+      "highest": [
+        {
+          "name": "lgacdb01.cbl",
+          "path": "cobol/cics-genapp/lgacdb01.cbl",
+          "value": 99.0093
+        },
+        {
+          "name": "transport.py",
+          "path": "python/twisted/transport.py",
+          "value": 24.5628
+        },
+        {
+          "name": "zabapgit.prog.abap",
+          "path": "abap/abapGit/zabapgit.prog.abap",
+          "value": 0.0
+        }
+      ],
+      "lowest": [
+        {
+          "name": "testrunner.tcl",
+          "path": "tcl/sqlite/testrunner.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "tester.tcl",
+          "path": "tcl/sqlite/tester.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "speedtest.tcl",
+          "path": "tcl/sqlite/speedtest.tcl",
+          "value": 0.0
+        }
+      ]
+    },
+    "spec_match": {
+      "highest": [
+        {
+          "name": "zabapgit.prog.abap",
+          "path": "abap/abapGit/zabapgit.prog.abap",
+          "value": 0.0
+        },
+        {
+          "name": "zcl_abapgit_ajson.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_ajson.clas.abap",
+          "value": 0.0
+        },
+        {
+          "name": "zcl_abapgit_git_porcelain.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap",
+          "value": 0.0
+        }
+      ],
+      "lowest": [
+        {
+          "name": "testrunner.tcl",
+          "path": "tcl/sqlite/testrunner.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "tester.tcl",
+          "path": "tcl/sqlite/tester.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "speedtest.tcl",
+          "path": "tcl/sqlite/speedtest.tcl",
+          "value": 0.0
+        }
+      ]
+    },
+    "stability": {
+      "highest": [
+        {
+          "name": "zabapgit.prog.abap",
+          "path": "abap/abapGit/zabapgit.prog.abap",
+          "value": 50.0
+        },
+        {
+          "name": "zcl_abapgit_ajson.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_ajson.clas.abap",
+          "value": 50.0
+        },
+        {
+          "name": "zcl_abapgit_git_porcelain.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap",
+          "value": 50.0
+        }
+      ],
+      "lowest": [
+        {
+          "name": "testrunner.tcl",
+          "path": "tcl/sqlite/testrunner.tcl",
+          "value": 50.0
+        },
+        {
+          "name": "tester.tcl",
+          "path": "tcl/sqlite/tester.tcl",
+          "value": 50.0
+        },
+        {
+          "name": "speedtest.tcl",
+          "path": "tcl/sqlite/speedtest.tcl",
+          "value": 50.0
+        }
+      ]
+    },
+    "state_flux": {
+      "highest": [
+        {
+          "name": "EXECUTIVE.agc",
+          "path": "agc_assembly/apollo-11/EXECUTIVE.agc",
+          "value": 100.0
+        },
+        {
+          "name": "INTERPRETER.agc",
+          "path": "agc_assembly/apollo-11/INTERPRETER.agc",
+          "value": 100.0
+        },
+        {
+          "name": "loader.c",
+          "path": "assembly/cosmopolitan/loader.c",
+          "value": 100.0
+        }
+      ],
+      "lowest": [
+        {
+          "name": "portdepends.tcl",
+          "path": "tcl/macports_port_api/portdepends.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "Package.swift",
+          "path": "swift/alamofire/Package.swift",
+          "value": 0.0
+        },
+        {
+          "name": "tests_data_sqlite.sql",
+          "path": "sqlite/yii2_sqlite_schema/tests_data_sqlite.sql",
+          "value": 0.0
+        }
+      ]
+    },
+    "tech_debt": {
+      "highest": [
+        {
+          "name": "Chapter_04_codesnippets.s",
+          "path": "assembly/hellosilicon_aarch64/Chapter_04_codesnippets.s",
+          "value": 100.0
+        },
+        {
+          "name": "Chapter_05_codesnippets.s",
+          "path": "assembly/hellosilicon_aarch64/Chapter_05_codesnippets.s",
+          "value": 100.0
+        },
+        {
+          "name": "IC1074.2.cbl",
+          "path": "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl",
+          "value": 100.0
+        }
+      ],
+      "lowest": [
+        {
+          "name": "speedtest.tcl",
+          "path": "tcl/sqlite/speedtest.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "registry_util.tcl",
+          "path": "tcl/macports_registry/registry_util.tcl",
+          "value": 0.0
+        },
+        {
+          "name": "registry.tcl",
+          "path": "tcl/macports_registry/registry.tcl",
+          "value": 0.0
+        }
+      ]
+    },
+    "verification": {
+      "highest": [
+        {
+          "name": "zcl_abapgit_ajson.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_ajson.clas.abap",
+          "value": 80.0
+        },
+        {
+          "name": "zcl_abapgit_git_porcelain.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap",
+          "value": 80.0
+        },
+        {
+          "name": "zcl_abapgit_objects.clas.abap",
+          "path": "abap/abapGit/zcl_abapgit_objects.clas.abap",
+          "value": 80.0
+        }
+      ],
+      "lowest": [
+        {
+          "name": "lib.rs",
+          "path": "rust/tokio/lib.rs",
+          "value": 0.0
+        },
+        {
+          "name": "Client.php",
+          "path": "php/guzzle/Client.php",
+          "value": 0.0
+        },
+        {
+          "name": "configure.sh",
+          "path": "shell/reactos/configure.sh",
+          "value": 0.0
+        }
+      ]
+    }
+  }
+}

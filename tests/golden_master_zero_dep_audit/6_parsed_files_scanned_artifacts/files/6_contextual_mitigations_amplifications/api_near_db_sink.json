@@ -1,0 +1,22 @@
+{
+  "groups": {
+    "groovy/gradle": {
+      "groovy/gradle/DefaultPluginManager.java": "2 instances",
+      "groovy/gradle/DefaultProject.java": "10 instances"
+    },
+    "php/magento2": {
+      "php/magento2/Mysql.php": "12 instances"
+    },
+    "php/wordpress": {
+      "php/wordpress/class-wp-query.php": "1 instances"
+    },
+    "python/airflow": {
+      "python/airflow/scheduler_job_runner.py": "1 instances"
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "6. Contextual Mitigations & Amplifications",
+    "Api Near Db Sink"
+  ]
+}

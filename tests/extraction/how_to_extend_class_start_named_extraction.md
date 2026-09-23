@@ -236,7 +236,7 @@ files are shared touchpoints every language's PR edits:
   literal -- concurrent edits from different languages collide on the same lines).
 - `language_standards.py`'s `<!-- TREE_SITTER_ACCURACY_TABLE:BEGIN/END -->` summary table
   (regenerated wholesale by `--summary-table`, not edited per-language).
-- `tests/golden_master_audit.json` / `tests/golden_master_zero_dep_audit.json` (re-blessed
+- `tests/golden_master_audit/` / `tests/golden_master_zero_dep_audit/` (re-blessed
   wholesale by `crucible_check.py --update`, reflects whichever languages' fixes are present in
   the working tree at bless time).
 

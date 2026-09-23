@@ -19,10 +19,14 @@ The recipe it gives (load_and_sanitize + deep_compare) is what this tool runs,
 plus the bucketing every bless review does by hand.
 
 USAGE
-    git show HEAD:tests/golden_master_zero_dep_audit.json > /tmp/old.json
     LANGUAGE_CRUCIBLE_PATH=... python tests/tools/crucible_check.py --update --yes   # bless
-    python tests/tools/bless_scope.py /tmp/old.json tests/golden_master_zero_dep_audit.json
-    python tests/tools/bless_scope.py /tmp/old.json tests/golden_master_zero_dep_audit.json --show 20 --grep "State Mutations"
+    python tests/tools/bless_scope.py --from-head tests/golden_master_zero_dep_audit
+    python tests/tools/bless_scope.py --from-head tests/golden_master_zero_dep_audit --show 20 --grep "State Mutations"
+    python tests/tools/bless_scope.py /tmp/old.json tests/golden_master_zero_dep_audit
+
+Either argument may be a split fixture directory (#3384, tests/golden_store.py)
+or a plain JSON audit file (a scan's data_galaxy_audit.json, or a monolith
+exported with `python tests/golden_store.py export --rev <rev> <fixture> <out.json>`).
 
 Read the output top-down: the topological X/Y/Z volume is the corpus-wide 3D
 re-solve and is attributable as a class; the per-file section-7 keys say WHICH
@@ -35,13 +39,13 @@ from __future__ import annotations
 
 import argparse
 import collections
-import json
 import re
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import golden_diff as gd
+import golden_store
 
 _LANG = re.compile(r"/([a-z_\-]+)/[^/]+/[^/]*\.[a-zA-Z0-9]+")
 
@@ -60,7 +64,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument(
         "--from-head",
         action="store_true",
-        help="#2916: take the pre-bless fixture from `git show HEAD:<new>` itself, "
+        help="#2916: take the pre-bless fixture from HEAD's committed copy of <new> itself, "
         "so the whole recipe is one command run after the bless",
     )
     ap.add_argument("--show", type=int, default=8, help="substantive diff lines to print")
@@ -76,20 +80,21 @@ def main(argv: list[str] | None = None) -> int:
         if args.old is not None:
             ap.error("--from-head takes only the NEW fixture path")
         import subprocess
-        import tempfile
 
-        rel = str(Path(args.new).resolve().relative_to(Path.cwd().resolve()))
-        blob = subprocess.run(
-            ["git", "show", f"HEAD:{rel}"], capture_output=True, text=True, check=True
-        ).stdout
-        tf = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
-        tf.write(blob)
-        tf.close()
-        args.old = tf.name
+        top = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True, check=True
+        ).stdout.strip()
+        rel = Path(args.new).resolve().relative_to(Path(top).resolve()).as_posix()
+        committed = golden_store.load_from_git("HEAD", rel, repo=top)
+        if committed is None:
+            ap.error(f"{rel} does not exist at HEAD")
+        old = gd.sanitize(committed)
     elif args.old is None:
         ap.error("old fixture required (or pass --from-head)")
+    else:
+        old = gd.load_and_sanitize(args.old)
 
-    old, new = gd.load_and_sanitize(args.old), gd.load_and_sanitize(args.new)
+    new = gd.load_and_sanitize(args.new)
     diffs = gd.deep_compare(old, new)
     topo_set = {d for d in diffs if "Topological Coordinates" in d or re.search(r"/[XYZ]:", d)}
     rest = [d for d in diffs if d not in topo_set]
@@ -120,8 +125,9 @@ def main(argv: list[str] | None = None) -> int:
     table("by leaf key", leaves, 25)
     table("by language (per-file entries)", langs, 60)
 
-    o = _unparsable(json.loads(Path(args.old).read_text(encoding="utf-8")))
-    nw = _unparsable(json.loads(Path(args.new).read_text(encoding="utf-8")))
+    # sanitize() never touches section 5, so the loaded dicts serve directly.
+    o = _unparsable(old)
+    nw = _unparsable(new)
     moved_in = [(p, o[p]) for p in o if p not in nw]
     moved_out = [(p, nw[p]) for p in nw if p not in o]
     print(f"\nnewly parsed (was excluded): {moved_in or 'none'}")

@@ -26,7 +26,7 @@ Data flows through `gitgalaxy/core/` in this pipeline:
 ## 3. The Language Crucible & Golden Master Differential Scans
 
 Any PR touching parsing logic (`detector.py`, `prism.py`, etc.) is checked against the **Language Crucible** (a separate repo of hostile code structures) to guard against regex regressions.
-- GitGalaxy pins the crucible corpus and runs differential scans against `tests/golden_master_audit.json` and `tests/golden_master_zero_dep_audit.json`.
+- GitGalaxy pins the crucible corpus and runs differential scans against `tests/golden_master_audit/` and `tests/golden_master_zero_dep_audit/`.
 - **CRITICAL:** **Never hand-edit these fixtures.** If output intentionally changes, update them.
 - **Local Verification before Push:** Run:
   ```bash

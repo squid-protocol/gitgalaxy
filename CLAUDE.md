@@ -246,8 +246,8 @@ a wasted CI round-trip.
 ## The Differential Scan (PR protocol for engine/regex changes)
 
 Any PR touching parsing logic (`detector.py`, `language_standards.py`, `prism.py`, etc.) is
-expected to be verified against `tests/golden_master_audit.json` /
-`tests/golden_master_zero_dep_audit.json` — snapshots diffed by the `crucible-audit` CI check
+expected to be verified against `tests/golden_master_audit/` /
+`tests/golden_master_zero_dep_audit/` — snapshots diffed by the `crucible-audit` CI check
 against a ~80-repo corpus plus the PR's target repo. A failing diff means output changed: either
 a bug, or an intentional improvement that needs the baseline re-blessed. **Never hand-edit these
 fixtures.** Regenerate with `python tests/tools/crucible_check.py --update --yes` (default
@@ -261,6 +261,18 @@ only if you're already inside one specific mode's venv and deliberately want jus
 reaching for it from your default shell silently updates whichever ONE fixture matches whatever
 happens to be importable there (#2547: this cost a full investigation cycle before landing on
 `crucible_check.py --update` instead).
+
+**The fixtures are directories, not files (#3384).** Each is ~200 per-section JSON parts written
+by `tests/golden_store.py` — one file per top-level section key, and inside "6. Parsed Files" one
+file per (per-file section, sub-key) holding that value for every corpus file — so two PRs that
+each add a new fact channel, signal, or report section create *different new files* and merge
+without conflicts. Every reader goes through `golden_store.load()` (and so
+`golden_diff.load_and_sanitize()`), which reassembles the exact dict the old monolith held and
+fails loudly on a stray, misplaced, or orphaned part; `tests/test_golden_store.py` also asserts
+both committed fixtures are byte-canonical. For a single-file copy (e.g. a pre-bless snapshot),
+use `python tests/golden_store.py export --rev HEAD tests/golden_master_audit /tmp/old.json`, not
+`git show`. On a conflict inside a fixture, take main's side and re-run
+`crucible_check.py --update --yes` (or `rebase_rebless.py`, which does exactly that).
 
 **Rebasing a parser/channel PR after a sibling merges:** `python tests/tools/rebase_rebless.py`
 (#3385) automates the manual procedure PRs #3369/#3375 each did by hand — rebase onto
@@ -316,7 +328,7 @@ GITGALAXY_DISABLE_GIT_HISTORY=1 \
     --output /tmp/gm/ --file-speed --splicing-speed          # same flags as tests/test_golden_crucible.py
 python -c "
 import sys; sys.path.insert(0,'tests'); import golden_diff as gd
-g=gd.load_and_sanitize('tests/golden_master_zero_dep_audit.json')
+g=gd.load_and_sanitize('tests/golden_master_zero_dep_audit')   # split dir, #3384
 a=gd.load_and_sanitize('/tmp/gm/data_galaxy_audit.json')
 for d in gd.deep_compare(g,a): print(d)"
 ```

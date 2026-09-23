@@ -1,0 +1,13 @@
+{
+  "path": [
+    "2. Global Ecosystem Summary",
+    "network_macro"
+  ],
+  "value": {
+    "articulation_points": 194,
+    "assortativity": -0.25,
+    "avg_path_length": 4.3729,
+    "cyclic_density": 0.0337,
+    "modularity": 0.8481
+  }
+}

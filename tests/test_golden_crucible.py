@@ -25,6 +25,7 @@ from gitgalaxy.security.security_auditor import ML_AVAILABLE
 
 sys.path.insert(0, str(Path(__file__).parent))
 import golden_diff
+import golden_store
 from _crucible_pin import PINNED_TAG, pin_mismatch
 
 pytestmark = pytest.mark.golden_crucible
@@ -59,9 +60,7 @@ def test_golden_crucible_matches_baseline(tmp_path):
         pytest.fail(mismatch, pytrace=False)
 
     zero_dep = _zero_dependency_mode()
-    golden_master_path = REPO_ROOT / (
-        "tests/golden_master_zero_dep_audit.json" if zero_dep else "tests/golden_master_audit.json"
-    )
+    golden_master_path = REPO_ROOT / (golden_store.ZERO_DEPENDENCY if zero_dep else golden_store.FULL_PRECISION)
 
     output_dir = tmp_path / "telemetry_out"
     output_dir.mkdir()

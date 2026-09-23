@@ -35,7 +35,10 @@ successful --execute never pushes unless --push is also given.
 
 ARTIFACT FILES (conflicts resolve to main's side, then get regenerated --
 never hand-merged):
-    tests/golden_master_audit.json, tests/golden_master_zero_dep_audit.json,
+    everything under tests/golden_master_audit/ and
+    tests/golden_master_zero_dep_audit/ (the split fixtures, #3384 -- plus the
+    pre-#3384 monolithic `<dir>.json` names, so a branch cut before the split
+    rebases across it: its modify/delete conflict resolves to main's deletion),
     tests/ruff_audit_baseline.json, tests/mypy_audit_baseline.json,
     tests/dead_key_audit_baseline.json
 Any OTHER conflicted file is a code conflict: the run stops (rebase left
@@ -63,21 +66,19 @@ import os
 import re
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 # tests/ has no __init__.py anywhere in this repo -- import golden_diff as a
 # bare top-level module, same convention as bless_scope.py/audit_check.py.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import golden_diff
+import golden_store
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 PY = sys.executable
 
-GOLDEN_MASTERS = [
-    "tests/golden_master_audit.json",
-    "tests/golden_master_zero_dep_audit.json",
-]
+# Split fixture directories (#3384) -- see tests/golden_store.py.
+GOLDEN_MASTERS = list(golden_store.GOLDEN_MASTERS)
 LINT_BASELINES = [
     "tests/ruff_audit_baseline.json",
     "tests/mypy_audit_baseline.json",
@@ -85,7 +86,12 @@ LINT_BASELINES = [
 # Conflicts on these resolve to main's side (in `git rebase`, "--ours" means
 # upstream -- the reverse of what it means in `git merge`) and are then
 # regenerated. Everything else is a code conflict and stops the run.
-ARTIFACT_FILES = set(GOLDEN_MASTERS) | set(LINT_BASELINES) | {"tests/dead_key_audit_baseline.json"}
+ARTIFACT_FILES = set(LINT_BASELINES) | {"tests/dead_key_audit_baseline.json"}
+
+
+def is_artifact(path: str) -> bool:
+    return path in ARTIFACT_FILES or golden_store.is_golden_master_path(path)
+
 
 # Same filter bless_scope.py applies before bucketing a diff -- the corpus-wide
 # 3D re-solve, not foreign drift. See this module's docstring.
@@ -123,10 +129,12 @@ def merge_base(repo: Path, onto: str) -> str:
     return git(repo, "merge-base", "HEAD", onto).stdout.strip()
 
 
-def show(repo: Path, rev: str, path: str) -> str | None:
-    """`git show rev:path`, or None if that path doesn't exist at that rev."""
-    result = git(repo, "show", f"{rev}:{path}", check=False)
-    return result.stdout if result.returncode == 0 else None
+def committed_fixture(repo: Path, rev: str, fixture: str) -> dict:
+    """The sanitized golden master `fixture` as committed at `rev`, or {} if it
+    doesn't exist there. Reads the split directory, or the pre-#3384 monolith
+    when `rev` predates the split (golden_store.load_from_git)."""
+    data = golden_store.load_from_git(rev, fixture, repo=repo)
+    return golden_diff.sanitize(data) if data is not None else {}
 
 
 def touched_files(repo: Path, onto: str, head_ref: str = "HEAD") -> set[str]:
@@ -139,20 +147,6 @@ def touched_files(repo: Path, onto: str, head_ref: str = "HEAD") -> set[str]:
 # --------------------------------------------------------------------------
 # golden-master diffing helpers
 # --------------------------------------------------------------------------
-
-
-def _sanitized(text: str | None) -> dict:
-    """golden_diff.load_and_sanitize takes a file path -- round-trip through a
-    temp file rather than duplicating its sanitize rules here."""
-    if text is None:
-        return {}
-    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as f:
-        f.write(text)
-        path = f.name
-    try:
-        return golden_diff.load_and_sanitize(path)
-    finally:
-        os.unlink(path)
 
 
 def _is_topological(diff_line) -> bool:
@@ -179,8 +173,8 @@ def detect_owned_keys(repo: Path, base_ref: str, branch_ref: str = "HEAD") -> se
     at all. Call this before mutating the branch."""
     owned: set[str] = set()
     for fixture in GOLDEN_MASTERS:
-        base = _sanitized(show(repo, base_ref, fixture))
-        branch = _sanitized(show(repo, branch_ref, fixture))
+        base = committed_fixture(repo, base_ref, fixture)
+        branch = committed_fixture(repo, branch_ref, fixture)
         if not base and not branch:
             continue
         owned |= leaf_keys(golden_diff.deep_compare(base, branch))
@@ -193,9 +187,9 @@ def verify_no_foreign_drift(repo: Path, expect_keys: set[str], onto: str) -> lis
     expect_keys is foreign drift."""
     foreign: list[str] = []
     for fixture in GOLDEN_MASTERS:
-        main_side = _sanitized(show(repo, onto, fixture))
+        main_side = committed_fixture(repo, onto, fixture)
         path = repo / fixture
-        ours = _sanitized(path.read_text(encoding="utf-8")) if path.is_file() else {}
+        ours = golden_diff.load_and_sanitize(str(path)) if path.exists() else {}
         if not main_side and not ours:
             continue
         for d in golden_diff.deep_compare(main_side, ours):
@@ -219,8 +213,8 @@ def conflicted_files(repo: Path) -> list[str]:
 
 
 def classify(paths: list[str]) -> tuple[list[str], list[str]]:
-    artifact = [p for p in paths if p in ARTIFACT_FILES]
-    code = [p for p in paths if p not in ARTIFACT_FILES]
+    artifact = [p for p in paths if is_artifact(p)]
+    code = [p for p in paths if not is_artifact(p)]
     return artifact, code
 
 
@@ -247,8 +241,13 @@ def dry_run_preview(repo: Path, onto: str) -> list[str]:
 
 def resolve_artifact_conflicts(repo: Path, paths: list[str]) -> None:
     for path in paths:
-        git(repo, "checkout", "--ours", "--", path)
-        git(repo, "add", "--", path)
+        if git(repo, "checkout", "--ours", "--", path, check=False).returncode == 0:
+            git(repo, "add", "--", path)
+        else:
+            # modify/delete: main's side has no such file (e.g. a split-fixture
+            # part main no longer produces, or the pre-#3384 monolith) -- take
+            # the deletion; the regeneration step rewrites the fixture anyway.
+            git(repo, "rm", "-q", "--ignore-unmatch", "--", path)
 
 
 def run_real_rebase(repo: Path, onto: str) -> list[str] | None:

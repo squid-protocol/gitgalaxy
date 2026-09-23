@@ -1,0 +1,12 @@
+{
+  "path": [
+    "2. Global Ecosystem Summary",
+    "health"
+  ],
+  "value": {
+    "avg_cognitive_load": 20.11,
+    "avg_documentation": 52.117,
+    "avg_safety_score": 45.8,
+    "avg_tech_debt": 26.677
+  }
+}

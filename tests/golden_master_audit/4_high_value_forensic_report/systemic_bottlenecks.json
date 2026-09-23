@@ -1,0 +1,104 @@
+{
+  "path": [
+    "4. High-Value Forensic Report",
+    "systemic_bottlenecks"
+  ],
+  "value": {
+    "cascading_state_mutation": [
+      {
+        "btw": 0.0003,
+        "path": "python/numpy/core.py",
+        "score": 0.029,
+        "state_mutation": 100.0
+      },
+      {
+        "btw": 0.0003,
+        "path": "python/twisted/http.py",
+        "score": 0.029,
+        "state_mutation": 100.0
+      },
+      {
+        "btw": 0.0003,
+        "path": "python/cython/MemoryView.pyx",
+        "score": 0.027,
+        "state_mutation": 100.0
+      },
+      {
+        "btw": 0.0003,
+        "path": "python/twisted/defer.py",
+        "score": 0.027,
+        "state_mutation": 99.9997
+      },
+      {
+        "btw": 0.0003,
+        "path": "dockerfile/moby/builder/dockerfile/copy.go",
+        "score": 0.026,
+        "state_mutation": 95.106
+      }
+    ],
+    "fragile_dependency_chain": [
+      {
+        "close": 0.0179,
+        "err": 91.4708,
+        "path": "python/fastapi/fastapi/exceptions.py",
+        "score": 1.64
+      },
+      {
+        "close": 0.016,
+        "err": 75.2927,
+        "path": "python/fastapi/fastapi/types.py",
+        "score": 1.202
+      },
+      {
+        "close": 0.0137,
+        "err": 78.3421,
+        "path": "jcl/cics-banking-sample-application-cbsa/DEFAULT.jcl",
+        "score": 1.077
+      },
+      {
+        "close": 0.0159,
+        "err": 62.0321,
+        "path": "assembly/bootos/os.asm",
+        "score": 0.989
+      },
+      {
+        "close": 0.0174,
+        "err": 56.49,
+        "path": "scheme/racket/io.ss",
+        "score": 0.981
+      }
+    ],
+    "undocumented_critical_path": [
+      {
+        "doc": 100.0,
+        "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
+        "pr": 14.432,
+        "score": 1443.2
+      },
+      {
+        "doc": 100.0,
+        "path": "python/fastapi/fastapi/exceptions.py",
+        "pr": 5.413,
+        "score": 541.3
+      },
+      {
+        "doc": 100.0,
+        "path": "scheme/racket/io.ss",
+        "pr": 4.805,
+        "score": 480.5
+      },
+      {
+        "doc": 100.0,
+        "path": "javascript/jquery/core.js",
+        "pr": 4.723,
+        "score": 472.3
+      },
+      {
+        "doc": 100.0,
+        "path": "python/fastapi/fastapi/responses.py",
+        "pr": 4.163,
+        "score": 416.3
+      }
+    ]
+  }
+}

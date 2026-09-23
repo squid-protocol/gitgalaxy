@@ -1,0 +1,125 @@
+{
+  "groups": {
+    "ada/alire": {
+      "ada/alire/alire-dependencies-states.ads": {
+        "Literal Sites": 3,
+        "Wrapped Sites": 2
+      },
+      "ada/alire/alr-commands-init.adb": {
+        "Literal Sites": 1,
+        "Wrapped Sites": 2
+      },
+      "ada/alire/alr-commands-self_update.adb": {
+        "Literal Sites": 3,
+        "Wrapped Sites": 6
+      },
+      "ada/alire/alr-commands-show.adb": {
+        "Literal Sites": 2,
+        "Wrapped Sites": 6
+      },
+      "ada/alire/alr-commands.adb": {
+        "Literal Sites": 6,
+        "Wrapped Sites": 1
+      }
+    },
+    "c/cpython": {
+      "c/cpython/object.c": {
+        "Literal Sites": 35,
+        "Wrapped Sites": 1
+      },
+      "c/cpython/typeobject.c": {
+        "Literal Sites": 258,
+        "Wrapped Sites": 1
+      }
+    },
+    "c/sqlite": {
+      "c/sqlite/lemon.c": {
+        "Literal Sites": 28,
+        "Wrapped Sites": 2
+      }
+    },
+    "fortran/wrf": {
+      "fortran/wrf/module_configure.F": {
+        "Literal Sites": 9,
+        "Wrapped Sites": 9
+      },
+      "fortran/wrf/module_domain.F": {
+        "Literal Sites": 18,
+        "Wrapped Sites": 32
+      },
+      "fortran/wrf/module_initialize_real.F": {
+        "Literal Sites": 9,
+        "Wrapped Sites": 72
+      },
+      "fortran/wrf/module_physics_init.F": {
+        "Literal Sites": 6,
+        "Wrapped Sites": 27
+      },
+      "fortran/wrf/module_sf_noahdrv.F": {
+        "Literal Sites": 0,
+        "Wrapped Sites": 15
+      },
+      "fortran/wrf/wrf_timeseries.F": {
+        "Literal Sites": 5,
+        "Wrapped Sites": 11
+      }
+    },
+    "groovy/gradle": {
+      "groovy/gradle/DefaultPluginManager.java": {
+        "Literal Sites": 5,
+        "Wrapped Sites": 1
+      }
+    },
+    "groovy/spock_smoke_specs": {
+      "groovy/spock_smoke_specs/GroovyCallChain.groovy": {
+        "Literal Sites": 1,
+        "Wrapped Sites": 1
+      }
+    },
+    "java/springboot": {
+      "java/springboot/SpringApplication.java": {
+        "Literal Sites": 6,
+        "Wrapped Sites": 1
+      }
+    },
+    "javascript/react": {
+      "javascript/react/ReactFlightServer.js": {
+        "Literal Sites": 52,
+        "Wrapped Sites": 6
+      }
+    },
+    "perl/exiftool": {
+      "perl/exiftool/exiftool": {
+        "Literal Sites": 6,
+        "Wrapped Sites": 2
+      }
+    },
+    "python/cython": {
+      "python/cython/MemoryView.pyx": {
+        "Literal Sites": 8,
+        "Wrapped Sites": 1
+      }
+    },
+    "python/fastapi/tests": {
+      "python/fastapi/tests/test_exception_handlers.py": {
+        "Literal Sites": 3,
+        "Wrapped Sites": 1
+      },
+      "python/fastapi/tests/test_ws_router.py": {
+        "Literal Sites": 3,
+        "Wrapped Sites": 1
+      }
+    },
+    "scheme/racket": {
+      "scheme/racket/fun.c": {
+        "Literal Sites": 13,
+        "Wrapped Sites": 2
+      }
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "12. Calls Through Idiom Wrappers",
+    "panics_and_aborts"
+  ]
+}

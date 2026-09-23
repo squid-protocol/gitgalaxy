@@ -249,3 +249,26 @@ def test_agc_tc_q_is_a_return_not_a_call():
     code = "ROUTINE\t\tTC\tHELPER\n\t\tTC\tQ\n"
     calls = [c for v in _calls("agc_assembly", code).values() for c in v]
     assert "Q" not in calls
+
+
+@pytest.mark.parametrize(
+    "lang, code",
+    [
+        ("kotlin", "fun outer(x: Int) {\n    fun inner(y: Int): Int {\n        return y\n    }\n    go(x)\n}\n"),
+        (
+            "java",
+            "class A {\n  void outer(int x) {\n    class Local {\n      int inner(int y) {\n        return y;\n"
+            "      }\n    }\n    go(x);\n  }\n}\n",
+        ),
+        (
+            "scala",
+            "object O {\n  def outer(x: Int): Unit = {\n    def inner(y: Int): Int = {\n      y\n    }\n    go(x)\n  }\n}\n",
+        ),
+    ],
+)
+def test_nested_declaration_check_covers_the_annotation_free_pattern(lang, code):
+    # #3360 (C5) x #3359: the nested-declaration check runs for CALLS_OUT_C_STYLE_NO_ANNOTATION
+    # too, so a nested `inner` header is not a call while the real `go(` stays.
+    calls = _calls(lang, code)["outer"]
+    assert "go" in calls
+    assert "inner" not in calls

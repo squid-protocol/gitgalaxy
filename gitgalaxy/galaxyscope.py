@@ -29,6 +29,7 @@ from pathlib import Path
 from typing import Any, Optional, Union, cast
 
 from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
+from gitgalaxy.core.call_resolver import resolve_calls
 from gitgalaxy.core.detector import HAS_TIKTOKEN
 from gitgalaxy.core.guidestar_lens import GuideStarLens
 from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
@@ -1013,6 +1014,10 @@ class Orchestrator:
         # #3313 step 3: resolved idiom wrappers (wrapper_resolver.resolve_wrappers).
         self.wrappers: list[dict[str, Any]] = []
         self.transactions: list[dict[str, Any]] = []  # #3211-followup: CICS transaction map
+        # #3328: every calls_out_to name linked to its definition (call_resolver)
+        # and the per-step counts.
+        self.fcall_sites: list[dict[str, Any]] = []
+        self.fcall_stats: dict[str, Any] = {}
         self.unparsable_files: list[dict[str, Any]] = []
         self.anomalies: list[dict[str, str]] = []
         self.popularity_scores: dict[str, int] = {}
@@ -1138,6 +1143,9 @@ class Orchestrator:
             # popularity, blast radius and every risk score are unchanged --
             # see invocation_resolver.py's header for why that is deliberate.
             self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
+            # #3328: every function's calls_out_to linked to its definition, beside
+            # the graph for the same reason (edge_kind 'fcall', never in the DiGraph).
+            self._resolve_function_calls()
             # #3211-followup: the CICS transaction map, resolved the same way.
             self.transactions = resolve_transactions(self.parsed_files)
             # #3313 step 3: idiom wrappers, resolved repo-wide the same way and
@@ -1552,6 +1560,7 @@ class Orchestrator:
                         invocation_edges=self.invocation_edges,  # #3200
                         transactions=self.transactions,  # #3211-followup
                         wrappers=self.wrappers,  # #3313 step 3
+                        fcall_sites=self.fcall_sites,  # #3328
                     )
                 except Exception as e:
                     logger.error(
@@ -2025,6 +2034,20 @@ class Orchestrator:
         # _summarize_anomalies() later turns iteration order directly into
         # the "unparsable_artifacts" list order.
         self.anomalies.sort(key=lambda entry: (entry["star"], entry["diagnostic"]))
+
+    def _resolve_function_calls(self) -> None:
+        """#3328: resolve every function's calls_out_to against the whole repository.
+
+        Runs after the import graph (step 3 of the ladder reads its edges). The
+        per-step counts are logged here and kept on `fcall_stats` for #3331.
+        """
+        self.fcall_sites, self.fcall_stats = resolve_calls(self.parsed_files, self.network_sensor.dependency_edges)
+        by_step = self.fcall_stats.get("by_step", {})
+        logger.info(
+            "Call Resolver: %d call pairs -> %s",
+            len(self.fcall_sites),
+            ", ".join(f"{k}={by_step[k]}" for k in sorted(by_step)) or "none",
+        )
 
     def _resolve_dependency_graph(self):
         """
@@ -3098,6 +3121,7 @@ class Orchestrator:
 
             # #3200/#3201: same resolution in delta mode.
             self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
+            self._resolve_function_calls()  # #3328, same resolution in delta mode.
             # #3211-followup: the CICS transaction map, same resolution in delta mode.
             self.transactions = resolve_transactions(self.parsed_files)
             # #3313 step 3: idiom wrappers, resolved repo-wide the same way and
@@ -3148,6 +3172,7 @@ class Orchestrator:
                 invocation_edges=self.invocation_edges,  # #3200
                 transactions=self.transactions,  # #3211-followup
                 wrappers=self.wrappers,  # #3313 step 3
+                fcall_sites=self.fcall_sites,  # #3328
             )
 
             logger.info(

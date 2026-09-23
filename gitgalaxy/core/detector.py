@@ -44,6 +44,7 @@ from gitgalaxy.standards.language_standards import (
     COMPILED_HANDSHAKE_REGISTRY,
     HTML_NONEXECUTABLE_SCRIPT_TAG,
 )
+from gitgalaxy.standards.language_standards._shared_patterns import CALLS_OUT_C_STYLE
 
 HAS_TIKTOKEN = False
 try:
@@ -177,6 +178,9 @@ class FunctionNode(TypedDict, total=False):
 
     docstring: str
     calls_out_to: list[str]
+    # #3329: callee name -> the distinct receiver chains it was called through,
+    # in first-seen order; '' is a bare call. Empty for non-C-style languages.
+    calls_out_qualifiers: dict[str, list[str]]
     hit_vector: dict[str, int]
     token_mass: Optional[int]
 
@@ -869,6 +873,48 @@ _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
 # whose keywords are case-insensitive (fortran, abap, pli, rexx, db2_sql, ada)
 # declare their own lowercase words via the per-language `_calls_out_ignore`
 # rule, which is compared casefolded at the filter site.
+# #3329: member-access separators a call's qualifier is joined by -- `a.b()`,
+# `p->f()`, `Ns::f()`, `a?.b()`. Longest first, so `->`/`::`/`?.` win over `.`.
+_QUALIFIER_SEPARATORS = ("->", "::", "?.", ".")
+_QUALIFIER_MAX_SEGMENTS = 4
+_QUALIFIER_MAX_IDENT = 64
+
+
+def _call_qualifier(text: str, pos: int) -> str:
+    """The receiver chain written before the callee name that starts at `pos`.
+
+    `utils.parse(` -> `utils`, `self.store.save(` -> `self.store`, `$this->save(`
+    -> `this`, `Store::save(` -> `Store`, a bare `save(` -> `''`. A receiver that
+    is itself an expression (`f().save(`, `xs[0].save(`, a shielded string's
+    `"...".join(`) is `'<expr>'`: there is a receiver, but no name for it.
+    Separators normalise to `.`; PHP/Perl sigils drop. Walks backwards over at
+    most `_QUALIFIER_MAX_SEGMENTS` identifiers of at most `_QUALIFIER_MAX_IDENT`
+    characters each, so the cost per call site is bounded and no regex runs.
+    """
+    segments: list[str] = []
+    i = pos
+    for _ in range(_QUALIFIER_MAX_SEGMENTS):
+        j = i
+        while j > 0 and text[j - 1] in " \t\r\n" and i - j < 80:
+            j -= 1
+        sep = next((s for s in _QUALIFIER_SEPARATORS if text.startswith(s, j - len(s)) and j >= len(s)), None)
+        if sep is None:
+            break
+        k = j - len(sep)
+        while k > 0 and text[k - 1] in " \t\r\n" and j - k < 80:
+            k -= 1
+        start = k
+        while start > 0 and k - start < _QUALIFIER_MAX_IDENT and (text[start - 1].isalnum() or text[start - 1] in "_$"):
+            start -= 1
+        ident = text[start:k].lstrip("$")
+        if not ident or ident[0].isdigit():
+            segments.append("<expr>")
+            break
+        segments.append(ident)
+        i = start
+    return ".".join(reversed(segments))
+
+
 _CALLS_OUT_GLOBAL_IGNORE = frozenset(
     {
         "if",
@@ -8757,12 +8803,26 @@ class StructuralExtractor:
         # it is returned as empty (intentional blindness) rather than guessing.
         invocation_pattern = rules.get("calls_out")
 
-        if not invocation_pattern:
-            raw_calls = []
-        else:
+        # #3329: for the C-style family, the receiver chain written before each
+        # callee (`utils.parse` -> `utils`) rides beside calls_out_to, keyed by
+        # callee name, so the list itself keeps its element type. Other
+        # invocation families name their callee with a verb or by position and
+        # carry no qualifier: their map stays empty, meaning "not captured".
+        qualifiers_seen: dict[str, list[str]] = {}
+        raw_calls: list[str] = []
+        if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
-            raw_calls = invocation_pattern.findall(safe_block)
+            if invocation_pattern is CALLS_OUT_C_STYLE:
+                for m in invocation_pattern.finditer(safe_block):
+                    callee = m.group(1)
+                    raw_calls.append(callee)
+                    seen = qualifiers_seen.setdefault(callee, [])
+                    qualifier = _call_qualifier(safe_block, m.start(1))
+                    if qualifier not in seen:
+                        seen.append(qualifier)
+            else:
+                raw_calls = invocation_pattern.findall(safe_block)
 
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).
         # Authored lowercase in the profile and compared casefolded, so
@@ -8789,6 +8849,7 @@ class StructuralExtractor:
         sat: FunctionNode = {
             "name": name,
             "calls_out_to": calls_out,
+            "calls_out_qualifiers": {c: qualifiers_seen[c] for c in calls_out if c in qualifiers_seen},
             "texture": texture_str,
             "type_id": texture_str,
             "loc": loc,

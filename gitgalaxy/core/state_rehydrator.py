@@ -19,6 +19,8 @@ import sqlite3
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.call_resolver import decode_qualifiers
+
 
 def _json_list(value: Any) -> list:
     """Decode a persisted JSON-list column (e.g. calls_out_to) back to a list.
@@ -327,6 +329,13 @@ class StateRehydrator:
                         # list (network_risk_sensor's test-coverage mapping iterates it);
                         # decode it so risk_verification's coverage graph resolves.
                         "calls_out_to": _json_list(r["calls_out_to"]) if "calls_out_to" in rk else [],
+                        # #3328/#3329: the call resolver keys functions by start line
+                        # and reads the per-callee receiver chains.
+                        "calls_out_qualifiers": decode_qualifiers(
+                            _json_list(r["calls_out_to"]) if "calls_out_to" in rk else [],
+                            _json_list(r["calls_out_qualifiers"]) if "calls_out_qualifiers" in rk else None,
+                        ),
+                        "start_line": int(r["start_line"] or 0) if "start_line" in rk else 0,
                         # engine stores the complexity/branch metric under "branch"
                         # (signal_processor reads func["branch"] for z-scores + archetype).
                         "branch": r["complexity"] if "complexity" in rk and r["complexity"] is not None else 0,

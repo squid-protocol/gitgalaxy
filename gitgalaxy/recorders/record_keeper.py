@@ -22,6 +22,7 @@ import statistics
 from pathlib import Path
 from typing import Any, Optional, TypedDict, cast
 
+from gitgalaxy.core.call_resolver import encode_qualifiers
 from gitgalaxy.standards.analysis_lens import (
     ENGINE_CONSTANTS,
     GENERAL_FILE_INFERENCE_MODEL,
@@ -175,6 +176,12 @@ def _ordered_raw_imports(raw_imports: Any) -> list:
         (list(x) if isinstance(x, tuple) else x for x in (raw_imports or [])),
         key=lambda x: (1, x) if isinstance(x, list) else (0, [x]),
     )
+
+
+def _qualifiers_json(func: dict) -> Optional[str]:
+    """#3329: function_data.calls_out_qualifiers -- NULL where none are captured."""
+    encoded = encode_qualifiers(list(func.get("calls_out_to") or []), func.get("calls_out_qualifiers") or {})
+    return None if encoded is None else json.dumps(encoded, separators=(",", ":"))
 
 
 class RecordKeeper:
@@ -446,6 +453,7 @@ class RecordKeeper:
         invocation_edges: Optional[list[dict]] = None,
         transactions: Optional[list[dict]] = None,
         wrappers: Optional[list[dict]] = None,
+        fcall_sites: Optional[list[dict]] = None,
     ):
         """
         Builds the formal relational SQLite database directly from pipeline RAM state.
@@ -477,6 +485,11 @@ class RecordKeeper:
         list of project-local idiom wrappers with their resolved call sites,
         persisted as wrapper_data. Each file's raw `wrapper_facts` (what the
         resolution reads) is persisted on file_data so a delta scan can re-run it.
+
+        `fcall_sites` (#3328) is `call_resolver.resolve_calls()`'s first return
+        value: every (caller function, callee name) pair the repository defines
+        becomes fcall_data (external callees are not rows); the view
+        fcall_file_edges aggregates the confident cross-file pairs by file.
 
         All default to None, so a caller predating #3200/#3211-followup/#3313
         writes no boundary or wrapper rows rather than empty ones.
@@ -767,6 +780,7 @@ class RecordKeeper:
                 func_z_score REAL DEFAULT 0.0,
                 docstring TEXT,
                 calls_out_to TEXT,
+                calls_out_qualifiers TEXT,
                 token_mass INTEGER DEFAULT 0,
                 is_public INTEGER DEFAULT 0,
                 is_documented INTEGER DEFAULT 0,
@@ -1084,6 +1098,52 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_wrapper_rule ON wrapper_data(rule);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_wrapper_snapshot ON wrapper_data(repo_name, commit_hash);")
 
+        # #3328 (Epic #3265 step 1): one row per (caller function, callee name)
+        # that the repository DEFINES somewhere -- core/call_resolver.py's link
+        # from the call to that definition, and how it was chosen. `step` is the
+        # ladder rung (class / qualified / file / import / unique -- confident;
+        # nearest / receiver / tie -- ambiguous, never an edge_data row),
+        # `candidates` how many files define the name. A callee no file defines
+        # (a built-in, the standard library, a package) is NOT a row: it is every
+        # calls_out_to entry of the function without one, and the resolver's
+        # per-step counts (#3331) include it.
+        # Deliberately lean, because it is by far the largest table (1.5M rows on
+        # elasticsearch): the snapshot is src_file_id's file_data row, so there
+        # is no per-row repo_name/commit_hash, and src_func_name is kept only for
+        # a synthetic top-level slice (no function_data row; src_func_id NULL).
+        # dst_func_id / dst_class_id say which kind of definition a call reached
+        # (a constructor call names a class). Hangs off the CALLING file with the
+        # usual cascade, which the src_file_id index keeps from being a scan.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS fcall_data (
+                id INTEGER PRIMARY KEY,
+                src_file_id INTEGER,
+                src_func_id INTEGER,
+                src_func_name TEXT,
+                callee TEXT,
+                step TEXT,
+                candidates INTEGER,
+                dst_file_id INTEGER,
+                dst_func_id INTEGER,
+                dst_class_id INTEGER,
+                FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_fcall_src_file ON fcall_data(src_file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_fcall_dst_func ON fcall_data(dst_func_id);")
+        # The file-level view of the confident cross-file calls. Not edge_data
+        # rows: every fcall_data row already carries both file ids, and a copy in
+        # edge_data (with its per-row snapshot key) cost ~30MB on elasticsearch.
+        # Like edge_data's 'call'/'exec' kinds these are NOT graph edges (#3333).
+        cursor.execute("""
+            CREATE VIEW IF NOT EXISTS fcall_file_edges AS
+            SELECT src_file_id, dst_file_id, COUNT(*) AS calling_pairs
+            FROM fcall_data
+            WHERE step IN ('class', 'qualified', 'file', 'import', 'unique')
+              AND dst_file_id IS NOT NULL AND dst_file_id <> src_file_id
+            GROUP BY src_file_id, dst_file_id
+        """)
+
         # #2908 Phase 2: per-unit is_public/is_documented (function_data.
         # docs/risk_documentation_contract.md). Auto-heal for a pre-#2908
         # database whose function_data table (the CREATE IF NOT EXISTS
@@ -1102,6 +1162,17 @@ class RecordKeeper:
         except sqlite3.OperationalError as exc:
             if "duplicate column name" in str(exc).lower():
                 self.logger.debug("Schema migration skipped: 'is_documented' already exists.")
+            else:
+                raise
+
+        # #3329: the receiver chain per callee, a JSON list aligned with
+        # calls_out_to (call_resolver.encode_qualifiers). Same auto-heal for a
+        # pre-#3329 database.
+        try:
+            cursor.execute("ALTER TABLE function_data ADD COLUMN calls_out_qualifiers TEXT")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" in str(exc).lower():
+                self.logger.debug("Schema migration skipped: 'calls_out_qualifiers' already exists.")
             else:
                 raise
 
@@ -1207,6 +1278,12 @@ class RecordKeeper:
             "DELETE FROM edge_data WHERE repo_name = ? AND commit_hash = ?",
             (repo_name, commit_hash),
         )
+        # #3328: fcall_data is the largest cascade child; one indexed pass by file.
+        cursor.execute(
+            "DELETE FROM fcall_data WHERE src_file_id IN "
+            "(SELECT id FROM file_data WHERE repo_name = ? AND commit_hash = ?)",
+            (repo_name, commit_hash),
+        )
         cursor.execute(
             "DELETE FROM file_data WHERE repo_name = ? AND commit_hash = ?",
             (repo_name, commit_hash),
@@ -1240,7 +1317,7 @@ class RecordKeeper:
         # the old per-row path.
         all_file_rows: list = []
         all_class_rows: list = []
-        all_func_rows = []
+        all_func_rows: list[list[Any]] = []
 
         def _seq_base(table: str) -> int:
             row = cursor.execute("SELECT seq FROM sqlite_sequence WHERE name = ?", (table,)).fetchone()
@@ -1248,6 +1325,12 @@ class RecordKeeper:
 
         file_id_base = _seq_base("file_data")
         class_id_base = _seq_base("class_data")
+        func_id_base = _seq_base("function_data")
+        # #3328: definition -> the row it became, so fcall_data can name functions
+        # and classes by id. Keyed by (path, name, start_line) / (path, name): the
+        # resolver reads the same dicts but never sees a row id.
+        func_key_to_id: dict[tuple[str, str, int], int] = {}
+        class_key_to_id: dict[tuple[str, str], int] = {}
 
         # #2992: graph node (file path) -> the file_data row it became, for edge_data.
         path_to_file_id: dict[str, int] = {}
@@ -1747,6 +1830,7 @@ class RecordKeeper:
                     )
                 )
                 class_id_map[cls.get("name")] = class_id
+                class_key_to_id.setdefault((file_data.get("path", ""), str(cls.get("name") or "")), class_id)
 
             # 2. Extract and Accumulate Functions into Master Array
             for func in functions:
@@ -1755,6 +1839,10 @@ class RecordKeeper:
 
                 parent_class_name = func.get("parent_class_name")
                 parent_class_id = class_id_map.get(parent_class_name) if parent_class_name else None
+                func_key_to_id.setdefault(
+                    (file_data.get("path", ""), str(func.get("name") or ""), int(func.get("start_line", 0) or 0)),
+                    func_id_base + len(all_func_rows) + 1,
+                )
 
                 all_func_rows.append(
                     [
@@ -1771,6 +1859,7 @@ class RecordKeeper:
                         float(func.get("z_score", 0.0)),
                         str(func.get("docstring", ""))[:2000],
                         json.dumps(func.get("calls_out_to", [])),
+                        _qualifiers_json(func),
                         (int(func.get("token_mass")) if func.get("token_mass") is not None else None),
                         int(bool(func.get("is_public", False))),
                         int(bool(func.get("is_documented", False))),
@@ -1839,7 +1928,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,
@@ -1924,6 +2013,49 @@ class RecordKeeper:
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     invocation_rows,
+                )
+
+        # #3328: every (caller, callee name) pair the repository defines. A pair
+        # whose calling file has no file_data row (relegated by the audit) is
+        # skipped; a destination with no row keeps its step but NULL ids.
+        if fcall_sites:
+            fcall_rows = []
+            for site in fcall_sites:
+                if site.get("step") == "none":
+                    continue
+                src_path = str(site.get("src_path") or "")
+                src_id = path_to_file_id.get(src_path)
+                if src_id is None:
+                    continue
+                synthetic = bool(site.get("src_synthetic"))
+                src_name = str(site.get("src_name") or "")
+                dst_path = str(site.get("dst_path") or "")
+                dst_name = str(site.get("dst_name") or "")
+                dst_kind = site.get("dst_kind")
+                fcall_rows.append(
+                    (
+                        src_id,
+                        None if synthetic else func_key_to_id.get((src_path, src_name, int(site.get("src_line") or 0))),
+                        src_name[:255] if synthetic else None,
+                        str(site.get("callee") or "")[:255],
+                        site.get("step"),
+                        int(site.get("candidates", 0) or 0),
+                        path_to_file_id.get(dst_path) if dst_path else None,
+                        func_key_to_id.get((dst_path, dst_name, int(site.get("dst_line") or 0)))
+                        if dst_kind == "function"
+                        else None,
+                        class_key_to_id.get((dst_path, dst_name)) if dst_kind == "class" else None,
+                    )
+                )
+            if fcall_rows:
+                cursor.executemany(
+                    """
+                    INSERT INTO fcall_data (
+                        src_file_id, src_func_id, src_func_name, callee, step, candidates,
+                        dst_file_id, dst_func_id, dst_class_id
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                    fcall_rows,
                 )
 
         # #3200: every call site, resolved or not. Unlike the edges above, a

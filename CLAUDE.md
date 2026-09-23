@@ -258,6 +258,19 @@ reaching for it from your default shell silently updates whichever ONE fixture m
 happens to be importable there (#2547: this cost a full investigation cycle before landing on
 `crucible_check.py --update` instead).
 
+**Rebasing a parser/channel PR after a sibling merges:** `python tests/tools/rebase_rebless.py`
+(#3385) automates the manual procedure PRs #3369/#3375 each did by hand — rebase onto
+`origin/main`, take main's side for golden masters/ruff/mypy/dead-key baselines on conflict (a
+code-file conflict instead stops the run with a clear list rather than being auto-resolved),
+re-bless with `crucible_check.py --update`, then **verify** the resulting golden-master diff
+against main is limited to this branch's own new keys (auto-detected from the pre-rebase
+branch-vs-merge-base diff, or passed via `--expect-keys`) — failing loudly on any other
+("foreign") drift, the same scoped-review discipline "Scoping a bless" below describes. It then
+refreshes baseline entries for moved lines in touched files only and runs ruff check/format plus
+a fast, touched-file-scoped test selection. The default is a dry run (a read-only `git
+merge-tree` preview, no branch mutation); `--execute` performs it for real, and `--push` (only
+valid with `--execute`) does `git push --force-with-lease` — never plain force.
+
 The same PR paths also run `tri-comparison-audit.yml`, a baseline-gated regression check on
 GitGalaxy's own **validated** precision against tree-sitter+ctags (see `docs/self_scan/
 tri_comparison_README.md`'s "CI enforcement" section) — a distinct, blocking check from the

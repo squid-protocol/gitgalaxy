@@ -4,8 +4,8 @@
   1. Every (caller, callee) pair the repository defines is an fcall_data row whose
      src/dst function ids point at the function_data rows of the right functions;
      an external callee (defined nowhere) is not a row.
-  2. The fcall_file_edges view aggregates only confident cross-file pairs, and
-     edge_data holds only the import edges (#2992's reconciliation is untouched).
+  2. Only confident cross-file pairs no import already covers join the
+     dependency graph, as edge_kind 'fcall' (#3333).
   3. calls_out_qualifiers is persisted, and the rehydrator restores it together
      with start_line, so a delta scan re-resolves to the same rows.
   4. Re-recording a snapshot does not duplicate rows.
@@ -103,19 +103,37 @@ def test_every_pair_is_a_row_with_the_right_ids(tmp_path):
     ]
 
 
-def test_file_view_holds_only_confident_cross_file_pairs(tmp_path):
+def test_confident_cross_file_pairs_join_the_graph(tmp_path):
+    # #3333: `Store` (unique, the class's file) is a call edge the import graph
+    # lacked; `parse` is already joined by an import, so it adds nothing; the
+    # ambiguous `get` and the same-file `helper` never become edges.
+    from gitgalaxy.core.call_resolver import confident_file_pairs
+    from gitgalaxy.core.network_risk_sensor import NetworkRiskSensor
+
+    files = _universe()
+    for f in files:
+        f.setdefault("telemetry", {})
+    sites, stats = resolve_calls(files, _IMPORTS)
+    pairs = confident_file_pairs(sites)
+    assert pairs == {("app/main.py", "lib/utils.py"): 1, ("app/main.py", "lib/store.py"): 1}
+    sensor = NetworkRiskSensor()
+    imports = {("app/main.py", "lib/utils.py"): {"weight": 1.0, "import_statements": 1, "entity_imports": 0}}
+    files, _ = sensor.build_dependency_graph(files, pairs, imports)
+    assert sorted((e["src"], e["dst"], e["edge_kind"]) for e in sensor.dependency_edges) == [
+        ("app/main.py", "lib/store.py", "fcall"),
+        ("app/main.py", "lib/utils.py", "import"),
+    ]
+    by_path = {f["path"]: f["telemetry"] for f in files}
+    assert by_path["lib/store.py"]["popularity"] == 1  # 0 on imports alone
+
     db = tmp_path / "f.db"
-    _record(db, _universe())
-    got = _rows(
-        db,
-        "SELECT s.file_path, d.file_path, v.calling_pairs FROM fcall_file_edges v "
-        "JOIN file_data s ON s.id = v.src_file_id JOIN file_data d ON d.id = v.dst_file_id "
-        "ORDER BY d.file_path",
+    RecordKeeper().record_mission(
+        files, [], {}, SESSION, str(db), dependency_edges=sensor.dependency_edges, fcall_sites=sites
     )
-    # the ambiguous `get` (lib/store.py's method) and the same-file `helper` are
-    # not in it; `Store` (unique, the class) and `parse` (import) are
-    assert got == [("app/main.py", "lib/store.py", 1), ("app/main.py", "lib/utils.py", 1)]
-    assert _rows(db, "SELECT edge_kind, COUNT(*) FROM edge_data GROUP BY edge_kind") == [("import", 1)]
+    assert _rows(db, "SELECT edge_kind, weight, import_statements FROM edge_data ORDER BY edge_kind") == [
+        ("fcall", 1.0, 1),
+        ("import", 1.0, 1),
+    ]
 
 
 def test_qualifiers_persist_and_rehydrate_to_the_same_resolution(tmp_path):
@@ -139,7 +157,7 @@ def test_rerecording_a_snapshot_does_not_duplicate(tmp_path):
     _record(db, _universe())
     _record(db, _universe())
     assert _rows(db, "SELECT COUNT(*) FROM fcall_data") == [(4,)]
-    assert _rows(db, "SELECT COUNT(*) FROM edge_data") == [(1,)]
+    assert _rows(db, "SELECT COUNT(*) FROM edge_data") == [(1,)]  # imports only: _record passes no call edges
 
 
 def test_rates_are_recorded_per_language_and_repo(tmp_path):

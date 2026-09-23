@@ -217,13 +217,13 @@ def test_call_edges_use_their_own_kind_and_leave_import_degrees_alone(recorded):
     kinds = dict(_rows(recorded, "SELECT edge_kind, COUNT(*) FROM edge_data GROUP BY edge_kind"))
     assert kinds == {"import": 1, "call": 1, "exec": 1}
 
-    # #2992's reconciliation, scoped to imports, still holds exactly.
+    # #2992's reconciliation, scoped to the graph's kinds (import + #3333's fcall), still holds exactly.
     for path, links, popularity, out_rows, in_rows in _rows(
         recorded,
         """
         SELECT f.file_path, f.internal_dependency_links, f.popularity,
-               (SELECT COUNT(*) FROM edge_data e WHERE e.src_file_id = f.id AND e.edge_kind = 'import'),
-               (SELECT COUNT(*) FROM edge_data e WHERE e.dst_file_id = f.id AND e.edge_kind = 'import')
+               (SELECT COUNT(*) FROM edge_data e WHERE e.src_file_id = f.id AND e.edge_kind IN ('import', 'fcall')),
+               (SELECT COUNT(*) FROM edge_data e WHERE e.dst_file_id = f.id AND e.edge_kind IN ('import', 'fcall'))
         FROM file_data f
         """,
     ):

@@ -29,7 +29,7 @@ from pathlib import Path
 from typing import Any, Optional, Union, cast
 
 from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
-from gitgalaxy.core.call_resolver import resolve_calls
+from gitgalaxy.core.call_resolver import confident_file_pairs, resolve_calls
 from gitgalaxy.core.detector import HAS_TIKTOKEN
 from gitgalaxy.core.function_graph import attach_function_metrics, function_metrics
 from gitgalaxy.core.guidestar_lens import GuideStarLens
@@ -1146,7 +1146,14 @@ class Orchestrator:
             # PHASE 4: Network Topology & Downstream Exposure
             # Computes PageRank and Betweenness Centrality on the assembled Dependency Graph.
             t_phase = time.time()
-            self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(self.parsed_files)
+            # #3333: imports first, then the call resolver (which scopes calls
+            # through them), then every graph metric over imports + confident
+            # cross-file calls.
+            import_edges = self.network_sensor.resolve_import_edges(self.parsed_files)
+            self._resolve_function_calls()
+            self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(
+                self.parsed_files, confident_file_pairs(self.fcall_sites), import_edges
+            )
             logger.debug(f"⏱️ EXECUTION_TIME [Phase 4 - Network Topology]: {time.time() - t_phase:.2f}s")
 
             # #3200/#3201: resolve the mainframe call graph AFTER the dependency
@@ -1155,9 +1162,6 @@ class Orchestrator:
             # popularity, blast radius and every risk score are unchanged --
             # see invocation_resolver.py's header for why that is deliberate.
             self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
-            # #3328: every function's calls_out_to linked to its definition, beside
-            # the graph for the same reason (edge_kind 'fcall', never in the DiGraph).
-            self._resolve_function_calls()
             # #3211-followup: the CICS transaction map, resolved the same way.
             self.transactions = resolve_transactions(self.parsed_files)
             # #3313 step 3: idiom wrappers, resolved repo-wide the same way and
@@ -3136,12 +3140,16 @@ class Orchestrator:
             self._resolve_dependency_graph()
             self._calculate_risk_exposures()
 
-            # Re-map the directed graph because nodes/edges have mutated
-            self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(self.parsed_files)
+            # Re-map the directed graph because nodes/edges have mutated (#3333:
+            # imports, then calls, then metrics over both -- as a full scan does).
+            import_edges = self.network_sensor.resolve_import_edges(self.parsed_files)
+            self._resolve_function_calls()
+            self.parsed_files, network_macro = self.network_sensor.build_dependency_graph(
+                self.parsed_files, confident_file_pairs(self.fcall_sites), import_edges
+            )
 
             # #3200/#3201: same resolution in delta mode.
             self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
-            self._resolve_function_calls()  # #3328, same resolution in delta mode.
             # #3211-followup: the CICS transaction map, same resolution in delta mode.
             self.transactions = resolve_transactions(self.parsed_files)
             # #3313 step 3: idiom wrappers, resolved repo-wide the same way and

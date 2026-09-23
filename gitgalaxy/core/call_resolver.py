@@ -36,13 +36,13 @@
 # matches the import resolver, where "an import that is still ambiguous draws
 # nothing" (invocation_resolver.py's header).
 #
-# THESE EDGES DO NOT ENTER THE GRAPH. The resolved pairs become fcall_data rows
-# (and the fcall_file_edges view over them), beside #3200's 'call'/'exec'
-# edge_data kinds. They are never handed to the DiGraph, so pagerank_score,
-# popularity, internal_dependency_links, blast radius and every risk score are
-# unchanged.
-# Whether call-derived file edges should feed those is #3333, decided with
-# #3237 after #3332 has measured accuracy.
+# THE FILE GRAPH (#3333). The resolved pairs become fcall_data rows, and the
+# CONFIDENT cross-file ones (confident_file_pairs) also join the dependency
+# graph as edge_kind 'fcall' wherever no import already joins the two files --
+# so pagerank_score, popularity, internal_dependency_links and blast radius see
+# a C file that calls into another translation unit, or a same-package Java
+# class, without an import statement. Ambiguous pairs never do. #3332 measured
+# confident links at ~96% precision against pyan3 before this was switched on.
 # ==============================================================================
 import posixpath
 from collections import Counter
@@ -95,6 +95,15 @@ _SUPER_RECEIVERS = frozenset({"super", "base", "parent"})
 # `func (r *T) Save()` is a top-level declaration), so a qualified call there may
 # reach any definition, not only a method.
 _OWNERLESS_METHOD_LANGS = frozenset({"go"})
+
+# Languages where a directory is a namespace: a class in a sibling file is
+# visible without an import (a Java/Kotlin/Scala/Groovy package, a Go package,
+# a C# namespace by convention). Elsewhere (Python, JS/TS, Ruby, PHP, C++) a
+# sibling file is not visible until imported, so an untyped receiver whose only
+# candidate is in the same directory stays an ambiguous `receiver` guess --
+# #3333 measured ~3.7k such same-directory Python pairs on cpython alone, which
+# would otherwise have become file-graph edges.
+_PACKAGE_DIR_LANGS = frozenset({"java", "kotlin", "scala", "groovy", "go", "csharp"})
 
 
 def encode_qualifiers(calls_out_to: list[str], qualifiers: dict[str, list[str]]) -> Optional[list[Any]]:
@@ -425,7 +434,7 @@ def _nearest_local(cset: _Set, caller: _File, cache: _Cache) -> Optional[_Defini
 def _visible_receiver(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, Optional[_Definition]]:
     """An untyped receiver (`x.save()`): confident only when exactly ONE visible
     class defines the method -- in the caller's own file, else among the files
-    it imports, else in its own directory. Several classes at the first level
+    it imports, else (package-scoped languages only) in its own directory. Several classes at the first level
     that has any (cython's Nodes.py defines `generate_execution_code` on ~40
     node classes; `self.body.generate_execution_code()` could be any of them)
     is the ambiguous `receiver` step, with the nearest as its guess (#3332)."""
@@ -441,7 +450,7 @@ def _visible_receiver(cset: _Set, caller: _File, cache: _Cache) -> tuple[str, Op
         if hit is not None:
             visible = [p for p in caller.imported if p in cset.owners]
             return ("import", hit) if classes(visible) == 1 else ("receiver", hit)
-    hit = _nearest_local(cset, caller, cache)
+    hit = _nearest_local(cset, caller, cache) if caller.lang in _PACKAGE_DIR_LANGS else None
     if hit is not None:
         local = [d.path for d in cset.by_dir.get(caller.dir, [])]
         return ("import", hit) if classes(local) == 1 else ("receiver", hit)
@@ -676,3 +685,19 @@ def resolution_rates(stats: dict[str, Any]) -> list[dict[str, Any]]:
                 repo[c] += r[c]
         rows.insert(0, _rate_row("*", repo))
     return rows
+
+
+def confident_file_pairs(sites: list[dict[str, Any]]) -> dict[tuple[str, str], int]:
+    """#3333: (caller file, callee file) -> how many calling functions link to
+    it confidently (scoped/unique), across files only. What the dependency
+    graph adds as call edges. A constructor call that reached a class counts:
+    the caller depends on the class's file either way."""
+    pairs: Counter[tuple[str, str]] = Counter()
+    for s in sites:
+        dst = s.get("dst_path")
+        # #3362: a transfer (COBOL GO TO) never joins the file graph.
+        if s.get("kind", "call") != "call":
+            continue
+        if dst and s.get("resolution") in CONFIDENT_RESOLUTIONS and dst != s.get("src_path"):
+            pairs[(s.get("src_path", ""), dst)] += 1
+    return dict(pairs)

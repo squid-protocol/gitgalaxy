@@ -502,8 +502,9 @@ class RecordKeeper:
 
         `fcall_sites` (#3328) is `call_resolver.resolve_calls()`'s first return
         value: every (caller function, callee name) pair the repository defines
-        becomes fcall_data (external callees are not rows); the view
-        fcall_file_edges aggregates the confident cross-file pairs by file.
+        becomes fcall_data (external callees are not rows). The confident
+        cross-file pairs arrive through `dependency_edges` instead, as graph
+        edges of kind 'fcall' (#3333).
 
         `call_resolution` (#3331) is `resolve_calls()`'s stats; its per-language
         and repository resolution-class counts become fcall_rate_data.
@@ -1294,18 +1295,10 @@ class RecordKeeper:
                 total INTEGER
             )
         """)
-        # The file-level view of the confident cross-file calls. Not edge_data
-        # rows: every fcall_data row already carries both file ids, and a copy in
-        # edge_data (with its per-row snapshot key) cost ~30MB on elasticsearch.
-        # Like edge_data's 'call'/'exec' kinds these are NOT graph edges (#3333).
-        cursor.execute("""
-            CREATE VIEW IF NOT EXISTS fcall_file_edges AS
-            SELECT src_file_id, dst_file_id, COUNT(*) AS calling_pairs
-            FROM fcall_data
-            WHERE step IN ('class', 'qualified', 'file', 'import', 'unique')
-              AND dst_file_id IS NOT NULL AND dst_file_id <> src_file_id
-            GROUP BY src_file_id, dst_file_id
-        """)
+        # #3333: the confident cross-file calls are now graph edges, recorded in
+        # edge_data as edge_kind 'fcall' (only where no import already joins the
+        # two files). The #3328 view that listed them beside the graph is gone.
+        cursor.execute("DROP VIEW IF EXISTS fcall_file_edges")
 
         # #2908 Phase 2: per-unit is_public/is_documented (function_data.
         # docs/risk_documentation_contract.md). Auto-heal for a pre-#2908

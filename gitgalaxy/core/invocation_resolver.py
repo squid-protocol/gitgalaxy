@@ -33,9 +33,11 @@
 # ought to count as architectural coupling is a scoring question with its own
 # measured before/after; it is deliberately not settled here (#3237). The one
 # consequence is that #2992's per-file reconciliation
-# (COUNT by src == internal_dependency_links) is now scoped to
-# `WHERE edge_kind = 'import'`, which is what tests/tools_recorders/
-# test_edge_data.py asserts.
+# (COUNT by src == internal_dependency_links) is now scoped to the graph's
+# kinds, `WHERE edge_kind IN ('import', 'fcall')` since #3333 added function
+# calls to the graph, which is what tests/tools_recorders/test_edge_data.py
+# asserts. (#3333 settled it for function calls; these program-level
+# 'call'/'exec' edges are still #3237's.)
 # ==============================================================================
 from typing import Any
 

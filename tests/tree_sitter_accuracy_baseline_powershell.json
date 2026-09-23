@@ -1,12 +1,12 @@
 {
-  "args_comparable": 257,
-  "args_exact_match": 252,
+  "args_comparable": 455,
+  "args_exact_match": 442,
   "corpus_path": "language-crucible/data/powershell",
   "extra_classes": 0,
   "extra_functions": 0,
-  "files_scanned": 108,
-  "found_classes": 9,
-  "found_functions": 257,
-  "real_classes": 9,
-  "real_functions": 257
+  "files_scanned": 123,
+  "found_classes": 33,
+  "found_functions": 455,
+  "real_classes": 33,
+  "real_functions": 485
 }

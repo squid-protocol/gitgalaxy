@@ -4,7 +4,7 @@
   "corpus_path": "language-crucible/data/kotlin",
   "extra_classes": 0,
   "extra_functions": 0,
-  "files_scanned": 5,
+  "files_scanned": 6,
   "found_classes": 7,
   "found_functions": 28,
   "real_classes": 7,

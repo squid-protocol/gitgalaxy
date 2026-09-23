@@ -119,8 +119,7 @@ def test_root_manifest_grants_project_scope(tmp_path):
 
 def test_nested_manifest_does_not_grant_project_scope(tmp_path):
     """A manifest buried in a subdirectory must NOT confer whole-scan project scope --
-    this is what keeps manifest-less corpus scans (e.g. language-crucible's data/ root)
-    fully shielded."""
+    manifests are only honoured at the scan root."""
     nested = tmp_path / "packages" / "widget"
     nested.mkdir(parents=True)
     (nested / "package.json").write_text(json.dumps({"main": "index.js"}), encoding="utf-8")
@@ -129,21 +128,13 @@ def test_nested_manifest_does_not_grant_project_scope(tmp_path):
     assert lens.has_manifest_scope is False
 
 
-def test_project_scope_stands_down_infra_shield_but_keeps_ignored_dirs(filter_engine):
-    """With project scope, a real project's own lib/test/examples source survives the
-    infra/test shield, but node_modules/vendor are still dropped by IGNORED_DIRECTORIES."""
-    shielded_source = ("lib/index.js", "test/app.test.js", "examples/mvc/lib/boot.js", "spec/foo_spec.js")
-
-    # Default (no manifest scope): the shield drops first-class source.
-    for path in shielded_source:
-        assert filter_engine._check_ignore_rules(path) is False, path
-
-    # Project scope stands the shield down.
-    filter_engine.manifest_project_scope = True
-    for path in shielded_source:
+def test_project_source_passes_without_manifest_but_ignored_dirs_still_drop(filter_engine):
+    """A real project's own lib/test/examples source survives with or without a root
+    manifest (#3278 removed the path-word shield #2555 used to stand down), while
+    node_modules/contraband are still dropped by their own independent gates."""
+    for path in ("lib/index.js", "test/app.test.js", "examples/mvc/lib/boot.js", "spec/foo_spec.js"):
         assert filter_engine._check_ignore_rules(path) is True, path
 
-    # ...but hard-ignored directories are still excluded (independent gate).
     for still_blocked in ("node_modules/express/index.js", "src/app.bundle.js"):
         assert filter_engine._check_ignore_rules(still_blocked) is False, still_blocked
 

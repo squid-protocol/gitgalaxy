@@ -155,6 +155,13 @@ class FolderStats(TypedDict):
     churns: list[float]
 
 
+# #3313 step 4: the rules a file carries a wrapper-aware `wrapped_<rule>` count
+# for. Mirrors core/wrapper_resolver.WRAPPED_RULES (kept local so the recorder
+# never imports the engine); tests/core_engine/test_wrapper_aware_counts.py
+# asserts the two stay equal.
+WRAPPED_RULES = ("debug_prints", "panics_and_aborts", "memory_alloc")
+
+
 def _ordered_raw_imports(raw_imports: Any) -> list:
     """`raw_imports` as a deterministic JSON-safe list (#3220, ordering per #3227).
 
@@ -668,7 +675,10 @@ class RecordKeeper:
                 mitigation_telemetry TEXT,
                 doc_umbrella REAL DEFAULT 0.0,
                 raw_imports TEXT,
-                wrapper_facts TEXT
+                wrapper_facts TEXT,
+                wrapped_debug_prints INTEGER DEFAULT 0,
+                wrapped_panics_and_aborts INTEGER DEFAULT 0,
+                wrapped_memory_alloc INTEGER DEFAULT 0
             )
         """)
 
@@ -705,6 +715,15 @@ class RecordKeeper:
         # survive a delta scan for its wrappers and call sites to be counted --
         # the #3220 raw_imports precedent. JSON; NULL when the file has none.
         _ensure_columns(cursor, "file_data", ["wrapper_facts TEXT"])
+
+        # #3313 step 4: the wrapper-aware count -- per rule, the call sites in this
+        # file that reach the rule's behaviour through a project wrapper recorded in
+        # wrapper_data (docs/wrapper_aware_count_contract.md). Same unit as the
+        # literal hit column (sites); literal + wrapped counts distinct sites that
+        # reach it directly or through a wrapper. DERIVED and REPORT-ONLY: no score
+        # reads it (D1, guarded by tests/core_engine/test_wrapper_aware_counts.py).
+        _ensure_columns(cursor, "file_data", [f"wrapped_{r} INTEGER DEFAULT 0" for r in WRAPPED_RULES])
+        _ensure_columns(cursor, "repo_data", [f"wrapped_{r} INTEGER DEFAULT 0" for r in WRAPPED_RULES])
 
         # gitgalaxy#2985: the same guard, now over hit_cols. SIGNAL_SCHEMA grows
         # (it gained sec_db_hooks/sec_amplified_sql_injection here), and the
@@ -1609,6 +1628,9 @@ class RecordKeeper:
             # #3313 step 3: raw wrapper facts (deterministic key order), NULL if none.
             wrapper_facts = file_data.get("wrapper_facts")
             row_data.append(json.dumps(wrapper_facts, sort_keys=True) if wrapper_facts else None)
+            # #3313 step 4: the wrapper-aware counts, 0 when the file reaches none.
+            wrapped_sites = file_data.get("wrapped_sites") or {}
+            row_data.extend(int(wrapped_sites.get(r, 0) or 0) for r in WRAPPED_RULES)
 
             # #3183 (B1): accumulate the row and precompute its AUTOINCREMENT id
             # (assigned in list order by the executemany after the loop) instead
@@ -1704,7 +1726,7 @@ class RecordKeeper:
                     {", ".join([f"pct_fam_{fam}" for fam in self.SURFACE_FAMILIES])},
                     {", ".join([f"pct_vec_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
                     rel_guard_balance, rel_alloc_cleanup, mitigation_telemetry, doc_umbrella, raw_imports,
-                    wrapper_facts
+                    wrapper_facts, wrapped_debug_prints, wrapped_panics_and_aborts, wrapped_memory_alloc
                 ) VALUES ({file_placeholders})
             """,  # noqa: S608
                 all_file_rows,
@@ -2075,6 +2097,21 @@ class RecordKeeper:
             ) VALUES ({repo_placeholders})
         """,  # noqa: S608 -- SHORT_KEY_MAP/SIGNAL_SCHEMA are internal constants, values go through repo_placeholders/`?`
             repo_row_data,
+        )
+        # #3313 step 4: repo-level wrapper-aware totals, summed from this snapshot's
+        # file_data rows so the two can never disagree.
+        cursor.execute(
+            """
+            UPDATE repo_data SET
+                wrapped_debug_prints = (SELECT COALESCE(SUM(wrapped_debug_prints), 0) FROM file_data
+                                        WHERE repo_name = ? AND commit_hash = ?),
+                wrapped_panics_and_aborts = (SELECT COALESCE(SUM(wrapped_panics_and_aborts), 0) FROM file_data
+                                             WHERE repo_name = ? AND commit_hash = ?),
+                wrapped_memory_alloc = (SELECT COALESCE(SUM(wrapped_memory_alloc), 0) FROM file_data
+                                        WHERE repo_name = ? AND commit_hash = ?)
+            WHERE repo_name = ? AND commit_hash = ?
+        """,
+            (repo_name, commit_hash) * 4,
         )
 
         # 4. EXCLUDED ARTIFACTS INSERTION

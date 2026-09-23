@@ -414,6 +414,20 @@ class AuditRecorder:
                     for w in wrappers
                 ]
 
+            # #3313 step 4: the wrapper-aware count for this file -- per rule, the
+            # call sites here that reach the behaviour through a project wrapper
+            # (docs/wrapper_aware_count_contract.md), beside the literal count in
+            # section 7. Presence-keyed: only rules with sites, only files with any.
+            wrapped = {rule: sites for rule, sites in (file_data.get("wrapped_sites") or {}).items() if sites}
+            if wrapped:
+                file_profile["12. Calls Through Idiom Wrappers"] = {
+                    rule: {
+                        "Literal Sites": int((file_data.get("equations") or {}).get(rule, 0) or 0),
+                        "Wrapped Sites": sites,
+                    }
+                    for rule, sites in sorted(wrapped.items())
+                }
+
             # Map the file into its parent directory group
             if d_name not in pretty_directory_groups:
                 pretty_directory_groups[d_name] = {

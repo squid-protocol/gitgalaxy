@@ -461,6 +461,12 @@ class LLMRecorder:
         rows = [w for f in parsed_files for w in (f.get("idiom_wrappers") or [])]
         if not rows:
             return []
+        # #3313 step 4: repo-wide literal vs wrapper-aware totals per rule.
+        totals = {}
+        for rule in sorted({w.get("rule") for w in rows if w.get("rule")}):
+            literal = sum(int((f.get("equations") or {}).get(rule, 0) or 0) for f in parsed_files)
+            wrapped = sum(int((f.get("wrapped_sites") or {}).get(rule, 0) or 0) for f in parsed_files)
+            totals[rule] = (literal, wrapped)
         rows.sort(key=lambda w: (-int(w.get("call_sites", 0) or 0), w.get("name") or "", w.get("rule") or ""))
         lines = ["## 14. PROJECT IDIOM WRAPPERS (Hidden Literal Vocabulary)"]
         lines.append(
@@ -469,6 +475,11 @@ class LLMRecorder:
             "`debug_prints`/`panics_and_aborts`/`memory_alloc` count together with this list. Full "
             "detail in `wrapper_data`.\n"
         )
+        lines.extend(
+            f"- **`{rule}`:** {literal} literal sites + {wrapped} sites through wrappers = {literal + wrapped}"
+            for rule, (literal, wrapped) in totals.items()
+        )
+        lines.append("")
         lines.extend(
             f"- `{w.get('name')}` ({w.get('kind')}, {w.get('rule')}, {w.get('via')}): "
             f"{w.get('call_sites', 0)} call sites in {w.get('calling_files', 0)} files -- `{w.get('path')}`"

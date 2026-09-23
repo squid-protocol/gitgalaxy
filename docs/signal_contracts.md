@@ -28,6 +28,9 @@ there is no shielding mechanism). Corollaries:
    exfiltration amplifiers; see `core/README.md`'s proximity table) tally into the per-file
    `mitigation_telemetry` and are applied only in the score layer's weighted view
    (`weighted_count()`); a corpus, recorder or manifest never sees them in a count.
+   The wrapper-aware count beside a literal rule (`wrapped_<rule>`, gitgalaxy#3313, the
+   calls that reach the behaviour through a project wrapper) is a separate derived column
+   with its own contract (`docs/wrapper_aware_count_contract.md`), never added into it.
 4. For the C family (`c`, `cpp`, `objective-c`, `cs`, `swift`), a statically-dead
    preprocessor branch is NOT in the code stream a rule counts (gitgalaxy#2814):
    `detector._blank_dead_preproc_branches` blanks the body of `#if 0` and the dead side of
@@ -74,12 +77,13 @@ written.** Corollaries every audited contract has needed so far:
 
 ## Signals
 
-16 stated, 42 declared, 12 draft. A **draft** row is the schema comment transcribed as-is; a **declared** row has a fixed language-independent sentence, kind and unit, measured incidence and its disagreeing rules filed but not edited (#2897, `docs/domain_sensor_contracts.md`); a **stated** row has been audited across the corpus languages, its rules edited to agree, and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
+16 stated, 43 declared, 12 draft. A **draft** row is the schema comment transcribed as-is; a **declared** row has a fixed language-independent sentence, kind and unit, measured incidence and its disagreeing rules filed but not edited (#2897, `docs/domain_sensor_contracts.md`); a **stated** row has been audited across the corpus languages, its rules edited to agree, and has a contract doc. `planted` = the keyword-rosetta corpus plants a known count of it (so the cross-language gate can hold it equal); unplanted signals that feed a risk formula are the ones the roadmap's Phase 3 must plant or declare absent.
 
 | signal | phase | kind | status | planted | contract | doc |
 |---|---|---|---|---|---|---|
 | `args` | structure | `declaration` | stated | yes | The parameters a callable declares | [args_rule_contract.md](../docs/args_rule_contract.md) #2773 |
 | `branch` | structure | `site` | stated | yes | A keyword or operator that opens a runtime choice between control-flow paths: the choosing construct or one of its alternative arms | [branch_rule_contract.md](../docs/branch_rule_contract.md) #2822 |
+| `calls_out` | structure | `site` | declared |  | Explicit subroutine execution and cross-module linkages | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #3264 |
 | `class_start` | structure | `declaration` | stated | yes | The declaration of a named type -- a class, struct, record, interface, enum or object -- or the file's compilation-unit container where that container is the language's only named-entity declaration | [class_start_rule_contract.md](../docs/class_start_rule_contract.md) #2856 |
 | `func_start` | structure | `declaration` | stated | yes | The syntax that opens an executable block of logic under its own name: a function, method, procedure or subroutine declaration, or the instruction that begins an executable step in a language with no named-callable form | [func_start_rule_contract.md](../docs/func_start_rule_contract.md) #2856 |
 | `structural_boundaries` | structure | `tally` | declared |  | A vocabulary token of straight-line execution or structural delimiting -- a return, a declaration or import keyword, a type keyword, an instruction mnemonic in a language with no other structure -- counted as a length-like tally with no structural referent | [domain_sensor_contracts.md](../docs/domain_sensor_contracts.md) #2897 |
@@ -169,7 +173,9 @@ written.** Corollaries every audited contract has needed so far:
 | `_args_pattern_list_groups` | args strategy: pattern-list parameter groups |
 | `_args_prototype_groups` | args strategy: prototype parameter groups |
 | `_args_tcl_pattern_list_groups` | args strategy: tcl pattern-list parameter groups |
+| `_calls_out_ignore` | frozenset of lowercase callee names UNIONed with the detector's global calls_out ignore set, compared casefolded (case-insensitive languages filter keywords in any spelling) -- Epic #3264 Phase 3 (#3282) |
 | `_dependency_capture` | capture group 1 = the exact dependency path string, for the import DAG |
+| `_line_gates` | (rule, ...) -- rules opted into the per-line literal gate (#3072); detector.py resolves via rule_prefilter.build_line_gate, and a refusal (pattern not provably line-local) silently runs the rule whole-segment |
 | `_named_token_capture` | capture group(s) = the exact imported symbol names (AI/ML pack) |
 | `_scope_filters` | {rule: filter_name} -- a structural filter detector.py applies after the regex (CRITICAL ENGINE RULE 17) |
 | `_visibility_export` | per-function export-statement form, for the api orphan census (#2727/#2729) |

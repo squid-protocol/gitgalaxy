@@ -74,6 +74,9 @@ there is no shielding mechanism). Corollaries:
    exfiltration amplifiers; see `core/README.md`'s proximity table) tally into the per-file
    `mitigation_telemetry` and are applied only in the score layer's weighted view
    (`weighted_count()`); a corpus, recorder or manifest never sees them in a count.
+   The wrapper-aware count beside a literal rule (`wrapped_<rule>`, gitgalaxy#3313, the
+   calls that reach the behaviour through a project wrapper) is a separate derived column
+   with its own contract (`docs/wrapper_aware_count_contract.md`), never added into it.
 4. For the C family (`c`, `cpp`, `objective-c`, `cs`, `swift`), a statically-dead
    preprocessor branch is NOT in the code stream a rule counts (gitgalaxy#2814):
    `detector._blank_dead_preproc_branches` blanks the body of `#if 0` and the dead side of

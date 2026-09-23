@@ -148,14 +148,15 @@ def resolve_wrappers(parsed_files: list[dict[str, Any]]) -> list[dict[str, Any]]
                 break
 
         sites: collections.Counter[tuple[str, str]] = collections.Counter()
-        callers: dict[tuple[str, str], set[str]] = collections.defaultdict(set)
+        # (wrapper, defining file) -> {calling file -> call sites there}
+        callers: dict[tuple[str, str], collections.Counter[str]] = collections.defaultdict(collections.Counter)
         for path, f in in_scope:
             for callee, count in f.get("calls", {}).items():
                 target = _target(path, callee)
                 if target is None:
                     continue
                 sites[(callee, target)] += count
-                callers[(callee, target)].add(path)
+                callers[(callee, target)][path] += count
 
         for (name, target), count in sites.items():
             macro = aliases.get(name)
@@ -168,21 +169,54 @@ def resolve_wrappers(parsed_files: list[dict[str, Any]]) -> list[dict[str, Any]]
                     "via": macro["via"] if macro else functions[name][target],
                     "call_sites": count,
                     "calling_files": len(callers[(name, target)]),
+                    # #3313 step 4: where those call sites are, per calling file --
+                    # the input of each file's `wrapped_<rule>` count. Not persisted
+                    # in wrapper_data (the per-file totals are, on file_data).
+                    "callers": dict(sorted(callers[(name, target)].items())),
                 }
             )
     rows.sort(key=lambda r: (r["path"], r["rule"], r["name"]))
     return rows
 
 
+# The rules a file carries a `wrapped_<rule>` count for (#3313 step 4). Every
+# file gets all three, 0 when none of its call sites reach a wrapper.
+WRAPPED_RULES = tuple(RULE_SCOPE)
+
+
+def wrapped_site_counts(rows: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
+    """{calling file -> {rule -> call sites in it that resolve to a wrapper of rule}}.
+
+    The derived, wrapper-aware count of #3313 step 4
+    (docs/wrapper_aware_count_contract.md): a site-kind count in the same unit as
+    the literal rule, so literal + wrapped counts distinct sites that reach the
+    behaviour directly or through a project wrapper.
+    """
+    out: dict[str, dict[str, int]] = collections.defaultdict(lambda: dict.fromkeys(WRAPPED_RULES, 0))
+    for row in rows:
+        for path, count in row.get("callers", {}).items():
+            out[path][row["rule"]] += count
+    return dict(out)
+
+
 def attach_wrappers(parsed_files: list[dict[str, Any]], rows: list[dict[str, Any]]) -> None:
-    """Hang each resolved wrapper on its defining file as `idiom_wrappers`, for the
-    per-file report surfaces. A file with none gets none (presence-keyed)."""
+    """Hang the resolution back on the files, for the recorders.
+
+    - `idiom_wrappers` on each DEFINING file: the wrappers it defines
+      (presence-keyed; a file that defines none gets none).
+    - `wrapped_sites` on EVERY file: {rule -> call sites in it that go through a
+      wrapper}, all rules present and 0 when none. Recomputed every scan, full or
+      delta, so it is never restored from a previous run.
+    """
     by_path: dict[str, list[dict[str, Any]]] = collections.defaultdict(list)
     for row in rows:
         by_path[row["path"]].append(row)
+    wrapped = wrapped_site_counts(rows)
     for f in parsed_files:
-        found = by_path.get(f.get("path", ""))
+        path = f.get("path", "")
+        found = by_path.get(path)
         if found:
             f["idiom_wrappers"] = found
         else:
             f.pop("idiom_wrappers", None)
+        f["wrapped_sites"] = wrapped.get(path, dict.fromkeys(WRAPPED_RULES, 0))

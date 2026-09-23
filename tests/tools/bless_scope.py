@@ -75,6 +75,8 @@ def main(argv: list[str] | None = None) -> int:
         help="#2916: append the PR-body block -- one line per (file x leaf keys)",
     )
     args = ap.parse_args(argv)
+    if not args.from_head and args.old is None:
+        ap.error("old fixture required (or pass --from-head)")
 
     if args.from_head:
         if args.old is not None:
@@ -89,8 +91,6 @@ def main(argv: list[str] | None = None) -> int:
         if committed is None:
             ap.error(f"{rel} does not exist at HEAD")
         old = gd.sanitize(committed)
-    elif args.old is None:
-        ap.error("old fixture required (or pass --from-head)")
     else:
         old = gd.load_and_sanitize(args.old)
 

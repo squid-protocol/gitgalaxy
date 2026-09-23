@@ -704,3 +704,48 @@ def test_csharp_api_contract_2730():
 
     # ReDoS detonation on a modifier run that never reaches a declaration.
     assert_redos_immune(api, "public " + "static " * 20000 + "@", timeout_sec=3.0)
+
+
+# #3182: Branch C's "opens a block" lookahead, before and after the linear rewrite.
+_BRANCH_C_LOOKAHEAD_OLD = r"(?=[ \t\n]*(?:[^)]|\([^)]*\))*[ \t\n]*\)[ \t\n]*(?:\{|=>))"
+_BRANCH_C_LOOKAHEAD_NEW = r"(?=(?:[^()]*\([^)]*\))*[^)]*\)[ \t\n]*(?:\{|=>))"
+
+
+def test_csharp_func_start_blanked_verbatim_string_redos_3182():
+    """
+    `safe_code` blanks string literals to same-length whitespace, so roslyn's
+    `verifier.VerifyIL("...", @"<8KB of IL>")` test calls reach func_start as an
+    identifier + `(` followed by a huge whitespace run before any `)`. Branch C's old
+    lookahead had three overlapping whitespace consumers there -- ~10s per call site,
+    ~90s per roslyn test file (60s worker fuse -> 0 functions). This 6KB payload took
+    the old regex ~2.4s; the rewrite handles it in about a millisecond.
+    """
+    func_start = CSHARP_RULES["func_start"]
+    assert _BRANCH_C_LOOKAHEAD_NEW in func_start.pattern
+
+    blanked_verbatim = (" " * 60 + "\n") * 100
+    payload = "            verifier.VerifyIL(" + " " * 80 + ",\n" + blanked_verbatim + ");\n"
+    assert_redos_immune(func_start, payload, timeout_sec=1.0)
+    assert not func_start.search(payload), "a bare call statement is not a declaration"
+
+    # Branch C still accepts a zero-prefix declaration whose params span blank lines.
+    decl = "Foo(" + blanked_verbatim + "int x) {"
+    m = func_start.search(decl)
+    assert m and m.group(3) == "Foo"
+
+
+def test_csharp_func_start_branch_c_lookahead_equivalence_3182():
+    """
+    The rewrite must accept exactly the same strings as the old lookahead (it gates
+    Branch C, so any difference is a function gained or lost). Exhaustive over every
+    string up to length 6 on the alphabet that drives both patterns.
+    """
+    import itertools
+
+    old = re.compile(_BRANCH_C_LOOKAHEAD_OLD)
+    new = re.compile(_BRANCH_C_LOOKAHEAD_NEW)
+    alphabet = "()x {=>\n"
+    for n in range(7):
+        for chars in itertools.product(alphabet, repeat=n):
+            s = "".join(chars)
+            assert bool(old.match(s)) == bool(new.match(s)), repr(s)

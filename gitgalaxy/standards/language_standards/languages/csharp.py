@@ -235,9 +235,19 @@ DEFINITION: dict[str, Any] = {
             # only allow the bare-';' tolerance on branches that matched a modifier or return type
             # (which a real abstract/interface method declaration has). For this zero-prefix path, we
             # require the signature to actually open a block (`{` or `=>`).
+            # #3182 [REDOS ARMOR]: this lookahead used to be
+            # `[ \t\n]*(?:[^)]|\([^)]*\))*[ \t\n]*\)` -- three overlapping whitespace consumers
+            # (`[^)]` matches whitespace too), so a failed attempt was polynomial in the
+            # whitespace between the `(` and its decisive `)`. `safe_code` blanks string
+            # literals to same-length whitespace, so roslyn's `verifier.VerifyIL("...", @"<8KB
+            # of IL>")` test calls cost ~10s EACH; ~90s per file, tripping the 60s worker fuse
+            # (1,968s of roslyn's scan, files shipped with 0 functions). Rewritten as the SAME
+            # language, deterministically: every `)` before the decisive one must close a
+            # segment containing a `(` (the old `\([^)]*\)` arm), the final segment is free.
+            # Identical match set by construction; linear per attempt.
             r"(?!(?:if|for|foreach|while|switch|catch|using|lock|new|return|class|interface|struct|record|enum|yield|throw|await|sizeof|typeof|nameof|delegate|event|var|in|when|or|and|not|is|static)\b)"
             r"((?:operator[ \t\n]+(?:[+\-*/%&|^~!=<>]+|true|false|[\w_$.]+)|[@A-Za-z_$][\w_$.]*))(?:[ \t\n]*<[^>]{0,100}>)?[ \t\n]{0,200}\("
-            r"(?=[ \t\n]*(?:[^)]|\([^)]*\))*[ \t\n]*\)[ \t\n]*(?:\{|=>))"
+            r"(?=(?:[^()]*\([^)]*\))*[^)]*\)[ \t\n]*(?:\{|=>))"
             r")",
             re.M,
         ),

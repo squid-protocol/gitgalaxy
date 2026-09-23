@@ -87,9 +87,15 @@ def _run(engine_path: Path, repo: Path, out_dir: Path) -> tuple[str, dict]:
     }
     # Args are all internal: our own interpreter, a fixed driver string, and
     # operator-supplied engine/repo paths -- no untrusted network/user input.
+    # cwd=engine_path: `python -c` puts the CURRENT directory at sys.path[0],
+    # ahead of PYTHONPATH -- launched from inside an engine checkout, every
+    # label silently imported THAT checkout (#3182: a "main vs mine" A/B that
+    # was really mine vs mine). Running from the engine's own root makes the
+    # cwd entry and PYTHONPATH agree.
     proc = subprocess.run(  # noqa: S603
         [sys.executable, "-c", _DRIVER.format(argv=argv)],
         env=env,
+        cwd=engine_path,
         capture_output=True,
         text=True,
         timeout=1800,
@@ -180,6 +186,7 @@ def main(argv: list[str] | None = None) -> int:
         engines.insert(1, (f"{engines[0][0]}#ctl", engines[0][1]))
     phases = list(DEFAULT_PHASES) + [p for p in args.phase if p not in DEFAULT_PHASES]
 
+    args.repo = args.repo.resolve()  # scans run with cwd=<engine>, so relative paths would drift
     work = Path(tempfile.mkdtemp(prefix="phase_ab_"))
     print(f"target={args.repo}  rounds={args.rounds}  engines={[n for n, _ in engines]}")
     print(f"phases={phases}\nscratch={work}\n")

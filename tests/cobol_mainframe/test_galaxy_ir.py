@@ -883,8 +883,8 @@ def _file_op(verb, access, name, kind="FILE", qualifier=None):
 
 def test_cics_file_lineage_joins_program_file_ops_to_the_csd_dataset(tmp_path, monkeypatch):
     """Program -> EXEC CICS FILE -> #3356's cics_file_datasets() row (DSNAME, JCL
-    bindings, batch programs). The CSD join is stubbed so this holds whichever PR
-    lands first; a reader without it still lists the program's files."""
+    bindings, batch programs). The CSD side is stubbed: its own tests pin it. With
+    no CSD definition a program's files are still listed, `definitions` empty."""
     files = {
         "INQ.cbl": EngineFile(
             "INQ.cbl",
@@ -901,9 +901,10 @@ def test_cics_file_lineage_joins_program_file_ops_to_the_csd_dataset(tmp_path, m
     }
     ir = GalaxyIR(tmp_path / "x.db", "r", "c", files)
     assert [(e["name"], e["definitions"]) for e in ir.cics_file_lineage()] == [("CUSTOMER", []), ("NODEF", [])]
+    assert [(e["name"], e["definitions"]) for e in ir.tdqueue_lineage()] == [("LOGQ", [])]
 
     csd = {"file": "CUSTOMER", "dsname": "PROD.CUSTOMER", "bindings": [{"job": "LOAD.jcl"}], "batch_programs": []}
-    monkeypatch.setattr(GalaxyIR, "cics_file_datasets", lambda self: [csd], raising=False)
+    monkeypatch.setattr(GalaxyIR, "cics_file_datasets", lambda self: [csd])
     monkeypatch.setattr(
         GalaxyIR, "tdqueue_datasets", lambda self: [{"queue": "LOGQ", "dsname": "PROD.LOG"}], raising=False
     )

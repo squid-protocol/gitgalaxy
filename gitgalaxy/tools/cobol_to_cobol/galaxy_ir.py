@@ -1238,11 +1238,10 @@ class GalaxyIR:
         `verbs` (sorted), `lines`, and `definitions` -- the `csd_join` rows whose
         `key` names this resource (their DSNAME, JCL `bindings` and, for files,
         `batch_programs`). `definitions` is empty when no CSD DEFINE in the
-        repository names the resource, or when the reader predates #3356.
+        repository names the resource.
         """
-        join = getattr(self, csd_join, None)
         by_name: dict[str, list] = {}
-        for d in join() if callable(join) else []:
+        for d in getattr(self, csd_join)():
             by_name.setdefault(str(d.get(key) or "").upper(), []).append(d)
         grouped: dict[tuple[str, str], dict] = {}
         for f in sorted(self.files.values(), key=lambda x: x.file_path):

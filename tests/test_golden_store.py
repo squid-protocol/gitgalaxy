@@ -259,6 +259,9 @@ def test_real_git_merge_of_two_fact_channel_branches_is_conflict_free(tmp_path):
     _git(repo, "config", "user.email", "test@example.com")
     _git(repo, "config", "user.name", "Test")
     _git(repo, "config", "commit.gpgsign", "false")
+    # A scratch repo has no .gitattributes; without this, Windows' default
+    # autocrlf rewrites checked-out parts to CRLF and check_canonical fails.
+    _git(repo, "config", "core.autocrlf", "false")
     rel = gs.FULL_PRECISION
     base = _sample()
     gs.write(base, repo / rel)
@@ -299,6 +302,9 @@ def test_load_from_git_falls_back_to_pre_split_monolith(tmp_path):
     _git(repo, "config", "user.email", "test@example.com")
     _git(repo, "config", "user.name", "Test")
     _git(repo, "config", "commit.gpgsign", "false")
+    # A scratch repo has no .gitattributes; without this, Windows' default
+    # autocrlf rewrites checked-out parts to CRLF and check_canonical fails.
+    _git(repo, "config", "core.autocrlf", "false")
     (repo / "tests").mkdir()
     (repo / f"{gs.FULL_PRECISION}.json").write_text(json.dumps(_sample()), encoding="utf-8")
     _git(repo, "add", "-A")

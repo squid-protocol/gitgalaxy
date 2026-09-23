@@ -36,9 +36,12 @@
 #
 # Neither attribute affects `git diff --name-only`, so the change-detection in
 # .github/workflows/golden-master-guard.yml still fires on these paths, and
-# neither changes merge behaviour.
-tests/golden_master_audit/**          -diff linguist-generated=true
-tests/golden_master_zero_dep_audit/** -diff linguist-generated=true
+# neither changes merge behaviour. `text eol=lf` keeps every part LF on every OS:
+# golden_store.check_canonical compares bytes, and a Windows checkout's autocrlf
+# would otherwise rewrite all ~200 parts to CRLF and fail
+# test_committed_fixture_is_loadable_and_canonical.
+tests/golden_master_audit/**          text eol=lf -diff linguist-generated=true
+tests/golden_master_zero_dep_audit/** text eol=lf -diff linguist-generated=true
 
 # #3213: upstream mainframe source vendored byte-for-byte at a pinned ref
 # (tests/tools/mainframe_corpus.py excerpt). -text stops a Windows checkout's

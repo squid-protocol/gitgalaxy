@@ -109,10 +109,10 @@ main (missing ML deps that CI installs). Confirm by noting they are in that file
 
 `crucible_check.py --update` regenerates the golden masters (background, ~2-4min; first run in a
 fresh worktree builds two `.crucible_venvs`, ~4min extra). Before running it, save the base:
-`git show HEAD:tests/golden_master_zero_dep_audit.json > /tmp/old_gm.json` (or, if resolving a
-merge, `git show origin/main:...`). After it lands:
+`python tests/golden_store.py export --rev HEAD tests/golden_master_zero_dep_audit /tmp/old_gm.json`
+(or, if resolving a merge, `--rev origin/main`). After it lands:
 ```
-$PY tests/tools/bless_scope.py /tmp/old_gm.json tests/golden_master_zero_dep_audit.json
+$PY tests/tools/bless_scope.py /tmp/old_gm.json tests/golden_master_zero_dep_audit
 ```
 Report the "by leaf key" table and the "newly parsed / newly excluded" lines -- that is the whole
 signal. **The tool splits the leaf key `I/O and Network Boundaries` on its own slash, so a

@@ -323,7 +323,7 @@ the whole time.
   around a wall -- it stops and reports instead, every time, by explicit instruction.
 - `LANGUAGE_CRUCIBLE_PATH` must be passed explicitly from a worktree -- sibling-directory
   resolution only works from the main checkout.
-- Parallel-PR merge conflicts on the machine-generated files (`golden_master*.json`,
+- Parallel-PR merge conflicts on the machine-generated files (the `golden_master*/` fixture dirs,
   `ruff_audit_baseline.json`, `tree_sitter_accuracy_baseline_*.json`,
   `tri_comparison_baseline_*.json`) are a real, expected, survivable cost of running a pool of 5 --
   when one lands, `git merge origin/main` on the others, take origin/main's version of the

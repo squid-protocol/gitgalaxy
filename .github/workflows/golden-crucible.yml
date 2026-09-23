@@ -50,7 +50,7 @@ jobs:
           # no longer pulls it in for either leg. "Zero-Dependency Mode" here has
           # only ever meant tiktoken/pandas/xgboost are absent (networkx is not used
           # at all since #3041); the
-          # golden-master zero-dep fixture (tests/golden_master_zero_dep_audit.json)
+          # golden-master zero-dep fixture (tests/golden_master_zero_dep_audit/)
           # expects PyYAML present even on this leg.
           if [ "${{ matrix.mode }}" = "full-precision" ]; then
             echo "Installing heavy engines for Full-Precision Mode..."

@@ -1,0 +1,211 @@
+{
+  "groups": {
+    "cpp/NVDA": {
+      "cpp/NVDA/__init__.py": "textInfos.TextInfo, Window, EditableTextBase, UIA",
+      "cpp/NVDA/braille.py": "StrEnum, NamedTuple, object",
+      "cpp/NVDA/core.py": "Enum, wx.App, wx.Timer",
+      "cpp/NVDA/espeak.py": "SynthDriver"
+    },
+    "csharp/roslyn": {
+      "csharp/roslyn/CSharpCompilation.cs": "Compilation, IEqualityComparer<, IEquatable<ImportInfo>",
+      "csharp/roslyn/CSharpSyntaxTree.cs": "SyntaxTree",
+      "csharp/roslyn/LanguageParser.cs": "SyntaxParser, IDisposable, byte",
+      "csharp/roslyn/MethodCompiler.cs": "CSharpSymbolVisitor<TypeCompilationState, object>, BoundTreeRewriterWithStackGuardWithoutRecursionOnTheLeftOfBinaryOperator, BoundTreeWalkerWithStackGuardWithoutRecursionOnTheLeftOfBinaryOperator",
+      "csharp/roslyn/Workspace.cs": "IDisposable"
+    },
+    "fortran/wrf": {
+      "fortran/wrf/configure_reader.py": "object",
+      "fortran/wrf/sourcetree.py": "object"
+    },
+    "groovy/gradle": {
+      "groovy/gradle/DefaultPluginManager.java": "PluginManagerInternal, RunnableBuildOperation, ApplyPluginBuildOperationType",
+      "groovy/gradle/DefaultProject.java": "AbstractPluginAware implements ProjectInternal, DynamicObjectAware, RuleSource, DetachedResolver",
+      "groovy/gradle/DefaultTask.java": "org"
+    },
+    "groovy/spock": {
+      "groovy/spock/DeepBlockRewriter.java": "AbstractDeepBlockRewriter",
+      "groovy/spock/SpecParser.java": "GroovyClassVisitor",
+      "groovy/spock/SpecRewriter.java": "AbstractSpecVisitor implements IRewriteResources",
+      "groovy/spock/SpockTransform.java": "ASTTransformation"
+    },
+    "java/springboot": {
+      "java/springboot/AutoConfigurationImportSelector.java": "DeferredImportSelector, BeanClassLoaderAware,, DeferredImportSelector",
+      "java/springboot/Binder.java": "BindContext",
+      "java/springboot/JarLauncher.java": "ExecutableArchiveLauncher",
+      "java/springboot/OnClassCondition.java": "FilteringSpringBootCondition, OutcomesResolver",
+      "java/springboot/ServletWebServerApplicationContext.java": "GenericWebApplicationContext",
+      "java/springboot/SpringApplication.java": "SpringApplicationRunListener, Running, BeanFactoryPostProcessor, Ordered, RuntimeException",
+      "java/springboot/WebMvcAutoConfiguration.java": "WebMvcConfigurer, ServletContextAware, DelegatingWebMvcConfiguration implements ResourceLoaderAware, ResourceHandlerRegistrationCustomizer"
+    },
+    "javascript/threejs": {
+      "javascript/threejs/BufferGeometry.js": "EventDispatcher",
+      "javascript/threejs/GLTFLoader.js": "Loader, Interpolant, GLTFCubicSplineInterpolant"
+    },
+    "python/airflow": {
+      "python/airflow/dag.py": "AirflowException, Base",
+      "python/airflow/s3.py": "AwsBaseHook",
+      "python/airflow/scheduler_job_runner.py": "BaseJobRunner, LoggingMixin"
+    },
+    "python/cython": {
+      "python/cython/CodeGeneration.py": "VisitorTransform",
+      "python/cython/MemoryView.pyx": "object, memoryview",
+      "python/cython/Nodes.py": "enum.IntEnum, type, Node"
+    },
+    "python/fastapi/fastapi": {
+      "python/fastapi/fastapi/applications.py": "Starlette",
+      "python/fastapi/fastapi/background.py": "StarletteBackgroundTasks",
+      "python/fastapi/fastapi/datastructures.py": "StarletteUploadFile",
+      "python/fastapi/fastapi/exceptions.py": "TypedDict, total=False, StarletteHTTPException, StarletteWebSocketException",
+      "python/fastapi/fastapi/params.py": "Enum, FieldInfo, Param",
+      "python/fastapi/fastapi/responses.py": "JSONResponse",
+      "python/fastapi/fastapi/routing.py": "AbstractAsyncContextManager[_T], routing.WebSocketRoute, routing.Route",
+      "python/fastapi/fastapi/sse.py": "StreamingResponse, BaseModel"
+    },
+    "python/fastapi/tests": {
+      "python/fastapi/tests/test_additional_properties.py": "BaseModel",
+      "python/fastapi/tests/test_additional_properties_bool.py": "BaseModel, FooBaseModel",
+      "python/fastapi/tests/test_additional_responses_custom_model_in_callback.py": "BaseModel",
+      "python/fastapi/tests/test_additional_responses_custom_validationerror.py": "JSONResponse, BaseModel",
+      "python/fastapi/tests/test_additional_responses_response_class.py": "JSONResponse, BaseModel",
+      "python/fastapi/tests/test_additional_responses_router.py": "BaseModel",
+      "python/fastapi/tests/test_additional_responses_union_duplicate_anyof.py": "BaseModel",
+      "python/fastapi/tests/test_arbitrary_types.py": "BaseModel",
+      "python/fastapi/tests/test_compat.py": "BaseModel",
+      "python/fastapi/tests/test_computed_fields.py": "BaseModel",
+      "python/fastapi/tests/test_custom_route_class.py": "APIRoute",
+      "python/fastapi/tests/test_custom_schema_fields.py": "BaseModel",
+      "python/fastapi/tests/test_datetime_custom_encoder.py": "BaseModel",
+      "python/fastapi/tests/test_default_response_class.py": "JSONResponse",
+      "python/fastapi/tests/test_default_response_class_router.py": "JSONResponse",
+      "python/fastapi/tests/test_dependency_after_yield_raise.py": "Exception",
+      "python/fastapi/tests/test_dependency_contextmanager.py": "Exception",
+      "python/fastapi/tests/test_dependency_duplicates.py": "BaseModel",
+      "python/fastapi/tests/test_deprecated_responses.py": "BaseModel",
+      "python/fastapi/tests/test_dump_json_fast_path.py": "BaseModel",
+      "python/fastapi/tests/test_duplicate_models_openapi.py": "BaseModel",
+      "python/fastapi/tests/test_extra_routes.py": "BaseModel",
+      "python/fastapi/tests/test_filter_pydantic_sub_model_pv2.py": "BaseModel, ModelB",
+      "python/fastapi/tests/test_forms_single_model.py": "BaseModel",
+      "python/fastapi/tests/test_generate_unique_id_function.py": "BaseModel",
+      "python/fastapi/tests/test_get_model_definitions_formfeed_escape.py": "BaseModel",
+      "python/fastapi/tests/test_get_request_body.py": "BaseModel",
+      "python/fastapi/tests/test_include_router_defaults_overrides.py": "JSONResponse",
+      "python/fastapi/tests/test_inherited_custom_class.py": "BaseModel",
+      "python/fastapi/tests/test_invalid_path_param.py": "BaseModel",
+      "python/fastapi/tests/test_invalid_sequence_param.py": "BaseModel",
+      "python/fastapi/tests/test_jsonable_encoder.py": "Person, Pet, Enum",
+      "python/fastapi/tests/test_multi_body_errors.py": "BaseModel",
+      "python/fastapi/tests/test_no_schema_split.py": "str, Enum, BaseModel",
+      "python/fastapi/tests/test_openapi_examples.py": "BaseModel",
+      "python/fastapi/tests/test_openapi_model_description_trim_on_formfeed.py": "BaseModel",
+      "python/fastapi/tests/test_openapi_separate_input_output_schemas.py": "BaseModel",
+      "python/fastapi/tests/test_pydantic_v1_error.py": "BaseModel",
+      "python/fastapi/tests/test_query_cookie_header_model_extra_params.py": "BaseModel",
+      "python/fastapi/tests/test_read_with_orm_mode.py": "BaseModel, PersonBase",
+      "python/fastapi/tests/test_request_body_parameters_media_type.py": "BaseModel",
+      "python/fastapi/tests/test_request_param_model_by_alias.py": "BaseModel",
+      "python/fastapi/tests/test_response_by_alias.py": "BaseModel",
+      "python/fastapi/tests/test_response_class_no_mediatype.py": "JSONResponse, BaseModel",
+      "python/fastapi/tests/test_response_code_no_body.py": "JSONResponse, BaseModel",
+      "python/fastapi/tests/test_response_model_as_return_annotation.py": "BaseModel, BaseUser, User",
+      "python/fastapi/tests/test_response_model_data_filter.py": "BaseModel, UserBase",
+      "python/fastapi/tests/test_response_model_data_filter_no_inheritance.py": "BaseModel",
+      "python/fastapi/tests/test_response_model_default_factory.py": "BaseModel",
+      "python/fastapi/tests/test_response_model_include_exclude.py": "BaseModel",
+      "python/fastapi/tests/test_response_model_sub_types.py": "BaseModel",
+      "python/fastapi/tests/test_router_events.py": "BaseModel",
+      "python/fastapi/tests/test_schema_compat_pydantic_v2.py": "str, Enum, BaseModel",
+      "python/fastapi/tests/test_schema_extra_examples.py": "BaseModel",
+      "python/fastapi/tests/test_schema_ref_pydantic_v2.py": "BaseModel",
+      "python/fastapi/tests/test_security_api_key_cookie.py": "BaseModel",
+      "python/fastapi/tests/test_security_api_key_cookie_description.py": "BaseModel",
+      "python/fastapi/tests/test_security_api_key_cookie_optional.py": "BaseModel",
+      "python/fastapi/tests/test_security_api_key_header.py": "BaseModel",
+      "python/fastapi/tests/test_security_api_key_header_description.py": "BaseModel",
+      "python/fastapi/tests/test_security_api_key_header_optional.py": "BaseModel",
+      "python/fastapi/tests/test_security_api_key_query.py": "BaseModel",
+      "python/fastapi/tests/test_security_api_key_query_description.py": "BaseModel",
+      "python/fastapi/tests/test_security_api_key_query_optional.py": "BaseModel",
+      "python/fastapi/tests/test_security_oauth2.py": "BaseModel",
+      "python/fastapi/tests/test_security_oauth2_optional.py": "BaseModel",
+      "python/fastapi/tests/test_security_oauth2_optional_description.py": "BaseModel",
+      "python/fastapi/tests/test_security_openid_connect.py": "BaseModel",
+      "python/fastapi/tests/test_security_openid_connect_description.py": "BaseModel",
+      "python/fastapi/tests/test_security_openid_connect_optional.py": "BaseModel",
+      "python/fastapi/tests/test_serialize_response.py": "BaseModel",
+      "python/fastapi/tests/test_serialize_response_model.py": "BaseModel",
+      "python/fastapi/tests/test_skip_defaults.py": "BaseModel, Model",
+      "python/fastapi/tests/test_sse.py": "BaseModel",
+      "python/fastapi/tests/test_stream_bare_type.py": "BaseModel",
+      "python/fastapi/tests/test_stream_json_validation_error.py": "BaseModel",
+      "python/fastapi/tests/test_tuples.py": "BaseModel",
+      "python/fastapi/tests/test_union_body.py": "BaseModel",
+      "python/fastapi/tests/test_union_body_discriminator.py": "BaseModel",
+      "python/fastapi/tests/test_union_body_discriminator_annotated.py": "BaseModel",
+      "python/fastapi/tests/test_union_forms.py": "BaseModel",
+      "python/fastapi/tests/test_union_inherited_body.py": "BaseModel, Item",
+      "python/fastapi/tests/test_validate_response.py": "BaseModel",
+      "python/fastapi/tests/test_validation_error_context.py": "BaseModel",
+      "python/fastapi/tests/test_webhooks_security.py": "BaseModel",
+      "python/fastapi/tests/test_ws_router.py": "Exception"
+    },
+    "python/numpy": {
+      "python/numpy/_linalg.py": "NamedTuple, ValueError",
+      "python/numpy/core.py": "FutureWarning, Exception, MAError",
+      "python/numpy/genapi.py": "Exception",
+      "python/numpy/symbolic.py": "Enum, Exception, UserWarning",
+      "python/numpy/verify_c_api_version.py": "ValueError"
+    },
+    "python/twisted": {
+      "python/twisted/defer.py": "Exception, TypeError, Enum",
+      "python/twisted/http.py": "Exception, Interface, basic.LineReceiver",
+      "python/twisted/reflect.py": "Exception, ValueError, InvalidName",
+      "python/twisted/transport.py": "Tuple[_DigestMod, bytes, bytes, int], protocol.Protocol, SSHTransportBase"
+    },
+    "ruby/rails": {
+      "ruby/rails/base.rb": "StandardError",
+      "ruby/rails/blob.rb": "ActiveStorage::Record",
+      "ruby/rails/inbound_emails_controller.rb": "ActionMailbox::BaseController",
+      "ruby/rails/metal.rb": "ActionDispatch::MiddlewareStack, ActionDispatch::MiddlewareStack::Middleware, AbstractController::Base"
+    },
+    "shell/brew": {
+      "shell/brew/brew.rb": "Homebrew::Bundle::PackageType, Hash",
+      "shell/brew/download_strategy.rb": "AbstractDownloadStrategy, AbstractFileDownloadStrategy, CurlDownloadStrategy"
+    },
+    "typescript/assemblyscript": {
+      "typescript/assemblyscript/ast.ts": "Node, TypeNode, Expression",
+      "typescript/assemblyscript/compiler.ts": "DiagnosticEmitter",
+      "typescript/assemblyscript/parser.ts": "DiagnosticEmitter"
+    },
+    "typescript/fp-ts": {
+      "typescript/fp-ts/Either.ts": "_, ReadonlyArray",
+      "typescript/fp-ts/HKT.ts": "HKT, HKT2, HKT3",
+      "typescript/fp-ts/TaskEither.ts": "Task, _",
+      "typescript/fp-ts/pipeable.ts": "PipeableFunctor, PipeableFunctor1, PipeableFunctor2"
+    },
+    "typescript/playwright": {
+      "typescript/playwright/bidiConnection.ts": "EventEmitter",
+      "typescript/playwright/connection.ts": "ChannelOwner, EventEmitter",
+      "typescript/playwright/crConnection.ts": "SdkObject",
+      "typescript/playwright/dispatcher.ts": "EventEmitter implements channels, Dispatcher",
+      "typescript/playwright/frames.ts": "Error, SdkObject"
+    },
+    "typescript/vscode": {
+      "typescript/vscode/async.ts": "Promise, IDisposable, Barrier",
+      "typescript/vscode/codeEditorWidget.ts": "Disposable implements editorBrowser, Disposable, Emitter",
+      "typescript/vscode/instantiationService.ts": "Error, IInstantiationService",
+      "typescript/vscode/ipc.ts": "IReader, IWriter, IChannelServer",
+      "typescript/vscode/lifecycle.ts": "IDisposableTracker, IDisposable, IReference",
+      "typescript/vscode/vscode.d.ts": "Range, ThemableDecorationRenderOptions, ThemableDecorationInstanceRenderOptions"
+    },
+    "xml/powertoys": {
+      "xml/powertoys/App.xaml.cs": "Application",
+      "xml/powertoys/MainWindow.xaml.cs": "Window"
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "1. Artifact Identity",
+    "Parent Entity"
+  ]
+}

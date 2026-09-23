@@ -1,0 +1,713 @@
+{
+  "groups": {
+    "cobol/cash-account-cobol": {
+      "cobol/cash-account-cobol/DCLCASH.cpy": [
+        {
+          "Attributes": "NOT NULL",
+          "Column": "OWNER",
+          "Column No": 1,
+          "Length": 32,
+          "Line": 9,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "STOCKTRD.CASHACCOUNTY"
+        },
+        {
+          "Attributes": null,
+          "Column": "BALANCE",
+          "Column No": 2,
+          "Length": 9,
+          "Line": 10,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "STOCKTRD.CASHACCOUNTY"
+        },
+        {
+          "Attributes": null,
+          "Column": "CURRENCYC",
+          "Column No": 3,
+          "Length": 8,
+          "Line": 11,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "STOCKTRD.CASHACCOUNTY"
+        }
+      ],
+      "cobol/cash-account-cobol/DCLFRANK.cpy": [
+        {
+          "Attributes": "NOT NULL",
+          "Column": "CURRNKEY",
+          "Column No": 1,
+          "Length": 5,
+          "Line": 9,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "STOCKTRD.FRANKFURT1"
+        },
+        {
+          "Attributes": null,
+          "Column": "CURRNBASE",
+          "Column No": 2,
+          "Length": 5,
+          "Line": 10,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "STOCKTRD.FRANKFURT1"
+        },
+        {
+          "Attributes": null,
+          "Column": "AMOUNT",
+          "Column No": 3,
+          "Length": 9,
+          "Line": 11,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "STOCKTRD.FRANKFURT1"
+        },
+        {
+          "Attributes": null,
+          "Column": "RATES",
+          "Column No": 4,
+          "Length": 3,
+          "Line": 12,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "STOCKTRD.FRANKFURT1"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "LOADDT",
+          "Column No": 5,
+          "Length": null,
+          "Line": 13,
+          "Nullable": false,
+          "SQL Type": "DATE",
+          "Scale": null,
+          "Table": "STOCKTRD.FRANKFURT1"
+        }
+      ]
+    },
+    "cobol/cics-banking-sample-application-cbsa": {
+      "cobol/cics-banking-sample-application-cbsa/ACCDB2.cpy": [
+        {
+          "Attributes": null,
+          "Column": "ACCOUNT_EYECATCHER",
+          "Column No": 1,
+          "Length": 4,
+          "Line": 8,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "ACCOUNT"
+        },
+        {
+          "Attributes": null,
+          "Column": "ACCOUNT_CUSTOMER_NUMBER",
+          "Column No": 2,
+          "Length": 10,
+          "Line": 9,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "ACCOUNT"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ACCOUNT_SORTCODE",
+          "Column No": 3,
+          "Length": 6,
+          "Line": 10,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "ACCOUNT"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ACCOUNT_NUMBER",
+          "Column No": 4,
+          "Length": 8,
+          "Line": 11,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "ACCOUNT"
+        },
+        {
+          "Attributes": null,
+          "Column": "ACCOUNT_TYPE",
+          "Column No": 5,
+          "Length": 8,
+          "Line": 12,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "ACCOUNT"
+        },
+        {
+          "Attributes": null,
+          "Column": "ACCOUNT_INTEREST_RATE",
+          "Column No": 6,
+          "Length": 4,
+          "Line": 13,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "ACCOUNT"
+        },
+        {
+          "Attributes": null,
+          "Column": "ACCOUNT_OPENED",
+          "Column No": 7,
+          "Length": null,
+          "Line": 14,
+          "Nullable": true,
+          "SQL Type": "DATE",
+          "Scale": null,
+          "Table": "ACCOUNT"
+        },
+        {
+          "Attributes": null,
+          "Column": "ACCOUNT_OVERDRAFT_LIMIT",
+          "Column No": 8,
+          "Length": null,
+          "Line": 15,
+          "Nullable": true,
+          "SQL Type": "INTEGER",
+          "Scale": null,
+          "Table": "ACCOUNT"
+        },
+        {
+          "Attributes": null,
+          "Column": "ACCOUNT_LAST_STATEMENT",
+          "Column No": 9,
+          "Length": null,
+          "Line": 16,
+          "Nullable": true,
+          "SQL Type": "DATE",
+          "Scale": null,
+          "Table": "ACCOUNT"
+        },
+        {
+          "Attributes": null,
+          "Column": "ACCOUNT_NEXT_STATEMENT",
+          "Column No": 10,
+          "Length": null,
+          "Line": 17,
+          "Nullable": true,
+          "SQL Type": "DATE",
+          "Scale": null,
+          "Table": "ACCOUNT"
+        },
+        {
+          "Attributes": null,
+          "Column": "ACCOUNT_AVAILABLE_BALANCE",
+          "Column No": 11,
+          "Length": 10,
+          "Line": 18,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "ACCOUNT"
+        },
+        {
+          "Attributes": null,
+          "Column": "ACCOUNT_ACTUAL_BALANCE",
+          "Column No": 12,
+          "Length": 10,
+          "Line": 19,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "ACCOUNT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CONTDB2.cpy": [
+        {
+          "Attributes": "NOT NULL",
+          "Column": "CONTROL_NAME",
+          "Column No": 1,
+          "Length": 32,
+          "Line": 8,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "STTESTER.CONTROL"
+        },
+        {
+          "Attributes": null,
+          "Column": "CONTROL_VALUE_NUM",
+          "Column No": 2,
+          "Length": null,
+          "Line": 9,
+          "Nullable": true,
+          "SQL Type": "INTEGER",
+          "Scale": null,
+          "Table": "STTESTER.CONTROL"
+        },
+        {
+          "Attributes": null,
+          "Column": "CONTROL_VALUE_STR",
+          "Column No": 3,
+          "Length": 40,
+          "Line": 10,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "STTESTER.CONTROL"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/PROCDB2.cpy": [
+        {
+          "Attributes": null,
+          "Column": "PROCTRAN_EYECATCHER",
+          "Column No": 1,
+          "Length": 4,
+          "Line": 9,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "PROCTRAN"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "PROCTRAN_SORTCODE",
+          "Column No": 2,
+          "Length": 6,
+          "Line": 10,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "PROCTRAN"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "PROCTRAN_NUMBER",
+          "Column No": 3,
+          "Length": 8,
+          "Line": 11,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "PROCTRAN"
+        },
+        {
+          "Attributes": null,
+          "Column": "PROCTRAN_DATE",
+          "Column No": 4,
+          "Length": 8,
+          "Line": 12,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "PROCTRAN"
+        },
+        {
+          "Attributes": null,
+          "Column": "PROCTRAN_TIME",
+          "Column No": 5,
+          "Length": 6,
+          "Line": 13,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "PROCTRAN"
+        },
+        {
+          "Attributes": null,
+          "Column": "PROCTRAN_REF",
+          "Column No": 6,
+          "Length": 12,
+          "Line": 14,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "PROCTRAN"
+        },
+        {
+          "Attributes": null,
+          "Column": "PROCTRAN_TYPE",
+          "Column No": 7,
+          "Length": 3,
+          "Line": 15,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "PROCTRAN"
+        },
+        {
+          "Attributes": null,
+          "Column": "PROCTRAN_DESC",
+          "Column No": 8,
+          "Length": 40,
+          "Line": 16,
+          "Nullable": true,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "PROCTRAN"
+        },
+        {
+          "Attributes": null,
+          "Column": "PROCTRAN_AMOUNT",
+          "Column No": 9,
+          "Length": 12,
+          "Line": 17,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "PROCTRAN"
+        }
+      ]
+    },
+    "cobol/cobol-programming-course": {
+      "cobol/cobol-programming-course/CBLDB21.cbl": [
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ACCTNO",
+          "Column No": 1,
+          "Length": 8,
+          "Line": 54,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": null,
+          "Column": "LIMIT",
+          "Column No": 2,
+          "Length": 9,
+          "Line": 55,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": null,
+          "Column": "BALANCE",
+          "Column No": 3,
+          "Length": 9,
+          "Line": 56,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "SURNAME",
+          "Column No": 4,
+          "Length": 20,
+          "Line": 57,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "FIRSTN",
+          "Column No": 5,
+          "Length": 15,
+          "Line": 58,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ADDRESS1",
+          "Column No": 6,
+          "Length": 25,
+          "Line": 59,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ADDRESS2",
+          "Column No": 7,
+          "Length": 20,
+          "Line": 60,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ADDRESS3",
+          "Column No": 8,
+          "Length": 15,
+          "Line": 61,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "RESERVED",
+          "Column No": 9,
+          "Length": 7,
+          "Line": 62,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "COMMENTS",
+          "Column No": 10,
+          "Length": 50,
+          "Line": 63,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB22.cbl": [
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ACCTNO",
+          "Column No": 1,
+          "Length": 8,
+          "Line": 71,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": null,
+          "Column": "LIMIT",
+          "Column No": 2,
+          "Length": 9,
+          "Line": 72,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": null,
+          "Column": "BALANCE",
+          "Column No": 3,
+          "Length": 9,
+          "Line": 73,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "SURNAME",
+          "Column No": 4,
+          "Length": 20,
+          "Line": 74,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "FIRSTN",
+          "Column No": 5,
+          "Length": 15,
+          "Line": 75,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ADDRESS1",
+          "Column No": 6,
+          "Length": 25,
+          "Line": 76,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ADDRESS2",
+          "Column No": 7,
+          "Length": 20,
+          "Line": 77,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ADDRESS3",
+          "Column No": 8,
+          "Length": 15,
+          "Line": 78,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "RESERVED",
+          "Column No": 9,
+          "Length": 7,
+          "Line": 79,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "COMMENTS",
+          "Column No": 10,
+          "Length": 50,
+          "Line": 80,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB23.cbl": [
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ACCTNO",
+          "Column No": 1,
+          "Length": 8,
+          "Line": 68,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": null,
+          "Column": "LIMIT",
+          "Column No": 2,
+          "Length": 9,
+          "Line": 69,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": null,
+          "Column": "BALANCE",
+          "Column No": 3,
+          "Length": 9,
+          "Line": 70,
+          "Nullable": true,
+          "SQL Type": "DECIMAL",
+          "Scale": 2,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "SURNAME",
+          "Column No": 4,
+          "Length": 20,
+          "Line": 71,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "FIRSTN",
+          "Column No": 5,
+          "Length": 15,
+          "Line": 72,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ADDRESS1",
+          "Column No": 6,
+          "Length": 25,
+          "Line": 73,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ADDRESS2",
+          "Column No": 7,
+          "Length": 20,
+          "Line": 74,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "ADDRESS3",
+          "Column No": 8,
+          "Length": 15,
+          "Line": 75,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "RESERVED",
+          "Column No": 9,
+          "Length": 7,
+          "Line": 76,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        },
+        {
+          "Attributes": "NOT NULL",
+          "Column": "COMMENTS",
+          "Column No": 10,
+          "Length": 50,
+          "Line": 77,
+          "Nullable": false,
+          "SQL Type": "CHAR",
+          "Scale": null,
+          "Table": "Z#####T"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "SQL Tables"
+  ]
+}

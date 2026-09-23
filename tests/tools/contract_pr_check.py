@@ -94,7 +94,7 @@ def leg_crucible() -> tuple[str, int, str]:
 def leg_bless_scope() -> tuple[str, int, str]:
     chunks = []
     worst = 0
-    for fixture in ("tests/golden_master_audit.json", "tests/golden_master_zero_dep_audit.json"):
+    for fixture in ("tests/golden_master_audit", "tests/golden_master_zero_dep_audit"):
         rc, out = sh([PY, "tests/tools/bless_scope.py", "--from-head", fixture, "--show", "0", "--summary"])
         worst = max(worst, rc)
         lines = out.splitlines()

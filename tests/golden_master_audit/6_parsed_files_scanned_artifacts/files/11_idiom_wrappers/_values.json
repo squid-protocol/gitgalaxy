@@ -1,0 +1,274 @@
+{
+  "groups": {
+    "ada/alire": {
+      "ada/alire/alire-dependencies-states.ads": [
+        {
+          "Call Sites": 2,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "From_TOML",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ],
+      "ada/alire/alr-commands.adb": [
+        {
+          "Call Sites": 6,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "Reportaise_Command_Failed",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        },
+        {
+          "Call Sites": 9,
+          "Calling Files": 3,
+          "Kind": "function",
+          "Name": "Reportaise_Wrong_Arguments",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "c/cpython": {
+      "c/cpython/object.c": [
+        {
+          "Call Sites": 2,
+          "Calling Files": 2,
+          "Kind": "function",
+          "Name": "PyObject_HashNotImplemented",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "c/doom": {
+      "c/doom/i_system.c": [
+        {
+          "Call Sites": 1,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "I_ZoneBase",
+          "Rule": "memory_alloc",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "c/sqlite": {
+      "c/sqlite/lemon.c": [
+        {
+          "Call Sites": 49,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "ErrorMsg",
+          "Rule": "debug_prints",
+          "Via": "primitive"
+        },
+        {
+          "Call Sites": 2,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "memory_error",
+          "Rule": "debug_prints",
+          "Via": "primitive"
+        },
+        {
+          "Call Sites": 9,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "stats_line",
+          "Rule": "debug_prints",
+          "Via": "primitive"
+        },
+        {
+          "Call Sites": 1,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "lemon_free_all",
+          "Rule": "memory_alloc",
+          "Via": "primitive"
+        },
+        {
+          "Call Sites": 2,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "memory_error",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/numeric.c": [
+        {
+          "Call Sites": 9,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "cob_gmp_free",
+          "Rule": "memory_alloc",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "fortran/wrf": {
+      "fortran/wrf/module_domain.F": [
+        {
+          "Call Sites": 3,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "domain_clockprint",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ],
+      "fortran/wrf/module_initialize_real.F": [
+        {
+          "Call Sites": 163,
+          "Calling Files": 6,
+          "Kind": "function",
+          "Name": "wrf_error_fatal",
+          "Rule": "debug_prints",
+          "Via": "primitive"
+        },
+        {
+          "Call Sites": 111,
+          "Calling Files": 5,
+          "Kind": "function",
+          "Name": "wrf_message",
+          "Rule": "debug_prints",
+          "Via": "primitive"
+        },
+        {
+          "Call Sites": 163,
+          "Calling Files": 6,
+          "Kind": "function",
+          "Name": "wrf_error_fatal",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "go/core": {
+      "go/core/proc.go": [
+        {
+          "Call Sites": 6,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "dumpgstatus",
+          "Rule": "debug_prints",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "groovy/gradle": {
+      "groovy/gradle/DefaultPluginManager.java": [
+        {
+          "Call Sites": 1,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "instantiatePlugin",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "groovy/spock_smoke_specs": {
+      "groovy/spock_smoke_specs/GroovyCallChain.groovy": [
+        {
+          "Call Sites": 1,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "c",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "java/springboot": {
+      "java/springboot/SpringApplication.java": [
+        {
+          "Call Sites": 1,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "bindToSpringApplication",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "javascript/react": {
+      "javascript/react/ReactFlightServer.js": [
+        {
+          "Call Sites": 6,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "throwTaintViolation",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ],
+      "javascript/react/build.js": [
+        {
+          "Call Sites": 1,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "runShellCommand",
+          "Rule": "debug_prints",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "perl/exiftool": {
+      "perl/exiftool/exiftool": [
+        {
+          "Call Sites": 2,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "SigInt",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "python/cython": {
+      "python/cython/MemoryView.pyx": [
+        {
+          "Call Sites": 1,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "_err_no_memory",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "python/fastapi/tests": {
+      "python/fastapi/tests/test_exception_handlers.py": [
+        {
+          "Call Sites": 1,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "raise_value_error",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    },
+    "scheme/racket": {
+      "scheme/racket/fun.c": [
+        {
+          "Call Sites": 2,
+          "Calling Files": 1,
+          "Kind": "function",
+          "Name": "chaperone_do_abort",
+          "Rule": "panics_and_aborts",
+          "Via": "primitive"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "11. Idiom Wrappers"
+  ]
+}

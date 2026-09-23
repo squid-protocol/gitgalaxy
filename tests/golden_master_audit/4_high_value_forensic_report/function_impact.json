@@ -1,0 +1,48 @@
+{
+  "path": [
+    "4. High-Value Forensic Report",
+    "function_impact"
+  ],
+  "value": {
+    "highest": [
+      {
+        "file": "module_sf_noahdrv.F",
+        "impact": 6059.1,
+        "loc": 2592,
+        "name": "lsm_mosaic"
+      },
+      {
+        "file": "module_physics_init.F",
+        "impact": 5032.9,
+        "loc": 1712,
+        "name": "phy_init"
+      },
+      {
+        "file": "module_physics_init.F",
+        "impact": 4490.9,
+        "loc": 1460,
+        "name": "bl_init"
+      }
+    ],
+    "lowest": [
+      {
+        "file": "tester.tcl",
+        "impact": 1.1,
+        "loc": 3,
+        "name": "wal_is_wal_mode"
+      },
+      {
+        "file": "testrunner.tcl",
+        "impact": 1.1,
+        "loc": 3,
+        "name": "clock_milliseconds"
+      },
+      {
+        "file": "testrunner.tcl",
+        "impact": 1.1,
+        "loc": 3,
+        "name": "explain_tests"
+      }
+    ]
+  }
+}

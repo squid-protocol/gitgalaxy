@@ -1,0 +1,257 @@
+{
+  "groups": {
+    "agc_assembly/apollo-11": {
+      "agc_assembly/apollo-11/ALARM_AND_ABORT.agc": "1 instances"
+    },
+    "c/sqlite": {
+      "c/sqlite/lemon.c": "4 instances"
+    },
+    "cobol/cobol-programming-course": {
+      "cobol/cobol-programming-course/CBLDB21.cbl": "1 instances",
+      "cobol/cobol-programming-course/CBLDB22.cbl": "1 instances",
+      "cobol/cobol-programming-course/CBLDB23.cbl": "1 instances"
+    },
+    "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/fileio.c": "1 instances"
+    },
+    "cpp/NVDA": {
+      "cpp/NVDA/ensureuv.ps1": "4 instances"
+    },
+    "dockerfile/moby/builder/dockerfile": {
+      "dockerfile/moby/builder/dockerfile/copy_windows.go": "1 instances"
+    },
+    "dockerfile/moby/builder/remotecontext": {
+      "dockerfile/moby/builder/remotecontext/detect_test.go": "1 instances"
+    },
+    "dockerfile/moby/builder/remotecontext/git": {
+      "dockerfile/moby/builder/remotecontext/git/gitutils.go": "1 instances"
+    },
+    "embedded_python/meow_turtle": {
+      "embedded_python/meow_turtle/app.py": "1 instances",
+      "embedded_python/meow_turtle/boot.py": "2 instances"
+    },
+    "fortran/wrf": {
+      "fortran/wrf/module_physics_init.F": "2 instances"
+    },
+    "go/core": {
+      "go/core/main.go": "4 instances",
+      "go/core/server.go": "5 instances",
+      "go/core/syscall_linux.go": "1 instances"
+    },
+    "haskell/pandoc": {
+      "haskell/pandoc/App.hs": "1 instances"
+    },
+    "javascript/react": {
+      "javascript/react/build.js": "2 instances"
+    },
+    "jcl/cash-account-cobol": {
+      "jcl/cash-account-cobol/DB2DDL.jcl": "3 instances"
+    },
+    "jcl/cics-genapp": {
+      "jcl/cics-genapp/db2cre.jcl": "8 instances"
+    },
+    "livecode/livecode": {
+      "livecode/livecode/builder_utilities.livecodescript": "1 instances",
+      "livecode/livecode/ext-urls.livecodescript": "1 instances",
+      "livecode/livecode/installer_utilities.livecodescript": "8 instances",
+      "livecode/livecode/revdeploylibraryemscripten.livecodescript": "1 instances",
+      "livecode/livecode/revdeploylibraryios.livecodescript": "2 instances",
+      "livecode/livecode/revliburl.livecodescript": "3 instances"
+    },
+    "lua/cosmopolitan": {
+      "lua/cosmopolitan/all.lua": "31 instances",
+      "lua/cosmopolitan/api.lua": "11 instances",
+      "lua/cosmopolitan/attrib.lua": "1 instances",
+      "lua/cosmopolitan/big.lua": "2 instances",
+      "lua/cosmopolitan/bitwise.lua": "4 instances",
+      "lua/cosmopolitan/calls.lua": "33 instances",
+      "lua/cosmopolitan/constructs.lua": "8 instances",
+      "lua/cosmopolitan/db.lua": "12 instances",
+      "lua/cosmopolitan/errors.lua": "11 instances",
+      "lua/cosmopolitan/files.lua": "27 instances",
+      "lua/cosmopolitan/gc.lua": "3 instances",
+      "lua/cosmopolitan/goto.lua": "2 instances",
+      "lua/cosmopolitan/heavy.lua": "2 instances",
+      "lua/cosmopolitan/literals.lua": "20 instances",
+      "lua/cosmopolitan/locals.lua": "8 instances",
+      "lua/cosmopolitan/main.lua": "11 instances",
+      "lua/cosmopolitan/math.lua": "3 instances",
+      "lua/cosmopolitan/nextvar.lua": "1 instances",
+      "lua/cosmopolitan/pm.lua": "1 instances",
+      "lua/cosmopolitan/strings.lua": "4 instances"
+    },
+    "lua/freebsd-src": {
+      "lua/freebsd-src/config.lua": "1 instances"
+    },
+    "lua/redis": {
+      "lua/redis/luac.lua": "1 instances"
+    },
+    "objective-c/worldwideweb": {
+      "objective-c/worldwideweb/HText.c": "1 instances"
+    },
+    "perl/exiftool": {
+      "perl/exiftool/exiftool": "1 instances"
+    },
+    "php/symfony": {
+      "php/symfony/Application.php": "2 instances",
+      "php/symfony/ContainerBuilder.php": "1 instances"
+    },
+    "php/wordpress": {
+      "php/wordpress/functions.php": "2 instances",
+      "php/wordpress/wp-login.php": "20 instances"
+    },
+    "powershell/PowerToys": {
+      "powershell/PowerToys/BuildSDKHelper.ps1": "1 instances",
+      "powershell/PowerToys/BuildSparsePackage.ps1": "6 instances",
+      "powershell/PowerToys/Capture-MonitorLayout.ps1": "2 instances",
+      "powershell/PowerToys/Delete-Worktree.ps1": "2 instances",
+      "powershell/PowerToys/Get-GitHubPrFilePatch.ps1": "2 instances",
+      "powershell/PowerToys/Get-GitHubRawFile.ps1": "1 instances",
+      "powershell/PowerToys/Update-WinMdCache.ps1": "1 instances",
+      "powershell/PowerToys/UpdateVersions.ps1": "1 instances",
+      "powershell/PowerToys/collect-or-apply-milestones.ps1": "3 instances"
+    },
+    "powershell/core": {
+      "powershell/core/PowerShell__build.psm1": "4 instances",
+      "powershell/core/RegisterManifest.ps1": "1 instances",
+      "powershell/core/Run-AttackSurfaceAnalyzer.ps1": "6 instances",
+      "powershell/core/analyze-pr-test-failures.ps1": "1 instances",
+      "powershell/core/build.psm1": "4 instances",
+      "powershell/core/packaging.psm1": "1 instances"
+    },
+    "powershell/nvda": {
+      "powershell/nvda/ensureuv.ps1": "4 instances",
+      "powershell/nvda/installNVDA.ps1": "2 instances"
+    },
+    "powershell/roslyn": {
+      "powershell/roslyn/Get-CIStatus.ps1": "1 instances",
+      "powershell/roslyn/Get-CodeflowStatus.ps1": "3 instances",
+      "powershell/roslyn/build-utils.ps1": "2 instances",
+      "powershell/roslyn/build.ps1": "2 instances",
+      "powershell/roslyn/check-for-loc-changes.ps1": "3 instances",
+      "powershell/roslyn/cleanup_perf.ps1": "1 instances",
+      "powershell/roslyn/common__build.ps1": "2 instances",
+      "powershell/roslyn/configure-sdl-tool.ps1": "1 instances",
+      "powershell/roslyn/execute-all-sdl-tools.ps1": "1 instances",
+      "powershell/roslyn/install-tool.ps1": "2 instances",
+      "powershell/roslyn/mark-shipped.ps1": "1 instances",
+      "powershell/roslyn/nuget-verification.ps1": "1 instances"
+    },
+    "powershell/runtime": {
+      "powershell/runtime/build-docker-sdk.ps1": "1 instances"
+    },
+    "python/fastapi/tests": {
+      "python/fastapi/tests/test_fastapi_cli.py": "1 instances"
+    },
+    "python/numpy": {
+      "python/numpy/crackfortran.py": "8 instances"
+    },
+    "rexx/hercules_hyperion": {
+      "rexx/hercules_hyperion/cmpsc.rexx": "2 instances",
+      "rexx/hercules_hyperion/hcommand.rexx": "2 instances",
+      "rexx/hercules_hyperion/hexecio.rexx": "1 instances"
+    },
+    "rexx/ibm_z_zos": {
+      "rexx/ibm_z_zos/colonies.rexx": "1 instances",
+      "rexx/ibm_z_zos/domchk.rexx": "1 instances",
+      "rexx/ibm_z_zos/i.rexx": "1 instances",
+      "rexx/ibm_z_zos/jobwait.rexx": "5 instances",
+      "rexx/ibm_z_zos/rangelks2.rexx": "1 instances",
+      "rexx/ibm_z_zos/wjscrck.rexx": "2 instances"
+    },
+    "ruby/rails": {
+      "ruby/rails/Rakefile": "1 instances"
+    },
+    "rust/bevy": {
+      "rust/bevy/bevy_ecs_query.rs": "2 instances",
+      "rust/bevy/bevy_ecs_world.rs": "8 instances"
+    },
+    "rust/holylang": {
+      "rust/holylang/parser.rs": "1 instances",
+      "rust/holylang/semantic.rs": "11 instances",
+      "rust/holylang/transpiler.rs": "11 instances"
+    },
+    "rust/serde": {
+      "rust/serde/serde_derive_de.rs": "1 instances"
+    },
+    "rust/tokio": {
+      "rust/tokio/maybe_done.rs": "1 instances",
+      "rust/tokio/tokio_mpsc_bounded.rs": "2 instances"
+    },
+    "rust/wasmtime": {
+      "rust/wasmtime/wasmtime_instance.rs": "3 instances",
+      "rust/wasmtime/wasmtime_pulley_interp.rs": "7 instances"
+    },
+    "shell/brew": {
+      "shell/brew/download_strategy.rb": "2 instances"
+    },
+    "shell/kubernetes": {
+      "shell/kubernetes/configure-helper.sh": "1 instances",
+      "shell/kubernetes/etcd.sh": "2 instances",
+      "shell/kubernetes/iks__config-default.sh": "2 instances",
+      "shell/kubernetes/log-dump.sh": "5 instances"
+    },
+    "shell/linux": {
+      "shell/linux/deflate_xip_data.sh": "1 instances"
+    },
+    "shell/moby": {
+      "shell/moby/dockerd-rootless-setuptool.sh": "1 instances"
+    },
+    "shell/serenity": {
+      "shell/serenity/analyze-qemu-coverage.sh": "1 instances"
+    },
+    "solidity/openzeppelin": {
+      "solidity/openzeppelin/Proxy.sol": "1 instances"
+    },
+    "swift/alamofire": {
+      "swift/alamofire/AFError.swift": "1 instances",
+      "swift/alamofire/Session.swift": "2 instances"
+    },
+    "tcl/macports_port_api": {
+      "tcl/macports_port_api/portbump.tcl": "2 instances",
+      "tcl/macports_port_api/portchecksum.tcl": "1 instances",
+      "tcl/macports_port_api/portinstall.tcl": "1 instances",
+      "tcl/macports_port_api/portlivecheck.tcl": "1 instances",
+      "tcl/macports_port_api/portmain.tcl": "3 instances"
+    },
+    "tcl/macports_registry": {
+      "tcl/macports_registry/common.tcl": "8 instances",
+      "tcl/macports_registry/receipt_flat.tcl": "1 instances"
+    },
+    "tcl/sqlite": {
+      "tcl/sqlite/tester.tcl": "8 instances",
+      "tcl/sqlite/testrunner.tcl": "13 instances"
+    },
+    "typescript/playwright": {
+      "typescript/playwright/frames.ts": "2 instances"
+    },
+    "typescript/vscode": {
+      "typescript/vscode/eslint.config.js": "1 instances"
+    },
+    "zig/bun": {
+      "zig/bun/MimallocArena.zig": "1 instances",
+      "zig/bun/Parser.zig": "1 instances",
+      "zig/bun/napi.zig": "2 instances"
+    },
+    "zig/tigerbeetle": {
+      "zig/tigerbeetle/aof.zig": "6 instances",
+      "zig/tigerbeetle/build.zig": "9 instances",
+      "zig/tigerbeetle/build_multiversion.zig": "2 instances",
+      "zig/tigerbeetle/cluster.zig": "2 instances"
+    },
+    "zig/zig": {
+      "zig/zig/Compilation.zig": "8 instances",
+      "zig/zig/InternPool.zig": "1 instances",
+      "zig/zig/main.zig": "5 instances"
+    },
+    "zig/zls/mach": {
+      "zig/zls/mach/Core.zig": "7 instances",
+      "zig/zls/mach/module.zig": "1 instances"
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "6. Contextual Mitigations & Amplifications",
+    "Mitigated Danger"
+  ]
+}

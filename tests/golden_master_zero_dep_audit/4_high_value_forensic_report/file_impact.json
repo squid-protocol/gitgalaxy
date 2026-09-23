@@ -1,0 +1,42 @@
+{
+  "path": [
+    "4. High-Value Forensic Report",
+    "file_impact"
+  ],
+  "value": {
+    "highest": [
+      {
+        "name": "module_physics_init.F",
+        "path": "fortran/wrf/module_physics_init.F",
+        "value": 13658.6
+      },
+      {
+        "name": "module_sf_noahdrv.F",
+        "path": "fortran/wrf/module_sf_noahdrv.F",
+        "value": 12731.28
+      },
+      {
+        "name": "codegen.c",
+        "path": "cobol/gnucobol_internals/codegen.c",
+        "value": 12285.36
+      }
+    ],
+    "lowest": [
+      {
+        "name": "buildrelease.bat",
+        "path": "batch/cpython/Tools/msi/buildrelease.bat",
+        "value": 0.01
+      },
+      {
+        "name": "build.bat",
+        "path": "batch/cpython/Tools/msi/build.bat",
+        "value": 0.02
+      },
+      {
+        "name": "clean.bat",
+        "path": "batch/cpython/Tools/buildbot/clean.bat",
+        "value": 0.02
+      }
+    ]
+  }
+}

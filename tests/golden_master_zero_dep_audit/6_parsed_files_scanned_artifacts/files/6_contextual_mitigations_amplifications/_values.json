@@ -1,0 +1,2526 @@
+{
+  "groups": {
+    "abap": {
+      "abap/SOURCES.md": "None Detected"
+    },
+    "abap/abapGit": {
+      "abap/abapGit/package.devc.xml": "None Detected",
+      "abap/abapGit/zabapgit.prog.abap": "None Detected"
+    },
+    "ada": {
+      "ada/PROVENANCE.md": "None Detected"
+    },
+    "ada/alire": {
+      "ada/alire/alire-dependencies-states.ads": "None Detected",
+      "ada/alire/alire-releases.ads": "None Detected",
+      "ada/alire/alire-solutions.ads": "None Detected"
+    },
+    "ada/functional": {
+      "ada/functional/functional-either.adb": "None Detected",
+      "ada/functional/functional-either.ads": "None Detected",
+      "ada/functional/functional-option.adb": "None Detected",
+      "ada/functional/functional-option.ads": "None Detected",
+      "ada/functional/functional-result.adb": "None Detected",
+      "ada/functional/functional-result.ads": "None Detected",
+      "ada/functional/functional-try-map_to_result.adb": "None Detected",
+      "ada/functional/functional-try-map_to_result.ads": "None Detected",
+      "ada/functional/functional-try-map_to_result_with_param.adb": "None Detected",
+      "ada/functional/functional-try-map_to_result_with_param.ads": "None Detected",
+      "ada/functional/functional-try-to_option.adb": "None Detected",
+      "ada/functional/functional-try-to_option.ads": "None Detected",
+      "ada/functional/functional-try-to_result.adb": "None Detected",
+      "ada/functional/functional-try-to_result.ads": "None Detected",
+      "ada/functional/functional-try.adb": "None Detected",
+      "ada/functional/functional-try.ads": "None Detected",
+      "ada/functional/functional.ads": "None Detected",
+      "ada/functional/test_framework.adb": "None Detected",
+      "ada/functional/test_framework.ads": "None Detected"
+    },
+    "agc_assembly": {
+      "agc_assembly/SOURCES.md": "None Detected"
+    },
+    "agc_assembly/apollo-11": {
+      "agc_assembly/apollo-11/CONTRIBUTING.md": "None Detected",
+      "agc_assembly/apollo-11/LICENSE.md": "None Detected"
+    },
+    "apex": {
+      "apex/SOURCES.md": "None Detected"
+    },
+    "apex/apex-recipes": {
+      "apex/apex-recipes/AuraEnabledRecipes_Tests.cls": "None Detected",
+      "apex/apex-recipes/LICENSE.md": "None Detected",
+      "apex/apex-recipes/SOQLRecipes.cls-meta.xml": "None Detected",
+      "apex/apex-recipes/project-scratch-def.json": "None Detected",
+      "apex/apex-recipes/sfdx-project.json": "None Detected"
+    },
+    "assembly": {
+      "assembly/SOURCES.md": "None Detected"
+    },
+    "assembly/blst_generated_asm": {
+      "assembly/blst_generated_asm/add_mod_256-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/add_mod_384-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/add_mod_384x384-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/ct_inverse_mod_256-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/ct_is_square_mod_384-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/ctq_inverse_mod_384-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/ctx_inverse_mod_384-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/div3w-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/mulq_mont_256-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/mulx_mont_256-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/mulx_mont_384-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/sha256-portable-x86_64.s": "None Detected",
+      "assembly/blst_generated_asm/sha256-x86_64.s": "None Detected"
+    },
+    "assembly/bootos": {
+      "assembly/bootos/Makefile": "None Detected"
+    },
+    "assembly/cosmopolitan": {
+      "assembly/cosmopolitan/notice.inc": "None Detected",
+      "assembly/cosmopolitan/start.S": "None Detected"
+    },
+    "assembly/cosmopolitan_runtime": {
+      "assembly/cosmopolitan_runtime/argc.S": "None Detected",
+      "assembly/cosmopolitan_runtime/argv.S": "None Detected",
+      "assembly/cosmopolitan_runtime/auxv.S": "None Detected",
+      "assembly/cosmopolitan_runtime/checkstackalign.S": "None Detected",
+      "assembly/cosmopolitan_runtime/environ.S": "None Detected",
+      "assembly/cosmopolitan_runtime/identity.S": "None Detected",
+      "assembly/cosmopolitan_runtime/kcp437.S": "None Detected",
+      "assembly/cosmopolitan_runtime/ksha256.S": "None Detected",
+      "assembly/cosmopolitan_runtime/ksha512.S": "None Detected",
+      "assembly/cosmopolitan_runtime/ktensindex.S": "None Detected",
+      "assembly/cosmopolitan_runtime/mcount.S": "None Detected",
+      "assembly/cosmopolitan_runtime/mul4x4adx.S": "None Detected"
+    },
+    "assembly/cosmopolitan_syscalls": {
+      "assembly/cosmopolitan_syscalls/calls___bsd_setegid.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls___bsd_seteuid.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls___sys_accept.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls___sys_accept4.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls_get_mempolicy.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls_set_mempolicy.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls_sys_acct.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls_sys_add_key.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls_sys_adjtime.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls_sys_adjtimex.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls_sys_aio_cancel.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls_sys_aio_error.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls_sys_aio_fsync.S": "None Detected",
+      "assembly/cosmopolitan_syscalls/calls_sys_aio_mlock.S": "None Detected"
+    },
+    "assembly/cpm65_6502": {
+      "assembly/cpm65_6502/apps_adm3adrv.S": "None Detected",
+      "assembly/cpm65_6502/apps_adm3atst.asm": "None Detected",
+      "assembly/cpm65_6502/apps_capsdrv.asm": "None Detected",
+      "assembly/cpm65_6502/apps_cls.asm": "None Detected",
+      "assembly/cpm65_6502/apps_cpuinfo.asm": "None Detected",
+      "assembly/cpm65_6502/apps_devices.asm": "None Detected",
+      "assembly/cpm65_6502/apps_dump.asm": "None Detected",
+      "assembly/cpm65_6502/apps_kbdtest.asm": "None Detected",
+      "assembly/cpm65_6502/apps_scrvt100.S": "None Detected",
+      "assembly/cpm65_6502/apps_vt52drv.asm": "None Detected",
+      "assembly/cpm65_6502/apps_vt52test.asm": "None Detected",
+      "assembly/cpm65_6502/apps_xsend.asm": "None Detected",
+      "assembly/cpm65_6502/cpmfs_hello.asm": "None Detected",
+      "assembly/cpm65_6502/lib_bdos.S": "None Detected"
+    },
+    "assembly/freebsd_kernel_arch": {
+      "assembly/freebsd_kernel_arch/COPYRIGHT": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_acpica_acpi_wakecode.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_amd64_apic_vector.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_amd64_atpic_vector.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_amd64_cpu_switch.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_amd64_efirt_support.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_amd64_exception.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_amd64_kexec_tramp.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_amd64_locore.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_amd64_mpboot.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_amd64_sigtramp.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_amd64_xen-locore.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_ia32_ia32_exception.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_ia32_ia32_sigtramp.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_linux32_linux32_support.S": "None Detected",
+      "assembly/freebsd_kernel_arch/amd64_linux_linux_support.S": "None Detected"
+    },
+    "assembly/freebsd_libc_string": {
+      "assembly/freebsd_libc_string/COPYRIGHT": "None Detected",
+      "assembly/freebsd_libc_string/gen__setjmp.S": "None Detected",
+      "assembly/freebsd_libc_string/gen_fabs.S": "None Detected",
+      "assembly/freebsd_libc_string/gen_setjmp.S": "None Detected",
+      "assembly/freebsd_libc_string/gen_sigsetjmp.S": "None Detected",
+      "assembly/freebsd_libc_string/stdlib_div.S": "None Detected",
+      "assembly/freebsd_libc_string/stdlib_ldiv.S": "None Detected",
+      "assembly/freebsd_libc_string/stdlib_lldiv.S": "None Detected",
+      "assembly/freebsd_libc_string/string_bcmp.S": "None Detected",
+      "assembly/freebsd_libc_string/string_memccpy.S": "None Detected",
+      "assembly/freebsd_libc_string/string_memcmp.S": "None Detected",
+      "assembly/freebsd_libc_string/string_memcpy.S": "None Detected",
+      "assembly/freebsd_libc_string/string_memrchr.S": "None Detected",
+      "assembly/freebsd_libc_string/string_memset.S": "None Detected",
+      "assembly/freebsd_libc_string/string_strcat.S": "None Detected",
+      "assembly/freebsd_libc_string/string_strcspn.S": "None Detected",
+      "assembly/freebsd_libc_string/string_strlcpy.S": "None Detected",
+      "assembly/freebsd_libc_string/string_strlen.S": "None Detected"
+    },
+    "assembly/hellosilicon": {
+      "assembly/hellosilicon/fileio.S": "None Detected",
+      "assembly/hellosilicon/mainpie.s": "None Detected",
+      "assembly/hellosilicon/makefile": "None Detected",
+      "assembly/hellosilicon/matrixmultneon.s": "None Detected"
+    },
+    "assembly/hellosilicon_aarch64": {
+      "assembly/hellosilicon_aarch64/Chapter_01_HelloWorld.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_02_addexamp1.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_02_addexamp2.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_02_addexamps.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_02_codesnippets.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_02_movexamps.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_03_HelloWorld.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_04_case.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_04_codesnippets.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_04_printdword.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_05_codesnippets.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_05_upper.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_06_codesnippets.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_06_main.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_06_mainmacro.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_06_upper.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_06_uppermacro.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_07_upper.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_09_addexamp2.s": "None Detected",
+      "assembly/hellosilicon_aarch64/Chapter_09_debug.s": "None Detected"
+    },
+    "assembly/linux_1_0_kernel": {
+      "assembly/linux_1_0_kernel/COPYING": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_div_small.S": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_div.S": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_poly_mul64.S": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_polynomial.S": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_div.S": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_norm.S": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_round.S": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_add.S": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_div.S": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_reg_u_mul.S": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_shrx.S": "None Detected",
+      "assembly/linux_1_0_kernel/drivers_FPU-emu_wm_sqrt.S": "None Detected",
+      "assembly/linux_1_0_kernel/kernel_ksyms.S": "None Detected",
+      "assembly/linux_1_0_kernel/kernel_sys_call.S": "None Detected"
+    },
+    "assembly/nasm_testsuite": {
+      "assembly/nasm_testsuite/a32offs.asm": "None Detected",
+      "assembly/nasm_testsuite/a64.asm": "None Detected",
+      "assembly/nasm_testsuite/absolute.asm": "None Detected",
+      "assembly/nasm_testsuite/addr64x.asm": "None Detected",
+      "assembly/nasm_testsuite/align13.asm": "None Detected",
+      "assembly/nasm_testsuite/align13s.asm": "None Detected",
+      "assembly/nasm_testsuite/alonesym-obj.asm": "None Detected",
+      "assembly/nasm_testsuite/amx.asm": "None Detected",
+      "assembly/nasm_testsuite/andbyte.asm": "None Detected",
+      "assembly/nasm_testsuite/aoutso.asm": "None Detected",
+      "assembly/nasm_testsuite/apx.asm": "None Detected",
+      "assembly/nasm_testsuite/avx005.asm": "None Detected",
+      "assembly/nasm_testsuite/avx512bf16-64.asm": "None Detected",
+      "assembly/nasm_testsuite/avx512bf16.asm": "None Detected",
+      "assembly/nasm_testsuite/avx512cd.asm": "None Detected",
+      "assembly/nasm_testsuite/avx512er.asm": "None Detected",
+      "assembly/nasm_testsuite/avx512pf.asm": "None Detected"
+    },
+    "assembly/os_tutorial_x86": {
+      "assembly/os_tutorial_x86/01-bootsector-barebones_boot_sect_simple.asm": "None Detected",
+      "assembly/os_tutorial_x86/02-bootsector-print_boot_sect_hello.asm": "None Detected",
+      "assembly/os_tutorial_x86/03-bootsector-memory_boot_sect_memory.asm": "None Detected",
+      "assembly/os_tutorial_x86/03-bootsector-memory_boot_sect_memory_org.asm": "None Detected",
+      "assembly/os_tutorial_x86/04-bootsector-stack_boot_sect_stack.asm": "None Detected",
+      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_main.asm": "None Detected",
+      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_print.asm": "None Detected",
+      "assembly/os_tutorial_x86/05-bootsector-functions-strings_boot_sect_print_hex.asm": "None Detected",
+      "assembly/os_tutorial_x86/06-bootsector-segmentation_boot_sect_segmentation.asm": "None Detected",
+      "assembly/os_tutorial_x86/07-bootsector-disk_boot_sect_disk.asm": "None Detected",
+      "assembly/os_tutorial_x86/07-bootsector-disk_boot_sect_main.asm": "None Detected",
+      "assembly/os_tutorial_x86/08-32bit-print_32bit-print.asm": "None Detected",
+      "assembly/os_tutorial_x86/09-32bit-gdt_32bit-gdt.asm": "None Detected",
+      "assembly/os_tutorial_x86/10-32bit-enter_32bit-main.asm": "None Detected",
+      "assembly/os_tutorial_x86/10-32bit-enter_32bit-switch.asm": "None Detected",
+      "assembly/os_tutorial_x86/13-kernel-barebones_bootsect.asm": "None Detected",
+      "assembly/os_tutorial_x86/13-kernel-barebones_kernel_entry.asm": "None Detected",
+      "assembly/os_tutorial_x86/14-checkpoint_boot_32bit_print.asm": "None Detected",
+      "assembly/os_tutorial_x86/14-checkpoint_boot_bootsect.asm": "None Detected",
+      "assembly/os_tutorial_x86/14-checkpoint_boot_disk.asm": "None Detected",
+      "assembly/os_tutorial_x86/14-checkpoint_boot_gdt.asm": "None Detected",
+      "assembly/os_tutorial_x86/14-checkpoint_boot_kernel_entry.asm": "None Detected"
+    },
+    "assembly/raspberrypi_baremetal": {
+      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel7.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANDecode_kernel8.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel7.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/Compress_HUFFMAN_HUFFMANGFX_kernel8.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel7.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77Decode_kernel8.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel7.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/Compress_LZ77_LZ77GFX_kernel8.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/EMU_GameBoy_kernel.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel7.asm": "None Detected",
+      "assembly/raspberrypi_baremetal/HelloWorld_CPU_kernel8.asm": "None Detected"
+    },
+    "assembly/x86_bare_metal": {
+      "assembly/x86_bare_metal/LICENSE.adoc": "None Detected",
+      "assembly/x86_bare_metal/apm_shutdown.S": "None Detected",
+      "assembly/x86_bare_metal/apm_shutdown2.S": "None Detected",
+      "assembly/x86_bare_metal/bios_background.S": "None Detected",
+      "assembly/x86_bare_metal/bios_carriage_return.S": "None Detected",
+      "assembly/x86_bare_metal/bios_clear_screen.S": "None Detected",
+      "assembly/x86_bare_metal/bios_color.S": "None Detected",
+      "assembly/x86_bare_metal/bios_cursor_position.S": "None Detected",
+      "assembly/x86_bare_metal/bios_detect_memory.S": "None Detected",
+      "assembly/x86_bare_metal/bios_disk_load.S": "None Detected",
+      "assembly/x86_bare_metal/bios_disk_load2.S": "None Detected",
+      "assembly/x86_bare_metal/bios_hello_world.S": "None Detected",
+      "assembly/x86_bare_metal/bios_initial_state.S": "None Detected",
+      "assembly/x86_bare_metal/bios_keyboard.S": "None Detected",
+      "assembly/x86_bare_metal/bios_keyboard_loop.S": "None Detected",
+      "assembly/x86_bare_metal/bios_newline.S": "None Detected",
+      "assembly/x86_bare_metal/bios_putc.S": "None Detected",
+      "assembly/x86_bare_metal/bios_scroll.S": "None Detected",
+      "assembly/x86_bare_metal/bios_serial.S": "None Detected",
+      "assembly/x86_bare_metal/c_hello_world_entry.S": "None Detected"
+    },
+    "assembly/xv6_x86_kernel": {
+      "assembly/xv6_x86_kernel/bootasm.S": "None Detected",
+      "assembly/xv6_x86_kernel/entry.S": "None Detected",
+      "assembly/xv6_x86_kernel/entryother.S": "None Detected",
+      "assembly/xv6_x86_kernel/initcode.S": "None Detected",
+      "assembly/xv6_x86_kernel/swtch.S": "None Detected",
+      "assembly/xv6_x86_kernel/trapasm.S": "None Detected",
+      "assembly/xv6_x86_kernel/usys.S": "None Detected"
+    },
+    "batch": {
+      "batch/SOURCES.md": "None Detected"
+    },
+    "batch/cpython/Tools/buildbot": {
+      "batch/cpython/Tools/buildbot/clean.bat": "None Detected"
+    },
+    "batch/cpython/Tools/msi": {
+      "batch/cpython/Tools/msi/build.bat": "None Detected",
+      "batch/cpython/Tools/msi/buildrelease.bat": "None Detected"
+    },
+    "blueprint": {
+      "blueprint/SOURCES.md": "None Detected"
+    },
+    "blueprint/ghostty": {
+      "blueprint/ghostty/command-palette.blp": "None Detected",
+      "blueprint/ghostty/imgui-widget.blp": "None Detected",
+      "blueprint/ghostty/split-tree-split.blp": "None Detected",
+      "blueprint/ghostty/split-tree.blp": "None Detected",
+      "blueprint/ghostty/window.blp": "None Detected"
+    },
+    "bms/cbsa": {
+      "bms/cbsa/BNK1ACC.bms": "None Detected",
+      "bms/cbsa/BNK1CAM.bms": "None Detected",
+      "bms/cbsa/BNK1CCM.bms": "None Detected",
+      "bms/cbsa/BNK1CDM.bms": "None Detected",
+      "bms/cbsa/BNK1DAM.bms": "None Detected",
+      "bms/cbsa/BNK1DCM.bms": "None Detected",
+      "bms/cbsa/BNK1MAI.bms": "None Detected",
+      "bms/cbsa/BNK1TFM.bms": "None Detected",
+      "bms/cbsa/BNK1UAM.bms": "None Detected",
+      "bms/cbsa/PROVENANCE.md": "None Detected",
+      "bms/cbsa/ssmap.bms": "None Detected"
+    },
+    "c": {
+      "c/SOURCES.md": "None Detected"
+    },
+    "c/cpython": {
+      "c/cpython/Makefile.pre.in": "None Detected"
+    },
+    "c/doom": {
+      "c/doom/LICENSE.TXT": "None Detected",
+      "c/doom/README.TXT": "None Detected",
+      "c/doom/doomdef.h": "None Detected",
+      "c/doom/m_fixed.h": "None Detected",
+      "c/doom/p_mobj.h": "None Detected",
+      "c/doom/r_defs.h": "None Detected"
+    },
+    "c/micropython": {
+      "c/micropython/compile.h": "None Detected",
+      "c/micropython/gc.h": "None Detected",
+      "c/micropython/modmachine.c": "None Detected",
+      "c/micropython/objtype.h": "None Detected",
+      "c/micropython/vfs.h": "None Detected"
+    },
+    "c/sqlite": {
+      "c/sqlite/README.md": "None Detected"
+    },
+    "cobol/CICS-Cobol": {
+      "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0103v01DivisionData.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0104v01ProcedureDivision.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0105v01DeclararElementoGrupo.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0106v01ClausulaImagen.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0201v01VerbosBasicos.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0202v01IniciarlizarVerbo.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0203v01MoveVerb.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0204v01AddVerb.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0205v01SubtractVerb.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0206v01MultiplyVerb.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0207v01DivideVerb.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0208v01ComputeVerb.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0301v01DataLayoutRedefine.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0302v01DataLayoutRenames.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0303v01ClausuleUse.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0304v01ClausuleComp.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0305v01ClausuleComp-1.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0306v01ClausuleComp-2.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0307v01ClausuleComp-3.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0401v01ClausuleCopy.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0504v01CondicionClass.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0507v01CondicionCombined.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0601v01InOutLineLoop.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0605v01GotoStatement.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0701v01StatementInspect.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0702v01InspectReplacing.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0703v01StatementString.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0704v01StatementNotString.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0801v01TableOneDimention.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0802v01TableTwoDimention.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0803v01TableUseSubIndice.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0806v01TableSearch.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0901v01AccesoSecuencial.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0901v02AccesoSecuencialFiles.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0902v01AccesoAleatorio.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": "None Detected",
+      "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": "None Detected"
+    },
+    "cobol/aws-mainframe-modernization-carddemo": {
+      "cobol/aws-mainframe-modernization-carddemo/COACTUP.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COACTVW.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COADM01.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COADM02Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COBIL00.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COCOM01Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COCRDLI.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COCRDSL.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COCRDUP.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COMEN01.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COMEN02Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CORPT00.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COSGN00.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COTRN00.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COTRN01.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COTRN02.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COTTL01Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COUSR00.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COUSR01.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COUSR02.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/COUSR03.CPY": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CSMSG01Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CSUSR01Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CSUTLDWY.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CUSTREC.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVACT01Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVACT02Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVACT03Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVCRD01Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVCUS01Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA01Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA02Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA03Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA04Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA05Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA06Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CVTRA07Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/DFHAID.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/DFHBMSCA.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/UNUSED1Y.cpy": "None Detected"
+    },
+    "cobol/cash-account-cobol": {
+      "cobol/cash-account-cobol/DCLCASH.cpy": "None Detected",
+      "cobol/cash-account-cobol/DCLFRANK.cpy": "None Detected"
+    },
+    "cobol/che-che4z-lsp-for-cobol": {
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": "None Detected",
+      "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": "None Detected",
+      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": "None Detected"
+    },
+    "cobol/che-che4z_lsp_project_fixtures": {
+      "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/BASIC.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/CALL.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/CFAST.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_A.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_B.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/DIAGNOSTIC_TEST_C.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/HOVER_PARA.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/LICENSE.md": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/PAYLIB.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/REPLA.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/REPLACING.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/RES.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/SNIPPET.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/SNIPPET2.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/SNIPPET_IDMS.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST1.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST14.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST15.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST16.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST2.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST21.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST3.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST4.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST5.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST51.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST6.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST61.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST7.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST8.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TESTCPY1.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TESTCPY2.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/TEST_TITLE.CBL": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/USER1.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/USER2.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/USERC1F.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/USERC1N1.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/USERC1N2.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/USERC1R.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/VAR.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/cobol-dc_ABCD.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/cobol-sample_SAMPLE1.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/copy-daco_DACOSMPL_PDRTPY-DXY.cpy": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/copy-idms_DABPA11N_SUBSCHEMA-NAMES.cpy": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/copy-sample_COPY1.cpy": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile1.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/copybook-analysis_mainfile2.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/outline.cbl": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/subroutines_SUB1.cob": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/testing_A.cpy": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/testing_ASTRO.cpy": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN.CPY": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/testing_CHOPIN1.CPY": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/testing_CPY1.cpy": "None Detected",
+      "cobol/che-che4z_lsp_project_fixtures/testing_DIAGNOS.CPY": "None Detected"
+    },
+    "cobol/che-che4z_nist_ccvs85": {
+      "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/DB3054.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC1024.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC1044.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC1054.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC1094.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC1114.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC1174.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC1184.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC2024.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC2064.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC2114.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC2124.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC2144.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC2154.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC2174.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IF4014.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IF4024.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/LICENSE.md": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/NC1104.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/NC3034.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/OBIC14.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/PDC0001.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/RL3014.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/SG3034.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/SG4014.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/SM1064.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": "None Detected"
+    },
+    "cobol/cics-banking-sample-application-cbsa": {
+      "cobol/cics-banking-sample-application-cbsa/ABNDINFO.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/ACCDB2.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/ACCOUNT.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/ACCTCTRL.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/BANKMAP.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/BNK1DDM.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/CONTDB2.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/CONTROLI.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/CUSTCTRL.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/CUSTMAP.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/CUSTOMER.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/DELACC.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/DELACCZ.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/INQACC.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/INQACCCZ.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/INQACCZ.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/INQCUST.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/INQCUSTZ.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/NEWACCNO.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/NEWCUSNO.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/PAYDBCR.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/PROCDB2.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/PROCISRT.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/PROCTRAN.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/SORTCODE.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/STCUSTNO.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/UPDACC.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/WAZI.cpy": "None Detected",
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cpy": "None Detected"
+    },
+    "cobol/cics-genapp": {
+      "cobol/cics-genapp/README.md": "None Detected",
+      "cobol/cics-genapp/lgcmarea.cpy": "None Detected",
+      "cobol/cics-genapp/polloo2.cpy": "None Detected",
+      "cobol/cics-genapp/pollook.cpy": "None Detected",
+      "cobol/cics-genapp/soaic01.cpy": "None Detected",
+      "cobol/cics-genapp/soaipb1.cpy": "None Detected",
+      "cobol/cics-genapp/soaipe1.cpy": "None Detected",
+      "cobol/cics-genapp/soaiph1.cpy": "None Detected",
+      "cobol/cics-genapp/soaipm1.cpy": "None Detected",
+      "cobol/cics-genapp/soavcii.cpy": "None Detected",
+      "cobol/cics-genapp/soavcio.cpy": "None Detected",
+      "cobol/cics-genapp/soavpii.cpy": "None Detected",
+      "cobol/cics-genapp/soavpio.cpy": "None Detected"
+    },
+    "cobol/cobol-check": {
+      "cobol/cobol-check/copybooks_CCHECKWS.CPY": "None Detected",
+      "cobol/cobol-check/copybooks_DFHEIBLK.CPY": "None Detected",
+      "cobol/cobol-check/src_main_cobol_ALPHA.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_BIPM012.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_BADCOPY-padded.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_BADCOPY.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_BIPM012I.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPY001-padded.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPY001.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPY002-padded.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPY002.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPY003.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPY004.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPY005-padded.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPY005.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPY006.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPYP001-padded.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPYP001.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPYP002-padded.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPYP002.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPYR001-padded.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_COPYR001.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_EX002-padded.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_EX002.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_EX005-padded.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_EX005.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_EXP01-padded.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_EXP01.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_EXR001-padded.CBL": "None Detected",
+      "cobol/cobol-check/src_main_cobol_copy_EXR001.CBL": "None Detected"
+    },
+    "cobol/cobol-programming-course": {
+      "cobol/cobol-programming-course/DEPTPAY.CBL": "None Detected"
+    },
+    "cobol/cobrix": {
+      "cobol/cobrix/companies_copybook.cpy": "None Detected",
+      "cobol/cobrix/copybook.cpy": "None Detected",
+      "cobol/cobrix/copybook_codec.cob": "None Detected",
+      "cobol/cobrix/data_types.cpy": "None Detected",
+      "cobol/cobrix/example_copybook.cpy": "None Detected",
+      "cobol/cobrix/multisegment.cob": "None Detected",
+      "cobol/cobrix/raw_file.cob": "None Detected",
+      "cobol/cobrix/test10_copybook.cob": "None Detected",
+      "cobol/cobrix/test11_copybook.cob": "None Detected",
+      "cobol/cobrix/test12_copybook.cob": "None Detected",
+      "cobol/cobrix/test12_copybook_a.cob": "None Detected",
+      "cobol/cobrix/test12_copybook_b.cob": "None Detected",
+      "cobol/cobrix/test13a_file_header_footer.cob": "None Detected",
+      "cobol/cobrix/test13b_vrl_file_headers.cob": "None Detected",
+      "cobol/cobrix/test14_copybook.cob": "None Detected",
+      "cobol/cobrix/test15_copybook.cob": "None Detected",
+      "cobol/cobrix/test16_fix_len_segments.cob": "None Detected",
+      "cobol/cobrix/test17_hierarchical.cob": "None Detected",
+      "cobol/cobrix/test18 special_char.cob": "None Detected",
+      "cobol/cobrix/test19_display_num.cob": "None Detected",
+      "cobol/cobrix/test1_copybook.cob": "None Detected",
+      "cobol/cobrix/test1a_copybook.cob": "None Detected",
+      "cobol/cobrix/test21_copybook.cob": "None Detected",
+      "cobol/cobrix/test24_copybook.cob": "None Detected",
+      "cobol/cobrix/test25_copybook.cob": "None Detected",
+      "cobol/cobrix/test2_copybook.cob": "None Detected",
+      "cobol/cobrix/test3_copybook.cob": "None Detected",
+      "cobol/cobrix/test40_copybook.cob": "None Detected",
+      "cobol/cobrix/test4_copybook.cob": "None Detected",
+      "cobol/cobrix/test5_copybook.cob": "None Detected",
+      "cobol/cobrix/test5d_copybook.cob": "None Detected",
+      "cobol/cobrix/test6_copybook.cob": "None Detected",
+      "cobol/cobrix/test7_fillers.cob": "None Detected",
+      "cobol/cobrix/test8_copybook.cob": "None Detected",
+      "cobol/cobrix/test9_copybook.cob": "None Detected"
+    },
+    "cobol/gnucobol": {
+      "cobol/gnucobol/COPYING": "None Detected",
+      "cobol/gnucobol/numeric-display.cob": "None Detected",
+      "cobol/gnucobol/numeric-dump.cob": "None Detected",
+      "cobol/gnucobol/screenio.cpy": "None Detected",
+      "cobol/gnucobol/sqlca.cpy": "None Detected",
+      "cobol/gnucobol/sqlda.cpy": "None Detected",
+      "cobol/gnucobol/xfhfcd.cpy": "None Detected",
+      "cobol/gnucobol/xfhfcd3.cpy": "None Detected"
+    },
+    "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/screenio.cpy": "None Detected",
+      "cobol/gnucobol_internals/syn_misc.at": "None Detected"
+    },
+    "cobol/zopeneditor-sample": {
+      "cobol/zopeneditor-sample/CUSTCOPY.cpy": "None Detected",
+      "cobol/zopeneditor-sample/DATETIME.cpy": "None Detected",
+      "cobol/zopeneditor-sample/REPTTOTL.cpy": "None Detected",
+      "cobol/zopeneditor-sample/SAM2PAR5.cpy": "None Detected",
+      "cobol/zopeneditor-sample/SAM2PARM.cpy": "None Detected",
+      "cobol/zopeneditor-sample/TRANREC.cpy": "None Detected"
+    },
+    "cpp": {
+      "cpp/SOURCES.md": "None Detected"
+    },
+    "cpp/NVDA": {
+      "cpp/NVDA/CODE_OF_CONDUCT.md": "None Detected",
+      "cpp/NVDA/contributors.txt": "None Detected",
+      "cpp/NVDA/copying.txt": "None Detected",
+      "cpp/NVDA/nvdaControllerInternal.cpp": "None Detected",
+      "cpp/NVDA/readme.md": "None Detected"
+    },
+    "cpp/godot": {
+      "cpp/godot/AUTHORS.md": "None Detected",
+      "cpp/godot/DONORS.md": "None Detected",
+      "cpp/godot/LICENSE.txt": "None Detected",
+      "cpp/godot/main.h": "None Detected"
+    },
+    "cpp/mlir": {
+      "cpp/mlir/mlir_bridge_rollout_policy.cc": "None Detected",
+      "cpp/mlir/stablehlo.cc": "None Detected",
+      "cpp/mlir/tf_mlir_opt_main.cc": "None Detected"
+    },
+    "cpp/powertoys": {
+      "cpp/powertoys/FancyZones.h": "None Detected",
+      "cpp/powertoys/powertoy_module.h": "None Detected"
+    },
+    "csd/carddemo": {
+      "csd/carddemo/CARDDEMO.CSD": "None Detected",
+      "csd/carddemo/CRDDEMO2.csd": "None Detected",
+      "csd/carddemo/CRDDEMOD.csd": "None Detected",
+      "csd/carddemo/CRDDEMOM.csd": "None Detected",
+      "csd/carddemo/PROVENANCE.md": "None Detected"
+    },
+    "csd/cbsa": {
+      "csd/cbsa/BANK.csd": "None Detected",
+      "csd/cbsa/PROVENANCE.md": "None Detected"
+    },
+    "csharp": {
+      "csharp/SOURCES.md": "None Detected"
+    },
+    "csharp/roslyn": {
+      "csharp/roslyn/DiagnosticAnalyzer.cs": "None Detected",
+      "csharp/roslyn/License.txt": "None Detected"
+    },
+    "css": {
+      "css/SOURCES.md": "None Detected"
+    },
+    "css/bootstrap_dist": {
+      "css/bootstrap_dist/bootstrap-grid.css": "None Detected",
+      "css/bootstrap_dist/bootstrap-reboot.css": "None Detected",
+      "css/bootstrap_dist/bootstrap.rtl.css": "None Detected"
+    },
+    "css/cytoscape_docs": {
+      "css/cytoscape_docs/reset.css": "None Detected",
+      "css/cytoscape_docs/solarized_dark.css": "None Detected",
+      "css/cytoscape_docs/style.css": "None Detected"
+    },
+    "css/element": {
+      "css/element/common.css": "None Detected",
+      "css/element/fonts-baseline.css": "None Detected"
+    },
+    "css/gutenberg_css_modules": {
+      "css/gutenberg_css_modules/LICENSE.md": "None Detected",
+      "css/gutenberg_css_modules/block-theme-style.css": "None Detected",
+      "css/gutenberg_css_modules/button.module.css": "None Detected",
+      "css/gutenberg_css_modules/card.module.css": "None Detected",
+      "css/gutenberg_css_modules/tabs.module.css": "None Detected"
+    },
+    "css/mediawiki_resources": {
+      "css/mediawiki_resources/COPYING": "None Detected",
+      "css/mediawiki_resources/apihelp.css": "None Detected",
+      "css/mediawiki_resources/apisandbox.css": "None Detected",
+      "css/mediawiki_resources/diff.styles.print.css": "None Detected",
+      "css/mediawiki_resources/mediawiki.action.history.css": "None Detected",
+      "css/mediawiki_resources/toc.css": "None Detected"
+    },
+    "css/odoo": {
+      "css/odoo/control_panel_mobile.css": "None Detected",
+      "css/odoo/icons-baseline.css": "None Detected"
+    },
+    "css/tailwindcss_atrules": {
+      "css/tailwindcss_atrules/index.css": "None Detected",
+      "css/tailwindcss_atrules/playground_vite_index.css": "None Detected",
+      "css/tailwindcss_atrules/preflight.css": "None Detected",
+      "css/tailwindcss_atrules/theme.css": "None Detected",
+      "css/tailwindcss_atrules/utilities.css": "None Detected"
+    },
+    "css/threejs_app_ui": {
+      "css/threejs_app_ui/editor_main.css": "None Detected",
+      "css/threejs_app_ui/examples_main.css": "None Detected",
+      "css/threejs_app_ui/threejs-lessons.css": "None Detected"
+    },
+    "css/wordpress": {
+      "css/wordpress/LICENSE.txt": "None Detected"
+    },
+    "dart": {
+      "dart/SOURCES.md": "None Detected"
+    },
+    "db2_sql/db2unit": {
+      "db2_sql/db2unit/01-ObjectsAdmin.sql": "None Detected",
+      "db2_sql/db2unit/02-Objects.sql": "None Detected",
+      "db2_sql/db2unit/03-Headers.sql": "None Detected",
+      "db2_sql/db2unit/06-AssertsNoMessage.sql": "None Detected",
+      "db2_sql/db2unit/07-Version.sql": "None Detected",
+      "db2_sql/db2unit/98-Clean.sql": "None Detected",
+      "db2_sql/db2unit/99-CleanAdmin.sql": "None Detected",
+      "db2_sql/db2unit/PROVENANCE.md": "None Detected"
+    },
+    "dockerfile": {
+      "dockerfile/SOURCES.md": "None Detected"
+    },
+    "dockerfile/moby/builder/dockerfile": {
+      "dockerfile/moby/builder/dockerfile/buildargs_test.go": "None Detected",
+      "dockerfile/moby/builder/dockerfile/builder_unix.go": "None Detected",
+      "dockerfile/moby/builder/dockerfile/builder_windows.go": "None Detected",
+      "dockerfile/moby/builder/dockerfile/copy_test.go": "None Detected",
+      "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": "None Detected",
+      "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": "None Detected",
+      "dockerfile/moby/builder/dockerfile/internals_linux_test.go": "None Detected",
+      "dockerfile/moby/builder/dockerfile/internals_windows.go": "None Detected",
+      "dockerfile/moby/builder/dockerfile/internals_windows_test.go": "None Detected",
+      "dockerfile/moby/builder/dockerfile/mockbackend_test.go": "None Detected",
+      "dockerfile/moby/builder/dockerfile/utils_test.go": "None Detected"
+    },
+    "dockerfile/moby/builder/remotecontext": {
+      "dockerfile/moby/builder/remotecontext/git.go": "None Detected",
+      "dockerfile/moby/builder/remotecontext/mimetype.go": "None Detected",
+      "dockerfile/moby/builder/remotecontext/mimetype_test.go": "None Detected",
+      "dockerfile/moby/builder/remotecontext/remote_test.go": "None Detected",
+      "dockerfile/moby/builder/remotecontext/utils_test.go": "None Detected"
+    },
+    "dockerfile/moby/builder/remotecontext/internal/tarsum": {
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": "None Detected",
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": "None Detected"
+    },
+    "dockerfile/moby/builder/remotecontext/urlutil": {
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil.go": "None Detected",
+      "dockerfile/moby/builder/remotecontext/urlutil/urlutil_test.go": "None Detected"
+    },
+    "dockerfile/moby/test_targets": {
+      "dockerfile/moby/test_targets/generate-files.Dockerfile": "None Detected",
+      "dockerfile/moby/test_targets/syscall.Dockerfile": "None Detected",
+      "dockerfile/moby/test_targets/windows.Dockerfile": "None Detected"
+    },
+    "embedded_python": {
+      "embedded_python/SOURCES.md": "None Detected"
+    },
+    "embedded_python/meow_turtle": {
+      "embedded_python/meow_turtle/pio_programs.py": "None Detected"
+    },
+    "fortran": {
+      "fortran/SOURCES.md": "None Detected"
+    },
+    "fortran/wrf": {
+      "fortran/wrf/LICENSE.txt": "None Detected",
+      "fortran/wrf/regtest.csh": "None Detected",
+      "fortran/wrf/regtest_hwrf.csh": "None Detected",
+      "fortran/wrf/regtest_nmmnest.csh": "None Detected",
+      "fortran/wrf/run_convert_e2c.ksh": "None Detected"
+    },
+    "go": {
+      "go/SOURCES.md": "None Detected"
+    },
+    "go/core": {
+      "go/core/PATENTS": "None Detected",
+      "go/core/mutex.go": "None Detected"
+    },
+    "go/kubernetes": {
+      "go/kubernetes/options.go": "None Detected"
+    },
+    "groovy/fineract_gradle_plugin": {
+      "groovy/fineract_gradle_plugin/LICENSE_RELEASE": "None Detected",
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_FineractPluginExtension.groovy": "None Detected",
+      "groovy/fineract_gradle_plugin/org_apache_fineract_gradle_service_ConfluenceService.groovy": "None Detected"
+    },
+    "groovy/flutter_android_gradle": {
+      "groovy/flutter_android_gradle/dev_a11y_assessments_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_complex_layout_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_macrobenchmarks_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_microbenchmarks_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_app_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_multiple_flutters_android_settings.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_platform_views_layout_hybrid_composition_android_build.gradle": "None Detected",
+      "groovy/flutter_android_gradle/dev_benchmarks_test_apps_stocks_android_build.gradle": "None Detected"
+    },
+    "groovy/godot_android_gradle": {
+      "groovy/godot_android_gradle/LICENSE.txt": "None Detected",
+      "groovy/godot_android_gradle/java_app_assetPackInstallTime_build.gradle": "None Detected",
+      "groovy/godot_android_gradle/java_app_settings.gradle": "None Detected",
+      "groovy/godot_android_gradle/java_scripts_publish-module.gradle": "None Detected",
+      "groovy/godot_android_gradle/java_settings.gradle": "None Detected"
+    },
+    "groovy/gradle_buildlogic_groovy": {
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChange.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_AcceptedApiChangesJsonFileManager.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_ApiChange.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_BinaryCompatibilityHelper.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_CleanAcceptedApiChanges.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_AnonymousClassesFilter.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_BridgeForBytecodeUpgradeAdapterClassFilter.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInternalFilter.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_filters_KotlinInvokeDefaultBridgeFilter.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_AbstractSuperClassChangesRule.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_rules_BinaryBreakingSuperclassChangeRule.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleClasspath.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/binary-compatibility_src_main_groovy_gradlebuild_binarycompatibility_transforms_FindGradleJars.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_BuildableDOMCategory.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": "None Detected",
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_DomBuilder.groovy": "None Detected"
+    },
+    "groovy/gradle_dsl_snippets": {
+      "groovy/gradle_dsl_snippets/antlr_useAntlrPlugin_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/artifacts_defineRepository_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/base_basePlugin_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/buildCache_cacheable-bundle_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/codeQuality_codeQuality_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/configurationCache_disallowedTypesFixed_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/customPlugins_customPlugin_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/developingPlugins_capabilitiesVsConventions_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/ear_earWithWar_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/files_archiveNaming_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/groovy_crossCompilation_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/initScripts_cacheMarking_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/ivy-publish_conditional-publishing_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/java-feature-variant_producer-separate-sourceset_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/java-library_module-disabled_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/maven-publish_conditional-publishing_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/modelRules_basicRuleSourcePlugin_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/native-binaries_assembler_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/organizingGradleProjects_configureProjectUsingScript_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/plugins_buildscript_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/scala_compilerPlugin_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/tasks_accessFromTaskContainer_groovy_build.gradle": "None Detected",
+      "groovy/gradle_dsl_snippets/testing_filtering_groovy_build.gradle": "None Detected"
+    },
+    "groovy/gradle_integtest_specs": {
+      "groovy/gradle_integtest_specs/core-configuration_base-diagnostics_src_integTest_groovy_org_gradle_api_plugins_HelpTasksPluginIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_base-diagnostics_src_integTest_groovy_org_gradle_api_tasks_diagnostics_PropertyReportTaskIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_AbstractConfigurationCacheIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_CacheableComputationIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheAllowedStartParametersIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcChangesIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildSrcProblemReportingIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCircularReferenceIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderCachingIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheClassLoaderValidationIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCompositeBuildProblemReportingIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheConventionMappingIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCustomClassLoaderErrorIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDebugLogIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheDirectoryPluginIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheEnablementIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFeatureFlagsIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFileCollectionIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheFileTreeIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheGradlePropertiesFileIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildInputsChangesIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildLogicChangesIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildLogicIntegrationTest.groovy": "None Detected",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheIncludedBuildScriptChangesIntegrationTest.groovy": "None Detected"
+    },
+    "groovy/gradle_sample_task_classes": {
+      "groovy/gradle_sample_task_classes/base_buildDashboard_common_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/base_customExternalTask_groovy_task_src_main_groovy_org_gradle_GreetingTask.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/base_customExternalTask_kotlin_task_src_main_groovy_org_gradle_GreetingTask.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/codeQuality_codeQuality_groovy_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/codeQuality_codeQuality_kotlin_src_main_groovy_org_gradle_sample_GroovyPerson.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/groovy_crossCompilation_common_src_main_groovy_org_gradle_GroovyPerson.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/groovy_crossCompilation_common_src_main_groovy_org_gradle_PersonList.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_GroovyPerson.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/groovy_groovyDependency_common_src_main_groovy_org_gradle_PersonList.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/groovy_library-publishing_common_my-library_src_main_groovy_org_gradle_sample_utilities_StringUtils.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/groovy_quickstart_groovy_src_main_groovy_org_gradle_Person.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/groovy_quickstart_kotlin_src_main_groovy_org_gradle_Person.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/organizingGradleProjects_customGradleDistribution_groovy_buildSrc_src_main_groovy_org_gradle_distribution_DownloadGradle.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/testKit_automaticClasspathInjectionCustomTestSourceSet_common_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/testKit_automaticClasspathInjectionQuickstart_common_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": "None Detected",
+      "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_MyCacheableTask.groovy": "None Detected"
+    },
+    "groovy/jenkins_view_groovy": {
+      "groovy/jenkins_view_groovy/LICENSE.txt": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_PluginWrapper_uninstall.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_model_AllView_noJob.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_model_EnvironmentContributor_EnvVarsHtml_index.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_model_UpdateCenter_DownloadJob_SuccessButRequiresRestart_status.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_model_UsageStatistics_global.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_security_GlobalSecurityConfiguration_index.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_security_LegacySecurityRealm_config.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_security_csrf_GlobalCrumbIssuerConfiguration_config.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_tasks_ArtifactArchiver_help-defaultExcludes.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_tasks_Fingerprinter_help-defaultExcludes.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_triggers_SlowTriggerAdminMonitor_message.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_util_JenkinsReloadFailed_index.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/hudson_views_ViewsTabBar_GlobalConfigurationImpl_config.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_management_AdministrativeMonitorsConfiguration_config.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_management_AsynchronousAdministrativeMonitor_log.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_management_ShutdownLink_index.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_UserInterruption_summary.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_model_CauseOfInterruption_summary.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_model_CoreEnvironmentContributor_buildEnv.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_model_GlobalNodePropertiesConfiguration_config.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_model_GlobalPluginConfiguration_config.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_model_GlobalProjectNamingStrategyConfiguration_config.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_model_InterruptedBuildAction_summary.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_model_JenkinsLocationConfiguration_config.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_model_ProjectNamingStrategy_PatternProjectNamingStrategy_config.groovy": "None Detected",
+      "groovy/jenkins_view_groovy/jenkins_mvn_GlobalMavenConfig_config.groovy": "None Detected"
+    },
+    "groovy/kotlin_build_gradle": {
+      "groovy/kotlin_build_gradle/LICENSE.txt": "None Detected",
+      "groovy/kotlin_build_gradle/compiler_android-tests_android-module_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/dependencies_protobuf_settings.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/js_npm_settings.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/kotlin-native_backend.native_tests_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/kotlin-native_gradle_kotlinGradlePlugin.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_stdlib_common_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_stdlib_jdk7_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_stdlib_jdk8_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_app_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidDaggerProject_settings.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidExtraSourceDirsApp_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidIcepickProject_app_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidIcepickProject_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidIcepickProject_settings.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidIncrementalMultiModule_app_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidIncrementalMultiModule_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidIncrementalMultiModule_libAndroidClassesOnly_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidIncrementalMultiModule_libAndroid_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidIncrementalMultiModule_libJvmClassesOnly_build.gradle": "None Detected",
+      "groovy/kotlin_build_gradle/libraries_tools_kotlin-gradle-plugin-integration-tests_src_test_resources_testProject_AndroidIncrementalMultiModule_settings.gradle": "None Detected"
+    },
+    "groovy/retrofit_gradle": {
+      "groovy/retrofit_gradle/LICENSE.txt": "None Detected",
+      "groovy/retrofit_gradle/retrofit-adapters_guava_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-adapters_java8_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-adapters_rxjava2_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-adapters_rxjava3_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-adapters_rxjava_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-adapters_scala_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-bom_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-converters_gson_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-converters_guava_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-converters_jackson_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-converters_java8_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-converters_jaxb3_build.gradle": "None Detected",
+      "groovy/retrofit_gradle/retrofit-converters_jaxb_build.gradle": "None Detected"
+    },
+    "groovy/spock": {
+      "groovy/spock/SpockTransform.java": "None Detected"
+    },
+    "groovy/spock_core_groovy": {
+      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_AsciiDocLinkVerifier.groovy": "None Detected",
+      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_JacocoJavaagentProvider.groovy": "None Detected",
+      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockConfigArgumentProvider.groovy": "None Detected",
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFiles.groovy": "None Detected",
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_DetermineImportedFilesWorkAction.groovy": "None Detected",
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessGithubWorkflow.groovy": "None Detected",
+      "groovy/spock_core_groovy/build-logic_preprocess-workflows_src_main_groovy_org_spockframework_gradle_PreprocessWorkflowsPlugin.groovy": "None Detected",
+      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_EmbeddedSpecRunner.groovy": "None Detected",
+      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_concurrent_BlockingVariables.groovy": "None Detected",
+      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_HamcrestMatchers.groovy": "None Detected",
+      "groovy/spock_core_groovy/spock-core_src_main_groovy_spock_util_matcher_IsCloseTo.groovy": "None Detected",
+      "groovy/spock_core_groovy/spock-specs_src_main_groovy_org_spockframework_specs_extension_SpockSnapshotter.groovy": "None Detected"
+    },
+    "groovy/spock_smoke_specs": {
+      "groovy/spock_smoke_specs/AccessingOldValues.groovy": "None Detected",
+      "groovy/spock_smoke_specs/AnonymousInnerClasses.groovy": "None Detected",
+      "groovy/spock_smoke_specs/AssertionErrorMessages.groovy": "None Detected",
+      "groovy/spock_smoke_specs/Blocks.groovy": "None Detected",
+      "groovy/spock_smoke_specs/BuiltInMembersOfClassSpecification.groovy": "None Detected",
+      "groovy/spock_smoke_specs/CompileTimeErrorReporting.groovy": "None Detected",
+      "groovy/spock_smoke_specs/DisambiguationInConditions.groovy": "None Detected",
+      "groovy/spock_smoke_specs/ExpectBlocks.groovy": "None Detected",
+      "groovy/spock_smoke_specs/FeatureFiltering.groovy": "None Detected",
+      "groovy/spock_smoke_specs/FeatureMethods.groovy": "None Detected",
+      "groovy/spock_smoke_specs/FixtureMethods.groovy": "None Detected",
+      "groovy/spock_smoke_specs/GroovyCallChain.groovy": "None Detected",
+      "groovy/spock_smoke_specs/InteractionsAndExceptionConditions.groovy": "None Detected",
+      "groovy/spock_smoke_specs/MethodAccessibility.groovy": "None Detected",
+      "groovy/spock_smoke_specs/MethodExecutionOrder.groovy": "None Detected",
+      "groovy/spock_smoke_specs/MisspelledFixtureMethods.groovy": "None Detected",
+      "groovy/spock_smoke_specs/MixingExpectAndWhenThenBlocks.groovy": "None Detected",
+      "groovy/spock_smoke_specs/NameClashes.groovy": "None Detected",
+      "groovy/spock_smoke_specs/RecorderScope.groovy": "None Detected",
+      "groovy/spock_smoke_specs/SetupBlocks.groovy": "None Detected",
+      "groovy/spock_smoke_specs/SharedFields.groovy": "None Detected",
+      "groovy/spock_smoke_specs/SharedFieldsInSuperclass.groovy": "None Detected"
+    },
+    "groovy/spock_specs": {
+      "groovy/spock_specs/org_spockframework_builder_PojoBuilderSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_buildsupport_SpecClassFileFinderSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v1_MathSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v2_MathSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v3_MathSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v4_MathSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v5_MathSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v6_MathSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_datadriven_v7_MathSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_ConfineMetaClassChangesDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_ExtensionStoreSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_FancyMockMakerDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_IgnoreIfDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_InterceptorSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_IssueDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_MockMakerConfigurationDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_ParameterInjectionSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_RequiresDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_RetryDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_SeeDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_SnapshotDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_StepwiseDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_SubjectDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_TagDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_TempDirDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_extension_UseDocSpec.groovy": "None Detected",
+      "groovy/spock_specs/org_spockframework_docs_interaction_BuilderExampleSpec.groovy": "None Detected"
+    },
+    "groovy/spring_boot_gradle": {
+      "groovy/spring_boot_gradle/LICENSE.txt": "None Detected",
+      "groovy/spring_boot_gradle/build-plugin_spring-boot-antlib_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/build-plugin_spring-boot-maven-plugin_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/buildSrc_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/buildpack_spring-boot-buildpack-platform_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-metadata_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-processor_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/core_spring-boot-autoconfigure-processor_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/core_spring-boot-autoconfigure_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/core_spring-boot-docker-compose_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/core_spring-boot-properties-migrator_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/core_spring-boot-test-autoconfigure_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/core_spring-boot-test_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/core_spring-boot-testcontainers_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/core_spring-boot_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/documentation_spring-boot-actuator-docs_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/gradle_plugins_cycle-detection-plugin_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/integration-test_spring-boot-actuator-integration-tests_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/integration-test_spring-boot-configuration-processor-integration-tests_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/integration-test_spring-boot-integration-tests_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/integration-test_spring-boot-loader-integration-tests_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/integration-test_spring-boot-loader-integration-tests_spring-boot-loader-tests-app_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/integration-test_spring-boot-loader-integration-tests_spring-boot-loader-tests-signed-jar_build.gradle": "None Detected",
+      "groovy/spring_boot_gradle/integration-test_spring-boot-server-integration-tests_build.gradle": "None Detected"
+    },
+    "haskell": {
+      "haskell/SOURCES.md": "None Detected"
+    },
+    "haskell/pandoc": {
+      "haskell/pandoc/AUTHORS.md": "None Detected",
+      "haskell/pandoc/CONTRIBUTING.md": "None Detected",
+      "haskell/pandoc/COPYING.md": "None Detected",
+      "haskell/pandoc/COPYRIGHT": "None Detected",
+      "haskell/pandoc/Class.hs": "None Detected",
+      "haskell/pandoc/Filter.hs": "None Detected",
+      "haskell/pandoc/Options.hs": "None Detected",
+      "haskell/pandoc/Pandoc.hs": "None Detected",
+      "haskell/pandoc/Parsing.hs": "None Detected",
+      "haskell/pandoc/Shared.hs": "None Detected"
+    },
+    "hlasm": {
+      "hlasm/PROVENANCE.md": "None Detected"
+    },
+    "hlasm/che4z_hlasm": {
+      "hlasm/che4z_hlasm/A.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/AAAAA.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/B.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/BBBBB.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/CCCCC.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/code_action_1.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/code_action_2.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/comments.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/factorial.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/forward_dependency.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/infinite.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/output.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/remote.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/remote2.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/tutorial.hlasm": "None Detected",
+      "hlasm/che4z_hlasm/virtual_file.hlasm": "None Detected"
+    },
+    "hlasm/zopeneditor_sample": {
+      "hlasm/zopeneditor_sample/ASAM1.asm": "None Detected",
+      "hlasm/zopeneditor_sample/REGISTRS.asm": "None Detected"
+    },
+    "hlo": {
+      "hlo/SOURCES.md": "None Detected"
+    },
+    "hlo/xla/gpu_emitters": {
+      "hlo/xla/gpu_emitters/f4e2m1fn_intrinsics.hlo": "None Detected",
+      "hlo/xla/gpu_emitters/reduction_groups_two_in_same_group.hlo": "None Detected",
+      "hlo/xla/gpu_emitters/side_output.hlo": "None Detected"
+    },
+    "html": {
+      "html/SOURCES.md": "None Detected"
+    },
+    "html/angular_adev_templates": {
+      "html/angular_adev_templates/api-reference-list.component.html": "None Detected",
+      "html/angular_adev_templates/app.component.html": "None Detected",
+      "html/angular_adev_templates/navigation.component.html": "None Detected",
+      "html/angular_adev_templates/playground.component.html": "None Detected",
+      "html/angular_adev_templates/update.component.html": "None Detected"
+    },
+    "html/baseline": {
+      "html/baseline/control_polyglot.html": "None Detected",
+      "html/baseline/control_standard.html": "None Detected"
+    },
+    "html/cesium_sandcastle": {
+      "html/cesium_sandcastle/CesiumViewer_index.html": "None Detected",
+      "html/cesium_sandcastle/HelloWorld.html": "None Detected",
+      "html/cesium_sandcastle/LICENSE.md": "None Detected",
+      "html/cesium_sandcastle/bucket.html": "None Detected"
+    },
+    "html/cpython_jinja": {
+      "html/cpython_jinja/LICENSE.txt": "None Detected",
+      "html/cpython_jinja/download.html": "None Detected",
+      "html/cpython_jinja/layout.html": "None Detected",
+      "html/cpython_jinja/search.html": "None Detected"
+    },
+    "html/html5_boilerplate": {
+      "html/html5_boilerplate/LICENSE.txt": "None Detected",
+      "html/html5_boilerplate/dist_404.html": "None Detected",
+      "html/html5_boilerplate/dist_index.html": "None Detected",
+      "html/html5_boilerplate/src_404.html": "None Detected",
+      "html/html5_boilerplate/src_index.html": "None Detected"
+    },
+    "html/jquery_test_fixtures": {
+      "html/jquery_test_fixtures/LICENSE.txt": "None Detected",
+      "html/jquery_test_fixtures/csp-nonce.html": "None Detected",
+      "html/jquery_test_fixtures/iframe.html": "None Detected",
+      "html/jquery_test_fixtures/name.html": "None Detected",
+      "html/jquery_test_fixtures/qunit-fixture.html": "None Detected",
+      "html/jquery_test_fixtures/table.html": "None Detected"
+    },
+    "html/odoo_mako": {
+      "html/odoo_mako/LICENSE.txt": "None Detected",
+      "html/odoo_mako/mako_footer.html": "None Detected",
+      "html/odoo_mako/mako_header.html": "None Detected",
+      "html/odoo_mako/status_display.html": "None Detected"
+    },
+    "html/playwright_dom_fixtures": {
+      "html/playwright_dom_fixtures/csp.html": "None Detected",
+      "html/playwright_dom_fixtures/headings.html": "None Detected",
+      "html/playwright_dom_fixtures/historyapi.html": "None Detected",
+      "html/playwright_dom_fixtures/window-stop.html": "None Detected"
+    },
+    "html/polyglot_emscripten": {
+      "html/polyglot_emscripten/LICENSE.txt": "None Detected",
+      "html/polyglot_emscripten/pyrepl_index.html": "None Detected"
+    },
+    "html/polyglot_odoo": {
+      "html/polyglot_odoo/LICENSE.txt": "None Detected",
+      "html/polyglot_odoo/database_manager.qweb.html": "None Detected"
+    },
+    "html/polyglot_vscode": {
+      "html/polyglot_vscode/vscode_builtin.html": "None Detected"
+    },
+    "html/revealjs_decks": {
+      "html/revealjs_decks/500-slides.html": "None Detected",
+      "html/revealjs_decks/auto-animate.html": "None Detected",
+      "html/revealjs_decks/barebones.html": "None Detected",
+      "html/revealjs_decks/demo.html": "None Detected",
+      "html/revealjs_decks/math.html": "None Detected"
+    },
+    "html/vscode_webviews": {
+      "html/vscode_webviews/LICENSE.txt": "None Detected",
+      "html/vscode_webviews/build_builtin_index.html": "None Detected",
+      "html/vscode_webviews/webview_pre_index.html": "None Detected",
+      "html/vscode_webviews/workbench.html": "None Detected"
+    },
+    "html/wordpress_blocks": {
+      "html/wordpress_blocks/LICENSE.txt": "None Detected",
+      "html/wordpress_blocks/index.html": "None Detected",
+      "html/wordpress_blocks/page.html": "None Detected",
+      "html/wordpress_blocks/search.html": "None Detected"
+    },
+    "java": {
+      "java/SOURCES.md": "None Detected"
+    },
+    "java/springboot": {
+      "java/springboot/JarLauncher.java": "None Detected",
+      "java/springboot/LICENSE.txt": "None Detected"
+    },
+    "javascript": {
+      "javascript/SOURCES.md": "None Detected"
+    },
+    "javascript/jquery": {
+      "javascript/jquery/LICENSE.txt": "None Detected"
+    },
+    "javascript/react": {
+      "javascript/react/ReactSymbols.js": "None Detected"
+    },
+    "jcl/cash-account-cobol": {
+      "jcl/cash-account-cobol/DB2BIND.jcl": "None Detected",
+      "jcl/cash-account-cobol/DEFKSDS.jcl": "None Detected"
+    },
+    "jcl/cics-banking-sample-application-cbsa": {
+      "jcl/cics-banking-sample-application-cbsa/ABNDPROC.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/ACCLOAD.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/ACCOFFL.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BANKDATA.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BATCH.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1ACC.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1CAC.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1CAM.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1CCA.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1CCM.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1CCS.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1CDM.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1CRA.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1DAC.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1DAM.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1DCM.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1DCS.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1MAI.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1TFM.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1TFN.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1UAC.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNK1UAM.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BNKMENU.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/BTCHSQL.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CBSACSD.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CICS.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CICSTS56.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/COMPALL.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRDTAGY1.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRDTAGY2.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRDTAGY3.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRDTAGY4.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRDTAGY5.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREACC.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRECUST.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREDB00.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREDB2L.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREI101.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREI201.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREI301.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREL001.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREL002.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREL003.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREL004.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREL005.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREL006.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREL007.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREL008.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREL009.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREL010.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CREL011.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRESG01.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRESG02.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRESG03.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRETB01.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRETB02.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRETB03.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRETS01.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRETS02.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/CRETS03.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DB2BIND.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DBCRFUN.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DEFAULT.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DELACC.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DELCUS.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DROPDB2.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPDB00.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPI101.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPI201.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPI301.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPSG01.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPSG02.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPSG03.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPTB01.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPTB02.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPTB03.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPTS01.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPTS02.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/DRPTS03.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/EXTDCUST.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/GETCOMPY.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/GETSCODE.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/INQACC.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/INQACCCU.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/INQCUST.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/INSTDB2.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/MAPGEN.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/RACF001.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/REPLCICS.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/REPLSIP.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/RESTCICS.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/RESTZOSC.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/SHUTCICS.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/SHUTZOSC.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/UPDACC.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/UPDCUST.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/XFRFUN.jcl": "None Detected",
+      "jcl/cics-banking-sample-application-cbsa/ZOSCSEC.jcl": "None Detected"
+    },
+    "jcl/cics-genapp": {
+      "jcl/cics-genapp/README.md": "None Detected",
+      "jcl/cics-genapp/adef121.jcl": "None Detected",
+      "jcl/cics-genapp/asmmap.jcl": "None Detected",
+      "jcl/cics-genapp/cdef121.jcl": "None Detected",
+      "jcl/cics-genapp/cdef122.jcl": "None Detected",
+      "jcl/cics-genapp/cdef123.jcl": "None Detected",
+      "jcl/cics-genapp/cdef124.jcl": "None Detected",
+      "jcl/cics-genapp/cdef125.jcl": "None Detected",
+      "jcl/cics-genapp/cobol.jcl": "None Detected",
+      "jcl/cics-genapp/cpsmde2.jcl": "None Detected",
+      "jcl/cics-genapp/db2bind.jcl": "None Detected",
+      "jcl/cics-genapp/db2del.jcl": "None Detected",
+      "jcl/cics-genapp/defdrep.jcl": "None Detected",
+      "jcl/cics-genapp/defwrep.jcl": "None Detected",
+      "jcl/cics-genapp/itpentr.jcl": "None Detected",
+      "jcl/cics-genapp/itpll.jcl": "None Detected",
+      "jcl/cics-genapp/itpstl.jcl": "None Detected",
+      "jcl/cics-genapp/sampcma.jcl": "None Detected",
+      "jcl/cics-genapp/sampncs.jcl": "None Detected",
+      "jcl/cics-genapp/samptsq.jcl": "None Detected",
+      "jcl/cics-genapp/sampwui.jcl": "None Detected",
+      "jcl/cics-genapp/wsaac01.jcl": "None Detected",
+      "jcl/cics-genapp/wsaap01.jcl": "None Detected",
+      "jcl/cics-genapp/wsaic01.jcl": "None Detected",
+      "jcl/cics-genapp/wsaip01.jcl": "None Detected",
+      "jcl/cics-genapp/wsauc01.jcl": "None Detected",
+      "jcl/cics-genapp/wsaup01.jcl": "None Detected",
+      "jcl/cics-genapp/wsavc01.jcl": "None Detected",
+      "jcl/cics-genapp/wsavp01.jcl": "None Detected"
+    },
+    "jcl/cics-java-jcics-samples": {
+      "jcl/cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl": "None Detected"
+    },
+    "jcl/cobol-programming-course": {
+      "jcl/cobol-programming-course/ADDAMT.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0001J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0002J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0003J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0004J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0005J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0006J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0007J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0008J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0009J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0010J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0011J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0012J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0013J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0014J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0033J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL006AJ.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBL0106J.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBLDB21C.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBLDB21R.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBLDB22C.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBLDB22R.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBLDB23C.jcl": "None Detected",
+      "jcl/cobol-programming-course/CBLDB23R.jcl": "None Detected",
+      "jcl/cobol-programming-course/COBRUN.jcl": "None Detected",
+      "jcl/cobol-programming-course/CRETBL.jcl": "None Detected",
+      "jcl/cobol-programming-course/DB2CBL.jcl": "None Detected",
+      "jcl/cobol-programming-course/DB2JCL.jcl": "None Detected",
+      "jcl/cobol-programming-course/DB2SETUP.jcl": "None Detected",
+      "jcl/cobol-programming-course/DBRMLIB.jcl": "None Detected",
+      "jcl/cobol-programming-course/DEPTPAY.JCL": "None Detected",
+      "jcl/cobol-programming-course/DSNUPROC.jcl": "None Detected",
+      "jcl/cobol-programming-course/EMPPAY.JCL": "None Detected",
+      "jcl/cobol-programming-course/HELLO.jcl": "None Detected",
+      "jcl/cobol-programming-course/IGYWC.jcl": "None Detected",
+      "jcl/cobol-programming-course/IGYWCL.jcl": "None Detected",
+      "jcl/cobol-programming-course/IGYWCLG.jcl": "None Detected",
+      "jcl/cobol-programming-course/LOADTBL.jcl": "None Detected",
+      "jcl/cobol-programming-course/PAYROL00.jcl": "None Detected",
+      "jcl/cobol-programming-course/PAYROL0X.jcl": "None Detected",
+      "jcl/cobol-programming-course/SELTBL.jcl": "None Detected",
+      "jcl/cobol-programming-course/SRCHBINJ.jcl": "None Detected",
+      "jcl/cobol-programming-course/SRCHSERJ.jcl": "None Detected"
+    },
+    "jcl/zopeneditor-sample": {
+      "jcl/zopeneditor-sample/ALLOCATE.jcl": "None Detected",
+      "jcl/zopeneditor-sample/ASMALLOC.jcl": "None Detected",
+      "jcl/zopeneditor-sample/COMPROC.jcl": "None Detected",
+      "jcl/zopeneditor-sample/COMPSET.jcl": "None Detected",
+      "jcl/zopeneditor-sample/INCLUDE.jcl": "None Detected",
+      "jcl/zopeneditor-sample/PLIALLOC.jcl": "None Detected",
+      "jcl/zopeneditor-sample/REXALLOC.jcl": "None Detected",
+      "jcl/zopeneditor-sample/RUN.jcl": "None Detected",
+      "jcl/zopeneditor-sample/RUNASAM1.jcl": "None Detected",
+      "jcl/zopeneditor-sample/RUNPSAM1.jcl": "None Detected"
+    },
+    "json": {
+      "json/SOURCES.md": "None Detected"
+    },
+    "json/baseline": {
+      "json/baseline/control-package.json": "None Detected"
+    },
+    "json/kafka/message": {
+      "json/kafka/message/DescribeTransactionsResponse.json": "None Detected",
+      "json/kafka/message/SaslAuthenticateRequest.json": "None Detected",
+      "json/kafka/message/VoteRequest.json": "None Detected"
+    },
+    "kotlin": {
+      "kotlin/SOURCES.md": "None Detected"
+    },
+    "kotlin/okhttp": {
+      "kotlin/okhttp/Call.kt": "None Detected",
+      "kotlin/okhttp/LICENSE.txt": "None Detected",
+      "kotlin/okhttp/OkHttp.jvm.kt": "None Detected",
+      "kotlin/okhttp/OkHttp.kt": "None Detected"
+    },
+    "livecode": {
+      "livecode/SOURCES.md": "None Detected"
+    },
+    "livecode/livecode": {
+      "livecode/livecode/_clipboard_private_setter.livecodescript": "None Detected",
+      "livecode/livecode/_commandname.livecodescript": "None Detected",
+      "livecode/livecode/_log.livecodescript": "None Detected",
+      "livecode/livecode/arithmetic-commands.livecodescript": "None Detected",
+      "livecode/livecode/arithmetic.lcb": "None Detected",
+      "livecode/livecode/array.lcb": "None Detected",
+      "livecode/livecode/assert.lcb": "None Detected",
+      "livecode/livecode/automaticactivationactivationinputpassfieldbehavior.livecodescript": "None Detected",
+      "livecode/livecode/automaticactivationbackgroundgroupbehavior.livecodescript": "None Detected",
+      "livecode/livecode/binary.lcb": "None Detected",
+      "livecode/livecode/bitwise.lcb": "None Detected",
+      "livecode/livecode/bom.livecodescript": "None Detected",
+      "livecode/livecode/button.livecodescript": "None Detected",
+      "livecode/livecode/byte.lcb": "None Detected",
+      "livecode/livecode/canvas.livecodescript": "None Detected",
+      "livecode/livecode/char.lcb": "None Detected",
+      "livecode/livecode/clipmessages.livecodescript": "None Detected",
+      "livecode/livecode/codeunit.lcb": "None Detected",
+      "livecode/livecode/compound.livecodescript": "None Detected",
+      "livecode/livecode/connect.livecodescript": "None Detected",
+      "livecode/livecode/constants.livecodescript": "None Detected",
+      "livecode/livecode/dashes.livecodescript": "None Detected",
+      "livecode/livecode/date.lcb": "None Detected",
+      "livecode/livecode/default-values.lcb": "None Detected",
+      "livecode/livecode/dynamic-call.lcb": "None Detected",
+      "livecode/livecode/edition_utilities.livecodescript": "None Detected",
+      "livecode/livecode/encoding.lcb": "None Detected",
+      "livecode/livecode/engine.livecodescript": "None Detected",
+      "livecode/livecode/file.lcb": "None Detected",
+      "livecode/livecode/foreign-binding.lcb": "None Detected",
+      "livecode/livecode/foreign.lcb": "None Detected",
+      "livecode/livecode/getstartedgetstartedstatusgroupbehavior.livecodescript": "None Detected",
+      "livecode/livecode/infinity.livecodescript": "None Detected",
+      "livecode/livecode/installeruilicensecardbehavior.livecodescript": "None Detected",
+      "livecode/livecode/invoke.lcb": "None Detected",
+      "livecode/livecode/item.lcb": "None Detected",
+      "livecode/livecode/java.lcb": "None Detected",
+      "livecode/livecode/java.livecodescript": "None Detected",
+      "livecode/livecode/line.lcb": "None Detected",
+      "livecode/livecode/list.lcb": "None Detected",
+      "livecode/livecode/literal-evaluation.livecodescript": "None Detected",
+      "livecode/livecode/logic.lcb": "None Detected",
+      "livecode/livecode/map.lcb": "None Detected",
+      "livecode/livecode/math-foundation.lcb": "None Detected",
+      "livecode/livecode/math.lcb": "None Detected",
+      "livecode/livecode/printing.livecodescript": "None Detected",
+      "livecode/livecode/stdlib__arithmetic.lcb": "None Detected",
+      "livecode/livecode/stdlib__array.lcb": "None Detected",
+      "livecode/livecode/stdlib__assert.lcb": "None Detected",
+      "livecode/livecode/stdlib__bitwise.lcb": "None Detected",
+      "livecode/livecode/stdlib__byte.lcb": "None Detected",
+      "livecode/livecode/testlib.lcb": "None Detected",
+      "livecode/livecode/trivial.livecodescript": "None Detected"
+    },
+    "lua": {
+      "lua/SOURCES.md": "None Detected"
+    },
+    "lua/cosmopolitan": {
+      "lua/cosmopolitan/call-lua-module.lua": "None Detected",
+      "lua/cosmopolitan/closedsource.lua": "None Detected",
+      "lua/cosmopolitan/crashreport.lua": "None Detected",
+      "lua/cosmopolitan/finger.lua": "None Detected",
+      "lua/cosmopolitan/gensvg.lua": "None Detected",
+      "lua/cosmopolitan/mymodule.lua": "None Detected",
+      "lua/cosmopolitan/opensource.lua": "None Detected",
+      "lua/cosmopolitan/printpayload.lua": "None Detected"
+    },
+    "lua/darwin-xnu": {
+      "lua/darwin-xnu/ktruss.lua": "None Detected"
+    },
+    "lua/freebsd-src": {
+      "lua/freebsd-src/gfx-beastie.lua": "None Detected",
+      "lua/freebsd-src/gfx-beastiebw.lua": "None Detected",
+      "lua/freebsd-src/gfx-fbsdbw.lua": "None Detected",
+      "lua/freebsd-src/gfx-install.lua": "None Detected",
+      "lua/freebsd-src/gfx-orb.lua": "None Detected",
+      "lua/freebsd-src/gfx-orbbw.lua": "None Detected",
+      "lua/freebsd-src/loader.lua": "None Detected",
+      "lua/freebsd-src/screen.lua": "None Detected"
+    },
+    "lua/pandoc": {
+      "lua/pandoc/COPYING.md": "None Detected",
+      "lua/pandoc/COPYRIGHT": "None Detected",
+      "lua/pandoc/attr-test.lua": "None Detected",
+      "lua/pandoc/block-count.lua": "None Detected",
+      "lua/pandoc/blocks-filter.lua": "None Detected",
+      "lua/pandoc/bytestring-reader.lua": "None Detected",
+      "lua/pandoc/hello-world-doc.lua": "None Detected",
+      "lua/pandoc/implicit-doc-filter.lua": "None Detected",
+      "lua/pandoc/init.lua": "None Detected",
+      "lua/pandoc/pandoc-format.lua": "None Detected",
+      "lua/pandoc/pandoc-image.lua": "None Detected",
+      "lua/pandoc/pandoc-json.lua": "None Detected",
+      "lua/pandoc/pandoc-log.lua": "None Detected",
+      "lua/pandoc/writer-template.lua": "None Detected"
+    },
+    "lua/redis": {
+      "lua/redis/COPYRIGHT": "None Detected",
+      "lua/redis/README": "None Detected",
+      "lua/redis/echo.lua": "None Detected",
+      "lua/redis/env.lua": "None Detected",
+      "lua/redis/fibfor.lua": "None Detected",
+      "lua/redis/globals.lua": "None Detected",
+      "lua/redis/hello.lua": "None Detected",
+      "lua/redis/printf.lua": "None Detected",
+      "lua/redis/readonly.lua": "None Detected",
+      "lua/redis/table.lua": "None Detected",
+      "lua/redis/trace-globals.lua": "None Detected",
+      "lua/redis/xd.lua": "None Detected"
+    },
+    "m4": {
+      "m4/SOURCES.md": "None Detected"
+    },
+    "m4/curl": {
+      "m4/curl/COPYING": "None Detected",
+      "m4/curl/configure.ac": "None Detected"
+    },
+    "m4/curl/m4": {
+      "m4/curl/m4/curl-confopts.m4": "None Detected",
+      "m4/curl/m4/curl-mbedtls.m4": "None Detected",
+      "m4/curl/m4/curl-sysconfig.m4": "None Detected",
+      "m4/curl/m4/xc-am-iface.m4": "None Detected",
+      "m4/curl/m4/zz40-xc-ovr.m4": "None Detected"
+    },
+    "m4/gnucobol": {
+      "m4/gnucobol/COPYING": "None Detected",
+      "m4/gnucobol/configure.ac": "None Detected"
+    },
+    "makefile": {
+      "makefile/SOURCES.md": "None Detected"
+    },
+    "makefile/freebsd": {
+      "makefile/freebsd/COPYRIGHT": "None Detected",
+      "makefile/freebsd/Makefile": "None Detected"
+    },
+    "matlab": {
+      "matlab/SOURCES.md": "None Detected"
+    },
+    "matlab/eeglab": {
+      "matlab/eeglab/README.md": "None Detected"
+    },
+    "mlir": {
+      "mlir/SOURCES.md": "None Detected"
+    },
+    "mlir/tensorflow/compiler/mlir/tfrt/tests": {
+      "mlir/tensorflow/compiler/mlir/tfrt/tests/runtime_lowering_gpu.mlir": "None Detected",
+      "mlir/tensorflow/compiler/mlir/tfrt/tests/xla_rewrite.mlir": "None Detected"
+    },
+    "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt": {
+      "mlir/tensorflow/compiler/mlir/tfrt/tests/mlrt/tpu_conversions.mlir": "None Detected"
+    },
+    "nix": {
+      "nix/SOURCES.md": "None Detected"
+    },
+    "nix/bun": {
+      "nix/bun/flake.nix": "None Detected",
+      "nix/bun/shell.nix": "None Detected"
+    },
+    "nix/ghostty": {
+      "nix/ghostty/default.nix": "None Detected",
+      "nix/ghostty/flake.nix": "None Detected",
+      "nix/ghostty/shell.nix": "None Detected"
+    },
+    "objective-c": {
+      "objective-c/SOURCES.md": "None Detected"
+    },
+    "objective-c/worldwideweb": {
+      "objective-c/worldwideweb/HyperText.h": "None Detected"
+    },
+    "perl": {
+      "perl/SOURCES.md": "None Detected"
+    },
+    "perl/exiftool": {
+      "perl/exiftool/META.json": "None Detected",
+      "perl/exiftool/Makefile.PL": "None Detected",
+      "perl/exiftool/README": "None Detected"
+    },
+    "perl/mojo": {
+      "perl/mojo/Makefile.PL": "None Detected"
+    },
+    "php": {
+      "php/SOURCES.md": "None Detected"
+    },
+    "php/laravel_core": {
+      "php/laravel_core/LICENSE.md": "None Detected"
+    },
+    "php/magento2": {
+      "php/magento2/LICENSE.txt": "None Detected"
+    },
+    "php/wordpress": {
+      "php/wordpress/license.txt": "None Detected"
+    },
+    "plaintext": {
+      "plaintext/SOURCES.md": "None Detected"
+    },
+    "plaintext/ansible": {
+      "plaintext/ansible/requirements.txt": "None Detected"
+    },
+    "plaintext/cpython/Lib/test/tokenizedata": {
+      "plaintext/cpython/Lib/test/tokenizedata/tokenize_tests-utf8-coding-cookie-and-no-utf8-bom-sig.txt": "None Detected"
+    },
+    "plaintext/cpython/Tools/unittestgui": {
+      "plaintext/cpython/Tools/unittestgui/README.txt": "None Detected"
+    },
+    "plaintext/opencv/data": {
+      "plaintext/opencv/data/CMakeLists.txt": "None Detected"
+    },
+    "plaintext/opencv/include": {
+      "plaintext/opencv/include/CMakeLists.txt": "None Detected"
+    },
+    "pli/zopeneditor_sample": {
+      "pli/zopeneditor_sample/PROVENANCE.md": "None Detected"
+    },
+    "powershell": {
+      "powershell/SOURCES.md": "None Detected"
+    },
+    "powershell/PowerToys": {
+      "powershell/PowerToys/Check-ProcessIdentity.ps1": "None Detected",
+      "powershell/PowerToys/Invoke-XamlFormat.ps1": "None Detected"
+    },
+    "powershell/core": {
+      "powershell/core/CimCmdlets.psd1": "None Detected",
+      "powershell/core/LICENSE.txt": "None Detected",
+      "powershell/core/Microsoft.PowerShell.Diagnostics.psd1": "None Detected",
+      "powershell/core/Microsoft.PowerShell.Host.psd1": "None Detected",
+      "powershell/core/Microsoft.PowerShell.Management.psd1": "None Detected",
+      "powershell/core/Microsoft.PowerShell.Management__Microsoft.PowerShell.Management.psd1": "None Detected",
+      "powershell/core/Microsoft.PowerShell.Security.psd1": "None Detected",
+      "powershell/core/Microsoft.PowerShell.Security__Microsoft.PowerShell.Security.psd1": "None Detected",
+      "powershell/core/Microsoft.PowerShell.Utility.psd1": "None Detected",
+      "powershell/core/Microsoft.PowerShell.Utility__Microsoft.PowerShell.Utility.psd1": "None Detected",
+      "powershell/core/Microsoft.WSMan.Management.psd1": "None Detected",
+      "powershell/core/PSDiagnostics.psd1": "None Detected",
+      "powershell/core/nanoserver.tests.ps1": "None Detected",
+      "powershell/core/packaging.psd1": "None Detected",
+      "powershell/core/packaging.tests.ps1": "None Detected"
+    },
+    "powershell/nvda": {
+      "powershell/nvda/beforeTests.ps1": "None Detected",
+      "powershell/nvda/copying.txt": "None Detected",
+      "powershell/nvda/translationCheck.ps1": "None Detected"
+    },
+    "powershell/roslyn": {
+      "powershell/roslyn/License.txt": "None Detected",
+      "powershell/roslyn/PSScriptAnalyzerSettings.psd1": "None Detected",
+      "powershell/roslyn/build-utils-win.ps1": "None Detected",
+      "powershell/roslyn/nuget-validation.ps1": "None Detected"
+    },
+    "powershell/runtime": {
+      "powershell/runtime/Build-Local.ps1": "None Detected",
+      "powershell/runtime/ClearReuseUnicastPort.ps1": "None Detected",
+      "powershell/runtime/GenClrDebugResource.ps1": "None Detected",
+      "powershell/runtime/HttpStress__build-local.ps1": "None Detected",
+      "powershell/runtime/LICENSE.TXT": "None Detected",
+      "powershell/runtime/PSScriptAnalyzerSettings.psd1": "None Detected",
+      "powershell/runtime/aspnetcore-sync-checkdiff.ps1": "None Detected",
+      "powershell/runtime/generate-wasi-http-bindings.ps1": "None Detected",
+      "powershell/runtime/generate-wasi-poll-bindings.ps1": "None Detected",
+      "powershell/runtime/run-benchmark.ps1": "None Detected",
+      "powershell/runtime/update-machine-certs.ps1": "None Detected"
+    },
+    "proto": {
+      "proto/SOURCES.md": "None Detected"
+    },
+    "proto/tensorflow/framework": {
+      "proto/tensorflow/framework/dataset.proto": "None Detected",
+      "proto/tensorflow/framework/graph.proto": "None Detected",
+      "proto/tensorflow/framework/tensor.proto": "None Detected"
+    },
+    "protobuf": {
+      "protobuf/SOURCES.md": "None Detected"
+    },
+    "protobuf/baseline": {
+      "protobuf/baseline/control.proto": "None Detected"
+    },
+    "python": {
+      "python/SOURCES.md": "None Detected"
+    },
+    "python/cython": {
+      "python/cython/CodeGeneration.py": "None Detected",
+      "python/cython/MemoryView.pxd": "None Detected"
+    },
+    "python/fastapi": {
+      "python/fastapi/CONTRIBUTING.md": "None Detected",
+      "python/fastapi/README.md": "None Detected",
+      "python/fastapi/SECURITY.md": "None Detected"
+    },
+    "python/fastapi/fastapi": {
+      "python/fastapi/fastapi/__init__.py": "None Detected",
+      "python/fastapi/fastapi/__main__.py": "None Detected",
+      "python/fastapi/fastapi/background.py": "None Detected",
+      "python/fastapi/fastapi/logger.py": "None Detected",
+      "python/fastapi/fastapi/param_functions.py": "None Detected",
+      "python/fastapi/fastapi/requests.py": "None Detected",
+      "python/fastapi/fastapi/responses.py": "None Detected",
+      "python/fastapi/fastapi/staticfiles.py": "None Detected",
+      "python/fastapi/fastapi/templating.py": "None Detected",
+      "python/fastapi/fastapi/testclient.py": "None Detected",
+      "python/fastapi/fastapi/types.py": "None Detected",
+      "python/fastapi/fastapi/websockets.py": "None Detected"
+    },
+    "python/fastapi/tests": {
+      "python/fastapi/tests/__init__.py": "None Detected",
+      "python/fastapi/tests/main.py": "None Detected",
+      "python/fastapi/tests/test_additional_properties.py": "None Detected",
+      "python/fastapi/tests/test_additional_properties_bool.py": "None Detected",
+      "python/fastapi/tests/test_additional_response_extra.py": "None Detected",
+      "python/fastapi/tests/test_additional_responses_bad.py": "None Detected",
+      "python/fastapi/tests/test_additional_responses_custom_model_in_callback.py": "None Detected",
+      "python/fastapi/tests/test_additional_responses_custom_validationerror.py": "None Detected",
+      "python/fastapi/tests/test_additional_responses_default_validationerror.py": "None Detected",
+      "python/fastapi/tests/test_additional_responses_response_class.py": "None Detected",
+      "python/fastapi/tests/test_additional_responses_router.py": "None Detected",
+      "python/fastapi/tests/test_additional_responses_union_duplicate_anyof.py": "None Detected",
+      "python/fastapi/tests/test_allow_inf_nan_in_enforcing.py": "None Detected",
+      "python/fastapi/tests/test_annotated.py": "None Detected",
+      "python/fastapi/tests/test_application.py": "None Detected",
+      "python/fastapi/tests/test_arbitrary_types.py": "None Detected",
+      "python/fastapi/tests/test_callable_endpoint.py": "None Detected",
+      "python/fastapi/tests/test_computed_fields.py": "None Detected",
+      "python/fastapi/tests/test_custom_schema_fields.py": "None Detected",
+      "python/fastapi/tests/test_custom_swagger_ui_redirect.py": "None Detected",
+      "python/fastapi/tests/test_datetime_custom_encoder.py": "None Detected",
+      "python/fastapi/tests/test_default_response_class.py": "None Detected",
+      "python/fastapi/tests/test_default_response_class_router.py": "None Detected",
+      "python/fastapi/tests/test_dependencies_utils.py": "None Detected",
+      "python/fastapi/tests/test_dependency_after_yield_raise.py": "None Detected",
+      "python/fastapi/tests/test_dependency_after_yield_streaming.py": "None Detected",
+      "python/fastapi/tests/test_dependency_cache.py": "None Detected",
+      "python/fastapi/tests/test_dependency_duplicates.py": "None Detected",
+      "python/fastapi/tests/test_dependency_overrides.py": "None Detected",
+      "python/fastapi/tests/test_dependency_paramless.py": "None Detected",
+      "python/fastapi/tests/test_dependency_partial.py": "None Detected",
+      "python/fastapi/tests/test_dependency_pep695.py": "None Detected",
+      "python/fastapi/tests/test_dependency_security_overrides.py": "None Detected",
+      "python/fastapi/tests/test_dependency_yield_scope.py": "None Detected",
+      "python/fastapi/tests/test_depends_hashable.py": "None Detected",
+      "python/fastapi/tests/test_deprecated_openapi_prefix.py": "None Detected",
+      "python/fastapi/tests/test_deprecated_responses.py": "None Detected",
+      "python/fastapi/tests/test_dump_json_fast_path.py": "None Detected",
+      "python/fastapi/tests/test_duplicate_models_openapi.py": "None Detected",
+      "python/fastapi/tests/test_empty_router.py": "None Detected",
+      "python/fastapi/tests/test_enforce_once_required_parameter.py": "None Detected",
+      "python/fastapi/tests/test_exception_handlers.py": "None Detected",
+      "python/fastapi/tests/test_extra_routes.py": "None Detected",
+      "python/fastapi/tests/test_file_and_form_order_issue_9116.py": "None Detected",
+      "python/fastapi/tests/test_filter_pydantic_sub_model_pv2.py": "None Detected",
+      "python/fastapi/tests/test_form_default.py": "None Detected",
+      "python/fastapi/tests/test_forms_from_non_typing_sequences.py": "None Detected",
+      "python/fastapi/tests/test_forms_single_model.py": "None Detected",
+      "python/fastapi/tests/test_forms_single_param.py": "None Detected",
+      "python/fastapi/tests/test_generic_parameterless_depends.py": "None Detected",
+      "python/fastapi/tests/test_get_model_definitions_formfeed_escape.py": "None Detected",
+      "python/fastapi/tests/test_get_request_body.py": "None Detected",
+      "python/fastapi/tests/test_http_connection_injection.py": "None Detected",
+      "python/fastapi/tests/test_include_route.py": "None Detected",
+      "python/fastapi/tests/test_infer_param_optionality.py": "None Detected",
+      "python/fastapi/tests/test_inherited_custom_class.py": "None Detected",
+      "python/fastapi/tests/test_invalid_path_param.py": "None Detected",
+      "python/fastapi/tests/test_json_type.py": "None Detected",
+      "python/fastapi/tests/test_jsonable_encoder.py": "None Detected",
+      "python/fastapi/tests/test_local_docs.py": "None Detected",
+      "python/fastapi/tests/test_multi_body_errors.py": "None Detected",
+      "python/fastapi/tests/test_multi_query_errors.py": "None Detected",
+      "python/fastapi/tests/test_no_schema_split.py": "None Detected",
+      "python/fastapi/tests/test_no_swagger_ui_redirect.py": "None Detected",
+      "python/fastapi/tests/test_openapi_examples.py": "None Detected",
+      "python/fastapi/tests/test_openapi_model_description_trim_on_formfeed.py": "None Detected",
+      "python/fastapi/tests/test_openapi_query_parameter_extension.py": "None Detected",
+      "python/fastapi/tests/test_openapi_route_extensions.py": "None Detected",
+      "python/fastapi/tests/test_openapi_schema_type.py": "None Detected",
+      "python/fastapi/tests/test_openapi_separate_input_output_schemas.py": "None Detected",
+      "python/fastapi/tests/test_openapi_servers.py": "None Detected",
+      "python/fastapi/tests/test_orjson_response_class.py": "None Detected",
+      "python/fastapi/tests/test_param_class.py": "None Detected",
+      "python/fastapi/tests/test_param_in_path_and_dependency.py": "None Detected",
+      "python/fastapi/tests/test_param_include_in_schema.py": "None Detected",
+      "python/fastapi/tests/test_params_repr.py": "None Detected",
+      "python/fastapi/tests/test_path.py": "None Detected",
+      "python/fastapi/tests/test_put_no_body.py": "None Detected",
+      "python/fastapi/tests/test_pydantic_v1_error.py": "None Detected",
+      "python/fastapi/tests/test_query.py": "None Detected",
+      "python/fastapi/tests/test_query_cookie_header_model_extra_params.py": "None Detected",
+      "python/fastapi/tests/test_read_with_orm_mode.py": "None Detected",
+      "python/fastapi/tests/test_repeated_cookie_headers.py": "None Detected",
+      "python/fastapi/tests/test_repeated_dependency_schema.py": "None Detected",
+      "python/fastapi/tests/test_repeated_parameter_alias.py": "None Detected",
+      "python/fastapi/tests/test_request_body_parameters_media_type.py": "None Detected",
+      "python/fastapi/tests/test_request_param_model_by_alias.py": "None Detected",
+      "python/fastapi/tests/test_required_noneable.py": "None Detected",
+      "python/fastapi/tests/test_response_by_alias.py": "None Detected",
+      "python/fastapi/tests/test_response_class_no_mediatype.py": "None Detected",
+      "python/fastapi/tests/test_response_code_no_body.py": "None Detected",
+      "python/fastapi/tests/test_response_dependency.py": "None Detected",
+      "python/fastapi/tests/test_response_model_as_return_annotation.py": "None Detected",
+      "python/fastapi/tests/test_response_model_default_factory.py": "None Detected",
+      "python/fastapi/tests/test_response_model_include_exclude.py": "None Detected",
+      "python/fastapi/tests/test_response_model_invalid.py": "None Detected",
+      "python/fastapi/tests/test_response_model_sub_types.py": "None Detected",
+      "python/fastapi/tests/test_return_none_stringified_annotations.py": "None Detected",
+      "python/fastapi/tests/test_route_scope.py": "None Detected",
+      "python/fastapi/tests/test_router_prefix_with_template.py": "None Detected",
+      "python/fastapi/tests/test_router_redirect_slashes.py": "None Detected",
+      "python/fastapi/tests/test_schema_compat_pydantic_v2.py": "None Detected",
+      "python/fastapi/tests/test_schema_extra_examples.py": "None Detected",
+      "python/fastapi/tests/test_schema_ref_pydantic_v2.py": "None Detected",
+      "python/fastapi/tests/test_security_api_key_cookie.py": "None Detected",
+      "python/fastapi/tests/test_security_api_key_cookie_description.py": "None Detected",
+      "python/fastapi/tests/test_security_api_key_header.py": "None Detected",
+      "python/fastapi/tests/test_security_api_key_header_description.py": "None Detected",
+      "python/fastapi/tests/test_security_api_key_query.py": "None Detected",
+      "python/fastapi/tests/test_security_api_key_query_description.py": "None Detected",
+      "python/fastapi/tests/test_security_http_base.py": "None Detected",
+      "python/fastapi/tests/test_security_http_base_description.py": "None Detected",
+      "python/fastapi/tests/test_security_http_base_optional.py": "None Detected",
+      "python/fastapi/tests/test_security_http_basic_optional.py": "None Detected",
+      "python/fastapi/tests/test_security_http_basic_realm.py": "None Detected",
+      "python/fastapi/tests/test_security_http_basic_realm_description.py": "None Detected",
+      "python/fastapi/tests/test_security_http_bearer.py": "None Detected",
+      "python/fastapi/tests/test_security_http_bearer_description.py": "None Detected",
+      "python/fastapi/tests/test_security_http_bearer_optional.py": "None Detected",
+      "python/fastapi/tests/test_security_http_digest.py": "None Detected",
+      "python/fastapi/tests/test_security_http_digest_description.py": "None Detected",
+      "python/fastapi/tests/test_security_http_digest_optional.py": "None Detected",
+      "python/fastapi/tests/test_security_oauth2.py": "None Detected",
+      "python/fastapi/tests/test_security_oauth2_authorization_code_bearer.py": "None Detected",
+      "python/fastapi/tests/test_security_oauth2_authorization_code_bearer_description.py": "None Detected",
+      "python/fastapi/tests/test_security_oauth2_authorization_code_bearer_scopes_openapi.py": "None Detected",
+      "python/fastapi/tests/test_security_oauth2_authorization_code_bearer_scopes_openapi_simple.py": "None Detected",
+      "python/fastapi/tests/test_security_openid_connect.py": "None Detected",
+      "python/fastapi/tests/test_security_openid_connect_description.py": "None Detected",
+      "python/fastapi/tests/test_security_scopes.py": "None Detected",
+      "python/fastapi/tests/test_security_scopes_dont_propagate.py": "None Detected",
+      "python/fastapi/tests/test_security_scopes_sub_dependency.py": "None Detected",
+      "python/fastapi/tests/test_serialize_response.py": "None Detected",
+      "python/fastapi/tests/test_serialize_response_dataclass.py": "None Detected",
+      "python/fastapi/tests/test_serialize_response_model.py": "None Detected",
+      "python/fastapi/tests/test_skip_defaults.py": "None Detected",
+      "python/fastapi/tests/test_starlette_urlconvertors.py": "None Detected",
+      "python/fastapi/tests/test_stream_json_validation_error.py": "None Detected",
+      "python/fastapi/tests/test_strict_content_type_app_level.py": "None Detected",
+      "python/fastapi/tests/test_strict_content_type_nested.py": "None Detected",
+      "python/fastapi/tests/test_strict_content_type_router_level.py": "None Detected",
+      "python/fastapi/tests/test_stringified_annotation_dependency_py314.py": "None Detected",
+      "python/fastapi/tests/test_stringified_annotations_simple.py": "None Detected",
+      "python/fastapi/tests/test_swagger_ui_escape.py": "None Detected",
+      "python/fastapi/tests/test_swagger_ui_init_oauth.py": "None Detected",
+      "python/fastapi/tests/test_top_level_security_scheme_in_openapi.py": "None Detected",
+      "python/fastapi/tests/test_tuples.py": "None Detected",
+      "python/fastapi/tests/test_union_body.py": "None Detected",
+      "python/fastapi/tests/test_union_body_discriminator.py": "None Detected",
+      "python/fastapi/tests/test_union_body_discriminator_annotated.py": "None Detected",
+      "python/fastapi/tests/test_union_forms.py": "None Detected",
+      "python/fastapi/tests/test_union_inherited_body.py": "None Detected",
+      "python/fastapi/tests/test_validate_response.py": "None Detected",
+      "python/fastapi/tests/test_validate_response_dataclass.py": "None Detected",
+      "python/fastapi/tests/test_validation_error_context.py": "None Detected",
+      "python/fastapi/tests/test_webhooks_security.py": "None Detected",
+      "python/fastapi/tests/test_wrapped_method_forward_reference.py": "None Detected",
+      "python/fastapi/tests/test_ws_dependencies.py": "None Detected"
+    },
+    "python/numpy": {
+      "python/numpy/LICENSE.txt": "None Detected",
+      "python/numpy/__init__.py": "None Detected",
+      "python/numpy/cversions.txt": "None Detected",
+      "python/numpy/numpy_api.py": "None Detected"
+    },
+    "python/wtfpython": {
+      "python/wtfpython/2_tricky_strings.py": "None Detected",
+      "python/wtfpython/README.md": "None Detected"
+    },
+    "rexx": {
+      "rexx/PROVENANCE.md": "None Detected"
+    },
+    "ruby": {
+      "ruby/SOURCES.md": "None Detected"
+    },
+    "ruby/rails": {
+      "ruby/rails/MIT-LICENSE": "None Detected",
+      "ruby/rails/routing.rb": "None Detected"
+    },
+    "rust": {
+      "rust/SOURCES.md": "None Detected"
+    },
+    "rust/bevy": {
+      "rust/bevy/bevy_render_phase.rs": "None Detected"
+    },
+    "rust/holylang": {
+      "rust/holylang/ast.rs": "None Detected",
+      "rust/holylang/error.rs": "None Detected",
+      "rust/holylang/main.rs": "None Detected"
+    },
+    "rust/serde": {
+      "rust/serde/serde_core_macros.rs": "None Detected",
+      "rust/serde/test_annotations.rs": "None Detected"
+    },
+    "rust/syn": {
+      "rust/syn/LICENSE-APACHE": "None Detected",
+      "rust/syn/classify.rs": "None Detected",
+      "rust/syn/custom_keyword.rs": "None Detected",
+      "rust/syn/custom_punctuation.rs": "None Detected"
+    },
+    "rust/tokio": {
+      "rust/tokio/addr_of.rs": "None Detected",
+      "rust/tokio/block_on.rs": "None Detected",
+      "rust/tokio/blocking.rs": "None Detected",
+      "rust/tokio/config.rs": "None Detected",
+      "rust/tokio/fuzz.rs": "None Detected",
+      "rust/tokio/interval.rs": "None Detected",
+      "rust/tokio/lib.rs": "None Detected"
+    },
+    "rust/wasmtime": {
+      "rust/wasmtime/wasmtime_component_macro.rs": "None Detected"
+    },
+    "scala": {
+      "scala/SOURCES.md": "None Detected"
+    },
+    "scala/kafka": {
+      "scala/kafka/Kafka.scala": "None Detected",
+      "scala/kafka/KafkaRaftManager.scala": "None Detected"
+    },
+    "scheme": {
+      "scheme/SOURCES.md": "None Detected"
+    },
+    "scheme/racket": {
+      "scheme/racket/LICENSE.txt": "None Detected"
+    },
+    "shell": {
+      "shell/SOURCES.md": "None Detected"
+    },
+    "shell/ansible": {
+      "shell/ansible/COPYING": "None Detected",
+      "shell/ansible/alpine.sh": "None Detected",
+      "shell/ansible/ansible-console__runme.sh": "None Detected",
+      "shell/ansible/ansible-inventory__runme.sh": "None Detected",
+      "shell/ansible/ansible-test-collection-script-dependencies__runme.sh": "None Detected",
+      "shell/ansible/ansible-test-config-invalid__runme.sh": "None Detected",
+      "shell/ansible/ansible-test-config__runme.sh": "None Detected",
+      "shell/ansible/ansible-test-container__runme.sh": "None Detected",
+      "shell/ansible/ansible-test-coverage-windows__runme.sh": "None Detected",
+      "shell/ansible/ansible-test-coverage__runme.sh": "None Detected",
+      "shell/ansible/ansible-test-debugging-env__runme.sh": "None Detected",
+      "shell/ansible/hello__runme.sh": "None Detected",
+      "shell/ansible/module_common_regex_regression.sh": "None Detected",
+      "shell/ansible/runme.sh": "None Detected",
+      "shell/ansible/test__runme.sh": "None Detected"
+    },
+    "shell/brew": {
+      "shell/brew/Dockerfile": "None Detected",
+      "shell/brew/LICENSE.txt": "None Detected",
+      "shell/brew/formula_installer.rb": "None Detected",
+      "shell/brew/sandbox.rb": "None Detected"
+    },
+    "shell/curl": {
+      "shell/curl/COPYING": "None Detected",
+      "shell/curl/cmakelint.sh": "None Detected",
+      "shell/curl/codespell.sh": "None Detected",
+      "shell/curl/coverage.sh": "None Detected",
+      "shell/curl/gnv_curl_configure.sh": "None Detected",
+      "shell/curl/make_gnv_curl_install.sh": "None Detected",
+      "shell/curl/shellcheck-ci.sh": "None Detected",
+      "shell/curl/shellcheck.sh": "None Detected",
+      "shell/curl/typos.sh": "None Detected"
+    },
+    "shell/darwin-xnu": {
+      "shell/darwin-xnu/setup.sh": "None Detected"
+    },
+    "shell/freebsd-src": {
+      "shell/freebsd-src/chflags_test.sh": "None Detected",
+      "shell/freebsd-src/chmod_test.sh": "None Detected",
+      "shell/freebsd-src/cp_test.sh": "None Detected",
+      "shell/freebsd-src/ctfconvert_test.sh": "None Detected",
+      "shell/freebsd-src/echo_test.sh": "None Detected",
+      "shell/freebsd-src/format_string_test.sh": "None Detected",
+      "shell/freebsd-src/hostname_test.sh": "None Detected",
+      "shell/freebsd-src/ln_test.sh": "None Detected",
+      "shell/freebsd-src/mkdir_test.sh": "None Detected",
+      "shell/freebsd-src/mkerrno.sh": "None Detected",
+      "shell/freebsd-src/mv_test.sh": "None Detected",
+      "shell/freebsd-src/rm_test.sh": "None Detected",
+      "shell/freebsd-src/rmdir_test.sh": "None Detected"
+    },
+    "shell/haiku": {
+      "shell/haiku/License.md": "None Detected",
+      "shell/haiku/colorgrep.sh": "None Detected",
+      "shell/haiku/convert.sh": "None Detected",
+      "shell/haiku/default_deskbar_items.sh": "None Detected",
+      "shell/haiku/gen-bepo.sh": "None Detected",
+      "shell/haiku/makezip.sh": "None Detected"
+    },
+    "shell/illumos-gate": {
+      "shell/illumos-gate/clear.sh": "None Detected",
+      "shell/illumos-gate/devlink.tab.sh": "None Detected",
+      "shell/illumos-gate/dfshares.sh": "None Detected",
+      "shell/illumos-gate/dmesg.sh": "None Detected",
+      "shell/illumos-gate/ikecert.sh": "None Detected"
+    },
+    "shell/kubernetes": {
+      "shell/kubernetes/build-image.sh": "None Detected",
+      "shell/kubernetes/build.sh": "None Detected",
+      "shell/kubernetes/e2e-cluster-size.sh": "None Detected",
+      "shell/kubernetes/generate.sh": "None Detected",
+      "shell/kubernetes/node-helper.sh": "None Detected",
+      "shell/kubernetes/pre-existing__config-default.sh": "None Detected",
+      "shell/kubernetes/skeleton__util.sh": "None Detected",
+      "shell/kubernetes/stage-upload.sh": "None Detected",
+      "shell/kubernetes/testdata__generate.sh": "None Detected",
+      "shell/kubernetes/util.sh": "None Detected"
+    },
+    "shell/linux": {
+      "shell/linux/COPYING": "None Detected",
+      "shell/linux/check-fpatchable-function-entry.sh": "None Detected",
+      "shell/linux/gen_compat_vdso_offsets.sh": "None Detected",
+      "shell/linux/gen_vdso32_offsets.sh": "None Detected",
+      "shell/linux/gen_vdso_offsets.sh": "None Detected",
+      "shell/linux/kasan-offsets.sh": "None Detected",
+      "shell/linux/m68k__install.sh": "None Detected",
+      "shell/linux/so2s.sh": "None Detected",
+      "shell/linux/vdso32__gen_vdso_offsets.sh": "None Detected",
+      "shell/linux/vdso64__gen_vdso_offsets.sh": "None Detected",
+      "shell/linux/vdso__gen_vdso_offsets.sh": "None Detected"
+    },
+    "shell/moby": {
+      "shell/moby/run.sh": "None Detected",
+      "shell/moby/validate-swagger.sh": "None Detected"
+    },
+    "shell/reactos": {
+      "shell/reactos/COPYING": "None Detected",
+      "shell/reactos/autogen.sh": "None Detected",
+      "shell/reactos/do_code_format.sh": "None Detected",
+      "shell/reactos/generate.sh": "None Detected",
+      "shell/reactos/indent-all.sh": "None Detected",
+      "shell/reactos/make-docu.sh": "None Detected"
+    },
+    "shell/serenity": {
+      "shell/serenity/ClassiCube__package.sh": "None Detected",
+      "shell/serenity/FAudio__package.sh": "None Detected",
+      "shell/serenity/ObjFW__package.sh": "None Detected",
+      "shell/serenity/RISCVEmu__package.sh": "None Detected",
+      "shell/serenity/RetroArch__package.sh": "None Detected",
+      "shell/serenity/SDL2-GNUBoy__package.sh": "None Detected",
+      "shell/serenity/SDL2__package.sh": "None Detected",
+      "shell/serenity/SDL2_gfx__package.sh": "None Detected",
+      "shell/serenity/SDL2_image__package.sh": "None Detected",
+      "shell/serenity/SDL2_mixer__package.sh": "None Detected",
+      "shell/serenity/SDL2_net__package.sh": "None Detected",
+      "shell/serenity/SDL2_sound__package.sh": "None Detected",
+      "shell/serenity/SDL2_ttf__package.sh": "None Detected",
+      "shell/serenity/SDLPoP__package.sh": "None Detected",
+      "shell/serenity/SDL_mixer__package.sh": "None Detected",
+      "shell/serenity/embedmap.sh": "None Detected",
+      "shell/serenity/package.sh": "None Detected"
+    },
+    "shell/sqlite": {
+      "shell/sqlite/LICENSE.md": "None Detected",
+      "shell/sqlite/build-shell.sh": "None Detected",
+      "shell/sqlite/cktclsh.sh": "None Detected",
+      "shell/sqlite/run-wordcount.sh": "None Detected",
+      "shell/sqlite/symbols-mingw.sh": "None Detected",
+      "shell/sqlite/symbols.sh": "None Detected",
+      "shell/sqlite/time-wordcount.sh": "None Detected",
+      "shell/sqlite/warnings-clang.sh": "None Detected"
+    },
+    "solidity": {
+      "solidity/SOURCES.md": "None Detected"
+    },
+    "solidity/openzeppelin": {
+      "solidity/openzeppelin/CrosschainRemoteExecutor.sol": "None Detected",
+      "solidity/openzeppelin/ReentrancyGuard.sol": "None Detected",
+      "solidity/openzeppelin/StorageSlot.sol": "None Detected"
+    },
+    "sql": {
+      "sql/SOURCES.md": "None Detected"
+    },
+    "sql/mysql/mediawiki": {
+      "sql/mysql/mediawiki/COPYING": "None Detected",
+      "sql/mysql/mediawiki/blobs.sql": "None Detected"
+    },
+    "sql/mysql/spamassassin": {
+      "sql/mysql/spamassassin/neural_mysql.sql": "None Detected"
+    },
+    "sql/postgresql/mediawiki": {
+      "sql/postgresql/mediawiki/tables.sql": "None Detected"
+    },
+    "sql/postgresql/sqlmap": {
+      "sql/postgresql/sqlmap/dns_request.sql": "None Detected"
+    },
+    "sql/sqlite": {
+      "sql/sqlite/000-mandelbrot.sql": "None Detected",
+      "sql/sqlite/001-sudoku.sql": "None Detected",
+      "sql/sqlite/dotcmd01.sql": "None Detected"
+    },
+    "sqlite": {
+      "sqlite/SOURCES.md": "None Detected"
+    },
+    "sqlite/dancer2_sqlite": {
+      "sqlite/dancer2_sqlite/entries.sql": "None Detected",
+      "sqlite/dancer2_sqlite/users.sql": "None Detected"
+    },
+    "sqlite/flask_tutorial_sqlite": {
+      "sqlite/flask_tutorial_sqlite/LICENSE.txt": "None Detected",
+      "sqlite/flask_tutorial_sqlite/data.sql": "None Detected",
+      "sqlite/flask_tutorial_sqlite/schema.sql": "None Detected"
+    },
+    "sqlite/mediawiki_sqlite_alterpatches": {
+      "sqlite/mediawiki_sqlite_alterpatches/COPYING": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-archive-drop-ar_sha1.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-cl_timestamp_id.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-drop-cl_to-cl_collation.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-pk.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-categorylinks-target_id.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-change_tag-ct_rc_id.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-drop-cl_collation_ext.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-externallinks-drop-el_to.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-externallinks-el_to_default.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-externallinks-el_to_path.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-filearchive-fa_size_to_bigint.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-image-img_size_to_bigint.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-imagelinks-add-il_target_id.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-imagelinks-pk.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-iwlinks-drop-iwl_prefix_from_title.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-objectcache-drop-modtoken.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-oldimage-oi_size_to_bigint.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_alterpatches/patch-pagelinks-drop-pl_title.sql": "None Detected"
+    },
+    "sqlite/mediawiki_sqlite_tables": {
+      "sqlite/mediawiki_sqlite_tables/COPYING": "None Detected",
+      "sqlite/mediawiki_sqlite_tables/patch-block_target.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_tables/patch-collation.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_tables/patch-existencelinks.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_tables/patch-file.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_tables/patch-user-user_is_temp.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_tables/patch-user_autocreate_serial-uas_year.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_tables/patch-watchlist_label.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_tables/searchindex-fts3.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_tables/searchindex-no-fts.sql": "None Detected",
+      "sqlite/mediawiki_sqlite_tables/tables-generated.sql": "None Detected"
+    },
+    "sqlite/prisma_sqlite_migrations": {
+      "sqlite/prisma_sqlite_migrations/provider-switch-postgresql-to-sqlite__20210215145936_hello.sql": "None Detected",
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-db-exists__20240527130802_init.sql": "None Detected",
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-exists__20240527130802_init.sql": "None Detected",
+      "sqlite/prisma_sqlite_migrations/schema-folder-sqlite-migration-failed__20240527130802_init.sql": "None Detected"
+    },
+    "sqlite/prisma_typed_sql": {
+      "sqlite/prisma_typed_sql/findBigInt.sql": "None Detected",
+      "sqlite/prisma_typed_sql/findBytes.sql": "None Detected",
+      "sqlite/prisma_typed_sql/findDateTime.sql": "None Detected",
+      "sqlite/prisma_typed_sql/findDecimal.sql": "None Detected",
+      "sqlite/prisma_typed_sql/findDouble.sql": "None Detected",
+      "sqlite/prisma_typed_sql/findInt.sql": "None Detected",
+      "sqlite/prisma_typed_sql/findJson.sql": "None Detected",
+      "sqlite/prisma_typed_sql/findString.sql": "None Detected",
+      "sqlite/prisma_typed_sql/getBigInt.sql": "None Detected",
+      "sqlite/prisma_typed_sql/getBytes.sql": "None Detected",
+      "sqlite/prisma_typed_sql/getDateTime.sql": "None Detected",
+      "sqlite/prisma_typed_sql/getDecimal.sql": "None Detected",
+      "sqlite/prisma_typed_sql/getDouble.sql": "None Detected",
+      "sqlite/prisma_typed_sql/getInt.sql": "None Detected",
+      "sqlite/prisma_typed_sql/getJson.sql": "None Detected",
+      "sqlite/prisma_typed_sql/getString.sql": "None Detected"
+    },
+    "sqlite/sqitch_sqlite_engine": {
+      "sqlite/sqitch_sqlite_engine/LICENSE.md": "None Detected",
+      "sqlite/sqitch_sqlite_engine/engine_sqlite.sql": "None Detected",
+      "sqlite/sqitch_sqlite_engine/t_upgradable_registry.sql": "None Detected",
+      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.0.sql": "None Detected",
+      "sqlite/sqitch_sqlite_engine/upgrade_sqlite-1.1.sql": "None Detected"
+    },
+    "sqlite/sqlite_cli_scripts": {
+      "sqlite/sqlite_cli_scripts/LICENSE.md": "None Detected",
+      "sqlite/sqlite_cli_scripts/dblwidth-a.sql": "None Detected",
+      "sqlite/sqlite_cli_scripts/dotcmd01.sql": "None Detected",
+      "sqlite/sqlite_cli_scripts/fptest01.sql": "None Detected",
+      "sqlite/sqlite_cli_scripts/import01.sql": "None Detected",
+      "sqlite/sqlite_cli_scripts/imposter1.sql": "None Detected",
+      "sqlite/sqlite_cli_scripts/intck01.sql": "None Detected",
+      "sqlite/sqlite_cli_scripts/modeA.sql": "None Detected",
+      "sqlite/sqlite_cli_scripts/regexp1.sql": "None Detected",
+      "sqlite/sqlite_cli_scripts/vt100-a.sql": "None Detected",
+      "sqlite/sqlite_cli_scripts/wasm_000-mandelbrot.sql": "None Detected",
+      "sqlite/sqlite_cli_scripts/wasm_001-sudoku.sql": "None Detected"
+    },
+    "sqlite/yii2_sqlite_schema": {
+      "sqlite/yii2_sqlite_schema/LICENSE.md": "None Detected",
+      "sqlite/yii2_sqlite_schema/framework_caching_schema-sqlite.sql": "None Detected",
+      "sqlite/yii2_sqlite_schema/framework_i18n_schema-sqlite.sql": "None Detected",
+      "sqlite/yii2_sqlite_schema/framework_log_schema-sqlite.sql": "None Detected",
+      "sqlite/yii2_sqlite_schema/framework_rbac_schema-sqlite.sql": "None Detected",
+      "sqlite/yii2_sqlite_schema/framework_web_schema-sqlite.sql": "None Detected",
+      "sqlite/yii2_sqlite_schema/tests_data_sqlite.sql": "None Detected"
+    },
+    "swift": {
+      "swift/SOURCES.md": "None Detected"
+    },
+    "swift/alamofire": {
+      "swift/alamofire/Package.swift": "None Detected"
+    },
+    "tabular": {
+      "tabular/SOURCES.md": "None Detected"
+    },
+    "tabular/baseline": {
+      "tabular/baseline/control_standard.csv": "None Detected",
+      "tabular/baseline/control_standard.tsv": "None Detected"
+    },
+    "tabular/csv_erp": {
+      "tabular/csv_erp/LICENSE.txt": "None Detected",
+      "tabular/csv_erp/ir.model.access.csv": "None Detected",
+      "tabular/csv_erp/test.translation.import.model1-translated.csv": "None Detected"
+    },
+    "tabular/devsecops_payloads": {
+      "tabular/devsecops_payloads/weaponized_export.csv": "None Detected"
+    },
+    "tabular/tsv_genomics": {
+      "tabular/tsv_genomics/B.cell_eQTL.tsv": "None Detected"
+    },
+    "tcl/macports_port_api": {
+      "tcl/macports_port_api/portdepends.tcl": "None Detected"
+    },
+    "tcl/macports_registry": {
+      "tcl/macports_registry/depends.tcl": "None Detected",
+      "tcl/macports_registry/entry.tcl": "None Detected"
+    },
+    "tcl/sqlite": {
+      "tcl/sqlite/README.md": "None Detected"
+    },
+    "tcl/sqlite_core_dml": {
+      "tcl/sqlite_core_dml/LICENSE.md": "None Detected"
+    },
+    "tcl/sqlite_cte_window": {
+      "tcl/sqlite_cte_window/LICENSE.md": "None Detected"
+    },
+    "tcl/sqlite_fts5": {
+      "tcl/sqlite_fts5/LICENSE.md": "None Detected"
+    },
+    "tcl/sqlite_json_triggers": {
+      "tcl/sqlite_json_triggers/LICENSE.md": "None Detected"
+    },
+    "tcl/sqlite_query_planner": {
+      "tcl/sqlite_query_planner/LICENSE.md": "None Detected"
+    },
+    "tcl/sqlite_rtree": {
+      "tcl/sqlite_rtree/LICENSE.md": "None Detected"
+    },
+    "td": {
+      "td/SOURCES.md": "None Detected"
+    },
+    "td/tensorflow/compiler/mlir/tfrt": {
+      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_ops.td": "None Detected",
+      "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": "None Detected"
+    },
+    "td/tensorflow/core/ir": {
+      "td/tensorflow/core/ir/dialect.td": "None Detected",
+      "td/tensorflow/core/ir/ops.td": "None Detected"
+    },
+    "text": {
+      "text/SOURCES.md": "None Detected"
+    },
+    "text/baseline": {
+      "text/baseline/control-readme.md": "None Detected"
+    },
+    "typescript": {
+      "typescript/SOURCES.md": "None Detected"
+    },
+    "typescript/assemblyscript": {
+      "typescript/assemblyscript/asconfig.json": "None Detected",
+      "typescript/assemblyscript/package.json": "None Detected"
+    },
+    "typescript/fp-ts": {
+      "typescript/fp-ts/HKT.ts": "None Detected",
+      "typescript/fp-ts/package.json": "None Detected"
+    },
+    "typescript/playwright": {
+      "typescript/playwright/NOTICE": "None Detected",
+      "typescript/playwright/README.md": "None Detected",
+      "typescript/playwright/SECURITY.md": "None Detected",
+      "typescript/playwright/SUPPORT.md": "None Detected",
+      "typescript/playwright/api.ts": "None Detected",
+      "typescript/playwright/protocol.ts": "None Detected"
+    },
+    "typescript/typescript_compiler": {
+      "typescript/typescript_compiler/package.json": "None Detected"
+    },
+    "typescript/vscode": {
+      "typescript/vscode/LICENSE.txt": "None Detected",
+      "typescript/vscode/package.json": "None Detected"
+    },
+    "typescript/zod": {
+      "typescript/zod/package.json": "None Detected",
+      "typescript/zod/tsconfig.json": "None Detected"
+    },
+    "xml": {
+      "xml/SOURCES.md": "None Detected"
+    },
+    "xml/apex": {
+      "xml/apex/CanTheUser_Tests.cls": "None Detected",
+      "xml/apex/CanTheUser_Tests.cls-meta.xml": "None Detected",
+      "xml/apex/IterationRecipes_Tests.cls": "None Detected",
+      "xml/apex/IterationRecipes_Tests.cls-meta.xml": "None Detected",
+      "xml/apex/ListSortingRecipes_Tests.cls": "None Detected",
+      "xml/apex/ListSortingRecipes_Tests.cls-meta.xml": "None Detected"
+    },
+    "xml/jenkins": {
+      "xml/jenkins/XStreamDOMTest.data1.xml": "None Detected",
+      "xml/jenkins/XStreamDOMTest.data2.xml": "None Detected",
+      "xml/jenkins/excludesFilter.xml": "None Detected"
+    },
+    "xml/odoo": {
+      "xml/odoo/__manifest__.py": "None Detected"
+    },
+    "xml/odoo/views": {
+      "xml/odoo/views/menu.xml": "None Detected",
+      "xml/odoo/views/test_orm_views.xml": "None Detected",
+      "xml/odoo/views/views.xml": "None Detected"
+    },
+    "xml/powertoys": {
+      "xml/powertoys/App.xaml.cs": "None Detected"
+    },
+    "xml/springboot": {
+      "xml/springboot/LICENSE.txt": "None Detected"
+    },
+    "xml/springboot/build-info": {
+      "xml/springboot/build-info/pom.xml": "None Detected"
+    },
+    "xml/springboot/getting-started": {
+      "xml/springboot/getting-started/pom.xml": "None Detected"
+    },
+    "xml/springboot/resources": {
+      "xml/springboot/resources/pom.xml": "None Detected"
+    },
+    "yacc": {
+      "yacc/SOURCES.md": "None Detected"
+    },
+    "yacc/freebsd": {
+      "yacc/freebsd/COPYRIGHT": "None Detected"
+    },
+    "yaml": {
+      "yaml/SOURCES.md": "None Detected"
+    },
+    "yaml/ansible": {
+      "yaml/ansible/COPYING": "None Detected"
+    },
+    "yaml/ansible/blocks": {
+      "yaml/ansible/blocks/block_fail_tasks.yml": "None Detected",
+      "yaml/ansible/blocks/block_in_rescue.yml": "None Detected"
+    },
+    "yaml/ansible/include_import_tasks/tasks": {
+      "yaml/ansible/include_import_tasks/tasks/test_include_dupe_loop.yml": "None Detected",
+      "yaml/ansible/include_import_tasks/tasks/test_recursion.yml": "None Detected"
+    },
+    "yaml/ansible/yaml_parsing": {
+      "yaml/ansible/yaml_parsing/playbook.yml": "None Detected"
+    },
+    "yaml/ansible/yaml_parsing/tasks": {
+      "yaml/ansible/yaml_parsing/tasks/main.yml": "None Detected",
+      "yaml/ansible/yaml_parsing/tasks/unsafe.yml": "None Detected"
+    },
+    "yaml/black_action": {
+      "yaml/black_action/action.yml": "None Detected"
+    },
+    "yaml/grafana_compose": {
+      "yaml/grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml": "None Detected",
+      "yaml/grafana_compose/frontend-service_docker-compose.yaml": "None Detected",
+      "yaml/grafana_compose/local_cdn_docker-compose.yaml": "None Detected"
+    },
+    "yaml/moby_workflows": {
+      "yaml/moby_workflows/bin-image.yml": "None Detected",
+      "yaml/moby_workflows/codeql.yml": "None Detected",
+      "yaml/moby_workflows/labeler.yml": "None Detected",
+      "yaml/moby_workflows/test.yml": "None Detected",
+      "yaml/moby_workflows/validate-pr.yml": "None Detected",
+      "yaml/moby_workflows/vm.yml": "None Detected",
+      "yaml/moby_workflows/windows-2022.yml": "None Detected",
+      "yaml/moby_workflows/windows-2025.yml": "None Detected"
+    },
+    "yaml/serenity_composite_actions": {
+      "yaml/serenity_composite_actions/cache-restore_action.yml": "None Detected",
+      "yaml/serenity_composite_actions/cache-save_action.yml": "None Detected",
+      "yaml/serenity_composite_actions/setup_action.yml": "None Detected"
+    },
+    "yaml/sqlmap_openapi": {
+      "yaml/sqlmap_openapi/sqlmapapi.yaml": "None Detected"
+    },
+    "yaml/vscode_workflows": {
+      "yaml/vscode_workflows/LICENSE.txt": "None Detected",
+      "yaml/vscode_workflows/pr-linux-cli-test.yml": "None Detected",
+      "yaml/vscode_workflows/screenshot-test.yml": "None Detected",
+      "yaml/vscode_workflows/sessions-e2e.yml": "None Detected",
+      "yaml/vscode_workflows/telemetry.yml": "None Detected"
+    },
+    "zig": {
+      "zig/SOURCES.md": "None Detected"
+    },
+    "zig/tigerbeetle": {
+      "zig/tigerbeetle/config.zig": "None Detected",
+      "zig/tigerbeetle/constants.zig": "None Detected",
+      "zig/tigerbeetle/direction.zig": "None Detected"
+    },
+    "zig/zls/mach": {
+      "zig/zls/mach/main.zig": "None Detected",
+      "zig/zls/mach/testing.zig": "None Detected"
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "6. Contextual Mitigations & Amplifications"
+  ]
+}

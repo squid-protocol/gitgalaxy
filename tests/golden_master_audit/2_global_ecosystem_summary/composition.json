@@ -1,0 +1,323 @@
+{
+  "path": [
+    "2. Global Ecosystem Summary",
+    "composition"
+  ],
+  "value": {
+    "abap": {
+      "files": 7,
+      "impact": 1760.92,
+      "loc": 2921
+    },
+    "ada": {
+      "files": 48,
+      "impact": 7942.800000000001,
+      "loc": 18825
+    },
+    "agc_assembly": {
+      "files": 10,
+      "impact": 4840.360000000001,
+      "loc": 7708
+    },
+    "apex": {
+      "files": 7,
+      "impact": 210.36,
+      "loc": 988
+    },
+    "assembly": {
+      "files": 232,
+      "impact": 7439.119999999999,
+      "loc": 36137
+    },
+    "batch": {
+      "files": 3,
+      "impact": 0.05,
+      "loc": 298
+    },
+    "blp": {
+      "files": 5,
+      "impact": 83.48,
+      "loc": 424
+    },
+    "bms": {
+      "files": 10,
+      "impact": 4.76,
+      "loc": 1229
+    },
+    "c": {
+      "files": 40,
+      "impact": 83894.37999999999,
+      "loc": 79409
+    },
+    "cobol": {
+      "files": 562,
+      "impact": 75285.75000000003,
+      "loc": 115068
+    },
+    "cpp": {
+      "files": 28,
+      "impact": 27781.700000000004,
+      "loc": 34960
+    },
+    "csd": {
+      "files": 5,
+      "impact": 206.58,
+      "loc": 1069
+    },
+    "csharp": {
+      "files": 8,
+      "impact": 14810.000000000002,
+      "loc": 18925
+    },
+    "css": {
+      "files": 27,
+      "impact": 147.31,
+      "loc": 18844
+    },
+    "csv": {
+      "files": 6,
+      "impact": 74.56,
+      "loc": 28
+    },
+    "dart": {
+      "files": 7,
+      "impact": 26398.0,
+      "loc": 22485
+    },
+    "db2_sql": {
+      "files": 8,
+      "impact": 588.6600000000001,
+      "loc": 1058
+    },
+    "dockerfile": {
+      "files": 5,
+      "impact": 256.29999999999995,
+      "loc": 765
+    },
+    "embedded_python": {
+      "files": 14,
+      "impact": 3596.720000000001,
+      "loc": 2621
+    },
+    "fortran": {
+      "files": 6,
+      "impact": 42250.32,
+      "loc": 18871
+    },
+    "go": {
+      "files": 69,
+      "impact": 17395.489999999994,
+      "loc": 23228
+    },
+    "groovy": {
+      "files": 305,
+      "impact": 5502.659999999998,
+      "loc": 13146
+    },
+    "haskell": {
+      "files": 7,
+      "impact": 658.8,
+      "loc": 1805
+    },
+    "hlasm": {
+      "files": 18,
+      "impact": 237.76,
+      "loc": 246
+    },
+    "hlo": {
+      "files": 3,
+      "impact": 43.46,
+      "loc": 48
+    },
+    "html": {
+      "files": 54,
+      "impact": 3.189999999999999,
+      "loc": 4919
+    },
+    "java": {
+      "files": 14,
+      "impact": 3863.3999999999996,
+      "loc": 5805
+    },
+    "javascript": {
+      "files": 19,
+      "impact": 21778.639999999996,
+      "loc": 24067
+    },
+    "jcl": {
+      "files": 185,
+      "impact": 848.5400000000008,
+      "loc": 5837
+    },
+    "json": {
+      "files": 9,
+      "impact": 142.91999999999996,
+      "loc": 396
+    },
+    "kotlin": {
+      "files": 6,
+      "impact": 239.00000000000003,
+      "loc": 500
+    },
+    "livecode": {
+      "files": 98,
+      "impact": 19874.54,
+      "loc": 18042
+    },
+    "lua": {
+      "files": 110,
+      "impact": 15442.880000000005,
+      "loc": 18118
+    },
+    "m4": {
+      "files": 8,
+      "impact": 604.32,
+      "loc": 13321
+    },
+    "makefile": {
+      "files": 5,
+      "impact": 683.1,
+      "loc": 2940
+    },
+    "markdown": {
+      "files": 106,
+      "impact": 345.8600000000002,
+      "loc": 0
+    },
+    "matlab": {
+      "files": 6,
+      "impact": 4814.780000000001,
+      "loc": 3669
+    },
+    "mlir": {
+      "files": 3,
+      "impact": 47.14,
+      "loc": 132
+    },
+    "nix": {
+      "files": 5,
+      "impact": 82.33999999999999,
+      "loc": 367
+    },
+    "objective-c": {
+      "files": 5,
+      "impact": 1816.46,
+      "loc": 1623
+    },
+    "perl": {
+      "files": 22,
+      "impact": 36041.28,
+      "loc": 32269
+    },
+    "php": {
+      "files": 36,
+      "impact": 32522.2,
+      "loc": 27825
+    },
+    "plaintext": {
+      "files": 74,
+      "impact": 338.86,
+      "loc": 0
+    },
+    "pli": {
+      "files": 3,
+      "impact": 278.28,
+      "loc": 454
+    },
+    "powershell": {
+      "files": 125,
+      "impact": 23385.099999999984,
+      "loc": 24780
+    },
+    "proto": {
+      "files": 4,
+      "impact": 61.699999999999996,
+      "loc": 85
+    },
+    "python": {
+      "files": 267,
+      "impact": 60980.26000000002,
+      "loc": 71396
+    },
+    "rexx": {
+      "files": 25,
+      "impact": 4835.98,
+      "loc": 4184
+    },
+    "ruby": {
+      "files": 14,
+      "impact": 2385.3199999999997,
+      "loc": 2951
+    },
+    "rust": {
+      "files": 44,
+      "impact": 11864.140000000001,
+      "loc": 25802
+    },
+    "scala": {
+      "files": 7,
+      "impact": 6206.4400000000005,
+      "loc": 9347
+    },
+    "scheme": {
+      "files": 4,
+      "impact": 5153.62,
+      "loc": 17551
+    },
+    "shell": {
+      "files": 255,
+      "impact": 21045.639999999985,
+      "loc": 30007
+    },
+    "solidity": {
+      "files": 7,
+      "impact": 440.92,
+      "loc": 881
+    },
+    "sqlite": {
+      "files": 80,
+      "impact": 1237.0099999999993,
+      "loc": 3242
+    },
+    "swift": {
+      "files": 6,
+      "impact": 1751.0,
+      "loc": 2405
+    },
+    "tcl": {
+      "files": 32,
+      "impact": 12203.5,
+      "loc": 10580
+    },
+    "td": {
+      "files": 4,
+      "impact": 86.82,
+      "loc": 1341
+    },
+    "typescript": {
+      "files": 24,
+      "impact": 28871.239999999998,
+      "loc": 36020
+    },
+    "xml": {
+      "files": 14,
+      "impact": 147.27999999999997,
+      "loc": 0
+    },
+    "yacc": {
+      "files": 4,
+      "impact": 13711.22,
+      "loc": 18176
+    },
+    "yaml": {
+      "files": 39,
+      "impact": 1032.04,
+      "loc": 4167
+    },
+    "zig": {
+      "files": 35,
+      "impact": 32970.24,
+      "loc": 65457
+    }
+  }
+}

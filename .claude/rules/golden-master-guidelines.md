@@ -1,13 +1,13 @@
 ---
 description: "Guidelines and traps to avoid when updating golden masters"
-globs: "tests/golden_master*.json, tests/tools/update_golden_master.py, gitgalaxy/galaxyscope.py"
+globs: "tests/golden_master_audit/**, tests/golden_master_zero_dep_audit/**, tests/golden_store.py, tests/tools/update_golden_master.py, gitgalaxy/galaxyscope.py"
 ---
 # Golden Master Generation Guidelines
 
 **CRITICAL INSTRUCTION: Read these rules before running `update_golden_master.py`.**
 
 ### 1. Untracked File Poisoning (The Clean State Rule)
-`GalaxyScope` aggressively scans the local filesystem. Untracked scratch files (`fix_strategy.md`, `.venv`, etc.) or internal shadow clones (like an internal `language-crucible/` checkout) will be ingested and baked into the local `golden_master_audit.json`. When pushed, the pristine CI environment won't have these files, resulting in hundreds of mismatched lines on GitHub Actions.
+`GalaxyScope` aggressively scans the local filesystem. Untracked scratch files (`fix_strategy.md`, `.venv`, etc.) or internal shadow clones (like an internal `language-crucible/` checkout) will be ingested and baked into the local `golden_master_audit/` fixture. When pushed, the pristine CI environment won't have these files, resulting in hundreds of mismatched lines on GitHub Actions.
 * **Rule:** You MUST run `git clean -fd` to completely wipe out any untracked files, scratch artifacts, or ghost directories from the repository root BEFORE running `update_golden_master.py`.
 
 ### 2. Environment Symmetry & Local Bypasses (The Timeout Trap)

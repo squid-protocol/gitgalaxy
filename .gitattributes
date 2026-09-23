@@ -1,6 +1,8 @@
-# The two golden-crucible fixtures are ~58 MB of pretty-printed JSON, about
+# The two golden-crucible fixtures were ~58 MB of pretty-printed JSON, about
 # 1.13 million lines each, written verbatim from galaxyscope's output by
-# tests/tools/update_golden_master.py.
+# tests/tools/update_golden_master.py. Since #3384 each is a directory of ~200
+# per-section files (tests/golden_store.py), but the largest parts are still
+# 14-19 MB, so everything below still applies to them.
 #
 # At that size a line-based diff stops being meaningful. Measured on the
 # v1.3.0 pin bump (#3138), which added 18 corpus groups: 0.5% of leaf values
@@ -22,7 +24,7 @@
 # Nothing reviews these fixtures as a line diff anyway. The sanctioned path is
 # semantic, via golden_diff.deep_compare:
 #
-#     python tests/tools/bless_scope.py --from-head tests/golden_master_audit.json
+#     python tests/tools/bless_scope.py --from-head tests/golden_master_audit
 #
 # and tests/tools/update_golden_master.py prints the same deep_compare output
 # for confirmation before it will overwrite a master.
@@ -35,8 +37,8 @@
 # Neither attribute affects `git diff --name-only`, so the change-detection in
 # .github/workflows/golden-master-guard.yml still fires on these paths, and
 # neither changes merge behaviour.
-tests/golden_master_audit.json          -diff linguist-generated=true
-tests/golden_master_zero_dep_audit.json -diff linguist-generated=true
+tests/golden_master_audit/**          -diff linguist-generated=true
+tests/golden_master_zero_dep_audit/** -diff linguist-generated=true
 
 # #3213: upstream mainframe source vendored byte-for-byte at a pinned ref
 # (tests/tools/mainframe_corpus.py excerpt). -text stops a Windows checkout's

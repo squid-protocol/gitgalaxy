@@ -1,0 +1,53 @@
+{
+  "groups": {
+    "c/sqlite": {
+      "c/sqlite/lemon.c": {
+        "Literal Sites": 287,
+        "Wrapped Sites": 60
+      }
+    },
+    "fortran/wrf": {
+      "fortran/wrf/module_configure.F": {
+        "Literal Sites": 0,
+        "Wrapped Sites": 9
+      },
+      "fortran/wrf/module_domain.F": {
+        "Literal Sites": 2,
+        "Wrapped Sites": 42
+      },
+      "fortran/wrf/module_initialize_real.F": {
+        "Literal Sites": 116,
+        "Wrapped Sites": 120
+      },
+      "fortran/wrf/module_physics_init.F": {
+        "Literal Sites": 0,
+        "Wrapped Sites": 41
+      },
+      "fortran/wrf/module_sf_noahdrv.F": {
+        "Literal Sites": 42,
+        "Wrapped Sites": 50
+      },
+      "fortran/wrf/wrf_timeseries.F": {
+        "Literal Sites": 0,
+        "Wrapped Sites": 12
+      }
+    },
+    "go/core": {
+      "go/core/proc.go": {
+        "Literal Sites": 60,
+        "Wrapped Sites": 6
+      }
+    },
+    "javascript/react": {
+      "javascript/react/build.js": {
+        "Literal Sites": 18,
+        "Wrapped Sites": 1
+      }
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "12. Calls Through Idiom Wrappers",
+    "debug_prints"
+  ]
+}

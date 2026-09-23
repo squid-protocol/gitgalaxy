@@ -14,7 +14,8 @@ venv/bin/python tests/tools/crucible_check.py --update --yes
 echo "✅ Golden Masters updated!"
 echo ""
 echo "[3/4] Staging ONLY the modified golden master files..."
-git add tests/golden_master_audit.json tests/golden_master_zero_dep_audit.json
+# -A: the fixtures are split directories (#3384); a re-bless can add or remove parts.
+git add -A tests/golden_master_audit tests/golden_master_zero_dep_audit
 echo "✅ Golden masters staged."
 echo ""
 echo "[4/4] Status check:"

@@ -40,7 +40,12 @@ jobs:
 
       - name: Check for golden master fixture changes
         run: |
+          # Since #3384 each fixture is a directory of per-section files
+          # (tests/golden_store.py); the pathspecs match everything under them.
+          # The pre-split monolith names are kept so a PR that resurrects one
+          # is flagged too.
           CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" -- \
+            tests/golden_master_audit tests/golden_master_zero_dep_audit \
             tests/golden_master_audit.json tests/golden_master_zero_dep_audit.json)
 
           if [ -z "$CHANGED" ]; then
@@ -51,12 +56,13 @@ jobs:
           {
             echo "## ⚠️ This PR modifies a golden-crucible fixture"
             echo ""
-            echo "Files changed:"
+            echo "Files changed ($(echo "$CHANGED" | wc -l) golden-master part(s)):"
             echo '```'
-            echo "$CHANGED"
+            echo "$CHANGED" | head -n 100
             echo '```'
             echo ""
             echo "These files should only ever change via \`tests/tools/update_golden_master.py\`,"
             echo "and the PR description should explain *why* GitGalaxy's output was expected to"
             echo "change. Reviewers: confirm the description covers this before approving."
+            echo "For the semantic diff: \`python tests/tools/bless_scope.py --from-head tests/golden_master_audit\`."
           } >> "$GITHUB_STEP_SUMMARY"

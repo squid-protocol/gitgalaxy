@@ -63,7 +63,7 @@ To ensure your contribution integrates smoothly into the Zero-Trust ecosystem:
 
 When you modify GitGalaxy's core engine, several CI workflows will rigorously test your changes against established baselines. If your changes intentionally improve parsing precision, you must regenerate the corresponding baselines.
 
-1. **Golden Crucible Baselines (`tests/golden_master_audit.json`)**
+1. **Golden Crucible Baselines (`tests/golden_master_audit/`)**
    This validates exact extraction output.
    - Run `python tests/tools/crucible_check.py` to view structural drift.
    - To re-bless the new state: `python tests/tools/crucible_check.py --update --yes`

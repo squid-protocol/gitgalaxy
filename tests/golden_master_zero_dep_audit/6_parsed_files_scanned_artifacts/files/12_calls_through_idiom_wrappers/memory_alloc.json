@@ -1,0 +1,27 @@
+{
+  "groups": {
+    "c/doom": {
+      "c/doom/z_zone.c": {
+        "Literal Sites": 0,
+        "Wrapped Sites": 1
+      }
+    },
+    "c/sqlite": {
+      "c/sqlite/lemon.c": {
+        "Literal Sites": 2,
+        "Wrapped Sites": 1
+      }
+    },
+    "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/numeric.c": {
+        "Literal Sites": 1,
+        "Wrapped Sites": 9
+      }
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "12. Calls Through Idiom Wrappers",
+    "memory_alloc"
+  ]
+}

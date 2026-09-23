@@ -1,0 +1,22 @@
+{
+  "path": [
+    "2. Global Ecosystem Summary",
+    "Function Archetype Distribution"
+  ],
+  "value": {
+    "Annotated & Test Methods": "1.9% (834)",
+    "C Struct Operations": "0.2% (82)",
+    "Callbacks & Closures": "2.8% (1251)",
+    "Compute Cores": "8.6% (3835)",
+    "Defensive Guards": "8.5% (3763)",
+    "Encapsulated Accessors": "4.8% (2150)",
+    "Generic / Templated Code": "5.7% (2539)",
+    "I/O & Config Routines": "17.0% (7556)",
+    "Interface Declarations": "17.0% (7576)",
+    "Many-Argument Workhorses": "6.2% (2744)",
+    "Parameter Forwarders": "11.8% (5273)",
+    "State Mutators": "7.9% (3516)",
+    "Stateful Encapsulated Methods": "5.7% (2527)",
+    "Type Conversions": "2.0% (870)"
+  }
+}

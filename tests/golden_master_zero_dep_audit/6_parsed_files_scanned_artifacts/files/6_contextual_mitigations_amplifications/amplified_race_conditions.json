@@ -1,0 +1,283 @@
+{
+  "groups": {
+    "ada/alire": {
+      "ada/alire/alire-toolchains.adb": "1 instances",
+      "ada/alire/alr-commands-init.adb": "2 instances"
+    },
+    "agc_assembly/apollo-11": {
+      "agc_assembly/apollo-11/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc": "17 instances",
+      "agc_assembly/apollo-11/EXECUTIVE.agc": "4 instances",
+      "agc_assembly/apollo-11/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc": "1 instances",
+      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": "20 instances",
+      "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": "1 instances",
+      "agc_assembly/apollo-11/THE_LUNAR_LANDING.agc": "2 instances",
+      "agc_assembly/apollo-11/WAITLIST.agc": "1 instances"
+    },
+    "apex/apex-recipes": {
+      "apex/apex-recipes/QueueableRecipes.cls": "1 instances"
+    },
+    "cobol/cics-banking-sample-application-cbsa": {
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY1.cbl": "1 instances",
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY2.cbl": "1 instances",
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY3.cbl": "1 instances",
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY4.cbl": "1 instances",
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY5.cbl": "1 instances",
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": "2 instances",
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": "9 instances"
+    },
+    "cobol/cics-genapp": {
+      "cobol/cics-genapp/lgicvs01.cbl": "2 instances",
+      "cobol/cics-genapp/lgtestc1.cbl": "1 instances"
+    },
+    "cpp/NVDA": {
+      "cpp/NVDA/braille.py": "2 instances",
+      "cpp/NVDA/core.py": "3 instances"
+    },
+    "cpp/powertoys": {
+      "cpp/powertoys/FancyZones.cpp": "1 instances"
+    },
+    "csharp/roslyn": {
+      "csharp/roslyn/CSharpCompilation.cs": "12 instances",
+      "csharp/roslyn/CSharpSyntaxTree.cs": "2 instances",
+      "csharp/roslyn/MethodCompiler.cs": "5 instances"
+    },
+    "dart/flutter": {
+      "dart/flutter/editable_text.dart": "11 instances",
+      "dart/flutter/framework.dart": "5 instances"
+    },
+    "dockerfile/moby/builder/dockerfile": {
+      "dockerfile/moby/builder/dockerfile/builder.go": "1 instances",
+      "dockerfile/moby/builder/dockerfile/containerbackend.go": "8 instances"
+    },
+    "embedded_python/meow_turtle": {
+      "embedded_python/meow_turtle/actuators.py": "3 instances",
+      "embedded_python/meow_turtle/app.py": "2 instances",
+      "embedded_python/meow_turtle/logging.py": "3 instances",
+      "embedded_python/meow_turtle/sensors.py": "3 instances"
+    },
+    "go/core": {
+      "go/core/mgc.go": "5 instances",
+      "go/core/proc.go": "3 instances",
+      "go/core/server.go": "13 instances"
+    },
+    "go/kubernetes": {
+      "go/kubernetes/csi_plugin.go": "2 instances",
+      "go/kubernetes/generic.go": "3 instances",
+      "go/kubernetes/kubelet.go": "2 instances",
+      "go/kubernetes/replica_set.go": "3 instances",
+      "go/kubernetes/scheduler.go": "1 instances"
+    },
+    "groovy/godot_android_gradle": {
+      "groovy/godot_android_gradle/java_app_build.gradle": "1 instances"
+    },
+    "groovy/gradle": {
+      "groovy/gradle/DefaultPluginManager.java": "5 instances",
+      "groovy/gradle/DefaultProject.java": "1 instances"
+    },
+    "groovy/gradle_integtest_specs": {
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheBuildEventsListenerIntegrationTest.groovy": "1 instances",
+      "groovy/gradle_integtest_specs/core-configuration_configuration-cache_src_integTest_groovy_org_gradle_internal_cc_impl_ConfigurationCacheCleanupIntegrationTest.groovy": "2 instances"
+    },
+    "groovy/gradle_sample_task_classes": {
+      "groovy/gradle_sample_task_classes/testKit_testKitFunctionalTestSpockBuildCache_groovy_src_main_groovy_org_gradle_sample_HelloWorldPlugin.groovy": "1 instances"
+    },
+    "groovy/retrofit_gradle": {
+      "groovy/retrofit_gradle/build.gradle": "4 instances"
+    },
+    "groovy/spock_core_groovy": {
+      "groovy/spock_core_groovy/build-logic_base_src_main_groovy_org_spockframework_gradle_SpockBasePlugin.groovy": "4 instances"
+    },
+    "html/cesium_sandcastle": {
+      "html/cesium_sandcastle/gallery_cylinders_and_cones.html": "1 instances"
+    },
+    "html/vscode_webviews": {
+      "html/vscode_webviews/github_auth_media_index.html": "1 instances",
+      "html/vscode_webviews/webWorkerExtensionHostIframe.html": "5 instances"
+    },
+    "java/springboot": {
+      "java/springboot/OnClassCondition.java": "1 instances",
+      "java/springboot/SpringApplication.java": "3 instances"
+    },
+    "javascript/jquery": {
+      "javascript/jquery/ajax.js": "2 instances",
+      "javascript/jquery/deferred.js": "2 instances"
+    },
+    "javascript/react": {
+      "javascript/react/ReactFiberWorkLoop.js": "1 instances",
+      "javascript/react/ReactFlightServer.js": "13 instances",
+      "javascript/react/build.js": "2 instances"
+    },
+    "javascript/threejs": {
+      "javascript/threejs/Editor.js": "1 instances",
+      "javascript/threejs/GLTFLoader.js": "61 instances",
+      "javascript/threejs/WebGLRenderer.js": "1 instances"
+    },
+    "livecode/livecode": {
+      "livecode/livecode/automaticactivationprocessinggroupbehavior.livecodescript": "1 instances",
+      "livecode/livecode/builder_utilities.livecodescript": "3 instances",
+      "livecode/livecode/installer_utilities.livecodescript": "2 instances",
+      "livecode/livecode/installeruiinstallcardbehavior.livecodescript": "4 instances",
+      "livecode/livecode/revdeploylibraryandroid.livecodescript": "1 instances",
+      "livecode/livecode/revdeploylibraryemscripten.livecodescript": "1 instances",
+      "livecode/livecode/revdeploylibraryios.livecodescript": "4 instances",
+      "livecode/livecode/revliburl.livecodescript": "14 instances",
+      "livecode/livecode/revsaveasandroidstandalone.livecodescript": "3 instances"
+    },
+    "lua/cosmopolitan": {
+      "lua/cosmopolitan/big.lua": "3 instances",
+      "lua/cosmopolitan/calls.lua": "1 instances",
+      "lua/cosmopolitan/coroutine.lua": "103 instances",
+      "lua/cosmopolitan/cstack.lua": "9 instances",
+      "lua/cosmopolitan/db.lua": "14 instances",
+      "lua/cosmopolitan/errors.lua": "3 instances",
+      "lua/cosmopolitan/files.lua": "3 instances",
+      "lua/cosmopolitan/gc.lua": "8 instances",
+      "lua/cosmopolitan/gengc.lua": "5 instances",
+      "lua/cosmopolitan/locals.lua": "19 instances",
+      "lua/cosmopolitan/nextvar.lua": "1 instances"
+    },
+    "matlab/eeglab": {
+      "matlab/eeglab/eeg_eval.m": "1 instances"
+    },
+    "perl/exiftool": {
+      "perl/exiftool/ExifTool.pm": "1 instances"
+    },
+    "perl/mojo": {
+      "perl/mojo/IOLoop.pm": "3 instances",
+      "perl/mojo/Promise.pm": "13 instances"
+    },
+    "perl/spamassassin": {
+      "perl/spamassassin/AsyncLoop.pm": "38 instances"
+    },
+    "php/magento2": {
+      "php/magento2/AbstractBlock.php": "2 instances"
+    },
+    "php/symfony": {
+      "php/symfony/ContainerBuilder.php": "1 instances"
+    },
+    "php/wordpress": {
+      "php/wordpress/functions.php": "5 instances"
+    },
+    "powershell/core": {
+      "powershell/core/RegisterMicrosoftUpdate.ps1": "3 instances",
+      "powershell/core/SSHRemoting.Basic.Tests.ps1": "1 instances"
+    },
+    "python/airflow": {
+      "python/airflow/s3.py": "16 instances",
+      "python/airflow/scheduler_job_runner.py": "2 instances"
+    },
+    "python/cython": {
+      "python/cython/Nodes.py": "2 instances"
+    },
+    "python/fastapi/fastapi": {
+      "python/fastapi/fastapi/applications.py": "5 instances",
+      "python/fastapi/fastapi/concurrency.py": "3 instances",
+      "python/fastapi/fastapi/exception_handlers.py": "1 instances",
+      "python/fastapi/fastapi/routing.py": "26 instances"
+    },
+    "python/fastapi/tests": {
+      "python/fastapi/tests/test_custom_middleware_exception.py": "4 instances",
+      "python/fastapi/tests/test_datastructures.py": "3 instances",
+      "python/fastapi/tests/test_dependency_class.py": "2 instances",
+      "python/fastapi/tests/test_dependency_contextmanager.py": "17 instances",
+      "python/fastapi/tests/test_dependency_contextvars.py": "3 instances",
+      "python/fastapi/tests/test_dependency_wrapped.py": "9 instances",
+      "python/fastapi/tests/test_dependency_yield_except_httpexception.py": "1 instances",
+      "python/fastapi/tests/test_dependency_yield_scope_websockets.py": "1 instances",
+      "python/fastapi/tests/test_include_router_defaults_overrides.py": "6 instances",
+      "python/fastapi/tests/test_list_bytes_file_order_preserved_issue_14811.py": "3 instances",
+      "python/fastapi/tests/test_reponse_set_reponse_code_empty.py": "1 instances",
+      "python/fastapi/tests/test_response_change_status_code.py": "1 instances",
+      "python/fastapi/tests/test_response_model_data_filter.py": "2 instances",
+      "python/fastapi/tests/test_response_model_data_filter_no_inheritance.py": "2 instances",
+      "python/fastapi/tests/test_router_events.py": "6 instances",
+      "python/fastapi/tests/test_sse.py": "2 instances",
+      "python/fastapi/tests/test_stream_bare_type.py": "2 instances",
+      "python/fastapi/tests/test_stream_cancellation.py": "7 instances",
+      "python/fastapi/tests/test_stringified_annotation_dependency.py": "2 instances",
+      "python/fastapi/tests/test_ws_router.py": "4 instances"
+    },
+    "rust/bevy": {
+      "rust/bevy/bevy_ecs_world.rs": "1 instances"
+    },
+    "rust/tokio": {
+      "rust/tokio/builder.rs": "18 instances"
+    },
+    "scala/kafka": {
+      "scala/kafka/ReplicaManager.scala": "1 instances"
+    },
+    "shell/freebsd-src": {
+      "shell/freebsd-src/dd2_test.sh": "4 instances",
+      "shell/freebsd-src/dtest.sh": "2 instances",
+      "shell/freebsd-src/pgrep-_f_test.sh": "1 instances",
+      "shell/freebsd-src/pwait_test.sh": "14 instances"
+    },
+    "shell/haiku": {
+      "shell/haiku/HardwareChecker.sh": "1 instances",
+      "shell/haiku/catmerge.sh": "2 instances"
+    },
+    "shell/kubernetes": {
+      "shell/kubernetes/_update-generated-proto-bindings-dockerized.sh": "1 instances",
+      "shell/kubernetes/common.sh": "2 instances",
+      "shell/kubernetes/configure-helper.sh": "2 instances",
+      "shell/kubernetes/etcd.sh": "2 instances",
+      "shell/kubernetes/log-dump.sh": "10 instances"
+    },
+    "shell/moby": {
+      "shell/moby/support.sh": "1 instances",
+      "shell/moby/validate-swagger-gen.sh": "1 instances"
+    },
+    "shell/reactos": {
+      "shell/reactos/remaster.sh": "1 instances"
+    },
+    "shell/serenity": {
+      "shell/serenity/builtin.sh": "2 instances"
+    },
+    "swift/alamofire": {
+      "swift/alamofire/Request.swift": "15 instances",
+      "swift/alamofire/Session.swift": "6 instances"
+    },
+    "tcl/macports_port_api": {
+      "tcl/macports_port_api/portlint.tcl": "1 instances"
+    },
+    "tcl/sqlite": {
+      "tcl/sqlite/tester.tcl": "1 instances",
+      "tcl/sqlite/testrunner.tcl": "5 instances"
+    },
+    "typescript/playwright": {
+      "typescript/playwright/bidiConnection.ts": "1 instances",
+      "typescript/playwright/connection.ts": "4 instances",
+      "typescript/playwright/crConnection.ts": "2 instances",
+      "typescript/playwright/dispatcher.ts": "8 instances",
+      "typescript/playwright/frames.ts": "47 instances"
+    },
+    "typescript/vscode": {
+      "typescript/vscode/async.ts": "83 instances",
+      "typescript/vscode/codeEditorWidget.ts": "1 instances",
+      "typescript/vscode/extHost.api.impl.ts": "5 instances",
+      "typescript/vscode/gulpfile.vscode.ts": "4 instances",
+      "typescript/vscode/ipc.ts": "12 instances",
+      "typescript/vscode/lifecycle.ts": "1 instances"
+    },
+    "yaml/vscode_workflows": {
+      "yaml/vscode_workflows/pr.yml": "1 instances"
+    },
+    "zig/zig": {
+      "zig/zig/InternPool.zig": "36 instances",
+      "zig/zig/Zcu.zig": "1 instances"
+    },
+    "zig/zls": {
+      "zig/zls/DocumentStore.zig": "1 instances",
+      "zig/zls/Server.zig": "1 instances"
+    },
+    "zig/zls/mach": {
+      "zig/zls/mach/graph.zig": "1 instances",
+      "zig/zls/mach/module.zig": "1 instances"
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "6. Contextual Mitigations & Amplifications",
+    "Amplified Race Conditions"
+  ]
+}

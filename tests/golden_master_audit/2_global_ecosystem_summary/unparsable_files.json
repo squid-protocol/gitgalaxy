@@ -1,0 +1,182 @@
+{
+  "path": [
+    "2. Global Ecosystem Summary",
+    "unparsable_files"
+  ],
+  "value": {
+    "ambig_file_count": 340,
+    "binary": 0,
+    "composition_by_extension_and_reason": {
+      ".ads": {
+        "Blocked (Machine-Generated Source Code Signature: 21 LOC)": 1,
+        "Blocked (Machine-Generated Source Code Signature: 62 LOC)": 1
+      },
+      ".am": {
+        "Blocked (Unsupported Extension: '.am')": 2
+      },
+      ".asm": {
+        "Blocked (Embedded Array/Matrix Payload: 5323 commas in 957 LOC)": 1
+      },
+      ".bash": {
+        "Blocked (Machine-Generated Source Code Signature: 3531 LOC)": 1
+      },
+      ".c": {
+        "Blocked (Machine-Generated Source Code Signature: 2744 LOC)": 1
+      },
+      ".cf": {
+        "Blocked (Unsupported Extension: '.cf')": 1
+      },
+      ".cff": {
+        "Blocked (Unsupported Extension: '.cff')": 2
+      },
+      ".cmd": {
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 2
+      },
+      ".cpy": {
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 6,
+        "Zero-Density Threshold (LOC: 1283, Signals: 0)": 1,
+        "Zero-Density Threshold (LOC: 85, Signals: 0)": 1
+      },
+      ".css": {
+        "Blocked (Machine-Generated Source Code Signature: 1443 LOC)": 1,
+        "Blocked (Saturation: Line 1 exceeds 500 chars)": 6,
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 4
+      },
+      ".db": {
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
+      },
+      ".gradle": {
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
+      },
+      ".i": {
+        "Blocked (Unsupported Extension: '.i')": 1
+      },
+      ".in": {
+        "Blocked (Saturation: Line 9 exceeds 500 chars)": 1
+      },
+      ".jcl": {
+        "Zero-Density Threshold (LOC: 57, Signals: 0)": 1
+      },
+      ".js": {
+        "Packed Payload Guard (Impossible Density: 3.32 hits/line)": 1
+      },
+      ".json": {
+        "Blocked (Static Asset Blob without Intent: 2466 LOC)": 1
+      },
+      ".lds": {
+        "Blocked (Unsupported Extension: '.lds')": 1
+      },
+      ".lock": {
+        "Blocked (Unsupported Extension: '.lock')": 3
+      },
+      ".lua": {
+        "Blocked (Machine-Generated Source Code Signature: 30 LOC)": 1,
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 2
+      },
+      ".m": {
+        "Blocked (Machine-Generated Source Code Signature: 73 LOC)": 1
+      },
+      ".mat": {
+        "Blocked (Unsupported Extension: '.mat')": 1
+      },
+      ".md": {
+        "Blocked (Machine-Generated Source Code Signature: 29 LOC)": 1,
+        "Blocked (Machine-Generated Source Code Signature: 39 LOC)": 1,
+        "Blocked (Machine-Generated Source Code Signature: 48 LOC)": 1,
+        "Blocked (Machine-Generated Source Code Signature: 72 LOC)": 1
+      },
+      ".ps1": {
+        "Blocked (Machine-Generated Source Code Signature: 99 LOC)": 1,
+        "Unsupported Format (.undeterminable)": 1
+      },
+      ".py": {
+        "Blocked (Machine-Generated Source Code Signature: 1695 LOC)": 1,
+        "Blocked (Saturation: Line 96 exceeds 500 chars)": 1
+      },
+      ".rs": {
+        "Blocked (Lexical Monotony: High structural repetition detected in 2342 LOC)": 1,
+        "Blocked (Machine-Generated Source Code Signature: 1541 LOC)": 1
+      },
+      ".rst": {
+        "Blocked (Unsupported Extension: '.rst')": 1
+      },
+      ".s": {
+        "Blocked (Lexical Monotony: High structural repetition detected in 2099 LOC)": 1
+      },
+      ".sh": {
+        "Blocked (Lexical Monotony: High structural repetition detected in 2116 LOC)": 1,
+        "Blocked (Machine-Generated Source Code Signature: 18 LOC)": 1,
+        "Blocked (Machine-Generated Source Code Signature: 203 LOC)": 1,
+        "Blocked (Machine-Generated Source Code Signature: 37 LOC)": 1,
+        "Blocked (Machine-Generated Source Code Signature: 50 LOC)": 1,
+        "Blocked (Machine-Generated Source Code Signature: 74 LOC)": 1,
+        "Blocked (Saturation: Line 37 exceeds 500 chars)": 1,
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
+      },
+      ".sh_2": {
+        "Blocked (Unsupported Extension: '.sh_2')": 6
+      },
+      ".sh_3": {
+        "Blocked (Unsupported Extension: '.sh_3')": 1
+      },
+      ".sql": {
+        "Blocked (Static Asset Blob without Intent: 1548 LOC)": 1,
+        "Blocked (Static Asset Blob without Intent: 1794 LOC)": 1
+      },
+      ".ss": {
+        "Blocked (Lexical Monotony: High structural repetition detected in 10586 LOC)": 1
+      },
+      ".tar": {
+        "Blocked (Explicitly Denied Extension: '.tar')": 7
+      },
+      ".test": {
+        "Blocked (Unsupported Extension: '.test')": 114
+      },
+      ".toml": {
+        "Blocked (Unsupported Extension: '.toml')": 3
+      },
+      ".ts": {
+        "Blocked (Lexical Monotony: High structural repetition detected in 10671 LOC)": 1,
+        "Blocked (Lexical Monotony: High structural repetition detected in 10824 LOC)": 1,
+        "Blocked (Lexical Monotony: High structural repetition detected in 11395 LOC)": 1,
+        "Blocked (Lexical Monotony: High structural repetition detected in 6379 LOC)": 1,
+        "Blocked (Monolithic Amalgamation: 54435 LOC exceeds safe regex boundaries)": 1
+      },
+      ".tsv": {
+        "Blocked (Saturation: Line 1 exceeds 500 chars)": 1
+      },
+      ".txt": {
+        "Blocked (Machine-Generated Source Code Signature: 56 LOC)": 1,
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
+      },
+      ".typed": {
+        "Blocked (Unsupported Extension: '.typed')": 1
+      },
+      ".xaml": {
+        "Blocked (Unsupported Extension: '.xaml')": 3
+      },
+      ".y": {
+        "Blocked (Machine-Generated Source Code Signature: 2161 LOC)": 1
+      },
+      ".yaml": {
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 1
+      },
+      ".yml": {
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 5
+      },
+      ".zig": {
+        "Blocked (Machine-Generated Source Code Signature: 8582 LOC)": 1,
+        "Blocked (Monolithic Amalgamation: 37746 LOC exceeds safe regex boundaries)": 1
+      },
+      "no_extension": {
+        "Blocked (Monolithic Amalgamation: 36288 LOC exceeds safe regex boundaries)": 1,
+        "Blocked (Saturation: Line 1 exceeds 500 chars)": 3,
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 113,
+        "Unsupported Format (.undeterminable)": 1
+      }
+    },
+    "os_permissions": 0,
+    "size_limit": 0,
+    "unparsable": 0
+  }
+}

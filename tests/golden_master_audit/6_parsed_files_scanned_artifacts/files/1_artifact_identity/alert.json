@@ -1,0 +1,58 @@
+{
+  "groups": {
+    "ada/alire": {
+      "ada/alire/alire-crate_configuration.adb": "TYPOSQUATTING THREAT: 'Alire/Roots' mimics 'Alire/Root'"
+    },
+    "cpp/mlir": {
+      "cpp/mlir/flatbuffer_export.cc": "TYPOSQUATTING THREAT: 'cstring' mimics 'string'"
+    },
+    "dockerfile/moby/test_targets": {
+      "dockerfile/moby/test_targets/daemon.Dockerfile": "TYPOSQUATTING THREAT: 'registry' mimics 'registry2'"
+    },
+    "embedded_python/meow_turtle": {
+      "embedded_python/meow_turtle/ota.py": "TYPOSQUATTING THREAT: 'ubinascii' mimics 'binascii'"
+    },
+    "groovy/gradle_buildlogic_groovy": {
+      "groovy/gradle_buildlogic_groovy/documentation_src_main_groovy_gradlebuild_docs_Docbook2Xhtml.groovy": "TYPOSQUATTING THREAT: 'org/gradle/api/tasks/InputFiles' mimics 'org/gradle/api/tasks/InputFile'"
+    },
+    "javascript/react": {
+      "javascript/react/build.js": "TYPOSQUATTING THREAT: 'modules' mimics 'module'"
+    },
+    "javascript/threejs": {
+      "javascript/threejs/BufferGeometry.js": "TYPOSQUATTING THREAT: 'math/Vector2.js' mimics 'math/Vector3.js'",
+      "javascript/threejs/WebGLRenderer.js": "TYPOSQUATTING THREAT: 'math/Vector4.js' mimics 'math/Vector3.js'"
+    },
+    "jcl/cics-banking-sample-application-cbsa": {
+      "jcl/cics-banking-sample-application-cbsa/CICSTS56.jcl": "TYPOSQUATTING THREAT: 'DSNC10/SDSNLOD2' mimics 'DSNC10/SDSNLOAD'"
+    },
+    "perl/bugzilla": {
+      "perl/bugzilla/CGI.pm": "TYPOSQUATTING THREAT: 'parameter' mimics 'parameters'"
+    },
+    "perl/exiftool": {
+      "perl/exiftool/ExifTool.pm": "TYPOSQUATTING THREAT: 'warning' mimics 'warnings'"
+    },
+    "perl/spamassassin": {
+      "perl/spamassassin/Message.pm": "TYPOSQUATTING THREAT: 'content' mimics 'context'"
+    },
+    "python/numpy": {
+      "python/numpy/core.py": "TYPOSQUATTING THREAT: 'builtins' mimics 'builtin'"
+    },
+    "rust/bevy": {
+      "rust/bevy/bevy_ecs_macros.rs": "TYPOSQUATTING THREAT: 'proc_macro::TokenStream' mimics 'proc_macro2::TokenStream'"
+    },
+    "typescript/vscode": {
+      "typescript/vscode/gulpfile.vscode.ts": "TYPOSQUATTING THREAT: 'string:' mimics 'string'"
+    },
+    "yaml/serenity_composite_actions": {
+      "yaml/serenity_composite_actions/cache-restore_action.yml": "TYPOSQUATTING THREAT: 'actions/cache/restore@v4' mimics 'actions/cache/restore@v5'"
+    },
+    "zig/zls/mach": {
+      "zig/zls/mach/Core.zig": "TYPOSQUATTING THREAT: 'build-options' mimics 'build_options'"
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "1. Artifact Identity",
+    "Alert"
+  ]
+}

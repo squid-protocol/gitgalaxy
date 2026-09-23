@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-The ONLY sanctioned way to update tests/golden_master_audit.json or
-tests/golden_master_zero_dep_audit.json (#330).
+The ONLY sanctioned way to update tests/golden_master_audit/ or
+tests/golden_master_zero_dep_audit/ (#330). Since #3384 each fixture is a
+directory of per-section files written by tests/golden_store.py -- the
+sanitized scan output (golden_diff.load_and_sanitize) is what gets stored, so
+volatile run metadata (timestamps, scan duration, commit hash) never churns
+the fixture and re-blessing unchanged output is byte-identical.
 
 golden_diff.py failing means GitGalaxy's output actually changed. That's
 either a bug (fix the engine, don't touch this file) or an intentional
@@ -32,6 +36,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import golden_diff
+import golden_store
 from _crucible_pin import PINNED_TAG, pin_mismatch
 
 from gitgalaxy.galaxyscope import HAS_PYYAML, HAS_TIKTOKEN
@@ -72,9 +77,7 @@ def main():
 
     zero_dep = zero_dependency_mode()
     mode_name = "zero-dependency" if zero_dep else "full-precision"
-    golden_master_path = REPO_ROOT / (
-        "tests/golden_master_zero_dep_audit.json" if zero_dep else "tests/golden_master_audit.json"
-    )
+    golden_master_path = REPO_ROOT / (golden_store.ZERO_DEPENDENCY if zero_dep else golden_store.FULL_PRECISION)
 
     print(f"=== Regenerating {golden_master_path.name} ({mode_name} mode) ===\n")
 
@@ -141,7 +144,7 @@ def main():
                 print("Aborted -- golden master left unchanged.")
                 sys.exit(1)
 
-        golden_master_path.write_bytes(new_output_path.read_bytes())
+        golden_store.write(new_data, golden_master_path)
 
     print(f"\n✅ Updated {golden_master_path.relative_to(REPO_ROOT)}.")
     print("   Commit it as part of this PR, and explain in the PR description WHY the output")

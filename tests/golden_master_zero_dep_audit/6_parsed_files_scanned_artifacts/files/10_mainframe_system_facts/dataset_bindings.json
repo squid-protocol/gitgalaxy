@@ -1,0 +1,7016 @@
+{
+  "groups": {
+    "cobol/CICS-Cobol": {
+      "cobol/CICS-Cobol/CBL0103v01DivisionData.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "INPUT",
+          "DD Name": "INPUT",
+          "DSN": null,
+          "Internal Name": "QGCOMPRA",
+          "Line": 12,
+          "Step": null
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0901v01AccesoSecuencial.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "HOST01.TXT",
+          "DD Name": "HOST01.TXT",
+          "DSN": null,
+          "Internal Name": "HOST001",
+          "Line": 23,
+          "Step": null
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0901v02AccesoSecuencialFiles.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "HOST01.TXT",
+          "DD Name": "HOST01.TXT",
+          "DSN": null,
+          "Internal Name": "HOST001",
+          "Line": 27,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "HOST02.TXT",
+          "DD Name": "HOST02.TXT",
+          "DSN": null,
+          "Internal Name": "HOST002",
+          "Line": 30,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "HOST03.TXT",
+          "DD Name": "HOST03.TXT",
+          "DSN": null,
+          "Internal Name": "HOST003",
+          "Line": 36,
+          "Step": null
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0902v01AccesoAleatorio.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "HOST04.TXT",
+          "DD Name": "HOST04.TXT",
+          "DSN": null,
+          "Internal Name": "HOST004",
+          "Line": 27,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "HOST05.TXT",
+          "DD Name": "HOST05.TXT",
+          "DSN": null,
+          "Internal Name": "HOST005",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "HOST06.TXT",
+          "DD Name": "HOST06.TXT",
+          "DSN": null,
+          "Internal Name": "HOST006",
+          "Line": 24,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "HOST07.TXT",
+          "DD Name": "HOST07.TXT",
+          "DSN": null,
+          "Internal Name": "HOST007",
+          "Line": 30,
+          "Step": null
+        }
+      ]
+    },
+    "cobol/aws-mainframe-modernization-carddemo": {
+      "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "ACCTFILE",
+          "DD Name": "ACCTFILE",
+          "DSN": null,
+          "Internal Name": "ACCTFILE-FILE",
+          "Line": 29,
+          "Step": null
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "CARDFILE",
+          "DD Name": "CARDFILE",
+          "DSN": null,
+          "Internal Name": "CARDFILE-FILE",
+          "Line": 29,
+          "Step": null
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "XREFFILE",
+          "DD Name": "XREFFILE",
+          "DSN": null,
+          "Internal Name": "XREFFILE-FILE",
+          "Line": 29,
+          "Step": null
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "TCATBALF",
+          "DD Name": "TCATBALF",
+          "DSN": null,
+          "Internal Name": "TCATBAL-FILE",
+          "Line": 28,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "XREFFILE",
+          "DD Name": "XREFFILE",
+          "DSN": null,
+          "Internal Name": "XREF-FILE",
+          "Line": 33,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "ACCTFILE",
+          "DD Name": "ACCTFILE",
+          "DSN": null,
+          "Internal Name": "ACCOUNT-FILE",
+          "Line": 40,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "DISCGRP",
+          "DD Name": "DISCGRP",
+          "DSN": null,
+          "Internal Name": "DISCGRP-FILE",
+          "Line": 46,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "TRANSACT",
+          "DD Name": "TRANSACT",
+          "DSN": null,
+          "Internal Name": "TRANSACT-FILE",
+          "Line": 52,
+          "Step": null
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "CUSTFILE",
+          "DD Name": "CUSTFILE",
+          "DSN": null,
+          "Internal Name": "CUSTFILE-FILE",
+          "Line": 29,
+          "Step": null
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN01C.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "DALYTRAN",
+          "DD Name": "DALYTRAN",
+          "DSN": null,
+          "Internal Name": "DALYTRAN-FILE",
+          "Line": 29,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "CUSTFILE",
+          "DD Name": "CUSTFILE",
+          "DSN": null,
+          "Internal Name": "CUSTOMER-FILE",
+          "Line": 33,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "XREFFILE",
+          "DD Name": "XREFFILE",
+          "DSN": null,
+          "Internal Name": "XREF-FILE",
+          "Line": 39,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "CARDFILE",
+          "DD Name": "CARDFILE",
+          "DSN": null,
+          "Internal Name": "CARD-FILE",
+          "Line": 45,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "ACCTFILE",
+          "DD Name": "ACCTFILE",
+          "DSN": null,
+          "Internal Name": "ACCOUNT-FILE",
+          "Line": 51,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "TRANFILE",
+          "DD Name": "TRANFILE",
+          "DSN": null,
+          "Internal Name": "TRANSACT-FILE",
+          "Line": 57,
+          "Step": null
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "DALYTRAN",
+          "DD Name": "DALYTRAN",
+          "DSN": null,
+          "Internal Name": "DALYTRAN-FILE",
+          "Line": 29,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "TRANFILE",
+          "DD Name": "TRANFILE",
+          "DSN": null,
+          "Internal Name": "TRANSACT-FILE",
+          "Line": 33,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "XREFFILE",
+          "DD Name": "XREFFILE",
+          "DSN": null,
+          "Internal Name": "XREF-FILE",
+          "Line": 39,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "DALYREJS",
+          "DD Name": "DALYREJS",
+          "DSN": null,
+          "Internal Name": "DALYREJS-FILE",
+          "Line": 45,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "ACCTFILE",
+          "DD Name": "ACCTFILE",
+          "DSN": null,
+          "Internal Name": "ACCOUNT-FILE",
+          "Line": 50,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "TCATBALF",
+          "DD Name": "TCATBALF",
+          "DSN": null,
+          "Internal Name": "TCATBAL-FILE",
+          "Line": 56,
+          "Step": null
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "TRANFILE",
+          "DD Name": "TRANFILE",
+          "DSN": null,
+          "Internal Name": "TRANSACT-FILE",
+          "Line": 29,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "CARDXREF",
+          "DD Name": "CARDXREF",
+          "DSN": null,
+          "Internal Name": "XREF-FILE",
+          "Line": 32,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "TRANTYPE",
+          "DD Name": "TRANTYPE",
+          "DSN": null,
+          "Internal Name": "TRANTYPE-FILE",
+          "Line": 38,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "TRANCATG",
+          "DD Name": "TRANCATG",
+          "DSN": null,
+          "Internal Name": "TRANCATG-FILE",
+          "Line": 44,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "TRANREPT",
+          "DD Name": "TRANREPT",
+          "DSN": null,
+          "Internal Name": "REPORT-FILE",
+          "Line": 50,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "DATEPARM",
+          "DD Name": "DATEPARM",
+          "DSN": null,
+          "Internal Name": "DATE-PARMS-FILE",
+          "Line": 54,
+          "Step": null
+        }
+      ]
+    },
+    "cobol/che-che4z_nist_ccvs85": {
+      "cobol/che-che4z_nist_ccvs85/DB1024.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "DB1024",
+          "DD Name": "DB1024",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 52,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "DB1034",
+          "DD Name": "DB1034",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 50,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "DB1044",
+          "DD Name": "DB1044",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 61,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT",
+            "OUTPUT"
+          ],
+          "Assign Name": "DB1044",
+          "DD Name": "DB1044",
+          "DSN": null,
+          "Internal Name": "GEN-FILE",
+          "Line": 63,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "DB1044",
+          "DD Name": "DB1044",
+          "DSN": null,
+          "Internal Name": "SORT-FILE",
+          "Line": 66,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "DB3014",
+          "DD Name": "DB3014",
+          "DSN": null,
+          "Internal Name": "TFIL",
+          "Line": 15,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "DB3024",
+          "DD Name": "DB3024",
+          "DSN": null,
+          "Internal Name": "TFIL",
+          "Line": 16,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/DB3054.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "DB3054",
+          "DD Name": "DB3054",
+          "DSN": null,
+          "Internal Name": "TFIL",
+          "Line": 16,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC1014",
+          "DD Name": "IC1014",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 39,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1024.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "IC1024",
+          "DD Name": "IC1024",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 28,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC1034",
+          "DD Name": "IC1034",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 34,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1044.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "IC1044",
+          "DD Name": "IC1044",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 34,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1064.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC1064",
+          "DD Name": "IC1064",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 38,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "IC1074",
+          "DD Name": "IC1074",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 37,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1084.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC1084",
+          "DD Name": "IC1084",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 30,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1094.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "IC1094",
+          "DD Name": "IC1094",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 30,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "IC1104",
+          "DD Name": "IC1104",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 31,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1144.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC1144",
+          "DD Name": "IC1144",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 42,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1164.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC1164",
+          "DD Name": "IC1164",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 39,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2014.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2014",
+          "DD Name": "IC2014",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2024.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "IC2024",
+          "DD Name": "IC2024",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 29,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2034.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2034",
+          "DD Name": "IC2034",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 33,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2044.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "IC2044",
+          "DD Name": "IC2044",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 34,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2054.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "IC2054",
+          "DD Name": "IC2054",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 29,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2064.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "IC2064",
+          "DD Name": "IC2064",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 34,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2074",
+          "DD Name": "IC2074",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2094",
+          "DD Name": "IC2094",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 27,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2134",
+          "DD Name": "IC2134",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 27,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2164",
+          "DD Name": "IC2164",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 27,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2244",
+          "DD Name": "IC2244",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 44,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2264",
+          "DD Name": "IC2264",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 44,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2284",
+          "DD Name": "IC2284",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 46,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2334",
+          "DD Name": "IC2334",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 44,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "IC2334",
+          "DD Name": "IC2334",
+          "DSN": null,
+          "Internal Name": "TEST-FILE",
+          "Line": 46,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2344",
+          "DD Name": "IC2344",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 57,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT",
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2344",
+          "DD Name": "IC2344",
+          "DSN": null,
+          "Internal Name": "TEST-FILE",
+          "Line": 59,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IC2374",
+          "DD Name": "IC2374",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 30,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1024",
+          "DD Name": "IF1024",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1054",
+          "DD Name": "IF1054",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 22,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1074",
+          "DD Name": "IF1074",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1084.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1084",
+          "DD Name": "IF1084",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1094.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1094",
+          "DD Name": "IF1094",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1104.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1104",
+          "DD Name": "IF1104",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1114.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1114",
+          "DD Name": "IF1114",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1124.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1124",
+          "DD Name": "IF1124",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1134.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1134",
+          "DD Name": "IF1134",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1144.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1144",
+          "DD Name": "IF1144",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1154.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1154",
+          "DD Name": "IF1154",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1184.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1184",
+          "DD Name": "IF1184",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1204.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1204",
+          "DD Name": "IF1204",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 17,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1214.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1214",
+          "DD Name": "IF1214",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 17,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1224.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1224",
+          "DD Name": "IF1224",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 17,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1244.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1244",
+          "DD Name": "IF1244",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1254.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1254",
+          "DD Name": "IF1254",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1274.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1274",
+          "DD Name": "IF1274",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 22,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1284.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1284",
+          "DD Name": "IF1284",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 22,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1294.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1294",
+          "DD Name": "IF1294",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 22,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1314.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1314",
+          "DD Name": "IF1314",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1324.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1324",
+          "DD Name": "IF1324",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 17,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1334.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1334",
+          "DD Name": "IF1334",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1344.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1344",
+          "DD Name": "IF1344",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 17,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1374.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1374",
+          "DD Name": "IF1374",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1384.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1384",
+          "DD Name": "IF1384",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 17,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1404.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1404",
+          "DD Name": "IF1404",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1414.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1414",
+          "DD Name": "IF1414",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 16,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1424.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IF1424",
+          "DD Name": "IF1424",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 18,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1014.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1014",
+          "DD Name": "IX1014",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 50,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1014",
+          "DD Name": "IX1014",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 55,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT",
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1014",
+          "DD Name": "IX1014",
+          "DSN": null,
+          "Internal Name": "IX-FS1",
+          "Line": 57,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1024.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1024",
+          "DD Name": "IX1024",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 62,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1024",
+          "DD Name": "IX1024",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 67,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "I-O",
+            "INPUT"
+          ],
+          "Assign Name": "IX1024",
+          "DD Name": "IX1024",
+          "DSN": null,
+          "Internal Name": "IX-FS1",
+          "Line": 69,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1034",
+          "DD Name": "IX1034",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 59,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1034",
+          "DD Name": "IX1034",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 64,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "I-O",
+            "INPUT"
+          ],
+          "Assign Name": "IX1034",
+          "DD Name": "IX1034",
+          "DSN": null,
+          "Internal Name": "IX-FS1",
+          "Line": 66,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1044.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1044",
+          "DD Name": "IX1044",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 64,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1044",
+          "DD Name": "IX1044",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 69,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "I-O",
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1044",
+          "DD Name": "IX1044",
+          "DSN": null,
+          "Internal Name": "IX-FS2",
+          "Line": 71,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1114",
+          "DD Name": "IX1114",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 36,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "IX1114",
+          "DD Name": "IX1114",
+          "DSN": null,
+          "Internal Name": "IX-NOP",
+          "Line": 38,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1134",
+          "DD Name": "IX1134",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 42,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1134",
+          "DD Name": "IX1134",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 47,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "IX1134",
+          "DD Name": "IX1134",
+          "DSN": null,
+          "Internal Name": "IX-FS3",
+          "Line": 50,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1144",
+          "DD Name": "IX1144",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 38,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1144",
+          "DD Name": "IX1144",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 43,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "IX1144",
+          "DD Name": "IX1144",
+          "DSN": null,
+          "Internal Name": "IX-FS3",
+          "Line": 46,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1154",
+          "DD Name": "IX1154",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 39,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1154",
+          "DD Name": "IX1154",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 44,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "IX1154",
+          "DD Name": "IX1154",
+          "DSN": null,
+          "Internal Name": "IX-FS3",
+          "Line": 47,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1164",
+          "DD Name": "IX1164",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 39,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1164",
+          "DD Name": "IX1164",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 44,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "IX1164",
+          "DD Name": "IX1164",
+          "DSN": null,
+          "Internal Name": "IX-FS3",
+          "Line": 47,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1174",
+          "DD Name": "IX1174",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 38,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1174",
+          "DD Name": "IX1174",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 43,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "IX1174",
+          "DD Name": "IX1174",
+          "DSN": null,
+          "Internal Name": "IX-FS3",
+          "Line": 46,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1184",
+          "DD Name": "IX1184",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 38,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1184",
+          "DD Name": "IX1184",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 43,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "IX1184",
+          "DD Name": "IX1184",
+          "DSN": null,
+          "Internal Name": "IX-FS3",
+          "Line": 46,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1194",
+          "DD Name": "IX1194",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 41,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1194",
+          "DD Name": "IX1194",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 46,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "IX1194",
+          "DD Name": "IX1194",
+          "DSN": null,
+          "Internal Name": "IX-FS3",
+          "Line": 49,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1204",
+          "DD Name": "IX1204",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 40,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1204",
+          "DD Name": "IX1204",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 45,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "IX1204",
+          "DD Name": "IX1204",
+          "DSN": null,
+          "Internal Name": "IX-FS3",
+          "Line": 48,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1214.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1214",
+          "DD Name": "IX1214",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 45,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX1214",
+          "DD Name": "IX1214",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 50,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX1214",
+          "DD Name": "IX1214",
+          "DSN": null,
+          "Internal Name": "IX-VS2",
+          "Line": 53,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX2014",
+          "DD Name": "IX2014",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 51,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX2014",
+          "DD Name": "IX2014",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 56,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT",
+            "OUTPUT"
+          ],
+          "Assign Name": "IX2014",
+          "DD Name": "IX2014",
+          "DSN": null,
+          "Internal Name": "IX-FS1",
+          "Line": 58,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX2034",
+          "DD Name": "IX2034",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 55,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX2034",
+          "DD Name": "IX2034",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 60,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "I-O",
+            "INPUT"
+          ],
+          "Assign Name": "IX2034",
+          "DD Name": "IX2034",
+          "DSN": null,
+          "Internal Name": "IX-FD1",
+          "Line": 62,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX2044.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX2044",
+          "DD Name": "IX2044",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 73,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX2044",
+          "DD Name": "IX2044",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 78,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "I-O",
+            "OUTPUT"
+          ],
+          "Assign Name": "IX2044",
+          "DD Name": "IX2044",
+          "DSN": null,
+          "Internal Name": "IX-FD2",
+          "Line": 80,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX2174",
+          "DD Name": "IX2174",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 58,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "IX2174",
+          "DD Name": "IX2174",
+          "DSN": null,
+          "Internal Name": "IX-FS1",
+          "Line": 61,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "IX2174",
+          "DD Name": "IX2174",
+          "DSN": null,
+          "Internal Name": "IX-VS1",
+          "Line": 69,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX2184",
+          "DD Name": "IX2184",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 66,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "IX2184",
+          "DD Name": "IX2184",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 71,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "IX2184",
+          "DD Name": "IX2184",
+          "DSN": null,
+          "Internal Name": "IX-FS1",
+          "Line": 74,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "IX2184",
+          "DD Name": "IX2184",
+          "DSN": null,
+          "Internal Name": "IX-FS2",
+          "Line": 83,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "IX3014",
+          "DD Name": "IX3014",
+          "DSN": null,
+          "Internal Name": "TFIL",
+          "Line": 15,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "IX4014",
+          "DD Name": "IX4014",
+          "DSN": null,
+          "Internal Name": "TFIL",
+          "Line": 15,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "EXTEND"
+          ],
+          "Assign Name": "IX4014",
+          "DD Name": "IX4014",
+          "DSN": null,
+          "Internal Name": "TFIL2",
+          "Line": 30,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1114.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1114",
+          "DD Name": "NC1114",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1134.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1134",
+          "DD Name": "NC1134",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 31,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1254.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1254",
+          "DD Name": "NC1254",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 31,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1274.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1274",
+          "DD Name": "NC1274",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1314.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1314",
+          "DD Name": "NC1314",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 30,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1334.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1334",
+          "DD Name": "NC1334",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1344.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1344",
+          "DD Name": "NC1344",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 31,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1354.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1354",
+          "DD Name": "NC1354",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1364.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1364",
+          "DD Name": "NC1364",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 31,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1374.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1374",
+          "DD Name": "NC1374",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 30,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1384.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1384",
+          "DD Name": "NC1384",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 31,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1394.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1394",
+          "DD Name": "NC1394",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1404.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1404",
+          "DD Name": "NC1404",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 31,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1414.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC1414",
+          "DD Name": "NC1414",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 31,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2104.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2104",
+          "DD Name": "NC2104",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 30,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2144",
+          "DD Name": "NC2144",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 54,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2154.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2154",
+          "DD Name": "NC2154",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 51,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2194.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2194",
+          "DD Name": "NC2194",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 69,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2224.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2224",
+          "DD Name": "NC2224",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 31,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2244.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2244",
+          "DD Name": "NC2244",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 31,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2354.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2354",
+          "DD Name": "NC2354",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2364.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2364",
+          "DD Name": "NC2364",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2374.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2374",
+          "DD Name": "NC2374",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2384.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2384",
+          "DD Name": "NC2384",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2394.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2394",
+          "DD Name": "NC2394",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 31,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2404.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2404",
+          "DD Name": "NC2404",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 34,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2414.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2414",
+          "DD Name": "NC2414",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 33,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2424.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2424",
+          "DD Name": "NC2424",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 35,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2434.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2434",
+          "DD Name": "NC2434",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 33,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2444.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2444",
+          "DD Name": "NC2444",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2454.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2454",
+          "DD Name": "NC2454",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2484.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "NC2484",
+          "DD Name": "NC2484",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "OBIC24",
+          "DD Name": "OBIC24",
+          "DSN": null,
+          "Internal Name": "ST-FS1",
+          "Line": 36,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBIC34",
+          "DD Name": "OBIC34",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 34,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 30,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 35,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
+          "DSN": null,
+          "Internal Name": "SQ-FS1",
+          "Line": 37,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
+          "DSN": null,
+          "Internal Name": "SQ-FS2",
+          "Line": 40,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
+          "DSN": null,
+          "Internal Name": "SQ-FS3",
+          "Line": 43,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
+          "DSN": null,
+          "Internal Name": "SQ-FS4",
+          "Line": 46,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
+          "DSN": null,
+          "Internal Name": "SQ-FS5",
+          "Line": 49,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
+          "DSN": null,
+          "Internal Name": "SQ-FS6",
+          "Line": 51,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
+          "DSN": null,
+          "Internal Name": "SQ-FS7",
+          "Line": 54,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBSQ34",
+          "DD Name": "OBSQ34",
+          "DSN": null,
+          "Internal Name": "SQ-FS8",
+          "Line": 58,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 27,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 32,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
+          "DSN": null,
+          "Internal Name": "SQ-FS1",
+          "Line": 34,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
+          "DSN": null,
+          "Internal Name": "SQ-FS2",
+          "Line": 36,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
+          "DSN": null,
+          "Internal Name": "SQ-FS3",
+          "Line": 38,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "OBSQ44",
+          "DD Name": "OBSQ44",
+          "DSN": null,
+          "Internal Name": "SQ-FS4",
+          "Line": 40,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
+          "DSN": null,
+          "Internal Name": "RAW-DATA",
+          "Line": 29,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 34,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
+          "DSN": null,
+          "Internal Name": "SQ-FS3",
+          "Line": 36,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
+          "DSN": null,
+          "Internal Name": "SQ-FS5",
+          "Line": 38,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
+          "DSN": null,
+          "Internal Name": "SQ-FS6",
+          "Line": 40,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
+          "DSN": null,
+          "Internal Name": "SQ-FS7",
+          "Line": 42,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "OBSQ54",
+          "DD Name": "OBSQ54",
+          "DSN": null,
+          "Internal Name": "SQ-FS8",
+          "Line": 44,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/RL3014.2.cbl": [
+        {
+          "Access Modes": [
+            "I-O"
+          ],
+          "Assign Name": "RL3014",
+          "DD Name": "RL3014",
+          "DSN": null,
+          "Internal Name": "TFIL",
+          "Line": 15,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "RL4014",
+          "DD Name": "RL4014",
+          "DSN": null,
+          "Internal Name": "TFIL",
+          "Line": 15,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "EXTEND"
+          ],
+          "Assign Name": "RL4014",
+          "DD Name": "RL4014",
+          "DSN": null,
+          "Internal Name": "TFIL2",
+          "Line": 25,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/SM1074.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "SM1074",
+          "DD Name": "SM1074",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 30,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "SQ3034",
+          "DD Name": "SQ3034",
+          "DSN": null,
+          "Internal Name": "TFIL",
+          "Line": 15,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "SQ3034",
+          "DD Name": "SQ3034",
+          "DSN": null,
+          "Internal Name": "TFIL2",
+          "Line": 20,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "ST1084",
+          "DD Name": "ST1084",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 48,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "ST1084",
+          "DD Name": "ST1084",
+          "DSN": null,
+          "Internal Name": "SORTFILE-1H",
+          "Line": 50,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/ST1184.2.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "ST1184",
+          "DD Name": "ST1184",
+          "DSN": null,
+          "Internal Name": "PRINT-FILE",
+          "Line": 58,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "ST1184",
+          "DD Name": "ST1184",
+          "DSN": null,
+          "Internal Name": "SORTFILE-1H",
+          "Line": 60,
+          "Step": null
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": [
+        {
+          "Access Modes": [],
+          "Assign Name": "ST3014",
+          "DD Name": "ST3014",
+          "DSN": null,
+          "Internal Name": "TFIL",
+          "Line": 14,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "ST3014",
+          "DD Name": "ST3014",
+          "DSN": null,
+          "Internal Name": "TFIL-2",
+          "Line": 16,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "ST3014",
+          "DD Name": "ST3014",
+          "DSN": null,
+          "Internal Name": "TFIL-3",
+          "Line": 19,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "ST3014",
+          "DD Name": "ST3014",
+          "DSN": null,
+          "Internal Name": "TFIL-4",
+          "Line": 22,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": "ST3014",
+          "DD Name": "ST3014",
+          "DSN": null,
+          "Internal Name": "TFIL-5",
+          "Line": 25,
+          "Step": null
+        }
+      ]
+    },
+    "cobol/cics-banking-sample-application-cbsa": {
+      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "VSAM",
+          "DD Name": "VSAM",
+          "DSN": null,
+          "Internal Name": "CUSTOMER-FILE",
+          "Line": 46,
+          "Step": null
+        }
+      ]
+    },
+    "cobol/cobol-check": {
+      "cobol/cobol-check/src_main_cobol_FileCopy.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "INFILE",
+          "DD Name": "INFILE",
+          "DSN": null,
+          "Internal Name": "INPUT-FILE",
+          "Line": 9,
+          "Step": null
+        }
+      ],
+      "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "UT-S-LINEFILE",
+          "DD Name": "LINEFILE",
+          "DSN": null,
+          "Internal Name": "LINEFILE",
+          "Line": 13,
+          "Step": null
+        }
+      ]
+    },
+    "cobol/cobol-programming-course": {
+      "cobol/cobol-programming-course/CBL0106.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "PRTLINE",
+          "DD Name": "PRTLINE",
+          "DSN": null,
+          "Internal Name": "PRINT-LINE",
+          "Line": 14,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "ACCTREC",
+          "DD Name": "ACCTREC",
+          "DSN": null,
+          "Internal Name": "ACCT-REC",
+          "Line": 15,
+          "Step": null
+        }
+      ],
+      "cobol/cobol-programming-course/CBL0106C.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "PRTLINE",
+          "DD Name": "PRTLINE",
+          "DSN": null,
+          "Internal Name": "PRINT-LINE",
+          "Line": 14,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "ACCTREC",
+          "DD Name": "ACCTREC",
+          "DSN": null,
+          "Internal Name": "ACCT-REC",
+          "Line": 15,
+          "Step": null
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB21.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "UT-S-REPORT",
+          "DD Name": "REPORT",
+          "DSN": null,
+          "Internal Name": "REPOUT",
+          "Line": 15,
+          "Step": null
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB22.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "UT-S-REPORT",
+          "DD Name": "REPORT",
+          "DSN": null,
+          "Internal Name": "REPOUT",
+          "Line": 14,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "DA-S-RECIN",
+          "DD Name": "RECIN",
+          "DSN": null,
+          "Internal Name": "RECIN",
+          "Line": 15,
+          "Step": null
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB23.cbl": [
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "UT-S-REPORT",
+          "DD Name": "REPORT",
+          "DSN": null,
+          "Internal Name": "REPOUT",
+          "Line": 15,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "DA-S-CARDIN",
+          "DD Name": "CARDIN",
+          "DSN": null,
+          "Internal Name": "CARDIN",
+          "Line": 17,
+          "Step": null
+        }
+      ]
+    },
+    "cobol/zopeneditor-sample": {
+      "cobol/zopeneditor-sample/SAM1.cbl": [
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "CUSTFILE",
+          "DD Name": "CUSTFILE",
+          "DSN": null,
+          "Internal Name": "CUSTOMER-FILE",
+          "Line": 39,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "CUSTOUT",
+          "DD Name": "CUSTOUT",
+          "DSN": null,
+          "Internal Name": "CUSTOMER-FILE-OUT",
+          "Line": 43,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "INPUT"
+          ],
+          "Assign Name": "TRANFILE",
+          "DD Name": "TRANFILE",
+          "DSN": null,
+          "Internal Name": "TRANSACTION-FILE",
+          "Line": 47,
+          "Step": null
+        },
+        {
+          "Access Modes": [
+            "OUTPUT"
+          ],
+          "Assign Name": "CUSTRPT",
+          "DD Name": "CUSTRPT",
+          "DSN": null,
+          "Internal Name": "REPORT-FILE",
+          "Line": 50,
+          "Step": null
+        }
+      ]
+    },
+    "jcl/cash-account-cobol": {
+      "jcl/cash-account-cobol/DB2BIND.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "SYS1.DSND00A.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 7,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "SYSD.STOCK.DBRMLIB",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": "BIND"
+        }
+      ],
+      "jcl/cash-account-cobol/DB2DDL.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "SYS1.DSND00A.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 3,
+          "Step": null
+        }
+      ]
+    },
+    "jcl/cics-banking-sample-application-cbsa": {
+      "jcl/cics-banking-sample-application-cbsa/BANKDATA.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "@BANK_DBRMLIB@",
+          "Internal Name": null,
+          "Line": 95,
+          "Step": "BANKDAT5"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "@BANK_LOADLIB@",
+          "Internal Name": null,
+          "Line": 96,
+          "Step": "BANKDAT5"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "@DB2_HLQ@.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 97,
+          "Step": "BANKDAT5"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "VSAM",
+          "DSN": "@BANK_PREFIX@.CUSTOMER",
+          "Internal Name": null,
+          "Line": 98,
+          "Step": "BANKDAT5"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BATCH.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&COBOLHLQ..SIGYCOMP",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 8,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&CICSHLQ..SDFHLOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 9,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 10,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&CBSAHLQ..DSECT",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 11,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&CICSHLQ..SDFHCOB",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LEHLQ..SCEESAMP",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&CICSHLQ..SDFHSAMP",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LEHLQ..SCEESAMP",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 15,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSDEBUG",
+          "DSN": "&CBSAHLQ..DEBUG(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 16,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSADATA",
+          "DSN": "&CBSAHLQ..ADATA(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 17,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&CBSAHLQ..DBRM(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 18,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "OUT",
+          "DSN": "&CBSAHLQ..CBSAMOD(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 22,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&CBSAHLQ..COBOL(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 40,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&CICSHLQ..SDFHLOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 45,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 46,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LEHLQ..SCEELKED",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 47,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "CBSAMOD",
+          "DSN": "&CBSAHLQ..CBSAMOD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 51,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "&CBSAHLQ..LOADLIB",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 53,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "IN",
+          "DSN": "&CBSAHLQ..LKED(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 56,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/BTCHSQL.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CBSACSD.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "@CICS_PREFIX@.SDFHLOAD",
+          "Internal Name": null,
+          "Line": 18,
+          "Step": "DFHCSDUP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHCSD",
+          "DSN": "@CSD_PREFIX@.DFHCSD",
+          "Internal Name": null,
+          "Line": 19,
+          "Step": "DFHCSDUP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "@CBSA_INSTALL@(BANK)",
+          "Internal Name": null,
+          "Line": 23,
+          "Step": "DFHCSDUP"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CICS.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&COBOLHLQ..SIGYCOMP",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 8,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&CICSHLQ..SDFHLOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 9,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 10,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&CBSAHLQ..DSECT",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 11,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LEHLQ..SCEESAMP",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&CICSHLQ..SDFHCOB",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&CICSHLQ..SDFHSAMP",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LEHLQ..SCEESAMP",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 15,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSDEBUG",
+          "DSN": "&CBSAHLQ..DEBUG(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 16,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSADATA",
+          "DSN": "&CBSAHLQ..ADATA(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 17,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&CBSAHLQ..DBRM(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 18,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "OUT",
+          "DSN": "&CBSAHLQ..CBSAMOD(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 22,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&CBSAHLQ..COBOL(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 40,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&CICSHLQ..SDFHLOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 46,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 47,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LEHLQ..SCEELKED",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 48,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "CBSAMOD",
+          "DSN": "&CBSAHLQ..CBSAMOD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 52,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "&CBSAHLQ..LOADLIB",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 54,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "IN",
+          "DSN": "&CBSAHLQ..LKED(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 57,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CICSTS56.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&INDEX1..SYSIN(DFHRC&RUNCICS)",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 30,
+          "Resolved DSN": "DFH560.SYSIN(DFHRCYES)",
+          "Step": "CICSCNTL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&INDEX1..SYSIN(DFHRC&DUMPTR)",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 37,
+          "Resolved DSN": "DFH560.SYSIN(DFHRCYES)",
+          "Step": "DTCNTL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "FILEA",
+          "DSN": "&INDEX1..CICS&REGNAM..FILEA",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 52,
+          "Resolved DSN": "DFH560.CICS.FILEA",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&INDEX1..SYSIN(DFH$SIP&SIP)",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 55,
+          "Resolved DSN": "DFH560.SYSIN(DFH$SIP1)",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHCMACD",
+          "DSN": "DFH560.DFHCMACD",
+          "Internal Name": null,
+          "Line": 57,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&INDEX2..SDFHAUTH",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 63,
+          "Resolved DSN": "DFH560.CICS.SDFHAUTH",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&INDEX3..SEYUAUTH",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 64,
+          "Resolved DSN": "DFH560.CPSM.SEYUAUTH",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 65,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "DSNC10.SDSNLOD2",
+          "Internal Name": null,
+          "Line": 66,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "CEE.SCEERUN2",
+          "Internal Name": null,
+          "Line": 67,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "CEE.SCEERUN",
+          "Internal Name": null,
+          "Line": 68,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "DFH560.CICS.SDFHLINK",
+          "Internal Name": null,
+          "Line": 69,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "DFH560.SDFHLIC",
+          "Internal Name": null,
+          "Line": 70,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "&INDEX2..SDFHLOAD",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 83,
+          "Resolved DSN": "DFH560.CICS.SDFHLOAD",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "&INDEX3..SEYULOAD",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 84,
+          "Resolved DSN": "DFH560.CPSM.SEYULOAD",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "CBSA.CICSBSA.LOADLIB",
+          "Internal Name": null,
+          "Line": 85,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "CEE.SCEECICS",
+          "Internal Name": null,
+          "Line": 86,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "CEE.SCEERUN2",
+          "Internal Name": null,
+          "Line": 87,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "CEE.SCEERUN",
+          "Internal Name": null,
+          "Line": 88,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "TCPIP.SEZATCP",
+          "Internal Name": null,
+          "Line": 89,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "ISM330.SEQAMOD",
+          "Internal Name": null,
+          "Line": 90,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "SYS1.MIGLIB",
+          "Internal Name": null,
+          "Line": 91,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "SYS1.SIEAMIGE",
+          "Internal Name": null,
+          "Line": 92,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "DFH560.EQAIVP.LOAD",
+          "Internal Name": null,
+          "Line": 93,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "EQADPFMB",
+          "DSN": "DFH560.CICS.EQADPFMB",
+          "Internal Name": null,
+          "Line": 99,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHTABLE",
+          "DSN": "DFH560.SYSIN(DFHPLT)",
+          "Internal Name": null,
+          "Line": 100,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHTEMP",
+          "DSN": "&INDEX1..CNTL.CICS&REGNAM..DFHTEMP",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 101,
+          "Resolved DSN": "DFH560.CNTL.CICS.DFHTEMP",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHINTRA",
+          "DSN": "&INDEX1..CNTL.CICS&REGNAM..DFHINTRA",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 104,
+          "Resolved DSN": "DFH560.CNTL.CICS.DFHINTRA",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHAUXT",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHAUXT",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 107,
+          "Resolved DSN": "DFH560.CICS.DFHAUXT",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHBUXT",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHBUXT",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 109,
+          "Resolved DSN": "DFH560.CICS.DFHBUXT",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHLCD",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHLCD",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 112,
+          "Resolved DSN": "DFH560.CICS.DFHLCD",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHGCD",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHGCD",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 115,
+          "Resolved DSN": "DFH560.CICS.DFHGCD",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHLRQ",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHLRQ",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 119,
+          "Resolved DSN": "DFH560.CICS.DFHLRQ",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSTCPD",
+          "DSN": "ADCD.Z25A.TCPPARMS(GBLTDATA)",
+          "Internal Name": null,
+          "Line": 127,
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHDMPA",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHDMPA",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 131,
+          "Resolved DSN": "DFH560.CICS.DFHDMPA",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHDMPB",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHDMPB",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 133,
+          "Resolved DSN": "DFH560.CICS.DFHDMPB",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHCSD",
+          "DSN": "&INDEX2..DFHCSD",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 139,
+          "Resolved DSN": "DFH560.CICS.DFHCSD",
+          "Step": "CICS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&INDEX2..SDFHLOAD",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 145,
+          "Resolved DSN": "DFH560.CICS.SDFHLOAD",
+          "Step": "PRTDMPA"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHDMPDS",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHDMPA",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 149,
+          "Resolved DSN": "DFH560.CICS.DFHDMPA",
+          "Step": "PRTDMPA"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&INDEX2..SDFHLOAD",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 156,
+          "Resolved DSN": "DFH560.CICS.SDFHLOAD",
+          "Step": "PRTDMPB"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHDMPDS",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHDMPB",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 160,
+          "Resolved DSN": "DFH560.CICS.DFHDMPB",
+          "Step": "PRTDMPB"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&INDEX2..SDFHLOAD",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 168,
+          "Resolved DSN": "DFH560.CICS.SDFHLOAD",
+          "Step": "PRTAUXT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHAUXT",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHAUXT",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 169,
+          "Resolved DSN": "DFH560.CICS.DFHAUXT",
+          "Step": "PRTAUXT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&INDEX2..SDFHLOAD",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 178,
+          "Resolved DSN": "DFH560.CICS.SDFHLOAD",
+          "Step": "PRTBUXT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHAUXT",
+          "DSN": "&INDEX1..CICS&REGNAM..DFHBUXT",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 179,
+          "Resolved DSN": "DFH560.CICS.DFHBUXT",
+          "Step": "PRTBUXT"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREDB00.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREDB2L.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..DB2.JCL.INSTALL",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT2",
+          "DSN": "&HLQ..DB2.JCL.INSTALL(EMPTY)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 23,
+          "Resolved DSN": null,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREI101.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREI201.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREI301.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL001.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..CICSBSA.BUILDJCL",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT2",
+          "DSN": "&HLQ..CICSBSA.BUILDJCL(EMPTY)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 22,
+          "Resolved DSN": null,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL002.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..CICSBSA.ADATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL003.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..CICSBSA.LOADLIB",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL004.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..CICSBSA.DBRM",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL005.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..CICSBSA.LKED",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL006.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..CICSBSA.BMS",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT2",
+          "DSN": "&HLQ..CICSBSA.BMS(EMPTY)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 22,
+          "Resolved DSN": null,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL007.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..CICSBSA.DEBUG",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL008.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..CICSBSA.CBSAMOD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL009.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..CICSBSA.COBOL",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT2",
+          "DSN": "&HLQ..CICSBSA.COBOL(EMPTY)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 22,
+          "Resolved DSN": null,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL010.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..CICSBSA.DSECT",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT2",
+          "DSN": "&HLQ..CICSBSA.DSECT(EMPTY)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 22,
+          "Resolved DSN": null,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CREL011.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD01",
+          "DSN": "&HLQ..CICSBSA.REORG",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 12,
+          "Resolved DSN": null,
+          "Step": "STEP10"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT2",
+          "DSN": "&HLQ..CICSBSA.REORG(EMPTY)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 22,
+          "Resolved DSN": null,
+          "Step": "STEP20"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRESG01.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRESG02.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRESG03.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETB01.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETB02.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETB03.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETS01.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETS02.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/CRETS03.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DB2BIND.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&DB2HLQ..SDSNEXIT",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&BANKDBRM(CREACC)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 15,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&BANKDBRM(CRECUST)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 16,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&BANKDBRM(DBCRFUN)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 17,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&BANKDBRM(DELACC)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 18,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&BANKDBRM(DELCUS)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 19,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&BANKDBRM(INQACC)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 20,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&BANKDBRM(INQACCCU)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 21,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&BANKDBRM(BANKDATA)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 22,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&BANKDBRM(UPDACC)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 23,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&BANKDBRM(XFRFUN)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 24,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&DB2HLQ..SDSNEXIT",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 91,
+          "Resolved DSN": null,
+          "Step": "GRANT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 92,
+          "Resolved DSN": null,
+          "Step": "GRANT"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DROPDB2.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPDB00.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPI101.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPI201.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPI301.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPSG01.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPSG02.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPSG03.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTB01.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTB02.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTB03.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTS01.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTS02.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/DRPTS03.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/INSTDB2.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "&DB2HLQ..SDSNLOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 15,
+          "Resolved DSN": null,
+          "Step": null
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/MAPGEN.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT1",
+          "DSN": "&CBSAHLQ..BMS(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 19,
+          "Resolved DSN": null,
+          "Step": "COPY"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&CICSHLQ..SDFHMAC",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 24,
+          "Resolved DSN": null,
+          "Step": "ASMMAP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "SYS1.MACLIB",
+          "Internal Name": null,
+          "Line": 25,
+          "Step": "ASMMAP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "&CBSAHLQ..LOADLIB(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 36,
+          "Resolved DSN": null,
+          "Step": "LINKMAP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&CICSHLQ..SDFHMAC",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 43,
+          "Resolved DSN": null,
+          "Step": "ASMDSECT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "SYS1.MACLIB",
+          "Internal Name": null,
+          "Line": 44,
+          "Step": "ASMDSECT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSPUNCH",
+          "DSN": "&CBSAHLQ..DSECT(&MEMBER)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 48,
+          "Resolved DSN": null,
+          "Step": "ASMDSECT"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/REPLCICS.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT1",
+          "DSN": "CBSA.JCL.INSTALL",
+          "Internal Name": null,
+          "Line": 11,
+          "Step": "JOBSTEP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT2",
+          "DSN": "FEU.Z25A.PROCLIB",
+          "Internal Name": null,
+          "Line": 13,
+          "Step": "JOBSTEP"
+        }
+      ],
+      "jcl/cics-banking-sample-application-cbsa/REPLSIP.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT1",
+          "DSN": "CBSA.JCL.INSTALL",
+          "Internal Name": null,
+          "Line": 11,
+          "Step": "JOBSTEP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT2",
+          "DSN": "DFH560.SYSIN",
+          "Internal Name": null,
+          "Line": 13,
+          "Step": "JOBSTEP"
+        }
+      ]
+    },
+    "jcl/cics-genapp": {
+      "jcl/cics-genapp/asmmap.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "SYS1.MODGEN",
+          "Internal Name": null,
+          "Line": 27,
+          "Step": "ASMMAP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "SYS1.MACLIB",
+          "Internal Name": null,
+          "Line": 28,
+          "Step": "ASMMAP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "SYS1.MODGEN",
+          "Internal Name": null,
+          "Line": 59,
+          "Step": "ASMDSECT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "SYS1.MACLIB",
+          "Internal Name": null,
+          "Line": 60,
+          "Step": "ASMDSECT"
+        }
+      ]
+    },
+    "jcl/cobol-programming-course": {
+      "jcl/cobol-programming-course/ADDAMT.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "STEP2"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0001J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0002J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0003J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREX",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0004J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0005J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0006J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0007J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0008J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0009J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0010J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0011J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0012J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0013J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 10,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0014J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 10,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0033J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 20,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 21,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL006AJ.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBL0106J.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB21R.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB22R.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/CBLDB23R.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/COBRUN.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "STEP2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "PRTDONE",
+          "DSN": "&SYSUID..COBRUN.OUTPUT",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 16,
+          "Resolved DSN": null,
+          "Step": "STEP2"
+        }
+      ],
+      "jcl/cobol-programming-course/DB2CBL.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "IGY630.SIGYCOMP",
+          "Internal Name": null,
+          "Line": 10,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "DSNC10.DBCG.SDSNEXIT",
+          "Internal Name": null,
+          "Line": 11,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 12,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "CEE.SCEERUN",
+          "Internal Name": null,
+          "Line": 13,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "CEE.SCEERUN2",
+          "Internal Name": null,
+          "Line": 14,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&SYSUID..CBL(&MBR)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 15,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&SYSUID..DBRMLIB(&MBR)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 16,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "CEE.SCEELKED",
+          "Internal Name": null,
+          "Line": 42,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 43,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "&SYSUID..LOAD(&MBR)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 47,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 54,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&SYSUID..DBRMLIB",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 55,
+          "Resolved DSN": null,
+          "Step": "BIND"
+        }
+      ],
+      "jcl/cobol-programming-course/DB2JCL.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "DSNC10.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 7,
+          "Step": "SQL"
+        }
+      ],
+      "jcl/cobol-programming-course/DB2SETUP.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JCL",
+          "DSN": "&SYSUID..JCL",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 8,
+          "Resolved DSN": null,
+          "Step": "JOBSTEP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DB2JCL",
+          "DSN": "ZOS.PUBLIC.DB2.JCL",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "JOBSTEP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "CBL",
+          "DSN": "&SYSUID..CBL",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 10,
+          "Resolved DSN": null,
+          "Step": "JOBSTEP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DB2CBL",
+          "DSN": "ZOS.PUBLIC.DB2.CBL",
+          "Internal Name": null,
+          "Line": 11,
+          "Step": "JOBSTEP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "&SYSUID..DBRMLIB",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 34,
+          "Resolved DSN": null,
+          "Step": "DBRMLIB"
+        }
+      ],
+      "jcl/cobol-programming-course/DBRMLIB.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRM",
+          "DSN": "&SYSUID..DBRMLIB",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 8,
+          "Resolved DSN": null,
+          "Step": "ALLOC"
+        }
+      ],
+      "jcl/cobol-programming-course/DEPTPAY.JCL": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "OUTMVS",
+          "DSN": "Z99998.CBL(DEPTPAY)",
+          "Internal Name": null,
+          "Line": 5,
+          "Step": "COPY2DS1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "Z99998.LOAD",
+          "Internal Name": null,
+          "Line": 14,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/DSNUPROC.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LIB",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 4,
+          "Resolved DSN": "DSNC10.SDSNLOAD",
+          "Step": "DSNUPROC"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SORTLIB",
+          "DSN": "SYS1.SORTLIB",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "DSNUPROC"
+        }
+      ],
+      "jcl/cobol-programming-course/EMPPAY.JCL": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/IGYWC.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LNGPRFX..SIGYCOMP",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 7,
+          "Resolved DSN": "IGY630.SIGYCOMP",
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LIBPRFX..SCEERUN",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 8,
+          "Resolved DSN": "CEE.SCEERUN",
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LIBPRFX..SCEERUN2",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 9,
+          "Resolved DSN": "CEE.SCEERUN2",
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&SYSUID..CBL(&SRC)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 10,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        }
+      ],
+      "jcl/cobol-programming-course/IGYWCL.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LNGPRFX..SIGYCOMP",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 7,
+          "Resolved DSN": "IGY630.SIGYCOMP",
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LIBPRFX..SCEERUN",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 8,
+          "Resolved DSN": "CEE.SCEERUN",
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LIBPRFX..SCEERUN2",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 9,
+          "Resolved DSN": "CEE.SCEERUN2",
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&SYSUID..CBL(&SRC)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 10,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LIBPRFX..SCEELKEX",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 32,
+          "Resolved DSN": "CEE.SCEELKEX",
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LIBPRFX..SCEELKED",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 33,
+          "Resolved DSN": "CEE.SCEELKED",
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "&SYSUID..LOAD(&SRC)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 37,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        }
+      ],
+      "jcl/cobol-programming-course/IGYWCLG.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LNGPRFX..SIGYCOMP",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 7,
+          "Resolved DSN": "IGY630.SIGYCOMP",
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LIBPRFX..SCEERUN",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 8,
+          "Resolved DSN": "CEE.SCEERUN",
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LIBPRFX..SCEERUN2",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 9,
+          "Resolved DSN": "CEE.SCEERUN2",
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&SYSUID..CBL(&SRC)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 10,
+          "Resolved DSN": null,
+          "Step": "COBOL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LIBPRFX..SCEELKEX",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 34,
+          "Resolved DSN": "CEE.SCEELKEX",
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LIBPRFX..SCEELKED",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 35,
+          "Resolved DSN": "CEE.SCEELKED",
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "&SYSUID..LOAD(&SRC)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 39,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LIBPRFX..SCEERUN",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 45,
+          "Resolved DSN": "CEE.SCEERUN",
+          "Step": "GO"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&LIBPRFX..SCEERUN2",
+          "DSN Resolution": "proc_default",
+          "Internal Name": null,
+          "Line": 46,
+          "Resolved DSN": "CEE.SCEERUN2",
+          "Step": "GO"
+        }
+      ],
+      "jcl/cobol-programming-course/LOADTBL.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "TBLRECS",
+          "DSN": "ZOS.PUBLIC.SEQ.DATA",
+          "Internal Name": null,
+          "Line": 7,
+          "Step": "LOAD"
+        }
+      ],
+      "jcl/cobol-programming-course/SRCHBINJ.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ],
+      "jcl/cobol-programming-course/SRCHSERJ.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&SYSUID..LOAD",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 13,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "ACCTREC",
+          "DSN": "&SYSUID..DATA",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 14,
+          "Resolved DSN": null,
+          "Step": "RUN"
+        }
+      ]
+    },
+    "jcl/zopeneditor-sample": {
+      "jcl/zopeneditor-sample/ALLOCATE.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD1",
+          "DSN": "&HLQ..SAMPLE.OBJ",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 25,
+          "Resolved DSN": "IBMUSER.SAMPLE.OBJ",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD2",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 28,
+          "Resolved DSN": "IBMUSER.SAMPLE.LOAD",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD3",
+          "DSN": "&HLQ..SAMPLE.COBOL",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 31,
+          "Resolved DSN": "IBMUSER.SAMPLE.COBOL",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD4",
+          "DSN": "&HLQ..SAMPLE.COPY",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 34,
+          "Resolved DSN": "IBMUSER.SAMPLE.COPY",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD5",
+          "DSN": "&HLQ..SAMPLE.TRANFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 37,
+          "Resolved DSN": "IBMUSER.SAMPLE.TRANFILE",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD6",
+          "DSN": "&HLQ..SAMPLE.CUSTFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 40,
+          "Resolved DSN": "IBMUSER.SAMPLE.CUSTFILE",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD7",
+          "DSN": "&HLQ..SAMPLE.COPYLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 43,
+          "Resolved DSN": "IBMUSER.SAMPLE.COPYLIB",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD1",
+          "DSN": "&HLQ..SAMPLE.OBJ",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 55,
+          "Resolved DSN": "IBMUSER.SAMPLE.OBJ",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD2",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 60,
+          "Resolved DSN": "IBMUSER.SAMPLE.LOAD",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD3",
+          "DSN": "&HLQ..SAMPLE.COBOL",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 65,
+          "Resolved DSN": "IBMUSER.SAMPLE.COBOL",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD4",
+          "DSN": "&HLQ..SAMPLE.COPY",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 70,
+          "Resolved DSN": "IBMUSER.SAMPLE.COPY",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD5",
+          "DSN": "&HLQ..SAMPLE.TRANFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 75,
+          "Resolved DSN": "IBMUSER.SAMPLE.TRANFILE",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD6",
+          "DSN": "&HLQ..SAMPLE.CUSTFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 80,
+          "Resolved DSN": "IBMUSER.SAMPLE.CUSTFILE",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD7",
+          "DSN": "&HLQ..SAMPLE.COPYLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 85,
+          "Resolved DSN": "IBMUSER.SAMPLE.COPYLIB",
+          "Step": "ALLOCAT"
+        }
+      ],
+      "jcl/zopeneditor-sample/ASMALLOC.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD1",
+          "DSN": "&HLQ..SAMPLE.ASMOBJ",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 25,
+          "Resolved DSN": "IBMUSER.SAMPLE.ASMOBJ",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD2",
+          "DSN": "&HLQ..SAMPLE.ASMLOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 28,
+          "Resolved DSN": "IBMUSER.SAMPLE.ASMLOAD",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD3",
+          "DSN": "&HLQ..SAMPLE.ASM",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 31,
+          "Resolved DSN": "IBMUSER.SAMPLE.ASM",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD4",
+          "DSN": "&HLQ..SAMPLE.ASMCOPY",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 34,
+          "Resolved DSN": "IBMUSER.SAMPLE.ASMCOPY",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD5",
+          "DSN": "&HLQ..SAMPLE.ASM.FILEIN",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 37,
+          "Resolved DSN": "IBMUSER.SAMPLE.ASM.FILEIN",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD1",
+          "DSN": "&HLQ..SAMPLE.ASMOBJ",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 49,
+          "Resolved DSN": "IBMUSER.SAMPLE.ASMOBJ",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD2",
+          "DSN": "&HLQ..SAMPLE.ASMLOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 54,
+          "Resolved DSN": "IBMUSER.SAMPLE.ASMLOAD",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD3",
+          "DSN": "&HLQ..SAMPLE.ASM",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 59,
+          "Resolved DSN": "IBMUSER.SAMPLE.ASM",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD4",
+          "DSN": "&HLQ..SAMPLE.ASMCOPY",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 64,
+          "Resolved DSN": "IBMUSER.SAMPLE.ASMCOPY",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD5",
+          "DSN": "&HLQ..SAMPLE.ASM.FILEIN",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 69,
+          "Resolved DSN": "IBMUSER.SAMPLE.ASM.FILEIN",
+          "Step": "ALLOCAT"
+        }
+      ],
+      "jcl/zopeneditor-sample/COMPROC.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&CMPLLIB",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 31,
+          "Resolved DSN": null,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&HLQ..SAMPLE.COBOL(SAM2)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 32,
+          "Resolved DSN": null,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&HLQ..SAMPLE.COPY",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 33,
+          "Resolved DSN": null,
+          "Step": "CMPLSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIN",
+          "DSN": "&HLQ..SAMPLE.OBJ(SAM2)",
+          "DSN Resolution": "unresolved",
+          "Internal Name": null,
+          "Line": 34,
+          "Resolved DSN": null,
+          "Step": "CMPLSAM2"
+        }
+      ],
+      "jcl/zopeneditor-sample/PLIALLOC.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD1",
+          "DSN": "&HLQ..SAMPLE.PLIOBJ",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 25,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLIOBJ",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD2",
+          "DSN": "&HLQ..SAMPLE.PLILOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 28,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLILOAD",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD3",
+          "DSN": "&HLQ..SAMPLE.PLI",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 31,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD4",
+          "DSN": "&HLQ..SAMPLE.PLINC",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 34,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLINC",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD5",
+          "DSN": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 37,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.TRANFILE",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD6",
+          "DSN": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 40,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.CUSTFILE",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD7",
+          "DSN": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 43,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.INCLLIB",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD1",
+          "DSN": "&HLQ..SAMPLE.PLIOBJ",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 55,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLIOBJ",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD2",
+          "DSN": "&HLQ..SAMPLE.PLILOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 60,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLILOAD",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD3",
+          "DSN": "&HLQ..SAMPLE.PLI",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 65,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD4",
+          "DSN": "&HLQ..SAMPLE.PLINC",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 70,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLINC",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD5",
+          "DSN": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 75,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.TRANFILE",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD6",
+          "DSN": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 80,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.CUSTFILE",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD7",
+          "DSN": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 85,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.INCLLIB",
+          "Step": "ALLOCAT"
+        }
+      ],
+      "jcl/zopeneditor-sample/REXALLOC.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD1",
+          "DSN": "&HLQ..SAMPLE.REXX",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 25,
+          "Resolved DSN": "TSOUSER.SAMPLE.REXX",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD2",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEIN1",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 28,
+          "Resolved DSN": "TSOUSER.SAMPLE.REXX.FILEIN1",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD3",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEIN2",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 31,
+          "Resolved DSN": "TSOUSER.SAMPLE.REXX.FILEIN2",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD4",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEOUT",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 34,
+          "Resolved DSN": "TSOUSER.SAMPLE.REXX.FILEOUT",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD1",
+          "DSN": "&HLQ..SAMPLE.REXX",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 46,
+          "Resolved DSN": "TSOUSER.SAMPLE.REXX",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD2",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEIN1",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 51,
+          "Resolved DSN": "TSOUSER.SAMPLE.REXX.FILEIN1",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD3",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEIN2",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 56,
+          "Resolved DSN": "TSOUSER.SAMPLE.REXX.FILEIN2",
+          "Step": "ALLOCAT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD4",
+          "DSN": "&HLQ..SAMPLE.REXX.FILEOUT",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 61,
+          "Resolved DSN": "TSOUSER.SAMPLE.REXX.FILEOUT",
+          "Step": "ALLOCAT"
+        }
+      ],
+      "jcl/zopeneditor-sample/RUN.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&CMPLLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 43,
+          "Resolved DSN": "IGY.V6R5M0.SIGYCOMP",
+          "Step": "CMPLSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&HLQ..SAMPLE.COBOL(SAM2)",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 44,
+          "Resolved DSN": "IBMUSER.SAMPLE.COBOL(SAM2)",
+          "Step": "CMPLSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&HLQ..SAMPLE.COPY",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 45,
+          "Resolved DSN": "IBMUSER.SAMPLE.COPY",
+          "Step": "CMPLSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIN",
+          "DSN": "&HLQ..SAMPLE.OBJ(SAM2)",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 46,
+          "Resolved DSN": "IBMUSER.SAMPLE.OBJ(SAM2)",
+          "Step": "CMPLSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&CMPLLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 73,
+          "Resolved DSN": "IGY.V6R5M0.SIGYCOMP",
+          "Step": "CMPLSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&HLQ..SAMPLE.COBOL(SAM1)",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 74,
+          "Resolved DSN": "IBMUSER.SAMPLE.COBOL(SAM1)",
+          "Step": "CMPLSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&HLQ..SAMPLE.COPY",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 75,
+          "Resolved DSN": "IBMUSER.SAMPLE.COPY",
+          "Step": "CMPLSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "MYFILE",
+          "DSN": "&HLQ..SAMPLE.COPYLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 76,
+          "Resolved DSN": "IBMUSER.SAMPLE.COPYLIB",
+          "Step": "CMPLSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "MYLIB",
+          "DSN": "&HLQ..SAMPLE.COPYLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 77,
+          "Resolved DSN": "IBMUSER.SAMPLE.COPYLIB",
+          "Step": "CMPLSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIN",
+          "DSN": "&HLQ..SAMPLE.OBJ(SAM1)",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 78,
+          "Resolved DSN": "IBMUSER.SAMPLE.OBJ(SAM1)",
+          "Step": "CMPLSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 104,
+          "Resolved DSN": "IBMUSER.SAMPLE.LOAD",
+          "Step": "LINKSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LINKLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 107,
+          "Resolved DSN": "CEE.SCEELKED",
+          "Step": "LINKSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "OBJ",
+          "DSN": "&HLQ..SAMPLE.OBJ",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 108,
+          "Resolved DSN": "IBMUSER.SAMPLE.OBJ",
+          "Step": "LINKSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 121,
+          "Resolved DSN": "IBMUSER.SAMPLE.LOAD",
+          "Step": "LINKSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LINKLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 124,
+          "Resolved DSN": "CEE.SCEELKED",
+          "Step": "LINKSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 125,
+          "Resolved DSN": "IBMUSER.SAMPLE.LOAD",
+          "Step": "LINKSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "OBJ",
+          "DSN": "&HLQ..SAMPLE.OBJ",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 126,
+          "Resolved DSN": "IBMUSER.SAMPLE.OBJ",
+          "Step": "LINKSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD1",
+          "DSN": "&HLQ..SAMPLE.CUSTRPT",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 139,
+          "Resolved DSN": "IBMUSER.SAMPLE.CUSTRPT",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD2",
+          "DSN": "&HLQ..SAMPLE.CUSTOUT",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 141,
+          "Resolved DSN": "IBMUSER.SAMPLE.CUSTOUT",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&HLQ..SAMPLE.LOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 148,
+          "Resolved DSN": "IBMUSER.SAMPLE.LOAD",
+          "Step": "SAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "CUSTFILE",
+          "DSN": "&HLQ..SAMPLE.CUSTFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 154,
+          "Resolved DSN": "IBMUSER.SAMPLE.CUSTFILE",
+          "Step": "SAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "TRANFILE",
+          "DSN": "&HLQ..SAMPLE.TRANFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 157,
+          "Resolved DSN": "IBMUSER.SAMPLE.TRANFILE",
+          "Step": "SAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "CUSTOUT",
+          "DSN": "&HLQ..SAMPLE.CUSTOUT",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 160,
+          "Resolved DSN": "IBMUSER.SAMPLE.CUSTOUT",
+          "Step": "SAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "CUSTRPT",
+          "DSN": "&HLQ..SAMPLE.CUSTRPT",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 165,
+          "Resolved DSN": "IBMUSER.SAMPLE.CUSTRPT",
+          "Step": "SAM1"
+        }
+      ],
+      "jcl/zopeneditor-sample/RUNASAM1.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD1",
+          "DSN": "&HLQ..SAMPLE.ASM.FILEOUT",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 30,
+          "Resolved DSN": "TSOUSER.SAMPLE.ASM.FILEOUT",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&MACLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 37,
+          "Resolved DSN": "SYS1.MACLIB",
+          "Step": "ASM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&MODGEN",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 38,
+          "Resolved DSN": "SYS1.MODGEN",
+          "Step": "ASM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&SCEEMAC",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 39,
+          "Resolved DSN": "CEE.SCEEMAC",
+          "Step": "ASM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&HLQ..SAMPLE.ASMCOPY",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 40,
+          "Resolved DSN": "TSOUSER.SAMPLE.ASMCOPY",
+          "Step": "ASM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSPUNCH",
+          "DSN": "&HLQ..SAMPLE.ASMOBJ(ASAM1)",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 41,
+          "Resolved DSN": "TSOUSER.SAMPLE.ASMOBJ(ASAM1)",
+          "Step": "ASM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&HLQ..SAMPLE.ASM(ASAM1)",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 47,
+          "Resolved DSN": "TSOUSER.SAMPLE.ASM(ASAM1)",
+          "Step": "ASM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "&HLQ..SAMPLE.ASMLOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 52,
+          "Resolved DSN": "TSOUSER.SAMPLE.ASMLOAD",
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LINKLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 55,
+          "Resolved DSN": "CEE.SCEELKED",
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "OBJ",
+          "DSN": "&HLQ..SAMPLE.ASMOBJ",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 56,
+          "Resolved DSN": "TSOUSER.SAMPLE.ASMOBJ",
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&HLQ..SAMPLE.ASMLOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 65,
+          "Resolved DSN": "TSOUSER.SAMPLE.ASMLOAD",
+          "Step": "EXECUTE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "FILEIN",
+          "DSN": "&HLQ..SAMPLE.ASM.FILEIN",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 70,
+          "Resolved DSN": "TSOUSER.SAMPLE.ASM.FILEIN",
+          "Step": "EXECUTE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "FILEOUT",
+          "DSN": "&HLQ..SAMPLE.ASM.FILEOUT",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 72,
+          "Resolved DSN": "TSOUSER.SAMPLE.ASM.FILEOUT",
+          "Step": "EXECUTE"
+        }
+      ],
+      "jcl/zopeneditor-sample/RUNPSAM1.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DD1",
+          "DSN": "&HLQ..SAMPLE.PLI.CUSTRPT",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 29,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.CUSTRPT",
+          "Step": "DELETE"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&CMPLLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 36,
+          "Resolved DSN": "IBMZ.V5R3M0.SIBMZCMP",
+          "Step": "CMPPSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&HLQ..SAMPLE.PLINC",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 39,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLINC",
+          "Step": "CMPPSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIN",
+          "DSN": "&HLQ..SAMPLE.PLIOBJ(PSAM2)",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 40,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLIOBJ(PSAM2)",
+          "Step": "CMPPSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&HLQ..SAMPLE.PLI(PSAM2)",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 41,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI(PSAM2)",
+          "Step": "CMPPSAM2"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&CMPLLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 47,
+          "Resolved DSN": "IBMZ.V5R3M0.SIBMZCMP",
+          "Step": "CMPPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&HLQ..SAMPLE.PLINC",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 50,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLINC",
+          "Step": "CMPPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "MYFILE",
+          "DSN": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 51,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.INCLLIB",
+          "Step": "CMPPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "MYLIB",
+          "DSN": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 52,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.INCLLIB",
+          "Step": "CMPPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIN",
+          "DSN": "&HLQ..SAMPLE.PLIOBJ(PSAM1)",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 53,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLIOBJ(PSAM1)",
+          "Step": "CMPPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "&HLQ..SAMPLE.PLI(PSAM1)",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 54,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI(PSAM1)",
+          "Step": "CMPPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "&LINKLIB",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 60,
+          "Resolved DSN": "CEE.SCEELKED",
+          "Step": "LNKPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "&HLQ..SAMPLE.PLILOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 63,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLILOAD",
+          "Step": "LNKPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "INOBJ",
+          "DSN": "&HLQ..SAMPLE.PLIOBJ",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 65,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLIOBJ",
+          "Step": "LNKPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "&HLQ..SAMPLE.PLILOAD",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 75,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLILOAD",
+          "Step": "RUNPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "CUSTFILE",
+          "DSN": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 78,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.CUSTFILE",
+          "Step": "RUNPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "TRANFILE",
+          "DSN": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 79,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.TRANFILE",
+          "Step": "RUNPSAM1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "CUSTRPT",
+          "DSN": "&HLQ..SAMPLE.PLI.CUSTRPT",
+          "DSN Resolution": "resolved",
+          "Internal Name": null,
+          "Line": 80,
+          "Resolved DSN": "IBMUSER.SAMPLE.PLI.CUSTRPT",
+          "Step": "RUNPSAM1"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "Dataset Bindings"
+  ]
+}

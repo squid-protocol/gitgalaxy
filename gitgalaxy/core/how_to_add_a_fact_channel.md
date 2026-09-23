@@ -245,7 +245,7 @@ skip step 3.
    (This reversed with #3246 step 4b: the forensic report used to omit these, which is why the
    original channels were golden-master-neutral.) `*_galaxy_audit.json` is `crucible-audit`'s
    fixture, and the crucible corpus contains cobol/jcl, so adding your block changes
-   `golden_master_audit.json` + `golden_master_zero_dep_audit.json`. Regenerate BOTH with
+   `golden_master_audit/` + `golden_master_zero_dep_audit/`. Regenerate BOTH with
    `crucible_check.py --update` and confirm the diff is only your new fact keys (plus the usual
    topological X/Y/Z ripple). Do NOT put the facts in the LLM brief's SQLite graph or hand-edit the
    fixtures.

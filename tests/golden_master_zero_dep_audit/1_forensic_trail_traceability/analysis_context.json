@@ -1,0 +1,18 @@
+{
+  "path": [
+    "1. Forensic Trail (Traceability)",
+    "Analysis Context"
+  ],
+  "value": {
+    "Engine Identity": "GitGalaxy Scope vlatest (Delta Mode)",
+    "Missing Dependencies": {
+      "numpy": true,
+      "pandas": true,
+      "pyyaml": false,
+      "tiktoken": true,
+      "xgboost": true
+    },
+    "Target Root Name": "data",
+    "Zero-Dependency Mode Active": true
+  }
+}

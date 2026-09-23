@@ -1,0 +1,22 @@
+{
+  "path": [
+    "2. Global Ecosystem Summary",
+    "File Composition Distribution"
+  ],
+  "value": {
+    "Callbacks & Closures Files": "1.8% (56)",
+    "Compute Cores Files": "2.3% (72)",
+    "Data / Markup / Trivial": "19.4% (619)",
+    "Declarative / Non-Code": "22.7% (727)",
+    "Encapsulated Accessors Files": "1.8% (56)",
+    "Generic / Templated Code Files": "2.0% (65)",
+    "Interface Declarations Files": "12.6% (403)",
+    "Large Core Modules": "10.4% (333)",
+    "Large Core Modules (2)": "7.6% (243)",
+    "Large Core Modules (3)": "9.8% (314)",
+    "Many-Argument Workhorses Files": "2.3% (73)",
+    "Parameter Forwarders Files": "4.8% (152)",
+    "State Mutators Files": "2.3% (74)",
+    "Type Conversions Files": "0.3% (11)"
+  }
+}

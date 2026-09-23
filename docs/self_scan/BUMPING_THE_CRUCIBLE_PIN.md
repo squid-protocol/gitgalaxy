@@ -138,7 +138,7 @@ anything to do with the corpus.
    (the expected corpus-wide 3D coordinate shift from adding groups), bucketed
    by section, leaf key and language:
 
-       python tests/tools/bless_scope.py --from-head tests/golden_master_audit.json --show 0 --summary
+       python tests/tools/bless_scope.py --from-head tests/golden_master_audit --show 0 --summary
 
    Read the topological volume as a class and spend the review on the
    substantive bucket.

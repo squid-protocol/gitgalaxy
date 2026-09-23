@@ -1,0 +1,2727 @@
+{
+  "path": [
+    "5. Unparsable Artifacts (Excluded Artifacts Queue)"
+  ],
+  "value": [
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": ".gitgalaxy/dependency_cache.db",
+      "Size": "20480 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Static Asset Blob without Intent: 2466 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "PROVENANCE.json",
+      "Size": "73578 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 62 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "ada/functional/functional-version.ads",
+      "Size": "2316 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 21 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "ada/functional/functional_tests_config.ads",
+      "Size": "597 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/blst_generated_asm/LICENSE",
+      "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/bootos/LICENSE",
+      "Size": "1322 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.lds')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/cosmopolitan/ape.lds",
+      "Size": "32275 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/cosmopolitan_runtime/LICENSE",
+      "Size": "759 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 2099 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/cosmopolitan_runtime/djbsort-avx2.S",
+      "Size": "45161 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/cosmopolitan_syscalls/LICENSE",
+      "Size": "759 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/cpm65_6502/LICENSE",
+      "Size": "1321 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/hellosilicon/LICENSE",
+      "Size": "1076 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/hellosilicon_aarch64/LICENSE",
+      "Size": "1076 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/nasm_testsuite/LICENSE",
+      "Size": "1554 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/os_tutorial_x86/LICENSE",
+      "Size": "1516 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Embedded Array/Matrix Payload: 5323 commas in 957 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/raspberrypi_baremetal/HelloWorld_CPU_Font8x8.asm",
+      "Size": "16070 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "assembly/xv6_x86_kernel/LICENSE",
+      "Size": "1174 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "batch/cpython/LICENSE",
+      "Size": "13804 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "batch/powertoys/LICENSE",
+      "Size": "1120 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "batch/powertoys/tools/build/Delete-Worktree.cmd",
+      "Size": "131 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "batch/powertoys/tools/build/New-WorktreeFromFork.cmd",
+      "Size": "136 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "blueprint/ghostty/LICENSE",
+      "Size": "1097 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "c/cpython/LICENSE",
+      "Size": "13804 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 36288 LOC exceeds safe regex boundaries)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "c/cpython/configure",
+      "Size": "971338 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "c/micropython/LICENSE",
+      "Size": "3389 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 2161 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "c/sqlite/parse.y",
+      "Size": "76434 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/CICS-Cobol/LICENSE",
+      "Size": "18092 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 72 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/SOURCES.md",
+      "Size": "7912 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/cash-account-cobol/LICENSE",
+      "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/che-che4z_lsp_project_fixtures/.copybooks_ABCD.cpy",
+      "Size": "23 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/che-che4z_lsp_project_fixtures/.copybooks_zowe-profile-1_DATA.SET.PATH1_BOOK1N.cpy",
+      "Size": "987 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/che-che4z_lsp_project_fixtures/.copybooks_zowe-profile-1_DATA.SET.PATH1_BOOK2R.cpy",
+      "Size": "996 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/che-che4z_lsp_project_fixtures/.copybooks_zowe-profile-1_DATA.SET.PATH2_BOOK1R.cpy",
+      "Size": "997 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/che-che4z_lsp_project_fixtures/.copybooks_zowe-profile-1_DATA.SET.PATH2_BOOK2N.cpy",
+      "Size": "1106 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/che-che4z_lsp_project_fixtures/.copybooks_zowe-profile-1_DATA.SET.PATH2_BOOK3T.cpy",
+      "Size": "1061 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/cics-banking-sample-application-cbsa/LICENSE",
+      "Size": "14474 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/cics-genapp/LICENSE",
+      "Size": "14199 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/cics-java-jcics-samples/LICENSE",
+      "Size": "11345 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/cobol-check/LICENSE",
+      "Size": "11356 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/cobol-programming-course/LICENSE",
+      "Size": "16674 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/cobrix/LICENSE",
+      "Size": "11215 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/zopeneditor-sample/LICENSE",
+      "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.toml')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cpp/NVDA/pyproject.toml",
+      "Size": "9620 bytes"
+    },
+    {
+      "Diagnostic Reason": "Unsupported Format (.undeterminable)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "8.2%",
+      "Path": "cpp/NVDA/sconstruct",
+      "Size": "24536 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cpp/mlir/BUILD",
+      "Size": "9820 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cpp/mlir/LICENSE",
+      "Size": "13575 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cpp/powertoys/LICENSE",
+      "Size": "1120 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/bootstrap_dist/LICENSE",
+      "Size": "1093 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/bootstrap_minified/LICENSE",
+      "Size": "1093 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/bootstrap_minified/bootstrap-grid.rtl.min.css",
+      "Size": "51864 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/bootstrap_minified/bootstrap-utilities.min.css",
+      "Size": "85457 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/bootstrap_minified/bootstrap.min.css",
+      "Size": "232111 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/cytoscape_docs/LICENSE",
+      "Size": "1082 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/element/LICENSE",
+      "Size": "1082 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/odoo/LICENSE",
+      "Size": "43529 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/revealjs_themes/LICENSE",
+      "Size": "1108 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/revealjs_themes/blood.css",
+      "Size": "5803 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/revealjs_themes/dracula.css",
+      "Size": "5709 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/revealjs_themes/night.css",
+      "Size": "5231 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/revealjs_themes/reset.css",
+      "Size": "594 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/revealjs_themes/reveal.css",
+      "Size": "54468 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/revealjs_themes/simple.css",
+      "Size": "5176 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/tailwindcss_atrules/LICENSE",
+      "Size": "1071 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/threejs_app_ui/LICENSE",
+      "Size": "1081 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 1443 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/wordpress/about-rtl.css",
+      "Size": "43021 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "css/wordpress/deprecated-media-rtl.min.css",
+      "Size": "5497 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dart/flutter/LICENSE",
+      "Size": "1519 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Static Asset Blob without Intent: 1548 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "db2_sql/db2unit/04-Body.sql",
+      "Size": "48483 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Static Asset Blob without Intent: 1794 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "db2_sql/db2unit/05-Asserts.sql",
+      "Size": "47937 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dockerfile/moby/LICENSE",
+      "Size": "10765 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/46af0962ab5afeb5ce6740d4d91652e69206fc991fd5328c1a94d364ad00e457/json",
+      "Size": "1414 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Explicitly Denied Extension: '.tar')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/46af0962ab5afeb5ce6740d4d91652e69206fc991fd5328c1a94d364ad00e457/layer.tar",
+      "Size": "9216 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158/json",
+      "Size": "557 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Explicitly Denied Extension: '.tar')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158/layer.tar",
+      "Size": "1536 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Explicitly Denied Extension: '.tar')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/collision/collision-0.tar",
+      "Size": "10240 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Explicitly Denied Extension: '.tar')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/collision/collision-1.tar",
+      "Size": "10240 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Explicitly Denied Extension: '.tar')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/collision/collision-2.tar",
+      "Size": "10240 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Explicitly Denied Extension: '.tar')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/collision/collision-3.tar",
+      "Size": "10240 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/xattr/json",
+      "Size": "1443 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Explicitly Denied Extension: '.tar')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "dockerfile/moby/builder/remotecontext/internal/tarsum/testdata/xattr/layer.tar",
+      "Size": "2560 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "go/core/LICENSE",
+      "Size": "1453 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "go/kubernetes/LICENSE",
+      "Size": "11358 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 39 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/SOURCES.md",
+      "Size": "6283 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/flutter_android_gradle/LICENSE",
+      "Size": "1519 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/gradle/LICENSE",
+      "Size": "10174 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/gradle_buildlogic_groovy/LICENSE",
+      "Size": "10174 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/gradle_dsl_snippets/LICENSE",
+      "Size": "10174 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/gradle_integtest_specs/LICENSE",
+      "Size": "10174 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/gradle_sample_task_classes/LICENSE",
+      "Size": "10174 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/spock/LICENSE",
+      "Size": "11360 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/spock_core_groovy/LICENSE",
+      "Size": "11360 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/spock_smoke_specs/LICENSE",
+      "Size": "11360 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/spock_specs/LICENSE",
+      "Size": "11360 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "groovy/spring_boot_gradle/.github_actions_publish-gradle-plugin_build.gradle",
+      "Size": "1180 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.cff')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "haskell/pandoc/CITATION.cff",
+      "Size": "492 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "hlo/xla/LICENSE",
+      "Size": "13575 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "html/angular_adev_templates/LICENSE",
+      "Size": "1105 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "html/playwright_dom_fixtures/LICENSE",
+      "Size": "11601 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "html/revealjs_decks/LICENSE",
+      "Size": "1108 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "html/threejs_shader_examples/LICENSE",
+      "Size": "1081 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "javascript/react/LICENSE",
+      "Size": "1088 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "javascript/threejs/LICENSE",
+      "Size": "1081 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 48 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "jcl/SOURCES.md",
+      "Size": "3748 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "jcl/cash-account-cobol/LICENSE",
+      "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "jcl/cics-banking-sample-application-cbsa/LICENSE",
+      "Size": "14474 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "jcl/cics-genapp/LICENSE",
+      "Size": "14199 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "jcl/cics-java-jcics-samples/LICENSE",
+      "Size": "11345 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "jcl/cobol-programming-course/LICENSE",
+      "Size": "16674 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "jcl/zopeneditor-sample/LICENSE",
+      "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "json/kafka/LICENSE",
+      "Size": "11358 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "livecode/livecode/LICENSE",
+      "Size": "33518 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "lua/cosmopolitan/.init.lua",
+      "Size": "2565 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "lua/cosmopolitan/.reload.lua",
+      "Size": "63 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "lua/cosmopolitan/LICENSE",
+      "Size": "759 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "lua/darwin-xnu/LICENSE",
+      "Size": "19829 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 30 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "lua/redis/sieve.lua",
+      "Size": "774 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.am')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "m4/curl/Makefile.am",
+      "Size": "5540 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.am')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "m4/gnucobol/Makefile.am",
+      "Size": "8297 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "matlab/eeglab/LICENSE",
+      "Size": "1514 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.mat')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "matlab/eeglab/mheadnew.mat",
+      "Size": "365120 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "mlir/tensorflow/LICENSE",
+      "Size": "13575 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.lock')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "nix/bun/flake.lock",
+      "Size": "1497 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "nix/ghostty/LICENSE",
+      "Size": "1097 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.lock')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "nix/ghostty/flake.lock",
+      "Size": "3326 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 73 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "objective-c/worldwideweb/WorldWideWeb_main.m",
+      "Size": "2192 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "perl/bugzilla/LICENSE",
+      "Size": "16726 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "perl/exiftool/LICENSE",
+      "Size": "35149 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "perl/mojo/LICENSE",
+      "Size": "8971 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "perl/spamassassin/LICENSE",
+      "Size": "11358 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.cf')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "perl/spamassassin/local.cf",
+      "Size": "3218 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "php/guzzle/LICENSE",
+      "Size": "1460 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "php/symfony/LICENSE",
+      "Size": "1068 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "plaintext/cpython/LICENSE",
+      "Size": "13804 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "plaintext/django/docs/requirements.txt",
+      "Size": "72 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "plaintext/opencv/LICENSE",
+      "Size": "11358 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "powershell/PowerToys/LICENSE",
+      "Size": "1120 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 99 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "powershell/runtime/processrc.ps1",
+      "Size": "3191 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "proto/tensorflow/LICENSE",
+      "Size": "13575 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/fastapi/.gitignore",
+      "Size": "280 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/fastapi/.pre-commit-config.yaml",
+      "Size": "2436 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/fastapi/.python-version",
+      "Size": "5 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.cff')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/fastapi/CITATION.cff",
+      "Size": "614 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/fastapi/LICENSE",
+      "Size": "1086 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.typed')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/fastapi/fastapi/py.typed",
+      "Size": "0 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.toml')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/fastapi/pyproject.toml",
+      "Size": "10498 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 96 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/fastapi/tests/test_sub_callbacks.py",
+      "Size": "14598 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.lock')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/fastapi/uv.lock",
+      "Size": "1113323 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/numpy/LICENSE",
+      "Size": "1593 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.rst')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/numpy/README.rst",
+      "Size": "9874 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 1695 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/numpy/generate_umath.py",
+      "Size": "55081 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.i')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/numpy/numpy.i",
+      "Size": "103122 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.toml')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/numpy/pyproject.toml",
+      "Size": "10477 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "python/wtfpython/LICENSE",
+      "Size": "460 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "rust/holylang/LICENSE",
+      "Size": "1064 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "rust/tokio/LICENSE",
+      "Size": "1070 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 2342 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "rust/tokio/tokio_udp.rs",
+      "Size": "88127 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 1541 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "rust/wasmtime/wasmtime_ir_instructions.rs",
+      "Size": "54752 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "scala/kafka/LICENSE",
+      "Size": "11358 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10586 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "scheme/racket/syntax.ss",
+      "Size": "486498 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 3531 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/brew/brew_completion.bash",
+      "Size": "58169 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/darwin-xnu/LICENSE",
+      "Size": "19829 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 74 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/darwin-xnu/reproto.sh",
+      "Size": "2327 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 37 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/freebsd-src/ckscripts.sh",
+      "Size": "903 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 2116 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/freebsd-src/ed_test.sh",
+      "Size": "33274 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 37 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/haiku/generate_ids_from_drivers.sh",
+      "Size": "12673 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 203 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/illumos-gate/inetd-upgrade.sh",
+      "Size": "5862 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/kubernetes/LICENSE",
+      "Size": "11358 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.sh_2')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/kubernetes/options_testdata__generate.sh_2",
+      "Size": "1186 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.sh_2')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/linux/kernel_vdso__gen_vdso_offsets.sh_2",
+      "Size": "175 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.sh_3')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/linux/kernel_vdso__gen_vdso_offsets.sh_3",
+      "Size": "427 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.sh_2')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/linux/nios2_boot__install.sh_2",
+      "Size": "668 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.sh_2')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/linux/powerpc_boot__install.sh_2",
+      "Size": "966 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.sh_2')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/linux/riscv_boot__install.sh_2",
+      "Size": "976 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.sh_2')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/linux/s390_boot__install.sh_2",
+      "Size": "725 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/moby/LICENSE",
+      "Size": "10765 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 18 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/moby/generate-authors.sh",
+      "Size": "494 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/serenity/.hosted_defs.sh",
+      "Size": "2674 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/serenity/LICENSE",
+      "Size": "1341 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 50 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "shell/serenity/generate_manpages.sh",
+      "Size": "1172 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "solidity/openzeppelin/LICENSE",
+      "Size": "1090 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "sql/postgresql/sqlmap/LICENSE",
+      "Size": "18886 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "sqlite/dancer2_sqlite/LICENSE",
+      "Size": "19741 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "sqlite/prisma_sqlite_migrations/LICENSE",
+      "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "sqlite/prisma_typed_sql/LICENSE",
+      "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "swift/alamofire/LICENSE",
+      "Size": "1102 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tabular/tsv_genomics/LICENSE",
+      "Size": "1147 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 1 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tabular/tsv_genomics/gwas_sample.tsv",
+      "Size": "8022 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 29 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/SOURCES.md",
+      "Size": "3689 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/macports_port_api/LICENSE",
+      "Size": "1556 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/macports_registry/LICENSE",
+      "Size": "1556 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite/all.test",
+      "Size": "1317 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite/changesetfuzz1.test",
+      "Size": "2204 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite/corrupt.test",
+      "Size": "10698 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite/fts3fuzz001.test",
+      "Size": "6442 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite/fts5fuzz1.test",
+      "Size": "2158 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite/fuzz4.test",
+      "Size": "2297 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 2744 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite/fuzzcheck.c",
+      "Size": "87981 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite/rtreefuzz001.test",
+      "Size": "85730 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/delete.test",
+      "Size": "12216 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/delete2.test",
+      "Size": "3319 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/delete3.test",
+      "Size": "1748 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/delete4.test",
+      "Size": "7741 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/insert.test",
+      "Size": "17022 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/insert2.test",
+      "Size": "7435 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/insert3.test",
+      "Size": "5300 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/insert4.test",
+      "Size": "16401 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/insert5.test",
+      "Size": "3101 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/join.test",
+      "Size": "40661 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/join2.test",
+      "Size": "12952 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/join3.test",
+      "Size": "1641 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/join4.test",
+      "Size": "2935 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/join5.test",
+      "Size": "13023 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/join6.test",
+      "Size": "3987 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/select1.test",
+      "Size": "31973 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/select2.test",
+      "Size": "4546 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/select3.test",
+      "Size": "10912 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/select4.test",
+      "Size": "26858 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_core_dml/select5.test",
+      "Size": "6670 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/window1.test",
+      "Size": "63935 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/window2.test",
+      "Size": "47884 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/window4.test",
+      "Size": "58226 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/window5.test",
+      "Size": "2311 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/window6.test",
+      "Size": "10585 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/window7.test",
+      "Size": "9824 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/window9.test",
+      "Size": "7704 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/with1.test",
+      "Size": "32599 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/with2.test",
+      "Size": "16735 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/with3.test",
+      "Size": "6304 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/with4.test",
+      "Size": "1602 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/with5.test",
+      "Size": "5226 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/with6.test",
+      "Size": "13317 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_cte_window/withM.test",
+      "Size": "1550 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5aa.test",
+      "Size": "18606 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5ab.test",
+      "Size": "8560 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5ac.test",
+      "Size": "10925 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5ad.test",
+      "Size": "10707 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5ae.test",
+      "Size": "7755 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5af.test",
+      "Size": "7437 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5ag.test",
+      "Size": "5603 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5ah.test",
+      "Size": "5293 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5ai.test",
+      "Size": "1477 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5aj.test",
+      "Size": "1906 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5ak.test",
+      "Size": "4948 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5al.test",
+      "Size": "7910 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5alter.test",
+      "Size": "2853 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5auto.test",
+      "Size": "14038 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5aux.test",
+      "Size": "11602 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5aux2.test",
+      "Size": "1530 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5auxdata.test",
+      "Size": "2779 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5bigid.test",
+      "Size": "1442 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5bigpl.test",
+      "Size": "1678 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5bigtok.test",
+      "Size": "1933 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5blob.test",
+      "Size": "4670 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_fts5/fts5cat.test",
+      "Size": "2066 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/json101.test",
+      "Size": "36604 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/json102.test",
+      "Size": "29627 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/json103.test",
+      "Size": "3403 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/json104.test",
+      "Size": "5258 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/json105.test",
+      "Size": "5211 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/json106.test",
+      "Size": "2175 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/json107.test",
+      "Size": "2557 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/json108.test",
+      "Size": "1332 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/json109.test",
+      "Size": "2291 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/trigger1.test",
+      "Size": "23453 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/trigger2.test",
+      "Size": "20871 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/trigger3.test",
+      "Size": "5085 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/trigger4.test",
+      "Size": "4873 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/trigger5.test",
+      "Size": "1162 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/trigger6.test",
+      "Size": "2019 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/trigger7.test",
+      "Size": "3555 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/trigger8.test",
+      "Size": "1457 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_json_triggers/trigger9.test",
+      "Size": "6647 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/analyze3.test",
+      "Size": "21667 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/analyze4.test",
+      "Size": "3677 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/analyze5.test",
+      "Size": "7874 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/analyze6.test",
+      "Size": "3925 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/analyze7.test",
+      "Size": "3922 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/analyze8.test",
+      "Size": "3619 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/analyze9.test",
+      "Size": "34223 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/autoindex1.test",
+      "Size": "21209 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/autoindex2.test",
+      "Size": "6898 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/autoindex3.test",
+      "Size": "4114 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/autoindex4.test",
+      "Size": "5844 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/autoindex5.test",
+      "Size": "7237 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/where2.test",
+      "Size": "25291 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/where3.test",
+      "Size": "16128 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/where4.test",
+      "Size": "8705 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/where5.test",
+      "Size": "4837 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_query_planner/where6.test",
+      "Size": "4085 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtree1.test",
+      "Size": "25195 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtree2.test",
+      "Size": "4033 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtree3.test",
+      "Size": "6983 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtree4.test",
+      "Size": "7645 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtree5.test",
+      "Size": "2165 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtree6.test",
+      "Size": "5160 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtree7.test",
+      "Size": "1809 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtree8.test",
+      "Size": "5964 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtree9.test",
+      "Size": "4348 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtreeA.test",
+      "Size": "7415 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtreeB.test",
+      "Size": "2309 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtreeC.test",
+      "Size": "9115 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtreecheck.test",
+      "Size": "5429 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtreecirc.test",
+      "Size": "1536 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtreeconnect.test",
+      "Size": "1293 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.test')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "tcl/sqlite_rtree/rtreedoc2.test",
+      "Size": "10233 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "td/tensorflow/LICENSE",
+      "Size": "13575 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "typescript/assemblyscript/LICENSE",
+      "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 11395 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "typescript/assemblyscript/builtins.ts",
+      "Size": "420717 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "typescript/fp-ts/LICENSE",
+      "Size": "1077 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "typescript/playwright/LICENSE",
+      "Size": "11601 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 56 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "typescript/typescript_compiler/LICENSE.txt",
+      "Size": "9197 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 54435 LOC exceeds safe regex boundaries)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "typescript/typescript_compiler/checker.ts",
+      "Size": "3151774 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 6379 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "typescript/typescript_compiler/emitter.ts",
+      "Size": "273338 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10824 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "typescript/typescript_compiler/parser.ts",
+      "Size": "539685 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Lexical Monotony: High structural repetition detected in 10671 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "typescript/typescript_compiler/types.ts",
+      "Size": "487846 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "typescript/zod/LICENSE",
+      "Size": "1072 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "xml/odoo/LICENSE",
+      "Size": "43529 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.xaml')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "xml/powertoys/App.xaml",
+      "Size": "310 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.xaml')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "xml/powertoys/Generic.xaml",
+      "Size": "775 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "xml/powertoys/LICENSE",
+      "Size": "1120 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Unsupported Extension: '.xaml')",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "xml/powertoys/MainWindow.xaml",
+      "Size": "1922 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "yaml/black_action/LICENSE",
+      "Size": "1080 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "yaml/grafana_compose/LICENSE",
+      "Size": "34523 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "yaml/moby_workflows/.dco.yml",
+      "Size": "1982 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "yaml/moby_workflows/.test-unit.yml",
+      "Size": "4019 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "yaml/moby_workflows/.test.yml",
+      "Size": "18704 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "yaml/moby_workflows/.vm.yml",
+      "Size": "7772 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "yaml/moby_workflows/.windows.yml",
+      "Size": "21816 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "yaml/moby_workflows/LICENSE",
+      "Size": "10765 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "yaml/serenity_composite_actions/LICENSE",
+      "Size": "1341 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "yaml/sqlmap_openapi/LICENSE",
+      "Size": "18886 bytes"
+    },
+    {
+      "Diagnostic Reason": "Unsupported Format (.undeterminable)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "zig/tigerbeetle/download.ps1",
+      "Size": "79 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Monolithic Amalgamation: 37746 LOC exceeds safe regex boundaries)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "zig/zig/Sema.zig",
+      "Size": "1610629 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 8582 LOC)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "zig/zig/clang_options_data.zig",
+      "Size": "181050 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (Saturation: Line 9 exceeds 500 chars)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "zig/zls/langref.html.in",
+      "Size": "351215 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "zig/zls/mach/LICENSE",
+      "Size": "751 bytes"
+    },
+    {
+      "Diagnostic Reason": "Zero-Density Threshold (LOC: 1283, Signals: 0)",
+      "Discovery Proof": "Single Indicator (Ext: .cpy)",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "91.0%",
+      "Path": "cobol/aws-mainframe-modernization-carddemo/CSLKPCDY.cpy",
+      "Size": "51399 bytes"
+    },
+    {
+      "Diagnostic Reason": "Zero-Density Threshold (LOC: 85, Signals: 0)",
+      "Discovery Proof": "Single Indicator (Ext: .cpy)",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "91.0%",
+      "Path": "cobol/cics-genapp/lgpolicy.cpy",
+      "Size": "5292 bytes"
+    },
+    {
+      "Diagnostic Reason": "Packed Payload Guard (Impossible Density: 3.32 hits/line)",
+      "Discovery Proof": "Single Indicator (Ext: .js)",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "91.0%",
+      "Path": "javascript/threejs/Nodes.js",
+      "Size": "9925 bytes"
+    },
+    {
+      "Diagnostic Reason": "Zero-Density Threshold (LOC: 57, Signals: 0)",
+      "Discovery Proof": "Single Indicator (Ext: .jcl)",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "91.0%",
+      "Path": "jcl/cics-banking-sample-application-cbsa/DFH$SIP1.jcl",
+      "Size": "4298 bytes"
+    }
+  ]
+}

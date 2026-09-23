@@ -1,0 +1,161 @@
+{
+  "groups": {
+    "abap/abapGit": {
+      "abap/abapGit/zcl_abapgit_ajson.clas.abap": "8 instances",
+      "abap/abapGit/zcl_abapgit_git_porcelain.clas.abap": "8 instances",
+      "abap/abapGit/zcl_abapgit_objects.clas.abap": "7 instances"
+    },
+    "ada/alire": {
+      "ada/alire/alire-directories.adb": "1 instances",
+      "ada/alire/alire-roots.adb": "1 instances",
+      "ada/alire/alire-roots.ads": "3 instances"
+    },
+    "ada/functional": {
+      "ada/functional/functional-scoped.ads": "2 instances"
+    },
+    "agc_assembly/apollo-11": {
+      "agc_assembly/apollo-11/ALARM_AND_ABORT.agc": "1 instances",
+      "agc_assembly/apollo-11/BURN_BABY_BURN--MASTER_IGNITION_ROUTINE.agc": "1 instances",
+      "agc_assembly/apollo-11/PINBALL_GAME_BUTTONS_AND_LIGHTS.agc": "4 instances",
+      "agc_assembly/apollo-11/RCS_FAILURE_MONITOR.agc": "2 instances"
+    },
+    "c/doom": {
+      "c/doom/d_main.c": "2 instances",
+      "c/doom/w_wad.c": "3 instances"
+    },
+    "c/sqlite": {
+      "c/sqlite/lemon.c": "1 instances"
+    },
+    "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/fileio.c": "1 instances",
+      "cobol/gnucobol_internals/numeric.c": "1 instances"
+    },
+    "dockerfile/moby/builder/dockerfile": {
+      "dockerfile/moby/builder/dockerfile/evaluator_test.go": "1 instances"
+    },
+    "dockerfile/moby/builder/remotecontext/internal/tarsum": {
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": "4 instances",
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": "8 instances"
+    },
+    "fortran/wrf": {
+      "fortran/wrf/module_configure.F": "3 instances",
+      "fortran/wrf/module_domain.F": "46 instances",
+      "fortran/wrf/module_initialize_real.F": "13 instances",
+      "fortran/wrf/module_physics_init.F": "4 instances",
+      "fortran/wrf/wrf_timeseries.F": "12 instances"
+    },
+    "go/core": {
+      "go/core/server.go": "5 instances"
+    },
+    "lua/cosmopolitan": {
+      "lua/cosmopolitan/all.lua": "9 instances",
+      "lua/cosmopolitan/api.lua": "49 instances",
+      "lua/cosmopolitan/calls.lua": "1 instances",
+      "lua/cosmopolitan/closure.lua": "3 instances",
+      "lua/cosmopolitan/coroutine.lua": "1 instances",
+      "lua/cosmopolitan/db.lua": "3 instances",
+      "lua/cosmopolitan/errors.lua": "9 instances",
+      "lua/cosmopolitan/events.lua": "3 instances",
+      "lua/cosmopolitan/files.lua": "11 instances",
+      "lua/cosmopolitan/gc.lua": "78 instances",
+      "lua/cosmopolitan/gengc.lua": "27 instances",
+      "lua/cosmopolitan/goto.lua": "1 instances",
+      "lua/cosmopolitan/heavy.lua": "4 instances",
+      "lua/cosmopolitan/locals.lua": "15 instances",
+      "lua/cosmopolitan/main.lua": "1 instances",
+      "lua/cosmopolitan/nextvar.lua": "4 instances",
+      "lua/cosmopolitan/sort.lua": "1 instances",
+      "lua/cosmopolitan/tracegc.lua": "3 instances"
+    },
+    "objective-c/worldwideweb": {
+      "objective-c/worldwideweb/Anchor.m": "2 instances",
+      "objective-c/worldwideweb/HText.c": "3 instances",
+      "objective-c/worldwideweb/HyperManager.m": "1 instances"
+    },
+    "perl/bugzilla": {
+      "perl/bugzilla/Bug.pm": "1 instances"
+    },
+    "perl/exiftool": {
+      "perl/exiftool/ExifTool.pm": "77 instances",
+      "perl/exiftool/exiftool": "184 instances"
+    },
+    "perl/mojo": {
+      "perl/mojo/WebSocket.pm": "4 instances"
+    },
+    "perl/spamassassin": {
+      "perl/spamassassin/HTML.pm": "1 instances",
+      "perl/spamassassin/Message.pm": "7 instances",
+      "perl/spamassassin/PerMsgStatus.pm": "2 instances",
+      "perl/spamassassin/SpamAssassin.pm": "13 instances"
+    },
+    "php/guzzle": {
+      "php/guzzle/Client.php": "7 instances",
+      "php/guzzle/CurlFactory.php": "3 instances",
+      "php/guzzle/CurlMultiHandler.php": "1 instances",
+      "php/guzzle/StreamHandler.php": "1 instances"
+    },
+    "php/laravel_core": {
+      "php/laravel_core/Model.php": "2 instances"
+    },
+    "php/magento2": {
+      "php/magento2/Mysql.php": "3 instances"
+    },
+    "php/symfony": {
+      "php/symfony/Application.php": "1 instances",
+      "php/symfony/ContainerBuilder.php": "8 instances",
+      "php/symfony/Parser.php": "1 instances",
+      "php/symfony/Request.php": "2 instances",
+      "php/symfony/Router.php": "1 instances"
+    },
+    "php/wordpress": {
+      "php/wordpress/class-wp-query.php": "3 instances",
+      "php/wordpress/wp-settings.php": "11 instances"
+    },
+    "scheme/racket": {
+      "scheme/racket/eval.c": "3 instances",
+      "scheme/racket/fun.c": "1 instances"
+    },
+    "yacc/freebsd": {
+      "yacc/freebsd/config.y": "20 instances",
+      "yacc/freebsd/jailparse.y": "6 instances"
+    },
+    "zig/bun": {
+      "zig/bun/MimallocArena.zig": "1 instances",
+      "zig/bun/Parser.zig": "2 instances"
+    },
+    "zig/tigerbeetle": {
+      "zig/tigerbeetle/aof.zig": "12 instances",
+      "zig/tigerbeetle/build.zig": "4 instances",
+      "zig/tigerbeetle/cluster.zig": "54 instances",
+      "zig/tigerbeetle/copyhound.zig": "3 instances",
+      "zig/tigerbeetle/counting_allocator.zig": "2 instances",
+      "zig/tigerbeetle/state_machine.zig": "2 instances"
+    },
+    "zig/zig": {
+      "zig/zig/Compilation.zig": "8 instances",
+      "zig/zig/InternPool.zig": "1 instances",
+      "zig/zig/Type.zig": "2 instances",
+      "zig/zig/main.zig": "10 instances"
+    },
+    "zig/zls": {
+      "zig/zls/DocumentScope.zig": "2 instances",
+      "zig/zls/DocumentStore.zig": "47 instances",
+      "zig/zls/Server.zig": "33 instances",
+      "zig/zls/analysis.zig": "4 instances",
+      "zig/zls/ast.zig": "3 instances",
+      "zig/zls/config_gen.zig": "19 instances",
+      "zig/zls/print_ast.zig": "1 instances"
+    },
+    "zig/zls/mach": {
+      "zig/zls/mach/Core.zig": "2 instances",
+      "zig/zls/mach/StringTable.zig": "1 instances",
+      "zig/zls/mach/graph.zig": "5 instances",
+      "zig/zls/mach/module.zig": "7 instances"
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "6. Contextual Mitigations & Amplifications",
+    "Mitigated Memory Allocs"
+  ]
+}

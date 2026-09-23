@@ -711,7 +711,7 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 6.01,
+        "cognitive_load": 5.98,
         "concurrency": 0.0,
         "dead_code": 1.72,
         "documentation": 100.0,
@@ -724,26 +724,26 @@
         "verification": 2.36
       },
       "file_count": 50,
-      "total_mass": 406.58
+      "total_mass": 404.68
     },
     "cobol/aws-mainframe-modernization-carddemo": {
       "avg_exposures": {
-        "api_exposure": 1.65,
+        "api_exposure": 1.63,
         "churn": 0.0,
-        "cognitive_load": 30.54,
+        "cognitive_load": 30.12,
         "concurrency": 0.0,
-        "dead_code": 0.96,
-        "documentation": 39.44,
-        "safety_score": 39.55,
+        "dead_code": 0.95,
+        "documentation": 38.89,
+        "safety_score": 38.97,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 41.18,
-        "tech_debt": 3.73,
-        "verification": 20.93
+        "state_flux": 40.61,
+        "tech_debt": 3.8,
+        "verification": 20.67
       },
-      "file_count": 71,
-      "total_mass": 10159.39
+      "file_count": 72,
+      "total_mass": 10104.32
     },
     "cobol/cash-account-cobol": {
       "avg_exposures": {
@@ -787,39 +787,39 @@
       "avg_exposures": {
         "api_exposure": 0.56,
         "churn": 0.0,
-        "cognitive_load": 5.82,
+        "cognitive_load": 5.39,
         "concurrency": 0.0,
         "dead_code": 3.54,
         "documentation": 30.0,
-        "safety_score": 43.3,
+        "safety_score": 43.11,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 49.29,
-        "state_flux": 31.9,
+        "state_flux": 31.89,
         "tech_debt": 41.57,
         "verification": 1.71
       },
       "file_count": 70,
-      "total_mass": 807.13
+      "total_mass": 793.13
     },
     "cobol/che-che4z_nist_ccvs85": {
       "avg_exposures": {
-        "api_exposure": 1.47,
+        "api_exposure": 0.64,
         "churn": 0.0,
-        "cognitive_load": 67.48,
+        "cognitive_load": 67.25,
         "concurrency": 0.0,
         "dead_code": 3.05,
         "documentation": 49.34,
-        "safety_score": 89.15,
+        "safety_score": 89.1,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 49.67,
-        "state_flux": 82.95,
+        "state_flux": 82.78,
         "tech_debt": 96.71,
         "verification": 57.37
       },
       "file_count": 151,
-      "total_mass": 48292.76
+      "total_mass": 47334.76
     },
     "cobol/cics-banking-sample-application-cbsa": {
       "avg_exposures": {
@@ -838,26 +838,26 @@
         "verification": 22.33
       },
       "file_count": 66,
-      "total_mass": 9711.67
+      "total_mass": 9661.57
     },
     "cobol/cics-genapp": {
       "avg_exposures": {
-        "api_exposure": 1.52,
+        "api_exposure": 1.48,
         "churn": 0.0,
-        "cognitive_load": 59.67,
-        "concurrency": 3.14,
-        "dead_code": 4.41,
-        "documentation": 35.23,
-        "safety_score": 60.97,
-        "secrets_risk": 2.25,
+        "cognitive_load": 58.35,
+        "concurrency": 3.07,
+        "dead_code": 4.54,
+        "documentation": 34.44,
+        "safety_score": 59.61,
+        "secrets_risk": 2.2,
         "spec_match": 0.0,
-        "stability": 48.86,
-        "state_flux": 68.51,
-        "tech_debt": 24.85,
-        "verification": 5.55
+        "stability": 48.89,
+        "state_flux": 66.98,
+        "tech_debt": 24.3,
+        "verification": 5.48
       },
-      "file_count": 44,
-      "total_mass": 3249.63
+      "file_count": 45,
+      "total_mass": 3250.46
     },
     "cobol/cics-java-jcics-samples": {
       "avg_exposures": {
@@ -880,22 +880,22 @@
     },
     "cobol/cobol-check": {
       "avg_exposures": {
-        "api_exposure": 0.12,
+        "api_exposure": 0.0,
         "churn": 0.0,
         "cognitive_load": 12.53,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 30.0,
-        "safety_score": 25.22,
+        "safety_score": 25.13,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 26.24,
+        "state_flux": 25.82,
         "tech_debt": 30.55,
         "verification": 2.22
       },
       "file_count": 45,
-      "total_mass": 957.83
+      "total_mass": 953.48
     },
     "cobol/cobol-programming-course": {
       "avg_exposures": {
@@ -920,58 +920,58 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 1.9,
+        "cognitive_load": 2.14,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 0.0,
-        "safety_score": 6.1,
+        "safety_score": 0.0,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 1.15,
+        "state_flux": 0.0,
         "tech_debt": 0.0,
         "verification": 2.3
       },
-      "file_count": 35,
-      "total_mass": 480.28
+      "file_count": 31,
+      "total_mass": 419.31
     },
     "cobol/gnucobol": {
       "avg_exposures": {
-        "api_exposure": 0.25,
+        "api_exposure": 0.28,
         "churn": 0.0,
-        "cognitive_load": 10.47,
+        "cognitive_load": 11.63,
         "concurrency": 0.0,
-        "dead_code": 2.99,
-        "documentation": 20.0,
-        "safety_score": 31.29,
+        "dead_code": 2.51,
+        "documentation": 22.22,
+        "safety_score": 34.7,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
-        "stability": 45.0,
-        "state_flux": 29.84,
-        "tech_debt": 2.24,
-        "verification": 2.08
+        "stability": 44.44,
+        "state_flux": 33.16,
+        "tech_debt": 2.49,
+        "verification": 2.06
       },
-      "file_count": 10,
-      "total_mass": 336.52
+      "file_count": 9,
+      "total_mass": 331.62
     },
     "cobol/gnucobol_internals": {
       "avg_exposures": {
-        "api_exposure": 5.05,
+        "api_exposure": 5.89,
         "churn": 0.0,
-        "cognitive_load": 57.36,
+        "cognitive_load": 66.92,
         "concurrency": 0.0,
-        "dead_code": 1.73,
-        "documentation": 70.81,
-        "safety_score": 67.26,
+        "dead_code": 0.8,
+        "documentation": 82.61,
+        "safety_score": 78.47,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
-        "state_flux": 71.43,
-        "tech_debt": 13.74,
-        "verification": 57.8
+        "state_flux": 83.33,
+        "tech_debt": 16.02,
+        "verification": 67.05
       },
-      "file_count": 7,
-      "total_mass": 37723.8
+      "file_count": 6,
+      "total_mass": 37722.9
     },
     "cobol/zopeneditor-sample": {
       "avg_exposures": {

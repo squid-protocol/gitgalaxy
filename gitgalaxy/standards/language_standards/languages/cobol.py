@@ -714,7 +714,7 @@ DEFINITION: dict[str, Any] = {
         # (119 crucible blocks in 51 files, no owner before this); the date intrinsics
         # convert between calendar forms; CEEGMT/CEEDATM/... are the LE date services.
         "time_date_logic": re.compile(
-            r"(?i)\bACCEPT\s+[A-Za-z0-9_-]+\s+FROM\s+(?:DATE|TIME|DAY)\b|\b(?:CURRENT-DATE|WHEN-COMPILED)\b"
+            r"(?i)\bACCEPT\s+[A-Za-z0-9_-]+\s+FROM\s+(?:DATE|TIME|DAY-OF-WEEK|DAY)\b|\b(?:CURRENT-DATE|WHEN-COMPILED)\b"
             r"|\bEXEC\s+CICS\s+(?:ASKTIME|FORMATTIME|CONVERTTIME)\b"
             r"|\bFUNCTION\s+(?:INTEGER-OF-DATE|DATE-OF-INTEGER|INTEGER-OF-DAY|DAY-OF-INTEGER|DATE-TO-YYYYMMDD"
             r"|DAY-TO-YYYYDDD|YEAR-TO-YYYY|SECONDS-PAST-MIDNIGHT|SECONDS-FROM-FORMATTED-TIME"
@@ -785,5 +785,15 @@ DEFINITION: dict[str, Any] = {
         # source contains (crucible CBL0601v01InOutLineLoop.cbl et al).
         # Implemented by detector.py's `_cobol_sentence_start_offsets`.
         "_scope_filters": {"func_start": "cobol_sentence_start"},
+        # COBOL words run through hyphens, and `\b` fires at every one of them,
+        # so a keyword rule matched INSIDE names: `io` counted WRITE in
+        # `WRITE-LINE` / `FAIL-ROUTINE-WRITE`, `serialization_parsing` counted
+        # the `END-STRING` terminator as a STRING, `ipc_rpc_bridges` END-CALL,
+        # `debug_prints` `SQLCODE-DISPLAY`, `api` `ENTRY-1`. Earlier fixes guarded
+        # rules one at a time (#2537, #2772, #2888, #3359); this drops a match
+        # glued to a hyphenated word for EVERY cobol rule (detector.py
+        # _glued_to_hyphen_word). Found by the #3210 ground-truth work, where the
+        # same `\b`-after-hyphen bug turned up in three independent readers.
+        "_hyphenated_words": True,
     },
 }

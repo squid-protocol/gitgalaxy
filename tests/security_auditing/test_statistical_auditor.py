@@ -370,3 +370,39 @@ def test_declaration_only_language_skips_zero_density_floor():
     verified, unparsable = auditor.audit([script("python")])
     assert verified == []
     assert "Zero-Density Threshold" in unparsable[0]["reason"]
+
+
+def test_included_source_member_is_not_a_data_dump():
+    """#3417: a COBOL copybook another file COPYs is a dependency, and data-only is
+    its normal shape (CardDemo CSLKPCDY.cpy, a 1283-line area-code table). The
+    Zero-Density floor relegated it and the COPY edge to it disappeared. It is
+    waived only for a language whose imports are source members, and only when
+    something actually includes the file (popularity > 0); an unreferenced one,
+    or the same file under a language without that declaration, still goes."""
+    defs = {
+        "cobol": {"imports_are_source_members": True, "rules": {"branch": 1, "io": 1}},
+        "python": {"rules": {"branch": 1}},
+    }
+    auditor = StatisticalAuditor(lang_defs=defs)
+
+    def member(lang, popularity):
+        return {
+            "path": f"CSLKPCDY.{lang}",
+            "name": f"CSLKPCDY.{lang}",
+            "lang_id": lang,
+            "coding_loc": 1283,
+            "equations": {"branch": 0, "io": 0},
+            "telemetry": {
+                "identity_lock_tier": 0,
+                "identity_source_proof": "Absolute Override",
+                "popularity": popularity,
+            },
+        }
+
+    verified, unparsable = auditor.audit([member("cobol", 1)])
+    assert [f["path"] for f in verified] == ["CSLKPCDY.cobol"] and unparsable == []
+
+    for lang, popularity in (("cobol", 0), ("python", 1)):
+        verified, unparsable = auditor.audit([member(lang, popularity)])
+        assert verified == [], (lang, popularity)
+        assert "Zero-Density Threshold" in unparsable[0]["reason"]

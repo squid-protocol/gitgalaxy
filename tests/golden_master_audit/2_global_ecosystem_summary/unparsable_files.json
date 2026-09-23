@@ -4,7 +4,7 @@
     "unparsable_files"
   ],
   "value": {
-    "ambig_file_count": 340,
+    "ambig_file_count": 344,
     "binary": 0,
     "composition_by_extension_and_reason": {
       ".ads": {
@@ -32,10 +32,13 @@
       ".cmd": {
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 2
       },
+      ".cob": {
+        "Zero-Density Threshold (LOC: 200, Signals: 0)": 3
+      },
       ".cpy": {
         "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 6,
-        "Zero-Density Threshold (LOC: 1283, Signals: 0)": 1,
-        "Zero-Density Threshold (LOC: 85, Signals: 0)": 1
+        "Zero-Density Threshold (LOC: 152, Signals: 0)": 2,
+        "Zero-Density Threshold (LOC: 173, Signals: 0)": 1
       },
       ".css": {
         "Blocked (Machine-Generated Source Code Signature: 1443 LOC)": 1,

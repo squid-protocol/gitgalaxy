@@ -2692,20 +2692,52 @@
       "Size": "751 bytes"
     },
     {
-      "Diagnostic Reason": "Zero-Density Threshold (LOC: 1283, Signals: 0)",
+      "Diagnostic Reason": "Zero-Density Threshold (LOC: 173, Signals: 0)",
       "Discovery Proof": "Single Indicator (Ext: .cpy)",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "91.0%",
-      "Path": "cobol/aws-mainframe-modernization-carddemo/CSLKPCDY.cpy",
-      "Size": "51399 bytes"
+      "Path": "cobol/cobrix/data_types.cpy",
+      "Size": "11929 bytes"
     },
     {
-      "Diagnostic Reason": "Zero-Density Threshold (LOC: 85, Signals: 0)",
+      "Diagnostic Reason": "Zero-Density Threshold (LOC: 200, Signals: 0)",
+      "Discovery Proof": "Single Indicator (Ext: .cob)",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "91.0%",
+      "Path": "cobol/cobrix/test24_copybook.cob",
+      "Size": "13362 bytes"
+    },
+    {
+      "Diagnostic Reason": "Zero-Density Threshold (LOC: 200, Signals: 0)",
+      "Discovery Proof": "Single Indicator (Ext: .cob)",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "91.0%",
+      "Path": "cobol/cobrix/test40_copybook.cob",
+      "Size": "13362 bytes"
+    },
+    {
+      "Diagnostic Reason": "Zero-Density Threshold (LOC: 200, Signals: 0)",
+      "Discovery Proof": "Single Indicator (Ext: .cob)",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "91.0%",
+      "Path": "cobol/cobrix/test6_copybook.cob",
+      "Size": "13337 bytes"
+    },
+    {
+      "Diagnostic Reason": "Zero-Density Threshold (LOC: 152, Signals: 0)",
       "Discovery Proof": "Single Indicator (Ext: .cpy)",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "91.0%",
-      "Path": "cobol/cics-genapp/lgpolicy.cpy",
-      "Size": "5292 bytes"
+      "Path": "cobol/gnucobol/screenio.cpy",
+      "Size": "10636 bytes"
+    },
+    {
+      "Diagnostic Reason": "Zero-Density Threshold (LOC: 152, Signals: 0)",
+      "Discovery Proof": "Single Indicator (Ext: .cpy)",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "91.0%",
+      "Path": "cobol/gnucobol_internals/screenio.cpy",
+      "Size": "10636 bytes"
     },
     {
       "Diagnostic Reason": "Packed Payload Guard (Impossible Density: 3.32 hits/line)",

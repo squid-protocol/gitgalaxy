@@ -67009,8 +67009,8 @@
       ],
       "cobol/CICS-Cobol/CBL0506v01CondicionNot.cbl": [
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "36.4%",
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "22.2%",
           "End Line": 35,
           "Function Name": "MAIN-PROCEDURE",
           "Input Parameters": 0,
@@ -67019,7 +67019,7 @@
           "Lines of Code (LOC)": 17,
           "Reflection Hits": 0,
           "Start Line": 19,
-          "Structural Impact": 5.8
+          "Structural Impact": 3.9
         }
       ],
       "cobol/CICS-Cobol/CBL0507v01CondicionCombined.cbl": [
@@ -67892,7 +67892,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": [
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "57.1%",
           "End Line": 116,
           "Function Name": "1000-ACCTFILE-GET-NEXT",
           "Input Parameters": 0,
@@ -67905,7 +67905,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 149,
           "Function Name": "0000-ACCTFILE-OPEN",
           "Input Parameters": 0,
@@ -67918,7 +67918,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 167,
           "Function Name": "9000-ACCTFILE-CLOSE",
           "Input Parameters": 0,
@@ -67931,7 +67931,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 189,
           "Function Name": "9910-DISPLAY-IO-STATUS",
           "Input Parameters": 0,
@@ -67972,7 +67972,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": [
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Ratio": "61.5%",
           "End Line": 116,
           "Function Name": "1000-CARDFILE-GET-NEXT",
           "Input Parameters": 0,
@@ -67985,7 +67985,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 134,
           "Function Name": "0000-CARDFILE-OPEN",
           "Input Parameters": 0,
@@ -67998,7 +67998,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 152,
           "Function Name": "9000-CARDFILE-CLOSE",
           "Input Parameters": 0,
@@ -68011,7 +68011,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 174,
           "Function Name": "9910-DISPLAY-IO-STATUS",
           "Input Parameters": 0,
@@ -68039,7 +68039,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": [
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "53.3%",
+          "Control Flow Ratio": "57.1%",
           "End Line": 116,
           "Function Name": "1000-XREFFILE-GET-NEXT",
           "Input Parameters": 0,
@@ -68052,7 +68052,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 134,
           "Function Name": "0000-XREFFILE-OPEN",
           "Input Parameters": 0,
@@ -68065,7 +68065,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 152,
           "Function Name": "9000-XREFFILE-CLOSE",
           "Input Parameters": 0,
@@ -68078,7 +68078,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 174,
           "Function Name": "9910-DISPLAY-IO-STATUS",
           "Input Parameters": 0,
@@ -68106,7 +68106,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": [
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Ratio": "61.5%",
           "End Line": 348,
           "Function Name": "1000-TCATBALF-GET-NEXT",
           "Input Parameters": 0,
@@ -68119,7 +68119,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "42.9%",
           "End Line": 440,
           "Function Name": "1200-GET-INTEREST-RATE",
           "Input Parameters": 0,
@@ -68132,7 +68132,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "36.4%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 515,
           "Function Name": "1300-B-WRITE-TX",
           "Input Parameters": 0,
@@ -68145,7 +68145,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "41.7%",
+          "Control Flow Ratio": "45.5%",
           "End Line": 391,
           "Function Name": "1100-GET-ACCT-DATA",
           "Input Parameters": 0,
@@ -68158,7 +68158,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "41.7%",
+          "Control Flow Ratio": "45.5%",
           "End Line": 413,
           "Function Name": "1110-GET-XREF-DATA",
           "Input Parameters": 0,
@@ -68171,7 +68171,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 370,
           "Function Name": "1050-UPDATE-ACCOUNT",
           "Input Parameters": 0,
@@ -68184,7 +68184,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 460,
           "Function Name": "1200-A-GET-DEFAULT-INT-RATE",
           "Input Parameters": 0,
@@ -68197,7 +68197,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 250,
           "Function Name": "0000-TCATBALF-OPEN",
           "Input Parameters": 0,
@@ -68210,7 +68210,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 268,
           "Function Name": "0100-XREFFILE-OPEN",
           "Input Parameters": 0,
@@ -68223,7 +68223,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 286,
           "Function Name": "0200-DISCGRP-OPEN",
           "Input Parameters": 0,
@@ -68236,7 +68236,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 305,
           "Function Name": "0300-ACCTFILE-OPEN",
           "Input Parameters": 0,
@@ -68249,7 +68249,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 323,
           "Function Name": "0400-TRANFILE-OPEN",
           "Input Parameters": 0,
@@ -68262,7 +68262,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 538,
           "Function Name": "9000-TCATBALF-CLOSE",
           "Input Parameters": 0,
@@ -68275,7 +68275,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 557,
           "Function Name": "9100-XREFFILE-CLOSE",
           "Input Parameters": 0,
@@ -68288,7 +68288,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 575,
           "Function Name": "9200-DISCGRP-CLOSE",
           "Input Parameters": 0,
@@ -68301,7 +68301,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 593,
           "Function Name": "9300-ACCTFILE-CLOSE",
           "Input Parameters": 0,
@@ -68314,7 +68314,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 611,
           "Function Name": "9400-TRANFILE-CLOSE",
           "Input Parameters": 0,
@@ -68327,7 +68327,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 648,
           "Function Name": "9910-DISPLAY-IO-STATUS",
           "Input Parameters": 0,
@@ -68394,7 +68394,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": [
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "53.3%",
+          "Control Flow Ratio": "57.1%",
           "End Line": 116,
           "Function Name": "1000-CUSTFILE-GET-NEXT",
           "Input Parameters": 0,
@@ -68407,7 +68407,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 134,
           "Function Name": "0000-CUSTFILE-OPEN",
           "Input Parameters": 0,
@@ -68420,7 +68420,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 152,
           "Function Name": "9000-CUSTFILE-CLOSE",
           "Input Parameters": 0,
@@ -68433,7 +68433,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 174,
           "Function Name": "Z-DISPLAY-IO-STATUS",
           "Input Parameters": 0,
@@ -68461,7 +68461,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CBTRN01C.cbl": [
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Ratio": "61.5%",
           "End Line": 225,
           "Function Name": "1000-DALYTRAN-GET-NEXT",
           "Input Parameters": 0,
@@ -68474,7 +68474,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "20.7%",
+          "Control Flow Ratio": "21.4%",
           "End Line": 197,
           "Function Name": "MAIN-PARA",
           "Input Parameters": 0,
@@ -68487,7 +68487,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 266,
           "Function Name": "0000-DALYTRAN-OPEN",
           "Input Parameters": 0,
@@ -68500,7 +68500,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 285,
           "Function Name": "0100-CUSTFILE-OPEN",
           "Input Parameters": 0,
@@ -68513,7 +68513,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 303,
           "Function Name": "0200-XREFFILE-OPEN",
           "Input Parameters": 0,
@@ -68526,7 +68526,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 321,
           "Function Name": "0300-CARDFILE-OPEN",
           "Input Parameters": 0,
@@ -68539,7 +68539,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 339,
           "Function Name": "0400-ACCTFILE-OPEN",
           "Input Parameters": 0,
@@ -68552,7 +68552,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 357,
           "Function Name": "0500-TRANFILE-OPEN",
           "Input Parameters": 0,
@@ -68565,7 +68565,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 375,
           "Function Name": "9000-DALYTRAN-CLOSE",
           "Input Parameters": 0,
@@ -68578,7 +68578,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 393,
           "Function Name": "9100-CUSTFILE-CLOSE",
           "Input Parameters": 0,
@@ -68591,7 +68591,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 411,
           "Function Name": "9200-XREFFILE-CLOSE",
           "Input Parameters": 0,
@@ -68604,7 +68604,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 429,
           "Function Name": "9300-CARDFILE-CLOSE",
           "Input Parameters": 0,
@@ -68617,7 +68617,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 447,
           "Function Name": "9400-ACCTFILE-CLOSE",
           "Input Parameters": 0,
@@ -68630,7 +68630,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 465,
           "Function Name": "9500-TRANFILE-CLOSE",
           "Input Parameters": 0,
@@ -68643,7 +68643,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 487,
           "Function Name": "Z-DISPLAY-IO-STATUS",
           "Input Parameters": 0,
@@ -68697,7 +68697,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": [
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Ratio": "61.5%",
           "End Line": 369,
           "Function Name": "1000-DALYTRAN-GET-NEXT",
           "Input Parameters": 0,
@@ -68710,7 +68710,7 @@
         },
         {
           "Control Flow Branches": 7,
-          "Control Flow Ratio": "43.8%",
+          "Control Flow Ratio": "46.7%",
           "End Line": 501,
           "Function Name": "2700-UPDATE-TCATBAL",
           "Input Parameters": 0,
@@ -68736,7 +68736,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "44.4%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 524,
           "Function Name": "2700-A-CREATE-TCATBAL-REC",
           "Input Parameters": 0,
@@ -68749,7 +68749,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 465,
           "Function Name": "2500-WRITE-REJECT-REC",
           "Input Parameters": 0,
@@ -68762,7 +68762,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 579,
           "Function Name": "2900-WRITE-TRANSACTION-FILE",
           "Input Parameters": 0,
@@ -68775,7 +68775,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 252,
           "Function Name": "0000-DALYTRAN-OPEN",
           "Input Parameters": 0,
@@ -68788,7 +68788,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 270,
           "Function Name": "0100-TRANFILE-OPEN",
           "Input Parameters": 0,
@@ -68801,7 +68801,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 289,
           "Function Name": "0200-XREFFILE-OPEN",
           "Input Parameters": 0,
@@ -68814,7 +68814,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 307,
           "Function Name": "0300-DALYREJS-OPEN",
           "Input Parameters": 0,
@@ -68827,7 +68827,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 325,
           "Function Name": "0400-ACCTFILE-OPEN",
           "Input Parameters": 0,
@@ -68840,7 +68840,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 343,
           "Function Name": "0500-TCATBALF-OPEN",
           "Input Parameters": 0,
@@ -68853,7 +68853,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "44.4%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 542,
           "Function Name": "2700-B-UPDATE-TCATBAL-REC",
           "Input Parameters": 0,
@@ -68866,7 +68866,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 598,
           "Function Name": "9000-DALYTRAN-CLOSE",
           "Input Parameters": 0,
@@ -68879,7 +68879,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 616,
           "Function Name": "9100-TRANFILE-CLOSE",
           "Input Parameters": 0,
@@ -68892,7 +68892,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 635,
           "Function Name": "9200-XREFFILE-CLOSE",
           "Input Parameters": 0,
@@ -68905,7 +68905,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 653,
           "Function Name": "9300-DALYREJS-CLOSE",
           "Input Parameters": 0,
@@ -68918,7 +68918,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 671,
           "Function Name": "9400-ACCTFILE-CLOSE",
           "Input Parameters": 0,
@@ -68931,7 +68931,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 690,
           "Function Name": "9500-TCATBALF-CLOSE",
           "Input Parameters": 0,
@@ -68957,7 +68957,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 727,
           "Function Name": "9910-DISPLAY-IO-STATUS",
           "Input Parameters": 0,
@@ -69037,7 +69037,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": [
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "61.5%",
+          "Control Flow Ratio": "66.7%",
           "End Line": 243,
           "Function Name": "0550-DATEPARM-READ",
           "Input Parameters": 0,
@@ -69050,7 +69050,7 @@
         },
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Ratio": "61.5%",
           "End Line": 272,
           "Function Name": "1000-TRANFILE-GET-NEXT",
           "Input Parameters": 0,
@@ -69063,7 +69063,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 359,
           "Function Name": "1111-WRITE-REPORT-REC",
           "Input Parameters": 0,
@@ -69076,7 +69076,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 392,
           "Function Name": "0000-TRANFILE-OPEN",
           "Input Parameters": 0,
@@ -69089,7 +69089,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 410,
           "Function Name": "0100-REPTFILE-OPEN",
           "Input Parameters": 0,
@@ -69102,7 +69102,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 428,
           "Function Name": "0200-CARDXREF-OPEN",
           "Input Parameters": 0,
@@ -69115,7 +69115,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 446,
           "Function Name": "0300-TRANTYPE-OPEN",
           "Input Parameters": 0,
@@ -69128,7 +69128,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 464,
           "Function Name": "0400-TRANCATG-OPEN",
           "Input Parameters": 0,
@@ -69141,7 +69141,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 482,
           "Function Name": "0500-DATEPARM-OPEN",
           "Input Parameters": 0,
@@ -69154,7 +69154,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 530,
           "Function Name": "9000-TRANFILE-CLOSE",
           "Input Parameters": 0,
@@ -69167,7 +69167,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 548,
           "Function Name": "9100-REPTFILE-CLOSE",
           "Input Parameters": 0,
@@ -69180,7 +69180,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 567,
           "Function Name": "9200-CARDXREF-CLOSE",
           "Input Parameters": 0,
@@ -69193,7 +69193,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 585,
           "Function Name": "9300-TRANTYPE-CLOSE",
           "Input Parameters": 0,
@@ -69206,7 +69206,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 603,
           "Function Name": "9400-TRANCATG-CLOSE",
           "Input Parameters": 0,
@@ -69219,7 +69219,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 621,
           "Function Name": "9500-DATEPARM-CLOSE",
           "Input Parameters": 0,
@@ -69245,7 +69245,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 646,
           "Function Name": "9910-DISPLAY-IO-STATUS",
           "Input Parameters": 0,
@@ -69258,7 +69258,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Ratio": "20.0%",
           "End Line": 492,
           "Function Name": "1500-A-LOOKUP-XREF",
           "Input Parameters": 0,
@@ -69271,7 +69271,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Ratio": "20.0%",
           "End Line": 502,
           "Function Name": "1500-B-LOOKUP-TRANTYPE",
           "Input Parameters": 0,
@@ -69284,7 +69284,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Ratio": "20.0%",
           "End Line": 512,
           "Function Name": "1500-C-LOOKUP-TRANCATG",
           "Input Parameters": 0,
@@ -69378,7 +69378,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": [
         {
           "Control Flow Branches": 97,
-          "Control Flow Ratio": "94.2%",
+          "Control Flow Ratio": "95.1%",
           "End Line": 1433,
           "Function Name": "1100-RECEIVE-MAP",
           "Input Parameters": 0,
@@ -69391,7 +69391,7 @@
         },
         {
           "Control Flow Branches": 93,
-          "Control Flow Ratio": "93.0%",
+          "Control Flow Ratio": "95.9%",
           "End Line": 3444,
           "Function Name": "3300-SETUP-SCREEN-ATTRS",
           "Input Parameters": 0,
@@ -69404,7 +69404,7 @@
         },
         {
           "Control Flow Branches": 19,
-          "Control Flow Ratio": "67.9%",
+          "Control Flow Ratio": "76.0%",
           "End Line": 2650,
           "Function Name": "2000-DECIDE-ACTION",
           "Input Parameters": 0,
@@ -69417,7 +69417,7 @@
         },
         {
           "Control Flow Branches": 15,
-          "Control Flow Ratio": "55.6%",
+          "Control Flow Ratio": "71.4%",
           "End Line": 1013,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
@@ -69430,7 +69430,7 @@
         },
         {
           "Control Flow Branches": 10,
-          "Control Flow Ratio": "13.5%",
+          "Control Flow Ratio": "23.8%",
           "End Line": 1684,
           "Function Name": "1200-EDIT-MAP-INPUTS",
           "Input Parameters": 0,
@@ -69443,7 +69443,7 @@
         },
         {
           "Control Flow Branches": 11,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "68.8%",
           "End Line": 4112,
           "Function Name": "9600-WRITE-PROCESSING",
           "Input Parameters": 0,
@@ -69452,7 +69452,7 @@
           "Lines of Code (LOC)": 217,
           "Reflection Hits": 5,
           "Start Line": 3896,
-          "Structural Impact": 22.9
+          "Structural Impact": 20.5
         },
         {
           "Control Flow Branches": 12,
@@ -69495,7 +69495,7 @@
         },
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 2430,
           "Function Name": "EDIT-US-PHONE-LINENUM",
           "Input Parameters": 0,
@@ -69508,7 +69508,7 @@
         },
         {
           "Control Flow Branches": 10,
-          "Control Flow Ratio": "52.6%",
+          "Control Flow Ratio": "66.7%",
           "End Line": 2734,
           "Function Name": "3200-SETUP-SCREEN-VARS",
           "Input Parameters": 0,
@@ -69534,7 +69534,7 @@
         },
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "61.5%",
+          "Control Flow Ratio": "80.0%",
           "End Line": 2183,
           "Function Name": "1245-EDIT-NUM-REQD",
           "Input Parameters": 0,
@@ -69546,34 +69546,8 @@
           "Structural Impact": 12.3
         },
         {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 4200,
-          "Function Name": "9700-CHECK-CHANGE-IN-REC",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 84,
-          "Reflection Hits": 0,
-          "Start Line": 4117,
-          "Structural Impact": 9.2
-        },
-        {
-          "Control Flow Branches": 4,
-          "Control Flow Ratio": "57.1%",
-          "End Line": 1783,
-          "Function Name": "1205-COMPARE-OLD-NEW",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 95,
-          "Reflection Hits": 0,
-          "Start Line": 1689,
-          "Structural Impact": 9.0
-        },
-        {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 2227,
           "Function Name": "1250-EDIT-SIGNED-9V2",
           "Input Parameters": 0,
@@ -69586,7 +69560,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 1826,
           "Function Name": "1210-EDIT-ACCOUNT",
           "Input Parameters": 0,
@@ -69599,7 +69573,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "62.5%",
+          "Control Flow Ratio": "83.3%",
           "End Line": 1958,
           "Function Name": "1225-EDIT-ALPHA-REQD",
           "Input Parameters": 0,
@@ -69612,7 +69586,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "62.5%",
+          "Control Flow Ratio": "83.3%",
           "End Line": 2016,
           "Function Name": "1230-EDIT-ALPHANUM-REQD",
           "Input Parameters": 0,
@@ -69622,6 +69596,19 @@
           "Reflection Hits": 0,
           "Start Line": 1963,
           "Structural Impact": 8.7
+        },
+        {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "66.7%",
+          "End Line": 4200,
+          "Function Name": "9700-CHECK-CHANGE-IN-REC",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 84,
+          "Reflection Hits": 0,
+          "Start Line": 4117,
+          "Structural Impact": 8.5
         },
         {
           "Control Flow Branches": 5,
@@ -69651,7 +69638,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "55.6%",
+          "Control Flow Ratio": "71.4%",
           "End Line": 2064,
           "Function Name": "1235-EDIT-ALPHA-OPT",
           "Input Parameters": 0,
@@ -69664,7 +69651,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "55.6%",
+          "Control Flow Ratio": "71.4%",
           "End Line": 2112,
           "Function Name": "1240-EDIT-ALPHANUM-OPT",
           "Input Parameters": 0,
@@ -69689,8 +69676,21 @@
           "Structural Impact": 8.2
         },
         {
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "80.0%",
+          "End Line": 1783,
+          "Function Name": "1205-COMPARE-OLD-NEW",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 95,
+          "Reflection Hits": 0,
+          "Start Line": 1689,
+          "Structural Impact": 8.0
+        },
+        {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "62.5%",
+          "Control Flow Ratio": "83.3%",
           "End Line": 1901,
           "Function Name": "1220-EDIT-YESNO",
           "Input Parameters": 0,
@@ -69703,7 +69703,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "36.4%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 2496,
           "Function Name": "1265-EDIT-US-SSN",
           "Input Parameters": 0,
@@ -69729,7 +69729,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "21.4%",
+          "Control Flow Ratio": "42.9%",
           "End Line": 3652,
           "Function Name": "9000-READ-ACCT",
           "Input Parameters": 0,
@@ -69742,7 +69742,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 2565,
           "Function Name": "1280-EDIT-US-STATE-ZIP-CD",
           "Input Parameters": 0,
@@ -69755,7 +69755,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 2518,
           "Function Name": "1270-EDIT-US-STATE-CD",
           "Input Parameters": 0,
@@ -69768,7 +69768,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 2538,
           "Function Name": "1275-EDIT-FICO-SCORE",
           "Input Parameters": 0,
@@ -69794,7 +69794,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 1859,
           "Function Name": "1215-EDIT-MANDATORY",
           "Input Parameters": 0,
@@ -69807,7 +69807,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "66.7%",
           "End Line": 2253,
           "Function Name": "1260-EDIT-US-PHONE-NUM",
           "Input Parameters": 0,
@@ -70486,7 +70486,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl": [
         {
           "Control Flow Branches": 16,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "66.7%",
           "End Line": 393,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
@@ -70564,7 +70564,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "71.4%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 681,
           "Function Name": "2210-EDIT-ACCOUNT",
           "Input Parameters": 0,
@@ -70577,7 +70577,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "25.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 718,
           "Function Name": "9000-READ-ACCT",
           "Input Parameters": 0,
@@ -70590,7 +70590,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 643,
           "Function Name": "2200-EDIT-MAP-INPUTS",
           "Input Parameters": 0,
@@ -70944,7 +70944,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl": [
         {
           "Control Flow Branches": 14,
-          "Control Flow Ratio": "82.4%",
+          "Control Flow Ratio": "87.5%",
           "End Line": 263,
           "Function Name": "BUILD-MENU-OPTIONS",
           "Input Parameters": 0,
@@ -70970,7 +70970,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "55.6%",
+          "Control Flow Ratio": "62.5%",
           "End Line": 155,
           "Function Name": "PROCESS-ENTER-KEY",
           "Input Parameters": 0,
@@ -71251,7 +71251,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COCRDLIC.cbl": [
         {
           "Control Flow Branches": 22,
-          "Control Flow Ratio": "45.8%",
+          "Control Flow Ratio": "59.5%",
           "End Line": 602,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
@@ -71264,7 +71264,7 @@
         },
         {
           "Control Flow Branches": 21,
-          "Control Flow Ratio": "63.6%",
+          "Control Flow Ratio": "80.8%",
           "End Line": 1260,
           "Function Name": "9000-READ-FORWARD",
           "Input Parameters": 0,
@@ -71290,7 +71290,7 @@
         },
         {
           "Control Flow Branches": 13,
-          "Control Flow Ratio": "54.2%",
+          "Control Flow Ratio": "76.5%",
           "End Line": 1372,
           "Function Name": "9100-READ-BACKWARDS",
           "Input Parameters": 0,
@@ -71342,7 +71342,7 @@
         },
         {
           "Control Flow Branches": 10,
-          "Control Flow Ratio": "71.4%",
+          "Control Flow Ratio": "83.3%",
           "End Line": 1117,
           "Function Name": "2250-EDIT-ARRAY",
           "Input Parameters": 0,
@@ -71355,7 +71355,7 @@
         },
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Ratio": "66.7%",
           "End Line": 1407,
           "Function Name": "9500-FILTER-RECORDS",
           "Input Parameters": 0,
@@ -71368,7 +71368,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "71.4%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 1067,
           "Function Name": "2220-EDIT-CARD",
           "Input Parameters": 0,
@@ -71381,7 +71381,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 1030,
           "Function Name": "2210-EDIT-ACCOUNT",
           "Input Parameters": 0,
@@ -71761,7 +71761,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COCRDSLC.cbl": [
         {
           "Control Flow Branches": 17,
-          "Control Flow Ratio": "45.9%",
+          "Control Flow Ratio": "63.0%",
           "End Line": 392,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
@@ -71813,7 +71813,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 720,
           "Function Name": "2220-EDIT-CARD",
           "Input Parameters": 0,
@@ -71826,7 +71826,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 679,
           "Function Name": "2210-EDIT-ACCOUNT",
           "Input Parameters": 0,
@@ -71839,7 +71839,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "55.6%",
+          "Control Flow Ratio": "71.4%",
           "End Line": 641,
           "Function Name": "2200-EDIT-MAP-INPUTS",
           "Input Parameters": 0,
@@ -72219,7 +72219,7 @@
         },
         {
           "Control Flow Branches": 20,
-          "Control Flow Ratio": "55.6%",
+          "Control Flow Ratio": "71.4%",
           "End Line": 544,
           "Function Name": "0000-MAIN",
           "Input Parameters": 0,
@@ -72232,7 +72232,7 @@
         },
         {
           "Control Flow Branches": 19,
-          "Control Flow Ratio": "67.9%",
+          "Control Flow Ratio": "76.0%",
           "End Line": 1028,
           "Function Name": "2000-DECIDE-ACTION",
           "Input Parameters": 0,
@@ -72284,7 +72284,7 @@
         },
         {
           "Control Flow Branches": 7,
-          "Control Flow Ratio": "30.4%",
+          "Control Flow Ratio": "46.7%",
           "End Line": 715,
           "Function Name": "1200-EDIT-MAP-INPUTS",
           "Input Parameters": 0,
@@ -72297,7 +72297,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "66.7%",
           "End Line": 1493,
           "Function Name": "9200-WRITE-PROCESSING",
           "Input Parameters": 0,
@@ -72310,7 +72310,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 800,
           "Function Name": "1220-EDIT-CARD",
           "Input Parameters": 0,
@@ -72336,7 +72336,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 756,
           "Function Name": "1210-EDIT-ACCOUNT",
           "Input Parameters": 0,
@@ -72349,7 +72349,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "62.5%",
+          "Control Flow Ratio": "83.3%",
           "End Line": 840,
           "Function Name": "1230-EDIT-NAME",
           "Input Parameters": 0,
@@ -72362,7 +72362,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "71.4%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 908,
           "Function Name": "1250-EDIT-EXPIRY-MON",
           "Input Parameters": 0,
@@ -72375,7 +72375,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "71.4%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 944,
           "Function Name": "1260-EDIT-EXPIRY-YEAR",
           "Input Parameters": 0,
@@ -72388,7 +72388,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "71.4%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 873,
           "Function Name": "1240-EDIT-CARDSTATUS",
           "Input Parameters": 0,
@@ -72401,7 +72401,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 1520,
           "Function Name": "9300-CHECK-CHANGE-IN-REC",
           "Input Parameters": 0,
@@ -72414,7 +72414,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 1370,
           "Function Name": "9000-READ-DATA",
           "Input Parameters": 0,
@@ -72794,7 +72794,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COMEN01C.cbl": [
         {
           "Control Flow Branches": 16,
-          "Control Flow Ratio": "84.2%",
+          "Control Flow Ratio": "88.9%",
           "End Line": 277,
           "Function Name": "BUILD-MENU-OPTIONS",
           "Input Parameters": 0,
@@ -72820,7 +72820,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "54.5%",
+          "Control Flow Ratio": "60.0%",
           "End Line": 165,
           "Function Name": "PROCESS-ENTER-KEY",
           "Input Parameters": 0,
@@ -72902,7 +72902,7 @@
         },
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "52.9%",
+          "Control Flow Ratio": "56.2%",
           "End Line": 510,
           "Function Name": "SUBMIT-JOB-TO-INTRDR",
           "Input Parameters": 0,
@@ -73142,7 +73142,7 @@
         },
         {
           "Control Flow Branches": 12,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "54.5%",
           "End Line": 328,
           "Function Name": "PROCESS-PAGE-FORWARD",
           "Input Parameters": 0,
@@ -73155,7 +73155,7 @@
         },
         {
           "Control Flow Branches": 11,
-          "Control Flow Ratio": "47.8%",
+          "Control Flow Ratio": "52.4%",
           "End Line": 376,
           "Function Name": "PROCESS-PAGE-BACKWARD",
           "Input Parameters": 0,
@@ -73711,7 +73711,7 @@
         },
         {
           "Control Flow Branches": 12,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "54.5%",
           "End Line": 331,
           "Function Name": "PROCESS-PAGE-FORWARD",
           "Input Parameters": 0,
@@ -73724,7 +73724,7 @@
         },
         {
           "Control Flow Branches": 11,
-          "Control Flow Ratio": "47.8%",
+          "Control Flow Ratio": "52.4%",
           "End Line": 379,
           "Function Name": "PROCESS-PAGE-BACKWARD",
           "Input Parameters": 0,
@@ -74292,6 +74292,7 @@
         }
       ],
       "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": [],
+      "cobol/aws-mainframe-modernization-carddemo/CSLKPCDY.cpy": [],
       "cobol/aws-mainframe-modernization-carddemo/CSMSG01Y.cpy": [],
       "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": [],
       "cobol/aws-mainframe-modernization-carddemo/CSSETATY.cpy": [],
@@ -74327,7 +74328,7 @@
       "cobol/aws-mainframe-modernization-carddemo/CSUTLDPY.cpy": [
         {
           "Control Flow Branches": 12,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "85.7%",
           "End Line": 279,
           "Function Name": "EDIT-DAY-MONTH-YEAR",
           "Input Parameters": 0,
@@ -74340,7 +74341,7 @@
         },
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 87,
           "Function Name": "EDIT-YEAR-CCYY",
           "Input Parameters": 0,
@@ -74353,7 +74354,7 @@
         },
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "64.3%",
+          "Control Flow Ratio": "81.8%",
           "End Line": 204,
           "Function Name": "EDIT-DAY",
           "Input Parameters": 0,
@@ -74366,7 +74367,7 @@
         },
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "64.3%",
+          "Control Flow Ratio": "81.8%",
           "End Line": 144,
           "Function Name": "EDIT-MONTH",
           "Input Parameters": 0,
@@ -74379,7 +74380,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "80.0%",
           "End Line": 321,
           "Function Name": "EDIT-DATE-LE",
           "Input Parameters": 0,
@@ -74392,7 +74393,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 369,
           "Function Name": "EDIT-DATE-OF-BIRTH",
           "Input Parameters": 0,
@@ -74682,8 +74683,8 @@
       "cobol/che-che4z_lsp_project_fixtures/HELLO-WORLD.cbl": [],
       "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": [
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "28.6%",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "16.7%",
           "End Line": 48,
           "Function Name": "SPECIAL-NAMES",
           "Input Parameters": 0,
@@ -74692,7 +74693,7 @@
           "Lines of Code (LOC)": 31,
           "Reflection Hits": 0,
           "Start Line": 18,
-          "Structural Impact": 4.5
+          "Structural Impact": 3.5
         }
       ],
       "cobol/che-che4z_lsp_project_fixtures/HOVER_COPYBOOK_NESTED.CBL": [],
@@ -76464,7 +76465,7 @@
       "cobol/che-che4z_nist_ccvs85/DB1024.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 320,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -76503,7 +76504,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Ratio": "33.3%",
           "End Line": 578,
           "Function Name": "PERFORM-THRU-TEST",
           "Input Parameters": 0,
@@ -76620,7 +76621,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "14.3%",
+          "Control Flow Ratio": "25.0%",
           "End Line": 605,
           "Function Name": "SIMPLE-PERFORM-TEST",
           "Input Parameters": 0,
@@ -77649,7 +77650,7 @@
       "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 318,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -77688,7 +77689,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Ratio": "33.3%",
           "End Line": 576,
           "Function Name": "PERFORM-THRU-TEST",
           "Input Parameters": 0,
@@ -77805,7 +77806,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "14.3%",
+          "Control Flow Ratio": "25.0%",
           "End Line": 603,
           "Function Name": "SIMPLE-PERFORM-TEST",
           "Input Parameters": 0,
@@ -78847,7 +78848,7 @@
       "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 379,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -79146,7 +79147,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 671,
           "Function Name": "SORT-OUT-6",
           "Input Parameters": 0,
@@ -80220,7 +80221,7 @@
       "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 262,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -80848,7 +80849,7 @@
       "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 266,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -80926,7 +80927,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 355,
           "Function Name": "EXIT-TEST-003",
           "Input Parameters": 0,
@@ -80939,7 +80940,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 372,
           "Function Name": "EXIT-TEST-004",
           "Input Parameters": 0,
@@ -80978,7 +80979,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 322,
           "Function Name": "EXIT-TEST-001",
           "Input Parameters": 0,
@@ -80991,7 +80992,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 338,
           "Function Name": "EXIT-TEST-002",
           "Input Parameters": 0,
@@ -81736,7 +81737,7 @@
       "cobol/che-che4z_nist_ccvs85/IC1054.2.cbl": [
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 39,
           "Function Name": "EXIT-TEST-001",
           "Input Parameters": 0,
@@ -81749,7 +81750,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 45,
           "Function Name": "EXIT-TEST-002",
           "Input Parameters": 0,
@@ -81762,7 +81763,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 51,
           "Function Name": "EXIT-TEST-003",
           "Input Parameters": 0,
@@ -81868,7 +81869,7 @@
       "cobol/che-che4z_nist_ccvs85/IC1064.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 269,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -82990,7 +82991,7 @@
       "cobol/che-che4z_nist_ccvs85/IC1084.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 264,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -83897,7 +83898,7 @@
       "cobol/che-che4z_nist_ccvs85/IC1144.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 283,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -84536,7 +84537,7 @@
       "cobol/che-che4z_nist_ccvs85/IC1164.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 272,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -85023,7 +85024,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2014.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 263,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -86197,7 +86198,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2034.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 265,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -87739,7 +87740,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 265,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -88705,7 +88706,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 253,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -89285,7 +89286,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 251,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -89785,7 +89786,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 257,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -90218,7 +90219,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 281,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -91000,7 +91001,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 272,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -91457,7 +91458,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 275,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -91914,7 +91915,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 333,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -92109,7 +92110,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 384,
           "Function Name": "USE-TEST-0",
           "Input Parameters": 0,
@@ -92501,7 +92502,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 289,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -93049,7 +93050,7 @@
       "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 255,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -93547,7 +93548,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 278,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -94537,7 +94538,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 278,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -95280,7 +95281,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 271,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -95698,7 +95699,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1084.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 247,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -96519,7 +96520,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1094.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 247,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -97236,7 +97237,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1104.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 276,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -98005,7 +98006,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1114.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 251,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -99528,7 +99529,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1124.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 246,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -100245,7 +100246,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1134.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 247,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -100962,7 +100963,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1144.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 251,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -102485,7 +102486,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1154.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 244,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -103215,7 +103216,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1184.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 246,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -104205,7 +104206,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1204.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 288,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -105390,7 +105391,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1214.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 288,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -106575,7 +106576,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1224.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 287,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -107760,7 +107761,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1244.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 275,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -109153,7 +109154,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1254.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 250,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -110507,7 +110508,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1274.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 277,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -111302,7 +111303,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1284.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 285,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -112461,7 +112462,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1294.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 257,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -113672,7 +113673,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1314.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 275,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -114402,7 +114403,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1324.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 287,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -115483,7 +115484,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1334.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 276,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -116668,7 +116669,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1344.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 246,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -117671,7 +117672,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1374.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 285,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -118869,7 +118870,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1384.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 287,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -120002,7 +120003,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1404.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 246,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -120992,7 +120993,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1414.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 283,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -122138,7 +122139,7 @@
       "cobol/che-che4z_nist_ccvs85/IF1424.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 260,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -122190,19 +122191,6 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
-          "End Line": 336,
-          "Function Name": "F-WHENCOMP-TEST-01",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 18,
-          "Reflection Hits": 0,
-          "Start Line": 319,
-          "Structural Impact": 4.9
-        },
-        {
-          "Control Flow Branches": 3,
           "Control Flow Ratio": "75.0%",
           "End Line": 290,
           "Function Name": "FAIL-ROUTINE",
@@ -122215,8 +122203,21 @@
           "Structural Impact": 4.5
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 336,
+          "Function Name": "F-WHENCOMP-TEST-01",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 18,
+          "Reflection Hits": 0,
+          "Start Line": 319,
+          "Structural Impact": 3.9
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
           "End Line": 348,
           "Function Name": "F-WHENCOMP-TEST-02",
           "Input Parameters": 0,
@@ -122225,7 +122226,7 @@
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 343,
-          "Structural Impact": 4.3
+          "Structural Impact": 3.3
         },
         {
           "Control Flow Branches": 2,
@@ -122265,19 +122266,6 @@
           "Reflection Hits": 0,
           "Start Line": 291,
           "Structural Impact": 2.2
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 315,
-          "Function Name": "F-WHENCOMP-INFO",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 3,
-          "Reflection Hits": 0,
-          "Start Line": 313,
-          "Structural Impact": 2.1
         },
         {
           "Control Flow Branches": 0,
@@ -122459,6 +122447,19 @@
           "Lines of Code (LOC)": 1,
           "Reflection Hits": 0,
           "Start Line": 312,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 315,
+          "Function Name": "F-WHENCOMP-INFO",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 3,
+          "Reflection Hits": 0,
+          "Start Line": 313,
           "Structural Impact": 1.1
         },
         {
@@ -122962,19 +122963,6 @@
       ],
       "cobol/che-che4z_nist_ccvs85/IF4034.2.cbl": [
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 92,
-          "Function Name": "IF403M-WHEN-COMPILED",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 89,
-          "Structural Impact": 3.2
-        },
-        {
           "Control Flow Branches": 1,
           "Control Flow Ratio": "50.0%",
           "End Line": 31,
@@ -123133,6 +123121,19 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 92,
+          "Function Name": "IF403M-WHEN-COMPILED",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 89,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 94,
           "Function Name": "IF403M-END",
           "Input Parameters": 0,
@@ -123147,7 +123148,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1014.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 393,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -123617,7 +123618,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1024.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 417,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -124217,7 +124218,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 424,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -124869,7 +124870,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1044.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 452,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -125168,7 +125169,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 339,
           "Function Name": "IX-FS2-01-01",
           "Input Parameters": 0,
@@ -125534,7 +125535,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 372,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -126056,7 +126057,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 575,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -126095,7 +126096,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 343,
           "Function Name": "INPUT-PROCESS",
           "Input Parameters": 0,
@@ -126407,7 +126408,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 398,
           "Function Name": "D-END-RTN-EXIT",
           "Input Parameters": 0,
@@ -127033,7 +127034,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 571,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -127072,7 +127073,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 339,
           "Function Name": "INPUT-PROCESS",
           "Input Parameters": 0,
@@ -127371,7 +127372,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 394,
           "Function Name": "D-END-RTN-EXIT",
           "Input Parameters": 0,
@@ -127932,7 +127933,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 572,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -127971,7 +127972,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 340,
           "Function Name": "INPUT-PROCESS",
           "Input Parameters": 0,
@@ -128257,7 +128258,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 395,
           "Function Name": "D-END-RTN-EXIT",
           "Input Parameters": 0,
@@ -128831,7 +128832,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 572,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -128870,7 +128871,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 340,
           "Function Name": "INPUT-PROCESS",
           "Input Parameters": 0,
@@ -129156,7 +129157,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 395,
           "Function Name": "D-END-RTN-EXIT",
           "Input Parameters": 0,
@@ -129730,7 +129731,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 571,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -129769,7 +129770,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 339,
           "Function Name": "INPUT-PROCESS",
           "Input Parameters": 0,
@@ -130055,7 +130056,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 394,
           "Function Name": "D-END-RTN-EXIT",
           "Input Parameters": 0,
@@ -130629,7 +130630,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 571,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -130668,7 +130669,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 339,
           "Function Name": "INPUT-PROCESS",
           "Input Parameters": 0,
@@ -130954,7 +130955,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 394,
           "Function Name": "D-END-RTN-EXIT",
           "Input Parameters": 0,
@@ -131528,7 +131529,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 575,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -131567,7 +131568,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 342,
           "Function Name": "INPUT-PROCESS",
           "Input Parameters": 0,
@@ -131879,7 +131880,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 398,
           "Function Name": "D-END-RTN-EXIT",
           "Input Parameters": 0,
@@ -132440,7 +132441,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 574,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -132479,7 +132480,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "83.3%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 341,
           "Function Name": "INPUT-PROCESS",
           "Input Parameters": 0,
@@ -132752,7 +132753,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 397,
           "Function Name": "D-END-RTN-EXIT",
           "Input Parameters": 0,
@@ -133274,7 +133275,7 @@
       "cobol/che-che4z_nist_ccvs85/IX1214.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 581,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -133625,7 +133626,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 402,
           "Function Name": "D-END-RTN-EXIT",
           "Input Parameters": 0,
@@ -134212,7 +134213,7 @@
       "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 394,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -134669,7 +134670,7 @@
       "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 410,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -135282,7 +135283,7 @@
       "cobol/che-che4z_nist_ccvs85/IX2044.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 461,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -135581,7 +135582,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 348,
           "Function Name": "IX-FD2-01-01",
           "Input Parameters": 0,
@@ -135947,7 +135948,7 @@
       "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 400,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -136703,7 +136704,7 @@
       "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 398,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -136768,7 +136769,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 321,
           "Function Name": "OPEN-FILES",
           "Input Parameters": 0,
@@ -137765,7 +137766,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1114.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 264,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -138978,7 +138979,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1254.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 339,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -139238,7 +139239,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 629,
           "Function Name": "EDI-TEST-GF10",
           "Input Parameters": 0,
@@ -139251,7 +139252,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 656,
           "Function Name": "EDI-TEST-GF11",
           "Input Parameters": 0,
@@ -139264,7 +139265,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 397,
           "Function Name": "EDI-TEST-GF1",
           "Input Parameters": 0,
@@ -139277,7 +139278,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 422,
           "Function Name": "EDI-TEST-GF2",
           "Input Parameters": 0,
@@ -139290,7 +139291,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 447,
           "Function Name": "EDI-TEST-GF3",
           "Input Parameters": 0,
@@ -139303,7 +139304,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 472,
           "Function Name": "EDI-TEST-GF4",
           "Input Parameters": 0,
@@ -139316,7 +139317,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 498,
           "Function Name": "EDI-TEST-GF5",
           "Input Parameters": 0,
@@ -139329,7 +139330,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 524,
           "Function Name": "EDI-TEST-GF6",
           "Input Parameters": 0,
@@ -139342,7 +139343,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 550,
           "Function Name": "EDI-TEST-GF7",
           "Input Parameters": 0,
@@ -139355,7 +139356,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 576,
           "Function Name": "EDI-TEST-GF8",
           "Input Parameters": 0,
@@ -139368,7 +139369,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 602,
           "Function Name": "EDI-TEST-GF9",
           "Input Parameters": 0,
@@ -139381,7 +139382,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 682,
           "Function Name": "EDI-TEST-GF12",
           "Input Parameters": 0,
@@ -140085,7 +140086,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1274.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 256,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -140542,7 +140543,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1314.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 266,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -141233,7 +141234,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1334.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 276,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -141363,7 +141364,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Ratio": "25.0%",
           "End Line": 336,
           "Function Name": "IDX-INIT-A",
           "Input Parameters": 0,
@@ -141381,7 +141382,7 @@
           "Function Name": "IDX-TEST-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 340,
@@ -141394,7 +141395,7 @@
           "Function Name": "IDX-TEST-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 354,
@@ -141407,7 +141408,7 @@
           "Function Name": "IDX-TEST-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 368,
@@ -141420,7 +141421,7 @@
           "Function Name": "IDX-TEST-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 382,
@@ -141485,7 +141486,7 @@
           "Function Name": "IDX-TEST-11",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 492,
@@ -141498,7 +141499,7 @@
           "Function Name": "IDX-TEST-12",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 506,
@@ -141511,7 +141512,7 @@
           "Function Name": "IDX-TEST-13",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 520,
@@ -141524,7 +141525,7 @@
           "Function Name": "IDX-TEST-14",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 534,
@@ -141537,7 +141538,7 @@
           "Function Name": "IDX-TEST-15",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 548,
@@ -142535,7 +142536,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1344.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 309,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -142652,7 +142653,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 670,
           "Function Name": "WRITE-TABLE",
           "Input Parameters": 0,
@@ -143876,7 +143877,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1354.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 274,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -143967,7 +143968,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Ratio": "20.0%",
           "End Line": 487,
           "Function Name": "PARAGRAPH-NAME-10",
           "Input Parameters": 0,
@@ -144671,7 +144672,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1364.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 287,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -144754,7 +144755,7 @@
           "Function Name": "TEST-3-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 15,
           "Reflection Hits": 0,
           "Start Line": 469,
@@ -144819,7 +144820,7 @@
           "Function Name": "TEST-3-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 454,
@@ -144845,7 +144846,7 @@
           "Function Name": "TEST-1-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 382,
@@ -144858,7 +144859,7 @@
           "Function Name": "TEST-2-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 411,
@@ -144871,7 +144872,7 @@
           "Function Name": "TEST-2-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 425,
@@ -145245,7 +145246,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1374.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 286,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -145819,7 +145820,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1384.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 281,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -147108,7 +147109,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1394.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 292,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -148280,7 +148281,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1404.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 280,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -149751,7 +149752,7 @@
       "cobol/che-che4z_nist_ccvs85/NC1414.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 261,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -150571,7 +150572,7 @@
       ],
       "cobol/che-che4z_nist_ccvs85/NC2104.2.cbl": [
         {
-          "Control Flow Branches": 130,
+          "Control Flow Branches": 127,
           "Control Flow Ratio": "99.2%",
           "End Line": 649,
           "Function Name": "IF-TEST-GF-X",
@@ -150581,11 +150582,11 @@
           "Lines of Code (LOC)": 257,
           "Reflection Hits": 0,
           "Start Line": 393,
-          "Structural Impact": 143.8
+          "Structural Impact": 140.8
         },
         {
-          "Control Flow Branches": 29,
-          "Control Flow Ratio": "90.6%",
+          "Control Flow Branches": 24,
+          "Control Flow Ratio": "88.9%",
           "End Line": 710,
           "Function Name": "IF-TEST-GF-Y",
           "Input Parameters": 0,
@@ -150594,11 +150595,11 @@
           "Lines of Code (LOC)": 33,
           "Reflection Hits": 0,
           "Start Line": 678,
-          "Structural Impact": 31.6
+          "Structural Impact": 26.6
         },
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 347,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -150610,8 +150611,8 @@
           "Structural Impact": 11.8
         },
         {
-          "Control Flow Branches": 9,
-          "Control Flow Ratio": "90.0%",
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "85.7%",
           "End Line": 672,
           "Function Name": "IF-WRITE-GF-X",
           "Input Parameters": 0,
@@ -150620,7 +150621,7 @@
           "Lines of Code (LOC)": 14,
           "Reflection Hits": 0,
           "Start Line": 659,
-          "Structural Impact": 10.7
+          "Structural Impact": 7.7
         },
         {
           "Control Flow Branches": 4,
@@ -150676,45 +150677,6 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 716,
-          "Function Name": "IF-DELETE-GF-Y",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
-          "Start Line": 711,
-          "Structural Impact": 3.3
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 727,
-          "Function Name": "IF-WRITE-GF-Y",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
-          "Start Line": 722,
-          "Structural Impact": 3.3
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
-          "End Line": 654,
-          "Function Name": "IF-DELETE-GF-X",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 650,
-          "Structural Impact": 3.2
-        },
-        {
-          "Control Flow Branches": 2,
           "Control Flow Ratio": "100.0%",
           "End Line": 381,
           "Function Name": "BAIL-OUT",
@@ -150727,17 +150689,17 @@
           "Structural Impact": 3.1
         },
         {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 729,
-          "Function Name": "IF-RETURN-GF-Y",
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 727,
+          "Function Name": "IF-WRITE-GF-Y",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 2,
+          "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
-          "Start Line": 728,
-          "Structural Impact": 3.1
+          "Start Line": 722,
+          "Structural Impact": 2.3
         },
         {
           "Control Flow Branches": 1,
@@ -150766,58 +150728,6 @@
           "Structural Impact": 2.2
         },
         {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 658,
-          "Function Name": "IF-FAIL-GF-X",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 655,
-          "Structural Impact": 2.2
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 677,
-          "Function Name": "IF-INIT-GF-Y",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 4,
-          "Reflection Hits": 0,
-          "Start Line": 674,
-          "Structural Impact": 2.2
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
-          "End Line": 721,
-          "Function Name": "IF-FAIL-GF-Y",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 717,
-          "Structural Impact": 2.2
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 392,
-          "Function Name": "IF-INIT-GF-X",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 2,
-          "Reflection Hits": 0,
-          "Start Line": 391,
-          "Structural Impact": 2.1
-        },
-        {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
           "End Line": 284,
@@ -150829,6 +150739,71 @@
           "Reflection Hits": 0,
           "Start Line": 279,
           "Structural Impact": 1.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 716,
+          "Function Name": "IF-DELETE-GF-Y",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 711,
+          "Structural Impact": 1.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 654,
+          "Function Name": "IF-DELETE-GF-X",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 650,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 658,
+          "Function Name": "IF-FAIL-GF-X",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 655,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 677,
+          "Function Name": "IF-INIT-GF-Y",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 4,
+          "Reflection Hits": 0,
+          "Start Line": 674,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 721,
+          "Function Name": "IF-FAIL-GF-Y",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 717,
+          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,
@@ -151002,6 +150977,32 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
+          "End Line": 392,
+          "Function Name": "IF-INIT-GF-X",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 391,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 729,
+          "Function Name": "IF-RETURN-GF-Y",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 2,
+          "Reflection Hits": 0,
+          "Start Line": 728,
+          "Structural Impact": 1.1
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
           "End Line": 731,
           "Function Name": "TEST-EXIT",
           "Input Parameters": 0,
@@ -151042,7 +151043,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 296,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -151590,7 +151591,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2154.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 284,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -152398,7 +152399,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2194.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 296,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -153323,7 +153324,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2224.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 280,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -154261,7 +154262,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2244.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 271,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -155472,7 +155473,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2354.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 272,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -155529,7 +155530,7 @@
           "Function Name": "IDX-TEST-F1-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 401,
@@ -155542,7 +155543,7 @@
           "Function Name": "IDX-TEST-F1-5",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 422,
@@ -155555,7 +155556,7 @@
           "Function Name": "IDX-TEST-F1-6",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 445,
@@ -155568,7 +155569,7 @@
           "Function Name": "IDX-TEST-F1-7",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 467,
@@ -155594,7 +155595,7 @@
           "Function Name": "IDX-TEST-F2-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 335,
@@ -155607,7 +155608,7 @@
           "Function Name": "IDX-TEST-F2-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 357,
@@ -155620,7 +155621,7 @@
           "Function Name": "IDX-TEST-F2-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 379,
@@ -155633,7 +155634,7 @@
           "Function Name": "IDX-TEST-F2-8",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 489,
@@ -155646,7 +155647,7 @@
           "Function Name": "IDX-TEST-F2-9",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 511,
@@ -155659,7 +155660,7 @@
           "Function Name": "IDX-TEST-F2-10",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 532,
@@ -155672,7 +155673,7 @@
           "Function Name": "IDX-TEST-F2-11",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 554,
@@ -155685,7 +155686,7 @@
           "Function Name": "IDX-TEST-F2-12",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 576,
@@ -155698,7 +155699,7 @@
           "Function Name": "IDX-TEST-F2-13",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 598,
@@ -155711,7 +155712,7 @@
           "Function Name": "PUTOUT-COMPUTED-A",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 615,
@@ -156696,7 +156697,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2364.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 273,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -157686,7 +157687,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2374.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 287,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -157712,7 +157713,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "62.5%",
+          "Control Flow Ratio": "71.4%",
           "End Line": 340,
           "Function Name": "BUILD-3DEM-TABLE",
           "Input Parameters": 0,
@@ -157782,7 +157783,7 @@
           "Function Name": "IDX-TEST-F2-12",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 613,
@@ -157795,7 +157796,7 @@
           "Function Name": "IDX-TEST-F2-13",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 637,
@@ -157821,7 +157822,7 @@
           "Function Name": "IDX-TEST-F2-9",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 543,
@@ -157834,7 +157835,7 @@
           "Function Name": "IDX-TEST-F2-10",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 566,
@@ -157847,7 +157848,7 @@
           "Function Name": "IDX-TEST-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 364,
@@ -157860,7 +157861,7 @@
           "Function Name": "IDX-TEST-F2-11",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 589,
@@ -157899,7 +157900,7 @@
           "Function Name": "IDX-TEST-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 386,
@@ -157912,7 +157913,7 @@
           "Function Name": "IDX-TEST-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 408,
@@ -157925,7 +157926,7 @@
           "Function Name": "IDX-TEST-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 431,
@@ -157938,7 +157939,7 @@
           "Function Name": "IDX-TEST-GF-5",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 453,
@@ -157951,7 +157952,7 @@
           "Function Name": "IDX-TEST-GF-6",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 477,
@@ -157964,7 +157965,7 @@
           "Function Name": "IDX-TEST-GF-7",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 501,
@@ -157977,7 +157978,7 @@
           "Function Name": "IDX-TEST-GF-8",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 523,
@@ -158120,7 +158121,7 @@
           "Function Name": "IDX-FAIL-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 394,
@@ -158133,7 +158134,7 @@
           "Function Name": "IDX-FAIL-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 416,
@@ -158146,7 +158147,7 @@
           "Function Name": "IDX-FAIL-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 439,
@@ -158159,7 +158160,7 @@
           "Function Name": "IDX-FAIL-GF-5",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 461,
@@ -158172,7 +158173,7 @@
           "Function Name": "IDX-FAIL-GF-6",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 485,
@@ -158185,7 +158186,7 @@
           "Function Name": "IDX-FAIL-GF-7",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 509,
@@ -158198,7 +158199,7 @@
           "Function Name": "IDX-FAIL-GF-8",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 531,
@@ -158224,7 +158225,7 @@
           "Function Name": "IDX-FAIL-F2-9",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 553,
@@ -158276,7 +158277,7 @@
           "Function Name": "IDX-FAIL-F2-11",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 598,
@@ -158289,7 +158290,7 @@
           "Function Name": "IDX-FAIL-F2-12",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 624,
@@ -158315,7 +158316,7 @@
           "Function Name": "IDX-FAIL-F2-13",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 647,
@@ -158910,7 +158911,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2384.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 318,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -158928,7 +158929,7 @@
           "Function Name": "SCH-TEST-F1-5",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 15,
           "Reflection Hits": 0,
           "Start Line": 500,
@@ -158941,7 +158942,7 @@
           "Function Name": "SCH-TEST-F1-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 13,
           "Reflection Hits": 0,
           "Start Line": 445,
@@ -158954,7 +158955,7 @@
           "Function Name": "SCH-TEST-F1-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 417,
@@ -158980,7 +158981,7 @@
           "Function Name": "SCH-TEST-F1-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 474,
@@ -159006,7 +159007,7 @@
           "Function Name": "SCH-TEST-F2-7",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 553,
@@ -159019,7 +159020,7 @@
           "Function Name": "SCH-TEST-F2-6",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 530,
@@ -159032,7 +159033,7 @@
           "Function Name": "SCH-TEST-F2-10",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 633,
@@ -159071,7 +159072,7 @@
           "Function Name": "SCH-TEST-F2-8",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 581,
@@ -159084,7 +159085,7 @@
           "Function Name": "SCH-TEST-F2-9",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 608,
@@ -159097,7 +159098,7 @@
           "Function Name": "SCH-TEST-F1-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 393,
@@ -159119,19 +159120,6 @@
         {
           "Control Flow Branches": 2,
           "Control Flow Ratio": "100.0%",
-          "End Line": 473,
-          "Function Name": "SCH-INIT-F1-4",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 6,
-          "Reflection Hits": 0,
-          "Start Line": 468,
-          "Structural Impact": 3.3
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "100.0%",
           "End Line": 352,
           "Function Name": "BAIL-OUT",
           "Input Parameters": 0,
@@ -159144,7 +159132,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "25.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 372,
           "Function Name": "BUILD-LOOP-1",
           "Input Parameters": 0,
@@ -159157,12 +159145,12 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 381,
           "Function Name": "BUILD-ENTRY-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 373,
@@ -159192,6 +159180,19 @@
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 439,
+          "Structural Impact": 2.3
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "100.0%",
+          "End Line": 473,
+          "Function Name": "SCH-INIT-F1-4",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 6,
+          "Reflection Hits": 0,
+          "Start Line": 468,
           "Structural Impact": 2.3
         },
         {
@@ -159231,19 +159232,6 @@
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 353,
-          "Structural Impact": 2.2
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "100.0%",
-          "End Line": 529,
-          "Function Name": "SCH-INIT-F2-6",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 5,
-          "Reflection Hits": 0,
-          "Start Line": 525,
           "Structural Impact": 2.2
         },
         {
@@ -159361,6 +159349,19 @@
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 518,
+          "Structural Impact": 1.2
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 529,
+          "Function Name": "SCH-INIT-F2-6",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 525,
           "Structural Impact": 1.2
         },
         {
@@ -159643,7 +159644,7 @@
           "Function Name": "ENTRY-2-EXIT",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 2,
           "Reflection Hits": 0,
           "Start Line": 382,
@@ -159952,7 +159953,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2394.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 287,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -160061,7 +160062,7 @@
           "Function Name": "TH3-TEST-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 460,
@@ -160074,7 +160075,7 @@
           "Function Name": "TH3-TEST-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 482,
@@ -160087,7 +160088,7 @@
           "Function Name": "TH3-TEST-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 506,
@@ -160126,7 +160127,7 @@
           "Function Name": "TH1-TEST-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 372,
@@ -160139,7 +160140,7 @@
           "Function Name": "TH2-TEST-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 394,
@@ -160152,7 +160153,7 @@
           "Function Name": "TH2-TEST-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 415,
@@ -160165,7 +160166,7 @@
           "Function Name": "TH2-TEST-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 437,
@@ -160256,7 +160257,7 @@
           "Function Name": "TABLE-FAIL",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 359,
@@ -160282,7 +160283,7 @@
           "Function Name": "TH1-FAIL-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 380,
@@ -160295,7 +160296,7 @@
           "Function Name": "TH2-FAIL-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 402,
@@ -160321,7 +160322,7 @@
           "Function Name": "TH2-FAIL-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 423,
@@ -160334,7 +160335,7 @@
           "Function Name": "TH2-FAIL-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 445,
@@ -160347,7 +160348,7 @@
           "Function Name": "TH3-FAIL-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 469,
@@ -160373,7 +160374,7 @@
           "Function Name": "TH3-FAIL-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 491,
@@ -160386,7 +160387,7 @@
           "Function Name": "TH3-FAIL-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 515,
@@ -160812,7 +160813,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2404.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 293,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -160830,7 +160831,7 @@
           "Function Name": "TH3-TEST-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 577,
@@ -160843,7 +160844,7 @@
           "Function Name": "TH3-TEST-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 604,
@@ -160856,7 +160857,7 @@
           "Function Name": "TH3-TEST-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 631,
@@ -160869,7 +160870,7 @@
           "Function Name": "TH3-TEST-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 658,
@@ -160895,7 +160896,7 @@
           "Function Name": "TH2-TEST-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 466,
@@ -160908,7 +160909,7 @@
           "Function Name": "TH2-TEST-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 492,
@@ -160921,7 +160922,7 @@
           "Function Name": "TH2-TEST-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 518,
@@ -160934,7 +160935,7 @@
           "Function Name": "TH2-TEST-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 545,
@@ -160960,7 +160961,7 @@
           "Function Name": "TH1-TEST-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 386,
@@ -160973,7 +160974,7 @@
           "Function Name": "TH1-TEST-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 411,
@@ -160986,7 +160987,7 @@
           "Function Name": "TH1-TEST-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 435,
@@ -161090,7 +161091,7 @@
           "Function Name": "TH1-FAIL-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 397,
@@ -161103,7 +161104,7 @@
           "Function Name": "TH1-FAIL-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 422,
@@ -161116,7 +161117,7 @@
           "Function Name": "TH1-FAIL-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 446,
@@ -161142,7 +161143,7 @@
           "Function Name": "TH2-FAIL-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 478,
@@ -161155,7 +161156,7 @@
           "Function Name": "TH2-FAIL-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 504,
@@ -161168,7 +161169,7 @@
           "Function Name": "TH2-FAIL-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 530,
@@ -161181,7 +161182,7 @@
           "Function Name": "TH2-FAIL-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 557,
@@ -161207,7 +161208,7 @@
           "Function Name": "TH3-FAIL-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 590,
@@ -161220,7 +161221,7 @@
           "Function Name": "TH3-FAIL-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 617,
@@ -161233,7 +161234,7 @@
           "Function Name": "TH3-FAIL-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 644,
@@ -161246,7 +161247,7 @@
           "Function Name": "TH3-FAIL-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 671,
@@ -161259,7 +161260,7 @@
           "Function Name": "FIND-LEVEL-3-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 681,
@@ -161298,7 +161299,7 @@
           "Function Name": "FIND-LEVEL-1-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 456,
@@ -161311,7 +161312,7 @@
           "Function Name": "FIND-LEVEL-2-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 567,
@@ -161958,7 +161959,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2414.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 293,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -161976,7 +161977,7 @@
           "Function Name": "TH3-TEST-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 558,
@@ -161989,7 +161990,7 @@
           "Function Name": "TH3-TEST-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 584,
@@ -162002,7 +162003,7 @@
           "Function Name": "TH3-TEST-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 610,
@@ -162015,7 +162016,7 @@
           "Function Name": "TH3-TEST-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 636,
@@ -162041,7 +162042,7 @@
           "Function Name": "TH2-TEST-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 451,
@@ -162054,7 +162055,7 @@
           "Function Name": "TH2-TEST-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 476,
@@ -162067,7 +162068,7 @@
           "Function Name": "TH2-TEST-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 501,
@@ -162080,7 +162081,7 @@
           "Function Name": "TH2-TEST-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 527,
@@ -162106,7 +162107,7 @@
           "Function Name": "TH1-TEST-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 374,
@@ -162119,7 +162120,7 @@
           "Function Name": "TH1-TEST-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 398,
@@ -162132,7 +162133,7 @@
           "Function Name": "TH1-TEST-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 421,
@@ -162210,7 +162211,7 @@
           "Function Name": "TH1-FAIL-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 385,
@@ -162223,7 +162224,7 @@
           "Function Name": "TH1-FAIL-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 409,
@@ -162236,7 +162237,7 @@
           "Function Name": "TH1-FAIL-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 432,
@@ -162249,7 +162250,7 @@
           "Function Name": "TH2-FAIL-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 463,
@@ -162262,7 +162263,7 @@
           "Function Name": "TH2-FAIL-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 488,
@@ -162275,7 +162276,7 @@
           "Function Name": "TH2-FAIL-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 513,
@@ -162288,7 +162289,7 @@
           "Function Name": "TH2-FAIL-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 539,
@@ -162301,7 +162302,7 @@
           "Function Name": "TH3-FAIL-GF-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 571,
@@ -162314,7 +162315,7 @@
           "Function Name": "TH3-FAIL-GF-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 597,
@@ -162327,7 +162328,7 @@
           "Function Name": "TH3-FAIL-GF-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 623,
@@ -162340,7 +162341,7 @@
           "Function Name": "TH3-FAIL-GF-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 649,
@@ -162353,7 +162354,7 @@
           "Function Name": "FIND-LEVEL-3-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 6,
           "Reflection Hits": 0,
           "Start Line": 659,
@@ -162418,7 +162419,7 @@
           "Function Name": "FIND-LEVEL-1-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 442,
@@ -162431,7 +162432,7 @@
           "Function Name": "FIND-LEVEL-2-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 549,
@@ -163078,7 +163079,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2424.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 324,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -163161,7 +163162,7 @@
           "Function Name": "TH7-TEST-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 520,
@@ -163174,7 +163175,7 @@
           "Function Name": "TH7-TEST-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 532,
@@ -163187,7 +163188,7 @@
           "Function Name": "TH7-TEST-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 544,
@@ -163200,7 +163201,7 @@
           "Function Name": "TH7-TEST-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 556,
@@ -163226,7 +163227,7 @@
           "Function Name": "TEST-3-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 15,
           "Reflection Hits": 0,
           "Start Line": 488,
@@ -163278,7 +163279,7 @@
           "Function Name": "TEST-3-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 473,
@@ -163291,7 +163292,7 @@
           "Function Name": "TEST-1-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 401,
@@ -163304,7 +163305,7 @@
           "Function Name": "TEST-2-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 430,
@@ -163317,7 +163318,7 @@
           "Function Name": "TEST-2-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 444,
@@ -163704,7 +163705,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2434.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 321,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -163722,7 +163723,7 @@
           "Function Name": "TH7-TEST-4-0",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 672,
@@ -163748,7 +163749,7 @@
           "Function Name": "TH7-TEST-3-0",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 9,
           "Reflection Hits": 0,
           "Start Line": 648,
@@ -163813,7 +163814,7 @@
           "Function Name": "TH7-TEST-2-0",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 8,
           "Reflection Hits": 0,
           "Start Line": 625,
@@ -163878,7 +163879,7 @@
           "Function Name": "TH7-TEST-1-0",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 603,
@@ -164112,7 +164113,7 @@
           "Function Name": "FIND-LEVEL-1-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 447,
@@ -164125,7 +164126,7 @@
           "Function Name": "FIND-LEVEL-2-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 509,
@@ -164138,7 +164139,7 @@
           "Function Name": "FIND-LEVEL-3-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 5,
           "Reflection Hits": 0,
           "Start Line": 574,
@@ -164151,7 +164152,7 @@
           "Function Name": "TH7-FIND-LEVEL-4-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 610,
@@ -164164,7 +164165,7 @@
           "Function Name": "TH7-FIND-LEVEL-5-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 633,
@@ -164177,7 +164178,7 @@
           "Function Name": "TH7-FIND-LEVEL-6-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 657,
@@ -164190,7 +164191,7 @@
           "Function Name": "TH7-FIND-LEVEL-7-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 682,
@@ -164486,7 +164487,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2444.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 276,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -164504,7 +164505,7 @@
           "Function Name": "BUILD-LEVEL-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 11,
           "Reflection Hits": 0,
           "Start Line": 325,
@@ -164590,12 +164591,12 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 345,
           "Function Name": "BUILD-ENTRY",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 336,
@@ -164608,7 +164609,7 @@
           "Function Name": "IDX-TEST-F1-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 7,
           "Reflection Hits": 0,
           "Start Line": 354,
@@ -164777,7 +164778,7 @@
           "Function Name": "IDX-FAIL-F1-1",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 364,
@@ -164803,7 +164804,7 @@
           "Function Name": "IDX-FAIL-F2-2",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 386,
@@ -164829,7 +164830,7 @@
           "Function Name": "IDX-FAIL-F2-3",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 408,
@@ -164868,7 +164869,7 @@
           "Function Name": "IDX-FAIL-F2-5",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 4,
           "Reflection Hits": 0,
           "Start Line": 477,
@@ -165180,7 +165181,7 @@
           "Function Name": "TEST-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 420,
@@ -165219,7 +165220,7 @@
           "Function Name": "IDX-FAIL-F2-4",
           "Input Parameters": 0,
           "Is Documented": 0,
-          "Is Public": 1,
+          "Is Public": 0,
           "Lines of Code (LOC)": 3,
           "Reflection Hits": 0,
           "Start Line": 438,
@@ -165320,7 +165321,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2454.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 279,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -166232,7 +166233,7 @@
       "cobol/che-che4z_nist_ccvs85/NC2484.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 281,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -167408,7 +167409,7 @@
       "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": [
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "41.7%",
+          "Control Flow Ratio": "45.5%",
           "End Line": 174,
           "Function Name": "SORT-INPUT-PROCEDURE",
           "Input Parameters": 0,
@@ -167434,7 +167435,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "75.0%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 290,
           "Function Name": "COMPARE-VALUES",
           "Input Parameters": 0,
@@ -167460,7 +167461,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "100.0%",
           "End Line": 274,
           "Function Name": "RETURN-RECORD",
           "Input Parameters": 0,
@@ -167709,7 +167710,7 @@
       "cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 260,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -167800,7 +167801,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 309,
           "Function Name": "BRANCH-STATEMENT",
           "Input Parameters": 0,
@@ -168088,7 +168089,7 @@
       "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 401,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -168909,7 +168910,7 @@
       "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 362,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -169652,7 +169653,7 @@
       "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 372,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -170835,7 +170836,7 @@
       "cobol/che-che4z_nist_ccvs85/SM1074.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 251,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -171190,7 +171191,7 @@
       "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 566,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -172349,7 +172350,7 @@
       "cobol/che-che4z_nist_ccvs85/ST1184.2.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "45.0%",
+          "Control Flow Ratio": "47.4%",
           "End Line": 576,
           "Function Name": "COLUMN-NAMES-ROUTINE",
           "Input Parameters": 0,
@@ -173687,7 +173688,7 @@
         },
         {
           "Control Flow Branches": 7,
-          "Control Flow Ratio": "46.7%",
+          "Control Flow Ratio": "53.8%",
           "End Line": 872,
           "Function Name": "PA010",
           "Input Parameters": 0,
@@ -173696,7 +173697,7 @@
           "Lines of Code (LOC)": 156,
           "Reflection Hits": 2,
           "Start Line": 717,
-          "Structural Impact": 15.8
+          "Structural Impact": 15.0
         },
         {
           "Control Flow Branches": 2,
@@ -174054,7 +174055,7 @@
         },
         {
           "Control Flow Branches": 15,
-          "Control Flow Ratio": "71.4%",
+          "Control Flow Ratio": "88.2%",
           "End Line": 954,
           "Function Name": "CAD010",
           "Input Parameters": 0,
@@ -174063,7 +174064,7 @@
           "Lines of Code (LOC)": 206,
           "Reflection Hits": 4,
           "Start Line": 749,
-          "Structural Impact": 26.3
+          "Structural Impact": 25.0
         },
         {
           "Control Flow Branches": 11,
@@ -174394,7 +174395,7 @@
       "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": [
         {
           "Control Flow Branches": 16,
-          "Control Flow Ratio": "61.5%",
+          "Control Flow Ratio": "76.2%",
           "End Line": 609,
           "Function Name": "GCD010",
           "Input Parameters": 0,
@@ -175230,7 +175231,7 @@
         },
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Ratio": "81.8%",
           "End Line": 637,
           "Function Name": "UCD010",
           "Input Parameters": 0,
@@ -175239,7 +175240,7 @@
           "Lines of Code (LOC)": 157,
           "Reflection Hits": 5,
           "Start Line": 481,
-          "Structural Impact": 17.9
+          "Structural Impact": 16.0
         },
         {
           "Control Flow Branches": 10,
@@ -175635,7 +175636,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "83.3%",
           "End Line": 814,
           "Function Name": "DAD010",
           "Input Parameters": 0,
@@ -175644,20 +175645,7 @@
           "Lines of Code (LOC)": 113,
           "Reflection Hits": 1,
           "Start Line": 702,
-          "Structural Impact": 11.5
-        },
-        {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "23.1%",
-          "End Line": 696,
-          "Function Name": "GAD010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 152,
-          "Reflection Hits": 4,
-          "Start Line": 545,
-          "Structural Impact": 11.0
+          "Structural Impact": 9.5
         },
         {
           "Control Flow Branches": 5,
@@ -175671,6 +175659,19 @@
           "Reflection Hits": 0,
           "Start Line": 367,
           "Structural Impact": 8.4
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 696,
+          "Function Name": "GAD010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 152,
+          "Reflection Hits": 4,
+          "Start Line": 545,
+          "Structural Impact": 7.0
         },
         {
           "Control Flow Branches": 1,
@@ -176758,7 +176759,7 @@
         },
         {
           "Control Flow Branches": 10,
-          "Control Flow Ratio": "35.7%",
+          "Control Flow Ratio": "83.3%",
           "End Line": 656,
           "Function Name": "GCD010",
           "Input Parameters": 0,
@@ -176767,7 +176768,7 @@
           "Lines of Code (LOC)": 178,
           "Reflection Hits": 4,
           "Start Line": 479,
-          "Structural Impact": 19.9
+          "Structural Impact": 17.5
         },
         {
           "Control Flow Branches": 9,
@@ -177163,7 +177164,7 @@
         },
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Ratio": "80.0%",
           "End Line": 1061,
           "Function Name": "UAD010",
           "Input Parameters": 0,
@@ -177172,7 +177173,7 @@
           "Lines of Code (LOC)": 176,
           "Reflection Hits": 4,
           "Start Line": 886,
-          "Structural Impact": 16.5
+          "Structural Impact": 14.5
         },
         {
           "Control Flow Branches": 6,
@@ -177188,19 +177189,6 @@
           "Structural Impact": 13.5
         },
         {
-          "Control Flow Branches": 3,
-          "Control Flow Ratio": "33.3%",
-          "End Line": 879,
-          "Function Name": "IAD010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 122,
-          "Reflection Hits": 4,
-          "Start Line": 758,
-          "Structural Impact": 9.0
-        },
-        {
           "Control Flow Branches": 4,
           "Control Flow Ratio": "40.0%",
           "End Line": 408,
@@ -177212,6 +177200,19 @@
           "Reflection Hits": 0,
           "Start Line": 367,
           "Structural Impact": 7.1
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "60.0%",
+          "End Line": 879,
+          "Function Name": "IAD010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 122,
+          "Reflection Hits": 4,
+          "Start Line": 758,
+          "Structural Impact": 7.0
         },
         {
           "Control Flow Branches": 1,
@@ -178517,19 +178518,6 @@
       ],
       "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": [
         {
-          "Control Flow Branches": 6,
-          "Control Flow Ratio": "18.8%",
-          "End Line": 765,
-          "Function Name": "FNA010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 336,
-          "Reflection Hits": 20,
-          "Start Line": 430,
-          "Structural Impact": 23.5
-        },
-        {
           "Control Flow Branches": 17,
           "Control Flow Ratio": "100.0%",
           "End Line": 1203,
@@ -178541,6 +178529,19 @@
           "Reflection Hits": 2,
           "Start Line": 1099,
           "Structural Impact": 23.2
+        },
+        {
+          "Control Flow Branches": 6,
+          "Control Flow Ratio": "37.5%",
+          "End Line": 765,
+          "Function Name": "FNA010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 336,
+          "Reflection Hits": 20,
+          "Start Line": 430,
+          "Structural Impact": 15.5
         },
         {
           "Control Flow Branches": 5,
@@ -178570,7 +178571,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "12.5%",
+          "Control Flow Ratio": "16.7%",
           "End Line": 914,
           "Function Name": "WAD010",
           "Input Parameters": 0,
@@ -178579,11 +178580,11 @@
           "Lines of Code (LOC)": 140,
           "Reflection Hits": 1,
           "Start Line": 775,
-          "Structural Impact": 6.5
+          "Structural Impact": 5.5
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
+          "Control Flow Ratio": "25.0%",
           "End Line": 1062,
           "Function Name": "WPD010",
           "Input Parameters": 0,
@@ -178592,7 +178593,7 @@
           "Lines of Code (LOC)": 134,
           "Reflection Hits": 7,
           "Start Line": 929,
-          "Structural Impact": 5.5
+          "Structural Impact": 4.5
         },
         {
           "Control Flow Branches": 1,
@@ -178989,7 +178990,7 @@
       "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": [
         {
           "Control Flow Branches": 40,
-          "Control Flow Ratio": "58.0%",
+          "Control Flow Ratio": "59.7%",
           "End Line": 1062,
           "Function Name": "CC010",
           "Input Parameters": 0,
@@ -179015,7 +179016,7 @@
         },
         {
           "Control Flow Branches": 10,
-          "Control Flow Ratio": "55.6%",
+          "Control Flow Ratio": "62.5%",
           "End Line": 1416,
           "Function Name": "GLCV010",
           "Input Parameters": 0,
@@ -179028,7 +179029,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "44.4%",
           "End Line": 1173,
           "Function Name": "WCV010",
           "Input Parameters": 0,
@@ -179037,7 +179038,7 @@
           "Lines of Code (LOC)": 104,
           "Reflection Hits": 5,
           "Start Line": 1070,
-          "Structural Impact": 10.2
+          "Structural Impact": 10.0
         },
         {
           "Control Flow Branches": 5,
@@ -179054,7 +179055,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "14.3%",
+          "Control Flow Ratio": "25.0%",
           "End Line": 1323,
           "Function Name": "WPD010",
           "Input Parameters": 0,
@@ -179063,7 +179064,7 @@
           "Lines of Code (LOC)": 136,
           "Reflection Hits": 7,
           "Start Line": 1188,
-          "Structural Impact": 6.0
+          "Structural Impact": 4.5
         },
         {
           "Control Flow Branches": 1,
@@ -179502,7 +179503,7 @@
       "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": [
         {
           "Control Flow Branches": 8,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Ratio": "61.5%",
           "End Line": 441,
           "Function Name": "UAD010",
           "Input Parameters": 0,
@@ -179511,24 +179512,11 @@
           "Lines of Code (LOC)": 206,
           "Reflection Hits": 2,
           "Start Line": 236,
-          "Structural Impact": 16.5
+          "Structural Impact": 16.0
         },
         {
           "Control Flow Branches": 7,
-          "Control Flow Ratio": "53.8%",
-          "End Line": 652,
-          "Function Name": "WTPD010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 0,
-          "Lines of Code (LOC)": 192,
-          "Reflection Hits": 8,
-          "Start Line": 461,
-          "Structural Impact": 15.0
-        },
-        {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "41.2%",
+          "Control Flow Ratio": "46.7%",
           "End Line": 840,
           "Function Name": "AH010",
           "Input Parameters": 0,
@@ -179540,8 +179528,21 @@
           "Structural Impact": 14.9
         },
         {
+          "Control Flow Branches": 7,
+          "Control Flow Ratio": "63.6%",
+          "End Line": 652,
+          "Function Name": "WTPD010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 192,
+          "Reflection Hits": 8,
+          "Start Line": 461,
+          "Structural Impact": 14.0
+        },
+        {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "62.5%",
+          "Control Flow Ratio": "71.4%",
           "End Line": 692,
           "Function Name": "CFSDD010",
           "Input Parameters": 0,
@@ -179816,7 +179817,7 @@
       "cobol/cics-banking-sample-application-cbsa/DELACC.cbl": [
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "37.5%",
+          "Control Flow Ratio": "60.0%",
           "End Line": 425,
           "Function Name": "RAD010",
           "Input Parameters": 0,
@@ -179825,20 +179826,7 @@
           "Lines of Code (LOC)": 189,
           "Reflection Hits": 4,
           "Start Line": 237,
-          "Structural Impact": 8.5
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 616,
-          "Function Name": "WPD010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 154,
-          "Reflection Hits": 7,
-          "Start Line": 463,
-          "Structural Impact": 5.5
+          "Structural Impact": 7.0
         },
         {
           "Control Flow Branches": 2,
@@ -179852,6 +179840,19 @@
           "Reflection Hits": 0,
           "Start Line": 205,
           "Structural Impact": 4.2
+        },
+        {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 616,
+          "Function Name": "WPD010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 154,
+          "Reflection Hits": 7,
+          "Start Line": 463,
+          "Structural Impact": 4.0
         },
         {
           "Control Flow Branches": 1,
@@ -180093,7 +180094,7 @@
       "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": [
         {
           "Control Flow Branches": 9,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "56.2%",
           "End Line": 580,
           "Function Name": "DCV010",
           "Input Parameters": 0,
@@ -180102,20 +180103,7 @@
           "Lines of Code (LOC)": 237,
           "Reflection Hits": 14,
           "Start Line": 344,
-          "Structural Impact": 19.5
-        },
-        {
-          "Control Flow Branches": 1,
-          "Control Flow Ratio": "16.7%",
-          "End Line": 731,
-          "Function Name": "WPCD010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 134,
-          "Reflection Hits": 7,
-          "Start Line": 598,
-          "Structural Impact": 5.5
+          "Structural Impact": 18.5
         },
         {
           "Control Flow Branches": 2,
@@ -180131,8 +180119,21 @@
           "Structural Impact": 5.3
         },
         {
+          "Control Flow Branches": 1,
+          "Control Flow Ratio": "33.3%",
+          "End Line": 731,
+          "Function Name": "WPCD010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 134,
+          "Reflection Hits": 7,
+          "Start Line": 598,
+          "Structural Impact": 4.0
+        },
+        {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "66.7%",
           "End Line": 316,
           "Function Name": "DA010",
           "Input Parameters": 0,
@@ -180466,7 +180467,7 @@
       "cobol/cics-banking-sample-application-cbsa/INQACC.cbl": [
         {
           "Control Flow Branches": 7,
-          "Control Flow Ratio": "38.9%",
+          "Control Flow Ratio": "43.8%",
           "End Line": 819,
           "Function Name": "AH010",
           "Input Parameters": 0,
@@ -180475,11 +180476,11 @@
           "Lines of Code (LOC)": 187,
           "Reflection Hits": 11,
           "Start Line": 633,
-          "Structural Impact": 17.4
+          "Structural Impact": 16.5
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "28.6%",
+          "Control Flow Ratio": "46.2%",
           "End Line": 420,
           "Function Name": "RAD010",
           "Input Parameters": 0,
@@ -180488,11 +180489,11 @@
           "Lines of Code (LOC)": 167,
           "Reflection Hits": 10,
           "Start Line": 254,
-          "Structural Impact": 15.3
+          "Structural Impact": 14.0
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "36.4%",
+          "Control Flow Ratio": "57.1%",
           "End Line": 572,
           "Function Name": "FD010",
           "Input Parameters": 0,
@@ -180501,24 +180502,11 @@
           "Lines of Code (LOC)": 146,
           "Reflection Hits": 5,
           "Start Line": 427,
-          "Structural Impact": 11.0
-        },
-        {
-          "Control Flow Branches": 2,
-          "Control Flow Ratio": "25.0%",
-          "End Line": 981,
-          "Function Name": "GLAD010",
-          "Input Parameters": 0,
-          "Is Documented": 0,
-          "Is Public": 1,
-          "Lines of Code (LOC)": 144,
-          "Reflection Hits": 5,
-          "Start Line": 838,
-          "Structural Impact": 7.5
+          "Structural Impact": 9.0
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "55.6%",
+          "Control Flow Ratio": "71.4%",
           "End Line": 622,
           "Function Name": "CFSDCD010",
           "Input Parameters": 0,
@@ -180541,6 +180529,19 @@
           "Reflection Hits": 1,
           "Start Line": 204,
           "Structural Impact": 7.2
+        },
+        {
+          "Control Flow Branches": 2,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 981,
+          "Function Name": "GLAD010",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 1,
+          "Lines of Code (LOC)": 144,
+          "Reflection Hits": 5,
+          "Start Line": 838,
+          "Structural Impact": 5.5
         },
         {
           "Control Flow Branches": 0,
@@ -180820,7 +180821,7 @@
       "cobol/cics-banking-sample-application-cbsa/INQACCCU.cbl": [
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "21.7%",
+          "Control Flow Ratio": "29.4%",
           "End Line": 448,
           "Function Name": "RAD010",
           "Input Parameters": 0,
@@ -180829,11 +180830,11 @@
           "Lines of Code (LOC)": 215,
           "Reflection Hits": 12,
           "Start Line": 234,
-          "Structural Impact": 16.8
+          "Structural Impact": 15.0
         },
         {
           "Control Flow Branches": 7,
-          "Control Flow Ratio": "41.2%",
+          "Control Flow Ratio": "46.7%",
           "End Line": 823,
           "Function Name": "AH010",
           "Input Parameters": 0,
@@ -180846,7 +180847,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "31.2%",
+          "Control Flow Ratio": "41.7%",
           "End Line": 633,
           "Function Name": "FD010",
           "Input Parameters": 0,
@@ -180855,11 +180856,11 @@
           "Lines of Code (LOC)": 179,
           "Reflection Hits": 6,
           "Start Line": 455,
-          "Structural Impact": 14.5
+          "Structural Impact": 12.5
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "62.5%",
+          "Control Flow Ratio": "71.4%",
           "End Line": 678,
           "Function Name": "CFSDD010",
           "Input Parameters": 0,
@@ -181137,7 +181138,7 @@
       "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": [
         {
           "Control Flow Branches": 12,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "63.2%",
           "End Line": 422,
           "Function Name": "RCV010",
           "Input Parameters": 0,
@@ -181150,7 +181151,7 @@
         },
         {
           "Control Flow Branches": 12,
-          "Control Flow Ratio": "66.7%",
+          "Control Flow Ratio": "80.0%",
           "End Line": 669,
           "Function Name": "GLCV010",
           "Input Parameters": 0,
@@ -181176,7 +181177,7 @@
         },
         {
           "Control Flow Branches": 6,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 240,
           "Function Name": "P010",
           "Input Parameters": 0,
@@ -181528,7 +181529,7 @@
       "cobol/cics-banking-sample-application-cbsa/UPDACC.cbl": [
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "30.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 327,
           "Function Name": "UAD010",
           "Input Parameters": 0,
@@ -181537,7 +181538,7 @@
           "Lines of Code (LOC)": 147,
           "Reflection Hits": 2,
           "Start Line": 181,
-          "Structural Impact": 9.5
+          "Structural Impact": 7.5
         },
         {
           "Control Flow Branches": 0,
@@ -181860,7 +181861,7 @@
         },
         {
           "Control Flow Branches": 17,
-          "Control Flow Ratio": "42.5%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 1557,
           "Function Name": "UADT010",
           "Input Parameters": 0,
@@ -181869,11 +181870,11 @@
           "Lines of Code (LOC)": 516,
           "Reflection Hits": 27,
           "Start Line": 1042,
-          "Structural Impact": 38.5
+          "Structural Impact": 35.5
         },
         {
           "Control Flow Branches": 7,
-          "Control Flow Ratio": "41.2%",
+          "Control Flow Ratio": "46.7%",
           "End Line": 1903,
           "Function Name": "AH010",
           "Input Parameters": 0,
@@ -181899,7 +181900,7 @@
         },
         {
           "Control Flow Branches": 5,
-          "Control Flow Ratio": "62.5%",
+          "Control Flow Ratio": "71.4%",
           "End Line": 1763,
           "Function Name": "CFSDD010",
           "Input Parameters": 0,
@@ -182959,7 +182960,7 @@
       "cobol/cics-genapp/lgicvs01.cbl": [
         {
           "Control Flow Branches": 12,
-          "Control Flow Ratio": "80.0%",
+          "Control Flow Ratio": "85.7%",
           "End Line": 225,
           "Function Name": "MAINLINE",
           "Input Parameters": 0,
@@ -183211,6 +183212,7 @@
           "Structural Impact": 1.1
         }
       ],
+      "cobol/cics-genapp/lgpolicy.cpy": [],
       "cobol/cics-genapp/lgsetup.cbl": [
         {
           "Control Flow Branches": 1,
@@ -183283,7 +183285,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "57.1%",
+          "Control Flow Ratio": "66.7%",
           "End Line": 347,
           "Function Name": "WRITE-GENACNTL",
           "Input Parameters": 0,
@@ -184444,7 +184446,7 @@
       "cobol/cobol-check/TESTPRG.CBL": [
         {
           "Control Flow Branches": 13,
-          "Control Flow Ratio": "56.5%",
+          "Control Flow Ratio": "81.2%",
           "End Line": 310,
           "Function Name": "UT-ASSERT-ACCESSES",
           "Input Parameters": 0,
@@ -184457,7 +184459,7 @@
         },
         {
           "Control Flow Branches": 11,
-          "Control Flow Ratio": "64.7%",
+          "Control Flow Ratio": "68.8%",
           "End Line": 421,
           "Function Name": "UT-LOOKUP-MOCK",
           "Input Parameters": 0,
@@ -184535,7 +184537,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 226,
           "Function Name": "UT-DISPLAY-FAILED",
           "Input Parameters": 0,
@@ -184548,7 +184550,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "28.6%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 180,
           "Function Name": "UT-ASSERT-EQUAL",
           "Input Parameters": 0,
@@ -184561,7 +184563,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "40.0%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 434,
           "Function Name": "UT-LOOKUP-FILE",
           "Input Parameters": 0,
@@ -184859,7 +184861,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "20.0%",
+          "Control Flow Ratio": "25.0%",
           "End Line": 100,
           "Function Name": "5000-PROCESS",
           "Input Parameters": 0,
@@ -185422,7 +185424,7 @@
       "cobol/cobol-check/src_main_cobol_TESTNESTED.CBL": [
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "50.0%",
+          "Control Flow Ratio": "60.0%",
           "End Line": 21,
           "Function Name": "MOCK-SECTION-WITH-ERROR",
           "Input Parameters": 0,
@@ -185506,7 +185508,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "12.5%",
+          "Control Flow Ratio": "14.3%",
           "End Line": 149,
           "Function Name": "READ-NEXT-RECORD",
           "Input Parameters": 0,
@@ -185638,7 +185640,7 @@
         },
         {
           "Control Flow Branches": 1,
-          "Control Flow Ratio": "12.5%",
+          "Control Flow Ratio": "14.3%",
           "End Line": 150,
           "Function Name": "READ-NEXT-RECORD",
           "Input Parameters": 0,
@@ -185744,7 +185746,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "37.5%",
+          "Control Flow Ratio": "42.9%",
           "End Line": 144,
           "Function Name": "SQL-ERROR-HANDLING",
           "Input Parameters": 0,
@@ -185837,7 +185839,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "37.5%",
+          "Control Flow Ratio": "42.9%",
           "End Line": 201,
           "Function Name": "SQL-ERROR-HANDLING",
           "Input Parameters": 0,
@@ -185956,7 +185958,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "37.5%",
+          "Control Flow Ratio": "42.9%",
           "End Line": 188,
           "Function Name": "SQL-ERROR-HANDLING",
           "Input Parameters": 0,
@@ -186133,7 +186135,6 @@
       "cobol/cobrix/companies_copybook.cpy": [],
       "cobol/cobrix/copybook.cpy": [],
       "cobol/cobrix/copybook_codec.cob": [],
-      "cobol/cobrix/data_types.cpy": [],
       "cobol/cobrix/example_copybook.cpy": [],
       "cobol/cobrix/multisegment.cob": [],
       "cobol/cobrix/raw_file.cob": [],
@@ -186153,15 +186154,12 @@
       "cobol/cobrix/test1_copybook.cob": [],
       "cobol/cobrix/test1a_copybook.cob": [],
       "cobol/cobrix/test21_copybook.cob": [],
-      "cobol/cobrix/test24_copybook.cob": [],
       "cobol/cobrix/test25_copybook.cob": [],
       "cobol/cobrix/test2_copybook.cob": [],
       "cobol/cobrix/test3_copybook.cob": [],
-      "cobol/cobrix/test40_copybook.cob": [],
       "cobol/cobrix/test4_copybook.cob": [],
       "cobol/cobrix/test5_copybook.cob": [],
       "cobol/cobrix/test5d_copybook.cob": [],
-      "cobol/cobrix/test6_copybook.cob": [],
       "cobol/cobrix/test7_fillers.cob": [],
       "cobol/cobrix/test8_copybook.cob": [],
       "cobol/cobrix/test9_copybook.cob": []
@@ -186170,7 +186168,7 @@
       "cobol/gnucobol/CBL_OC_DUMP.cob": [
         {
           "Control Flow Branches": 23,
-          "Control Flow Ratio": "31.1%",
+          "Control Flow Ratio": "46.0%",
           "End Line": 259,
           "Function Name": "MAIN00",
           "Input Parameters": 0,
@@ -186198,13 +186196,12 @@
       "cobol/gnucobol/COPYING": [],
       "cobol/gnucobol/numeric-display.cob": [],
       "cobol/gnucobol/numeric-dump.cob": [],
-      "cobol/gnucobol/screenio.cpy": [],
       "cobol/gnucobol/sqlca.cpy": [],
       "cobol/gnucobol/sqlda.cpy": [],
       "cobol/gnucobol/tutorial.cob": [
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "23.5%",
+          "Control Flow Ratio": "25.0%",
           "End Line": 227,
           "Function Name": "read-all-records",
           "Input Parameters": 0,
@@ -186230,7 +186227,7 @@
         },
         {
           "Control Flow Branches": 2,
-          "Control Flow Ratio": "33.3%",
+          "Control Flow Ratio": "40.0%",
           "End Line": 198,
           "Function Name": "display-file-status",
           "Input Parameters": 0,
@@ -206510,7 +206507,6 @@
           "Structural Impact": 8.1
         }
       ],
-      "cobol/gnucobol_internals/screenio.cpy": [],
       "cobol/gnucobol_internals/syn_misc.at": []
     },
     "cobol/zopeneditor-sample": {
@@ -206598,7 +206594,7 @@
         },
         {
           "Control Flow Branches": 4,
-          "Control Flow Ratio": "44.4%",
+          "Control Flow Ratio": "50.0%",
           "End Line": 333,
           "Function Name": "210-PROCESS-ADD-TRAN",
           "Input Parameters": 0,
@@ -206769,7 +206765,7 @@
         },
         {
           "Control Flow Branches": 3,
-          "Control Flow Ratio": "60.0%",
+          "Control Flow Ratio": "75.0%",
           "End Line": 159,
           "Function Name": "310-CRUNCH-LOOP",
           "Input Parameters": 0,

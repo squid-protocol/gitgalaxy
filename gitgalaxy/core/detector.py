@@ -1199,6 +1199,31 @@ INVOCATION_MODELS = frozenset({INVOCATION_BY_NAME, INVOCATION_POSITIONAL})
 # `docs/unreferenced_by_name_contract.md`, corollary 7.
 IDENTIFIER_CASE_SENSITIVE = "sensitive"
 IDENTIFIER_CASE_INSENSITIVE = "insensitive"
+
+
+def _glued_to_hyphen_word(code: str, start: int, end: int) -> bool:
+    """Is code[start:end] part of a longer hyphenated word?
+
+    True when an identifier continues through a hyphen on either side of the
+    match: `-` preceded by a letter/digit right before a match that starts with
+    one (`END-` + `IF`, `SQLCODE-` + `DISPLAY`), or `-` followed by one right
+    after a match that ends with one (`WRITE` + `-LINE`, `ENTRY` + `-1`). It is
+    the same shape as _shared_patterns' _HYPHEN_IDENT_PRE/_POST guard for debt
+    markers, applied to every rule of a language that declares
+    `_hyphenated_words`. A hyphen whose far neighbour is not alphanumeric
+    (`--`, `- x`) is not glued.
+    """
+    if (
+        start >= 2
+        and code[start - 1] == "-"
+        and code[start - 2].isalnum()
+        and start < len(code)
+        and code[start].isalnum()
+    ):
+        return True
+    return end >= 1 and end + 1 < len(code) and code[end] == "-" and code[end + 1].isalnum() and code[end - 1].isalnum()
+
+
 IDENTIFIER_CASES = frozenset({IDENTIFIER_CASE_SENSITIVE, IDENTIFIER_CASE_INSENSITIVE})
 
 
@@ -3059,6 +3084,12 @@ class StructuralExtractor:
             # filter's structural pass is independent of which rule asks for it.
             scope_filters: dict[str, str] = rules.get("_scope_filters") or {}
             scope_cache: dict[str, set[int]] = {}
+            # A language whose words run through hyphens (COBOL: `WRITE-LINE`,
+            # `END-IF`, `SQLCODE-DISPLAY`) opts in with `_hyphenated_words`: a
+            # rule match glued to such a word on either side is part of a NAME,
+            # not the keyword the rule counts. `\b` fires at every hyphen, so the
+            # rules' own boundaries cannot say this; see _glued_to_hyphen_word.
+            hyphen_words: bool = bool(rules.get("_hyphenated_words"))
 
             # ---> NEW: Spatial Map for this segment <---
             spatial_map: dict[str, list[int]] = {}
@@ -3127,6 +3158,8 @@ class StructuralExtractor:
                             matches = self._apply_scope_filter(
                                 scope_filter_name, seg_lang, rule_name, seg_code, matches, scope_cache
                             )
+                        if hyphen_words and matches:
+                            matches = [m for m in matches if not _glued_to_hyphen_word(seg_code, m.start(), m.end())]
                         hit_indices = [m.start() for m in matches]
 
                         # ---> Offset to LOC Conversion (#PERF: bind the

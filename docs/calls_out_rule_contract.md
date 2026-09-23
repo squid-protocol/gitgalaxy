@@ -62,7 +62,9 @@ because the mainframe answer keys use `GO TO` as a reached-by path for liveness.
 
 **C5 · A declaration is not a call.** A function or class declared inside the body
 (`def inner(`, `local function f (`, a nested `fn`) is not a call to `inner`. Shared
-`CALLS_OUT_C_STYLE` captures these headers today (#3360).
+`CALLS_OUT_C_STYLE` still matches these headers, and since #3360 the detector drops a capture
+that sits on a nested header of the language's own `func_start` rule when the slicer emitted that
+nested unit. A later real call to `inner(...)` in the same body is kept.
 
 **C6 · The entry is the bare name.** `obj.save()`, `self.save()`, `utils.save()` and
 `Store::save()` are all `save`. The qualifier (`obj`, `self`, `utils`, `Store`) is a separate

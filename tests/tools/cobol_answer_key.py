@@ -1861,6 +1861,12 @@ def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], 
 # ==============================================================================
 # Score
 # ==============================================================================
+def _pair_str(pair: tuple) -> tuple[str, str]:
+    """A scored (program, value) pair with the value flattened to one stable string."""
+    prog, value = pair
+    return str(prog), value if isinstance(value, str) else json.dumps(value, sort_keys=True, default=str)
+
+
 def _pr(truth: set, got: set) -> str:
     if not truth and not got:
         return "—"
@@ -2283,7 +2289,15 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             else:
                 got = set().union(*vals)
                 cols.append(_pr(t, got))
-                result["fields"].setdefault(f, {})[side] = {"tp": len(t & got), "got": len(got), "truth": len(t)}
+                result["fields"].setdefault(f, {})[side] = {
+                    "tp": len(t & got),
+                    "got": len(got),
+                    "truth": len(t),
+                    # The individual (program, value) pairs behind the counts, for
+                    # the ground-truth ledger (tests/tools/ground_truth_ledger.py).
+                    "fp": sorted(_pair_str(x) for x in got - t),
+                    "fn": sorted(_pair_str(x) for x in t - got),
+                }
         md.append(f"| {f} | {cols[0]} | {cols[1]} |")
     md.append("")
     md.append("P = correct / reported, R = correct / true. Sets are (program, value) pairs.")

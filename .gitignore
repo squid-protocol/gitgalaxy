@@ -125,6 +125,8 @@ museum_2/
 !tests/cobol_mainframe/tool_regex_redos_baseline.json
 # ...and the refraction differential's unexplained-delta baseline (#3211).
 !tests/cobol_mainframe/refraction_differential_baseline.json
+# ...and the mainframe ground-truth ledger (tests/tools/ground_truth_ledger.py).
+!tests/cobol_mainframe/ground_truth_ledger.json
 *_llm.md
 venvs/
 

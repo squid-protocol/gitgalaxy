@@ -1,0 +1,990 @@
+{
+  "about": "Mainframe ground-truth ledger (tests/tools/ground_truth_ledger.py). Every engine/forge disagreement with a hand-verified answer key, keyed '<side> | <field> | <program> | <value> | fp|fn' -> cause; every cause has a kind (defect|deliberate) and names its owning issue. CI fails on an unlisted mismatch, a listed one that no longer reproduces, an UNTRIAGED entry, a cause without an issue, or a stale scoreboard. Re-measure with `update`, triage with `assign`.",
+  "causes": {
+    "engine_dead_is_unreferenced_by_name": {
+      "issue": 2806,
+      "kind": "deliberate",
+      "summary": "The engine's usage_status is the unreferenced-by-name census (a unit's name occurs nowhere else in the file), not reachability. Reachability-based dead code stays on the forge by decision (docs/unreferenced_by_name_contract.md; #3348 scope note). Scoring usage_status against the key's reachability verdicts is therefore expected to disagree."
+    },
+    "forge_copybook_resolution": {
+      "issue": 3414,
+      "kind": "defect",
+      "summary": "The forge's fallback copybook resolver ignores EXEC SQL INCLUDE members and COPY ... IN <library> (zapp.yaml). The engine resolves all of them."
+    },
+    "forge_flat_schema": {
+      "issue": 3348,
+      "kind": "defect",
+      "summary": "cobol_schema_forge's flat reader drops level-01 elementary items, REDEFINES items, some nested items, and lines carrying a change marker in the sequence area (zopeneditor multiroot SAM1). The engine's record_data carries every item; #3348 switches the refractor to it."
+    }
+  },
+  "corpora": {
+    "cics-banking-sample-application-cbsa": {
+      "mismatches": {
+        "engine | dead (non-trivial) | src/base/cobol_src/ABNDPROC.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/ABNDPROC.cbl | GMOOH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/ABNDPROC.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/ACCTCTRL.cbl | POPULATE-TIME-DATE | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/ACCTCTRL.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | DA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | DA999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | DBR010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | DBR999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | GOD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | GTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | GTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | IA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | IA999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | PA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | PA999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | PD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BANKDATA.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | CAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | CAD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CAC.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | ED999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | GCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCA.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | CCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | CCD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | HA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | PTD10 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | RTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | RTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | STD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | STD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CCS.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | UCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1CRA.cbl | VA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | DAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | GAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | VD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DAC.cbl | VD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | AH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | DCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | ED2010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | ED2999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | GCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | PCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | PCD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | PTD10 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | RTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | RTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | STD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | STD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | UCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | UCD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | UPDCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | VD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1DCS.cbl | VD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | GCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1TFN.cbl | VA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | ED999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | IAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | IAD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | UAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | UAD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNK1UAC.cbl | VD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | EMD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | EMD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | IOT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | IOT999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | PMM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | PMM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | RMM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | RMM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | SMM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/BNKMENU.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY1.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY1.cbl | GMOFH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY1.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY1.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY1.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY2.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY2.cbl | GMOFH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY2.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY2.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY2.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY3.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY3.cbl | GMOFH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY3.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY3.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY3.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY4.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY4.cbl | GMOFH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY4.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY4.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY4.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY5.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY5.cbl | GMOFH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY5.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY5.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CRDTAGY5.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CUSTCTRL.cbl | POPULATE-TIME-DATE | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/CUSTCTRL.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | AH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | AH999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | CFSDD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | CFSDD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | GMOOH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | PTD10 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | UAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | WTP010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | WTP999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | WTPD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/DBCRFUN.cbl | WTPD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/UPDACC.cbl | POPULATE-TIME-DATE | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/UPDACC.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/UPDCUST.cbl | POPULATE-TIME-DATE | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | src/base/cobol_src/UPDCUST.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/ABNDPROC.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/ABNDPROC.cbl | GMOOH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/ABNDPROC.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/ACCTCTRL.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/ACCTCTRL.cbl | P999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/ACCTCTRL.cbl | POPULATE-TIME-DATE | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/ACCTCTRL.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/ACCTCTRL.cbl | PTD999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | DA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | DA999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | DBR010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | DBR999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | GOD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | GTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | GTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | IA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | IA999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | PA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | PA999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | PD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BANKDATA.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | CAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | CAD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CAC.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | ED999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | GCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCA.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | CCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | CCD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | HA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | PTD10 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | RTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | RTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | STD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | STD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CCS.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | UCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1CRA.cbl | VA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | DAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | GAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | VD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DAC.cbl | VD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | AH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | DCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | ED2010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | ED2999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | GCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | PCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | PCD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | PTD10 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | RTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | RTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | STD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | STD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | UCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | UCD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | UPDCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | VD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1DCS.cbl | VD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | GCD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1TFN.cbl | VA010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | ED010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | ED999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | IAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | IAD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | PM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | PM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | RM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | RM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | SM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | UAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | UAD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNK1UAC.cbl | VD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | A999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | ATT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | EMD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | EMD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | IOT010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | IOT999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | PMM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | PMM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | RMM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | RMM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | SMM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | STM010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/BNKMENU.cbl | STM999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY1.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY1.cbl | GMOFH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY1.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY1.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY1.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY2.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY2.cbl | GMOFH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY2.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY2.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY2.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY3.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY3.cbl | GMOFH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY3.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY3.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY3.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY4.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY4.cbl | GMOFH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY4.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY4.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY4.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY5.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY5.cbl | GMOFH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY5.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY5.cbl | PTD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRDTAGY5.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CREACC.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CREACC.cbl | P999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRECUST.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CRECUST.cbl | P999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CUSTCTRL.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CUSTCTRL.cbl | P999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CUSTCTRL.cbl | POPULATE-TIME-DATE | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CUSTCTRL.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/CUSTCTRL.cbl | PTD999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | AH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | AH999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | CFSDD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | CFSDD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | GMOOH010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | PREMIERE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | PTD10 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | PTD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | UAD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | WTP010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | WTP999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | WTPD010 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DBCRFUN.cbl | WTPD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DELACC.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DELCUS.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DELCUS.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/INQACC.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/INQACC.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/INQACCCU.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/INQCUST.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/INQCUST.cbl | P999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/UPDACC.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/UPDACC.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/UPDACC.cbl | POPULATE-TIME-DATE | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/UPDACC.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/UPDACC.cbl | PTD999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/UPDCUST.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/UPDCUST.cbl | POPULATE-TIME-DATE | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/UPDCUST.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/UPDCUST.cbl | PTD999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/XFRFUN.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/XFRFUN.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "forge | copybook paths | src/base/cobol_src/BANKDATA.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/BANKDATA.cbl | src/base/cobol_copy/CONTDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/CREACC.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/CREACC.cbl | src/base/cobol_copy/PROCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/CRECUST.cbl | src/base/cobol_copy/PROCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/DBCRFUN.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/DBCRFUN.cbl | src/base/cobol_copy/PROCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/DELACC.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/DELACC.cbl | src/base/cobol_copy/PROCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/DELCUS.cbl | src/base/cobol_copy/PROCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/INQACC.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/INQACCCU.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/UPDACC.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/XFRFUN.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | src/base/cobol_src/XFRFUN.cbl | src/base/cobol_copy/PROCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | record fields | src/base/cobol_src/ACCTCTRL.cbl | ACCOUNT_KY2_BYTES | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BANKDATA.cbl | RANDOM_SEED_NUMERIC | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BANKDATA.cbl | RDATE_NUMERIC | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BANKDATA.cbl | TITLE_WORD | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1CAC.cbl | ACTUAL_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1CAC.cbl | AVAILABLE_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1CRA.cbl | ACTUAL_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1CRA.cbl | AVAILABLE_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1DAC.cbl | ACTUAL_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1DAC.cbl | AVAILABLE_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1TFN.cbl | FROM_ACTUAL_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1TFN.cbl | FROM_AVAILABLE_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1TFN.cbl | TO_ACTUAL_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1TFN.cbl | TO_AVAILABLE_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1UAC.cbl | ACTUAL_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/BNK1UAC.cbl | AVAILABLE_BALANCE_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/CREACC.cbl | ACCOUNT_KY3_BYTES | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/CRECUST.cbl | CUSTOMER_KY2_BYTES | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/CRECUST.cbl | DATE_OF_BIRTH_CEEDAYS_LENGTH | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/CRECUST.cbl | DATE_OF_BIRTH_FORMAT_LENGTH | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/CRECUST.cbl | WS_CHILD_DATA_BIRTH_MONTH | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/CRECUST.cbl | WS_CHILD_DATA_BIRTH_YEAR | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/CRECUST.cbl | WS_CHILD_DATA_CS_REVIEW_DATE | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/CRECUST.cbl | WS_CHILD_DATA_DATE_OF_BIRTH | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/CUSTCTRL.cbl | CUSTOMER_KY2_BYTES | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/DBCRFUN.cbl | NUMERIC_AMOUNT_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/DBCRFUN.cbl | WS_CUSTOMER_RANGE_BOTTOM | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/DBCRFUN.cbl | WS_CUSTOMER_RANGE_MIDDLE | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/INQACC.cbl | WS_POINTER_BYTES | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/INQACC.cbl | WS_POINTER_NUMBER | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/INQACCCU.cbl | WS_CICS_RESP_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/INQCUST.cbl | WS_POINTER_BYTES | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/INQCUST.cbl | WS_POINTER_NUMBER | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/XFRFUN.cbl | NEW_ACCOUNT_AVAILABLE_BALANCE2 | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/XFRFUN.cbl | NUMERIC_AMOUNT_DISPLAY | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/XFRFUN.cbl | WS_CUSTOMER_RANGE_BOTTOM | fn": "forge_flat_schema",
+        "forge | record fields | src/base/cobol_src/XFRFUN.cbl | WS_CUSTOMER_RANGE_MIDDLE | fn": "forge_flat_schema"
+      },
+      "scoreboard": {
+        "BMS screen fields": {
+          "engine": {
+            "got": 371,
+            "tp": 371,
+            "truth": 371
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS resources": {
+          "engine": {
+            "got": 75,
+            "tp": 75,
+            "truth": 75
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "CSD resources": {
+          "engine": {
+            "got": 100,
+            "tp": 100,
+            "truth": 100
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table columns": {
+          "engine": {
+            "got": 24,
+            "tp": 24,
+            "truth": 24
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "DD names": {
+          "engine": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "truth": "validated"
+        },
+        "JCL resolved DSNs": {
+          "engine": {
+            "got": 138,
+            "tp": 138,
+            "truth": 138
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I record fields": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "call targets": {
+          "engine": {
+            "got": 45,
+            "tp": 45,
+            "truth": 45
+          },
+          "forge": null,
+          "truth": "validated"
+        },
+        "cics/sql": {
+          "engine": null,
+          "forge": {
+            "got": 42,
+            "tp": 42,
+            "truth": 42
+          },
+          "truth": "validated"
+        },
+        "copybook paths": {
+          "engine": {
+            "got": 114,
+            "tp": 114,
+            "truth": 114
+          },
+          "forge": {
+            "got": 99,
+            "tp": 99,
+            "truth": 114
+          },
+          "truth": "validated"
+        },
+        "dead": {
+          "engine": {
+            "got": 247,
+            "tp": 29,
+            "truth": 62
+          },
+          "forge": {
+            "got": 62,
+            "tp": 62,
+            "truth": 62
+          },
+          "truth": "validated"
+        },
+        "dead (non-trivial)": {
+          "engine": {
+            "got": 220,
+            "tp": 2,
+            "truth": 10
+          },
+          "forge": {
+            "got": 10,
+            "tp": 10,
+            "truth": 10
+          },
+          "truth": "validated"
+        },
+        "dynamic CALLs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "validated"
+        },
+        "entry transactions": {
+          "engine": {
+            "got": 14,
+            "tp": 14,
+            "truth": 14
+          },
+          "forge": {
+            "got": 14,
+            "tp": 14,
+            "truth": 14
+          },
+          "truth": "validated"
+        },
+        "inputs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "validated"
+        },
+        "outputs": {
+          "engine": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "truth": "validated"
+        },
+        "program_id": {
+          "engine": {
+            "got": 31,
+            "tp": 31,
+            "truth": 31
+          },
+          "forge": {
+            "got": 31,
+            "tp": 31,
+            "truth": 31
+          },
+          "truth": "validated"
+        },
+        "record fields": {
+          "engine": {
+            "got": 1851,
+            "tp": 1851,
+            "truth": 1851
+          },
+          "forge": {
+            "got": 1814,
+            "tp": 1814,
+            "truth": 1851
+          },
+          "truth": "draft"
+        },
+        "units": {
+          "engine": {
+            "got": 680,
+            "tp": 680,
+            "truth": 680
+          },
+          "forge": {
+            "got": 680,
+            "tp": 680,
+            "truth": 680
+          },
+          "truth": "validated"
+        }
+      }
+    },
+    "zopeneditor-sample": {
+      "mismatches": {
+        "engine | dead (non-trivial) | COBOL/SAM1.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | COBOL/SAM1LIB.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | COBOL/SAM2.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | multiroot/sam/SAM2.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | COBOL/SAM1.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | COBOL/SAM1LIB.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | COBOL/SAM2.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | multiroot/sam/SAM2.cbl | 000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "forge | copybook paths | COBOL/SAM1LIB.cbl | COPYLIB-MVS/REPTTOTL.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | COBOL/SAM1LIB.cbl | COPYLIB/DATETIME.cpy | fn": "forge_copybook_resolution",
+        "forge | record fields | multiroot/sam/SAM1.cbl | CUST_CNT_NAME | fn": "forge_flat_schema",
+        "forge | record fields | multiroot/sam/SAM1.cbl | NUM_POST_CUSTOMERS | fn": "forge_flat_schema",
+        "forge | record fields | multiroot/sam/SAM1.cbl | NUM_PRE_CUSTOMERS | fn": "forge_flat_schema",
+        "forge | record fields | multiroot/sam/SAM1.cbl | RPT_CRUNCH_AVG | fn": "forge_flat_schema",
+        "forge | record fields | multiroot/sam/SAM1.cbl | RPT_CRUNCH_CUST | fn": "forge_flat_schema",
+        "forge | record fields | multiroot/sam/SAM1.cbl | RPT_CRUNCH_TOTAL | fn": "forge_flat_schema",
+        "forge | record fields | multiroot/sam/SAM1.cbl | RPT_NUM_CUST | fn": "forge_flat_schema"
+      },
+      "scoreboard": {
+        "BMS screen fields": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS resources": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CSD resources": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table columns": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "DD names": {
+          "engine": {
+            "got": 12,
+            "tp": 12,
+            "truth": 12
+          },
+          "forge": {
+            "got": 12,
+            "tp": 12,
+            "truth": 12
+          },
+          "truth": "validated"
+        },
+        "JCL resolved DSNs": {
+          "engine": {
+            "got": 105,
+            "tp": 105,
+            "truth": 105
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I record fields": {
+          "engine": {
+            "got": 113,
+            "tp": 113,
+            "truth": 113
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "call targets": {
+          "engine": {
+            "got": 3,
+            "tp": 3,
+            "truth": 3
+          },
+          "forge": null,
+          "truth": "validated"
+        },
+        "cics/sql": {
+          "engine": null,
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "validated"
+        },
+        "copybook paths": {
+          "engine": {
+            "got": 14,
+            "tp": 14,
+            "truth": 14
+          },
+          "forge": {
+            "got": 12,
+            "tp": 12,
+            "truth": 14
+          },
+          "truth": "validated"
+        },
+        "dead": {
+          "engine": {
+            "got": 4,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "validated"
+        },
+        "dead (non-trivial)": {
+          "engine": {
+            "got": 4,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "validated"
+        },
+        "dynamic CALLs": {
+          "engine": {
+            "got": 3,
+            "tp": 3,
+            "truth": 3
+          },
+          "forge": {
+            "got": 3,
+            "tp": 3,
+            "truth": 3
+          },
+          "truth": "validated"
+        },
+        "entry transactions": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "validated"
+        },
+        "inputs": {
+          "engine": {
+            "got": 6,
+            "tp": 6,
+            "truth": 6
+          },
+          "forge": {
+            "got": 6,
+            "tp": 6,
+            "truth": 6
+          },
+          "truth": "validated"
+        },
+        "outputs": {
+          "engine": {
+            "got": 6,
+            "tp": 6,
+            "truth": 6
+          },
+          "forge": {
+            "got": 6,
+            "tp": 6,
+            "truth": 6
+          },
+          "truth": "validated"
+        },
+        "program_id": {
+          "engine": {
+            "got": 5,
+            "tp": 5,
+            "truth": 5
+          },
+          "forge": {
+            "got": 5,
+            "tp": 5,
+            "truth": 5
+          },
+          "truth": "validated"
+        },
+        "record fields": {
+          "engine": {
+            "got": 163,
+            "tp": 163,
+            "truth": 163
+          },
+          "forge": {
+            "got": 156,
+            "tp": 156,
+            "truth": 163
+          },
+          "truth": "draft"
+        },
+        "units": {
+          "engine": {
+            "got": 58,
+            "tp": 58,
+            "truth": 58
+          },
+          "forge": {
+            "got": 58,
+            "tp": 58,
+            "truth": 58
+          },
+          "truth": "validated"
+        }
+      }
+    }
+  }
+}

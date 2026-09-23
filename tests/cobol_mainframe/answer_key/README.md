@@ -178,3 +178,46 @@ program call targets. That made CBSA's engine row read `P 45/70`. A TRANSID is
 not a program, and the key's `calls` never listed one, so `engine_call_targets`
 now drops the routing verbs, and CBSA is back to `P 45/45 · R 45/45`. The engine
 was right all along; the scoring was wrong.
+
+## The ground-truth ledger (CI gate), 2026-09-23
+
+The scores above are now pinned. `tests/cobol_mainframe/ground_truth_ledger.json` records
+every (program, value) pair where a side disagrees with the key:
+
+```
+"<side> | <field> | <program> | <value> | fp|fn"  ->  cause
+```
+
+Each cause has a `kind` (`defect` or `deliberate`) and an owning issue. The ledger also holds
+the scoreboard, where each field is labelled `validated` or `draft` (its key section's sign-off
+flag). `.github/workflows/mainframe-ground-truth.yml` runs `tests/tools/ground_truth_ledger.py
+check` on every PR. It fails when:
+- a mismatch is new;
+- a listed one no longer reproduces;
+- an entry is untriaged;
+- a cause lacks an issue or a kind;
+- the scoreboard is stale.
+
+```sh
+python tests/tools/mainframe_corpus.py fetch
+python tests/tools/ground_truth_ledger.py check            # what CI runs
+python tests/tools/ground_truth_ledger.py update           # re-measure; new entries UNTRIAGED
+python tests/tools/ground_truth_ledger.py assign CAUSE 'cics-banking-sample-application-cbsa :: forge | record fields | *' \
+    --kind defect --issue N --summary "..."
+```
+
+On push to main, the scoreboard is appended to `docs/self_scan/ground_truth_history.jsonl`, but
+only when a number moved.
+
+The first triage had 546 mismatches in three causes:
+
+| cause | kind | issue | mismatches |
+|---|---|---|---|
+| `engine_dead_is_unreferenced_by_name` | deliberate | #2806 | 485 |
+| `forge_flat_schema` | defect | #3348 | 44 |
+| `forge_copybook_resolution` | defect | #3414 | 17 |
+
+`engine_dead_is_unreferenced_by_name` is kept as a deliberate difference, not a defect. The
+engine's `usage_status` is the unreferenced-by-name census (`docs/unreferenced_by_name_contract.md`),
+and reachability-based dead code stays on the forge by decision (#3348 scope note). The row stays
+scored so that any change to that census on real COBOL is still visible.

@@ -1,0 +1,120 @@
+name: Mainframe Ground Truth
+
+# The engine and the refraction ("forge") tools, scored against the hand-verified
+# COBOL answer keys on the pinned real mainframe corpora
+# (tests/cobol_mainframe/corpora.json), and gated by the ground-truth ledger
+# (tests/cobol_mainframe/ground_truth_ledger.json): every disagreement with the
+# key is listed there with a cause, a kind (defect|deliberate) and its owning
+# issue. A PR fails when it adds an unlisted mismatch (a regression) or when a
+# listed one stops reproducing (an improvement -- ratchet it in with
+# `python tests/tools/ground_truth_ledger.py update`, then commit the ledger).
+#
+# Runs on every PR, with no paths filter: the scores depend on the whole engine
+# (detection, the COBOL/JCL/BMS/CSD registries, the resolver, the DB writer),
+# and the full fetch + scan + score of all three corpora takes well under a
+# minute. The same job also runs tests/cobol_mainframe/ with the corpora
+# fetched, so the full-corpus refraction differential and the excerpt
+# byte-identity checks -- skipped in every other workflow -- run here too.
+#
+# On push to main it appends the scoreboard to docs/self_scan/
+# ground_truth_history.jsonl (only when a number moved) through the same
+# bot-PR mechanism as call-resolution-history.yml.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ground-truth:
+    # Loop guard: the history bot commit must not re-trigger the push run.
+    if: |
+      github.event_name != 'push' ||
+      !startsWith(github.event.head_commit.message, 'docs: auto-update mainframe ground-truth history')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GITGALAXY_LICENSE_KEY: COMMUNITY_FREE_TIER
+      GITGALAXY_MAINFRAME_CORPORA: ${{ github.workspace }}/.mainframe_corpora
+      PYTHONUTF8: "1"
+    steps:
+      - name: Checkout GitGalaxy
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: gitgalaxy
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install GitGalaxy
+        run: |
+          cd gitgalaxy
+          python -m pip install --upgrade pip
+          pip install -e . pytest
+
+      - name: Cache the pinned corpora
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .mainframe_corpora
+          # Clones only; scans are keyed by engine state inside the cache dir and
+          # are pruned below so a stale DB never rides along.
+          key: mainframe-corpora-${{ hashFiles('gitgalaxy/tests/cobol_mainframe/corpora.json') }}
+
+      - name: Fetch the pinned corpora
+        run: |
+          cd gitgalaxy
+          rm -rf "$GITGALAXY_MAINFRAME_CORPORA/_scans"
+          PYTHONPATH="$PWD" python tests/tools/mainframe_corpus.py fetch
+
+      - name: Gate against the ground-truth ledger
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python tests/tools/ground_truth_ledger.py check \
+            --summary "$GITHUB_STEP_SUMMARY" \
+            ${{ github.event_name == 'push' && '--history' || '' }}
+
+      - name: Full-corpus differential and answer-key tests
+        run: |
+          cd gitgalaxy
+          PYTHONPATH="$PWD" python -m pytest -q tests/cobol_mainframe/
+
+      - name: Open PR with updated history
+        if: github.event_name == 'push'
+        id: history-pr
+        uses: squid-protocol/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # forked from peter-evans/create-pull-request v8.1.1
+        with:
+          token: ${{ secrets.AUTOMATION_PAT }}
+          path: gitgalaxy
+          commit-message: "docs: auto-update mainframe ground-truth history"
+          title: "docs: auto-update mainframe ground-truth history"
+          body: |
+            Automated update from the mainframe ground-truth measurement on `main`.
+
+            Appends the per-corpus, per-field P/R scoreboard to
+            `docs/self_scan/ground_truth_history.jsonl` (written only when a number moved).
+          branch: auto/mainframe-ground-truth-history
+          delete-branch: true
+          add-paths: |
+            docs/self_scan/ground_truth_history.jsonl
+
+      - name: Merge the history PR
+        if: steps.history-pr.outputs.pull-request-number
+        env:
+          GH_TOKEN: ${{ secrets.AUTOMATION_PAT }}
+        run: |
+          PR="${{ steps.history-pr.outputs.pull-request-number }}"
+          gh pr merge --squash "$PR" --repo ${{ github.repository }} || \
+            gh pr merge --squash --auto "$PR" --repo ${{ github.repository }}

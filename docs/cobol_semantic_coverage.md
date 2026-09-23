@@ -304,6 +304,8 @@ site-specific symbol name — see Follow-up #2 for the surface this still leaves
    program-level-blindness shape the curl case describes does not reproduce here today) — but the
    cross-cutting design question (should the engine track project-local wrapper vocabularies at all, and
    how) is real and belongs in its own issue, not a COBOL-scoped one.
+   **RESOLVED (#3003): documented as a known blind spot** in `docs/known_blind_spots.md`, with wrapper
+   detection as a fact channel filed as epic #3313.
 4. **gitgalaxy#3004** — COBOL's auth surface (`SIGNON`/`SIGNOFF`, `VERIFY PASSWORD`, `QUERY SECURITY`,
    `EXEC SQL GRANT`/`REVOKE`) has no owner in the base schema. Worth a question to whichever issue governs
    the appsec pack's `auth_middleware` (`def_auth`) — is a per-language `auth`-family signal in scope, or

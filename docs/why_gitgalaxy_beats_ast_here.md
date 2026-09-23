@@ -10,6 +10,9 @@ tree-sitter" — it isn't, in general — or hidden because they're inconvenient
 narrative. Each exception below is its own narrow, evidence-backed claim, not a cumulative case
 that the general rule is wrong.
 
+The opposite direction, where the engine is structurally *blind* and reports low or zero for
+code that is not, is tracked in [`known_blind_spots.md`](known_blind_spots.md).
+
 ## Claim 1: `args` counting where the grammar has no formal parameter list
 
 For counting a function's **arguments** in languages/idioms where the grammar has **no formal

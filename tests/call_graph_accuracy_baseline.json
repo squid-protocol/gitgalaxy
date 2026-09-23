@@ -1,21 +1,21 @@
 {
   "c": {
-    "fn": 557,
-    "fp": 84,
+    "fn": 90,
+    "fp": 92,
     "matched_functions": 2559,
     "parse_failures": 0,
     "precision_pct": 99.3,
-    "recall_pct": 95.7,
-    "tp": 12501
+    "recall_pct": 99.3,
+    "tp": 12968
   },
   "cpp": {
-    "fn": 513,
-    "fp": 1045,
+    "fn": 345,
+    "fp": 1070,
     "matched_functions": 1280,
     "parse_failures": 0,
     "precision_pct": 87.4,
-    "recall_pct": 93.4,
-    "tp": 7257
+    "recall_pct": 95.6,
+    "tp": 7425
   },
   "csharp": {
     "fn": 76,
@@ -27,75 +27,75 @@
     "tp": 2612
   },
   "go": {
-    "fn": 515,
+    "fn": 230,
     "fp": 652,
     "matched_functions": 1294,
     "parse_failures": 0,
-    "precision_pct": 90.3,
-    "recall_pct": 92.2,
-    "tp": 6061
+    "precision_pct": 90.7,
+    "recall_pct": 96.5,
+    "tp": 6346
   },
   "java": {
-    "fn": 60,
+    "fn": 35,
     "fp": 60,
     "matched_functions": 735,
     "parse_failures": 0,
-    "precision_pct": 96.9,
-    "recall_pct": 96.9,
-    "tp": 1886
+    "precision_pct": 97.0,
+    "recall_pct": 98.2,
+    "tp": 1911
   },
   "javascript": {
-    "fn": 120,
-    "fp": 559,
+    "fn": 52,
+    "fp": 572,
     "matched_functions": 619,
     "parse_failures": 0,
-    "precision_pct": 78.4,
-    "recall_pct": 94.4,
-    "tp": 2028
+    "precision_pct": 78.6,
+    "recall_pct": 97.6,
+    "tp": 2096
   },
   "php": {
-    "fn": 97,
-    "fp": 766,
+    "fn": 66,
+    "fp": 780,
     "matched_functions": 1548,
     "parse_failures": 0,
-    "precision_pct": 88.1,
-    "recall_pct": 98.3,
-    "tp": 5647
+    "precision_pct": 87.9,
+    "recall_pct": 98.9,
+    "tp": 5678
   },
   "python": {
-    "fn": 1161,
-    "fp": 861,
+    "fn": 92,
+    "fp": 889,
     "matched_functions": 4045,
     "parse_failures": 0,
-    "precision_pct": 92.1,
-    "recall_pct": 89.7,
-    "tp": 10069
+    "precision_pct": 92.6,
+    "recall_pct": 99.2,
+    "tp": 11138
   },
   "ruby": {
-    "fn": 660,
+    "fn": 653,
     "fp": 38,
     "matched_functions": 338,
     "parse_failures": 0,
-    "precision_pct": 89.8,
-    "recall_pct": 33.7,
-    "tp": 336
+    "precision_pct": 90.0,
+    "recall_pct": 34.4,
+    "tp": 343
   },
   "rust": {
-    "fn": 1042,
-    "fp": 1092,
+    "fn": 692,
+    "fp": 1113,
     "matched_functions": 1774,
     "parse_failures": 0,
-    "precision_pct": 84.9,
-    "recall_pct": 85.5,
-    "tp": 6150
+    "precision_pct": 85.4,
+    "recall_pct": 90.4,
+    "tp": 6500
   },
   "typescript": {
-    "fn": 546,
-    "fp": 1253,
+    "fn": 243,
+    "fp": 1293,
     "matched_functions": 2847,
     "parse_failures": 0,
-    "precision_pct": 80.7,
-    "recall_pct": 90.6,
-    "tp": 5241
+    "precision_pct": 81.1,
+    "recall_pct": 95.8,
+    "tp": 5544
   }
 }

@@ -1183,12 +1183,14 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
           "MAIN-PARA ends in GOBACK., so it never falls through. The first draft counted the IF inside END-IF and treated it as conditional (fixed)."
-        ]
+        ],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -3452,12 +3454,14 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
           "END-CALL is not a CALL. The first draft read END-CALL IF as a dynamic CALL of IF (fixed)."
-        ]
+        ],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -5107,10 +5111,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -6623,10 +6629,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -7291,12 +7299,14 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
           "EXEC SQL / INCLUDE AUTHFRDS resolves to the DCLGEN member dcl/AUTHFRDS.dcl. The first draft ignored .dcl (fixed)."
-        ]
+        ],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -8630,12 +8640,14 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
           "The SELECT OPFILE1/OPFILE2 and OPEN OUTPUT lines are all commented out (column 7 '*'), so there are no outputs. The forge reports OUTFIL1/OUTFIL2 (#3420)."
-        ]
+        ],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -10132,12 +10144,14 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
           "PERFORM 3200-INSERT-IMS-CALL THRU 3200-EXIT is not a CALL of THRU (first draft, fixed; the forge still does this, #3420)."
-        ]
+        ],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -11436,10 +11450,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -11802,10 +11818,12 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -16305,7 +16323,7 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
@@ -16314,7 +16332,9 @@
           "PROGRAM-ID. stands alone on line 25 and the name COTRTLIC is on line 26. The engine reads 002600 (#3418).",
           "The one-line EXEC SQL INCLUDE CSDB2RWY / DCLTRTYP / CSDB2RPY ... END-EXEC resolve to app-transaction-type-db2/cpy and dcl. The engine misses all three (#3416).",
           "SEND-LONG-TEXT-EXIT is a THRU end whose range start ends in EXEC CICS RETURN, so it is dead although it is named at line 689."
-        ]
+        ],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -19149,13 +19169,15 @@
       "sql": true,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
           "PROGRAM-ID. stands alone on line 22 and the name COTRTUPC is on line 23. The engine and the forge read the cols 73-80 id 00220000 (#3418).",
           "ABEND-ROUTINE-EXIT: its range start ends in EXEC CICS ABEND, so it is dead. The forge's IF/END-IF miscount makes that start look non-terminal (#3420)."
-        ]
+        ],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -20956,10 +20978,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -22288,10 +22312,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -23515,12 +23541,14 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
           "'*CALL ASSEMBLER PROGRAM ...' is a comment line, not a CALL. The forge reads it as one (#3420)."
-        ]
+        ],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -23945,10 +23973,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -24373,10 +24403,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -26038,10 +26070,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -26466,10 +26500,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -27358,10 +27394,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -28201,10 +28239,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -31201,10 +31241,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -31951,10 +31993,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -33052,10 +33096,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -34777,10 +34823,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -36054,10 +36102,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -46250,14 +46300,16 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
           "COPY 'CSUTLDWY'. and COPY 'CSSTRPFY' are quoted members. The first draft lost them to literal blanking (fixed).",
           "COPY CSLKPCDY. (line 602) resolves to app/cpy/CSLKPCDY.cpy. The engine drops the edge because it excludes that data-only copybook as zero-density (#3417).",
           "ABEND-ROUTINE-EXIT is dead: its range start ends in EXEC CICS ABEND."
-        ]
+        ],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -48152,7 +48204,7 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
@@ -48160,7 +48212,9 @@
         ],
         "duplicate_units": [
           "0000-MAIN-EXIT"
-        ]
+        ],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -48590,10 +48644,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -49376,10 +49432,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -49439,10 +49497,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -51888,12 +51948,14 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
         "notes": [
           "'*  CALL MENU PROGRAM' / '*  CALL CARD ... PROGRAM' are comment lines. The forge reads them as dynamic CALLs (#3420)."
-        ]
+        ],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -53743,10 +53805,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -56995,10 +57059,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -57431,10 +57497,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -58914,10 +58982,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -59297,10 +59367,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -60018,10 +60090,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -60593,10 +60667,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -61524,10 +61600,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -62372,10 +62450,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -62723,10 +62803,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -63276,10 +63358,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -63829,10 +63913,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     },
@@ -64640,10 +64726,12 @@
       "sql": false,
       "verification": {
         "status": "validated",
-        "tier": "llm_verified",
+        "tier": "cross_verified",
         "by": "claude-opus-5.5 (agent standing in for a human reviewer)",
         "at": "2026-09-23",
-        "notes": []
+        "notes": [],
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "commareas_validated": false
     }
@@ -89856,5 +89944,35 @@
     "calls": "CALL and EXEC CICS LINK/XCTL PROGRAM(...): literals as written, identifiers through their working-storage VALUE clause; resolved to the program with that PROGRAM-ID (nearest when shared). CEE* targets are LE callable services.",
     "cics_sql": "Presence of EXEC CICS / EXEC SQL in code lines; agrees with the forge's booleans on every program.",
     "cross_check": "Every dead verdict (35) was checked against the source, and every reference to a dead unit was confirmed to come from dead code or from a THRU range whose start ends in an unconditional transfer. All 871 draft reach claims (PERFORM from X, fall-through from X, GO TO) were re-checked mechanically. Every value where the draft, the forge and the engine disagreed was resolved against the source. Seven draft-reader errors turned up this way; each is fixed and pinned in test_cobol_answer_key.py. A blinded second-model check (dead units mixed with live controls) is prepared but not yet run, so the tier stays llm_verified."
-  }
+  },
+  "cross_verification": [
+    {
+      "by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+      "at": "2026-09-23",
+      "seed": 3210,
+      "tasks": {
+        "A": {
+          "agree": 70,
+          "asked": 70
+        },
+        "B": {
+          "agree": 44,
+          "asked": 44
+        },
+        "C": {
+          "agree": 162,
+          "asked": 162
+        },
+        "D": {
+          "agree": 26,
+          "asked": 26
+        },
+        "E": {
+          "agree": 33,
+          "asked": 33
+        }
+      },
+      "rulings": {}
+    }
+  ]
 }

@@ -56,9 +56,10 @@ SCHEMA_VERSION = 1
 # validated program names one in `verification.tier`:
 #   llm_verified    one model checked the draft against the source (every dead
 #                   verdict and every draft/forge/engine disagreement)
-#   cross_verified  a second, different model classified the same claims BLIND
-#                   (mixed with live controls, without the key's answers), and
-#                   every disagreement was settled against the source;
+#   cross_verified  a second reviewer model, with a fresh context, answered the
+#                   same questions BLIND (dead units mixed with live controls,
+#                   without the key's answers), and every disagreement was
+#                   settled against the source (tests/tools/cross_verify.py);
 #                   `verification.cross_by` names it
 #   human_signed    a person spot-checked a sample (`sample` subcommand) and
 #                   signed; `verification.signed_by` names them
@@ -79,6 +80,7 @@ _NOT_A_HEADER = {"DECLARATIVES", "END", "EXIT", "GOBACK", "CONTINUE", "STOP", "E
 # real `PERFORM X` read as a PERFORM of the word `PERFORM`, swallowing X
 # (CardDemo COTRTLIC 9450-CLOSE-FORWARD-CURSOR read as dead).
 _PERFORM = re.compile(rf"(?<![\w-])PERFORM\s+({NAME})(?:\s+(?:THRU|THROUGH)\s+({NAME}))?")
+_ALTER = re.compile(rf"(?<![\w-])ALTER\s+({NAME})\s+TO\s+(?:PROCEED\s+TO\s+)?({NAME})")
 _GOTO = re.compile(rf"(?<![\w-])GO\s+(?:TO\s+)?((?:{NAME}\s*)+)")
 _SENTENCE_END = re.compile(r"\.(?=\s|$)")
 _TERMINAL_TAIL = re.compile(rf"(?:\bGOBACK|\bSTOP\s+RUN|\bEXIT\s+PROGRAM|\bGO\s+(?:TO\s+)?{NAME})\s*$")
@@ -237,37 +239,49 @@ def _is_exit_only(body: str) -> bool:
     return t in ("EXIT.", "EXIT")
 
 
-def _is_terminal(text: str) -> bool:
-    """Does the unit's last sentence end in an unconditional transfer that never falls through?"""
-    sentences = [s.strip() for s in _SENTENCE_END.split(text) if s.strip()]
-    if not sentences:
+def _sentences(text: str) -> list[str]:
+    return [re.sub(r"\s+", " ", x.strip()) for x in _SENTENCE_END.split(text) if x.strip()]
+
+
+def _unconditional(sentence: str) -> bool:
+    r"""Is the sentence outside any IF / EVALUATE (so what it ends in always runs)?
+
+    `(?<![\w-])`: `\bIF\b` also matches inside `END-IF`, so any sentence with a
+    closed IF read as unterminated and a paragraph ending `... END-IF ... GOBACK.`
+    as falling through (CardDemo CBPAUP0C MAIN-PARA)."""
+    if len(re.findall(r"(?<![\w-])IF\b", sentence)) != len(re.findall(r"\bEND-IF\b", sentence)):
         return False
-    last = re.sub(r"\s+", " ", sentences[-1])
-    # `(?<![\w-])`: `\bIF\b` also matches inside `END-IF`, so any sentence with a
-    # closed IF read as unterminated and a paragraph ending `... END-IF ... GOBACK.`
-    # as falling through (CardDemo CBPAUP0C MAIN-PARA).
-    if len(re.findall(r"(?<![\w-])IF\b", last)) != len(re.findall(r"\bEND-IF\b", last)):
+    return len(re.findall(r"(?<![\w-])EVALUATE\b", sentence)) == len(re.findall(r"\bEND-EVALUATE\b", sentence))
+
+
+def _sentence_is_terminal(sentence: str) -> bool:
+    if not _unconditional(sentence):
         return False  # the transfer sits inside an unterminated IF: conditional
-    if len(re.findall(r"(?<![\w-])EVALUATE\b", last)) != len(re.findall(r"\bEND-EVALUATE\b", last)):
-        return False
-    if last.endswith("END-EXEC"):
-        start = [m.start() for m in re.finditer(r"\bEXEC\s", last)]
-        return bool(start) and re.match(r"EXEC\s+CICS\s+(RETURN|XCTL|ABEND)\b", last[start[-1] :]) is not None
-    return _TERMINAL_TAIL.search(last) is not None and " DEPENDING " not in last
+    if sentence.endswith("END-EXEC"):
+        start = [m.start() for m in re.finditer(r"\bEXEC\s", sentence)]
+        return bool(start) and re.match(r"EXEC\s+CICS\s+(RETURN|XCTL|ABEND)\b", sentence[start[-1] :]) is not None
+    return _TERMINAL_TAIL.search(sentence) is not None and " DEPENDING " not in sentence
 
 
-def _tail_perform(text: str) -> Optional[tuple[str, Optional[str]]]:
-    """(target, thru) when the unit's last sentence is exactly an unconditional out-of-line PERFORM."""
-    sentences = [x.strip() for x in _SENTENCE_END.split(text) if x.strip()]
-    if not sentences:
-        return None
-    last = re.sub(r"\s+", " ", sentences[-1])
-    m = re.search(rf"\bPERFORM ({NAME})(?: (?:THRU|THROUGH) ({NAME}))?$", last)
-    if not m or len(re.findall(r"(?<![\w-])IF\b", last)) != len(re.findall(r"\bEND-IF\b", last)):
-        return None
-    if len(re.findall(r"(?<![\w-])EVALUATE\b", last)) != len(re.findall(r"\bEND-EVALUATE\b", last)):
-        return None
-    return m.group(1), m.group(2)
+def _is_terminal(text: str) -> bool:
+    """Does ANY sentence of the unit end in an unconditional transfer that never
+    falls through? Not only the last: CBSA BNK1CCS A010 ends
+    `EXEC CICS RETURN TRANSID(...) RESP(...) END-EXEC.` then an
+    `IF <resp not normal> ... PERFORM ABEND-THIS-TASK END-IF.` recovery sentence,
+    and the RETURN alone already ends the unit (found by the blind cross-check)."""
+    return any(_sentence_is_terminal(s) for s in _sentences(text))
+
+
+def _tail_perform(text: str) -> list[tuple[str, Optional[str]]]:
+    """(target, thru) for every sentence of the unit that is exactly an
+    unconditional out-of-line PERFORM -- any one of a range that never returns
+    makes the unit terminal, wherever it sits in the unit."""
+    out = []
+    for s in _sentences(text):
+        m = re.search(rf"(?<![\w-])PERFORM ({NAME})(?: (?:THRU|THROUGH) ({NAME}))?$", s)
+        if m and _unconditional(s):
+            out.append((m.group(1), m.group(2)))
+    return out
 
 
 def reachability(units: list[dict[str, Any]], cross_sections: bool = True) -> dict[str, str]:
@@ -289,8 +303,8 @@ def reachability(units: list[dict[str, Any]], cross_sections: bool = True) -> di
     def span_end(i: int) -> int:
         return section_end.get(i, i)
 
-    # A unit is terminal if its last sentence ends in GOBACK/STOP RUN/RETURN/...,
-    # or in an unconditional PERFORM of a range that itself never returns (the
+    # A unit is terminal if any unconditional sentence ends in GOBACK/STOP RUN/RETURN/...,
+    # or is an unconditional PERFORM of a range that itself never returns (the
     # CBSA shape: `PERFORM GET-ME-OUT-OF-HERE.` where that section RETURNs).
     # Fixpoint, since "never returns" is defined through `terminal`.
     terminal = [_is_terminal(u["text"]) for u in units]
@@ -298,13 +312,14 @@ def reachability(units: list[dict[str, Any]], cross_sections: bool = True) -> di
     changed = True
     while changed:
         changed = False
-        for i, tail in enumerate(tails):
-            if terminal[i] or not tail or tail[0] not in index:
-                continue
-            a = index[tail[0]]
-            b = span_end(index[tail[1]]) if tail[1] in index else span_end(a)
-            if any(terminal[k] for k in range(a, b + 1)):
-                terminal[i] = changed = True
+        for i, unit_tails in enumerate(tails):
+            for tail in unit_tails:
+                if terminal[i] or tail[0] not in index:
+                    continue
+                a = index[tail[0]]
+                b = span_end(index[tail[1]]) if tail[1] in index else span_end(a)
+                if any(terminal[k] for k in range(a, b + 1)):
+                    terminal[i] = changed = True
 
     reached: dict[int, str] = {}
     queue: list[tuple[int, Optional[int], str]] = [(0, None, "entry")]
@@ -334,6 +349,12 @@ def reachability(units: list[dict[str, Any]], cross_sections: bool = True) -> di
                         break
                     t = index[tok]
                     queue.append((t, end if end is not None and start <= t <= end else None, f"GO TO from {here}"))
+            # `ALTER P TO PROCEED TO Q` rewires P's GO TO to jump to Q: Q is
+            # reached through P, as a GO TO target (CardDemo CBSTM03A's
+            # 8200/8300/8400-*-OPEN are reached only this way).
+            for m in _ALTER.finditer(u["text"]):
+                if m.group(2) in index:
+                    queue.append((index[m.group(2)], None, f"ALTER (GO TO via {m.group(1)}) from {here}"))
             if (end is not None and k >= end) or terminal[k]:
                 break
             # Verification aid: with cross_sections=False the main flow may not

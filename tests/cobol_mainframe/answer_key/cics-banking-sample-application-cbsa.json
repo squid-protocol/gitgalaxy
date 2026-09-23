@@ -67,7 +67,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -1199,7 +1201,9 @@
         "notes": [
           "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -2428,7 +2432,9 @@
           "CALC-DAY-OF-WEEK SECTION (and CDW010/CDW999) is never PERFORMed: real dead logic.",
           "CUSTOMER-FILE is ASSIGN TO VSAM and opened OUTPUT once (line 449)."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -5553,6 +5559,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -5657,8 +5667,12 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -7441,6 +7455,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -7553,8 +7571,12 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -9206,6 +9228,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -9338,8 +9364,12 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -11101,6 +11131,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -11205,8 +11239,12 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -13179,6 +13217,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -13299,8 +13341,12 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -15609,6 +15655,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -15805,8 +15855,12 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -17925,6 +17979,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -18029,8 +18087,12 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -19923,6 +19985,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -20043,8 +20109,12 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -22193,6 +22263,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "ATT999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -22345,8 +22419,12 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": [],
-        "tier": "llm_verified"
+        "notes": [
+          "2026-09-24: A999 is dead (EXIT-only). A010 contains an unconditional EXEC CICS RETURN TRANSID(...) sentence, so it never falls through; the IF after it only handles a failed RETURN by abending. Found by the blind cross-check (cross_verify.py). The draft reader only tested a unit's LAST sentence (fixed)."
+        ],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -23310,7 +23388,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -24176,7 +24256,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -25042,7 +25124,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -25908,7 +25992,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -26774,7 +26860,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -27903,7 +27991,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -30617,7 +30707,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -33821,7 +33913,9 @@
         "notes": [
           "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -34968,7 +35062,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -36613,7 +36709,9 @@
         "notes": [
           "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo)."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -38472,7 +38570,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -40622,7 +40722,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -40689,7 +40791,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -40971,7 +41075,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -42715,7 +42821,9 @@
         "notes": [
           "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo)."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -44361,7 +44469,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -45812,7 +45922,9 @@
         "notes": [
           "POPULATE-TIME-DATE SECTION has no reference: real dead logic."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -46945,7 +47057,9 @@
           "POPULATE-TIME-DATE SECTION has no reference: real dead logic.",
           "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo)."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -48250,7 +48364,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -60407,5 +60523,44 @@
         "notes": []
       }
     }
-  }
+  },
+  "cross_verification": [
+    {
+      "by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+      "at": "2026-09-23",
+      "seed": 3210,
+      "tasks": {
+        "A": {
+          "agree": 130,
+          "asked": 130
+        },
+        "B": {
+          "agree": 31,
+          "asked": 31
+        },
+        "C": {
+          "agree": 59,
+          "asked": 59
+        },
+        "D": {
+          "agree": 14,
+          "asked": 14
+        },
+        "E": {
+          "agree": 1,
+          "asked": 1
+        }
+      },
+      "rulings": {
+        "A:src/base/cobol_src/BNK1CCS.cbl::A999": {
+          "verdict": "key_fixed",
+          "why": "Reviewer is right: A010's EXEC CICS RETURN TRANSID(...) END-EXEC. sentence is unconditional, so A010 never falls through and A999 is dead. The draft reader only tested the last sentence; fixed, and the same correction applies to A999 in 8 more CBSA programs (BNK1CAC/CCA/CRA/DAC/DCS/TFN/UAC, BNKMENU)."
+        },
+        "D:src/base/cobol_src/INQACCCU.cbl::('LINK', 'INQCUST ')": {
+          "verdict": "key_correct",
+          "why": "Same program: the literal is 'INQCUST ' padded to 8, as CICS program names are. The grader now drops blank padding."
+        }
+      }
+    }
+  ]
 }

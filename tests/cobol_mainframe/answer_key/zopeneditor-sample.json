@@ -179,7 +179,9 @@
           "CALL SAM2 goes through 05 SAM2 PIC X(8) VALUE 'SAM2'.",
           "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -2042,7 +2044,9 @@
           "COPY DATETIME IN MYFILE and COPY REPTTOTL IN MYLIB resolve through zapp.yaml to COPYLIB/ and COPYLIB-MVS/.",
           "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -3372,7 +3376,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -3722,7 +3728,9 @@
         "notes": [
           "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
         ],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -5732,7 +5740,9 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [],
-        "tier": "llm_verified"
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+        "cross_at": "2026-09-23"
       },
       "records": [
         {
@@ -7990,5 +8000,35 @@
     }
   },
   "csd_decks": {},
-  "cics_resources": {}
+  "cics_resources": {},
+  "cross_verification": [
+    {
+      "by": "claude-opus-5.5, fresh-context subagent given only the brief (blind; same model family as the author)",
+      "at": "2026-09-23",
+      "seed": 3210,
+      "tasks": {
+        "A": {
+          "agree": 35,
+          "asked": 35
+        },
+        "B": {
+          "agree": 5,
+          "asked": 5
+        },
+        "C": {
+          "agree": 14,
+          "asked": 14
+        },
+        "D": {
+          "agree": 3,
+          "asked": 3
+        },
+        "E": {
+          "agree": 12,
+          "asked": 12
+        }
+      },
+      "rulings": {}
+    }
+  ]
 }

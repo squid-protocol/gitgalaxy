@@ -7,7 +7,7 @@ Neither parser is the oracle for the other. Before this key existed, every quest
 | file | corpus | pinned ref | programs | units | dead (non-trivial) |
 |---|---|---|---|---|---|
 | `zopeneditor-sample.json` | [IBM/zopeneditor-sample](https://github.com/IBM/zopeneditor-sample) | `8f983530` | 5 | 58 | 0 (0) |
-| `cics-banking-sample-application-cbsa.json` | [cicsdev/cics-banking-sample-application-cbsa](https://github.com/cicsdev/cics-banking-sample-application-cbsa), branch `July2024Refresh` (its `main` was emptied at the 2024 sunset) | `41733453` | 31 | 680 | 65 (10) |
+| `cics-banking-sample-application-cbsa.json` | [cicsdev/cics-banking-sample-application-cbsa](https://github.com/cicsdev/cics-banking-sample-application-cbsa), branch `July2024Refresh` (its `main` was emptied at the 2024 sunset) | `41733453` | 31 | 680 | 74 (10) |
 | `aws-mainframe-modernization-carddemo.json` | [aws-samples/aws-mainframe-modernization-carddemo](https://github.com/aws-samples/aws-mainframe-modernization-carddemo) | `59cc6c2f` | 44 | 871 | 35 (8) |
 
 ## What each program records
@@ -280,3 +280,49 @@ With CardDemo keyed, the ledger holds 1029 mismatches in 9 causes, all triaged:
 | `program_id_on_its_own_line` | defect | #3418 | 6 |
 | `header_period_next_line` | defect | #3419 | 4 |
 | `engine_excluded_copybook_edge` | defect | #3417 | 1 |
+
+## Runbook: taking a corpus from draft to `cross_verified`
+
+The review is done by LLMs, not people. What makes it evidence is **independence**: the reviewer answers blind, and every disagreement is settled against the source.
+
+1. **Pin and draft.**
+   - Add the corpus to `corpora.json` and run `mainframe_corpus.py fetch <name>`.
+   - Run `cobol_answer_key.py draft …`, then the `add-*` subcommands.
+2. **Author pass (`llm_verified`).** The drafting model checks the draft:
+   - every dead verdict against the source;
+   - every reference to a dead unit, which must come from dead code, or from a THRU range whose start never returns;
+   - every draft/forge/engine disagreement, from `mainframe_corpus.py score`;
+   - every draft reach claim.
+
+   Fix each draft-reader error in the reader and pin it with a test. Record the findings in `verification.notes`, then set `status: validated` and `tier: llm_verified`.
+3. **Blind review.**
+   - `cross_verify.py brief --corpus <name> --out <dir>` writes `brief.md`. It holds the dead units shuffled among an equal share of seeded live controls, every PROGRAM-ID, and copybooks, calls and files for a program sample. Programs with notes are always included. The key's answers go only to `truth.json`, which the reviewer must not see.
+   - Give **only** `brief.md` to a reviewer model with a fresh context. A different model family is stronger evidence: Gemini through `agy -p "$(cat brief.md)" … --dangerously-skip-permissions`, which the user has to launch. A fresh Claude subagent that is told to read only the brief and the corpus also works.
+   - Save the reviewer's JSON reply as `<dir>/answers.json`.
+4. **Grade and settle.** `cross_verify.py grade --corpus <name> --dir <dir>` lists every disagreement. Settle each one against the source:
+   - If the **key** is wrong, fix it (and the reader, with a test) and rule it `key_fixed`.
+   - If the **reviewer** is wrong, rule it `key_correct` with the source evidence.
+
+   Rulings go in `<dir>/rulings.json`.
+5. **Sign.** `cross_verify.py sign --corpus <name> --dir <dir> --by "<reviewer model>"` re-grades the same questions against the current key. It refuses while anything is unruled, or while a `key_fixed` item still disagrees. It then sets every program to `cross_verified` with `cross_by` and appends the evidence (sample, agreement, rulings) to the key's `cross_verification` list.
+6. **Re-measure.** Run `ground_truth_ledger.py update`: any key fix moves the ledger. Triage the new entries, and explain the key changes in the PR.
+
+A second reviewer from another family can be run the same way later. Each run appends to `cross_verification`. `human_signed` stays available if a person ever does step 4.
+
+## First blind cross-verification, 2026-09-24
+
+All three keys went through the runbook above. The reviewer was a fresh-context Claude subagent given only its `brief.md` and a staged source copy (`--stage`), with nothing else from this repository in view.
+
+| corpus | reachability | PROGRAM-ID | copybooks | calls | files | disagreements |
+|---|---|---|---|---|---|---|
+| zopeneditor-sample | 35/35 | 5/5 | 14/14 | 3/3 | 12/12 | 0 |
+| aws-mainframe-modernization-carddemo | 70/70 | 44/44 | 162/162 | 26/26 | 33/33 | 0 |
+| cics-banking-sample-application-cbsa | 129/130 | 31/31 | 59/59 | 13/15 | 1/1 | 3 |
+
+**CBSA: the reviewer was right, and the key was wrong in 9 programs.** BNK1CCS's A010 contains an unconditional `EXEC CICS RETURN TRANSID(…) END-EXEC.` sentence, followed by an `IF <resp not normal> … END-IF.` recovery sentence. The draft reader only tested a unit's last sentence, so A010 read as falling through and `A999` as live. The reader now treats **any** unconditional terminal sentence as ending the unit. That makes `A999` dead in BNK1CAC, CCA, CCS, CRA, DAC, DCS, TFN, UAC and BNKMENU (all EXIT-only). CBSA now has 74 dead units (10 non-trivial).
+
+The same fix exposed a second blind spot. CardDemo CBSTM03A reaches `8200/8300/8400-*-OPEN` only through `ALTER 8100-FILE-OPEN TO PROCEED TO …`. The old reader marked them live only because it treated a stray `EXIT.` after `GO TO 0000-START.` as a fall-through. It now counts ALTER targets as reached, and CardDemo is unchanged.
+
+The two call disagreements were the grader, not the key: `'INQCUST '` is padded to 8 characters, as CICS program names are. The grader now ignores blank padding.
+
+Every key is now `cross_verified`. The rulings are stored in each key's `cross_verification` list. The reviewer was the same model family as the author, which `cross_by` states. A Gemini run through `agy` would add cross-family evidence.

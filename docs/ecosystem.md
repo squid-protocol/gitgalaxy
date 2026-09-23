@@ -10,13 +10,17 @@ their own drifting copy.
 
 ## The repos
 
-Canonical local layout on the dev machine — all siblings under `/srv/storage_16tb/projects/`:
+Canonical local layout on the dev machine (moved to NVMe 2026-09-23) — the working repos are siblings
+under `/nvme-data/projects/`; the corpus pool is `/nvme-data/gitgalaxy-data/`; the 16TB HDD
+(`/srv/storage_16tb/projects/`) holds only archives (old checkouts, `museum*`, `gitgalaxy-raw-output`,
+`gitgalaxy-population-analyses`, `squid-telemetry`). Set `KEYWORD_ROSETTA_PATH` / `LANGUAGE_CRUCIBLE_PATH`
+when working from a worktree.
 
 | Repo (GitHub, org `squid-protocol`) | Local checkout | What it is |
 |---|---|---|
-| **gitgalaxy** | `gitgalaxy/v6` | **The engine** (this repo). AST-free, LLM-free static analysis: bounded-regex structural signatures → knowledge graph → risk scoring / SBOM / 3D map. Everything else in this table exists to feed, verify, or showcase it. |
-| **language-crucible** | `all_language_repo` | Zero-execution structural-parser **benchmark corpus** (`data/<language>/<repo-folder>/`, per-category `SOURCES.md`, machine-readable `PROVENANCE.json`). gitgalaxy CI pins it to a release tag (`LANGUAGE_CRUCIBLE_REF` GH Actions var + `tests/_crucible_pin.py`) and diffs golden masters against it. Releases per its `RELEASING.md`. |
-| **keyword-rosetta** | `keyword-rosetta` | **Control corpus**: one identical 12-probe program shell in all 46 signature-bearing languages, exact planted keyword counts — measures whether the engine treats identical intent identically across languages (cross-language bias). Gates via `tools/verify_language.py`; deviations live in `deviation_ledger.json` per its `docs/GATING.md`. Its CI checks out gitgalaxy **main**, and gitgalaxy's `rosetta-audit` checks out its **main** — no pins in either direction (#2682). Its `bias-history.yml` regenerates the bias chart after every corpus push and daily. |
+| **gitgalaxy** | `/nvme-data/projects/gitgalaxy` (worktrees in `gitgalaxy-worktrees/`) | **The engine** (this repo). AST-free, LLM-free static analysis: bounded-regex structural signatures → knowledge graph → risk scoring / SBOM / 3D map. Everything else in this table exists to feed, verify, or showcase it. |
+| **language-crucible** | `/nvme-data/projects/language-crucible` | Zero-execution structural-parser **benchmark corpus** (`data/<language>/<repo-folder>/`, per-category `SOURCES.md`, machine-readable `PROVENANCE.json`). gitgalaxy CI pins it to a release tag (`LANGUAGE_CRUCIBLE_REF` GH Actions var + `tests/_crucible_pin.py`) and diffs golden masters against it. Releases per its `RELEASING.md`. |
+| **keyword-rosetta** | `/nvme-data/projects/keyword-rosetta` | **Control corpus**: one identical 12-probe program shell in all 46 signature-bearing languages, exact planted keyword counts — measures whether the engine treats identical intent identically across languages (cross-language bias). Gates via `tools/verify_language.py`; deviations live in `deviation_ledger.json` per its `docs/GATING.md`. Its CI checks out gitgalaxy **main**, and gitgalaxy's `rosetta-audit` checks out its **main** — no pins in either direction (#2682). Its `bias-history.yml` regenerates the bias chart after every corpus push and daily. |
 | **gitgalaxy-raw-output** | `gitgalaxy-raw-output` | Real, unedited **scan outputs** on independently-chosen production repos (`v<engine-version>/<repo>/<repo>_galaxy_llm.md` + gzipped audit/SBOM) plus speed charts. Evidence source for README claims and `docs/language_status/` §8 sections. |
 | **squid-telemetry** | `squid-telemetry` | **Distribution/adoption analytics** (the engine itself is air-gapped and phones nothing home; this pipeline scrapes public GitHub/GitLab/PyPI fetch metrics daily via Actions and commits regenerated chart PNGs). |
 | **gitgalaxy-population-analyses** | `gitgalaxy-population-analyses` | Offline **statistical analyses** over scan populations (risk-distribution ridgeplots, archetype clustering, threat-prediction distribution studies). Reads raw inputs from gitgalaxy-raw-output; never on any CI path. |
@@ -25,13 +29,14 @@ Canonical local layout on the dev machine — all siblings under `/srv/storage_1
 
 **Local-only directories that are NOT repos** (but matter):
 
-- `gitgalaxy/data/` — the full-repo **source pool** (~113 clones, `corpus_<domain>/` collections,
+- `/nvme-data/gitgalaxy-data/` (also reachable as `/srv/.../gitgalaxy/data`) — the full-repo **source pool** (~113 clones, `corpus_<domain>/` collections,
   npm/pypi mirrors). Feeds the crucible; not pinned, not a git repo itself. Its `README.md`
   documents the layout. `gitgalaxy/data/gitgalaxy/` is a clone of the engine kept in the pool so
-  the engine can scan itself — **never edit engine code there**.
+  the engine can scan itself — **never edit engine code there**, and never put repos or worktrees inside
+  the pool (a pool-wide scan would sample them).
 - `gitgalaxy/v1` … `v5`, `museum*`, `temp/`, `threat_hunter/` — historical/scratch copies.
-  **Only `gitgalaxy/v6` is the live engine checkout.** A repo-wide grep from `/srv/.../projects`
-  or `/srv/.../gitgalaxy` will hit stale copies of files like `language_standards.py` in
+  (all on the HDD). **Only `/nvme-data/projects/gitgalaxy` is the live engine checkout** — the HDD `v6`
+  is retired. A repo-wide grep from `/srv/.../projects` or `/srv/.../gitgalaxy` will hit stale copies of files like `language_standards.py` in
   `temp/`, `threat_hunter/`, and the pool's self-scan clone — check the path before trusting or
   editing a hit.
 

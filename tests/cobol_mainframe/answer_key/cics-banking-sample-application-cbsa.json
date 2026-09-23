@@ -49040,5 +49040,274 @@
     "files": "SELECT ... ASSIGN plus every OPEN, splitting a multi-mode OPEN at each INPUT/OUTPUT/I-O/EXTEND keyword; checked against the source.",
     "calls": "CALL and EXEC CICS LINK/XCTL PROGRAM(...): literals as written, identifiers through their working-storage VALUE clause; resolved to the program with that PROGRAM-ID (nearest when shared). CEE* targets are LE callable services.",
     "cics_sql": "Presence of EXEC CICS / EXEC SQL in code lines; agrees with the forge's booleans on every program."
+  },
+  "sql_tables": {
+    "src/base/cobol_copy/ACCDB2.cpy": {
+      "columns": [
+        {
+          "table": "ACCOUNT",
+          "colno": 1,
+          "name": "ACCOUNT_EYECATCHER",
+          "sql_type": "CHAR",
+          "length": 4,
+          "scale": null,
+          "nullable": true,
+          "line": 8
+        },
+        {
+          "table": "ACCOUNT",
+          "colno": 2,
+          "name": "ACCOUNT_CUSTOMER_NUMBER",
+          "sql_type": "CHAR",
+          "length": 10,
+          "scale": null,
+          "nullable": true,
+          "line": 9
+        },
+        {
+          "table": "ACCOUNT",
+          "colno": 3,
+          "name": "ACCOUNT_SORTCODE",
+          "sql_type": "CHAR",
+          "length": 6,
+          "scale": null,
+          "nullable": false,
+          "line": 10
+        },
+        {
+          "table": "ACCOUNT",
+          "colno": 4,
+          "name": "ACCOUNT_NUMBER",
+          "sql_type": "CHAR",
+          "length": 8,
+          "scale": null,
+          "nullable": false,
+          "line": 11
+        },
+        {
+          "table": "ACCOUNT",
+          "colno": 5,
+          "name": "ACCOUNT_TYPE",
+          "sql_type": "CHAR",
+          "length": 8,
+          "scale": null,
+          "nullable": true,
+          "line": 12
+        },
+        {
+          "table": "ACCOUNT",
+          "colno": 6,
+          "name": "ACCOUNT_INTEREST_RATE",
+          "sql_type": "DECIMAL",
+          "length": 4,
+          "scale": 2,
+          "nullable": true,
+          "line": 13
+        },
+        {
+          "table": "ACCOUNT",
+          "colno": 7,
+          "name": "ACCOUNT_OPENED",
+          "sql_type": "DATE",
+          "length": null,
+          "scale": null,
+          "nullable": true,
+          "line": 14
+        },
+        {
+          "table": "ACCOUNT",
+          "colno": 8,
+          "name": "ACCOUNT_OVERDRAFT_LIMIT",
+          "sql_type": "INTEGER",
+          "length": null,
+          "scale": null,
+          "nullable": true,
+          "line": 15
+        },
+        {
+          "table": "ACCOUNT",
+          "colno": 9,
+          "name": "ACCOUNT_LAST_STATEMENT",
+          "sql_type": "DATE",
+          "length": null,
+          "scale": null,
+          "nullable": true,
+          "line": 16
+        },
+        {
+          "table": "ACCOUNT",
+          "colno": 10,
+          "name": "ACCOUNT_NEXT_STATEMENT",
+          "sql_type": "DATE",
+          "length": null,
+          "scale": null,
+          "nullable": true,
+          "line": 17
+        },
+        {
+          "table": "ACCOUNT",
+          "colno": 11,
+          "name": "ACCOUNT_AVAILABLE_BALANCE",
+          "sql_type": "DECIMAL",
+          "length": 10,
+          "scale": 2,
+          "nullable": true,
+          "line": 18
+        },
+        {
+          "table": "ACCOUNT",
+          "colno": 12,
+          "name": "ACCOUNT_ACTUAL_BALANCE",
+          "sql_type": "DECIMAL",
+          "length": 10,
+          "scale": 2,
+          "nullable": true,
+          "line": 19
+        }
+      ],
+      "sql_tables_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/CONTDB2.cpy": {
+      "columns": [
+        {
+          "table": "STTESTER.CONTROL",
+          "colno": 1,
+          "name": "CONTROL_NAME",
+          "sql_type": "CHAR",
+          "length": 32,
+          "scale": null,
+          "nullable": false,
+          "line": 8
+        },
+        {
+          "table": "STTESTER.CONTROL",
+          "colno": 2,
+          "name": "CONTROL_VALUE_NUM",
+          "sql_type": "INTEGER",
+          "length": null,
+          "scale": null,
+          "nullable": true,
+          "line": 9
+        },
+        {
+          "table": "STTESTER.CONTROL",
+          "colno": 3,
+          "name": "CONTROL_VALUE_STR",
+          "sql_type": "CHAR",
+          "length": 40,
+          "scale": null,
+          "nullable": true,
+          "line": 10
+        }
+      ],
+      "sql_tables_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_copy/PROCDB2.cpy": {
+      "columns": [
+        {
+          "table": "PROCTRAN",
+          "colno": 1,
+          "name": "PROCTRAN_EYECATCHER",
+          "sql_type": "CHAR",
+          "length": 4,
+          "scale": null,
+          "nullable": true,
+          "line": 9
+        },
+        {
+          "table": "PROCTRAN",
+          "colno": 2,
+          "name": "PROCTRAN_SORTCODE",
+          "sql_type": "CHAR",
+          "length": 6,
+          "scale": null,
+          "nullable": false,
+          "line": 10
+        },
+        {
+          "table": "PROCTRAN",
+          "colno": 3,
+          "name": "PROCTRAN_NUMBER",
+          "sql_type": "CHAR",
+          "length": 8,
+          "scale": null,
+          "nullable": false,
+          "line": 11
+        },
+        {
+          "table": "PROCTRAN",
+          "colno": 4,
+          "name": "PROCTRAN_DATE",
+          "sql_type": "CHAR",
+          "length": 8,
+          "scale": null,
+          "nullable": true,
+          "line": 12
+        },
+        {
+          "table": "PROCTRAN",
+          "colno": 5,
+          "name": "PROCTRAN_TIME",
+          "sql_type": "CHAR",
+          "length": 6,
+          "scale": null,
+          "nullable": true,
+          "line": 13
+        },
+        {
+          "table": "PROCTRAN",
+          "colno": 6,
+          "name": "PROCTRAN_REF",
+          "sql_type": "CHAR",
+          "length": 12,
+          "scale": null,
+          "nullable": true,
+          "line": 14
+        },
+        {
+          "table": "PROCTRAN",
+          "colno": 7,
+          "name": "PROCTRAN_TYPE",
+          "sql_type": "CHAR",
+          "length": 3,
+          "scale": null,
+          "nullable": true,
+          "line": 15
+        },
+        {
+          "table": "PROCTRAN",
+          "colno": 8,
+          "name": "PROCTRAN_DESC",
+          "sql_type": "CHAR",
+          "length": 40,
+          "scale": null,
+          "nullable": true,
+          "line": 16
+        },
+        {
+          "table": "PROCTRAN",
+          "colno": 9,
+          "name": "PROCTRAN_AMOUNT",
+          "sql_type": "DECIMAL",
+          "length": 12,
+          "scale": 2,
+          "nullable": true,
+          "line": 17
+        }
+      ],
+      "sql_tables_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

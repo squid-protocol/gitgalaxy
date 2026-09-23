@@ -97,7 +97,7 @@ class AuditRecorder:
         return value
 
     def _mainframe_facts_block(self, file_data):
-        """The Named System Facts for one file (#3200/#3201/#3246/#3250), or {} if none.
+        """The Named System Facts for one file (#3200/#3201/#3246/#3250/#3344), or {} if none.
 
         The forensic report is the VERBOSE surface (unlike the token-optimized LLM
         brief, which shows only record roots), so this carries the FULL detail:
@@ -156,6 +156,23 @@ class AuditRecorder:
                     **({"Attributes": it["attributes"]} if it.get("attributes") else {}),
                 }
                 for it in records
+            ]
+        # #3344: DB2 `EXEC SQL DECLARE ... TABLE` columns, mirroring sql_table_data.
+        sql_tables = file_data.get("sql_tables") or []
+        if sql_tables:
+            block["SQL Tables"] = [
+                {
+                    "Table": c.get("table"),
+                    "Column No": c.get("colno"),
+                    "Column": c.get("name"),
+                    "SQL Type": c.get("sql_type"),
+                    "Length": c.get("length"),
+                    "Scale": c.get("scale"),
+                    "Nullable": c.get("nullable"),
+                    "Attributes": c.get("attributes"),
+                    "Line": c.get("line", 0),
+                }
+                for c in sql_tables
             ]
         return block
 

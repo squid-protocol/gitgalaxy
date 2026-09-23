@@ -55,10 +55,12 @@
       "answer_key": "tests/cobol_mainframe/answer_key/cics-banking-sample-application-cbsa.json",
       "notes": "CICS online COBOL with SECTIONs. Its main branch was emptied at the 2024 sunset (README only), so the ref lives on July2024Refresh. 10 BMS maps under src/base/bms_src.",
       "excerpt": {
-        "why": "BANKDATA (batch, dead CALC-DAY-OF-WEEK, OPEN OUTPUT behind A010), BNK1CAC (CICS SECTIONs, dead POPULATE-TIME-DATE) and ABNDPROC, with their copybooks.",
+        "why": "BANKDATA (batch, dead CALC-DAY-OF-WEEK, OPEN OUTPUT behind A010), BNK1CAC (CICS SECTIONs, dead POPULATE-TIME-DATE) and ABNDPROC, with their copybooks -- including BANKDATA's EXEC SQL INCLUDEd DB2 DECLARE TABLE members ACCDB2/CONTDB2 (#3344).",
         "files": [
           "src/base/cobol_copy/ABNDINFO.cpy",
+          "src/base/cobol_copy/ACCDB2.cpy",
           "src/base/cobol_copy/ACCTCTRL.cpy",
+          "src/base/cobol_copy/CONTDB2.cpy",
           "src/base/cobol_copy/CUSTCTRL.cpy",
           "src/base/cobol_copy/CUSTOMER.cpy",
           "src/base/cobol_copy/SORTCODE.cpy",

@@ -354,3 +354,74 @@ def test_return_transid_routing_rides_in_calls_but_not_unresolved(txn_scanned):
     # XCTL PROGRAM('PAYPGM') resolves to a file; RETURN TRANSID is excluded -- so
     # MENU has no unresolved PROGRAM calls at all.
     assert [c for c in ir.unresolved_calls() if c["file"] == "src/MENU.cbl"] == []
+
+
+# ==============================================================================
+# #3344: DB2 DECLARE TABLE / DCLGEN schemas (sql_table_data)
+# ==============================================================================
+# A real scan (so the config pipeline runs, the #2806 trap): a DCLGEN copybook in
+# CBSA's ACCDB2.cpy shape, a program that INCLUDEs it, and a PL/I include.
+ACCDB2 = """\
+      *  Copyright IBM Corp. 2023
+           EXEC SQL DECLARE ACCOUNT TABLE
+              ( ACCOUNT_SORTCODE               CHAR(6) NOT NULL,
+                ACCOUNT_NUMBER                 CHAR(8) NOT NULL,
+                ACCOUNT_INTEREST_RATE          DECIMAL(4, 2),
+                ACCOUNT_OPENED                 DATE )
+           END-EXEC.
+"""
+
+ACCPGM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. ACCPGM.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+           EXEC SQL INCLUDE ACCDB2 END-EXEC.
+       PROCEDURE DIVISION.
+           GOBACK.
+"""
+
+DEPTINC = """\
+ EXEC SQL DECLARE DSN8C10.DEPT TABLE
+           ( DEPTNO    CHAR(3) NOT NULL,
+             DEPTNAME  VARCHAR(36) NOT NULL
+           ) ;
+"""
+
+
+@pytest.fixture(scope="module")
+def scanned_db2(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_db2")
+    repo = base / "db2repo"
+    for rel, text in {"copy/ACCDB2.cpy": ACCDB2, "src/ACCPGM.cbl": ACCPGM, "pli/DEPTINC.pli": DEPTINC}.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_declared_tables_load_per_declaring_file(scanned_db2):
+    ir = load_galaxy_ir(scanned_db2)
+    (table,) = ir.files["copy/ACCDB2.cpy"].sql_tables
+    assert (table.name, table.line) == ("ACCOUNT", 2)
+    assert [(c.colno, c.name, c.sql_type, c.length, c.scale, c.nullable) for c in table.columns] == [
+        (1, "ACCOUNT_SORTCODE", "CHAR", 6, None, False),
+        (2, "ACCOUNT_NUMBER", "CHAR", 8, None, False),
+        (3, "ACCOUNT_INTEREST_RATE", "DECIMAL", 4, 2, True),
+        (4, "ACCOUNT_OPENED", "DATE", None, None, True),
+    ]
+    assert table.columns[0].attributes == "NOT NULL"
+    # The including program declares nothing itself (same-file only).
+    assert ir.files["src/ACCPGM.cbl"].sql_tables == []
+    (dept,) = ir.files["pli/DEPTINC.pli"].sql_tables
+    assert (dept.name, [c.name for c in dept.columns]) == ("DSN8C10.DEPT", ["DEPTNO", "DEPTNAME"])
+
+
+def test_a_pre_3344_db_loads_with_no_sql_tables(scanned_db2, tmp_path):
+    copy = tmp_path / "old.db"
+    shutil.copy(scanned_db2, copy)
+    with sqlite3.connect(copy) as conn:
+        conn.execute("DROP TABLE sql_table_data")
+    ir = load_galaxy_ir(copy)
+    assert all(ef.sql_tables == [] for ef in ir.files.values())
+    assert "copy/ACCDB2.cpy" in ir.files

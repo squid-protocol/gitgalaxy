@@ -337,3 +337,44 @@ def test_pli_record_verdict_needs_explicit_validation(mini_repo):
     summary = rd.summarize_causes(rd.classify(mini_repo, [_pli_row(old=["REC.B"])], key))
     assert summary["unexplained"] == 0
     assert summary["by_cause"] == {"key:engine defect": 1}
+
+
+# ==============================================================================
+# #3344: DB2 DECLARE TABLE columns -- the key's independent reader vs the engine
+# ==============================================================================
+def _sql_row(old=(), db=()):
+    return {"file": "copy/ACCDB2.cpy", "language": "sql_table", "sql_tables": {"old": sorted(old), "db": sorted(db)}}
+
+
+def test_a_sql_column_delta_is_a_real_finding_not_a_stated_absence(mini_repo):
+    """The DB carries DECLARE TABLE columns, so a disagreement on any part of a
+    column's shape (here: nullability) is a parser defect on one side."""
+    classified = rd.classify(
+        mini_repo,
+        [_sql_row(old=["ACCOUNT.A CHAR(6) NOT NULL"], db=["ACCOUNT.A CHAR(6) NULLABLE"])],
+        None,
+    )
+    assert sorted((d["field"], d["side"], d["cause"]) for d in classified) == [
+        ("sql_column", "db", rd.UNEXPLAINED),
+        ("sql_column", "old", rd.UNEXPLAINED),
+    ]
+
+
+def test_sql_rows_stay_out_of_the_cobol_summary(mini_repo):
+    rows = [_sql_row(old=["T.A CHAR(1) NULLABLE"], db=["T.A CHAR(1) NULLABLE"])]
+    assert rd.flatten(rows) == []
+    assert rd.to_markdown({"repo": "r", "commit": "0" * 8}, rows).count("ACCDB2") == 0
+
+
+def test_sql_column_verdict_needs_explicit_validation(mini_repo):
+    """Drafted, so a delta adjudicates only once the file is signed off with
+    `sql_tables_validated`. The key has the column NOT NULL: the engine is wrong."""
+    columns = [{"table": "ACCOUNT", "name": "A", "sql_type": "CHAR", "length": 6, "scale": None, "nullable": False}]
+    key = {"programs": {}, "sql_tables": {"copy/ACCDB2.cpy": {"columns": columns, "sql_tables_validated": False}}}
+    rows = [_sql_row(old=["ACCOUNT.A CHAR(6) NOT NULL"], db=["ACCOUNT.A CHAR(6) NULLABLE"])]
+    assert rd.summarize_causes(rd.classify(mini_repo, rows, key))["unexplained"] == 2
+
+    key["sql_tables"]["copy/ACCDB2.cpy"]["sql_tables_validated"] = True
+    summary = rd.summarize_causes(rd.classify(mini_repo, rows, key))
+    assert summary["unexplained"] == 0
+    assert summary["by_cause"] == {"key:engine defect": 2}

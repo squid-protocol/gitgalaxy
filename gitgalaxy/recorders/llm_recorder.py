@@ -513,6 +513,7 @@ class LLMRecorder:
                 len(f.get("call_sites") or [])
                 + len(f.get("dataset_bindings") or [])
                 + len(f.get("record_layouts") or [])
+                + len(f.get("sql_tables") or [])  # #3344
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -538,6 +539,14 @@ class LLMRecorder:
             f"- **Coverage:** `{len(carriers)}` files carry mainframe facts -- "
             f"`{total_calls}` call sites, `{total_ds}` dataset bindings, `{total_items}` record items.\n"
         )
+
+        # #3344: named only when present, so a scan without DB2 declarations is unchanged.
+        total_sql = sum(len(f.get("sql_tables") or []) for f in carriers)
+        if total_sql:
+            lines.append(
+                f"- **DB2 schemas:** `{total_sql}` columns of `EXEC SQL DECLARE ... TABLE` "
+                "(inline or DCLGEN members), full shape in `sql_table_data`.\n"
+            )
 
         for f in carriers[:20]:
             path = f.get("path", "UNK")
@@ -603,6 +612,14 @@ class LLMRecorder:
                 lines.append(
                     f"- **Record layouts ({len(items)} items):** {', '.join(f'`{lbl}`' for lbl in labels)}{more}"
                 )
+            # #3344: DB2 DECLARE TABLE schemas -- table name + column count only.
+            sql_cols = f.get("sql_tables") or []
+            if sql_cols:
+                per_table: dict[str, int] = {}
+                for c in sql_cols:
+                    per_table[c.get("table") or "?"] = per_table.get(c.get("table") or "?", 0) + 1
+                sql_labels = [f"`{t} ({n} cols)`" for t, n in per_table.items()]
+                lines.append(f"- **DB2 tables declared:** {', '.join(sql_labels[:12])}")
             lines.append("")
 
         if len(carriers) > 20:

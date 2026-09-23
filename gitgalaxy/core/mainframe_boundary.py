@@ -64,6 +64,10 @@ import bisect
 import re
 from typing import Any, Optional
 
+# #3344: the DB2 DECLARE TABLE / DCLGEN channel lives in its own module (it is
+# not a DATA DIVISION construct) and rides out of extract_boundary as `sql_tables`.
+from gitgalaxy.core.db2_declare_table import extract_sql_tables
+
 # The dialects that carry a top-level `boundary_extraction` declaration. It is
 # top level rather than inside `rules` because language_lens.py re.compile()s
 # every string value in `rules` (#2806). `csd` is the CICS resource-definition
@@ -1276,6 +1280,10 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     carries only some channels (JCL has no record layouts; CSD only transactions;
     PL/I only records, #3250) fills the rest with empty lists, and an unrecognised
     declaration degrades to "no facts" rather than raising in a worker.
+
+    #3344: cobol and pli additionally carry `sql_tables` -- the DB2 `EXEC SQL
+    DECLARE <table> TABLE (...)` columns (db2_declare_table). Callers read it
+    with a default, so the dialects that cannot embed SQL simply omit it.
     """
     if not code_stream:
         return {"calls": [], "datasets": [], "records": [], "transactions": []}
@@ -1286,6 +1294,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "datasets": _cobol_datasets(code_stream),
             "records": _cobol_records(code_stream),
             "transactions": [],
+            "sql_tables": extract_sql_tables(code_stream, "cobol"),  # #3344
         }
     if dialect == "jcl":
         boundary = _jcl_boundary(code_stream)
@@ -1295,5 +1304,11 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     if dialect == "csd":
         return {"calls": [], "datasets": [], "records": [], "transactions": _csd_transactions(code_stream)}
     if dialect == "pli":
-        return {"calls": [], "datasets": [], "records": _pli_records(code_stream), "transactions": []}
+        return {
+            "calls": [],
+            "datasets": [],
+            "records": _pli_records(code_stream),
+            "transactions": [],
+            "sql_tables": extract_sql_tables(code_stream, "pli"),  # #3344
+        }
     return {"calls": [], "datasets": [], "records": [], "transactions": []}

@@ -14,6 +14,7 @@
     "cics-banking-sample-application-cbsa": {
       "by_cause": {
         "entry_point": 33,
+        "exec_sql_include": 2,
         "forge_flat_schema": 5,
         "key:old-parser defect": 1,
         "stated_absence": 8,

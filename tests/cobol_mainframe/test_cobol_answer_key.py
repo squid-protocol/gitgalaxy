@@ -381,3 +381,51 @@ def test_pli_key_entries_are_drafts_until_signed_off(key_path):
         assert entry["verification"]["status"] in ("draft", "validated")
         for it in entry["records"]:
             assert {"ordinal", "parent", "level", "name", "attributes", "line"} <= set(it)
+
+
+# ==============================================================================
+# #3344: DB2 DECLARE TABLE / DCLGEN columns -- the key's own reader
+# ==============================================================================
+def test_sql_reader_cuts_at_the_terminator_on_the_raw_file():
+    """Raw fixed-format source in, sequence numbers in columns 1-6 and 73-80
+    (IBM's DSN8 DCLGEN as stored on the host), a comment line inside the list."""
+    src = "\n".join(
+        [
+            "000100* DCLGEN TABLE(DSN8C10.EMP)",
+            f"{'000200     EXEC SQL DECLARE DSN8C10.EMP TABLE':<72}00020000",
+            f"{'000300     ( EMPNO                          CHAR(6) NOT NULL,':<72}00030000",
+            "000400*      OLDCOL                         CHAR(1),",
+            f"{'000500       SALARY                         DECIMAL(9, 2),':<72}00050000",
+            f"{'000600       RESUME                         CLOB(1M)':<72}00060000",
+            f"{'000700     ) END-EXEC.':<72}00070000",
+            "       01  DCLEMP.",
+            "           10 EMPNO   PIC X(6).",
+        ]
+    )
+    cols = ak.sql_table_columns(src)
+    assert [(c["colno"], c["name"], c["sql_type"], c["length"], c["scale"], c["nullable"]) for c in cols] == [
+        (1, "EMPNO", "CHAR", 6, None, False),
+        (2, "SALARY", "DECIMAL", 9, 2, True),
+        (3, "RESUME", "CLOB", 1024 * 1024, None, True),
+    ]
+    assert {c["table"] for c in cols} == {"DSN8C10.EMP"}
+    assert cols[0]["line"] == 3
+
+
+def test_sql_reader_pli_terminator_and_column_key():
+    src = (
+        " /* DCLGEN */\n EXEC SQL DECLARE DEPT TABLE\n ( DEPTNO CHAR(3) NOT NULL,\n   TS TIMESTAMP WITH TIME ZONE ) ;\n"
+    )
+    cols = ak.sql_table_columns(src, pli=True)
+    assert ak.sql_column_keys(cols) == {"DEPT.DEPTNO CHAR(3) NOT NULL", "DEPT.TS TIMESTAMP WITH TIME ZONE NULLABLE"}
+
+
+@pytest.mark.parametrize("key_path", KEYS, ids=lambda p: p.stem)
+def test_sql_table_key_entries_are_drafts_until_signed_off(key_path):
+    key = json.loads(key_path.read_text(encoding="utf-8"))
+    for rel, entry in key.get("sql_tables", {}).items():
+        assert rel.lower().endswith(ak.SQL_TABLE_EXTS), rel
+        assert isinstance(entry["sql_tables_validated"], bool)
+        assert entry["verification"]["status"] in ("draft", "validated")
+        for c in entry["columns"]:
+            assert {"table", "colno", "name", "sql_type", "length", "scale", "nullable", "line"} <= set(c)

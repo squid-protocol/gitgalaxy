@@ -17,6 +17,7 @@ before writing anything:
 | DATA DIVISION record layouts | #3246 | `core/mainframe_boundary.py` | `record_data` | `EngineFile.records` |
 | PL/I DECLARE structures (a second dialect on an existing table) | #3250 | `core/mainframe_boundary.py` (`_pli_records`) | `record_data` (+ `attributes`) | `EngineFile.records` |
 | project-local idiom wrappers (global/resolved, NOT mainframe) | #3313 | `core/wrapper_extractor.py` + `core/wrapper_resolver.py` | `wrapper_data` (+ `file_data.wrapper_facts`) | per-file `idiom_wrappers` |
+| DB2 `DECLARE TABLE` / DCLGEN schemas (own table: SQL types don't fit `record_data`) | #3344 | `core/db2_declare_table.py` (via `extract_boundary`, cobol + pli) | `sql_table_data` | `EngineFile.sql_tables` |
 
 The wrapper channel (#3313) is the first global/resolved channel whose raw per-file input is not
 itself a table: `file_data.wrapper_facts` (JSON, the #3220 `raw_imports` precedent) carries each

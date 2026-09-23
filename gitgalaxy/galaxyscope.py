@@ -677,6 +677,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             dataset_bindings: list = []
             record_layouts: list = []
             transaction_defs: list = []
+            sql_tables: list = []  # #3344: DB2 DECLARE TABLE / DCLGEN columns
 
             # 1. Extract raw file dependencies. An inert (static-asset) language
             # normally skips this whole phase, but one that explicitly DECLARES
@@ -741,6 +742,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     # #3211-followup: CSD transaction definitions (csd deck, or a
                     # DFHCSDUP deck inline in JCL), same default-read discipline.
                     transaction_defs = boundary.get("transactions", [])
+                    # #3344: DB2 `EXEC SQL DECLARE ... TABLE` columns (cobol/pli
+                    # only), same default-read discipline.
+                    sql_tables = boundary.get("sql_tables", [])
                 except Exception:
                     logging.exception("Boundary extraction failed for language '%s'.", lang_id)
 
@@ -803,6 +807,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             # (resolve_wrappers). Persisted on file_data so a delta scan's
             # unchanged files still take part in the resolution.
             "wrapper_facts": wrapper_facts,
+            # #3344: DB2 DECLARE TABLE / DCLGEN columns -> sql_table_data.
+            "sql_tables": sql_tables,
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }

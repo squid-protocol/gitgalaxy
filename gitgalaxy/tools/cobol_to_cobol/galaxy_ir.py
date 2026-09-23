@@ -19,7 +19,10 @@
 # their full attribute text in `attributes`), and since #3211-followup the CICS transaction
 # map (transaction_data: which transaction id entry-points into which program,
 # plus the in-source routing verbs 'RETURN/START/RUN TRANSID' carried in
-# call_site_data). NOT in the DB, so still owned by the forge tools:
+# call_site_data), and since #3344 the DB2 table shapes programs bind to
+# (sql_table_data: every `EXEC SQL DECLARE <table> TABLE (...)` column -- SQL
+# type, length/scale, nullability -- inline or DCLGEN-generated, per
+# EngineFile.sql_tables). NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
 # to dead-code masking. See docs/refraction_engine_differential.md for the
@@ -181,6 +184,41 @@ class EngineTransaction:
 
 
 @dataclass
+class EngineSqlColumn:
+    """One column of a DB2 `EXEC SQL DECLARE <table> TABLE (...)` (#3344).
+
+    `colno` is the 1-based column position (SYSCOLUMNS.COLNO). `sql_type` is the
+    type as written (`DECIMAL`, `VARCHAR`, `TIMESTAMP WITH TIME ZONE`); `length`
+    the length/precision (LOB K/M/G applied) and `scale` the DECIMAL scale, both
+    None when the source writes none. `attributes` is the column-option text
+    after the type (`NOT NULL WITH DEFAULT`, `FOR BIT DATA`).
+    """
+
+    colno: int
+    name: str
+    sql_type: str
+    length: Optional[int]
+    scale: Optional[int]
+    nullable: bool
+    attributes: Optional[str]
+    line: int
+
+
+@dataclass
+class EngineSqlTable:
+    """One declared DB2 table (#3344): its name as declared and its columns in order.
+
+    Hangs off the file that DECLAREs it -- usually a DCLGEN copybook/include
+    member, which a program reaches through its `EXEC SQL INCLUDE` edge
+    (copy_deps); joining the two is the consumer's job, as for record layouts.
+    """
+
+    name: str
+    line: int
+    columns: list = field(default_factory=list)  # EngineSqlColumn
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -194,6 +232,7 @@ class EngineFile:
     data_items: list = field(default_factory=list)  # EngineDataItem, flat source order, #3246
     records: list = field(default_factory=list)  # EngineDataItem tree roots (01/77), #3246
     transactions: list = field(default_factory=list)  # EngineTransaction, #3211-followup
+    sql_tables: list = field(default_factory=list)  # EngineSqlTable, #3344
 
     @property
     def is_program(self) -> bool:
@@ -564,6 +603,35 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 resolved = by_id[dst_id].file_path if dst_id in by_id else None
                 by_id[file_id].transactions.append(
                     EngineTransaction(transid or "", program, group_name, profile, resolved, int(line or 0))
+                )
+
+        # #3344: DB2 DECLARE TABLE / DCLGEN schemas. A pre-#3344 database has no
+        # such table, so a missing table is "no data", never an error. Rows are
+        # grouped back into tables by (table_line, table_name) -- the same name
+        # declared twice in one file stays two declarations.
+        if _has_table(cur, "sql_table_data"):
+            for file_id, tname, tline, colno, cname, stype, length, scale, nullable, attrs, line in cur.execute(
+                "SELECT file_id, table_name, table_line, colno, column_name, sql_type, length, scale, nullable, "
+                "attributes, line_number FROM sql_table_data WHERE repo_name = ? AND commit_hash = ? "
+                "ORDER BY file_id, table_line, colno, id",
+                (repo_name, commit_hash),
+            ):
+                if file_id not in by_id:
+                    continue
+                tables = by_id[file_id].sql_tables
+                if not tables or tables[-1].name != (tname or "") or tables[-1].line != int(tline or 0):
+                    tables.append(EngineSqlTable(tname or "", int(tline or 0)))
+                tables[-1].columns.append(
+                    EngineSqlColumn(
+                        int(colno or 0),
+                        cname or "",
+                        stype or "",
+                        length,
+                        scale,
+                        bool(nullable),
+                        attrs,
+                        int(line or 0),
+                    )
                 )
     finally:
         conn.close()

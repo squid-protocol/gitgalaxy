@@ -7,10 +7,13 @@ tools and the engine's master DB against it.
         --out key.json [--report why.md]
     python tests/tools/cobol_answer_key.py score <repo> --key key.json [--db master.db] [--md out.md]
     python tests/tools/cobol_answer_key.py add-pli <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-sql-tables <repo> --key key.json
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
 <repo> into the key's `pli_programs`, leaving every COBOL program (and its
 `validated` status) untouched -- a full `draft` would wipe them.
+`add-sql-tables` (#3344) does the same for DB2 `EXEC SQL DECLARE ... TABLE`
+columns (inline or DCLGEN members) into the key's `sql_tables`.
 
 AUTHORITY. `draft` computes CANDIDATE values with its own fixed-format reading
 (Area A headers, PERFORM ... THRU, GO TO, SECTION fall-through, terminal
@@ -659,6 +662,156 @@ def draft_pli(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# DB2 DECLARE TABLE / DCLGEN schemas (#3344)
+# ==============================================================================
+# This tool's own reading of `EXEC SQL DECLARE <table> TABLE (...)`. It works on
+# the RAW file with its own comment/sequence handling (COBOL: cols 8-72 of every
+# non-comment line; PL/I: `/* */` blanked, cols 73-80 dropped) and cuts each
+# statement at its TERMINATOR -- `END-EXEC` in COBOL, `;` in PL/I -- then takes
+# the list up to the last `)`. The engine instead walks the PRISM code stream to
+# the balancing parenthesis, so the two share the CONTRACT (per column: name,
+# type, length/precision, scale, NOT NULL) and not the code: an agreement is
+# evidence, a disagreement a finding.
+SQL_TABLE_EXTS = PROGRAM_EXTS + COPYBOOK_EXTS + (".pco", ".cut") + PLI_EXTS
+_SQL_NAME = r'(?:"[^"\n]+"|[A-Z@#$][A-Z0-9_@#$]*)'
+_SQL_DECLARE = re.compile(rf"\bEXEC\s+SQL\s+DECLARE\s+({_SQL_NAME}(?:\s*\.\s*{_SQL_NAME}){{0,2}})\s+TABLE\s*\(", re.I)
+_SQL_TOKEN = re.compile(r'"[^"]*"|[()]|[^\s()]+')
+_SQL_OPTION_WORDS = {
+    "NOT",
+    "NULL",
+    "WITH",
+    "FOR",
+    "DEFAULT",
+    "CCSID",
+    "GENERATED",
+    "IMPLICITLY",
+    "INLINE",
+    "CONSTRAINT",
+    "PRIMARY",
+    "UNIQUE",
+    "REFERENCES",
+    "CHECK",
+    "AS",
+    "FIELDPROC",
+}
+_SQL_UNIT = {"K": 1024, "M": 1024**2, "G": 1024**3}
+
+
+def _sql_prepared(text: str, pli: bool) -> str:
+    """The raw file reduced to code, one output line per source line."""
+    if pli:
+        text = _pli_source_lines(text)
+        return re.sub(r"/\*.*?(?:\*/|\Z)", lambda m: re.sub(r"[^\n]", " ", m.group(0)), text, flags=re.S)
+    out = []
+    for raw in text.split("\n"):
+        raw = raw.rstrip("\r")
+        if len(raw) > 6 and raw[6] in "*/":
+            out.append("")
+        else:
+            out.append((raw[7:72] if len(raw) > 7 else "").split("*>", 1)[0])
+    return "\n".join(out)
+
+
+def _sql_unquote(name: str) -> str:
+    return name[1:-1] if name.startswith('"') and name.endswith('"') else name.upper()
+
+
+def sql_table_columns(text: str, pli: bool = False) -> list[dict[str, Any]]:
+    """Every DECLARE TABLE column in one source file, this tool's own reading."""
+    code = _sql_prepared(text, pli)
+    terminator = re.compile(r";" if pli else r"\bEND-EXEC\b", re.I)
+    out: list[dict[str, Any]] = []
+    for m in _SQL_DECLARE.finditer(code):
+        term = terminator.search(code, m.end())
+        region = code[m.end() : term.start() if term else len(code)]
+        body = re.sub(r"--[^\n]*", "", region[: region.rfind(")")])
+        table = ".".join(_sql_unquote(p.strip()) for p in re.findall(_SQL_NAME, m.group(1), re.I))
+        # Top-level commas only: `DECIMAL(10, 2)` is one column.
+        pieces, depth, start = [], 0, 0
+        for i, ch in enumerate(body):
+            depth += ch == "("
+            depth -= ch == ")"
+            if ch == "," and depth == 0:
+                pieces.append((start, body[start:i]))
+                start = i + 1
+        pieces.append((start, body[start:]))
+        colno = 0
+        for off, piece in pieces:
+            toks = _SQL_TOKEN.findall(piece)
+            if len(toks) < 2 or toks[0].upper() in ("PRIMARY", "FOREIGN", "CONSTRAINT", "UNIQUE", "CHECK"):
+                continue
+            i, words = 1, []
+            while i < len(toks) and toks[i] != "(" and toks[i].upper() not in _SQL_OPTION_WORDS and len(words) < 4:
+                words.append(toks[i].upper())
+                i += 1
+            if not words:
+                continue
+            length = scale = None
+            if i < len(toks) and toks[i] == "(":
+                j = toks.index(")", i) if ")" in toks[i:] else len(toks)
+                args = " ".join(toks[i + 1 : j])
+                lm = re.match(r"(\d+)\s*([KMG])?\b", args, re.I)
+                if lm:
+                    length = int(lm.group(1)) * _SQL_UNIT.get((lm.group(2) or "").upper(), 1)
+                sm = re.search(r",\s*(\d+)", args.replace(" ,", ","))
+                scale = int(sm.group(1)) if sm else None
+                i = j + 1
+            rest = " ".join(toks[i:]).upper()
+            tz = re.match(r"(WITH(?:OUT)?) TIME ZONE\b", rest)
+            if tz:
+                words += [tz.group(1), "TIME", "ZONE"]
+                rest = rest[tz.end() :]
+            colno += 1
+            lead = len(piece) - len(piece.lstrip())
+            out.append(
+                {
+                    "table": table,
+                    "colno": colno,
+                    "name": _sql_unquote(toks[0]),
+                    "sql_type": " ".join(words),
+                    "length": length,
+                    "scale": scale,
+                    "nullable": not re.search(r"\bNOT NULL\b", rest),
+                    "line": code.count("\n", 0, m.end() + off + lead) + 1,
+                }
+            )
+    return out
+
+
+def sql_column_key(
+    table: str, name: str, sql_type: str, length: Optional[int], scale: Optional[int], nullable: bool
+) -> str:
+    """The cross-reader comparison key for one column: its full declared shape, so a
+    disagreement on type, length, scale or nullability is a delta, not just a name."""
+    args = "" if length is None else f"({length})" if scale is None else f"({length},{scale})"
+    return f"{table}.{name} {sql_type}{args} {'NULLABLE' if nullable else 'NOT NULL'}".upper()
+
+
+def sql_column_keys(columns: list[dict[str, Any]]) -> set[str]:
+    return {
+        sql_column_key(c["table"], c["name"], c["sql_type"], c.get("length"), c.get("scale"), c.get("nullable", True))
+        for c in columns
+    }
+
+
+def draft_sql_tables(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted DECLARE TABLE columns for every COBOL/PL/I source that declares one
+    (#3344). A file's columns adjudicate a differential delta only once it is
+    signed off with `sql_tables_validated` -- the records precedent (#3246)."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in SQL_TABLE_EXTS and ".git" not in p.parts:
+            cols = sql_table_columns(p.read_text(encoding="utf-8", errors="ignore"), p.suffix.lower() in PLI_EXTS)
+            if cols:
+                out[p.relative_to(repo).as_posix()] = {
+                    "columns": cols,
+                    "sql_tables_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -803,6 +956,7 @@ def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], 
         "ref": ref,
         "programs": {},
         "pli_programs": draft_pli(repo),  # #3250
+        "sql_tables": draft_sql_tables(repo),  # #3344
     }
     report = [f"# Draft reachability evidence: {corpus} @ {ref[:8]}", ""]
     for p in programs:
@@ -966,6 +1120,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # #3250: PL/I DECLARE leaf fields (dotted paths), per PL/I file. Truth is
         # this tool's own PL/I reader; there is no PL/I forge; engine is record_data.
         "PL/I record fields",
+        # #3344: DB2 DECLARE TABLE columns (full shape key), per declaring file.
+        # Truth is this tool's own terminator-cut reader; no forge reads them;
+        # engine is sql_table_data.
+        "DB2 table columns",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -1109,6 +1267,24 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             pli_record_fields(engine_items, "parent_ordinal") if engine_items is not None else None,
         )
 
+    for rel, k in key.get("sql_tables", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "DB2 table columns",
+            rel,
+            sql_column_keys(k.get("columns", [])),
+            None,
+            (
+                {
+                    sql_column_key(t.name, c.name, c.sql_type, c.length, c.scale, c.nullable)
+                    for t in ef.sql_tables
+                    for c in t.columns
+                }
+                if ef
+                else None
+            ),
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -1159,6 +1335,9 @@ def main() -> int:
     a = sub.add_parser("add-pli")
     a.add_argument("repo", type=Path)
     a.add_argument("--key", type=Path, required=True)
+    q = sub.add_parser("add-sql-tables")
+    q.add_argument("repo", type=Path)
+    q.add_argument("--key", type=Path, required=True)
     args = ap.parse_args()
 
     repo = args.repo.resolve()
@@ -1180,6 +1359,16 @@ def main() -> int:
         key["pli_programs"] = existing
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(existing)} PL/I files -> {args.key}")
+        return 0
+    if args.cmd == "add-sql-tables":
+        # #3344: same rule as add-pli -- refresh drafts, never clobber a sign-off.
+        existing_sql = key.get("sql_tables", {})
+        for rel, entry in draft_sql_tables(repo).items():
+            if not existing_sql.get(rel, {}).get("sql_tables_validated"):
+                existing_sql[rel] = entry
+        key["sql_tables"] = existing_sql
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(existing_sql)} DECLARE TABLE files -> {args.key}")
         return 0
     result, md = score(repo, key, args.db)
     if args.md:

@@ -47,6 +47,7 @@ hlasm 1). pli reads 8 instead of the issue's 7.
 | paragraph inventory | graveyard regex | `function_data` | **neither is clean** (D1). The DB is carried as data only |
 | dead paragraphs | graveyard reachability | `usage_status` | **not replaceable** (D2) |
 | DATA DIVISION items, FD record layouts | `cobol_schema_forge` (flat) | `record_data` | **DB** since #3246 — the full item tree (level/PIC/USAGE/OCCURS/REDEFINES/VALUE) and FD→file binding; a field the engine carries and the forge's flat single-line reader drops is `forge_flat_schema` |
+| DB2 `DECLARE TABLE` / DCLGEN columns | — (no forge reads them) | `sql_table_data` | **DB** since #3344 — compared against the answer key's own raw-file reader as `sql_column` deltas (full column shape); 24/24 on CBSA |
 | orphaned variables | graveyard | — | **stated absence**: the by-name unused-variable count is a graveyard signal, not a layout |
 | DD names, OPEN modes, dataset lineage | forge / DAG architect | `dataset_data` | **DB** since #3201 — exact against the answer key on both corpora (see the #3200/#3201 update) |
 | unresolved CALLs | DAG architect | `call_site_data` | **DB** since #3200 — every call site, resolved or not, with its verb, form and line |
@@ -545,3 +546,19 @@ leaf fields. The first run did not: the engine missed fields in 179 DSF files, b
 trailing comment but not the column-73 sequence number after it, and two such orphaned numbers in a
 row hid the next `DCL`. The engine now skips any run of them.
 
+## Update: DB2 DECLARE TABLE / DCLGEN schemas (#3344) — 2026-09-23
+
+`EXEC SQL DECLARE <table> TABLE (...)` columns -- inline or in a DCLGEN member -- are now a fact
+channel (`sql_table_data`, `EngineFile.sql_tables`) and a compared datum. As with PL/I no forge reads
+them, so the compared side is the answer key's own reader (`cobol_answer_key.sql_table_columns`: the
+RAW file, its own comment and sequence-column handling, each statement cut at its terminator --
+`END-EXEC` / `;` -- where the engine walks the PRISM stream to the balancing parenthesis). The unit is
+the column's full shape, `TABLE.COLUMN TYPE(len,scale) NOT NULL|NULLABLE`, reported as `sql_column`
+deltas and `sql_columns_key` / `_db` / `_agree` in the summary. A delta is `unexplained` (never
+`stated_absence`) until the declaring file is signed off with `sql_tables_validated`.
+
+On CBSA the two agree on every column of ACCDB2/CONTDB2/PROCDB2 (24/24; ACCDB2 and CONTDB2 are now
+in the excerpt, as BANKDATA's `EXEC SQL INCLUDE`d members -- which also surfaces 2 `exec_sql_include`
+copybook deltas in the excerpt baseline). zopeneditor has no DB2. carddemo's DCLGEN members use a
+`.dcl` extension, which no language claims, so they are not scanned (a detection follow-up, not this
+channel's).

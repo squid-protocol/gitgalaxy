@@ -472,6 +472,32 @@ class StateRehydrator:
                     },
                 )
 
+                # #3344: DB2 DECLARE TABLE / DCLGEN columns, aliased back to the
+                # extractor's payload keys (table_name -> table, column_name ->
+                # name). A pre-#3344 baseline has no table and restores nothing.
+                sql_tables_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "sql_table_data",
+                    'SELECT fd.file_path AS _fp, st.table_name AS "table", st.table_line, st.colno, st.column_name AS name, '
+                    "st.sql_type, st.length, st.scale, st.nullable, st.attributes, st.line_number AS line "
+                    "FROM sql_table_data st JOIN file_data fd ON st.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY st.id",
+                    lambda r: {
+                        "table": r["table"],
+                        "table_line": int(r["table_line"] or 0),
+                        "colno": int(r["colno"] or 0),
+                        "name": r["name"],
+                        "sql_type": r["sql_type"],
+                        "length": r["length"],
+                        "scale": r["scale"],
+                        "nullable": bool(r["nullable"]),
+                        "attributes": r["attributes"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
@@ -479,6 +505,7 @@ class StateRehydrator:
                     node["dataset_bindings"] = datasets_by_file.get(rel_path, [])
                     node["record_layouts"] = records_by_file.get(rel_path, [])
                     node["transaction_defs"] = transactions_by_file.get(rel_path, [])
+                    node["sql_tables"] = sql_tables_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

@@ -95,6 +95,10 @@ Scope, from measurement (`core/wrapper_resolver.py`'s header): `debug_prints`/`p
 
 `record_data` (#3246) carries COBOL DATA DIVISION items and, since #3250, PL/I `DECLARE`d structures in the same columns: `pic` is the PICTURE, `usage` the data type as written (`FIXED DEC(7,2)`, `CHAR(10) VARYING`), `section` the root's storage class (`STATIC`/`AUTOMATIC`/`BASED`/`CONTROLLED`), `redefines` the `DEFINED` base, `occurs_*` the first dimension and `occurs_depending_on` its `REFER`, `value_literal` the `INIT`. `attributes` holds a PL/I item's full attribute text (`BASED(ADDR(REC)) UNALIGNED`) and is NULL for COBOL.
 
+### `sql_table_data` — DB2 DECLARE TABLE / DCLGEN schemas (#3344)
+
+One row per column of an `EXEC SQL DECLARE <table> TABLE (...)`, inline in a COBOL/PL/I program or DCLGEN-generated into a copybook/include member: `table_name` (as declared, `owner.table` whole), `table_line`, `colno` (1-based, SYSCOLUMNS.COLNO), `column_name`, `sql_type` as written (`DECIMAL`, `VARCHAR`, `TIMESTAMP WITH TIME ZONE`), `length` (length/precision, LOB K/M/G applied) and `scale` -- both NULL when the source writes none -- `nullable` (0 exactly on NOT NULL), `attributes` (the option text after the type) and `line_number`. Per-file, cascade-deleted with `file_data`, restored on delta scans. Same-file only: a program reaches its DCLGEN member through the `EXEC SQL INCLUDE` edge.
+
 ### `transaction_data` — the CICS transaction map (#3211-followup)
 
 The CSD `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (and PROGRAM autoinstall `TRANSID(...)` pairings), from `.csd` decks and DFHCSDUP SYSIN inside JCL. This is the external front door: which 4-char transaction id a user submits and which program CICS routes it to — the entry points a modernizer turns into service/API boundaries.

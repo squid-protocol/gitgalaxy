@@ -28,6 +28,10 @@ an independent CSD read (cics_transaction_reader) vs the engine's transaction_ma
 Since #3250 PL/I DECLAREd structures are one too: no PL/I forge exists, so the
 compared side is the answer key's own independent PL/I reader (pli_data_items)
 vs the engine's record_data, per PL/I file, as `pli_record` deltas.
+Since #3344 DB2 `EXEC SQL DECLARE ... TABLE` columns are one as well, on the same
+footing (no forge reads them): the key's own terminator-cut reader
+(sql_table_columns) vs the engine's sql_table_data, per declaring COBOL/PL/I
+file, as `sql_column` deltas keyed on each column's full shape.
 The gate counts what neither explains -- `unexplained` --
 and fails when a run adds any over a committed per-corpus baseline.
 
@@ -103,7 +107,9 @@ UNEXPLAINED = "unexplained"
 # The PL/I record layout (#3250) is read by the key's own raw-source tokenizer,
 # which shares neither code nor input (it never sees the PRISM stream) with the
 # engine, so it adjudicates a `pli_record` delta once a file is `records_validated`.
-INDEPENDENT_FIELDS = {"program_id", "copybook", "record", "transaction", "pli_record"}
+# The DB2 DECLARE TABLE columns (#3344) are read the same way: the key's own
+# raw-file reader, independent of the engine's PRISM-stream walker.
+INDEPENDENT_FIELDS = {"program_id", "copybook", "record", "transaction", "pli_record", "sql_column"}
 
 
 def _record_fields(items: list) -> set[str]:
@@ -163,6 +169,28 @@ def compare_pli(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                 },
             }
         )
+    return rows
+
+
+def compare_sql_tables(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
+    """#3344: one row per COBOL/PL/I file that declares a DB2 table on either side --
+    the key's independent reader (`old`; there is no forge) vs sql_table_data (`db`).
+    Values are full column-shape keys (`TABLE.COL TYPE(len,scale) NOT NULL`)."""
+    rows = []
+    for ef in sorted(ir.files.values(), key=lambda f: f.file_path):
+        if ef.language not in ("cobol", "pli"):
+            continue
+        text = (repo / ef.file_path).read_text(encoding="utf-8", errors="ignore")
+        old = ak.sql_column_keys(ak.sql_table_columns(text, ef.language == "pli"))
+        db = {
+            ak.sql_column_key(t.name, c.name, c.sql_type, c.length, c.scale, c.nullable)
+            for t in ef.sql_tables
+            for c in t.columns
+        }
+        if old or db:
+            rows.append(
+                {"file": ef.file_path, "language": "sql_table", "sql_tables": {"old": sorted(old), "db": sorted(db)}}
+            )
     return rows
 
 
@@ -241,11 +269,12 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                 },
             }
         )
-    return rows + compare_pli(repo, ir)
+    return rows + compare_pli(repo, ir) + compare_sql_tables(repo, ir)
 
 
 def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
     pli = [r for r in rows if r.get("language") == "pli"]
+    sql = [r for r in rows if r.get("language") == "sql_table"]
     rows = _cobol_rows(rows)
 
     def count(pred) -> int:
@@ -280,6 +309,10 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
         "pli_record_fields_key": sum(len(r["pli_records"]["old"]) for r in pli),
         "pli_record_fields_db": sum(len(r["pli_records"]["db"]) for r in pli),
         "pli_record_fields_agree": sum(len(set(r["pli_records"]["old"]) & set(r["pli_records"]["db"])) for r in pli),
+        "sql_table_files": len(sql),
+        "sql_columns_key": sum(len(r["sql_tables"]["old"]) for r in sql),
+        "sql_columns_db": sum(len(r["sql_tables"]["db"]) for r in sql),
+        "sql_columns_agree": sum(len(set(r["sql_tables"]["old"]) & set(r["sql_tables"]["db"])) for r in sql),
     }
 
 
@@ -325,6 +358,13 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
             old, db = set(rec["old"]), set(rec["db"])
             deltas += [{"program": prog, "field": "pli_record", "side": "old", "value": v} for v in sorted(old - db)]
             deltas += [{"program": prog, "field": "pli_record", "side": "db", "value": v} for v in sorted(db - old)]
+            continue
+        if r.get("language") == "sql_table":
+            # #3344: DB2 DECLARE TABLE column shapes, the key's reader vs the engine.
+            st = r["sql_tables"]
+            old, db = set(st["old"]), set(st["db"])
+            deltas += [{"program": prog, "field": "sql_column", "side": "old", "value": v} for v in sorted(old - db)]
+            deltas += [{"program": prog, "field": "sql_column", "side": "db", "value": v} for v in sorted(db - old)]
             continue
         pid = r["program_id"]
         # Only the genuine mismatch. A db file legitimately carrying several
@@ -494,6 +534,11 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
         # parser defect on one side, never a stated absence (the DB carries PL/I
         # records). Left to the validated key (pli_record is INDEPENDENT).
         return UNEXPLAINED
+    if field == "sql_column":
+        # #3344: same footing as pli_record -- two independent readers of one
+        # DECLARE TABLE disagree, a real defect on one side. The DB carries these
+        # columns, so this is never stated_absence. Left to the validated key.
+        return UNEXPLAINED
     return UNEXPLAINED
 
 
@@ -508,6 +553,19 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
         if not pli or not pli.get("records_validated"):
             return None
         present = d["value"] in ak.pli_record_fields(pli.get("records", []))
+        verdict = (
+            ("old-parser defect" if present else "engine defect")
+            if d["side"] == "db"
+            else ("engine defect" if present else "old-parser defect")
+        )
+        return {"verdict": verdict, "confidence": "independent", "decided": True}
+    if d["field"] == "sql_column":
+        # #3344: drafted, so it adjudicates only once the declaring file is
+        # explicitly signed off with `sql_tables_validated`.
+        st = key.get("sql_tables", {}).get(d["program"])
+        if not st or not st.get("sql_tables_validated"):
+            return None
+        present = d["value"] in ak.sql_column_keys(st.get("columns", []))
         verdict = (
             ("old-parser defect" if present else "engine defect")
             if d["side"] == "db"
@@ -567,8 +625,9 @@ def classify(repo: Path, rows: list[dict[str, Any]], key: Optional[dict[str, Any
     ctx_cache: dict[str, dict[str, Any]] = {}
     out: list[Delta] = []
     for d in flatten(rows):
-        if d["field"] == "pli_record":
-            # The COBOL fixed-format context is meaningless for a PL/I file.
+        if d["field"] in ("pli_record", "sql_column"):
+            # The COBOL fixed-format context is meaningless for a PL/I file, and a
+            # DECLARE TABLE column delta (#3344) has no mechanism cause to read.
             out.append({**d, "cause": _classify_cause(d, {}), "verdict": _key_verdict(d, key)})
             continue
         ctx = ctx_cache.get(d["program"])

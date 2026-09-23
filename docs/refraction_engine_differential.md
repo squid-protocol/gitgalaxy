@@ -474,10 +474,10 @@ residual is baselined with a note:
 |---|---|---|
 | zopeneditor-sample | 0 | fully classified / key-adjudicated |
 | cics-banking-sample-application-cbsa | 0 | 33 `usage_status_not_reachability` cells (forge-dead vs the engine's by-name `usage_status`) are an explained, by-design semantic difference (#3198 closed; `docs/unreferenced_by_name_contract.md`), not a pending fix |
-| aws-mainframe-modernization-carddemo | 157 | no answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth. 142 are real paragraphs the forge's reader drops on cols-73-80 right-margin sequence numbers (**#3244**); expected to fall to ~15 once #3244 lands and to 0 with a carddemo key |
+| aws-mainframe-modernization-carddemo | 15 | no answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth. Re-blessed from 157 in #3342: the 142 cols-73-80 sequence-number paragraph deltas closed with **#3244** (PR #3256). The 15 left are copybook/PROGRAM-ID disagreements (IBM MQ `CMQ*` copybooks, the zero-density-excluded `CSLKPCDY`, quoted and `REPLACING` COPYs the forge misses, a two-line PROGRAM-ID); expected to reach 0 with a carddemo key |
 
 So the #3120 gate is now a command: `--corpus` returns 0 unexplained on both keyed corpora, and
-names precisely what the one remaining corpus is waiting on (a fix, #3244, and a key).
+names precisely what the one remaining corpus is waiting on (a key, #3210; #3244 has landed).
 
 ## Update: DATA DIVISION items and FD record layouts (#3246) — 2026-09-20
 

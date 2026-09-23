@@ -36,16 +36,17 @@
   "full": {
     "aws-mainframe-modernization-carddemo": {
       "by_cause": {
-        "entry_point": 40,
+        "entry_point": 36,
         "exec_sql_include": 1,
+        "forge_flat_schema": 341,
         "sequence_number_field": 15,
         "stated_absence": 197,
         "system_copybook": 42,
-        "unexplained": 157,
-        "usage_status_not_reachability": 10
+        "unexplained": 15,
+        "usage_status_not_reachability": 9
       },
-      "note": "No answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth. 142 of the 157 are real paragraphs the forge's reader drops because carddemo uses cols-73-80 right-margin sequence numbers (#3244); the rest are copybook disagreements. Pins the count for regression detection; expected to fall to ~15 once #3244 lands and to 0 with a carddemo key.",
-      "unexplained": 157
+      "note": "No answer key yet (#3210 pending for carddemo), so no delta can be adjudicated from truth. Re-blessed 157 -> 15 (#3342): the 142 paragraph deltas from cols-73-80 right-margin sequence numbers closed with #3244 (PR #3256), the only merged change that moves this count (measured commit-by-commit from the 157 bless, #3245, to #3357; #3248 added the non-gating forge_flat_schema cause). The 15 left are copybook/program-id disagreements: 6 IBM MQ system copybooks (CMQ*) in COPAUA0C the DB does not list; CSLKPCDY, whose copybook the engine drops as a zero-density data dump; 8 DB-only COPY targets the forge misses (quoted COPY 'CSSTRPFY' and COPY ... REPLACING in COACTUPC/COACTVWC/COCRD*); and COTRTLIC's PROGRAM-ID split over two lines. Pins the count for regression detection; expected to reach 0 with a carddemo key (#3210).",
+      "unexplained": 15
     },
     "cics-banking-sample-application-cbsa": {
       "by_cause": {

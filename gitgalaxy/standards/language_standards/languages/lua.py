@@ -53,6 +53,16 @@ DEFINITION: dict[str, Any] = {
                 "rawlen",
                 "next",
                 "select",
+                # #3359 (contract C2): keywords and special forms, never calls
+                "not",
+                "or",
+                "and",
+                "elseif",
+                "then",
+                "until",
+                "in",
+                "else",
+                "local",
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

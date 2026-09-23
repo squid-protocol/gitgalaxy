@@ -70,6 +70,17 @@ DEFINITION: dict[str, Any] = {
                 "chomp",
                 "die",
                 "warn",
+                # #3359 (contract C2): keywords and special forms, never calls
+                "qw",
+                "q",
+                "qq",
+                "qr",
+                "qx",
+                "and",
+                "or",
+                "not",
+                "until",
+                "sub",
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

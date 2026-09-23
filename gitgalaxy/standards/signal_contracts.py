@@ -768,7 +768,7 @@ HELPER_KEYS: dict[str, str] = {
     "_visibility_export_list": "capture group(s) = a region holding MANY exported names, same census (#2823)",
     "_args_arrow_count_groups": "args strategy: arrow-function parameter groups",
     "_transfers_out": "regex whose one group names the target of an unconditional transfer of control (COBOL GO TO) -- recorded per function as transfers_to beside calls_out_to, never in it (calls_out contract C4, #3362)",
-    "_calls_out_ignore": "frozenset of lowercase callee names UNIONed with the detector's global calls_out ignore set, compared casefolded (case-insensitive languages filter keywords in any spelling) -- Epic #3264 Phase 3 (#3282)",
+    "_calls_out_ignore": "frozenset of callee names UNIONed with the detector's global calls_out ignore set; a language declared `identifier_case: insensitive` authors them lowercase and compares casefolded (keywords filtered in any spelling), every other language compares exactly (#3359) -- Epic #3264 Phase 3 (#3282)",
     "_args_bare_body_groups": "args strategy: bare-body parameter groups",
     "_args_colon_selector_groups": "args strategy: colon-selector parameter groups (objective-c)",
     "_args_findall_max_groups": "args strategy: take the maximum over findall groups",

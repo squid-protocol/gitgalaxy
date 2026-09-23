@@ -51,7 +51,39 @@ DEFINITION: dict[str, Any] = {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_COMMAND_POSITION,
         "_calls_out_ignore": frozenset(
-            {"param", "begin", "process", "end", "elseif", "else", "foreach", "do", "until", "trap"}
+            {
+                "param",
+                "begin",
+                "process",
+                "end",
+                "elseif",
+                "else",
+                "foreach",
+                "do",
+                "until",
+                "trap",
+                # #3359 (contract C2): keywords and special forms, never calls
+                "break",
+                "continue",
+                "exit",
+                "default",
+                "function",
+                "filter",
+                "return",
+                "throw",
+                "static",
+                "enum",
+                "class",
+                "dynamicparam",
+                "try",
+                "catch",
+                "finally",
+                "if",
+                "for",
+                "while",
+                "switch",
+                "hidden",
+            }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # branch: decisions that split flow. Includes ternary operators (?) and null-coalescing (??).

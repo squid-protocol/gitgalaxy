@@ -59,6 +59,25 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
+        # #3359 (contract C2): keywords and special forms, never calls
+        "_calls_out_ignore": frozenset(
+            {
+                "in",
+                "not",
+                "and",
+                "or",
+                "elif",
+                "is",
+                "yield",
+                "lambda",
+                "del",
+                "with",
+                "raise",
+                "from",
+                "as",
+                "else",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Decisions and logical jumps. EXCLUDES raise (bailout_hits).

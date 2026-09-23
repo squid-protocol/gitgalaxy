@@ -753,7 +753,19 @@ DEFINITION: dict[str, Any] = {
         # (docs/calls_out_rule_contract.md C4) -- and is recorded beside it as a
         # transfer (`_transfers_out` below), so the paragraphs reached only by
         # GO TO (a quarter of the crucible's) stay reachable.
-        "calls_out": re.compile(r"(?i)\b(?:PERFORM|CALL)\s+['\"]?([A-Za-z0-9_-]+)['\"]?"),
+        # #3359: `(?<![\w-])`, not `\b` -- the scope terminators `END-PERFORM` /
+        # `END-CALL` end in the verb, so `\b` let the NEXT statement's first word
+        # (`END-PERFORM` newline `MOVE ...`) be captured as a callee.
+        "calls_out": re.compile(r"(?i)(?<![\w-])(?:PERFORM|CALL)\s+['\"]?([A-Za-z0-9_-]+)['\"]?"),
+        # #3359 (contract C2): the inline PERFORM forms (`PERFORM VARYING ...`,
+        # `PERFORM UNTIL ...`, `PERFORM WITH TEST ...`) name no paragraph.
+        "_calls_out_ignore": frozenset(
+            {
+                "varying",
+                "until",
+                "with",
+            }
+        ),
         # #3362: GO TO <paragraph|section> -- an unconditional transfer of control.
         # First target only for `GO TO A B C DEPENDING ON X` (one occurrence on
         # the whole crucible). WHENEVER ... GO TO (embedded SQL) is excluded: that

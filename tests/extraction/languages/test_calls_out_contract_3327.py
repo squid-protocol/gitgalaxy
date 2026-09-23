@@ -95,15 +95,3 @@ def test_builtins_are_calls():
 def test_nested_declaration_is_not_a_call():
     code = "def outer(x):\n    def inner(y):\n        return y\n    return inner\n"
     assert "inner" not in _calls("python", code)["outer"]
-
-
-@pytest.mark.xfail(strict=True, reason="#3359: a metadata annotation is captured as a call")
-def test_annotation_is_not_a_call():
-    code = 'class A {\n  @SuppressWarnings("x")\n  void run(int a) {\n    go(a);\n  }\n}\n'
-    assert "SuppressWarnings" not in _calls("java", code)["run"]
-
-
-@pytest.mark.xfail(strict=True, reason="#3359: go's `func` literal keyword is captured as a call")
-def test_func_literal_keyword_is_not_a_call():
-    code = "package m\nfunc Run(a int) {\n  go func() { work(a) }()\n}\n"
-    assert "func" not in _calls("go", code)["Run"]

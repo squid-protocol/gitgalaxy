@@ -31,6 +31,7 @@ from typing import Any, Optional, Union, cast
 from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.call_resolver import resolve_calls
 from gitgalaxy.core.detector import HAS_TIKTOKEN
+from gitgalaxy.core.function_graph import attach_function_metrics, function_metrics
 from gitgalaxy.core.guidestar_lens import GuideStarLens
 from gitgalaxy.core.invocation_resolver import resolve_invocations, resolve_transactions
 from gitgalaxy.core.mainframe_boundary import extract_boundary
@@ -2054,6 +2055,12 @@ class Orchestrator:
             len(self.fcall_sites),
             ", ".join(f"{k}={by_step[k]}" for k in sorted(by_step)) or "none",
         )
+        # #3330: function-level PageRank / fan-in / fan-out / upstream from the
+        # confident links, hung on each function for the recorders. New columns
+        # only -- no file-level metric or risk score reads them.
+        t_graph = time.time()
+        attach_function_metrics(self.parsed_files, function_metrics(self.parsed_files, self.fcall_sites))
+        logger.debug(f"⏱️ EXECUTION_TIME [Function Graph Metrics]: {time.time() - t_graph:.2f}s")
 
     def _resolve_dependency_graph(self):
         """

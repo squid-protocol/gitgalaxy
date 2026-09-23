@@ -441,6 +441,15 @@ class RecordKeeper:
                 best_d, best_i = d, ci
         return fb["names"][best_i] if 0 <= best_i < len(fb["names"]) else None
 
+    def _heal_column(self, cursor: sqlite3.Cursor, table: str, column: str, sql_type: str) -> None:
+        """Add `column` to a database that predates it; a no-op when it exists."""
+        try:
+            cursor.execute(f"ALTER TABLE {table} ADD COLUMN {column} {sql_type}")
+        except sqlite3.OperationalError as exc:
+            if "duplicate column name" not in str(exc).lower():
+                raise
+            self.logger.debug(f"Schema migration skipped: '{column}' already exists.")
+
     def record_mission(
         self,
         parsed_files: list[dict],
@@ -783,6 +792,9 @@ class RecordKeeper:
                 docstring TEXT,
                 calls_out_to TEXT,
                 calls_out_qualifiers TEXT,
+                func_pagerank REAL,
+                func_fan_in INTEGER,
+                func_fan_out INTEGER,
                 token_mass INTEGER DEFAULT 0,
                 is_public INTEGER DEFAULT 0,
                 is_documented INTEGER DEFAULT 0,
@@ -1220,6 +1232,13 @@ class RecordKeeper:
                 self.logger.debug("Schema migration skipped: 'is_documented' already exists.")
             else:
                 raise
+
+        # #3330: function call-graph metrics (core/function_graph.py). NULL where
+        # not computed (a pre-#3330 row, a failed PageRank). Same auto-heal for a
+        # pre-#3330 database.
+        self._heal_column(cursor, "function_data", "func_pagerank", "REAL")
+        self._heal_column(cursor, "function_data", "func_fan_in", "INTEGER")
+        self._heal_column(cursor, "function_data", "func_fan_out", "INTEGER")
 
         # #3329: the receiver chain per callee, a JSON list aligned with
         # calls_out_to (call_resolver.encode_qualifiers). Same auto-heal for a
@@ -1916,6 +1935,9 @@ class RecordKeeper:
                         str(func.get("docstring", ""))[:2000],
                         json.dumps(func.get("calls_out_to", [])),
                         _qualifiers_json(func),
+                        func.get("func_pagerank"),
+                        func.get("func_fan_in"),
+                        func.get("func_fan_out"),
                         (int(func.get("token_mass")) if func.get("token_mass") is not None else None),
                         int(bool(func.get("is_public", False))),
                         int(bool(func.get("is_documented", False))),
@@ -1984,7 +2006,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,

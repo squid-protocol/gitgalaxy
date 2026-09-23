@@ -8,8 +8,14 @@
       {
         "btw": 0.0003,
         "path": "python/numpy/core.py",
-        "score": 0.029,
+        "score": 0.034,
         "state_mutation": 100.0
+      },
+      {
+        "btw": 0.0003,
+        "path": "dockerfile/moby/builder/dockerfile/copy.go",
+        "score": 0.03,
+        "state_mutation": 95.106
       },
       {
         "btw": 0.0003,
@@ -28,12 +34,6 @@
         "path": "python/twisted/defer.py",
         "score": 0.027,
         "state_mutation": 99.9997
-      },
-      {
-        "btw": 0.0003,
-        "path": "dockerfile/moby/builder/dockerfile/copy.go",
-        "score": 0.026,
-        "state_mutation": 95.106
       }
     ],
     "fragile_dependency_chain": [
@@ -47,7 +47,13 @@
         "close": 0.016,
         "err": 75.2927,
         "path": "python/fastapi/fastapi/types.py",
-        "score": 1.202
+        "score": 1.208
+      },
+      {
+        "close": 0.0112,
+        "err": 96.5311,
+        "path": "python/twisted/http.py",
+        "score": 1.086
       },
       {
         "close": 0.0137,
@@ -56,48 +62,42 @@
         "score": 1.077
       },
       {
-        "close": 0.0159,
+        "close": 0.0167,
         "err": 62.0321,
         "path": "assembly/bootos/os.asm",
-        "score": 0.989
-      },
-      {
-        "close": 0.0174,
-        "err": 56.49,
-        "path": "scheme/racket/io.ss",
-        "score": 0.981
+        "score": 1.038
       }
     ],
     "undocumented_critical_path": [
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 14.439,
-        "score": 1443.9
+        "pr": 14.397,
+        "score": 1439.7
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 5.424,
-        "score": 542.4
+        "pr": 5.403,
+        "score": 540.3
       },
       {
         "doc": 100.0,
         "path": "scheme/racket/io.ss",
-        "pr": 4.807,
-        "score": 480.7
+        "pr": 4.812,
+        "score": 481.2
       },
       {
         "doc": 100.0,
         "path": "javascript/jquery/core.js",
-        "pr": 4.725,
-        "score": 472.5
+        "pr": 4.711,
+        "score": 471.1
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/responses.py",
-        "pr": 4.171,
-        "score": 417.1
+        "pr": 4.158,
+        "score": 415.8
       }
     ]
   }

@@ -1265,7 +1265,7 @@
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum.go": 5,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_spec.md": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/tarsum_test.go": 0,
-      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 2,
+      "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning.go": 3,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/versioning_test.go": 0,
       "dockerfile/moby/builder/remotecontext/internal/tarsum/writercloser.go": 3
     },
@@ -2319,7 +2319,7 @@
       "lua/redis/hello.lua": 0,
       "lua/redis/life.lua": 0,
       "lua/redis/luac.lua": 0,
-      "lua/redis/printf.lua": 0,
+      "lua/redis/printf.lua": 3,
       "lua/redis/readonly.lua": 0,
       "lua/redis/sort.lua": 0,
       "lua/redis/strict.lua": 19,
@@ -2420,7 +2420,7 @@
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 1,
       "perl/mojo/Makefile.PL": 0,
-      "perl/mojo/Promise.pm": 7,
+      "perl/mojo/Promise.pm": 12,
       "perl/mojo/Template.pm": 1,
       "perl/mojo/WebSocket.pm": 0
     },
@@ -2919,7 +2919,7 @@
       "python/numpy/__init__.py": 0,
       "python/numpy/_linalg.py": 0,
       "python/numpy/cfuncs.py": 1,
-      "python/numpy/core.py": 4,
+      "python/numpy/core.py": 16,
       "python/numpy/crackfortran.py": 1,
       "python/numpy/cversions.txt": 0,
       "python/numpy/func2subr.py": 1,
@@ -3513,7 +3513,7 @@
       "swift/alamofire/Package.swift": 0,
       "swift/alamofire/ParameterEncoder.swift": 0,
       "swift/alamofire/Request.swift": 0,
-      "swift/alamofire/Response.swift": 4,
+      "swift/alamofire/Response.swift": 5,
       "swift/alamofire/Session.swift": 0
     },
     "tabular": {
@@ -3801,7 +3801,7 @@
       "zig/zig/InternPool.zig": 4,
       "zig/zig/Type.zig": 6,
       "zig/zig/Zcu.zig": 8,
-      "zig/zig/main.zig": 1
+      "zig/zig/main.zig": 3
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 2,

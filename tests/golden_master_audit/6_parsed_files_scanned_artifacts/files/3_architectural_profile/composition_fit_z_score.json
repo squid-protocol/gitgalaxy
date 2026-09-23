@@ -432,7 +432,7 @@
       "c/doom/r_bsp.c": 0.875,
       "c/doom/r_defs.h": 1.596,
       "c/doom/w_wad.c": 0.752,
-      "c/doom/z_zone.c": 0.38
+      "c/doom/z_zone.c": 0.359
     },
     "c/micropython": {
       "c/micropython/compile.c": 2.502,
@@ -1038,7 +1038,7 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/codegen.c": 0.446,
       "cobol/gnucobol_internals/fileio.c": 1.11,
-      "cobol/gnucobol_internals/numeric.c": 0.024,
+      "cobol/gnucobol_internals/numeric.c": 0.073,
       "cobol/gnucobol_internals/parser.y": 2.834,
       "cobol/gnucobol_internals/scanner.l": 2.359,
       "cobol/gnucobol_internals/screenio.cpy": -0.151,
@@ -1214,7 +1214,7 @@
       "dockerfile/moby/builder/dockerfile/builder_unix.go": 0.0,
       "dockerfile/moby/builder/dockerfile/builder_windows.go": -0.48,
       "dockerfile/moby/builder/dockerfile/containerbackend.go": 0.585,
-      "dockerfile/moby/builder/dockerfile/copy.go": 1.431,
+      "dockerfile/moby/builder/dockerfile/copy.go": 1.454,
       "dockerfile/moby/builder/dockerfile/copy_test.go": 3.062,
       "dockerfile/moby/builder/dockerfile/copy_unix.go": -0.649,
       "dockerfile/moby/builder/dockerfile/copy_windows.go": 1.599,
@@ -1229,7 +1229,7 @@
       "dockerfile/moby/builder/dockerfile/imagecontext.go": -0.044,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": -0.075,
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 0.252,
-      "dockerfile/moby/builder/dockerfile/internals.go": 0.559,
+      "dockerfile/moby/builder/dockerfile/internals.go": 0.583,
       "dockerfile/moby/builder/dockerfile/internals_linux.go": -1.005,
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 3.021,
       "dockerfile/moby/builder/dockerfile/internals_test.go": 1.006,
@@ -2286,7 +2286,7 @@
       "lua/pandoc/bytestring.lua": 0.0,
       "lua/pandoc/count_words.lua": -0.739,
       "lua/pandoc/creole.lua": 0.679,
-      "lua/pandoc/extensions.lua": 0.98,
+      "lua/pandoc/extensions.lua": 0.947,
       "lua/pandoc/extract-changes.lua": -0.434,
       "lua/pandoc/globals.lua": -0.332,
       "lua/pandoc/hello-world-doc.lua": 0.042,
@@ -2418,9 +2418,9 @@
       "perl/exiftool/exiftool": 0.279
     },
     "perl/mojo": {
-      "perl/mojo/IOLoop.pm": 0.298,
+      "perl/mojo/IOLoop.pm": 0.278,
       "perl/mojo/Makefile.PL": 0.152,
-      "perl/mojo/Promise.pm": 0.609,
+      "perl/mojo/Promise.pm": 0.632,
       "perl/mojo/Template.pm": 1.28,
       "perl/mojo/WebSocket.pm": 1.33
     },
@@ -2690,7 +2690,7 @@
       "python/fastapi/fastapi/cli.py": -0.356,
       "python/fastapi/fastapi/concurrency.py": 1.793,
       "python/fastapi/fastapi/datastructures.py": -0.129,
-      "python/fastapi/fastapi/encoders.py": 1.298,
+      "python/fastapi/fastapi/encoders.py": 1.282,
       "python/fastapi/fastapi/exception_handlers.py": -0.701,
       "python/fastapi/fastapi/exceptions.py": 0.489,
       "python/fastapi/fastapi/logger.py": 0.0,
@@ -2919,10 +2919,10 @@
       "python/numpy/__init__.py": 0.0,
       "python/numpy/_linalg.py": 1.156,
       "python/numpy/cfuncs.py": 1.358,
-      "python/numpy/core.py": 0.686,
-      "python/numpy/crackfortran.py": -0.184,
+      "python/numpy/core.py": 0.711,
+      "python/numpy/crackfortran.py": -0.135,
       "python/numpy/cversions.txt": 0.0,
-      "python/numpy/func2subr.py": 0.739,
+      "python/numpy/func2subr.py": 0.781,
       "python/numpy/genapi.py": 0.762,
       "python/numpy/generate_numpy_api.py": 1.526,
       "python/numpy/generate_ufunc_api.py": 1.167,
@@ -2930,7 +2930,7 @@
       "python/numpy/lapack_litemodule.c": 0.961,
       "python/numpy/numpy_api.py": -0.181,
       "python/numpy/symbolic.py": 0.576,
-      "python/numpy/testutils.py": 1.781,
+      "python/numpy/testutils.py": 1.818,
       "python/numpy/ufunc_docstrings.py": 1.977,
       "python/numpy/verify_c_api_version.py": 0.688
     },
@@ -3072,7 +3072,7 @@
       "scheme/racket/LICENSE.txt": 0.0,
       "scheme/racket/cpnanopass.ss": 0.967,
       "scheme/racket/eval.c": 0.227,
-      "scheme/racket/fun.c": 0.155,
+      "scheme/racket/fun.c": 0.131,
       "scheme/racket/io.ss": 2.548,
       "scheme/racket/schemify.rkt": 0.835,
       "scheme/racket/thread.rkt": 1.365
@@ -3513,7 +3513,7 @@
       "swift/alamofire/Package.swift": -0.213,
       "swift/alamofire/ParameterEncoder.swift": 2.02,
       "swift/alamofire/Request.swift": 0.335,
-      "swift/alamofire/Response.swift": 1.012,
+      "swift/alamofire/Response.swift": 1.031,
       "swift/alamofire/Session.swift": 0.151
     },
     "tabular": {
@@ -3780,7 +3780,7 @@
       "zig/bun/MimallocArena.zig": 0.348,
       "zig/bun/Parser.zig": 0.441,
       "zig/bun/comptime_string_map.zig": 0.576,
-      "zig/bun/napi.zig": 0.434
+      "zig/bun/napi.zig": 0.463
     },
     "zig/tigerbeetle": {
       "zig/tigerbeetle/aof.zig": 0.518,
@@ -3801,7 +3801,7 @@
       "zig/zig/InternPool.zig": 0.226,
       "zig/zig/Type.zig": 0.483,
       "zig/zig/Zcu.zig": 0.948,
-      "zig/zig/main.zig": 0.312
+      "zig/zig/main.zig": 0.469
     },
     "zig/zls": {
       "zig/zls/DocumentScope.zig": 0.852,
@@ -3818,7 +3818,7 @@
       "zig/zls/mach/collision.zig": 0.304,
       "zig/zls/mach/graph.zig": 0.381,
       "zig/zls/mach/main.zig": 1.188,
-      "zig/zls/mach/module.zig": 0.335,
+      "zig/zls/mach/module.zig": 0.313,
       "zig/zls/mach/testing.zig": 0.525,
       "zig/zls/mach/win32.zig": 1.91
     }

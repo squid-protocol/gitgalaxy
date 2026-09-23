@@ -218,6 +218,18 @@
         }
       ]
     },
+    "lua/redis": {
+      "lua/redis/printf.lua": [
+        {
+          "Call Sites": 192,
+          "Calling Files": 15,
+          "Kind": "function",
+          "Name": "printf",
+          "Rule": "debug_prints",
+          "Via": "primitive"
+        }
+      ]
+    },
     "perl/exiftool": {
       "perl/exiftool/exiftool": [
         {

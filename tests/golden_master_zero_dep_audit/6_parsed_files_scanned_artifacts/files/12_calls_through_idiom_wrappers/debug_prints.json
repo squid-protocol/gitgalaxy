@@ -1,9 +1,39 @@
 {
   "groups": {
+    "c/cpython": {
+      "c/cpython/ceval.c": {
+        "Literal Sites": 13,
+        "Wrapped Sites": 52
+      },
+      "c/cpython/dictobject.c": {
+        "Literal Sites": 2,
+        "Wrapped Sites": 2
+      }
+    },
+    "c/doom": {
+      "c/doom/d_main.c": {
+        "Literal Sites": 33,
+        "Wrapped Sites": 33
+      },
+      "c/doom/w_wad.c": {
+        "Literal Sites": 5,
+        "Wrapped Sites": 2
+      },
+      "c/doom/z_zone.c": {
+        "Literal Sites": 11,
+        "Wrapped Sites": 6
+      }
+    },
     "c/sqlite": {
       "c/sqlite/lemon.c": {
         "Literal Sites": 287,
-        "Wrapped Sites": 60
+        "Wrapped Sites": 76
+      }
+    },
+    "cobol/gnucobol_internals": {
+      "cobol/gnucobol_internals/codegen.c": {
+        "Literal Sites": 3,
+        "Wrapped Sites": 7
       }
     },
     "fortran/wrf": {
@@ -42,6 +72,46 @@
       "javascript/react/build.js": {
         "Literal Sites": 18,
         "Wrapped Sites": 1
+      }
+    },
+    "lua/darwin-xnu": {
+      "lua/darwin-xnu/kqtrace.lua": {
+        "Literal Sites": 0,
+        "Wrapped Sites": 7
+      }
+    },
+    "objective-c/worldwideweb": {
+      "objective-c/worldwideweb/Anchor.m": {
+        "Literal Sites": 11,
+        "Wrapped Sites": 7
+      },
+      "objective-c/worldwideweb/HText.c": {
+        "Literal Sites": 10,
+        "Wrapped Sites": 4
+      },
+      "objective-c/worldwideweb/HyperManager.m": {
+        "Literal Sites": 8,
+        "Wrapped Sites": 8
+      },
+      "objective-c/worldwideweb/HyperText.m": {
+        "Literal Sites": 51,
+        "Wrapped Sites": 42
+      },
+      "objective-c/worldwideweb/TcpAccess.m": {
+        "Literal Sites": 2,
+        "Wrapped Sites": 2
+      }
+    },
+    "perl/exiftool": {
+      "perl/exiftool/exiftool": {
+        "Literal Sites": 165,
+        "Wrapped Sites": 1
+      }
+    },
+    "scheme/racket": {
+      "scheme/racket/eval.c": {
+        "Literal Sites": 3,
+        "Wrapped Sites": 3
       }
     }
   },

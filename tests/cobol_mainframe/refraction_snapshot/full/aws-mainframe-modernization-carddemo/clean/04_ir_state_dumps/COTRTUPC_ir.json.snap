@@ -184,9 +184,11 @@
         "WS-TIMESTAMP-TM-SS",
         "WS-TRANTYPE-MASTER-READ-FLAG"
       ],
-      "total_paras": 0,
-      "dead_paras": [],
-      "loc_saved": 173
+      "total_paras": 63,
+      "dead_paras": [
+        "0000-MAIN-EXIT"
+      ],
+      "loc_saved": 183
     },
     "lineage": {
       "program_id": "00220000",

@@ -215,15 +215,19 @@ language or a follow-on bug sweep rather than re-deriving the process from scrat
 These are regression gates, not zero-tolerance floors: each has a committed baseline file
 (`tests/ruff_audit_baseline.json` etc.) and `--ci` mode fails only on *new* findings beyond it.
 This lets CI enforce "no new problems" without demanding the pre-existing backlog be fixed
-first. If you fix backlog findings, regenerate the baseline by running the script without
-`--ci`. `ruff format --check` is the one zero-tolerance exception (whole repo was reformatted
-once at adoption, so there's no backlog to carry).
+first. If you fix backlog findings, regenerate the baseline with `--write-baseline`
+(`python tests/ruff_audit.py --write-baseline`, same for `mypy_audit.py`). `ruff format
+--check` is the one zero-tolerance exception (whole repo was reformatted once at adoption, so there's no backlog to carry).
 
 Use `python tests/tools/audit_check.py` (add `--regenerate`) instead of running the three
 `--ci` scripts separately and manually diffing each baseline by eye — it bundles all three plus
-the format check, and auto-detects "pure line-shift" findings (same file/code/message, just moved
-because an earlier edit in the same file shifted everything below it) from genuine new findings
-that need real review, only regenerating the former.
+the format check. Since #3384 the ruff and mypy baseline keys are content-based --
+`{file}: {code} @{hash of the whitespace-stripped flagged line}#{occurrence}` (`tests/lint_baseline.py`)
+-- not line numbers, so an unrelated line shift elsewhere in a file changes nothing and can't
+conflict on rebase. `--regenerate` only auto-accepts an *edited* baselined line (a new key that
+pairs one-for-one with a now-stale entry of the same file/code/message); a new finding, or a new
+duplicate of a baselined line (next `#occurrence`), still fails. Human-readable output still
+prints each finding's current line number.
 
 ## Testing conventions
 
@@ -257,6 +261,21 @@ only if you're already inside one specific mode's venv and deliberately want jus
 reaching for it from your default shell silently updates whichever ONE fixture matches whatever
 happens to be importable there (#2547: this cost a full investigation cycle before landing on
 `crucible_check.py --update` instead).
+
+**Rebasing a parser/channel PR after a sibling merges:** `python tests/tools/rebase_rebless.py`
+(#3385) automates the manual procedure PRs #3369/#3375 each did by hand — rebase onto
+`origin/main`, take main's side for golden masters/ruff/mypy/dead-key baselines on conflict (a
+code-file conflict instead stops the run with a clear list rather than being auto-resolved),
+re-bless with `crucible_check.py --update`, then **verify** the resulting golden-master diff
+against main is limited to this branch's own new keys (auto-detected from the pre-rebase
+branch-vs-merge-base diff, or passed via `--expect-keys`) — failing loudly on any other
+("foreign") drift, the same scoped-review discipline "Scoping a bless" below describes. It then
+runs `audit_check.py --regenerate` scoped to touched files (with #3384's content-keyed ruff/mypy
+baselines, moved lines no longer need refreshing; this only re-accepts edited baselined lines) and
+runs ruff check/format plus
+a fast, touched-file-scoped test selection. The default is a dry run (a read-only `git
+merge-tree` preview, no branch mutation); `--execute` performs it for real, and `--push` (only
+valid with `--execute`) does `git push --force-with-lease` — never plain force.
 
 The same PR paths also run `tri-comparison-audit.yml`, a baseline-gated regression check on
 GitGalaxy's own **validated** precision against tree-sitter+ctags (see `docs/self_scan/

@@ -190,7 +190,7 @@ reasonable *floor*. Push further — aim for 10-15 per major language covering, 
    - ReDoS scaling check if the fix touches a quantifier — `verify_candidates.py`'s
      `check_redos_scaling()` for quick iteration; a real assertion (`assert_redos_immune`, already
      available from `_extraction_harness.py`) once the pattern is finalized.
-   - `python tests/tools/audit_check.py` (add `--regenerate` if it reports pure line-shifts — see its
+   - `python tests/tools/audit_check.py` (add `--regenerate` if it reports only edited baselined lines — see its
      own docstring) instead of running `ruff format`/`ruff_audit.py --ci`/`mypy_audit.py --ci`/
      `dead_key_audit.py --ci` as four separate commands and manually eyeballing each diff.
    - **Crucial Linter Step**: Run `ruff check .` to catch issues before the CI pipeline rejects them. GitGalaxy uses `flake8-bandit` which aggressively flags `assert` usage. Any `assert` you use in your test files MUST be appended with `# noqa: S101` (e.g., `assert match is not None  # noqa: S101`).

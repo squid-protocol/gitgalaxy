@@ -67,13 +67,12 @@
         "WS-XREF-READ-FLG",
         "WS-XREF-RID"
       ],
-      "total_paras": 42,
+      "total_paras": 43,
       "dead_paras": [
-        "1200-EXIT",
         "9500-EXIT",
         "9990-EXIT"
       ],
-      "loc_saved": 86
+      "loc_saved": 76
     },
     "lineage": {
       "program_id": "COPAUA0C",

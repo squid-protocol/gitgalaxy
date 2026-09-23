@@ -57,8 +57,14 @@ inherent limit, recorded per language, not something a rule fix can reach.
 
 **C4 · A transfer is not a call.** An unconditional jump that does not return (`goto`, COBOL
 `GO TO`, assembly `jmp`, AGC `TC Q` used as a return) is not an invocation. The branch contract
-(#2822) says the same. cobol captures `GO TO` today, and fixing that is a decision (#3362),
-because the mainframe answer keys use `GO TO` as a reached-by path for liveness.
+(#2822) says the same. **Where the jump's target is a callable unit, the transfer is kept
+beside the calls, not dropped** (#3362, decided by Joe: option C). A COBOL `GO TO <paragraph>`
+lands in the function's `transfers_to`, through cobol's `_transfers_out` helper pattern. The
+resolver links it like a call, as an `fcall_data` row of `kind = 'transfer'`. Reachability,
+blast radius and function fan-in/PageRank follow it; the call-resolution rates and the
+file graph do not. Dropping it outright would have orphaned the quarter of the crucible's
+COBOL paragraphs (2,288 of 9,148) that nothing PERFORMs, which is also how the mainframe answer
+keys read liveness.
 
 **C5 · A declaration is not a call.** A function or class declared inside the body
 (`def inner(`, `local function f (`, a nested `fn`) is not a call to `inner`. Shared
@@ -110,7 +116,7 @@ command-position language through the global ignore set, so it is not repeated p
 | blp | blind | -- | -- | agrees (C7: declared blind) |
 | bms | blind | -- | -- | agrees (C7: declared blind) |
 | c | C-style | 1,743 | 9,174 | agrees; macros are calls (C3) |
-| cobol | own | 9,154 | 9,614 | G: `GO TO` captured (3,522 of 9,614 raw captures); K: `PERFORM VARYING/UNTIL` (inline PERFORM, 35) |
+| cobol | own | 9,154 | 9,614 | ~~G~~ fixed by #3362 (`GO TO` is now `transfers_to`); K: `PERFORM VARYING/UNTIL` (inline PERFORM, 35) |
 | cpp | C-style | 1,370 | 9,068 | K: `static_assert`, `operator()`, `if constexpr`; macros are calls -- mostly agrees |
 | csd | blind | -- | -- | agrees (C7: declared blind) |
 | csharp | C-style | 964 | 4,722 | K: `foreach` 67, `nameof` 37, `default(T)`, `var (a, b)`, `static` lambdas, pattern `is`/`not`/`or` |

@@ -26,11 +26,6 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-try:
-    import yaml
-except ImportError:
-    yaml = None
-
 # ==============================================================================
 # 1. ROUTER STRUCTURAL SIGNATURES (EXPANDED FRAMEWORK REGEX PATTERNS)
 # ==============================================================================
@@ -168,12 +163,16 @@ def parse_official_swagger(swagger_path: Path) -> set:
     try:
         with open(swagger_path, encoding="utf-8") as f:
             if swagger_path.suffix.lower() in [".yaml", ".yml"]:
-                if yaml is None:
+                # Imported here, not as a module-level `yaml = None` fallback, which
+                # type-checks differently with and without types-PyYAML installed (#3386).
+                try:
+                    import yaml
+                except ImportError:
                     # Fix #165: Pipeline Assassin. Raise exception instead of sys.exit()
                     raise RuntimeError(
                         f"PyYAML is required to parse .yaml Swagger files ({swagger_path.name}). "
                         "Install with `pip install gitgalaxy[yaml]`."
-                    )
+                    ) from None
                 swagger_data = yaml.safe_load(f)
             else:
                 swagger_data = json.load(f)

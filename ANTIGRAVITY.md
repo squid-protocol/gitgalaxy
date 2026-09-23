@@ -179,7 +179,9 @@ Repeated ad hoc file drops like this (`scratch_func.py`, `pr_groovy_body.txt`, `
 
 ## CI Ruff Audit
 The `ruff-audit.yml` CI job enforces a STRICT EXACT MATCH against `tests/ruff_audit_baseline.json`. 
-This baseline uses the line number as part of the JSON keys (e.g. `"gitgalaxy/core/detector.py:1002: PERF401"`).
-**Important**: Any code edits that add or remove lines will SHIFT the line numbers of subsequent lint violations, causing the ruff audit to fail even if you didn't introduce new violations.
-To fix this, ALWAYS regenerate the baseline before committing if you've added/removed lines in files with pre-existing lint violations:
-`python -c "from tests.ruff_audit import run_ruff_check; import json; json.dump(run_ruff_check(), open('tests/ruff_audit_baseline.json', 'w'), indent=2, sort_keys=True)"`
+Since #3384 its keys are content-based, not line numbers (e.g. `"gitgalaxy/recorders/gpu_recorder.py: C414 @2c826ccd023d#0"`:
+file, rule code, a hash of the whitespace-stripped flagged line, and an occurrence index -- see `tests/lint_baseline.py`).
+Adding or removing lines elsewhere in a file no longer changes the baseline, so there is nothing to regenerate for a pure line shift.
+Editing a flagged line itself, or adding another identical violating line, IS a new key and fails the audit. If that's pre-existing
+debt you deliberately carry (or you fixed findings), regenerate with `python tests/ruff_audit.py --write-baseline`
+(`tests/mypy_audit.py` uses the same scheme and flag).

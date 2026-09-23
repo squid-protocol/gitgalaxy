@@ -17,9 +17,11 @@ the same one-time cleanup later.
 
 USAGE
     python tests/ruff_audit.py          # full report, exits 1 if ruff
-                                         # finds anything -- use this to
-                                         # regenerate the baseline after
-                                         # a cleanup PR.
+                                         # finds anything.
+    python tests/ruff_audit.py --write-baseline
+                                         # regenerate ruff_audit_baseline.json
+                                         # from the current findings (e.g.
+                                         # after a cleanup PR).
     python tests/ruff_audit.py --ci     # baseline-gated regression check
                                          # (see BASELINE below) plus the
                                          # zero-tolerance format check --
@@ -39,28 +41,29 @@ in the old .flake8 config, and at 464 of the initial 705 raw findings,
 it would have drowned out every other rule family's signal.
 
 BASELINE
-This repo had 241 pre-existing lint findings (240 unique baseline keys
--- two share a `{file}:{line}: {code}` key, same rare-but-accepted
-collision mypy_audit.py's docstring already documents) across 27 rule
-families the day this check was wired into CI, measured AFTER a one-time
+This repo had 241 pre-existing lint findings across 27 rule families the
+day this check was wired into CI, measured AFTER a one-time
 `ruff check --fix` (+ `--unsafe-fixes` for the PEP 585 typing
 modernization specifically) and `ruff format` pass across the whole
 repo (see ruff_audit_baseline.json, and #469 for the adoption PR).
 `--ci` mode is a REGRESSION gate: it fails only on findings not already
 in the baseline. Fixing a baselined finding doesn't fail the build
 either -- shrinking the baseline is a deliberate, reviewable edit you
-make yourself, not something this script does automatically. `--ci`
-prints anything it notices has already been fixed as an FYI, so the
-baseline doesn't silently go stale, but does not fail the build over it.
+make yourself (`--write-baseline`), not something `--ci` does
+automatically. `--ci` prints anything it notices has already been fixed
+as an FYI, so the baseline doesn't silently go stale, but does not fail
+the build over it.
 
-SCOPE & LIMITATIONS (read before treating the baseline as static)
-Baseline keys are `{file}:{line}: {code}`. Line numbers are NOT stable
--- an unrelated edit earlier in a file shifts every finding below it,
-which will look like "N new findings" even though nothing lint-relevant
-changed. Same accepted tradeoff as mypy_audit.py's baseline. If a PR
-that didn't touch lint-relevant code trips `--ci`, regenerate the
-baseline (`python tests/ruff_audit.py` and copy its output into
-ruff_audit_baseline.json) rather than treating it as a real regression.
+BASELINE KEYS (#3384)
+Keys are content-based, NOT line-based:
+`{file}: {code} @{hash of the whitespace-stripped source line}#{occurrence}`
+-- see tests/lint_baseline.py for the full scheme. An unrelated edit that
+only shifts lines leaves every key (and so the baseline file) unchanged,
+so the baseline no longer conflicts on rebase just because a sibling PR
+moved code around. Editing the flagged line itself, or adding another
+identical violating line in the same file (a new `#N` occurrence), IS a
+new key and still fails `--ci`. Human-readable output still prints each
+current finding's line number.
 """
 
 import argparse
@@ -68,28 +71,53 @@ import json
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict
+
+# tests/ has no __init__.py -- make the sibling helper importable no matter how
+# this file is loaded (script, audit_check.py, or a test's sys.path insert).
+if str(Path(__file__).resolve().parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import lint_baseline
+
+Finding = lint_baseline.Finding
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCAN_ROOT = REPO_ROOT / "gitgalaxy"
 BASELINE_PATH = Path(__file__).resolve().parent / "ruff_audit_baseline.json"
 
 
-def run_ruff_check() -> Dict[str, str]:
-    """Returns {"{file}:{line}: {code}": message} for every lint finding ruff reports."""
+def parse_ruff_json(stdout: str, repo_root: Path) -> dict[str, Finding]:
+    """Turns `ruff check --output-format=json` output into {content key: Finding}."""
+    findings = []
+    for item in json.loads(stdout or "[]"):
+        rel_path = Path(item["filename"]).resolve().relative_to(repo_root).as_posix()
+        location = item.get("location") or {}
+        findings.append(
+            Finding(
+                file=rel_path,
+                line=int(location.get("row") or 0),
+                column=int(location.get("column") or 0),
+                code=str(item.get("code")),
+                message=item["message"],
+            )
+        )
+    return lint_baseline.key_findings(findings, lint_baseline.source_reader(repo_root))
+
+
+def run_ruff_findings(scan_root: Path = SCAN_ROOT, repo_root: Path = REPO_ROOT) -> dict[str, Finding]:
+    """Returns {content key: Finding} for every lint finding ruff reports."""
     result = subprocess.run(
-        ["ruff", "check", str(SCAN_ROOT), "--output-format=json"],
+        ["ruff", "check", str(scan_root), "--output-format=json"],
         capture_output=True,
         text=True,
-        cwd=REPO_ROOT,
+        cwd=repo_root,
     )
+    return parse_ruff_json(result.stdout, repo_root)
 
-    errors: Dict[str, str] = {}
-    for item in json.loads(result.stdout or "[]"):
-        rel_path = Path(item["filename"]).resolve().relative_to(REPO_ROOT).as_posix()
-        key = f"{rel_path}:{item['location']['row']}: {item['code']}"
-        errors[key] = item["message"]
-    return errors
+
+def run_ruff_check() -> dict[str, str]:
+    """Returns {content key: message} -- the committed baseline's shape."""
+    return lint_baseline.to_baseline(run_ruff_findings())
 
 
 def run_ruff_format_check() -> bool:
@@ -106,32 +134,42 @@ def run_ruff_format_check() -> bool:
     return result.returncode == 0
 
 
-def load_baseline() -> Dict[str, str]:
-    if not BASELINE_PATH.exists():
-        return {}
-    with open(BASELINE_PATH, encoding="utf-8") as f:
-        return json.load(f)
+def load_baseline() -> dict[str, str]:
+    return lint_baseline.load_baseline(BASELINE_PATH)
 
 
-def _print_errors(errors: Dict[str, str]) -> None:
-    for key in sorted(errors):
-        print(f"  {key}  -- {errors[key]}")
+def _print_findings(findings: dict[str, Finding]) -> None:
+    for key, finding in sorted(findings.items(), key=lambda kv: (kv[1].file, kv[1].line, kv[1].column, kv[0])):
+        print(f"  {lint_baseline.describe(key, finding)}")
 
 
 def run_full_report() -> int:
-    errors = run_ruff_check()
-    if not errors:
+    findings = run_ruff_findings()
+    if not findings:
         print("Ruff Audit: no lint findings.")
         return 0
 
-    print(f"Ruff Audit: {len(errors)} finding(s):\n")
-    _print_errors(errors)
+    print(f"Ruff Audit: {len(findings)} finding(s):\n")
+    _print_findings(findings)
     print(
         "\nTo accept this as the new baseline (e.g. after a cleanup PR), regenerate it with:\n"
-        '  python -c "from tests.ruff_audit import run_ruff_check; import json; '
-        "json.dump(run_ruff_check(), open('tests/ruff_audit_baseline.json', 'w'), indent=2, sort_keys=True)\""
+        "  python tests/ruff_audit.py --write-baseline"
     )
     return 1
+
+
+def write_current_baseline() -> int:
+    baseline = run_ruff_check()
+    lint_baseline.write_baseline(BASELINE_PATH, baseline)
+    print(f"Ruff Audit: wrote {len(baseline)}-finding baseline to {BASELINE_PATH.relative_to(REPO_ROOT)}.")
+    return 0
+
+
+def compare(findings: dict[str, Finding], baseline: dict[str, str]):
+    """Returns (new findings not in the baseline, sorted stale baseline keys no longer flagged)."""
+    new_findings = {key: f for key, f in findings.items() if key not in baseline}
+    resolved_keys = sorted(set(baseline) - set(findings))
+    return new_findings, resolved_keys
 
 
 def run_ci_check() -> int:
@@ -144,29 +182,30 @@ def run_ci_check() -> int:
     if not format_ok:
         print("Ruff Audit: files are not `ruff format`-compliant (zero-tolerance -- run `ruff format` locally).")
 
-    errors = run_ruff_check()
+    findings = run_ruff_findings()
     baseline = load_baseline()
-
-    new_errors = {key: msg for key, msg in errors.items() if key not in baseline}
-    resolved_keys = sorted(set(baseline) - set(errors))
+    new_findings, resolved_keys = compare(findings, baseline)
 
     if resolved_keys:
-        print("Ruff Audit: FYI -- these baselined findings are no longer flagged (fixed, or line-shifted).")
-        print("Consider removing them from ruff_audit_baseline.json in this PR:\n")
+        print(
+            "Ruff Audit: FYI -- these baselined findings are no longer flagged (fixed, or the flagged line was edited)."
+        )
+        print("Consider removing them from ruff_audit_baseline.json in this PR (`--write-baseline`):\n")
         for key in resolved_keys:
             print(f"  {key}  -- {baseline[key]}")
         print()
 
-    if not new_errors:
+    if not new_findings:
         print(f"Ruff Audit: no NEW lint findings beyond the {len(baseline)}-finding baseline.")
         return 0 if format_ok else 1
 
-    print(f"Ruff Audit: {len(new_errors)} NEW lint finding(s) beyond the {len(baseline)}-finding baseline:\n")
-    _print_errors(new_errors)
+    print(f"Ruff Audit: {len(new_findings)} NEW lint finding(s) beyond the {len(baseline)}-finding baseline:\n")
+    _print_findings(new_findings)
     print(
-        "\nEach hit above is either a real new lint finding to fix, or a baseline that needs "
-        "regenerating because unrelated edits shifted line numbers (see the module docstring's "
-        "SCOPE & LIMITATIONS section) -- confirm which before assuming it's a regression."
+        "\nBaseline keys are content-based (see the module docstring's BASELINE KEYS section), so a "
+        "pure line shift can't cause these: each is a new finding, a new duplicate of a baselined "
+        "line, or an edit to a baselined line. Fix it, or -- only if it's pre-existing debt you "
+        "deliberately carry -- re-bless with `python tests/ruff_audit.py --write-baseline`."
     )
     return 1
 
@@ -174,8 +213,13 @@ def run_ci_check() -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--ci", action="store_true", help="Baseline-gated regression check (what CI runs).")
+    parser.add_argument(
+        "--write-baseline", action="store_true", help="Regenerate ruff_audit_baseline.json from current findings."
+    )
     args = parser.parse_args()
 
+    if args.write_baseline:
+        return write_current_baseline()
     return run_ci_check() if args.ci else run_full_report()
 
 

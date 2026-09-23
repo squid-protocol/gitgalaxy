@@ -749,7 +749,16 @@ DEFINITION: dict[str, Any] = {
         # 50. calls_out (Information Flow / Call Graph)
         # Replaces the generic `name(` regex which falsely captured intrinsics/subscripts.
         # Captures explicit subroutine execution and cross-module linkages.
-        "calls_out": re.compile(r"(?i)\b(?:PERFORM|CALL|GO\s+TO)\s+['\"]?([A-Za-z0-9_-]+)['\"]?"),
+        # #3362: GO TO left calls_out -- a jump that never returns is not a call
+        # (docs/calls_out_rule_contract.md C4) -- and is recorded beside it as a
+        # transfer (`_transfers_out` below), so the paragraphs reached only by
+        # GO TO (a quarter of the crucible's) stay reachable.
+        "calls_out": re.compile(r"(?i)\b(?:PERFORM|CALL)\s+['\"]?([A-Za-z0-9_-]+)['\"]?"),
+        # #3362: GO TO <paragraph|section> -- an unconditional transfer of control.
+        # First target only for `GO TO A B C DEPENDING ON X` (one occurrence on
+        # the whole crucible). WHENEVER ... GO TO (embedded SQL) is excluded: that
+        # installs a handler, it does not transfer here.
+        "_transfers_out": re.compile(r"(?i)(?<!SQLERROR\s)(?<!SQLWARNING\s)(?<!FOUND\s)\bGO\s+TO\s+([A-Za-z0-9_-]+)"),
         # #3197: a paragraph/section header begins a SENTENCE. `func_start`
         # alone cannot see that -- the deciding context is the PREVIOUS line,
         # and a lookbehind cannot span one -- so the last line of a multi-line

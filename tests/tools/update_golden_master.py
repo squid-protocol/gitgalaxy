@@ -32,7 +32,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 import golden_diff
-from _crucible_pin import PINNED_TAG
+from _crucible_pin import PINNED_TAG, pin_mismatch
 
 from gitgalaxy.galaxyscope import HAS_PYYAML, HAS_TIKTOKEN
 from gitgalaxy.security.security_auditor import ML_AVAILABLE
@@ -62,6 +62,12 @@ def main():
         print(f"❌ language-crucible corpus not found at {CRUCIBLE_DATA_PATH}.")
         print(f"   Clone squid-protocol/language-crucible (pinned to {PINNED_TAG}) as a sibling directory,")
         print("   or set LANGUAGE_CRUCIBLE_PATH, then re-run.")
+        sys.exit(1)
+
+    # Blessing against an off-pin corpus bakes its drift into the committed masters (#3386).
+    mismatch = pin_mismatch(CRUCIBLE_DATA_PATH.parent)
+    if mismatch:
+        print(f"❌ {mismatch}")
         sys.exit(1)
 
     zero_dep = zero_dependency_mode()

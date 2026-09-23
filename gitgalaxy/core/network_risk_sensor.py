@@ -31,6 +31,13 @@ from gitgalaxy.standards.language_standards import LANGUAGE_DEFINITIONS
 # necessarily-capitalized `import A` may live in a.hs). Declared per-language
 # via the "case_insensitive_imports" flag on each language DEFINITION;
 # resolution for every other language stays strictly case-sensitive.
+# #3333: the weight of a call-implied edge -- a file that calls into another
+# without importing it. The same as one plain import (1.0): a confident call is
+# at least as real a dependency as an import statement, and no stronger. Only
+# pairs no import already joins get one, so an import-and-call pair keeps its
+# import weight and a pair is never counted twice.
+CALL_EDGE_WEIGHT = 1.0
+
 CASE_INSENSITIVE_IMPORT_LANGS = frozenset(
     lang_id for lang_id, definition in LANGUAGE_DEFINITIONS.items() if definition.get("case_insensitive_imports")
 )
@@ -520,6 +527,8 @@ class NetworkRiskSensor:
 
     def _publish_edges(self, edges: dict[tuple[str, str], dict[str, Any]]) -> None:
         """#2992: exposes the resolved edges as `self.dependency_edges` for the recorder."""
+        # An import edge carries no edge_kind of its own; a call edge (#3333)
+        # says 'fcall', which the spread below keeps.
         self.dependency_edges = [
             {"src": src, "dst": dst, "edge_kind": "import", **attrs} for (src, dst), attrs in edges.items()
         ]
@@ -670,16 +679,48 @@ class NetworkRiskSensor:
             "articulation_points": articulation_point_count(index),
         }
 
-    def build_dependency_graph(self, parsed_files: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    def resolve_import_edges(self, parsed_files: list[dict[str, Any]]) -> dict[tuple[str, str], dict[str, Any]]:
+        """#3333: stage 1 of the graph, on its own -- the import edges, published on
+        `self.dependency_edges` so the call resolver (#3328), which reads them
+        to scope a call to an imported file, can run before the metrics do."""
+        self.logger.info(f"Network Risk Sensor: resolving the import graph of {len(parsed_files)} files...")
+        edges = self._resolve_edges(parsed_files)
+        self._publish_edges(edges)
+        return edges
+
+    def build_dependency_graph(
+        self,
+        parsed_files: list[dict[str, Any]],
+        call_pairs: Optional[dict[tuple[str, str], int]] = None,
+        import_edges: Optional[dict[tuple[str, str], dict[str, Any]]] = None,
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         """
         Builds the directed graph and calculates multi-dimensional risk vectors.
         Modifies the 'telemetry' dictionary of each file in place, and leaves
         the resolved edge list on `self.dependency_edges` (#2992).
-        """
-        self.logger.info(f"Network Risk Sensor: resolving the import graph of {len(parsed_files)} files...")
 
-        # 1. Resolve every file's imports into distinct directed edges (#2992).
-        edges = self._resolve_edges(parsed_files)
+        `call_pairs` (#3333) are the call resolver's confident cross-file pairs
+        (`call_resolver.confident_file_pairs`), (caller file, callee file) ->
+        calling-function count. A pair no import already joins becomes an edge
+        of kind 'fcall' at CALL_EDGE_WEIGHT, so a file that uses another without
+        importing it (C across translation units, PHP/Ruby globals, same-package
+        Java/Go) is connected in every graph metric. `import_edges` reuses a
+        `resolve_import_edges` result instead of resolving again.
+        """
+        # 1. Resolve every file's imports into distinct directed edges (#2992),
+        # then add the call-implied edges no import covers (#3333).
+        edges = dict(import_edges) if import_edges is not None else self._resolve_edges(parsed_files)
+        if import_edges is None:
+            self.logger.info(f"Network Risk Sensor: resolving the import graph of {len(parsed_files)} files...")
+        known = {f.get("path", "") for f in parsed_files}
+        for (src, dst), n in (call_pairs or {}).items():
+            if (src, dst) not in edges and src != dst and src in known and dst in known:
+                edges[(src, dst)] = {
+                    "edge_kind": "fcall",
+                    "weight": CALL_EDGE_WEIGHT,
+                    "import_statements": n,
+                    "entity_imports": 0,
+                }
         self._publish_edges(edges)
 
         # 2. Degree: distinct neighbouring files, one per edge (#3024).

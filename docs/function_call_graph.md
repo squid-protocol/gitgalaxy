@@ -4,7 +4,8 @@ GitGalaxy's file graph is built from import statements. Its function graph is
 built from calls: each function's `calls_out_to` (the names its body invokes,
 contract in `docs/calls_out_rule_contract.md`, #3327) is linked to the
 definition each name most plausibly means, and the confident links form a
-directed graph with its own PageRank. It runs without an AST, so it is a
+directed graph with its own PageRank, and they also connect files in the
+file dependency graph (#3333). It runs without an AST, so it is a
 heuristic approximation of a real call graph. What it can and cannot get right
 is measured, not assumed: see *Accuracy* below.
 
@@ -35,8 +36,13 @@ method. **Ambiguous pairs are never graph edges.**
   its `step`, `candidates` count and the destination file/function/class ids.
   External pairs are not rows. They are the function's `calls_out_to` entries
   that have no row.
-- `fcall_file_edges` (view): the confident cross-file pairs aggregated by file.
-  This is **not** part of the import graph (#3333 decides whether it should be).
+- `edge_data` rows of kind `'fcall'` (#3333): confident cross-file calls
+  between two files that no import joins. They are **part of the dependency
+  graph**, at the weight of one plain import (`CALL_EDGE_WEIGHT` = 1.0), so
+  `pagerank_score`, `popularity`, `internal_dependency_links`, betweenness,
+  closeness and blast radius all see them. `import_statements` holds the number
+  of calling functions. The mainframe program-level `'call'`/`'exec'` rows are
+  still outside the graph (#3237).
 - `fcall_rate_data` (#3331): scoped / unique / ambiguous / external counts per
   language and for the repository (`language = '*'`). The brief's section 15
   shows the same figures.
@@ -46,6 +52,12 @@ method. **Ambiguous pairs are never graph edges.**
   - The transitive blast radius is a query (below), not a column. An all-nodes
     reachability pass is O(N^2) and exceeded any reasonable budget on real
     repositories.
+
+COBOL `GO TO` targets are transfers, not calls (#3362). They're held in
+`function_data.transfers_to` and linked as `fcall_data` rows with `kind = 'transfer'`.
+Function fan-in, PageRank and the blast-radius query follow them, so a paragraph reached
+only by `GO TO` is not orphaned. The call-resolution rates (`fcall_rate_data`) count
+calls only.
 
 Module-level code is a caller node: it gives fan-in and PageRank but has no row
 of its own. A constructor call that resolved to a class has no function node,

@@ -181,6 +181,8 @@ class FunctionNode(TypedDict, total=False):
     # #3329: callee name -> the distinct receiver chains it was called through,
     # in first-seen order; '' is a bare call. Empty for non-C-style languages.
     calls_out_qualifiers: dict[str, list[str]]
+    # #3362: unconditional-transfer targets (COBOL GO TO), beside calls_out_to.
+    transfers_to: list[str]
     hit_vector: dict[str, int]
     token_mass: Optional[int]
 
@@ -8961,9 +8963,19 @@ class StructuralExtractor:
             )
         )
 
+        # #3362: unconditional transfers (COBOL GO TO) -- not calls (contract C4),
+        # but the paragraph they reach is still reached. Same shield, same
+        # dedup, and a jump to its own unit (a loop) is dropped like recursion.
+        transfer_pattern = rules.get("_transfers_out")
+        transfers: list[str] = []
+        if isinstance(transfer_pattern, re.Pattern):
+            shielded = self._apply_literal_shield(block, self.primary_lang_id)
+            transfers = list(dict.fromkeys(t for t in transfer_pattern.findall(shielded) if t != name))
+
         sat: FunctionNode = {
             "name": name,
             "calls_out_to": calls_out,
+            "transfers_to": transfers,
             "calls_out_qualifiers": {c: qualifiers_seen[c] for c in calls_out if c in qualifiers_seen},
             "texture": texture_str,
             "type_id": texture_str,

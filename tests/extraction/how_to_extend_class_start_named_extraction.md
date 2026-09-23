@@ -151,7 +151,7 @@ to give them), not worth the risk of touching the shared `_resolve_class_start_m
    python tests/tools/tree_sitter_accuracy_audit.py --lang <x> --ci
    python tests/tools/tree_sitter_accuracy_audit.py --lang <x> --regenerate   # if clean/improved -- also refreshes the summary table
    python tests/tools/crucible_check.py                                       # both modes
-   python tests/tools/audit_check.py --regenerate                             # if pure line-shifts
+   python tests/tools/audit_check.py --regenerate                             # if only edited baselined lines
    python -m pytest tests/core_engine/ tests/extraction/
    ```
    If `--regenerate` refuses because of a real `extra_classes`/`found_classes` regression that

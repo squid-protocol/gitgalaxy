@@ -67,7 +67,8 @@ if str(Path(__file__).resolve().parent) not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import lint_baseline
-from lint_baseline import Finding
+
+Finding = lint_baseline.Finding
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCAN_ROOT = REPO_ROOT / "gitgalaxy"

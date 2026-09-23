@@ -2,7 +2,7 @@
   "about": "Hand-labelled thin-wrapper candidates for tests/tools/wrapper_probe.py (#3315, epic #3313). Each key is a probe candidate (group::file::name::rule) from language-crucible v1.4.0: every candidate with >= 20 resolved call sites plus a seed-3313 random sample of 60 others, all at max_loc 12. wrapper = exists to perform the rule's behaviour, unconditionally; conditional = a check-and-fail helper (throws/prints only on a condition); incidental = the hit is a side detail of real work (including every case where the engine's function span is misaligned and the hit belongs to other code); test_helper = a helper in test code. Read from the body the probe prints; never set from a guess. `evidence` is the probe's measurement for that candidate at labelling time, so the filter decision below can be re-scored in CI without the corpus.",
   "corpus": "language-crucible v1.4.0",
   "filter": {
-    "decision": "#3315: max_loc 8 with the aligned+no_branches filter keeps 13 of 31 labelled candidates, 77% strict precision (98% of kept call sites are real wrappers'), and drops none of the labelled wrappers' call sites. max_loc 12 raises the kept set to 17 at 65% strict precision for one extra 1-site wrapper.",
+    "decision": "#3315: max_loc 8 with the aligned+no_branches filter keeps 13 of 31 labelled candidates, 77% strict precision (98% of kept call sites are real wrappers'), and drops none of the labelled wrappers' call sites. max_loc 12 raises the kept set to 17 at 65% strict precision for one extra 1-site wrapper. #3340: dropping sprintf from perl's debug_prints removes this label's one residual rule-quirk false positive (spamassassin macro_ref); re-scored without it, the max_loc 8 filter keeps 12 of 30 at 83% strict precision (99% of kept call sites).",
     "definition": "header_has_name (name in the span's first 3 lines) and branches == 0",
     "name": "aligned+no_branches",
     "recommended_max_loc": 8
@@ -479,7 +479,7 @@
         "sites": 10
       },
       "label": "incidental",
-      "reason": "sprintf formats a string; it prints nothing (a debug_prints rule quirk)"
+      "reason": "sprintf formats a string; it prints nothing (a debug_prints rule quirk). Gone since #3340 dropped sprintf from perl's debug_prints: no longer a probe candidate (evidence kept as labelled)"
     },
     "python/cython::Nodes.py::call::debug_prints": {
       "evidence": {

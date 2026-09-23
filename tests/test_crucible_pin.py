@@ -40,8 +40,9 @@ def test_off_pin_names_the_checkout_command(tmp_path, monkeypatch):
 
 def test_missing_pinned_tag_is_a_mismatch(tmp_path, monkeypatch):
     monkeypatch.delenv(ALLOW_UNPINNED_ENV, raising=False)
+    repo = _repo(tmp_path)
     monkeypatch.setattr(_crucible_pin, "PINNED_TAG", "v99.0.0")
-    assert "v99.0.0" in _crucible_pin.pin_mismatch(_repo(tmp_path))
+    assert "v99.0.0" in _crucible_pin.pin_mismatch(repo)
 
 
 def test_escape_hatch_and_non_git_corpus_pass(tmp_path, monkeypatch):

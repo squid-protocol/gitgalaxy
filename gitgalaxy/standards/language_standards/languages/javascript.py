@@ -146,7 +146,11 @@ DEFINITION: dict[str, Any] = {
             # This allows the lookahead to safely cross vertical line breaks without
             # resorting to an unbounded `\s*` which causes ReDoS.
             # =====================================================================
-            r"(?:^|(?<=[^<>(,\s]))[ \t\n]*(?<!\.\.\.)\b[a-zA-Z_$][\w$]*(?:\[[^\]\n]+\])?(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
+            # PERF FIX (#3182): `^` restricted to non-blank lines / a blank run's
+            # first line start / the file start -- a bare `^` rescanned a blanked
+            # multi-line template literal from every one of its lines (quadratic).
+            # Full rationale on typescript.py's identical anchor.
+            r"(?:(?<=[^<>(,\s])|^(?:(?=[ \t]*[^ \t\n])|(?![ \t]*[^ \t\n])(?:(?<=[^ \t\n]\n)|\A)))[ \t\n]*(?<!\.\.\.)\b[a-zA-Z_$][\w$]*(?:\[[^\]\n]+\])?(?=[ \t\n]*=[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
             r"^[ \t]*(?:\[[^\]\n]+\]|[a-zA-Z_$][\w$]*)(?=[ \t\n]*:[ \t\n]*(?:async\s*)?(?:function(?:\s*\*)?\b|\([^)]*\)[ \t\n]*(?::[^=;]+)?[ \t\n]*=>|[a-zA-Z_$][\w$]*[ \t\n]*=>))|"
             # GENERATOR METHOD FIX (epic #813/#814): class/object-literal generator
             # methods (`*foo() {}`, `async *foo() {}`, `static *foo() {}`) were

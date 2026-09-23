@@ -214,7 +214,21 @@ DEFINITION: dict[str, Any] = {
             # single lookbehind with internally-variable-length
             # alternation) rather than one general "are we inside an
             # unclosed paren" check.
-            r"(?:^|(?<=[^<>(,\s]))[ \t\n]*(?<!\.\.\.)\b(?<!type )"
+            # PERF FIX (#3182, quadratic on blank runs): the start anchor used
+            # to be a bare `^` -- under re.M that fires on EVERY line of a
+            # blank run (a multi-line template literal blanked by
+            # `_build_brace_safe_stream`), and each attempt's `[ \t\n]*` scans
+            # to the run's end before failing: nx's pnpm-lock fixtures (one
+            # 16k-line template) hit the 60s fuse. Inside a whitespace run `\b`
+            # can only hold at the run's end, so every start in one run shares
+            # one outcome; `^` is now only taken on a non-blank line, or on a
+            # blank one that is the run's FIRST line start (previous line ends
+            # in a non-space) or the file start. The three are mutually
+            # exclusive so a failed continuation is never re-run through a
+            # second anchor. Match-set identical on the JS/TS corpus except a
+            # start that sat on a blank line after `<>(,` + trailing blanked
+            # text: it now starts on the declaration's own line.
+            r"(?:(?<=[^<>(,\s])|^(?:(?=[ \t]*[^ \t\n])|(?![ \t]*[^ \t\n])(?:(?<=[^ \t\n]\n)|\A)))[ \t\n]*(?<!\.\.\.)\b(?<!type )"
             r"(?<!,\spublic\s)(?<!,\sprivate\s)(?<!,\sprotected\s)(?<!,\sreadonly\s)"
             r"(?<!,\spublic\sreadonly\s)(?<!,\sprivate\sreadonly\s)(?<!,\sprotected\sreadonly\s)"
             r"(?<!\(public\s)(?<!\(private\s)(?<!\(protected\s)(?<!\(readonly\s)"

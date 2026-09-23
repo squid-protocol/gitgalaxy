@@ -763,6 +763,7 @@ HELPER_KEYS: dict[str, str] = {
     "_dependency_capture": "capture group 1 = the exact dependency path string, for the import DAG",
     "_named_token_capture": "capture group(s) = the exact imported symbol names (AI/ML pack)",
     "_scope_filters": "{rule: filter_name} -- a structural filter detector.py applies after the regex (CRITICAL ENGINE RULE 17)",
+    "_hyphenated_words": "True -- the language's words run through hyphens (COBOL); detector.py drops every rule match glued to a hyphenated word on either side (_glued_to_hyphen_word), so a keyword inside a name (WRITE-LINE, END-IF) is not counted",
     "_line_gates": "(rule, ...) -- rules opted into the per-line literal gate (#3072); detector.py resolves via rule_prefilter.build_line_gate, and a refusal (pattern not provably line-local) silently runs the rule whole-segment",
     "_visibility_export": "per-function export-statement form, for the api orphan census (#2727/#2729)",
     "_visibility_export_list": "capture group(s) = a region holding MANY exported names, same census (#2823)",

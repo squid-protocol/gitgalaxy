@@ -73,6 +73,16 @@ _LEAF_SUFFIXES = ("identifier", "constant")
 _QUALIFIED_TYPES = frozenset({"scoped_identifier", "qualified_identifier", "scoped_type_identifier"})
 _LINE_SLACK = 3  # decorators/annotations/doc comments can move a start line
 
+# #3359: names tree-sitter parses as a call node but the #3327 contract says are
+# keywords, never calls (C2) -- language constructs and operator keywords the
+# engine's `_calls_out_ignore` now drops. Removed from the tree-sitter side so
+# both sides score the same contract instead of the engine losing "recall" for
+# following it. Built-ins are NOT here: they are calls (decision 1, #3361).
+CONTRACT_NON_CALLS: dict[str, frozenset[str]] = {
+    "php": frozenset({"isset", "empty", "unset", "die", "exit", "array", "list"}),
+    "csharp": frozenset({"nameof"}),
+}
+
 # Gate tolerance, in percentage points, before --ci calls a drop a regression.
 TOLERANCE_PP = 0.5
 
@@ -119,6 +129,7 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
     spec = audit.NODE_MAPS[lang]
     tree = tree_sitter_language_pack.get_parser(spec["ts_lang"]).parse(source)
     func_types = spec["func_node_types"]
+    non_calls = CONTRACT_NON_CALLS.get(lang, frozenset())
     out: list[tuple[str, int, set[str]]] = []
     stack: list[tuple[Any, list[set[str]]]] = [(tree.root_node, [])]
     # iterative walk; `owners` is the chain of enclosing function call-sets
@@ -132,7 +143,7 @@ def ts_functions(source: bytes, lang: str, audit: Any) -> list[tuple[str, int, s
             owners = [*owners, calls]
         elif node.type in CALL_NODE_TYPES and owners:
             name = _callee(node)
-            if name:
+            if name and name not in non_calls:
                 owners[-1].add(name)
         stack.extend((child, owners) for child in reversed(node.children))
     return out

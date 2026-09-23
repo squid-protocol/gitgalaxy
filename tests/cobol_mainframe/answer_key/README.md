@@ -169,3 +169,12 @@ the repository-root and the `multiroot/` workspace.
 The 11 CICS/LE system copybooks and 9 BMS symbolic maps the key records as
 `resolves_to: null` still draw nothing, which is correct — neither exists in
 the repository. The BMS cross-language link belongs to #3122.
+
+## Update: call targets exclude TRANSID routing, 2026-09-23
+
+The CICS transaction map (#3251) put `RETURN/START/RUN TRANSID` sites into the
+engine's `call_site_data`, and the scorer counted their transaction ids as
+program call targets. That made CBSA's engine row read `P 45/70`. A TRANSID is
+not a program, and the key's `calls` never listed one, so `engine_call_targets`
+now drops the routing verbs, and CBSA is back to `P 45/45 · R 45/45`. The engine
+was right all along; the scoring was wrong.

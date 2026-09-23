@@ -1961,6 +1961,18 @@ def _key_transactions(repo: Path) -> dict[str, set[str]]:
     return by_program
 
 
+# The key's `calls` are program invocations only (CALL, EXEC CICS LINK/XCTL).
+# The engine's call_site_data also carries the transaction-routing verbs
+# (#3251), whose target is a TRANSID, not a program -- mirrors
+# galaxy_ir.TRANSACTION_ROUTING_VERBS, kept local so scoring needs no import.
+_TRANSACTION_ROUTING_VERBS = frozenset({"RETURN TRANSID", "START TRANSID", "RUN TRANSID"})
+
+
+def engine_call_targets(calls) -> set[str]:
+    """The program names an engine file's call sites denote, excluding TRANSID routing."""
+    return {c.target for c in calls if c.target and c.verb not in _TRANSACTION_ROUTING_VERBS}
+
+
 def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str, Any], str]:
     from gitgalaxy.tools.cobol_to_cobol.cics_transaction_reader import extract_transactions
     from gitgalaxy.tools.cobol_to_cobol.cobol_dag_architect import extract_lineage
@@ -1993,7 +2005,8 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # through a working-storage VALUE. The forge has no equivalent -- its
         # lineage tool only records non-literal `CALL` operands, and never sees
         # `EXEC CICS LINK`/`XCTL` at all -- so this row measures the engine
-        # against the key with no forge column.
+        # against the key with no forge column. Transaction-routing sites
+        # (`RETURN TRANSID` etc.) are not program calls; see engine_call_targets.
         "call targets",
         # #3246: DATA DIVISION record fields. All three sides read a program's own
         # DATA DIVISION into columns; the forge's cobol_schema_forge is the flat
@@ -2121,7 +2134,7 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             rel,
             {c["target"] for c in k["calls"] if c["target"]},
             None,
-            ({c.target for c in ef.calls if c.target} if ef else None),
+            (engine_call_targets(ef.calls) if ef else None),
         )
         forge_schema = forge_schemas(path)
         forge_records = {record_field_key(n) for n in forge_schema["json"]["properties"]} if forge_schema else set()

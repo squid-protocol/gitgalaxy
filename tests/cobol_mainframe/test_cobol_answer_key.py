@@ -555,3 +555,25 @@ def test_cics_key_entries_are_drafts_until_signed_off(key_path):
         assert entry["verification"]["status"] in ("draft", "validated")
         for op in entry["operations"]:
             assert {"verb", "kind", "access", "name", "resolution", "qualifier", "record_clause", "line"} <= set(op)
+
+
+def test_call_targets_exclude_transaction_routing():
+    """`RETURN TRANSID('OMEN')` names a transaction, not a program, so it is not a
+    call target (it put 25 false targets into CBSA's score once #3251 carried it)."""
+    from types import SimpleNamespace as C
+
+    calls = [
+        C(verb="LINK", target="GETCOMPY"),
+        C(verb="CALL", target="SAM2"),
+        C(verb="RETURN TRANSID", target="OMEN"),
+        C(verb="START TRANSID", target="OSTA"),
+        C(verb="RUN TRANSID", target="ORUN"),
+        C(verb="CALL", target=None),
+    ]
+    assert ak.engine_call_targets(calls) == {"GETCOMPY", "SAM2"}
+
+
+def test_scorer_routing_verbs_mirror_the_reader():
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import TRANSACTION_ROUTING_VERBS
+
+    assert ak._TRANSACTION_ROUTING_VERBS == frozenset(TRANSACTION_ROUTING_VERBS)

@@ -170,10 +170,10 @@ _ROWS = [
         "calls_out",
         "structure",
         "site",
-        "Explicit subroutine execution and cross-module linkages",
+        "One entry is one distinct callable unit, by name, that the function's own body invokes -- a call, a constructor or conversion, a macro, or a verb-form invocation (CALL, PERFORM, EXEC PGM=, a command word) -- other than the function itself",
         status="declared",
-        doc="docs/domain_sensor_contracts.md",
-        issue=3264,
+        doc="docs/calls_out_rule_contract.md",
+        issue=3327,
     ),
     _c(
         "branch",

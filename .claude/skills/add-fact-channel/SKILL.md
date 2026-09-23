@@ -51,6 +51,121 @@ count, you're in the wrong skill — use `add-signal`.**
 9. Tests mirroring the trio: `test_<extractor>.py`, `test_<name>_data.py`, `test_galaxy_ir.py`, +
    differential/answer-key cases.
 
+## End-to-end wiring checklist
+
+The #3249 round shipped several channels where the spine's write-side (table + extractor) landed
+clean but a *read*-side or *proof*-side slot was missed or left thin, and the orchestrator had to
+add the requirement back mid-flight. Check every line before opening the PR — each maps to a spine
+step above, but the spine describes *how*, this is *did you actually do it*:
+
+- [ ] **Extractor** reads the PRISM stream (never the raw file) and is dispatched from
+  `extract_boundary()` under a new key.
+- [ ] **Table + columns**: `CREATE TABLE IF NOT EXISTS <name>_data` with the FK cascade, AND
+  `_ensure_columns` for any column added to an *existing* table (a sibling-dialect or
+  resolved-column channel, e.g. #3345's `dsn_resolved`) so an older DB heals on the next record
+  instead of erroring.
+- [ ] **Column-gated reads**: every reader of a widened table (rehydrator, `galaxy_ir`, recorders)
+  checks the column exists / defaults to `NULL`/`[]` rather than assuming a fresh schema — a
+  pre-channel DB and a pre-column DB must both still load.
+- [ ] **Rehydrator restore** (`state_rehydrator._restore_child_table`) sets `node["<key>"]` for
+  every touched table, including widened existing tables, not just new ones.
+- [ ] **Cascade/delete**: the child table's `FOREIGN KEY(file_id) REFERENCES file_data(id) ON
+  DELETE CASCADE` is present and exercised by a re-record test (no duplicate/orphan rows).
+- [ ] **`galaxy_ir.EngineFile` accessor**: a dataclass + field, `_has_table`-gated read, and the
+  **SCOPE comment updated** — this is the contract other tools read and is easy to forget once the
+  accessor itself works.
+- [ ] **`galaxy_ir` joins that actually consume the fact** — storing the fact is not the same as
+  wiring it in. If the fact resolves something a sibling join needs (e.g. lineage joining on a
+  *resolved* DSN, not the raw template; CICS file → dataset → batch lineage; transaction → DB2
+  plan), add or update that join, not just the raw accessor. A column nobody joins on is dead
+  weight the differential will flag as unused.
+- [ ] **Differential datum with an independent answer-key reader**: `refraction_differential.py`
+  compares a real forge-vs-engine value with a real `cause` — never `stated_absence` once the DB
+  carries it — and the answer-key side (`cobol_answer_key.py`) generates its candidate from its
+  **own** reader (never importing the engine or forge), or the differential's "independent"
+  verdict isn't actually independent.
+- [ ] **Drafted answer-key field**: a `fields` entry + `add(...)` row in `score()`, populated
+  `draft` (not `validated`) on new corpora, added without regenerating existing committed keys.
+- [ ] **`audit_recorder.py` JSON section**: a `_<name>_facts_block(file_data)` with the full detail
+  (mirrors the DB table), numbered, presence-keyed (nothing for a file with none). This moves the
+  golden master — see invariants below.
+- [ ] **`llm_recorder.py` brief section**: a `_<name>_facts_lines(parsed_files)` that summarizes
+  (roots + counts, not the full tree) and returns `[]` when absent. Not golden-mastered, but still
+  required — a channel with only the audit block leaves the LLM brief blind to it.
+- [ ] **Recipe channel table** (`gitgalaxy/core/how_to_add_a_fact_channel.md`'s table) and any
+  **README** that lists channels (`gitgalaxy/core/README.md`, `docs/ecosystem.md` if the channel
+  changes cross-repo consumers) get a new row — a channel that only exists in code and not in the
+  reference table gets re-discovered from scratch by the next agent.
+
+## PR-body evidence template
+
+A description of what you built is not proof it works end to end. Paste real command output into
+the PR body, not a paraphrase of what you expect it to say:
+
+```markdown
+## Evidence
+
+**DB rows from a real galaxyscope scan** (not a unit test):
+    galaxyscope <corpus-path> --db-only --output /tmp/gg
+    sqlite3 /tmp/gg/<repo>_galaxy_master.db "SELECT * FROM <name>_data LIMIT 20;"
+<paste the actual rows>
+
+**Accessor output** — load the DB through `galaxy_ir.py` and print the new field for one real file:
+<paste the actual EngineFile.<facts> output, not a description of its shape>
+
+**Audit JSON excerpt** — the new `_<name>_facts_block` for one file from a real `--full` scan's
+`*_galaxy_audit.json`:
+<paste the actual JSON fragment>
+
+**LLM brief excerpt** — the new `_<name>_facts_lines` for the same file:
+<paste the actual brief lines>
+
+**Differential verdict** — `refraction_differential.py --ci` output showing the new datum with a
+REAL cause (an explained mechanism or a genuine `unexplained`), never `stated_absence`:
+<paste the classifier's line for this datum>
+
+**Full vs `--incremental` scan: identical rows** — run both against the same corpus, diff the
+child table (excluding autoincrement `id`), confirm zero differences:
+<paste the diff command and its empty/expected output>
+```
+
+A PR that only asserts "the differential is green" without one of these five blocks pasted in is
+missing proof that the specific new wiring — not just the write path — actually works.
+
+## Consumers
+
+State who reads this fact **today**, not who plausibly could. As of #3348, `cobol_refractor_
+controller.process_payload` (the forge/refactor pipeline) does **not** read `EngineFile` fact
+channels for anything beyond `program_ids`/`copy_deps`/`units` — it still re-parses lineage,
+schemas, and call/transaction routing from the raw file even though the DB already carries them.
+So today's real consumers of a new channel are: the differential (`refraction_differential.py`),
+the answer key (`cobol_answer_key.py`), the audit JSON, and the LLM brief — plus any `galaxy_ir`
+join another *channel* depends on. Say this plainly in the PR body ("consumed by: differential,
+answer key, audit/LLM recorders; NOT yet the refactor pipeline, tracked in #3348") rather than
+implying the new fact is live in the forge output — it isn't, until #3348 lands.
+
+## Rebase / re-bless after a sibling merges
+
+Every #3249-round channel PR touched the same shared seams (`galaxy_ir.py` SCOPE + accessors,
+`refraction_differential.py`, `cobol_answer_key.py`, `record_keeper.py`, `state_rehydrator.py`,
+`audit_recorder.py`/`llm_recorder.py`, both golden masters, the ruff baseline) and conflicted with
+every sibling on exactly those seams (#3383, #3384) — 8 rebase cycles of 15–40 min each in that
+round, one answer-key merge redone by hand. Until the channel registry (#3383) removes the shared
+seams:
+
+1. `git fetch origin` and rebase your branch onto `origin/main`.
+2. On a golden-master or ruff-baseline conflict, take **main's side wholesale** — do not hand-merge
+   JSON/baseline entries — then regenerate (`crucible_check.py --update --yes`, `audit_check.py
+   --regenerate`).
+3. Diff the regenerated golden masters against main and confirm the drift is **only your own fact
+   keys** (plus the usual topological X/Y/Z ripple) — re-bless someone else's drift and you've
+   silently reverted their channel.
+4. Push with `git push --force-with-lease` only — never plain `--force` — since a sibling agent may
+   have pushed to the same branch name space independently.
+
+`tests/tools/rebase_rebless.py` (#3385, in progress) will automate steps 1–3 and verify the
+own-drift constraint automatically; until it lands, do this by hand and don't skip step 3.
+
 ## Invariants that cost incidents (the whole reason this skill exists)
 
 - **#2806**: declaration top-level, not `rules`.

@@ -145,6 +145,23 @@ Add an `@dataclass Engine<Fact>`, a `<facts>: list` field on `EngineFile`, and a
 loading the flat rows. **Update the `SCOPE` comment** at the top of the file: move the datum from
 "NOT in the DB" to "Taken from the DB here". That comment is the contract other tools read.
 
+**Storing the fact is not the same as wiring it in — add the join that actually consumes it.** An
+accessor that just hands back rows nobody joins on is dead weight the differential eventually flags
+as unused. If the fact resolves something a sibling channel or consumer needs, add or extend the
+`galaxy_ir` join, not just the raw field:
+
+- #3345's dataset lineage join is on the **resolved** DSN (`dataset_data.dsn_resolved`), not the
+  raw `&HLQ..SAMPLE.CUSTFILE` template — a template can't be joined across two jobs.
+- #3368's `cics_file_datasets()` joins CSD `FILE` resource definitions to the batch dataset lineage;
+  #3356/#3351-#3354 both feed it, and whichever PR merges second is the one that adds the join.
+- #3369's COMMAREA contract exists specifically so a caller's `LINK`/`XCTL` site can be joined to
+  the callee's `record_data` LINKAGE layout — the raw `commarea`/`commarea_length` columns alone
+  answer "was a COMMAREA passed", the join answers "which record".
+
+Name the join(s) your channel adds or feeds in the PR body, even if it's "none yet — this channel
+has no consumer join until <issue>" — an intentionally join-less channel and a forgotten one look
+identical in a diff, so say which one this is.
+
 ### 7. Make it a compared datum (`tests/tools/refraction_differential.py`)
 
 Add the fact to `compare()` with **both** a forge source and the engine source
@@ -184,6 +201,42 @@ classifier/scorer cases in the differential + answer-key tests.
   referenced by file B. The engine extracts per file (same-file only, like copybooks — a `.cpy`
   carries its own layout); **assembling across files is a consumer's job**, exactly as `copy_deps`
   works. Do not try to expand includes in the extractor.
+
+## Who actually consumes a channel (state this in the PR)
+
+The spine gives a channel four consumers by construction: the differential
+(`refraction_differential.py`), the answer key (`cobol_answer_key.py`), the audit JSON, and the LLM
+brief. It does **not** automatically reach the forge/refactor pipeline. As of #3348,
+`cobol_refractor_controller.process_payload` reads only `program_ids`, `copy_deps`, and `units` off
+`EngineFile` — lineage, schemas, and call/transaction routing are still re-derived by the forge's
+own parsers from the raw file, even for channels the DB has carried since #3200/#3201/#3246. A new
+channel does not close that gap by itself. State the real consumer list in the PR body ("consumed
+by: differential, answer key, audit/LLM recorders; not yet the refactor pipeline — #3348") instead
+of letting the reader assume the fact is live end to end.
+
+## Rebase / re-bless after a sibling merges
+
+Every #3249-round channel PR (#3349, #3350, #3357, #3368, #3369, #3375) touched the same shared
+seams — this doc's channel table, `galaxy_ir.py`'s SCOPE comment and accessors,
+`refraction_differential.py`, `cobol_answer_key.py`, `record_keeper.py`, `state_rehydrator.py`,
+`audit_recorder.py`/`llm_recorder.py`, and both golden masters — and conflicted with every sibling
+PR on exactly those seams (tracked as the shared-seam problem in #3383, the golden-master/ruff-
+baseline layout problem in #3384). That cost roughly 8 rebase cycles of 15–40 minutes each in that
+round, and one answer-key merge had to be redone by hand. Until #3383's channel registry removes
+the shared seams, rebase like this:
+
+1. `git fetch origin` and rebase onto `origin/main` — take **main's side** of any golden-master or
+   ruff-baseline conflict wholesale, never hand-merge JSON/baseline entries.
+2. Regenerate: `crucible_check.py --update --yes` (both fixtures) and `audit_check.py --regenerate`.
+3. **Re-bless only your own drift.** Diff the regenerated golden masters against main and confirm
+   every changed key is one your channel added (plus the expected topological X/Y/Z ripple) — if
+   anything else moved, you're about to revert a sibling's already-merged channel.
+4. `git push --force-with-lease` only — never plain `--force` — since a sibling agent may be
+   pushing to overlapping branches concurrently.
+
+`tests/tools/rebase_rebless.py` (#3385, in progress) will automate steps 1–3, including the
+own-drift verification, so this stops being a manual, error-prone procedure — until it lands, don't
+skip step 3.
 
 ## Invariants (hard rules — each cost a real incident)
 

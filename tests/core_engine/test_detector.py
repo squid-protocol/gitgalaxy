@@ -1110,13 +1110,15 @@ def test_detector_classification_and_wiring():
 def test_detector_calls_out_language_ignore_union():
     """
     Proves the per-language `_calls_out_ignore` rule (Epic #3264 Phase 3) is
-    unioned with the global ignore set and compared casefolded: a language
-    authoring lowercase words filters them in any spelling (case-insensitive
-    languages get correct behavior for free), while the global set keeps
-    filtering exactly as before.
+    unioned with the global ignore set. A language declared
+    `identifier_case: insensitive` compares it casefolded (lowercase words filter
+    in any spelling); #3359: every other language compares it exactly, so a
+    keyword never swallows a capitalised callee. The global set keeps filtering
+    exactly as before.
     """
-    defs = {
-        "fortranish": {
+
+    def defs(identifier_case):
+        definition = {
             "lexical_family": "single_line_only",
             "rules": {
                 "func_start": re.compile(r"^[ \t]*def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(", re.M),
@@ -1124,16 +1126,21 @@ def test_detector_calls_out_language_ignore_union():
                 "_calls_out_ignore": frozenset({"open"}),
             },
         }
-    }
-    opt_detector = StructuralExtractor("fortranish", defs)
-    code = "def dispatch(unit):\n    OPEN(unit)\n    Open(unit)\n    print(unit)\n    db_insert(unit)\n"
+        if identifier_case:
+            definition["identifier_case"] = identifier_case
+        return {"fortranish": definition}
 
-    result = opt_detector.splice(code, "")
-    func = result["functions"][0]
+    code = "def dispatch(unit):\n    OPEN(unit)\n    Open(unit)\n    open(unit)\n    print(unit)\n    db_insert(unit)\n"
 
-    assert func["calls_out_to"] == ["db_insert"], (
-        "_calls_out_ignore must filter casefolded (OPEN/Open) and the global "
-        f"set must keep filtering (print); got {func['calls_out_to']}"
+    folded = StructuralExtractor("fortranish", defs("insensitive")).splice(code, "")["functions"][0]
+    assert folded["calls_out_to"] == ["db_insert"], (
+        "_calls_out_ignore must filter casefolded (OPEN/Open/open) in a case-insensitive language "
+        f"and the global set must keep filtering (print); got {folded['calls_out_to']}"
+    )
+
+    exact = StructuralExtractor("fortranish", defs(None)).splice(code, "")["functions"][0]
+    assert exact["calls_out_to"] == ["OPEN", "Open", "db_insert"], (
+        f"a case-sensitive language filters only the exact spelling; got {exact['calls_out_to']}"
     )
 
 

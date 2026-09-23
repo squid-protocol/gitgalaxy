@@ -202,9 +202,6 @@ def test_several_copies_after_one_entry_keep_source_order():
         "EXEC CICS RETURN TRANSID('T') LENGTH(" + "A" * 20000,
         "       01 X.\n" + "           COPY " * 5000,
     ],
-    # Short ids: pytest puts the test id in PYTEST_CURRENT_TEST, and a 45,000-char
-    # payload id overflows Windows' 32,767-char environment-variable limit.
-    ids=["nested-parens", "repeated-commarea", "unterminated-length", "repeated-copy"],
 )
 def test_pathological_shapes_stay_linear(payload):
     start = time.perf_counter()

@@ -429,10 +429,75 @@ def test_db2_sql_slices_through_mode_e_and_names_its_classes():
         "CREATE VIEW HR.V_EMP AS SELECT ID FROM HR.EMP;\n"
     )
     result = StructuralExtractor("db2_sql", LANGUAGE_DEFINITIONS).splice(program, "")
-    # Mode E's statement buckets (#2792's CREATE_Statement/Declarative_Block shape).
-    assert any(f["name"] == "CREATE_Statement" for f in result["functions"])
+    names = [f["name"] for f in result["functions"]]
+    # #3293: the routine is named after its func_start capture (schema dropped) and
+    # spans its whole BEGIN...END body; the table/view DDL stays Mode E's statement
+    # buckets (#2792's CREATE_Statement shape).
+    assert "RAISE_PAY" in names
+    assert "CREATE_Statement" in names
+    raise_pay = next(f for f in result["functions"] if f["name"] == "RAISE_PAY")
+    assert (raise_pay["start_line"], raise_pay["end_line"]) == (1, 5)
     # The named-class allowlist reuses class_start's capture, quotes stripped.
     assert {c["name"] for c in result["classes"]} == {"EMP", "V_EMP"}
+
+
+def test_db2_sql_named_routines_span_compound_bodies_and_persist():
+    """
+    #3293: db2_sql scans used to persist zero function_data rows. Mode E named every
+    bucket `CREATE_Statement`, which #2792's `_is_uncountable_slice` rightly drops as a
+    placeholder -- and it cut a routine at the first `;` inside its BEGIN...END body, so
+    even a named bucket would have kept only its first CALL. A routine is now named
+    after the routine and closed only by a terminator at block depth 0: nested BEGIN,
+    `END IF/WHILE`, a CASE statement's `END CASE` and a CASE expression's bare `END`
+    all keep the body open.
+    """
+    from gitgalaxy.core.detector import StructuralExtractor, synthesizes_all_function_names
+
+    program = (
+        "CONNECT TO A;\n"
+        "\n"
+        "CREATE OR REPLACE PROCEDURE ROSETTA_MAIN (IN V INTEGER)\n"
+        "LANGUAGE SQL\n"
+        "BEGIN\n"
+        "  DECLARE X INTEGER DEFAULT 0;\n"
+        "  IF V > 1 THEN\n"
+        "    CALL PROBE_BRANCH(1);\n"
+        "  END IF;\n"
+        "  SET X = CASE WHEN V > 2 THEN 1 ELSE 0 END;\n"
+        "  CASE X\n"
+        "    WHEN 1 THEN CALL PROBE_IO(1);\n"
+        "    ELSE CALL NOTE_ONE(1);\n"
+        "  END CASE;\n"
+        "  BEGIN\n"
+        "    CALL PROBE_RISK(1);\n"
+        "  END;\n"
+        "  WHILE V > 9 DO\n"
+        "    CALL NOTE_TWO(V);\n"
+        "  END WHILE;\n"
+        "END;\n"
+        "\n"
+        "CALL ROSETTA_MAIN(1);\n"
+        'CREATE FUNCTION "Add One" (V INTEGER) RETURNS INTEGER RETURN V + 1;\n'
+        "CREATE TABLE T1 (C INTEGER);\n"
+    )
+    result = StructuralExtractor("db2_sql", LANGUAGE_DEFINITIONS).splice(program, "")
+    by_name = {f["name"]: f for f in result["functions"]}
+
+    main = by_name["ROSETTA_MAIN"]
+    assert (main["start_line"], main["end_line"]) == (3, 21)
+    assert main["calls_out_to"] == ["PROBE_BRANCH", "PROBE_IO", "NOTE_ONE", "PROBE_RISK", "NOTE_TWO"]
+    assert main["is_synthetic_slice"] is False
+    # A body-less routine ends at its own terminator; delimited-identifier quotes stripped.
+    assert (by_name["Add One"]["start_line"], by_name["Add One"]["end_line"]) == (24, 24)
+    # The top-level CALL after the routine is its own statement bucket, not the routine's.
+    top_call = next(f for f in result["functions"] if f["start_line"] == 23)
+    assert top_call["is_synthetic_slice"] is True  # a statement bucket (CALL is no igniter)
+    assert top_call["calls_out_to"] == ["ROSETTA_MAIN"]
+    assert by_name["CREATE_Statement"]["is_synthetic_slice"] is True
+
+    # db2_sql now has a function population; sqlite (triggers only) still doesn't.
+    assert not synthesizes_all_function_names("db2_sql", LANGUAGE_DEFINITIONS["db2_sql"]["rules"])
+    assert synthesizes_all_function_names("sqlite", LANGUAGE_DEFINITIONS["sqlite"]["rules"])
 
 
 def test_db2_sql_is_in_the_sql_alias_and_named_class_allowlist():

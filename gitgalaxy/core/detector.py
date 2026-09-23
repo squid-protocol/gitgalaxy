@@ -1056,6 +1056,23 @@ _UNCOUNTABLE_SLICE_NAMES = frozenset({"Anonymous_Block", "__global_context__"})
 # a perfectly legal identifier in a language that does not slice this way.
 _MODE_E_SYNTHETIC_NAME = re.compile(r"Declarative_Block|[A-Z0-9]+_Statement")
 
+# #3293: Mode E languages whose routine DDL (`CREATE PROCEDURE/FUNCTION/TRIGGER`)
+# names a real callable unit -- `CALL name` reaches it by that name. For these,
+# `_slice_by_terminator` names a bucket that opens on the language's own
+# `func_start` after the captured routine instead of `CREATE_Statement`, and keeps
+# it open across the routine's compound `BEGIN ... END` body (whose inner `;`
+# statement terminators would otherwise cut it after its first statement). Every
+# other statement stays a synthetic bucket. sqlite is deliberately absent: its
+# only routine form is CREATE TRIGGER, which nothing invokes by name.
+_MODE_E_NAMED_ROUTINE_LANGS = frozenset({"db2_sql"})
+# SQL PL block depth inside a named routine. BEGIN and CASE open (a CASE
+# statement closes with `END CASE`, a CASE expression with a bare `END`); a bare
+# `END` / `END label` or `END CASE` closes; `END IF/WHILE/LOOP/REPEAT/FOR` close
+# statements that only ever appear inside a BEGIN block, so they don't move depth.
+_SQL_ROUTINE_DEPTH_TOKEN = re.compile(
+    r"\bEND[ \t]+(IF|WHILE|LOOP|REPEAT|FOR|CASE)\b|\b(END|BEGIN|CASE)\b", re.IGNORECASE
+)
+
 # #2806: the two invocation models a registry may declare through the
 # top-level `invocation_model` key. `by_name` is the default and needs no declaration: the
 # language reaches a callable unit by writing its name, so "no other text names
@@ -1233,7 +1250,8 @@ def synthesizes_all_function_names(lang_id: str, rules: dict[str, Any]) -> bool:
     """
     if rules.get("func_start") is None:
         return True
-    return ScopeParsingRegistry.get_mode(lang_id) == "mode_e"
+    # #3293: a Mode E language that names its routines has a real population.
+    return ScopeParsingRegistry.get_mode(lang_id) == "mode_e" and lang_id not in _MODE_E_NAMED_ROUTINE_LANGS
 
 
 def _name_boundary_pattern(func_name: str) -> str:
@@ -6890,6 +6908,10 @@ class StructuralExtractor:
         sum_fxn_impact = 0.0
         current_satellite = []
         satellite_name = "Declarative_Block"
+        # #3293: see _MODE_E_NAMED_ROUTINE_LANGS.
+        routine_start = rules.get("func_start") if lang_id in _MODE_E_NAMED_ROUTINE_LANGS else None
+        in_routine = False
+        routine_depth = 0
 
         is_orbiting = False
         sat_start_line = offset + 1
@@ -6951,12 +6973,36 @@ class StructuralExtractor:
                         f"{match.group(1).upper()}_Statement" if "sql" in lang_key else match.group(0).strip()
                     )
                     satellite_name = re.sub(r"[^a-zA-Z0-9_]", "", satellite_name)
+                    # #3293: matched on the ORIGINAL text -- the shielded copy blanks
+                    # a delimited identifier (`"MY PROC"`) to `""`.
+                    routine = routine_start.match(code, sat_start_char) if routine_start else None
+                    if routine and routine.group(1):
+                        routine_name = routine.group(1)
+                        if len(routine_name) >= 2 and routine_name[0] == routine_name[-1] == '"':
+                            routine_name = routine_name[1:-1]
+                        satellite_name = routine_name
+                        in_routine = True
+                        routine_depth = 0
 
             # Build the block using the unaltered original line
             current_satellite.append(orig_line)
 
+            # #3293: inside a named routine, only a terminator at block depth 0
+            # ends it. Depth is tracked per line; a terminator on a line that
+            # closes the outermost block (`END;`, `END P1;`) is at depth 0.
+            terminates = bool(terminator_pattern.search(safe_line))
+            if in_routine:
+                for tok in _SQL_ROUTINE_DEPTH_TOKEN.finditer(safe_line):
+                    closer = (tok.group(1) or "").upper()
+                    word = (tok.group(2) or "").upper()
+                    if closer == "CASE" or word == "END":
+                        routine_depth = max(0, routine_depth - 1)
+                    elif word in ("BEGIN", "CASE"):
+                        routine_depth += 1
+                terminates = terminates and routine_depth == 0
+
             # The Guillotine Drop (Evaluate the safe_line for the terminator)
-            if terminator_pattern.search(safe_line):
+            if terminates:
                 block = "\n".join(current_satellite).strip()
                 if block:
                     loc = max(len(current_satellite), 1)
@@ -6979,6 +7025,7 @@ class StructuralExtractor:
                 # Reset for the next orbit
                 current_satellite = []
                 satellite_name = "Declarative_Block"
+                in_routine = False
                 is_orbiting = False
                 sat_start_line = current_line_offset + 1
 

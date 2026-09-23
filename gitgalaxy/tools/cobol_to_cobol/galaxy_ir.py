@@ -46,8 +46,10 @@
 # (cics_resource_data, per EngineFile.cics_resources): FILE I/O, SEND/RECEIVE
 # MAP (joined to the BMS map's screen fields by GalaxyIR.screen_bindings), TS/TD
 # queues and channels/containers (producer -> consumer programs by
-# GalaxyIR.queue_flows / container_flows), each name read through its VALUE
-# (or a single MOVEd literal) the way LINK targets are.
+# GalaxyIR.queue_flows / container_flows; FILE and TD-queue operations joined to
+# the #3356 CSD DSNAME and on to batch lineage by cics_file_lineage /
+# tdqueue_lineage), each name read through its VALUE (or a single MOVEd
+# literal) the way LINK targets are.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -1228,6 +1230,65 @@ class GalaxyIR:
                 if producer != consumer
             )
         return flows
+
+    def _cics_ops_lineage(self, kind: str, csd_join: str, key: str) -> list:
+        """Program -> CICS resource of `kind` -> the CSD join `csd_join` (#3356).
+
+        One entry per (program, resource name): `program`, `name`, `accesses` and
+        `verbs` (sorted), `lines`, and `definitions` -- the `csd_join` rows whose
+        `key` names this resource (their DSNAME, JCL `bindings` and, for files,
+        `batch_programs`). `definitions` is empty when no CSD DEFINE in the
+        repository names the resource, or when the reader predates #3356.
+        """
+        join = getattr(self, csd_join, None)
+        by_name: dict[str, list] = {}
+        for d in join() if callable(join) else []:
+            by_name.setdefault(str(d.get(key) or "").upper(), []).append(d)
+        grouped: dict[tuple[str, str], dict] = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for op in f.cics_resources:
+                if op.kind != kind or (kind == "QUEUE" and op.qualifier != "TD"):
+                    continue
+                for name in sorted(op.names):
+                    entry = grouped.setdefault(
+                        (f.file_path, name),
+                        {"program": f.file_path, "name": name, "accesses": set(), "verbs": set(), "lines": []},
+                    )
+                    entry["accesses"].add(op.access)
+                    entry["verbs"].add(op.verb)
+                    entry["lines"].append(op.line)
+        out = []
+        for (_, name), e in sorted(grouped.items()):
+            out.append(
+                {
+                    **e,
+                    "accesses": sorted(e["accesses"]),
+                    "verbs": sorted(e["verbs"]),
+                    "definitions": list(by_name.get(name, [])),
+                }
+            )
+        return out
+
+    def cics_file_lineage(self) -> list:
+        """Online program -> CICS FILE -> dataset -> batch jobs and programs (#3351 + #3356).
+
+        Every program's EXEC CICS file operations, grouped per (program, file),
+        joined on the file name to `cics_file_datasets()` (the CSD `DEFINE FILE ...
+        DSNAME` and, through the dataset name, the JCL bindings and batch programs
+        that touch the same dataset). This closes transaction -> program -> file ->
+        dataset. A file no CSD defines keeps `definitions` empty.
+        """
+        return self._cics_ops_lineage("FILE", "cics_file_datasets", "file")
+
+    def tdqueue_lineage(self) -> list:
+        """Online program -> TD queue -> extrapartition dataset (#3353 + #3356).
+
+        Every WRITEQ/READQ/DELETEQ TD grouped per (program, queue), joined on the
+        queue name to `tdqueue_datasets()` (TYPE(EXTRA) queues: DSNAME, or the
+        region DDNAME with candidate JCL bindings). Intrapartition and undefined
+        queues keep `definitions` empty.
+        """
+        return self._cics_ops_lineage("QUEUE", "tdqueue_datasets", "queue")
 
     def _program_file(self, name: Optional[str]) -> Optional[str]:
         """The file declaring PROGRAM-ID `name`, when exactly one does."""

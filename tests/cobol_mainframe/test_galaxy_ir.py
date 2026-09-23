@@ -873,3 +873,47 @@ def test_container_flows_match_candidates_and_reject_a_different_channel(tmp_pat
         ("CIPA", "CRECUST.cbl", "AGY1.cbl", "channel"),
         ("CIPB", "CRECUST.cbl", "UNK.cbl", "unverified"),
     ]
+
+
+def _file_op(verb, access, name, kind="FILE", qualifier=None):
+    return EngineCicsResource(
+        verb, kind, access, f"'{name}'", name, "literal", None, None, qualifier, None, None, None, 7
+    )
+
+
+def test_cics_file_lineage_joins_program_file_ops_to_the_csd_dataset(tmp_path, monkeypatch):
+    """Program -> EXEC CICS FILE -> #3356's cics_file_datasets() row (DSNAME, JCL
+    bindings, batch programs). The CSD join is stubbed so this holds whichever PR
+    lands first; a reader without it still lists the program's files."""
+    files = {
+        "INQ.cbl": EngineFile(
+            "INQ.cbl",
+            "cobol",
+            1,
+            cics_resources=[
+                _file_op("READ", "read", "CUSTOMER"),
+                _file_op("REWRITE", "update", "CUSTOMER"),
+                _file_op("READ", "read", "NODEF"),
+                _file_op("WRITEQ", "write", "LOGQ", kind="QUEUE", qualifier="TD"),
+                _file_op("WRITEQ", "write", "TSQ", kind="QUEUE", qualifier="TS"),
+            ],
+        )
+    }
+    ir = GalaxyIR(tmp_path / "x.db", "r", "c", files)
+    assert [(e["name"], e["definitions"]) for e in ir.cics_file_lineage()] == [("CUSTOMER", []), ("NODEF", [])]
+
+    csd = {"file": "CUSTOMER", "dsname": "PROD.CUSTOMER", "bindings": [{"job": "LOAD.jcl"}], "batch_programs": []}
+    monkeypatch.setattr(GalaxyIR, "cics_file_datasets", lambda self: [csd], raising=False)
+    monkeypatch.setattr(
+        GalaxyIR, "tdqueue_datasets", lambda self: [{"queue": "LOGQ", "dsname": "PROD.LOG"}], raising=False
+    )
+    cust, nodef = ir.cics_file_lineage()
+    assert (cust["program"], cust["accesses"], cust["verbs"], cust["definitions"]) == (
+        "INQ.cbl",
+        ["read", "update"],
+        ["READ", "REWRITE"],
+        [csd],
+    )
+    assert nodef["definitions"] == []
+    # Only TD queues map to an extrapartition dataset; a TS queue is CICS storage.
+    assert [(e["name"], e["definitions"][0]["dsname"]) for e in ir.tdqueue_lineage()] == [("LOGQ", "PROD.LOG")]

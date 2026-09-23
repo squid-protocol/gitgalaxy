@@ -950,8 +950,77 @@ def test_jcl_redos_immunity():
     assert JCL_RULES["structural_boundaries"].search("//STEPLIB  DD DSN=SYS1.LINKLIB,DISP=SHR")
 
 
-def test_jcl_calls_out_stays_unsupported():
-    """jcl's step-card EXEC lives on the signature line, outside the scanned
-    body block -- no calls_out regex can fire there. Re-enabling needs detector
-    signature-line scanning (gitgalaxy#3292)."""
-    assert LANGUAGE_DEFINITIONS["jcl"]["rules"]["calls_out"] is None
+@pytest.mark.parametrize(
+    "card, expected",
+    [
+        ("//STEP2    EXEC PGM=BPXBATCH,PARM='X'", ["BPXBATCH"]),
+        ("//DISPATCH EXEC ROSPROC,PARM='D'", ["ROSPROC"]),
+        ("//RUN      EXEC PROC=DB2PROC,COND=(4,LT)", ["DB2PROC"]),
+        ("//         EXEC PGM=IEFBR14", ["IEFBR14"]),  # unnamed step
+        ("//step1 exec pgm=ikjeft01", ["ikjeft01"]),  # case-insensitive
+        ("//GO       EXEC PGM=*.LKED.SYSLMOD,REGION=0M", []),  # referback
+        ("//ASM      EXEC PGM=&ASMBLR,REGION=&REG", []),  # symbolic
+        ("//S1       EXEC COND=(8,LE)", []),  # keyword operand, no callee
+        ("//*PROBE   EXEC ROSPROC", []),  # comment card
+        ("//SYSUT1   DD DSN=PGM.LOAD,DISP=SHR", []),  # not an EXEC card
+    ],
+)
+def test_jcl_calls_out_reads_the_exec_operand(card, expected):
+    """#3292: the call edge is the first positional operand of the EXEC card."""
+    assert JCL_RULES["calls_out"].findall(card) == expected
+
+
+def test_jcl_calls_out_redos_immunity():
+    assert_redos_immune(JCL_RULES["calls_out"], "//S EXEC PGM=" + "A" * 100000 + "=", timeout_sec=3.0)
+    assert_redos_immune(JCL_RULES["calls_out"], "//" + "A" * 100000 + " EXEC", timeout_sec=3.0)
+
+
+def test_jcl_calls_out_through_the_real_pipeline():
+    """
+    #3292 end to end. The EXEC card was always inside Mode A's sliced block;
+    what hid it was `_apply_literal_shield` treating JCL's `//` statement
+    prefix as a C-style line comment and blanking every line. Also pins:
+    a `PGM=` spelled inside a PARM string never edges, a `//*` commented-out
+    step never edges, and a step named like its program keeps its edge
+    (positional languages can't recurse by name).
+    """
+    from gitgalaxy.core.detector import StructuralExtractor
+    from gitgalaxy.core.prism import Prism
+    from gitgalaxy.standards.gitgalaxy_config import LEXICAL_FAMILY_HEURISTICS
+
+    sample = (
+        "//ROSJOB   JOB (ACCT),'ROSETTA',CLASS=A\n"
+        "//IEFBR14  EXEC PGM=IEFBR14\n"
+        "//DD1      DD DSN=A.B.C,DISP=(MOD,DELETE)\n"
+        "//DISPATCH EXEC ROSPROC,PARM='D'\n"
+        "//PROBESTA EXEC ROSPROC,COND=ONLY,PARM='PLAIN PGM=IKJEFT01 DECOY'\n"
+        "//*PROBEDE EXEC DEADPROC,PARM='D'\n"
+        "//PROBERSK EXEC PGM=IKJEFT01,PARM='R'\n"
+        "//SYSTSIN  DD *\n"
+        "  DSN SYSTEM(DB2P)\n"
+        "/*\n"
+    )
+    streams = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS).split_streams(sample, "jcl")
+    result = StructuralExtractor("jcl", LANGUAGE_DEFINITIONS).splice(
+        streams["code_stream"], streams["comment_stream"], raw_content=sample
+    )
+    edges = {fn["name"]: fn["calls_out_to"] for fn in result["functions"]}
+    assert edges == {
+        "IEFBR14": ["IEFBR14"],
+        "DISPATCH": ["ROSPROC"],
+        "PROBESTA": ["ROSPROC"],
+        "PROBERSK": ["IKJEFT01"],
+    }
+
+
+def test_jcl_literal_shield_keeps_statement_cards():
+    """#3292: only `//*` is a JCL comment; `/*` is a delimiter, not a block opener."""
+    from gitgalaxy.core.detector import StructuralExtractor
+
+    shield = StructuralExtractor("jcl", LANGUAGE_DEFINITIONS)._apply_literal_shield
+    block = "//S1 EXEC PGM=X#1,PARM='A B'\n//*NOTE\n/*\n//S2 EXEC PGM=Y\n*/\n"
+    shielded = shield(block, "jcl")
+    assert "//S1 EXEC PGM=X#1," in shielded
+    assert "//S2 EXEC PGM=Y" in shielded
+    assert "NOTE" not in shielded
+    assert "A B" not in shielded

@@ -3266,6 +3266,14 @@ class StructuralExtractor:
             # every real function a SECOND time at the wrong line
             # (`bitwise.lua`: `bit.band` reported at both 118 and 134).
             comment_markers = r"--"
+        elif lang_id == "jcl":
+            # #3292: JCL's ONLY comment is a `//*` card. `//` itself is the
+            # prefix of EVERY statement (`//STEP EXEC PGM=X`, `//DD1 DD ...`),
+            # so the shared `//` marker blanked each line of a sliced step
+            # whole, and the calls_out scan over the shielded block could
+            # never see the EXEC operand. `#` is an ordinary name character
+            # (`//STEP#1`) and `--` has no meaning either.
+            comment_markers = r"//\*"
         # Standard strings can span multiple lines natively in some languages.
         # In others (C/Java/JS), an unclosed quote on one line is an error, so we bound it
         # by newline to prevent an unclosed quote from swallowing the rest of the file.
@@ -3329,6 +3337,10 @@ class StructuralExtractor:
             "cobol",
             "fortran",
             "abap",
+            # #3292: `/*` in JCL is the instream-data delimiter statement (and
+            # the `/*JOBPARM`/`/*ROUTE` JES2 control-card prefix), never a
+            # comment opener -- it would swallow steps up to a stray `*/`.
+            "jcl",
         ):
             # Default to C-style block comments for the vast majority of C-family / web languages
             block_comment_alt = r"/\*[\s\S]*?\*/|"
@@ -8709,12 +8721,21 @@ class StructuralExtractor:
         # Authored lowercase in the profile and compared casefolded, so
         # case-insensitive languages filter their keywords in any spelling.
         lang_ignore = rules.get("_calls_out_ignore") or frozenset()
-        # Deduplicate and filter (excluding the function calling itself recursively)
+        # Deduplicate and filter (excluding the function calling itself recursively).
+        # #3292: a `positional` language's units cannot be invoked by name, so a
+        # callee spelled like the unit is never recursion -- `//IEFBR14 EXEC
+        # PGM=IEFBR14` is a step running the program of the same name (step
+        # names and program names are separate namespaces in JCL).
+        self_name = (
+            None
+            if self.languages.get(self.primary_lang_id, {}).get("invocation_model") == INVOCATION_POSITIONAL
+            else name
+        )
         calls_out = list(
             dict.fromkeys(
                 c
                 for c in raw_calls
-                if c not in _CALLS_OUT_GLOBAL_IGNORE and c.casefold() not in lang_ignore and c != name
+                if c not in _CALLS_OUT_GLOBAL_IGNORE and c.casefold() not in lang_ignore and c != self_name
             )
         )
 

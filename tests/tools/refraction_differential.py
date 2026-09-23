@@ -32,6 +32,12 @@ Since #3344 DB2 `EXEC SQL DECLARE ... TABLE` columns are one as well, on the sam
 footing (no forge reads them): the key's own terminator-cut reader
 (sql_table_columns) vs the engine's sql_table_data, per declaring COBOL/PL/I
 file, as `sql_column` deltas keyed on each column's full shape.
+Since #3347 BMS screen-field layouts are one too: the answer key's own BMS reader
+vs the engine's screen_field_data, per map source, as `bms_field` deltas; and,
+where the repository carries the symbolic-map copybook generated from a map
+(carddemo's app/cpy-bms), its `<field>I` names vs the engine's named fields, as
+`bms_symbolic_field` deltas -- the copybook the differential used to see only as
+the `bms_symbolic_map` cause is now checked against the map it came from.
 The gate counts what neither explains -- `unexplained` --
 and fails when a run adds any over a committed per-corpus baseline.
 
@@ -109,7 +115,9 @@ UNEXPLAINED = "unexplained"
 # engine, so it adjudicates a `pli_record` delta once a file is `records_validated`.
 # The DB2 DECLARE TABLE columns (#3344) are read the same way: the key's own
 # raw-file reader, independent of the engine's PRISM-stream walker.
-INDEPENDENT_FIELDS = {"program_id", "copybook", "record", "transaction", "pli_record", "sql_column"}
+# The BMS screen fields (#3347) are read by the key's own raw-source BMS reader, so
+# a `bms_field` delta is adjudicated once a map is `fields_validated`.
+INDEPENDENT_FIELDS = {"program_id", "copybook", "record", "transaction", "pli_record", "sql_column", "bms_field"}
 
 
 def _record_fields(items: list) -> set[str]:
@@ -194,6 +202,66 @@ def compare_sql_tables(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     return rows
 
 
+def _engine_bms_items(ef) -> list[dict[str, Any]]:
+    """The engine's screen_field_data rows for one file, in the key's item shape."""
+    return [{k: getattr(sf, k) for k in ak.BMS_ITEM_KEYS} for sf in ef.screen_fields]
+
+
+def _symbolic_copybooks(repo: Path) -> dict[str, Path]:
+    """Stem (upper) -> a COBOL copybook in `repo`, the candidates for a map's
+    generated symbolic map (IBM's DFHMAPS names it after the mapset)."""
+    out: dict[str, Path] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in ak.COPYBOOK_EXTS and ".git" not in p.parts:
+            out.setdefault(p.stem.upper(), p)
+    return out
+
+
+def compare_bms(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
+    """#3347: one row per BMS map source -- the key's independent reader vs
+    screen_field_data (`bms_fields`), plus, when the repository carries the map's
+    generated symbolic-map copybook, that copybook's field names vs the engine's
+    named fields (`bms_symbolic`, None when there is no such copybook)."""
+    rows = []
+    copybooks: Optional[dict[str, Path]] = None
+    for ef in sorted(ir.files.values(), key=lambda f: f.file_path):
+        if ef.language != "bms":
+            continue
+        if copybooks is None:
+            copybooks = _symbolic_copybooks(repo)
+        path = repo / ef.file_path
+        engine = _engine_bms_items(ef)
+        cpy = copybooks.get(path.stem.upper())
+        symbolic = ak.symbolic_map_names(cpy) if cpy else set()
+        # Only a copybook that IS this map's symbolic map (an `01 <map>I` for one
+        # of its maps) is compared; a same-named hand-written copybook is not.
+        maps = {(sf.name or "").upper() for sf in ef.screen_fields if sf.kind == "map"}
+        if not {n.split(".", 1)[0] for n in symbolic} & maps:
+            cpy = None
+        rows.append(
+            {
+                "file": ef.file_path,
+                "language": "bms",
+                "bms_fields": {
+                    "old": sorted(
+                        ak.bms_layout_units(ak.bms_screen_items(path.read_text(encoding="utf-8", errors="ignore")))
+                    ),
+                    "db": sorted(ak.bms_layout_units(engine)),
+                },
+                "bms_symbolic": (
+                    {
+                        "copybook": cpy.relative_to(repo).as_posix(),
+                        "old": sorted(symbolic),
+                        "db": sorted(ak.bms_symbolic_names(engine)),
+                    }
+                    if cpy
+                    else None
+                ),
+            }
+        )
+    return rows
+
+
 def _cobol_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [r for r in rows if r.get("language", "cobol") == "cobol"]
 
@@ -269,11 +337,13 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                 },
             }
         )
-    return rows + compare_pli(repo, ir) + compare_sql_tables(repo, ir)
+    return rows + compare_pli(repo, ir) + compare_sql_tables(repo, ir) + compare_bms(repo, ir)
 
 
 def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
     pli = [r for r in rows if r.get("language") == "pli"]
+    bms = [r for r in rows if r.get("language") == "bms"]
+    symbolic = [r["bms_symbolic"] for r in bms if r["bms_symbolic"]]
     sql = [r for r in rows if r.get("language") == "sql_table"]
     rows = _cobol_rows(rows)
 
@@ -313,6 +383,13 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
         "sql_columns_key": sum(len(r["sql_tables"]["old"]) for r in sql),
         "sql_columns_db": sum(len(r["sql_tables"]["db"]) for r in sql),
         "sql_columns_agree": sum(len(set(r["sql_tables"]["old"]) & set(r["sql_tables"]["db"])) for r in sql),
+        "bms_maps": len(bms),
+        "bms_units_key": sum(len(r["bms_fields"]["old"]) for r in bms),
+        "bms_units_db": sum(len(r["bms_fields"]["db"]) for r in bms),
+        "bms_units_agree": sum(len(set(r["bms_fields"]["old"]) & set(r["bms_fields"]["db"])) for r in bms),
+        "bms_symbolic_copybooks": len(symbolic),
+        "bms_symbolic_fields_copybook": sum(len(s["old"]) for s in symbolic),
+        "bms_symbolic_fields_agree": sum(len(set(s["old"]) & set(s["db"])) for s in symbolic),
     }
 
 
@@ -365,6 +442,16 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
             old, db = set(st["old"]), set(st["db"])
             deltas += [{"program": prog, "field": "sql_column", "side": "old", "value": v} for v in sorted(old - db)]
             deltas += [{"program": prog, "field": "sql_column", "side": "db", "value": v} for v in sorted(db - old)]
+            continue
+        if r.get("language") == "bms":
+            # #3347: BMS layout units, the key's independent reader vs the engine,
+            # and (where present) the generated symbolic-map copybook's names.
+            for field, pair in (("bms_field", r["bms_fields"]), ("bms_symbolic_field", r["bms_symbolic"])):
+                if not pair:
+                    continue
+                old, db = set(pair["old"]), set(pair["db"])
+                deltas += [{"program": prog, "field": field, "side": "old", "value": v} for v in sorted(old - db)]
+                deltas += [{"program": prog, "field": field, "side": "db", "value": v} for v in sorted(db - old)]
             continue
         pid = r["program_id"]
         # Only the genuine mismatch. A db file legitimately carrying several
@@ -539,6 +626,13 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
         # DECLARE TABLE disagree, a real defect on one side. The DB carries these
         # columns, so this is never stated_absence. Left to the validated key.
         return UNEXPLAINED
+    if field in ("bms_field", "bms_symbolic_field"):
+        # #3347: two independent readers of the same map (or the map vs the
+        # copybook IBM generated from it) disagree -- a real defect on one side,
+        # or a checked-in copybook stale against its map. Never a stated absence:
+        # the DB carries the screen fields. `bms_field` is left to the validated
+        # key (INDEPENDENT); a symbolic-map delta is read off the two files.
+        return UNEXPLAINED
     return UNEXPLAINED
 
 
@@ -546,6 +640,18 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
     """The answer key's verdict on a delta, or None when it cannot adjudicate."""
     if not key:
         return None
+    if d["field"] == "bms_field":
+        # #3347: drafted, so it adjudicates only once the map is `fields_validated`.
+        bms = key.get("bms_maps", {}).get(d["program"])
+        if not bms or not bms.get("fields_validated"):
+            return None
+        present = d["value"] in ak.bms_layout_units(bms.get("fields", []))
+        verdict = (
+            ("old-parser defect" if present else "engine defect")
+            if d["side"] == "db"
+            else ("engine defect" if present else "old-parser defect")
+        )
+        return {"verdict": verdict, "confidence": "independent", "decided": True}
     if d["field"] == "pli_record":
         # #3250: drafted like COBOL records, so it adjudicates only once the file
         # is explicitly signed off with `records_validated`.
@@ -625,7 +731,7 @@ def classify(repo: Path, rows: list[dict[str, Any]], key: Optional[dict[str, Any
     ctx_cache: dict[str, dict[str, Any]] = {}
     out: list[Delta] = []
     for d in flatten(rows):
-        if d["field"] in ("pli_record", "sql_column"):
+        if d["field"] in ("pli_record", "sql_column", "bms_field", "bms_symbolic_field"):
             # The COBOL fixed-format context is meaningless for a PL/I file, and a
             # DECLARE TABLE column delta (#3344) has no mechanism cause to read.
             out.append({**d, "cause": _classify_cause(d, {}), "verdict": _key_verdict(d, key)})

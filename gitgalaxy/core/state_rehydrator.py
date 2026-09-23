@@ -498,6 +498,36 @@ class StateRehydrator:
                     },
                 )
 
+                # #3347: BMS screen-field layouts, aliased to the extractor's payload
+                # keys (field_name -> name, initial_value -> initial).
+                screen_fields_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "screen_field_data",
+                    "SELECT fd.file_path AS _fp, sf.kind, sf.ordinal, sf.parent_ordinal, "
+                    "sf.field_name AS name, sf.pos_line, sf.pos_column, sf.length, sf.attrb, sf.picin, "
+                    "sf.picout, sf.initial_value AS initial, sf.occurs, sf.attributes, sf.line_number AS line "
+                    "FROM screen_field_data sf JOIN file_data fd ON sf.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY sf.file_id, sf.ordinal",
+                    lambda r: {
+                        "kind": r["kind"],
+                        "ordinal": int(r["ordinal"] or 0),
+                        "parent_ordinal": r["parent_ordinal"],
+                        "name": r["name"],
+                        "pos_line": r["pos_line"],
+                        "pos_column": r["pos_column"],
+                        "length": r["length"],
+                        "attrb": r["attrb"],
+                        "picin": r["picin"],
+                        "picout": r["picout"],
+                        "initial": r["initial"],
+                        "occurs": r["occurs"],
+                        "attributes": r["attributes"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
@@ -506,6 +536,7 @@ class StateRehydrator:
                     node["record_layouts"] = records_by_file.get(rel_path, [])
                     node["transaction_defs"] = transactions_by_file.get(rel_path, [])
                     node["sql_tables"] = sql_tables_by_file.get(rel_path, [])
+                    node["screen_fields"] = screen_fields_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

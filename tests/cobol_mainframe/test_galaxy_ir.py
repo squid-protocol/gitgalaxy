@@ -167,6 +167,63 @@ def test_a_pre_3250_db_loads_pli_records_without_attributes(scanned_pli, tmp_pat
     assert all(item.attributes is None for item in ef.data_items)
 
 
+# #3347: BMS screen-field layouts ride their own screen_field_data table. A REAL
+# scan, so the top-level `boundary_extraction: "bms"` declaration is proven to
+# survive the config pipeline (#2806). The map is cics-banking-sample-application-
+# cbsa's BNK1CAM shape: `*` continuation, an INITIAL literal continued mid-word.
+BNK1CAM = "\n".join(
+    [
+        f"{'BNK1CAM  DFHMSD TYPE=&SYSPARM,MODE=INOUT,LANG=COBOL,STORAGE=AUTO,':<71}*",
+        "               TIOAPFX=YES",
+        f"{'BNK1CA   DFHMDI SIZE=(24,80),':<71}*",
+        "               COLUMN=1,LINE=1",
+        f"{'         DFHMDF POS=(3,1),LENGTH=57,ATTRB=(NORM,PROT),COLOR=TURQUOISE,':<71}*",
+        f"{'               INITIAL=' + chr(39) + 'Please provide the requested information and pr':<71}*",
+        "               ess Enter.'",
+        f"{'CUSTNO   DFHMDF POS=(6,23),LENGTH=10,ATTRB=(NORM,NUM,FSET),':<71}*",
+        "               COLOR=GREEN,HILIGHT=UNDERLINE",
+        "*OLDFLD  DFHMDF POS=(7,23),LENGTH=10",
+        "         DFHMSD TYPE=FINAL",
+        "         END",
+        "",
+    ]
+)
+
+
+@pytest.fixture(scope="module")
+def scanned_bms(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_bms")
+    repo = base / "bmsrepo"
+    (repo / "bms_src").mkdir(parents=True)
+    (repo / "bms_src" / "BNK1CAM.bms").write_text(BNK1CAM, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_bms_maps_load_as_screen_fields(scanned_bms):
+    ef = load_galaxy_ir(scanned_bms).files["bms_src/BNK1CAM.bms"]
+    assert ef.language == "bms"
+    assert [(sf.kind, sf.name, sf.parent_ordinal) for sf in ef.screen_fields] == [
+        ("mapset", "BNK1CAM", None),
+        ("map", "BNK1CA", 0),
+        ("field", None, 1),
+        ("field", "CUSTNO", 1),
+    ]
+    literal, custno = ef.screen_fields[2:]
+    assert literal.initial == "Please provide the requested information and press Enter."
+    assert (literal.is_symbolic, custno.is_symbolic) == (False, True)
+    assert (custno.pos_line, custno.pos_column, custno.length, custno.attrb) == (6, 23, 10, "NORM,NUM,FSET")
+    assert custno.attributes == "COLOR=GREEN,HILIGHT=UNDERLINE"
+    assert ef.screen_fields[1].attributes == "SIZE=(24,80),COLUMN=1,LINE=1"
+
+
+def test_a_pre_3347_db_loads_with_no_screen_fields(scanned_bms, tmp_path):
+    copy = tmp_path / "old.db"
+    shutil.copy(scanned_bms, copy)
+    with sqlite3.connect(copy) as conn:
+        conn.execute("DROP TABLE screen_field_data")
+    assert load_galaxy_ir(copy).files["bms_src/BNK1CAM.bms"].screen_fields == []
+
+
 def test_inventory_spans_the_mainframe_family(scanned):
     _, db = scanned
     ir = load_galaxy_ir(db)

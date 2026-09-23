@@ -13,10 +13,10 @@
     },
     "cics-banking-sample-application-cbsa": {
       "by_cause": {
+        "bms_symbolic_map": 1,
         "entry_point": 33,
         "exec_sql_include": 2,
         "forge_flat_schema": 5,
-        "key:old-parser defect": 1,
         "stated_absence": 8,
         "system_copybook": 1
       },

@@ -66,6 +66,7 @@ from typing import Any, Optional
 
 # #3344: the DB2 DECLARE TABLE / DCLGEN channel lives in its own module (it is
 # not a DATA DIVISION construct) and rides out of extract_boundary as `sql_tables`.
+from gitgalaxy.core.bms_screen_fields import bms_screen_fields
 from gitgalaxy.core.db2_declare_table import extract_sql_tables
 
 # The dialects that carry a top-level `boundary_extraction` declaration. It is
@@ -73,7 +74,8 @@ from gitgalaxy.core.db2_declare_table import extract_sql_tables
 # every string value in `rules` (#2806). `csd` is the CICS resource-definition
 # deck (#3211-followup); jcl additionally carries a DFHCSDUP SYSIN deck inline.
 # `pli` carries only the record channel: its DECLAREd structures (#3250).
-BOUNDARY_DIALECTS = ("cobol", "jcl", "csd", "pli")
+# `bms` carries only the screen-field channel: its map field layouts (#3347).
+BOUNDARY_DIALECTS = ("cobol", "jcl", "csd", "pli", "bms")
 
 # #3211-followup: the call-site verbs whose `target` is a TRANSACTION, not a
 # program. They ride in call_site_data alongside program invocations, but their
@@ -1310,5 +1312,15 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "records": _pli_records(code_stream),
             "transactions": [],
             "sql_tables": extract_sql_tables(code_stream, "pli"),  # #3344
+        }
+    if dialect == "bms":
+        # #3347: BMS map field layouts ride their own key (`screen_fields`), read
+        # by the caller with a default -- no other dialect carries it.
+        return {
+            "calls": [],
+            "datasets": [],
+            "records": [],
+            "transactions": [],
+            "screen_fields": bms_screen_fields(code_stream),
         }
     return {"calls": [], "datasets": [], "records": [], "transactions": []}

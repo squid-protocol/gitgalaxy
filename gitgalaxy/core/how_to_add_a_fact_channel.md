@@ -16,6 +16,7 @@ before writing anything:
 | dataset boundary/lineage | #3201 | `core/mainframe_boundary.py` | `dataset_data` | `EngineFile.datasets` |
 | DATA DIVISION record layouts | #3246 | `core/mainframe_boundary.py` | `record_data` | `EngineFile.records` |
 | PL/I DECLARE structures (a second dialect on an existing table) | #3250 | `core/mainframe_boundary.py` (`_pli_records`) | `record_data` (+ `attributes`) | `EngineFile.records` |
+| BMS screen-field layouts (its own table: geometry has no record column) | #3347 | `core/bms_screen_fields.py` (dispatched from `mainframe_boundary`) | `screen_field_data` | `EngineFile.screen_fields` |
 | project-local idiom wrappers (global/resolved, NOT mainframe) | #3313 | `core/wrapper_extractor.py` + `core/wrapper_resolver.py` | `wrapper_data` (+ `file_data.wrapper_facts`) | per-file `idiom_wrappers` |
 | DB2 `DECLARE TABLE` / DCLGEN schemas (own table: SQL types don't fit `record_data`) | #3344 | `core/db2_declare_table.py` (via `extract_boundary`, cobol + pli) | `sql_table_data` | `EngineFile.sql_tables` |
 

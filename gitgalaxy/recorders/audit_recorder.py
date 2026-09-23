@@ -174,6 +174,28 @@ class AuditRecorder:
                 }
                 for c in sql_tables
             ]
+        screen = file_data.get("screen_fields") or []
+        if screen:
+            # #3347: BMS mapset/map/field rows, mirroring screen_field_data.
+            block["Screen Fields"] = [
+                {
+                    "Kind": sf.get("kind"),
+                    "Name": sf.get("name"),
+                    "POS Line": sf.get("pos_line"),
+                    "POS Column": sf.get("pos_column"),
+                    "Length": sf.get("length"),
+                    "ATTRB": sf.get("attrb"),
+                    "PICIN": sf.get("picin"),
+                    "PICOUT": sf.get("picout"),
+                    "Initial": sf.get("initial"),
+                    "Occurs": sf.get("occurs"),
+                    "Attributes": sf.get("attributes"),
+                    "Ordinal": sf.get("ordinal"),
+                    "Parent Ordinal": sf.get("parent_ordinal"),
+                    "Line": sf.get("line", 0),
+                }
+                for sf in screen
+            ]
         return block
 
     def generate_report(

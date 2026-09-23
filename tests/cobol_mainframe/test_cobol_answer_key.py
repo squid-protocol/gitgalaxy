@@ -429,3 +429,75 @@ def test_sql_table_key_entries_are_drafts_until_signed_off(key_path):
         assert entry["verification"]["status"] in ("draft", "validated")
         for c in entry["columns"]:
             assert {"table", "colno", "name", "sql_type", "length", "scale", "nullable", "line"} <= set(c)
+
+
+
+# ==============================================================================
+# #3347: BMS screen-field layouts -- the key's own reader
+# ==============================================================================
+def test_bms_reader_reads_the_raw_file_independently():
+    """Raw source in: the reader drops its own `*` comment lines, joins column-72
+    continuations at column 16 (a literal split mid-word too), ignores columns
+    73-80 and skips the TYPE=FINAL closer."""
+    src = "\n".join(
+        [
+            "*  BNK1CAM banner",
+            f"{'BNK1CAM  DFHMSD TYPE=&SYSPARM,MODE=INOUT,LANG=COBOL':<72}00000100",
+            f"{'BNK1CA   DFHMDI SIZE=(24,80),':<71}*",
+            "               COLUMN=1,LINE=1",
+            f"{'         DFHMDF POS=(3,1),LENGTH=57,ATTRB=(NORM,PROT),COLOR=TURQUOISE,':<71}*",
+            f"{'               INITIAL=' + chr(39) + 'Please provide the requested information and pr':<71}*",
+            "               ess Enter.'",
+            f"{'ACCOUNT  DFHMDF POS=(9,1),LENGTH=79,ATTRB=(NORM,PROT),':<71}*",
+            "               OCCURS=10,PICOUT='9999.99'     REMARKS HERE",
+            "*OLD     DFHMDF POS=(10,1),LENGTH=1",
+            "         DFHMSD TYPE=FINAL",
+        ]
+    )
+    items = ak.bms_screen_items(src)
+    assert [(it["kind"], it["name"], it["parent_ordinal"], it["line"]) for it in items] == [
+        ("mapset", "BNK1CAM", None, 2),
+        ("map", "BNK1CA", 0, 3),
+        ("field", None, 1, 5),
+        ("field", "ACCOUNT", 1, 8),
+    ]
+    assert items[2]["initial"] == "Please provide the requested information and press Enter."
+    assert (items[3]["occurs"], items[3]["picout"], items[3]["attrb"]) == (10, "9999.99", "NORM,PROT")
+    assert ak.bms_symbolic_names(items) == {"BNK1CA.ACCOUNT"}
+    units = ak.bms_layout_units(items)
+    assert "mapset BNK1CAM" in units and "map BNK1CAM.BNK1CA" in units
+    assert "field BNK1CA.ACCOUNT @9,1 len=79 attrb=NORM,PROT picout=9999.99 occurs=10" in units
+
+
+def test_symbolic_map_names_read_a_generated_copybook(tmp_path):
+    cpy = tmp_path / "M.cpy"
+    cpy.write_text(
+        "\n".join(
+            [
+                "       01  CCRDLIAI.",
+                "           02  FILLER PIC X(12).",
+                "           02  TRNNAMEL    COMP  PIC  S9(4).",
+                "           02  TRNNAMEF    PICTURE X.",
+                "           02  FILLER REDEFINES TRNNAMEF.",
+                "             03 TRNNAMEA    PICTURE X.",
+                "           02  FILLER   PICTURE X(4).",
+                "           02  TRNNAMEI  PIC X(4).",
+                "       01  CCRDLIAO REDEFINES CCRDLIAI.",
+                "           02  FILLER PIC X(12).",
+                "           02  TRNNAMEO  PIC X(4).",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    assert ak.symbolic_map_names(cpy) == {"CCRDLIA.TRNNAME"}
+
+
+@pytest.mark.parametrize("key_path", KEYS, ids=lambda p: p.stem)
+def test_bms_key_entries_are_drafts_until_signed_off(key_path):
+    key = json.loads(key_path.read_text(encoding="utf-8"))
+    for rel, entry in key.get("bms_maps", {}).items():
+        assert rel.lower().endswith(ak.BMS_EXTS), rel
+        assert isinstance(entry["fields_validated"], bool)
+        assert entry["verification"]["status"] in ("draft", "validated")
+        for it in entry["fields"]:
+            assert set(ak.BMS_ITEM_KEYS) | {"line"} <= set(it)

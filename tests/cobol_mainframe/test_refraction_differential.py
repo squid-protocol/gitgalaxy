@@ -378,3 +378,74 @@ def test_sql_column_verdict_needs_explicit_validation(mini_repo):
     summary = rd.summarize_causes(rd.classify(mini_repo, rows, key))
     assert summary["unexplained"] == 0
     assert summary["by_cause"] == {"key:engine defect": 2}
+
+
+
+# ==============================================================================
+# #3347: BMS screen fields -- the key's independent reader vs the engine, and the
+# generated symbolic-map copybook vs the engine's named fields
+# ==============================================================================
+def _bms_row(old=(), db=(), symbolic=None):
+    return {
+        "file": "bms/M.bms",
+        "language": "bms",
+        "bms_fields": {"old": sorted(old), "db": sorted(db)},
+        "bms_symbolic": symbolic,
+    }
+
+
+def test_a_bms_delta_is_a_real_finding_not_a_stated_absence(mini_repo):
+    row = _bms_row(
+        old=["field MAP1.A @1,1 len=5"],
+        db=["field MAP1.A @1,2 len=5"],
+        symbolic={"copybook": "cpy/M.cpy", "old": ["MAP1.A", "MAP1.B"], "db": ["MAP1.A"]},
+    )
+    classified = rd.classify(mini_repo, [row], None)
+    assert sorted((d["field"], d["side"], d["value"], d["cause"]) for d in classified) == [
+        ("bms_field", "db", "field MAP1.A @1,2 len=5", rd.UNEXPLAINED),
+        ("bms_field", "old", "field MAP1.A @1,1 len=5", rd.UNEXPLAINED),
+        ("bms_symbolic_field", "old", "MAP1.B", rd.UNEXPLAINED),
+    ]
+
+
+def test_bms_rows_stay_out_of_the_cobol_summary(mini_repo):
+    rows = [_bms_row(old=["map M.MAP1"], db=["map M.MAP1"])]
+    assert rd.flatten(rows) == []
+    assert rd.to_markdown({"repo": "r", "commit": "0" * 8}, rows).count("bms/M.bms") == 0
+
+
+def test_bms_field_verdict_needs_explicit_validation(mini_repo):
+    """Drafted like records: a `bms_field` delta adjudicates only once the map is
+    signed off with `fields_validated`. The key has MAP1.A at 1,1, so the engine's
+    1,2 is the defect."""
+    items = [
+        {"kind": "map", "ordinal": 0, "parent_ordinal": None, "name": "MAP1"},
+        {"kind": "field", "ordinal": 1, "parent_ordinal": 0, "name": "A", "pos_line": 1, "pos_column": 1, "length": 5},
+    ]
+    key = {"programs": {}, "bms_maps": {"bms/M.bms": {"fields": items, "fields_validated": False}}}
+    row = _bms_row(db=["field MAP1.A @1,2 len=5"])
+    assert rd.summarize_causes(rd.classify(mini_repo, [row], key))["unexplained"] == 1
+    key["bms_maps"]["bms/M.bms"]["fields_validated"] = True
+    summary = rd.summarize_causes(rd.classify(mini_repo, [row], key))
+    assert (summary["unexplained"], summary["by_cause"]) == (0, {"key:engine defect": 1})
+
+
+def test_compare_bms_checks_a_map_against_its_generated_copybook(tmp_path):
+    """A real scan of carddemo's COCRDLI.bms beside the COCRDLI.CPY that IBM's
+    DFHMAPS generated from it: every named field agrees, and so do the two readers."""
+    from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+
+    src = rd.EXCERPTS / "aws-mainframe-modernization-carddemo" / "app"
+    repo = tmp_path / "carddemo"
+    for rel in ("bms/COCRDLI.bms", "cpy-bms/COCRDLI.CPY"):
+        (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+        (repo / rel).write_bytes((src / rel).read_bytes())
+    with rd._scan_env():
+        ir = load_galaxy_ir(scan_to_db(repo, tmp_path / "scan"))
+    (row,) = rd.compare_bms(repo, ir)
+    assert row["bms_fields"]["old"] == row["bms_fields"]["db"]
+    assert len(row["bms_fields"]["db"]) == 74  # mapset + map + 72 fields
+    sym = row["bms_symbolic"]
+    assert sym["copybook"] == "cpy-bms/COCRDLI.CPY"
+    assert sym["old"] == sym["db"] and "CCRDLIA.ACCTSID" in sym["db"]
+    assert rd.flatten([row]) == []

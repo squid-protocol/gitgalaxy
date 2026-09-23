@@ -934,6 +934,44 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);")
 
+        # #3347: BMS screen-field layouts -- one row per DFHMSD (mapset) / DFHMDI
+        # (map) / DFHMDF (field) macro, in source order, the tree carried as
+        # `ordinal`/`parent_ordinal` like record_data. A dedicated table rather
+        # than a record_data dialect: a screen field's facts are GEOMETRY (POS
+        # line/column, LENGTH) and 3270 attributes, none of which is a record_data
+        # column, and a map is not storage. `kind` is 'mapset' | 'map' | 'field';
+        # `field_name` is NULL for an unnamed DFHMDF (a screen literal, which never
+        # reaches the symbolic map). `attributes` keeps every other operand as
+        # written (COLOR=, HILIGHT=, a map's SIZE=, a mapset's MODE=/LANG= ...).
+        # Per-file, so it hangs off file_data with the usual cascade-delete.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS screen_field_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                ordinal INTEGER,
+                parent_ordinal INTEGER,
+                field_name TEXT,
+                pos_line INTEGER,
+                pos_column INTEGER,
+                length INTEGER,
+                attrb TEXT,
+                picin TEXT,
+                picout TEXT,
+                initial_value TEXT,
+                occurs INTEGER,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_screen_field_file_id ON screen_field_data(file_id);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_screen_field_snapshot ON screen_field_data(repo_name, commit_hash);"
+        )
+
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
         # `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (and PROGRAM
@@ -1979,6 +2017,49 @@ class RecordKeeper:
                 it.get("value"),
                 int(it.get("line", 0) or 0),
                 it.get("attributes"),
+            ),
+        )
+
+        # #3347: BMS screen-field layouts -- the same per-file shape.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "screen_field_data",
+            (
+                "kind",
+                "ordinal",
+                "parent_ordinal",
+                "field_name",
+                "pos_line",
+                "pos_column",
+                "length",
+                "attrb",
+                "picin",
+                "picout",
+                "initial_value",
+                "occurs",
+                "attributes",
+                "line_number",
+            ),
+            "screen_fields",
+            lambda sf: (
+                sf.get("kind"),
+                int(sf.get("ordinal", 0) or 0),
+                sf.get("parent_ordinal"),
+                sf.get("name"),
+                sf.get("pos_line"),
+                sf.get("pos_column"),
+                sf.get("length"),
+                sf.get("attrb"),
+                sf.get("picin"),
+                sf.get("picout"),
+                sf.get("initial"),
+                sf.get("occurs"),
+                sf.get("attributes"),
+                int(sf.get("line", 0) or 0),
             ),
         )
 

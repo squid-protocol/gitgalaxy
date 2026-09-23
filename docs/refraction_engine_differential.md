@@ -562,3 +562,27 @@ in the excerpt, as BANKDATA's `EXEC SQL INCLUDE`d members -- which also surfaces
 copybook deltas in the excerpt baseline). zopeneditor has no DB2. carddemo's DCLGEN members use a
 `.dcl` extension, which no language claims, so they are not scanned (a detection follow-up, not this
 channel's).
+
+## Update: BMS screen-field layouts (#3347) — 2026-09-23
+
+BMS map sources are now a compared datum. The engine extracts every `DFHMSD`/`DFHMDI`/`DFHMDF` into
+`screen_field_data` (a `bms` boundary dialect, `core/bms_screen_fields.py`). Two comparisons run per
+map source:
+
+- **`bms_field`**: the answer key's own BMS reader (`cobol_answer_key.bms_screen_items`, over the RAW
+  file with its own column slicing and one tokenizer regex) vs the engine. The unit is one string per
+  mapset, map and field carrying its owner and every parsed column
+  (`field BNK1CA.CUSTNO @6,23 len=10 attrb=NORM,NUM,FSET`), so a position, length, attribute or
+  INITIAL disagreement is a delta, not only a missing name. INDEPENDENT; drafted, so it adjudicates
+  once a map is `fields_validated`.
+- **`bms_symbolic_field`**: where the repository carries the symbolic-map copybook generated from a
+  map (carddemo's `app/cpy-bms`), that copybook's `<field>I` names vs the engine's named fields. The
+  copybook is IBM's DFHMAPS output, so this checks the engine against the assembler itself. Before
+  #3347 the differential saw these copybooks only as the `bms_symbolic_map` cause.
+
+Both are `unexplained` on a delta, never `stated_absence`. Measured: the two readers agree on all 41
+maps across carddemo (21), CBSA (10) and the crucible's `data/bms` (10), 2,181 units; the engine
+agrees with all 17 of carddemo's generated symbolic-map copybooks. The excerpts gained carddemo's
+`COCRDLI.bms` (beside its committed `COCRDLI.CPY`) and CBSA's `BNK1CAM`/`BNK1ACC`/`BNK1UAM`; CBSA's
+excerpt `COPY BNK1CAM` delta now classifies as `bms_symbolic_map` (the map is present) instead of
+the key's `old-parser defect`, and unexplained stays 0 on every excerpt and full corpus.

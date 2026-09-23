@@ -86,6 +86,11 @@ DEFINITION: dict[str, Any] = {
     # class-header bug). prism.py's `_strip_positional_comments` therefore
     # takes a bms mode ('*' and '.*' only, no column-7 check, no inline split).
     "lexical_family": "positional_anchored",
+    # #3347: the screen-field fact channel -- every DFHMSD/DFHMDI/DFHMDF as a
+    # mapset -> map -> field row (POS, LENGTH, ATTRB, PICIN/PICOUT, INITIAL,
+    # OCCURS) in screen_field_data. TOP LEVEL, beside lexical_family, never in
+    # `rules` (#2806: rules strings are re.compile()d and would extract nothing).
+    "boundary_extraction": "bms",
     # COPY members resolve to PDS members, which are case-insensitive.
     "case_insensitive_imports": True,
     # #3199: this language's import statement names a library MEMBER that the

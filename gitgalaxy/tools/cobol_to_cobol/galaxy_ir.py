@@ -22,7 +22,10 @@
 # call_site_data), and since #3344 the DB2 table shapes programs bind to
 # (sql_table_data: every `EXEC SQL DECLARE <table> TABLE (...)` column -- SQL
 # type, length/scale, nullability -- inline or DCLGEN-generated, per
-# EngineFile.sql_tables). NOT in the DB, so still owned by the forge tools:
+# EngineFile.sql_tables), and since #3347 the BMS screen-field layouts
+# (screen_field_data: every mapset/map/field with POS, LENGTH, ATTRB,
+# PICIN/PICOUT, INITIAL, OCCURS -- the source of the symbolic-map copybooks, per
+# EngineFile.screen_fields). NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
 # to dead-code masking. See docs/refraction_engine_differential.md for the
@@ -219,6 +222,41 @@ class EngineSqlTable:
 
 
 @dataclass
+class EngineScreenField:
+    """One BMS macro statement of a map source (#3347): a DFHMSD mapset, a DFHMDI
+    map or a DFHMDF field, flat out of `screen_field_data`.
+
+    `kind` is 'mapset' | 'map' | 'field'; `parent_ordinal` is a map's mapset and a
+    field's map. `name` is None for an unnamed field -- a screen literal, which
+    occupies a position but never reaches the symbolic map (`is_symbolic`).
+    `pos_line`/`pos_column` come from `POS=(line,col)` (a scalar `POS=n` stays in
+    `attributes`), `attrb` is the ATTRB list without parentheses, `initial` the
+    INITIAL literal's content. `attributes` keeps every other operand as written
+    (COLOR=, HILIGHT=, a map's SIZE=, a mapset's MODE=/LANG=, ...).
+    """
+
+    kind: str
+    ordinal: int
+    parent_ordinal: Optional[int]
+    name: Optional[str]
+    pos_line: Optional[int]
+    pos_column: Optional[int]
+    length: Optional[int]
+    attrb: Optional[str]
+    picin: Optional[str]
+    picout: Optional[str]
+    initial: Optional[str]
+    occurs: Optional[int]
+    attributes: Optional[str]
+    line: int
+
+    @property
+    def is_symbolic(self) -> bool:
+        """A named field: one that becomes `<name>L/F/A/I/O` in the symbolic map."""
+        return self.kind == "field" and bool(self.name)
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -233,6 +271,7 @@ class EngineFile:
     records: list = field(default_factory=list)  # EngineDataItem tree roots (01/77), #3246
     transactions: list = field(default_factory=list)  # EngineTransaction, #3211-followup
     sql_tables: list = field(default_factory=list)  # EngineSqlTable, #3344
+    screen_fields: list = field(default_factory=list)  # EngineScreenField, flat source order, #3347
 
     @property
     def is_program(self) -> bool:
@@ -631,6 +670,35 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         bool(nullable),
                         attrs,
                         int(line or 0),
+                    )
+                )
+        # #3347: BMS screen-field layouts. A pre-#3347 database has no such table,
+        # so a missing table is "no screen fields", never an error.
+        if _has_table(cur, "screen_field_data"):
+            for row in cur.execute(
+                "SELECT file_id, kind, ordinal, parent_ordinal, field_name, pos_line, pos_column, length, attrb, "
+                "picin, picout, initial_value, occurs, attributes, line_number "
+                "FROM screen_field_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, ordinal",
+                (repo_name, commit_hash),
+            ):
+                if row[0] not in by_id:
+                    continue
+                by_id[row[0]].screen_fields.append(
+                    EngineScreenField(
+                        kind=row[1] or "",
+                        ordinal=int(row[2] or 0),
+                        parent_ordinal=row[3],
+                        name=row[4],
+                        pos_line=row[5],
+                        pos_column=row[6],
+                        length=row[7],
+                        attrb=row[8],
+                        picin=row[9],
+                        picout=row[10],
+                        initial=row[11],
+                        occurs=row[12],
+                        attributes=row[13],
+                        line=int(row[14] or 0),
                     )
                 )
     finally:

@@ -8,12 +8,14 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py score <repo> --key key.json [--db master.db] [--md out.md]
     python tests/tools/cobol_answer_key.py add-pli <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-sql-tables <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-bms <repo> --key key.json
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
 <repo> into the key's `pli_programs`, leaving every COBOL program (and its
 `validated` status) untouched -- a full `draft` would wipe them.
 `add-sql-tables` (#3344) does the same for DB2 `EXEC SQL DECLARE ... TABLE`
-columns (inline or DCLGEN members) into the key's `sql_tables`.
+columns (inline or DCLGEN members) into the key's `sql_tables`. `add-bms` (#3347)
+does the same for every BMS map source's screen fields, into `bms_maps`.
 
 AUTHORITY. `draft` computes CANDIDATE values with its own fixed-format reading
 (Area A headers, PERFORM ... THRU, GO TO, SECTION fall-through, terminal
@@ -812,6 +814,202 @@ def draft_sql_tables(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# BMS screen-field layouts (#3347)
+# ==============================================================================
+# This tool's own reading of a BMS map source, over the RAW file (it drops its
+# own `*`/`.*` comment lines -- it never sees the engine's PRISM stream). Each
+# statement is its physical lines sliced at the HLASM columns (1-71, then 16-71
+# for every line whose column 72 is non-blank), concatenated, and tokenized with
+# one regex; a blank outside a literal ends the operands unless it is the padding
+# between a trailing comma and the next continuation line. It shares the engine's
+# CONTRACT (one row per DFHMSD/DFHMDI/DFHMDF, TYPE=FINAL is not a mapset), not its
+# code, so an agreement is evidence and a disagreement is a finding.
+BMS_EXTS = (".bms",)
+_BMS_HEAD = re.compile(r"([A-Z@#$][A-Z0-9@#$_]*)?[ \t]+(DFHMSD|DFHMDI|DFHMDF)(?=[ \t]|$)", re.I)
+_BMS_TOKEN = re.compile(r"'(?:[^']|'')*'?|[(),=]|[^\s(),=']+|\s+")
+_BMS_KIND = {"DFHMSD": "mapset", "DFHMDI": "map", "DFHMDF": "field"}
+# The item keys the comparison reads, shared by this reader's items and the engine's rows.
+BMS_ITEM_KEYS = (
+    "kind",
+    "ordinal",
+    "parent_ordinal",
+    "name",
+    "pos_line",
+    "pos_column",
+    "length",
+    "attrb",
+    "picin",
+    "picout",
+    "initial",
+    "occurs",
+)
+
+
+def _bms_operands(text: str, boundaries: set[int]) -> list[list[str]]:
+    """The statement's operands as token lists, split at top-level commas."""
+    operands: list[list[str]] = [[]]
+    depth = 0
+    for m in _BMS_TOKEN.finditer(text):
+        tok = m.group(0)
+        if tok.isspace():
+            padding = any(m.start() <= b <= m.end() for b in boundaries)
+            if padding and depth == 0 and not operands[-1]:
+                continue  # between `,` and the next continuation line
+            break
+        if tok == "(":
+            depth += 1
+        elif tok == ")":
+            depth -= 1
+        if tok == "," and depth == 0:
+            operands.append([])
+        else:
+            operands[-1].append(tok)
+    return [o for o in operands if o]
+
+
+def bms_screen_items(text: str) -> list[dict[str, Any]]:
+    """Every DFHMSD/DFHMDI/DFHMDF of one BMS source, in source order, with
+    `parent_ordinal` the owning mapset (for a map) or map (for a field)."""
+    lines = [ln.rstrip("\r") for ln in text.split("\n")]
+    items: list[dict[str, Any]] = []
+    mapset = map_ = None
+    i = 0
+    while i < len(lines):
+        if lines[i].startswith(("*", ".*")):
+            i += 1
+            continue
+        first = i
+        segments = [lines[i][:71]]
+        while len(lines[i]) > 71 and lines[i][71] != " " and i + 1 < len(lines):
+            i += 1
+            segments.append(lines[i][15:71])
+        i += 1
+        head = _BMS_HEAD.match(segments[0])
+        if not head:
+            continue
+        kind = _BMS_KIND[head.group(2).upper()]
+        body = segments[0][head.end() :]
+        lead = len(body) - len(body.lstrip())
+        body = body[lead:]
+        boundaries, offset = set(), len(body)
+        for seg in segments[1:]:
+            boundaries.add(offset)
+            offset += len(seg)
+        row: dict[str, Any] = {
+            "kind": kind,
+            "name": head.group(1),
+            "pos_line": None,
+            "pos_column": None,
+            "length": None,
+            "attrb": None,
+            "picin": None,
+            "picout": None,
+            "initial": None,
+            "occurs": None,
+            "line": first + 1,
+        }
+        final = False
+        for op in _bms_operands(body + "".join(segments[1:]), boundaries):
+            key = op[0].upper()
+            value = "".join(op[2:]) if len(op) > 2 and op[1] == "=" else ""
+            if key == "TYPE" and value.upper() == "FINAL":
+                final = True
+            if kind != "field":
+                continue
+            nums = re.fullmatch(r"\((\d+),(\d+)\)", value)
+            if key == "POS" and nums:
+                row["pos_line"], row["pos_column"] = int(nums.group(1)), int(nums.group(2))
+            elif key in ("LENGTH", "OCCURS") and value.isdigit():
+                row[key.lower()] = int(value)
+            elif key == "ATTRB":
+                row["attrb"] = value.strip("()").upper()
+            elif key in ("PICIN", "PICOUT", "INITIAL"):
+                lit = value[1:-1] if len(value) > 1 and value.startswith("'") and value.endswith("'") else value
+                row[key.lower()] = lit.replace("''", "'").replace("&&", "&")
+        if kind == "mapset" and final:
+            mapset = map_ = None
+            continue
+        row["ordinal"] = len(items)
+        if kind == "mapset":
+            row["parent_ordinal"] = None
+            mapset, map_ = row["ordinal"], None
+        elif kind == "map":
+            row["parent_ordinal"] = mapset
+            map_ = row["ordinal"]
+        else:
+            row["parent_ordinal"] = map_ if map_ is not None else mapset
+        items.append(row)
+    return items
+
+
+def bms_layout_units(items: list[dict[str, Any]]) -> set[str]:
+    """The BMS comparison unit: one string per mapset, map and field carrying its
+    owner and every parsed column, e.g. `field BNK1CA.CUSTNO @6,23 len=10
+    attrb=NORM,NUM,FSET`. Works on this reader's items and on the engine's rows
+    (the same keys). An unnamed field (a screen literal) is `.` + its position,
+    so two literals are two units."""
+    by_ordinal = {it["ordinal"]: it for it in items}
+    out: set[str] = set()
+    for it in items:
+        name = (it.get("name") or "").upper()
+        if it["kind"] != "field":
+            parent = by_ordinal.get(it.get("parent_ordinal"))
+            owner = f"{(parent.get('name') or '').upper()}." if parent else ""
+            out.add(f"{it['kind']} {owner}{name}")
+            continue
+        parent = by_ordinal.get(it.get("parent_ordinal"))
+        owner = (parent.get("name") or "").upper() if parent else ""
+        pos = f"@{it['pos_line']},{it['pos_column']}" if it.get("pos_line") is not None else "@?"
+        unit = f"field {owner}.{name} {pos} len={it.get('length')}"
+        for col in ("attrb", "picin", "picout", "occurs", "initial"):
+            if it.get(col) is not None:
+                unit += f" {col}={it[col]!r}" if col == "initial" else f" {col}={it[col]}"
+        out.add(unit)
+    return out
+
+
+def bms_symbolic_names(items: list[dict[str, Any]]) -> set[str]:
+    """`MAP.FIELD` for every NAMED field -- exactly the names that become
+    `<field>L/F/A/I/O` in the generated symbolic map."""
+    by_ordinal = {it["ordinal"]: it for it in items}
+    out: set[str] = set()
+    for it in items:
+        if it["kind"] == "field" and it.get("name"):
+            parent = by_ordinal.get(it.get("parent_ordinal"))
+            out.add(f"{(parent.get('name') or '').upper() if parent else ''}.{it['name'].upper()}")
+    return out
+
+
+def symbolic_map_names(copybook: Path) -> set[str]:
+    """`MAP.FIELD` from a GENERATED symbolic-map copybook (IBM's DFHMAPS output):
+    each `01 <map>I` input record's `<field>I` items, the suffix dropped. Read with
+    this tool's own COBOL data-item reader."""
+    out: set[str] = set()
+    root = None
+    for it in _data_items(Source(copybook)):
+        if it["level"] == 1:
+            root = it["name"][:-1] if it["name"].endswith("I") else None
+        elif root and it["name"] != "FILLER" and it["name"].endswith("I") and it["level"] == 2:
+            out.add(f"{root}.{it['name'][:-1]}")
+    return out
+
+
+def draft_bms(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted screen-field layouts for every BMS source in `repo` (#3347). They
+    adjudicate a differential delta only once a map is signed off with
+    `fields_validated` -- the records_validated precedent (#3246/#3250)."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in BMS_EXTS and ".git" not in p.parts:
+            out[p.relative_to(repo).as_posix()] = {
+                "fields": bms_screen_items(p.read_text(encoding="utf-8", errors="ignore")),
+                "fields_validated": False,
+                "verification": {"status": "draft", "notes": []},
+            }
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -957,6 +1155,7 @@ def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], 
         "programs": {},
         "pli_programs": draft_pli(repo),  # #3250
         "sql_tables": draft_sql_tables(repo),  # #3344
+        "bms_maps": draft_bms(repo),  # #3347
     }
     report = [f"# Draft reachability evidence: {corpus} @ {ref[:8]}", ""]
     for p in programs:
@@ -1124,6 +1323,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # Truth is this tool's own terminator-cut reader; no forge reads them;
         # engine is sql_table_data.
         "DB2 table columns",
+        # #3347: BMS screen-field layout units (mapset/map/field with position,
+        # length and attributes), per map source. Truth is this tool's own BMS
+        # reader; there is no BMS forge; engine is screen_field_data.
+        "BMS screen fields",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -1285,6 +1488,17 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             ),
         )
 
+    for rel, k in key.get("bms_maps", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        engine_rows = [{c: getattr(sf, c) for c in BMS_ITEM_KEYS} for sf in ef.screen_fields] if ef else None
+        add(
+            "BMS screen fields",
+            rel,
+            bms_layout_units(k.get("fields", [])),
+            None,
+            bms_layout_units(engine_rows) if engine_rows is not None else None,
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -1338,6 +1552,9 @@ def main() -> int:
     q = sub.add_parser("add-sql-tables")
     q.add_argument("repo", type=Path)
     q.add_argument("--key", type=Path, required=True)
+    b = sub.add_parser("add-bms")
+    b.add_argument("repo", type=Path)
+    b.add_argument("--key", type=Path, required=True)
     args = ap.parse_args()
 
     repo = args.repo.resolve()
@@ -1369,6 +1586,16 @@ def main() -> int:
         key["sql_tables"] = existing_sql
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(existing_sql)} DECLARE TABLE files -> {args.key}")
+        return 0
+    if args.cmd == "add-bms":
+        # Refresh drafts, but never clobber a map someone already signed off.
+        existing = key.get("bms_maps", {})
+        for rel, entry in draft_bms(repo).items():
+            if not existing.get(rel, {}).get("fields_validated"):
+                existing[rel] = entry
+        key["bms_maps"] = existing
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(existing)} BMS maps -> {args.key}")
         return 0
     result, md = score(repo, key, args.db)
     if args.md:

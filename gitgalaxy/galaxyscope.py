@@ -678,6 +678,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             record_layouts: list = []
             transaction_defs: list = []
             sql_tables: list = []  # #3344: DB2 DECLARE TABLE / DCLGEN columns
+            screen_fields: list = []  # #3347: BMS map field layouts
 
             # 1. Extract raw file dependencies. An inert (static-asset) language
             # normally skips this whole phase, but one that explicitly DECLARES
@@ -745,6 +746,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     # #3344: DB2 `EXEC SQL DECLARE ... TABLE` columns (cobol/pli
                     # only), same default-read discipline.
                     sql_tables = boundary.get("sql_tables", [])
+                    # #3347: BMS mapset -> map -> field layouts (bms only).
+                    screen_fields = boundary.get("screen_fields", [])
                 except Exception:
                     logging.exception("Boundary extraction failed for language '%s'.", lang_id)
 
@@ -809,6 +812,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "wrapper_facts": wrapper_facts,
             # #3344: DB2 DECLARE TABLE / DCLGEN columns -> sql_table_data.
             "sql_tables": sql_tables,
+            # #3347: BMS screen-field layouts, a per-file fact (screen_field_data).
+            "screen_fields": screen_fields,
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }

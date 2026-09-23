@@ -10,7 +10,9 @@ for two real examples of the commit sequence this replaces):
     2. regenerate (bless) those artifact files against the rebased tree;
     3. verify the resulting golden-master diff against main is limited to this
        branch's OWN new keys -- fail loudly on any other ("foreign") drift;
-    4. refresh baseline entries for moved lines in files this branch touched;
+    4. refresh lint baselines (audit_check.py --regenerate) scoped to files this
+       branch touched -- since #3384 ruff/mypy keys are content-based, so moved
+       lines need no refresh; this only re-accepts edited baselined lines;
     5. run ruff check/format and a fast, touched-file-scoped test selection;
     6. optionally `git push --force-with-lease` (never plain force).
 
@@ -291,9 +293,11 @@ def regenerate_golden_masters(repo: Path) -> None:
 
 def refresh_lint_baselines(repo: Path) -> bool:
     """audit_check.py --regenerate only rewrites a baseline when EVERY new
-    finding is a pure line-shift (same file/code/message, just moved) -- a
-    genuine new finding anywhere is left untouched and still fails. Its exit
-    code also doubles as our ruff check/format gate."""
+    finding pairs one-for-one with a now-stale entry of the same file/code/
+    message (an edited baselined line; since #3384's content-keyed baselines a
+    pure line shift produces no new keys at all) -- a genuine new finding
+    anywhere is left untouched and still fails. Its exit code also doubles as
+    our ruff check/format gate."""
     result = subprocess.run([PY, "tests/tools/audit_check.py", "--regenerate"], cwd=repo)
     return result.returncode == 0
 
@@ -437,7 +441,7 @@ def main(argv: list[str] | None = None) -> int:
         path = repo / rel_path
         before_baselines[rel_path] = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
 
-    print("[baselines] refreshing ruff/mypy baseline entries for moved lines, running ruff check/format ...")
+    print("[baselines] refreshing ruff/mypy baselines (edited lines only), running ruff check/format ...")
     lint_ok = refresh_lint_baselines(repo)
     scope_violations = verify_baseline_refresh_scope(repo, before_baselines, touched)
 

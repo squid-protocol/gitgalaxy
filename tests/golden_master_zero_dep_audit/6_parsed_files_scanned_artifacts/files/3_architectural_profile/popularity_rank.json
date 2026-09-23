@@ -2935,7 +2935,7 @@
       "python/numpy/verify_c_api_version.py": 0
     },
     "python/twisted": {
-      "python/twisted/defer.py": 2,
+      "python/twisted/defer.py": 1,
       "python/twisted/http.py": 13,
       "python/twisted/reflect.py": 3,
       "python/twisted/transport.py": 2
@@ -3062,7 +3062,7 @@
       "scala/kafka/KafkaRaftManager.scala": 0,
       "scala/kafka/LogManager.scala": 3,
       "scala/kafka/Partition.scala": 5,
-      "scala/kafka/ReplicaManager.scala": 3,
+      "scala/kafka/ReplicaManager.scala": 2,
       "scala/kafka/SocketServer.scala": 5
     },
     "scheme": {
@@ -3786,7 +3786,7 @@
       "zig/tigerbeetle/aof.zig": 1,
       "zig/tigerbeetle/build.zig": 0,
       "zig/tigerbeetle/build_multiversion.zig": 0,
-      "zig/tigerbeetle/cluster.zig": 1,
+      "zig/tigerbeetle/cluster.zig": 0,
       "zig/tigerbeetle/config.zig": 1,
       "zig/tigerbeetle/constants.zig": 4,
       "zig/tigerbeetle/copyhound.zig": 0,
@@ -3799,7 +3799,7 @@
     "zig/zig": {
       "zig/zig/Compilation.zig": 2,
       "zig/zig/InternPool.zig": 4,
-      "zig/zig/Type.zig": 7,
+      "zig/zig/Type.zig": 6,
       "zig/zig/Zcu.zig": 8,
       "zig/zig/main.zig": 1
     },

@@ -104,10 +104,6 @@
       "python/fastapi/tests/test_exception_handlers.py": {
         "Literal Sites": 3,
         "Wrapped Sites": 1
-      },
-      "python/fastapi/tests/test_ws_router.py": {
-        "Literal Sites": 3,
-        "Wrapped Sites": 1
       }
     },
     "scheme/racket": {

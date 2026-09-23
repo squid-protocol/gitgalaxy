@@ -38,17 +38,7 @@
         "Wrapped Sites": 6
       }
     },
-    "groovy/gradle_dsl_snippets": {
-      "groovy/gradle_dsl_snippets/modelRules_basicRuleSourcePlugin_groovy_build.gradle": {
-        "Literal Sites": 1,
-        "Wrapped Sites": 1
-      }
-    },
     "javascript/react": {
-      "javascript/react/ReactFiberWorkLoop.js": {
-        "Literal Sites": 14,
-        "Wrapped Sites": 1
-      },
       "javascript/react/build.js": {
         "Literal Sites": 18,
         "Wrapped Sites": 1

@@ -91,7 +91,6 @@ def test_builtins_are_calls():
     assert {"print", "len"} <= set(_calls("python", code)["run"])
 
 
-@pytest.mark.xfail(strict=True, reason="#3360: a nested declaration header is captured as a call")
 def test_nested_declaration_is_not_a_call():
     code = "def outer(x):\n    def inner(y):\n        return y\n    return inner\n"
     assert "inner" not in _calls("python", code)["outer"]

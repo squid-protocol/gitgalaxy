@@ -72,32 +72,32 @@
       {
         "doc": 100.0,
         "path": "jcl/cics-banking-sample-application-cbsa/CRELIBS.jcl",
-        "pr": 14.432,
-        "score": 1443.2
+        "pr": 14.439,
+        "score": 1443.9
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/exceptions.py",
-        "pr": 5.413,
-        "score": 541.3
+        "pr": 5.424,
+        "score": 542.4
       },
       {
         "doc": 100.0,
         "path": "scheme/racket/io.ss",
-        "pr": 4.805,
-        "score": 480.5
+        "pr": 4.807,
+        "score": 480.7
       },
       {
         "doc": 100.0,
         "path": "javascript/jquery/core.js",
-        "pr": 4.723,
-        "score": 472.3
+        "pr": 4.725,
+        "score": 472.5
       },
       {
         "doc": 100.0,
         "path": "python/fastapi/fastapi/responses.py",
-        "pr": 4.163,
-        "score": 416.3
+        "pr": 4.171,
+        "score": 417.1
       }
     ]
   }

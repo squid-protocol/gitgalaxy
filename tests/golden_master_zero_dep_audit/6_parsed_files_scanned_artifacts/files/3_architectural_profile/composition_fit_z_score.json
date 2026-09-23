@@ -3062,7 +3062,7 @@
       "scala/kafka/KafkaRaftManager.scala": 0.894,
       "scala/kafka/LogManager.scala": 0.202,
       "scala/kafka/Partition.scala": 1.061,
-      "scala/kafka/ReplicaManager.scala": 0.344,
+      "scala/kafka/ReplicaManager.scala": 0.277,
       "scala/kafka/SocketServer.scala": 0.918
     },
     "scheme": {
@@ -3783,23 +3783,23 @@
       "zig/bun/napi.zig": 0.434
     },
     "zig/tigerbeetle": {
-      "zig/tigerbeetle/aof.zig": 0.537,
+      "zig/tigerbeetle/aof.zig": 0.518,
       "zig/tigerbeetle/build.zig": 0.698,
       "zig/tigerbeetle/build_multiversion.zig": -0.467,
-      "zig/tigerbeetle/cluster.zig": 0.587,
-      "zig/tigerbeetle/config.zig": 1.442,
-      "zig/tigerbeetle/constants.zig": 0.915,
+      "zig/tigerbeetle/cluster.zig": 0.512,
+      "zig/tigerbeetle/config.zig": 1.463,
+      "zig/tigerbeetle/constants.zig": 0.938,
       "zig/tigerbeetle/copyhound.zig": 0.031,
       "zig/tigerbeetle/counting_allocator.zig": 1.625,
       "zig/tigerbeetle/direction.zig": 1.142,
       "zig/tigerbeetle/download.sh": 1.68,
       "zig/tigerbeetle/download.win.ps1": 0.826,
-      "zig/tigerbeetle/state_machine.zig": 0.048
+      "zig/tigerbeetle/state_machine.zig": 0.027
     },
     "zig/zig": {
       "zig/zig/Compilation.zig": 0.112,
       "zig/zig/InternPool.zig": 0.226,
-      "zig/zig/Type.zig": 0.517,
+      "zig/zig/Type.zig": 0.483,
       "zig/zig/Zcu.zig": 0.948,
       "zig/zig/main.zig": 0.312
     },

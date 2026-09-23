@@ -172,18 +172,6 @@
         }
       ]
     },
-    "groovy/gradle_dsl_snippets": {
-      "groovy/gradle_dsl_snippets/modelRules_basicRuleSourcePlugin_groovy_build.gradle": [
-        {
-          "Call Sites": 1,
-          "Calling Files": 1,
-          "Kind": "function",
-          "Name": "createHelloTask",
-          "Rule": "debug_prints",
-          "Via": "primitive"
-        }
-      ]
-    },
     "groovy/spock_smoke_specs": {
       "groovy/spock_smoke_specs/GroovyCallChain.groovy": [
         {
@@ -209,16 +197,6 @@
       ]
     },
     "javascript/react": {
-      "javascript/react/ReactFiberWorkLoop.js": [
-        {
-          "Call Sites": 1,
-          "Calling Files": 1,
-          "Kind": "function",
-          "Name": "get",
-          "Rule": "debug_prints",
-          "Via": "primitive"
-        }
-      ],
       "javascript/react/ReactFlightServer.js": [
         {
           "Call Sites": 6,
@@ -271,16 +249,6 @@
           "Calling Files": 1,
           "Kind": "function",
           "Name": "raise_value_error",
-          "Rule": "panics_and_aborts",
-          "Via": "primitive"
-        }
-      ],
-      "python/fastapi/tests/test_ws_router.py": [
-        {
-          "Call Sites": 1,
-          "Calling Files": 1,
-          "Kind": "function",
-          "Name": "catcher",
           "Rule": "panics_and_aborts",
           "Via": "primitive"
         }

@@ -922,6 +922,83 @@ def _call_qualifier(text: str, pos: int) -> str:
     return ".".join(reversed(segments))
 
 
+def _declaration_headers(func_start: Any, text: str) -> tuple[dict[int, str], dict[int, int]]:
+    """#3360 (contract C5): where the `func_start` rule names a unit nested in `text`.
+
+    `text` is one sliced unit. Its first `func_start` match is the unit's own
+    header and is skipped, so self-removal and every own-header capture behave as
+    before; each later match is a unit declared inside the body. Returns
+    `(group_starts, match_ends)`: each start offset of a later match's capture
+    group mapped to that group's text, and each later match's end offset mapped
+    to its start. `_is_declaration_header` reads both. Reusing the slicer's own
+    `func_start` rule means no per-language declaration pattern is needed.
+    """
+    group_starts: dict[int, str] = {}
+    match_ends: dict[int, int] = {}
+    if not hasattr(func_start, "finditer"):
+        return group_starts, match_ends
+    try:
+        for i, fm in enumerate(func_start.finditer(text)):
+            if i == 0:
+                continue
+            match_ends.setdefault(fm.end(), fm.start())
+            for g in range(1, fm.re.groups + 1):
+                s = fm.start(g)
+                if s >= 0:
+                    group_starts.setdefault(s, fm.group(g))
+    except Exception:
+        return {}, {}
+    return group_starts, match_ends
+
+
+def _is_declaration_header(headers: tuple[dict[int, str], dict[int, int]], m: "re.Match[str]") -> bool:
+    """Is this `CALLS_OUT_C_STYLE` match (`name\\s*(`) the name of a `func_start` header?
+
+    Either a capture group of a header match starts at the name and spells it
+    (`local function f (`, rust/zig `fn`), or a group-less header match ends
+    between the name and its `(` (python `def inner(`, javascript `function
+    inner`). The second test takes the name only when it is the header's last
+    token, so a decorator factory inside the match (`@retry(3) def f(`) is
+    still a call (C1).
+    """
+    group_starts, match_ends = headers
+    callee = m.group(1)
+    pos = m.start(1)
+    group_text = group_starts.get(pos)
+    if group_text is not None and group_text.startswith(callee):
+        nxt = group_text[len(callee) : len(callee) + 1]
+        if not (nxt.isalnum() or nxt == "_"):
+            return True
+    for end in range(m.end(1), m.end() + 1):
+        start = match_ends.get(end)
+        if start is not None and start <= pos:
+            return True
+    return False
+
+
+def _drop_nested_declaration_calls(sats: list[Any], candidates: list[tuple[Any, set[str]]]) -> None:
+    """#3360 (C5): remove callees captured only on the header of a nested unit.
+
+    A candidate name is dropped from a unit's calls_out_to only when the slicer
+    really emitted a unit of that name starting inside the enclosing unit's
+    lines. A func_start match the slicer itself rejected (a call statement the
+    raw rule happens to fit) is still a call, so it stays.
+    """
+    starts: dict[str, list[int]] = {}
+    for s in sats:
+        leaf = _UNIT_NAME_SEPARATORS.split(str(s.get("name") or ""))[-1]
+        starts.setdefault(leaf, []).append(int(s.get("start_line") or 0))
+    for sat, names in candidates:
+        lo, hi = int(sat.get("start_line") or 0), int(sat.get("end_line") or 0)
+        drop = {n for n in names if any(lo <= line <= hi for line in starts.get(n, ()))}
+        if drop:
+            sat["calls_out_to"] = [c for c in sat["calls_out_to"] if c not in drop]
+            sat["calls_out_qualifiers"] = {c: q for c, q in sat["calls_out_qualifiers"].items() if c not in drop}
+
+
+_UNIT_NAME_SEPARATORS = re.compile(r"::|\.|->")
+
+
 _CALLS_OUT_GLOBAL_IGNORE = frozenset(
     {
         "if",
@@ -1460,6 +1537,9 @@ class StructuralExtractor:
         lang_config: dict[str, Any] = self.languages.get(self.primary_lang_id, {})
         self.primary_rules: dict[str, Any] = lang_config.get("rules", {})
         self.primary_family = lang_config.get("lexical_family", "c_style_comment")
+        # #3360: (unit, callees seen only on a nested header) pairs one segment's
+        # slicing collects; _function_slice resolves them. None outside a slice.
+        self._nested_decl_candidates: Optional[list[tuple[FunctionNode, set[str]]]] = None
 
         # #2728: the names this language's own `func_start` can synthesize from a
         # closed keyword alternation rather than capture from source. Empty for
@@ -3631,6 +3711,7 @@ class StructuralExtractor:
             mode_name = "Unknown"
             sats: list[FunctionNode] = []
             impact = 0.0
+            self._nested_decl_candidates = []
 
             if integration_mode == "mode_d":
                 mode_name = "Mode_D_Keywords"
@@ -3840,6 +3921,10 @@ class StructuralExtractor:
             if regex_telemetry is not None and mode_name != "Unknown":
                 key = f"{lang_id}::Cartography_{mode_name}"
                 regex_telemetry[key] = regex_telemetry.get(key, 0.0) + (time.perf_counter() - t_mode_start)
+
+            if self._nested_decl_candidates:
+                _drop_nested_declaration_calls(sats, self._nested_decl_candidates)
+            self._nested_decl_candidates = None
 
             # --- SATELLITE-SCOPED CORRELATION (#346 phase 1, #348 phase 2) ---
             # Runs for every segment unconditionally, using THIS segment's own
@@ -8832,12 +8917,22 @@ class StructuralExtractor:
         # carry no qualifier: their map stays empty, meaning "not captured".
         qualifiers_seen: dict[str, list[str]] = {}
         raw_calls: list[str] = []
+        header_only: set[str] = set()
+        invoked: set[str] = set()
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
             if invocation_pattern is CALLS_OUT_C_STYLE:
+                # #3360 (C5): note which callees were captured only on a nested
+                # func_start header (`def inner(`). _function_slice drops them
+                # once it knows the slicer really emitted that nested unit.
+                decl_headers = _declaration_headers(rules.get("func_start"), safe_block)
                 for m in invocation_pattern.finditer(safe_block):
                     callee = m.group(1)
+                    if _is_declaration_header(decl_headers, m):
+                        header_only.add(callee)
+                    else:
+                        invoked.add(callee)
                     raw_calls.append(callee)
                     seen = qualifiers_seen.setdefault(callee, [])
                     qualifier = _call_qualifier(safe_block, m.start(1))
@@ -8906,6 +9001,9 @@ class StructuralExtractor:
             "coding_loc": coding_loc,
             "token_mass": get_token_mass(block),
         }
+        decl_only = header_only - invoked
+        if decl_only and self._nested_decl_candidates is not None:
+            self._nested_decl_candidates.append((sat, decl_only))
         return sat, magnitude
 
     def _export_declaration_offsets(self, code_stream: str) -> set[int]:

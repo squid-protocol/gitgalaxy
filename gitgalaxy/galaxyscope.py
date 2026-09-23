@@ -1035,8 +1035,9 @@ class Orchestrator:
         # detector at all (#2512).
         # PL/I %INCLUDE members (#2502) are the copybook shape: navikt/DSF keeps 1,473
         # of them in one src/ directory, many a single short DECLARE.
+        # DB2 DCLGEN members (`.dcl`, #3365) are copybook-shaped too.
         self.MICRO_MASS_EXEMPT_EXTENSIONS = frozenset(
-            {".cpy", ".cbl", ".cob", ".jcl", ".sql", ".ddl", ".dml", ".pli", ".pl1", ".plinc"}
+            {".cpy", ".cbl", ".cob", ".jcl", ".sql", ".ddl", ".dml", ".pli", ".pl1", ".plinc", ".dcl"}
         )
 
         self.splicing_telemetry = {

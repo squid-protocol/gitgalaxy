@@ -122,6 +122,18 @@ def test_carddemo_dclgen_member_both_schemas_separate():
     assert not any(r["name"] == "TR_TYPE" for r in boundary["records"])
 
 
+def test_dcl_members_are_claimed_by_cobol_alone():
+    """#3365: carddemo keeps its DCLGEN members (LANGUAGE(COBOL)) as `.dcl`. Until
+    an extension claimed them, the file never reached the extractor above. cobol
+    must be the ONLY claimant, so the extension map is deterministic and no
+    collision vote is needed."""
+    from gitgalaxy.standards.language_lens import LanguageDetector
+
+    owners = [lid for lid, d in LANGUAGE_DEFINITIONS.items() if ".dcl" in d.get("extensions", [])]
+    assert owners == ["cobol"]
+    assert LanguageDetector(LANGUAGE_DEFINITIONS, {}).extension_map[".dcl"] == "cobol"
+
+
 # IBM DSN8 EMP DCLGEN, as members are stored on the host: sequence numbers in
 # columns 1-6 and 73-80 of every line.
 DSN8_SEQ = """\

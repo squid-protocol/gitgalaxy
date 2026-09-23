@@ -677,7 +677,8 @@ def draft_pli(repo: Path) -> dict[str, dict[str, Any]]:
 # the balancing parenthesis, so the two share the CONTRACT (per column: name,
 # type, length/precision, scale, NOT NULL) and not the code: an agreement is
 # evidence, a disagreement a finding.
-SQL_TABLE_EXTS = PROGRAM_EXTS + COPYBOOK_EXTS + (".pco", ".cut") + PLI_EXTS
+# `.dcl`: COBOL DCLGEN members, e.g. carddemo dcl/DCLTRTYP.dcl (#3365).
+SQL_TABLE_EXTS = PROGRAM_EXTS + COPYBOOK_EXTS + (".pco", ".cut", ".dcl") + PLI_EXTS
 _SQL_NAME = r'(?:"[^"\n]+"|[A-Z@#$][A-Z0-9_@#$]*)'
 _SQL_DECLARE = re.compile(rf"\bEXEC\s+SQL\s+DECLARE\s+({_SQL_NAME}(?:\s*\.\s*{_SQL_NAME}){{0,2}})\s+TABLE\s*\(", re.I)
 _SQL_TOKEN = re.compile(r'"[^"]*"|[()]|[^\s()]+')

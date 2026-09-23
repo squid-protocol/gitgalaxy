@@ -21,7 +21,11 @@ DEFINITION: dict[str, Any] = {
         "status": "production",
     },
     # COMPREHENSIVE SURFACE AREA: Standard COBOL source files and copybooks (.cpy) which act as legacy header files.
-    "extensions": [".cbl", ".cob", ".cpy", ".cobol", ".pco", ".cut"],
+    # `.dcl` (#3365): DB2 DCLGEN members generated with LANGUAGE(COBOL) -- an `EXEC SQL
+    # DECLARE ... TABLE` block plus its `01 DCL...` host-variable record, pulled in by
+    # `EXEC SQL INCLUDE`. carddemo keeps them in `dcl/` folders. No other registry
+    # language claims `.dcl` (Clean's definition modules use it, but Clean is not in the registry).
+    "extensions": [".cbl", ".cob", ".cpy", ".cobol", ".pco", ".cut", ".dcl"],
     # ABSOLUTE IDENTITY & EXACT FILENAMES: Mainframe environments do not typically use extensionless execution scripts.
     "exact_matches": [],
     # ECOSYSTEM ANCHORS & DISAMBIGUATION: Primary sibling extensions and Job Control Language (.jcl) files which orchestrated legacy COBOL execution.

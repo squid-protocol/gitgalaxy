@@ -17,7 +17,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import ground_truth_ledger as gl  # noqa: E402
 
-BOARD = {"dead": {"truth": "validated", "engine": {"tp": 1, "got": 2, "truth": 1}, "forge": None}}
+BOARD = {"dead": {"truth": "llm_verified", "engine": {"tp": 1, "got": 2, "truth": 1}, "forge": None}}
 FP = "engine | dead | P.cbl | X-PARA | fp"
 FN = "engine | dead | P.cbl | Y-PARA | fn"
 
@@ -107,22 +107,33 @@ def test_assign_refuses_an_unknown_cause_without_metadata():
         gl.assign(_ledger({FP: gl.UNTRIAGED}, {}), "undeclared", ["*"])
 
 
-def test_truth_tier_follows_the_sign_off_flags():
+def test_truth_tier_is_the_weakest_verification_behind_a_field():
     key = {
-        "programs": {"P.cbl": {"verification": {"status": "validated"}, "records_validated": False}},
+        "programs": {
+            "P.cbl": {"verification": {"status": "validated", "tier": "cross_verified"}, "records_validated": False},
+            "Q.cbl": {"verification": {"status": "validated", "tier": "human_signed"}},
+        },
         "bms_maps": {"M.bms": {"fields_validated": True}},
     }
-    assert gl.truth_tier(key, "dead") == "validated"
+    assert gl.truth_tier(key, "dead") == "cross_verified"
     assert gl.truth_tier(key, "record fields") == "draft"
-    assert gl.truth_tier(key, "BMS screen fields") == "validated"
+    assert gl.truth_tier(key, "BMS screen fields") == "llm_verified"  # a bare flag is the one-model floor
     assert gl.truth_tier(key, "CSD resources") == "draft"  # no entries is not a sign-off
+    key["programs"]["Q.cbl"]["verification"]["status"] = "draft"
+    assert gl.truth_tier(key, "dead") == "draft"
+
+
+def test_ledger_tiers_mirror_the_key_tool():
+    import cobol_answer_key as ak
+
+    assert gl.TIERS == ak.TIERS
 
 
 def test_history_appends_only_when_a_number_moves(tmp_path):
     path = tmp_path / "h.jsonl"
     rows = gl.history_rows({"k": (BOARD, set())})
     assert rows == [
-        {"corpus": "k", "field": "dead", "side": "engine", "truth_tier": "validated", "tp": 1, "got": 2, "truth": 1}
+        {"corpus": "k", "field": "dead", "side": "engine", "truth_tier": "llm_verified", "tp": 1, "got": 2, "truth": 1}
     ]
     assert gl.append_history(rows, path) is True
     assert gl.append_history(rows, path) is False

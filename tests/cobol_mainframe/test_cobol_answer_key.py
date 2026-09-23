@@ -24,8 +24,13 @@ KEYS = sorted(KEY_DIR.glob("*.json"))
 # ==============================================================================
 # The committed keys
 # ==============================================================================
-def test_both_corpora_have_a_key():
-    assert {p.stem for p in KEYS} == {"zopeneditor-sample", "cics-banking-sample-application-cbsa"}
+def test_every_pinned_corpus_has_a_key():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import mainframe_corpus as mc
+
+    corpora = mc.load_manifest()
+    assert all(c.get("answer_key") for c in corpora), "a pinned corpus without a key is not ground truth"
+    assert {p.stem for p in KEYS} == {c["name"] for c in corpora}
 
 
 @pytest.mark.parametrize("key_path", KEYS, ids=lambda p: p.stem)
@@ -36,10 +41,19 @@ def test_key_integrity(key_path):
     assert key["programs"]
     for rel, prog in key["programs"].items():
         where = f"{key_path.stem}:{rel}"
-        assert prog["verification"]["status"] == "validated", f"{where} is still a draft"
-        assert prog["verification"]["by"] and prog["verification"]["at"]
+        v = prog["verification"]
+        assert v["status"] == "validated", f"{where} is still a draft"
+        assert v["by"] and v["at"]
+        assert v.get("tier") in ak.TIERS, f"{where}: verification.tier must be one of {ak.TIERS}"
+        if v["tier"] == "cross_verified":
+            assert v.get("cross_by"), f"{where}: cross_verified needs cross_by (the second model)"
+        if v["tier"] == "human_signed":
+            assert v.get("signed_by"), f"{where}: human_signed needs signed_by"
         names = [u["name"] for u in prog["units"]]
-        assert len(names) == len(set(names)), f"{where}: duplicate unit"
+        # A duplicate paragraph name is legal COBOL while it is never referenced
+        # (CardDemo COACTVWC); the key must declare it rather than carry it silently.
+        dupes = sorted({n for n in names if names.count(n) > 1})
+        assert dupes == sorted(v.get("duplicate_units", [])), f"{where}: undeclared duplicate unit {dupes}"
         for name, verdict in prog["dead"].items():
             assert name in names, f"{where}: dead {name} is not a unit"
             assert verdict["reason"] and isinstance(verdict["trivial"], bool)
@@ -192,6 +206,112 @@ def test_apostrophe_in_a_comment_entry_does_not_hide_the_program(tmp_path):
     )
     entry, _ = ak.draft_program(path, tmp_path, [path], {"PROG": ["PROG.cbl"]})
     assert entry["cics"] is True
+
+
+def test_end_call_and_hyphenated_names_are_not_calls(tmp_path):
+    """CardDemo draft errors: `END-CALL` read as a CALL of the next word (`IF`), and
+    `PERFORM 3200-INSERT-IMS-CALL THRU 3200-EXIT` as a CALL of `THRU`."""
+    path = _program(
+        tmp_path,
+        "       MAIN-PARA.\n"
+        "           CALL 'MQOPEN' USING WS-X\n"
+        "           END-CALL\n"
+        "           IF WS-X = 1\n"
+        "              PERFORM 3200-INSERT-IMS-CALL THRU 3200-EXIT\n"
+        "           END-IF.\n"
+        "           GOBACK.\n"
+        "       3200-INSERT-IMS-CALL.\n"
+        "           DISPLAY 'I'.\n"
+        "       3200-EXIT.\n"
+        "           EXIT.\n",
+        data="       01 WS-X PIC 9.",
+    )
+    entry, _ = ak.draft_program(path, tmp_path, [path], {"PROG": ["PROG.cbl"]})
+    assert [(c["form"], c["operand"]) for c in entry["calls"]] == [("literal", "MQOPEN")]
+
+
+def test_quoted_copy_and_dclgen_include_resolve(tmp_path):
+    """CardDemo draft errors: `COPY 'CSUTLDWY'.` lost its name to literal blanking,
+    and `EXEC SQL INCLUDE AUTHFRDS` did not resolve to the DCLGEN member AUTHFRDS.dcl.
+    A `COPY` inside a literal is still not a copy."""
+    path = _program(
+        tmp_path,
+        "       MAIN-PARA.\n           DISPLAY 'COPY NOTME'.\n           GOBACK.\n",
+        data="       COPY 'CSUTLDWY'.\n           EXEC SQL\n                INCLUDE AUTHFRDS\n           END-EXEC.",
+    )
+    (tmp_path / "CSUTLDWY.cpy").write_text("       01 X PIC 9.\n", encoding="utf-8")
+    (tmp_path / "AUTHFRDS.dcl").write_text("       01 Y PIC 9.\n", encoding="utf-8")
+    files = [path, tmp_path / "CSUTLDWY.cpy", tmp_path / "AUTHFRDS.dcl"]
+    entry, _ = ak.draft_program(path, tmp_path, files, {"PROG": ["PROG.cbl"]})
+    assert {(c["name"], c["via"], c["resolves_to"]) for c in entry["copybooks"]} == {
+        ("CSUTLDWY", "COPY", "CSUTLDWY.cpy"),
+        ("AUTHFRDS", "SQL INCLUDE", "AUTHFRDS.dcl"),
+    }
+
+
+def test_header_period_on_the_next_line_and_spaced_exit(tmp_path):
+    """CardDemo draft errors: COTRTLIC's `2000-SEND-MAP` header has its period on the
+    next line, so the unit went missing and its THRU range's `-EXIT` read as dead; and
+    `EXIT .` (spaced, CardDemo's style) was not recognised as an EXIT-only paragraph."""
+    path = _program(
+        tmp_path,
+        "       MAIN-PARA.\n"
+        "           PERFORM 2000-SEND-MAP\n"
+        "              THRU 2000-SEND-MAP-EXIT\n"
+        "           GOBACK.\n"
+        "       2000-SEND-MAP\n"
+        "            .\n"
+        "           DISPLAY 'S'.\n"
+        "       2000-SEND-MAP-EXIT.\n"
+        "           EXIT\n"
+        "           .\n"
+        "       UNUSED-EXIT.\n"
+        "           EXIT\n"
+        "           .\n"
+        "       COPY 'PROCBOOK'.\n",
+    )
+    entry, _ = ak.draft_program(path, tmp_path, [path], {"PROG": ["PROG.cbl"]})
+    assert [u["name"] for u in entry["units"]] == ["MAIN-PARA", "2000-SEND-MAP", "2000-SEND-MAP-EXIT", "UNUSED-EXIT"]
+    assert entry["dead"].keys() == {"UNUSED-EXIT"}
+    assert entry["dead"]["UNUSED-EXIT"]["trivial"] is True
+
+
+def test_perform_after_end_perform_is_seen(tmp_path):
+    """CardDemo draft error: `END-PERFORM` then `PERFORM 9450-CLOSE ...` matched as a
+    PERFORM of the word PERFORM, so the real target read as dead."""
+    path = _program(
+        tmp_path,
+        "       MAIN-PARA.\n"
+        "           PERFORM UNTIL WS-X = 1\n"
+        "              MOVE 1 TO WS-X\n"
+        "           END-PERFORM\n"
+        "           PERFORM CLOSE-PARA\n"
+        "           GOBACK.\n"
+        "       CLOSE-PARA.\n"
+        "           DISPLAY 'C'.\n",
+        data="       01 WS-X PIC 9.",
+    )
+    entry, _ = ak.draft_program(path, tmp_path, [path], {"PROG": ["PROG.cbl"]})
+    assert entry["dead"] == {}
+
+
+def test_closed_if_before_a_terminal_does_not_fall_through(tmp_path):
+    """`\\bIF\\b` matched inside `END-IF`, so a paragraph ending `... END-IF ... GOBACK.`
+    read as conditional and falling through. CardDemo CBPAUP0C; the same bug hid
+    CBSA DELACC/INQACCCU/UPDCUST's dead A999 (key corrected)."""
+    path = _program(
+        tmp_path,
+        "       MAIN-PARA.\n"
+        "           IF WS-X = 1\n"
+        "              DISPLAY 'Y'\n"
+        "           END-IF\n"
+        "           GOBACK.\n"
+        "       AFTER-PARA.\n"
+        "           DISPLAY 'A'.\n",
+        data="       01 WS-X PIC 9.",
+    )
+    entry, _ = ak.draft_program(path, tmp_path, [path], {"PROG": ["PROG.cbl"]})
+    assert entry["dead"].keys() == {"AFTER-PARA"}
 
 
 def test_multi_mode_open_and_call_through_a_value_clause(tmp_path):
@@ -577,3 +697,40 @@ def test_scorer_routing_verbs_mirror_the_reader():
     from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import TRANSACTION_ROUTING_VERBS
 
     assert ak._TRANSACTION_ROUTING_VERBS == frozenset(TRANSACTION_ROUTING_VERBS)
+
+
+def test_draft_readers_never_import_the_parsers_they_grade(tmp_path):
+    """Independence: the key is only evidence if its reader shares no code with the
+    engine or the forge. Only `score` (and its forge-view helpers) may import
+    gitgalaxy; every draft path must run with none of it loaded."""
+    import subprocess
+
+    (tmp_path / "PROG.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. PROG.\n       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n       01 WS-X PIC 9.\n       PROCEDURE DIVISION.\n"
+        "       MAIN-PARA.\n           CALL 'SUB' USING WS-X.\n           GOBACK.\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "MAP.bms").write_text("MAP      DFHMSD TYPE=MAP\n", encoding="utf-8")
+    (tmp_path / "JOB.jcl").write_text("//JOB JOB\n//S1 EXEC PGM=PROG\n//DD1 DD DSN=A.B,DISP=SHR\n", encoding="utf-8")
+    code = (
+        "import sys; sys.path.insert(0, sys.argv[1]); import cobol_answer_key as ak; from pathlib import Path\n"
+        "r = Path(sys.argv[2])\n"
+        "ak.draft(r, 'c', 'u', '0' * 40)\n"
+        "for f in (ak.draft_pli, ak.draft_sql_tables, ak.draft_bms, ak.draft_jcl, ak.draft_csd, ak.draft_cics):\n"
+        "    f(r)\n"
+        "print(sorted(m for m in sys.modules if m == 'gitgalaxy' or m.startswith('gitgalaxy.')))\n"
+    )
+    tools = str(Path(__file__).resolve().parents[1] / "tools")
+    out = subprocess.run(  # noqa: S603
+        [sys.executable, "-c", code, tools, str(tmp_path)], capture_output=True, text=True, check=True
+    ).stdout
+    assert out.strip().splitlines()[-1] == "[]", out
+
+
+def test_sample_is_seeded_and_covers_claim_kinds():
+    key = json.loads((KEY_DIR / "cics-banking-sample-application-cbsa.json").read_text(encoding="utf-8"))
+    a = ak.sample_claims(key, 60, seed=7)
+    assert a == ak.sample_claims(key, 60, seed=7)
+    assert len(a) == 60
+    assert {r["kind"] for r in a} >= {"live", "copybook", "call"}

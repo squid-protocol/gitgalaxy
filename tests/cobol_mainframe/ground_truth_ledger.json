@@ -6,18 +6,742 @@
       "kind": "deliberate",
       "summary": "The engine's usage_status is the unreferenced-by-name census (a unit's name occurs nowhere else in the file), not reachability. Reachability-based dead code stays on the forge by decision (docs/unreferenced_by_name_contract.md; #3348 scope note). Scoring usage_status against the key's reachability verdicts is therefore expected to disagree."
     },
+    "engine_excluded_copybook_edge": {
+      "issue": 3417,
+      "kind": "defect",
+      "summary": "A data-only copybook (a lookup table) falls to the zero-density exclusion and stops being a resolution target, so the COPY edge to it disappears."
+    },
+    "engine_sql_include_same_line": {
+      "issue": 3416,
+      "kind": "defect",
+      "summary": "The COBOL import rule is anchored at line start, so a one-line EXEC SQL INCLUDE <member> END-EXEC is never seen and its copybook edge is lost."
+    },
     "forge_copybook_resolution": {
       "issue": 3414,
       "kind": "defect",
-      "summary": "The forge's fallback copybook resolver ignores EXEC SQL INCLUDE members and COPY ... IN <library> (zapp.yaml). The engine resolves all of them."
+      "summary": "The forge's fallback copybook resolver misses EXEC SQL INCLUDE members (including DCLGEN .dcl), COPY ... IN <library> (zapp.yaml), quoted COPY 'X' and COPY ... REPLACING. The engine resolves all of these except the one-line INCLUDE (#3416)."
     },
     "forge_flat_schema": {
       "issue": 3348,
       "kind": "defect",
       "summary": "cobol_schema_forge's flat reader drops level-01 elementary items, REDEFINES items, some nested items, and lines carrying a change marker in the sequence area (zopeneditor multiroot SAM1). The engine's record_data carries every item; #3348 switches the refractor to it."
+    },
+    "forge_hyphen_word_boundary": {
+      "issue": 3420,
+      "kind": "defect",
+      "summary": "The forge uses a word boundary before PERFORM / IF / CALL, and that boundary also matches right after a hyphen. So END-PERFORM swallows the next PERFORM, and a live unit reads as dead. END-IF counts as an IF, so a terminal paragraph reads as falling through, and a dead A999 or ABEND-ROUTINE-EXIT reads as live. END-CALL and names ending in -CALL read as calls."
+    },
+    "forge_reads_comment_lines": {
+      "issue": 3420,
+      "kind": "defect",
+      "summary": "cobol_dag_architect reads column-7 comment lines: commented CALL prose (CALL MENU PROGRAM) becomes a dynamic CALL, and commented SELECT/OPEN become outputs."
+    },
+    "header_period_next_line": {
+      "issue": 3419,
+      "kind": "defect",
+      "summary": "A paragraph header whose separator period is on the next line (COTRTLIC 2000-SEND-MAP) is not a unit, so its THRU range's -EXIT reads dead in the forge."
+    },
+    "program_id_on_its_own_line": {
+      "issue": 3418,
+      "kind": "defect",
+      "summary": "PROGRAM-ID. alone on its line with the name on the next: the engine reads a sequence-area token (cols 1-6 of the next line, or cols 73-80); the forge reads cols 73-80."
     }
   },
   "corpora": {
+    "aws-mainframe-modernization-carddemo": {
+      "mismatches": {
+        "engine | copybook paths | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | app/app-transaction-type-db2/dcl/DCLTRTYP.dcl | fn": "engine_sql_include_same_line",
+        "engine | copybook paths | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | app/app-transaction-type-db2/cpy/CSDB2RPY.cpy | fn": "engine_sql_include_same_line",
+        "engine | copybook paths | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | app/app-transaction-type-db2/cpy/CSDB2RWY.cpy | fn": "engine_sql_include_same_line",
+        "engine | copybook paths | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | app/app-transaction-type-db2/dcl/DCLTRTYP.dcl | fn": "engine_sql_include_same_line",
+        "engine | copybook paths | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | app/app-transaction-type-db2/dcl/DCLTRCAT.dcl | fn": "engine_sql_include_same_line",
+        "engine | copybook paths | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | app/app-transaction-type-db2/dcl/DCLTRTYP.dcl | fn": "engine_sql_include_same_line",
+        "engine | copybook paths | app/cbl/COACTUPC.cbl | app/cpy/CSLKPCDY.cpy | fn": "engine_excluded_copybook_edge",
+        "engine | dead (non-trivial) | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 0001-OPEN-FILES | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 1001-READ-NEXT-RECORDS | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-vsam-mq/cbl/COACCT01.cbl | 1000-CONTROL | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/app-vsam-mq/cbl/CODATE01.cbl | 1000-CONTROL | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/CBEXPORT.cbl | 0000-MAIN-PROCESSING | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/CBIMPORT.cbl | 0000-MAIN-PROCESSING | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/CBSTM03B.CBL | 0000-START | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/CBTRN01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COACTUPC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COACTUPC.cbl | EDIT-AREA-CODE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COACTVWC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COADM01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COBIL00C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COCRDLIC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COCRDSLC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COCRDUPC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COMEN01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/CORPT00C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COSGN00C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COTRN00C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COTRN01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COTRN02C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COUSR00C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COUSR01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COUSR02C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead (non-trivial) | app/cbl/COUSR03C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 0001-OPEN-FILES | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | 1001-READ-NEXT-RECORDS | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | SEND-LONG-TEXT-EXIT | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | ABEND-ROUTINE-EXIT | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-vsam-mq/cbl/COACCT01.cbl | 1000-CONTROL | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/app-vsam-mq/cbl/CODATE01.cbl | 1000-CONTROL | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/CBEXPORT.cbl | 0000-MAIN-PROCESSING | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/CBIMPORT.cbl | 0000-MAIN-PROCESSING | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/CBSTM03B.CBL | 0000-START | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/CBTRN01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COACTUPC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COACTUPC.cbl | 1230-EDIT-ALPHANUM-REQD-EXIT | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COACTUPC.cbl | 1240-EDIT-ALPHANUM-OPT-EXIT | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COACTUPC.cbl | ABEND-ROUTINE-EXIT | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COACTUPC.cbl | EDIT-AREA-CODE | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COACTVWC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COACTVWC.cbl | 0000-MAIN-EXIT | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COACTVWC.cbl | SEND-PLAIN-TEXT-EXIT | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COADM01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COBIL00C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COCRDLIC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COCRDSLC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COCRDSLC.cbl | SEND-PLAIN-TEXT-EXIT | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COCRDUPC.cbl | 0000-MAIN | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COCRDUPC.cbl | ABEND-ROUTINE-EXIT | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COMEN01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/CORPT00C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COSGN00C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COTRN00C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COTRN01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COTRN02C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COUSR00C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COUSR01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COUSR02C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | app/cbl/COUSR03C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | program_id | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 002600 | fp": "program_id_on_its_own_line",
+        "engine | program_id | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | COTRTLIC | fn": "program_id_on_its_own_line",
+        "engine | program_id | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 00220000 | fp": "program_id_on_its_own_line",
+        "engine | program_id | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | COTRTUPC | fn": "program_id_on_its_own_line",
+        "engine | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP | fn": "header_period_next_line",
+        "forge | copybook paths | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | app/app-transaction-type-db2/dcl/DCLTRTYP.dcl | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | app/app-transaction-type-db2/cpy/CSDB2RPY.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | app/app-transaction-type-db2/cpy/CSDB2RWY.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | app/app-transaction-type-db2/dcl/DCLTRTYP.dcl | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | app/cpy/CSSTRPFY.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | app/app-transaction-type-db2/dcl/DCLTRCAT.dcl | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | app/app-transaction-type-db2/dcl/DCLTRTYP.dcl | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | app/cpy/CSSETATY.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | app/cpy/CSSTRPFY.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/cbl/COACTUPC.cbl | app/cpy/CSSETATY.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/cbl/COACTUPC.cbl | app/cpy/CSSTRPFY.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/cbl/COACTUPC.cbl | app/cpy/CSUTLDPY.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/cbl/COACTVWC.cbl | app/cpy/CSSTRPFY.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/cbl/COCRDLIC.cbl | app/cpy/CSSTRPFY.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/cbl/COCRDSLC.cbl | app/cpy/CSSTRPFY.cpy | fn": "forge_copybook_resolution",
+        "forge | copybook paths | app/cbl/COCRDUPC.cbl | app/cpy/CSSTRPFY.cpy | fn": "forge_copybook_resolution",
+        "forge | dead (non-trivial) | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP-EXIT | fp": "header_period_next_line",
+        "forge | dead (non-trivial) | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR | fp": "forge_hyphen_word_boundary",
+        "forge | dead (non-trivial) | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR-EXIT | fp": "forge_hyphen_word_boundary",
+        "forge | dead | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP-EXIT | fp": "header_period_next_line",
+        "forge | dead | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR | fp": "forge_hyphen_word_boundary",
+        "forge | dead | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR-EXIT | fp": "forge_hyphen_word_boundary",
+        "forge | dead | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | ABEND-ROUTINE-EXIT | fn": "forge_hyphen_word_boundary",
+        "forge | dead | app/cbl/COACTUPC.cbl | ABEND-ROUTINE-EXIT | fn": "forge_hyphen_word_boundary",
+        "forge | dead | app/cbl/COCRDUPC.cbl | ABEND-ROUTINE-EXIT | fn": "forge_hyphen_word_boundary",
+        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | IF | fp": "forge_hyphen_word_boundary",
+        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | FAILED | fp": "forge_reads_comment_lines",
+        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | FAIL | fp": "forge_reads_comment_lines",
+        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | THRU | fp": "forge_hyphen_word_boundary",
+        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | TO | fp": "forge_reads_comment_lines",
+        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | FAILED | fp": "forge_reads_comment_lines",
+        "forge | dynamic CALLs | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | MENU | fp": "forge_reads_comment_lines",
+        "forge | dynamic CALLs | app/cbl/CBACT01C.cbl | ASSEMBLER | fp": "forge_reads_comment_lines",
+        "forge | dynamic CALLs | app/cbl/CBSTM03A.CBL | TO | fp": "forge_reads_comment_lines",
+        "forge | dynamic CALLs | app/cbl/COCRDLIC.cbl | CARD | fp": "forge_reads_comment_lines",
+        "forge | dynamic CALLs | app/cbl/COCRDLIC.cbl | MENU | fp": "forge_reads_comment_lines",
+        "forge | dynamic CALLs | app/cbl/CSUTLDTC.cbl | TO | fp": "forge_reads_comment_lines",
+        "forge | outputs | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | OUTFIL1 | fp": "forge_reads_comment_lines",
+        "forge | outputs | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | OUTFIL2 | fp": "forge_reads_comment_lines",
+        "forge | program_id | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 00220000 | fp": "program_id_on_its_own_line",
+        "forge | program_id | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | COTRTUPC | fn": "program_id_on_its_own_line",
+        "forge | record fields | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | WS_CARD_RID_ACCT_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | WS_CARD_RID_CUST_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | WS_CARD_RID_ACCT_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | WS_CARD_RID_CUST_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | WS_AUTH_TIME_AN | fn": "forge_flat_schema",
+        "forge | record fields | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | WS_SQLCODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | WS_SQLSTATE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | FLG_PROTECT_SELECT_ROWS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | I | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | I_SELECTED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ADDTMAP | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ADDTMAPSET | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ADDTPGM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ADDTTRANID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ADMINMAPSET | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ADMINPGM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ADMINTRANID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ALL_ALPHANUM_FROM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ALL_ALPHA_FROM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ALL_NUM_FROM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ALPHANUM_SPACES_TO | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ALPHA_SPACES_TO | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_ASTERISK | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_DELETE_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_DSNTIAC | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_LOWER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_NUMBERS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_NUM_SPACES_TO | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_THISMAP | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_THISMAPSET | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_THISPGM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_THISTRANID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_TRANTYPE_TABLE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_UPDATE_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | LIT_UPPER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRAN_TYPE_CD_N | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRAN_TYPE_CD_X | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTSELA | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTSELC | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTSELF | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTSELH | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTSELI | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTSELL | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTSELO | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTSELP | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTSELV | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTTYPA | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTTYPC | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTTYPF | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTTYPH | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTTYPI | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTTYPL | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTTYPO | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTTYPP | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTTYPV | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTYPDA | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTYPDC | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTYPDF | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTYPDH | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTYPDI | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTYPDL | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTYPDO | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTYPDP | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | TRTYPDV | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_ACTIONS_REQUESTED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_ALL_ROWS_IN | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_ARRAY_DESCRIPTION_FLGS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_BAD_SELECTION_ACTION | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_ALL_ROWS_OUT | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_DELETE_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_FIRST_TR_CODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_LAST_PAGE_DISPLAYED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_LAST_TR_CODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_NEXT_PAGE_IND | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_ROW_SELECTED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_ROW_TR_CODE_OUT | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_ROW_TR_DESC_OUT | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_SCREEN_NUM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_TYPE_CD | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_TYPE_CD_N | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_TYPE_DESC | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_CA_UPDATE_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_COMMAREA | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_DATACHANGED_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_DELETES_REQUESTED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_DELETE_STATUS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_DESCFILTER_CHANGED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_EDIT_ALPHANUM_LENGTH | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_EDIT_ALPHANUM_ONLY | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_EDIT_ALPHANUM_ONLY_FLAGS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_EDIT_DESC_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_EDIT_SELECT | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_EDIT_SELECT_COUNTER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_EDIT_SELECT_ERROR_FLAGS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_EDIT_SELECT_FLAGS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_EDIT_TYPE_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_EDIT_VARIABLE_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_INFO_MSG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_INPUT_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_IN_TYPE_CD | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_IN_TYPE_CD_N | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_IN_TYPE_DESC | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_LONG_MSG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_MAX_SCREEN_LINES | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_NO_ACTIONS_SELECTED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_PFK_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_REAS_CD | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_RECORDS_COUNT | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_RECORDS_TO_PROCESS_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_RESP_CD | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_RETURN_MSG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_ROW_NUMBER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_ROW_RECORDS_CHANGED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_ROW_SELECTION_CHANGED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_ROW_TRTSELECT_ERROR | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_ROW_TR_CODE_IN | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_ROW_TR_DESC_IN | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_START_KEY | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_STRING_LEN | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_STRING_MID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_STRING_OUT | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_TRANID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_TYPEFILTER_CHANGED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_TYPE_CD_DELETE_KEY | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_TYPE_CD_FILTER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_TYPE_DESC_FILTER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_UPDATES_REQUESTED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_UPDATE_STATUS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | WS_VALID_ACTIONS_SELECTED | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_ADMINMAP | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_ADMINMAPSET | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_ADMINPGM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_ADMINTRANID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_ALL_ALPHANUM_FROM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_ALL_ALPHA_FROM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_ALL_NUM_FROM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_ALPHANUM_SPACES_TO | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_ALPHA_SPACES_TO | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_LISTTMAP | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_LISTTMAPSET | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_LISTTPGM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_LISTTTRANID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_LOWER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_NUMBERS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_NUM_SPACES_TO | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_THISMAP | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_THISMAPSET | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_THISPGM | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_THISTRANID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | LIT_UPPER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | TTUP_CHANGE_ACTION | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | TTUP_NEW_TTYP_TYPE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | TTUP_NEW_TTYP_TYPE_DESC | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | TTUP_OLD_TTYP_TYPE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | TTUP_OLD_TTYP_TYPE_DESC | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | TTUP_UPDATE_TTYP_TYPE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | TTUP_UPDATE_TTYP_TYPE_DESC | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_COMMAREA | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_DATACHANGED_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_DISP_SQLCODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_ALPHANUMERIC_2 | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_ALPHANUM_LENGTH | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_ALPHANUM_ONLY | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_ALPHANUM_ONLY_FLAGS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_CURRENCY_9_2 | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_CURRENCY_9_2_F | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_DATE_DAY | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_DATE_MONTH | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_DATE_X | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_DATE_X_YEAR | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_DESC_FLAGS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_NUMERIC_2 | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_TTYP_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_EDIT_VARIABLE_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_INFO_MSG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_INPUT_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_PFK_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_REAS_CD | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_RESP_CD | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_RETURN_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_RETURN_MSG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_STRING_LEN | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_STRING_MID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_STRING_OUT | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_TRANID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_TRANTYPE_MASTER_READ_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | WS_UCTRANS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | ERROR_MESSAGE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | ERROR_QUEUE_HANDLE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | ERROR_QUEUE_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | INPUT_QUEUE_HANDLE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | INPUT_QUEUE_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_APPL_CONDITION_CODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_APPL_QUEUE_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_APPL_REASON_CODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_APPL_RETURN_MESSAGE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_BUFFER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_BUFFER_LENGTH | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_CONDITION_CODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_CORRELID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_DATA_LENGTH | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_ERROR_PARA | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_HCONN | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_HOBJ | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_MSG_COUNT | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_MSG_ID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_OPTIONS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_QUEUE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_QUEUE_REPLY | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | MQ_REASON_CODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | OUTPUT_QUEUE_HANDLE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | QMGR_HANDLE_CONN | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | QMGR_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | QUEUE_MESSAGE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | REPLY_MESSAGE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | REPLY_QUEUE_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | REQUEST_MESSAGE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | SAVE_CORELID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | SAVE_MSGID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | SAVE_REPLY2Q | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_ABS_TIME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_CARD_RID_ACCT_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_CARD_RID_CUST_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_CICS_RESP1_CD | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_CICS_RESP1_CD_D | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_CICS_RESP2_CD | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_CICS_RESP2_CD_D | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_ERR_QUEUE_STS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_FILLER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_FUNC | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_KEY | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_MMDDYYYY | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_MQ_MSG_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_REPLY_QUEUE_STS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_RESP_QUEUE_STS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/COACCT01.cbl | WS_TIME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | ERROR_MESSAGE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | ERROR_QUEUE_HANDLE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | ERROR_QUEUE_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | INPUT_QUEUE_HANDLE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | INPUT_QUEUE_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_APPL_CONDITION_CODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_APPL_QUEUE_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_APPL_REASON_CODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_APPL_RETURN_MESSAGE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_BUFFER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_BUFFER_LENGTH | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_CONDITION_CODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_CORRELID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_DATA_LENGTH | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_ERROR_PARA | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_HCONN | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_HOBJ | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_MSG_COUNT | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_MSG_ID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_OPTIONS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_QUEUE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_QUEUE_REPLY | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | MQ_REASON_CODE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | OUTPUT_QUEUE_HANDLE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | QMGR_HANDLE_CONN | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | QMGR_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | QUEUE_MESSAGE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | REPLY_MESSAGE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | REPLY_QUEUE_NAME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | REQUEST_MESSAGE | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | SAVE_CORELID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | SAVE_MSGID | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | SAVE_REPLY2Q | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_ABS_TIME | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_CICS_RESP1_CD | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_CICS_RESP1_CD_D | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_CICS_RESP2_CD | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_CICS_RESP2_CD_D | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_ERR_QUEUE_STS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_FILLER | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_FUNC | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_KEY | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_MMDDYYYY | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_MQ_MSG_FLAG | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_REPLY_QUEUE_STS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_RESP_QUEUE_STS | fn": "forge_flat_schema",
+        "forge | record fields | app/app-vsam-mq/cbl/CODATE01.cbl | WS_TIME | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/CBACT01C.cbl | WS_REISSUE_DATE | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/CBSTM03A.CBL | WS_SAVE_CARD | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_NEW_ACCT_ID | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_NEW_CASH_CREDIT_LIMIT_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_NEW_CREDIT_LIMIT_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_NEW_CURR_BAL_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_NEW_CURR_CYC_CREDIT_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_NEW_CURR_CYC_DEBIT_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_NEW_CUST_FICO_SCORE | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_NEW_CUST_ID | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_NEW_CUST_SSN | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_OLD_ACCT_ID | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_OLD_CASH_CREDIT_LIMIT_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_OLD_CREDIT_LIMIT_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_OLD_CURR_BAL_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_OLD_CURR_CYC_CREDIT_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_OLD_CURR_CYC_DEBIT_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_OLD_CUST_FICO_SCORE | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_OLD_CUST_ID | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | ACUP_OLD_CUST_SSN | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | CUST_ACCT_ID_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | WS_CARD_RID_ACCT_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | WS_CARD_RID_CUST_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | WS_EDIT_CURRENCY_9_2_F | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | WS_EDIT_US_PHONE_NUMA_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | WS_EDIT_US_PHONE_NUMB_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | WS_EDIT_US_PHONE_NUMC_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | WS_EDIT_US_SSN_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | WS_EDIT_US_SSN_PART1_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | WS_EDIT_US_SSN_PART2_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTUPC.cbl | WS_EDIT_US_SSN_PART3_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTVWC.cbl | WS_CARD_RID_ACCT_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COACTVWC.cbl | WS_CARD_RID_CUST_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COBIL00C.cbl | WS_CURR_BAL | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COBIL00C.cbl | WS_TRAN_AMT | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDLIC.cbl | CARD_ACCT_ID_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDLIC.cbl | CARD_CVV_CD_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDLIC.cbl | WS_CARD_RID_ACCT_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDSLC.cbl | CARD_ACCT_ID_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDSLC.cbl | CARD_CARD_NUM_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDSLC.cbl | CARD_CVV_CD_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDSLC.cbl | CARD_EXPIRAION_DATE_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDSLC.cbl | WS_CARD_RID_ACCT_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDUPC.cbl | CARD_ACCT_ID_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDUPC.cbl | CARD_CARD_NUM_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDUPC.cbl | CARD_CVV_CD_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDUPC.cbl | CARD_EXPIRAION_DATE_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDUPC.cbl | CARD_MONTH_CHECK_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDUPC.cbl | CARD_YEAR_CHECK_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COCRDUPC.cbl | WS_CARD_RID_ACCT_ID_X | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/CORPT00C.cbl | JOB_LINES | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/CORPT00C.cbl | WS_TRAN_AMT | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COTRN00C.cbl | WS_TRAN_AMT | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COTRN01C.cbl | WS_TRAN_AMT | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COTRN02C.cbl | WS_TRAN_AMT | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/COTRN02C.cbl | WS_TRAN_AMT_E | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/CSUTLDTC.cbl | WS_MSG_NO_N | fn": "forge_flat_schema",
+        "forge | record fields | app/cbl/CSUTLDTC.cbl | WS_SEVERITY_N | fn": "forge_flat_schema",
+        "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP | fn": "header_period_next_line"
+      },
+      "scoreboard": {
+        "BMS screen fields": {
+          "engine": {
+            "got": 1208,
+            "tp": 1208,
+            "truth": 1208
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "CICS resources": {
+          "engine": {
+            "got": 107,
+            "tp": 107,
+            "truth": 107
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "CSD resources": {
+          "engine": {
+            "got": 134,
+            "tp": 134,
+            "truth": 134
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table columns": {
+          "engine": {
+            "got": 31,
+            "tp": 31,
+            "truth": 31
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "DD names": {
+          "engine": {
+            "got": 54,
+            "tp": 54,
+            "truth": 54
+          },
+          "forge": {
+            "got": 54,
+            "tp": 54,
+            "truth": 54
+          },
+          "truth": "llm_verified"
+        },
+        "JCL resolved DSNs": {
+          "engine": {
+            "got": 306,
+            "tp": 306,
+            "truth": 306
+          },
+          "forge": null,
+          "truth": "draft"
+        },
+        "PL/I record fields": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "call targets": {
+          "engine": {
+            "got": 37,
+            "tp": 37,
+            "truth": 37
+          },
+          "forge": null,
+          "truth": "llm_verified"
+        },
+        "cics/sql": {
+          "engine": null,
+          "forge": {
+            "got": 29,
+            "tp": 29,
+            "truth": 29
+          },
+          "truth": "llm_verified"
+        },
+        "copybook paths": {
+          "engine": {
+            "got": 246,
+            "tp": 246,
+            "truth": 253
+          },
+          "forge": {
+            "got": 236,
+            "tp": 236,
+            "truth": 253
+          },
+          "truth": "llm_verified"
+        },
+        "dead": {
+          "engine": {
+            "got": 62,
+            "tp": 26,
+            "truth": 35
+          },
+          "forge": {
+            "got": 35,
+            "tp": 32,
+            "truth": 35
+          },
+          "truth": "llm_verified"
+        },
+        "dead (non-trivial)": {
+          "engine": {
+            "got": 44,
+            "tp": 8,
+            "truth": 8
+          },
+          "forge": {
+            "got": 11,
+            "tp": 8,
+            "truth": 8
+          },
+          "truth": "llm_verified"
+        },
+        "dynamic CALLs": {
+          "engine": {
+            "got": 0,
+            "tp": 0,
+            "truth": 0
+          },
+          "forge": {
+            "got": 12,
+            "tp": 0,
+            "truth": 0
+          },
+          "truth": "llm_verified"
+        },
+        "entry transactions": {
+          "engine": {
+            "got": 26,
+            "tp": 26,
+            "truth": 26
+          },
+          "forge": {
+            "got": 26,
+            "tp": 26,
+            "truth": 26
+          },
+          "truth": "draft"
+        },
+        "inputs": {
+          "engine": {
+            "got": 36,
+            "tp": 36,
+            "truth": 36
+          },
+          "forge": {
+            "got": 36,
+            "tp": 36,
+            "truth": 36
+          },
+          "truth": "llm_verified"
+        },
+        "outputs": {
+          "engine": {
+            "got": 21,
+            "tp": 21,
+            "truth": 21
+          },
+          "forge": {
+            "got": 23,
+            "tp": 21,
+            "truth": 21
+          },
+          "truth": "llm_verified"
+        },
+        "program_id": {
+          "engine": {
+            "got": 44,
+            "tp": 42,
+            "truth": 44
+          },
+          "forge": {
+            "got": 44,
+            "tp": 43,
+            "truth": 44
+          },
+          "truth": "llm_verified"
+        },
+        "record fields": {
+          "engine": {
+            "got": 1839,
+            "tp": 1839,
+            "truth": 1839
+          },
+          "forge": {
+            "got": 1498,
+            "tp": 1498,
+            "truth": 1839
+          },
+          "truth": "draft"
+        },
+        "units": {
+          "engine": {
+            "got": 869,
+            "tp": 869,
+            "truth": 870
+          },
+          "forge": {
+            "got": 869,
+            "tp": 869,
+            "truth": 870
+          },
+          "truth": "llm_verified"
+        }
+      }
+    },
     "cics-banking-sample-application-cbsa": {
       "mismatches": {
         "engine | dead (non-trivial) | src/base/cobol_src/ABNDPROC.cbl | A010 | fp": "engine_dead_is_unreferenced_by_name",
@@ -478,11 +1202,13 @@
         "engine | dead | src/base/cobol_src/DBCRFUN.cbl | WTP999 | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/DBCRFUN.cbl | WTPD010 | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/DBCRFUN.cbl | WTPD999 | fp": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/DELACC.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/DELACC.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/DELCUS.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/DELCUS.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/INQACC.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/INQACC.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/INQACCCU.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/INQACCCU.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/INQCUST.cbl | GMOFH999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/INQCUST.cbl | P999 | fn": "engine_dead_is_unreferenced_by_name",
@@ -491,6 +1217,7 @@
         "engine | dead | src/base/cobol_src/UPDACC.cbl | POPULATE-TIME-DATE | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/UPDACC.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/UPDACC.cbl | PTD999 | fn": "engine_dead_is_unreferenced_by_name",
+        "engine | dead | src/base/cobol_src/UPDCUST.cbl | A999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/UPDCUST.cbl | GMOOH999 | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/UPDCUST.cbl | POPULATE-TIME-DATE | fn": "engine_dead_is_unreferenced_by_name",
         "engine | dead | src/base/cobol_src/UPDCUST.cbl | PTD010 | fn": "engine_dead_is_unreferenced_by_name",
@@ -512,6 +1239,9 @@
         "forge | copybook paths | src/base/cobol_src/UPDACC.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
         "forge | copybook paths | src/base/cobol_src/XFRFUN.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
         "forge | copybook paths | src/base/cobol_src/XFRFUN.cbl | src/base/cobol_copy/PROCDB2.cpy | fn": "forge_copybook_resolution",
+        "forge | dead | src/base/cobol_src/DELACC.cbl | A999 | fn": "forge_hyphen_word_boundary",
+        "forge | dead | src/base/cobol_src/INQACCCU.cbl | A999 | fn": "forge_hyphen_word_boundary",
+        "forge | dead | src/base/cobol_src/UPDCUST.cbl | A999 | fn": "forge_hyphen_word_boundary",
         "forge | record fields | src/base/cobol_src/ACCTCTRL.cbl | ACCOUNT_KY2_BYTES | fn": "forge_flat_schema",
         "forge | record fields | src/base/cobol_src/BANKDATA.cbl | RANDOM_SEED_NUMERIC | fn": "forge_flat_schema",
         "forge | record fields | src/base/cobol_src/BANKDATA.cbl | RDATE_NUMERIC | fn": "forge_flat_schema",
@@ -598,7 +1328,7 @@
             "tp": 1,
             "truth": 1
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "JCL resolved DSNs": {
           "engine": {
@@ -621,7 +1351,7 @@
             "truth": 45
           },
           "forge": null,
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "cics/sql": {
           "engine": null,
@@ -630,7 +1360,7 @@
             "tp": 42,
             "truth": 42
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "copybook paths": {
           "engine": {
@@ -643,20 +1373,20 @@
             "tp": 99,
             "truth": 114
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "dead": {
           "engine": {
             "got": 247,
             "tp": 29,
-            "truth": 62
+            "truth": 65
           },
           "forge": {
             "got": 62,
             "tp": 62,
-            "truth": 62
+            "truth": 65
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "dead (non-trivial)": {
           "engine": {
@@ -669,7 +1399,7 @@
             "tp": 10,
             "truth": 10
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "dynamic CALLs": {
           "engine": {
@@ -682,7 +1412,7 @@
             "tp": 0,
             "truth": 0
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "entry transactions": {
           "engine": {
@@ -695,7 +1425,7 @@
             "tp": 14,
             "truth": 14
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "inputs": {
           "engine": {
@@ -708,7 +1438,7 @@
             "tp": 0,
             "truth": 0
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "outputs": {
           "engine": {
@@ -721,7 +1451,7 @@
             "tp": 1,
             "truth": 1
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "program_id": {
           "engine": {
@@ -734,7 +1464,7 @@
             "tp": 31,
             "truth": 31
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "record fields": {
           "engine": {
@@ -760,7 +1490,7 @@
             "tp": 680,
             "truth": 680
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         }
       }
     },
@@ -816,7 +1546,7 @@
             "tp": 12,
             "truth": 12
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "JCL resolved DSNs": {
           "engine": {
@@ -843,7 +1573,7 @@
             "truth": 3
           },
           "forge": null,
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "cics/sql": {
           "engine": null,
@@ -852,7 +1582,7 @@
             "tp": 0,
             "truth": 0
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "copybook paths": {
           "engine": {
@@ -865,7 +1595,7 @@
             "tp": 12,
             "truth": 14
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "dead": {
           "engine": {
@@ -878,7 +1608,7 @@
             "tp": 0,
             "truth": 0
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "dead (non-trivial)": {
           "engine": {
@@ -891,7 +1621,7 @@
             "tp": 0,
             "truth": 0
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "dynamic CALLs": {
           "engine": {
@@ -904,7 +1634,7 @@
             "tp": 3,
             "truth": 3
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "entry transactions": {
           "engine": {
@@ -917,7 +1647,7 @@
             "tp": 0,
             "truth": 0
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "inputs": {
           "engine": {
@@ -930,7 +1660,7 @@
             "tp": 6,
             "truth": 6
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "outputs": {
           "engine": {
@@ -943,7 +1673,7 @@
             "tp": 6,
             "truth": 6
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "program_id": {
           "engine": {
@@ -956,7 +1686,7 @@
             "tp": 5,
             "truth": 5
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         },
         "record fields": {
           "engine": {
@@ -982,7 +1712,7 @@
             "tp": 58,
             "truth": 58
           },
-          "truth": "validated"
+          "truth": "llm_verified"
         }
       }
     }

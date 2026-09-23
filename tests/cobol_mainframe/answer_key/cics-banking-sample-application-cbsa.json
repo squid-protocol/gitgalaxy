@@ -66,7 +66,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -1197,7 +1198,8 @@
         "at": "2026-09-19",
         "notes": [
           "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic."
-        ]
+        ],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -2425,7 +2427,8 @@
         "notes": [
           "CALC-DAY-OF-WEEK SECTION (and CDW010/CDW999) is never PERFORMed: real dead logic.",
           "CUSTOMER-FILE is ASSIGN TO VSAM and opened OUTPUT once (line 449)."
-        ]
+        ],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -5654,7 +5657,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -7549,7 +7553,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -9333,7 +9338,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -11199,7 +11205,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -13292,7 +13299,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -15797,7 +15805,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -18020,7 +18029,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -20033,7 +20043,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -22334,7 +22345,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -23297,7 +23309,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -24162,7 +24175,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -25027,7 +25041,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -25892,7 +25907,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -26757,7 +26773,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -27885,7 +27902,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -30598,7 +30616,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -33801,7 +33820,8 @@
         "at": "2026-09-19",
         "notes": [
           "POPULATE-TIME-DATE SECTION is mentioned only in a column-7 D debug line: real dead logic."
-        ]
+        ],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -34947,7 +34967,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -36489,6 +36510,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "GMOFH999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -36585,7 +36610,10 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [
+          "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo)."
+        ],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -38443,7 +38471,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -40592,7 +40621,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -40658,7 +40688,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -40939,7 +40970,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -42556,6 +42588,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "GMOFH999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -42676,7 +42712,10 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [
+          "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo)."
+        ],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -44321,7 +44360,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -45771,7 +45811,8 @@
         "at": "2026-09-19",
         "notes": [
           "POPULATE-TIME-DATE SECTION has no reference: real dead logic."
-        ]
+        ],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -46837,6 +46878,10 @@
         }
       ],
       "dead": {
+        "A999": {
+          "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
+          "trivial": true
+        },
         "GMOOH999": {
           "reason": "never PERFORMed or GO TO'd, and the unit before it never falls through",
           "trivial": true
@@ -46897,8 +46942,10 @@
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
         "notes": [
-          "POPULATE-TIME-DATE SECTION has no reference: real dead logic."
-        ]
+          "POPULATE-TIME-DATE SECTION has no reference: real dead logic.",
+          "2026-09-23: A999 is dead (EXIT-only) -- A010 ends in PERFORM GET-ME-OUT-OF-HERE, which never returns, the same shape as the 11 other CBSA programs whose A999 was already dead. The first draft missed it because its IF/END-IF count matched `IF` inside `END-IF` (fixed; found drafting CardDemo)."
+        ],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -48202,7 +48249,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {

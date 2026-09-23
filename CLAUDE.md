@@ -240,8 +240,9 @@ It fails on an unlisted mismatch (a regression) *and* on a listed one that no lo
 (an improvement, which has to be ratcheted in). After a change that moves a score:
 `mainframe_corpus.py fetch`, then `ground_truth_ledger.py update`. New entries come in
 `UNTRIAGED` and fail until you `assign` them a cause with an issue; explain the moves in the PR.
-Fields whose key section is still a draft are labelled `draft`. They gate, but they are not
-accuracy.
+Each field is labelled with the weakest verification tier behind it (`llm_verified` <
+`cross_verified` < `human_signed`, `cobol_answer_key.TIERS`), or `draft` when its key section is
+unsigned. Every tier gates, but only the label says how strongly a number may be quoted.
 
 ## Testing conventions
 

@@ -42,11 +42,12 @@ PATTERN is an fnmatch glob over "<corpus> :: <entry>", e.g.
 The corpora must be fetched first: `mainframe_corpus.py fetch`. Scans are cached
 per engine state, so a re-run on an unchanged engine only re-scores (seconds).
 
-TRUTH FLAGS. A key's program blocks are `validated` as a whole, but some sections
-carry their own sign-off flag and stay drafts (this tool's own reading) until a
-reviewer sets it. A mismatch against draft truth still gates -- the engine's
-output changed and someone must say why -- but the scoreboard labels the field
-`draft` so its numbers are never quoted as accuracy.
+TRUTH TIERS. Each scoreboard field is labelled with the weakest verification tier
+behind it: `llm_verified` < `cross_verified` < `human_signed` (cobol_answer_key.TIERS),
+or `draft` when a section's own sign-off flag (TRUTH_FLAGS) is not yet set -- this
+tool's own reading, not truth. Every tier gates: a mismatch against draft truth
+still means the engine's output changed and someone must say why. The label only
+decides how strongly a number may be quoted.
 """
 
 from __future__ import annotations
@@ -86,14 +87,28 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
 }
 
 
+TIERS = ("llm_verified", "cross_verified", "human_signed")  # == cobol_answer_key.TIERS, weakest first
+
+
+def _weakest(tiers: list[str]) -> str:
+    return min(tiers, key=TIERS.index) if tiers else "draft"
+
+
 def truth_tier(key: dict[str, Any], field: str) -> str:
-    """`validated` when every entry backing `field` is signed off, else `draft`."""
+    """The weakest verification tier behind `field` (see cobol_answer_key.TIERS), or
+    `draft` when any entry backing it is not signed off."""
     if field not in TRUTH_FLAGS:
-        ok = all(p["verification"]["status"] == "validated" for p in key["programs"].values())
-        return "validated" if ok else "draft"
+        vs = [p["verification"] for p in key["programs"].values()]
+        if not vs or any(v["status"] != "validated" for v in vs):
+            return "draft"
+        return _weakest([v.get("tier", "llm_verified") for v in vs])
     section, flag = TRUTH_FLAGS[field]
     entries = list(key.get(section, {}).values())
-    return "validated" if entries and all(e.get(flag) is True for e in entries) else "draft"
+    if not entries or any(e.get(flag) is not True for e in entries):
+        return "draft"
+    # A section sign-off flag carries no tier of its own: it inherits the entry's
+    # verification tier when present, else the one-model floor.
+    return _weakest([(e.get("verification") or {}).get("tier", "llm_verified") for e in entries])
 
 
 def entry_key(side: str, field: str, pair: list[str], kind: str) -> str:

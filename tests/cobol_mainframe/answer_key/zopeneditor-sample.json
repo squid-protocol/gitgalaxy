@@ -178,7 +178,8 @@
           "OPEN INPUT TRANSACTION-FILE CUSTOMER-FILE OUTPUT CUSTOMER-FILE-OUT REPORT-FILE: CUSTOUT and CUSTRPT are outputs.",
           "CALL SAM2 goes through 05 SAM2 PIC X(8) VALUE 'SAM2'.",
           "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
-        ]
+        ],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -2040,7 +2041,8 @@
         "notes": [
           "COPY DATETIME IN MYFILE and COPY REPTTOTL IN MYLIB resolve through zapp.yaml to COPYLIB/ and COPYLIB-MVS/.",
           "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
-        ]
+        ],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -3369,7 +3371,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -3718,7 +3721,8 @@
         "at": "2026-09-19",
         "notes": [
           "CALL target PROGRAM-ID is shared by two programs (one per workspace root); the nearest is taken."
-        ]
+        ],
+        "tier": "llm_verified"
       },
       "records": [
         {
@@ -5727,7 +5731,8 @@
         "status": "validated",
         "by": "claude-opus-5 (agent standing in for a human reviewer)",
         "at": "2026-09-19",
-        "notes": []
+        "notes": [],
+        "tier": "llm_verified"
       },
       "records": [
         {

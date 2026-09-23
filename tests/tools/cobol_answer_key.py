@@ -13,6 +13,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-csd <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-commarea <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-cics <repo> --key key.json
+    python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
 <repo> into the key's `pli_programs`, leaving every COBOL program (and its
@@ -50,20 +51,43 @@ from pathlib import Path
 from typing import Any, Optional
 
 SCHEMA_VERSION = 1
+
+# How strongly a `validated` program's truth is backed, weakest first. Every
+# validated program names one in `verification.tier`:
+#   llm_verified    one model checked the draft against the source (every dead
+#                   verdict and every draft/forge/engine disagreement)
+#   cross_verified  a second, different model classified the same claims BLIND
+#                   (mixed with live controls, without the key's answers), and
+#                   every disagreement was settled against the source;
+#                   `verification.cross_by` names it
+#   human_signed    a person spot-checked a sample (`sample` subcommand) and
+#                   signed; `verification.signed_by` names them
+# The ledger labels each field with the weakest tier behind it, so a score is
+# never quoted as stronger evidence than it is.
+TIERS = ("llm_verified", "cross_verified", "human_signed")
 PROGRAM_EXTS = (".cbl", ".cob", ".cobol", ".ccp")
-COPYBOOK_EXTS = (".cpy", ".copy")
+# `.dcl`: a DCLGEN member, which `EXEC SQL INCLUDE` pulls in like a copybook
+# (CardDemo COPAUS2C `INCLUDE AUTHFRDS` -> app/.../dcl/AUTHFRDS.dcl).
+COPYBOOK_EXTS = (".cpy", ".copy", ".dcl")
 
 NAME = r"[A-Z0-9][A-Z0-9-]*"
 _HEADER = re.compile(rf"^({NAME})(?:\s+(SECTION)(?:\s+[0-9]{{1,2}})?)?\s*\.(?:\s|$)")
+_HEADER_NO_PERIOD = re.compile(rf"^({NAME})(?:\s+SECTION(?:\s+[0-9]{{1,2}})?)?$")
 # Words that can sit in Area A followed by a period without being a unit header.
 _NOT_A_HEADER = {"DECLARATIVES", "END", "EXIT", "GOBACK", "CONTINUE", "STOP", "ELSE"}
-_PERFORM = re.compile(rf"\bPERFORM\s+({NAME})(?:\s+(?:THRU|THROUGH)\s+({NAME}))?")
-_GOTO = re.compile(rf"\bGO\s+(?:TO\s+)?((?:{NAME}\s*)+)")
+# `(?<![\w-])` for the same reason as _CALL below: `END-PERFORM` followed by a
+# real `PERFORM X` read as a PERFORM of the word `PERFORM`, swallowing X
+# (CardDemo COTRTLIC 9450-CLOSE-FORWARD-CURSOR read as dead).
+_PERFORM = re.compile(rf"(?<![\w-])PERFORM\s+({NAME})(?:\s+(?:THRU|THROUGH)\s+({NAME}))?")
+_GOTO = re.compile(rf"(?<![\w-])GO\s+(?:TO\s+)?((?:{NAME}\s*)+)")
 _SENTENCE_END = re.compile(r"\.(?=\s|$)")
 _TERMINAL_TAIL = re.compile(rf"(?:\bGOBACK|\bSTOP\s+RUN|\bEXIT\s+PROGRAM|\bGO\s+(?:TO\s+)?{NAME})\s*$")
 _SELECT = re.compile(rf"\bSELECT\s+(?:OPTIONAL\s+)?({NAME})\s+ASSIGN\s+(?:TO\s+)?([A-Z0-9@#$-]+)")
 _OPEN_MODES = {"INPUT", "OUTPUT", "I-O", "EXTEND"}
-_CALL = re.compile(r"\bCALL\s+")
+# `(?<![\w-])`, not `\b`: `\b` matches after a hyphen, so `END-CALL` and a
+# paragraph named `3200-INSERT-IMS-CALL` read as the CALL verb (found drafting
+# CardDemo; pinned by test_end_call_and_hyphenated_names_are_not_calls).
+_CALL = re.compile(r"(?<![\w-])CALL\s+")
 _CICS_PROGRAM = re.compile(r"\bEXEC\s+CICS\s+(LINK|XCTL)\b")
 # CICS transfers control to these labels itself (on an abend, a condition or an
 # attention key), so a unit named in one is reachable with no PERFORM or GO TO.
@@ -75,6 +99,7 @@ _SYSTEM_COPY = (
     ("CEE", "Language Environment-supplied"),
     ("SQLCA", "DB2 precompiler-supplied"),
     ("SQLDA", "DB2 precompiler-supplied"),
+    ("CMQ", "IBM MQ-supplied"),  # CMQV, CMQODV, CMQMDV, ... (CardDemo's MQ programs)
 )
 
 # #3246: DATA DIVISION record layouts, read with THIS tool's own fixed-format
@@ -174,12 +199,20 @@ def _units(src: Source) -> list[dict[str, Any]]:
     if src.proc_start is None:
         return []
     units: list[dict[str, Any]] = [{"name": None, "kind": "implicit", "line": None, "body": []}]
-    for no, area in src.lines[src.proc_start :]:
+    lines = src.lines[src.proc_start :]
+    for i, (no, area) in enumerate(lines):
         lead = len(area) - len(area.lstrip(" "))
-        m = _HEADER.match(area.strip()) if area.strip() and lead < 4 else None
+        head = area.strip()
+        if head and lead < 4 and _HEADER_NO_PERIOD.match(head):
+            # A header's separator period may sit on the next code line
+            # (CardDemo COTRTLIC `2000-SEND-MAP` / `     .`).
+            nxt = next((a.strip() for _, a in lines[i + 1 :] if a.strip()), "")
+            if nxt.startswith("."):
+                head += " ."
+        m = _HEADER.match(head) if head and lead < 4 else None
         if m and m.group(1) not in _NOT_A_HEADER and not m.group(1).startswith("END-"):
             units.append({"name": m.group(1), "kind": "section" if m.group(2) else "paragraph", "line": no, "body": []})
-            rest = area.strip()[m.end() :]
+            rest = head[m.end() :] if head == area.strip() else ""
             if rest.strip():
                 units[-1]["body"].append(rest)
         else:
@@ -191,15 +224,31 @@ def _units(src: Source) -> list[dict[str, Any]]:
     return units
 
 
+_TRAILING_COPY = re.compile(
+    r"\bCOPY\s+(?:'[^']*'|\"[^\"]*\"|[A-Z0-9@#$-]+)(?:\s+(?:IN|OF)\s+[A-Z0-9@#$-]+)?(?:\s+REPLACING\b.*?)?\s*\."
+)
+
+
+def _is_exit_only(body: str) -> bool:
+    """`EXIT.` alone, however spaced (`EXIT .`, CardDemo's style), and ignoring a COPY
+    after it -- a procedure copybook brings its own paragraph header, so its code is
+    not in this unit."""
+    t = re.sub(r"\s+\.", ".", _TRAILING_COPY.sub("", body)).strip()
+    return t in ("EXIT.", "EXIT")
+
+
 def _is_terminal(text: str) -> bool:
     """Does the unit's last sentence end in an unconditional transfer that never falls through?"""
     sentences = [s.strip() for s in _SENTENCE_END.split(text) if s.strip()]
     if not sentences:
         return False
     last = re.sub(r"\s+", " ", sentences[-1])
-    if len(re.findall(r"\bIF\b", last)) != len(re.findall(r"\bEND-IF\b", last)):
+    # `(?<![\w-])`: `\bIF\b` also matches inside `END-IF`, so any sentence with a
+    # closed IF read as unterminated and a paragraph ending `... END-IF ... GOBACK.`
+    # as falling through (CardDemo CBPAUP0C MAIN-PARA).
+    if len(re.findall(r"(?<![\w-])IF\b", last)) != len(re.findall(r"\bEND-IF\b", last)):
         return False  # the transfer sits inside an unterminated IF: conditional
-    if len(re.findall(r"\bEVALUATE\b", last)) != len(re.findall(r"\bEND-EVALUATE\b", last)):
+    if len(re.findall(r"(?<![\w-])EVALUATE\b", last)) != len(re.findall(r"\bEND-EVALUATE\b", last)):
         return False
     if last.endswith("END-EXEC"):
         start = [m.start() for m in re.finditer(r"\bEXEC\s", last)]
@@ -214,9 +263,9 @@ def _tail_perform(text: str) -> Optional[tuple[str, Optional[str]]]:
         return None
     last = re.sub(r"\s+", " ", sentences[-1])
     m = re.search(rf"\bPERFORM ({NAME})(?: (?:THRU|THROUGH) ({NAME}))?$", last)
-    if not m or len(re.findall(r"\bIF\b", last)) != len(re.findall(r"\bEND-IF\b", last)):
+    if not m or len(re.findall(r"(?<![\w-])IF\b", last)) != len(re.findall(r"\bEND-IF\b", last)):
         return None
-    if len(re.findall(r"\bEVALUATE\b", last)) != len(re.findall(r"\bEND-EVALUATE\b", last)):
+    if len(re.findall(r"(?<![\w-])EVALUATE\b", last)) != len(re.findall(r"\bEND-EVALUATE\b", last)):
         return None
     return m.group(1), m.group(2)
 
@@ -1749,11 +1798,17 @@ def draft_program(
         body = re.sub(r"\s+", " ", u["text"]).strip()
         # An `EXIT.`-only paragraph is dead but carries no logic: a tool that
         # counts it as removable bloat is right about reachability, not about size.
-        dead[u["name"]] = {"reason": reason, "trivial": body in ("EXIT.", "EXIT")}
+        dead[u["name"]] = {"reason": reason, "trivial": _is_exit_only(body)}
 
     copybooks = []
     for rx, via in ((_COPY, "COPY"), (_SQL_INCLUDE, "SQL INCLUDE")):
-        for m in rx.finditer(src.text):
+        # Matched on the raw text so a quoted member (`COPY 'CSUTLDWY'.`, CardDemo)
+        # keeps its name, then kept only where the keyword itself survives literal
+        # blanking -- a `COPY` inside a DISPLAY literal is not a copy.
+        for m in rx.finditer(src.raw_text):
+            kw = m.start() + m.group(0).index("COPY" if via == "COPY" else "EXEC")
+            if src.text[kw : kw + 4] != src.raw_text[kw : kw + 4]:
+                continue
             name = m.group(1)
             library = m.group(2) if via == "COPY" else None
             entry = {"name": name, "via": via, "line": src.line_of(m.start(1)), "library": library}
@@ -1762,7 +1817,7 @@ def draft_program(
 
     selects = {m.group(1): m.group(2) for m in _SELECT.finditer(src.text)}
     modes: dict[str, set[str]] = {k: set() for k in selects}
-    for m in re.finditer(r"\bOPEN\s+", src.text):
+    for m in re.finditer(r"(?<![\w-])OPEN\s+", src.text):
         mode = None
         for tok in re.split(r"[\s,]+", src.text[m.end() : m.end() + 400]):
             tok = tok.rstrip(".")
@@ -2304,6 +2359,40 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
     return result, "\n".join(md) + "\n"
 
 
+def sample_claims(key: dict[str, Any], n: int, seed: int) -> list[dict[str, Any]]:
+    """A seeded random sample of the key's program-level claims, for a human spot
+    check (the `human_signed` tier): dead verdicts, PROGRAM-IDs, copybook
+    resolutions, call targets and file modes, drawn uniformly over all of them."""
+    import random
+
+    claims: list[dict[str, Any]] = []
+    for rel, p in key["programs"].items():
+        claims.append({"program": rel, "kind": "program_id", "claim": f"PROGRAM-ID is {p['program_id']}"})
+        live = [u for u in p["units"] if u["name"] not in p["dead"]]
+        for name, d in p["dead"].items():
+            claims.append({"program": rel, "kind": "dead", "claim": f"{name} is unreachable ({d['reason']})"})
+        for u in live:
+            claims.append({"program": rel, "kind": "live", "claim": f"{u['name']} (line {u['line']}) is reachable"})
+        for c in p["copybooks"]:
+            to = c["resolves_to"] or f"nothing in the repository ({c['why']})"
+            claims.append(
+                {"program": rel, "kind": "copybook", "claim": f"{c['via']} {c['name']} (line {c['line']}) -> {to}"}
+            )
+        for c in p["calls"]:
+            claims.append(
+                {
+                    "program": rel,
+                    "kind": "call",
+                    "claim": f"{c['verb']} {c['operand']} (line {c['line']}) -> {c['target']}",
+                }
+            )
+        for f in p["files"]:
+            claims.append(
+                {"program": rel, "kind": "file", "claim": f"{f['internal']} DD {f['dd']} opened {f['modes']}"}
+            )
+    return random.Random(seed).sample(claims, min(n, len(claims)))
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -2341,7 +2430,32 @@ def main() -> int:
     x = sub.add_parser("add-cics")
     x.add_argument("repo", type=Path)
     x.add_argument("--key", type=Path, required=True)
+    sp = sub.add_parser("sample")
+    sp.add_argument("--key", type=Path, required=True)
+    sp.add_argument("--n", type=int, default=25)
+    sp.add_argument("--seed", type=int, default=3210)
+    sp.add_argument("--out", type=Path)
     args = ap.parse_args()
+
+    if args.cmd == "sample":
+        key = json.loads(args.key.read_text(encoding="utf-8"))
+        rows = sample_claims(key, args.n, args.seed)
+        md = [
+            f"# Spot check: {key['corpus']} @ {key['ref'][:12]} (seed {args.seed}, {len(rows)} claims)",
+            "",
+            "Check each claim against the source. Record any wrong one in the program's",
+            "`verification.notes` and fix the key; once every claim holds, set the checked",
+            "programs' `verification.tier` to `human_signed` with `signed_by` and the date.",
+            "",
+            "| ok | program | kind | claim |",
+            "|---|---|---|---|",
+            *[f"| [ ] | `{r['program']}` | {r['kind']} | {r['claim']} |" for r in rows],
+        ]
+        text = "\n".join(md) + "\n"
+        if args.out:
+            args.out.write_text(text, encoding="utf-8")
+        print(text)
+        return 0
 
     repo = args.repo.resolve()
     if args.cmd == "draft":

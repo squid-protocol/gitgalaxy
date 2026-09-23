@@ -38,6 +38,10 @@ where the repository carries the symbolic-map copybook generated from a map
 (carddemo's app/cpy-bms), its `<field>I` names vs the engine's named fields, as
 `bms_symbolic_field` deltas -- the copybook the differential used to see only as
 the `bms_symbolic_map` cause is now checked against the map it came from.
+Since #3345 each JCL DD binding's symbol-resolved DSN is one too: no JCL forge
+exists either, so the compared side is the key's own JCL reader
+(jcl_dataset_bindings) vs dataset_data's dsn_resolved/dsn_resolution, per JCL
+member, as `jcl_dsn` deltas.
 The gate counts what neither explains -- `unexplained` --
 and fails when a run adds any over a committed per-corpus baseline.
 
@@ -117,7 +121,18 @@ UNEXPLAINED = "unexplained"
 # raw-file reader, independent of the engine's PRISM-stream walker.
 # The BMS screen fields (#3347) are read by the key's own raw-source BMS reader, so
 # a `bms_field` delta is adjudicated once a map is `fields_validated`.
-INDEPENDENT_FIELDS = {"program_id", "copybook", "record", "transaction", "pli_record", "sql_column", "bms_field"}
+# The JCL resolved DSN (#3345) is read by the key's own JCL scanner over the raw
+# member, sharing no code with the engine, so it adjudicates once `dsns_validated`.
+INDEPENDENT_FIELDS = {
+    "program_id",
+    "copybook",
+    "record",
+    "transaction",
+    "pli_record",
+    "sql_column",
+    "bms_field",
+    "jcl_dsn",
+}
 
 
 def _record_fields(items: list) -> set[str]:
@@ -262,6 +277,48 @@ def compare_bms(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     return rows
 
 
+def _engine_jcl_dsns(ef) -> set[str]:
+    """The engine's JCL DD bindings for one member, in the key's comparison form."""
+    return ak.jcl_dsn_values(
+        [
+            {
+                "step_name": d.step_name,
+                "dd_name": d.dd_name,
+                "dsn_resolved": d.dsn_resolved,
+                "dsn_resolution": d.dsn_resolution,
+                "line": d.line,
+            }
+            for d in ef.datasets
+            if d.is_binding
+        ]
+    )
+
+
+def compare_jcl(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
+    """#3345: one row per JCL member -- the key's independent reader vs dataset_data.
+
+    `old` is that reader (there is no JCL forge); `db` is the engine. Each value is
+    `STEP/DD@line=RESOLVED[status]`, so a binding the other side missed, a symbol
+    resolved to a different DSN, and a disagreement on HOW it resolved are each a
+    delta."""
+    rows = []
+    for ef in sorted(ir.files.values(), key=lambda f: f.file_path):
+        if ef.language != "jcl":
+            continue
+        text = (repo / ef.file_path).read_text(encoding="utf-8", errors="ignore")
+        rows.append(
+            {
+                "file": ef.file_path,
+                "language": "jcl",
+                "jcl_dsns": {
+                    "old": sorted(ak.jcl_dsn_values(ak.jcl_dataset_bindings(text))),
+                    "db": sorted(_engine_jcl_dsns(ef)),
+                },
+            }
+        )
+    return rows
+
+
 def _cobol_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [r for r in rows if r.get("language", "cobol") == "cobol"]
 
@@ -337,7 +394,7 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                 },
             }
         )
-    return rows + compare_pli(repo, ir) + compare_sql_tables(repo, ir) + compare_bms(repo, ir)
+    return rows + compare_pli(repo, ir) + compare_sql_tables(repo, ir) + compare_bms(repo, ir) + compare_jcl(repo, ir)
 
 
 def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -345,6 +402,7 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
     bms = [r for r in rows if r.get("language") == "bms"]
     symbolic = [r["bms_symbolic"] for r in bms if r["bms_symbolic"]]
     sql = [r for r in rows if r.get("language") == "sql_table"]
+    jcl = [r for r in rows if r.get("language") == "jcl"]
     rows = _cobol_rows(rows)
 
     def count(pred) -> int:
@@ -390,6 +448,10 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
         "bms_symbolic_copybooks": len(symbolic),
         "bms_symbolic_fields_copybook": sum(len(s["old"]) for s in symbolic),
         "bms_symbolic_fields_agree": sum(len(set(s["old"]) & set(s["db"])) for s in symbolic),
+        "jcl_members": len(jcl),
+        "jcl_dsns_key": sum(len(r["jcl_dsns"]["old"]) for r in jcl),
+        "jcl_dsns_db": sum(len(r["jcl_dsns"]["db"]) for r in jcl),
+        "jcl_dsns_agree": sum(len(set(r["jcl_dsns"]["old"]) & set(r["jcl_dsns"]["db"])) for r in jcl),
     }
 
 
@@ -452,6 +514,13 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
                 old, db = set(pair["old"]), set(pair["db"])
                 deltas += [{"program": prog, "field": field, "side": "old", "value": v} for v in sorted(old - db)]
                 deltas += [{"program": prog, "field": field, "side": "db", "value": v} for v in sorted(db - old)]
+            continue
+        if r.get("language") == "jcl":
+            # #3345: JCL DD bindings + resolved DSN, the key's reader vs the engine.
+            jd = r["jcl_dsns"]
+            old, db = set(jd["old"]), set(jd["db"])
+            deltas += [{"program": prog, "field": "jcl_dsn", "side": "old", "value": v} for v in sorted(old - db)]
+            deltas += [{"program": prog, "field": "jcl_dsn", "side": "db", "value": v} for v in sorted(db - old)]
             continue
         pid = r["program_id"]
         # Only the genuine mismatch. A db file legitimately carrying several
@@ -633,6 +702,10 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
         # the DB carries the screen fields. `bms_field` is left to the validated
         # key (INDEPENDENT); a symbolic-map delta is read off the two files.
         return UNEXPLAINED
+    if field == "jcl_dsn":
+        # #3345: two independent JCL readers disagree on a binding or on how its
+        # DSN resolved -- a real defect on one side. Left to the validated key.
+        return UNEXPLAINED
     return UNEXPLAINED
 
 
@@ -640,6 +713,19 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
     """The answer key's verdict on a delta, or None when it cannot adjudicate."""
     if not key:
         return None
+    if d["field"] == "jcl_dsn":
+        # #3345: drafted, so it adjudicates only once the member is signed off
+        # with `dsns_validated`.
+        job = key.get("jcl_jobs", {}).get(d["program"])
+        if not job or not job.get("dsns_validated"):
+            return None
+        present = d["value"] in ak.jcl_dsn_values(job.get("bindings", []))
+        verdict = (
+            ("old-parser defect" if present else "engine defect")
+            if d["side"] == "db"
+            else ("engine defect" if present else "old-parser defect")
+        )
+        return {"verdict": verdict, "confidence": "independent", "decided": True}
     if d["field"] == "bms_field":
         # #3347: drafted, so it adjudicates only once the map is `fields_validated`.
         bms = key.get("bms_maps", {}).get(d["program"])
@@ -731,8 +817,8 @@ def classify(repo: Path, rows: list[dict[str, Any]], key: Optional[dict[str, Any
     ctx_cache: dict[str, dict[str, Any]] = {}
     out: list[Delta] = []
     for d in flatten(rows):
-        if d["field"] in ("pli_record", "sql_column", "bms_field", "bms_symbolic_field"):
-            # The COBOL fixed-format context is meaningless for a PL/I file, and a
+        if d["field"] in ("pli_record", "sql_column", "bms_field", "bms_symbolic_field", "jcl_dsn"):
+            # The COBOL fixed-format context is meaningless for a PL/I or JCL file, and a
             # DECLARE TABLE column delta (#3344) has no mechanism cause to read.
             out.append({**d, "cause": _classify_cause(d, {}), "verdict": _key_verdict(d, key)})
             continue

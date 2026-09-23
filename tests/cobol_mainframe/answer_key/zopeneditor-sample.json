@@ -7059,5 +7059,919 @@
       }
     }
   },
-  "sql_tables": {}
+  "sql_tables": {},
+  "jcl_jobs": {
+    "JCL/ALLOCATE.jcl": {
+      "bindings": [
+        {
+          "line": 25,
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.OBJ",
+          "resolved": "IBMUSER.SAMPLE.OBJ",
+          "status": "resolved"
+        },
+        {
+          "line": 28,
+          "step": "DELETE",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "resolved": "IBMUSER.SAMPLE.LOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 31,
+          "step": "DELETE",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.COBOL",
+          "resolved": "IBMUSER.SAMPLE.COBOL",
+          "status": "resolved"
+        },
+        {
+          "line": 34,
+          "step": "DELETE",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.COPY",
+          "resolved": "IBMUSER.SAMPLE.COPY",
+          "status": "resolved"
+        },
+        {
+          "line": 37,
+          "step": "DELETE",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.TRANFILE",
+          "resolved": "IBMUSER.SAMPLE.TRANFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 40,
+          "step": "DELETE",
+          "dd": "DD6",
+          "dsn": "&HLQ..SAMPLE.CUSTFILE",
+          "resolved": "IBMUSER.SAMPLE.CUSTFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 43,
+          "step": "DELETE",
+          "dd": "DD7",
+          "dsn": "&HLQ..SAMPLE.COPYLIB",
+          "resolved": "IBMUSER.SAMPLE.COPYLIB",
+          "status": "resolved"
+        },
+        {
+          "line": 55,
+          "step": "ALLOCAT",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.OBJ",
+          "resolved": "IBMUSER.SAMPLE.OBJ",
+          "status": "resolved"
+        },
+        {
+          "line": 60,
+          "step": "ALLOCAT",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "resolved": "IBMUSER.SAMPLE.LOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 65,
+          "step": "ALLOCAT",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.COBOL",
+          "resolved": "IBMUSER.SAMPLE.COBOL",
+          "status": "resolved"
+        },
+        {
+          "line": 70,
+          "step": "ALLOCAT",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.COPY",
+          "resolved": "IBMUSER.SAMPLE.COPY",
+          "status": "resolved"
+        },
+        {
+          "line": 75,
+          "step": "ALLOCAT",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.TRANFILE",
+          "resolved": "IBMUSER.SAMPLE.TRANFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 80,
+          "step": "ALLOCAT",
+          "dd": "DD6",
+          "dsn": "&HLQ..SAMPLE.CUSTFILE",
+          "resolved": "IBMUSER.SAMPLE.CUSTFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 85,
+          "step": "ALLOCAT",
+          "dd": "DD7",
+          "dsn": "&HLQ..SAMPLE.COPYLIB",
+          "resolved": "IBMUSER.SAMPLE.COPYLIB",
+          "status": "resolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/ASMALLOC.jcl": {
+      "bindings": [
+        {
+          "line": 25,
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.ASMOBJ",
+          "resolved": "IBMUSER.SAMPLE.ASMOBJ",
+          "status": "resolved"
+        },
+        {
+          "line": 28,
+          "step": "DELETE",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.ASMLOAD",
+          "resolved": "IBMUSER.SAMPLE.ASMLOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 31,
+          "step": "DELETE",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.ASM",
+          "resolved": "IBMUSER.SAMPLE.ASM",
+          "status": "resolved"
+        },
+        {
+          "line": 34,
+          "step": "DELETE",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.ASMCOPY",
+          "resolved": "IBMUSER.SAMPLE.ASMCOPY",
+          "status": "resolved"
+        },
+        {
+          "line": 37,
+          "step": "DELETE",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.ASM.FILEIN",
+          "resolved": "IBMUSER.SAMPLE.ASM.FILEIN",
+          "status": "resolved"
+        },
+        {
+          "line": 49,
+          "step": "ALLOCAT",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.ASMOBJ",
+          "resolved": "IBMUSER.SAMPLE.ASMOBJ",
+          "status": "resolved"
+        },
+        {
+          "line": 54,
+          "step": "ALLOCAT",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.ASMLOAD",
+          "resolved": "IBMUSER.SAMPLE.ASMLOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 59,
+          "step": "ALLOCAT",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.ASM",
+          "resolved": "IBMUSER.SAMPLE.ASM",
+          "status": "resolved"
+        },
+        {
+          "line": 64,
+          "step": "ALLOCAT",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.ASMCOPY",
+          "resolved": "IBMUSER.SAMPLE.ASMCOPY",
+          "status": "resolved"
+        },
+        {
+          "line": 69,
+          "step": "ALLOCAT",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.ASM.FILEIN",
+          "resolved": "IBMUSER.SAMPLE.ASM.FILEIN",
+          "status": "resolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/PLIALLOC.jcl": {
+      "bindings": [
+        {
+          "line": 25,
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.PLIOBJ",
+          "resolved": "IBMUSER.SAMPLE.PLIOBJ",
+          "status": "resolved"
+        },
+        {
+          "line": 28,
+          "step": "DELETE",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.PLILOAD",
+          "resolved": "IBMUSER.SAMPLE.PLILOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 31,
+          "step": "DELETE",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.PLI",
+          "resolved": "IBMUSER.SAMPLE.PLI",
+          "status": "resolved"
+        },
+        {
+          "line": 34,
+          "step": "DELETE",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.PLINC",
+          "resolved": "IBMUSER.SAMPLE.PLINC",
+          "status": "resolved"
+        },
+        {
+          "line": 37,
+          "step": "DELETE",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "resolved": "IBMUSER.SAMPLE.PLI.TRANFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 40,
+          "step": "DELETE",
+          "dd": "DD6",
+          "dsn": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "resolved": "IBMUSER.SAMPLE.PLI.CUSTFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 43,
+          "step": "DELETE",
+          "dd": "DD7",
+          "dsn": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "resolved": "IBMUSER.SAMPLE.PLI.INCLLIB",
+          "status": "resolved"
+        },
+        {
+          "line": 55,
+          "step": "ALLOCAT",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.PLIOBJ",
+          "resolved": "IBMUSER.SAMPLE.PLIOBJ",
+          "status": "resolved"
+        },
+        {
+          "line": 60,
+          "step": "ALLOCAT",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.PLILOAD",
+          "resolved": "IBMUSER.SAMPLE.PLILOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 65,
+          "step": "ALLOCAT",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.PLI",
+          "resolved": "IBMUSER.SAMPLE.PLI",
+          "status": "resolved"
+        },
+        {
+          "line": 70,
+          "step": "ALLOCAT",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.PLINC",
+          "resolved": "IBMUSER.SAMPLE.PLINC",
+          "status": "resolved"
+        },
+        {
+          "line": 75,
+          "step": "ALLOCAT",
+          "dd": "DD5",
+          "dsn": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "resolved": "IBMUSER.SAMPLE.PLI.TRANFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 80,
+          "step": "ALLOCAT",
+          "dd": "DD6",
+          "dsn": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "resolved": "IBMUSER.SAMPLE.PLI.CUSTFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 85,
+          "step": "ALLOCAT",
+          "dd": "DD7",
+          "dsn": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "resolved": "IBMUSER.SAMPLE.PLI.INCLLIB",
+          "status": "resolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/REXALLOC.jcl": {
+      "bindings": [
+        {
+          "line": 25,
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.REXX",
+          "resolved": "TSOUSER.SAMPLE.REXX",
+          "status": "resolved"
+        },
+        {
+          "line": 28,
+          "step": "DELETE",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEIN1",
+          "resolved": "TSOUSER.SAMPLE.REXX.FILEIN1",
+          "status": "resolved"
+        },
+        {
+          "line": 31,
+          "step": "DELETE",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEIN2",
+          "resolved": "TSOUSER.SAMPLE.REXX.FILEIN2",
+          "status": "resolved"
+        },
+        {
+          "line": 34,
+          "step": "DELETE",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEOUT",
+          "resolved": "TSOUSER.SAMPLE.REXX.FILEOUT",
+          "status": "resolved"
+        },
+        {
+          "line": 46,
+          "step": "ALLOCAT",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.REXX",
+          "resolved": "TSOUSER.SAMPLE.REXX",
+          "status": "resolved"
+        },
+        {
+          "line": 51,
+          "step": "ALLOCAT",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEIN1",
+          "resolved": "TSOUSER.SAMPLE.REXX.FILEIN1",
+          "status": "resolved"
+        },
+        {
+          "line": 56,
+          "step": "ALLOCAT",
+          "dd": "DD3",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEIN2",
+          "resolved": "TSOUSER.SAMPLE.REXX.FILEIN2",
+          "status": "resolved"
+        },
+        {
+          "line": 61,
+          "step": "ALLOCAT",
+          "dd": "DD4",
+          "dsn": "&HLQ..SAMPLE.REXX.FILEOUT",
+          "resolved": "TSOUSER.SAMPLE.REXX.FILEOUT",
+          "status": "resolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/RUN.jcl": {
+      "bindings": [
+        {
+          "line": 43,
+          "step": "CMPLSAM2",
+          "dd": "STEPLIB",
+          "dsn": "&CMPLLIB",
+          "resolved": "IGY.V6R5M0.SIGYCOMP",
+          "status": "resolved"
+        },
+        {
+          "line": 44,
+          "step": "CMPLSAM2",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.COBOL(SAM2)",
+          "resolved": "IBMUSER.SAMPLE.COBOL(SAM2)",
+          "status": "resolved"
+        },
+        {
+          "line": 45,
+          "step": "CMPLSAM2",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.COPY",
+          "resolved": "IBMUSER.SAMPLE.COPY",
+          "status": "resolved"
+        },
+        {
+          "line": 46,
+          "step": "CMPLSAM2",
+          "dd": "SYSLIN",
+          "dsn": "&HLQ..SAMPLE.OBJ(SAM2)",
+          "resolved": "IBMUSER.SAMPLE.OBJ(SAM2)",
+          "status": "resolved"
+        },
+        {
+          "line": 73,
+          "step": "CMPLSAM1",
+          "dd": "STEPLIB",
+          "dsn": "&CMPLLIB",
+          "resolved": "IGY.V6R5M0.SIGYCOMP",
+          "status": "resolved"
+        },
+        {
+          "line": 74,
+          "step": "CMPLSAM1",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.COBOL(SAM1)",
+          "resolved": "IBMUSER.SAMPLE.COBOL(SAM1)",
+          "status": "resolved"
+        },
+        {
+          "line": 75,
+          "step": "CMPLSAM1",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.COPY",
+          "resolved": "IBMUSER.SAMPLE.COPY",
+          "status": "resolved"
+        },
+        {
+          "line": 76,
+          "step": "CMPLSAM1",
+          "dd": "MYFILE",
+          "dsn": "&HLQ..SAMPLE.COPYLIB",
+          "resolved": "IBMUSER.SAMPLE.COPYLIB",
+          "status": "resolved"
+        },
+        {
+          "line": 77,
+          "step": "CMPLSAM1",
+          "dd": "MYLIB",
+          "dsn": "&HLQ..SAMPLE.COPYLIB",
+          "resolved": "IBMUSER.SAMPLE.COPYLIB",
+          "status": "resolved"
+        },
+        {
+          "line": 78,
+          "step": "CMPLSAM1",
+          "dd": "SYSLIN",
+          "dsn": "&HLQ..SAMPLE.OBJ(SAM1)",
+          "resolved": "IBMUSER.SAMPLE.OBJ(SAM1)",
+          "status": "resolved"
+        },
+        {
+          "line": 104,
+          "step": "LINKSAM2",
+          "dd": "SYSLMOD",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "resolved": "IBMUSER.SAMPLE.LOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 107,
+          "step": "LINKSAM2",
+          "dd": "SYSLIB",
+          "dsn": "&LINKLIB",
+          "resolved": "CEE.SCEELKED",
+          "status": "resolved"
+        },
+        {
+          "line": 108,
+          "step": "LINKSAM2",
+          "dd": "OBJ",
+          "dsn": "&HLQ..SAMPLE.OBJ",
+          "resolved": "IBMUSER.SAMPLE.OBJ",
+          "status": "resolved"
+        },
+        {
+          "line": 121,
+          "step": "LINKSAM1",
+          "dd": "SYSLMOD",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "resolved": "IBMUSER.SAMPLE.LOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 124,
+          "step": "LINKSAM1",
+          "dd": "SYSLIB",
+          "dsn": "&LINKLIB",
+          "resolved": "CEE.SCEELKED",
+          "status": "resolved"
+        },
+        {
+          "line": 125,
+          "step": "LINKSAM1",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "resolved": "IBMUSER.SAMPLE.LOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 126,
+          "step": "LINKSAM1",
+          "dd": "OBJ",
+          "dsn": "&HLQ..SAMPLE.OBJ",
+          "resolved": "IBMUSER.SAMPLE.OBJ",
+          "status": "resolved"
+        },
+        {
+          "line": 139,
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.CUSTRPT",
+          "resolved": "IBMUSER.SAMPLE.CUSTRPT",
+          "status": "resolved"
+        },
+        {
+          "line": 141,
+          "step": "DELETE",
+          "dd": "DD2",
+          "dsn": "&HLQ..SAMPLE.CUSTOUT",
+          "resolved": "IBMUSER.SAMPLE.CUSTOUT",
+          "status": "resolved"
+        },
+        {
+          "line": 148,
+          "step": "SAM1",
+          "dd": "STEPLIB",
+          "dsn": "&HLQ..SAMPLE.LOAD",
+          "resolved": "IBMUSER.SAMPLE.LOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 154,
+          "step": "SAM1",
+          "dd": "CUSTFILE",
+          "dsn": "&HLQ..SAMPLE.CUSTFILE",
+          "resolved": "IBMUSER.SAMPLE.CUSTFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 157,
+          "step": "SAM1",
+          "dd": "TRANFILE",
+          "dsn": "&HLQ..SAMPLE.TRANFILE",
+          "resolved": "IBMUSER.SAMPLE.TRANFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 160,
+          "step": "SAM1",
+          "dd": "CUSTOUT",
+          "dsn": "&HLQ..SAMPLE.CUSTOUT",
+          "resolved": "IBMUSER.SAMPLE.CUSTOUT",
+          "status": "resolved"
+        },
+        {
+          "line": 165,
+          "step": "SAM1",
+          "dd": "CUSTRPT",
+          "dsn": "&HLQ..SAMPLE.CUSTRPT",
+          "resolved": "IBMUSER.SAMPLE.CUSTRPT",
+          "status": "resolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/RUNASAM1.jcl": {
+      "bindings": [
+        {
+          "line": 30,
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.ASM.FILEOUT",
+          "resolved": "TSOUSER.SAMPLE.ASM.FILEOUT",
+          "status": "resolved"
+        },
+        {
+          "line": 37,
+          "step": "ASM1",
+          "dd": "SYSLIB",
+          "dsn": "&MACLIB",
+          "resolved": "SYS1.MACLIB",
+          "status": "resolved"
+        },
+        {
+          "line": 38,
+          "step": "ASM1",
+          "dd": "SYSLIB",
+          "dsn": "&MODGEN",
+          "resolved": "SYS1.MODGEN",
+          "status": "resolved"
+        },
+        {
+          "line": 39,
+          "step": "ASM1",
+          "dd": "SYSLIB",
+          "dsn": "&SCEEMAC",
+          "resolved": "CEE.SCEEMAC",
+          "status": "resolved"
+        },
+        {
+          "line": 40,
+          "step": "ASM1",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.ASMCOPY",
+          "resolved": "TSOUSER.SAMPLE.ASMCOPY",
+          "status": "resolved"
+        },
+        {
+          "line": 41,
+          "step": "ASM1",
+          "dd": "SYSPUNCH",
+          "dsn": "&HLQ..SAMPLE.ASMOBJ(ASAM1)",
+          "resolved": "TSOUSER.SAMPLE.ASMOBJ(ASAM1)",
+          "status": "resolved"
+        },
+        {
+          "line": 47,
+          "step": "ASM1",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.ASM(ASAM1)",
+          "resolved": "TSOUSER.SAMPLE.ASM(ASAM1)",
+          "status": "resolved"
+        },
+        {
+          "line": 52,
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&HLQ..SAMPLE.ASMLOAD",
+          "resolved": "TSOUSER.SAMPLE.ASMLOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 55,
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&LINKLIB",
+          "resolved": "CEE.SCEELKED",
+          "status": "resolved"
+        },
+        {
+          "line": 56,
+          "step": "LKED",
+          "dd": "OBJ",
+          "dsn": "&HLQ..SAMPLE.ASMOBJ",
+          "resolved": "TSOUSER.SAMPLE.ASMOBJ",
+          "status": "resolved"
+        },
+        {
+          "line": 65,
+          "step": "EXECUTE",
+          "dd": "STEPLIB",
+          "dsn": "&HLQ..SAMPLE.ASMLOAD",
+          "resolved": "TSOUSER.SAMPLE.ASMLOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 70,
+          "step": "EXECUTE",
+          "dd": "FILEIN",
+          "dsn": "&HLQ..SAMPLE.ASM.FILEIN",
+          "resolved": "TSOUSER.SAMPLE.ASM.FILEIN",
+          "status": "resolved"
+        },
+        {
+          "line": 72,
+          "step": "EXECUTE",
+          "dd": "FILEOUT",
+          "dsn": "&HLQ..SAMPLE.ASM.FILEOUT",
+          "resolved": "TSOUSER.SAMPLE.ASM.FILEOUT",
+          "status": "resolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCL/RUNPSAM1.jcl": {
+      "bindings": [
+        {
+          "line": 29,
+          "step": "DELETE",
+          "dd": "DD1",
+          "dsn": "&HLQ..SAMPLE.PLI.CUSTRPT",
+          "resolved": "IBMUSER.SAMPLE.PLI.CUSTRPT",
+          "status": "resolved"
+        },
+        {
+          "line": 36,
+          "step": "CMPPSAM2",
+          "dd": "STEPLIB",
+          "dsn": "&CMPLLIB",
+          "resolved": "IBMZ.V5R3M0.SIBMZCMP",
+          "status": "resolved"
+        },
+        {
+          "line": 39,
+          "step": "CMPPSAM2",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.PLINC",
+          "resolved": "IBMUSER.SAMPLE.PLINC",
+          "status": "resolved"
+        },
+        {
+          "line": 40,
+          "step": "CMPPSAM2",
+          "dd": "SYSLIN",
+          "dsn": "&HLQ..SAMPLE.PLIOBJ(PSAM2)",
+          "resolved": "IBMUSER.SAMPLE.PLIOBJ(PSAM2)",
+          "status": "resolved"
+        },
+        {
+          "line": 41,
+          "step": "CMPPSAM2",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.PLI(PSAM2)",
+          "resolved": "IBMUSER.SAMPLE.PLI(PSAM2)",
+          "status": "resolved"
+        },
+        {
+          "line": 47,
+          "step": "CMPPSAM1",
+          "dd": "STEPLIB",
+          "dsn": "&CMPLLIB",
+          "resolved": "IBMZ.V5R3M0.SIBMZCMP",
+          "status": "resolved"
+        },
+        {
+          "line": 50,
+          "step": "CMPPSAM1",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.PLINC",
+          "resolved": "IBMUSER.SAMPLE.PLINC",
+          "status": "resolved"
+        },
+        {
+          "line": 51,
+          "step": "CMPPSAM1",
+          "dd": "MYFILE",
+          "dsn": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "resolved": "IBMUSER.SAMPLE.PLI.INCLLIB",
+          "status": "resolved"
+        },
+        {
+          "line": 52,
+          "step": "CMPPSAM1",
+          "dd": "MYLIB",
+          "dsn": "&HLQ..SAMPLE.PLI.INCLLIB",
+          "resolved": "IBMUSER.SAMPLE.PLI.INCLLIB",
+          "status": "resolved"
+        },
+        {
+          "line": 53,
+          "step": "CMPPSAM1",
+          "dd": "SYSLIN",
+          "dsn": "&HLQ..SAMPLE.PLIOBJ(PSAM1)",
+          "resolved": "IBMUSER.SAMPLE.PLIOBJ(PSAM1)",
+          "status": "resolved"
+        },
+        {
+          "line": 54,
+          "step": "CMPPSAM1",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.PLI(PSAM1)",
+          "resolved": "IBMUSER.SAMPLE.PLI(PSAM1)",
+          "status": "resolved"
+        },
+        {
+          "line": 60,
+          "step": "LNKPSAM1",
+          "dd": "SYSLIB",
+          "dsn": "&LINKLIB",
+          "resolved": "CEE.SCEELKED",
+          "status": "resolved"
+        },
+        {
+          "line": 63,
+          "step": "LNKPSAM1",
+          "dd": "SYSLMOD",
+          "dsn": "&HLQ..SAMPLE.PLILOAD",
+          "resolved": "IBMUSER.SAMPLE.PLILOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 65,
+          "step": "LNKPSAM1",
+          "dd": "INOBJ",
+          "dsn": "&HLQ..SAMPLE.PLIOBJ",
+          "resolved": "IBMUSER.SAMPLE.PLIOBJ",
+          "status": "resolved"
+        },
+        {
+          "line": 75,
+          "step": "RUNPSAM1",
+          "dd": "STEPLIB",
+          "dsn": "&HLQ..SAMPLE.PLILOAD",
+          "resolved": "IBMUSER.SAMPLE.PLILOAD",
+          "status": "resolved"
+        },
+        {
+          "line": 78,
+          "step": "RUNPSAM1",
+          "dd": "CUSTFILE",
+          "dsn": "&HLQ..SAMPLE.PLI.CUSTFILE",
+          "resolved": "IBMUSER.SAMPLE.PLI.CUSTFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 79,
+          "step": "RUNPSAM1",
+          "dd": "TRANFILE",
+          "dsn": "&HLQ..SAMPLE.PLI.TRANFILE",
+          "resolved": "IBMUSER.SAMPLE.PLI.TRANFILE",
+          "status": "resolved"
+        },
+        {
+          "line": 80,
+          "step": "RUNPSAM1",
+          "dd": "CUSTRPT",
+          "dsn": "&HLQ..SAMPLE.PLI.CUSTRPT",
+          "resolved": "IBMUSER.SAMPLE.PLI.CUSTRPT",
+          "status": "resolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "JCLPROC/COMPROC.jcl": {
+      "bindings": [
+        {
+          "line": 31,
+          "step": "CMPLSAM2",
+          "dd": "STEPLIB",
+          "dsn": "&CMPLLIB",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 32,
+          "step": "CMPLSAM2",
+          "dd": "SYSIN",
+          "dsn": "&HLQ..SAMPLE.COBOL(SAM2)",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 33,
+          "step": "CMPLSAM2",
+          "dd": "SYSLIB",
+          "dsn": "&HLQ..SAMPLE.COPY",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 34,
+          "step": "CMPLSAM2",
+          "dd": "SYSLIN",
+          "dsn": "&HLQ..SAMPLE.OBJ(SAM2)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  }
 }

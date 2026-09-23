@@ -394,13 +394,23 @@ class StateRehydrator:
                         "line": int(r["line"] or 0),
                     },
                 )
+                # #3345: the resolved-DSN pair is per-file (one JCL file determines
+                # it), so it is restored like the raw DSN. A baseline written
+                # before #3345 lacks the columns; its rows come back without the
+                # keys, exactly the shape the extractor gives a COBOL row.
+                resolved_cols = (
+                    "ds.dsn_resolved, ds.dsn_resolution"
+                    if _has_table(cursor, "dataset_data") and _has_column(cursor, "dataset_data", "dsn_resolution")
+                    else "NULL AS dsn_resolved, NULL AS dsn_resolution"
+                )
                 datasets_by_file = _restore_child_table(
                     cursor,
                     repo_name,
                     baseline_hash,
                     "dataset_data",
-                    "SELECT fd.file_path AS _fp, ds.step_name, ds.internal_name, ds.assign_name, "
-                    "ds.dd_name, ds.access_modes AS modes, ds.dsn, ds.line_number AS line "
+                    "SELECT fd.file_path AS _fp, ds.step_name, ds.internal_name, ds.assign_name, "  # noqa: S608 -- resolved_cols is one of two literals; values are bound
+                    "ds.dd_name, ds.access_modes AS modes, ds.dsn, ds.line_number AS line, "
+                    f"{resolved_cols} "
                     "FROM dataset_data ds JOIN file_data fd ON ds.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ds.id",
                     lambda r: {
@@ -411,6 +421,11 @@ class StateRehydrator:
                         "modes": (r["modes"] or "").split(",") if r["modes"] else [],
                         "dsn": r["dsn"],
                         "line": int(r["line"] or 0),
+                        **(
+                            {"dsn_resolved": r["dsn_resolved"], "dsn_resolution": r["dsn_resolution"]}
+                            if r["dsn_resolution"]
+                            else {}
+                        ),
                     },
                 )
                 # Aliased to the extractor's own payload key names (level_number ->

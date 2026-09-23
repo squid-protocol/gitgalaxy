@@ -572,7 +572,9 @@ class LLMRecorder:
                 for d in datasets:
                     dd = d.get("dd_name") or d.get("internal_name") or "?"
                     if d.get("dsn"):  # a JCL DD -> dataset binding
-                        parts.append(f"{dd}→{d['dsn']}")
+                        # #3345: the symbol-resolved DSN where the file determines
+                        # it, else the DSN as written (`&HLQ..X`).
+                        parts.append(f"{dd}→{d.get('dsn_resolved') or d['dsn']}")
                     else:  # a COBOL SELECT with its OPEN modes
                         modes = "/".join(d.get("modes") or []) or "declared"
                         parts.append(f"{dd}({modes})")

@@ -54966,5 +54966,1570 @@
         "notes": []
       }
     }
+  },
+  "jcl_jobs": {
+    "etc/install/base/buildjcl/ASMNCOPT.jcl": {
+      "bindings": [
+        {
+          "line": 20,
+          "step": "ASM",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.MACLIB",
+          "resolved": "SYS1.MACLIB",
+          "status": "literal"
+        },
+        {
+          "line": 21,
+          "step": "ASM",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.MODGEN",
+          "resolved": "SYS1.MODGEN",
+          "status": "literal"
+        },
+        {
+          "line": 22,
+          "step": "ASM",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHSAMP",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 23,
+          "step": "ASM",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHMAC",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 30,
+          "step": "ASM",
+          "dd": "SYSIN",
+          "dsn": "&CBSAHLQ..ASM(DFHNCOPT)",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 32,
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&CBSAHLQ..AUTHLIB",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/BATCH.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&COBOLHLQ..SIGYCOMP",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 9,
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&CICSHLQ..SDFHLOAD",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 10,
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&DB2HLQ..SDSNLOAD",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 11,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CBSAHLQ..DSECT",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 12,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHCOB",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 13,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEESAMP",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 14,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHSAMP",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 15,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEESAMP",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 16,
+          "step": "COBOL",
+          "dd": "DBRMLIB",
+          "dsn": "&CBSAHLQ..DBRM(&MEMBER)",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 20,
+          "step": "COBOL",
+          "dd": "OUT",
+          "dsn": "&CBSAHLQ..CBSAMOD(&MEMBER)",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 38,
+          "step": "COBOL",
+          "dd": "SYSIN",
+          "dsn": "&CBSAHLQ..COBOL(&MEMBER)",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 52,
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHLOAD",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 53,
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&DB2HLQ..SDSNLOAD",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 54,
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEELKED",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 58,
+          "step": "LKED",
+          "dd": "CBSAMOD",
+          "dsn": "&CBSAHLQ..CBSAMOD",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 60,
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&CBSAHLQ..LOADLIB",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 63,
+          "step": "LKED",
+          "dd": "IN",
+          "dsn": "&CBSAHLQ..LKED(&MEMBER)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/CICS.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&COBOLHLQ..SIGYCOMP",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 9,
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&CICSHLQ..SDFHLOAD",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 10,
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "&DB2HLQ..SDSNLOAD",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 11,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CBSAHLQ..DSECT",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 12,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEESAMP",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 13,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHCOB",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 14,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHSAMP",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 15,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEESAMP",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 16,
+          "step": "COBOL",
+          "dd": "DBRMLIB",
+          "dsn": "&CBSAHLQ..DBRM(&MEMBER)",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 20,
+          "step": "COBOL",
+          "dd": "OUT",
+          "dsn": "&CBSAHLQ..CBSAMOD(&MEMBER)",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 38,
+          "step": "COBOL",
+          "dd": "SYSIN",
+          "dsn": "&CBSAHLQ..COBOL(&MEMBER)",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 52,
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHLOAD",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 53,
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&DB2HLQ..SDSNLOAD",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 54,
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "&LEHLQ..SCEELKED",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 58,
+          "step": "LKED",
+          "dd": "CBSAMOD",
+          "dsn": "&CBSAHLQ..CBSAMOD",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 60,
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "&CBSAHLQ..LOADLIB",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 63,
+          "step": "LKED",
+          "dd": "IN",
+          "dsn": "&CBSAHLQ..LKED(&MEMBER)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/MAPGEN.jcl": {
+      "bindings": [
+        {
+          "line": 19,
+          "step": "COPY",
+          "dd": "SYSUT1",
+          "dsn": "&CBSAHLQ..BMS(&MEMBER)",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 24,
+          "step": "ASMMAP",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHMAC",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 25,
+          "step": "ASMMAP",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.MACLIB",
+          "resolved": "SYS1.MACLIB",
+          "status": "literal"
+        },
+        {
+          "line": 36,
+          "step": "LINKMAP",
+          "dd": "SYSLMOD",
+          "dsn": "&CBSAHLQ..LOADLIB(&MEMBER)",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 43,
+          "step": "ASMDSECT",
+          "dd": "SYSLIB",
+          "dsn": "&CICSHLQ..SDFHMAC",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 44,
+          "step": "ASMDSECT",
+          "dd": "SYSLIB",
+          "dsn": "SYS1.MACLIB",
+          "resolved": "SYS1.MACLIB",
+          "status": "literal"
+        },
+        {
+          "line": 48,
+          "step": "ASMDSECT",
+          "dd": "SYSPUNCH",
+          "dsn": "&CBSAHLQ..DSECT(&MEMBER)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/buildjcl/TMP.jcl": {
+      "bindings": [
+        {
+          "line": 10,
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "IGY630.SIGYCOMP",
+          "resolved": "IGY630.SIGYCOMP",
+          "status": "literal"
+        },
+        {
+          "line": 11,
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "DFH560.CICS.SDFHLOAD",
+          "resolved": "DFH560.CICS.SDFHLOAD",
+          "status": "literal"
+        },
+        {
+          "line": 12,
+          "step": "COBOL",
+          "dd": "STEPLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        },
+        {
+          "line": 13,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "CBSA.CICSBSA.DSECT",
+          "resolved": "CBSA.CICSBSA.DSECT",
+          "status": "literal"
+        },
+        {
+          "line": 14,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEESAMP",
+          "resolved": "CEE.SCEESAMP",
+          "status": "literal"
+        },
+        {
+          "line": 15,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "DFH560.CICS.SDFHCOB",
+          "resolved": "DFH560.CICS.SDFHCOB",
+          "status": "literal"
+        },
+        {
+          "line": 16,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "DFH560.CICS.SDFHSAMP",
+          "resolved": "DFH560.CICS.SDFHSAMP",
+          "status": "literal"
+        },
+        {
+          "line": 17,
+          "step": "COBOL",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEESAMP",
+          "resolved": "CEE.SCEESAMP",
+          "status": "literal"
+        },
+        {
+          "line": 18,
+          "step": "COBOL",
+          "dd": "DBRMLIB",
+          "dsn": "CBSA.CICSBSA.DBRM(INQACCCU)",
+          "resolved": "CBSA.CICSBSA.DBRM(INQACCCU)",
+          "status": "literal"
+        },
+        {
+          "line": 24,
+          "step": "COBOL",
+          "dd": "OUT",
+          "dsn": "CBSA.CICSBSA.CBSAMOD(INQACCCU)",
+          "resolved": "CBSA.CICSBSA.CBSAMOD(INQACCCU)",
+          "status": "literal"
+        },
+        {
+          "line": 42,
+          "step": "COBOL",
+          "dd": "SYSIN",
+          "dsn": "CBSA.CICSBSA.COBOL(INQACCCU)",
+          "resolved": "CBSA.CICSBSA.COBOL(INQACCCU)",
+          "status": "literal"
+        },
+        {
+          "line": 56,
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "DFH560.CICS.SDFHLOAD",
+          "resolved": "DFH560.CICS.SDFHLOAD",
+          "status": "literal"
+        },
+        {
+          "line": 57,
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        },
+        {
+          "line": 58,
+          "step": "LKED",
+          "dd": "SYSLIB",
+          "dsn": "CEE.SCEELKED",
+          "resolved": "CEE.SCEELKED",
+          "status": "literal"
+        },
+        {
+          "line": 62,
+          "step": "LKED",
+          "dd": "CBSAMOD",
+          "dsn": "CBSA.CICSBSA.CBSAMOD",
+          "resolved": "CBSA.CICSBSA.CBSAMOD",
+          "status": "literal"
+        },
+        {
+          "line": 64,
+          "step": "LKED",
+          "dd": "SYSLMOD",
+          "dsn": "CBSA.CICSBSA.LOADLIB",
+          "resolved": "CBSA.CICSBSA.LOADLIB",
+          "status": "literal"
+        },
+        {
+          "line": 67,
+          "step": "LKED",
+          "dd": "IN",
+          "dsn": "CBSA.CICSBSA.LKED(INQACCCU)",
+          "resolved": "CBSA.CICSBSA.LKED(INQACCCU)",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/BTCHSQL.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CREDB00.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CREI101.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CREI201.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CREI301.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRESG01.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRESG02.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRESG03.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETB01.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETB02.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETB03.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETS01.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETS02.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/CRETS03.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DB2BIND.jcl": {
+      "bindings": [
+        {
+          "line": 45,
+          "step": "BIND",
+          "dd": "STEPLIB",
+          "dsn": "@DB2_HLQ@.@DB2_SUBSYSTEM@.SDSNEXIT",
+          "resolved": "@DB2_HLQ@.@DB2_SUBSYSTEM@.SDSNEXIT",
+          "status": "literal"
+        },
+        {
+          "line": 46,
+          "step": "BIND",
+          "dd": "STEPLIB",
+          "dsn": "@DB2_HLQ@.SDSNLOAD",
+          "resolved": "@DB2_HLQ@.SDSNLOAD",
+          "status": "literal"
+        },
+        {
+          "line": 47,
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(CREACC)",
+          "resolved": "@BANK_DBRMLIB@(CREACC)",
+          "status": "literal"
+        },
+        {
+          "line": 48,
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(CRECUST)",
+          "resolved": "@BANK_DBRMLIB@(CRECUST)",
+          "status": "literal"
+        },
+        {
+          "line": 49,
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(DBCRFUN)",
+          "resolved": "@BANK_DBRMLIB@(DBCRFUN)",
+          "status": "literal"
+        },
+        {
+          "line": 50,
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(DELACC)",
+          "resolved": "@BANK_DBRMLIB@(DELACC)",
+          "status": "literal"
+        },
+        {
+          "line": 51,
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(DELCUS)",
+          "resolved": "@BANK_DBRMLIB@(DELCUS)",
+          "status": "literal"
+        },
+        {
+          "line": 52,
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(INQACC)",
+          "resolved": "@BANK_DBRMLIB@(INQACC)",
+          "status": "literal"
+        },
+        {
+          "line": 53,
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(INQACCCU)",
+          "resolved": "@BANK_DBRMLIB@(INQACCCU)",
+          "status": "literal"
+        },
+        {
+          "line": 54,
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(BANKDATA)",
+          "resolved": "@BANK_DBRMLIB@(BANKDATA)",
+          "status": "literal"
+        },
+        {
+          "line": 55,
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(UPDACC)",
+          "resolved": "@BANK_DBRMLIB@(UPDACC)",
+          "status": "literal"
+        },
+        {
+          "line": 56,
+          "step": "BIND",
+          "dd": "DBRMLIB",
+          "dsn": "@BANK_DBRMLIB@(XFRFUN)",
+          "resolved": "@BANK_DBRMLIB@(XFRFUN)",
+          "status": "literal"
+        },
+        {
+          "line": 123,
+          "step": "GRANT",
+          "dd": "STEPLIB",
+          "dsn": "@DB2_HLQ@.@DB2_SUBSYSTEM@.SDSNEXIT",
+          "resolved": "@DB2_HLQ@.@DB2_SUBSYSTEM@.SDSNEXIT",
+          "status": "literal"
+        },
+        {
+          "line": 124,
+          "step": "GRANT",
+          "dd": "STEPLIB",
+          "dsn": "@DB2_HLQ@.SDSNLOAD",
+          "resolved": "@DB2_HLQ@.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DROPDB2.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPDB00.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPI101.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPI201.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPI301.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPSG01.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPSG02.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPSG03.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTB01.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTB02.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTB03.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTS01.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTS02.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/DRPTS03.jcl": {
+      "bindings": [
+        {
+          "line": 8,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "DSNC10.SDSNLOAD",
+          "resolved": "DSNC10.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/db2jcl/INSTDB2.jcl": {
+      "bindings": [
+        {
+          "line": 31,
+          "step": null,
+          "dd": "JOBLIB",
+          "dsn": "@DB2_HLQ@.SDSNLOAD",
+          "resolved": "@DB2_HLQ@.SDSNLOAD",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/BANKDATA.jcl": {
+      "bindings": [
+        {
+          "line": 95,
+          "step": "BANKDAT5",
+          "dd": "STEPLIB",
+          "dsn": "@BANK_DBRMLIB@",
+          "resolved": "@BANK_DBRMLIB@",
+          "status": "literal"
+        },
+        {
+          "line": 96,
+          "step": "BANKDAT5",
+          "dd": "STEPLIB",
+          "dsn": "@BANK_LOADLIB@",
+          "resolved": "@BANK_LOADLIB@",
+          "status": "literal"
+        },
+        {
+          "line": 97,
+          "step": "BANKDAT5",
+          "dd": "STEPLIB",
+          "dsn": "@DB2_HLQ@.SDSNLOAD",
+          "resolved": "@DB2_HLQ@.SDSNLOAD",
+          "status": "literal"
+        },
+        {
+          "line": 98,
+          "step": "BANKDAT5",
+          "dd": "VSAM",
+          "dsn": "@BANK_PREFIX@.CUSTOMER",
+          "resolved": "@BANK_PREFIX@.CUSTOMER",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREDB2L.jcl": {
+      "bindings": [
+        {
+          "line": 13,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..DB2.JCL.INSTALL",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 23,
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..DB2.JCL.INSTALL(EMPTY)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL001.jcl": {
+      "bindings": [
+        {
+          "line": 12,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.BUILDJCL",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 22,
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.BUILDJCL(EMPTY)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL002.jcl": {
+      "bindings": [
+        {
+          "line": 12,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.COPYLIB",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 22,
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.COPYLIB(EMPTY)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL003.jcl": {
+      "bindings": [
+        {
+          "line": 12,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.LOADLIB",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL004.jcl": {
+      "bindings": [
+        {
+          "line": 12,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.DBRM",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL005.jcl": {
+      "bindings": [
+        {
+          "line": 12,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.LKED",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL006.jcl": {
+      "bindings": [
+        {
+          "line": 12,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.BMS",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 22,
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.BMS(EMPTY)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL007.jcl": {
+      "bindings": [
+        {
+          "line": 12,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.ASM",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 22,
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.ASM(EMPTY)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL008.jcl": {
+      "bindings": [
+        {
+          "line": 12,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.CBSAMOD",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL009.jcl": {
+      "bindings": [
+        {
+          "line": 12,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.COBOL",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 22,
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.COBOL(EMPTY)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL010.jcl": {
+      "bindings": [
+        {
+          "line": 12,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.DSECT",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 22,
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.DSECT(EMPTY)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/CREL011.jcl": {
+      "bindings": [
+        {
+          "line": 12,
+          "step": "STEP10",
+          "dd": "DD01",
+          "dsn": "&HLQ..CICSBSA.REORG",
+          "resolved": null,
+          "status": "unresolved"
+        },
+        {
+          "line": 22,
+          "step": "STEP20",
+          "dd": "SYSUT2",
+          "dsn": "&HLQ..CICSBSA.REORG(EMPTY)",
+          "resolved": null,
+          "status": "unresolved"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/HBANKCSD.jcl": {
+      "bindings": [
+        {
+          "line": 18,
+          "step": "DFHCSDUP",
+          "dd": "STEPLIB",
+          "dsn": "@CICS_PREFIX@.SDFHLOAD",
+          "resolved": "@CICS_PREFIX@.SDFHLOAD",
+          "status": "literal"
+        },
+        {
+          "line": 19,
+          "step": "DFHCSDUP",
+          "dd": "DFHCSD",
+          "dsn": "@CSD_PREFIX@.DFHCSD",
+          "resolved": "@CSD_PREFIX@.DFHCSD",
+          "status": "literal"
+        },
+        {
+          "line": 23,
+          "step": "DFHCSDUP",
+          "dd": "SYSIN",
+          "dsn": "@CBSA_INSTALL@(BANK)",
+          "resolved": "@CBSA_INSTALL@(BANK)",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/REPLCICS.jcl": {
+      "bindings": [
+        {
+          "line": 11,
+          "step": "JOBSTEP",
+          "dd": "SYSUT1",
+          "dsn": "CBSA.JCL.INSTALL",
+          "resolved": "CBSA.JCL.INSTALL",
+          "status": "literal"
+        },
+        {
+          "line": 13,
+          "step": "JOBSTEP",
+          "dd": "SYSUT2",
+          "dsn": "FEU.Z25A.PROCLIB",
+          "resolved": "FEU.Z25A.PROCLIB",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "etc/install/base/installjcl/REPLSIP.jcl": {
+      "bindings": [
+        {
+          "line": 11,
+          "step": "JOBSTEP",
+          "dd": "SYSUT1",
+          "dsn": "CBSA.JCL.INSTALL",
+          "resolved": "CBSA.JCL.INSTALL",
+          "status": "literal"
+        },
+        {
+          "line": 13,
+          "step": "JOBSTEP",
+          "dd": "SYSUT2",
+          "dsn": "DFH560.SYSIN",
+          "resolved": "DFH560.SYSIN",
+          "status": "literal"
+        }
+      ],
+      "dsns_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

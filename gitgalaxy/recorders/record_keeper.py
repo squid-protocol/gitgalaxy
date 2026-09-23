@@ -883,9 +883,18 @@ class RecordKeeper:
                 access_modes TEXT,
                 dsn TEXT,
                 line_number INTEGER,
+                dsn_resolved TEXT,
+                dsn_resolution TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
+        # #3345: a JCL DSN with its symbolic parameters (SET / PROC defaults /
+        # EXEC overrides) resolved where the file alone determines it. `dsn` stays
+        # the DSN as written; `dsn_resolved` is NULL unless every symbol resolved,
+        # and `dsn_resolution` says how (literal / resolved / proc_default /
+        # ambiguous / unresolved -- see mainframe_boundary._jcl_resolve_datasets).
+        # Both NULL on a COBOL row. Healed onto a table created before #3345.
+        _ensure_columns(cursor, "dataset_data", ["dsn_resolved TEXT", "dsn_resolution TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_file_id ON dataset_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_dd_name ON dataset_data(dd_name);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_dataset_snapshot ON dataset_data(repo_name, commit_hash);")
@@ -1961,7 +1970,17 @@ class RecordKeeper:
             repo_name,
             commit_hash,
             "dataset_data",
-            ("step_name", "internal_name", "assign_name", "dd_name", "access_modes", "dsn", "line_number"),
+            (
+                "step_name",
+                "internal_name",
+                "assign_name",
+                "dd_name",
+                "access_modes",
+                "dsn",
+                "line_number",
+                "dsn_resolved",
+                "dsn_resolution",
+            ),
             "dataset_bindings",
             lambda b: (
                 b.get("step_name"),
@@ -1971,6 +1990,8 @@ class RecordKeeper:
                 ",".join(b.get("modes") or []) or None,
                 b.get("dsn"),
                 int(b.get("line", 0) or 0),
+                b.get("dsn_resolved"),  # #3345
+                b.get("dsn_resolution"),
             ),
         )
 

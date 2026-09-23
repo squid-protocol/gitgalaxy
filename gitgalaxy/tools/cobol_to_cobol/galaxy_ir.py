@@ -19,13 +19,17 @@
 # their full attribute text in `attributes`), and since #3211-followup the CICS transaction
 # map (transaction_data: which transaction id entry-points into which program,
 # plus the in-source routing verbs 'RETURN/START/RUN TRANSID' carried in
-# call_site_data), and since #3344 the DB2 table shapes programs bind to
+# call_site_data), since #3344 the DB2 table shapes programs bind to
 # (sql_table_data: every `EXEC SQL DECLARE <table> TABLE (...)` column -- SQL
 # type, length/scale, nullability -- inline or DCLGEN-generated, per
-# EngineFile.sql_tables), and since #3347 the BMS screen-field layouts
+# EngineFile.sql_tables), since #3347 the BMS screen-field layouts
 # (screen_field_data: every mapset/map/field with POS, LENGTH, ATTRB,
 # PICIN/PICOUT, INITIAL, OCCURS -- the source of the symbolic-map copybooks, per
-# EngineFile.screen_fields). NOT in the DB, so still owned by the forge tools:
+# EngineFile.screen_fields), and since #3345 each JCL DD's DSN with its symbolic
+# parameters (SET / PROC defaults / EXEC overrides) resolved where one file
+# determines it (dataset_data.dsn_resolved + dsn_resolution; cross-member
+# cataloged-PROC callers are left `unresolved`/`proc_default`, never guessed).
+# NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
 # to dead-code masking. See docs/refraction_engine_differential.md for the
@@ -102,11 +106,33 @@ class EngineDataset:
     modes: list
     dsn: Optional[str]
     line: int
+    # #3345: the JCL DSN with its symbols resolved (None unless every one did) and
+    # how -- literal / resolved / proc_default / ambiguous / unresolved. Both None
+    # on a COBOL row and on a DB written before the columns existed.
+    dsn_resolved: Optional[str] = None
+    dsn_resolution: Optional[str] = None
 
     @property
     def is_binding(self) -> bool:
         """True for a JCL DD -> dataset binding, False for a COBOL SELECT."""
         return self.dsn is not None
+
+    @property
+    def dataset_name(self) -> Optional[str]:
+        """The dataset this binding names, for joining bindings ACROSS jobs (#3345).
+
+        The resolved DSN when this file determined it (`literal`/`resolved`), the
+        raw DSN when it names no symbol (a DB written before #3345), and None
+        otherwise: a `proc_default`, `ambiguous` or `unresolved` DSN is not a name
+        two jobs can be said to share -- a caller elsewhere may bind something else.
+        """
+        if not self.is_binding:
+            return None
+        if self.dsn_resolution in ("literal", "resolved"):
+            return self.dsn_resolved
+        if self.dsn_resolution is None and "&" not in (self.dsn or ""):
+            return self.dsn
+        return None
 
 
 @dataclass
@@ -308,7 +334,9 @@ class GalaxyIR:
         """Program P opens DD X for MODE; job J step S binds DD X to dataset D.
 
         #3201's question, answered from the DB alone. Each entry is a dict with
-        `program`, `dd_name`, `modes`, `job`, `step` and `dsn`. A program DD
+        `program`, `dd_name`, `modes`, `job`, `step` and `dsn`, plus (#3345)
+        `dsn_resolved`/`dsn_resolution` and `dataset` -- the joinable name
+        (`EngineDataset.dataset_name`), None unless this job determined it. A program DD
         that no job in the repository binds still appears, with `job`/`dsn`
         None: an unbound DD is a real finding (the dataset is allocated by a
         job that is not in this repository), not something to drop silently.
@@ -321,7 +349,7 @@ class GalaxyIR:
         for f in self.files.values():
             for ds in f.datasets:
                 if ds.is_binding:
-                    bindings.setdefault((f.file_path, ds.step_name, ds.dd_name), []).append(ds.dsn)
+                    bindings.setdefault((f.file_path, ds.step_name, ds.dd_name), []).append(ds)
 
         # program path -> the (job, step) pairs that EXEC PGM= it.
         runners: dict[str, list] = {}
@@ -339,10 +367,10 @@ class GalaxyIR:
                     continue
                 matched = False
                 for job_path, _ in runners.get(f.file_path, []):
-                    for (bj, bstep, bdd), dsns in bindings.items():
+                    for (bj, bstep, bdd), bound in bindings.items():
                         if bj != job_path or bdd != ds.dd_name:
                             continue
-                        for dsn in dsns:
+                        for b in bound:
                             matched = True
                             out.append(
                                 {
@@ -351,7 +379,10 @@ class GalaxyIR:
                                     "modes": list(ds.modes),
                                     "job": bj,
                                     "step": bstep,
-                                    "dsn": dsn,
+                                    "dsn": b.dsn,
+                                    "dsn_resolved": b.dsn_resolved,
+                                    "dsn_resolution": b.dsn_resolution,
+                                    "dataset": b.dataset_name,
                                 }
                             )
                 if not matched:
@@ -363,9 +394,77 @@ class GalaxyIR:
                             "job": None,
                             "step": None,
                             "dsn": None,
+                            "dsn_resolved": None,
+                            "dsn_resolution": None,
+                            "dataset": None,
                         }
                     )
         return out
+
+    def shared_datasets(self) -> dict[str, list]:
+        """Dataset -> every JCL binding of it, for datasets bound by 2+ jobs (#3345).
+
+        The job-to-job half of lineage: `JOB1 //OUT DD DSN=&HLQ..DAILY` and `JOB2
+        //IN DD DSN=PROD.DAILY` are the same dataset once JOB1's HLQ resolves, and
+        only then. Keyed by the dataset NAME with any member/generation suffix
+        dropped (`LIB(SAM1)` and `LIB(SAM2)` are one library; `X(+1)`/`X(0)` one
+        GDG). Each binding: `job`, `step`, `dd_name`, `dsn` (as written) and
+        `dsn_resolved`. Only joinable names take part (`EngineDataset.dataset_name`).
+        """
+        by_name: dict[str, list] = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for ds in f.datasets:
+                name = ds.dataset_name
+                if name:
+                    by_name.setdefault(name.split("(", 1)[0], []).append(
+                        {
+                            "job": f.file_path,
+                            "step": ds.step_name,
+                            "dd_name": ds.dd_name,
+                            "dsn": ds.dsn,
+                            "dsn_resolved": ds.dsn_resolved,
+                        }
+                    )
+        return {n: b for n, b in sorted(by_name.items()) if len({x["job"] for x in b}) > 1}
+
+    def dataset_flows(self, language: str = "cobol") -> list:
+        """Program -> program data flow through a shared dataset (#3345).
+
+        Writer W opens a DD for OUTPUT/EXTEND/I-O and its job binds that DD to
+        dataset D; reader R opens a DD for INPUT/I-O and ITS job binds that DD to
+        the same D. Built on `dataset_lineage`, joined on the resolved dataset
+        name, so two programs whose jobs spell D through different symbols
+        (`&HLQ..DAILY` under `SET HLQ=PROD`, and `PROD.DAILY`) are linked, and two
+        whose DSNs could not be resolved are not. Each flow: `dataset`, `writer`,
+        `reader`, and the `writer_job`/`reader_job` that made each binding.
+        """
+        writers: dict[str, list] = {}
+        readers: dict[str, list] = {}
+        for e in self.dataset_lineage(language):
+            if not e["dataset"]:
+                continue
+            name = e["dataset"].split("(", 1)[0]
+            modes = set(e["modes"])
+            if modes & {"OUTPUT", "EXTEND", "I-O"}:
+                writers.setdefault(name, []).append(e)
+            if modes & {"INPUT", "I-O"}:
+                readers.setdefault(name, []).append(e)
+        flows = []
+        for name in sorted(writers):
+            for w in writers[name]:
+                for r in readers.get(name, []):
+                    if w["program"] == r["program"]:
+                        continue
+                    flows.append(
+                        {
+                            "dataset": name,
+                            "writer": w["program"],
+                            "writer_job": w["job"],
+                            "reader": r["program"],
+                            "reader_job": r["job"],
+                        }
+                    )
+        return flows
 
     def unresolved_calls(self) -> list:
         """Every call site that did not reach a file in this repository (#3200).
@@ -550,16 +649,29 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
 
         # #3201: the dataset boundary, both the COBOL and the JCL half.
         if _has_table(cur, "dataset_data"):
-            for file_id, step, internal, assign, dd, modes, dsn, line in cur.execute(
-                "SELECT file_id, step_name, internal_name, assign_name, dd_name, access_modes, dsn, line_number "
-                "FROM dataset_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+            # #3345: the resolved-DSN pair is NULL on a DB written before it existed.
+            resolved_cols = (
+                "dsn_resolved, dsn_resolution" if _has_column(cur, "dataset_data", "dsn_resolution") else "NULL, NULL"
+            )
+            for file_id, step, internal, assign, dd, modes, dsn, line, dsn_resolved, dsn_resolution in cur.execute(
+                "SELECT file_id, step_name, internal_name, assign_name, dd_name, access_modes, dsn, line_number, "  # noqa: S608 -- resolved_cols is one of two literals; values are bound
+                f"{resolved_cols} FROM dataset_data WHERE repo_name = ? AND commit_hash = ? "
+                "ORDER BY file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
                 if file_id not in by_id:
                     continue
                 by_id[file_id].datasets.append(
                     EngineDataset(
-                        step, internal, assign, dd or "", (modes or "").split(",") if modes else [], dsn, int(line or 0)
+                        step,
+                        internal,
+                        assign,
+                        dd or "",
+                        (modes or "").split(",") if modes else [],
+                        dsn,
+                        int(line or 0),
+                        dsn_resolved,
+                        dsn_resolution,
                     )
                 )
 

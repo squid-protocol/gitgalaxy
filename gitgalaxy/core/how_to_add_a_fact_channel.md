@@ -14,6 +14,7 @@ before writing anything:
 |---|---|---|---|---|
 | invocation (call graph) | #3200 | `core/mainframe_boundary.py` + `core/invocation_resolver.py` | `call_site_data` | `EngineFile.calls` |
 | dataset boundary/lineage | #3201 | `core/mainframe_boundary.py` | `dataset_data` | `EngineFile.datasets` |
+| JCL PROC/SET symbol resolution (resolved columns beside a raw one) | #3345 | `core/mainframe_boundary.py` (`_jcl_resolve_datasets`) | `dataset_data` (+ `dsn_resolved`, `dsn_resolution`) | `EngineFile.datasets` (`dataset_name`; `GalaxyIR.shared_datasets`/`dataset_flows`) |
 | DATA DIVISION record layouts | #3246 | `core/mainframe_boundary.py` | `record_data` | `EngineFile.records` |
 | PL/I DECLARE structures (a second dialect on an existing table) | #3250 | `core/mainframe_boundary.py` (`_pli_records`) | `record_data` (+ `attributes`) | `EngineFile.records` |
 | BMS screen-field layouts (its own table: geometry has no record column) | #3347 | `core/bms_screen_fields.py` (dispatched from `mainframe_boundary`) | `screen_field_data` | `EngineFile.screen_fields` |

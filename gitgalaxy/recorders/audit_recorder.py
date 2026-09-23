@@ -121,6 +121,8 @@ class AuditRecorder:
             ]
         datasets = file_data.get("dataset_bindings") or []
         if datasets:
+            # #3345: the resolved DSN rides only on a binding whose DSN names a
+            # symbol, so a literal DSN (and every COBOL row) is unchanged.
             block["Dataset Bindings"] = [
                 {
                     "DD Name": d.get("dd_name"),
@@ -130,6 +132,11 @@ class AuditRecorder:
                     "DSN": d.get("dsn"),
                     "Step": d.get("step_name"),
                     "Line": d.get("line", 0),
+                    **(
+                        {"Resolved DSN": d.get("dsn_resolved"), "DSN Resolution": d["dsn_resolution"]}
+                        if d.get("dsn_resolution") not in (None, "literal")
+                        else {}
+                    ),
                 }
                 for d in datasets
             ]

@@ -11,7 +11,10 @@
 #                     `EXEC PGM=`: who runs whom (#3200).
 #   2. dataset     -- COBOL `SELECT ... ASSIGN TO <ddname>` with the `OPEN`
 #                     modes actually used, and the JCL `DD` statement that binds
-#                     that ddname to a real dataset (#3201).
+#                     that ddname to a real dataset (#3201). A JCL DSN built
+#                     from symbolic parameters (`SET`, PROC defaults, EXEC
+#                     overrides, `&SYM.`) is also resolved where one file
+#                     determines it, beside the raw DSN (#3345).
 #   3. records     -- the DATA DIVISION item tree (WORKING-STORAGE / LINKAGE /
 #                     LOCAL-STORAGE) and FILE SECTION `FD`/`01` record layouts:
 #                     level, name, PIC, USAGE/COMP-3, OCCURS [DEPENDING ON],
@@ -169,8 +172,48 @@ _JCL_STATEMENT = re.compile(r"^//([A-Z0-9_#$@]*)[ \t]+([A-Z]+)(?:[ \t]+(.*))?$",
 _JCL_EXEC_PGM = re.compile(r"\bPGM=([A-Z0-9_#$@]+)", re.I)
 # `DSN=`/`DSNAME=` on a DD. `&&NAME` is a job-local temporary dataset and `*`
 # opens an in-stream payload -- neither is an external binding, and jcl.py's
-# `_dependency_capture` already excludes both for the same reason.
-_JCL_DSN = re.compile(r"\bDSN(?:AME)?=(?!(?:&&|\*))([A-Z0-9_#$@.&()-]+)", re.I)
+# `_dependency_capture` already excludes both for the same reason. `+` is in the
+# class for a relative GDG generation (`DSN=X.BKUP(+1)`), which it used to cut to
+# `X.BKUP(` (#3345).
+_JCL_DSN = re.compile(r"\bDSN(?:AME)?=(?!(?:&&|\*))([A-Z0-9_#$@.&()+-]+)", re.I)
+
+# ---- #3345: JCL symbolic-parameter resolution -------------------------------
+# A symbol reference: `&NAME` (1-8 chars) with an optional delimiting period that
+# substitution consumes (`&HLQ..DATA` -> `PROD.DATA`). `&&` is matched first so a
+# temporary-dataset prefix is never read as a symbol. Bounded: {0,7}.
+_JCL_SYMBOL_REF = re.compile(r"&&|&([A-Z@#$][A-Z0-9@#$]{0,7})(\.?)", re.I)
+# `KEY=` at the head of one operand. A dotted key (`PARM.STEP1=`) is an EXEC
+# keyword aimed at a procedure step, never a symbol; the class admits the dot so
+# the caller can see and skip it.
+_JCL_OPERAND_KEY = re.compile(r"([A-Z@#$][A-Z0-9@#$.]{0,24})=", re.I)
+# EXEC keywords: an `EXEC proc,KEY=value` operand with one of these names is a
+# step parameter, not a symbolic-parameter override.
+_JCL_EXEC_KEYWORDS = frozenset(
+    {
+        "PGM",
+        "PROC",
+        "PARM",
+        "PARMDD",
+        "COND",
+        "REGION",
+        "REGIONX",
+        "TIME",
+        "ACCT",
+        "ADDRSPC",
+        "DPRTY",
+        "PERFORM",
+        "RD",
+        "CCSID",
+        "DYNAMNBR",
+        "MEMLIMIT",
+        "TVSMSG",
+        "TVSAMCOM",
+    }
+)
+# A PROC default may name other symbols (`CPYBKS=&HLQ..CPY`); resolution follows
+# them at most this deep, so a self- or mutually-referencing chain ends as
+# `unresolved` rather than recursing.
+_JCL_RESOLVE_DEPTH = 8
 
 # ---- #3246: DATA DIVISION record-layout clauses ----------------------------
 # All of these are searched INSIDE one already-bounded data-description entry
@@ -1045,20 +1088,42 @@ def _pli_records(code_stream: str) -> list[dict[str, Any]]:
     return records
 
 
+def _jcl_operand_field(text: str) -> str:
+    """The operand field of one JCL line: everything up to the first blank that
+    is not inside apostrophes. What follows that blank is a comment
+    (`// SET HLQ='IBMUSER'   *TSO USER ID`), never an operand (#3345)."""
+    quoted = False
+    for idx, ch in enumerate(text):
+        if ch == "'":
+            quoted = not quoted
+        elif not quoted and ch in " \t":
+            return text[:idx]
+    return text
+
+
 def _jcl_statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     """Logical JCL statements as (line, name, operation, operands).
 
     A JCL statement continues onto the next `//` line when its operand field
     ends in a comma, so `//DD1 DD DSN=X,\\n//  UNIT=SYSDA` is one statement.
     In-stream payload (a line not starting with `//`) ends any continuation:
-    it is data, not JCL, and jcl.py's own rules anchor the same way.
+    it is data, not JCL, and jcl.py's own rules anchor the same way -- but it
+    ENDS the statement, it does not discard it. An empty line is a `//*` comment
+    PRISM blanked, so it neither ends nor breaks a continuation: `//S EXEC
+    PGM=X,` / `//* note` / `//  PARM=Y` is still one EXEC. Only the operand FIELD
+    is kept: a comment after it (`//P PROC M=,   NAME - REQUIRED`) neither hides
+    the continuing comma nor joins the operands (#3345).
     """
     statements: list[tuple[int, str, str, str]] = []
     pending: Optional[list] = None
 
     for idx, line in enumerate(code_stream.split("\n"), start=1):
         stripped = line.rstrip()
+        if not stripped:
+            continue
         if not stripped.startswith("//"):
+            if pending:
+                statements.append(tuple(pending))
             pending = None
             continue
         if stripped.startswith("//*"):
@@ -1071,14 +1136,14 @@ def _jcl_statements(code_stream: str) -> list[tuple[int, str, str, str]]:
         if match:
             if pending:
                 statements.append(tuple(pending))
-            operands = (match.group(3) or "").strip()
+            operands = _jcl_operand_field((match.group(3) or "").strip())
             pending = [idx, match.group(1).upper(), match.group(2).upper(), operands]
             if not operands.endswith(","):
                 statements.append(tuple(pending))
                 pending = None
         elif pending:
             # A continuation line: `//` then blanks then more operands.
-            continued = stripped[2:].strip()
+            continued = _jcl_operand_field(stripped[2:].strip())
             pending[3] = pending[3] + continued
             if not continued.endswith(","):
                 statements.append(tuple(pending))
@@ -1089,15 +1154,202 @@ def _jcl_statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     return statements
 
 
+def _jcl_operands(field: str) -> list[tuple[Optional[str], str]]:
+    """One operand field split on its top-level commas into (KEY, value) pairs.
+
+    Commas inside apostrophes or parentheses do not split
+    (`SPACE1='SYSALLDA,SPACE=(CYL,(1,1))'`). A positional operand (the procedure
+    name in `EXEC MYPROC,HLQ=X`) comes back with a None key.
+    """
+    parts: list[str] = []
+    depth = 0
+    quoted = False
+    start = 0
+    for idx, ch in enumerate(field):
+        if ch == "'":
+            quoted = not quoted
+        elif quoted:
+            continue
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(0, depth - 1)
+        elif ch == "," and depth == 0:
+            parts.append(field[start:idx])
+            start = idx + 1
+    parts.append(field[start:])
+
+    out: list[tuple[Optional[str], str]] = []
+    for part in parts:
+        key = _JCL_OPERAND_KEY.match(part)
+        if key:
+            out.append((key.group(1).upper(), part[key.end() :]))
+        elif part:
+            out.append((None, part))
+    return out
+
+
+def _jcl_unquote(value: str) -> str:
+    """`'IBMUSER'` -> `IBMUSER`, with `''` read as one apostrophe."""
+    if len(value) >= 2 and value.startswith("'") and value.endswith("'"):
+        return value[1:-1].replace("''", "'")
+    return value
+
+
+def _jcl_symbol_table(operands: str, keep_null: bool) -> dict[str, str]:
+    """The `NAME=value` symbol assignments of one SET / PROC / EXEC operand field.
+
+    `keep_null` decides what `NAME=` (a null value) means. On SET and on an EXEC
+    override it nullifies the symbol, which is a real value. On a PROC statement
+    it is the "caller must supply this" convention (`//BLDBAT PROC MEM=,HLQ=`),
+    so it is left undefined rather than silently substituting nothing.
+    """
+    table: dict[str, str] = {}
+    for key, value in _jcl_operands(operands):
+        if not key or "." in key or len(key) > 8:
+            continue
+        if value == "" and not keep_null:
+            continue
+        table[key] = _jcl_unquote(value)
+    return table
+
+
+def _jcl_substitute(text: str, table: dict[str, str], depth: int = 0) -> tuple[str, bool]:
+    """`text` with every `&SYM`/`&SYM.` replaced from `table`, and whether every
+    reference resolved. A symbol's value is itself resolved (a PROC default may
+    name another symbol) up to `_JCL_RESOLVE_DEPTH`; a missing symbol, a `&&`
+    and a chain that runs too deep each leave the reference as written."""
+    complete = True
+
+    def _replace(match: "re.Match[str]") -> str:
+        nonlocal complete
+        name = (match.group(1) or "").upper()
+        if not name or name not in table or depth >= _JCL_RESOLVE_DEPTH:
+            complete = False
+            return match.group(0)
+        value, ok = _jcl_substitute(table[name], table, depth + 1)
+        if not ok:
+            complete = False
+        return value
+
+    return _JCL_SYMBOL_REF.sub(_replace, text), complete
+
+
+def _jcl_resolve_dsn(dsn: str, table: dict[str, str]) -> Optional[str]:
+    """The DSN with its symbols substituted, or None unless every one resolved.
+
+    After substitution JCL re-reads the operand, so a blank or comma a value
+    carried ends the DSN (`SET MACLIB='SYS1.MACLIB   '` -> `SYS1.MACLIB`)."""
+    text, complete = _jcl_substitute(dsn, table)
+    if not complete:
+        return None
+    resolved = re.split(r"[ \t,]", text, maxsplit=1)[0].upper()
+    return resolved or None
+
+
+def _jcl_resolve_datasets(
+    job_rows: list[tuple[dict[str, Any], dict[str, str]]],
+    procs: list[dict[str, Any]],
+) -> None:
+    """Sets `dsn_resolved`/`dsn_resolution` on every JCL DD binding (#3345).
+
+    `dsn` itself is never touched: it stays the DSN as written. `dsn_resolution`:
+
+      literal       no symbol in the DSN; `dsn_resolved` is the DSN.
+      resolved      every symbol resolved from this file -- job-level SETs, or an
+                    in-stream PROC every one of whose in-file invocations agrees.
+      proc_default  a PROC's DD resolved only through the PROC's own defaults
+                    (a cataloged-PROC member, or an in-stream PROC this file never
+                    invokes): a caller in another member may override them.
+      ambiguous     an in-stream PROC invoked here with values that disagree.
+      unresolved    some symbol has no value in this file (a system symbol such as
+                    `&SYSUID`, or a value only a cross-member caller supplies).
+
+    Precedence inside a procedure is EXEC override > PROC default > SET.
+    """
+
+    def _mark(row: dict[str, Any], resolved: Optional[str], status: str) -> None:
+        row["dsn_resolved"] = resolved
+        row["dsn_resolution"] = status
+
+    for row, table in job_rows:
+        if "&" not in row["dsn"]:
+            _mark(row, row["dsn"], "literal")
+            continue
+        resolved = _jcl_resolve_dsn(row["dsn"], table)
+        _mark(row, resolved, "resolved" if resolved else "unresolved")
+
+    for proc in procs:
+        for row, local_sets in proc["rows"]:
+            if "&" not in row["dsn"]:
+                _mark(row, row["dsn"], "literal")
+                continue
+            if not proc["invocations"]:
+                table = {**proc["job_sets"], **local_sets, **proc["defaults"]}
+                resolved = _jcl_resolve_dsn(row["dsn"], table)
+                _mark(row, resolved, "proc_default" if resolved else "unresolved")
+                continue
+            results = {
+                _jcl_resolve_dsn(row["dsn"], {**job_sets, **local_sets, **proc["defaults"], **overrides})
+                for job_sets, overrides in proc["invocations"]
+            }
+            if None in results:
+                _mark(row, None, "unresolved")
+            elif len(results) > 1:
+                _mark(row, None, "ambiguous")
+            else:
+                _mark(row, results.pop(), "resolved")
+
+
 def _jcl_boundary(code_stream: str) -> dict[str, list[dict[str, Any]]]:
-    """JCL `EXEC PGM=` steps and the `DD` statements that bind a ddname to a dataset."""
+    """JCL `EXEC PGM=` steps and the `DD` statements that bind a ddname to a dataset.
+
+    #3345: alongside the walk it keeps the file's symbol tables -- job-level
+    `SET`s in source order, each PROC's defaults and in-body SETs, and every
+    in-file invocation of an in-stream PROC with its EXEC overrides -- so each
+    binding's DSN can be resolved once the whole file has been read.
+    """
     calls: list[dict[str, Any]] = []
     datasets: list[dict[str, Any]] = []
     step = ""
     last_dd = ""
+    job_seen = False
+    job_sets: dict[str, str] = {}
+    job_rows: list[tuple[dict[str, Any], dict[str, str]]] = []
+    procs: list[dict[str, Any]] = []
+    procs_by_name: dict[str, dict[str, Any]] = {}
+    current: Optional[dict[str, Any]] = None
 
     for line, name, operation, operands in _jcl_statements(code_stream):
-        if operation == "EXEC":
+        if operation == "JOB":
+            job_seen = True
+        elif operation == "SET":
+            # A SET value is substituted when the SET is read, against what is
+            # in effect then -- so `SET HLQ=&HLQ..X` cannot refer to itself.
+            scope = current["sets"] if current is not None else job_sets
+            for key, value in _jcl_symbol_table(operands, keep_null=True).items():
+                scope[key] = _jcl_substitute(value, {**job_sets, **scope})[0]
+        elif operation == "PROC":
+            # A PROC before any JOB is a cataloged-procedure member; after one it
+            # is in-stream and ends at PEND.
+            current = {
+                "defaults": _jcl_symbol_table(operands, keep_null=False),
+                "sets": {},
+                "rows": [],
+                "invocations": [],
+                "instream": job_seen,
+                "job_sets": dict(job_sets),
+            }
+            procs.append(current)
+            if name and job_seen:
+                procs_by_name[name] = current
+            step = ""
+            last_dd = ""
+        elif operation == "PEND":
+            current = None
+            step = ""
+            last_dd = ""
+        elif operation == "EXEC":
             step = name
             last_dd = ""
             pgm = _JCL_EXEC_PGM.search(operands)
@@ -1112,6 +1364,21 @@ def _jcl_boundary(code_stream: str) -> dict[str, list[dict[str, Any]]]:
                         "line": line,
                     }
                 )
+            elif current is None:
+                ops = _jcl_operands(operands)
+                proc_name = next((v for k, v in ops if k == "PROC"), None) or next(
+                    (v for k, v in ops if k is None), None
+                )
+                invoked = procs_by_name.get((proc_name or "").upper())
+                if invoked is not None:
+                    # Overrides are substituted in the CALLER's context, so
+                    # `EXEC P,HLQ=&HLQ` passes the job's HLQ, not itself.
+                    overrides = {
+                        k: _jcl_substitute(v, job_sets)[0]
+                        for k, v in _jcl_symbol_table(operands, keep_null=True).items()
+                        if k not in _JCL_EXEC_KEYWORDS
+                    }
+                    invoked["invocations"].append((dict(job_sets), overrides))
         elif operation == "DD":
             # An unnamed DD concatenates onto the ddname above it, so the
             # binding belongs to that ddname rather than to nothing.
@@ -1120,18 +1387,22 @@ def _jcl_boundary(code_stream: str) -> dict[str, list[dict[str, Any]]]:
                 last_dd = name
             dsn = _JCL_DSN.search(operands)
             if dd_name and dsn:
-                datasets.append(
-                    {
-                        "internal_name": None,
-                        "assign_name": None,
-                        "dd_name": dd_name,
-                        "modes": [],
-                        "dsn": dsn.group(1).upper(),
-                        "step_name": step or None,
-                        "line": line,
-                    }
-                )
+                row: dict[str, Any] = {
+                    "internal_name": None,
+                    "assign_name": None,
+                    "dd_name": dd_name,
+                    "modes": [],
+                    "dsn": dsn.group(1).upper(),
+                    "step_name": step or None,
+                    "line": line,
+                }
+                datasets.append(row)
+                if current is not None:
+                    current["rows"].append((row, dict(current["sets"])))
+                else:
+                    job_rows.append((row, dict(job_sets)))
 
+    _jcl_resolve_datasets(job_rows, procs)
     return {"calls": calls, "datasets": datasets}
 
 

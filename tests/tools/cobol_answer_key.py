@@ -9,6 +9,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-pli <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-sql-tables <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-bms <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-jcl <repo> --key key.json
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
 <repo> into the key's `pli_programs`, leaving every COBOL program (and its
@@ -16,6 +17,8 @@ tools and the engine's master DB against it.
 `add-sql-tables` (#3344) does the same for DB2 `EXEC SQL DECLARE ... TABLE`
 columns (inline or DCLGEN members) into the key's `sql_tables`. `add-bms` (#3347)
 does the same for every BMS map source's screen fields, into `bms_maps`.
+`add-jcl` (#3345) does the same for every JCL member's DD bindings and
+symbol-resolved DSNs, into `jcl_jobs`.
 
 AUTHORITY. `draft` computes CANDIDATE values with its own fixed-format reading
 (Area A headers, PERFORM ... THRU, GO TO, SECTION fall-through, terminal
@@ -1010,6 +1013,265 @@ def draft_bms(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# JCL DD bindings with symbolic parameters resolved (#3345)
+# ==============================================================================
+# This tool's own reading of a JCL member: it works on the RAW file (it drops
+# `//*` comments and columns 73-80 itself, never seeing the PRISM stream), splits
+# each statement with a character scanner rather than the engine's statement
+# regex, and substitutes symbols with a hand-written scan rather than a regex
+# `sub`. It shares the engine's CONTRACT -- which statements bind a DSN, how
+# SET / PROC defaults / EXEC overrides combine (EXEC > PROC default > SET), what
+# counts as statically resolvable inside one file -- not its code, so an agreement
+# is evidence and a disagreement is a finding.
+JCL_EXTS = (".jcl", ".prc")
+_JCL_OPS = {"JOB", "EXEC", "DD", "PROC", "PEND", "SET", "INCLUDE", "JCLLIB"}
+_JCL_NAME_CHARS = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$")
+_JCL_EXEC_PARAMS = {
+    "PGM", "PROC", "PARM", "PARMDD", "COND", "REGION", "REGIONX", "TIME", "ACCT", "ADDRSPC",
+    "DPRTY", "PERFORM", "RD", "CCSID", "DYNAMNBR", "MEMLIMIT", "TVSMSG", "TVSAMCOM",
+}  # fmt: skip
+
+
+def _jcl_field_end(text: str) -> int:
+    """Index of the first blank outside apostrophes -- where the operand field ends."""
+    quoted = False
+    for i, ch in enumerate(text):
+        if ch == "'":
+            quoted = not quoted
+        elif ch in " \t" and not quoted:
+            return i
+    return len(text)
+
+
+def _jcl_key_statements(text: str) -> list[tuple[int, str, str, str]]:
+    """(line, NAME, OP, operand field) per logical statement, continuations joined."""
+    out: list[list] = []
+    open_stmt = False
+    for no, raw in enumerate(text.splitlines(), 1):
+        line = raw[:72].rstrip()
+        if not line.startswith("//") or line.startswith("//*"):
+            if not line.startswith("//*"):
+                open_stmt = False
+            continue
+        body = line[2:]
+        name_end = 0
+        while name_end < len(body) and body[name_end] not in " \t":
+            name_end += 1
+        name, rest = body[:name_end].upper(), body[name_end:].lstrip()
+        op_end = 0
+        while op_end < len(rest) and rest[op_end] not in " \t":
+            op_end += 1
+        op = rest[:op_end].upper()
+        if op in _JCL_OPS and all(c in _JCL_NAME_CHARS or c == "_" for c in name):
+            operands = rest[op_end:].lstrip()
+            operands = operands[: _jcl_field_end(operands)]
+            out.append([no, name, op, operands])
+            open_stmt = operands.endswith(",")
+        elif open_stmt and not name:
+            more = body.lstrip()
+            more = more[: _jcl_field_end(more)]
+            out[-1][3] += more
+            open_stmt = more.endswith(",")
+        else:
+            open_stmt = False
+    return [tuple(s) for s in out]
+
+
+def _jcl_key_split(field: str) -> list[tuple[Optional[str], str]]:
+    """Top-level comma split (not inside '...' or (...)) into (KEY or None, value)."""
+    pieces, buf, depth, quoted = [], [], 0, False
+    for ch in field:
+        if ch == "'":
+            quoted = not quoted
+        if not quoted and ch == "(":
+            depth += 1
+        if not quoted and ch == ")" and depth:
+            depth -= 1
+        if ch == "," and not quoted and depth == 0:
+            pieces.append("".join(buf))
+            buf = []
+            continue
+        buf.append(ch)
+    pieces.append("".join(buf))
+    out: list[tuple[Optional[str], str]] = []
+    for p in pieces:
+        eq = p.find("=")
+        head = p[:eq] if eq > 0 else ""
+        if head and head[0].isalpha() or head[:1] in ("@", "#", "$"):
+            out.append((head.upper(), p[eq + 1 :]))
+        elif p:
+            out.append((None, p))
+    return out
+
+
+def _jcl_key_value(v: str) -> str:
+    if len(v) > 1 and v[0] == "'" and v[-1] == "'":
+        return v[1:-1].replace("''", "'")
+    return v
+
+
+def _jcl_key_symbols(field: str, null_is_value: bool) -> dict[str, str]:
+    table = {}
+    for k, v in _jcl_key_split(field):
+        if k is None or "." in k or len(k) > 8 or not all(c in _JCL_NAME_CHARS for c in k):
+            continue
+        if v or null_is_value:
+            table[k] = _jcl_key_value(v)
+    return table
+
+
+def _jcl_key_subst(text: str, table: dict[str, str], depth: int = 0) -> tuple[str, bool]:
+    """Substitute `&NAME` / `&NAME.` by scanning; (result, every reference resolved)."""
+    out, i, ok = [], 0, True
+    upper = text.upper()
+    while i < len(text):
+        if text[i] != "&":
+            out.append(text[i])
+            i += 1
+            continue
+        if text[i + 1 : i + 2] == "&":  # a temporary-dataset prefix, not a symbol
+            out.append("&&")
+            ok = False
+            i += 2
+            continue
+        j = i + 1
+        while j < len(text) and j - i <= 8 and upper[j] in _JCL_NAME_CHARS:
+            j += 1
+        name = upper[i + 1 : j]
+        end = j + 1 if text[j : j + 1] == "." else j
+        if not name or name[0].isdigit() or name not in table or depth >= 8:
+            out.append(text[i:end])
+            ok = False
+        else:
+            val, sub_ok = _jcl_key_subst(table[name], table, depth + 1)
+            out.append(val)
+            ok = ok and sub_ok
+        i = end
+    return "".join(out), ok
+
+
+def _jcl_key_dsn(dsn: str, table: dict[str, str]) -> Optional[str]:
+    text, ok = _jcl_key_subst(dsn, table)
+    if not ok:
+        return None
+    for stop in (" ", "\t", ","):
+        text = text.split(stop, 1)[0]
+    return text.upper() or None
+
+
+def jcl_dataset_bindings(text: str) -> list[dict[str, Any]]:
+    """Every DD -> DSN binding in one JCL member, with the DSN's symbols resolved.
+
+    Each binding: line, step, dd, dsn (as written, upper), resolved (None unless
+    every symbol resolved) and status (literal / resolved / proc_default /
+    ambiguous / unresolved). `&&TEMP` and `*` (backward reference) DSNs are not
+    bindings; override DDs (`//STEP.DD`) and cross-member PROC callers are out of
+    scope -- the same contract the engine states."""
+    rows: list[dict[str, Any]] = []
+    job = False
+    sets: dict[str, str] = {}
+    procs: list[dict[str, Any]] = []
+    named: dict[str, dict[str, Any]] = {}
+    proc: Optional[dict[str, Any]] = None
+    step, last_dd = "", ""
+    for no, name, op, field in _jcl_key_statements(text):
+        if op == "JOB":
+            job = True
+        elif op == "SET":
+            scope = proc["sets"] if proc is not None else sets
+            for k, v in _jcl_key_symbols(field, True).items():
+                scope[k] = _jcl_key_subst(v, {**sets, **scope})[0]
+        elif op == "PROC":
+            proc = {
+                "defaults": _jcl_key_symbols(field, False),
+                "sets": {},
+                "rows": [],
+                "calls": [],
+                "sets0": dict(sets),
+            }
+            procs.append(proc)
+            if job and name:
+                named[name] = proc
+            step, last_dd = "", ""
+        elif op == "PEND":
+            proc, step, last_dd = None, "", ""
+        elif op == "EXEC":
+            step, last_dd = name, ""
+            ops = _jcl_key_split(field)
+            if proc is None and not any(k == "PGM" for k, _ in ops):
+                target = next((v for k, v in ops if k == "PROC"), None) or next((v for k, v in ops if k is None), "")
+                if target.upper() in named:
+                    over = {
+                        k: _jcl_key_subst(v, sets)[0]
+                        for k, v in _jcl_key_symbols(field, True).items()
+                        if k not in _JCL_EXEC_PARAMS
+                    }
+                    named[target.upper()]["calls"].append((dict(sets), over))
+        elif op == "DD":
+            if name:
+                last_dd = name
+            dd = name or last_dd
+            dsn = next((v for k, v in _jcl_key_split(field) if k in ("DSN", "DSNAME")), None)
+            if not dd or not dsn or dsn.startswith(("&&", "*", "'")):
+                continue
+            row = {"line": no, "step": step or None, "dd": dd, "dsn": dsn.upper()}
+            rows.append(row)
+            if proc is not None:
+                proc["rows"].append((row, dict(proc["sets"])))
+            elif "&" not in dsn:
+                row.update(resolved=row["dsn"], status="literal")
+            else:
+                got = _jcl_key_dsn(dsn, sets)
+                row.update(resolved=got, status="resolved" if got else "unresolved")
+    for p in procs:
+        for row, local in p["rows"]:
+            if "&" not in row["dsn"]:
+                row.update(resolved=row["dsn"], status="literal")
+            elif not p["calls"]:
+                got = _jcl_key_dsn(row["dsn"], {**p["sets0"], **local, **p["defaults"]})
+                row.update(resolved=got, status="proc_default" if got else "unresolved")
+            else:
+                seen = {_jcl_key_dsn(row["dsn"], {**s0, **local, **p["defaults"], **ov}) for s0, ov in p["calls"]}
+                if None in seen:
+                    row.update(resolved=None, status="unresolved")
+                elif len(seen) > 1:
+                    row.update(resolved=None, status="ambiguous")
+                else:
+                    row.update(resolved=seen.pop(), status="resolved")
+    return rows
+
+
+def jcl_dsn_values(rows: list[dict[str, Any]]) -> set[str]:
+    """The comparison unit: `STEP/DD@line=RESOLVED[status]`, one per binding. Works on
+    this reader's rows and on the engine's (keys step_name/dd_name/dsn_resolved/...)."""
+    out = set()
+    for r in rows:
+        step = r.get("step", r.get("step_name")) or "-"
+        dd = r.get("dd", r.get("dd_name"))
+        resolved = r.get("resolved", r.get("dsn_resolved")) or "?"
+        status = r.get("status", r.get("dsn_resolution"))
+        out.add(f"{step}/{dd}@{r['line']}={resolved}[{status}]")
+    return out
+
+
+def draft_jcl(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted JCL DD bindings (with resolved DSNs) for every JCL member in `repo`
+    (#3345). They adjudicate a differential delta only once a member is signed off
+    with `dsns_validated` -- the records_validated precedent (#3246)."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in JCL_EXTS and ".git" not in p.parts:
+            rows = jcl_dataset_bindings(p.read_text(encoding="utf-8", errors="ignore"))
+            if rows:
+                out[p.relative_to(repo).as_posix()] = {
+                    "bindings": rows,
+                    "dsns_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -1156,6 +1418,7 @@ def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], 
         "pli_programs": draft_pli(repo),  # #3250
         "sql_tables": draft_sql_tables(repo),  # #3344
         "bms_maps": draft_bms(repo),  # #3347
+        "jcl_jobs": draft_jcl(repo),  # #3345
     }
     report = [f"# Draft reachability evidence: {corpus} @ {ref[:8]}", ""]
     for p in programs:
@@ -1327,6 +1590,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # length and attributes), per map source. Truth is this tool's own BMS
         # reader; there is no BMS forge; engine is screen_field_data.
         "BMS screen fields",
+        # #3345: JCL DD bindings with their symbolic-parameter-resolved DSN, per JCL
+        # member. Truth is this tool's own JCL reader; there is no JCL forge; engine
+        # is dataset_data (dsn_resolved + dsn_resolution).
+        "JCL resolved DSNs",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -1499,6 +1766,32 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             bms_layout_units(engine_rows) if engine_rows is not None else None,
         )
 
+    for rel, k in key.get("jcl_jobs", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "JCL resolved DSNs",
+            rel,
+            jcl_dsn_values(k.get("bindings", [])),
+            None,
+            (
+                jcl_dsn_values(
+                    [
+                        {
+                            "step_name": d.step_name,
+                            "dd_name": d.dd_name,
+                            "dsn_resolved": d.dsn_resolved,
+                            "dsn_resolution": d.dsn_resolution,
+                            "line": d.line,
+                        }
+                        for d in ef.datasets
+                        if d.is_binding
+                    ]
+                )
+                if ef
+                else None
+            ),
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -1555,6 +1848,9 @@ def main() -> int:
     b = sub.add_parser("add-bms")
     b.add_argument("repo", type=Path)
     b.add_argument("--key", type=Path, required=True)
+    j = sub.add_parser("add-jcl")
+    j.add_argument("repo", type=Path)
+    j.add_argument("--key", type=Path, required=True)
     args = ap.parse_args()
 
     repo = args.repo.resolve()
@@ -1596,6 +1892,16 @@ def main() -> int:
         key["bms_maps"] = existing
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(existing)} BMS maps -> {args.key}")
+        return 0
+    if args.cmd == "add-jcl":
+        # #3345: the add-pli discipline -- refresh drafts, keep signed-off members.
+        jobs = key.get("jcl_jobs", {})
+        for rel, entry in draft_jcl(repo).items():
+            if not jobs.get(rel, {}).get("dsns_validated"):
+                jobs[rel] = entry
+        key["jcl_jobs"] = jobs
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(jobs)} JCL members -> {args.key}")
         return 0
     result, md = score(repo, key, args.db)
     if args.md:

@@ -399,7 +399,10 @@ DEFINITION: dict[str, Any] = {
             re.I,
         ),
         # 39. debug_prints (Debug Artifacts / Unstructured Outputs): The Amateur / Space Debris. Ad-hoc debug statements.
-        "debug_prints": re.compile(r"\b(print|say|printf|sprintf|warn)\b"),
+        # #3340: no `sprintf` -- it formats a string and prints nothing (the C family's
+        # rule excludes it too). spamassassin Makefile.PL's `macro_ref` returned a
+        # sprintf and was recorded as a debug_prints wrapper.
+        "debug_prints": re.compile(r"\b(print|say|printf|warn)\b"),
         # 40. explicit_casts (Explicit Type Casting): The "Trust Me" Tax. Explicitly bypassing the type-checker or manual blessing.
         # UPDATED: Removed the pointer/reference overlap.
         "explicit_casts": re.compile(r"\b(int|oct|hex|vec|ref|bless)\b"),

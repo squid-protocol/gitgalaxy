@@ -102,6 +102,7 @@ _PERL_SIMPLE_CASES = [
     ("inline_asm", "use Inline 'C';", "use Inline::Python;"),
     ("telemetry", "$logger->info('msg');", "$logger->format('msg');"),
     ("debug_prints", 'print "debug";', 'log_info("debug");'),
+    ("debug_prints", 'printf("%s", $x);', "return sprintf('$(%s)', $name);"),  # #3340
     ("explicit_casts", "int($x);", "sprintf('%d', $x);"),
     ("panics_and_aborts", "die 'error';", "warn 'something odd';"),
     ("thread_sleeps", "sleep(5);", "sleepy_worker();"),

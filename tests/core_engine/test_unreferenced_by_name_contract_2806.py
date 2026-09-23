@@ -348,8 +348,9 @@ def test_exactly_the_declared_languages_carry_a_lexicon():
     cobol was first because the refraction pipeline reads its census; #3225
     audited the other case-insensitive by-name languages one at a time against the
     crucible and keyword-rosetta and declared `identifier_case` for each (evidence
-    in each registry's comment). Only cobol declares extra name characters.
-    Deliberately absent: batch (no crucible unit to measure), the positional
+    in each registry's comment). cobol (`-`) and batch (`-.`) declare extra name
+    characters; batch joined with #3338, once `call :label` subroutines became
+    units (labels are case-insensitive). Deliberately absent: the positional
     family (bms, sqlite, db2_sql -- no census, the key would be inert), and
     haskell (`case_insensitive_imports` is about module resolution; its
     identifiers are case-sensitive).
@@ -366,8 +367,9 @@ def test_exactly_the_declared_languages_carry_a_lexicon():
         "ada",
         "apex",
         "livecode",
+        "batch",
     }
-    assert {lang for lang in declared if _lexicon(lang)[1]} == {"cobol"}
+    assert {lang for lang in declared if _lexicon(lang)[1]} == {"cobol", "batch"}
 
 
 def test_a_case_insensitive_language_sees_a_differently_cased_call():

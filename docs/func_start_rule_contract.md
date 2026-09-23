@@ -90,6 +90,7 @@ categorized.
 | makefile | 14 | in band — recipe targets (C2); its batch4 dual is `cleanup`+`api`, not func_start |
 | css | 14 | in band — `@media`/`@supports` at-rule blocks (C2) |
 | markdown | n/a | stated absence (C4) |
+| batch | n/a | **conforms since #3338** — a `:label` that the same file reaches with `call :label` (a subroutine), not every label; not in keyword-rosetta, so no rosetta cell. See "Update: batch" below. |
 | the other 39 | 13 | conform — named-callable declarations |
 
 ## Ledger dispositions this contract settles
@@ -104,3 +105,46 @@ categorized.
   C2 morphology for dockerfile's 17.
 - `html-func-start-counts-script-elements` — unchanged; now the sole explainer
   of html's cell.
+
+## Update: batch (#3338) — 2026-09-23
+
+`batch` had **no** `func_start` rule, and it was also missing from the table above.
+That was an unaudited gap, not a stated absence: the engine extracted zero units from
+every batch script. Now it has a rule.
+
+**The scope question.** A batch `:label` is both a `goto` target and a
+`call :label` subroutine, and the syntax doesn't distinguish the two. Measured on
+language-crucible v1.4.0 (`data/batch/`, 5 scripts, 7 labels):
+
+| label | file | reached by | what it is |
+|---|---|---|---|
+| `:CheckOpts` | build.bat, buildrelease.bat | `goto CheckOpts` (self-loop) | option-parsing loop head |
+| `:Help` | build.bat, buildrelease.bat | `goto Help` | goto-reached usage block |
+| `:builddoc` | buildrelease.bat | nothing (fall-through) | section marker |
+| `:skipdoc` | buildrelease.bat | `goto skipdoc` | skip target |
+| `:build` | buildrelease.bat | `call :build x86` / `x64` / `ARM64` | **subroutine**, ends `exit /B 0` |
+
+Only 1 of the 7 opens a block under its own name in the contract's sense. The
+other 6 are jump targets, like a C `label:`, which no language's `func_start`
+counts. Counting every label would also make each goto-only label read as an
+`unreferenced_by_name` orphan, because `calls_out` sees only `call` and never a
+`goto`. So **`func_start` counts a label only when the same file reaches it with
+`call :label`**, which is CMD's one invoke-by-name form.
+
+**Mechanism.** The regex `^[ \t]*:([A-Za-z_][\w.-]{0,63})` matches every label
+(`::` comments never match, because `:` is not in the name class), and the
+registry-declared `batch_call_target` scope filter (detector.py) keeps only the
+called ones. The count and the unit list honour the filter alike (the #3197
+wiring). Units are sliced by Mode A: greedy to the next *called* label, then cut
+back to the last line-start `exit /b` (the shared terminator vocabulary). As a
+result, a subroutine's internal loop labels stay inside it, and a goto-reached
+block after its `exit /b` isn't swallowed. On buildrelease.bat, `build` spans
+lines 113–223 and `:Help` (225–261) is left out. The call-site match is
+case-insensitive, and so are labels. batch also declares
+`identifier_case: "insensitive"` and `identifier_extra_chars: "-."` (#3198).
+
+**Known limits.** A subroutine that ends with `goto :eof` instead of `exit /b`
+runs to the next called label or EOF, because `goto :eof` is not in the shared
+terminator vocabulary. A label reached only from another script
+(`call other.bat :label` trampolines) is not a unit.
+

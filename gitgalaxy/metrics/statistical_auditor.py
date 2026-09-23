@@ -106,6 +106,10 @@ class StatisticalAuditor:
             "inline_asm",
         ]
 
+    # #3338: sensors that count unit declarations, not logic -- see the
+    # inert check in the species loop.
+    _DECLARATION_ONLY_SIGNALS = frozenset({"func_start", "class_start"})
+
     @staticmethod
     def _scored_equations(artifact: dict[str, Any]) -> dict[str, Any]:
         """The score-layer view of an artifact's recorded counts (#2813): the proximity
@@ -320,9 +324,15 @@ class StatisticalAuditor:
                 rules = self.lang_defs[lid].get("rules", {})
 
                 # POSITIVE COUNT: How many actual, active logic sensors exist?
-                active_signals = sum(1 for key in self.SIGNAL_KEYS if rules.get(key) is not None)
+                active = {key for key in self.SIGNAL_KEYS if rules.get(key) is not None}
 
-                if active_signals == 0:
+                # #3338: a language whose ONLY sensors are unit declarations
+                # (batch: func_start, a `call :label` subroutine) cannot read a
+                # zero as hollowness -- most real scripts declare no unit at
+                # all, and the Zero-Density floor would relegate every one of
+                # them (cpython build.bat, 80 LOC) as a "data dump". Its density
+                # is not measured, exactly as before it had any sensor.
+                if not active or active <= self._DECLARATION_ONLY_SIGNALS:
                     is_inert = True
             else:
                 is_inert = True  # Unknown/Undefined languages are inert by default

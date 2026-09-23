@@ -116,3 +116,20 @@ def test_blast_radius_query_follows_confident_links(tmp_path):
     ]
     assert blast_radius(str(db), "main", downstream=True) == [("app.py", "helper", 9, 1), ("lib.py", "leaf", 1, 2)]
     assert blast_radius(str(db), "get") == []
+
+
+def test_cobol_transfers_keep_a_paragraph_reachable():
+    # #3362: a paragraph reached only by GO TO keeps its fan-in.
+    main = _fn("MAIN-PARA", 1, ["SUB-PARA"], owner="P")
+    main["calls_out_qualifiers"] = {}
+    main["transfers_to"] = ["EXIT-PARA"]
+    files = [
+        {
+            "path": "p.cbl",
+            "lang_id": "cobol",
+            "functions": [main, _fn("SUB-PARA", 5, owner="P"), _fn("EXIT-PARA", 9, owner="P")],
+        }
+    ]
+    m = _metrics(files)
+    assert m[("p.cbl", "EXIT-PARA", 9)]["func_fan_in"] == 1
+    assert m[("p.cbl", "SUB-PARA", 5)]["func_fan_in"] == 1

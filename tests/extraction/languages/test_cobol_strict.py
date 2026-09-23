@@ -749,10 +749,11 @@ def test_cobol_2990_redos_immunity_sweep():
     assert COBOL_RULES["safety"].search("DFHRESP(NORMAL)")
     assert COBOL_RULES["high_risk_execution"].search("CANCEL 'SUBPROG'.")
 
+
 def test_cobol_calls_out_strict():
     """
-    Epic #3264: Asserts that COBOL extracts targets from PERFORM/CALL/GO TO, 
-    not from the generic name() parenthesis fallback which falsely captured 
+    Epic #3264: Asserts that COBOL extracts targets from PERFORM/CALL (GO TO: #3362),
+    not from the generic name() parenthesis fallback which falsely captured
     intrinsics and array subscripts.
     """
     cobol = LANGUAGE_DEFINITIONS["cobol"]
@@ -761,12 +762,17 @@ def test_cobol_calls_out_strict():
     # 1. Signature Tests (Positive matches)
     assert calls_out.findall("PERFORM 310-CRUNCH-LOOP") == ["310-CRUNCH-LOOP"]
     assert calls_out.findall("CALL 'SUBPROG' USING ARGV") == ["SUBPROG"]
-    assert calls_out.findall("CALL \"SUBPROG\"") == ["SUBPROG"]
-    assert calls_out.findall("GO TO ERROR-ROUTINE") == ["ERROR-ROUTINE"]
+    assert calls_out.findall('CALL "SUBPROG"') == ["SUBPROG"]
+    # #3362: GO TO is a transfer, not a call (contract C4) -- it has its own rule.
+    assert calls_out.findall("GO TO ERROR-ROUTINE") == []
+    transfers = cobol["rules"]["_transfers_out"]
+    assert transfers.findall("GO TO ERROR-ROUTINE") == ["ERROR-ROUTINE"]
+    assert transfers.findall("WHENEVER SQLERROR GO TO ERR-PARA") == []
+    assert_redos_immune(transfers, "GO TO " + ("A-" * 10000))
 
     # 2. Negative Tests (Issue #3202)
-    assert calls_out.findall("WS-TAB(I)") == [] # no subscript captured
-    assert calls_out.findall("FUNCTION CURRENT-DATE()") == [] # no intrinsics
+    assert calls_out.findall("WS-TAB(I)") == []  # no subscript captured
+    assert calls_out.findall("FUNCTION CURRENT-DATE()") == []  # no intrinsics
 
     # 3. ReDoS Scale Testing
     # Verify the pattern is O(n) linear against adversarial repetition

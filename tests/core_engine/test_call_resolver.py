@@ -291,3 +291,17 @@ def test_untyped_receiver_with_several_visible_classes_is_ambiguous():
     ]
     row = _site(resolve_calls(files)[0], "generate")
     assert (row["step"], row["resolution"]) == ("receiver", "ambiguous")
+
+
+def test_transfers_resolve_as_their_own_kind_outside_the_rates():
+    # #3362: COBOL GO TO targets are linked like calls but are not calls.
+    main = _fn("MAIN-PARA", 1, owner="P", calls=["SUB-PARA"])
+    main["transfers_to"] = ["EXIT-PARA"]
+    files = [_file("p.cbl", "cobol", [main, _fn("SUB-PARA", 5, owner="P"), _fn("EXIT-PARA", 9, owner="P")])]
+    sites, stats = resolve_calls(files)
+    assert {(s["callee"], s["kind"], s["step"]) for s in sites} == {
+        ("SUB-PARA", "call", "class"),
+        ("EXIT-PARA", "transfer", "class"),
+    }
+    assert stats["by_step"] == {"class": 1}
+    assert stats["transfers_by_step"] == {"class": 1}

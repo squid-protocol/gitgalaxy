@@ -47,6 +47,12 @@ method. **Ambiguous pairs are never graph edges.**
     reachability pass is O(N^2) and exceeded any reasonable budget on real
     repositories.
 
+COBOL `GO TO` targets are transfers, not calls (#3362). They're held in
+`function_data.transfers_to` and linked as `fcall_data` rows with `kind = 'transfer'`.
+Function fan-in, PageRank and the blast-radius query follow them, so a paragraph reached
+only by `GO TO` is not orphaned. The call-resolution rates (`fcall_rate_data`) count
+calls only.
+
 Module-level code is a caller node: it gives fan-in and PageRank but has no row
 of its own. A constructor call that resolved to a class has no function node,
 so it adds no edge.

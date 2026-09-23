@@ -336,6 +336,8 @@ class StateRehydrator:
                             _json_list(r["calls_out_qualifiers"]) if "calls_out_qualifiers" in rk else None,
                         ),
                         "start_line": int(r["start_line"] or 0) if "start_line" in rk else 0,
+                        # #3362: COBOL GO TO targets, re-resolved on a delta scan.
+                        "transfers_to": _json_list(r["transfers_to"]) if "transfers_to" in rk else [],
                         # engine stores the complexity/branch metric under "branch"
                         # (signal_processor reads func["branch"] for z-scores + archetype).
                         "branch": r["complexity"] if "complexity" in rk and r["complexity"] is not None else 0,

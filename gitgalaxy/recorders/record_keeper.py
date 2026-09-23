@@ -798,6 +798,7 @@ class RecordKeeper:
                 docstring TEXT,
                 calls_out_to TEXT,
                 calls_out_qualifiers TEXT,
+                transfers_to TEXT,
                 func_pagerank REAL,
                 func_fan_in INTEGER,
                 func_fan_out INTEGER,
@@ -1265,6 +1266,7 @@ class RecordKeeper:
                 src_func_name TEXT,
                 callee TEXT,
                 step TEXT,
+                kind TEXT DEFAULT 'call',
                 candidates INTEGER,
                 dst_file_id INTEGER,
                 dst_func_id INTEGER,
@@ -1332,6 +1334,10 @@ class RecordKeeper:
         self._heal_column(cursor, "function_data", "func_pagerank", "REAL")
         self._heal_column(cursor, "function_data", "func_fan_in", "INTEGER")
         self._heal_column(cursor, "function_data", "func_fan_out", "INTEGER")
+        # #3362: COBOL GO TO targets (JSON list), beside calls_out_to; and which
+        # kind of link an fcall_data row is ('call' | 'transfer').
+        self._heal_column(cursor, "function_data", "transfers_to", "TEXT")
+        self._heal_column(cursor, "fcall_data", "kind", "TEXT DEFAULT 'call'")
 
         # #3329: the receiver chain per callee, a JSON list aligned with
         # calls_out_to (call_resolver.encode_qualifiers). Same auto-heal for a
@@ -2032,6 +2038,7 @@ class RecordKeeper:
                         str(func.get("docstring", ""))[:2000],
                         json.dumps(func.get("calls_out_to", [])),
                         _qualifiers_json(func),
+                        json.dumps(func["transfers_to"]) if func.get("transfers_to") else None,
                         func.get("func_pagerank"),
                         func.get("func_fan_in"),
                         func.get("func_fan_out"),
@@ -2103,7 +2110,7 @@ class RecordKeeper:
             cursor.executemany(
                 f"""
                 INSERT INTO function_data
-                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
+                (file_id, parent_class_id, func_name, complexity, loc, start_line, args, usage_status, keyword_density, func_archetype, func_z_score, docstring, calls_out_to, calls_out_qualifiers, transfers_to, func_pagerank, func_fan_in, func_fan_out, token_mass, is_public, is_documented, {", ".join([self.SHORT_KEY_MAP.get(h, h) for h in self.SIGNAL_SCHEMA])}, impact)
                 VALUES ({func_placeholders})
             """,  # noqa: S608
                 all_func_rows,
@@ -2213,6 +2220,7 @@ class RecordKeeper:
                         None if synthetic else func_key_to_id.get((src_path, src_name, int(site.get("src_line") or 0))),
                         src_name[:255] if synthetic else None,
                         str(site.get("callee") or "")[:255],
+                        site.get("kind") or "call",
                         site.get("step"),
                         int(site.get("candidates", 0) or 0),
                         path_to_file_id.get(dst_path) if dst_path else None,
@@ -2226,9 +2234,9 @@ class RecordKeeper:
                 cursor.executemany(
                     """
                     INSERT INTO fcall_data (
-                        src_file_id, src_func_id, src_func_name, callee, step, candidates,
+                        src_file_id, src_func_id, src_func_name, callee, kind, step, candidates,
                         dst_file_id, dst_func_id, dst_class_id
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     fcall_rows,
                 )

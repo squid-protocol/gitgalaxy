@@ -549,6 +549,8 @@ def resolve_calls(
       - `sites`: one row per distinct callee name per caller (calls_out_to is
         already deduplicated, contract decision 3), resolved or not. A resolved
         row names its definition by `(dst_path, dst_name, dst_line, dst_kind)`;
+        `kind` is 'call', or 'transfer' for a COBOL GO TO target (#3362:
+        resolved the same way, never counted in the call-resolution rates).
         `qualifier` is the receiver chain the winning lookup used (#3329), None
         where the language captures none. A callee reached through several
         receivers keeps the most confident of their resolutions. Self-resolution
@@ -566,6 +568,7 @@ def resolve_calls(
     sites: list[dict[str, Any]] = []
     by_step: Counter[str] = Counter()
     by_lang: dict[str, Counter[str]] = {}
+    transfers: Counter[str] = Counter()
 
     for f in parsed_files:
         src_path = f.get("path", "")
@@ -574,16 +577,22 @@ def resolve_calls(
         caller = _File(src_path, lang, imports.get(src_path, set()))
         lang_counts = by_lang.setdefault(lang, Counter())
         for func in f.get("functions", []) or []:
-            callees = func.get("calls_out_to") or []
+            # #3362: calls, then unconditional transfers (COBOL GO TO). A transfer
+            # resolves by the same ladder (it names a unit the same way) but is
+            # its own `kind`: it never counts toward the call-resolution rates.
+            callees = [(c, "call") for c in func.get("calls_out_to") or []]
+            callees += [(t, "transfer") for t in func.get("transfers_to") or []]
             if not callees:
                 continue
             caller_name = str(func.get("name") or "")
             caller_line = int(func.get("start_line", 0) or 0)
             lineage = _lineage(func.get("parent_class_name") or _leaf(caller_name)[1], group, lang, parents)
             qualifier_map = func.get("calls_out_qualifiers") or {}
-            for callee in callees:
+            for callee, kind in callees:
                 bucket = index.get((group, _key(str(callee), lang)))
-                options: list[Optional[str]] = list(qualifier_map.get(callee) or []) or [None]
+                options: list[Optional[str]] = (list(qualifier_map.get(callee) or []) if kind == "call" else []) or [
+                    None
+                ]
                 step, dst = _resolve_one(bucket, caller, lineage, options[0], cache)
                 used = options[0]
                 for q in options[1:]:
@@ -593,8 +602,11 @@ def resolve_calls(
                 if dst is not None and dst.path == src_path and dst.line == caller_line and dst.name == caller_name:
                     continue  # recursion through a qualified name (`Foo::bar` calling `bar`)
                 resolution = RESOLUTION_OF_STEP[step]
-                by_step[step] += 1
-                lang_counts[resolution] += 1
+                if kind == "call":
+                    by_step[step] += 1
+                    lang_counts[resolution] += 1
+                else:
+                    transfers[step] += 1
                 sites.append(
                     {
                         "src_path": src_path,
@@ -602,6 +614,7 @@ def resolve_calls(
                         "src_line": caller_line,
                         "src_synthetic": bool(func.get("is_synthetic_slice")),
                         "callee": callee,
+                        "kind": kind,
                         "qualifier": used,
                         "step": step,
                         "resolution": resolution,
@@ -620,6 +633,7 @@ def resolve_calls(
         "by_step": dict(by_step),
         "by_resolution": dict(by_resolution),
         "by_language": {lang: dict(c) for lang, c in sorted(by_lang.items()) if c},
+        "transfers_by_step": dict(transfers),
     }
     return sites, stats
 

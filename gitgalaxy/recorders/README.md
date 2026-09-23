@@ -44,12 +44,12 @@ Each file in this directory represents a specialized data exit strategy, tailore
 | `repo_name`, `commit_hash` | the snapshot |
 | `src_file_id` → `file_data.id` | the importing file |
 | `dst_file_id` → `file_data.id` | the imported file |
-| `edge_kind` | `'import'` (the dependency graph), or `'call'` / `'exec'` (the mainframe call graph, #3200). **Always filter on this.** |
-| `import_statements` | resolved import captures from src to dst (repeats collapse into one row) |
+| `edge_kind` | `'import'` or `'fcall'` (the dependency graph: an import, or a confident function call into a file the caller does not import, #3333), or `'call'` / `'exec'` (the mainframe call graph, #3200, not in the graph). **Always filter on this.** |
+| `import_statements` | resolved import captures from src to dst (repeats collapse into one row); for `'fcall'`, the calling functions |
 | `entity_imports` | how many of those were the entity (`from x import y`) form |
-| `weight` | the edge weight pagerank/betweenness read (1.0 per plain import, 1.5 per entity import) |
+| `weight` | the edge weight pagerank/betweenness read (1.0 per plain import, 1.5 per entity import; 1.0 for an `'fcall'` edge) |
 
-In both modes, per file, `COUNT(*)` of rows **with `edge_kind = 'import'`** and `src_file_id = f.id` equals `internal_dependency_links`, and rows with `dst_file_id = f.id` equals `popularity`. (Before #3024, zero-dependency mode counted import statements instead of distinct neighbours; for those older snapshots, reconcile with `SUM(import_statements)`. See `docs/zero_dependency_mode.md` for everything else that differs between the modes.) An edge is only recorded when both endpoints have a `file_data` row. The statistical audit can relegate a graph node to `excluded_artifacts` after the graph is built, and the edges that loses are counted in `repo_data.network_edges_unrecorded` (NULL when the caller supplied no edge list).
+In both modes, per file, `COUNT(*)` of rows **with `edge_kind IN ('import', 'fcall')`** and `src_file_id = f.id` equals `internal_dependency_links`, and rows with `dst_file_id = f.id` equals `popularity`. (Before #3024, zero-dependency mode counted import statements instead of distinct neighbours; for those older snapshots, reconcile with `SUM(import_statements)`. See `docs/zero_dependency_mode.md` for everything else that differs between the modes.) An edge is only recorded when both endpoints have a `file_data` row. The statistical audit can relegate a graph node to `excluded_artifacts` after the graph is built, and the edges that loses are counted in `repo_data.network_edges_unrecorded` (NULL when the caller supplied no edge list).
 
 ```sql
 -- Neighbourhood marker load: what a file's direct imports carry, beside its own load.

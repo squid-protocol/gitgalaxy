@@ -132,7 +132,9 @@ def test_edges_persist_keyed_to_file_data(keeper, tmp_path):
     assert conn.execute("SELECT DISTINCT repo_name, commit_hash FROM edge_data").fetchall() == [("EdgeRepo", "c0ffee")]
     assert conn.execute("SELECT network_edges_unrecorded FROM repo_data").fetchone() == (0,)
     # Per file, the rows reconcile with the node summaries already in file_data.
-    # #3200 scoped this to edge_kind='import': edge_data now also carries
+    # #3333 widened it to the graph's two kinds, 'import' and 'fcall' (a
+    # confident call into a file the caller does not import). #3200 had scoped
+    # it to edge_kind='import': edge_data now also carries
     # 'call'/'exec' rows (the mainframe call graph), which are resolved by a
     # different rule and deliberately never entered the DiGraph -- so they must
     # NOT appear in a degree that pagerank and blast radius were computed from.
@@ -140,8 +142,8 @@ def test_edges_persist_keyed_to_file_data(keeper, tmp_path):
     # call graph is part of the dependency graph.
     mismatches = conn.execute("""
         SELECT f.file_path, f.internal_dependency_links, f.popularity,
-               (SELECT COUNT(*) FROM edge_data e WHERE e.src_file_id = f.id AND e.edge_kind = 'import'),
-               (SELECT COUNT(*) FROM edge_data e WHERE e.dst_file_id = f.id AND e.edge_kind = 'import')
+               (SELECT COUNT(*) FROM edge_data e WHERE e.src_file_id = f.id AND e.edge_kind IN ('import', 'fcall')),
+               (SELECT COUNT(*) FROM edge_data e WHERE e.dst_file_id = f.id AND e.edge_kind IN ('import', 'fcall'))
         FROM file_data f
     """).fetchall()
     conn.close()

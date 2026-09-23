@@ -291,3 +291,16 @@ def test_untyped_receiver_with_several_visible_classes_is_ambiguous():
     ]
     row = _site(resolve_calls(files)[0], "generate")
     assert (row["step"], row["resolution"]) == ("receiver", "ambiguous")
+
+
+def test_same_directory_visibility_is_for_package_scoped_languages_only():
+    # #3333: a Java sibling class is in the caller's package; a Python sibling
+    # module is not visible until imported.
+    def files(lang, ext):
+        return [
+            _file(f"pkg/a.{ext}", lang, [_fn("run", 1, owner="A", calls=["save"], quals={"save": ["repo"]})]),
+            _file(f"pkg/repo.{ext}", lang, [_fn("save", 3, owner="Repo")], [{"name": "Repo", "inheritance": []}]),
+        ]
+
+    assert _site(resolve_calls(files("java", "java"))[0], "save")["step"] == "import"
+    assert _site(resolve_calls(files("python", "py"))[0], "save")["step"] == "receiver"

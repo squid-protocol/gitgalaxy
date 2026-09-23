@@ -1567,6 +1567,7 @@ class Orchestrator:
                         transactions=self.transactions,  # #3211-followup
                         wrappers=self.wrappers,  # #3313 step 3
                         fcall_sites=self.fcall_sites,  # #3328
+                        call_resolution=self.fcall_stats,  # #3331
                     )
                 except Exception as e:
                     logger.error(
@@ -1609,6 +1610,7 @@ class Orchestrator:
                         session_meta=session_meta,
                         output_dir=output_dir,
                         forensic_report=report,
+                        call_resolution=self.fcall_stats,  # #3331
                     )
                 except Exception as e:
                     logger.error(
@@ -3179,6 +3181,7 @@ class Orchestrator:
                 transactions=self.transactions,  # #3211-followup
                 wrappers=self.wrappers,  # #3313 step 3
                 fcall_sites=self.fcall_sites,  # #3328
+                call_resolution=self.fcall_stats,  # #3331
             )
 
             logger.info(

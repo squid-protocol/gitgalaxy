@@ -67,8 +67,10 @@ _IMPORTS = [{"src": "app/main.py", "dst": "lib/utils.py", "edge_kind": "import",
 
 
 def _record(db, files):
-    sites, _ = resolve_calls(files, _IMPORTS)
-    RecordKeeper().record_mission(files, [], {}, SESSION, str(db), dependency_edges=_IMPORTS, fcall_sites=sites)
+    sites, stats = resolve_calls(files, _IMPORTS)
+    RecordKeeper().record_mission(
+        files, [], {}, SESSION, str(db), dependency_edges=_IMPORTS, fcall_sites=sites, call_resolution=stats
+    )
 
 
 def _rows(db, sql):
@@ -138,3 +140,26 @@ def test_rerecording_a_snapshot_does_not_duplicate(tmp_path):
     _record(db, _universe())
     assert _rows(db, "SELECT COUNT(*) FROM fcall_data") == [(4,)]
     assert _rows(db, "SELECT COUNT(*) FROM edge_data") == [(1,)]
+
+
+def test_rates_are_recorded_per_language_and_repo(tmp_path):
+    # #3331: external pairs are counted here even though they are not fcall_data rows
+    db = tmp_path / "f.db"
+    _record(db, _universe())
+    _record(db, _universe())  # idempotent per snapshot
+    assert _rows(
+        db, 'SELECT language, scoped, "unique", ambiguous, external, total FROM fcall_rate_data ORDER BY language'
+    ) == [("*", 2, 1, 1, 1, 5), ("python", 2, 1, 1, 1, 5)]
+
+
+def test_brief_section_states_rates_and_caveat():
+    from gitgalaxy.recorders.llm_recorder import LLMRecorder
+
+    stats = resolve_calls(_universe(), _IMPORTS)[1]
+    lines = LLMRecorder.__new__(LLMRecorder)._call_resolution_lines(stats)
+    text = "\n".join(lines)
+    assert lines[0].startswith("## 15. FUNCTION CALL RESOLUTION")
+    assert "5 call pairs -- scoped 40.0%, unique 20.0%, ambiguous 20.0%, external 20.0%" in text
+    assert "not that the choice was correct" in text
+    assert "| python | 5 | 40.0% | 20.0% | 20.0% | 20.0% |" in text
+    assert LLMRecorder.__new__(LLMRecorder)._call_resolution_lines({}) == []

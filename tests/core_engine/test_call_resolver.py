@@ -245,3 +245,15 @@ def test_qualifier_encoding_round_trips():
     assert encode_qualifiers(calls, {}) is None
     assert decode_qualifiers(calls, None) == {}
     assert decode_qualifiers(calls, ["a"]) == {}  # misaligned -> not captured
+
+
+def test_resolution_rates_rows_per_language_and_repo():
+    from gitgalaxy.core.call_resolver import resolution_rates
+
+    stats = {"by_language": {"c": {"unique": 2, "external": 1}, "python": {"scoped": 1}, "go": {}}}
+    assert resolution_rates(stats) == [
+        {"language": "*", "scoped": 1, "unique": 2, "ambiguous": 0, "external": 1, "total": 4},
+        {"language": "c", "scoped": 0, "unique": 2, "ambiguous": 0, "external": 1, "total": 3},
+        {"language": "python", "scoped": 1, "unique": 0, "ambiguous": 0, "external": 0, "total": 1},
+    ]
+    assert resolution_rates({}) == []

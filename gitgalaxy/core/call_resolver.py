@@ -582,3 +582,43 @@ def resolve_calls(
         "by_language": {lang: dict(c) for lang, c in sorted(by_lang.items()) if c},
     }
     return sites, stats
+
+
+RESOLUTION_CLASSES = ("scoped", "unique", "ambiguous", "external")
+
+# Stated wherever a rate is shown (#3331): the rate is the resolver's confidence,
+# not its accuracy -- #3332 measures correctness.
+RATE_CAVEAT = (
+    "A high scoped/unique share means the resolver made a confident choice, not that the choice "
+    "was correct; resolution accuracy is measured separately (gitgalaxy#3332)."
+)
+
+
+def _rate_row(language: str, counts: dict[str, int]) -> dict[str, Any]:
+    scoped = int(counts.get("scoped", 0))
+    unique = int(counts.get("unique", 0))
+    ambiguous = int(counts.get("ambiguous", 0))
+    external = int(counts.get("external", 0))
+    return {
+        "language": language,
+        "scoped": scoped,
+        "unique": unique,
+        "ambiguous": ambiguous,
+        "external": external,
+        "total": scoped + unique + ambiguous + external,
+    }
+
+
+def resolution_rates(stats: dict[str, Any]) -> list[dict[str, Any]]:
+    """#3331: per-language rows plus a repository row (`language` '*'), each with
+    the count of (caller, callee) pairs in every resolution class and their total.
+    Languages with no pairs are omitted; an empty repository gives no rows."""
+    rows = [_rate_row(lang, counts) for lang, counts in sorted((stats.get("by_language") or {}).items())]
+    rows = [r for r in rows if r["total"]]
+    if rows:
+        repo = Counter[str]()
+        for r in rows:
+            for c in RESOLUTION_CLASSES:
+                repo[c] += r[c]
+        rows.insert(0, _rate_row("*", repo))
+    return rows

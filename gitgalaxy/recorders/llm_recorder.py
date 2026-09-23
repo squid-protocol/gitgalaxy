@@ -20,6 +20,7 @@ import statistics
 from pathlib import Path
 from typing import Any, Optional
 
+from gitgalaxy.core.call_resolver import RATE_CAVEAT, resolution_rates
 from gitgalaxy.standards import analysis_lens as config
 
 # ==============================================================================
@@ -208,8 +209,12 @@ class LLMRecorder:
         session_meta: dict[str, Any],
         output_dir: str,
         forensic_report: Optional[dict[str, Any]] = None,
+        call_resolution: Optional[dict[str, Any]] = None,
     ):
-        """Generates the dual-output AI artifacts: Markdown and SQLite."""
+        """Generates the dual-output AI artifacts: Markdown and SQLite.
+
+        `call_resolution` (#3331) is the call resolver's stats, rendered as the
+        brief's function-call resolution section (absent when None/empty)."""
         if forensic_report is None:
             forensic_report = {}
 
@@ -266,6 +271,7 @@ class LLMRecorder:
             summary,
             session_meta,
             forensic_report,
+            call_resolution,
         )
 
         try:
@@ -447,6 +453,46 @@ class LLMRecorder:
         lines.append(
             "> **20. File Magnitude (Total Impact):** Measures the total structural impact of a file. `Sum(Function Impacts) + API + Concurrency + Flux + (LOC / 50)`. This is NOT a risk score."
         )
+        lines.append("")
+        return lines
+
+    def _call_resolution_lines(self, call_resolution: Optional[dict[str, Any]]) -> list[str]:
+        """#3331: how many function calls the resolver linked, and how surely.
+
+        Repository shares first, then the ten languages with the most call pairs.
+        The caveat is part of the section on purpose: a confident link is not a
+        verified one (#3332).
+        """
+        rows = resolution_rates(call_resolution or {})
+        if not rows:
+            return []
+
+        def pct(n: int, total: int) -> str:
+            return f"{100.0 * n / total:.1f}%" if total else "n/a"
+
+        repo, langs = rows[0], rows[1:]
+        lines = ["## 15. FUNCTION CALL RESOLUTION (Call Graph Confidence)"]
+        lines.append(
+            "> **AI CONTEXT:** Each function's callee names, linked to the definition they most plausibly "
+            "mean. *scoped* = same class/file, an imported file, or a class-qualified call; *unique* = the "
+            "only definition in the repository; *ambiguous* = several candidates or an untyped receiver "
+            "(never a graph edge); *external* = defined nowhere here (built-ins, packages). "
+            f"{RATE_CAVEAT} Detail in `fcall_data` / `fcall_rate_data`.\n"
+        )
+        lines.append(
+            f"- **Repository:** {repo['total']} call pairs -- scoped {pct(repo['scoped'], repo['total'])}, "
+            f"unique {pct(repo['unique'], repo['total'])}, ambiguous {pct(repo['ambiguous'], repo['total'])}, "
+            f"external {pct(repo['external'], repo['total'])}"
+        )
+        lines.append("")
+        lines.append("| Language | Pairs | Scoped | Unique | Ambiguous | External |")
+        lines.append("|---|---|---|---|---|---|")
+        for r in sorted(langs, key=lambda r: (-r["total"], r["language"]))[:10]:
+            t = r["total"]
+            lines.append(
+                f"| {r['language']} | {t} | {pct(r['scoped'], t)} | {pct(r['unique'], t)} | "
+                f"{pct(r['ambiguous'], t)} | {pct(r['external'], t)} |"
+            )
         lines.append("")
         return lines
 
@@ -682,6 +728,7 @@ class LLMRecorder:
         summary: dict[str, Any],
         session_meta: dict[str, Any],
         forensic_report: dict[str, Any],
+        call_resolution: Optional[dict[str, Any]] = None,
     ) -> str:
         """Constructs a high-density, context-rich Markdown brief for LLM agents."""
         target = session_meta.get("target", "Project")
@@ -1747,6 +1794,10 @@ class LLMRecorder:
         # --- 14. PROJECT IDIOM WRAPPERS (#3313 step 3) ---
         # Optional: renders only when the scan resolved at least one wrapper.
         lines.extend(self._idiom_wrapper_lines(parsed_files))
+
+        # --- 15. FUNCTION CALL RESOLUTION (#3331) ---
+        # Optional: renders only when the call resolver saw at least one call.
+        lines.extend(self._call_resolution_lines(call_resolution))
 
         # ==============================================================================
 

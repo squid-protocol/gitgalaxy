@@ -22,7 +22,7 @@ import statistics
 from pathlib import Path
 from typing import Any, Optional, TypedDict, cast
 
-from gitgalaxy.core.call_resolver import encode_qualifiers
+from gitgalaxy.core.call_resolver import encode_qualifiers, resolution_rates
 from gitgalaxy.standards.analysis_lens import (
     ENGINE_CONSTANTS,
     GENERAL_FILE_INFERENCE_MODEL,
@@ -454,6 +454,7 @@ class RecordKeeper:
         transactions: Optional[list[dict]] = None,
         wrappers: Optional[list[dict]] = None,
         fcall_sites: Optional[list[dict]] = None,
+        call_resolution: Optional[dict] = None,
     ):
         """
         Builds the formal relational SQLite database directly from pipeline RAM state.
@@ -492,6 +493,9 @@ class RecordKeeper:
         value: every (caller function, callee name) pair the repository defines
         becomes fcall_data (external callees are not rows); the view
         fcall_file_edges aggregates the confident cross-file pairs by file.
+
+        `call_resolution` (#3331) is `resolve_calls()`'s stats; its per-language
+        and repository resolution-class counts become fcall_rate_data.
 
         All default to None, so a caller predating #3200/#3211-followup/#3313
         writes no boundary or wrapper rows rather than empty ones.
@@ -1187,6 +1191,24 @@ class RecordKeeper:
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_fcall_src_file ON fcall_data(src_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_fcall_dst_func ON fcall_data(dst_func_id);")
+        # #3331: how the call resolver fared, per language and for the whole
+        # repository (language '*'): (caller, callee) pairs in each resolution
+        # class. External pairs are counted here although they are not
+        # fcall_data rows. The share of scoped+unique is the resolver's
+        # CONFIDENCE, not its accuracy (#3332 measures that).
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS fcall_rate_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                language TEXT,
+                scoped INTEGER,
+                "unique" INTEGER,
+                ambiguous INTEGER,
+                external INTEGER,
+                total INTEGER
+            )
+        """)
         # The file-level view of the confident cross-file calls. Not edge_data
         # rows: every fcall_data row already carries both file ids, and a copy in
         # edge_data (with its per-row snapshot key) cost ~30MB on elasticsearch.
@@ -1332,6 +1354,10 @@ class RecordKeeper:
         # snapshot key is one indexed pass instead of two FK lookups per file.
         cursor.execute(
             "DELETE FROM edge_data WHERE repo_name = ? AND commit_hash = ?",
+            (repo_name, commit_hash),
+        )
+        cursor.execute(
+            "DELETE FROM fcall_rate_data WHERE repo_name = ? AND commit_hash = ?",
             (repo_name, commit_hash),
         )
         # #3328: fcall_data is the largest cascade child; one indexed pass by file.
@@ -2113,6 +2139,21 @@ class RecordKeeper:
                 """,
                     fcall_rows,
                 )
+
+        # #3331: the resolution-class counts, per language and for the repository.
+        rate_rows = [
+            (repo_name, commit_hash, r["language"], r["scoped"], r["unique"], r["ambiguous"], r["external"], r["total"])
+            for r in resolution_rates(call_resolution or {})
+        ]
+        if rate_rows:
+            cursor.executemany(
+                """
+                INSERT INTO fcall_rate_data (
+                    repo_name, commit_hash, language, scoped, "unique", ambiguous, external, total
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+                rate_rows,
+            )
 
         # #3200: every call site, resolved or not. Unlike the edges above, a
         # site with no destination is exactly what this table exists to keep,

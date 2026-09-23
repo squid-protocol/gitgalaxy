@@ -72,12 +72,9 @@ DEFINITION: dict[str, Any] = {
                 "attr_accessor",
                 "attr_reader",
                 "attr_writer",
-                "lambda",
-                "proc",
-                "puts",
                 "raise",
-                "loop",
                 "yield",
+                "super",
             }
         ),
         # 1. branch (Control Flow / Branching)

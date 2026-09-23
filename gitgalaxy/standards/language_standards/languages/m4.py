@@ -50,9 +50,6 @@ DEFINITION: dict[str, Any] = {
                 "m4_if",
                 "m4_ifdef",
                 "dnl",
-                "divert",
-                "undivert",
-                "m4_provide",
                 "include",
                 "sinclude",
             }

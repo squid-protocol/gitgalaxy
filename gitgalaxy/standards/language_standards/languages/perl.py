@@ -58,18 +58,7 @@ DEFINITION: dict[str, Any] = {
                 "unless",
                 "elsif",
                 "foreach",
-                "defined",
-                "wantarray",
-                "ref",
-                "bless",
-                "scalar",
-                "exists",
-                "delete",
-                "shift",
-                "unshift",
-                "chomp",
                 "die",
-                "warn",
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

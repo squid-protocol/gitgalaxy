@@ -100,7 +100,22 @@ def test_a_language_without_a_preprocessor_records_no_macros():
     facts = _facts("python", "def log_it(message):\n    print(message)\n\n\ndef main():\n    log_it('x')\n")
     assert facts["macros"] == []
     assert _cands(facts)["log_it"]["hits"] == ["debug_prints"]
-    assert facts["calls"] == {"log_it": 1}
+    # #3361: `print` is a call (#3327 C2), so its site is counted too. Nothing in
+    # the repo defines it, so the resolver never turns it into a wrapper row.
+    assert facts["calls"] == {"log_it": 1, "print": 1}
+
+
+def test_a_project_wrapper_named_like_a_builtin_is_visible():
+    # #3361: `log` used to sit in the global calls_out ignore set, so a project's
+    # own `log()` wrapper had no call sites. Built-ins are calls now, and the
+    # resolver credits the site to the repo's definition.
+    from gitgalaxy.core.wrapper_resolver import resolve_wrappers
+
+    src = "def log(message):\n    print(message)\n\n\ndef main():\n    log('x')\n    log('y')\n"
+    facts = _facts("python", src)
+    assert facts["calls"]["log"] == 2
+    rows = resolve_wrappers([{"path": "app.py", "lang_id": "python", "wrapper_facts": facts}])
+    assert [(r["name"], r["rule"], r["call_sites"]) for r in rows] == [("log", "debug_prints", 2)]
 
 
 def test_a_positional_language_has_no_wrapper_facts():

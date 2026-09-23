@@ -739,10 +739,12 @@ end
     assert "system" in calls
     assert "dos" in calls
     
-    assert "zeros" not in calls
-    assert "ones" not in calls
-    assert "size" not in calls
-    assert "disp" not in calls
+    # #3361 (#3327 C2): built-ins are calls, labelled `external` by the resolver.
+    assert "zeros" in calls
+    assert "ones" in calls
+    assert "size" in calls
+    assert "disp" in calls
+    # `error` raises: a transfer like `throw`, still filtered.
     assert "error" not in calls
     
     payload = "zeros" + (" " * 10000) + "("

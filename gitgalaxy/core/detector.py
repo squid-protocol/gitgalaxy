@@ -875,8 +875,11 @@ _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
 # `EBANK=`, ...) and its single-line rescues were confirmed all real via #1949's
 # own repro.
 # Epic #3264 Phase 3: callee names never emitted as calls_out_to edges --
-# control-flow keywords and cross-language builtins the invocation regexes
-# cannot distinguish from user calls. Case-sensitive on purpose: languages
+# control-flow, declaration and operator keywords the invocation regexes
+# cannot distinguish from user calls, plus the load forms the `import`
+# contract owns (`require`, `include`). Keywords only (#3327 C2, #3361):
+# built-ins and stdlib (`print`, `len`, `printf`, `console.log`) ARE calls,
+# and the call resolver (#3328) labels them `external`. Case-sensitive on purpose: languages
 # whose keywords are case-insensitive (fortran, abap, pli, rexx, db2_sql, ada)
 # declare their own lowercase words via the per-language `_calls_out_ignore`
 # rule, which is compared casefolded at the filter site.
@@ -943,53 +946,11 @@ _CALLS_OUT_GLOBAL_IGNORE = frozenset(
         "def",
         "function",
         "class",
-        "print",
-        "println",
-        "console",
-        "log",
-        "echo",
-        "printf",
-        "fmt",
-        "assert",
-        "expect",
         "require_once",
         "include_once",
-        "cast",
-        "isinstance",
-        "issubclass",
-        "hasattr",
-        "getattr",
-        "setattr",
-        "delattr",
-        "len",
-        "max",
-        "min",
-        "range",
-        "xrange",
-        "enumerate",
-        "zip",
-        "map",
-        "filter",
-        "list",
-        "dict",
-        "set",
-        "tuple",
-        "bool",
-        "int",
-        "float",
-        "str",
-        "bytes",
-        "bytearray",
-        "memoryview",
-        "super",
         "try",
         "except",
         "finally",
-        "String",
-        "Array",
-        "Object",
-        "Number",
-        "Boolean",
     }
 )
 

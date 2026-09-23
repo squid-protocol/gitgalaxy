@@ -324,10 +324,11 @@ end
     assert "execute" in calls
     assert "exit" in calls
     
-    assert "pairs" not in calls
-    assert "ipairs" not in calls
-    assert "tostring" not in calls
-    assert "type" not in calls
+    # #3361 (#3327 C2): built-ins are calls, labelled `external` by the resolver.
+    assert "pairs" in calls
+    assert "ipairs" in calls
+    assert "tostring" in calls
+    assert "type" in calls
     
     payload = "pairs" + (" " * 10000) + "("
     assert_redos_immune(calls_out, payload)

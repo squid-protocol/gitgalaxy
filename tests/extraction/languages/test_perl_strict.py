@@ -658,7 +658,8 @@ sub my_func {
     assert "elsif" not in calls
     assert "unless" not in calls
     assert "foreach" not in calls
-    assert "wantarray" not in calls
+    # #3361 (#3327 C2): built-ins are calls, labelled `external` by the resolver.
+    assert "wantarray" in calls
 
     payload = "my " + (" " * 10000) + "("
     assert_redos_immune(calls_out, payload)

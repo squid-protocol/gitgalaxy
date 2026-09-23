@@ -4,7 +4,7 @@ The `calls_out` contract (#3327, docs/calls_out_rule_contract.md), pinned end to
 the global/per-language ignore sets, which a bare-regex test would miss.
 
 The corollaries the engine already honours are ordinary tests. The disagreements the audit
-filed (#3359-#3361) are strict xfails: each one flips to XPASS, and fails the suite, the day its
+filed (#3359, #3360) are strict xfails: each one flips to XPASS, and fails the suite, the day its
 fix lands, so the fix PR has to move the pin from here into the passing set.
 """
 
@@ -35,8 +35,8 @@ _PY = (
 
 def test_bare_name_dedup_no_recursion_and_order():
     # C6: bare names, qualifier dropped; decisions 2+3: deduplicated, self-recursion removed;
-    # first-occurrence order is part of the persisted JSON.
-    assert _calls("python", _PY)["walk"] == ["save", "parse", "Foo", "helper"]
+    # first-occurrence order is part of the persisted JSON. `map` is a built-in, so a call (C2).
+    assert _calls("python", _PY)["walk"] == ["save", "parse", "Foo", "map", "helper"]
 
 
 def test_reference_is_not_a_call():
@@ -65,6 +65,57 @@ def test_constructors_conversions_and_macros_are_calls(lang, code, fn, callee):
     assert callee in _calls(lang, code)[fn]
 
 
+@pytest.mark.parametrize(
+    "lang, code, fn, callees",
+    [
+        ("python", "def run(xs):\n    print(len(xs))\n", "run", {"print", "len"}),
+        ("javascript", "function run(a) {\n  console.log(a);\n}\n", "run", {"log"}),
+        ("c", 'int run(int a) {\n  printf("%d", a);\n  return 0;\n}\n', "run", {"printf"}),
+        ("lua", "function run(t)\n  for k in pairs(t) do print(k) end\nend\n", "run", {"pairs", "print"}),
+    ],
+)
+def test_builtins_are_calls(lang, code, fn, callees):
+    # C2 / decision 1 (#3361): a built-in or stdlib function is a call; the resolver labels it
+    # `external`. Only keywords are filtered.
+    assert callees <= set(_calls(lang, code)[fn])
+
+
+@pytest.mark.parametrize(
+    "lang, code, fn",
+    [
+        ("python", "def run(x):\n    assert(x)\n    go(x)\n", "run"),
+        ("java", "class A {\n  void run(int x) {\n    assert(x > 0);\n    go(x);\n  }\n}\n", "run"),
+        ("dart", "void run(int x) {\n  assert(x > 0);\n  go(x);\n}\n", "run"),
+    ],
+)
+def test_assert_keyword_is_not_a_call(lang, code, fn):
+    # C2 (#3361): `assert` left the global set because C's `assert(` is a macro (a call, C3),
+    # but where it is a statement keyword the language's own ignore set keeps it out.
+    calls = _calls(lang, code)[fn]
+    assert "assert" not in calls and "go" in calls
+
+
+@pytest.mark.parametrize(
+    "lang, code, fn",
+    [
+        ("javascript", "class B extends A {\n  constructor(x) {\n    super(x);\n    go(x);\n  }\n}\n", "constructor"),
+        ("java", "class B extends A {\n  B(int x) {\n    super(x);\n    go(x);\n  }\n}\n", "B"),
+    ],
+)
+def test_super_keyword_is_not_a_call(lang, code, fn):
+    # C2 (#3361): constructor chaining through the `super` keyword, like java's `this(`.
+    calls = _calls(lang, code)[fn]
+    assert "super" not in calls and "go" in calls
+
+
+def test_python_super_builtin_is_a_call():
+    assert "super" in _calls("python", "def run(self):\n    super().run()\n")["run"]
+
+
+def test_c_assert_macro_is_a_call():
+    assert "assert" in _calls("c", "void run(int x) {\n  assert(x > 0);\n}\n")["run"]
+
+
 def test_load_form_is_owned_by_import():
     # C2 / COUNT_CONTRACT corollary 4: `require(` is the import rule's statement.
     assert "require" not in _calls("javascript", 'function run() {\n  const r = require("x");\n  go(r);\n}\n')["run"]
@@ -83,12 +134,6 @@ def test_blind_languages_declare_blindness():
 
 
 # --- Filed disagreements: strict xfails that flip when the follow-up lands -------------------
-
-
-@pytest.mark.xfail(strict=True, reason="#3361: built-ins are calls; _CALLS_OUT_GLOBAL_IGNORE still filters them")
-def test_builtins_are_calls():
-    code = "def run(xs):\n    print(len(xs))\n"
-    assert {"print", "len"} <= set(_calls("python", code)["run"])
 
 
 @pytest.mark.xfail(strict=True, reason="#3360: a nested declaration header is captured as a call")

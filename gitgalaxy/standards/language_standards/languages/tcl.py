@@ -43,8 +43,6 @@ DEFINITION: dict[str, Any] = {
                 "elseif",
                 "else",
                 "foreach",
-                "expr",
-                "incr",
                 "variable",
                 "package",
                 "global",
@@ -52,8 +50,6 @@ DEFINITION: dict[str, Any] = {
                 "break",
                 "continue",
                 "error",
-                "after",
-                "update",
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

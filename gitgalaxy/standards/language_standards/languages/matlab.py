@@ -47,19 +47,7 @@ DEFINITION: dict[str, Any] = {
         "calls_out": CALLS_OUT_C_STYLE,
         "_calls_out_ignore": frozenset(
             {
-                "zeros",
-                "ones",
-                "size",
-                "length",
-                "numel",
-                "disp",
                 "error",
-                "sprintf",
-                "fprintf",
-                "nargin",
-                "nargout",
-                "exist",
-                "strcmp",
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

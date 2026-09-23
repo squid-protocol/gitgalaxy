@@ -62,7 +62,6 @@ DEFINITION: dict[str, Any] = {
                 "case",
                 "else",
                 "delay",
-                "force",
                 "export",
                 "define-syntax",
                 "syntax-rules",

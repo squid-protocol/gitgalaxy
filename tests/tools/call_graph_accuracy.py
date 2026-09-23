@@ -15,7 +15,7 @@ WHAT IS COMPARED
             `Store::make()` -> `make`, `println!()` -> `println`).
   Both sides follow the #3327 contract: names are deduplicated, and the
   function's own name is dropped (recursion). Built-ins count as calls on both
-  sides, so the engine's built-in filter (#3361) shows up as missed recall.
+  sides (#3361 removed the engine's built-in filter).
   Keyword captures (#3359) and nested-declaration captures (#3360) show up as
   lost precision. Function detection is NOT scored here: a function only one
   side finds is skipped. tree_sitter_accuracy_audit.py scores that.

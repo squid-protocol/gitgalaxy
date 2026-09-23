@@ -307,9 +307,9 @@ end
     assert "elsif" not in calls
     assert "module_function" not in calls
     assert "attr_accessor" not in calls
-    assert "lambda" not in calls
-    assert "puts" not in calls
     assert "raise" not in calls
+    # #3361 (#3327 C2): built-ins are calls, labelled `external` by the resolver.
+    assert "puts" in calls
     
     payload = "puts" + (" " * 10000) + "("
     assert_redos_immune(calls_out, payload)

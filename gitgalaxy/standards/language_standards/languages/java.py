@@ -46,6 +46,11 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
+        # #3361: `assert` and `super` are keywords here (`assert(x)` and a
+        # constructor's `super(x)` are not calls, #3327 C2). They left the global
+        # ignore set because in C/Rust/Zig (`assert`) and Python (`super()`) they
+        # ARE calls (a macro or a built-in function).
+        "_calls_out_ignore": frozenset({"assert", "super"}),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Includes modern switch expressions (yield) and pattern guards (when).

@@ -1113,7 +1113,7 @@ def test_detector_calls_out_language_ignore_union():
     unioned with the global ignore set and compared casefolded: a language
     authoring lowercase words filters them in any spelling (case-insensitive
     languages get correct behavior for free), while the global set keeps
-    filtering exactly as before.
+    filtering its keywords.
     """
     defs = {
         "fortranish": {
@@ -1126,14 +1126,18 @@ def test_detector_calls_out_language_ignore_union():
         }
     }
     opt_detector = StructuralExtractor("fortranish", defs)
-    code = "def dispatch(unit):\n    OPEN(unit)\n    Open(unit)\n    print(unit)\n    db_insert(unit)\n"
+    code = (
+        "def dispatch(unit):\n    OPEN(unit)\n    Open(unit)\n    sizeof(unit)\n    print(unit)\n    db_insert(unit)\n"
+    )
 
     result = opt_detector.splice(code, "")
     func = result["functions"][0]
 
-    assert func["calls_out_to"] == ["db_insert"], (
+    # #3361 (#3327 C2): the global set holds keywords only (`sizeof`); a
+    # built-in like `print` is a call.
+    assert func["calls_out_to"] == ["print", "db_insert"], (
         "_calls_out_ignore must filter casefolded (OPEN/Open) and the global "
-        f"set must keep filtering (print); got {func['calls_out_to']}"
+        f"set must keep filtering keywords (sizeof); got {func['calls_out_to']}"
     )
 
 

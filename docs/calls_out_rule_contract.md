@@ -24,7 +24,7 @@ length, so its `site` kind has no commensurability consequence yet.
 
 | question | decision | consequence |
 |---|---|---|
-| Built-ins / stdlib (`print`, `len`, `console.log`) | **They are calls.** The resolver (#3328) labels them `external` because nothing in the repo defines them. Extraction does not filter them. | The built-in half of `_CALLS_OUT_GLOBAL_IGNORE` disagrees -- #3361, which lands after #3328. |
+| Built-ins / stdlib (`print`, `len`, `console.log`) | **They are calls.** The resolver (#3328) labels them `external` because nothing in the repo defines them. Extraction does not filter them. | Fixed by #3361 (after #3328): `_CALLS_OUT_GLOBAL_IGNORE` and the per-language `_calls_out_ignore` sets hold keywords, pragmas and syntax only. |
 | Recursion | **Dropped.** `calls_out_to` never lists the function's own name. | Matches today. A self-edge adds nothing to fan-in, and in PageRank it only inflates the node's own score. |
 | Multiplicity | **Deduplicated.** Call-site counts are not recorded, and function-graph edges are unweighted. | Matches today. A call inside a loop is not more dependency than one outside it. |
 | References vs invocations (`map(f, xs)`, bare `@decorator`, `getattr`) | **Invocations only.** | See C1. |
@@ -100,8 +100,9 @@ empty list, never a heuristic.
 over functions. Disagreement classes: **K** keyword captured (C2, #3359) · **A** annotation
 captured (C1, #3359) · **S** string content (C7, #3359) · **D** nested declaration (C5, #3360)
 · **G** transfer captured (C4, #3362) · **I** inherent (C3) · **R** ledgered recall/precision
-gap from #3264. **B** (built-ins filtered, C2, #3361) applies to *every* C-style, lisp and
-command-position language through the global ignore set, so it is not repeated per row.
+gap from #3264. **B** (built-ins filtered, C2, #3361) applied to *every* C-style, lisp and
+command-position language through the global ignore set, so it is not repeated per row. #3361
+fixed it: the census below predates that fix.
 
 | language | family | funcs | names | verdict |
 |---|---|---|---|---|

@@ -41,9 +41,9 @@ import collections
 import re
 from typing import Any, Callable, Optional
 
-# The callee names the engine never treats as calls (control-flow keywords and
-# builtins), shared with detector.py's own `calls_out_to` filter so a macro
-# body's `while (0)` is not recorded as a callee.
+# The callee names the engine never treats as calls (keywords only -- built-ins
+# like `printf` are calls, #3361), shared with detector.py's own `calls_out_to`
+# filter so a macro body's `while (0)` is not recorded as a callee.
 from gitgalaxy.core.detector import _CALLS_OUT_GLOBAL_IGNORE
 
 # The literal-vocabulary rules the wrapper channel covers (#3313): the two

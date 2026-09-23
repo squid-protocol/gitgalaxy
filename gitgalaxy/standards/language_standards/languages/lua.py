@@ -41,20 +41,6 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
-        "_calls_out_ignore": frozenset(
-            {
-                "pairs",
-                "ipairs",
-                "tostring",
-                "tonumber",
-                "type",
-                "unpack",
-                "rawequal",
-                "rawlen",
-                "next",
-                "select",
-            }
-        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes standard loops and Lua 5.2+ goto.
         "branch": re.compile(r"\b(if|elseif|else|for|while|repeat|and|or|not)\b"),

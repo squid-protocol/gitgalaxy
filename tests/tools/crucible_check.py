@@ -32,8 +32,8 @@ Also runs two environment-drift checks before every check/update (see
 incident writeups -- both cost real hours on PR #2518, 2026-08-30, chasing phantom diffs that
 had nothing to do with the actual code change under test):
 
-    1. Corpus pin drift: warns if the local language-crucible sibling isn't on the tag
-       `tests/_crucible_pin.py` names.
+    1. Corpus pin drift: FAILS (with the exact checkout command) if the local
+       language-crucible sibling isn't on the tag `tests/_crucible_pin.py` names (#3386).
     2. Unsafe corpus path: warns if the corpus's own absolute path contains an
        IGNORED_DIRECTORIES name (e.g. "tmp") as ANY path component -- this silently zeroes
        out documentation-coverage scoring for the ENTIRE corpus with no error message.
@@ -71,7 +71,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from _crucible_pin import PINNED_TAG
+from _crucible_pin import PINNED_TAG, pin_mismatch
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 VENV_BASE = REPO_ROOT / ".crucible_venvs"
@@ -148,24 +148,18 @@ def _find_ci_python() -> str:
     return sys.executable
 
 
-def _check_corpus_pin() -> None:
-    """Warns (never blocks -- someone may have a deliberate reason to point at a different
-    ref) if the local corpus isn't on the pinned tag. A stale or wrong-branch sibling
-    checkout produces thousands of unrelated diff lines with no error message of its own,
-    easily mistaken for a real code regression (confirmed real, PR #2518, 2026-08-30: a
-    corpus 20 commits past an old, different tag produced ~4000 phantom diffs)."""
-    result = subprocess.run(
-        ["git", "-C", str(CRUCIBLE_PATH), "describe", "--tags", "--exact-match"],
-        capture_output=True,
-        text=True,
-    )
-    current = result.stdout.strip() if result.returncode == 0 else None
-    if current != PINNED_TAG:
-        print(
-            f"⚠️  language-crucible at {CRUCIBLE_PATH} is on {current or '(not exactly on any tag)'}, not the pinned {PINNED_TAG}."
-        )
-        print("   This alone can produce thousands of unrelated diff lines against the committed fixtures. Fix:")
-        print(f"     git -C {CRUCIBLE_PATH} fetch --tags && git -C {CRUCIBLE_PATH} checkout {PINNED_TAG}")
+def _check_corpus_pin() -> bool:
+    """Fails (returns False) if the local corpus isn't on the pinned tag. A stale or
+    wrong-branch sibling checkout produces thousands of unrelated diff lines with no error
+    message of its own, easily mistaken for a real code regression (confirmed real, PR #2518,
+    2026-08-30: a corpus 20 commits past an old, different tag produced ~4000 phantom diffs).
+    Used to only warn, which every agent in the #3249 round read past (#3386); set
+    LANGUAGE_CRUCIBLE_ALLOW_UNPINNED=1 for a deliberate off-pin run."""
+    mismatch = pin_mismatch(CRUCIBLE_PATH)
+    if mismatch:
+        print(f"❌ {mismatch}")
+        return False
+    return True
 
 
 def _check_unsafe_corpus_path(py: Path) -> None:
@@ -324,7 +318,8 @@ def main() -> int:
         print("   or set LANGUAGE_CRUCIBLE_PATH, then re-run.")
         return 1
 
-    _check_corpus_pin()
+    if not _check_corpus_pin():
+        return 1
 
     mode_keys = ["full", "zero"] if args.mode == "both" else [args.mode]
 

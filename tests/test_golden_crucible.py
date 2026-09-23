@@ -25,7 +25,7 @@ from gitgalaxy.security.security_auditor import ML_AVAILABLE
 
 sys.path.insert(0, str(Path(__file__).parent))
 import golden_diff
-from _crucible_pin import PINNED_TAG
+from _crucible_pin import PINNED_TAG, pin_mismatch
 
 pytestmark = pytest.mark.golden_crucible
 
@@ -52,6 +52,12 @@ def _zero_dependency_mode() -> bool:
     ),
 )
 def test_golden_crucible_matches_baseline(tmp_path):
+    # Fail fast, before a multi-minute scan, on the corpus drift that otherwise shows up
+    # as thousands of phantom diffs (#3386).
+    mismatch = pin_mismatch(CRUCIBLE_DATA_PATH.parent)
+    if mismatch:
+        pytest.fail(mismatch, pytrace=False)
+
     zero_dep = _zero_dependency_mode()
     golden_master_path = REPO_ROOT / (
         "tests/golden_master_zero_dep_audit.json" if zero_dep else "tests/golden_master_audit.json"

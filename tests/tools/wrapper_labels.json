@@ -1,0 +1,727 @@
+{
+  "about": "Hand-labelled thin-wrapper candidates for tests/tools/wrapper_probe.py (#3315, epic #3313). Each key is a probe candidate (group::file::name::rule) from language-crucible v1.4.0: every candidate with >= 20 resolved call sites plus a seed-3313 random sample of 60 others, all at max_loc 12. wrapper = exists to perform the rule's behaviour, unconditionally; conditional = a check-and-fail helper (throws/prints only on a condition); incidental = the hit is a side detail of real work (including every case where the engine's function span is misaligned and the hit belongs to other code); test_helper = a helper in test code. Read from the body the probe prints; never set from a guess. `evidence` is the probe's measurement for that candidate at labelling time, so the filter decision below can be re-scored in CI without the corpus.",
+  "corpus": "language-crucible v1.4.0",
+  "filter": {
+    "decision": "#3315: max_loc 8 with the aligned+no_branches filter keeps 13 of 31 labelled candidates, 77% strict precision (98% of kept call sites are real wrappers'), and drops none of the labelled wrappers' call sites. max_loc 12 raises the kept set to 17 at 65% strict precision for one extra 1-site wrapper.",
+    "definition": "header_has_name (name in the span's first 3 lines) and branches == 0",
+    "name": "aligned+no_branches",
+    "recommended_max_loc": 8
+  },
+  "labels": {
+    "ada/alire::alr-commands.adb::Reportaise_Command_Failed::panics_and_aborts": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 5,
+        "method": false,
+        "sites": 6
+      },
+      "label": "wrapper",
+      "reason": "Pretty_Print then raise, unconditional"
+    },
+    "ada/alire::alr-commands.adb::Reportaise_Wrong_Arguments::panics_and_aborts": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 5,
+        "method": false,
+        "sites": 9
+      },
+      "label": "wrapper",
+      "reason": "Pretty_Print then raise, unconditional: its name says report-and-raise"
+    },
+    "c/cpython::dictobject.c::PyDict_ContainsString::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 11,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "error propagation: return -1 on a failed allocation"
+    },
+    "c/cpython::object.c::PyObject_HashNotImplemented::panics_and_aborts": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 7,
+        "method": false,
+        "sites": 2
+      },
+      "label": "wrapper",
+      "reason": "PyErr_Format + return -1: always raises TypeError (CPython error convention)"
+    },
+    "c/cpython::typeobject.c::update_subclasses::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 2
+      },
+      "label": "incidental",
+      "reason": "error propagation (return -1 when the callback fails), not a raise helper"
+    },
+    "c/sqlite::lemon.c::ErrorMsg::debug_prints": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 8,
+        "method": false,
+        "sites": 49
+      },
+      "label": "wrapper",
+      "reason": "prints a formatted error to stderr unconditionally; its purpose is printing"
+    },
+    "c/sqlite::lemon.c::memory_error::debug_prints": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 4,
+        "method": false,
+        "sites": 2
+      },
+      "label": "wrapper",
+      "reason": "prints 'Out of memory' then exit(1): unconditional print"
+    },
+    "c/sqlite::lemon.c::memory_error::panics_and_aborts": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 4,
+        "method": false,
+        "sites": 2
+      },
+      "label": "wrapper",
+      "reason": "prints 'Out of memory' then exit(1): unconditional abort"
+    },
+    "csharp/roslyn::CSharpCompilation.cs::CreatePointerTypeSymbol::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "constructor; throws only on a null argument"
+    },
+    "csharp/roslyn::Workspace.cs::CheckAdditionalDocumentIsInSolution::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 2
+      },
+      "label": "conditional",
+      "reason": "check-and-throw helper"
+    },
+    "csharp/roslyn::Workspace.cs::CheckAdditionalDocumentIsNotInSolution::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 2
+      },
+      "label": "conditional",
+      "reason": "check-and-throw helper: throws only if the document is present"
+    },
+    "csharp/roslyn::Workspace.cs::CheckAnalyzerConfigDocumentIsInSolution::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 2
+      },
+      "label": "conditional",
+      "reason": "check-and-throw helper"
+    },
+    "csharp/roslyn::Workspace.cs::CheckDocumentIsInSolution::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 4
+      },
+      "label": "conditional",
+      "reason": "check-and-throw helper"
+    },
+    "csharp/roslyn::Workspace.cs::CheckProjectDoesNotHaveMetadataReference::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 7,
+        "method": false,
+        "sites": 1
+      },
+      "label": "conditional",
+      "reason": "check-and-throw helper"
+    },
+    "csharp/roslyn::Workspace.cs::CheckProjectHasMetadataReference::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 7,
+        "method": false,
+        "sites": 1
+      },
+      "label": "conditional",
+      "reason": "check-and-throw helper"
+    },
+    "csharp/roslyn::Workspace.cs::CheckProjectHasProjectReference::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 1
+      },
+      "label": "conditional",
+      "reason": "check-and-throw helper"
+    },
+    "csharp/roslyn::Workspace.cs::CheckProjectIsInSolution::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 5
+      },
+      "label": "conditional",
+      "reason": "check-and-throw helper"
+    },
+    "csharp/roslyn::Workspace.cs::CheckProjectIsNotInSolution::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 3
+      },
+      "label": "conditional",
+      "reason": "check-and-throw helper"
+    },
+    "csharp/roslyn::Workspace.cs::CheckSolutionDoesNotHaveAnalyzerReference::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 7,
+        "method": false,
+        "sites": 1
+      },
+      "label": "conditional",
+      "reason": "check-and-throw helper"
+    },
+    "csharp/roslyn::Workspace.cs::CheckSolutionIsEmpty::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 7,
+        "method": false,
+        "sites": 1
+      },
+      "label": "conditional",
+      "reason": "check-and-throw helper"
+    },
+    "embedded_python/meow_turtle::boot.py::print_manifest::debug_prints": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 11,
+        "method": false,
+        "sites": 1
+      },
+      "label": "wrapper",
+      "reason": "boot diagnostics: its purpose is printing the manifest"
+    },
+    "fortran/wrf::module_initialize_real.F::wrf_error_fatal::debug_prints": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 5,
+        "method": false,
+        "sites": 163
+      },
+      "label": "wrapper",
+      "reason": "`print *,string` then `stop`: unconditional print"
+    },
+    "fortran/wrf::module_initialize_real.F::wrf_error_fatal::panics_and_aborts": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 5,
+        "method": false,
+        "sites": 163
+      },
+      "label": "wrapper",
+      "reason": "`print *,string` then `stop`: unconditional abort"
+    },
+    "fortran/wrf::module_initialize_real.F::wrf_message::debug_prints": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 7,
+        "method": false,
+        "sites": 111
+      },
+      "label": "wrapper",
+      "reason": "`print *,trim(message)`: unconditional print"
+    },
+    "go/core::main.go::handlePanic::panics_and_aborts": {
+      "evidence": {
+        "branches": 2,
+        "header_has_name": true,
+        "loc": 11,
+        "method": false,
+        "sites": 1
+      },
+      "label": "conditional",
+      "reason": "recover handler: re-panics or Fatalf only when a panic was caught"
+    },
+    "go/core::proc.go::dumpgstatus::debug_prints": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 5,
+        "method": false,
+        "sites": 6
+      },
+      "label": "wrapper",
+      "reason": "runtime status dump: unconditional prints"
+    },
+    "go/core::value.go::MakeMapWithSize::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 8,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "constructor; panics only on a non-map type"
+    },
+    "groovy/fineract_gradle_plugin::org_apache_fineract_gradle_service_TemplateService.groovy::handleTemplateException::debug_prints": {
+      "evidence": {
+        "branches": 2,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "framework error-handler override; pw.print writes the template error to a writer"
+    },
+    "groovy/spock_smoke_specs::GroovyCallChain.groovy::c::panics_and_aborts": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 3,
+        "method": false,
+        "sites": 1
+      },
+      "label": "test_helper",
+      "reason": "Spock smoke-spec fixture that throws unconditionally to build a call chain"
+    },
+    "javascript/react::ReactFlightServer.js::error::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 10,
+        "method": false,
+        "sites": 10
+      },
+      "label": "incidental",
+      "reason": "`abort` is the string event name in removeEventListener('abort', ...)"
+    },
+    "javascript/react::ReactFlightServer.js::serializeEval::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 10,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "dev-only guard, then the real work (returns '$E' + source)"
+    },
+    "javascript/react::build.js::forbidFBJSImports::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 12,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "returns a plugin object; the throw is inside a nested method"
+    },
+    "javascript/react::build.js::resolveId::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 7,
+        "method": false,
+        "sites": 1
+      },
+      "label": "conditional",
+      "reason": "import guard: throws only for forbidden fbjs imports"
+    },
+    "lua/cosmopolitan::all.lua::round::debug_prints": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": false,
+        "loc": 4,
+        "method": false,
+        "sites": 3
+      },
+      "label": "incidental",
+      "reason": "span misaligned: the slice is a local-alias declaration line, not round's body"
+    },
+    "lua/cosmopolitan::binarytrees.lua::CheckTree::panics_and_aborts": {
+      "evidence": {
+        "branches": 3,
+        "header_has_name": true,
+        "loc": 10,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "benchmark tree checker; errors only when out of CPU"
+    },
+    "lua/cosmopolitan::binarytrees.lua::MakeTree::panics_and_aborts": {
+      "evidence": {
+        "branches": 3,
+        "header_has_name": true,
+        "loc": 12,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "benchmark tree builder; errors only when out of CPU"
+    },
+    "lua/cosmopolitan::heavy.lua::aux::debug_prints": {
+      "evidence": {
+        "branches": 4,
+        "header_has_name": false,
+        "loc": 11,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "span misaligned: the slice is a neighbouring test function's code"
+    },
+    "lua/cosmopolitan::locals.lua::foo::debug_prints": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 4,
+        "method": false,
+        "sites": 2
+      },
+      "label": "incidental",
+      "reason": "`print` used as a value (__close = print), not called"
+    },
+    "lua/cosmopolitan::nextvar.lua::check::debug_prints": {
+      "evidence": {
+        "branches": 4,
+        "header_has_name": true,
+        "loc": 8,
+        "method": false,
+        "sites": 3
+      },
+      "label": "test_helper",
+      "reason": "Lua test-suite check: prints and asserts on mismatch"
+    },
+    "lua/cosmopolitan::nextvar.lua::mp2::debug_prints": {
+      "evidence": {
+        "branches": 4,
+        "header_has_name": false,
+        "loc": 5,
+        "method": false,
+        "sites": 2
+      },
+      "label": "incidental",
+      "reason": "span misaligned: the print belongs to code above mp2"
+    },
+    "lua/redis::sort.lua::show::debug_prints": {
+      "evidence": {
+        "branches": 2,
+        "header_has_name": true,
+        "loc": 10,
+        "method": false,
+        "sites": 4
+      },
+      "label": "wrapper",
+      "reason": "table printer: its purpose is writing to io"
+    },
+    "matlab/eeglab::eeg_eval.m::update_datafield::debug_prints": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": false,
+        "loc": 8,
+        "method": false,
+        "sites": 3
+      },
+      "label": "incidental",
+      "reason": "span misaligned: the slice is mid-function code, not update_datafield's definition"
+    },
+    "perl/spamassassin::Makefile.PL::macro_ref::debug_prints": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 5,
+        "method": false,
+        "sites": 10
+      },
+      "label": "incidental",
+      "reason": "sprintf formats a string; it prints nothing (a debug_prints rule quirk)"
+    },
+    "python/cython::Nodes.py::call::debug_prints": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 5,
+        "method": false,
+        "sites": 2
+      },
+      "label": "incidental",
+      "reason": "inner tracing closure named `call`; a debug print only when retval is None"
+    },
+    "python/cython::Nodes.py::check::debug_prints": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 7,
+        "method": false,
+        "sites": 2
+      },
+      "label": "incidental",
+      "reason": "decorator factory; the print is inside the inner closure, conditional"
+    },
+    "python/numpy::_linalg.py::_assert_finite::panics_and_aborts": {
+      "evidence": {
+        "branches": 3,
+        "header_has_name": true,
+        "loc": 4,
+        "method": false,
+        "sites": 2
+      },
+      "label": "conditional",
+      "reason": "assert helper: raises only on non-finite input"
+    },
+    "python/numpy::core.py::_extremum_fill_value::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 12,
+        "method": false,
+        "sites": 2
+      },
+      "label": "incidental",
+      "reason": "fill-value computation; the raise is in a nested helper"
+    },
+    "python/numpy::core.py::_scalar_fill_value::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 7,
+        "method": false,
+        "sites": 2
+      },
+      "label": "incidental",
+      "reason": "dict lookup; raises only on KeyError"
+    },
+    "python/numpy::crackfortran.py::_resolvetypedefpattern::debug_prints": {
+      "evidence": {
+        "branches": 5,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "stray debug print inside a regex-parsing helper"
+    },
+    "python/numpy::crackfortran.py::myeval::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 6,
+        "method": false,
+        "sites": 5
+      },
+      "label": "incidental",
+      "reason": "eval helper; raises only on a non-numeric result"
+    },
+    "python/numpy::genapi.py::skip_brackets::panics_and_aborts": {
+      "evidence": {
+        "branches": 6,
+        "header_has_name": true,
+        "loc": 10,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "bracket scanner; raises only on no match"
+    },
+    "python/numpy::symbolic.py::as_integer::panics_and_aborts": {
+      "evidence": {
+        "branches": 3,
+        "header_has_name": true,
+        "loc": 9,
+        "method": false,
+        "sites": 3
+      },
+      "label": "incidental",
+      "reason": "type conversion; raises only when no branch matched"
+    },
+    "python/numpy::symbolic.py::as_number::panics_and_aborts": {
+      "evidence": {
+        "branches": 5,
+        "header_has_name": true,
+        "loc": 11,
+        "method": false,
+        "sites": 21
+      },
+      "label": "incidental",
+      "reason": "type conversion; raises only when no branch matched"
+    },
+    "python/numpy::symbolic.py::fromstring::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 10,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "parser entry point; raises only when the parse fails"
+    },
+    "rust/bevy::bevy_ecs_query.rs::assert_all_exact_sizes_iterator_equal::debug_prints": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 11,
+        "method": false,
+        "sites": 7
+      },
+      "label": "test_helper",
+      "reason": "test assertion helper in bevy's query tests"
+    },
+    "scala/kafka::Partition.scala::localLogWithEpochOrThrow::panics_and_aborts": {
+      "evidence": {
+        "branches": 6,
+        "header_has_name": true,
+        "loc": 12,
+        "method": false,
+        "sites": 4
+      },
+      "label": "conditional",
+      "reason": "`*OrThrow` accessor: throws only on the error branch"
+    },
+    "scala/kafka::ReplicaManager.scala::getPartitionOrException::panics_and_aborts": {
+      "evidence": {
+        "branches": 6,
+        "header_has_name": true,
+        "loc": 11,
+        "method": false,
+        "sites": 13
+      },
+      "label": "conditional",
+      "reason": "`*OrException` accessor: throws only on the error branches"
+    },
+    "scala/kafka::SocketServer.scala::parseRequestHeader::panics_and_aborts": {
+      "evidence": {
+        "branches": 6,
+        "header_has_name": true,
+        "loc": 10,
+        "method": false,
+        "sites": 1
+      },
+      "label": "incidental",
+      "reason": "request parsing; throws only on a disabled/unsupported API"
+    },
+    "scala/kafka::SocketServer.scala::processException::panics_and_aborts": {
+      "evidence": {
+        "branches": 3,
+        "header_has_name": true,
+        "loc": 6,
+        "method": false,
+        "sites": 4
+      },
+      "label": "conditional",
+      "reason": "exception router: rethrows ControlThrowable, else logs"
+    },
+    "solidity/openzeppelin::Governor.sol::_validateStateBitmap::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 7,
+        "method": false,
+        "sites": 4
+      },
+      "label": "conditional",
+      "reason": "state validator: reverts only when the state is not allowed"
+    },
+    "typescript/playwright::dispatcher.ts::collect::panics_and_aborts": {
+      "evidence": {
+        "branches": 1,
+        "header_has_name": true,
+        "loc": 8,
+        "method": false,
+        "sites": 2
+      },
+      "label": "incidental",
+      "reason": "span misaligned: the `abort` hit is the enclosing method's controller.abort, not collect's"
+    },
+    "typescript/vscode::lifecycle.ts::dispose::panics_and_aborts": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 10,
+        "method": false,
+        "sites": 4
+      },
+      "label": "incidental",
+      "reason": "span misaligned: the slice is the enclosing code's catch/rethrow"
+    },
+    "zig/tigerbeetle::build.zig::build_ci_step::panics_and_aborts": {
+      "evidence": {
+        "branches": 0,
+        "header_has_name": true,
+        "loc": 12,
+        "method": false,
+        "sites": 9
+      },
+      "label": "incidental",
+      "reason": "build-step helper; @panic only on allocation failure"
+    },
+    "zig/zig::InternPool.zig::unwrapCoercedFunc::panics_and_aborts": {
+      "evidence": {
+        "branches": 2,
+        "header_has_name": true,
+        "loc": 11,
+        "method": false,
+        "sites": 2
+      },
+      "label": "incidental",
+      "reason": "switch with `else => unreachable` for impossible tags"
+    },
+    "zig/zig::Sema.zig::addDeclaredHereNote::panics_and_aborts": {
+      "evidence": {
+        "branches": 3,
+        "header_has_name": true,
+        "loc": 12,
+        "method": false,
+        "sites": 6
+      },
+      "label": "incidental",
+      "reason": "note builder; `unreachable` only for impossible types"
+    }
+  }
+}

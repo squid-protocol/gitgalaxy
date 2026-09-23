@@ -198,3 +198,75 @@ def test_the_recorded_filter_decision_reproduces_from_the_labels():
     strict = sum(1 for e in kept.values() if e["label"] == "wrapper") / len(kept)
     assert strict >= 0.7
     assert sites(kept, "wrapper") / sites(kept) >= 0.95
+
+
+# --- #3324 (epic step 2): function-like #define aliases -----------------------
+
+CURL_SETUP_H = """\
+#ifdef CURLDEBUG
+#define curlx_malloc(size) curl_dbg_malloc(size, __LINE__, __FILE__)
+#else
+#define curlx_malloc(size) malloc(size)
+#endif
+#define curlx_free(ptr) free(ptr)
+#define Curl_safefree(ptr) \\
+  do { curlx_free(ptr); (ptr) = NULL; } while(0)
+#define NOT_AN_ALLOCATOR(x) ((x) + 1)
+"""
+
+CURL_URLAPI_C = """\
+#include "curl_setup.h"
+static char *dup_host(const char *h) {
+  char *p = curlx_malloc(64);
+  return p;
+}
+static void drop(char *p) {
+  Curl_safefree(p);
+  curlx_free(p);
+}
+"""
+
+
+def test_curl_818_allocator_macros_are_aliases_with_call_sites(tmp_path):
+    """curl 8.18's allocator layer is macros, invisible to function-wrapper
+    detection. Any one of `curlx_malloc`'s #ifdef definitions being an alias makes
+    it one; `Curl_safefree` is an alias by chaining through `curlx_free`."""
+    result = _probe(tmp_path, "c", {"curl_setup.h": CURL_SETUP_H, "urlapi.c": CURL_URLAPI_C}, ["memory_alloc"])
+    aliases = result["macro_aliases"]["memory_alloc"]
+    assert {n: a["sites"] for n, a in aliases.items()} == {"curlx_malloc": 1, "curlx_free": 1, "Curl_safefree": 1}
+    assert aliases["Curl_safefree"]["via"] == "via curlx_free"
+    assert "NOT_AN_ALLOCATOR" not in aliases
+
+
+PYMEM_C = """\
+void *PyMem_Malloc(size_t size) {
+    return _PyMem.malloc(_PyMem.ctx, size);
+}
+"""
+
+PYMEM_H = """\
+#define PyMem_New(type, n) ((type *) PyMem_Malloc((n) * sizeof(type)))
+"""
+
+PYMEM_USER_C = """\
+#include "pymem.h"
+static int *grow(int n) { return PyMem_New(int, n); }
+static void *raw(void) { return PyMem_Malloc(8); }
+"""
+
+
+def test_a_macro_chains_through_a_detected_function_wrapper(tmp_path):
+    """CPython's `PyMem_New` never names an allocator: it calls `PyMem_Malloc`, a
+    function wrapper the function pass found (its `.malloc(` table call hits the
+    C rule), so the alias closure reaches it."""
+    result = _probe(
+        tmp_path, "c", {"obmalloc.c": PYMEM_C, "pymem.h": PYMEM_H, "user.c": PYMEM_USER_C}, ["memory_alloc"]
+    )
+    assert _by_name(result)[("PyMem_Malloc", "memory_alloc", "obmalloc.c")]["sites"] == 1
+    alias = result["macro_aliases"]["memory_alloc"]["PyMem_New"]
+    assert (alias["via"], alias["sites"]) == ("via PyMem_Malloc", 1)
+
+
+def test_a_language_without_a_preprocessor_has_no_alias_pass(tmp_path):
+    result = _probe(tmp_path, "python", {"log.py": PY_WRAPPER}, ["debug_prints"])
+    assert "macro_aliases" not in result

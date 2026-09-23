@@ -28,6 +28,9 @@ USAGE
     # one language, with every candidate's body (what the label pass reads)
     python tests/tools/wrapper_probe.py --langs fortran --detail
 
+    # a full checkout instead of the crucible sample (#3324, epic step 2)
+    python tests/tools/wrapper_probe.py --repo ../cpython --lang c --rules memory_alloc --max-loc 8
+
     # precision against the committed hand labels
     python tests/tools/wrapper_probe.py --json /tmp/wrappers.json --score tests/tools/wrapper_labels.json
 
@@ -46,6 +49,13 @@ DEFINITIONS (each is a decision #3315 measures, not a given)
                 callee lives outside the corpus sample) or several (a name
                 collision) credit nothing -- that is the census's go/core `lock`
                 false attribution, made impossible by construction.
+    macro alias (#3324) A function-like `#define NAME(params) BODY` in a C-preprocessor
+                language whose body hits the rule, or calls a function candidate or
+                another macro alias (a bounded closure). curl 8.18's allocator layer
+                is exactly this: `#define curlx_malloc(size) malloc(size)`. Several
+                `#ifdef` definitions of one name are normal for a macro, so a name
+                is an alias when ANY of its definitions is one. Call sites are
+                unqualified `NAME(` occurrences outside `#define` lines.
     method      A candidate defined as a method (Go receiver, Python `self`/`cls`
                 first parameter, a qualified header such as Lua `function M.f` or
                 C++ `X::f`) is only reachable through a qualifier, so it receives
@@ -82,6 +92,17 @@ DEFAULT_RULES = ("debug_prints", "panics_and_aborts")
 LOC_SWEEP = (3, 5, 8, 12)
 LABELS = ("wrapper", "conditional", "incidental", "test_helper")
 _IDENT = re.compile(r"[A-Za-z_$][\w$]*")
+# Languages whose source runs through the C preprocessor, so a function-like
+# `#define` is a callable alias.
+PREPROCESSOR_LANGS = frozenset({"c", "cpp", "objective-c"})
+# A function-like macro definition, continuation lines included. Every repeat is
+# bounded (a name, <= 200 chars of params, <= 400 chars of body) so one
+# pathological line cannot scan the file.
+_DEFINE = re.compile(
+    r"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)\(([^)\n]{0,200})\)[ \t]*((?:[^\n\\]|\\\n){0,400})", re.M
+)
+_CALLED = re.compile(r"\b([A-Za-z_]\w*)\s*\(")
+_ALIAS_CLOSURE_DEPTH = 6
 
 
 def candidate_key(group: str, file: str, name: str, rule: str) -> str:
@@ -208,13 +229,69 @@ def probe_group(
                 cand["sites"] += sites
                 cand["calling_functions"] += 1
 
-    return {
+    result = {
         "group": group,
         "lang": lang,
         "literal": {r: literal[r] for r in patterns},
         "unattributed_sites": dict(unattributed),
         "candidates": candidates,
     }
+    if lang in PREPROCESSOR_LANGS:
+        result["macro_aliases"] = macro_aliases(group_dir, exts, patterns, candidates)
+    return result
+
+
+def macro_aliases(
+    group_dir: Path, exts: Any, patterns: dict[str, Any], candidates: dict[str, dict[str, Any]]
+) -> dict[str, dict[str, Any]]:
+    """Function-like `#define` aliases per rule, with their call sites (#3324).
+
+    Read from the RAW file, not PRISM's code stream: the macro body is exactly
+    what the preprocessor pastes in. An alias is rule-bearing when its body hits
+    the rule, or calls a live function candidate of that rule or another alias
+    (a closure bounded at `_ALIAS_CLOSURE_DEPTH` rounds).
+    """
+    texts: dict[str, str] = {}
+    for path in sorted(group_dir.rglob("*"), key=lambda p: p.parts):
+        if not path.is_file() or (exts and path.suffix.lower() not in exts and path.name.lower() not in exts):
+            continue
+        if path.stat().st_size > rule_probe.MAX_FILE_BYTES:
+            continue
+        texts[str(path.relative_to(group_dir))] = path.read_text(encoding="utf-8", errors="ignore")
+    definitions: dict[str, list[tuple[str, str]]] = collections.defaultdict(list)
+    for rel, text in texts.items():
+        for m in _DEFINE.finditer(text):
+            definitions[m.group(1)].append((rel, m.group(3).replace("\\\n", " ").strip()))
+    out: dict[str, dict[str, Any]] = {}
+    for rule, pattern in patterns.items():
+        wrappers = {c["name"] for c in candidates.values() if c["rule"] == rule and c["sites"]}
+        bearing: dict[str, dict[str, Any]] = {}
+        for _ in range(_ALIAS_CLOSURE_DEPTH):
+            grew = False
+            for name, defs in definitions.items():
+                if name in bearing:
+                    continue
+                for rel, body in defs:
+                    via = None
+                    if pattern.search(body):
+                        via = "primitive"
+                    else:
+                        via = next((f"via {c}" for c in _CALLED.findall(body) if c in wrappers or c in bearing), None)
+                    if via:
+                        bearing[name] = {"file": rel, "via": via, "body": body[:120], "sites": 0}
+                        grew = True
+                        break
+            if not grew:
+                break
+        if bearing:
+            rx = re.compile(
+                r"(?<![\w$.>])(" + "|".join(map(re.escape, sorted(bearing, key=len, reverse=True))) + r")\s*\("
+            )
+            for text in texts.values():
+                for m in rx.finditer(_DEFINE.sub("", text)):
+                    bearing[m.group(1)]["sites"] += 1
+        out[rule] = bearing
+    return out
 
 
 def run(langs: Optional[list[str]], rules: tuple[str, ...], max_loc: int) -> dict[str, Any]:
@@ -291,6 +368,11 @@ def summarize(data: dict[str, Any], labels: Optional[dict[str, Any]] = None) -> 
                     site_w = sum(s for lbl, s in judged if lbl == "wrapper") / max(1, sum(s for _, s in judged))
                     prec = f"strict {strict:.0%} of {len(judged)} labelled, {site_w:.0%} site-weighted"
             print(f"{rule:20} {n:7} {lit:8} {len(live):8} {sites:6}  {prec}")
+        aliases = [a for g in data["groups"] for a in g.get("macro_aliases", {}).get(rule, {}).values() if a["sites"]]
+        if aliases:
+            print(
+                f"{rule:20} {'macro':>7} {lit:8} {len(aliases):8} {sum(a['sites'] for a in aliases):6}  (#define aliases)"
+            )
 
 
 def sample_for_labelling(data: dict[str, Any], seed: int, size: int, floor: int) -> list[str]:
@@ -305,6 +387,8 @@ def sample_for_labelling(data: dict[str, Any], seed: int, size: int, floor: int)
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--langs", help="comma-separated crucible languages (default: all)")
+    ap.add_argument("--repo", type=Path, help="probe one full checkout instead of the crucible (needs --lang)")
+    ap.add_argument("--lang", help="the language to probe --repo as")
     ap.add_argument("--rules", default=",".join(DEFAULT_RULES))
     ap.add_argument("--max-loc", type=int, default=max(LOC_SWEEP))
     ap.add_argument("--json", type=Path, help="write the full result here")
@@ -316,6 +400,18 @@ def main() -> int:
 
     if args.load:
         data = json.loads(args.load.read_text(encoding="utf-8"))
+    elif args.repo:
+        if not args.lang:
+            ap.error("--repo needs --lang")
+        repo = args.repo.resolve()
+        prism = Prism(LEXICAL_FAMILY_HEURISTICS, LANGUAGE_DEFINITIONS)
+        result = probe_group(args.lang, repo, tuple(args.rules.split(",")), args.max_loc, prism, repo.parent)
+        data = {
+            "crucible": str(repo.parent),
+            "rules": args.rules.split(","),
+            "max_loc": args.max_loc,
+            "groups": [result],
+        }
     else:
         langs = args.langs.split(",") if args.langs else None
         data = run(langs, tuple(args.rules.split(",")), args.max_loc)

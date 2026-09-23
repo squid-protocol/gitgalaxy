@@ -83,10 +83,28 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
-        # #3361: `assert` is a statement keyword here (`assert(x)` is not a call,
-        # #3327 C2). It left the global ignore set because in C/C++/Rust/Zig/Scala/
-        # Kotlin/Swift it IS a call (a macro or a function).
-        "_calls_out_ignore": frozenset({"assert"}),
+        # #3359 (contract C2): keywords and special forms, never calls
+        "_calls_out_ignore": frozenset(
+            {
+                "in",
+                "not",
+                "and",
+                "or",
+                "elif",
+                "is",
+                "yield",
+                "lambda",
+                "del",
+                "with",
+                "raise",
+                "from",
+                "as",
+                "else",
+                # #3361: `assert` is a statement keyword here; it left the global
+                # set because C's assert macro IS a call.
+                "assert",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Includes match/case (3.10+) and logical short-circuits. EXCLUDES exceptions.

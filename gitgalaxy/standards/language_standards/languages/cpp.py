@@ -61,6 +61,21 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
+        # #3359 (contract C2): keywords and special forms, never calls
+        "_calls_out_ignore": frozenset(
+            {
+                "static_assert",
+                "operator",
+                "constexpr",
+                "alignas",
+                "noexcept",
+                "requires",
+                "typeid",
+                "co_await",
+                "co_yield",
+                "co_return",
+            }
+        ),
         # 1. branch (Control Flow / Branching)
         # Control flow jumps. Includes modern coroutine jumps (co_yield, co_await).
         # EXCLUDES exceptions (bailout_hits).

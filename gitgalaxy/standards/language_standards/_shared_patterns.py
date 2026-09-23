@@ -147,6 +147,15 @@ HTML_NONEXECUTABLE_SCRIPT_TAG = re.compile(
 # C-Family / Algol-Family (name followed by optional space and open parenthesis)
 CALLS_OUT_C_STYLE = re.compile(r"\b([a-zA-Z_]\w*)\s*\(")
 
+# #3359 (contract C1): the C-style pattern for languages whose `@Name(...)` is a
+# metadata annotation -- a declaration, never an invocation (java, kotlin, swift,
+# dart, groovy, scala). NOT for python/typescript/javascript, where a decorator
+# factory `@retry(3)` really is a call to `retry`. A dotted annotation
+# (`@javax.annotation.Generated(`) still leaks its last segment, a known gap:
+# the lookbehind is fixed-width on purpose (Rule 5). detector.py treats this
+# pattern exactly like CALLS_OUT_C_STYLE (qualifier capture included).
+CALLS_OUT_C_STYLE_NO_ANNOTATION = re.compile(r"(?<!@)\b([a-zA-Z_]\w*)\s*\(")
+
 # Unsupported / AST-Required (Shell, Markup, Data, Config)
 # Mapped to None to officially declare intentional blindness rather than extracting garbage.
 CALLS_OUT_UNSUPPORTED = None

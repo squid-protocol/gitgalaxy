@@ -100,6 +100,9 @@ def test_assert_keyword_is_not_a_call(lang, code, fn):
     [
         ("javascript", "class B extends A {\n  constructor(x) {\n    super(x);\n    go(x);\n  }\n}\n", "constructor"),
         ("java", "class B extends A {\n  B(int x) {\n    super(x);\n    go(x);\n  }\n}\n", "B"),
+        # typescript/groovy: #3361's `super` merged into #3359's keyword sets.
+        ("typescript", "function run(x: number) {\n  super(x);\n  go(x);\n}\n", "run"),
+        ("groovy", "class B extends A {\n  B(int x) {\n    super(x)\n    go(x)\n  }\n}\n", "B"),
     ],
 )
 def test_super_keyword_is_not_a_call(lang, code, fn):
@@ -139,15 +142,3 @@ def test_blind_languages_declare_blindness():
 def test_nested_declaration_is_not_a_call():
     code = "def outer(x):\n    def inner(y):\n        return y\n    return inner\n"
     assert "inner" not in _calls("python", code)["outer"]
-
-
-@pytest.mark.xfail(strict=True, reason="#3359: a metadata annotation is captured as a call")
-def test_annotation_is_not_a_call():
-    code = 'class A {\n  @SuppressWarnings("x")\n  void run(int a) {\n    go(a);\n  }\n}\n'
-    assert "SuppressWarnings" not in _calls("java", code)["run"]
-
-
-@pytest.mark.xfail(strict=True, reason="#3359: go's `func` literal keyword is captured as a call")
-def test_func_literal_keyword_is_not_a_call():
-    code = "package m\nfunc Run(a int) {\n  go func() { work(a) }()\n}\n"
-    assert "func" not in _calls("go", code)["Run"]

@@ -60,10 +60,20 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
-        # #3361: `super` is a keyword here (a constructor's `super(x)` is not a
-        # call, #3327 C2). It left the global ignore set because Python's
-        # `super()` IS a call (a built-in function).
-        "_calls_out_ignore": frozenset({"super"}),
+        # #3359 (contract C2): keywords and special forms, never calls
+        "_calls_out_ignore": frozenset(
+            {
+                "async",
+                "as",
+                "new",
+                "void",
+                "instanceof",
+                "keyof",
+                # #3361: constructor-chaining keyword; it left the global set
+                # because Python's super() IS a call.
+                "super",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)

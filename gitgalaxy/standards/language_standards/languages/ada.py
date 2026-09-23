@@ -71,6 +71,18 @@ DEFINITION: dict[str, Any] = {
                 "rem",
                 "others",
                 "aliased",
+                # #3359 (contract C2): keywords and special forms, never calls
+                "is",
+                "else",
+                "elsif",
+                "then",
+                "not",
+                "and",
+                "or",
+                "xor",
+                "in",
+                "when",
+                "with",
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

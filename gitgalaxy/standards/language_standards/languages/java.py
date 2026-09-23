@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_C_STYLE, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import CALLS_OUT_C_STYLE_NO_ANNOTATION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -45,12 +45,19 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "standard_block",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_C_STYLE,
-        # #3361: `assert` and `super` are keywords here (`assert(x)` and a
-        # constructor's `super(x)` are not calls, #3327 C2). They left the global
-        # ignore set because in C/Rust/Zig (`assert`) and Python (`super()`) they
-        # ARE calls (a macro or a built-in function).
-        "_calls_out_ignore": frozenset({"assert", "super"}),
+        "calls_out": CALLS_OUT_C_STYLE_NO_ANNOTATION,  # #3359: `@Name(` is an annotation (C1)
+        # #3359 (contract C2): keywords and special forms, never calls
+        "_calls_out_ignore": frozenset(
+            {
+                "this",
+                "synchronized",
+                # #3361: statement keywords here (`assert(x)`, a constructor's
+                # `super(x)`); they left the global set because C's assert macro
+                # and Python's super() ARE calls.
+                "assert",
+                "super",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Includes modern switch expressions (yield) and pattern guards (when).

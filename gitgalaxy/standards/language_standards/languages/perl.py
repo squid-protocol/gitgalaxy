@@ -59,6 +59,18 @@ DEFINITION: dict[str, Any] = {
                 "elsif",
                 "foreach",
                 "die",
+                # #3359 (contract C2/C7): keywords and quote-like operators, never
+                # calls. `qx(...)` is deliberately absent: it runs a shell command,
+                # an invocation like `system` (the rosetta oracle plants it as one).
+                "qw",
+                "q",
+                "qq",
+                "qr",
+                "and",
+                "or",
+                "not",
+                "until",
+                "sub",
             }
         ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---

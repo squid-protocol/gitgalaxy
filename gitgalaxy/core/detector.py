@@ -44,7 +44,10 @@ from gitgalaxy.standards.language_standards import (
     COMPILED_HANDSHAKE_REGISTRY,
     HTML_NONEXECUTABLE_SCRIPT_TAG,
 )
-from gitgalaxy.standards.language_standards._shared_patterns import CALLS_OUT_C_STYLE
+from gitgalaxy.standards.language_standards._shared_patterns import (
+    CALLS_OUT_C_STYLE,
+    CALLS_OUT_C_STYLE_NO_ANNOTATION,
+)
 
 HAS_TIKTOKEN = False
 try:
@@ -882,7 +885,8 @@ _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
 # and the call resolver (#3328) labels them `external`. Case-sensitive on purpose: languages
 # whose keywords are case-insensitive (fortran, abap, pli, rexx, db2_sql, ada)
 # declare their own lowercase words via the per-language `_calls_out_ignore`
-# rule, which is compared casefolded at the filter site.
+# rule, which is compared casefolded at the filter site for a language declared
+# `identifier_case: insensitive`, and exactly for every other language (#3359).
 # #3329: member-access separators a call's qualifier is joined by -- `a.b()`,
 # `p->f()`, `Ns::f()`, `a?.b()`. Longest first, so `->`/`::`/`?.` win over `.`.
 _QUALIFIER_SEPARATORS = ("->", "::", "?.", ".")
@@ -8883,10 +8887,12 @@ class StructuralExtractor:
         if invocation_pattern:
             # Apply literal shield to avoid capturing words inside strings
             safe_block = self._apply_literal_shield(block, self.primary_lang_id)
-            if invocation_pattern is CALLS_OUT_C_STYLE:
+            if invocation_pattern is CALLS_OUT_C_STYLE or invocation_pattern is CALLS_OUT_C_STYLE_NO_ANNOTATION:
                 # #3360 (C5): note which callees were captured only on a nested
                 # func_start header (`def inner(`). _function_slice drops them
                 # once it knows the slicer really emitted that nested unit.
+                # #3359: the annotation-free variant (java/kotlin/swift/dart/
+                # groovy/scala) gets the same check.
                 decl_headers = _declaration_headers(rules.get("func_start"), safe_block)
                 for m in invocation_pattern.finditer(safe_block):
                     callee = m.group(1)
@@ -8903,9 +8909,16 @@ class StructuralExtractor:
                 raw_calls = invocation_pattern.findall(safe_block)
 
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).
-        # Authored lowercase in the profile and compared casefolded, so
-        # case-insensitive languages filter their keywords in any spelling.
+        # Authored lowercase in the profile. A case-insensitive language
+        # (`identifier_case: insensitive`) compares casefolded, so it filters its
+        # keywords in any spelling; #3359: a case-sensitive one compares exactly,
+        # so a keyword never swallows a real callee spelled with capitals (go's
+        # `func` keyword vs a `Func()` method, rust's `let` vs an `Expr::Let(`
+        # variant, C#'s `this(` chaining vs a `factory.This()` call).
         lang_ignore = rules.get("_calls_out_ignore") or frozenset()
+        _fold_ignore = (
+            self.languages.get(self.primary_lang_id, {}).get("identifier_case") == IDENTIFIER_CASE_INSENSITIVE
+        )
         # Deduplicate and filter (excluding the function calling itself recursively).
         # #3292: a `positional` language's units cannot be invoked by name, so a
         # callee spelled like the unit is never recursion -- `//IEFBR14 EXEC
@@ -8920,7 +8933,9 @@ class StructuralExtractor:
             dict.fromkeys(
                 c
                 for c in raw_calls
-                if c not in _CALLS_OUT_GLOBAL_IGNORE and c.casefold() not in lang_ignore and c != self_name
+                if c not in _CALLS_OUT_GLOBAL_IGNORE
+                and (c.casefold() if _fold_ignore else c) not in lang_ignore
+                and c != self_name
             )
         )
 

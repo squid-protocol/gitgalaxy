@@ -35,6 +35,10 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": re.compile(r"(?m)\bTC\s+([A-Z][A-Z0-9]*)"),
+        # #3359 (contract C4): `TC Q` transfers control through the Q register --
+        # the return idiom, not a call. Upper-case: agc is not declared
+        # `identifier_case: insensitive`, so this set is compared exactly.
+        "_calls_out_ignore": frozenset({"Q"}),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch (Control Flow / Branching)
         # Decisions only. EXCLUDES fatal alarms (bailout_hits) and, since #2764,

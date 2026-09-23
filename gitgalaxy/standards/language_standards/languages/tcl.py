@@ -11,7 +11,7 @@
 import re
 from typing import Any
 
-from .._shared_patterns import CALLS_OUT_COMMAND_POSITION, GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
+from .._shared_patterns import GLOBAL_FRAGILE_DEBT, GLOBAL_PLANNED_DEBT
 
 DEFINITION: dict[str, Any] = {
     "_meta": {
@@ -34,7 +34,18 @@ DEFINITION: dict[str, Any] = {
     "lexical_family": "line_exclusive",
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
-        "calls_out": CALLS_OUT_COMMAND_POSITION,
+        # #3359 (contract C7): command position, minus the upper-case SQL keywords
+        # that start the lines of a brace-quoted query (`db eval { SELECT ...\n
+        # WHERE ... }`). Tcl cannot shield braces, which are also code bodies, so
+        # the SQL words are excluded by name, upper-case only: `set`/`update` are
+        # real Tcl commands. The lookahead is one bounded alternation (Rule 5).
+        "calls_out": re.compile(
+            r"(?m)^[ \t]*(?!(?:SELECT|INSERT|UPDATE|DELETE|REPLACE|FROM|WHERE|SET|VALUES|INTO|AND|OR|NOT"
+            r"|UNION|WITH|AS|ON|USING|JOIN|INNER|OUTER|LEFT|CROSS|NATURAL|ORDER|GROUP|HAVING|LIMIT|OFFSET"
+            r"|CREATE|DROP|ALTER|TABLE|INDEX|VIEW|TRIGGER|BEGIN|COMMIT|ROLLBACK|PRAGMA|COALESCE|CASE|WHEN"
+            r"|THEN|ELSE|END|EXCEPT|INTERSECT|RETURNING|DISTINCT|ALL|IN|IS|NULL|LIKE|BETWEEN)(?![\w:-]))"
+            r"([A-Za-z_][\w:-]*)\b"
+        ),
         "_calls_out_ignore": frozenset(
             {
                 "proc",

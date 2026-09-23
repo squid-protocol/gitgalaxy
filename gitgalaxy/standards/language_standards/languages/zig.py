@@ -34,6 +34,23 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": CALLS_OUT_C_STYLE,
+        # #3359 (contract C2): keywords and special forms, never calls
+        "_calls_out_ignore": frozenset(
+            {
+                "and",
+                "or",
+                "orelse",
+                "else",
+                "fn",
+                "callconv",
+                "align",
+                "addrspace",
+                "linksection",
+                "union",
+                "enum",
+                "struct",
+            }
+        ),
         # --- PHASE 1: LOGIC TOPOLOGY & STRUCTURE ---
         # 1. branch: decisions that split flow. Includes unique 'orelse' and 'catch' patterns.
         # #2545: `return` removed -- was phantom-counting every early-return function as a

@@ -178,6 +178,34 @@ Summary: 37 of 65 languages agree outside the global **B**. The rest are **K** (
 **D** (8), **S** (1: tcl), **G** (1: cobol), **I** (1: matlab) and **R** (1: haskell). Every
 disagreement is precision (a non-call emitted), except **B**, which is recall.
 
+## #3359 resolution (classes K, A, S)
+
+Fixed by #3359, re-censused on the same crucible plus keyword-rosetta: 4,300+ non-call names
+left `calls_out_to` across 25 languages, and every one was checked to be a keyword, special
+form, annotation or string word (no real callee dropped).
+
+- **K:** keyword entries added to each language's `_calls_out_ignore` (built-ins and
+  `_CALLS_OUT_GLOBAL_IGNORE` untouched; #3361 owns those). The per-language set is now compared
+  **exactly** in a case-sensitive language and casefolded only for `identifier_case:
+  insensitive`, so a keyword never swallows a capitalised callee (go `v.Type()`, C#
+  `factory.This()`, perl `$self->Warn(`).
+- **A:** `CALLS_OUT_C_STYLE_NO_ANNOTATION` (`(?<!@)`) for java, kotlin, swift, dart, groovy and
+  scala. Python/TypeScript/JavaScript keep the plain pattern: `@retry(3)` is a call.
+- **S:** tcl's command-position rule skips upper-case SQL keywords that start the lines of a
+  brace-quoted query (upper-case only: `set`/`update` are real Tcl commands).
+- **cobol:** `END-PERFORM`/`END-CALL` no longer hand the next statement's first word to the
+  verb (`(?<![\w-])`), which also recovered a real `PERFORM` target; inline
+  `PERFORM VARYING/UNTIL/WITH TEST` names no paragraph. **agc:** `TC Q` (the return) is ignored.
+
+Left open (a regex change too invasive for a keyword list, or not a keyword after all):
+scheme `let` binding lists `((x 1))` (the same `((` shape is a `cond` clause or a curried call);
+dotted and use-site annotations (`@a.b.C(`, `@file:JvmName(`); rust `Fn(` trait sugar and
+`#[cfg(not(...))]` predicates; tcl brace-quoted *prose* (lower-case words at line start);
+powershell hashtable-key and enum-member lines in command position; cobol
+`PERFORM <data-name> TIMES`. Not keywords on inspection, so kept as calls: perl `do`/`then`
+(every crucible hit is `$dbh->do(` / `->then(`), php `match` (`$this->match(`), tcl `default`
+(a macports command), perl `qx(` (runs a shell command).
+
 ## How the census was taken
 
 A scratch probe (not committed; same shape as `tests/tools/wrapper_probe.py`) ran the

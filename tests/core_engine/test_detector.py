@@ -1110,13 +1110,15 @@ def test_detector_classification_and_wiring():
 def test_detector_calls_out_language_ignore_union():
     """
     Proves the per-language `_calls_out_ignore` rule (Epic #3264 Phase 3) is
-    unioned with the global ignore set and compared casefolded: a language
-    authoring lowercase words filters them in any spelling (case-insensitive
-    languages get correct behavior for free), while the global set keeps
-    filtering its keywords.
+    unioned with the global ignore set. A language declared
+    `identifier_case: insensitive` compares it casefolded (lowercase words filter
+    in any spelling); #3359: every other language compares it exactly, so a
+    keyword never swallows a capitalised callee. The global set keeps filtering
+    its keywords (`sizeof`); #3361: a built-in like `print` is a call.
     """
-    defs = {
-        "fortranish": {
+
+    def defs(identifier_case):
+        definition = {
             "lexical_family": "single_line_only",
             "rules": {
                 "func_start": re.compile(r"^[ \t]*def\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(", re.M),
@@ -1124,20 +1126,24 @@ def test_detector_calls_out_language_ignore_union():
                 "_calls_out_ignore": frozenset({"open"}),
             },
         }
-    }
-    opt_detector = StructuralExtractor("fortranish", defs)
+        if identifier_case:
+            definition["identifier_case"] = identifier_case
+        return {"fortranish": definition}
+
     code = (
-        "def dispatch(unit):\n    OPEN(unit)\n    Open(unit)\n    sizeof(unit)\n    print(unit)\n    db_insert(unit)\n"
+        "def dispatch(unit):\n    OPEN(unit)\n    Open(unit)\n    open(unit)\n"
+        "    sizeof(unit)\n    print(unit)\n    db_insert(unit)\n"
     )
 
-    result = opt_detector.splice(code, "")
-    func = result["functions"][0]
+    folded = StructuralExtractor("fortranish", defs("insensitive")).splice(code, "")["functions"][0]
+    assert folded["calls_out_to"] == ["print", "db_insert"], (
+        "_calls_out_ignore must filter casefolded (OPEN/Open/open) in a case-insensitive language "
+        f"and the global set must keep filtering keywords (sizeof); got {folded['calls_out_to']}"
+    )
 
-    # #3361 (#3327 C2): the global set holds keywords only (`sizeof`); a
-    # built-in like `print` is a call.
-    assert func["calls_out_to"] == ["print", "db_insert"], (
-        "_calls_out_ignore must filter casefolded (OPEN/Open) and the global "
-        f"set must keep filtering keywords (sizeof); got {func['calls_out_to']}"
+    exact = StructuralExtractor("fortranish", defs(None)).splice(code, "")["functions"][0]
+    assert exact["calls_out_to"] == ["OPEN", "Open", "print", "db_insert"], (
+        f"a case-sensitive language filters only the exact spelling; got {exact['calls_out_to']}"
     )
 
 
@@ -5445,15 +5451,5 @@ def test_detector_is_documented_powershell_undelimited_doc_marker_in_code():
     assert documented(near) is True
 
     # Same undelimited marker, pushed 6+ lines above (outside k=5).
-    far = (
-        ".SYNOPSIS\n"
-        "\n"
-        "\n"
-        "\n"
-        "\n"
-        "\n"
-        "function probe_dispatch {\n"
-        "    param($argv)\n"
-        "}\n"
-    )
+    far = ".SYNOPSIS\n\n\n\n\n\nfunction probe_dispatch {\n    param($argv)\n}\n"
     assert documented(far) is False

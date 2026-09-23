@@ -77,7 +77,9 @@ GROUP BY f.language ORDER BY captures DESC;
 
 ## The Mainframe Boundary in `_master.db` (`call_site_data`, `dataset_data`, `transaction_data`, #3200/#3201/#3211-followup)
 
-`ipc_rpc_bridges` and `io` count *that* a COBOL program calls out and touches files. These tables carry *what*, extracted by `core/mainframe_boundary.py` off the prism code stream and resolved by `core/invocation_resolver.py`. A language opts in with a top-level `boundary_extraction` declaration (cobol, jcl, csd).
+`ipc_rpc_bridges` and `io` count *that* a COBOL program calls out and touches files. These tables carry *what*, extracted by `core/mainframe_boundary.py` off the prism code stream and resolved by `core/invocation_resolver.py`. A language opts in with a top-level `boundary_extraction` declaration (cobol, jcl, csd, pli).
+
+`record_data` (#3246) carries COBOL DATA DIVISION items and, since #3250, PL/I `DECLARE`d structures in the same columns: `pic` is the PICTURE, `usage` the data type as written (`FIXED DEC(7,2)`, `CHAR(10) VARYING`), `section` the root's storage class (`STATIC`/`AUTOMATIC`/`BASED`/`CONTROLLED`), `redefines` the `DEFINED` base, `occurs_*` the first dimension and `occurs_depending_on` its `REFER`, `value_literal` the `INIT`. `attributes` holds a PL/I item's full attribute text (`BASED(ADDR(REC)) UNALIGNED`) and is NULL for COBOL.
 
 ### `transaction_data` — the CICS transaction map (#3211-followup)
 

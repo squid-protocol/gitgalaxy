@@ -25,6 +25,9 @@ INDEPENDENT-field delta (program_id, copybook, record, transaction) is also
 adjudicated to a verdict from the key directly. Since #3247 the CICS transaction
 map (which transaction id entry-points into which program) is a compared datum:
 an independent CSD read (cics_transaction_reader) vs the engine's transaction_map.
+Since #3250 PL/I DECLAREd structures are one too: no PL/I forge exists, so the
+compared side is the answer key's own independent PL/I reader (pli_data_items)
+vs the engine's record_data, per PL/I file, as `pli_record` deltas.
 The gate counts what neither explains -- `unexplained` --
 and fails when a run adds any over a committed per-corpus baseline.
 
@@ -97,7 +100,10 @@ UNEXPLAINED = "unexplained"
 # adjudicate a record delta once validated. The transaction map (#3247) is read
 # by cics_transaction_reader, a self-contained CSD parser that imports neither the
 # engine nor the forge, so it too is an independent oracle once validated.
-INDEPENDENT_FIELDS = {"program_id", "copybook", "record", "transaction"}
+# The PL/I record layout (#3250) is read by the key's own raw-source tokenizer,
+# which shares neither code nor input (it never sees the PRISM stream) with the
+# engine, so it adjudicates a `pli_record` delta once a file is `records_validated`.
+INDEPENDENT_FIELDS = {"program_id", "copybook", "record", "transaction", "pli_record"}
 
 
 def _record_fields(items: list) -> set[str]:
@@ -128,6 +134,40 @@ def _engine_transactions(ir: GalaxyIR) -> dict[str, set[str]]:
         if t["program"]:
             out.setdefault(t["program"].upper(), set()).add(t["transid"].upper())
     return out
+
+
+def _engine_pli_fields(ef) -> set[str]:
+    """The engine's PL/I leaf-field paths for one file, in the key's comparison form."""
+    items = [{"ordinal": it.ordinal, "parent_ordinal": it.parent_ordinal, "name": it.name} for it in ef.data_items]
+    return ak.pli_record_fields(items, "parent_ordinal")
+
+
+def compare_pli(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
+    """#3250: one row per PL/I file -- the key's independent reader vs record_data.
+
+    `old` is that reader (there is no PL/I forge); `db` is the engine. Both are
+    dotted leaf paths (`ROOT.GROUP.FIELD`), so a same-named field in two
+    structures is two fields."""
+    rows = []
+    for ef in sorted(ir.files.values(), key=lambda f: f.file_path):
+        if ef.language != "pli":
+            continue
+        text = (repo / ef.file_path).read_text(encoding="utf-8", errors="ignore")
+        rows.append(
+            {
+                "file": ef.file_path,
+                "language": "pli",
+                "pli_records": {
+                    "old": sorted(ak.pli_record_fields(ak.pli_data_items(text))),
+                    "db": sorted(_engine_pli_fields(ef)),
+                },
+            }
+        )
+    return rows
+
+
+def _cobol_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [r for r in rows if r.get("language", "cobol") == "cobol"]
 
 
 def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
@@ -201,10 +241,13 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
                 },
             }
         )
-    return rows
+    return rows + compare_pli(repo, ir)
 
 
 def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
+    pli = [r for r in rows if r.get("language") == "pli"]
+    rows = _cobol_rows(rows)
+
     def count(pred) -> int:
         return sum(1 for r in rows if pred(r))
 
@@ -233,6 +276,10 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
         "transactions_old": sum(len(r["transactions"]["old"]) for r in rows),
         "transactions_db": sum(len(r["transactions"]["db"]) for r in rows),
         "transactions_agree": sum(len(set(r["transactions"]["old"]) & set(r["transactions"]["db"])) for r in rows),
+        "pli_files": len(pli),
+        "pli_record_fields_key": sum(len(r["pli_records"]["old"]) for r in pli),
+        "pli_record_fields_db": sum(len(r["pli_records"]["db"]) for r in pli),
+        "pli_record_fields_agree": sum(len(set(r["pli_records"]["old"]) & set(r["pli_records"]["db"])) for r in pli),
     }
 
 
@@ -244,7 +291,7 @@ def to_markdown(summary: dict[str, Any], rows: list[dict[str, Any]]) -> str:
         "| file | PROGRAM-ID old / db | paras old / db (old-only, db-only) | dead old / db | COPY named / old / db | CICS/SQL old |",
         "|---|---|---|---|---|---|",
     ]
-    for r in rows:
+    for r in _cobol_rows(rows):
         p, d, c, s = r["paragraphs"], r["dead"], r["copybooks"], r["subsystems"]
         out.append(
             f"| {r['file']} | {r['program_id']['old']} / {','.join(r['program_id']['db'])} "
@@ -272,6 +319,13 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
     deltas: list[Delta] = []
     for r in rows:
         prog = r["file"]
+        if r.get("language") == "pli":
+            # #3250: PL/I leaf fields, the key's independent reader vs the engine.
+            rec = r["pli_records"]
+            old, db = set(rec["old"]), set(rec["db"])
+            deltas += [{"program": prog, "field": "pli_record", "side": "old", "value": v} for v in sorted(old - db)]
+            deltas += [{"program": prog, "field": "pli_record", "side": "db", "value": v} for v in sorted(db - old)]
+            continue
         pid = r["program_id"]
         # Only the genuine mismatch. A db file legitimately carrying several
         # PROGRAM-IDs is not a per-id finding.
@@ -435,6 +489,11 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
         # delta is a real parser defect on one side, not an explainable mechanism.
         # Left to the validated key (transaction is an INDEPENDENT field).
         return UNEXPLAINED
+    if field == "pli_record":
+        # #3250: two independent readers of the same DECLARE disagree -- a real
+        # parser defect on one side, never a stated absence (the DB carries PL/I
+        # records). Left to the validated key (pli_record is INDEPENDENT).
+        return UNEXPLAINED
     return UNEXPLAINED
 
 
@@ -442,6 +501,19 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
     """The answer key's verdict on a delta, or None when it cannot adjudicate."""
     if not key:
         return None
+    if d["field"] == "pli_record":
+        # #3250: drafted like COBOL records, so it adjudicates only once the file
+        # is explicitly signed off with `records_validated`.
+        pli = key.get("pli_programs", {}).get(d["program"])
+        if not pli or not pli.get("records_validated"):
+            return None
+        present = d["value"] in ak.pli_record_fields(pli.get("records", []))
+        verdict = (
+            ("old-parser defect" if present else "engine defect")
+            if d["side"] == "db"
+            else ("engine defect" if present else "old-parser defect")
+        )
+        return {"verdict": verdict, "confidence": "independent", "decided": True}
     prog = key.get("programs", {}).get(d["program"])
     if not prog or prog.get("verification", {}).get("status") != "validated":
         return None
@@ -495,6 +567,10 @@ def classify(repo: Path, rows: list[dict[str, Any]], key: Optional[dict[str, Any
     ctx_cache: dict[str, dict[str, Any]] = {}
     out: list[Delta] = []
     for d in flatten(rows):
+        if d["field"] == "pli_record":
+            # The COBOL fixed-format context is meaningless for a PL/I file.
+            out.append({**d, "cause": _classify_cause(d, {}), "verdict": _key_verdict(d, key)})
+            continue
         ctx = ctx_cache.get(d["program"])
         if ctx is None:
             ctx = ctx_cache[d["program"]] = _build_ctx(repo, d["program"], ak, files, stem_counts)

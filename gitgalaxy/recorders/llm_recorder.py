@@ -487,7 +487,8 @@ class LLMRecorder:
         lines.append(
             "> **AI CONTEXT:** Named mainframe relations the structural signal counts flatten -- "
             "the call graph (`CALL`/CICS `LINK`·`XCTL`/JCL `EXEC PGM=`), the dataset boundary "
-            "(`SELECT…ASSIGN` + `OPEN` modes, JCL `DD`→dataset), and DATA DIVISION record layouts. "
+            "(`SELECT…ASSIGN` + `OPEN` modes, JCL `DD`→dataset), and record layouts (COBOL DATA "
+            "DIVISION items, PL/I `DECLARE`d structures). "
             "These are the schema of the system: use them to trace which program runs which, which "
             "dataset a job binds, and the shape of the records that flow between them. Extracted by "
             "the engine (`core/mainframe_boundary.py`) and carried in the master DB "

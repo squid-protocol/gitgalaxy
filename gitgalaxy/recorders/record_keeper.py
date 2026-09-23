@@ -455,7 +455,8 @@ class RecordKeeper:
         edge_kind 'call'/'exec'. The COBOL dataset bindings ride along on each
         file's own `dataset_bindings` and become dataset_data, and the DATA
         DIVISION item tree + FD record layouts (#3246) ride along on each file's
-        own `record_layouts` and become record_data.
+        own `record_layouts` and become record_data (PL/I DECLAREd structures
+        too, #3250).
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -863,6 +864,12 @@ class RecordKeeper:
         # off file_data with the same cascade-delete. `fd_name` is the FILE
         # SECTION `FD`/`SD` a `01` record binds to (NULL in WORKING-STORAGE /
         # LINKAGE); `section` is the owning DATA DIVISION section.
+        # #3250: PL/I DECLAREd structures share this table. Columns map where the
+        # meaning matches (PICTURE -> pic, the data type -> usage, the root's
+        # storage class -> section, DEFINED -> redefines, REFER -> occurs_depending_on,
+        # INIT -> value_literal); `attributes` carries the item's full attribute
+        # text for everything else (BASED(p), UNALIGNED, LIKE, POS, ...). NULL for
+        # COBOL, whose clauses all have a column.
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS record_data (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -883,9 +890,12 @@ class RecordKeeper:
                 redefines TEXT,
                 value_literal TEXT,
                 line_number INTEGER,
+                attributes TEXT,
                 FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
         """)
+        # #3250: heal a record_data table created before `attributes` existed.
+        _ensure_columns(cursor, "record_data", ["attributes TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_file_id ON record_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_record_snapshot ON record_data(repo_name, commit_hash);")
 
@@ -1842,6 +1852,7 @@ class RecordKeeper:
                 "redefines",
                 "value_literal",
                 "line_number",
+                "attributes",
             ),
             "record_layouts",
             lambda it: (
@@ -1859,6 +1870,7 @@ class RecordKeeper:
                 it.get("redefines"),
                 it.get("value"),
                 int(it.get("line", 0) or 0),
+                it.get("attributes"),
             ),
         )
 

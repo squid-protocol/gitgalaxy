@@ -297,3 +297,43 @@ def test_transaction_verdict_needs_explicit_validation(mini_repo):
     summary = rd.summarize_causes(validated)
     assert summary["unexplained"] == 0
     assert summary["by_cause"].get("key:engine defect") == 1
+
+
+# ==============================================================================
+# #3250: PL/I record layouts -- the key's independent reader vs the engine
+# ==============================================================================
+def _pli_row(old=(), db=()):
+    return {"file": "PLI/P.pli", "language": "pli", "pli_records": {"old": sorted(old), "db": sorted(db)}}
+
+
+def test_a_pli_record_delta_is_a_real_finding_not_a_stated_absence(mini_repo):
+    """The DB carries PL/I records now, so a disagreement between the two readers
+    is a parser defect on one side (unexplained until a validated key rules)."""
+    classified = rd.classify(mini_repo, [_pli_row(old=["REC.A", "REC.B"], db=["REC.A", "REC.C"])], None)
+    assert sorted((d["side"], d["value"], d["cause"]) for d in classified) == [
+        ("db", "REC.C", rd.UNEXPLAINED),
+        ("old", "REC.B", rd.UNEXPLAINED),
+    ]
+
+
+def test_pli_rows_stay_out_of_the_cobol_summary(mini_repo):
+    rows = [_pli_row(old=["REC.A"], db=["REC.A"])]
+    assert rd.flatten(rows) == []
+    assert rd.to_markdown({"repo": "r", "commit": "0" * 8}, rows).count("PLI/P.pli") == 0
+
+
+def test_pli_record_verdict_needs_explicit_validation(mini_repo):
+    """Drafted like COBOL records (#3246): a PL/I delta adjudicates only once the
+    file is signed off with `records_validated`. `REC.B` is a real leaf of the key
+    here, so the key reader is right and the engine has the gap."""
+    items = [
+        {"ordinal": 0, "parent": None, "level": 1, "name": "REC"},
+        {"ordinal": 1, "parent": 0, "level": 2, "name": "B"},
+    ]
+    key = {"programs": {}, "pli_programs": {"PLI/P.pli": {"records": items, "records_validated": False}}}
+    assert rd.summarize_causes(rd.classify(mini_repo, [_pli_row(old=["REC.B"])], key))["unexplained"] == 1
+
+    key["pli_programs"]["PLI/P.pli"]["records_validated"] = True
+    summary = rd.summarize_causes(rd.classify(mini_repo, [_pli_row(old=["REC.B"])], key))
+    assert summary["unexplained"] == 0
+    assert summary["by_cause"] == {"key:engine defect": 1}

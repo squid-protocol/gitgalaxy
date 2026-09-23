@@ -326,3 +326,58 @@ def test_data_items_reads_the_record_layout_independently(tmp_path):
         "CUST-FLAGS",
         "CUST-ALT",
     }
+
+
+# ==============================================================================
+# #3250: PL/I DECLARE record layouts -- the key's own reader
+# ==============================================================================
+def test_pli_reader_reads_the_raw_file_independently():
+    """Raw source in: the reader strips its own comments and numbered columns
+    73-80 (navikt/DSF), expands factoring and skips what is not storage."""
+    src = "\n".join(
+        [
+            f"{'    DCL                  /* FILE AND TABLES */':<72}00000110",
+            f"{'      1 REC BASED(P),':<72}00000120",
+            f"{'        2 KEY,':<72}00000130",
+            f"{'          3 (ID, TYPE) CHAR(5),':<72}00000140",
+            f"{'        2 BAL PIC ' + chr(39) + '9V99' + chr(39) + ';':<72}00000150",
+            "    DCL (ADDR, NULL) BUILTIN;  // a line comment",
+            "    DCL F FILE, PSAM2 EXTERNAL ENTRY, EV ENTRY VARIABLE;",
+            " %DECLARE MACROVAR CHARACTER;",
+            " %M: PROCEDURE(I) RETURNS(FIXED);",
+            "   DECLARE I FIXED;",
+            " %END M;",
+            "    DCL 1 B01 BASED(B01_PEKER), %INCLUDE P0019921;",
+        ]
+    )
+    items = ak.pli_data_items(src)
+    assert [(it["level"], it["name"], it["parent"]) for it in items] == [
+        (1, "REC", None),
+        (2, "KEY", 0),
+        (3, "ID", 1),
+        (3, "TYPE", 1),
+        (2, "BAL", 0),
+        (1, "EV", None),
+        (1, "B01", None),
+    ]
+    assert items[2]["attributes"] == "CHAR(5)"
+    assert items[4]["attributes"] == "PIC '9V99'"
+    assert items[1]["line"] == 3
+
+
+def test_pli_record_fields_are_dotted_leaf_paths():
+    items = ak.pli_data_items(" DCL 1 A, 2 B, 3 C CHAR(1), 2 * CHAR(2), 2 D FIXED; DCL E CHAR(1);")
+    assert ak.pli_record_fields(items) == {"A.B.C", "A.D", "E"}
+
+
+@pytest.mark.parametrize("key_path", KEYS, ids=lambda p: p.stem)
+def test_pli_key_entries_are_drafts_until_signed_off(key_path):
+    """PL/I layouts are committed drafted (`records_validated: false`); a drafted
+    field never adjudicates, so a sign-off is an explicit, reviewed edit."""
+    key = json.loads(key_path.read_text(encoding="utf-8"))
+    for rel, entry in key.get("pli_programs", {}).items():
+        assert rel.lower().endswith(ak.PLI_EXTS), rel
+        assert isinstance(entry["records_validated"], bool)
+        assert entry["verification"]["status"] in ("draft", "validated")
+        for it in entry["records"]:
+            assert {"ordinal", "parent", "level", "name", "attributes", "line"} <= set(it)

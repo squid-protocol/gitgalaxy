@@ -527,3 +527,21 @@ gate holds at its prior counts. The CBSA and zopeneditor answer keys carry the `
 with `transactions_validated: true`; carddemo stays `answer_key: null` (differential-only). Surfacing
 the transaction map in the audit/LLM reports (`audit_recorder`/`llm_recorder`) is the tracked
 follow-up under epic #3122 — it moves the golden master, so it ships on its own.
+
+## Update: PL/I DECLARE structures (#3250) — 2026-09-22
+
+PL/I `DECLARE`d structures now ride the `record_data` channel (a `pli` boundary dialect) and are a
+compared datum. No PL/I forge exists, so the compared side is the answer key's own PL/I reader
+(`cobol_answer_key.pli_data_items`: a tokenizer over the RAW file that strips its own comments and
+numbered columns 73-80, never the engine's PRISM stream). The unit is the dotted leaf path
+(`CUSTOMER_RECORD.CUSTOMER_KEY.CUST_ID`), reported as `pli_record` deltas and
+`pli_record_fields_key` / `_db` / `_agree` in the summary. A delta is `unexplained` (a real parser
+defect on one side, never `stated_absence`) until the file is signed off with `records_validated`.
+
+On zopeneditor-sample's four PL/I programs (now in its excerpt) the two agree 113/113, and the gate
+holds at 0 unexplained on every excerpt and every full corpus. Beyond the pinned corpora, both
+readers were run over navikt/DSF (1,473 fixed-format PL/I files): they agree on every file, 26,518
+leaf fields. The first run did not: the engine missed fields in 179 DSF files, because PRISM strips a
+trailing comment but not the column-73 sequence number after it, and two such orphaned numbers in a
+row hid the next `DCL`. The engine now skips any run of them.
+

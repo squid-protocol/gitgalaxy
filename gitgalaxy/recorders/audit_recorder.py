@@ -97,7 +97,7 @@ class AuditRecorder:
         return value
 
     def _mainframe_facts_block(self, file_data):
-        """The Named System Facts for one file (#3200/#3201/#3246), or {} if none.
+        """The Named System Facts for one file (#3200/#3201/#3246/#3250), or {} if none.
 
         The forensic report is the VERBOSE surface (unlike the token-optimized LLM
         brief, which shows only record roots), so this carries the FULL detail:
@@ -135,6 +135,8 @@ class AuditRecorder:
             ]
         records = file_data.get("record_layouts") or []
         if records:
+            # #3250: `Attributes` (PL/I's full attribute text) is added only when
+            # present, so a COBOL item -- whose clauses all have a key -- is unchanged.
             block["Record Layout"] = [
                 {
                     "Level": it.get("level"),
@@ -151,6 +153,7 @@ class AuditRecorder:
                     "Ordinal": it.get("ordinal"),
                     "Parent Ordinal": it.get("parent_ordinal"),
                     "Line": it.get("line", 0),
+                    **({"Attributes": it["attributes"]} if it.get("attributes") else {}),
                 }
                 for it in records
             ]

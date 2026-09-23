@@ -115,6 +115,58 @@ def test_a_pre_3246_db_loads_with_no_records(scanned, tmp_path):
     assert all(not f.records and not f.data_items for f in ir.files.values())
 
 
+# #3250: PL/I DECLAREd structures ride the same record_data spine. A REAL scan,
+# so the top-level `boundary_extraction` declaration is proven to survive the
+# config pipeline (language_lens + PROJECT_OVERRIDES) -- the #2806 trap unit
+# tests that build from LANGUAGE_DEFINITIONS cannot see.
+CUSTPGM = """\
+ CUSTPGM: PROC OPTIONS(MAIN);
+   DCL 1 CUSTOMER_RECORD  BASED(ADDR(CUSTFILE_RECORD)),
+         2 CUSTOMER_KEY,
+           3 CUST_ID         CHAR(5),
+         2 ACCT_BALANCE      PIC '9999999V99',
+         2 ORDERS(12)        FIXED DEC(7,2);
+   DCL TRAN_COMMENT CHAR(1) DEFINED CUSTFILE_RECORD;
+ END CUSTPGM;
+"""
+
+
+@pytest.fixture(scope="module")
+def scanned_pli(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_pli")
+    repo = base / "plirepo"
+    (repo / "PLI").mkdir(parents=True)
+    (repo / "PLI" / "CUSTPGM.pli").write_text(CUSTPGM, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_pli_structures_load_as_a_record_tree(scanned_pli):
+    ef = load_galaxy_ir(scanned_pli).files["PLI/CUSTPGM.pli"]
+    assert ef.language == "pli"
+    assert [r.name for r in ef.records] == ["CUSTOMER_RECORD", "TRAN_COMMENT"]
+    root = ef.records[0]
+    assert (root.section, root.attributes, root.is_group) == ("BASED", "BASED(ADDR(CUSTFILE_RECORD))", True)
+    key, balance, orders = root.children
+    assert [c.name for c in key.children] == ["CUST_ID"]
+    # A PL/I elementary item has its type in `usage` and no PIC: it is not a group.
+    cust_id = key.children[0]
+    assert (cust_id.usage, cust_id.pic, cust_id.is_group) == ("CHAR(5)", None, False)
+    assert (balance.pic, balance.is_group) == ("9999999V99", False)
+    assert (orders.usage, orders.occurs, orders.attributes) == ("FIXED DEC(7,2)", 12, "(12) FIXED DEC(7,2)")
+    assert ef.records[1].redefines == "CUSTFILE_RECORD"
+
+
+def test_a_pre_3250_db_loads_pli_records_without_attributes(scanned_pli, tmp_path):
+    """A record_data table written before `attributes` existed still loads."""
+    copy = tmp_path / "old.db"
+    shutil.copy(scanned_pli, copy)
+    with sqlite3.connect(copy) as conn:
+        conn.execute("ALTER TABLE record_data DROP COLUMN attributes")
+    ef = load_galaxy_ir(copy).files["PLI/CUSTPGM.pli"]
+    assert [r.name for r in ef.records] == ["CUSTOMER_RECORD", "TRAN_COMMENT"]
+    assert all(item.attributes is None for item in ef.data_items)
+
+
 def test_inventory_spans_the_mainframe_family(scanned):
     _, db = scanned
     ir = load_galaxy_ir(db)

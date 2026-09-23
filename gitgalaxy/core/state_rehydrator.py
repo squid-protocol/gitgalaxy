@@ -43,6 +43,12 @@ def _has_table(cursor: sqlite3.Cursor, name: str) -> bool:
     return cursor.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?", (name,)).fetchone() is not None
 
 
+def _has_column(cursor, table: str, column: str) -> bool:
+    """Whether `table` carries `column` -- a baseline written before a column was
+    added (#3250: record_data.attributes) is restored with that column as NULL."""
+    return any(row[1] == column for row in cursor.execute(f"PRAGMA table_info({table})"))
+
+
 def _restore_child_table(cursor, repo_name, baseline_hash, table, select_sql, to_payload) -> dict:
     """Restore one per-file fact channel's payload for unchanged files (#3200/#3201/#3246).
 
@@ -402,16 +408,22 @@ class StateRehydrator:
                     },
                 )
                 # Aliased to the extractor's own payload key names (level_number ->
-                # level, item_name -> name, value_literal -> value).
+                # level, item_name -> name, value_literal -> value). `attributes`
+                # (#3250, PL/I) is NULL on a baseline written before it existed.
+                attributes_col = (
+                    "rd.attributes"
+                    if _has_table(cursor, "record_data") and _has_column(cursor, "record_data", "attributes")
+                    else "NULL"
+                )
                 records_by_file = _restore_child_table(
                     cursor,
                     repo_name,
                     baseline_hash,
                     "record_data",
-                    "SELECT fd.file_path AS _fp, rd.section, rd.fd_name, rd.ordinal, rd.parent_ordinal, "
+                    "SELECT fd.file_path AS _fp, rd.section, rd.fd_name, rd.ordinal, rd.parent_ordinal, "  # noqa: S608 -- attributes_col is one of two literals; values are bound
                     "rd.level_number AS level, rd.item_name AS name, rd.pic, rd.usage, rd.occurs_min, "
                     "rd.occurs_max, rd.occurs_depending_on, rd.redefines, rd.value_literal AS value, "
-                    "rd.line_number AS line "
+                    f"rd.line_number AS line, {attributes_col} AS attributes "
                     "FROM record_data rd JOIN file_data fd ON rd.file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY rd.file_id, rd.ordinal",
                     lambda r: {
@@ -429,6 +441,7 @@ class StateRehydrator:
                         "redefines": r["redefines"],
                         "value": r["value"],
                         "line": int(r["line"] or 0),
+                        "attributes": r["attributes"],
                     },
                 )
                 # #3211-followup: the CSD transaction definitions, restored per

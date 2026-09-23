@@ -15,6 +15,17 @@ before writing anything:
 | invocation (call graph) | #3200 | `core/mainframe_boundary.py` + `core/invocation_resolver.py` | `call_site_data` | `EngineFile.calls` |
 | dataset boundary/lineage | #3201 | `core/mainframe_boundary.py` | `dataset_data` | `EngineFile.datasets` |
 | DATA DIVISION record layouts | #3246 | `core/mainframe_boundary.py` | `record_data` | `EngineFile.records` |
+| PL/I DECLARE structures (a second dialect on an existing table) | #3250 | `core/mainframe_boundary.py` (`_pli_records`) | `record_data` (+ `attributes`) | `EngineFile.records` |
+
+A **sibling dialect feeding an existing table** (#3250) is the cheapest channel: a new extractor, a
+new `boundary_extraction` value, and the spine as built. Map its attributes onto the existing
+columns only where the meaning is the same (PL/I `DEFINED` is COBOL `REDEFINES`; `BASED(p)` names a
+pointer, so it is not), and carry the rest in one generic text column rather than forcing it into a
+column shaped for the first dialect. A new column needs `_ensure_columns` (an older DB heals on the
+next record) and a column-gated read in the rehydrator and reader (an older baseline still loads).
+If no forge reads the new dialect, the differential's compared side is an INDEPENDENT reader in the
+answer key -- a separately written parser over the raw file -- which is also how #3250 caught an
+engine gap (orphaned sequence numbers hid 179 of navikt/DSF's 1,473 files) before it shipped.
 
 ## Is it a fact channel? (the decision that comes first)
 

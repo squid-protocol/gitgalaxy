@@ -51,6 +51,11 @@ Since #3355 each CICS LINK/XCTL/RETURN TRANSID site's COMMAREA operands are one
 too: no forge reads them, so the compared side is the key's own reader
 (cics_commareas) vs call_site_data's commarea/commarea_length/
 commarea_datalength, per COBOL program, as `commarea` deltas.
+Since #3351-#3354 the EXEC CICS commands that name a resource (FILE I/O, SEND/
+RECEIVE MAP, TS/TD queues, containers and passed channels) are one too, again
+with no forge reading them: the key's own EXEC CICS reader (cics_resource_ops)
+vs the engine's cics_resource_data, per COBOL source, as `cics_resource` deltas
+keyed on line, verb, kind, resolved name, qualifier and INTO/FROM record.
 The gate counts what neither explains -- `unexplained` --
 and fails when a run adds any over a committed per-corpus baseline.
 
@@ -134,6 +139,9 @@ UNEXPLAINED = "unexplained"
 # member, sharing no code with the engine, so it adjudicates once `dsns_validated`.
 # The CSD resource definitions (#3356) are read by the key's own raw-deck CSD
 # tokenizer, so a `csd_resource` delta adjudicates once `resources_validated`.
+# The CICS resource operations (#3351-#3354) are read by the key's own EXEC CICS
+# reader over the raw source, so a `cics_resource` delta adjudicates once a file
+# is `cics_validated`.
 INDEPENDENT_FIELDS = {
     "program_id",
     "copybook",
@@ -145,6 +153,7 @@ INDEPENDENT_FIELDS = {
     "jcl_dsn",
     "csd_resource",
     "commarea",
+    "cics_resource",
 }
 
 
@@ -392,6 +401,21 @@ def compare_commareas(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
     return rows
 
 
+def compare_cics(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
+    """#3351-#3354: one row per COBOL source with an EXEC CICS resource operation on
+    either side -- the key's independent reader (`old`; there is no forge) vs
+    cics_resource_data (`db`). Values are `L<line> VERB KIND NAME q=.. CLAUSE=REC`."""
+    rows = []
+    for ef in sorted(ir.files.values(), key=lambda f: f.file_path):
+        if ef.language != "cobol":
+            continue
+        old = ak.cics_resource_keys(ak.cics_resource_ops(repo / ef.file_path))
+        db = ak.cics_resource_keys([ak.engine_cics_row(op) for op in ef.cics_resources])
+        if old or db:
+            rows.append({"file": ef.file_path, "language": "cics", "cics": {"old": sorted(old), "db": sorted(db)}})
+    return rows
+
+
 def _cobol_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [r for r in rows if r.get("language", "cobol") == "cobol"]
 
@@ -475,6 +499,7 @@ def compare(repo: Path, ir: GalaxyIR) -> list[dict[str, Any]]:
         + compare_jcl(repo, ir)
         + compare_csd(repo, ir)
         + compare_commareas(repo, ir)
+        + compare_cics(repo, ir)
     )
 
 
@@ -486,6 +511,7 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
     jcl = [r for r in rows if r.get("language") == "jcl"]
     csd = [r for r in rows if r.get("language") == "csd_deck"]
     commarea = [r for r in rows if r.get("language") == "commarea"]
+    cics = [r for r in rows if r.get("language") == "cics"]
     rows = _cobol_rows(rows)
 
     def count(pred) -> int:
@@ -543,6 +569,10 @@ def summarize(ir: GalaxyIR, rows: list[dict[str, Any]]) -> dict[str, Any]:
         "commareas_key": sum(len(r["commareas"]["old"]) for r in commarea),
         "commareas_db": sum(len(r["commareas"]["db"]) for r in commarea),
         "commareas_agree": sum(len(set(r["commareas"]["old"]) & set(r["commareas"]["db"])) for r in commarea),
+        "cics_files": len(cics),
+        "cics_ops_key": sum(len(r["cics"]["old"]) for r in cics),
+        "cics_ops_db": sum(len(r["cics"]["db"]) for r in cics),
+        "cics_ops_agree": sum(len(set(r["cics"]["old"]) & set(r["cics"]["db"])) for r in cics),
     }
 
 
@@ -626,6 +656,14 @@ def flatten(rows: list[dict[str, Any]]) -> list[Delta]:
             old, db = set(ca["old"]), set(ca["db"])
             deltas += [{"program": prog, "field": "commarea", "side": "old", "value": v} for v in sorted(old - db)]
             deltas += [{"program": prog, "field": "commarea", "side": "db", "value": v} for v in sorted(db - old)]
+            continue
+
+        if r.get("language") == "cics":
+            # #3351-#3354: EXEC CICS resource operations, the key's reader vs the engine.
+            cr = r["cics"]
+            old, db = set(cr["old"]), set(cr["db"])
+            deltas += [{"program": prog, "field": "cics_resource", "side": "old", "value": v} for v in sorted(old - db)]
+            deltas += [{"program": prog, "field": "cics_resource", "side": "db", "value": v} for v in sorted(db - old)]
             continue
         pid = r["program_id"]
         # Only the genuine mismatch. A db file legitimately carrying several
@@ -811,6 +849,12 @@ def _classify_cause(d: Delta, ctx: dict[str, Any]) -> str:
         # #3355: two independent readers disagree on a site's COMMAREA operands --
         # a real defect on one side. Left to the validated key.
         return UNEXPLAINED
+
+    if field == "cics_resource":
+        # #3351-#3354: two independent EXEC CICS readers disagree on a command, its
+        # resolved name or its record -- a real defect on one side. The DB carries
+        # these operations, so never stated_absence. Left to the validated key.
+        return UNEXPLAINED
     if field == "jcl_dsn":
         # #3345: two independent JCL readers disagree on a binding or on how its
         # DSN resolved -- a real defect on one side. Left to the validated key.
@@ -859,6 +903,18 @@ def _key_verdict(d: Delta, key: Optional[dict[str, Any]]) -> Optional[dict[str, 
         if not job or not job.get("dsns_validated"):
             return None
         present = d["value"] in ak.jcl_dsn_values(job.get("bindings", []))
+        verdict = (
+            ("old-parser defect" if present else "engine defect")
+            if d["side"] == "db"
+            else ("engine defect" if present else "old-parser defect")
+        )
+        return {"verdict": verdict, "confidence": "independent", "decided": True}
+    if d["field"] == "cics_resource":
+        # #3351-#3354: drafted, so it adjudicates only once the file is `cics_validated`.
+        cf = key.get("cics_resources", {}).get(d["program"])
+        if not cf or not cf.get("cics_validated"):
+            return None
+        present = d["value"] in ak.cics_resource_keys(cf.get("operations", []))
         verdict = (
             ("old-parser defect" if present else "engine defect")
             if d["side"] == "db"
@@ -964,6 +1020,7 @@ def classify(repo: Path, rows: list[dict[str, Any]], key: Optional[dict[str, Any
             "jcl_dsn",
             "csd_resource",
             "commarea",
+            "cics_resource",
         ):
             # The COBOL fixed-format context is meaningless for a PL/I or JCL file, and a
             # DECLARE TABLE column delta (#3344) has no mechanism cause to read.

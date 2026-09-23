@@ -59277,5 +59277,1087 @@
         "notes": []
       }
     }
+  },
+  "cics_resources": {
+    "src/base/cobol_src/ABNDPROC.cbl": {
+      "operations": [
+        {
+          "verb": "WRITE",
+          "kind": "FILE",
+          "access": "write",
+          "name": "ABNDFILE",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "FROM",
+          "record": "WS-ABND-AREA",
+          "line": 141
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CAC.cbl": {
+      "operations": [
+        {
+          "verb": "RECEIVE",
+          "kind": "MAP",
+          "access": "read",
+          "name": "BNK1CA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CAM",
+          "record_clause": "INTO",
+          "record": "BNK1CAI",
+          "line": 356
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1CA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CAM",
+          "record_clause": "FROM",
+          "record": "BNK1CAO",
+          "line": 966
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1CA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CAM",
+          "record_clause": "FROM",
+          "record": "BNK1CAO",
+          "line": 1040
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1CA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CAM",
+          "record_clause": "FROM",
+          "record": "BNK1CAO",
+          "line": 1117
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CCA.cbl": {
+      "operations": [
+        {
+          "verb": "RECEIVE",
+          "kind": "MAP",
+          "access": "read",
+          "name": "BNK1ACC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1ACC",
+          "record_clause": "INTO",
+          "record": "BNK1ACCI",
+          "line": 333
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1ACC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1ACC",
+          "record_clause": "FROM",
+          "record": "BNK1ACCO",
+          "line": 622
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1ACC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1ACC",
+          "record_clause": "FROM",
+          "record": "BNK1ACCO",
+          "line": 696
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1ACC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1ACC",
+          "record_clause": "FROM",
+          "record": "BNK1ACCO",
+          "line": 772
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CCS.cbl": {
+      "operations": [
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1CCM",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": null,
+          "record": null,
+          "line": 236
+        },
+        {
+          "verb": "RECEIVE",
+          "kind": "MAP",
+          "access": "read",
+          "name": "BNK1CC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CCM",
+          "record_clause": "INTO",
+          "record": "BNK1CCI",
+          "line": 500
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1CC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CCM",
+          "record_clause": "FROM",
+          "record": "BNK1CCO",
+          "line": 1286
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1CC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CCM",
+          "record_clause": "FROM",
+          "record": "BNK1CCO",
+          "line": 1364
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1CC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CCM",
+          "record_clause": "FROM",
+          "record": "BNK1CCO",
+          "line": 1441
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CRA.cbl": {
+      "operations": [
+        {
+          "verb": "RECEIVE",
+          "kind": "MAP",
+          "access": "read",
+          "name": "BNK1CD",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CDM",
+          "record_clause": "INTO",
+          "record": "BNK1CDI",
+          "line": 370
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1CD",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CDM",
+          "record_clause": "FROM",
+          "record": "BNK1CDO",
+          "line": 649
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1CD",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CDM",
+          "record_clause": "FROM",
+          "record": "BNK1CDO",
+          "line": 723
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1CD",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1CDM",
+          "record_clause": "FROM",
+          "record": "BNK1CDO",
+          "line": 797
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1DAC.cbl": {
+      "operations": [
+        {
+          "verb": "RECEIVE",
+          "kind": "MAP",
+          "access": "read",
+          "name": "BNK1DA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1DAM",
+          "record_clause": "INTO",
+          "record": "BNK1DAI",
+          "line": 426
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1DA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1DAM",
+          "record_clause": "FROM",
+          "record": "BNK1DAO",
+          "line": 827
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1DA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1DAM",
+          "record_clause": "FROM",
+          "record": "BNK1DAO",
+          "line": 906
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1DA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1DAM",
+          "record_clause": "FROM",
+          "record": "BNK1DAO",
+          "line": 980
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1DCS.cbl": {
+      "operations": [
+        {
+          "verb": "RECEIVE",
+          "kind": "MAP",
+          "access": "read",
+          "name": "BNK1DC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1DCM",
+          "record_clause": "INTO",
+          "record": "BNK1DCI",
+          "line": 597
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1DC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1DCM",
+          "record_clause": "FROM",
+          "record": "BNK1DCO",
+          "line": 1410
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1DC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1DCM",
+          "record_clause": "FROM",
+          "record": "BNK1DCO",
+          "line": 1487
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1DC",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1DCM",
+          "record_clause": "FROM",
+          "record": "BNK1DCO",
+          "line": 1564
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1TFN.cbl": {
+      "operations": [
+        {
+          "verb": "RECEIVE",
+          "kind": "MAP",
+          "access": "read",
+          "name": "BNK1TF",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1TFM",
+          "record_clause": "INTO",
+          "record": "BNK1TFI",
+          "line": 356
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1TF",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1TFM",
+          "record_clause": "FROM",
+          "record": "BNK1TFO",
+          "line": 672
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1TF",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1TFM",
+          "record_clause": "FROM",
+          "record": "BNK1TFO",
+          "line": 746
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1TF",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1TFM",
+          "record_clause": "FROM",
+          "record": "BNK1TFO",
+          "line": 820
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1UAC.cbl": {
+      "operations": [
+        {
+          "verb": "RECEIVE",
+          "kind": "MAP",
+          "access": "read",
+          "name": "BNK1UA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1UAM",
+          "record_clause": "INTO",
+          "record": "BNK1UAI",
+          "line": 419
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1UA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1UAM",
+          "record_clause": "FROM",
+          "record": "BNK1UAO",
+          "line": 1074
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1UA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1UAM",
+          "record_clause": "FROM",
+          "record": "BNK1UAO",
+          "line": 1150
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1UA",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1UAM",
+          "record_clause": "FROM",
+          "record": "BNK1UAO",
+          "line": 1225
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNKMENU.cbl": {
+      "operations": [
+        {
+          "verb": "RECEIVE",
+          "kind": "MAP",
+          "access": "read",
+          "name": "BNK1ME",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1MAI",
+          "record_clause": "INTO",
+          "record": "BNK1MEI",
+          "line": 274
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1ME",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1MAI",
+          "record_clause": "FROM",
+          "record": "BNK1MEO",
+          "line": 979
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1ME",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1MAI",
+          "record_clause": "FROM",
+          "record": "BNK1MEO",
+          "line": 1053
+        },
+        {
+          "verb": "SEND",
+          "kind": "MAP",
+          "access": "write",
+          "name": "BNK1ME",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": "BNK1MAI",
+          "record_clause": "FROM",
+          "record": "BNK1MEO",
+          "line": 1129
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY1.cbl": {
+      "operations": [
+        {
+          "verb": "GET",
+          "kind": "CONTAINER",
+          "access": "read",
+          "name": "CIPA",
+          "resolution": "move",
+          "candidates": null,
+          "qualifier": "CIPCREDCHANN",
+          "record_clause": "INTO",
+          "record": "WS-CONT-IN",
+          "line": 192
+        },
+        {
+          "verb": "PUT",
+          "kind": "CONTAINER",
+          "access": "write",
+          "name": "CIPA",
+          "resolution": "move",
+          "candidates": null,
+          "qualifier": "CIPCREDCHANN",
+          "record_clause": "FROM",
+          "record": "WS-CONT-IN",
+          "line": 225
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY2.cbl": {
+      "operations": [
+        {
+          "verb": "GET",
+          "kind": "CONTAINER",
+          "access": "read",
+          "name": "CIPB",
+          "resolution": "move",
+          "candidates": null,
+          "qualifier": "CIPCREDCHANN",
+          "record_clause": "INTO",
+          "record": "WS-CONT-IN",
+          "line": 193
+        },
+        {
+          "verb": "PUT",
+          "kind": "CONTAINER",
+          "access": "write",
+          "name": "CIPB",
+          "resolution": "move",
+          "candidates": null,
+          "qualifier": "CIPCREDCHANN",
+          "record_clause": "FROM",
+          "record": "WS-CONT-IN",
+          "line": 225
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY3.cbl": {
+      "operations": [
+        {
+          "verb": "GET",
+          "kind": "CONTAINER",
+          "access": "read",
+          "name": "CIPC",
+          "resolution": "move",
+          "candidates": null,
+          "qualifier": "CIPCREDCHANN",
+          "record_clause": "INTO",
+          "record": "WS-CONT-IN",
+          "line": 191
+        },
+        {
+          "verb": "PUT",
+          "kind": "CONTAINER",
+          "access": "write",
+          "name": "CIPC",
+          "resolution": "move",
+          "candidates": null,
+          "qualifier": "CIPCREDCHANN",
+          "record_clause": "FROM",
+          "record": "WS-CONT-IN",
+          "line": 224
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY4.cbl": {
+      "operations": [
+        {
+          "verb": "GET",
+          "kind": "CONTAINER",
+          "access": "read",
+          "name": "CIPD",
+          "resolution": "move",
+          "candidates": null,
+          "qualifier": "CIPCREDCHANN",
+          "record_clause": "INTO",
+          "record": "WS-CONT-IN",
+          "line": 194
+        },
+        {
+          "verb": "PUT",
+          "kind": "CONTAINER",
+          "access": "write",
+          "name": "CIPD",
+          "resolution": "move",
+          "candidates": null,
+          "qualifier": "CIPCREDCHANN",
+          "record_clause": "FROM",
+          "record": "WS-CONT-IN",
+          "line": 227
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY5.cbl": {
+      "operations": [
+        {
+          "verb": "GET",
+          "kind": "CONTAINER",
+          "access": "read",
+          "name": "CIPE",
+          "resolution": "move",
+          "candidates": null,
+          "qualifier": "CIPCREDCHANN",
+          "record_clause": "INTO",
+          "record": "WS-CONT-IN",
+          "line": 192
+        },
+        {
+          "verb": "PUT",
+          "kind": "CONTAINER",
+          "access": "write",
+          "name": "CIPE",
+          "resolution": "move",
+          "candidates": null,
+          "qualifier": "CIPCREDCHANN",
+          "record_clause": "FROM",
+          "record": "WS-CONT-IN",
+          "line": 227
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRECUST.cbl": {
+      "operations": [
+        {
+          "verb": "PUT",
+          "kind": "CONTAINER",
+          "access": "write",
+          "name": null,
+          "resolution": "ambiguous",
+          "candidates": "CIPA,CIPB,CIPC,CIPD,CIPE,CIPF,CIPG,CIPH,CIPI",
+          "qualifier": "CIPCREDCHANN",
+          "record_clause": "FROM",
+          "record": "DFHCOMMAREA",
+          "line": 557
+        },
+        {
+          "verb": "RUN",
+          "kind": "CHANNEL",
+          "access": "pass",
+          "name": "CIPCREDCHANN",
+          "resolution": "move",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": null,
+          "record": null,
+          "line": 582
+        },
+        {
+          "verb": "GET",
+          "kind": "CONTAINER",
+          "access": "read",
+          "name": null,
+          "resolution": "ambiguous",
+          "candidates": "CIPA,CIPB,CIPC,CIPD,CIPE,CIPF,CIPG,CIPH,CIPI",
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "WS-CHILD-DATA",
+          "line": 892
+        },
+        {
+          "verb": "WRITE",
+          "kind": "FILE",
+          "access": "write",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "FROM",
+          "record": "OUTPUT-DATA",
+          "line": 1029
+        },
+        {
+          "verb": "WRITE",
+          "kind": "FILE",
+          "access": "write",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "FROM",
+          "record": "OUTPUT-DATA",
+          "line": 1048
+        },
+        {
+          "verb": "READ",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "CUSTOMER-CONTROL",
+          "line": 1075
+        },
+        {
+          "verb": "REWRITE",
+          "kind": "FILE",
+          "access": "update",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "FROM",
+          "record": "CUSTOMER-CONTROL",
+          "line": 1086
+        },
+        {
+          "verb": "READ",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "CUSTOMER-CONTROL",
+          "line": 1290
+        },
+        {
+          "verb": "READ",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "CUSTOMER-CONTROL",
+          "line": 1306
+        },
+        {
+          "verb": "REWRITE",
+          "kind": "FILE",
+          "access": "update",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "FROM",
+          "record": "CUSTOMER-CONTROL",
+          "line": 1326
+        },
+        {
+          "verb": "REWRITE",
+          "kind": "FILE",
+          "access": "update",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "FROM",
+          "record": "CUSTOMER-CONTROL",
+          "line": 1340
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CUSTCTRL.cbl": {
+      "operations": [
+        {
+          "verb": "READ",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "DFHCOMMAREA",
+          "line": 162
+        },
+        {
+          "verb": "READ",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "DFHCOMMAREA",
+          "line": 178
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELCUS.cbl": {
+      "operations": [
+        {
+          "verb": "READ",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "OUTPUT-CUST-DATA",
+          "line": 353
+        },
+        {
+          "verb": "READ",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "OUTPUT-CUST-DATA",
+          "line": 371
+        },
+        {
+          "verb": "DELETE",
+          "kind": "FILE",
+          "access": "delete",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": null,
+          "record": null,
+          "line": 491
+        },
+        {
+          "verb": "DELETE",
+          "kind": "FILE",
+          "access": "delete",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": null,
+          "record": null,
+          "line": 508
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQCUST.cbl": {
+      "operations": [
+        {
+          "verb": "READ",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "OUTPUT-DATA",
+          "line": 265
+        },
+        {
+          "verb": "READ",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "OUTPUT-DATA",
+          "line": 290
+        },
+        {
+          "verb": "STARTBR",
+          "kind": "FILE",
+          "access": "browse",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": null,
+          "record": null,
+          "line": 574
+        },
+        {
+          "verb": "STARTBR",
+          "kind": "FILE",
+          "access": "browse",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": null,
+          "record": null,
+          "line": 589
+        },
+        {
+          "verb": "READPREV",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "OUTPUT-DATA",
+          "line": 609
+        },
+        {
+          "verb": "READPREV",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "OUTPUT-DATA",
+          "line": 625
+        },
+        {
+          "verb": "ENDBR",
+          "kind": "FILE",
+          "access": "browse",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": null,
+          "record": null,
+          "line": 642
+        },
+        {
+          "verb": "ENDBR",
+          "kind": "FILE",
+          "access": "browse",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": null,
+          "record": null,
+          "line": 656
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/UPDCUST.cbl": {
+      "operations": [
+        {
+          "verb": "READ",
+          "kind": "FILE",
+          "access": "read",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "INTO",
+          "record": "WS-CUST-DATA",
+          "line": 220
+        },
+        {
+          "verb": "REWRITE",
+          "kind": "FILE",
+          "access": "update",
+          "name": "CUSTOMER",
+          "resolution": "literal",
+          "candidates": null,
+          "qualifier": null,
+          "record_clause": "FROM",
+          "record": "WS-CUST-DATA",
+          "line": 294
+        }
+      ],
+      "cics_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

@@ -500,3 +500,58 @@ def test_bms_key_entries_are_drafts_until_signed_off(key_path):
         assert entry["verification"]["status"] in ("draft", "validated")
         for it in entry["fields"]:
             assert set(ak.BMS_ITEM_KEYS) | {"line"} <= set(it)
+
+
+# ==============================================================================
+# #3351-#3354: EXEC CICS resource operations -- the key's own reader
+# ==============================================================================
+def test_cics_reader_reads_the_raw_file_independently(tmp_path):
+    """Raw fixed-format source in: sequence numbers in 1-6 and 73-80, a comment
+    line carrying a command, a DISPLAY literal naming one, a VALUE on the line after
+    its PIC (carddemo), a single MOVEd container name and an ambiguous one (CBSA)."""
+    src = "\n".join(
+        [
+            "000100 IDENTIFICATION DIVISION.",
+            "000200 PROGRAM-ID. INQ.",
+            "000300 WORKING-STORAGE SECTION.",
+            f"{'000400    05 LIT-ACCTFILENAME          PIC X(8)':<72}00040000",
+            "000500                                  VALUE 'ACCTDAT '.",
+            "000600 PROCEDURE DIVISION.",
+            "000700*    EXEC CICS READ FILE('OLDFILE') END-EXEC",
+            "000800     DISPLAY 'EXEC CICS WRITEQ TS QUEUE(X) failed'.",
+            f"{'000900     EXEC CICS READ DATASET (LIT-ACCTFILENAME)':<72}00090000",
+            "001000          INTO (ACCOUNT-RECORD) RESP(WS-RESP) END-EXEC.",
+            "001100     MOVE 'CIPA' TO WS-CONT.",
+            "001200     MOVE 'CIPCREDCHANN' TO WS-CHAN.",
+            "001300     MOVE 'X1' TO WS-AMB.",
+            "001400     MOVE 'X2' TO WS-AMB.",
+            "001500     EXEC CICS GET CONTAINER(WS-CONT) CHANNEL(WS-CHAN)",
+            "001600          INTO(WS-IN) END-EXEC.",
+            "001700     EXEC CICS PUT CONTAINER(WS-AMB) FROM(WS-IN) END-EXEC.",
+            "001800     EXEC CICS WRITEQ TD QUEUE('JOBS') FROM(JCL-REC) END-EXEC.",
+            "001900     EXEC CICS SEND MAP('CUSTA') MAPSET('CUSTM') FROM(CUSTAO)",
+            "002000          ERASE END-EXEC.",
+        ]
+    )
+    path = tmp_path / "INQ.cbl"
+    path.write_text(src, encoding="utf-8")
+    assert ak.cics_resource_keys(ak.cics_resource_ops(path)) == {
+        "L9 READ FILE ACCTDAT q=- INTO=ACCOUNT-RECORD",
+        "L15 GET CONTAINER CIPA q=CIPCREDCHANN INTO=WS-IN",
+        "L17 PUT CONTAINER <ambiguous:X1,X2> q=- FROM=WS-IN",
+        "L18 WRITEQ QUEUE JOBS q=TD FROM=JCL-REC",
+        "L19 SEND MAP CUSTA q=CUSTM FROM=CUSTAO",
+    }
+    read = ak.cics_resource_ops(path)[0]
+    assert (read["resolution"], read["access"]) == ("value", "read")
+
+
+@pytest.mark.parametrize("key_path", KEYS, ids=lambda p: p.stem)
+def test_cics_key_entries_are_drafts_until_signed_off(key_path):
+    key = json.loads(key_path.read_text(encoding="utf-8"))
+    for rel, entry in key.get("cics_resources", {}).items():
+        assert rel.lower().endswith(ak.CICS_EXTS), rel
+        assert isinstance(entry["cics_validated"], bool)
+        assert entry["verification"]["status"] in ("draft", "validated")
+        for op in entry["operations"]:
+            assert {"verb", "kind", "access", "name", "resolution", "qualifier", "record_clause", "line"} <= set(op)

@@ -244,6 +244,28 @@ class AuditRecorder:
                 }
                 for r in csd
             ]
+        cics = file_data.get("cics_resources") or []
+        if cics:
+            # #3351-#3354: EXEC CICS FILE/MAP/QUEUE/CONTAINER/CHANNEL operations,
+            # mirroring cics_resource_data.
+            block["CICS Resources"] = [
+                {
+                    "Verb": op.get("verb"),
+                    "Kind": op.get("kind"),
+                    "Access": op.get("access"),
+                    "Operand": op.get("operand"),
+                    "Name": op.get("name"),
+                    "Resolution": op.get("resolution"),
+                    "Candidates": op.get("candidates"),
+                    "Qualifier Operand": op.get("qualifier_operand"),
+                    "Qualifier": op.get("qualifier"),
+                    "Record Clause": op.get("record_clause"),
+                    "Record": op.get("record"),
+                    "Attributes": op.get("attributes"),
+                    "Line": op.get("line", 0),
+                }
+                for op in cics
+            ]
         return block
 
     def generate_report(

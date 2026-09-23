@@ -606,6 +606,36 @@ class StateRehydrator:
                     },
                 )
 
+                # #3351-#3354: CICS resource operations, aliased back to the
+                # extractor's payload keys. A pre-channel baseline restores nothing.
+                cics_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "cics_resource_data",
+                    "SELECT fd.file_path AS _fp, cr.verb, cr.resource_kind AS kind, cr.access, "
+                    "cr.name_operand AS operand, cr.resource_name AS name, cr.name_resolution AS resolution, "
+                    "cr.name_candidates AS candidates, cr.qualifier_operand, cr.qualifier, cr.record_clause, "
+                    "cr.record_name AS record, cr.attributes, cr.line_number AS line "
+                    "FROM cics_resource_data cr JOIN file_data fd ON cr.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cr.id",
+                    lambda r: {
+                        "verb": r["verb"],
+                        "kind": r["kind"],
+                        "access": r["access"],
+                        "operand": r["operand"],
+                        "name": r["name"],
+                        "resolution": r["resolution"],
+                        "candidates": r["candidates"],
+                        "qualifier_operand": r["qualifier_operand"],
+                        "qualifier": r["qualifier"],
+                        "record_clause": r["record_clause"],
+                        "record": r["record"],
+                        "attributes": r["attributes"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
@@ -616,6 +646,7 @@ class StateRehydrator:
                     node["sql_tables"] = sql_tables_by_file.get(rel_path, [])
                     node["screen_fields"] = screen_fields_by_file.get(rel_path, [])
                     node["csd_resources"] = csd_resources_by_file.get(rel_path, [])
+                    node["cics_resources"] = cics_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

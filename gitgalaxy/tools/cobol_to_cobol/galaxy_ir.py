@@ -41,7 +41,13 @@
 # (record_data.copy_members). The join itself -- the caller's record x, COPY
 # expanded, against the callee's LINKAGE DFHCOMMAREA, with byte lengths and a
 # field-shape comparison -- is computed HERE (GalaxyIR.commarea_contracts), not
-# stored: a length or shape mismatch is reported as data, never adjudicated.
+# stored: a length or shape mismatch is reported as data, never adjudicated,
+# and since #3351-#3354 every EXEC CICS command that names a resource
+# (cics_resource_data, per EngineFile.cics_resources): FILE I/O, SEND/RECEIVE
+# MAP (joined to the BMS map's screen fields by GalaxyIR.screen_bindings), TS/TD
+# queues and channels/containers (producer -> consumer programs by
+# GalaxyIR.queue_flows / container_flows), each name read through its VALUE
+# (or a single MOVEd literal) the way LINK targets are.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -338,6 +344,51 @@ class EngineCsdResource:
 
 
 @dataclass
+class EngineCicsResource:
+    """One EXEC CICS command that names a resource (#3351-#3354), from `cics_resource_data`.
+
+    `kind` is FILE | MAP | QUEUE | CONTAINER | CHANNEL and `access` its direction
+    (read | write | update | delete | browse | unlock | move | pass). `operand` is
+    the name operand as written; `name` its resolved value -- the literal, the
+    data-name's VALUE, or the single literal MOVEd to it (`resolution` says which)
+    -- and None when that is `ambiguous` (the MOVEd literals are in `candidates`),
+    `unresolved` or an `expression`. `qualifier` is a MAP's mapset, a QUEUE's
+    TS/TD, a CONTAINER's channel, or the program/transaction a CHANNEL is passed
+    to; `qualifier_operand` the same operand as written (None for a QUEUE).
+    `record` is the INTO/FROM/SET data area (`record_clause` says which).
+    """
+
+    verb: str
+    kind: str
+    access: str
+    operand: Optional[str]
+    name: Optional[str]
+    resolution: Optional[str]
+    candidates: Optional[str]
+    qualifier_operand: Optional[str]
+    qualifier: Optional[str]
+    record_clause: Optional[str]
+    record: Optional[str]
+    attributes: Optional[str]
+    line: int
+
+    @property
+    def names(self) -> set:
+        """Every name this command can touch: its resolved name, or its MOVE candidates."""
+        if self.name:
+            return {self.name.upper()}
+        return {c.upper() for c in (self.candidates or "").split(",") if c}
+
+    @property
+    def mapset(self) -> Optional[str]:
+        """A MAP's mapset: MAPSET as resolved, or -- when the command writes no
+        MAPSET -- the map name itself, which is the CICS default."""
+        if self.kind != "MAP":
+            return None
+        return self.qualifier if self.qualifier_operand else self.name
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -354,6 +405,7 @@ class EngineFile:
     sql_tables: list = field(default_factory=list)  # EngineSqlTable, #3344
     screen_fields: list = field(default_factory=list)  # EngineScreenField, flat source order, #3347
     csd_resources: list = field(default_factory=list)  # EngineCsdResource, source order, #3356
+    cics_resources: list = field(default_factory=list)  # EngineCicsResource, source order, #3351-#3354
 
     @property
     def is_program(self) -> bool:
@@ -1093,6 +1145,185 @@ class GalaxyIR:
                     entry["mismatches"] += _layout_mismatches(caller_layout, callee_layout)
         return out
 
+    # ---- #3351-#3354: CICS resource joins ------------------------------------
+    def cics_resource_users(self, kind: str) -> dict[str, dict[str, list]]:
+        """Resource name -> access -> the files that touch it, for one CICS `kind`
+        (FILE | MAP | QUEUE | CONTAINER | CHANNEL). A QUEUE is keyed `TS:NAME` /
+        `TD:NAME` (the two are separate namespaces). An `ambiguous` name counts
+        under each of its MOVE candidates; an unresolved one under no name."""
+        out: dict[str, dict[str, list]] = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for op in f.cics_resources:
+                if op.kind != kind:
+                    continue
+                for name in sorted(op.names):
+                    key = f"{op.qualifier}:{name}" if kind == "QUEUE" else name
+                    users = out.setdefault(key, {}).setdefault(op.access, [])
+                    if f.file_path not in users:
+                        users.append(f.file_path)
+        return dict(sorted(out.items()))
+
+    def screen_bindings(self) -> list:
+        """Program -> BMS map: every SEND/RECEIVE MAP joined to the map's screen fields.
+
+        Each entry: `program`, `verb`, `map`, `mapset` (MAPSET, or the map name when
+        the command writes none -- the CICS default), `record` (the FROM/INTO
+        symbolic map), `line`, `bms_file` (the one BMS source defining that
+        mapset's map, else None), `bms_candidates` (every such source) and
+        `fields` (that map's EngineScreenField rows when `bms_file` is set). A map
+        whose name did not resolve, or whose mapset no scanned BMS source defines,
+        still appears with `bms_file` None -- that is a finding, not noise.
+        """
+        index: dict[tuple[str, str], list] = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            if not f.screen_fields:
+                continue
+            by_ordinal = {sf.ordinal: sf for sf in f.screen_fields}
+            for sf in f.screen_fields:
+                if sf.kind != "map":
+                    continue
+                parent = by_ordinal.get(sf.parent_ordinal)
+                mapset = (parent.name or "") if parent is not None and parent.kind == "mapset" else ""
+                fields = [x for x in f.screen_fields if x.kind == "field" and x.parent_ordinal == sf.ordinal]
+                index.setdefault((mapset.upper(), (sf.name or "").upper()), []).append((f.file_path, fields))
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for op in f.cics_resources:
+                if op.kind != "MAP":
+                    continue
+                mapset = op.mapset
+                hits = index.get(((mapset or "").upper(), (op.name or "").upper()), []) if op.name and mapset else []
+                out.append(
+                    {
+                        "program": f.file_path,
+                        "verb": op.verb,
+                        "map": op.name,
+                        "mapset": mapset,
+                        "record": op.record,
+                        "line": op.line,
+                        "bms_file": hits[0][0] if len(hits) == 1 else None,
+                        "bms_candidates": [h[0] for h in hits],
+                        "fields": hits[0][1] if len(hits) == 1 else [],
+                    }
+                )
+        return out
+
+    def queue_flows(self) -> list:
+        """Program -> program data flow through a CICS TS/TD queue (#3353).
+
+        Producer P WRITEQs queue Q and consumer C READQs the same queue of the same
+        type (TS and TD are separate namespaces); P != C. Each flow: `queue`,
+        `queue_type`, `producer`, `consumer`. Joined on the resolved name (or a
+        MOVE candidate), so an unresolved queue name draws no flow."""
+        flows: list[dict] = []
+        for key, users in self.cics_resource_users("QUEUE").items():
+            qtype, name = key.split(":", 1)
+            # `users` is keyed by access direction: writers produce, readers consume.
+            producers = [f for access, files in users.items() if access == "write" for f in files]
+            consumers = [f for access, files in users.items() if access == "read" for f in files]
+            flows.extend(
+                {"queue": name, "queue_type": qtype, "producer": producer, "consumer": consumer}
+                for producer in producers
+                for consumer in consumers
+                if producer != consumer
+            )
+        return flows
+
+    def _program_file(self, name: Optional[str]) -> Optional[str]:
+        """The file declaring PROGRAM-ID `name`, when exactly one does."""
+        if not name:
+            return None
+        hits = [f.file_path for f in self.files.values() if name.upper() in {p.upper() for p in f.program_ids}]
+        return hits[0] if len(hits) == 1 else None
+
+    def _transaction_file(self, transid: Optional[str]) -> Optional[str]:
+        """The program file a transaction id routes to (CSD map), when exactly one."""
+        if not transid:
+            return None
+        hits = {
+            t.resolves_to
+            for f in self.files.values()
+            for t in f.transactions
+            if t.resolves_to and t.transid.upper() == transid.upper()
+        }
+        return next(iter(hits)) if len(hits) == 1 else None
+
+    def container_flows(self) -> list:
+        """Program -> program data flow through a CICS channel's containers (#3354).
+
+        Producer P PUTs (or MOVEs) container K and consumer C GETs K; P != C. Each
+        flow: `container`, `channel`, `producer`, `consumer` and `match`, how sure
+        the channel side is:
+          - `channel`: both commands name the same resolved channel;
+          - `handoff`: C reads its CURRENT channel (no CHANNEL operand) and P hands
+            a channel to C by LINK/XCTL PROGRAM(...) or START/RUN/RETURN TRANSID(...)
+            with that channel -- or, the return leg, P writes its current channel
+            and C handed P that channel; the invocation is resolved via PROGRAM-ID
+            / the CSD transaction map;
+          - `unverified`: the container names match but a channel is unresolved,
+            or C reads its current channel and no handoff from P was resolved.
+        Two resolved channels that differ never match. Containers match on the
+        resolved name or a MOVE candidate (an `ambiguous` producer that PUTs one
+        of CIPA..CIPI in a loop reaches every consumer of one of them).
+        """
+        handoffs: set[tuple[str, str, Optional[str]]] = set()
+        for f in self.files.values():
+            for op in f.cics_resources:
+                if op.kind != "CHANNEL":
+                    continue
+                if op.verb in ("LINK", "XCTL"):
+                    target = self._program_file(op.qualifier)
+                else:
+                    target = self._transaction_file(op.qualifier)
+                if target:
+                    handoffs.add((f.file_path, target, (op.name or "").upper() or None))
+        puts, gets = [], []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for op in f.cics_resources:
+                if op.kind != "CONTAINER" or not op.names:
+                    continue
+                channel = (op.qualifier or "").upper() or None
+                entry = (f.file_path, op.names, channel, op.qualifier_operand is not None)
+                if op.access in ("write", "move"):
+                    puts.append(entry)
+                elif op.access == "read":
+                    gets.append(entry)
+        rank = {"channel": 0, "handoff": 1, "unverified": 2}
+        best: dict[tuple[str, str, str], dict] = {}
+
+        def handed(src: str, dst: str, chan: Optional[str]) -> bool:
+            return any(a == src and b == dst and (chan is None or c in (None, chan)) for a, b, c in handoffs)
+
+        for p_file, p_names, p_chan, p_explicit in puts:
+            for c_file, c_names, c_chan, c_explicit in gets:
+                if p_file == c_file:
+                    continue
+                common = p_names & c_names
+                if not common:
+                    continue
+                if p_chan and c_chan:
+                    if p_chan != c_chan:
+                        continue
+                    match = "channel"
+                elif (not c_explicit and handed(p_file, c_file, p_chan)) or (
+                    not p_explicit and handed(c_file, p_file, c_chan)
+                ):
+                    match = "handoff"
+                else:
+                    match = "unverified"
+                for name in common:
+                    # One flow per (container, producer, consumer): the strongest match wins.
+                    prior = best.get((name, p_file, c_file))
+                    if prior is None or rank[match] < rank[prior["match"]]:
+                        best[(name, p_file, c_file)] = {
+                            "container": name,
+                            "channel": p_chan or c_chan,
+                            "producer": p_file,
+                            "consumer": c_file,
+                            "match": match,
+                        }
+        return [best[k] for k in sorted(best)]
+
     def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
         try:
             rel = path.resolve().relative_to(target_root.resolve()).as_posix()
@@ -1563,6 +1794,34 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         program=row[13],
                         attributes=row[14],
                         line=int(row[15] or 0),
+                    )
+                )
+        # #3351-#3354: CICS resource operations. A pre-channel database has no such
+        # table, so a missing table is "no CICS resources", never an error.
+        if _has_table(cur, "cics_resource_data"):
+            for row in cur.execute(
+                "SELECT file_id, verb, resource_kind, access, name_operand, resource_name, name_resolution, "
+                "name_candidates, qualifier_operand, qualifier, record_clause, record_name, attributes, line_number "
+                "FROM cics_resource_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] not in by_id:
+                    continue
+                by_id[row[0]].cics_resources.append(
+                    EngineCicsResource(
+                        verb=row[1] or "",
+                        kind=row[2] or "",
+                        access=row[3] or "",
+                        operand=row[4],
+                        name=row[5],
+                        resolution=row[6],
+                        candidates=row[7],
+                        qualifier_operand=row[8],
+                        qualifier=row[9],
+                        record_clause=row[10],
+                        record=row[11],
+                        attributes=row[12],
+                        line=int(row[13] or 0),
                     )
                 )
     finally:

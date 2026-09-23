@@ -562,6 +562,7 @@ class LLMRecorder:
                 + len(f.get("sql_tables") or [])  # #3344
                 + len(f.get("screen_fields") or [])  # #3347
                 + len(f.get("csd_resources") or [])  # #3356
+                + len(f.get("cics_resources") or [])  # #3351-#3354
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -604,6 +605,18 @@ class LLMRecorder:
             lines.append(
                 f"- **CICS resources:** `{total_csd}` CSD `DEFINE` records (FILE→DSNAME, TDQUEUE, "
                 "DB2TRAN→DB2ENTRY→PLAN, MAPSET, LIBRARY, ...), full attributes in `csd_resource_data`.\n"
+            )
+
+        # #3351-#3354: named only when present, so a scan without CICS is unchanged.
+        cics_ops = [op for f in carriers for op in (f.get("cics_resources") or [])]
+        if cics_ops:
+            by_kind: dict[str, int] = {}
+            for op in cics_ops:
+                by_kind[op.get("kind") or "?"] = by_kind.get(op.get("kind") or "?", 0) + 1
+            kinds = ", ".join(f"`{n}` {k}" for k, n in sorted(by_kind.items()))
+            lines.append(
+                f"- **CICS operations:** `{len(cics_ops)}` EXEC CICS operations naming a resource ({kinds}); "
+                "verb, direction, VALUE-resolved name and INTO/FROM record in `cics_resource_data`.\n"
             )
 
         for f in carriers[:20]:
@@ -726,6 +739,17 @@ class LLMRecorder:
                 if joins:
                     more = f" … (+{len(joins) - 12})" if len(joins) > 12 else ""
                     lines.append(f"- **CICS bindings:** {', '.join(f'`{j}`' for j in joins[:12])}{more}")
+            # #3351-#3354: CICS resources -- each distinct KIND name (access set);
+            # the per-command rows are in cics_resource_data.
+            cics = f.get("cics_resources") or []
+            if cics:
+                touched: dict[str, set] = {}
+                for op in cics:
+                    name = op.get("name") or (f"{op.get('operand')}?" if op.get("operand") else "?")
+                    touched.setdefault(f"{op.get('kind')} {name}", set()).add(op.get("access") or "?")
+                labels = [f"{k} ({'/'.join(sorted(v))})" for k, v in touched.items()]
+                more = f" … (+{len(labels) - 12} more)" if len(labels) > 12 else ""
+                lines.append(f"- **CICS operations:** {', '.join(f'`{lbl}`' for lbl in labels[:12])}{more}")
             lines.append("")
 
         if len(carriers) > 20:

@@ -478,6 +478,8 @@ class RecordKeeper:
         own `sql_tables` and become sql_table_data. CSD resource definitions
         (#3356) ride on each deck's own `csd_resources` and become
         csd_resource_data.
+        CICS FILE/MAP/QUEUE/CONTAINER/CHANNEL operations (#3351-#3354) ride on
+        each file's own `cics_resources` and become cics_resource_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1017,6 +1019,57 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_screen_field_file_id ON screen_field_data(file_id);")
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_screen_field_snapshot ON screen_field_data(repo_name, commit_hash);"
+        )
+
+        # #3351-#3354: CICS resource operations -- one row per EXEC CICS command
+        # that names a resource: a FILE (READ/WRITE/REWRITE/DELETE/browse), a BMS
+        # MAP (SEND/RECEIVE MAP), a TS/TD QUEUE (WRITEQ/READQ/DELETEQ), a
+        # CONTAINER (PUT/GET/MOVE/DELETE) or a CHANNEL handed on by LINK/XCTL/
+        # START/RETURN/RUN. One table for all five kinds: each is a verb, an
+        # access direction, one named resource, one qualifier and one record.
+        #   resource_kind     -- FILE | MAP | QUEUE | CONTAINER | CHANNEL
+        #   access            -- read | write | update | delete | browse | unlock
+        #                        | move | pass (`write` produces, `read` consumes)
+        #   name_operand      -- the name operand as written (`'CUSTOMER'`, `WS-FILE`)
+        #   resource_name     -- the literal, or the data-name's VALUE / single
+        #                        MOVEd literal; NULL when neither determines it
+        #   name_resolution   -- literal | value | move | ambiguous | unresolved |
+        #                        expression
+        #   name_candidates   -- comma-joined MOVEd literals when `ambiguous`
+        #   qualifier_operand -- MAP: MAPSET; CONTAINER: CHANNEL; CHANNEL: the
+        #                        PROGRAM/TRANSID it is passed to (as written)
+        #   qualifier         -- that operand resolved the same way; for a QUEUE
+        #                        the queue type, TS or TD
+        #   record_clause     -- INTO | FROM | SET, and record_name its operand
+        #   attributes        -- every other option as written (RIDFLD, UPDATE, ...)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS cics_resource_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                verb TEXT,
+                resource_kind TEXT,
+                access TEXT,
+                name_operand TEXT,
+                resource_name TEXT,
+                name_resolution TEXT,
+                name_candidates TEXT,
+                qualifier_operand TEXT,
+                qualifier TEXT,
+                record_clause TEXT,
+                record_name TEXT,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_resource_file_id ON cics_resource_data(file_id);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_cics_resource_name ON cics_resource_data(resource_kind, resource_name);"
+        )
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_cics_resource_snapshot ON cics_resource_data(repo_name, commit_hash);"
         )
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
@@ -2379,6 +2432,47 @@ class RecordKeeper:
                 sf.get("occurs"),
                 sf.get("attributes"),
                 int(sf.get("line", 0) or 0),
+            ),
+        )
+
+        # #3351-#3354: CICS resource operations -- the same per-file shape.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "cics_resource_data",
+            (
+                "verb",
+                "resource_kind",
+                "access",
+                "name_operand",
+                "resource_name",
+                "name_resolution",
+                "name_candidates",
+                "qualifier_operand",
+                "qualifier",
+                "record_clause",
+                "record_name",
+                "attributes",
+                "line_number",
+            ),
+            "cics_resources",
+            lambda op: (
+                op.get("verb"),
+                op.get("kind"),
+                op.get("access"),
+                op.get("operand"),
+                op.get("name"),
+                op.get("resolution"),
+                op.get("candidates"),
+                op.get("qualifier_operand"),
+                op.get("qualifier"),
+                op.get("record_clause"),
+                op.get("record"),
+                op.get("attributes"),
+                int(op.get("line", 0) or 0),
             ),
         )
 

@@ -13,7 +13,13 @@ from unittest.mock import patch
 import pytest
 
 import gitgalaxy.cobol_refractor_controller as controller_module
-from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import load_galaxy_ir, scan_to_db
+from gitgalaxy.tools.cobol_to_cobol.galaxy_ir import (
+    EngineCicsResource,
+    EngineFile,
+    GalaxyIR,
+    load_galaxy_ir,
+    scan_to_db,
+)
 
 PAYROLL = """\
        IDENTIFICATION DIVISION.
@@ -568,6 +574,77 @@ def csd_scanned(tmp_path_factory):
     return scan_to_db(repo, base / "scan")
 
 
+# ==============================================================================
+# #3351-#3354: CICS RESOURCE OPERATIONS AND THEIR JOINS
+# ==============================================================================
+# A REAL scan, so the cobol dialect's `cics_resources` key is proven to reach
+# cics_resource_data through the config pipeline. INQ sends/receives a BMS map,
+# reads a CICS file, writes a TS queue and calls SVC with a channel; SVC reads
+# the queue (its name through a VALUE), GETs INQ's container from its current
+# channel and PUTs a reply that INQ GETs back.
+INQ = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. INQ.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-CHAN   PIC X(16) VALUE SPACES.
+       PROCEDURE DIVISION.
+       000-MAIN.
+           MOVE 'SVCCHAN' TO WS-CHAN.
+           EXEC CICS RECEIVE MAP('CUSTA') MAPSET('CUSTM')
+                INTO(CUSTAI) END-EXEC.
+           EXEC CICS READ FILE('CUSTFILE') INTO(CUST-REC)
+                RIDFLD(CUST-KEY) END-EXEC.
+           EXEC CICS WRITEQ TS QUEUE('AUDITQ') FROM(CUST-REC) END-EXEC.
+           EXEC CICS PUT CONTAINER('REQ') CHANNEL(WS-CHAN)
+                FROM(CUST-KEY) END-EXEC.
+           EXEC CICS LINK PROGRAM('SVC') CHANNEL(WS-CHAN) END-EXEC.
+           EXEC CICS GET CONTAINER('RESP') CHANNEL(WS-CHAN)
+                INTO(CUST-REC) END-EXEC.
+           EXEC CICS SEND MAP('CUSTA') MAPSET('CUSTM') FROM(CUSTAO)
+                ERASE END-EXEC.
+           EXEC CICS SEND MAP('GONE') END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+"""
+
+SVC = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SVC.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-Q      PIC X(8) VALUE 'AUDITQ'.
+       PROCEDURE DIVISION.
+       000-MAIN.
+           EXEC CICS GET CONTAINER('REQ') INTO(SVC-KEY) END-EXEC.
+           EXEC CICS READQ TS QUEUE(WS-Q) INTO(SVC-REC) ITEM(1) END-EXEC.
+           EXEC CICS PUT CONTAINER('RESP') FROM(SVC-REC) END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+"""
+
+CUSTM = "\n".join(
+    [
+        "CUSTM    DFHMSD TYPE=&SYSPARM,MODE=INOUT,LANG=COBOL",
+        "CUSTA    DFHMDI SIZE=(24,80)",
+        "CUSTNO   DFHMDF POS=(6,23),LENGTH=10,ATTRB=(NORM,NUM,FSET)",
+        "CUSTNM   DFHMDF POS=(7,23),LENGTH=30",
+        "         DFHMSD TYPE=FINAL",
+        "         END",
+        "",
+    ]
+)
+
+
+@pytest.fixture(scope="module")
+def scanned_cics(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_cics")
+    repo = base / "cicsres"
+    for rel, text in {"src/INQ.cbl": INQ, "src/SVC.cbl": SVC, "bms/CUSTM.bms": CUSTM}.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
 def test_csd_resources_load_per_deck_of_every_type(csd_scanned):
     ir = load_galaxy_ir(csd_scanned)
     deck = ir.files["csd/BANK.csd"].csd_resources
@@ -668,3 +745,131 @@ def test_a_db2entry_may_assign_a_generic_transid_itself(tmp_path):
     assert (plans["SS*"]["via"], plans["SS*"]["db2tran"], plans["SS*"]["plan"]) == ("db2entry", None, "GENAONE")
     assert plans["SS*"]["programs"] == ["LGTESTC1", "LGTESTP1"]
     assert plans["S+ZZ"]["programs"] == []
+
+
+def test_cics_operations_load_per_program(scanned_cics):
+    ir = load_galaxy_ir(scanned_cics)
+    inq = ir.files["src/INQ.cbl"]
+    assert [(op.verb, op.kind, op.access, op.name) for op in inq.cics_resources] == [
+        ("RECEIVE", "MAP", "read", "CUSTA"),
+        ("READ", "FILE", "read", "CUSTFILE"),
+        ("WRITEQ", "QUEUE", "write", "AUDITQ"),
+        ("PUT", "CONTAINER", "write", "REQ"),
+        ("LINK", "CHANNEL", "pass", "SVCCHAN"),
+        ("GET", "CONTAINER", "read", "RESP"),
+        ("SEND", "MAP", "write", "CUSTA"),
+        ("SEND", "MAP", "write", "GONE"),
+    ]
+    put = inq.cics_resources[3]
+    assert (put.qualifier_operand, put.qualifier, put.record_clause, put.record) == (
+        "WS-CHAN",
+        "SVCCHAN",
+        "FROM",
+        "CUST-KEY",
+    )
+    link = inq.cics_resources[4]
+    assert (link.resolution, link.qualifier) == ("move", "SVC")
+    readq = ir.files["src/SVC.cbl"].cics_resources[1]
+    assert (readq.operand, readq.name, readq.resolution, readq.qualifier, readq.attributes) == (
+        "WS-Q",
+        "AUDITQ",
+        "value",
+        "TS",
+        "ITEM(1)",
+    )
+
+
+def test_screen_bindings_join_each_map_to_its_bms_fields(scanned_cics):
+    bindings = load_galaxy_ir(scanned_cics).screen_bindings()
+    assert [(b["verb"], b["map"], b["mapset"], b["record"], b["bms_file"]) for b in bindings] == [
+        ("RECEIVE", "CUSTA", "CUSTM", "CUSTAI", "bms/CUSTM.bms"),
+        ("SEND", "CUSTA", "CUSTM", "CUSTAO", "bms/CUSTM.bms"),
+        # No MAPSET: CICS defaults it to the map name, and no BMS source defines it.
+        ("SEND", "GONE", "GONE", None, None),
+    ]
+    assert [(sf.name, sf.pos_line, sf.length) for sf in bindings[0]["fields"]] == [("CUSTNO", 6, 10), ("CUSTNM", 7, 30)]
+    assert bindings[2]["fields"] == []
+
+
+def test_queue_flows_link_the_writer_to_the_reader(scanned_cics):
+    ir = load_galaxy_ir(scanned_cics)
+    assert ir.queue_flows() == [
+        {"queue": "AUDITQ", "queue_type": "TS", "producer": "src/INQ.cbl", "consumer": "src/SVC.cbl"}
+    ]
+    assert ir.cics_resource_users("FILE") == {"CUSTFILE": {"read": ["src/INQ.cbl"]}}
+
+
+def test_container_flows_follow_the_channel_handoff_both_ways(scanned_cics):
+    flows = load_galaxy_ir(scanned_cics).container_flows()
+    assert flows == [
+        # SVC GETs REQ from its current channel, which INQ handed it on LINK.
+        {
+            "container": "REQ",
+            "channel": "SVCCHAN",
+            "producer": "src/INQ.cbl",
+            "consumer": "src/SVC.cbl",
+            "match": "handoff",
+        },
+        # The return leg: SVC PUTs RESP into its current channel, INQ GETs it from SVCCHAN.
+        {
+            "container": "RESP",
+            "channel": "SVCCHAN",
+            "producer": "src/SVC.cbl",
+            "consumer": "src/INQ.cbl",
+            "match": "handoff",
+        },
+    ]
+
+
+def test_a_pre_channel_db_loads_with_no_cics_resources(scanned_cics, tmp_path):
+    copy = tmp_path / "old.db"
+    shutil.copy(scanned_cics, copy)
+    with sqlite3.connect(copy) as conn:
+        conn.execute("DROP TABLE cics_resource_data")
+    ir = load_galaxy_ir(copy)
+    assert all(ef.cics_resources == [] for ef in ir.files.values())
+    assert (ir.screen_bindings(), ir.queue_flows(), ir.container_flows()) == ([], [], [])
+
+
+def _container(verb, access, name=None, candidates=None, channel=None, explicit=True):
+    return EngineCicsResource(
+        verb=verb,
+        kind="CONTAINER",
+        access=access,
+        operand="X",
+        name=name,
+        resolution="literal" if name else "ambiguous",
+        candidates=candidates,
+        qualifier_operand="C" if explicit else None,
+        qualifier=channel,
+        record_clause=None,
+        record=None,
+        attributes=None,
+        line=1,
+    )
+
+
+def test_container_flows_match_candidates_and_reject_a_different_channel(tmp_path):
+    """CBSA's fan-out: CRECUST PUTs one of CIPA..CIPB (ambiguous MOVEs) into
+    CIPCREDCHANN; each agency GETs its own. A reader on another channel never
+    matches, and an unresolved channel is only `unverified`."""
+    files = {
+        "CRECUST.cbl": EngineFile(
+            "CRECUST.cbl",
+            "cobol",
+            1,
+            cics_resources=[_container("PUT", "write", candidates="CIPA,CIPB", channel="CIPCREDCHANN")],
+        ),
+        "AGY1.cbl": EngineFile(
+            "AGY1.cbl", "cobol", 1, cics_resources=[_container("GET", "read", "CIPA", channel="CIPCREDCHANN")]
+        ),
+        "OTHER.cbl": EngineFile(
+            "OTHER.cbl", "cobol", 1, cics_resources=[_container("GET", "read", "CIPB", channel="ELSE")]
+        ),
+        "UNK.cbl": EngineFile("UNK.cbl", "cobol", 1, cics_resources=[_container("GET", "read", "CIPB", channel=None)]),
+    }
+    flows = GalaxyIR(tmp_path / "x.db", "r", "c", files).container_flows()
+    assert [(f["container"], f["producer"], f["consumer"], f["match"]) for f in flows] == [
+        ("CIPA", "CRECUST.cbl", "AGY1.cbl", "channel"),
+        ("CIPB", "CRECUST.cbl", "UNK.cbl", "unverified"),
+    ]

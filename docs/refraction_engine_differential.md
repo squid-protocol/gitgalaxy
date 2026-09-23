@@ -48,6 +48,7 @@ hlasm 1). pli reads 8 instead of the issue's 7.
 | dead paragraphs | graveyard reachability | `usage_status` | **not replaceable** (D2) |
 | DATA DIVISION items, FD record layouts | `cobol_schema_forge` (flat) | `record_data` | **DB** since #3246 — the full item tree (level/PIC/USAGE/OCCURS/REDEFINES/VALUE) and FD→file binding; a field the engine carries and the forge's flat single-line reader drops is `forge_flat_schema` |
 | DB2 `DECLARE TABLE` / DCLGEN columns | — (no forge reads them) | `sql_table_data` | **DB** since #3344 — compared against the answer key's own raw-file reader as `sql_column` deltas (full column shape); 24/24 on CBSA |
+| CICS FILE / MAP / QUEUE / CONTAINER / CHANNEL operations | — (no forge reads them) | `cics_resource_data` | **DB** since #3351-#3354 — compared against the answer key's own EXEC CICS reader as `cics_resource` deltas; 75/75 on CBSA, 107/107 on carddemo |
 | orphaned variables | graveyard | — | **stated absence**: the by-name unused-variable count is a graveyard signal, not a layout |
 | DD names, OPEN modes, dataset lineage | forge / DAG architect | `dataset_data` | **DB** since #3201 — exact against the answer key on both corpora (see the #3200/#3201 update) |
 | unresolved CALLs | DAG architect | `call_site_data` | **DB** since #3200 — every call site, resolved or not, with its verb, form and line |
@@ -620,3 +621,24 @@ as `commareas` on every keyed program). Measured: the two readers agree on all 1
 55 carddemo sites; zopeneditor (batch) has none. Unexplained stays 0 on every excerpt and on the full
 CBSA/zopeneditor corpora, and carddemo's full corpus stays at its #3364 baseline.
 
+## Update: CICS resource operations (#3351-#3354) — 2026-09-23
+
+Every `EXEC CICS` command that names a resource is now a fact channel (`cics_resource_data`,
+`EngineFile.cics_resources`) and a compared datum: FILE I/O (#3351), SEND/RECEIVE MAP (#3352), TS/TD
+queues (#3353), and containers plus the channel a LINK/XCTL/START/RETURN/RUN hands on (#3354). No
+forge reads them, so the compared side is the answer key's own reader
+(`cobol_answer_key.cics_resource_ops`: the RAW file through `Source`, `EXEC CICS` found in the
+literal-blanked twin, the block cut at END-EXEC, options read by one nesting-limited regex, names
+resolved by its own VALUE lookup and MOVE scan). The unit is one string per command,
+`L<line> VERB KIND NAME q=QUALIFIER CLAUSE=RECORD`, with an unresolved name shown as
+`<resolution[:candidates]>`, so a disagreement on the command, its resolved name, its qualifier or its
+record is a `cics_resource` delta. INDEPENDENT; drafted into the CBSA key (20 files), so it
+adjudicates once a file is `cics_validated`; never `stated_absence`.
+
+Measured on the full pinned corpora: the two readers agree on all 75 CBSA operations and all 107
+carddemo operations (zopeneditor has none). The first run disagreed on 19 carddemo commands: the key's
+shared `_value_of` gave up 80 characters after the data-name, and carddemo pads `PIC X(8)` to column
+72 and writes `VALUE 'ACCTDAT '` on the next line; the key now reads to the entry's period, as the
+engine does. The excerpts gained CBSA's `CRDTAGY1` (GET/PUT CONTAINER on a channel named by `MOVE`)
+and carddemo's `CORPT00C` (SEND/RECEIVE MAP bound to the added `CORPT00.bms`, and `WRITEQ TD
+QUEUE('JOBS')`); unexplained stays 0 on every excerpt and full corpus.

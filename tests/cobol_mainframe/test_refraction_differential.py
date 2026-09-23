@@ -448,3 +448,56 @@ def test_compare_bms_checks_a_map_against_its_generated_copybook(tmp_path):
     assert sym["copybook"] == "cpy-bms/COCRDLI.CPY"
     assert sym["old"] == sym["db"] and "CCRDLIA.ACCTSID" in sym["db"]
     assert rd.flatten([row]) == []
+
+
+# ==============================================================================
+# #3351-#3354: CICS resource operations -- the key's independent reader vs the engine
+# ==============================================================================
+def _cics_row(old=(), db=()):
+    return {"file": "src/INQ.cbl", "language": "cics", "cics": {"old": sorted(old), "db": sorted(db)}}
+
+
+def test_a_cics_resource_delta_is_a_real_finding_not_a_stated_absence(mini_repo):
+    """The DB carries these operations, so a disagreement on a resolved name is a
+    parser defect on one side, never stated_absence."""
+    classified = rd.classify(
+        mini_repo,
+        [_cics_row(old=["L9 READ FILE ACCTDAT q=- INTO=REC"], db=["L9 READ FILE <unresolved> q=- INTO=REC"])],
+        None,
+    )
+    assert sorted((d["field"], d["side"], d["cause"]) for d in classified) == [
+        ("cics_resource", "db", rd.UNEXPLAINED),
+        ("cics_resource", "old", rd.UNEXPLAINED),
+    ]
+
+
+def test_cics_rows_stay_out_of_the_cobol_summary(mini_repo):
+    rows = [_cics_row(old=["L1 SEND MAP A q=M"], db=["L1 SEND MAP A q=M"])]
+    assert rd.flatten(rows) == []
+    assert rd.to_markdown({"repo": "r", "commit": "0" * 8}, rows).count("INQ") == 0
+
+
+def test_cics_resource_verdict_needs_explicit_validation(mini_repo):
+    """Drafted, so a delta adjudicates only once the file is `cics_validated`. The
+    key resolved the VALUE: the engine's `<unresolved>` is the defect."""
+    ops = [
+        {
+            "verb": "READ",
+            "kind": "FILE",
+            "name": "ACCTDAT",
+            "resolution": "value",
+            "candidates": None,
+            "qualifier": None,
+            "record_clause": "INTO",
+            "record": "REC",
+            "line": 9,
+        }
+    ]
+    key = {"programs": {}, "cics_resources": {"src/INQ.cbl": {"operations": ops, "cics_validated": False}}}
+    rows = [_cics_row(old=["L9 READ FILE ACCTDAT q=- INTO=REC"], db=["L9 READ FILE <unresolved> q=- INTO=REC"])]
+    assert rd.summarize_causes(rd.classify(mini_repo, rows, key))["unexplained"] == 2
+
+    key["cics_resources"]["src/INQ.cbl"]["cics_validated"] = True
+    summary = rd.summarize_causes(rd.classify(mini_repo, rows, key))
+    assert summary["unexplained"] == 0
+    assert summary["by_cause"] == {"key:engine defect": 2}

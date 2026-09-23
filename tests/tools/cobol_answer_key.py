@@ -12,6 +12,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-jcl <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-csd <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-commarea <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-cics <repo> --key key.json
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
 <repo> into the key's `pli_programs`, leaving every COBOL program (and its
@@ -25,6 +26,9 @@ CSD deck's resource definitions (FILE, TDQUEUE, DB2TRAN, ...), into `csd_decks`.
 `add-commarea` (#3355) drafts each keyed COBOL program's CICS LINK/XCTL/RETURN
 TRANSID COMMAREA operands (with LENGTH/DATALENGTH) into its `commareas`, leaving
 every other field -- and a program already `commareas_validated` -- untouched.
+
+`add-cics` (#3351-#3354) drafts every COBOL source's EXEC CICS
+FILE/MAP/QUEUE/CONTAINER/CHANNEL operations into `cics_resources`, the add-pli way.
 
 AUTHORITY. `draft` computes CANDIDATE values with its own fixed-format reading
 (Area A headers, PERFORM ... THRU, GO TO, SECTION fall-through, terminal
@@ -1513,6 +1517,182 @@ def commarea_values(rows: list[dict[str, Any]]) -> set[str]:
 
 
 # ==============================================================================
+# CICS resource operations (#3351-#3354)
+# ==============================================================================
+# This tool's own reading of the EXEC CICS commands that name a resource. It works
+# on `Source` -- the RAW file, cols 8-72 of every non-comment line, upper-cased --
+# finds `EXEC CICS` in the LITERAL-BLANKED twin (so a DISPLAY 'EXEC CICS ...' is
+# never a command), cuts the block at the next END-EXEC, and reads the options
+# with one nesting-limited regex. Names resolve through this tool's own `_value_of`
+# (the VALUE reader the call-site key already uses), then a sole `MOVE 'LIT' TO`
+# literal. It shares the engine's CONTRACT, not its code: one row per command
+# naming a FILE (FILE/DATASET), MAP, QUEUE (QUEUE/QNAME, TS unless TD), CONTAINER
+# or a CHANNEL passed by LINK/XCTL/START/RETURN/RUN.
+CICS_EXTS = PROGRAM_EXTS + COPYBOOK_EXTS
+_CICS_EXEC = re.compile(r"\bEXEC\s+CICS\b")
+_CICS_END = re.compile(r"\bEND-EXEC\b")
+_CICS_OPTION = re.compile(r"([A-Z][A-Z0-9-]*)\s*(\((?:[^()']|'[^']*'|\([^()]*\))*\))?")
+_CICS_MOVE = re.compile(rf"\bMOVE\s+(?:'([^'\n]*)'|\"([^\"\n]*)\")\s+TO\s+({NAME})")
+_CICS_FILE = {
+    "READ": "read",
+    "READNEXT": "read",
+    "READPREV": "read",
+    "STARTBR": "browse",
+    "RESETBR": "browse",
+    "ENDBR": "browse",
+    "WRITE": "write",
+    "REWRITE": "update",
+    "DELETE": "delete",
+    "UNLOCK": "unlock",
+}
+_CICS_QUEUE = {"WRITEQ": "write", "READQ": "read", "DELETEQ": "delete"}
+_CICS_CONTAINER = {"PUT": "write", "GET": "read", "MOVE": "move", "DELETE": "delete"}
+_CICS_MAP = {"SEND": "write", "RECEIVE": "read"}
+_CICS_PASS = {"LINK": "PROGRAM", "XCTL": "PROGRAM", "START": "TRANSID", "RETURN": "TRANSID", "RUN": "TRANSID"}
+
+
+def _cics_value_of(src: Source, ident: str) -> Optional[str]:
+    """`ident`'s quoted VALUE, first declaration wins. Unlike `_value_of` (80 chars)
+    the entry may run up to its terminating period, because carddemo pads PIC to
+    column 72 and writes VALUE on the next line."""
+    m = re.search(
+        rf"(?m)^\s*\d{{1,2}}\s+{re.escape(ident)}(?![A-Z0-9-])[^.]{{0,400}}?\bVALUE\s+(?:IS\s+)?(?:'([^']*)'|\"([^\"]*)\")",
+        src.raw_text,
+    )
+    if not m:
+        return None
+    return ((m.group(1) if m.group(1) is not None else m.group(2)) or "").strip() or None
+
+
+def cics_resource_ops(path: Path) -> list[dict[str, Any]]:
+    """Every EXEC CICS command in one COBOL source that names a resource, this
+    tool's own reading (see the section header)."""
+    src = Source(path)
+    moves: dict[str, set[str]] = {}
+    for m in _CICS_MOVE.finditer(src.raw_text):
+        lit = (m.group(1) if m.group(1) is not None else m.group(2) or "").strip()
+        if lit:
+            moves.setdefault(m.group(3), set()).add(lit)
+
+    def resolve(operand: Optional[str]) -> tuple[Optional[str], Optional[str], Optional[str]]:
+        if operand is None:
+            return None, None, None
+        op = operand.strip()
+        if op[:1] in "'\"" and len(op) > 1 and op[-1] == op[0]:
+            return (op[1:-1].strip() or None), "literal", None
+        if not re.fullmatch(NAME, op) or op[0].isdigit():
+            return None, "expression", None
+        value = _cics_value_of(src, op)
+        if value:
+            return value, "value", None
+        found = moves.get(op, set())
+        if len(found) == 1:
+            return next(iter(found)), "move", None
+        if found:
+            return None, "ambiguous", ",".join(sorted(found))
+        return None, "unresolved", None
+
+    out: list[dict[str, Any]] = []
+    for m in _CICS_EXEC.finditer(src.text):
+        end = _CICS_END.search(src.text, m.end())
+        body = src.raw_text[m.end() : end.start() if end else len(src.raw_text)]
+        opts: list[tuple[str, Optional[str]]] = [
+            (o.group(1), " ".join(o.group(2)[1:-1].split()) if o.group(2) else None)
+            for o in _CICS_OPTION.finditer(body)
+        ]
+        if not opts or opts[0][1] is not None:
+            continue
+        verb = opts[0][0]
+        d: dict[str, Optional[str]] = {}
+        for k, v in opts[1:]:
+            d.setdefault(k, v)
+        if verb in _CICS_CONTAINER and "CONTAINER" in d:
+            kind, access, name_key, q_key, qtype = "CONTAINER", _CICS_CONTAINER[verb], "CONTAINER", "CHANNEL", None
+        elif verb in _CICS_FILE and ("FILE" in d or "DATASET" in d):
+            kind, access, q_key, qtype = "FILE", _CICS_FILE[verb], None, None
+            name_key = "FILE" if "FILE" in d else "DATASET"
+        elif verb in _CICS_MAP and "MAP" in d:
+            kind, access, name_key, q_key, qtype = "MAP", _CICS_MAP[verb], "MAP", "MAPSET", None
+        elif verb in _CICS_QUEUE and ("QUEUE" in d or "QNAME" in d):
+            kind, access, q_key = "QUEUE", _CICS_QUEUE[verb], None
+            name_key = "QUEUE" if "QUEUE" in d else "QNAME"
+            qtype = "TD" if "TD" in d else "TS"
+        elif verb in _CICS_PASS and "CHANNEL" in d:
+            kind, access, name_key, q_key, qtype = "CHANNEL", "pass", "CHANNEL", _CICS_PASS[verb], None
+        else:
+            continue
+        name, resolution, candidates = resolve(d.get(name_key))
+        qualifier = qtype if qtype else resolve(d.get(q_key) if q_key else None)[0]
+        clause = next((c for c in ("INTO", "FROM", "SET") if d.get(c)), None)
+        out.append(
+            {
+                "verb": verb,
+                "kind": kind,
+                "access": access,
+                "name": name,
+                "resolution": resolution,
+                "candidates": candidates,
+                "qualifier": qualifier,
+                "record_clause": clause,
+                "record": d[clause] if clause else None,
+                "line": src.line_of(m.start()),
+            }
+        )
+    return out
+
+
+def cics_resource_keys(rows: list[dict[str, Any]]) -> set[str]:
+    """The comparison unit, one per command: `L<line> VERB KIND NAME q=QUALIFIER
+    CLAUSE=RECORD`, where an unresolved NAME is `<resolution[:candidates]>`. Works on
+    this reader's rows and on the engine's (the same keys)."""
+    out = set()
+    for r in rows:
+        name = r.get("name")
+        if name:
+            shown = name.upper()
+        else:
+            cands = r.get("candidates")
+            shown = f"<{r.get('resolution')}{':' + cands.upper() if cands else ''}>"
+        record = f" {r['record_clause']}={(r.get('record') or '').upper()}" if r.get("record_clause") else ""
+        out.add(
+            f"L{r['line']} {r['verb']} {r['kind']} {shown} q={(r.get('qualifier') or '-').upper()}{record}".rstrip()
+        )
+    return out
+
+
+def engine_cics_row(op: Any) -> dict[str, Any]:
+    """An engine `EngineCicsResource` in this reader's row shape (for the unit key)."""
+    return {
+        "verb": op.verb,
+        "kind": op.kind,
+        "name": op.name,
+        "resolution": op.resolution,
+        "candidates": op.candidates,
+        "qualifier": op.qualifier,
+        "record_clause": op.record_clause,
+        "record": op.record,
+        "line": op.line,
+    }
+
+
+def draft_cics(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted CICS resource operations for every COBOL source that issues one
+    (#3351-#3354). They adjudicate a differential delta only once a file is signed
+    off with `cics_validated` -- the records_validated precedent (#3246)."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in CICS_EXTS and ".git" not in p.parts:
+            rows = cics_resource_ops(p)
+            if rows:
+                out[p.relative_to(repo).as_posix()] = {
+                    "operations": rows,
+                    "cics_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -1664,6 +1844,7 @@ def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], 
         "bms_maps": draft_bms(repo),  # #3347
         "jcl_jobs": draft_jcl(repo),  # #3345
         "csd_decks": draft_csd(repo),  # #3356
+        "cics_resources": draft_cics(repo),  # #3351-#3354
     }
     report = [f"# Draft reachability evidence: {corpus} @ {ref[:8]}", ""]
     for p in programs:
@@ -1843,6 +2024,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # Truth is this tool's own CSD tokenizer; there is no forge for them; engine
         # is csd_resource_data.
         "CSD resources",
+        # #3351-#3354: EXEC CICS FILE/MAP/QUEUE/CONTAINER/CHANNEL operations, per
+        # COBOL source. Truth is this tool's own EXEC CICS reader; no forge reads
+        # them; engine is cics_resource_data.
+        "CICS resources",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -2051,6 +2236,16 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             csd_resource_values([r.__dict__ for r in ef.csd_resources]) if ef else None,
         )
 
+    for rel, k in key.get("cics_resources", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "CICS resources",
+            rel,
+            cics_resource_keys(k.get("operations", [])),
+            None,
+            cics_resource_keys([engine_cics_row(op) for op in ef.cics_resources]) if ef else None,
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -2116,6 +2311,9 @@ def main() -> int:
     cm = sub.add_parser("add-commarea")
     cm.add_argument("repo", type=Path)
     cm.add_argument("--key", type=Path, required=True)
+    x = sub.add_parser("add-cics")
+    x.add_argument("repo", type=Path)
+    x.add_argument("--key", type=Path, required=True)
     args = ap.parse_args()
 
     repo = args.repo.resolve()
@@ -2192,6 +2390,16 @@ def main() -> int:
             drafted += len(entry["commareas"])
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {drafted} COMMAREA operands over {len(programs)} programs -> {args.key}")
+        return 0
+    if args.cmd == "add-cics":
+        # #3351-#3354: the add-pli discipline -- refresh drafts, keep signed-off files.
+        ops = key.get("cics_resources", {})
+        for rel, entry in draft_cics(repo).items():
+            if not ops.get(rel, {}).get("cics_validated"):
+                ops[rel] = entry
+        key["cics_resources"] = ops
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(ops)} CICS files -> {args.key}")
         return 0
     result, md = score(repo, key, args.db)
     if args.md:

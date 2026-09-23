@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_PGMNAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(08)"
+    },
+    "WS_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "WS_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "WS_ERR_FLG": {
+      "type": "string",
+      "description": "Legacy PIC: X(01)"
+    },
+    "WS_RESP_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_REAS_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "WS_IDX": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "WS_REPORT_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "WS_START_DATE_YYYY": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "WS_START_DATE_MM": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_START_DATE_DD": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_END_DATE_YYYY": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "WS_END_DATE_MM": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_END_DATE_DD": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_DATE_FORMAT": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "WS_NUM_99": {
+      "type": "integer",
+      "description": "Legacy PIC: 99"
+    },
+    "WS_NUM_9999": {
+      "type": "integer",
+      "description": "Legacy PIC: 9999"
+    },
+    "JCL_RECORD": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "PARM_START_DATE_1": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "PARM_END_DATE_1": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "PARM_START_DATE_2": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "PARM_END_DATE_2": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "CSUTLDTC_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "CSUTLDTC_DATE_FORMAT": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)."
+    },
+    "CSUTLDTC_RESULT_SEV_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)."
+    },
+    "CSUTLDTC_RESULT_MSG_NUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)."
+    },
+    "CSUTLDTC_RESULT_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(61)."
+    }
+  }
+}

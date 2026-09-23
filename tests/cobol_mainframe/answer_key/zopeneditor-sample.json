@@ -5895,5 +5895,1168 @@
     "files": "SELECT ... ASSIGN plus every OPEN, splitting a multi-mode OPEN at each INPUT/OUTPUT/I-O/EXTEND keyword; checked against the source.",
     "calls": "CALL and EXEC CICS LINK/XCTL PROGRAM(...): literals as written, identifiers through their working-storage VALUE clause; resolved to the program with that PROGRAM-ID (nearest when shared). CEE* targets are LE callable services.",
     "cics_sql": "Presence of EXEC CICS / EXEC SQL in code lines; agrees with the forge's booleans on every program."
+  },
+  "pli_programs": {
+    "PLI/MACSAMP.pli": {
+      "records": [
+        {
+          "ordinal": 0,
+          "parent": null,
+          "level": 1,
+          "name": "ABABAB",
+          "dims": null,
+          "attributes": "CHAR",
+          "line": 54
+        },
+        {
+          "ordinal": 1,
+          "parent": null,
+          "level": 1,
+          "name": "WORLD",
+          "dims": null,
+          "attributes": "CHAR",
+          "line": 54
+        },
+        {
+          "ordinal": 2,
+          "parent": null,
+          "level": 1,
+          "name": "PADDED",
+          "dims": null,
+          "attributes": "CHAR",
+          "line": 54
+        },
+        {
+          "ordinal": 3,
+          "parent": null,
+          "level": 1,
+          "name": "YEOOO",
+          "dims": null,
+          "attributes": "CHAR",
+          "line": 54
+        },
+        {
+          "ordinal": 4,
+          "parent": null,
+          "level": 1,
+          "name": "ACTIVE_PLATFORM",
+          "dims": null,
+          "attributes": "CHAR(3) INIT('MVS')",
+          "line": 58
+        },
+        {
+          "ordinal": 5,
+          "parent": null,
+          "level": 1,
+          "name": "OTHER_PLATFORM",
+          "dims": null,
+          "attributes": "CHAR(4) INIT('N/A')",
+          "line": 61
+        },
+        {
+          "ordinal": 6,
+          "parent": null,
+          "level": 1,
+          "name": "REGION_ONE",
+          "dims": null,
+          "attributes": "FIXED",
+          "line": 69
+        },
+        {
+          "ordinal": 7,
+          "parent": null,
+          "level": 1,
+          "name": "REGION_TWO",
+          "dims": null,
+          "attributes": "FIXED",
+          "line": 72
+        },
+        {
+          "ordinal": 8,
+          "parent": null,
+          "level": 1,
+          "name": "REGION_OTHER",
+          "dims": null,
+          "attributes": "FIXED",
+          "line": 75
+        },
+        {
+          "ordinal": 9,
+          "parent": null,
+          "level": 1,
+          "name": "SKIPPED_VAR",
+          "dims": null,
+          "attributes": "FIXED",
+          "line": 101
+        },
+        {
+          "ordinal": 10,
+          "parent": null,
+          "level": 1,
+          "name": "AFTER_SKIP",
+          "dims": null,
+          "attributes": "FIXED",
+          "line": 103
+        },
+        {
+          "ordinal": 11,
+          "parent": null,
+          "level": 1,
+          "name": "DBLRESULT",
+          "dims": null,
+          "attributes": "FIXED BIN(31)",
+          "line": 113
+        },
+        {
+          "ordinal": 12,
+          "parent": null,
+          "level": 1,
+          "name": "SUBOUT",
+          "dims": null,
+          "attributes": "CHAR(5) INIT(SUB)",
+          "line": 145
+        },
+        {
+          "ordinal": 13,
+          "parent": null,
+          "level": 1,
+          "name": "LENOUT",
+          "dims": null,
+          "attributes": "FIXED INIT(LEN)",
+          "line": 146
+        },
+        {
+          "ordinal": 14,
+          "parent": null,
+          "level": 1,
+          "name": "COPYOUT",
+          "dims": null,
+          "attributes": "CHAR(6) INIT(COPIED)",
+          "line": 147
+        },
+        {
+          "ordinal": 15,
+          "parent": null,
+          "level": 1,
+          "name": "QUOTEOUT",
+          "dims": null,
+          "attributes": "CHAR(12) INIT(QUOTED)",
+          "line": 148
+        },
+        {
+          "ordinal": 16,
+          "parent": null,
+          "level": 1,
+          "name": "TRIMOUT",
+          "dims": null,
+          "attributes": "CHAR(6) INIT(TRIMMED)",
+          "line": 149
+        },
+        {
+          "ordinal": 17,
+          "parent": null,
+          "level": 1,
+          "name": "UPPEROUT",
+          "dims": null,
+          "attributes": "CHAR(5) INIT(UPPER)",
+          "line": 150
+        },
+        {
+          "ordinal": 18,
+          "parent": null,
+          "level": 1,
+          "name": "COERCEOUT",
+          "dims": null,
+          "attributes": "CHAR(2) INIT(COUNTASCHAR)",
+          "line": 156
+        },
+        {
+          "ordinal": 19,
+          "parent": null,
+          "level": 1,
+          "name": "ENV_LABEL",
+          "dims": null,
+          "attributes": "CHAR(10) INIT('PRODUCTION')",
+          "line": 168
+        },
+        {
+          "ordinal": 20,
+          "parent": null,
+          "level": 1,
+          "name": "ENV_LABEL",
+          "dims": null,
+          "attributes": "CHAR(5) INIT('DEBUG')",
+          "line": 171
+        }
+      ],
+      "records_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "PLI/PSAM1.pli": {
+      "records": [
+        {
+          "ordinal": 0,
+          "parent": null,
+          "level": 1,
+          "name": "DUMP_FINDER",
+          "dims": null,
+          "attributes": "CHAR(30) INIT('*STORAGE FOR PROGRAM PSAM1***')",
+          "line": 29
+        },
+        {
+          "ordinal": 1,
+          "parent": null,
+          "level": 1,
+          "name": "TRAN_RECORD",
+          "dims": null,
+          "attributes": "",
+          "line": 43
+        },
+        {
+          "ordinal": 2,
+          "parent": 1,
+          "level": 2,
+          "name": "TRAN_CODE",
+          "dims": null,
+          "attributes": "CHAR(6)",
+          "line": 44
+        },
+        {
+          "ordinal": 3,
+          "parent": 1,
+          "level": 2,
+          "name": "TRAN_FILL3",
+          "dims": null,
+          "attributes": "CHAR(1)",
+          "line": 45
+        },
+        {
+          "ordinal": 4,
+          "parent": 1,
+          "level": 2,
+          "name": "CRUNCH_PARMS",
+          "dims": null,
+          "attributes": "",
+          "line": 46
+        },
+        {
+          "ordinal": 5,
+          "parent": 4,
+          "level": 3,
+          "name": "CRUNCH_IO_LOOPS",
+          "dims": null,
+          "attributes": "PIC '99999'",
+          "line": 47
+        },
+        {
+          "ordinal": 6,
+          "parent": 4,
+          "level": 3,
+          "name": "CRUNCH_FILL1",
+          "dims": null,
+          "attributes": "CHAR(1)",
+          "line": 48
+        },
+        {
+          "ordinal": 7,
+          "parent": 4,
+          "level": 3,
+          "name": "CRUNCH_CPU_LOOPS",
+          "dims": null,
+          "attributes": "PIC '999999999'",
+          "line": 49
+        },
+        {
+          "ordinal": 8,
+          "parent": 1,
+          "level": 2,
+          "name": "CRUNCH_FILL2",
+          "dims": null,
+          "attributes": "CHAR(58)",
+          "line": 50
+        },
+        {
+          "ordinal": 9,
+          "parent": null,
+          "level": 1,
+          "name": "TRAN_COMMENT",
+          "dims": null,
+          "attributes": "CHAR(1) DEFINED TRAN_RECORD",
+          "line": 52
+        },
+        {
+          "ordinal": 10,
+          "parent": null,
+          "level": 1,
+          "name": "TRAN_RECORD_ALL",
+          "dims": null,
+          "attributes": "CHAR(80) DEFINED TRAN_RECORD",
+          "line": 53
+        },
+        {
+          "ordinal": 11,
+          "parent": null,
+          "level": 1,
+          "name": "TRANFILE_EOF",
+          "dims": null,
+          "attributes": "BIT(1) INIT('0'B)",
+          "line": 64
+        },
+        {
+          "ordinal": 12,
+          "parent": null,
+          "level": 1,
+          "name": "CUSTFILE_EOF",
+          "dims": null,
+          "attributes": "BIT(1) INIT('0'B)",
+          "line": 65
+        },
+        {
+          "ordinal": 13,
+          "parent": null,
+          "level": 1,
+          "name": "TRAN_OK_FLAG",
+          "dims": null,
+          "attributes": "BIT(1) INIT('1'B)",
+          "line": 66
+        },
+        {
+          "ordinal": 14,
+          "parent": null,
+          "level": 1,
+          "name": "SYSTEM_DATE_AND_TIME",
+          "dims": null,
+          "attributes": "",
+          "line": 71
+        },
+        {
+          "ordinal": 15,
+          "parent": 14,
+          "level": 2,
+          "name": "CURRENT_DATE",
+          "dims": null,
+          "attributes": "",
+          "line": 72
+        },
+        {
+          "ordinal": 16,
+          "parent": 15,
+          "level": 3,
+          "name": "CURRENT_YEAR",
+          "dims": null,
+          "attributes": "PIC '9999'",
+          "line": 73
+        },
+        {
+          "ordinal": 17,
+          "parent": 15,
+          "level": 3,
+          "name": "CURRENT_MONTH",
+          "dims": null,
+          "attributes": "PIC '99'",
+          "line": 74
+        },
+        {
+          "ordinal": 18,
+          "parent": 15,
+          "level": 3,
+          "name": "CURRENT_DAY",
+          "dims": null,
+          "attributes": "PIC '99'",
+          "line": 75
+        },
+        {
+          "ordinal": 19,
+          "parent": 14,
+          "level": 2,
+          "name": "CURRENT_TIME",
+          "dims": null,
+          "attributes": "",
+          "line": 76
+        },
+        {
+          "ordinal": 20,
+          "parent": 19,
+          "level": 3,
+          "name": "CURRENT_HOUR",
+          "dims": null,
+          "attributes": "PIC '99'",
+          "line": 77
+        },
+        {
+          "ordinal": 21,
+          "parent": 19,
+          "level": 3,
+          "name": "CURRENT_MINUTE",
+          "dims": null,
+          "attributes": "PIC '99'",
+          "line": 78
+        },
+        {
+          "ordinal": 22,
+          "parent": 19,
+          "level": 3,
+          "name": "CURRENT_SECOND",
+          "dims": null,
+          "attributes": "PIC '99'",
+          "line": 79
+        },
+        {
+          "ordinal": 23,
+          "parent": 19,
+          "level": 3,
+          "name": "CURRENT_MILLISEC",
+          "dims": null,
+          "attributes": "PIC '999'",
+          "line": 80
+        },
+        {
+          "ordinal": 24,
+          "parent": null,
+          "level": 1,
+          "name": "NUM_TRANFILE_RECS",
+          "dims": null,
+          "attributes": "BIN FIXED(15) INIT(0)",
+          "line": 82
+        },
+        {
+          "ordinal": 25,
+          "parent": null,
+          "level": 1,
+          "name": "NUM_TRAN_ERRORS",
+          "dims": null,
+          "attributes": "BIN FIXED(15) INIT(0)",
+          "line": 83
+        },
+        {
+          "ordinal": 26,
+          "parent": null,
+          "level": 1,
+          "name": "NUM_TRANSACTIONS",
+          "dims": null,
+          "attributes": "BIN FIXED(15) INIT(0)",
+          "line": 84
+        },
+        {
+          "ordinal": 27,
+          "parent": null,
+          "level": 1,
+          "name": "NUM_CUSTFILE_RECS",
+          "dims": null,
+          "attributes": "BIN FIXED(15) INIT(0)",
+          "line": 85
+        },
+        {
+          "ordinal": 28,
+          "parent": null,
+          "level": 1,
+          "name": "NUM_CUSTOMER_RECS",
+          "dims": null,
+          "attributes": "BIN FIXED(15) INIT(0)",
+          "line": 86
+        },
+        {
+          "ordinal": 29,
+          "parent": null,
+          "level": 1,
+          "name": "NUM_DETAIL_LINES",
+          "dims": null,
+          "attributes": "BIN FIXED(15) INIT(0)",
+          "line": 87
+        },
+        {
+          "ordinal": 30,
+          "parent": null,
+          "level": 1,
+          "name": "NUM_PRINT_REQUESTS",
+          "dims": null,
+          "attributes": "BIN FIXED(15) INIT(0)",
+          "line": 88
+        },
+        {
+          "ordinal": 31,
+          "parent": null,
+          "level": 1,
+          "name": "NUM_PRINT_COMPLETED",
+          "dims": null,
+          "attributes": "BIN FIXED(15) INIT(0)",
+          "line": 89
+        },
+        {
+          "ordinal": 32,
+          "parent": null,
+          "level": 1,
+          "name": "NUM_TOTALS_REQUESTS",
+          "dims": null,
+          "attributes": "BIN FIXED(15) INIT(0)",
+          "line": 90
+        },
+        {
+          "ordinal": 33,
+          "parent": null,
+          "level": 1,
+          "name": "NUM_TOTALS_COMPLETED",
+          "dims": null,
+          "attributes": "BIN FIXED(15) INIT(0)",
+          "line": 91
+        },
+        {
+          "ordinal": 34,
+          "parent": null,
+          "level": 1,
+          "name": "PROGRAM_STATUS",
+          "dims": null,
+          "attributes": "CHAR(30)",
+          "line": 93
+        },
+        {
+          "ordinal": 35,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_BAD_TRAN",
+          "dims": null,
+          "attributes": "CHAR(20) INIT('TRANSACTION ERROR:  ')",
+          "line": 107
+        },
+        {
+          "ordinal": 36,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_OPEN_ERROR",
+          "dims": null,
+          "attributes": "CHAR(20) INIT('ERROR OPENING FILE: ')",
+          "line": 108
+        },
+        {
+          "ordinal": 37,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_ONFILE",
+          "dims": null,
+          "attributes": "CHAR(25) INIT('                DD NAME: ')",
+          "line": 109
+        },
+        {
+          "ordinal": 38,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_ONCODE",
+          "dims": null,
+          "attributes": "CHAR(25) INIT('    FILE CONDITION CODE: ')",
+          "line": 110
+        },
+        {
+          "ordinal": 39,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_ONCONDID",
+          "dims": null,
+          "attributes": "CHAR(25) INIT('           CONDITION ID: ')",
+          "line": 111
+        },
+        {
+          "ordinal": 40,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_ONCONDCOND",
+          "dims": null,
+          "attributes": "CHAR(25) INIT('         CONDITION NAME: ')",
+          "line": 112
+        },
+        {
+          "ordinal": 41,
+          "parent": null,
+          "level": 1,
+          "name": "HDR1_TEXT1",
+          "dims": null,
+          "attributes": "CHAR(40) INIT('SAMPLE CUSTOMER FILE REPORT       DATE: ')",
+          "line": 114
+        },
+        {
+          "ordinal": 42,
+          "parent": null,
+          "level": 1,
+          "name": "HDR1_TEXT2",
+          "dims": null,
+          "attributes": "CHAR(20) INIT(' (MM/DD/YYYY) TIME: ')",
+          "line": 116
+        },
+        {
+          "ordinal": 43,
+          "parent": null,
+          "level": 1,
+          "name": "HDR2",
+          "dims": null,
+          "attributes": "",
+          "line": 117
+        },
+        {
+          "ordinal": 44,
+          "parent": 43,
+          "level": 2,
+          "name": "HDR2A",
+          "dims": null,
+          "attributes": "CHAR(40) UNALIGNED INIT('ID    CUSTOMER NAME     OCCUPATION      ')",
+          "line": 118
+        },
+        {
+          "ordinal": 45,
+          "parent": 43,
+          "level": 2,
+          "name": "HDR2B",
+          "dims": null,
+          "attributes": "CHAR(40) UNALIGNED INIT('                 BALANCE ORDERS-YTD     ')",
+          "line": 120
+        },
+        {
+          "ordinal": 46,
+          "parent": null,
+          "level": 1,
+          "name": "HDR3",
+          "dims": null,
+          "attributes": "",
+          "line": 122
+        },
+        {
+          "ordinal": 47,
+          "parent": 46,
+          "level": 2,
+          "name": "HDR3A",
+          "dims": null,
+          "attributes": "CHAR(40) UNALIGNED INIT('----- ----------------- ----------------')",
+          "line": 123
+        },
+        {
+          "ordinal": 48,
+          "parent": 46,
+          "level": 2,
+          "name": "HDR3B",
+          "dims": null,
+          "attributes": "CHAR(40) UNALIGNED INIT('------------ ----------- ----------     ')",
+          "line": 125
+        },
+        {
+          "ordinal": 49,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_TRANREC",
+          "dims": null,
+          "attributes": "CHAR(80)",
+          "line": 128
+        },
+        {
+          "ordinal": 50,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_TRAN1",
+          "dims": null,
+          "attributes": "CHAR(12) INIT('TRANSACTION:')",
+          "line": 129
+        },
+        {
+          "ordinal": 51,
+          "parent": null,
+          "level": 1,
+          "name": "SPACE",
+          "dims": null,
+          "attributes": "CHAR(1) INIT(' ')",
+          "line": 130
+        },
+        {
+          "ordinal": 52,
+          "parent": null,
+          "level": 1,
+          "name": "SLASH",
+          "dims": null,
+          "attributes": "CHAR(1) INIT('/')",
+          "line": 131
+        },
+        {
+          "ordinal": 53,
+          "parent": null,
+          "level": 1,
+          "name": "COLON",
+          "dims": null,
+          "attributes": "CHAR(1) INIT(':')",
+          "line": 132
+        },
+        {
+          "ordinal": 54,
+          "parent": null,
+          "level": 1,
+          "name": "NUMA_7V2",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZ9V.99'",
+          "line": 141
+        },
+        {
+          "ordinal": 55,
+          "parent": null,
+          "level": 1,
+          "name": "NUMB_7V2",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZ9V.99'",
+          "line": 142
+        },
+        {
+          "ordinal": 56,
+          "parent": null,
+          "level": 1,
+          "name": "NUMC_7V2",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZ9V.99'",
+          "line": 143
+        },
+        {
+          "ordinal": 57,
+          "parent": null,
+          "level": 1,
+          "name": "NUMA_11",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZZ,ZZ9'",
+          "line": 144
+        },
+        {
+          "ordinal": 58,
+          "parent": null,
+          "level": 1,
+          "name": "NUMB_11",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZZ,ZZ9'",
+          "line": 145
+        },
+        {
+          "ordinal": 59,
+          "parent": null,
+          "level": 1,
+          "name": "NUMC_11",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZZ,ZZ9'",
+          "line": 146
+        },
+        {
+          "ordinal": 60,
+          "parent": null,
+          "level": 1,
+          "name": "I",
+          "dims": null,
+          "attributes": "FIXED DEC(2)",
+          "line": 195
+        }
+      ],
+      "records_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "PLI/PSAM1LIB.pli": {
+      "records": [
+        {
+          "ordinal": 0,
+          "parent": null,
+          "level": 1,
+          "name": "DUMP_FINDER",
+          "dims": null,
+          "attributes": "CHAR(30) INIT('*STORAGE FOR PROGRAM PSAM1***')",
+          "line": 29
+        },
+        {
+          "ordinal": 1,
+          "parent": null,
+          "level": 1,
+          "name": "TRAN_RECORD",
+          "dims": null,
+          "attributes": "",
+          "line": 43
+        },
+        {
+          "ordinal": 2,
+          "parent": 1,
+          "level": 2,
+          "name": "TRAN_CODE",
+          "dims": null,
+          "attributes": "CHAR(6)",
+          "line": 44
+        },
+        {
+          "ordinal": 3,
+          "parent": 1,
+          "level": 2,
+          "name": "TRAN_FILL3",
+          "dims": null,
+          "attributes": "CHAR(1)",
+          "line": 45
+        },
+        {
+          "ordinal": 4,
+          "parent": 1,
+          "level": 2,
+          "name": "CRUNCH_PARMS",
+          "dims": null,
+          "attributes": "",
+          "line": 46
+        },
+        {
+          "ordinal": 5,
+          "parent": 4,
+          "level": 3,
+          "name": "CRUNCH_IO_LOOPS",
+          "dims": null,
+          "attributes": "PIC '99999'",
+          "line": 47
+        },
+        {
+          "ordinal": 6,
+          "parent": 4,
+          "level": 3,
+          "name": "CRUNCH_FILL1",
+          "dims": null,
+          "attributes": "CHAR(1)",
+          "line": 48
+        },
+        {
+          "ordinal": 7,
+          "parent": 4,
+          "level": 3,
+          "name": "CRUNCH_CPU_LOOPS",
+          "dims": null,
+          "attributes": "PIC '999999999'",
+          "line": 49
+        },
+        {
+          "ordinal": 8,
+          "parent": 1,
+          "level": 2,
+          "name": "CRUNCH_FILL2",
+          "dims": null,
+          "attributes": "CHAR(58)",
+          "line": 50
+        },
+        {
+          "ordinal": 9,
+          "parent": null,
+          "level": 1,
+          "name": "TRAN_COMMENT",
+          "dims": null,
+          "attributes": "CHAR(1) DEFINED TRAN_RECORD",
+          "line": 52
+        },
+        {
+          "ordinal": 10,
+          "parent": null,
+          "level": 1,
+          "name": "TRAN_RECORD_ALL",
+          "dims": null,
+          "attributes": "CHAR(80) DEFINED TRAN_RECORD",
+          "line": 53
+        },
+        {
+          "ordinal": 11,
+          "parent": null,
+          "level": 1,
+          "name": "TRANFILE_EOF",
+          "dims": null,
+          "attributes": "BIT(1) INIT('0'B)",
+          "line": 64
+        },
+        {
+          "ordinal": 12,
+          "parent": null,
+          "level": 1,
+          "name": "CUSTFILE_EOF",
+          "dims": null,
+          "attributes": "BIT(1) INIT('0'B)",
+          "line": 65
+        },
+        {
+          "ordinal": 13,
+          "parent": null,
+          "level": 1,
+          "name": "TRAN_OK_FLAG",
+          "dims": null,
+          "attributes": "BIT(1) INIT('1'B)",
+          "line": 66
+        },
+        {
+          "ordinal": 14,
+          "parent": null,
+          "level": 1,
+          "name": "PROGRAM_STATUS",
+          "dims": null,
+          "attributes": "CHAR(30)",
+          "line": 84
+        },
+        {
+          "ordinal": 15,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_BAD_TRAN",
+          "dims": null,
+          "attributes": "CHAR(20) INIT('TRANSACTION ERROR:  ')",
+          "line": 97
+        },
+        {
+          "ordinal": 16,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_OPEN_ERROR",
+          "dims": null,
+          "attributes": "CHAR(20) INIT('ERROR OPENING FILE: ')",
+          "line": 98
+        },
+        {
+          "ordinal": 17,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_ONFILE",
+          "dims": null,
+          "attributes": "CHAR(25) INIT('                DD NAME: ')",
+          "line": 99
+        },
+        {
+          "ordinal": 18,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_ONCODE",
+          "dims": null,
+          "attributes": "CHAR(25) INIT('    FILE CONDITION CODE: ')",
+          "line": 100
+        },
+        {
+          "ordinal": 19,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_ONCONDID",
+          "dims": null,
+          "attributes": "CHAR(25) INIT('           CONDITION ID: ')",
+          "line": 101
+        },
+        {
+          "ordinal": 20,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_ONCONDCOND",
+          "dims": null,
+          "attributes": "CHAR(25) INIT('         CONDITION NAME: ')",
+          "line": 102
+        },
+        {
+          "ordinal": 21,
+          "parent": null,
+          "level": 1,
+          "name": "HDR1_TEXT1",
+          "dims": null,
+          "attributes": "CHAR(40) INIT('SAMPLE CUSTOMER FILE REPORT       DATE: ')",
+          "line": 104
+        },
+        {
+          "ordinal": 22,
+          "parent": null,
+          "level": 1,
+          "name": "HDR1_TEXT2",
+          "dims": null,
+          "attributes": "CHAR(20) INIT(' (MM/DD/YYYY) TIME: ')",
+          "line": 106
+        },
+        {
+          "ordinal": 23,
+          "parent": null,
+          "level": 1,
+          "name": "HDR2",
+          "dims": null,
+          "attributes": "",
+          "line": 107
+        },
+        {
+          "ordinal": 24,
+          "parent": 23,
+          "level": 2,
+          "name": "HDR2A",
+          "dims": null,
+          "attributes": "CHAR(40) UNALIGNED INIT('ID    CUSTOMER NAME     OCCUPATION      ')",
+          "line": 108
+        },
+        {
+          "ordinal": 25,
+          "parent": 23,
+          "level": 2,
+          "name": "HDR2B",
+          "dims": null,
+          "attributes": "CHAR(40) UNALIGNED INIT('                 BALANCE ORDERS-YTD     ')",
+          "line": 110
+        },
+        {
+          "ordinal": 26,
+          "parent": null,
+          "level": 1,
+          "name": "HDR3",
+          "dims": null,
+          "attributes": "",
+          "line": 112
+        },
+        {
+          "ordinal": 27,
+          "parent": 26,
+          "level": 2,
+          "name": "HDR3A",
+          "dims": null,
+          "attributes": "CHAR(40) UNALIGNED INIT('----- ----------------- ----------------')",
+          "line": 113
+        },
+        {
+          "ordinal": 28,
+          "parent": 26,
+          "level": 2,
+          "name": "HDR3B",
+          "dims": null,
+          "attributes": "CHAR(40) UNALIGNED INIT('------------ ----------- ----------     ')",
+          "line": 115
+        },
+        {
+          "ordinal": 29,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_TRANREC",
+          "dims": null,
+          "attributes": "CHAR(80)",
+          "line": 118
+        },
+        {
+          "ordinal": 30,
+          "parent": null,
+          "level": 1,
+          "name": "MSG_TRAN1",
+          "dims": null,
+          "attributes": "CHAR(12) INIT('TRANSACTION:')",
+          "line": 119
+        },
+        {
+          "ordinal": 31,
+          "parent": null,
+          "level": 1,
+          "name": "SPACE",
+          "dims": null,
+          "attributes": "CHAR(1) INIT(' ')",
+          "line": 120
+        },
+        {
+          "ordinal": 32,
+          "parent": null,
+          "level": 1,
+          "name": "SLASH",
+          "dims": null,
+          "attributes": "CHAR(1) INIT('/')",
+          "line": 121
+        },
+        {
+          "ordinal": 33,
+          "parent": null,
+          "level": 1,
+          "name": "COLON",
+          "dims": null,
+          "attributes": "CHAR(1) INIT(':')",
+          "line": 122
+        },
+        {
+          "ordinal": 34,
+          "parent": null,
+          "level": 1,
+          "name": "NUMA_7V2",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZ9V.99'",
+          "line": 131
+        },
+        {
+          "ordinal": 35,
+          "parent": null,
+          "level": 1,
+          "name": "NUMB_7V2",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZ9V.99'",
+          "line": 132
+        },
+        {
+          "ordinal": 36,
+          "parent": null,
+          "level": 1,
+          "name": "NUMC_7V2",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZ9V.99'",
+          "line": 133
+        },
+        {
+          "ordinal": 37,
+          "parent": null,
+          "level": 1,
+          "name": "NUMA_11",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZZ,ZZ9'",
+          "line": 134
+        },
+        {
+          "ordinal": 38,
+          "parent": null,
+          "level": 1,
+          "name": "NUMB_11",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZZ,ZZ9'",
+          "line": 135
+        },
+        {
+          "ordinal": 39,
+          "parent": null,
+          "level": 1,
+          "name": "NUMC_11",
+          "dims": null,
+          "attributes": "PIC 'ZZZ,ZZZ,ZZ9'",
+          "line": 136
+        },
+        {
+          "ordinal": 40,
+          "parent": null,
+          "level": 1,
+          "name": "I",
+          "dims": null,
+          "attributes": "FIXED DEC(2)",
+          "line": 185
+        }
+      ],
+      "records_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "PLI/PSAM2.pli": {
+      "records": [
+        {
+          "ordinal": 0,
+          "parent": null,
+          "level": 1,
+          "name": "DUMP_FINDER",
+          "dims": null,
+          "attributes": "CHAR(30) INIT('*STORAGE FOR PROGRAM PSAM2***')",
+          "line": 22
+        },
+        {
+          "ordinal": 1,
+          "parent": null,
+          "level": 1,
+          "name": "PROGRAM_STATUS",
+          "dims": null,
+          "attributes": "CHAR(30)",
+          "line": 38
+        }
+      ],
+      "records_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

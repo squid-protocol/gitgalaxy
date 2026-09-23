@@ -145,3 +145,108 @@ def test_re_recording_the_snapshot_does_not_duplicate(tmp_path):
         RecordKeeper().record_mission([dict(f) for f in UNIVERSE], [], {}, SESSION, str(db))
     (total,) = _rows(db, "SELECT COUNT(*) FROM record_data")[0]
     assert total == 3
+
+
+# ==============================================================================
+# #3250: PL/I DECLAREd structures share the table, with `attributes`
+# ==============================================================================
+PLI_FILE = {
+    "path": "PLI/PSAM1.pli",
+    "lang_id": "pli",
+    "raw_imports": [],
+    "record_layouts": [
+        {
+            "section": "BASED",
+            "fd_name": None,
+            "ordinal": 0,
+            "parent_ordinal": None,
+            "level": 1,
+            "name": "CUSTOMER_RECORD",
+            "pic": None,
+            "usage": None,
+            "occurs_min": None,
+            "occurs_max": None,
+            "occurs_depending_on": None,
+            "redefines": None,
+            "value": None,
+            "attributes": "BASED(ADDR(CUSTFILE_RECORD))",
+            "line": 10,
+        },
+        {
+            "section": "BASED",
+            "fd_name": None,
+            "ordinal": 1,
+            "parent_ordinal": 0,
+            "level": 2,
+            "name": "ACCT_BALANCE",
+            "pic": "9999999V99",
+            "usage": None,
+            "occurs_min": None,
+            "occurs_max": None,
+            "occurs_depending_on": None,
+            "redefines": None,
+            "value": None,
+            "attributes": "PIC'9999999V99'",
+            "line": 16,
+        },
+    ],
+}
+
+
+def _record_with_pli(db):
+    RecordKeeper().record_mission([dict(f) for f in [*UNIVERSE, PLI_FILE]], [], {}, SESSION, str(db))
+
+
+def test_pli_items_persist_with_their_attribute_text(tmp_path):
+    db = tmp_path / "mainframe.db"
+    _record_with_pli(db)
+    rows = _rows(
+        db,
+        "SELECT item_name, section, pic, attributes FROM record_data rd JOIN file_data f ON rd.file_id = f.id "
+        "WHERE f.file_path = 'PLI/PSAM1.pli' ORDER BY rd.ordinal",
+    )
+    assert rows == [
+        ("CUSTOMER_RECORD", "BASED", None, "BASED(ADDR(CUSTFILE_RECORD))"),
+        ("ACCT_BALANCE", "BASED", "9999999V99", "PIC'9999999V99'"),
+    ]
+    # A COBOL item has a column for every clause, so its attributes stay NULL.
+    cobol = "SELECT DISTINCT attributes FROM record_data rd JOIN file_data f ON rd.file_id = f.id "
+    assert _rows(db, cobol + "WHERE f.file_path = 'COBOL/ACCT.cbl'") == [(None,)]
+
+
+def test_a_pre_3250_record_data_table_is_healed(tmp_path):
+    """A DB whose record_data predates `attributes` gains the column on the next
+    record instead of failing every PL/I insert."""
+    db = tmp_path / "mainframe.db"
+    RecordKeeper().record_mission([dict(f) for f in UNIVERSE], [], {}, SESSION, str(db))
+    conn = sqlite3.connect(db)
+    conn.execute("ALTER TABLE record_data DROP COLUMN attributes")
+    conn.commit()
+    conn.close()
+    _record_with_pli(db)
+    assert ("ACCT_BALANCE", "PIC'9999999V99'") in _rows(db, "SELECT item_name, attributes FROM record_data")
+
+
+def test_an_unchanged_pli_file_keeps_its_attributes_through_a_delta_scan(tmp_path):
+    """The rehydrator restores `attributes` with the rest of the row, so a full and
+    an incremental scan write the same record_data (#3246's byte-identical rule)."""
+    from gitgalaxy.core.state_rehydrator import StateRehydrator
+
+    db = tmp_path / "mainframe.db"
+    _record_with_pli(db)
+    cache = StateRehydrator(str(db)).load_state("MainframeRepo")["ram_cache"]
+    assert cache["PLI/PSAM1.pli"]["record_layouts"] == PLI_FILE["record_layouts"]
+
+
+def test_a_baseline_without_the_attributes_column_still_rehydrates(tmp_path):
+    from gitgalaxy.core.state_rehydrator import StateRehydrator
+
+    db = tmp_path / "mainframe.db"
+    _record_with_pli(db)
+    conn = sqlite3.connect(db)
+    conn.execute("ALTER TABLE record_data DROP COLUMN attributes")
+    conn.commit()
+    conn.close()
+    cache = StateRehydrator(str(db)).load_state("MainframeRepo")["ram_cache"]
+    restored = cache["PLI/PSAM1.pli"]["record_layouts"]
+    assert [(r["name"], r["attributes"]) for r in restored] == [("CUSTOMER_RECORD", None), ("ACCT_BALANCE", None)]

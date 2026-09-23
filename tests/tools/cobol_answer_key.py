@@ -6,6 +6,11 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py draft <repo> --corpus NAME --url URL --ref SHA \
         --out key.json [--report why.md]
     python tests/tools/cobol_answer_key.py score <repo> --key key.json [--db master.db] [--md out.md]
+    python tests/tools/cobol_answer_key.py add-pli <repo> --key key.json
+
+`add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
+<repo> into the key's `pli_programs`, leaving every COBOL program (and its
+`validated` status) untouched -- a full `draft` would wipe them.
 
 AUTHORITY. `draft` computes CANDIDATE values with its own fixed-format reading
 (Area A headers, PERFORM ... THRU, GO TO, SECTION fall-through, terminal
@@ -445,6 +450,215 @@ def _data_items(src: Source) -> list[dict[str, Any]]:
 
 
 # ==============================================================================
+# PL/I DECLARE structures (#3250)
+# ==============================================================================
+# This tool's own reading of a PL/I file's declarations: a token stream over the
+# RAW file (it strips its own comments and sequence columns -- it never sees the
+# engine's PRISM code stream) and a recursive-descent walk of each DECLARE list.
+# It shares the engine's CONTRACT (which declarations are data, how levels nest),
+# not its code, so an agreement is evidence and a disagreement is a finding.
+PLI_EXTS = (".pli", ".pl1", ".plinc")
+_PLI_TOKEN = re.compile(
+    r"(?P<comment>/\*.*?(?:\*/|\Z)|//[^\n]*)"
+    r"|(?P<string>'(?:[^']|'')*'[A-Z0-9]*|\"(?:[^\"]|\"\")*\"[A-Z0-9]*)"
+    r"|(?P<word>[\w@#$]+)"
+    r"|(?P<punct>\S)",
+    re.S | re.I,
+)
+# Declarations that declare no storage (the contract the engine states too).
+_PLI_NON_DATA = {"FILE", "BUILTIN", "CONDITION", "COND", "GENERIC", "ENTRY", "RETURNS", "FORMAT"}
+
+
+def _pli_source_lines(text: str) -> str:
+    """The raw file with columns 73-80 dropped wherever a fixed-format line numbers them."""
+    out = []
+    for line in text.split("\n"):
+        tail = line[72:].strip()
+        if len(line.rstrip()) <= 80 and tail and re.fullmatch(r"[A-Z]{0,4}[0-9]{2,8}", tail, re.I):
+            line = line[:72]
+        out.append(line)
+    return "\n".join(out)
+
+
+def _pli_token_stream(text: str) -> list[tuple[str, str, int]]:
+    """(kind, TEXT, line) tokens, comments dropped; words upper-cased."""
+    tokens = []
+    line = 1
+    pos = 0
+    for m in _PLI_TOKEN.finditer(text):
+        line += text.count("\n", pos, m.start())
+        pos = m.start()
+        kind = m.lastgroup or "punct"
+        if kind != "comment":
+            tokens.append((kind, m.group(0) if kind == "string" else m.group(0).upper(), line))
+    return tokens
+
+
+def _pli_group(tokens: list, i: int) -> int:
+    """Index just past the `)` matching the `(` at tokens[i]."""
+    depth = 0
+    while i < len(tokens):
+        t = tokens[i][1]
+        if t == "(":
+            depth += 1
+        elif t == ")":
+            depth -= 1
+            if depth == 0:
+                return i + 1
+        i += 1
+    return i
+
+
+def _pli_top_words(tokens: list) -> set[str]:
+    """The attribute keywords of an item: words outside any parentheses."""
+    words, depth = set(), 0
+    for kind, text, _ in tokens:
+        depth += {"(": 1, ")": -1}.get(text, 0)
+        if kind == "word" and depth == 0:
+            words.add(text)
+    return words
+
+
+def _pli_text(tokens: list) -> str:
+    """Tokens joined as written: no space before `(`, `)` or `,`, none after `(`."""
+    out = ""
+    for _, text, _ in tokens:
+        if out and text not in ("(", ")", ",") and not out.endswith("("):
+            out += " "
+        out += text
+    return out
+
+
+def _pli_declaration(tokens: list) -> list[dict[str, Any]]:
+    """The items of one DECLARE list (tokens between DCL and `;`)."""
+    items = []
+    i = 0
+    while i < len(tokens):
+        # One item runs to the next comma at depth 0.
+        j, depth = i, 0
+        while j < len(tokens) and not (tokens[j][1] == "," and depth == 0):
+            depth += {"(": 1, ")": -1}.get(tokens[j][1], 0)
+            j += 1
+        item, i = tokens[i:j], j + 1
+        if not item or item[0][1] == "%":
+            continue
+        k = 0
+        level = 1
+        if item[0][1].isdigit():
+            level, k = int(item[0][1]), 1
+        names: list[tuple[str, int, list]] = []
+        if k < len(item) and item[k][1] == "(":
+            end = _pli_group(item, k)
+            inner = item[k + 1 : end - 1]
+            part: list = []
+            for t in inner + [("punct", ",", 0)]:
+                if t[1] == "," and part:
+                    names.append((part[0][1], part[0][2], part[1:]))
+                    part = []
+                elif t[1] != ",":
+                    part.append(t)
+            k = end
+        elif k < len(item) and (item[k][0] == "word" or item[k][1] == "*"):
+            if k + 1 < len(item) and item[k + 1][1] == "%":
+                continue  # a macro-built name (`DCL FIELD%;J ...`)
+            names.append((item[k][1], item[k][2], []))
+            k += 1
+        else:
+            continue
+        dims = None
+        if k < len(item) and item[k][1] == "(":
+            end = _pli_group(item, k)
+            dims = item[k + 1 : end - 1]
+            k = end
+        attrs = item[k:]
+        for name, line, inner_attrs in names:
+            words = _pli_top_words(inner_attrs) | _pli_top_words(attrs)
+            if words & _PLI_NON_DATA and "VARIABLE" not in words:
+                continue
+            items.append(
+                {
+                    "level": level,
+                    "name": name,
+                    "dims": _pli_text(dims) if dims is not None else None,
+                    "attributes": _pli_text(inner_attrs + attrs),
+                    "line": line,
+                }
+            )
+    return items
+
+
+def pli_data_items(text: str) -> list[dict[str, Any]]:
+    """Every DECLAREd data item of one PL/I source, in source order, with `parent`
+    the ordinal of its enclosing structure member (None for a level-1 root)."""
+    tokens = _pli_token_stream(_pli_source_lines(text))
+    statements: list[list] = [[]]
+    for t in tokens:
+        if t[1] == ";" and t[0] == "punct":
+            statements.append([])
+        else:
+            statements[-1].append(t)
+    items: list[dict[str, Any]] = []
+    macro = False
+    for st in statements:
+        # A trailing sequence number orphaned by a stripped comment is a bare number.
+        while st and st[0][0] == "word" and st[0][1].isdigit() and len(st) > 1 and st[1][2] > st[0][2]:
+            st = st[1:]
+        if not st:
+            continue
+        if st[0][1] == "%":
+            if macro:
+                macro = not (len(st) > 1 and st[1][1] == "END")
+            elif len(st) > 3 and st[2][1] == ":" and st[3][1] in ("PROC", "PROCEDURE"):
+                macro = True
+            continue
+        if macro or st[0][1] not in ("DCL", "DECLARE") or st[0][0] != "word":
+            continue
+        stack: list[tuple[int, int]] = []
+        for it in _pli_declaration(st[1:]):
+            while stack and stack[-1][0] >= it["level"]:
+                stack.pop()
+            it = {"ordinal": len(items), "parent": stack[-1][1] if stack else None, **it}
+            stack.append((it["level"], it["ordinal"]))
+            items.append(it)
+    return items
+
+
+def pli_record_fields(items: list[dict[str, Any]], parent_key: str = "parent") -> set[str]:
+    """The dotted paths (`ROOT.GROUP.FIELD`) of every named leaf item -- the PL/I
+    comparison unit. A leaf is an item nothing nests under; `*` is unnamed filler.
+    Works on this reader's items and on the engine's (`parent_key="parent_ordinal"`)."""
+    by_ordinal = {it["ordinal"]: it for it in items}
+    has_child = {it[parent_key] for it in items if it[parent_key] is not None}
+    out: set[str] = set()
+    for it in items:
+        if it["ordinal"] in has_child or it["name"] == "*":
+            continue
+        path = [it["name"]]
+        parent = it[parent_key]
+        while parent is not None and parent in by_ordinal:
+            path.append(by_ordinal[parent]["name"])
+            parent = by_ordinal[parent][parent_key]
+        out.add(".".join(reversed(path)))
+    return out
+
+
+def draft_pli(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted PL/I record layouts for every PL/I source in `repo` (#3250). Records
+    adjudicate a differential delta only once a file is signed off with
+    `records_validated` -- the COBOL records precedent (#3246)."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in PLI_EXTS and ".git" not in p.parts:
+            items = pli_data_items(p.read_text(encoding="utf-8", errors="ignore"))
+            out[p.relative_to(repo).as_posix()] = {
+                "records": items,
+                "records_validated": False,
+                "verification": {"status": "draft", "notes": []},
+            }
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -582,7 +796,14 @@ def draft(repo: Path, corpus: str, url: str, ref: str) -> tuple[dict[str, Any], 
     for p in programs:
         pid_to_path.setdefault(Source(p).program_id(), []).append(p.relative_to(repo).as_posix())
     tx_map = _key_transactions(repo)  # #3247: repo-wide CSD read, once
-    key: dict[str, Any] = {"schema_version": SCHEMA_VERSION, "corpus": corpus, "url": url, "ref": ref, "programs": {}}
+    key: dict[str, Any] = {
+        "schema_version": SCHEMA_VERSION,
+        "corpus": corpus,
+        "url": url,
+        "ref": ref,
+        "programs": {},
+        "pli_programs": draft_pli(repo),  # #3250
+    }
     report = [f"# Draft reachability evidence: {corpus} @ {ref[:8]}", ""]
     for p in programs:
         rel = p.relative_to(repo).as_posix()
@@ -742,6 +963,9 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # engine is transaction_map from the DB.
         "entry transactions",
         "cics/sql",
+        # #3250: PL/I DECLARE leaf fields (dotted paths), per PL/I file. Truth is
+        # this tool's own PL/I reader; there is no PL/I forge; engine is record_data.
+        "PL/I record fields",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -870,6 +1094,21 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             None,
         )
 
+    for rel, k in key.get("pli_programs", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        engine_items = (
+            [{"ordinal": it.ordinal, "parent_ordinal": it.parent_ordinal, "name": it.name} for it in ef.data_items]
+            if ef
+            else None
+        )
+        add(
+            "PL/I record fields",
+            rel,
+            pli_record_fields(k.get("records", [])),
+            None,
+            pli_record_fields(engine_items, "parent_ordinal") if engine_items is not None else None,
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -917,6 +1156,9 @@ def main() -> int:
     s.add_argument("--db", type=Path)
     s.add_argument("--md", type=Path)
     s.add_argument("--json", type=Path)
+    a = sub.add_parser("add-pli")
+    a.add_argument("repo", type=Path)
+    a.add_argument("--key", type=Path, required=True)
     args = ap.parse_args()
 
     repo = args.repo.resolve()
@@ -929,6 +1171,16 @@ def main() -> int:
         return 0
 
     key = json.loads(args.key.read_text(encoding="utf-8"))
+    if args.cmd == "add-pli":
+        # Refresh drafts, but never clobber a file someone already signed off.
+        existing = key.get("pli_programs", {})
+        for rel, entry in draft_pli(repo).items():
+            if not existing.get(rel, {}).get("records_validated"):
+                existing[rel] = entry
+        key["pli_programs"] = existing
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(existing)} PL/I files -> {args.key}")
+        return 0
     result, md = score(repo, key, args.db)
     if args.md:
         args.md.write_text(md, encoding="utf-8")

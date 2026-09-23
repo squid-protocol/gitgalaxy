@@ -1,5 +1,5 @@
 # ==============================================================================
-# GitGalaxy Core: Mainframe Boundary Extraction (#3200, #3201, #3246, #3211-followup)
+# GitGalaxy Core: Mainframe Boundary Extraction (#3200, #3201, #3246, #3211-followup, #3250)
 #
 # PURPOSE:
 # The counted rules tell you THAT a COBOL program calls something and THAT a JCL
@@ -16,6 +16,7 @@
 #                     LOCAL-STORAGE) and FILE SECTION `FD`/`01` record layouts:
 #                     level, name, PIC, USAGE/COMP-3, OCCURS [DEPENDING ON],
 #                     REDEFINES, VALUE -- the schema of the system (#3246).
+#                     PL/I `DECLARE`d structures feed the same channel (#3250).
 #   4. transaction -- the CICS transaction map (#3211-followup): the CSD
 #                     `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (and
 #                     `DEFINE PROGRAM(PPPP) ... TRANSID(TTTT)` autoinstall
@@ -67,7 +68,8 @@ from typing import Any, Optional
 # top level rather than inside `rules` because language_lens.py re.compile()s
 # every string value in `rules` (#2806). `csd` is the CICS resource-definition
 # deck (#3211-followup); jcl additionally carries a DFHCSDUP SYSIN deck inline.
-BOUNDARY_DIALECTS = ("cobol", "jcl", "csd")
+# `pli` carries only the record channel: its DECLAREd structures (#3250).
+BOUNDARY_DIALECTS = ("cobol", "jcl", "csd", "pli")
 
 # #3211-followup: the call-site verbs whose `target` is a TRANSACTION, not a
 # program. They ride in call_site_data alongside program invocations, but their
@@ -624,6 +626,419 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
     return records
 
 
+# ---- #3250: PL/I DECLARE structures -----------------------------------------
+# A PL/I `DECLARE`d structure is the direct analog of a COBOL record layout: a
+# level-number hierarchy of named items with attributes. The same `record_data`
+# spine carries it; the columns map where the meaning is the same and the full
+# attribute text rides in `attributes` for everything that has no COBOL home:
+#
+#   level_number        <- level (a level-less declaration is level 1)
+#   pic                 <- the PICTURE string, unquoted
+#   usage               <- the data type as written, in canonical order:
+#                          `FIXED DEC(7,2)`, `CHAR(10) VARYING`, `BIT(1)`, `POINTER`
+#   section             <- the root's storage class as written
+#                          (STATIC / AUTOMATIC / BASED / CONTROLLED), else None
+#   occurs_min/max      <- the first dimension's extent; occurs_depending_on <- REFER
+#   redefines           <- DEFINED/DEF base (BASED names a pointer, not an item)
+#   value               <- INIT/INITIAL/VALUE content
+#   attributes          <- every attribute but INIT, whitespace-collapsed
+#
+# Names are PL/I identifiers (`_ID` in pli.py): letters, digits, `_@#$` and the
+# national letters real source uses (navikt/DSF: `DATO_ÅMD`). `\w` is Unicode on
+# a str pattern. `*` is the unnamed (filler) member.
+_PLI_NAME = re.compile(r"(?:[^\W\d]|[@#$])[\w@#$]*|\*")
+_PLI_LEVEL = re.compile(r"(\d{1,3})(?=[ \t\r\n(])")
+_PLI_DECLARE = re.compile(r"(?:DCL|DECLARE)(?![\w@#$])", re.I)
+# A preprocessor procedure (`%NAME: PROCEDURE ...; ... %END;`) runs at compile
+# time; a DECLARE inside it declares a macro variable, not program storage.
+_PLI_MACRO_PROC = re.compile(r"%[ \t\r\n]*[\w@#$]+[ \t\r\n]*:[ \t\r\n]*PROC(?:EDURE)?(?![\w@#$])", re.I)
+_PLI_MACRO_END = re.compile(r"%[ \t\r\n]*END(?![\w@#$])", re.I)
+# Fixed-format source carries a sequence number in columns 73-80 (navikt/DSF:
+# `00000110`). Blanked in place so offsets and line numbers are unchanged. A line
+# over 80 columns is free-format and left alone.
+_PLI_SEQ_FIELD = re.compile(r"[ \t]*[A-Z]{0,4}[0-9]{2,8}[ \t]*", re.I)
+# PRISM removes a comment but not the sequence number after it, so a line such as
+# `2 X CHAR(1), /* note */ 00000160` leaves the number at a column other than 73.
+# It then sits alone before a newline at the start of the next item or statement --
+# several in a row when consecutive lines each lost a comment.
+_PLI_LEADING_SEQ = re.compile(r"[ \t\r\n]*[A-Z]{0,4}[0-9]{2,8}[ \t]*(?=\r?\n)", re.I)
+# Canonical spellings of the attribute keywords this reader interprets.
+_PLI_SYNONYMS = {
+    "CHARACTER": "CHAR",
+    "DECIMAL": "DEC",
+    "BINARY": "BIN",
+    "PICTURE": "PIC",
+    "INITIAL": "INIT",
+    "DEFINED": "DEF",
+    "PTR": "POINTER",
+    "AUTO": "AUTOMATIC",
+    "CTL": "CONTROLLED",
+    "VAR": "VARYING",
+    "DIMENSION": "DIM",
+    "COND": "CONDITION",
+    "WCHAR": "WIDECHAR",
+}
+_PLI_STORAGE_CLASSES = ("STATIC", "AUTOMATIC", "BASED", "CONTROLLED")
+_PLI_STRING_TYPES = ("CHAR", "BIT", "GRAPHIC", "WIDECHAR", "UCHAR")
+_PLI_LOCATOR_TYPES = ("POINTER", "OFFSET", "HANDLE", "AREA", "LABEL")
+# Declarations that are not data: a file constant, a builtin, a condition, a
+# generic or an entry constant (an ENTRY VARIABLE is data), a named FORMAT.
+_PLI_NOT_DATA = frozenset({"FILE", "BUILTIN", "CONDITION", "GENERIC", "ENTRY", "RETURNS", "FORMAT"})
+
+
+def _pli_blank_sequence_fields(code_stream: str) -> str:
+    """Columns 73-80 blanked on every fixed-format line that carries a sequence number."""
+    lines = code_stream.split("\n")
+    for idx, line in enumerate(lines):
+        body = line.rstrip("\r")
+        if 72 < len(body.rstrip()) <= 80 and _PLI_SEQ_FIELD.fullmatch(body[72:]):
+            lines[idx] = body[:72] + " " * (len(line) - 72)
+    return "\n".join(lines)
+
+
+def _pli_skip_leading(text: str) -> int:
+    """The index of the first real character: past whitespace and any orphaned
+    sequence numbers (one match per line, so the loop is linear)."""
+    i = 0
+    while True:
+        lead = _PLI_LEADING_SEQ.match(text, i)
+        if not lead:
+            break
+        i = lead.end()
+    while i < len(text) and text[i].isspace():
+        i += 1
+    return i
+
+
+def _pli_split(text: str, sep: str) -> list[tuple[int, str]]:
+    """(offset, piece) for `text` split on `sep` outside quotes and parentheses."""
+    pieces: list[tuple[int, str]] = []
+    depth = 0
+    quote: Optional[str] = None
+    start = 0
+    for i, ch in enumerate(text):
+        if quote is not None:
+            if ch == quote:
+                quote = None
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(depth - 1, 0)
+        elif ch == sep and depth == 0:
+            pieces.append((start, text[start:i]))
+            start = i + 1
+    pieces.append((start, text[start:]))
+    return pieces
+
+
+def _pli_balanced(text: str, open_at: int) -> int:
+    """The index just past the `)` closing the `(` at `open_at` (quote-aware), or len(text)."""
+    depth = 0
+    quote: Optional[str] = None
+    for i in range(open_at, len(text)):
+        ch = text[i]
+        if quote is not None:
+            if ch == quote:
+                quote = None
+        elif ch in "'\"":
+            quote = ch
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth -= 1
+            if depth == 0:
+                return i + 1
+    return len(text)
+
+
+def _pli_upper(text: str) -> str:
+    """Upper-cased outside quoted literals, whitespace runs collapsed to one space
+    and dropped just inside parentheses (`POS( 4)` reads `POS(4)`)."""
+    out: list[str] = []
+    quote: Optional[str] = None
+    for ch in text:
+        if quote is not None:
+            out.append(ch)
+            if ch == quote:
+                quote = None
+        elif ch in "'\"":
+            quote = ch
+            out.append(ch)
+        elif ch.isspace():
+            if out and out[-1] not in " (":
+                out.append(" ")
+        else:
+            if ch == ")" and out and out[-1] == " ":
+                out.pop()
+            out.append(ch.upper())
+    return "".join(out).strip()
+
+
+def _pli_tokens(text: str) -> list[str]:
+    """The attribute tokens of one item: whitespace-separated outside quotes and
+    parentheses, with a `(...)` or quoted operand glued to its keyword so `CHAR (10)`
+    and `PIC '999'` read like `CHAR(10)` and `PIC'999'`."""
+    raw: list[str] = []
+    buf: list[str] = []
+    depth = 0
+    quote: Optional[str] = None
+    for ch in text:
+        if quote is not None:
+            buf.append(ch)
+            if ch == quote:
+                quote = None
+            continue
+        if ch in "'\"":
+            quote = ch
+        elif ch == "(":
+            depth += 1
+        elif ch == ")":
+            depth = max(depth - 1, 0)
+        elif ch.isspace() and depth == 0:
+            if buf:
+                raw.append("".join(buf))
+                buf = []
+            continue
+        buf.append(ch)
+    if buf:
+        raw.append("".join(buf))
+    tokens: list[str] = []
+    for tok in raw:
+        if tokens and tok[0] in "('\"":
+            tokens[-1] += tok
+        else:
+            tokens.append(tok)
+    # A bare number is a sequence field a removed comment left mid-item, never an
+    # attribute (every PL/I attribute is a keyword, optionally with an operand).
+    return [_pli_upper(t) for t in tokens if not t.isdigit()]
+
+
+def _pli_unquote(literal: str) -> Optional[str]:
+    """The body of a single quoted literal (`''` folded to `'`), or None if it is not one."""
+    literal = literal.strip()
+    if len(literal) >= 2 and literal[0] in "'\"" and literal[-1] == literal[0]:
+        body = literal[1:-1]
+        doubled = literal[0] * 2
+        if literal[0] not in body.replace(doubled, ""):
+            return body.replace(doubled, literal[0])
+    return None
+
+
+def _pli_extent(dims: str) -> tuple[Optional[int], Optional[str]]:
+    """(extent, REFER name) of the first dimension of a `(...)` dimension list."""
+    first = _pli_split(dims, ",")[0][1].strip()
+    refer = None
+    refer_at = re.search(r"(?<![\w@#$])REFER[ \t\r\n]*\(", first, re.I)
+    if refer_at:
+        close = _pli_balanced(first, refer_at.end() - 1)
+        refer = first[refer_at.end() : close - 1].strip().upper() or None
+        first = first[: refer_at.start()].strip()
+    bounds = [b.strip() for _, b in _pli_split(first, ":")]
+    try:
+        if len(bounds) == 2:
+            return int(bounds[1]) - int(bounds[0]) + 1, refer
+        return int(bounds[0]), refer
+    except ValueError:
+        return None, refer
+
+
+def _pli_item_attributes(tokens: list[str]) -> Optional[dict[str, Any]]:
+    """The record_data fields of one item from its attribute tokens, or None when
+    the declaration is not data (a FILE, BUILTIN, CONDITION, ENTRY constant ...)."""
+    parsed: list[tuple[str, str]] = []
+    for tok in tokens:
+        m = re.match(r"[A-Z_]+", tok)
+        keyword = m.group(0) if m else ""
+        parsed.append((_PLI_SYNONYMS.get(keyword, keyword), tok[len(keyword) :]))
+    keywords = {k for k, _ in parsed}
+    if keywords & _PLI_NOT_DATA and "VARIABLE" not in keywords:
+        return None
+
+    scale = base = precision = None
+    string_type = varying = locator = pic = value = redefines = section = None
+    dims = None
+    kept: list[str] = []
+    skip_next = False
+    for pos, (keyword, operand) in enumerate(parsed):
+        if skip_next:
+            skip_next = False
+            kept.append(tokens[pos])
+            continue
+        if keyword in ("INIT", "VALUE"):
+            value = operand.strip()
+            if value.startswith("(") and value.endswith(")"):
+                value = value[1:-1].strip()
+            unquoted = _pli_unquote(value)
+            value = unquoted if unquoted is not None else (value or None)
+            continue
+        kept.append(tokens[pos])
+        if keyword in ("FIXED", "FLOAT"):
+            scale = keyword
+            precision = precision or (operand or None)
+        elif keyword in ("DEC", "BIN"):
+            base = keyword
+            precision = precision or (operand or None)
+        elif keyword in _PLI_STRING_TYPES and string_type is None:
+            string_type = keyword + operand
+        elif keyword in ("VARYING", "VARYINGZ"):
+            varying = keyword
+        elif keyword in _PLI_LOCATOR_TYPES and locator is None:
+            locator = keyword + operand
+        elif keyword == "PIC":
+            pic = _pli_unquote(operand)
+        elif keyword == "DEF":
+            target = operand.strip()[1:-1] if operand.strip().startswith("(") else ""
+            if not target and pos + 1 < len(parsed):
+                target, skip_next = tokens[pos + 1], True
+            name = re.match(r"[\w@#$.]+", target.strip())
+            redefines = name.group(0).upper() if name else None
+        elif keyword == "DIM" and operand.startswith("("):
+            dims = operand[1:-1]
+        if keyword in _PLI_STORAGE_CLASSES and section is None:
+            section = keyword
+
+    if scale or base:
+        usage: Optional[str] = " ".join(x for x in (scale, base) if x) + (precision or "")
+    elif string_type:
+        usage = string_type + (f" {varying}" if varying else "")
+    else:
+        usage = locator
+    return {
+        "usage": usage,
+        "pic": pic,
+        "value": value,
+        "redefines": redefines,
+        "section": section,
+        "dims": dims,
+        "attributes": " ".join(kept),
+    }
+
+
+def _pli_items(body: str) -> list[tuple[int, Optional[int], str, Optional[str], list[str]]]:
+    """Split one DECLARE body into (offset, level, name, dims, attribute tokens) items.
+
+    A factored declaration (`DCL (A, B) CHAR(5)`, `2 (X, Y) FIXED BIN`) expands to
+    one item per name sharing the outer attributes. A `%INCLUDE` standing in for a
+    structure's members (navikt/DSF: `DCL 1 B01 BASED(P), %INCLUDE P0019921;`) and
+    a macro-built name (`DCL FIELD%;J ...`) are not items this file declares.
+    """
+    out = []
+    for offset, piece in _pli_split(body, ","):
+        i = _pli_skip_leading(piece)
+        if i >= len(piece) or piece[i] == "%":
+            continue
+        level = None
+        level_match = _PLI_LEVEL.match(piece, i)
+        if level_match:
+            level = int(level_match.group(1))
+            i = level_match.end()
+            while i < len(piece) and piece[i].isspace():
+                i += 1
+        names: list[tuple[int, str, list[str]]] = []
+        if i < len(piece) and piece[i] == "(":
+            close = _pli_balanced(piece, i)
+            for inner_offset, part in _pli_split(piece[i + 1 : close - 1], ","):
+                part_tokens = _pli_tokens(part)
+                if part_tokens and _PLI_NAME.fullmatch(part_tokens[0]):
+                    names.append((i + 1 + inner_offset, part_tokens[0], part_tokens[1:]))
+            i = close
+        else:
+            name_match = _PLI_NAME.match(piece, i)
+            if not name_match:
+                continue
+            if piece[name_match.end() : name_match.end() + 1] == "%":
+                continue
+            names.append((i, name_match.group(0).upper(), []))
+            i = name_match.end()
+        while i < len(piece) and piece[i].isspace():
+            i += 1
+        dims = None
+        if i < len(piece) and piece[i] == "(":
+            close = _pli_balanced(piece, i)
+            dims = piece[i + 1 : close - 1]
+            i = close
+        outer = _pli_tokens(piece[i:])
+        dims_text = f"({_pli_upper(dims)})" if dims is not None else None
+        for name_offset, name, inner in names:
+            tokens = ([dims_text] if dims_text else []) + inner + outer
+            out.append((offset + name_offset, level, name, dims, tokens))
+    return out
+
+
+def _pli_records(code_stream: str) -> list[dict[str, Any]]:
+    """The DECLAREd data items of one PL/I file as a record tree (#3250).
+
+    Same flat, source-ordered shape as `_cobol_records` (the reader rebuilds the
+    tree from `ordinal`/`parent_ordinal`), plus `attributes`. Every data
+    declaration is an item -- a level-less scalar is a level-1 root, the PL/I
+    analog of a COBOL 77 -- and a structure's members nest by level number. The
+    root's storage class is its members' `section` (PL/I allows it only on
+    level 1). Statements are accumulated to their `;` outside quotes first, so
+    every pattern runs inside one bounded statement, the same reason the COBOL
+    walker reads whole sentences. Block scope is not modelled: two procedures
+    declaring the same name yield two roots, in source order.
+    """
+    text = _pli_blank_sequence_fields(code_stream)
+    newlines = [i for i, ch in enumerate(text) if ch == "\n"]
+
+    def _line_of(offset: int) -> int:
+        return bisect.bisect_left(newlines, offset) + 1
+
+    records: list[dict[str, Any]] = []
+    in_macro = False
+    for start, statement in _pli_split(text, ";"):
+        i = _pli_skip_leading(statement)
+        head = statement[i:]
+        if in_macro:
+            in_macro = not _PLI_MACRO_END.match(head)
+            continue
+        if _PLI_MACRO_PROC.match(head):
+            in_macro = True
+            continue
+        declare = _PLI_DECLARE.match(head)
+        if not declare:
+            continue
+        body_start = start + i + declare.end()
+        stack: list[tuple[int, int, Optional[str]]] = []  # (level, ordinal, root storage class)
+        for offset, level, name, dims, tokens in _pli_items(text[body_start : start + len(statement)]):
+            fields = _pli_item_attributes(tokens)
+            if fields is None:
+                continue
+            level = level or 1
+            while stack and stack[-1][0] >= level:
+                stack.pop()
+            parent_ordinal = stack[-1][1] if stack else None
+            section = stack[0][2] if stack else fields["section"]
+            ordinal = len(records)
+            stack.append((level, ordinal, section))
+            occurs = depending = None
+            first_dims = dims if dims is not None else fields["dims"]
+            if first_dims is not None:
+                occurs, depending = _pli_extent(first_dims)
+            records.append(
+                {
+                    "section": section,
+                    "fd_name": None,
+                    "ordinal": ordinal,
+                    "parent_ordinal": parent_ordinal,
+                    "level": level,
+                    "name": name,
+                    "pic": fields["pic"],
+                    "usage": fields["usage"],
+                    "occurs_min": occurs,
+                    "occurs_max": occurs,
+                    "occurs_depending_on": depending,
+                    "redefines": fields["redefines"],
+                    "value": fields["value"],
+                    "attributes": fields["attributes"] or None,
+                    "line": _line_of(body_start + offset),
+                }
+            )
+    return records
+
+
 def _jcl_statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     """Logical JCL statements as (line, name, operation, operands).
 
@@ -858,9 +1273,9 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     language id, so a future dialect can share COBOL's reading without being
     named cobol. Every return carries all four keys (`calls`, `datasets`,
     `records`, `transactions`) so the caller reads a uniform shape; a dialect that
-    carries only some channels (JCL has no record layouts; CSD only transactions)
-    fills the rest with empty lists, and an unrecognised declaration degrades to
-    "no facts" rather than raising in a worker.
+    carries only some channels (JCL has no record layouts; CSD only transactions;
+    PL/I only records, #3250) fills the rest with empty lists, and an unrecognised
+    declaration degrades to "no facts" rather than raising in a worker.
     """
     if not code_stream:
         return {"calls": [], "datasets": [], "records": [], "transactions": []}
@@ -879,4 +1294,6 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         return boundary
     if dialect == "csd":
         return {"calls": [], "datasets": [], "records": [], "transactions": _csd_transactions(code_stream)}
+    if dialect == "pli":
+        return {"calls": [], "datasets": [], "records": _pli_records(code_stream), "transactions": []}
     return {"calls": [], "datasets": [], "records": [], "transactions": []}

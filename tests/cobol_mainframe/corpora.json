@@ -18,7 +18,7 @@
       "answer_key": "tests/cobol_mainframe/answer_key/zopeneditor-sample.json",
       "notes": "Batch COBOL with zapp.yaml copybook libraries, and the same-name COBOL/SAM2 + multiroot/sam/SAM2 layout (#3218). No .bms maps.",
       "excerpt": {
-        "why": "Every program with its copybooks (both zapp.yaml libraries) and the one JCL that EXECs one: the #3218 same-name COBOL/SAM2 + multiroot/sam/SAM2 layout.",
+        "why": "Every program with its copybooks (both zapp.yaml libraries) and the one JCL that EXECs one: the #3218 same-name COBOL/SAM2 + multiroot/sam/SAM2 layout. Plus every PL/I program (#3250): DECLAREd structures (BASED, DEFINED, PIC, INIT) and the MACSAMP preprocessor sample.",
         "files": [
           "COBOL/SAM1.cbl",
           "COBOL/SAM1LIB.cbl",
@@ -26,6 +26,10 @@
           "COPYBOOK/CUSTCOPY.cpy",
           "COPYBOOK/TRANREC.cpy",
           "JCL/RUN.jcl",
+          "PLI/MACSAMP.pli",
+          "PLI/PSAM1.pli",
+          "PLI/PSAM1LIB.pli",
+          "PLI/PSAM2.pli",
           "multiroot/copybooks/cust/CUSTCOPY.cpy",
           "multiroot/copybooks/trans/SAM2PAR5.cpy",
           "multiroot/copybooks/trans/SAM2PARM.cpy",

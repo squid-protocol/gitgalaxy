@@ -92,6 +92,13 @@ DEFINITION: dict[str, Any] = {
     # It is NOT positional_anchored like COBOL: PL/I's margins (2-72) are a compiler
     # option, not a column-indicator comment syntax.
     "lexical_family": "standard_block",
+    # #3250: the named record-layout fact channel. PL/I DECLAREd structures (a
+    # level-number hierarchy of named items with attributes) are the analog of a
+    # COBOL DATA DIVISION record layout and feed the same `record_data` table via
+    # core/mainframe_boundary.py's `_pli_records`. TOP LEVEL, never in `rules`:
+    # language_lens.py re.compile()s every string value there, so the dialect would
+    # silently extract nothing while every unit test stayed green (#2806).
+    "boundary_extraction": "pli",
     # %INCLUDE member names resolve to PDS members, which are case-insensitive:
     # `%INCLUDE p0019908;` binds the same member as `%INCLUDE P0019908;`.
     "case_insensitive_imports": True,

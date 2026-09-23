@@ -15,7 +15,8 @@
 # (edge_data, edge_kind 'import'), subsystem hit counts, since #3200/#3201 the
 # mainframe call graph (call_site_data, plus edge_data kinds 'call'/'exec') and
 # dataset boundary (dataset_data), since #3246 the DATA DIVISION item tree + FD
-# record layouts (record_data), and since #3211-followup the CICS transaction
+# record layouts (record_data; since #3250 also PL/I DECLAREd structures, with
+# their full attribute text in `attributes`), and since #3211-followup the CICS transaction
 # map (transaction_data: which transaction id entry-points into which program,
 # plus the in-source routing verbs 'RETURN/START/RUN TRANSID' carried in
 # call_site_data). NOT in the DB, so still owned by the forge tools:
@@ -115,6 +116,11 @@ class EngineDataItem:
     controlling item of a variable-length OCCURS. `redefines` names the item this
     one overlays. Levels 66/88 describe the item above them and never carry
     children.
+
+    PL/I DECLAREd structures (#3250) ride the same shape: `usage` is the data type
+    as written (`FIXED DEC(7,2)`, `CHAR(10) VARYING`), `section` the root's storage
+    class, `redefines` the DEFINED base, `occurs_depending_on` the REFER name, and
+    `attributes` the item's full attribute text (None for COBOL).
     """
 
     ordinal: int
@@ -132,11 +138,20 @@ class EngineDataItem:
     value: Optional[str]
     line: int
     children: list = field(default_factory=list)  # EngineDataItem
+    attributes: Optional[str] = None  # #3250: PL/I attribute text; None for COBOL
 
     @property
     def is_group(self) -> bool:
-        """A group item has subordinate items and no PIC of its own."""
-        return not self.pic and self.level not in (66, 88)
+        """A group item has subordinate items and no PIC or data type of its own.
+
+        A PL/I elementary item carries its type in `usage` with no PIC
+        (`2 NAME CHAR(17)`, #3250), so a missing PIC alone does not make a group;
+        a childless root with no type of its own (`01 REC.` + COPY, a PL/I
+        `1 B01 BASED(P), %INCLUDE ...`) still does.
+        """
+        if self.level in (66, 88):
+            return False
+        return bool(self.children) or not (self.pic or self.usage)
 
     @property
     def occurs(self) -> Optional[int]:
@@ -350,6 +365,12 @@ class GalaxyIR:
         return self.files.get(rel)
 
 
+def _has_column(cur: sqlite3.Cursor, table: str, column: str) -> bool:
+    """Whether `table` carries `column` (#3250: record_data.attributes), so a DB
+    written before the column existed still loads, with the value as None."""
+    return any(row[1] == column for row in cur.execute(f"PRAGMA table_info({table})"))
+
+
 def _has_table(cur: sqlite3.Cursor, name: str) -> bool:
     """Whether this database carries `name`, so an older scan still loads.
 
@@ -470,6 +491,8 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
         # Rows arrive in source order (ORDER BY ordinal); the tree is rethreaded
         # from parent_ordinal, which the extractor computed with a level stack.
         if _has_table(cur, "record_data"):
+            # #3250: `attributes` is NULL on a DB written before the column existed.
+            attributes_col = "attributes" if _has_column(cur, "record_data", "attributes") else "NULL"
             for (
                 file_id,
                 ordinal,
@@ -486,10 +509,11 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 redef,
                 val,
                 line,
+                attrs,
             ) in cur.execute(
-                "SELECT file_id, ordinal, parent_ordinal, level_number, item_name, section, fd_name, pic, "
-                "usage, occurs_min, occurs_max, occurs_depending_on, redefines, value_literal, line_number "
-                "FROM record_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, ordinal",
+                "SELECT file_id, ordinal, parent_ordinal, level_number, item_name, section, fd_name, pic, "  # noqa: S608 -- attributes_col is one of two literals; values are bound
+                "usage, occurs_min, occurs_max, occurs_depending_on, redefines, value_literal, line_number, "
+                f"{attributes_col} FROM record_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, ordinal",
                 (repo_name, commit_hash),
             ):
                 if file_id not in by_id:
@@ -510,6 +534,7 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         redefines=redef,
                         value=val,
                         line=int(line or 0),
+                        attributes=attrs,
                     )
                 )
             # Thread children onto parents and collect the roots. `data_items` is

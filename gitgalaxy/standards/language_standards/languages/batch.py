@@ -18,6 +18,11 @@ DEFINITION: dict[str, Any] = {
     "discriminators": [],
     "shebangs": [],
     "lexical_family": "line_exclusive",
+    # #3338: labels are case-insensitive (`call :BUILD` reaches `:build`), and a
+    # label name may carry `-` and `.` (the func_start/calls_out name class), so
+    # the unreferenced_by_name census reads a batch name the way CMD does (#3198).
+    "identifier_case": "insensitive",
+    "identifier_extra_chars": "-.",
     # Collision resolution for `.cmd` (#2504: rexx claims it too, and batch's
     # empty rules dict scores 0 in the Tier 3 lexical scan, so without a
     # Tier 2 anchor every real batch file would lose the scan to any language
@@ -42,5 +47,18 @@ DEFINITION: dict[str, Any] = {
     "rules": {
         # Epic #3264: Explicitly declare the structural invocation paradigm
         "calls_out": re.compile(r"^[ \t]*call[ \t]+:?([A-Za-z_][\w.-]*)", re.I | re.M),
+        # #3338 func_start: a `:label` opens a unit only when it is a SUBROUTINE --
+        # the target of a `call :label` somewhere in the same file, CMD's one
+        # invoke-by-name form. A label is also a `goto` target, and the syntax
+        # does not tell the two apart, so the regex matches every label and the
+        # `batch_call_target` scope filter (detector.py) keeps the called ones.
+        # Measured on language-crucible v1.4.0: of the 7 labels in batch/, only
+        # buildrelease.bat's `:build` (3 `call :build` sites, ends `exit /B 0`)
+        # is a subroutine; `:CheckOpts` is an option-parsing loop head,
+        # `:builddoc`/`:skipdoc` are fall-through sections and `:Help` is a
+        # goto-reached exit. `::` (the comment idiom) never matches: `:` is not
+        # in the name class. Name bounded to 64 chars (ReDoS-flat).
+        "func_start": re.compile(r"^[ \t]*:([A-Za-z_][\w.-]{0,63})", re.M),
+        "_scope_filters": {"func_start": "batch_call_target"},
     },
 }

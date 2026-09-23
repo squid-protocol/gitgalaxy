@@ -832,6 +832,11 @@ _ANGLE_BRACKET_GENERIC_LANGUAGES = frozenset(
 # Excluded per-language rather than dropped from the shared pattern outright,
 # since the same keyword IS a valid terminator in other Mode A languages (e.g.
 # COBOL's own `RETURN`/`EXIT`).
+# #3338: a batch `call :label` site, anywhere on its line (`if ... call :x`,
+# `... && call :x` are common). The `:` is required -- `call other.bat` runs
+# another script, not a label. Same name class as batch's func_start, bounded.
+_BATCH_CALL_TARGET_RE = re.compile(r"\bcall[ \t]+:([A-Za-z_][\w.-]{0,63})", re.I)
+
 _NON_TERMINATING_KEYWORDS_BY_LANG: dict[str, frozenset[str]] = {
     "fortran": frozenset({"EXIT"}),
     "abap": frozenset({"RETURN", "EXIT"}),
@@ -3778,6 +3783,11 @@ class StructuralExtractor:
                         # transaction runs from its own `DEFINE TRANSACTION(...)` to
                         # the next DEFINE (or EOF), exactly like jcl's steps.
                         "csd",
+                        # #3338: a batch subroutine is a `:label` with no
+                        # braces; its body runs to the next called label, cut
+                        # back to its last line-start `exit /b` by the shared
+                        # terminator vocabulary.
+                        "batch",
                     ) or family in ("column_sensitive"):
                         mode_name = "Mode_A_Labels"
                         sats, impact = self._slice_by_labels(code, rules, offset, spatial_map)
@@ -7248,7 +7258,8 @@ class StructuralExtractor:
     # coding_analysis). Six exist today -- `lisp_body_position` (scheme),
     # `go_declaration_group` (#2859), `matlab_return_channel`,
     # `yaml_parameter_block` (#2753), `abap_declaration_statement` (#2824)
-    # and `jcl_instream_payload` (#3010); add new ones here, keyed by the
+    # and `jcl_instream_payload` (#3010), plus `cobol_sentence_start` (#3197)
+    # and `batch_call_target` (#3338); add new ones here, keyed by the
     # name a language definition uses, so the registry stays data.
     # ------------------------------------------------------------------
 
@@ -7670,6 +7681,15 @@ class StructuralExtractor:
                 if idx >= 0 and m.start() < spans[idx][1]:
                     kept.append(m)
             return kept
+        if filter_name == "batch_call_target":
+            # #3338: keep a batch `:label` only when the same file reaches it
+            # with `call :label` -- the only invoke-by-name form; a label that
+            # is only a `goto` target is a jump target, not a subroutine.
+            # Labels are case-insensitive. Group 1 of the opting-in rule is the
+            # label name. Not memoized: `cache` holds offset sets, and
+            # func_start is the only rule that opts in.
+            called = {n.lower() for n in _BATCH_CALL_TARGET_RE.findall(code)}
+            return [m for m in matches if m.group(1) and m.group(1).lower() in called]
         self.logger.warning(
             f"[DIAGNOSTIC] Unknown scope filter '{filter_name}' declared for '{seg_lang}::{rule_name}'. Ignoring."
         )

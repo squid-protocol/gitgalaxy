@@ -340,3 +340,33 @@ def test_auditor_provisional_structure_retention(auditor):
 
     assert [u["path"] for u in unparsable] == ["noise.xyz"], "Genuine noise should still be banished."
     assert "No Retainable Structure" in unparsable[0]["reason"]
+
+
+# ==============================================================================
+# #3338: A DECLARATION-ONLY LANGUAGE IS NOT DENSITY-AUDITED
+# ==============================================================================
+def test_declaration_only_language_skips_zero_density_floor():
+    """batch's only auditor sensor is func_start (`call :label` subroutines).
+    A real 80-line script that calls no label (cpython build.bat) reads 0
+    signals; that is not hollowness, so it must stay verified. The same file
+    under a language with a logic sensor is still relegated."""
+    defs = {"batch": {"rules": {"func_start": 1, "calls_out": 1}}, "python": {"rules": {"branch": 1}}}
+    auditor = StatisticalAuditor(lang_defs=defs)
+
+    def script(lang):
+        return {
+            "path": f"build.{lang}",
+            "name": f"build.{lang}",
+            "lang_id": lang,
+            "coding_loc": 80,
+            "equations": {"func_start": 0, "branch": 0},
+            "telemetry": {"identity_lock_tier": 0, "identity_source_proof": "Absolute Override"},
+        }
+
+    verified, unparsable = auditor.audit([script("batch")])
+    assert [f["path"] for f in verified] == ["build.batch"]
+    assert unparsable == []
+
+    verified, unparsable = auditor.audit([script("python")])
+    assert verified == []
+    assert "Zero-Density Threshold" in unparsable[0]["reason"]

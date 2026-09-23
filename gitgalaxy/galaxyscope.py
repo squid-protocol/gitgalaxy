@@ -239,8 +239,6 @@ def _init_worker(
     )
 
     _worker_state["guidestar"].scan_project_config()
-    # #2555: a root manifest stands down the aperture's infra/test shield for this scan.
-    _worker_state["filter"].manifest_project_scope = _worker_state["guidestar"].has_manifest_scope
 
 
 def _process_file_worker(rel_path: str) -> dict[str, Any]:
@@ -1063,8 +1061,6 @@ class Orchestrator:
             # OS-level walk determining physical existence, OS permissions, and intent.
             t_phase = time.time()
             self.guidestar.scan_project_config()
-            # #2555: a root manifest stands down the aperture's infra/test shield for this scan.
-            self.filter.manifest_project_scope = self.guidestar.has_manifest_scope
             self._build_file_census()
             logger.debug(f"⏱️ EXECUTION_TIME [Phase 0 - Radar]: {time.time() - t_phase:.2f}s")
 

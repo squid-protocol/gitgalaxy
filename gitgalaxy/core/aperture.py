@@ -97,16 +97,15 @@ class ApertureFilter:
         )
 
         # ---> SEMANTIC PATH SHIELD <---
-        # Matches boundaries commonly associated with generated, build, vendor, and noise directories.
-        # The leading alternation MUST be a real left boundary (`(?:^|[-_./\\])`), not an optional
-        # separator -- with the old `[-_./\\]?` prefix an infra word matched as the *suffix* of any
-        # path component right before a `.` or `/` (`MAPGEN.jcl` -> `gen`, `DBRMLIB.jcl` -> `lib`,
-        # `layout.tsx`/`checkout.rb` -> `out`, `pytest.ini` -> `test`), silently dropping real source
-        # files whenever no manifest supplied an Intent Lock (#2415). `.github`/`.gitlab` are literal
-        # dots, not "any char".
-        self.infra_path_pattern = re.compile(
-            r"(?i)(?:^|[-_./\\])(?:gen|generated|build|dist|out|vendor|mock|test|spec|docs|assets|scripts|__monolith__|__snapshots__|\.github|\.gitlab|node_modules|third[-_]?party|deps?|lib(?:rary|raries)?)[-_./\\]?\b"
-        )
+        # #3278: CI configuration is real, hand-written source (GitHub Actions / GitLab CI
+        # / CircleCI / Buildkite pipelines carry the repo's build and release logic), but it
+        # lives under dot-directories, and the hidden-path gate in _check_ignore_rules
+        # blocked every one of them -- `.github/workflows/*.yml` never reached the yaml
+        # surface in any real repo. These trees, and the dot-named files inside them
+        # (moby's reusable `.github/workflows/.test.yml`), are exempt; every other hidden
+        # path stays blocked. The two root-level CI dotfiles are exempt by name.
+        self._CI_CONFIG_DIRS = frozenset({".github", ".gitlab", ".circleci", ".buildkite"})
+        self._CI_CONFIG_FILES = frozenset({".gitlab-ci.yml", ".travis.yml"})
 
         # SQL DDL/DML is already treated as its own data-shaped format elsewhere in this
         # file (Gate 3.3's size-tiered Static Asset Bloat Deflector, Gate 4.1's `is_prose`
@@ -116,22 +115,14 @@ class ApertureFilter:
         # SQLite's own `sqlite_cli_scripts/`) is almost always canonical, committed,
         # hand-reviewed content -- exactly the DDL/DML GalaxyScope's legacy-modernization
         # use case exists to scan, not vendor noise. Confirmed case (#2512): 45% of
-        # language-crucible's sqlite corpus was silently dropped by infra_path_pattern
-        # (this gate) and the Gate 4.3 machine-generated-content sensor below, both keyed
-        # off conventions that are false signals specifically for this format.
+        # language-crucible's sqlite corpus was silently dropped by the (since removed,
+        # #3278) path-word shield and the Gate 4.3 machine-generated-content sensor
+        # below, both keyed off conventions that are false signals for this format.
         self._SQL_DDL_EXTENSIONS = frozenset({".sql", ".ddl", ".dml"})
 
         # --- STATE CACHE & DYNAMIC STATE ---
         self._intent_cache: set[str] = set()
         self.dynamic_ignore_dirs: set[str] = set()
-
-        # #2555: whole-scan property, set once from GuideStar when a manifest sits at the
-        # scan root. It relaxes ONLY the Semantic Infrastructure & Test Target Shield
-        # (Gate 3 of _check_ignore_rules) -- deliberately NOT the extension whitelist
-        # (Gate 1.5) or the minification/machine-generated content gates, which a real
-        # project still wants applied. That is why this is a separate signal and not just
-        # a project-wide `has_intent=True` (intent short-circuits those other gates too).
-        self.manifest_project_scope: bool = False
 
         self.logger.debug(f"Initializing Aperture Filter for project: '{self.root.name}'...")
 
@@ -536,13 +527,20 @@ class ApertureFilter:
         """
         parts = rel_path.split("/")
 
-        # 1. Static Ignored Directories & Hidden Paths
+        # 1. Static Ignored Directories & Hidden Paths (CI trees exempt, #3278)
+        in_ci_tree = not self._CI_CONFIG_DIRS.isdisjoint(parts)
         for part in parts:
             low_part = part.lower()
             if low_part in self.ignored_directories:
                 return False
 
-            if part.startswith(".") and part not in self.exact_match_files and not has_intent:
+            if (
+                part.startswith(".")
+                and part not in self.exact_match_files
+                and part not in self._CI_CONFIG_FILES
+                and not in_ci_tree
+                and not has_intent
+            ):
                 return False
 
         # 2. Dynamic Documentation Debris Shield
@@ -552,21 +550,12 @@ class ApertureFilter:
                 self.logger.debug(f"Dynamic Deflection: Asset '{rel_path}' blocked in auto-generated directory.")
                 return False
 
-        # 3. Semantic Infrastructure & Test Target Shield
-        # SQL DDL/DML is exempt -- see _SQL_DDL_EXTENSIONS' own comment (#2512).
-        # #2555: a scan whose root carries a recognized manifest (manifest_project_scope)
-        # is a real project -- its own lib/test/examples dirs are first-class source, not
-        # generated/vendor noise, so the shield is stood down here (node_modules/dist/
-        # vendor are still caught by the static IGNORED_DIRECTORIES gate above, and
-        # minified/machine-generated files by the content gates in is_in_scope).
-        ext = Path(rel_path).suffix.lower()
-        if (
-            ext not in self._SQL_DDL_EXTENSIONS
-            and self.infra_path_pattern.search(rel_path)
-            and not has_intent
-            and not self.manifest_project_scope
-        ):
-            return False
+        # 3. (removed, #3278) The "Semantic Infrastructure & Test Target Shield" dropped
+        # any path containing a word like lib/spec/test/build/out/docs/scripts. Since
+        # #2555 it only fired on scans with no root manifest, where it cut real source
+        # (DOOM's hu_lib.c / p_spec.c, 72% of sqlite, 12 of the yaml corpus's 44 files).
+        # Vendor/dependency trees are caught by IGNORED_DIRECTORIES above, generated and
+        # minified output by the content gates in is_in_scope.
 
         # 4. The Denylist (Vendor Blob Deflection)
         filename = parts[-1]

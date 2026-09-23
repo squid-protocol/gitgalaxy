@@ -87,14 +87,10 @@ class GuideStarLens:
         # Spatial Documentation Map: Dict[directory_path, coverage_strength_float]
         self.documentation_coverage: dict[str, float] = {}
 
-        # #2555: True once a recognized package/build manifest is found AT THE SCAN ROOT.
-        # A root manifest is authoritative proof the scan target is a real project the
-        # user means to analyze, so its own first-class source/test/example directories
-        # (`lib/`, `test/`, `examples/`, ...) should not be silently dropped by the
-        # aperture's Semantic Infrastructure & Test Target Shield. Root-level only:
-        # a manifest nested in a subdirectory does NOT flip this, which is what keeps
-        # manifest-less directory scans (and the language-crucible corpus, scanned at a
-        # manifest-less `data/` root) fully shielded.
+        # #2555: True once a recognized package/build manifest is found AT THE SCAN ROOT
+        # (a manifest nested in a subdirectory does not flip it). It used to stand down
+        # the aperture's path-word infra/test shield; #3278 removed that shield, so this
+        # is now a recorded project fact with no aperture consumer.
         self.has_manifest_scope: bool = False
 
         self.logger.debug(f"GuideStar Lens Online | Sector: {self.root.name}")

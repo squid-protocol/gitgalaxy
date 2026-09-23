@@ -69,70 +69,77 @@ def test_aperture_lead_shield(filter_engine, tmp_path):
 # ==============================================================================
 def test_aperture_semantic_path_and_intent(filter_engine, tmp_path):
     """
-    Proves that infrastructure paths (vendor/build/test) are blocked by default,
-    but can be bypassed using the GuideStar Intent Lock.
+    Proves that hidden paths are blocked by default, but can be bypassed using the
+    GuideStar Intent Lock. (#3278: the path-word infra/test shield this test used to
+    exercise is gone; the hidden-path gate is the intent-bypassable one left.)
     """
-    vendor_dir = tmp_path / "vendor" / "lib"
-    vendor_dir.mkdir(parents=True)
-    vendor_file = vendor_dir / "library.py"
-    vendor_file.write_text("def run(): pass", encoding="utf-8")
+    hidden_dir = tmp_path / ".cache" / "lib"
+    hidden_dir.mkdir(parents=True)
+    hidden_file = hidden_dir / "library.py"
+    hidden_file.write_text("def run(): pass", encoding="utf-8")
 
-    # 1. Default Behavior: Blocked by infra_path_shield
-    is_valid, _, reason = filter_engine.evaluate_path_integrity(vendor_file, has_intent=False)
+    # 1. Default Behavior: Blocked by the hidden-path gate
+    is_valid, _, reason = filter_engine.evaluate_path_integrity(hidden_file, has_intent=False)
     assert is_valid is False
     assert "Blocked" in reason
 
     # 2. GuideStar Intent Lock: Bypassed!
-    is_valid, _, reason = filter_engine.evaluate_path_integrity(vendor_file, has_intent=True)
+    is_valid, _, reason = filter_engine.evaluate_path_integrity(hidden_file, has_intent=True)
     assert is_valid is True
     assert "GuideStar Intent Lock" in reason
 
 
-def test_aperture_infra_path_shield_requires_left_boundary(filter_engine):
+def test_aperture_path_words_never_block(filter_engine):
     """
-    #2415: the Semantic Path Shield's leading token had an optional `[-_./\\]?`
-    prefix and no left boundary, so an infra word (gen/lib/out/test/spec/build/
-    ...) matched as the SUFFIX of any path component sitting right before a `.`
-    or `/`. That silently dropped real source files -- `MAPGEN.jcl` (matched
-    `gen`), `DBRMLIB.jcl` (matched `lib`), `layout.tsx`/`checkout.rb` (`out`),
-    `pytest.ini` (`test`) -- whenever no manifest supplied an Intent Lock.
-
-    After the fix the token must be preceded by start-of-path or a real
-    separator, so it only matches whole path segments / separator-delimited
-    tokens (the stated intent).
+    #3278: the "Semantic Infrastructure & Test Target Shield" (a path-word regex over
+    gen/lib/out/test/spec/build/docs/scripts/...) is removed. It had already been
+    stood down for every scan with a root manifest (#2555), and where it still fired
+    it cut real source: DOOM's hu_lib.c / p_spec.c, 72% of sqlite, and 12 of the yaml
+    corpus's 44 CI files (`pr-linux-test.yml`, `test.yml`). Vendor/dependency trees
+    are IGNORED_DIRECTORIES' job; generated output is the content gates'.
     """
-    # Real source files that merely CONTAIN an infra word mid-component -- must pass now.
     for allowed in (
         "cics-banking-sample-application-cbsa/MAPGEN.jcl",
-        "cobol-programming-course/DBRMLIB.jcl",
-        "web/components/layout.tsx",
-        "store/checkout.rb",
-        "api/rollout.js",
-        "pkg/pytest.ini",
-        "core/rebuild_index.go",
-        "net/dependency_graph.c",
-    ):
-        assert filter_engine._check_ignore_rules(allowed) is True, allowed
-
-    # Genuine infra path segments -- must STILL be blocked (no has_intent).
-    for blocked in (
-        "vendor/lib/library.py",
-        "src/vendor.bundle.js",
-        "node_modules/foo/index.js",
-        "third-party/x.c",
-        "third_party/x.c",
-        "project/build/output.o",
-        "foo/dist/app.js",
-        "src/gen/schema.py",
-        "a/generated/b.py",
+        "linuxdoom-1.10/hu_lib.c",
+        "linuxdoom-1.10/p_spec.c",
+        "src/build.c",
         "test/test_foo.py",
         "spec/foo_spec.rb",
         "scripts/deploy.sh",
-        "deps/leftpad/index.js",
-        "libraries/foo.py",
-        "x/.github/workflows/ci.yml",
-        ".gitlab/ci.yml",
+        "lib/index.js",
+        "docs/conf.py",
+        "vscode_workflows/pr-linux-test.yml",
+        "moby_workflows/test.yml",
+        "grafana_compose/docker_ha-test-unified-alerting_docker-compose.yaml",
     ):
+        assert filter_engine._check_ignore_rules(allowed) is True, allowed
+
+    # Independent gates still hold: ignored directories and contraband names.
+    for blocked in ("node_modules/foo/index.js", "src/vendor.bundle.js"):
+        assert filter_engine._check_ignore_rules(blocked) is False, blocked
+
+
+def test_aperture_ci_config_trees_pass_the_hidden_gate(filter_engine):
+    """
+    #3278: `.github/workflows/*.yml` (and GitLab/CircleCI/Buildkite config) is real,
+    hand-written pipeline source, but the hidden-path gate blocked it in every repo.
+    CI trees -- including dot-named reusable workflows inside them -- and the two
+    root-level CI dotfiles pass; every other hidden path is still blocked.
+    """
+    for allowed in (
+        ".github/workflows/ci.yml",
+        ".github/workflows/.test.yml",
+        "x/.github/workflows/ci.yml",
+        ".gitlab/ci/build.yml",
+        ".circleci/config.yml",
+        ".buildkite/pipeline.yml",
+        ".gitlab-ci.yml",
+        ".travis.yml",
+        ".github",
+    ):
+        assert filter_engine._check_ignore_rules(allowed) is True, allowed
+
+    for blocked in (".cache/x.py", ".idea/workspace.xml", "src/.hidden.py", ".git/config"):
         assert filter_engine._check_ignore_rules(blocked) is False, blocked
 
 
@@ -445,10 +452,9 @@ def test_aperture_ignored_directories_case_insensitive(tmp_path):
     "Pods" (stored config entry) and iOS/Xcode/CMake vendor directories
     scanned as if they were source.
 
-    Path/file names below are deliberately chosen to avoid the unrelated
-    infra_path_pattern shield (which independently matches generic words
-    like "build", "lib", "test", "spec") and the dot-prefix shield (which
-    blocks any path segment starting with "."), so each assertion isolates
+    Path/file names below are deliberately chosen to avoid the dot-prefix
+    shield (which blocks any path segment starting with "."), so each
+    assertion isolates
     the IGNORED_DIRECTORIES case-matching logic specifically. Verified by
     temporarily reverting the fix: all 9 assertions below flip to allowed
     (True) without it.
@@ -565,35 +571,6 @@ def test_aperture_secrets_shunt_unaffected_by_removing_plaintext_duplication(tmp
 # ==============================================================================
 # TEST: #2512 -- SQL DDL/DML EXEMPTIONS
 # ==============================================================================
-def test_aperture_sql_ddl_exempt_from_infra_path_shield(filter_engine):
-    """
-    #2512: infra_path_pattern's path-segment semantics (gen/generated/scripts/test/...)
-    are real signals for compiled/vendored output but false signals for SQL DDL/DML,
-    where "generated"/"scripts" are common, legitimate path segments for canonical,
-    committed content -- confirmed real corpus cases: MediaWiki's own schema-generator
-    convention (`tables-generated.sql`, `generateSchemaChangeSql.php`'s alterpatches)
-    and SQLite's own `sqlite_cli_scripts/` test fixtures. Both were silently dropped
-    from language-crucible's sqlite corpus with no has_intent Manifest present.
-    """
-    for allowed in (
-        "mediawiki_sqlite_tables/tables-generated.sql",
-        "sqlite_cli_scripts/import01.sql",
-        "src/generated/schema.sql",
-        "db/build/migration.ddl",
-        "vendor/seed.dml",
-    ):
-        assert filter_engine._check_ignore_rules(allowed) is True, allowed
-
-    # Non-SQL files with the identical path shape must still be blocked (no regression
-    # to the #2415 fix -- this is an extension-scoped exemption, not a pattern change).
-    for blocked in (
-        "src/generated/schema.py",
-        "scripts/deploy.sh",
-        "vendor/lib/library.py",
-    ):
-        assert filter_engine._check_ignore_rules(blocked) is False, blocked
-
-
 def test_aperture_sql_ddl_exempt_from_machine_gen_shield(tmp_path):
     """
     #2512: Gate 4.3's machine-generated-content sensor treats a generator-signature
@@ -626,8 +603,6 @@ def test_aperture_sql_ddl_exempt_from_machine_gen_shield(tmp_path):
     assert result["is_in_scope"] is True
 
     # A non-SQL file with the identical generator-signature comment must still be blocked.
-    # (Filename deliberately avoids the word "generated" -- that would trip the unrelated
-    # infra_path_pattern gate first and no longer isolate Gate 4.3's own behavior.)
     py_file = tmp_path / "codegen_output.py"
     py_content = "# This file is automatically generated using codegen.\nx = 1\n"
     py_file.write_text(py_content, encoding="utf-8")

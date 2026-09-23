@@ -83,9 +83,13 @@ is still counted. That is a fact about this corpus's content, not immunity.
   library with 0 `memory_alloc`, an HTTP client with 0 `def_auth`) is more likely a wrapper or a
   delegation than an absence.
 
-### What is planned
+### What is detected now, and what is planned
 
-Wrapper *detection* is epic gitgalaxy#3313. The design keeps
+Wrapper *detection* is epic gitgalaxy#3313. Step 3 records wrappers in the master DB's
+`wrapper_data` table, inside the scope steps 1-2 measured: short branchless print/abort wrappers in
+every by-name language, and allocator wrappers (functions, `#define` aliases and chains of both) in
+C/C++/Objective-C. A reported literal count does not include them yet; a derived figure beside it is
+step 4. The design keeps
 the literal signal exactly as it is and records wrappers as a **fact**, not a count, the same
 signal/fact split the fact channels use (`gitgalaxy/core/how_to_add_a_fact_channel.md`):
 

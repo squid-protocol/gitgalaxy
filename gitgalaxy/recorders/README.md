@@ -75,6 +75,20 @@ GROUP BY f.language ORDER BY captures DESC;
 
 ---
 
+## Idiom Wrappers in `_master.db` (`wrapper_data`, epic #3313)
+
+A literal-vocabulary rule (`debug_prints`, `panics_and_aborts`, `memory_alloc`) counts calls to a primitive by name, so a project's own helper hides every call site behind it (fortran/wrf's `wrf_error_fatal`; curl 8.18's `curlx_*` allocator macros; see `docs/known_blind_spots.md`). `wrapper_data` records those helpers as **facts**, one row per wrapper and rule, with the call sites resolved to it repo-wide. The literal signals are unchanged and no score reads this table.
+
+| column | meaning |
+|---|---|
+| `file_id` → `file_data.id` | the file that DEFINES the wrapper (a macro's first definition) |
+| `wrapper_name`, `kind` | the name, and `function` or `macro` (a function-like `#define`) |
+| `rule` | the literal rule it hides |
+| `via` | `primitive` (its body hits the rule) or `via <wrapper>` (it reaches the rule through another wrapper) |
+| `call_sites`, `calling_files` | unqualified call sites resolved to it, and how many files they are in |
+
+Scope, from measurement (`core/wrapper_resolver.py`'s header): `debug_prints`/`panics_and_aborts` are short, branchless function wrappers in every by-name language; `memory_alloc` is C/C++/Objective-C only, with function wrappers, `#define` aliases and the closure between them. Each file's raw input is `file_data.wrapper_facts` (JSON), restored on delta scans.
+
 ## The Mainframe Boundary in `_master.db` (`call_site_data`, `dataset_data`, `transaction_data`, #3200/#3201/#3211-followup)
 
 `ipc_rpc_bridges` and `io` count *that* a COBOL program calls out and touches files. These tables carry *what*, extracted by `core/mainframe_boundary.py` off the prism code stream and resolved by `core/invocation_resolver.py`. A language opts in with a top-level `boundary_extraction` declaration (cobol, jcl, csd, pli).

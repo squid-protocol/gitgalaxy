@@ -1,0 +1,327 @@
+{
+  "about": "Hand-labelled memory_alloc wrappers recorded by the engine's wrapper_data (#3313 step 3), from full clones of curl 8.18 and CPython 3.14 plus language-crucible v1.4.0: every wrapper with >= 20 call sites plus a seed-3313 random 20 of the rest. wrapper = an allocation primitive under another name; destructor = frees an object and the memory it owns (calling it frees memory, but it is not a rename of free); incidental = allocation is a side detail of real work. Read from each definition's source.",
+  "labels": {
+    "cpython-3.14::Include/objimpl.h::PyObject_New": {
+      "call_sites": 32,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "typed object allocation",
+      "via": "via _PyObject_New"
+    },
+    "cpython-3.14::Include/pymem.h::PyMem_NEW": {
+      "call_sites": 28,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "alias of PyMem_New",
+      "via": "via PyMem_New"
+    },
+    "cpython-3.14::Include/pymem.h::PyMem_New": {
+      "call_sites": 51,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "typed, overflow-checked PyMem_Malloc",
+      "via": "via PyMem_Malloc"
+    },
+    "cpython-3.14::Modules/_hacl/Hacl_Hash_Blake2b_Simd256.c::Hacl_Hash_Blake2b_Simd256_free": {
+      "call_sites": 1,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees a hash state's buffers",
+      "via": "via KRML_ALIGNED_FREE"
+    },
+    "cpython-3.14::Modules/_hacl/include/krml/internal/target.h::KRML_ALIGNED_FREE": {
+      "call_sites": 20,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "aligned free alias",
+      "via": "primitive"
+    },
+    "cpython-3.14::Modules/_interpchannelsmodule.c::GLOBAL_FREE": {
+      "call_sites": 19,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "raw free alias",
+      "via": "via PyMem_RawFree"
+    },
+    "cpython-3.14::Modules/_sqlite/connection.c::free_callback_context": {
+      "call_sites": 3,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees a callback context",
+      "via": "via PyMem_Free"
+    },
+    "cpython-3.14::Modules/_zoneinfo.c::strong_cache_free": {
+      "call_sites": 2,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees a cache list",
+      "via": "via strong_cache_node_free"
+    },
+    "cpython-3.14::Modules/hmacmodule.c::Py_HMAC_HINFO_LINK": {
+      "call_sites": 2,
+      "kind": "macro",
+      "label": "incidental",
+      "reason": "hash registration macro; the free is its error path",
+      "via": "via PyMem_Free"
+    },
+    "cpython-3.14::Modules/socketmodule.c::sock_capi_free": {
+      "call_sites": 7,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees a module's C-API struct after its refs",
+      "via": "via PyMem_Free"
+    },
+    "cpython-3.14::Objects/complexobject.c::PyComplex_FromCComplex": {
+      "call_sites": 34,
+      "kind": "function",
+      "label": "incidental",
+      "reason": "complex-object constructor; allocation is one step",
+      "via": "via PyObject_Malloc"
+    },
+    "cpython-3.14::Objects/listobject.c::merge_freemem": {
+      "call_sites": 2,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees merge temp memory if owned",
+      "via": "via PyMem_Free"
+    },
+    "cpython-3.14::Objects/obmalloc.c::PyMem_Calloc": {
+      "call_sites": 36,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "CPython's public calloc",
+      "via": "primitive"
+    },
+    "cpython-3.14::Objects/obmalloc.c::PyMem_Free": {
+      "call_sites": 687,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "CPython's public free: the allocator table's free",
+      "via": "primitive"
+    },
+    "cpython-3.14::Objects/obmalloc.c::PyMem_Malloc": {
+      "call_sites": 204,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "CPython's public malloc: size guard, then the allocator table",
+      "via": "primitive"
+    },
+    "cpython-3.14::Objects/obmalloc.c::PyMem_RawCalloc": {
+      "call_sites": 20,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "raw calloc with the 0-size guard",
+      "via": "primitive"
+    },
+    "cpython-3.14::Objects/obmalloc.c::PyMem_RawFree": {
+      "call_sites": 189,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "raw-domain free through the table",
+      "via": "primitive"
+    },
+    "cpython-3.14::Objects/obmalloc.c::PyMem_Realloc": {
+      "call_sites": 38,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "CPython's public realloc",
+      "via": "primitive"
+    },
+    "cpython-3.14::Objects/obmalloc.c::PyObject_Calloc": {
+      "call_sites": 3,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "object-domain calloc",
+      "via": "primitive"
+    },
+    "cpython-3.14::Objects/obmalloc.c::PyObject_Free": {
+      "call_sites": 35,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "object-domain free",
+      "via": "primitive"
+    },
+    "cpython-3.14::Objects/obmalloc.c::PyObject_Malloc": {
+      "call_sites": 20,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "object-domain malloc",
+      "via": "primitive"
+    },
+    "cpython-3.14::Objects/obmalloc.c::_PyMem_DefaultRawRealloc": {
+      "call_sites": 1,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "default raw realloc: calls the raw realloc",
+      "via": "via _PyMem_RawRealloc"
+    },
+    "cpython-3.14::Parser/pegen.c::growable_comment_array_init": {
+      "call_sites": 1,
+      "kind": "function",
+      "label": "incidental",
+      "reason": "initialiser that allocates a growable array",
+      "via": "via PyMem_Malloc"
+    },
+    "cpython-3.14::Programs/_bootstrap_python.c::CLEAR": {
+      "call_sites": 34,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "free + NULL the pointer",
+      "via": "via PyMem_RawFree"
+    },
+    "cpython-3.14::Python/flowgraph.c::ref_stack_fini": {
+      "call_sites": 1,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees a reference stack",
+      "via": "via PyMem_Free"
+    },
+    "cpython-3.14::Python/index_pool.c::_PyIndexPool_Fini": {
+      "call_sites": 1,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees an index pool's heap",
+      "via": "via heap_fini"
+    },
+    "cpython-3.14::Python/uniqueid.c::_PyObject_FinalizePerThreadRefcounts": {
+      "call_sites": 1,
+      "kind": "function",
+      "label": "incidental",
+      "reason": "refcount finalisation that frees one buffer",
+      "via": "via PyMem_Free"
+    },
+    "curl-8.18::lib/bufq.c::Curl_bufq_free": {
+      "call_sites": 28,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees a buffer queue's chunk lists",
+      "via": "via chunk_list_free"
+    },
+    "curl-8.18::lib/curl_setup.h::Curl_safefree": {
+      "call_sites": 393,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "free + NULL the pointer",
+      "via": "via curlx_free"
+    },
+    "curl-8.18::lib/curl_setup.h::curlx_calloc": {
+      "call_sites": 163,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "calloc alias",
+      "via": "primitive"
+    },
+    "curl-8.18::lib/curl_setup.h::curlx_free": {
+      "call_sites": 794,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "curl's debug-build free alias (other #ifdef builds alias free)",
+      "via": "primitive"
+    },
+    "curl-8.18::lib/curl_setup.h::curlx_malloc": {
+      "call_sites": 120,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "malloc alias",
+      "via": "primitive"
+    },
+    "curl-8.18::lib/curlx/dynbuf.c::curlx_dyn_free": {
+      "call_sites": 127,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees a dynbuf's buffer and resets it",
+      "via": "via Curl_safefree"
+    },
+    "curl-8.18::lib/curlx/fopen.c::CURLX_FREE": {
+      "call_sites": 21,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "free alias",
+      "via": "primitive"
+    },
+    "curl-8.18::lib/curlx/fopen.c::CURLX_MALLOC": {
+      "call_sites": 6,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "malloc alias",
+      "via": "primitive"
+    },
+    "curl-8.18::lib/doh.c::doh_probe_dtor": {
+      "call_sites": 1,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "hash-entry destructor",
+      "via": "via curlx_free"
+    },
+    "curl-8.18::lib/escape.c::curl_free": {
+      "call_sites": 125,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "curl's public free: one call to curlx_free",
+      "via": "via curlx_free"
+    },
+    "curl-8.18::lib/ftplistparser.c::Curl_ftp_parselist_data_free": {
+      "call_sites": 2,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees a parser and its data",
+      "via": "via Curl_fileinfo_cleanup"
+    },
+    "curl-8.18::lib/multi_ev.c::mev_add_new_conn_pollset": {
+      "call_sites": 1,
+      "kind": "function",
+      "label": "incidental",
+      "reason": "creates and registers a pollset",
+      "via": "via Curl_pollset_create"
+    },
+    "curl-8.18::lib/strdup.c::Curl_memdup0": {
+      "call_sites": 43,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "allocating duplicate: malloc + copy",
+      "via": "via curlx_malloc"
+    },
+    "curl-8.18::lib/uint-table.c::Curl_uint32_tbl_destroy": {
+      "call_sites": 4,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees a table's rows",
+      "via": "via curlx_free"
+    },
+    "curl-8.18::lib/url.c::url_move_hostname": {
+      "call_sites": 5,
+      "kind": "function",
+      "label": "incidental",
+      "reason": "hostname move; the free clears the destination",
+      "via": "via Curl_free_idnconverted_hostname"
+    },
+    "curl-8.18::lib/urlapi.c::curl_url": {
+      "call_sites": 51,
+      "kind": "function",
+      "label": "wrapper",
+      "reason": "public constructor that is exactly calloc(1, sizeof)",
+      "via": "via curlx_calloc"
+    },
+    "curl-8.18::lib/urlapi.c::curl_url_cleanup": {
+      "call_sites": 63,
+      "kind": "function",
+      "label": "destructor",
+      "reason": "frees a URL handle and its parts",
+      "via": "via curlx_free"
+    },
+    "curl-8.18::lib/vtls/vtls.c::cf_close": {
+      "call_sites": 2,
+      "kind": "function",
+      "label": "incidental",
+      "reason": "connection-filter close; the free is one cleanup step",
+      "via": "via Curl_ssl_peer_cleanup"
+    },
+    "curl-8.18::src/tool_cfgable.h::tool_safefree": {
+      "call_sites": 130,
+      "kind": "macro",
+      "label": "wrapper",
+      "reason": "free + NULL the pointer (tool side)",
+      "via": "via curlx_free"
+    }
+  }
+}

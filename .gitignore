@@ -114,6 +114,7 @@ museum_2/
 !docs/self_scan/manual_verification.json
 # #3315: hand-labelled thin-wrapper verdicts -- source data the wrapper probe scores against.
 !tests/tools/wrapper_labels.json
+!tests/tools/wrapper_labels_memory_alloc.json
 # ...and the COBOL modernization answer key (#3210): hand-verified per-program truth,
 # committed and reviewed like the ledger above. A new key file dropped silently by
 # the *.json rule above is how its first PR shipped without its own data.

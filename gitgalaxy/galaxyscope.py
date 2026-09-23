@@ -11,6 +11,7 @@
 # galaxyscope:ignore sec_high_risk_execution, sec_hardcoded_secrets, sec_io, safety_bypasses
 
 import concurrent.futures
+import functools
 import importlib.util
 import logging
 import multiprocessing
@@ -25,7 +26,7 @@ import zipfile
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 from gitgalaxy.core.aperture import ApertureFilter, InaccessibleArtifactError
 from gitgalaxy.core.detector import HAS_TIKTOKEN
@@ -36,6 +37,8 @@ from gitgalaxy.core.network_risk_sensor import CASE_INSENSITIVE_IMPORT_LANGS, Ne
 from gitgalaxy.core.prism import Prism
 from gitgalaxy.core.spatial_correlation import correlate_against_ledger
 from gitgalaxy.core.spatial_mapper import SpatialMapper
+from gitgalaxy.core.wrapper_extractor import extract_wrapper_facts
+from gitgalaxy.core.wrapper_resolver import attach_wrappers, resolve_wrappers
 from gitgalaxy.metrics.chronometer import Chronometer
 from gitgalaxy.metrics.signal_processor import SignalProcessor
 from gitgalaxy.metrics.statistical_auditor import StatisticalAuditor
@@ -461,6 +464,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             if re.search(r"\.min\.[a-z]+$", full_path_str, re.I) or any(v in safe_path for v in vendor_paths):
                 is_minified = True
 
+            # #3313 step 3: the file's idiom-wrapper facts; stays None for a
+            # minified/vendor file, which skips the detector entirely.
+            wrapper_facts = None
             if is_minified:
                 logger.debug(f"[WORKER-TRACE] MINIFIED/VENDOR DETECTED: {rel_path}. Bypassing structural extraction.")
                 logic_data = {"equations": {}, "coding_loc": total_loc, "doc_loc": 0}
@@ -522,6 +528,25 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     logger.debug(f"[WORKER-TRACE] extracted functions for {rel_path}: {extracted_fn_names}")
 
                 logger.debug(f"[WORKER-TRACE] <<< EXITING EXTRACTOR: {rel_path}")
+
+                # #3313 step 3: the per-file half of the idiom-wrapper fact channel
+                # (short functions / `#define` aliases that could wrap a literal
+                # rule, plus unqualified call sites). Additive and contained like
+                # the boundary channel: losing it degrades to "no wrapper facts",
+                # never fails the file. Nothing here feeds a signal or a score.
+                try:
+                    wrapper_facts = extract_wrapper_facts(
+                        lang_id,
+                        lang_defs.get(lang_id, {}),
+                        refraction["code_stream"],
+                        # Opened in text mode above; mypy reads `f` as the binary
+                        # handle an earlier branch of this function bound it to.
+                        cast(str, content_buffer),
+                        logic_data.get("functions", []),
+                        functools.partial(opt_detector._apply_literal_shield, lang_id=lang_id),
+                    )
+                except Exception:
+                    logging.exception("Wrapper-fact extraction failed for language '%s'.", lang_id)
 
             # --- Phase 5.5: Security Lens (Passive Observers) ---
             t_security = time.perf_counter()
@@ -774,6 +799,10 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             # #3211-followup: CSD transaction definitions, resolved to programs
             # cross-file at aggregation (resolve_transactions).
             "transaction_defs": transaction_defs,
+            # #3313 step 3: raw wrapper facts, resolved repo-wide at aggregation
+            # (resolve_wrappers). Persisted on file_data so a delta scan's
+            # unchanged files still take part in the resolution.
+            "wrapper_facts": wrapper_facts,
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }
@@ -970,6 +999,8 @@ class Orchestrator:
         # source, and on any path that never reaches the resolver.
         self.call_sites: list[dict[str, Any]] = []
         self.invocation_edges: list[dict[str, Any]] = []
+        # #3313 step 3: resolved idiom wrappers (wrapper_resolver.resolve_wrappers).
+        self.wrappers: list[dict[str, Any]] = []
         self.transactions: list[dict[str, Any]] = []  # #3211-followup: CICS transaction map
         self.unparsable_files: list[dict[str, Any]] = []
         self.anomalies: list[dict[str, str]] = []
@@ -1098,6 +1129,10 @@ class Orchestrator:
             self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
             # #3211-followup: the CICS transaction map, resolved the same way.
             self.transactions = resolve_transactions(self.parsed_files)
+            # #3313 step 3: idiom wrappers, resolved repo-wide the same way and
+            # hung back on each defining file for the per-file report surfaces.
+            self.wrappers = resolve_wrappers(self.parsed_files)
+            attach_wrappers(self.parsed_files, self.wrappers)
 
             # PHASE 5: Zero-Trust Guardrails (AI & AppSec)
             # Enforces explicit system rules identifying Prompt Injections or Context Window Exhaustion.
@@ -1505,6 +1540,7 @@ class Orchestrator:
                         call_sites=self.call_sites,  # #3200/#3201
                         invocation_edges=self.invocation_edges,  # #3200
                         transactions=self.transactions,  # #3211-followup
+                        wrappers=self.wrappers,  # #3313 step 3
                     )
                 except Exception as e:
                     logger.error(
@@ -3053,6 +3089,10 @@ class Orchestrator:
             self.call_sites, self.invocation_edges = resolve_invocations(self.parsed_files)
             # #3211-followup: the CICS transaction map, same resolution in delta mode.
             self.transactions = resolve_transactions(self.parsed_files)
+            # #3313 step 3: idiom wrappers, resolved repo-wide the same way and
+            # hung back on each defining file for the per-file report surfaces.
+            self.wrappers = resolve_wrappers(self.parsed_files)
+            attach_wrappers(self.parsed_files, self.wrappers)
 
             # 6. Audit Verification & ML Threat Inference
             repository_graph, unparsable_audits = self.auditor.audit(self.parsed_files)
@@ -3096,6 +3136,7 @@ class Orchestrator:
                 call_sites=self.call_sites,  # #3200/#3201
                 invocation_edges=self.invocation_edges,  # #3200
                 transactions=self.transactions,  # #3211-followup
+                wrappers=self.wrappers,  # #3313 step 3
             )
 
             logger.info(

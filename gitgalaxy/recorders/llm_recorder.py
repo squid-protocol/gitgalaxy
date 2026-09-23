@@ -450,6 +450,35 @@ class LLMRecorder:
         lines.append("")
         return lines
 
+    def _idiom_wrapper_lines(self, parsed_files: list[dict[str, Any]]) -> list[str]:
+        """Project-local idiom wrappers (#3313 step 3) -- ABSENT unless one resolved.
+
+        A literal rule counts calls to a primitive by name, so a project's own
+        helper (`wrf_error_fatal`, curl's `curlx_malloc`) hides every call site
+        behind it. This names the busiest wrappers so a reader does not mistake a
+        low literal count for an absence. Top 12 by call sites, one line each.
+        """
+        rows = [w for f in parsed_files for w in (f.get("idiom_wrappers") or [])]
+        if not rows:
+            return []
+        rows.sort(key=lambda w: (-int(w.get("call_sites", 0) or 0), w.get("name") or "", w.get("rule") or ""))
+        lines = ["## 14. PROJECT IDIOM WRAPPERS (Hidden Literal Vocabulary)"]
+        lines.append(
+            "> **AI CONTEXT:** Project-local helpers that wrap a literal primitive (print, abort, "
+            "allocation). Their call sites are NOT in the literal signal counts above -- read a low "
+            "`debug_prints`/`panics_and_aborts`/`memory_alloc` count together with this list. Full "
+            "detail in `wrapper_data`.\n"
+        )
+        lines.extend(
+            f"- `{w.get('name')}` ({w.get('kind')}, {w.get('rule')}, {w.get('via')}): "
+            f"{w.get('call_sites', 0)} call sites in {w.get('calling_files', 0)} files -- `{w.get('path')}`"
+            for w in rows[:12]
+        )
+        if len(rows) > 12:
+            lines.append(f"*(+{len(rows) - 12} more in `wrapper_data`.)*")
+        lines.append("")
+        return lines
+
     def _mainframe_facts_lines(self, parsed_files: list[dict[str, Any]]) -> list[str]:
         """The Named System Facts section (#3200/#3201/#3246) -- ABSENT unless a
         file carries them.
@@ -1640,6 +1669,10 @@ class LLMRecorder:
         # is absent from every non-mainframe brief.
         # ==============================================================================
         lines.extend(self._mainframe_facts_lines(parsed_files))
+
+        # --- 14. PROJECT IDIOM WRAPPERS (#3313 step 3) ---
+        # Optional: renders only when the scan resolved at least one wrapper.
+        lines.extend(self._idiom_wrapper_lines(parsed_files))
 
         # ==============================================================================
 

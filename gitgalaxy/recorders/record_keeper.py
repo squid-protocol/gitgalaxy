@@ -438,6 +438,7 @@ class RecordKeeper:
         call_sites: Optional[list[dict]] = None,
         invocation_edges: Optional[list[dict]] = None,
         transactions: Optional[list[dict]] = None,
+        wrappers: Optional[list[dict]] = None,
     ):
         """
         Builds the formal relational SQLite database directly from pipeline RAM state.
@@ -463,8 +464,13 @@ class RecordKeeper:
         as transaction_data. Each names a transaction id, the program it routes to
         and the file declaring that program.
 
-        All three default to None, so a caller predating #3200/#3211-followup
-        writes no boundary rows rather than empty ones.
+        `wrappers` (#3313 step 3) is `wrapper_resolver.resolve_wrappers()`'s
+        list of project-local idiom wrappers with their resolved call sites,
+        persisted as wrapper_data. Each file's raw `wrapper_facts` (what the
+        resolution reads) is persisted on file_data so a delta scan can re-run it.
+
+        All default to None, so a caller predating #3200/#3211-followup/#3313
+        writes no boundary or wrapper rows rather than empty ones.
         """
         repo_name = session_meta.get("target", "Unknown")
         git_audit = session_meta.get("git_audit", {})
@@ -661,7 +667,8 @@ class RecordKeeper:
                 {", ".join(tier_cols)},
                 mitigation_telemetry TEXT,
                 doc_umbrella REAL DEFAULT 0.0,
-                raw_imports TEXT
+                raw_imports TEXT,
+                wrapper_facts TEXT
             )
         """)
 
@@ -691,6 +698,13 @@ class RecordKeeper:
         # of widely-imported headers was undercounted and risk_api_exposure drifted.
         # Persist the strings (JSON) so the rehydrator can feed the resolver exactly.
         _ensure_columns(cursor, "file_data", ["raw_imports TEXT"])
+
+        # #3313 step 3: the file's raw idiom-wrapper facts (short functions and
+        # `#define` aliases that could wrap a literal rule, plus unqualified call
+        # sites). Resolution is repo-wide, so an unchanged file's facts must
+        # survive a delta scan for its wrappers and call sites to be counted --
+        # the #3220 raw_imports precedent. JSON; NULL when the file has none.
+        _ensure_columns(cursor, "file_data", ["wrapper_facts TEXT"])
 
         # gitgalaxy#2985: the same guard, now over hit_cols. SIGNAL_SCHEMA grows
         # (it gained sec_db_hooks/sec_amplified_sql_injection here), and the
@@ -935,6 +949,33 @@ class RecordKeeper:
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_transaction_snapshot ON transaction_data(repo_name, commit_hash);"
         )
+
+        # #3313 step 3: project-local idiom wrappers -- a short function or a
+        # function-like `#define` alias that hides a literal-vocabulary rule
+        # (debug_prints / panics_and_aborts / memory_alloc) behind its own name,
+        # with the call sites resolved to it repo-wide. A FACT, not a count: the
+        # literal signals are unchanged and nothing reads this table into a
+        # score. `via` is 'primitive' when the body hits the rule itself, else
+        # 'via <wrapper>' when it reaches the rule through another wrapper.
+        # Hangs off the DEFINING file with the usual cascade.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS wrapper_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                wrapper_name TEXT,
+                kind TEXT,
+                rule TEXT,
+                via TEXT,
+                call_sites INTEGER,
+                calling_files INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_wrapper_file_id ON wrapper_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_wrapper_rule ON wrapper_data(rule);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_wrapper_snapshot ON wrapper_data(repo_name, commit_hash);")
 
         # #2908 Phase 2: per-unit is_public/is_documented (function_data.
         # docs/risk_documentation_contract.md). Auto-heal for a pre-#2908
@@ -1565,6 +1606,9 @@ class RecordKeeper:
             # TypeError('<' not supported between tuple and str) in the first place, so
             # sort in two groups and never compare a str to a tuple.
             row_data.append(json.dumps(_ordered_raw_imports(file_data.get("raw_imports"))))
+            # #3313 step 3: raw wrapper facts (deterministic key order), NULL if none.
+            wrapper_facts = file_data.get("wrapper_facts")
+            row_data.append(json.dumps(wrapper_facts, sort_keys=True) if wrapper_facts else None)
 
             # #3183 (B1): accumulate the row and precompute its AUTOINCREMENT id
             # (assigned in list order by the executemany after the loop) instead
@@ -1659,7 +1703,8 @@ class RecordKeeper:
                     {", ".join([f"fam_{fam}" for fam in self.SURFACE_FAMILIES])},
                     {", ".join([f"pct_fam_{fam}" for fam in self.SURFACE_FAMILIES])},
                     {", ".join([f"pct_vec_{r.replace('-', '_')}" for r in self.RISK_SCHEMA])},
-                    rel_guard_balance, rel_alloc_cleanup, mitigation_telemetry, doc_umbrella, raw_imports
+                    rel_guard_balance, rel_alloc_cleanup, mitigation_telemetry, doc_umbrella, raw_imports,
+                    wrapper_facts
                 ) VALUES ({file_placeholders})
             """,  # noqa: S608
                 all_file_rows,
@@ -1907,6 +1952,39 @@ class RecordKeeper:
                     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     txn_rows,
+                )
+
+        # #3313 step 3: the resolved idiom wrappers, like transactions passed in
+        # rather than read per file (resolution needs the whole repository). A
+        # wrapper whose defining file has no file_data row is skipped.
+        if wrappers:
+            wrapper_rows = []
+            for w in wrappers:
+                wrapper_file_id = path_to_file_id.get(w.get("path", ""))
+                if wrapper_file_id is None:
+                    continue
+                wrapper_rows.append(
+                    (
+                        repo_name,
+                        commit_hash,
+                        wrapper_file_id,
+                        w.get("name"),
+                        w.get("kind"),
+                        w.get("rule"),
+                        w.get("via"),
+                        int(w.get("call_sites", 0) or 0),
+                        int(w.get("calling_files", 0) or 0),
+                    )
+                )
+            if wrapper_rows:
+                cursor.executemany(
+                    """
+                    INSERT INTO wrapper_data (
+                        repo_name, commit_hash, file_id, wrapper_name, kind, rule, via,
+                        call_sites, calling_files
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                    wrapper_rows,
                 )
 
         # 3. REPO DATA INSERTION

@@ -236,6 +236,12 @@ class StateRehydrator:
                     # resolver rebuilds every edge FROM this file (popularity/pagerank/
                     # api_exposure of imported files depend on it). Persisted as JSON.
                     "raw_imports": _json_import_set(f["raw_imports"]) if "raw_imports" in row_keys else set(),
+                    # #3313 step 3: the file's raw idiom-wrapper facts, so an unchanged
+                    # file's wrappers and call sites still take part in the repo-wide
+                    # resolution (wrapper_resolver) on a delta scan. NULL/absent: none.
+                    "wrapper_facts": (
+                        json.loads(f["wrapper_facts"]) if "wrapper_facts" in row_keys and f["wrapper_facts"] else None
+                    ),
                     "risk_vector": risk_vector,
                     "hit_vector": hit_vector,
                     "equations": equations,

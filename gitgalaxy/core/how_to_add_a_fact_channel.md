@@ -16,6 +16,14 @@ before writing anything:
 | dataset boundary/lineage | #3201 | `core/mainframe_boundary.py` | `dataset_data` | `EngineFile.datasets` |
 | DATA DIVISION record layouts | #3246 | `core/mainframe_boundary.py` | `record_data` | `EngineFile.records` |
 | PL/I DECLARE structures (a second dialect on an existing table) | #3250 | `core/mainframe_boundary.py` (`_pli_records`) | `record_data` (+ `attributes`) | `EngineFile.records` |
+| project-local idiom wrappers (global/resolved, NOT mainframe) | #3313 | `core/wrapper_extractor.py` + `core/wrapper_resolver.py` | `wrapper_data` (+ `file_data.wrapper_facts`) | per-file `idiom_wrappers` |
+
+The wrapper channel (#3313) is the first global/resolved channel whose raw per-file input is not
+itself a table: `file_data.wrapper_facts` (JSON, the #3220 `raw_imports` precedent) carries each
+file's candidates and call sites, the rehydrator restores it, and `wrapper_resolver` re-resolves the
+whole repository every scan. Its decision rules were measured with a probe and hand labels first
+(`tests/tools/wrapper_probe.py`, `wrapper_labels.json`) and the engine stays inside that measured
+scope -- see the resolver's header.
 
 A **sibling dialect feeding an existing table** (#3250) is the cheapest channel: a new extractor, a
 new `boundary_extraction` value, and the spine as built. Map its attributes onto the existing

@@ -1201,6 +1201,34 @@ IDENTIFIER_CASE_SENSITIVE = "sensitive"
 IDENTIFIER_CASE_INSENSITIVE = "insensitive"
 
 
+def _blank_literals_except_callee(text: str, verb: re.Pattern) -> str:
+    """`text` with every quoted literal's contents blanked (offsets preserved),
+    except a literal whose opening quote directly follows `verb` -- the callee a
+    `CALL 'SUBPROG'` names (#3393). Quote state resets at each newline, as a
+    fixed-format literal only continues through a column-7 continuation. Used
+    on a code stream prism has already stripped of comments."""
+    out: list[str] = []
+    quote: Optional[str] = None
+    keep = False
+    for i, ch in enumerate(text):
+        if ch == "\n":
+            quote = None
+            out.append(ch)
+        elif quote:
+            if ch == quote:
+                quote = None
+                out.append(ch)
+            else:
+                out.append(ch if keep else " ")
+        elif ch in ("'", '"'):
+            quote = ch
+            keep = verb.search(text, max(0, i - 40), i) is not None
+            out.append(ch)
+        else:
+            out.append(ch)
+    return "".join(out)
+
+
 def _glued_to_hyphen_word(code: str, start: int, end: int) -> bool:
     """Is code[start:end] part of a longer hyphenated word?
 
@@ -8939,6 +8967,14 @@ class StructuralExtractor:
                     if qualifier not in seen:
                         seen.append(qualifier)
             else:
+                # #3393: a language whose calls can name the callee as a quoted
+                # literal (COBOL `CALL 'SUBPROG'`) declares the verb that
+                # precedes it. The shield blanks every literal, so the callee
+                # vanished; this view blanks every literal EXCEPT the one right
+                # after that verb, so `DISPLAY 'CALL X'` still cannot match.
+                literal_callee = rules.get("_calls_out_literal_callee")
+                if isinstance(literal_callee, re.Pattern):
+                    safe_block = _blank_literals_except_callee(block, literal_callee)
                 raw_calls = invocation_pattern.findall(safe_block)
 
         # Per-language additions to the global ignore set (Epic #3264 Phase 3).

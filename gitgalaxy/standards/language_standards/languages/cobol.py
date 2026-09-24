@@ -783,6 +783,11 @@ DEFINITION: dict[str, Any] = {
         # `END-CALL` end in the verb, so `\b` let the NEXT statement's first word
         # (`END-PERFORM` newline `MOVE ...`) be captured as a callee.
         "calls_out": re.compile(r"(?i)(?<![\w-])(?:PERFORM|CALL)\s+['\"]?([A-Za-z0-9_-]+)['\"]?"),
+        # #3393: in `CALL 'SUBPROG'` the literal IS the callee (as JCL's PGM=
+        # is), but the literal shield blanked it before calls_out ran, so only
+        # `CALL WS-PGM` and PERFORM reached calls_out_to. A literal right after
+        # this verb is kept (detector._blank_literals_except_callee).
+        "_calls_out_literal_callee": re.compile(r"(?i)(?<![\w-])CALL\s+$"),
         # #3359 (contract C2): the inline PERFORM forms (`PERFORM VARYING ...`,
         # `PERFORM UNTIL ...`, `PERFORM WITH TEST ...`) name no paragraph.
         "_calls_out_ignore": frozenset(

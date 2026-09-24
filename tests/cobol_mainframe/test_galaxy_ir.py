@@ -918,3 +918,59 @@ def test_cics_file_lineage_joins_program_file_ops_to_the_csd_dataset(tmp_path, m
     assert nodef["definitions"] == []
     # Only TD queues map to an extrapartition dataset; a TS queue is CICS storage.
     assert [(e["name"], e["definitions"][0]["dsname"]) for e in ir.tdqueue_lineage()] == [("LOGQ", "PROD.LOG")]
+
+
+# ==============================================================================
+# #3446: embedded SQL statements (sql_statement_data) and the table-access matrix
+# ==============================================================================
+SQLPGM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SQLPGM.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+           EXEC SQL DECLARE ACC-CURSOR CURSOR FOR
+                SELECT A FROM ACCOUNT
+           END-EXEC.
+       PROCEDURE DIVISION.
+           EXEC SQL OPEN ACC-CURSOR END-EXEC.
+           EXEC SQL FETCH ACC-CURSOR INTO :WS-A END-EXEC.
+           EXEC SQL UPDATE ACCOUNT SET A = :WS-A END-EXEC.
+           EXEC SQL INSERT INTO PROCTRAN (A) VALUES (:WS-A) END-EXEC.
+           GOBACK.
+"""
+
+
+@pytest.fixture(scope="module")
+def scanned_sql(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_sql")
+    repo = base / "sqlrepo"
+    (repo / "src").mkdir(parents=True)
+    (repo / "src" / "SQLPGM.cbl").write_text(SQLPGM, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_sql_statements_load_and_the_access_matrix_joins_cursors(scanned_sql):
+    ir = load_galaxy_ir(scanned_sql)
+    verbs = [(s.verb, s.table, s.access, s.cursor) for s in ir.files["src/SQLPGM.cbl"].sql_statements]
+    assert verbs == [
+        ("DECLARE CURSOR", "ACCOUNT", "read", "ACC-CURSOR"),
+        ("OPEN", None, None, "ACC-CURSOR"),
+        ("FETCH", None, None, "ACC-CURSOR"),
+        ("UPDATE", "ACCOUNT", "update", None),
+        ("INSERT", "PROCTRAN", "insert", None),
+    ]
+    matrix = {r["table"]: (r["accesses"], r["via_cursor"]) for r in ir.sql_table_access()}
+    assert matrix == {"ACCOUNT": (["read", "update"], ["ACC-CURSOR"]), "PROCTRAN": (["insert"], [])}
+
+
+def test_a_pre_3446_db_loads_with_no_sql_statements(scanned_sql, tmp_path):
+    import shutil
+    import sqlite3
+
+    old = tmp_path / "old.db"
+    shutil.copy(scanned_sql, old)
+    with sqlite3.connect(old) as conn:
+        conn.execute("DROP TABLE sql_statement_data")
+    ir = load_galaxy_ir(old)
+    assert all(ef.sql_statements == [] for ef in ir.files.values())
+    assert ir.sql_table_access() == []

@@ -84,6 +84,7 @@ from gitgalaxy.core.bms_screen_fields import bms_screen_fields
 # their own module and ride out of extract_boundary as `cics_resources`.
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.db2_declare_table import extract_sql_tables
+from gitgalaxy.core.db2_sql_statements import extract_sql_statements
 
 # The dialects that carry a top-level `boundary_extraction` declaration. It is
 # top level rather than inside `rules` because language_lens.py re.compile()s
@@ -1788,6 +1789,9 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     #3344: cobol and pli additionally carry `sql_tables` -- the DB2 `EXEC SQL
     DECLARE <table> TABLE (...)` columns (db2_declare_table). Callers read it
     with a default, so the dialects that cannot embed SQL simply omit it.
+    #3446: cobol and pli also carry `sql_statements` -- every embedded SQL
+    statement with the tables it reads / inserts / updates / deletes, its
+    cursor and host variables (db2_sql_statements), read with a default.
     #3351-#3354: cobol and pli also carry `cics_resources` -- every EXEC CICS
     command naming a FILE, MAP, QUEUE, CONTAINER or passed CHANNEL
     (cics_resources), read with a default the same way.
@@ -1802,6 +1806,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "records": _cobol_records(code_stream),
             "transactions": [],
             "sql_tables": extract_sql_tables(code_stream, "cobol"),  # #3344
+            "sql_statements": extract_sql_statements(code_stream, "cobol"),  # #3446
             "cics_resources": _cics_resources(code_stream, values, "cobol"),  # #3351-#3354
         }
     if dialect == "jcl":
@@ -1827,6 +1832,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "records": pli_records,
             "transactions": [],
             "sql_tables": extract_sql_tables(code_stream, "pli"),  # #3344
+            "sql_statements": extract_sql_statements(code_stream, "pli"),  # #3446
             "cics_resources": _cics_resources(code_stream, _pli_value_map(pli_records), "pli"),  # #3351-#3354
         }
     if dialect == "bms":

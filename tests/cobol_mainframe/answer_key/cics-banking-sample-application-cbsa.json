@@ -60872,5 +60872,130 @@
         "src/base/cobol_src/INQCUST.cbl"
       ]
     }
-  ]
+  ],
+  "sql_access": {
+    "src/base/cobol_src/ACCTCTRL.cbl": {
+      "accesses": [
+        "read ACCOUNT"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BANKDATA.cbl": {
+      "accesses": [
+        "delete ACCOUNT",
+        "delete CONTROL",
+        "insert ACCOUNT",
+        "insert CONTROL"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CREACC.cbl": {
+      "accesses": [
+        "insert ACCOUNT",
+        "insert PROCTRAN",
+        "read CONTROL",
+        "update CONTROL"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRECUST.cbl": {
+      "accesses": [
+        "insert PROCTRAN"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DBCRFUN.cbl": {
+      "accesses": [
+        "insert PROCTRAN",
+        "read ACCOUNT",
+        "update ACCOUNT"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELACC.cbl": {
+      "accesses": [
+        "delete ACCOUNT",
+        "insert PROCTRAN",
+        "read ACCOUNT"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELCUS.cbl": {
+      "accesses": [
+        "insert PROCTRAN"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQACC.cbl": {
+      "accesses": [
+        "read ACCOUNT"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQACCCU.cbl": {
+      "accesses": [
+        "read ACCOUNT"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/UPDACC.cbl": {
+      "accesses": [
+        "read ACCOUNT",
+        "update ACCOUNT"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/XFRFUN.cbl": {
+      "accesses": [
+        "insert PROCTRAN",
+        "read ACCOUNT",
+        "update ACCOUNT"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  }
 }

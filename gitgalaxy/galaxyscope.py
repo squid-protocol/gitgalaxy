@@ -680,6 +680,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             record_layouts: list = []
             transaction_defs: list = []
             sql_tables: list = []  # #3344: DB2 DECLARE TABLE / DCLGEN columns
+            sql_statements: list = []  # #3446: embedded SQL statements -> table access
             screen_fields: list = []  # #3347: BMS map field layouts
             csd_resources: list = []  # #3356: every CSD DEFINE record (csd deck / DFHCSDUP JCL)
             cics_resources: list = []  # #3351-#3354: CICS FILE/MAP/QUEUE/CONTAINER/CHANNEL ops
@@ -750,6 +751,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     # #3344: DB2 `EXEC SQL DECLARE ... TABLE` columns (cobol/pli
                     # only), same default-read discipline.
                     sql_tables = boundary.get("sql_tables", [])
+                    # #3446: embedded SQL statements (cobol/pli only).
+                    sql_statements = boundary.get("sql_statements", [])
                     # #3347: BMS mapset -> map -> field layouts (bms only).
                     screen_fields = boundary.get("screen_fields", [])
                     # #3356: CSD resource definitions (csd, or DFHCSDUP inline in jcl).
@@ -820,6 +823,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "wrapper_facts": wrapper_facts,
             # #3344: DB2 DECLARE TABLE / DCLGEN columns -> sql_table_data.
             "sql_tables": sql_tables,
+            # #3446: embedded SQL statements -> sql_statement_data.
+            "sql_statements": sql_statements,
             # #3347: BMS screen-field layouts, a per-file fact (screen_field_data).
             "screen_fields": screen_fields,
             # #3356: CSD resource definitions -> csd_resource_data.

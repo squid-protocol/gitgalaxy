@@ -90374,5 +90374,65 @@
         "app/cbl/COBSWAIT.cbl"
       ]
     }
-  ]
+  ],
+  "sql_access": {
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl": {
+      "accesses": [
+        "insert CARDDEMO.AUTHFRDS",
+        "update CARDDEMO.AUTHFRDS"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/cbl/COBTUPDT.cbl": {
+      "accesses": [
+        "delete CARDDEMO.TRANSACTION_TYPE",
+        "insert CARDDEMO.TRANSACTION_TYPE",
+        "update CARDDEMO.TRANSACTION_TYPE"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/cbl/COTRTLIC.cbl": {
+      "accesses": [
+        "delete CARDDEMO.TRANSACTION_TYPE",
+        "read CARDDEMO.TRANSACTION_TYPE",
+        "update CARDDEMO.TRANSACTION_TYPE"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/cbl/COTRTUPC.cbl": {
+      "accesses": [
+        "delete CARDDEMO.TRANSACTION_TYPE",
+        "insert CARDDEMO.TRANSACTION_TYPE",
+        "read CARDDEMO.TRANSACTION_TYPE",
+        "update CARDDEMO.TRANSACTION_TYPE"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy": {
+      "accesses": [
+        "read SYSIBM.SYSDUMMY1"
+      ],
+      "sql_access_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  }
 }

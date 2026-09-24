@@ -1216,6 +1216,38 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_table_name ON sql_table_data(table_name);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_table_snapshot ON sql_table_data(repo_name, commit_hash);")
 
+        # #3446: embedded SQL statements -- which tables each program reads and
+        # writes (db2_sql_statements). One row per (statement, table); a
+        # statement naming no table (OPEN/FETCH/CLOSE a cursor, COMMIT, CALL)
+        # has one row with table_name NULL.
+        #   stmt_ordinal   -- the statement's 1-based position in its file
+        #   verb           -- SELECT / INSERT / UPDATE / DELETE / MERGE / LOCK /
+        #                     DECLARE CURSOR / OPEN / FETCH / CLOSE / COMMIT / ...
+        #   access         -- read / insert / update / delete / merge / lock
+        #   cursor_name    -- declared, used, or `WHERE CURRENT OF`
+        #   host_variables -- distinct `:NAME`s in order, comma-joined
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sql_statement_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                stmt_ordinal INTEGER,
+                verb TEXT,
+                table_name TEXT,
+                access TEXT,
+                cursor_name TEXT,
+                host_variables TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_statement_file_id ON sql_statement_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_sql_statement_table ON sql_statement_data(table_name);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_sql_statement_snapshot ON sql_statement_data(repo_name, commit_hash);"
+        )
+
         # #3313 step 3: project-local idiom wrappers -- a short function or a
         # function-like `#define` alias that hides a literal-vocabulary rule
         # (debug_prints / panics_and_aborts / memory_alloc) behind its own name,
@@ -2566,6 +2598,27 @@ class RecordKeeper:
                 1 if c.get("nullable", True) else 0,
                 c.get("attributes"),
                 int(c.get("line", 0) or 0),
+            ),
+        )
+
+        # #3446: embedded SQL statements -- per-file, like sql_table_data.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "sql_statement_data",
+            ("stmt_ordinal", "verb", "table_name", "access", "cursor_name", "host_variables", "line_number"),
+            "sql_statements",
+            lambda s: (
+                int(s.get("ordinal", 0) or 0),
+                s.get("verb"),
+                s.get("table"),
+                s.get("access"),
+                s.get("cursor"),
+                s.get("host_variables"),
+                int(s.get("line", 0) or 0),
             ),
         )
 

@@ -560,6 +560,7 @@ class LLMRecorder:
                 + len(f.get("dataset_bindings") or [])
                 + len(f.get("record_layouts") or [])
                 + len(f.get("sql_tables") or [])  # #3344
+                + len(f.get("sql_statements") or [])  # #3446
                 + len(f.get("screen_fields") or [])  # #3347
                 + len(f.get("csd_resources") or [])  # #3356
                 + len(f.get("cics_resources") or [])  # #3351-#3354
@@ -597,6 +598,17 @@ class LLMRecorder:
             lines.append(
                 f"- **DB2 schemas:** `{total_sql}` columns of `EXEC SQL DECLARE ... TABLE` "
                 "(inline or DCLGEN members), full shape in `sql_table_data`.\n"
+            )
+
+        # #3446: named only when present, so a scan without embedded SQL is unchanged.
+        sql_stmts = [s for f in carriers for s in (f.get("sql_statements") or [])]
+        if sql_stmts:
+            n_stmts = len({(id(f), s.get("ordinal")) for f in carriers for s in (f.get("sql_statements") or [])})
+            n_tables = len({s.get("table") for s in sql_stmts if s.get("table")})
+            lines.append(
+                f"- **DB2 table access:** `{n_stmts}` embedded SQL statements touching `{n_tables}` tables "
+                "(SELECT/INSERT/UPDATE/DELETE, cursors, host variables) in `sql_statement_data`; "
+                "the program x table read/write matrix is `GalaxyIR.sql_table_access()`.\n"
             )
 
         # #3356: named only when present, so a scan without CSD decks is unchanged.
@@ -707,6 +719,18 @@ class LLMRecorder:
                     per_table[c.get("table") or "?"] = per_table.get(c.get("table") or "?", 0) + 1
                 sql_labels = [f"`{t} ({n} cols)`" for t, n in per_table.items()]
                 lines.append(f"- **DB2 tables declared:** {', '.join(sql_labels[:12])}")
+            # #3446: table access -- per table, the distinct accesses (read/insert/...).
+            stmts = f.get("sql_statements") or []
+            if stmts:
+                access: dict[str, list[str]] = {}
+                for st in stmts:
+                    if st.get("table"):
+                        seen_access = access.setdefault(st["table"], [])
+                        if st.get("access") and st["access"] not in seen_access:
+                            seen_access.append(st["access"])
+                if access:
+                    labels = [f"`{t} ({'/'.join(a)})`" for t, a in access.items()]
+                    lines.append(f"- **DB2 table access:** {', '.join(labels[:12])}")
             # #3347: BMS screen layouts -- per map, its named (symbolic-map) fields
             # out of all its fields; the geometry is in screen_field_data.
             screen = f.get("screen_fields") or []

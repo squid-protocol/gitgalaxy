@@ -1,0 +1,1190 @@
+{
+  "groups": {
+    "cobol/cash-account-cobol": {
+      "cobol/cash-account-cobol/CASH00.cbl": [
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DCLCASHACCOUNTY,CUST-NAME-TEXT",
+          "Line": 137,
+          "Statement": 1,
+          "Table": "STOCKTRD.CASHACCOUNTY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "CUST-NAME-TEXT,BALANCE,WS-CURRENCY",
+          "Line": 152,
+          "Statement": 2,
+          "Table": "STOCKTRD.CASHACCOUNTY",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DCLCASHACCOUNTY,CUST-NAME-TEXT",
+          "Line": 165,
+          "Statement": 3,
+          "Table": "STOCKTRD.CASHACCOUNTY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "BALANCE,WS-CURRENCY,CUST-NAME-TEXT",
+          "Line": 174,
+          "Statement": 4,
+          "Table": "STOCKTRD.CASHACCOUNTY",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DCLCASHACCOUNTY,CUST-NAME-TEXT",
+          "Line": 187,
+          "Statement": 5,
+          "Table": "STOCKTRD.CASHACCOUNTY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "delete",
+          "Cursor": null,
+          "Host Variables": "CUST-NAME-TEXT",
+          "Line": 195,
+          "Statement": 6,
+          "Table": "STOCKTRD.CASHACCOUNTY",
+          "Verb": "DELETE"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DCLCASHACCOUNTY,CUST-NAME-TEXT",
+          "Line": 205,
+          "Statement": 7,
+          "Table": "STOCKTRD.CASHACCOUNTY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DCLFRANKFURT1,WS-CURRENCY-KEY",
+          "Line": 214,
+          "Statement": 8,
+          "Table": "STOCKTRD.FRANKFURT1",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "BALANCE,CUST-NAME-TEXT",
+          "Line": 227,
+          "Statement": 9,
+          "Table": "STOCKTRD.CASHACCOUNTY",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DCLCASHACCOUNTY,CUST-NAME-TEXT",
+          "Line": 240,
+          "Statement": 10,
+          "Table": "STOCKTRD.CASHACCOUNTY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DCLFRANKFURT1,WS-CURRENCY-KEY",
+          "Line": 248,
+          "Statement": 11,
+          "Table": "STOCKTRD.FRANKFURT1",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "BALANCE,CUST-NAME-TEXT",
+          "Line": 260,
+          "Statement": 12,
+          "Table": "STOCKTRD.CASHACCOUNTY",
+          "Verb": "UPDATE"
+        }
+      ]
+    },
+    "cobol/cics-banking-sample-application-cbsa": {
+      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": [
+        {
+          "Access": null,
+          "Cursor": null,
+          "Host Variables": null,
+          "Line": 581,
+          "Statement": 1,
+          "Table": null,
+          "Verb": "COMMIT"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "HV-CONTROL-NAME,HV-CONTROL-VALUE-NUM,HV-CONTROL-VALUE-STR",
+          "Line": 613,
+          "Statement": 2,
+          "Table": "CONTROL",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "HV-CONTROL-NAME,HV-CONTROL-VALUE-NUM,HV-CONTROL-VALUE-STR",
+          "Line": 642,
+          "Statement": 3,
+          "Table": "CONTROL",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": null,
+          "Cursor": null,
+          "Host Variables": null,
+          "Line": 706,
+          "Statement": 4,
+          "Table": null,
+          "Verb": "COMMIT"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORT-CODE,HV-ACCOUNT-NUMBER,HV-ACCOUNT-TYPE,HV-ACCOUNT-INTEREST-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIMIT,HV-ACCOUNT-LAST-STMT-DATE,HV-ACCOUNT-NEXT-STMT-DATE,HV-ACCOUNT-AVAILABLE-BALANCE,HV-ACCOUNT-ACTUAL-BALANCE",
+          "Line": 808,
+          "Statement": 5,
+          "Table": "ACCOUNT",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": "delete",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-SORT-CODE",
+          "Line": 1192,
+          "Statement": 6,
+          "Table": "ACCOUNT",
+          "Verb": "DELETE"
+        },
+        {
+          "Access": "delete",
+          "Cursor": null,
+          "Host Variables": "HV-CONTROL-NAME",
+          "Line": 1256,
+          "Statement": 7,
+          "Table": "CONTROL",
+          "Verb": "DELETE"
+        },
+        {
+          "Access": "delete",
+          "Cursor": null,
+          "Host Variables": "HV-CONTROL-NAME",
+          "Line": 1322,
+          "Statement": 8,
+          "Table": "CONTROL",
+          "Verb": "DELETE"
+        },
+        {
+          "Access": null,
+          "Cursor": null,
+          "Host Variables": null,
+          "Line": 1375,
+          "Statement": 9,
+          "Table": null,
+          "Verb": "COMMIT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": [
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "HV-CONTROL-NAME,HV-CONTROL-VALUE-NUM,HV-CONTROL-VALUE-STR",
+          "Line": 444,
+          "Statement": 1,
+          "Table": "CONTROL",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "HV-CONTROL-VALUE-NUM,HV-CONTROL-NAME",
+          "Line": 529,
+          "Statement": 2,
+          "Table": "CONTROL",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "HV-CONTROL-NAME,HV-CONTROL-VALUE-NUM,HV-CONTROL-VALUE-STR",
+          "Line": 611,
+          "Statement": 3,
+          "Table": "CONTROL",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "HV-CONTROL-VALUE-NUM,HV-CONTROL-NAME",
+          "Line": 694,
+          "Statement": 4,
+          "Table": "CONTROL",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 826,
+          "Statement": 5,
+          "Table": "ACCOUNT",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "HV-PROCTRAN-EYECATCHER,HV-PROCTRAN-SORT-CODE,HV-PROCTRAN-ACC-NUMBER,HV-PROCTRAN-DATE,HV-PROCTRAN-TIME,HV-PROCTRAN-REF,HV-PROCTRAN-TYPE,HV-PROCTRAN-DESC,HV-PROCTRAN-AMOUNT",
+          "Line": 969,
+          "Statement": 6,
+          "Table": "PROCTRAN",
+          "Verb": "INSERT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": [
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "HV-PROCTRAN-EYECATCHER,HV-PROCTRAN-SORT-CODE,HV-PROCTRAN-ACC-NUMBER,HV-PROCTRAN-DATE,HV-PROCTRAN-TIME,HV-PROCTRAN-REF,HV-PROCTRAN-TYPE,HV-PROCTRAN-DESC,HV-PROCTRAN-AMOUNT",
+          "Line": 1226,
+          "Statement": 1,
+          "Table": "PROCTRAN",
+          "Verb": "INSERT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": [
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 245,
+          "Statement": 1,
+          "Table": "ACCOUNT",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 392,
+          "Statement": 2,
+          "Table": "ACCOUNT",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "HV-PROCTRAN-EYECATCHER,HV-PROCTRAN-SORT-CODE,HV-PROCTRAN-ACC-NUMBER,HV-PROCTRAN-DATE,HV-PROCTRAN-TIME,HV-PROCTRAN-REF,HV-PROCTRAN-TYPE,HV-PROCTRAN-DESC,HV-PROCTRAN-AMOUNT",
+          "Line": 524,
+          "Statement": 3,
+          "Table": "PROCTRAN",
+          "Verb": "INSERT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DELACC.cbl": [
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 248,
+          "Statement": 1,
+          "Table": "ACCOUNT",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "delete",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO",
+          "Line": 438,
+          "Statement": 2,
+          "Table": "ACCOUNT",
+          "Verb": "DELETE"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "HV-PROCTRAN-EYECATCHER,HV-PROCTRAN-SORT-CODE,HV-PROCTRAN-ACC-NUMBER,HV-PROCTRAN-DATE,HV-PROCTRAN-TIME,HV-PROCTRAN-REF,HV-PROCTRAN-TYPE,HV-PROCTRAN-DESC,HV-PROCTRAN-AMOUNT",
+          "Line": 521,
+          "Statement": 3,
+          "Table": "PROCTRAN",
+          "Verb": "INSERT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": [
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "HV-PROCTRAN-EYECATCHER,HV-PROCTRAN-SORT-CODE,HV-PROCTRAN-ACC-NUMBER,HV-PROCTRAN-DATE,HV-PROCTRAN-TIME,HV-PROCTRAN-REF,HV-PROCTRAN-TYPE,HV-PROCTRAN-DESC,HV-PROCTRAN-AMOUNT",
+          "Line": 636,
+          "Statement": 1,
+          "Table": "PROCTRAN",
+          "Verb": "INSERT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQACC.cbl": [
+        {
+          "Access": "read",
+          "Cursor": "ACC-CURSOR",
+          "Host Variables": "HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO",
+          "Line": 66,
+          "Statement": 1,
+          "Table": "ACCOUNT",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": null,
+          "Cursor": "ACC-CURSOR",
+          "Host Variables": null,
+          "Line": 270,
+          "Statement": 2,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "ACC-CURSOR",
+          "Host Variables": null,
+          "Line": 350,
+          "Statement": 3,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": null,
+          "Cursor": "ACC-CURSOR",
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 431,
+          "Statement": 4,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 843,
+          "Statement": 5,
+          "Table": "ACCOUNT",
+          "Verb": "SELECT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cbl": [
+        {
+          "Access": "read",
+          "Cursor": "ACC-CURSOR",
+          "Host Variables": "HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE",
+          "Line": 74,
+          "Statement": 1,
+          "Table": "ACCOUNT",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": null,
+          "Cursor": "ACC-CURSOR",
+          "Host Variables": null,
+          "Line": 246,
+          "Statement": 2,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "ACC-CURSOR",
+          "Host Variables": null,
+          "Line": 348,
+          "Statement": 3,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": null,
+          "Cursor": "ACC-CURSOR",
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 466,
+          "Statement": 4,
+          "Table": null,
+          "Verb": "FETCH"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/UPDACC.cbl": [
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 191,
+          "Statement": 1,
+          "Table": "ACCOUNT",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO",
+          "Line": 278,
+          "Statement": 2,
+          "Table": "ACCOUNT",
+          "Verb": "UPDATE"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": [
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 930,
+          "Statement": 1,
+          "Table": "ACCOUNT",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 992,
+          "Statement": 2,
+          "Table": "ACCOUNT",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 1057,
+          "Statement": 3,
+          "Table": "ACCOUNT",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "HV-ACCOUNT-EYECATCHER,HV-ACCOUNT-CUST-NO,HV-ACCOUNT-SORTCODE,HV-ACCOUNT-ACC-NO,HV-ACCOUNT-ACC-TYPE,HV-ACCOUNT-INT-RATE,HV-ACCOUNT-OPENED,HV-ACCOUNT-OVERDRAFT-LIM,HV-ACCOUNT-LAST-STMT,HV-ACCOUNT-NEXT-STMT,HV-ACCOUNT-AVAIL-BAL,HV-ACCOUNT-ACTUAL-BAL",
+          "Line": 1362,
+          "Statement": 4,
+          "Table": "ACCOUNT",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "HV-PROCTRAN-EYECATCHER,HV-PROCTRAN-SORT-CODE,HV-PROCTRAN-ACC-NUMBER,HV-PROCTRAN-DATE,HV-PROCTRAN-TIME,HV-PROCTRAN-REF,HV-PROCTRAN-TYPE,HV-PROCTRAN-DESC,HV-PROCTRAN-AMOUNT",
+          "Line": 1616,
+          "Statement": 5,
+          "Table": "PROCTRAN",
+          "Verb": "INSERT"
+        }
+      ]
+    },
+    "cobol/cics-genapp": {
+      "cobol/cics-genapp/lgacdb01.cbl": [
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "DB2-CUSTOMERNUM-INT,CA-FIRST-NAME,CA-LAST-NAME,CA-DOB,CA-HOUSE-NAME,CA-HOUSE-NUM,CA-POSTCODE,CA-PHONE-MOBILE,CA-PHONE-HOME,CA-EMAIL-ADDRESS",
+          "Line": 222,
+          "Statement": 1,
+          "Table": "CUSTOMER",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "CA-FIRST-NAME,CA-LAST-NAME,CA-DOB,CA-HOUSE-NAME,CA-HOUSE-NUM,CA-POSTCODE,CA-PHONE-MOBILE,CA-PHONE-HOME,CA-EMAIL-ADDRESS",
+          "Line": 251,
+          "Statement": 2,
+          "Table": "CUSTOMER",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": null,
+          "Cursor": null,
+          "Host Variables": "DB2-CUSTOMERNUM-INT",
+          "Line": 280,
+          "Statement": 3,
+          "Table": null,
+          "Verb": "SET"
+        }
+      ],
+      "cobol/cics-genapp/lgacdb02.cbl": [
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "DB2-CUSTOMERNUM-INT,D2-CUSTSECR-PASS,D2-CUSTSECR-STATE,DB2-CUSTOMERCNT-INT",
+          "Line": 166,
+          "Statement": 1,
+          "Table": "CUSTOMER_SECURE",
+          "Verb": "INSERT"
+        }
+      ],
+      "cobol/cics-genapp/lgapdb01.cbl": [
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "DB2-CUSTOMERNUM-INT,CA-ISSUE-DATE,CA-EXPIRY-DATE,DB2-POLICYTYPE,DB2-BROKERID-INT,CA-BROKERSREF,DB2-PAYMENT-INT",
+          "Line": 268,
+          "Statement": 1,
+          "Table": "POLICY",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": null,
+          "Cursor": null,
+          "Host Variables": "DB2-POLICYNUM-INT",
+          "Line": 308,
+          "Statement": 2,
+          "Table": null,
+          "Verb": "SET"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "CA-LASTCHANGED,DB2-POLICYNUM-INT",
+          "Line": 316,
+          "Statement": 3,
+          "Table": "POLICY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "DB2-POLICYNUM-INT,CA-E-WITH-PROFITS,CA-E-EQUITIES,CA-E-MANAGED-FUND,CA-E-FUND-NAME,DB2-E-TERM-SINT,DB2-E-SUMASSURED-INT,CA-E-LIFE-ASSURED,WS-VARY-FIELD",
+          "Line": 346,
+          "Statement": 4,
+          "Table": "ENDOWMENT",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "DB2-POLICYNUM-INT,CA-E-WITH-PROFITS,CA-E-EQUITIES,CA-E-MANAGED-FUND,CA-E-FUND-NAME,DB2-E-TERM-SINT,DB2-E-SUMASSURED-INT,CA-E-LIFE-ASSURED",
+          "Line": 368,
+          "Statement": 5,
+          "Table": "ENDOWMENT",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "DB2-POLICYNUM-INT,CA-H-PROPERTY-TYPE,DB2-H-BEDROOMS-SINT,DB2-H-VALUE-INT,CA-H-HOUSE-NAME,CA-H-HOUSE-NUMBER,CA-H-POSTCODE",
+          "Line": 409,
+          "Statement": 6,
+          "Table": "HOUSE",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "DB2-POLICYNUM-INT,CA-M-MAKE,CA-M-MODEL,DB2-M-VALUE-INT,CA-M-REGNUMBER,CA-M-COLOUR,DB2-M-CC-SINT,CA-M-MANUFACTURED,DB2-M-PREMIUM-INT,DB2-M-ACCIDENTS-INT",
+          "Line": 449,
+          "Statement": 7,
+          "Table": "MOTOR",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "DB2-POLICYNUM-INT,CA-LASTCHANGED,CA-ISSUE-DATE,CA-EXPIRY-DATE,CA-B-ADDRESS,CA-B-POSTCODE,CA-B-LATITUDE,CA-B-LONGITUDE,CA-B-CUSTOMER,CA-B-PROPTYPE,DB2-B-FIREPERIL-INT,DB2-B-FIREPREMIUM-INT,DB2-B-CRIMEPERIL-INT,DB2-B-CRIMEPREMIUM-INT,DB2-B-FLOODPERIL-INT,DB2-B-FLOODPREMIUM-INT,DB2-B-WEATHERPERIL-INT,DB2-B-WEATHERPREMIUM-INT,DB2-B-STATUS-INT,CA-B-REJECTREASON",
+          "Line": 499,
+          "Statement": 8,
+          "Table": "COMMERCIAL",
+          "Verb": "INSERT"
+        }
+      ],
+      "cobol/cics-genapp/lgdpdb01.cbl": [
+        {
+          "Access": "delete",
+          "Cursor": null,
+          "Host Variables": "DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT",
+          "Line": 189,
+          "Statement": 1,
+          "Table": "POLICY",
+          "Verb": "DELETE"
+        }
+      ],
+      "cobol/cics-genapp/lgicdb01.cbl": [
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "CA-FIRST-NAME,CA-LAST-NAME,CA-DOB,CA-HOUSE-NAME,CA-HOUSE-NUM,CA-POSTCODE,CA-PHONE-MOBILE,CA-PHONE-HOME,CA-EMAIL-ADDRESS,DB2-CUSTOMERNUMBER-INT",
+          "Line": 169,
+          "Statement": 1,
+          "Table": "CUSTOMER",
+          "Verb": "SELECT"
+        }
+      ],
+      "cobol/cics-genapp/lgipdb01.cbl": [
+        {
+          "Access": "read",
+          "Cursor": "CUST_CURSOR",
+          "Host Variables": "DB2-CUSTOMERNUM-INT",
+          "Line": 89,
+          "Statement": 1,
+          "Table": "POLICY",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": "read",
+          "Cursor": "CUST_CURSOR",
+          "Host Variables": "DB2-CUSTOMERNUM-INT",
+          "Line": 89,
+          "Statement": 1,
+          "Table": "COMMERCIAL",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": "read",
+          "Cursor": "ZIP_CURSOR",
+          "Host Variables": "CA-B-POSTCODE",
+          "Line": 120,
+          "Statement": 2,
+          "Table": "POLICY",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": "read",
+          "Cursor": "ZIP_CURSOR",
+          "Host Variables": "CA-B-POSTCODE",
+          "Line": 120,
+          "Statement": 2,
+          "Table": "COMMERCIAL",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-LASTCHANGED,DB2-BROKERID-INT,IND-BROKERID,DB2-BROKERSREF,IND-BROKERSREF,DB2-PAYMENT-INT,IND-PAYMENT,DB2-E-WITHPROFITS,DB2-E-EQUITIES,DB2-E-MANAGEDFUND,DB2-E-FUNDNAME,DB2-E-TERM-SINT,DB2-E-SUMASSURED-INT,DB2-E-LIFEASSURED,DB2-E-PADDINGDATA,IND-E-PADDINGDATA,DB2-E-PADDING-LEN,IND-E-PADDINGDATAL,DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT",
+          "Line": 330,
+          "Statement": 3,
+          "Table": "POLICY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-LASTCHANGED,DB2-BROKERID-INT,IND-BROKERID,DB2-BROKERSREF,IND-BROKERSREF,DB2-PAYMENT-INT,IND-PAYMENT,DB2-E-WITHPROFITS,DB2-E-EQUITIES,DB2-E-MANAGEDFUND,DB2-E-FUNDNAME,DB2-E-TERM-SINT,DB2-E-SUMASSURED-INT,DB2-E-LIFEASSURED,DB2-E-PADDINGDATA,IND-E-PADDINGDATA,DB2-E-PADDING-LEN,IND-E-PADDINGDATAL,DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT",
+          "Line": 330,
+          "Statement": 3,
+          "Table": "ENDOWMENT",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-LASTCHANGED,DB2-BROKERID-INT,IND-BROKERID,DB2-BROKERSREF,IND-BROKERSREF,DB2-PAYMENT-INT,IND-PAYMENT,DB2-H-PROPERTYTYPE,DB2-H-BEDROOMS-SINT,DB2-H-VALUE-INT,DB2-H-HOUSENAME,DB2-H-HOUSENUMBER,DB2-H-POSTCODE,DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT",
+          "Line": 444,
+          "Statement": 4,
+          "Table": "POLICY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-LASTCHANGED,DB2-BROKERID-INT,IND-BROKERID,DB2-BROKERSREF,IND-BROKERSREF,DB2-PAYMENT-INT,IND-PAYMENT,DB2-H-PROPERTYTYPE,DB2-H-BEDROOMS-SINT,DB2-H-VALUE-INT,DB2-H-HOUSENAME,DB2-H-HOUSENUMBER,DB2-H-POSTCODE,DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT",
+          "Line": 444,
+          "Statement": 4,
+          "Table": "HOUSE",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-LASTCHANGED,DB2-BROKERID-INT,IND-BROKERID,DB2-BROKERSREF,IND-BROKERSREF,DB2-PAYMENT-INT,IND-PAYMENT,DB2-M-MAKE,DB2-M-MODEL,DB2-M-VALUE-INT,DB2-M-REGNUMBER,DB2-M-COLOUR,DB2-M-CC-SINT,DB2-M-MANUFACTURED,DB2-M-PREMIUM-INT,DB2-M-ACCIDENTS-INT,DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT",
+          "Line": 532,
+          "Statement": 5,
+          "Table": "POLICY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-LASTCHANGED,DB2-BROKERID-INT,IND-BROKERID,DB2-BROKERSREF,IND-BROKERSREF,DB2-PAYMENT-INT,IND-PAYMENT,DB2-M-MAKE,DB2-M-MODEL,DB2-M-VALUE-INT,DB2-M-REGNUMBER,DB2-M-COLOUR,DB2-M-CC-SINT,DB2-M-MANUFACTURED,DB2-M-PREMIUM-INT,DB2-M-ACCIDENTS-INT,DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT",
+          "Line": 532,
+          "Statement": 5,
+          "Table": "MOTOR",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DB2-LASTCHANGED,DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-B-ADDRESS,DB2-B-POSTCODE,DB2-B-LATITUDE,DB2-B-LONGITUDE,DB2-B-CUSTOMER,DB2-B-PROPTYPE,DB2-B-FIREPERIL-INT,DB2-B-FIREPREMIUM-INT,DB2-B-CRIMEPERIL-INT,DB2-B-CRIMEPREMIUM-INT,DB2-B-FLOODPERIL-INT,DB2-B-FLOODPREMIUM-INT,DB2-B-WEATHERPERIL-INT,DB2-B-WEATHERPREMIUM-INT,DB2-B-STATUS-INT,DB2-B-REJECTREASON,DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT",
+          "Line": 631,
+          "Statement": 6,
+          "Table": "POLICY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DB2-LASTCHANGED,DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-B-ADDRESS,DB2-B-POSTCODE,DB2-B-LATITUDE,DB2-B-LONGITUDE,DB2-B-CUSTOMER,DB2-B-PROPTYPE,DB2-B-FIREPERIL-INT,DB2-B-FIREPREMIUM-INT,DB2-B-CRIMEPERIL-INT,DB2-B-CRIMEPREMIUM-INT,DB2-B-FLOODPERIL-INT,DB2-B-FLOODPREMIUM-INT,DB2-B-WEATHERPERIL-INT,DB2-B-WEATHERPREMIUM-INT,DB2-B-STATUS-INT,DB2-B-REJECTREASON,DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT",
+          "Line": 631,
+          "Statement": 6,
+          "Table": "COMMERCIAL",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DB2-CUSTOMERNUM-INT,DB2-LASTCHANGED,DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-B-ADDRESS,DB2-B-POSTCODE,DB2-B-LATITUDE,DB2-B-LONGITUDE,DB2-B-CUSTOMER,DB2-B-PROPTYPE,DB2-B-FIREPERIL-INT,DB2-B-FIREPREMIUM-INT,DB2-B-CRIMEPERIL-INT,DB2-B-CRIMEPREMIUM-INT,DB2-B-FLOODPERIL-INT,DB2-B-FLOODPREMIUM-INT,DB2-B-WEATHERPERIL-INT,DB2-B-WEATHERPREMIUM-INT,DB2-B-STATUS-INT,DB2-B-REJECTREASON,DB2-POLICYNUM-INT",
+          "Line": 734,
+          "Statement": 7,
+          "Table": "POLICY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "DB2-CUSTOMERNUM-INT,DB2-LASTCHANGED,DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-B-ADDRESS,DB2-B-POSTCODE,DB2-B-LATITUDE,DB2-B-LONGITUDE,DB2-B-CUSTOMER,DB2-B-PROPTYPE,DB2-B-FIREPERIL-INT,DB2-B-FIREPREMIUM-INT,DB2-B-CRIMEPERIL-INT,DB2-B-CRIMEPREMIUM-INT,DB2-B-FLOODPERIL-INT,DB2-B-FLOODPREMIUM-INT,DB2-B-WEATHERPERIL-INT,DB2-B-WEATHERPREMIUM-INT,DB2-B-STATUS-INT,DB2-B-REJECTREASON,DB2-POLICYNUM-INT",
+          "Line": 734,
+          "Statement": 7,
+          "Table": "COMMERCIAL",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUST_CURSOR",
+          "Host Variables": null,
+          "Line": 840,
+          "Statement": 8,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUST_CURSOR",
+          "Host Variables": null,
+          "Line": 852,
+          "Statement": 9,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUST_CURSOR",
+          "Host Variables": "DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT,DB2-LASTCHANGED,DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-B-ADDRESS,DB2-B-POSTCODE,DB2-B-LATITUDE,DB2-B-LONGITUDE,DB2-B-CUSTOMER,DB2-B-PROPTYPE,DB2-B-FIREPERIL-INT,DB2-B-FIREPREMIUM-INT,DB2-B-CRIMEPERIL-INT,DB2-B-CRIMEPREMIUM-INT,DB2-B-FLOODPERIL-INT,DB2-B-FLOODPREMIUM-INT,DB2-B-WEATHERPERIL-INT,DB2-B-WEATHERPREMIUM-INT,DB2-B-STATUS-INT,DB2-B-REJECTREASON",
+          "Line": 865,
+          "Statement": 10,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "ZIP_CURSOR",
+          "Host Variables": null,
+          "Line": 923,
+          "Statement": 11,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "ZIP_CURSOR",
+          "Host Variables": null,
+          "Line": 935,
+          "Statement": 12,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": null,
+          "Cursor": "ZIP_CURSOR",
+          "Host Variables": "DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT,DB2-LASTCHANGED,DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-B-ADDRESS,DB2-B-POSTCODE,DB2-B-LATITUDE,DB2-B-LONGITUDE,DB2-B-CUSTOMER,DB2-B-PROPTYPE,DB2-B-FIREPERIL-INT,DB2-B-FIREPREMIUM-INT,DB2-B-CRIMEPERIL-INT,DB2-B-CRIMEPREMIUM-INT,DB2-B-FLOODPERIL-INT,DB2-B-FLOODPREMIUM-INT,DB2-B-WEATHERPERIL-INT,DB2-B-WEATHERPREMIUM-INT,DB2-B-STATUS-INT,DB2-B-REJECTREASON",
+          "Line": 947,
+          "Statement": 13,
+          "Table": null,
+          "Verb": "FETCH"
+        }
+      ],
+      "cobol/cics-genapp/lgucdb01.cbl": [
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "CA-FIRST-NAME,CA-LAST-NAME,CA-DOB,CA-HOUSE-NAME,CA-HOUSE-NUM,CA-POSTCODE,CA-PHONE-MOBILE,CA-PHONE-HOME,CA-EMAIL-ADDRESS,DB2-CUSTOMERNUM-INT",
+          "Line": 155,
+          "Statement": 1,
+          "Table": "CUSTOMER",
+          "Verb": "UPDATE"
+        }
+      ],
+      "cobol/cics-genapp/lgupdb01.cbl": [
+        {
+          "Access": "read",
+          "Cursor": "POLICY_CURSOR",
+          "Host Variables": "DB2-CUSTOMERNUM-INT,DB2-POLICYNUM-INT",
+          "Line": 128,
+          "Statement": 1,
+          "Table": "POLICY",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": null,
+          "Cursor": "POLICY_CURSOR",
+          "Host Variables": "DB2-ISSUEDATE,DB2-EXPIRYDATE,DB2-LASTCHANGED,DB2-BROKERID-INT,IND-BROKERID,DB2-BROKERSREF,IND-BROKERSREF,DB2-PAYMENT-INT,IND-PAYMENT",
+          "Line": 230,
+          "Statement": 2,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "POLICY_CURSOR",
+          "Host Variables": null,
+          "Line": 255,
+          "Statement": 3,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": "update",
+          "Cursor": "POLICY_CURSOR",
+          "Host Variables": "CA-ISSUE-DATE,CA-EXPIRY-DATE,DB2-BROKERID-INT,CA-BROKERSREF",
+          "Line": 318,
+          "Statement": 4,
+          "Table": "POLICY",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "CA-LASTCHANGED,DB2-POLICYNUM-INT",
+          "Line": 329,
+          "Statement": 5,
+          "Table": "POLICY",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": null,
+          "Cursor": "POLICY_CURSOR",
+          "Host Variables": null,
+          "Line": 365,
+          "Statement": 6,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "CA-E-WITH-PROFITS,CA-E-EQUITIES,CA-E-MANAGED-FUND,CA-E-FUND-NAME,DB2-E-TERM-SINT,DB2-E-SUMASSURED-INT,CA-E-LIFE-ASSURED,DB2-POLICYNUM-INT",
+          "Line": 394,
+          "Statement": 7,
+          "Table": "ENDOWMENT",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "CA-H-PROPERTY-TYPE,DB2-H-BEDROOMS-SINT,DB2-H-VALUE-INT,CA-H-HOUSE-NAME,CA-H-HOUSE-NUMBER,CA-H-POSTCODE,DB2-POLICYNUM-INT",
+          "Line": 431,
+          "Statement": 8,
+          "Table": "HOUSE",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "CA-M-MAKE,CA-M-MODEL,DB2-M-VALUE-INT,CA-M-REGNUMBER,CA-M-COLOUR,DB2-M-CC-SINT,CA-M-MANUFACTURED,DB2-M-PREMIUM-INT,DB2-M-ACCIDENTS-INT,DB2-POLICYNUM-INT",
+          "Line": 469,
+          "Statement": 9,
+          "Table": "MOTOR",
+          "Verb": "UPDATE"
+        }
+      ]
+    },
+    "cobol/cobol-check": {
+      "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": [
+        {
+          "Access": "read",
+          "Cursor": "NAME-CUR",
+          "Host Variables": null,
+          "Line": 19,
+          "Statement": 1,
+          "Table": "TEXEM",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "FIRST-NAME,LAST-NAME,TMS-CREA",
+          "Line": 36,
+          "Statement": 2,
+          "Table": "TEXEM",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": null,
+          "Cursor": "NAME-CUR",
+          "Host Variables": null,
+          "Line": 59,
+          "Statement": 3,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "NAME-CUR",
+          "Host Variables": null,
+          "Line": 71,
+          "Statement": 4,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": null,
+          "Cursor": "NAME-CUR",
+          "Host Variables": null,
+          "Line": 86,
+          "Statement": 5,
+          "Table": null,
+          "Verb": "CLOSE"
+        }
+      ]
+    },
+    "cobol/cobol-programming-course": {
+      "cobol/cobol-programming-course/CBLDB21.cbl": [
+        {
+          "Access": "read",
+          "Cursor": "CUR1",
+          "Host Variables": null,
+          "Line": 68,
+          "Statement": 1,
+          "Table": "Z#####T",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": null,
+          "Line": 102,
+          "Statement": 2,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": "CUSTOMER-RECORD",
+          "Line": 107,
+          "Statement": 3,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": null,
+          "Line": 114,
+          "Statement": 4,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": "CUSTOMER-RECORD",
+          "Line": 122,
+          "Statement": 5,
+          "Table": null,
+          "Verb": "FETCH"
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB22.cbl": [
+        {
+          "Access": "read",
+          "Cursor": "CUR1",
+          "Host Variables": null,
+          "Line": 85,
+          "Statement": 1,
+          "Table": "Z#####T",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": "read",
+          "Cursor": "CUR2",
+          "Host Variables": "LNAME",
+          "Line": 89,
+          "Statement": 2,
+          "Table": "Z#####T",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": null,
+          "Line": 133,
+          "Statement": 3,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": "CUSTOMER-RECORD",
+          "Line": 138,
+          "Statement": 4,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": null,
+          "Line": 145,
+          "Statement": 5,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": "CUSTOMER-RECORD",
+          "Line": 154,
+          "Statement": 6,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR2",
+          "Host Variables": null,
+          "Line": 157,
+          "Statement": 7,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR2",
+          "Host Variables": "CUSTOMER-RECORD",
+          "Line": 162,
+          "Statement": 8,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR2",
+          "Host Variables": null,
+          "Line": 169,
+          "Statement": 9,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR2",
+          "Host Variables": "CUSTOMER-RECORD",
+          "Line": 178,
+          "Statement": 10,
+          "Table": null,
+          "Verb": "FETCH"
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB23.cbl": [
+        {
+          "Access": "read",
+          "Cursor": "CUR1",
+          "Host Variables": null,
+          "Line": 82,
+          "Statement": 1,
+          "Table": "Z#####T",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": "read",
+          "Cursor": "CUR2",
+          "Host Variables": "STATE",
+          "Line": 85,
+          "Statement": 2,
+          "Table": "Z#####T",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": null,
+          "Line": 126,
+          "Statement": 3,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": "CUSTOMER-RECORD",
+          "Line": 131,
+          "Statement": 4,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": null,
+          "Line": 138,
+          "Statement": 5,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR1",
+          "Host Variables": "CUSTOMER-RECORD",
+          "Line": 146,
+          "Statement": 6,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR2",
+          "Host Variables": null,
+          "Line": 148,
+          "Statement": 7,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR2",
+          "Host Variables": "CUSTOMER-RECORD",
+          "Line": 153,
+          "Statement": 8,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR2",
+          "Host Variables": null,
+          "Line": 160,
+          "Statement": 9,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": null,
+          "Cursor": "CUR2",
+          "Host Variables": "CUSTOMER-RECORD",
+          "Line": 168,
+          "Statement": 10,
+          "Table": null,
+          "Verb": "FETCH"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "SQL Statements"
+  ]
+}

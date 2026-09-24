@@ -22,7 +22,11 @@
 # call_site_data), since #3344 the DB2 table shapes programs bind to
 # (sql_table_data: every `EXEC SQL DECLARE <table> TABLE (...)` column -- SQL
 # type, length/scale, nullability -- inline or DCLGEN-generated, per
-# EngineFile.sql_tables), since #3347 the BMS screen-field layouts
+# EngineFile.sql_tables), since #3446 what programs DO to those tables
+# (sql_statement_data: every embedded SQL statement with its verb, the tables
+# it reads/inserts/updates/deletes, cursor and host variables, per
+# EngineFile.sql_statements, joined into GalaxyIR.sql_table_access()),
+# since #3347 the BMS screen-field layouts
 # (screen_field_data: every mapset/map/field with POS, LENGTH, ATTRB,
 # PICIN/PICOUT, INITIAL, OCCURS -- the source of the symbolic-map copybooks, per
 # EngineFile.screen_fields), and since #3345 each JCL DD's DSN with its symbolic
@@ -280,6 +284,22 @@ class EngineSqlTable:
 
 
 @dataclass
+class EngineSqlStatement:
+    """One (embedded SQL statement, table) row (#3446), flat out of
+    `sql_statement_data`. `table` is None for a statement naming none (OPEN /
+    FETCH / CLOSE a cursor, COMMIT, CALL); `access` is read / insert / update /
+    delete / merge / lock. Rows of one statement share `ordinal`."""
+
+    ordinal: int
+    verb: str
+    table: Optional[str]
+    access: Optional[str]
+    cursor: Optional[str]
+    host_variables: list
+    line: int
+
+
+@dataclass
 class EngineScreenField:
     """One BMS macro statement of a map source (#3347): a DFHMSD mapset, a DFHMDI
     map or a DFHMDF field, flat out of `screen_field_data`.
@@ -405,6 +425,7 @@ class EngineFile:
     records: list = field(default_factory=list)  # EngineDataItem tree roots (01/77), #3246
     transactions: list = field(default_factory=list)  # EngineTransaction, #3211-followup
     sql_tables: list = field(default_factory=list)  # EngineSqlTable, #3344
+    sql_statements: list = field(default_factory=list)  # EngineSqlStatement, source order, #3446
     screen_fields: list = field(default_factory=list)  # EngineScreenField, flat source order, #3347
     csd_resources: list = field(default_factory=list)  # EngineCsdResource, source order, #3356
     cics_resources: list = field(default_factory=list)  # EngineCicsResource, source order, #3351-#3354
@@ -1210,6 +1231,46 @@ class GalaxyIR:
                 )
         return out
 
+    def sql_table_access(self) -> list:
+        """The program x DB2 table read/write matrix (#3446).
+
+        One entry per (file, table): `file`, `table`, `accesses` (sorted: read /
+        insert / update / delete / merge / lock), `lines` and `via_cursor` (the
+        cursors through which the file reads it). A cursor's reads are counted
+        where it is DECLAREd; an OPEN / FETCH of that cursor in the same file adds
+        its lines. Statements in a copybook stay on the copybook, and joining
+        them to the includer is the consumer's job (copy_deps), as for records.
+        """
+        out: list[dict] = []
+        for f in self.files.values():
+            if not f.sql_statements:
+                continue
+            cursor_tables: dict[str, list[str]] = {}
+            for st in f.sql_statements:
+                if st.verb == "DECLARE CURSOR" and st.cursor and st.table:
+                    cursor_tables.setdefault(st.cursor, []).append(st.table)
+            by_table: dict[str, dict] = {}
+            for st in f.sql_statements:
+                targets = [(st.table, st.access)] if st.table else []
+                if not st.table and st.verb in ("OPEN", "FETCH") and st.cursor in cursor_tables:
+                    targets = [(t, "read") for t in cursor_tables[st.cursor]]
+                for table, access in targets:
+                    row = by_table.setdefault(
+                        table,
+                        {"file": f.file_path, "table": table, "accesses": set(), "lines": [], "via_cursor": set()},
+                    )
+                    if access:
+                        row["accesses"].add(access)
+                    row["lines"].append(st.line)
+                    if st.cursor and access == "read":
+                        row["via_cursor"].add(st.cursor)
+            for row in by_table.values():
+                row["accesses"] = sorted(row["accesses"])
+                row["via_cursor"] = sorted(row["via_cursor"])
+                row["lines"] = sorted(set(row["lines"]))
+                out.append(row)
+        return out
+
     def queue_flows(self) -> list:
         """Program -> program data flow through a CICS TS/TD queue (#3353).
 
@@ -1797,6 +1858,26 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         int(line or 0),
                     )
                 )
+        # #3446: embedded SQL statements. A pre-#3446 database has no such table,
+        # so a missing table is "no data", never an error.
+        if _has_table(cur, "sql_statement_data"):
+            for file_id, ordinal, verb, tname, access, cursor_name, host, line in cur.execute(
+                "SELECT file_id, stmt_ordinal, verb, table_name, access, cursor_name, host_variables, line_number "
+                "FROM sql_statement_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, id",
+                (repo_name, commit_hash),
+            ):
+                if file_id in by_id:
+                    by_id[file_id].sql_statements.append(
+                        EngineSqlStatement(
+                            int(ordinal or 0),
+                            verb or "",
+                            tname,
+                            access,
+                            cursor_name,
+                            [h for h in (host or "").split(",") if h],
+                            int(line or 0),
+                        )
+                    )
         # #3347: BMS screen-field layouts. A pre-#3347 database has no such table,
         # so a missing table is "no screen fields", never an error.
         if _has_table(cur, "screen_field_data"):

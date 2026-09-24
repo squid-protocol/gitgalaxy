@@ -8085,5 +8085,6 @@
         "multiroot/sam/SAM2.cbl"
       ]
     }
-  ]
+  ],
+  "sql_access": {}
 }

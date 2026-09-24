@@ -194,6 +194,21 @@ class AuditRecorder:
                 }
                 for c in sql_tables
             ]
+        # #3446: embedded SQL statements, mirroring sql_statement_data.
+        sql_statements = file_data.get("sql_statements") or []
+        if sql_statements:
+            block["SQL Statements"] = [
+                {
+                    "Statement": s.get("ordinal"),
+                    "Verb": s.get("verb"),
+                    "Table": s.get("table"),
+                    "Access": s.get("access"),
+                    "Cursor": s.get("cursor"),
+                    "Host Variables": s.get("host_variables"),
+                    "Line": s.get("line", 0),
+                }
+                for s in sql_statements
+            ]
         screen = file_data.get("screen_fields") or []
         if screen:
             # #3347: BMS mapset/map/field rows, mirroring screen_field_data.

@@ -8,6 +8,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py score <repo> --key key.json [--db master.db] [--md out.md]
     python tests/tools/cobol_answer_key.py add-pli <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-sql-tables <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-sql-access <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-bms <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-jcl <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-csd <repo> --key key.json
@@ -892,6 +893,171 @@ def draft_sql_tables(repo: Path) -> dict[str, dict[str, Any]]:
                 out[p.relative_to(repo).as_posix()] = {
                     "columns": cols,
                     "sql_tables_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
+# Embedded SQL table access (#3446)
+# ==============================================================================
+# This tool's own reading of what each program DOES to DB2 tables: a TOKEN walk
+# over its own `_sql_prepared` code (not the engine's regex anchors), sharing the
+# engine's CONTRACT only. Access per table: read (FROM / JOIN / a subquery /
+# MERGE USING / a DECLAREd cursor's SELECT, which OPEN and FETCH reach), insert,
+# update, delete, merge, lock. INCLUDE, DECLARE ... TABLE and WHENEVER are not
+# statements; dynamic SQL names no table.
+_SQL_ACCESS_TOKEN = re.compile(r"\"[^\"\n]*\"|'[^'\n]*'?|:[A-Z0-9_-]+|[A-Z@#$][A-Z0-9_@#$-]*|[(),.;]|\S", re.I)
+_SQL_CLAUSE_WORDS = {
+    "WHERE",
+    "GROUP",
+    "ORDER",
+    "HAVING",
+    "FETCH",
+    "FOR",
+    "WITH",
+    "UNION",
+    "EXCEPT",
+    "INTERSECT",
+    "JOIN",
+    "INNER",
+    "LEFT",
+    "RIGHT",
+    "FULL",
+    "CROSS",
+    "ON",
+    "OPTIMIZE",
+    "QUERYNO",
+    "SKIP",
+    "SET",
+    "VALUES",
+    "INTO",
+    "OUTER",
+}
+_SQL_NOT_TABLE = {"FINAL", "NEW", "OLD", "TABLE", "LATERAL", "UNNEST", "XMLTABLE", "SELECT"}
+_SQL_CURSOR_NOISE = {
+    "NEXT",
+    "PRIOR",
+    "FIRST",
+    "LAST",
+    "CURRENT",
+    "FROM",
+    "INTO",
+    "ROWSET",
+    "STARTING",
+    "AT",
+    "ABSOLUTE",
+    "RELATIVE",
+    "USING",
+    "DESCRIPTOR",
+    "FOR",
+    "ROWS",
+    "INSENSITIVE",
+    "SENSITIVE",
+}
+
+
+def _sql_statement_regions(code: str, pli: bool) -> list[str]:
+    """The text of each EXEC SQL statement (after `EXEC SQL`, before its end)."""
+    out = []
+    pos = 0
+    start_rx = re.compile(r"(?<![A-Z0-9_@#$-])EXEC\s+SQL(?![A-Z0-9_@#$-])", re.I)
+    end_rx = re.compile(r";" if pli else r"(?<![A-Z0-9_@#$-])END-EXEC(?![A-Z0-9_@#$-])", re.I)
+    while True:
+        m = start_rx.search(code, pos)
+        if not m:
+            return out
+        e = end_rx.search(code, m.end())
+        if not e:
+            return out
+        out.append(re.sub(r"--[^\n]*", "", code[m.end() : e.start()]))
+        pos = e.end()
+
+
+def _qualified_at(toks: list[str], i: int) -> tuple[str, int]:
+    """(`A.B.C` name starting at toks[i], index after it)."""
+    parts = [toks[i]]
+    j = i + 1
+    while j + 1 < len(toks) and toks[j] == "." and re.match(r'[A-Z@#$"]', toks[j + 1], re.I):
+        parts.append(toks[j + 1])
+        j += 2
+    return ".".join(_sql_unquote(x) for x in parts), j
+
+
+def sql_table_access(text: str, pli: bool = False) -> list[str]:
+    """Sorted `access TABLE` strings for one source file, this tool's own reading."""
+    code = _sql_prepared(text, pli)
+    found: set[str] = set()
+    cursors: dict[str, set[str]] = {}
+    used: list[str] = []
+    targets = {"INSERT": "insert", "UPDATE": "update", "DELETE": "delete", "MERGE": "merge", "LOCK": "lock"}
+    for region in _sql_statement_regions(code, pli):
+        toks = [t for t in _SQL_ACCESS_TOKEN.findall(region) if not t.startswith(("'", ":"))]
+        if not toks:
+            continue
+        up = [t.upper() for t in toks]
+        verb = up[0]
+        if verb in ("INCLUDE", "WHENEVER"):
+            continue
+        if verb in ("OPEN", "FETCH", "CLOSE"):
+            names = [t for t in up[1:] if re.fullmatch(r"[A-Z][A-Z0-9_-]*", t) and t not in _SQL_CURSOR_NOISE]
+            if verb != "CLOSE" and names:
+                used.append(names[0])
+            continue
+        declared = None
+        if verb == "DECLARE":
+            if "CURSOR" not in up[:12]:
+                continue  # DECLARE ... TABLE / STATEMENT: not a statement here
+            declared = up[1]
+        reads: set[str] = set()
+        i = 0
+        while i < len(up):
+            t = up[i]
+            if i == 0 and t in targets:
+                j = 1
+                while j < len(up) and up[j] in ("INTO", "FROM", "TABLE"):
+                    j += 1
+                if j < len(up) and up[j] != "(":
+                    name, i = _qualified_at(toks, j)
+                    found.add(f"{targets[t]} {name}")
+                    continue
+            if t in ("FROM", "JOIN") or (t == "USING" and verb == "MERGE"):
+                j = i + 1
+                while j < len(up):
+                    if up[j] == "(" or up[j] in _SQL_NOT_TABLE:
+                        break
+                    name, j = _qualified_at(toks, j)
+                    reads.add(name)
+                    if j < len(up) and up[j] == "AS":
+                        j += 1
+                    if j < len(up) and up[j] not in _SQL_CLAUSE_WORDS and re.match(r"[A-Z]", up[j]):
+                        j += 1  # an alias
+                    if j < len(up) and up[j] == ",":
+                        j += 1
+                        continue
+                    break
+                i = j
+                continue
+            i += 1
+        if declared:
+            cursors.setdefault(declared, set()).update(reads)
+        found.update(f"read {r}" for r in reads)
+    for c in used:
+        found.update(f"read {r}" for r in cursors.get(c, ()))
+    return sorted(found)
+
+
+def draft_sql_access(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted table access for every COBOL/PL/I source with embedded SQL (#3446).
+    Adjudicates nothing until signed off with `sql_access_validated`."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in SQL_TABLE_EXTS and ".git" not in p.parts:
+            acc = sql_table_access(p.read_text(encoding="utf-8", errors="ignore"), p.suffix.lower() in PLI_EXTS)
+            if acc:
+                out[p.relative_to(repo).as_posix()] = {
+                    "accesses": acc,
+                    "sql_access_validated": False,
                     "verification": {"status": "draft", "notes": []},
                 }
     return out
@@ -2116,6 +2282,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # Truth is this tool's own terminator-cut reader; no forge reads them;
         # engine is sql_table_data.
         "DB2 table columns",
+        # #3446: which tables each program reads / inserts / updates / deletes.
+        # Truth is this tool's own token walk; no forge reads it; engine is
+        # sql_statement_data through GalaxyIR.sql_table_access().
+        "DB2 table access",
         # #3347: BMS screen-field layout units (mapset/map/field with position,
         # length and attributes), per map source. Truth is this tool's own BMS
         # reader; there is no BMS forge; engine is screen_field_data.
@@ -2273,6 +2443,19 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             pli_record_fields(k.get("records", [])),
             None,
             pli_record_fields(engine_items, "parent_ordinal") if engine_items is not None else None,
+        )
+
+    engine_access: dict[str, set[str]] = {}
+    if ir is not None:
+        for row in ir.sql_table_access():
+            engine_access.setdefault(row["file"], set()).update(f"{a} {row['table']}" for a in row["accesses"])
+    for rel, k in key.get("sql_access", {}).items():
+        add(
+            "DB2 table access",
+            rel,
+            set(k.get("accesses", [])),
+            None,
+            engine_access.get(rel, set()) if ir is not None and rel in ir.files else None,
         )
 
     for rel, k in key.get("sql_tables", {}).items():
@@ -2442,6 +2625,9 @@ def main() -> int:
     a = sub.add_parser("add-pli")
     a.add_argument("repo", type=Path)
     a.add_argument("--key", type=Path, required=True)
+    qa = sub.add_parser("add-sql-access")
+    qa.add_argument("repo", type=Path)
+    qa.add_argument("--key", type=Path, required=True)
     q = sub.add_parser("add-sql-tables")
     q.add_argument("repo", type=Path)
     q.add_argument("--key", type=Path, required=True)
@@ -2506,6 +2692,16 @@ def main() -> int:
         key["pli_programs"] = existing
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(existing)} PL/I files -> {args.key}")
+        return 0
+    if args.cmd == "add-sql-access":
+        # #3446: same rule as add-sql-tables -- refresh drafts, never clobber a sign-off.
+        existing_acc = key.get("sql_access", {})
+        for rel, entry in draft_sql_access(repo).items():
+            if not existing_acc.get(rel, {}).get("sql_access_validated"):
+                existing_acc[rel] = entry
+        key["sql_access"] = existing_acc
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(existing_acc)} SQL table-access files -> {args.key}")
         return 0
     if args.cmd == "add-sql-tables":
         # #3344: same rule as add-pli -- refresh drafts, never clobber a sign-off.

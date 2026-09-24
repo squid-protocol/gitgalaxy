@@ -157,6 +157,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "DB2 table access": {
+          "engine": {
+            "got": 13,
+            "tp": 13,
+            "truth": 13
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "DB2 table columns": {
           "engine": {
             "got": 31,
@@ -836,6 +845,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "DB2 table access": {
+          "engine": {
+            "got": 24,
+            "tp": 24,
+            "truth": 24
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "DB2 table columns": {
           "engine": {
             "got": 24,
@@ -1045,6 +1063,11 @@
           "truth": "draft"
         },
         "CSD resources": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "DB2 table access": {
           "engine": null,
           "forge": null,
           "truth": "draft"

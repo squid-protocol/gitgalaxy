@@ -786,3 +786,28 @@ def test_small_corpus_keys_are_fully_censused(key_path):
 
     cov = cv.coverage(json.loads(key_path.read_text(encoding="utf-8")))
     assert not cov["missing"], f"not censused: {cov['missing'][:5]}"
+
+
+def test_sql_table_access_reader_is_independent_and_joins_cursors():
+    """#3446: the key's own token walk over EXEC SQL: tables per access, a cursor's
+    reads reached through OPEN / FETCH, literals and INCLUDE ignored. Lines stay
+    within column 72, as fixed-format source must."""
+    src = (
+        "       PROCEDURE DIVISION.\n"
+        "           EXEC SQL INCLUDE SQLCA END-EXEC.\n"
+        "           EXEC SQL DECLARE C1 CURSOR FOR\n"
+        "                SELECT A FROM ACCOUNT X, CUST Y END-EXEC.\n"
+        "           EXEC SQL OPEN C1 END-EXEC.\n"
+        "           EXEC SQL DELETE FROM CARDDEMO.TT\n"
+        "                WHERE K = 'FROM FAKE' END-EXEC.\n"
+        "           EXEC SQL INSERT INTO HIST\n"
+        "                SELECT * FROM LIVE END-EXEC.\n"
+    )
+    assert all(len(line) <= 72 for line in src.splitlines())
+    assert ak.sql_table_access(src) == [
+        "delete CARDDEMO.TT",
+        "insert HIST",
+        "read ACCOUNT",
+        "read CUST",
+        "read LIVE",
+    ]

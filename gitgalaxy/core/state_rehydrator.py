@@ -545,6 +545,28 @@ class StateRehydrator:
                     },
                 )
 
+                # #3446: embedded SQL statements, aliased back to the payload keys.
+                # A pre-#3446 baseline has no table and restores nothing.
+                sql_statements_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "sql_statement_data",
+                    'SELECT fd.file_path AS _fp, ss.stmt_ordinal AS ordinal, ss.verb, ss.table_name AS "table", '
+                    'ss.access, ss.cursor_name AS "cursor", ss.host_variables, ss.line_number AS line '
+                    "FROM sql_statement_data ss JOIN file_data fd ON ss.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ss.id",
+                    lambda r: {
+                        "ordinal": int(r["ordinal"] or 0),
+                        "verb": r["verb"],
+                        "table": r["table"],
+                        "access": r["access"],
+                        "cursor": r["cursor"],
+                        "host_variables": r["host_variables"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 # #3347: BMS screen-field layouts, aliased to the extractor's payload
                 # keys (field_name -> name, initial_value -> initial).
                 screen_fields_by_file = _restore_child_table(
@@ -646,6 +668,7 @@ class StateRehydrator:
                     node["record_layouts"] = records_by_file.get(rel_path, [])
                     node["transaction_defs"] = transactions_by_file.get(rel_path, [])
                     node["sql_tables"] = sql_tables_by_file.get(rel_path, [])
+                    node["sql_statements"] = sql_statements_by_file.get(rel_path, [])
                     node["screen_fields"] = screen_fields_by_file.get(rel_path, [])
                     node["csd_resources"] = csd_resources_by_file.get(rel_path, [])
                     node["cics_resources"] = cics_by_file.get(rel_path, [])

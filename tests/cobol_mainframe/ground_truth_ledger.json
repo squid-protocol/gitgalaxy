@@ -6,11 +6,6 @@
       "kind": "deliberate",
       "summary": "The engine's usage_status is the unreferenced-by-name census (a unit's name occurs nowhere else in the file), not reachability. Reachability-based dead code stays on the forge by decision (docs/unreferenced_by_name_contract.md; #3348 scope note). Scoring usage_status against the key's reachability verdicts is therefore expected to disagree."
     },
-    "engine_sql_include_same_line": {
-      "issue": 3416,
-      "kind": "defect",
-      "summary": "The COBOL import rule is anchored at line start, so a one-line EXEC SQL INCLUDE <member> END-EXEC is never seen and its copybook edge is lost."
-    },
     "forge_copybook_resolution": {
       "issue": 3414,
       "kind": "defect",
@@ -35,12 +30,6 @@
   "corpora": {
     "aws-mainframe-modernization-carddemo": {
       "mismatches": {
-        "engine | copybook paths | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | app/app-transaction-type-db2/dcl/DCLTRTYP.dcl | fn": "engine_sql_include_same_line",
-        "engine | copybook paths | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | app/app-transaction-type-db2/cpy/CSDB2RPY.cpy | fn": "engine_sql_include_same_line",
-        "engine | copybook paths | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | app/app-transaction-type-db2/cpy/CSDB2RWY.cpy | fn": "engine_sql_include_same_line",
-        "engine | copybook paths | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | app/app-transaction-type-db2/dcl/DCLTRTYP.dcl | fn": "engine_sql_include_same_line",
-        "engine | copybook paths | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | app/app-transaction-type-db2/dcl/DCLTRCAT.dcl | fn": "engine_sql_include_same_line",
-        "engine | copybook paths | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | app/app-transaction-type-db2/dcl/DCLTRTYP.dcl | fn": "engine_sql_include_same_line",
         "engine | dead (non-trivial) | app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead (non-trivial) | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
@@ -122,11 +111,6 @@
         "engine | dead | app/cbl/COUSR01C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | app/cbl/COUSR02C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | app/cbl/COUSR03C.cbl | MAIN-PARA | fp": "engine_dead_is_unreferenced_by_name",
-        "engine | program_id | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 002600 | fp": "program_id_on_its_own_line",
-        "engine | program_id | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | COTRTLIC | fn": "program_id_on_its_own_line",
-        "engine | program_id | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 00220000 | fp": "program_id_on_its_own_line",
-        "engine | program_id | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | COTRTUPC | fn": "program_id_on_its_own_line",
-        "engine | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP | fn": "header_period_next_line",
         "forge | copybook paths | app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl | app/app-authorization-ims-db2-mq/dcl/AUTHFRDS.dcl | fn": "forge_copybook_resolution",
         "forge | copybook paths | app/app-transaction-type-db2/cbl/COBTUPDT.cbl | app/app-transaction-type-db2/dcl/DCLTRTYP.dcl | fn": "forge_copybook_resolution",
         "forge | copybook paths | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | app/app-transaction-type-db2/cpy/CSDB2RPY.cpy | fn": "forge_copybook_resolution",
@@ -570,8 +554,8 @@
         },
         "copybook paths": {
           "engine": {
-            "got": 247,
-            "tp": 247,
+            "got": 253,
+            "tp": 253,
             "truth": 253
           },
           "forge": {
@@ -662,7 +646,7 @@
         "program_id": {
           "engine": {
             "got": 44,
-            "tp": 42,
+            "tp": 44,
             "truth": 44
           },
           "forge": {
@@ -687,8 +671,8 @@
         },
         "units": {
           "engine": {
-            "got": 869,
-            "tp": 869,
+            "got": 870,
+            "tp": 870,
             "truth": 870
           },
           "forge": {

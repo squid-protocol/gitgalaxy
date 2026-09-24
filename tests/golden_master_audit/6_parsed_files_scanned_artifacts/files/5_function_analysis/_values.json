@@ -184970,30 +184970,43 @@
       ],
       "cobol/cobol-check/src_main_cobol_MOCK.CBL": [
         {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "46.7%",
-          "End Line": 76,
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 62,
           "Function Name": "200-GOODBYE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 31,
+          "Lines of Code (LOC)": 17,
           "Reflection Hits": 0,
           "Start Line": 46,
-          "Structural Impact": 9.6
+          "Structural Impact": 5.8
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "42.9%",
+          "End Line": 76,
+          "Function Name": "400-CHANGE-2",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 68,
+          "Structural Impact": 4.5
         },
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 41,
+          "End Line": 35,
           "Function Name": "000-START",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 18,
+          "Lines of Code (LOC)": 12,
           "Reflection Hits": 0,
           "Start Line": 24,
-          "Structural Impact": 1.9
+          "Structural Impact": 1.6
         },
         {
           "Control Flow Branches": 0,
@@ -185046,6 +185059,19 @@
           "Reflection Hits": 0,
           "Start Line": 120,
           "Structural Impact": 1.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 41,
+          "Function Name": "100-WELCOME",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 37,
+          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,
@@ -185182,17 +185208,30 @@
       ],
       "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": [
         {
-          "Control Flow Branches": 7,
-          "Control Flow Ratio": "46.7%",
-          "End Line": 69,
+          "Control Flow Branches": 4,
+          "Control Flow Ratio": "50.0%",
+          "End Line": 58,
           "Function Name": "200-GOODBYE",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 28,
+          "Lines of Code (LOC)": 17,
           "Reflection Hits": 0,
           "Start Line": 42,
-          "Structural Impact": 9.4
+          "Structural Impact": 5.8
+        },
+        {
+          "Control Flow Branches": 3,
+          "Control Flow Ratio": "42.9%",
+          "End Line": 69,
+          "Function Name": "400-CHANGE-2",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 9,
+          "Reflection Hits": 0,
+          "Start Line": 61,
+          "Structural Impact": 4.5
         },
         {
           "Control Flow Branches": 2,
@@ -185262,15 +185301,15 @@
         {
           "Control Flow Branches": 0,
           "Control Flow Ratio": "0.0%",
-          "End Line": 39,
+          "End Line": 33,
           "Function Name": "000-START",
           "Input Parameters": 0,
           "Is Documented": 0,
           "Is Public": 0,
-          "Lines of Code (LOC)": 16,
+          "Lines of Code (LOC)": 10,
           "Reflection Hits": 0,
           "Start Line": 24,
-          "Structural Impact": 1.8
+          "Structural Impact": 1.5
         },
         {
           "Control Flow Branches": 0,
@@ -185310,6 +185349,19 @@
           "Reflection Hits": 0,
           "Start Line": 99,
           "Structural Impact": 1.3
+        },
+        {
+          "Control Flow Branches": 0,
+          "Control Flow Ratio": "0.0%",
+          "End Line": 39,
+          "Function Name": "100-WELCOME",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 5,
+          "Reflection Hits": 0,
+          "Start Line": 35,
+          "Structural Impact": 1.2
         },
         {
           "Control Flow Branches": 0,

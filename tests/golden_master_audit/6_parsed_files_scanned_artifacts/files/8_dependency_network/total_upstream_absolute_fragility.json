@@ -878,7 +878,7 @@
       "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": 5,
       "cobol/cics-banking-sample-application-cbsa/UPDCUST.cpy": 0,
       "cobol/cics-banking-sample-application-cbsa/WAZI.cpy": 0,
-      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": 8,
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": 9,
       "cobol/cics-banking-sample-application-cbsa/XFRFUN.cpy": 0
     },
     "cobol/cics-genapp": {

@@ -12,7 +12,7 @@
     "Encapsulated Accessors": "4.8% (2150)",
     "Generic / Templated Code": "5.7% (2539)",
     "I/O & Config Routines": "16.7% (7416)",
-    "Interface Declarations": "17.3% (7687)",
+    "Interface Declarations": "17.3% (7691)",
     "Many-Argument Workhorses": "6.2% (2744)",
     "Parameter Forwarders": "11.8% (5273)",
     "State Mutators": "7.9% (3517)",

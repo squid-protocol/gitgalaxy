@@ -586,7 +586,7 @@
     "cobol/che-che4z-lsp-for-cobol": {
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": 0,
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": 0,
-      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": 0
+      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": 1
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": 0,

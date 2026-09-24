@@ -2046,7 +2046,7 @@
     "cobol/cobol-check": {
       "Average Risk Exposures": {
         "API Exposure": "0.0%",
-        "Cognitive Load Exposure": "12.53%",
+        "Cognitive Load Exposure": "11.99%",
         "Commented Logic Exposure": "0.0%",
         "Concurrency Exposure": "0.0%",
         "Documentation Exposure": "30.0%",
@@ -2059,7 +2059,7 @@
         "Testing Exposure": "2.22%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 953.48,
+      "Directory Group Magnitude": 956.88,
       "Ecosystem Fingerprint (Archetypes)": {
         "file_cluster_11": "20.0%",
         "file_cluster_2": "75.6%",

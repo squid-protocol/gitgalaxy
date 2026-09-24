@@ -882,7 +882,7 @@
       "avg_exposures": {
         "api_exposure": 0.0,
         "churn": 0.0,
-        "cognitive_load": 12.53,
+        "cognitive_load": 11.99,
         "concurrency": 0.0,
         "dead_code": 0.0,
         "documentation": 30.0,
@@ -895,7 +895,7 @@
         "verification": 2.22
       },
       "file_count": 45,
-      "total_mass": 953.48
+      "total_mass": 956.88
     },
     "cobol/cobol-programming-course": {
       "avg_exposures": {

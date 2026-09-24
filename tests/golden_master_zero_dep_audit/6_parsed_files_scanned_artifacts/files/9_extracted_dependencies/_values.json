@@ -2381,6 +2381,7 @@
         "PROCTRAN",
         "SORTCODE",
         "SQLCA",
+        "SQLDA",
         "XFRFUN"
       ],
       "cobol/cics-banking-sample-application-cbsa/XFRFUN.cpy": []
@@ -2517,7 +2518,10 @@
       "cobol/cobol-check/copybooks_DFHEIBLK.CPY": [],
       "cobol/cobol-check/src_main_cobol_ALPHA.CBL": [],
       "cobol/cobol-check/src_main_cobol_BIPM012.CBL": [],
-      "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": [],
+      "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": [
+        "SQLCA",
+        "TEXEM"
+      ],
       "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": [],
       "cobol/cobol-check/src_main_cobol_FileCopy.cbl": [
         "OUTREC"
@@ -2575,9 +2579,15 @@
     "cobol/cobol-programming-course": {
       "cobol/cobol-programming-course/CBL0106.cbl": [],
       "cobol/cobol-programming-course/CBL0106C.cbl": [],
-      "cobol/cobol-programming-course/CBLDB21.cbl": [],
-      "cobol/cobol-programming-course/CBLDB22.cbl": [],
-      "cobol/cobol-programming-course/CBLDB23.cbl": [],
+      "cobol/cobol-programming-course/CBLDB21.cbl": [
+        "SQLCA"
+      ],
+      "cobol/cobol-programming-course/CBLDB22.cbl": [
+        "SQLCA"
+      ],
+      "cobol/cobol-programming-course/CBLDB23.cbl": [
+        "SQLCA"
+      ],
       "cobol/cobol-programming-course/DEPTPAY.CBL": [],
       "cobol/cobol-programming-course/EMPPAY.CBL": []
     },

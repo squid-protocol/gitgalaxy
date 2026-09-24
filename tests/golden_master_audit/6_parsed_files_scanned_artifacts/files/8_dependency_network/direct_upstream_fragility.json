@@ -878,7 +878,7 @@
       "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": 4,
       "cobol/cics-banking-sample-application-cbsa/UPDCUST.cpy": 0,
       "cobol/cics-banking-sample-application-cbsa/WAZI.cpy": 0,
-      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": 8,
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": 9,
       "cobol/cics-banking-sample-application-cbsa/XFRFUN.cpy": 0
     },
     "cobol/cics-genapp": {
@@ -939,7 +939,7 @@
       "cobol/cobol-check/copybooks_DFHEIBLK.CPY": 0,
       "cobol/cobol-check/src_main_cobol_ALPHA.CBL": 0,
       "cobol/cobol-check/src_main_cobol_BIPM012.CBL": 0,
-      "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": 0,
+      "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": 2,
       "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": 0,
       "cobol/cobol-check/src_main_cobol_FileCopy.cbl": 1,
       "cobol/cobol-check/src_main_cobol_GREETING.CBL": 0,
@@ -982,9 +982,9 @@
     "cobol/cobol-programming-course": {
       "cobol/cobol-programming-course/CBL0106.cbl": 0,
       "cobol/cobol-programming-course/CBL0106C.cbl": 0,
-      "cobol/cobol-programming-course/CBLDB21.cbl": 0,
-      "cobol/cobol-programming-course/CBLDB22.cbl": 0,
-      "cobol/cobol-programming-course/CBLDB23.cbl": 0,
+      "cobol/cobol-programming-course/CBLDB21.cbl": 1,
+      "cobol/cobol-programming-course/CBLDB22.cbl": 1,
+      "cobol/cobol-programming-course/CBLDB23.cbl": 1,
       "cobol/cobol-programming-course/DEPTPAY.CBL": 0,
       "cobol/cobol-programming-course/EMPPAY.CBL": 0
     },

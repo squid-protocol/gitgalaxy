@@ -124,47 +124,47 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    SYSIDERR_RETRY                 DECIMAL(3, 0),\n    HV_PROCTRAN_EYECATCHER         VARCHAR(4),\n    HV_PROCTRAN_SORT_CODE          VARCHAR(6),\n    HV_PROCTRAN_ACC_NUMBER         VARCHAR(8),\n    HV_PROCTRAN_DATE               VARCHAR(10),\n    HV_PROCTRAN_TIME               VARCHAR(6),\n    HV_PROCTRAN_REF                VARCHAR(12),\n    HV_PROCTRAN_TYPE               VARCHAR(3),\n    HV_PROCTRAN_DESC               VARCHAR(40),\n    HV_PROCTRAN_AMOUNT             DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    RETURNED_SORT_CODE             DECIMAL(6, 0),\n    RETURNED_NUMBER                DECIMAL(8, 0),\n    WS_EIBTASKN12                  BIGINT,\n    REQUIRED_SORT_CODE             INTEGER,\n    DESIRED_KEY_SORTCODE           DECIMAL(6, 0),\n    DESIRED_KEY_CUSTOMER           DECIMAL(10, 0),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_APPLID                      VARCHAR(8),\n    REMIX_SCODE_CHAR               VARCHAR(6),\n    WS_STOREDC_EYECATCHER          VARCHAR(4),\n    WS_STOREDC_SORTCODE            DECIMAL(6, 0),\n    WS_STOREDC_NUMBER              DECIMAL(10, 0),\n    WS_STOREDC_NAME                VARCHAR(60),\n    WS_STOREDC_ADDRESS             VARCHAR(160),\n    WS_STOREDC_DATE_OF_BIRTH       VARCHAR(10),\n    WS_STOREDC_CREDIT_SCORE        DECIMAL(3, 0),\n    WS_STOREDC_CS_REVIEW_DATE      VARCHAR(10),\n    SQLCODE_DISPLAY                INTEGER,\n    DELACC_COMM_ACCNO              DECIMAL(8, 0),\n    DELACC_COMM_APPLID             VARCHAR(8),\n    WS_TOKEN                       INTEGER,\n    WS_INDEX                       INTEGER,\n    INQCUST_PROGRAM                VARCHAR(8),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0),\n    WS_ABEND_PGM                   VARCHAR(8)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    SYSIDERR_RETRY                 SMALLINT,\n    HV_PROCTRAN_EYECATCHER         VARCHAR(4),\n    HV_PROCTRAN_SORT_CODE          VARCHAR(6),\n    HV_PROCTRAN_ACC_NUMBER         VARCHAR(8),\n    HV_PROCTRAN_DATE               VARCHAR(10),\n    HV_PROCTRAN_TIME               VARCHAR(6),\n    HV_PROCTRAN_REF                VARCHAR(12),\n    HV_PROCTRAN_TYPE               VARCHAR(3),\n    HV_PROCTRAN_DESC               VARCHAR(40),\n    HV_PROCTRAN_AMOUNT             DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    RETURNED_SORT_CODE             INTEGER,\n    RETURNED_NUMBER                INTEGER,\n    WS_EIBTASKN12                  BIGINT,\n    REQUIRED_SORT_CODE             INTEGER,\n    DESIRED_KEY_SORTCODE           INTEGER,\n    DESIRED_KEY_CUSTOMER           BIGINT,\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_APPLID                      VARCHAR(8),\n    REMIX_SCODE_CHAR               VARCHAR(6),\n    WS_STOREDC_EYECATCHER          VARCHAR(4),\n    WS_STOREDC_SORTCODE            INTEGER,\n    WS_STOREDC_NUMBER              BIGINT,\n    WS_STOREDC_NAME                VARCHAR(60),\n    WS_STOREDC_ADDRESS             VARCHAR(160),\n    WS_STOREDC_DATE_OF_BIRTH       VARCHAR(10),\n    WS_STOREDC_CREDIT_SCORE        SMALLINT,\n    WS_STOREDC_CS_REVIEW_DATE      VARCHAR(10),\n    SQLCODE_DISPLAY                INTEGER,\n    DELACC_COMM_ACCNO              INTEGER,\n    DELACC_COMM_APPLID             VARCHAR(8),\n    WS_TOKEN                       INTEGER,\n    WS_INDEX                       INTEGER,\n    INQCUST_PROGRAM                VARCHAR(8),\n    WS_TIME_NOW                    INTEGER,\n    WS_TIME_NOW_GRP_HH             SMALLINT,\n    WS_TIME_NOW_GRP_MM             SMALLINT,\n    WS_TIME_NOW_GRP_SS             SMALLINT,\n    WS_ABEND_PGM                   VARCHAR(8)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
         "type": "object",
         "properties": {
           "SYSIDERR_RETRY": {
-            "type": "number",
-            "description": "Legacy PIC: 999."
+            "type": "integer",
+            "description": "Legacy PIC: 999"
           },
           "HV_PROCTRAN_EYECATCHER": {
             "type": "string",
-            "description": "Legacy PIC: X(4)."
+            "description": "Legacy PIC: X(4)"
           },
           "HV_PROCTRAN_SORT_CODE": {
             "type": "string",
-            "description": "Legacy PIC: X(6)."
+            "description": "Legacy PIC: X(6)"
           },
           "HV_PROCTRAN_ACC_NUMBER": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "HV_PROCTRAN_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "HV_PROCTRAN_TIME": {
             "type": "string",
-            "description": "Legacy PIC: X(6)."
+            "description": "Legacy PIC: X(6)"
           },
           "HV_PROCTRAN_REF": {
             "type": "string",
-            "description": "Legacy PIC: X(12)."
+            "description": "Legacy PIC: X(12)"
           },
           "HV_PROCTRAN_TYPE": {
             "type": "string",
-            "description": "Legacy PIC: X(3)."
+            "description": "Legacy PIC: X(3)"
           },
           "HV_PROCTRAN_DESC": {
             "type": "string",
-            "description": "Legacy PIC: X(40)."
+            "description": "Legacy PIC: X(40)"
           },
           "HV_PROCTRAN_AMOUNT": {
             "type": "number",
@@ -179,12 +179,12 @@
             "description": "Legacy PIC: S9(8)"
           },
           "RETURNED_SORT_CODE": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "RETURNED_NUMBER": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "WS_EIBTASKN12": {
             "type": "integer",
@@ -195,12 +195,12 @@
             "description": "Legacy PIC: 9(6)"
           },
           "DESIRED_KEY_SORTCODE": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "DESIRED_KEY_CUSTOMER": {
-            "type": "number",
-            "description": "Legacy PIC: 9(10)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
           },
           "WS_U_TIME": {
             "type": "integer",
@@ -208,59 +208,59 @@
           },
           "WS_ORIG_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_APPLID": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "REMIX_SCODE_CHAR": {
             "type": "string",
-            "description": "Legacy PIC: X(6)."
+            "description": "Legacy PIC: X(6)"
           },
           "WS_STOREDC_EYECATCHER": {
             "type": "string",
-            "description": "Legacy PIC: X(4)."
+            "description": "Legacy PIC: X(4)"
           },
           "WS_STOREDC_SORTCODE": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "WS_STOREDC_NUMBER": {
-            "type": "number",
-            "description": "Legacy PIC: 9(10)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
           },
           "WS_STOREDC_NAME": {
             "type": "string",
-            "description": "Legacy PIC: X(60)."
+            "description": "Legacy PIC: X(60)"
           },
           "WS_STOREDC_ADDRESS": {
             "type": "string",
-            "description": "Legacy PIC: X(160)."
+            "description": "Legacy PIC: X(160)"
           },
           "WS_STOREDC_DATE_OF_BIRTH": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_STOREDC_CREDIT_SCORE": {
-            "type": "number",
-            "description": "Legacy PIC: 9(3)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(3)"
           },
           "WS_STOREDC_CS_REVIEW_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "SQLCODE_DISPLAY": {
             "type": "integer",
             "description": "Legacy PIC: S9(8)"
           },
           "DELACC_COMM_ACCNO": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "DELACC_COMM_APPLID": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "WS_TOKEN": {
             "type": "integer",
@@ -275,20 +275,20 @@
             "description": "Legacy PIC: X(8)"
           },
           "WS_TIME_NOW": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "WS_TIME_NOW_GRP_HH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_MM": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_SS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_ABEND_PGM": {
             "type": "string",

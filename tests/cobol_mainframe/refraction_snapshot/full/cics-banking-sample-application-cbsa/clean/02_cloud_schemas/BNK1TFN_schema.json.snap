@@ -49,7 +49,7 @@
     },
     "WS_AMOUNT_UNSTR": {
       "type": "string",
-      "description": "Legacy PIC: X(13)."
+      "description": "Legacy PIC: X(13)"
     },
     "WS_AMOUNT_UNSTR_L": {
       "type": "integer",
@@ -57,75 +57,91 @@
     },
     "WS_AMOUNT_UNSTR_REVERSE": {
       "type": "string",
-      "description": "Legacy PIC: X(13)."
+      "description": "Legacy PIC: X(13)"
     },
     "WS_CONVERT_PIC1_1ST": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_CONVERT_PIC1_POINT": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "WS_CONVERT_PIC1_2ND": {
       "type": "string",
-      "description": "Legacy PIC: XX."
+      "description": "Legacy PIC: XX"
     },
     "WS_CONVERT_DEC": {
-      "type": "number",
-      "description": "Legacy PIC: 9(10)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
     },
     "WS_CONVERT_POINT": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "WS_CONVERT_REMAIN": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "SUBPGM_FACCNO": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "SUBPGM_FSCODE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "SUBPGM_TACCNO": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "SUBPGM_TSCODE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "SUBPGM_AMT": {
       "type": "number",
-      "description": "Legacy PIC: S9(10)V99."
+      "description": "Legacy PIC: S9(10)V99"
     },
     "SUBPGM_FAVBAL": {
       "type": "number",
-      "description": "Legacy PIC: S9(10)V99."
+      "description": "Legacy PIC: S9(10)V99"
     },
     "SUBPGM_FACTBAL": {
       "type": "number",
-      "description": "Legacy PIC: S9(10)V99."
+      "description": "Legacy PIC: S9(10)V99"
     },
     "SUBPGM_TAVBAL": {
       "type": "number",
-      "description": "Legacy PIC: S9(10)V99."
+      "description": "Legacy PIC: S9(10)V99"
     },
     "SUBPGM_TACTBAL": {
       "type": "number",
-      "description": "Legacy PIC: S9(10)V99."
+      "description": "Legacy PIC: S9(10)V99"
     },
     "SUBPGM_FAIL_CODE": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "SUBPGM_SUCCESS": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
+    },
+    "FROM_AVAILABLE_BALANCE_DISPLAY": {
+      "type": "number",
+      "description": "Legacy PIC: +9(10).99"
+    },
+    "FROM_ACTUAL_BALANCE_DISPLAY": {
+      "type": "number",
+      "description": "Legacy PIC: +9(10).99"
+    },
+    "TO_AVAILABLE_BALANCE_DISPLAY": {
+      "type": "number",
+      "description": "Legacy PIC: +9(10).99"
+    },
+    "TO_ACTUAL_BALANCE_DISPLAY": {
+      "type": "number",
+      "description": "Legacy PIC: +9(10).99"
     },
     "WS_U_TIME": {
       "type": "integer",
@@ -133,23 +149,23 @@
     },
     "WS_ORIG_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_TIME_NOW": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "WS_TIME_NOW_GRP_HH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_SS": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_ABEND_PGM": {
       "type": "string",

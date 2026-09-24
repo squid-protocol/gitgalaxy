@@ -73,7 +73,7 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    WS_CICS_FAIL_MSG               VARCHAR(70),\n    WS_CICS_RESP_DISP              BIGINT,\n    WS_CICS_RESP2_DISP             BIGINT,\n    VALID_DATA_SW                  VARCHAR(1),\n    END_OF_SESSION_MESSAGE         VARCHAR(13),\n    WS_COMM_AV_BAL_UNSIGN          DECIMAL(12, 0),\n    WS_LSTMTDDI                    DECIMAL(2, 0),\n    WS_LSTMTMMI                    DECIMAL(2, 0),\n    WS_LSTMTYYI                    DECIMAL(4, 0),\n    WS_NSTMTDDI                    DECIMAL(2, 0),\n    WS_NSTMTMMI                    DECIMAL(2, 0),\n    WS_NSTMTYYI                    DECIMAL(4, 0),\n    WS_DATE_SPLIT_DD               DECIMAL(2, 0),\n    WS_DATE_SPLIT_MM               DECIMAL(2, 0),\n    WS_DATE_SPLIT_YY               DECIMAL(4, 0),\n    WS_CONVERT_PICX                VARCHAR(14),\n    WS_CONVERT_SIGN                VARCHAR(1),\n    WS_CONVERT_DEC                 DECIMAL(10, 0),\n    WS_CONVERT_POINT               VARCHAR(1),\n    WS_CONVERT_REMAIN              DECIMAL(2, 0),\n    WS_CONVERTED_VAL1              DECIMAL(12, 2),\n    WS_CONVERTED_VAL2              DECIMAL(12, 2),\n    WS_CONVERTED_VAL3              DECIMAL(12, 2),\n    WS_CONVERTED_VAL4              DECIMAL(12, 2),\n    INT_RT_9                       DECIMAL(6, 2),\n    WS_COMM_EYE                    VARCHAR(4),\n    WS_COMM_CUSTNO                 VARCHAR(10),\n    WS_COMM_SCODE                  VARCHAR(6),\n    WS_COMM_ACCNO                  DECIMAL(8, 0),\n    WS_COMM_ACC_TYPE               VARCHAR(8),\n    WS_COMM_INT_RATE               DECIMAL(6, 2),\n    WS_COMM_OPENED                 DECIMAL(8, 0),\n    WS_COMM_OVERDRAFT              DECIMAL(8, 0),\n    WS_COMM_LAST_STMT_DT           DECIMAL(8, 0),\n    WS_COMM_NEXT_STMT_DT           DECIMAL(8, 0),\n    WS_COMM_AVAIL_BAL              DECIMAL(12, 2),\n    WS_COMM_ACTUAL_BAL             DECIMAL(12, 2),\n    INTRT_PIC9                     DECIMAL(6, 2),\n    WS_NUM_COUNT_POINT             INTEGER,\n    WS_NUM_COUNT_TOTAL             INTEGER,\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0),\n    WS_ABEND_PGM                   VARCHAR(8),\n    COMM_EYE                       VARCHAR(4),\n    COMM_CUSTNO                    VARCHAR(10),\n    COMM_SCODE                     VARCHAR(6),\n    COMM_ACCNO                     DECIMAL(8, 0),\n    COMM_ACC_TYPE                  VARCHAR(8),\n    COMM_INT_RATE                  DECIMAL(6, 2),\n    COMM_OPENED                    DECIMAL(8, 0),\n    COMM_OVERDRAFT                 DECIMAL(8, 0),\n    COMM_LAST_STMT_DT              DECIMAL(8, 0),\n    COMM_NEXT_STMT_DT              DECIMAL(8, 0),\n    COMM_AVAIL_BAL                 DECIMAL(12, 2),\n    COMM_ACTUAL_BAL                DECIMAL(12, 2),\n    COMM_SUCCESS                   VARCHAR(1)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    WS_CICS_FAIL_MSG               VARCHAR(70),\n    WS_CICS_RESP_DISP              BIGINT,\n    WS_CICS_RESP2_DISP             BIGINT,\n    VALID_DATA_SW                  VARCHAR(1),\n    END_OF_SESSION_MESSAGE         VARCHAR(13),\n    WS_COMM_AV_BAL_UNSIGN          BIGINT,\n    WS_LSTMTDDI                    SMALLINT,\n    WS_LSTMTMMI                    SMALLINT,\n    WS_LSTMTYYI                    SMALLINT,\n    WS_NSTMTDDI                    SMALLINT,\n    WS_NSTMTMMI                    SMALLINT,\n    WS_NSTMTYYI                    SMALLINT,\n    WS_DATE_SPLIT_DD               SMALLINT,\n    WS_DATE_SPLIT_MM               SMALLINT,\n    WS_DATE_SPLIT_YY               SMALLINT,\n    WS_CONVERT_PICX                VARCHAR(14),\n    WS_CONVERT_SIGN                VARCHAR(1),\n    WS_CONVERT_DEC                 BIGINT,\n    WS_CONVERT_POINT               VARCHAR(1),\n    WS_CONVERT_REMAIN              SMALLINT,\n    WS_CONVERTED_VAL1              DECIMAL(12, 2),\n    WS_CONVERTED_VAL2              DECIMAL(12, 2),\n    WS_CONVERTED_VAL3              DECIMAL(12, 2),\n    WS_CONVERTED_VAL4              DECIMAL(12, 2),\n    INT_RT_9                       DECIMAL(6, 2),\n    WS_COMM_EYE                    VARCHAR(4),\n    WS_COMM_CUSTNO                 VARCHAR(10),\n    WS_COMM_SCODE                  VARCHAR(6),\n    WS_COMM_ACCNO                  INTEGER,\n    WS_COMM_ACC_TYPE               VARCHAR(8),\n    WS_COMM_INT_RATE               DECIMAL(6, 2),\n    WS_COMM_OPENED                 INTEGER,\n    WS_COMM_OVERDRAFT              INTEGER,\n    WS_COMM_LAST_STMT_DT           INTEGER,\n    WS_COMM_NEXT_STMT_DT           INTEGER,\n    WS_COMM_AVAIL_BAL              DECIMAL(12, 2),\n    WS_COMM_ACTUAL_BAL             DECIMAL(12, 2),\n    INTRT_PIC9                     DECIMAL(6, 2),\n    WS_NUM_COUNT_POINT             INTEGER,\n    WS_NUM_COUNT_TOTAL             INTEGER,\n    AVAILABLE_BALANCE_DISPLAY      DECIMAL(12, 2),\n    ACTUAL_BALANCE_DISPLAY         DECIMAL(12, 2),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    INTEGER,\n    WS_TIME_NOW_GRP_HH             SMALLINT,\n    WS_TIME_NOW_GRP_MM             SMALLINT,\n    WS_TIME_NOW_GRP_SS             SMALLINT,\n    WS_ABEND_PGM                   VARCHAR(8),\n    COMM_EYE                       VARCHAR(4),\n    COMM_CUSTNO                    VARCHAR(10),\n    COMM_SCODE                     VARCHAR(6),\n    COMM_ACCNO                     INTEGER,\n    COMM_ACC_TYPE                  VARCHAR(8),\n    COMM_INT_RATE                  DECIMAL(6, 2),\n    COMM_OPENED                    INTEGER,\n    COMM_OVERDRAFT                 INTEGER,\n    COMM_LAST_STMT_DT              INTEGER,\n    COMM_NEXT_STMT_DT              INTEGER,\n    COMM_AVAIL_BAL                 DECIMAL(12, 2),\n    COMM_ACTUAL_BAL                DECIMAL(12, 2),\n    COMM_SUCCESS                   VARCHAR(1)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
@@ -108,64 +108,64 @@
             "description": "Legacy PIC: X(13)"
           },
           "WS_COMM_AV_BAL_UNSIGN": {
-            "type": "number",
-            "description": "Legacy PIC: 9(12)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(12)"
           },
           "WS_LSTMTDDI": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_LSTMTMMI": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_LSTMTYYI": {
-            "type": "number",
-            "description": "Legacy PIC: 9999."
+            "type": "integer",
+            "description": "Legacy PIC: 9999"
           },
           "WS_NSTMTDDI": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_NSTMTMMI": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_NSTMTYYI": {
-            "type": "number",
-            "description": "Legacy PIC: 9999."
+            "type": "integer",
+            "description": "Legacy PIC: 9999"
           },
           "WS_DATE_SPLIT_DD": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_DATE_SPLIT_MM": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_DATE_SPLIT_YY": {
-            "type": "number",
-            "description": "Legacy PIC: 9999."
+            "type": "integer",
+            "description": "Legacy PIC: 9999"
           },
           "WS_CONVERT_PICX": {
             "type": "string",
-            "description": "Legacy PIC: X(14)."
+            "description": "Legacy PIC: X(14)"
           },
           "WS_CONVERT_SIGN": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "WS_CONVERT_DEC": {
-            "type": "number",
-            "description": "Legacy PIC: 9(10)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
           },
           "WS_CONVERT_POINT": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "WS_CONVERT_REMAIN": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_CONVERTED_VAL1": {
             "type": "number",
@@ -185,59 +185,59 @@
           },
           "INT_RT_9": {
             "type": "number",
-            "description": "Legacy PIC: 9(4)V99."
+            "description": "Legacy PIC: 9(4)V99"
           },
           "WS_COMM_EYE": {
             "type": "string",
-            "description": "Legacy PIC: X(4)."
+            "description": "Legacy PIC: X(4)"
           },
           "WS_COMM_CUSTNO": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_COMM_SCODE": {
             "type": "string",
-            "description": "Legacy PIC: X(6)."
+            "description": "Legacy PIC: X(6)"
           },
           "WS_COMM_ACCNO": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "WS_COMM_ACC_TYPE": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "WS_COMM_INT_RATE": {
             "type": "number",
-            "description": "Legacy PIC: 9(4)V99."
+            "description": "Legacy PIC: 9(4)V99"
           },
           "WS_COMM_OPENED": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "WS_COMM_OVERDRAFT": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "WS_COMM_LAST_STMT_DT": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "WS_COMM_NEXT_STMT_DT": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "WS_COMM_AVAIL_BAL": {
             "type": "number",
-            "description": "Legacy PIC: S9(10)V99."
+            "description": "Legacy PIC: S9(10)V99"
           },
           "WS_COMM_ACTUAL_BAL": {
             "type": "number",
-            "description": "Legacy PIC: S9(10)V99."
+            "description": "Legacy PIC: S9(10)V99"
           },
           "INTRT_PIC9": {
             "type": "number",
-            "description": "Legacy PIC: 9999.99."
+            "description": "Legacy PIC: 9999.99"
           },
           "WS_NUM_COUNT_POINT": {
             "type": "integer",
@@ -247,29 +247,37 @@
             "type": "integer",
             "description": "Legacy PIC: S9(8)"
           },
+          "AVAILABLE_BALANCE_DISPLAY": {
+            "type": "number",
+            "description": "Legacy PIC: +9(10).99"
+          },
+          "ACTUAL_BALANCE_DISPLAY": {
+            "type": "number",
+            "description": "Legacy PIC: +9(10).99"
+          },
           "WS_U_TIME": {
             "type": "integer",
             "description": "Legacy PIC: S9(15)"
           },
           "WS_ORIG_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_TIME_NOW": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "WS_TIME_NOW_GRP_HH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_MM": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_SS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_ABEND_PGM": {
             "type": "string",
@@ -277,55 +285,55 @@
           },
           "COMM_EYE": {
             "type": "string",
-            "description": "Legacy PIC: X(4)."
+            "description": "Legacy PIC: X(4)"
           },
           "COMM_CUSTNO": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "COMM_SCODE": {
             "type": "string",
-            "description": "Legacy PIC: X(6)."
+            "description": "Legacy PIC: X(6)"
           },
           "COMM_ACCNO": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "COMM_ACC_TYPE": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "COMM_INT_RATE": {
             "type": "number",
-            "description": "Legacy PIC: 9(4)V99."
+            "description": "Legacy PIC: 9(4)V99"
           },
           "COMM_OPENED": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "COMM_OVERDRAFT": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "COMM_LAST_STMT_DT": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "COMM_NEXT_STMT_DT": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "COMM_AVAIL_BAL": {
             "type": "number",
-            "description": "Legacy PIC: S9(10)V99."
+            "description": "Legacy PIC: S9(10)V99"
           },
           "COMM_ACTUAL_BAL": {
             "type": "number",
-            "description": "Legacy PIC: S9(10)V99."
+            "description": "Legacy PIC: S9(10)V99"
           },
           "COMM_SUCCESS": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           }
         }
       }

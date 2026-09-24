@@ -4,16 +4,16 @@
   "type": "object",
   "properties": {
     "CURRENT_DATE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(06)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(06)"
     },
     "CURRENT_YYDDD": {
-      "type": "number",
-      "description": "Legacy PIC: 9(05)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(05)"
     },
     "WS_AUTH_DATE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(05)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(05)"
     },
     "WS_EXPIRY_DAYS": {
       "type": "integer",
@@ -24,8 +24,8 @@
       "description": "Legacy PIC: S9(4)"
     },
     "WS_CURR_APP_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(11)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
     },
     "WS_NO_CHKP": {
       "type": "integer",
@@ -60,28 +60,28 @@
       "description": "Legacy PIC: S9(4)"
     },
     "P_EXPIRY_DAYS": {
-      "type": "number",
-      "description": "Legacy PIC: 9(02)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(02)"
     },
     "P_CHKP_FREQ": {
       "type": "string",
-      "description": "Legacy PIC: X(05)."
+      "description": "Legacy PIC: X(05)"
     },
     "P_CHKP_DIS_FREQ": {
       "type": "string",
-      "description": "Legacy PIC: X(05)."
+      "description": "Legacy PIC: X(05)"
     },
     "P_DEBUG_FLAG": {
       "type": "string",
-      "description": "Legacy PIC: X(01)."
+      "description": "Legacy PIC: X(01)"
     },
     "IO_PCB_MASK": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "PGM_PCB_MASK": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     }
   }
 }

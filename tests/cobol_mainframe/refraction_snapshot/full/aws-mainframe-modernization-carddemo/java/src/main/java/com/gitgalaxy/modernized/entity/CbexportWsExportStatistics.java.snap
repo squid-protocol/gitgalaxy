@@ -50,25 +50,25 @@ public class CbexportWsExportStatistics {
     private Integer wsSequenceCounter;
 
     @Column(name = "WS_CURR_YEAR")
-    private BigDecimal wsCurrYear;
+    private Integer wsCurrYear;
 
     @Column(name = "WS_CURR_MONTH")
-    private BigDecimal wsCurrMonth;
+    private Integer wsCurrMonth;
 
     @Column(name = "WS_CURR_DAY")
-    private BigDecimal wsCurrDay;
+    private Integer wsCurrDay;
 
     @Column(name = "WS_CURR_HOUR")
-    private BigDecimal wsCurrHour;
+    private Integer wsCurrHour;
 
     @Column(name = "WS_CURR_MINUTE")
-    private BigDecimal wsCurrMinute;
+    private Integer wsCurrMinute;
 
     @Column(name = "WS_CURR_SECOND")
-    private BigDecimal wsCurrSecond;
+    private Integer wsCurrSecond;
 
     @Column(name = "WS_CURR_HUNDREDTH")
-    private BigDecimal wsCurrHundredth;
+    private Integer wsCurrHundredth;
 
     @Column(name = "WS_CUSTOMER_RECORDS_EXPORTED")
     private Integer wsCustomerRecordsExported;

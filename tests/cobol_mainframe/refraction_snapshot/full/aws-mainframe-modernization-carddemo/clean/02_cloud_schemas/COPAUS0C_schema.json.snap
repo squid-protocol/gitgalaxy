@@ -37,15 +37,15 @@
     },
     "WS_ACCT_ID": {
       "type": "string",
-      "description": "Legacy PIC: X(11)."
+      "description": "Legacy PIC: X(11)"
     },
     "WS_AUTH_KEY_SAVE": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     },
     "WS_AUTH_APRV_STAT": {
       "type": "string",
-      "description": "Legacy PIC: X(01)."
+      "description": "Legacy PIC: X(01)"
     },
     "WS_RESP_CD": {
       "type": "integer",
@@ -56,12 +56,12 @@
       "description": "Legacy PIC: S9(09)"
     },
     "WS_RESP_CD_DIS": {
-      "type": "number",
-      "description": "Legacy PIC: 9(09)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
     },
     "WS_REAS_CD_DIS": {
-      "type": "number",
-      "description": "Legacy PIC: 9(09)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
     },
     "WS_IDX": {
       "type": "integer",
@@ -69,19 +69,19 @@
     },
     "WS_AUTH_AMT": {
       "type": "number",
-      "description": "Legacy PIC: -ZZZZZZZ9.99."
+      "description": "Legacy PIC: -ZZZZZZZ9.99"
     },
     "WS_DISPLAY_AMT12": {
       "type": "number",
-      "description": "Legacy PIC: -ZZZZZZZ9.99."
+      "description": "Legacy PIC: -ZZZZZZZ9.99"
     },
     "WS_DISPLAY_AMT9": {
       "type": "number",
-      "description": "Legacy PIC: -ZZZZ9.99."
+      "description": "Legacy PIC: -ZZZZ9.99"
     },
     "WS_DISPLAY_COUNT": {
-      "type": "number",
-      "description": "Legacy PIC: 9(03)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(03)"
     },
     "WS_AUTH_DATE": {
       "type": "string",
@@ -92,12 +92,20 @@
       "description": "Legacy PIC: X(08)"
     },
     "WS_CARD_RID_CUST_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(09)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_CARD_RID_CUST_ID_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(09)"
     },
     "WS_CARD_RID_ACCT_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(11)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
+    },
+    "WS_CARD_RID_ACCT_ID_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(11)"
     },
     "PSB_NAME": {
       "type": "string",
@@ -109,7 +117,7 @@
     },
     "IMS_RETURN_CODE": {
       "type": "string",
-      "description": "Legacy PIC: X(02)."
+      "description": "Legacy PIC: X(02)"
     },
     "WS_ERR_FLG": {
       "type": "string",
@@ -117,11 +125,11 @@
     },
     "CDEMO_CPVS_PAU_SEL_FLG": {
       "type": "string",
-      "description": "Legacy PIC: X(01)."
+      "description": "Legacy PIC: X(01)"
     },
     "CDEMO_CPVS_PAU_SELECTED": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     },
     "CDEMO_CPVS_PAUKEY_PREV_PG": {
       "type": "string",
@@ -129,7 +137,7 @@
     },
     "CDEMO_CPVS_PAUKEY_LAST": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     },
     "CDEMO_CPVS_PAGE_NUM": {
       "type": "integer",

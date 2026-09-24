@@ -22,35 +22,35 @@ public class Bnk1uacDfhcommareaDto {
 
     private String endOfSessionMessage;
 
-    private BigDecimal wsCommAvBalUnsign;
+    private Integer wsCommAvBalUnsign;
 
-    private BigDecimal wsLstmtddi;
+    private Integer wsLstmtddi;
 
-    private BigDecimal wsLstmtmmi;
+    private Integer wsLstmtmmi;
 
-    private BigDecimal wsLstmtyyi;
+    private Integer wsLstmtyyi;
 
-    private BigDecimal wsNstmtddi;
+    private Integer wsNstmtddi;
 
-    private BigDecimal wsNstmtmmi;
+    private Integer wsNstmtmmi;
 
-    private BigDecimal wsNstmtyyi;
+    private Integer wsNstmtyyi;
 
-    private BigDecimal wsDateSplitDd;
+    private Integer wsDateSplitDd;
 
-    private BigDecimal wsDateSplitMm;
+    private Integer wsDateSplitMm;
 
-    private BigDecimal wsDateSplitYy;
+    private Integer wsDateSplitYy;
 
     private String wsConvertPicx;
 
     private String wsConvertSign;
 
-    private BigDecimal wsConvertDec;
+    private Integer wsConvertDec;
 
     private String wsConvertPoint;
 
-    private BigDecimal wsConvertRemain;
+    private Integer wsConvertRemain;
 
     private BigDecimal wsConvertedVal1;
 
@@ -68,19 +68,19 @@ public class Bnk1uacDfhcommareaDto {
 
     private String wsCommScode;
 
-    private BigDecimal wsCommAccno;
+    private Integer wsCommAccno;
 
     private String wsCommAccType;
 
     private BigDecimal wsCommIntRate;
 
-    private BigDecimal wsCommOpened;
+    private Integer wsCommOpened;
 
-    private BigDecimal wsCommOverdraft;
+    private Integer wsCommOverdraft;
 
-    private BigDecimal wsCommLastStmtDt;
+    private Integer wsCommLastStmtDt;
 
-    private BigDecimal wsCommNextStmtDt;
+    private Integer wsCommNextStmtDt;
 
     private BigDecimal wsCommAvailBal;
 
@@ -92,17 +92,21 @@ public class Bnk1uacDfhcommareaDto {
 
     private Integer wsNumCountTotal;
 
+    private BigDecimal availableBalanceDisplay;
+
+    private BigDecimal actualBalanceDisplay;
+
     private Integer wsUTime;
 
     private String wsOrigDate;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     private String wsAbendPgm;
 
@@ -112,19 +116,19 @@ public class Bnk1uacDfhcommareaDto {
 
     private String commScode;
 
-    private BigDecimal commAccno;
+    private Integer commAccno;
 
     private String commAccType;
 
     private BigDecimal commIntRate;
 
-    private BigDecimal commOpened;
+    private Integer commOpened;
 
-    private BigDecimal commOverdraft;
+    private Integer commOverdraft;
 
-    private BigDecimal commLastStmtDt;
+    private Integer commLastStmtDt;
 
-    private BigDecimal commNextStmtDt;
+    private Integer commNextStmtDt;
 
     private BigDecimal commAvailBal;
 

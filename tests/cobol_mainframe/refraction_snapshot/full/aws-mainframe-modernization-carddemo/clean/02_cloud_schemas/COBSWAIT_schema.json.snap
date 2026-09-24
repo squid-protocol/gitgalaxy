@@ -9,7 +9,7 @@
     },
     "PARM_VALUE": {
       "type": "string",
-      "description": "Legacy PIC: X(8)."
+      "description": "Legacy PIC: X(8)"
     }
   }
 }

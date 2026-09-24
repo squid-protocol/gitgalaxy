@@ -32,108 +32,116 @@
       "description": "Legacy PIC: X(13)"
     },
     "COMM_OPENED_SPLIT_DD": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "COMM_OPENED_SPLIT_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "COMM_OPENED_SPLIT_YY": {
-      "type": "number",
-      "description": "Legacy PIC: 9999."
+      "type": "integer",
+      "description": "Legacy PIC: 9999"
     },
     "COMM_LAST_ST_DD": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "COMM_LAST_ST_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "COMM_LAST_ST_YY": {
-      "type": "number",
-      "description": "Legacy PIC: 9999."
+      "type": "integer",
+      "description": "Legacy PIC: 9999"
     },
     "COMM_NEXT_ST_DD": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "COMM_NEXT_ST_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "COMM_NEXT_ST_YY": {
-      "type": "number",
-      "description": "Legacy PIC: 9999."
+      "type": "integer",
+      "description": "Legacy PIC: 9999"
     },
     "PARMS_SUBPGM_SCODE": {
       "type": "string",
-      "description": "Legacy PIC: X(6)."
+      "description": "Legacy PIC: X(6)"
     },
     "PARMS_SUBPGM_ACCNO": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "PARMS_SUBPGM_DEL_SUCCESS": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "PARMS_SUBPGM_DEL_FAIL_CD": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "WS_COMM_EYE": {
       "type": "string",
-      "description": "Legacy PIC: X(4)."
+      "description": "Legacy PIC: X(4)"
     },
     "WS_COMM_CUSTNO": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_COMM_SCODE": {
       "type": "string",
-      "description": "Legacy PIC: X(6)."
+      "description": "Legacy PIC: X(6)"
     },
     "WS_COMM_ACCNO": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "WS_COMM_ACC_TYPE": {
       "type": "string",
-      "description": "Legacy PIC: X(8)."
+      "description": "Legacy PIC: X(8)"
     },
     "WS_COMM_INT_RATE": {
       "type": "number",
-      "description": "Legacy PIC: 9(4)V99."
+      "description": "Legacy PIC: 9(4)V99"
     },
     "WS_COMM_OPENED": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "WS_COMM_OVERDRAFT": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "WS_COMM_LAST_STMT_DT": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "WS_COMM_NEXT_STMT_DT": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "WS_COMM_AVAIL_BAL": {
       "type": "number",
-      "description": "Legacy PIC: S9(10)V99."
+      "description": "Legacy PIC: S9(10)V99"
     },
     "WS_COMM_ACTUAL_BAL": {
       "type": "number",
-      "description": "Legacy PIC: S9(10)V99."
+      "description": "Legacy PIC: S9(10)V99"
     },
     "WS_COMM_SUCCESS": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
+    },
+    "AVAILABLE_BALANCE_DISPLAY": {
+      "type": "number",
+      "description": "Legacy PIC: +9(10).99"
+    },
+    "ACTUAL_BALANCE_DISPLAY": {
+      "type": "number",
+      "description": "Legacy PIC: +9(10).99"
     },
     "WS_U_TIME": {
       "type": "integer",
@@ -141,23 +149,23 @@
     },
     "WS_ORIG_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_TIME_NOW": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "WS_TIME_NOW_GRP_HH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_SS": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_ABEND_PGM": {
       "type": "string",
@@ -165,55 +173,55 @@
     },
     "COMM_EYE": {
       "type": "string",
-      "description": "Legacy PIC: X(4)."
+      "description": "Legacy PIC: X(4)"
     },
     "COMM_CUSTNO": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "COMM_SCODE": {
       "type": "string",
-      "description": "Legacy PIC: X(6)."
+      "description": "Legacy PIC: X(6)"
     },
     "COMM_ACCNO": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "COMM_ACC_TYPE": {
       "type": "string",
-      "description": "Legacy PIC: X(8)."
+      "description": "Legacy PIC: X(8)"
     },
     "COMM_INT_RATE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "COMM_OPENED": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "COMM_OVERDRAFT": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "COMM_LAST_STMT_DT": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "COMM_NEXT_STMT_DT": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "COMM_AVAIL_BAL": {
       "type": "number",
-      "description": "Legacy PIC: S9(10)V99."
+      "description": "Legacy PIC: S9(10)V99"
     },
     "COMM_ACTUAL_BAL": {
       "type": "number",
-      "description": "Legacy PIC: S9(10)V99."
+      "description": "Legacy PIC: S9(10)V99"
     },
     "COMM_SUCCESS": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     }
   }
 }

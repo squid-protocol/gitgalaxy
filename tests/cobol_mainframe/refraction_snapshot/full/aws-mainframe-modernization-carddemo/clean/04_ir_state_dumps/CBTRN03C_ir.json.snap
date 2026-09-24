@@ -105,7 +105,7 @@
   "generation": {
     "schemas": {
       "table": "IO_STATUS_04",
-      "sql": "CREATE TABLE IO_STATUS_04 (\n    FD_XREF_CARD_NUM               VARCHAR(16),\n    FD_TRAN_TYPE                   VARCHAR(02),\n    FD_TRAN_TYPE_CD                VARCHAR(02),\n    FD_TRAN_CAT_CD                 DECIMAL(4, 0),\n    FD_REPTFILE_REC                VARCHAR(133),\n    WS_START_DATE                  VARCHAR(10),\n    WS_END_DATE                    VARCHAR(10),\n    WS_FIRST_TIME                  VARCHAR(1),\n    WS_LINE_COUNTER                INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    WS_PAGE_SIZE                   SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_BLANK_LINE                  VARCHAR(133),\n    WS_PAGE_TOTAL                  DECIMAL(11, 2),\n    WS_ACCOUNT_TOTAL               DECIMAL(11, 2),\n    WS_GRAND_TOTAL                 DECIMAL(11, 2),\n    WS_CURR_CARD_NUM               VARCHAR(16),\n    IO_STAT1                       VARCHAR(1),\n    IO_STAT2                       VARCHAR(1),\n    TWO_BYTES_BINARY               SMALLINT,\n    TWO_BYTES_RIGHT                VARCHAR(1),\n    IO_STATUS_0403                 SMALLINT,\n    APPL_RESULT                    INTEGER,\n    END_OF_FILE                    VARCHAR(01),\n    ABCODE                         INTEGER,\n    TIMING                         INTEGER\n);",
+      "sql": "CREATE TABLE IO_STATUS_04 (\n    FD_XREF_CARD_NUM               VARCHAR(16),\n    FD_TRAN_TYPE                   VARCHAR(02),\n    FD_TRAN_TYPE_CD                VARCHAR(02),\n    FD_TRAN_CAT_CD                 SMALLINT,\n    FD_REPTFILE_REC                VARCHAR(133),\n    WS_START_DATE                  VARCHAR(10),\n    WS_END_DATE                    VARCHAR(10),\n    WS_FIRST_TIME                  VARCHAR(1),\n    WS_LINE_COUNTER                INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    WS_PAGE_SIZE                   SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_BLANK_LINE                  VARCHAR(133),\n    WS_PAGE_TOTAL                  DECIMAL(11, 2),\n    WS_ACCOUNT_TOTAL               DECIMAL(11, 2),\n    WS_GRAND_TOTAL                 DECIMAL(11, 2),\n    WS_CURR_CARD_NUM               VARCHAR(16),\n    IO_STAT1                       VARCHAR(1),\n    IO_STAT2                       VARCHAR(1),\n    TWO_BYTES_BINARY               SMALLINT,\n    TWO_BYTES_RIGHT                VARCHAR(1),\n    IO_STATUS_0403                 SMALLINT,\n    APPL_RESULT                    INTEGER,\n    END_OF_FILE                    VARCHAR(01),\n    ABCODE                         INTEGER,\n    TIMING                         INTEGER\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "IO_STATUS_04",
@@ -113,31 +113,31 @@
         "properties": {
           "FD_XREF_CARD_NUM": {
             "type": "string",
-            "description": "Legacy PIC: X(16)."
+            "description": "Legacy PIC: X(16)"
           },
           "FD_TRAN_TYPE": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "FD_TRAN_TYPE_CD": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "FD_TRAN_CAT_CD": {
-            "type": "number",
-            "description": "Legacy PIC: 9(04)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(04)"
           },
           "FD_REPTFILE_REC": {
             "type": "string",
-            "description": "Legacy PIC: X(133)."
+            "description": "Legacy PIC: X(133)"
           },
           "WS_START_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_END_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_FIRST_TIME": {
             "type": "string",
@@ -173,11 +173,11 @@
           },
           "IO_STAT1": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "IO_STAT2": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "TWO_BYTES_BINARY": {
             "type": "integer",
@@ -185,7 +185,7 @@
           },
           "TWO_BYTES_RIGHT": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "IO_STATUS_0403": {
             "type": "integer",

@@ -1,0 +1,411 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "LIT_THISPGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_THISTRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "LIT_THISMAPSET": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_THISMAP": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_ADMINPGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_ADMINTRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "LIT_ADDTPGM": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "LIT_ADDTTRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "LIT_ADDTMAPSET": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_ADDTMAP": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_DSNTIAC": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_ASTERISK": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "LIT_DELETE_FLAG": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "LIT_UPDATE_FLAG": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "WS_MAX_SCREEN_LINES": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "LIT_UPPER": {
+      "type": "string",
+      "description": "Legacy PIC: X(26)"
+    },
+    "LIT_LOWER": {
+      "type": "string",
+      "description": "Legacy PIC: X(26)"
+    },
+    "LIT_NUMBERS": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "LIT_ALL_ALPHANUM_FROM": {
+      "type": "string",
+      "description": "Legacy PIC: X(62)"
+    },
+    "LIT_ALPHANUM_SPACES_TO": {
+      "type": "string",
+      "description": "Legacy PIC: X(62)"
+    },
+    "WS_RESP_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "WS_REAS_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "WS_TRANID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_EDIT_TYPE_FLAG": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "WS_EDIT_DESC_FLAG": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "WS_ARRAY_DESCRIPTION_FLGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "WS_EDIT_VARIABLE_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)"
+    },
+    "WS_EDIT_ALPHANUM_ONLY": {
+      "type": "string",
+      "description": "Legacy PIC: X(256)"
+    },
+    "WS_EDIT_ALPHANUM_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_EDIT_ALPHANUM_ONLY_FLAGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "WS_RECORDS_COUNT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_ALL_ROWS_IN": {
+      "type": "string",
+      "description": "Legacy PIC: X(364)"
+    },
+    "WS_ROW_TR_CODE_IN": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_ROW_TR_DESC_IN": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "WS_EDIT_SELECT_FLAGS": {
+      "type": "string",
+      "description": "Legacy PIC: X(7)"
+    },
+    "WS_EDIT_SELECT": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "WS_ROW_TRTSELECT_ERROR": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "I": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "I_SELECTED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_ACTIONS_REQUESTED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "WS_DELETES_REQUESTED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "WS_UPDATES_REQUESTED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "WS_NO_ACTIONS_SELECTED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "WS_VALID_ACTIONS_SELECTED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(04)"
+    },
+    "FLG_PROTECT_SELECT_ROWS": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "WS_LONG_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(800)"
+    },
+    "WS_INFO_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(45)"
+    },
+    "WS_RETURN_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(75)"
+    },
+    "WS_STRING_MID": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(3)"
+    },
+    "WS_STRING_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(3)"
+    },
+    "WS_STRING_OUT": {
+      "type": "string",
+      "description": "Legacy PIC: X(45)"
+    },
+    "WS_START_KEY": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_TYPE_CD_FILTER": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_TYPE_DESC_FILTER": {
+      "type": "string",
+      "description": "Legacy PIC: X(52)"
+    },
+    "WS_TYPE_CD_DELETE_KEY": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_IN_TYPE_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_IN_TYPE_CD_N": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(02)"
+    },
+    "WS_IN_TYPE_DESC": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "WS_ROW_NUMBER": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_CA_TYPE_CD": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_CA_TYPE_CD_N": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(02)"
+    },
+    "WS_CA_TYPE_DESC": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "WS_CA_ALL_ROWS_OUT": {
+      "type": "string",
+      "description": "Legacy PIC: X(364)"
+    },
+    "WS_CA_ROW_TR_CODE_OUT": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_CA_ROW_TR_DESC_OUT": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "WS_CA_ROW_SELECTED": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_CA_LAST_TR_CODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_CA_FIRST_TR_CODE": {
+      "type": "string",
+      "description": "Legacy PIC: X(02)"
+    },
+    "WS_CA_SCREEN_NUM": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(1)"
+    },
+    "WS_CA_LAST_PAGE_DISPLAYED": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(1)"
+    },
+    "WS_CA_NEXT_PAGE_IND": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "WS_CA_DELETE_FLAG": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_CA_UPDATE_FLAG": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_COMMAREA": {
+      "type": "string",
+      "description": "Legacy PIC: X(2000)"
+    },
+    "TRTSELL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "TRTSELF": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTSELA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTSELI": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "TRTTYPL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "TRTTYPF": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTTYPA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTTYPI": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "TRTYPDL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "TRTYPDF": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTYPDA": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTYPDI": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    },
+    "TRTSELC": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTSELP": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTSELH": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTSELV": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTSELO": {
+      "type": "string",
+      "description": "Legacy PIC: X(1)"
+    },
+    "TRTTYPC": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTTYPP": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTTYPH": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTTYPV": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTTYPO": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "TRTYPDC": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTYPDP": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTYPDH": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTYPDV": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "TRTYPDO": {
+      "type": "string",
+      "description": "Legacy PIC: X(50)"
+    }
+  }
+}

@@ -21,10 +21,10 @@ CREATE TABLE DFHCOMMAREA (
     WS_ACT_BAL_SIGN                VARCHAR(1),
     WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),
     WS_ORIG_DATE                   VARCHAR(10),
-    WS_TIME_NOW                    DECIMAL(6, 0),
-    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),
-    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),
-    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0),
+    WS_TIME_NOW                    INTEGER,
+    WS_TIME_NOW_GRP_HH             SMALLINT,
+    WS_TIME_NOW_GRP_MM             SMALLINT,
+    WS_TIME_NOW_GRP_SS             SMALLINT,
     WS_ABEND_PGM                   VARCHAR(8),
     COMM_SCODE                     VARCHAR(6)
 );

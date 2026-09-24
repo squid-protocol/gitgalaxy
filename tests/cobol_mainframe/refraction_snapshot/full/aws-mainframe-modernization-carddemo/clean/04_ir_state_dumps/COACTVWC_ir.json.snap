@@ -344,7 +344,7 @@
         "XREF-ACCT-ID",
         "XREF-READ-ERROR"
       ],
-      "total_paras": 34,
+      "total_paras": 36,
       "dead_paras": [
         "0000-MAIN-EXIT",
         "SEND-LONG-TEXT",
@@ -372,7 +372,7 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_TRANID                      VARCHAR(4),\n    WS_CARD_RID_CUST_ID            DECIMAL(9, 0),\n    WS_CARD_RID_ACCT_ID            DECIMAL(11, 0),\n    ERROR_OPNAME                   VARCHAR(8),\n    ERROR_FILE                     VARCHAR(9),\n    ERROR_RESP                     VARCHAR(10),\n    ERROR_RESP2                    VARCHAR(10),\n    WS_LONG_MSG                    VARCHAR(500),\n    WS_INFO_MSG                    VARCHAR(40),\n    WS_RETURN_MSG                  VARCHAR(75),\n    LIT_THISPGM                    VARCHAR(8),\n    LIT_THISTRANID                 VARCHAR(4),\n    LIT_THISMAPSET                 VARCHAR(8),\n    LIT_THISMAP                    VARCHAR(7),\n    LIT_MENUPGM                    VARCHAR(8),\n    LIT_MENUTRANID                 VARCHAR(4),\n    LIT_ACCTFILENAME               VARCHAR(8),\n    LIT_CUSTFILENAME               VARCHAR(8),\n    LIT_CARDXREFNAME_ACCT_PATH     VARCHAR(8),\n    CA_FROM_PROGRAM                VARCHAR(08),\n    CA_FROM_TRANID                 VARCHAR(04),\n    WS_COMMAREA                    VARCHAR(2000)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_TRANID                      VARCHAR(4),\n    WS_CARD_RID_CUST_ID            INTEGER,\n    WS_CARD_RID_CUST_ID_X          VARCHAR(09),\n    WS_CARD_RID_ACCT_ID            BIGINT,\n    WS_CARD_RID_ACCT_ID_X          VARCHAR(11),\n    ERROR_OPNAME                   VARCHAR(8),\n    ERROR_FILE                     VARCHAR(9),\n    ERROR_RESP                     VARCHAR(10),\n    ERROR_RESP2                    VARCHAR(10),\n    WS_LONG_MSG                    VARCHAR(500),\n    WS_INFO_MSG                    VARCHAR(40),\n    WS_RETURN_MSG                  VARCHAR(75),\n    LIT_THISPGM                    VARCHAR(8),\n    LIT_THISTRANID                 VARCHAR(4),\n    LIT_THISMAPSET                 VARCHAR(8),\n    LIT_THISMAP                    VARCHAR(7),\n    LIT_MENUPGM                    VARCHAR(8),\n    LIT_MENUTRANID                 VARCHAR(4),\n    LIT_ACCTFILENAME               VARCHAR(8),\n    LIT_CUSTFILENAME               VARCHAR(8),\n    LIT_CARDXREFNAME_ACCT_PATH     VARCHAR(8),\n    CA_FROM_PROGRAM                VARCHAR(08),\n    CA_FROM_TRANID                 VARCHAR(04),\n    WS_COMMAREA                    VARCHAR(2000)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
@@ -391,12 +391,20 @@
             "description": "Legacy PIC: X(4)"
           },
           "WS_CARD_RID_CUST_ID": {
-            "type": "number",
-            "description": "Legacy PIC: 9(09)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_CARD_RID_CUST_ID_X": {
+            "type": "string",
+            "description": "Legacy PIC: X(09)"
           },
           "WS_CARD_RID_ACCT_ID": {
-            "type": "number",
-            "description": "Legacy PIC: 9(11)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(11)"
+          },
+          "WS_CARD_RID_ACCT_ID_X": {
+            "type": "string",
+            "description": "Legacy PIC: X(11)"
           },
           "ERROR_OPNAME": {
             "type": "string",
@@ -416,15 +424,15 @@
           },
           "WS_LONG_MSG": {
             "type": "string",
-            "description": "Legacy PIC: X(500)."
+            "description": "Legacy PIC: X(500)"
           },
           "WS_INFO_MSG": {
             "type": "string",
-            "description": "Legacy PIC: X(40)."
+            "description": "Legacy PIC: X(40)"
           },
           "WS_RETURN_MSG": {
             "type": "string",
-            "description": "Legacy PIC: X(75)."
+            "description": "Legacy PIC: X(75)"
           },
           "LIT_THISPGM": {
             "type": "string",
@@ -464,15 +472,15 @@
           },
           "CA_FROM_PROGRAM": {
             "type": "string",
-            "description": "Legacy PIC: X(08)."
+            "description": "Legacy PIC: X(08)"
           },
           "CA_FROM_TRANID": {
             "type": "string",
-            "description": "Legacy PIC: X(04)."
+            "description": "Legacy PIC: X(04)"
           },
           "WS_COMMAREA": {
             "type": "string",
-            "description": "Legacy PIC: X(2000)."
+            "description": "Legacy PIC: X(2000)"
           }
         }
       }

@@ -2,7 +2,7 @@ CREATE TABLE IO_STATUS_04 (
     FD_XREF_CARD_NUM               VARCHAR(16),
     FD_TRAN_TYPE                   VARCHAR(02),
     FD_TRAN_TYPE_CD                VARCHAR(02),
-    FD_TRAN_CAT_CD                 DECIMAL(4, 0),
+    FD_TRAN_CAT_CD                 SMALLINT,
     FD_REPTFILE_REC                VARCHAR(133),
     WS_START_DATE                  VARCHAR(10),
     WS_END_DATE                    VARCHAR(10),

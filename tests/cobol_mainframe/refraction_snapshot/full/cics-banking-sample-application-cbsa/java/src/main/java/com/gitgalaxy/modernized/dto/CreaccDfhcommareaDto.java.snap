@@ -110,11 +110,11 @@ public class CreaccDfhcommareaDto {
 
     private String wsOrigDate;
 
-    private BigDecimal wsOrigDateDd;
+    private Integer wsOrigDateDd;
 
-    private BigDecimal wsOrigDateMm;
+    private Integer wsOrigDateMm;
 
-    private BigDecimal wsOrigDateYyyy;
+    private Integer wsOrigDateYyyy;
 
     private Integer dontCare;
 
@@ -122,15 +122,15 @@ public class CreaccDfhcommareaDto {
 
     private String wsStdtX;
 
-    private BigDecimal wsStdt9Num;
+    private Integer wsStdt9Num;
 
-    private BigDecimal wsStdt9Numeric;
+    private Integer wsStdt9Numeric;
 
     private Integer wsInteger;
 
-    private BigDecimal wsFutureDate;
+    private Integer wsFutureDate;
 
-    private BigDecimal wsFut9;
+    private Integer wsFut9;
 
     private String wsFutXYy;
 
@@ -156,13 +156,13 @@ public class CreaccDfhcommareaDto {
 
     private Integer requiredAcctNumber3;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     private String wsAbendPgm;
 

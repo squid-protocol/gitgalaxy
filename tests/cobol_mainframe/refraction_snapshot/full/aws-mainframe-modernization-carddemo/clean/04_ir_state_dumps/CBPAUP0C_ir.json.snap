@@ -82,23 +82,23 @@
   "generation": {
     "schemas": {
       "table": "PENDING_AUTH_DETAILS",
-      "sql": "CREATE TABLE PENDING_AUTH_DETAILS (\n    CURRENT_DATE                   DECIMAL(6, 0),\n    CURRENT_YYDDD                  DECIMAL(5, 0),\n    WS_AUTH_DATE                   DECIMAL(5, 0),\n    WS_EXPIRY_DAYS                 SMALLINT,\n    WS_DAY_DIFF                    SMALLINT,\n    WS_CURR_APP_ID                 DECIMAL(11, 0),\n    WS_NO_CHKP                     INTEGER,\n    WS_AUTH_SMRY_PROC_CNT          INTEGER,\n    WS_NO_SUMRY_READ               INTEGER,\n    WS_NO_SUMRY_DELETED            INTEGER,\n    WS_NO_DTL_READ                 INTEGER,\n    WS_NO_DTL_DELETED              INTEGER,\n    WK_CHKPT_ID_CTR                SMALLINT,\n    PAUT_PCB_NUM                   SMALLINT,\n    P_EXPIRY_DAYS                  DECIMAL(2, 0),\n    P_CHKP_FREQ                    VARCHAR(05),\n    P_CHKP_DIS_FREQ                VARCHAR(05),\n    P_DEBUG_FLAG                   VARCHAR(01),\n    IO_PCB_MASK                    VARCHAR(1),\n    PGM_PCB_MASK                   VARCHAR(1)\n);",
+      "sql": "CREATE TABLE PENDING_AUTH_DETAILS (\n    CURRENT_DATE                   INTEGER,\n    CURRENT_YYDDD                  INTEGER,\n    WS_AUTH_DATE                   INTEGER,\n    WS_EXPIRY_DAYS                 SMALLINT,\n    WS_DAY_DIFF                    SMALLINT,\n    WS_CURR_APP_ID                 BIGINT,\n    WS_NO_CHKP                     INTEGER,\n    WS_AUTH_SMRY_PROC_CNT          INTEGER,\n    WS_NO_SUMRY_READ               INTEGER,\n    WS_NO_SUMRY_DELETED            INTEGER,\n    WS_NO_DTL_READ                 INTEGER,\n    WS_NO_DTL_DELETED              INTEGER,\n    WK_CHKPT_ID_CTR                SMALLINT,\n    PAUT_PCB_NUM                   SMALLINT,\n    P_EXPIRY_DAYS                  SMALLINT,\n    P_CHKP_FREQ                    VARCHAR(05),\n    P_CHKP_DIS_FREQ                VARCHAR(05),\n    P_DEBUG_FLAG                   VARCHAR(01),\n    IO_PCB_MASK                    VARCHAR(1),\n    PGM_PCB_MASK                   VARCHAR(1)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "PENDING_AUTH_DETAILS",
         "type": "object",
         "properties": {
           "CURRENT_DATE": {
-            "type": "number",
-            "description": "Legacy PIC: 9(06)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(06)"
           },
           "CURRENT_YYDDD": {
-            "type": "number",
-            "description": "Legacy PIC: 9(05)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(05)"
           },
           "WS_AUTH_DATE": {
-            "type": "number",
-            "description": "Legacy PIC: 9(05)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(05)"
           },
           "WS_EXPIRY_DAYS": {
             "type": "integer",
@@ -109,8 +109,8 @@
             "description": "Legacy PIC: S9(4)"
           },
           "WS_CURR_APP_ID": {
-            "type": "number",
-            "description": "Legacy PIC: 9(11)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(11)"
           },
           "WS_NO_CHKP": {
             "type": "integer",
@@ -145,28 +145,28 @@
             "description": "Legacy PIC: S9(4)"
           },
           "P_EXPIRY_DAYS": {
-            "type": "number",
-            "description": "Legacy PIC: 9(02)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(02)"
           },
           "P_CHKP_FREQ": {
             "type": "string",
-            "description": "Legacy PIC: X(05)."
+            "description": "Legacy PIC: X(05)"
           },
           "P_CHKP_DIS_FREQ": {
             "type": "string",
-            "description": "Legacy PIC: X(05)."
+            "description": "Legacy PIC: X(05)"
           },
           "P_DEBUG_FLAG": {
             "type": "string",
-            "description": "Legacy PIC: X(01)."
+            "description": "Legacy PIC: X(01)"
           },
           "IO_PCB_MASK": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "PGM_PCB_MASK": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           }
         }
       }

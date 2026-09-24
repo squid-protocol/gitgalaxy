@@ -3,6 +3,162 @@
   "title": "WS_ACCT_RESPONSE",
   "type": "object",
   "properties": {
+    "WS_CICS_RESP1_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "WS_CICS_RESP2_CD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(08)"
+    },
+    "WS_CICS_RESP1_CD_D": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(08)"
+    },
+    "WS_CICS_RESP2_CD_D": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(08)"
+    },
+    "MQ_QUEUE": {
+      "type": "string",
+      "description": "Legacy PIC: X(48)"
+    },
+    "MQ_QUEUE_REPLY": {
+      "type": "string",
+      "description": "Legacy PIC: X(48)"
+    },
+    "MQ_HCONN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "MQ_CONDITION_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "MQ_REASON_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "MQ_HOBJ": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "MQ_OPTIONS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "MQ_BUFFER_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "MQ_BUFFER": {
+      "type": "string",
+      "description": "Legacy PIC: X(1000)"
+    },
+    "MQ_DATA_LENGTH": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "MQ_CORRELID": {
+      "type": "string",
+      "description": "Legacy PIC: X(24)"
+    },
+    "MQ_MSG_ID": {
+      "type": "string",
+      "description": "Legacy PIC: X(24)"
+    },
+    "MQ_MSG_COUNT": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "SAVE_CORELID": {
+      "type": "string",
+      "description": "Legacy PIC: X(24)"
+    },
+    "SAVE_MSGID": {
+      "type": "string",
+      "description": "Legacy PIC: X(24)"
+    },
+    "SAVE_REPLY2Q": {
+      "type": "string",
+      "description": "Legacy PIC: X(48)"
+    },
+    "MQ_ERROR_PARA": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)"
+    },
+    "MQ_APPL_RETURN_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(25)"
+    },
+    "MQ_APPL_CONDITION_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(02)"
+    },
+    "MQ_APPL_REASON_CODE": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(05)"
+    },
+    "MQ_APPL_QUEUE_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(48)"
+    },
+    "QMGR_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(48)"
+    },
+    "INPUT_QUEUE_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(48)"
+    },
+    "REPLY_QUEUE_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(48)"
+    },
+    "ERROR_QUEUE_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(48)"
+    },
+    "INPUT_QUEUE_HANDLE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "OUTPUT_QUEUE_HANDLE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "ERROR_QUEUE_HANDLE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "QMGR_HANDLE_CONN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(09)"
+    },
+    "QUEUE_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(1000)"
+    },
+    "REQUEST_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(1000)"
+    },
+    "REPLY_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(1000)"
+    },
+    "ERROR_MESSAGE": {
+      "type": "string",
+      "description": "Legacy PIC: X(1000)"
+    },
+    "WS_FUNC": {
+      "type": "string",
+      "description": "Legacy PIC: X(04)"
+    },
+    "WS_KEY": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
+    },
     "LIT_ACCTFILENAME": {
       "type": "string",
       "description": "Legacy PIC: X(8)"
@@ -16,8 +172,12 @@
       "description": "Legacy PIC: S9(09)"
     },
     "WS_CARD_RID_ACCT_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(11)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
+    },
+    "WS_CARD_RID_ACCT_ID_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(11)"
     },
     "WS_ACCT_ID": {
       "type": "integer",

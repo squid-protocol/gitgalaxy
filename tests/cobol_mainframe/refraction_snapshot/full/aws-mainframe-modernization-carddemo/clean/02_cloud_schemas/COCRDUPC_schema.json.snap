@@ -29,35 +29,39 @@
     },
     "CARD_MONTH_CHECK": {
       "type": "string",
-      "description": "Legacy PIC: X(2)."
+      "description": "Legacy PIC: X(2)"
     },
     "CARD_YEAR_CHECK": {
       "type": "string",
-      "description": "Legacy PIC: X(4)."
+      "description": "Legacy PIC: X(4)"
     },
     "CARD_CVV_CD_X": {
       "type": "string",
-      "description": "Legacy PIC: X(03)."
+      "description": "Legacy PIC: X(03)"
+    },
+    "CARD_CVV_CD_N": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(03)"
     },
     "CARD_EXPIRY_YEAR": {
       "type": "string",
-      "description": "Legacy PIC: X(4)."
+      "description": "Legacy PIC: X(4)"
     },
     "CARD_EXPIRY_MONTH": {
       "type": "string",
-      "description": "Legacy PIC: X(2)."
+      "description": "Legacy PIC: X(2)"
     },
     "CARD_EXPIRY_DAY": {
       "type": "string",
-      "description": "Legacy PIC: X(2)."
+      "description": "Legacy PIC: X(2)"
     },
     "WS_CARD_RID_CARDNUM": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     },
     "WS_CARD_RID_ACCT_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(11)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
     },
     "ERROR_OPNAME": {
       "type": "string",
@@ -77,11 +81,11 @@
     },
     "WS_INFO_MSG": {
       "type": "string",
-      "description": "Legacy PIC: X(40)."
+      "description": "Legacy PIC: X(40)"
     },
     "WS_RETURN_MSG": {
       "type": "string",
-      "description": "Legacy PIC: X(75)."
+      "description": "Legacy PIC: X(75)"
     },
     "LIT_THISPGM": {
       "type": "string",
@@ -141,95 +145,95 @@
     },
     "CCUP_OLD_ACCTID": {
       "type": "string",
-      "description": "Legacy PIC: X(11)."
+      "description": "Legacy PIC: X(11)"
     },
     "CCUP_OLD_CARDID": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     },
     "CCUP_OLD_CVV_CD": {
       "type": "string",
-      "description": "Legacy PIC: X(3)."
+      "description": "Legacy PIC: X(3)"
     },
     "CCUP_OLD_CRDNAME": {
       "type": "string",
-      "description": "Legacy PIC: X(50)."
+      "description": "Legacy PIC: X(50)"
     },
     "CCUP_OLD_EXPYEAR": {
       "type": "string",
-      "description": "Legacy PIC: X(4)."
+      "description": "Legacy PIC: X(4)"
     },
     "CCUP_OLD_EXPMON": {
       "type": "string",
-      "description": "Legacy PIC: X(2)."
+      "description": "Legacy PIC: X(2)"
     },
     "CCUP_OLD_EXPDAY": {
       "type": "string",
-      "description": "Legacy PIC: X(2)."
+      "description": "Legacy PIC: X(2)"
     },
     "CCUP_OLD_CRDSTCD": {
       "type": "string",
-      "description": "Legacy PIC: X(1)."
+      "description": "Legacy PIC: X(1)"
     },
     "CCUP_NEW_ACCTID": {
       "type": "string",
-      "description": "Legacy PIC: X(11)."
+      "description": "Legacy PIC: X(11)"
     },
     "CCUP_NEW_CARDID": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     },
     "CCUP_NEW_CVV_CD": {
       "type": "string",
-      "description": "Legacy PIC: X(3)."
+      "description": "Legacy PIC: X(3)"
     },
     "CCUP_NEW_CRDNAME": {
       "type": "string",
-      "description": "Legacy PIC: X(50)."
+      "description": "Legacy PIC: X(50)"
     },
     "CCUP_NEW_EXPYEAR": {
       "type": "string",
-      "description": "Legacy PIC: X(4)."
+      "description": "Legacy PIC: X(4)"
     },
     "CCUP_NEW_EXPMON": {
       "type": "string",
-      "description": "Legacy PIC: X(2)."
+      "description": "Legacy PIC: X(2)"
     },
     "CCUP_NEW_EXPDAY": {
       "type": "string",
-      "description": "Legacy PIC: X(2)."
+      "description": "Legacy PIC: X(2)"
     },
     "CCUP_NEW_CRDSTCD": {
       "type": "string",
-      "description": "Legacy PIC: X(1)."
+      "description": "Legacy PIC: X(1)"
     },
     "CARD_UPDATE_NUM": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     },
     "CARD_UPDATE_ACCT_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(11)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
     },
     "CARD_UPDATE_CVV_CD": {
-      "type": "number",
-      "description": "Legacy PIC: 9(03)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(03)"
     },
     "CARD_UPDATE_EMBOSSED_NAME": {
       "type": "string",
-      "description": "Legacy PIC: X(50)."
+      "description": "Legacy PIC: X(50)"
     },
     "CARD_UPDATE_EXPIRAION_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "CARD_UPDATE_ACTIVE_STATUS": {
       "type": "string",
-      "description": "Legacy PIC: X(01)."
+      "description": "Legacy PIC: X(01)"
     },
     "WS_COMMAREA": {
       "type": "string",
-      "description": "Legacy PIC: X(2000)."
+      "description": "Legacy PIC: X(2000)"
     }
   }
 }

@@ -80,19 +80,19 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    SYSIDERR_RETRY                 DECIMAL(3, 0),\n    INQCUST_RETRY                  DECIMAL(4, 0),\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    REQUIRED_SORT_CODE             INTEGER,\n    REQUIRED_CUST_NUMBER           BIGINT,\n    REQUIRED_CUST_NUMBER2          BIGINT,\n    RANDOM_CUSTOMER                BIGINT,\n    EXIT_VSAM_READ                 VARCHAR(1),\n    EXIT_DB2_READ                  VARCHAR(1),\n    WS_V_RETRIED                   VARCHAR(1),\n    WS_D_RETRIED                   VARCHAR(1),\n    NCS_CUST_NO_ACT_NAME           VARCHAR(8),\n    NCS_CUST_NO_TEST_SORT          VARCHAR(6),\n    NCS_CUST_NO_FILL               VARCHAR(2),\n    NCS_CUST_NO_VALUE              BIGINT,\n    WS_CUSTOMER_RANGE_TOP          VARCHAR(1),\n    WS_CUSTOMER_RANGE_MIDDLE       VARCHAR(1),\n    WS_CUSTOMER_RANGE_BOTTOM       VARCHAR(1),\n    REMIX_SCODE_NUM                DECIMAL(6, 0),\n    REMIX2_CREDIT_SCR_NUM          DECIMAL(3, 0),\n    MY_ABEND_CODE                  VARCHAR(4),\n    WS_STORM_DRAIN                 VARCHAR(1),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0),\n    WS_ABEND_PGM                   VARCHAR(8)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    SYSIDERR_RETRY                 SMALLINT,\n    INQCUST_RETRY                  SMALLINT,\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    REQUIRED_SORT_CODE             INTEGER,\n    REQUIRED_CUST_NUMBER           BIGINT,\n    REQUIRED_CUST_NUMBER2          BIGINT,\n    RANDOM_CUSTOMER                BIGINT,\n    EXIT_VSAM_READ                 VARCHAR(1),\n    EXIT_DB2_READ                  VARCHAR(1),\n    WS_V_RETRIED                   VARCHAR(1),\n    WS_D_RETRIED                   VARCHAR(1),\n    NCS_CUST_NO_ACT_NAME           VARCHAR(8),\n    NCS_CUST_NO_TEST_SORT          VARCHAR(6),\n    NCS_CUST_NO_FILL               VARCHAR(2),\n    NCS_CUST_NO_VALUE              BIGINT,\n    WS_CUSTOMER_RANGE_TOP          VARCHAR(1),\n    WS_CUSTOMER_RANGE_MIDDLE       VARCHAR(1),\n    WS_CUSTOMER_RANGE_BOTTOM       VARCHAR(1),\n    REMIX_SCODE_NUM                INTEGER,\n    REMIX2_CREDIT_SCR_NUM          SMALLINT,\n    MY_ABEND_CODE                  VARCHAR(4),\n    WS_STORM_DRAIN                 VARCHAR(1),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    INTEGER,\n    WS_TIME_NOW_GRP_HH             SMALLINT,\n    WS_TIME_NOW_GRP_MM             SMALLINT,\n    WS_TIME_NOW_GRP_SS             SMALLINT,\n    WS_ABEND_PGM                   VARCHAR(8)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
         "type": "object",
         "properties": {
           "SYSIDERR_RETRY": {
-            "type": "number",
-            "description": "Legacy PIC: 999."
+            "type": "integer",
+            "description": "Legacy PIC: 999"
           },
           "INQCUST_RETRY": {
-            "type": "number",
-            "description": "Legacy PIC: 9999."
+            "type": "integer",
+            "description": "Legacy PIC: 9999"
           },
           "WS_CICS_RESP": {
             "type": "integer",
@@ -152,27 +152,27 @@
           },
           "WS_CUSTOMER_RANGE_TOP": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "WS_CUSTOMER_RANGE_MIDDLE": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "WS_CUSTOMER_RANGE_BOTTOM": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "REMIX_SCODE_NUM": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "REMIX2_CREDIT_SCR_NUM": {
-            "type": "number",
-            "description": "Legacy PIC: 9(3)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(3)"
           },
           "MY_ABEND_CODE": {
             "type": "string",
-            "description": "Legacy PIC: XXXX."
+            "description": "Legacy PIC: XXXX"
           },
           "WS_STORM_DRAIN": {
             "type": "string",
@@ -184,23 +184,23 @@
           },
           "WS_ORIG_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_TIME_NOW": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "WS_TIME_NOW_GRP_HH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_MM": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_SS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_ABEND_PGM": {
             "type": "string",

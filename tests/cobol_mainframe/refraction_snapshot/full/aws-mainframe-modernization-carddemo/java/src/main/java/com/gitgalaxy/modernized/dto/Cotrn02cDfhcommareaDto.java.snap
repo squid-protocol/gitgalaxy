@@ -26,6 +26,8 @@ public class Cotrn02cDfhcommareaDto {
 
     private Integer wsReasCd;
 
+    private BigDecimal wsTranAmt;
+
     private Integer wsAcctIdN;
 
     private Integer wsCardNumN;
@@ -33,6 +35,8 @@ public class Cotrn02cDfhcommareaDto {
     private Integer wsTranIdN;
 
     private BigDecimal wsTranAmtN;
+
+    private BigDecimal wsTranAmtE;
 
     private String wsDateFormat;
 
@@ -50,7 +54,7 @@ public class Cotrn02cDfhcommareaDto {
 
     private String cdemoCt02TrnidLast;
 
-    private BigDecimal cdemoCt02PageNum;
+    private Integer cdemoCt02PageNum;
 
     private String cdemoCt02NextPageFlg;
 

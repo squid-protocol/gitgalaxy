@@ -1,5 +1,6 @@
 CREATE TABLE DFHCOMMAREA (
-    WS_AUTH_TIME                   DECIMAL(9, 0),
+    WS_AUTH_TIME                   INTEGER,
+    WS_AUTH_TIME_AN                VARCHAR(09),
     WS_AUTH_YY                     VARCHAR(02),
     WS_AUTH_MM                     VARCHAR(02),
     WS_AUTH_DD                     VARCHAR(02),
@@ -7,10 +8,12 @@ CREATE TABLE DFHCOMMAREA (
     WS_AUTH_MI                     VARCHAR(02),
     WS_AUTH_SS                     VARCHAR(02),
     WS_AUTH_SSS                    VARCHAR(03),
+    WS_SQLCODE                     INTEGER,
+    WS_SQLSTATE                    INTEGER,
     WS_ABS_TIME                    BIGINT -- Legacy: COMP-3 (Packed Decimal),
     WS_CUR_DATE                    VARCHAR(08),
-    WS_ACCT_ID                     DECIMAL(11, 0),
-    WS_CUST_ID                     DECIMAL(9, 0),
+    WS_ACCT_ID                     BIGINT,
+    WS_CUST_ID                     INTEGER,
     WS_FRD_ACTION                  VARCHAR(01),
     WS_FRD_UPDATE_STATUS           VARCHAR(01),
     WS_FRD_ACT_MSG                 VARCHAR(50)

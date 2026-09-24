@@ -44,7 +44,7 @@ public class Copaua0cDfhcommareaDto {
 
     private Integer wsCurTimeMs;
 
-    private BigDecimal wsYyddd;
+    private Integer wsYyddd;
 
     private Integer wsTimeWithMs;
 
@@ -56,7 +56,7 @@ public class Copaua0cDfhcommareaDto {
 
     private Integer wsWaitInterval;
 
-    private BigDecimal wsCodeDisplay;
+    private Integer wsCodeDisplay;
 
     private BigDecimal wsAvailableAmt;
 
@@ -70,9 +70,13 @@ public class Copaua0cDfhcommareaDto {
 
     private String wsTriggerData;
 
-    private BigDecimal wsCardRidCustId;
+    private Integer wsCardRidCustId;
 
-    private BigDecimal wsCardRidAcctId;
+    private String wsCardRidCustIdX;
+
+    private Integer wsCardRidAcctId;
+
+    private String wsCardRidAcctIdX;
 
     private String psbName;
 

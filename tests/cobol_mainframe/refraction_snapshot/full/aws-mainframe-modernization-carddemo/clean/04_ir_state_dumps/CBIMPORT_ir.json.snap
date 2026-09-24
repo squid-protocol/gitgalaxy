@@ -86,7 +86,7 @@
   "generation": {
     "schemas": {
       "table": "WS_ERROR_RECORD",
-      "sql": "CREATE TABLE WS_ERROR_RECORD (\n    ERROR_OUTPUT_RECORD            VARCHAR(132),\n    WS_EXPORT_STATUS               VARCHAR(02),\n    WS_CUSTOMER_STATUS             VARCHAR(02),\n    WS_ACCOUNT_STATUS              VARCHAR(02),\n    WS_XREF_STATUS                 VARCHAR(02),\n    WS_TRANSACTION_STATUS          VARCHAR(02),\n    WS_CARD_STATUS                 VARCHAR(02),\n    WS_ERROR_STATUS                VARCHAR(02),\n    WS_IMPORT_DATE                 VARCHAR(10),\n    WS_IMPORT_TIME                 VARCHAR(08),\n    WS_TOTAL_RECORDS_READ          INTEGER,\n    WS_CUSTOMER_RECORDS_IMPORTED   INTEGER,\n    WS_ACCOUNT_RECORDS_IMPORTED    INTEGER,\n    WS_XREF_RECORDS_IMPORTED       INTEGER,\n    WS_TRAN_RECORDS_IMPORTED       INTEGER,\n    WS_CARD_RECORDS_IMPORTED       INTEGER,\n    WS_ERROR_RECORDS_WRITTEN       INTEGER,\n    WS_UNKNOWN_RECORD_TYPE_COUNT   INTEGER,\n    ERR_TIMESTAMP                  VARCHAR(26),\n    ERR_RECORD_TYPE                VARCHAR(01),\n    ERR_SEQUENCE                   DECIMAL(7, 0),\n    ERR_MESSAGE                    VARCHAR(50)\n);",
+      "sql": "CREATE TABLE WS_ERROR_RECORD (\n    ERROR_OUTPUT_RECORD            VARCHAR(132),\n    WS_EXPORT_STATUS               VARCHAR(02),\n    WS_CUSTOMER_STATUS             VARCHAR(02),\n    WS_ACCOUNT_STATUS              VARCHAR(02),\n    WS_XREF_STATUS                 VARCHAR(02),\n    WS_TRANSACTION_STATUS          VARCHAR(02),\n    WS_CARD_STATUS                 VARCHAR(02),\n    WS_ERROR_STATUS                VARCHAR(02),\n    WS_IMPORT_DATE                 VARCHAR(10),\n    WS_IMPORT_TIME                 VARCHAR(08),\n    WS_TOTAL_RECORDS_READ          INTEGER,\n    WS_CUSTOMER_RECORDS_IMPORTED   INTEGER,\n    WS_ACCOUNT_RECORDS_IMPORTED    INTEGER,\n    WS_XREF_RECORDS_IMPORTED       INTEGER,\n    WS_TRAN_RECORDS_IMPORTED       INTEGER,\n    WS_CARD_RECORDS_IMPORTED       INTEGER,\n    WS_ERROR_RECORDS_WRITTEN       INTEGER,\n    WS_UNKNOWN_RECORD_TYPE_COUNT   INTEGER,\n    ERR_TIMESTAMP                  VARCHAR(26),\n    ERR_RECORD_TYPE                VARCHAR(01),\n    ERR_SEQUENCE                   INTEGER,\n    ERR_MESSAGE                    VARCHAR(50)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "WS_ERROR_RECORD",
@@ -94,43 +94,43 @@
         "properties": {
           "ERROR_OUTPUT_RECORD": {
             "type": "string",
-            "description": "Legacy PIC: X(132)."
+            "description": "Legacy PIC: X(132)"
           },
           "WS_EXPORT_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_CUSTOMER_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_ACCOUNT_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_XREF_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_TRANSACTION_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_CARD_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_ERROR_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_IMPORT_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_IMPORT_TIME": {
             "type": "string",
-            "description": "Legacy PIC: X(08)."
+            "description": "Legacy PIC: X(08)"
           },
           "WS_TOTAL_RECORDS_READ": {
             "type": "integer",
@@ -166,19 +166,19 @@
           },
           "ERR_TIMESTAMP": {
             "type": "string",
-            "description": "Legacy PIC: X(26)."
+            "description": "Legacy PIC: X(26)"
           },
           "ERR_RECORD_TYPE": {
             "type": "string",
-            "description": "Legacy PIC: X(01)."
+            "description": "Legacy PIC: X(01)"
           },
           "ERR_SEQUENCE": {
-            "type": "number",
-            "description": "Legacy PIC: 9(07)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(07)"
           },
           "ERR_MESSAGE": {
             "type": "string",
-            "description": "Legacy PIC: X(50)."
+            "description": "Legacy PIC: X(50)"
           }
         }
       }

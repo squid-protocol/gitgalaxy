@@ -33,15 +33,15 @@
     },
     "CDEMO_CU02_USRID_FIRST": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     },
     "CDEMO_CU02_USRID_LAST": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     },
     "CDEMO_CU02_PAGE_NUM": {
-      "type": "number",
-      "description": "Legacy PIC: 9(08)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(08)"
     },
     "CDEMO_CU02_NEXT_PAGE_FLG": {
       "type": "string",
@@ -49,11 +49,11 @@
     },
     "CDEMO_CU02_USR_SEL_FLG": {
       "type": "string",
-      "description": "Legacy PIC: X(01)."
+      "description": "Legacy PIC: X(01)"
     },
     "CDEMO_CU02_USR_SELECTED": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     }
   }
 }

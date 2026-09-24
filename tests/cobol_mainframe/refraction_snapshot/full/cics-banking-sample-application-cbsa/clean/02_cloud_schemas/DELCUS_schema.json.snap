@@ -4,40 +4,40 @@
   "type": "object",
   "properties": {
     "SYSIDERR_RETRY": {
-      "type": "number",
-      "description": "Legacy PIC: 999."
+      "type": "integer",
+      "description": "Legacy PIC: 999"
     },
     "HV_PROCTRAN_EYECATCHER": {
       "type": "string",
-      "description": "Legacy PIC: X(4)."
+      "description": "Legacy PIC: X(4)"
     },
     "HV_PROCTRAN_SORT_CODE": {
       "type": "string",
-      "description": "Legacy PIC: X(6)."
+      "description": "Legacy PIC: X(6)"
     },
     "HV_PROCTRAN_ACC_NUMBER": {
       "type": "string",
-      "description": "Legacy PIC: X(8)."
+      "description": "Legacy PIC: X(8)"
     },
     "HV_PROCTRAN_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "HV_PROCTRAN_TIME": {
       "type": "string",
-      "description": "Legacy PIC: X(6)."
+      "description": "Legacy PIC: X(6)"
     },
     "HV_PROCTRAN_REF": {
       "type": "string",
-      "description": "Legacy PIC: X(12)."
+      "description": "Legacy PIC: X(12)"
     },
     "HV_PROCTRAN_TYPE": {
       "type": "string",
-      "description": "Legacy PIC: X(3)."
+      "description": "Legacy PIC: X(3)"
     },
     "HV_PROCTRAN_DESC": {
       "type": "string",
-      "description": "Legacy PIC: X(40)."
+      "description": "Legacy PIC: X(40)"
     },
     "HV_PROCTRAN_AMOUNT": {
       "type": "number",
@@ -52,12 +52,12 @@
       "description": "Legacy PIC: S9(8)"
     },
     "RETURNED_SORT_CODE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "RETURNED_NUMBER": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "WS_EIBTASKN12": {
       "type": "integer",
@@ -68,12 +68,12 @@
       "description": "Legacy PIC: 9(6)"
     },
     "DESIRED_KEY_SORTCODE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "DESIRED_KEY_CUSTOMER": {
-      "type": "number",
-      "description": "Legacy PIC: 9(10)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
     },
     "WS_U_TIME": {
       "type": "integer",
@@ -81,59 +81,59 @@
     },
     "WS_ORIG_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_APPLID": {
       "type": "string",
-      "description": "Legacy PIC: X(8)."
+      "description": "Legacy PIC: X(8)"
     },
     "REMIX_SCODE_CHAR": {
       "type": "string",
-      "description": "Legacy PIC: X(6)."
+      "description": "Legacy PIC: X(6)"
     },
     "WS_STOREDC_EYECATCHER": {
       "type": "string",
-      "description": "Legacy PIC: X(4)."
+      "description": "Legacy PIC: X(4)"
     },
     "WS_STOREDC_SORTCODE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "WS_STOREDC_NUMBER": {
-      "type": "number",
-      "description": "Legacy PIC: 9(10)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
     },
     "WS_STOREDC_NAME": {
       "type": "string",
-      "description": "Legacy PIC: X(60)."
+      "description": "Legacy PIC: X(60)"
     },
     "WS_STOREDC_ADDRESS": {
       "type": "string",
-      "description": "Legacy PIC: X(160)."
+      "description": "Legacy PIC: X(160)"
     },
     "WS_STOREDC_DATE_OF_BIRTH": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_STOREDC_CREDIT_SCORE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(3)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(3)"
     },
     "WS_STOREDC_CS_REVIEW_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "SQLCODE_DISPLAY": {
       "type": "integer",
       "description": "Legacy PIC: S9(8)"
     },
     "DELACC_COMM_ACCNO": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "DELACC_COMM_APPLID": {
       "type": "string",
-      "description": "Legacy PIC: X(8)."
+      "description": "Legacy PIC: X(8)"
     },
     "WS_TOKEN": {
       "type": "integer",
@@ -148,20 +148,20 @@
       "description": "Legacy PIC: X(8)"
     },
     "WS_TIME_NOW": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "WS_TIME_NOW_GRP_HH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_SS": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_ABEND_PGM": {
       "type": "string",

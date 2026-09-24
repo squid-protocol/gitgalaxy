@@ -34,9 +34,9 @@ public class Copaus0cDfhcommareaDto {
 
     private Integer wsReasCd;
 
-    private BigDecimal wsRespCdDis;
+    private Integer wsRespCdDis;
 
-    private BigDecimal wsReasCdDis;
+    private Integer wsReasCdDis;
 
     private Integer wsIdx;
 
@@ -46,15 +46,19 @@ public class Copaus0cDfhcommareaDto {
 
     private BigDecimal wsDisplayAmt9;
 
-    private BigDecimal wsDisplayCount;
+    private Integer wsDisplayCount;
 
     private String wsAuthDate;
 
     private String wsAuthTime;
 
-    private BigDecimal wsCardRidCustId;
+    private Integer wsCardRidCustId;
 
-    private BigDecimal wsCardRidAcctId;
+    private String wsCardRidCustIdX;
+
+    private Integer wsCardRidAcctId;
+
+    private String wsCardRidAcctIdX;
 
     private String psbName;
 

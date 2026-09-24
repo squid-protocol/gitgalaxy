@@ -17,13 +17,13 @@ public class Cbpaup0cPendingAuthDetails {
     private Long sysId;
 
     @Column(name = "CURRENT_DATE")
-    private BigDecimal currentDate;
+    private Integer currentDate;
 
     @Column(name = "CURRENT_YYDDD")
-    private BigDecimal currentYyddd;
+    private Integer currentYyddd;
 
     @Column(name = "WS_AUTH_DATE")
-    private BigDecimal wsAuthDate;
+    private Integer wsAuthDate;
 
     @Column(name = "WS_EXPIRY_DAYS")
     private Integer wsExpiryDays;
@@ -32,7 +32,7 @@ public class Cbpaup0cPendingAuthDetails {
     private Integer wsDayDiff;
 
     @Column(name = "WS_CURR_APP_ID")
-    private BigDecimal wsCurrAppId;
+    private Integer wsCurrAppId;
 
     @Column(name = "WS_NO_CHKP")
     private Integer wsNoChkp;
@@ -59,7 +59,7 @@ public class Cbpaup0cPendingAuthDetails {
     private Integer pautPcbNum;
 
     @Column(name = "P_EXPIRY_DAYS")
-    private BigDecimal pExpiryDays;
+    private Integer pExpiryDays;
 
     @Column(name = "P_CHKP_FREQ")
     private String pChkpFreq;

@@ -22,11 +22,13 @@ public class Cotrn01cDfhcommareaDto {
 
     private Integer wsReasCd;
 
+    private BigDecimal wsTranAmt;
+
     private String cdemoCt01TrnidFirst;
 
     private String cdemoCt01TrnidLast;
 
-    private BigDecimal cdemoCt01PageNum;
+    private Integer cdemoCt01PageNum;
 
     private String cdemoCt01NextPageFlg;
 

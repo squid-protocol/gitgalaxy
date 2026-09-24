@@ -28,8 +28,14 @@ public class CsutldtcFeedbackCode {
     @Column(name = "WS_SEVERITY")
     private String wsSeverity;
 
+    @Column(name = "WS_SEVERITY_N")
+    private Integer wsSeverityN;
+
     @Column(name = "WS_MSG_NO")
     private String wsMsgNo;
+
+    @Column(name = "WS_MSG_NO_N")
+    private Integer wsMsgNoN;
 
     @Column(name = "WS_RESULT")
     private String wsResult;

@@ -28,16 +28,16 @@
       "description": "Legacy PIC: X(01)"
     },
     "WS_ACCT_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(11)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
     },
     "WS_AUTH_KEY": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     },
     "WS_AUTH_AMT": {
       "type": "number",
-      "description": "Legacy PIC: -ZZZZZZZ9.99."
+      "description": "Legacy PIC: -ZZZZZZZ9.99"
     },
     "WS_AUTH_DATE": {
       "type": "string",
@@ -49,11 +49,11 @@
     },
     "DECL_CODE": {
       "type": "string",
-      "description": "Legacy PIC: X(4)."
+      "description": "Legacy PIC: X(4)"
     },
     "DECL_DESC": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     },
     "PSB_NAME": {
       "type": "string",
@@ -65,39 +65,39 @@
     },
     "IMS_RETURN_CODE": {
       "type": "string",
-      "description": "Legacy PIC: X(02)."
+      "description": "Legacy PIC: X(02)"
     },
     "WS_FRD_ACCT_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(11)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
     },
     "WS_FRD_CUST_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(9)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
     },
     "WS_FRAUD_AUTH_RECORD": {
       "type": "string",
-      "description": "Legacy PIC: X(200)."
+      "description": "Legacy PIC: X(200)"
     },
     "WS_FRD_ACTION": {
       "type": "string",
-      "description": "Legacy PIC: X(01)."
+      "description": "Legacy PIC: X(01)"
     },
     "WS_FRD_UPDATE_STATUS": {
       "type": "string",
-      "description": "Legacy PIC: X(01)."
+      "description": "Legacy PIC: X(01)"
     },
     "WS_FRD_ACT_MSG": {
       "type": "string",
-      "description": "Legacy PIC: X(50)."
+      "description": "Legacy PIC: X(50)"
     },
     "CDEMO_CPVD_PAU_SEL_FLG": {
       "type": "string",
-      "description": "Legacy PIC: X(01)."
+      "description": "Legacy PIC: X(01)"
     },
     "CDEMO_CPVD_PAU_SELECTED": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     },
     "CDEMO_CPVD_PAUKEY_PREV_PG": {
       "type": "string",
@@ -105,7 +105,7 @@
     },
     "CDEMO_CPVD_PAUKEY_LAST": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     },
     "CDEMO_CPVD_PAGE_NUM": {
       "type": "integer",
@@ -121,7 +121,7 @@
     },
     "CDEMO_CPVD_FRAUD_DATA": {
       "type": "string",
-      "description": "Legacy PIC: X(100)."
+      "description": "Legacy PIC: X(100)"
     }
   }
 }

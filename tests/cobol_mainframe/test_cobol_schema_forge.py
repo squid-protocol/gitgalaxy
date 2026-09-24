@@ -116,3 +116,47 @@ def test_forge_schemas_e2e(tmp_path):
     assert json_schema["title"] == "ACCOUNT_RECORD"
     assert json_schema["properties"]["ACCT_ID"]["type"] == "integer"
     assert "Legacy PIC: 9(8)" in json_schema["properties"]["ACCT_ID"]["description"]
+
+
+# ==============================================================================
+# #3348: every record field the pinned corpora hold (3,853/3,853 after this fix)
+# ==============================================================================
+def test_forge_schemas_reads_whole_entries(tmp_path):
+    """Each shape the line reader lost, from CBSA / CardDemo / zopeneditor:
+    an edited picture on an 01 (`PIC +9(10).99`), REDEFINES before PIC, a PIC on
+    the next line, a sequence-numbered line, zopeneditor's `R2` change marker,
+    and a line that is only a sequence number (it used to swallow the entry)."""
+    cpy = tmp_path / "PROG.cbl"
+    cpy.write_text(
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. PROG.\n"
+        "       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n"
+        "       01 ACTUAL-BALANCE-DISPLAY       PIC +9(10).99.\n"
+        "       01 ACCOUNT-KY2                  PIC 9(16).\n"
+        "       01 ACCOUNT-KY2-BYTES REDEFINES ACCOUNT-KY2 PIC X(16).\n"
+        "       01 WS-RANGES.\n"
+        "          07 WS-CUSTOMER-RANGE-BOTTOM\n"
+        "                                       PIC 9(10) VALUE 1.\n"
+        "009300\n"
+        "009800   05 WS-INPUT-FLAG              PIC X(1).\n"
+        "R2      05 NUM-PRE-CUSTOMERS          PIC S9(9) COMP-3 VALUE +0.\n"
+        "      *  05 COMMENTED-OUT                PIC X.\n"
+        "          05 FILLER                     PIC X(4).\n"
+        "          05 WS-MSG PIC X(20) VALUE 'A. B'.\n"
+        "             88 MSG-OK VALUE 'Y'.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           GOBACK.\n",
+        encoding="utf-8",
+    )
+    props = forge_module.forge_schemas(cpy)["json"]["properties"]
+    assert set(props) == {
+        "ACTUAL_BALANCE_DISPLAY",
+        "ACCOUNT_KY2",
+        "ACCOUNT_KY2_BYTES",
+        "WS_CUSTOMER_RANGE_BOTTOM",
+        "WS_INPUT_FLAG",
+        "NUM_PRE_CUSTOMERS",
+        "WS_MSG",
+    }
+    assert props["ACTUAL_BALANCE_DISPLAY"]["description"] == "Legacy PIC: +9(10).99"

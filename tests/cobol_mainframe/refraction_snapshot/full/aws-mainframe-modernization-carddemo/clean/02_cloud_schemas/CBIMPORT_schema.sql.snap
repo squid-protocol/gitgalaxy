@@ -19,6 +19,6 @@ CREATE TABLE WS_ERROR_RECORD (
     WS_UNKNOWN_RECORD_TYPE_COUNT   INTEGER,
     ERR_TIMESTAMP                  VARCHAR(26),
     ERR_RECORD_TYPE                VARCHAR(01),
-    ERR_SEQUENCE                   DECIMAL(7, 0),
+    ERR_SEQUENCE                   INTEGER,
     ERR_MESSAGE                    VARCHAR(50)
 );

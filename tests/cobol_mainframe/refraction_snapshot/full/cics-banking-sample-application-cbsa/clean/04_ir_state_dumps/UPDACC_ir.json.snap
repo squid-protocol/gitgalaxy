@@ -85,7 +85,7 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    HV_ACCOUNT_EYECATCHER          VARCHAR(4),\n    HV_ACCOUNT_CUST_NO             VARCHAR(10),\n    HV_ACCOUNT_SORTCODE            VARCHAR(6),\n    HV_ACCOUNT_ACC_NO              VARCHAR(8),\n    HV_ACCOUNT_ACC_TYPE            VARCHAR(8),\n    HV_ACCOUNT_INT_RATE            DECIMAL(6, 2) -- Legacy: COMP-3 (Packed Decimal),\n    HV_ACCOUNT_OPENED              VARCHAR(10),\n    HV_ACCOUNT_OVERDRAFT_LIM       INTEGER,\n    HV_ACCOUNT_LAST_STMT           VARCHAR(10),\n    HV_ACCOUNT_NEXT_STMT           VARCHAR(10),\n    HV_ACCOUNT_AVAIL_BAL           DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    HV_ACCOUNT_ACTUAL_BAL          DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    SQLCODE_DISPLAY                INTEGER,\n    DB2_DATE_REF_YR                DECIMAL(4, 0),\n    DB2_DATE_REF_MNTH              DECIMAL(2, 0),\n    DB2_DATE_REF_DAY               DECIMAL(2, 0),\n    DESIRED_SORT_CODE              DECIMAL(6, 0),\n    DESIRED_ACC_NO                 DECIMAL(8, 0),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    HV_ACCOUNT_EYECATCHER          VARCHAR(4),\n    HV_ACCOUNT_CUST_NO             VARCHAR(10),\n    HV_ACCOUNT_SORTCODE            VARCHAR(6),\n    HV_ACCOUNT_ACC_NO              VARCHAR(8),\n    HV_ACCOUNT_ACC_TYPE            VARCHAR(8),\n    HV_ACCOUNT_INT_RATE            DECIMAL(6, 2) -- Legacy: COMP-3 (Packed Decimal),\n    HV_ACCOUNT_OPENED              VARCHAR(10),\n    HV_ACCOUNT_OVERDRAFT_LIM       INTEGER,\n    HV_ACCOUNT_LAST_STMT           VARCHAR(10),\n    HV_ACCOUNT_NEXT_STMT           VARCHAR(10),\n    HV_ACCOUNT_AVAIL_BAL           DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    HV_ACCOUNT_ACTUAL_BAL          DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    SQLCODE_DISPLAY                INTEGER,\n    DB2_DATE_REF_YR                SMALLINT,\n    DB2_DATE_REF_MNTH              SMALLINT,\n    DB2_DATE_REF_DAY               SMALLINT,\n    DESIRED_SORT_CODE              INTEGER,\n    DESIRED_ACC_NO                 INTEGER,\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    INTEGER,\n    WS_TIME_NOW_GRP_HH             SMALLINT,\n    WS_TIME_NOW_GRP_MM             SMALLINT,\n    WS_TIME_NOW_GRP_SS             SMALLINT\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
@@ -93,23 +93,23 @@
         "properties": {
           "HV_ACCOUNT_EYECATCHER": {
             "type": "string",
-            "description": "Legacy PIC: X(4)."
+            "description": "Legacy PIC: X(4)"
           },
           "HV_ACCOUNT_CUST_NO": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "HV_ACCOUNT_SORTCODE": {
             "type": "string",
-            "description": "Legacy PIC: X(6)."
+            "description": "Legacy PIC: X(6)"
           },
           "HV_ACCOUNT_ACC_NO": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "HV_ACCOUNT_ACC_TYPE": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "HV_ACCOUNT_INT_RATE": {
             "type": "number",
@@ -117,7 +117,7 @@
           },
           "HV_ACCOUNT_OPENED": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "HV_ACCOUNT_OVERDRAFT_LIM": {
             "type": "integer",
@@ -125,11 +125,11 @@
           },
           "HV_ACCOUNT_LAST_STMT": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "HV_ACCOUNT_NEXT_STMT": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "HV_ACCOUNT_AVAIL_BAL": {
             "type": "number",
@@ -144,24 +144,24 @@
             "description": "Legacy PIC: S9(8)"
           },
           "DB2_DATE_REF_YR": {
-            "type": "number",
-            "description": "Legacy PIC: 9(4)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
           },
           "DB2_DATE_REF_MNTH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "DB2_DATE_REF_DAY": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "DESIRED_SORT_CODE": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "DESIRED_ACC_NO": {
-            "type": "number",
-            "description": "Legacy PIC: 9(8)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
           },
           "WS_U_TIME": {
             "type": "integer",
@@ -169,23 +169,23 @@
           },
           "WS_ORIG_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_TIME_NOW": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "WS_TIME_NOW_GRP_HH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_MM": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_SS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           }
         }
       }

@@ -8,8 +8,9 @@
   "analysis": {
     "dead_code": {
       "program_id": "COPAUS2C.cbl",
-      "total_vars": 42,
+      "total_vars": 69,
       "orphaned_vars": [
+        "DCLAUTHFRDS",
         "DFHCOMMAREA",
         "PA-AUTH-FRAUD",
         "PA-AUTH-ORIG-TIME",
@@ -23,7 +24,7 @@
       ],
       "total_paras": 2,
       "dead_paras": [],
-      "loc_saved": 10
+      "loc_saved": 11
     },
     "lineage": {
       "program_id": "COPAUS2C",
@@ -44,43 +45,55 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_AUTH_TIME                   DECIMAL(9, 0),\n    WS_AUTH_YY                     VARCHAR(02),\n    WS_AUTH_MM                     VARCHAR(02),\n    WS_AUTH_DD                     VARCHAR(02),\n    WS_AUTH_HH                     VARCHAR(02),\n    WS_AUTH_MI                     VARCHAR(02),\n    WS_AUTH_SS                     VARCHAR(02),\n    WS_AUTH_SSS                    VARCHAR(03),\n    WS_ABS_TIME                    BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_CUR_DATE                    VARCHAR(08),\n    WS_ACCT_ID                     DECIMAL(11, 0),\n    WS_CUST_ID                     DECIMAL(9, 0),\n    WS_FRD_ACTION                  VARCHAR(01),\n    WS_FRD_UPDATE_STATUS           VARCHAR(01),\n    WS_FRD_ACT_MSG                 VARCHAR(50)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_AUTH_TIME                   INTEGER,\n    WS_AUTH_TIME_AN                VARCHAR(09),\n    WS_AUTH_YY                     VARCHAR(02),\n    WS_AUTH_MM                     VARCHAR(02),\n    WS_AUTH_DD                     VARCHAR(02),\n    WS_AUTH_HH                     VARCHAR(02),\n    WS_AUTH_MI                     VARCHAR(02),\n    WS_AUTH_SS                     VARCHAR(02),\n    WS_AUTH_SSS                    VARCHAR(03),\n    WS_SQLCODE                     INTEGER,\n    WS_SQLSTATE                    INTEGER,\n    WS_ABS_TIME                    BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_CUR_DATE                    VARCHAR(08),\n    WS_ACCT_ID                     BIGINT,\n    WS_CUST_ID                     INTEGER,\n    WS_FRD_ACTION                  VARCHAR(01),\n    WS_FRD_UPDATE_STATUS           VARCHAR(01),\n    WS_FRD_ACT_MSG                 VARCHAR(50)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
         "type": "object",
         "properties": {
           "WS_AUTH_TIME": {
-            "type": "number",
-            "description": "Legacy PIC: 9(09)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_AUTH_TIME_AN": {
+            "type": "string",
+            "description": "Legacy PIC: X(09)"
           },
           "WS_AUTH_YY": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_AUTH_MM": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_AUTH_DD": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_AUTH_HH": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_AUTH_MI": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_AUTH_SS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_AUTH_SSS": {
             "type": "string",
-            "description": "Legacy PIC: X(03)."
+            "description": "Legacy PIC: X(03)"
+          },
+          "WS_SQLCODE": {
+            "type": "integer",
+            "description": "Legacy PIC: +9(06)"
+          },
+          "WS_SQLSTATE": {
+            "type": "integer",
+            "description": "Legacy PIC: +9(09)"
           },
           "WS_ABS_TIME": {
             "type": "integer",
@@ -91,24 +104,24 @@
             "description": "Legacy PIC: X(08)"
           },
           "WS_ACCT_ID": {
-            "type": "number",
-            "description": "Legacy PIC: 9(11)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(11)"
           },
           "WS_CUST_ID": {
-            "type": "number",
-            "description": "Legacy PIC: 9(9)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
           },
           "WS_FRD_ACTION": {
             "type": "string",
-            "description": "Legacy PIC: X(01)."
+            "description": "Legacy PIC: X(01)"
           },
           "WS_FRD_UPDATE_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(01)."
+            "description": "Legacy PIC: X(01)"
           },
           "WS_FRD_ACT_MSG": {
             "type": "string",
-            "description": "Legacy PIC: X(50)."
+            "description": "Legacy PIC: X(50)"
           }
         }
       }

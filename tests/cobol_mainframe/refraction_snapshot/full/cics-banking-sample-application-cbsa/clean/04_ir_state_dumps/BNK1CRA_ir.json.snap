@@ -79,7 +79,7 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    WS_CICS_FAIL_MSG               VARCHAR(70),\n    WS_CICS_RESP_DISP              BIGINT,\n    WS_CICS_RESP2_DISP             BIGINT,\n    VALID_DATA_SW                  VARCHAR(1),\n    END_OF_SESSION_MESSAGE         VARCHAR(13),\n    WS_NUM_COUNT_TOTAL             INTEGER,\n    WS_NUM_COUNT_POINT             INTEGER,\n    WS_NUM_COUNT_SPACE             INTEGER,\n    WS_AMOUNT_UNSTR                VARCHAR(13),\n    WS_AMOUNT_UNSTR_L              INTEGER,\n    WS_AMOUNT_UNSTR_REVERSE        VARCHAR(13),\n    WS_COMM_ACCNO                  VARCHAR(8),\n    WS_COMM_SIGN                   VARCHAR(1),\n    WS_COMM_AMT                    DECIMAL(12, 0),\n    WS_CONVERT_PIC1_1ST            VARCHAR(10),\n    WS_CONVERT_PIC1_POINT          VARCHAR(1),\n    WS_CONVERT_PIC1_2ND            VARCHAR(2),\n    WS_CONVERT_DEC                 DECIMAL(10, 0),\n    WS_CONVERT_POINT               VARCHAR(1),\n    WS_CONVERT_REMAIN              DECIMAL(2, 0),\n    SUBPGM_ACCNO                   VARCHAR(8),\n    SUBPGM_AMT                     DECIMAL(12, 2),\n    SUBPGM_SORTC                   DECIMAL(6, 0),\n    SUBPGM_AV_BAL                  DECIMAL(12, 2),\n    SUBPGM_ACT_BAL                 DECIMAL(12, 2),\n    SUBPGM_APPLID                  VARCHAR(8),\n    SUBPGM_USERID                  VARCHAR(8),\n    SUBPGM_FACILITY_NAME           VARCHAR(8),\n    SUBPGM_NETWRK_ID               VARCHAR(8),\n    SUBPGM_FACILTYPE               INTEGER,\n    SUBPGM_SUCCESS                 VARCHAR(1),\n    SUBPGM_FAIL_CODE               VARCHAR(1),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0),\n    WS_ABEND_PGM                   VARCHAR(8),\n    COMM_ACCNO                     VARCHAR(8),\n    COMM_SIGN                      VARCHAR(1),\n    COMM_AMT                       DECIMAL(12, 0)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    WS_CICS_FAIL_MSG               VARCHAR(70),\n    WS_CICS_RESP_DISP              BIGINT,\n    WS_CICS_RESP2_DISP             BIGINT,\n    VALID_DATA_SW                  VARCHAR(1),\n    END_OF_SESSION_MESSAGE         VARCHAR(13),\n    WS_NUM_COUNT_TOTAL             INTEGER,\n    WS_NUM_COUNT_POINT             INTEGER,\n    WS_NUM_COUNT_SPACE             INTEGER,\n    WS_AMOUNT_UNSTR                VARCHAR(13),\n    WS_AMOUNT_UNSTR_L              INTEGER,\n    WS_AMOUNT_UNSTR_REVERSE        VARCHAR(13),\n    WS_COMM_ACCNO                  VARCHAR(8),\n    WS_COMM_SIGN                   VARCHAR(1),\n    WS_COMM_AMT                    BIGINT,\n    WS_CONVERT_PIC1_1ST            VARCHAR(10),\n    WS_CONVERT_PIC1_POINT          VARCHAR(1),\n    WS_CONVERT_PIC1_2ND            VARCHAR(2),\n    WS_CONVERT_DEC                 BIGINT,\n    WS_CONVERT_POINT               VARCHAR(1),\n    WS_CONVERT_REMAIN              SMALLINT,\n    SUBPGM_ACCNO                   VARCHAR(8),\n    SUBPGM_AMT                     DECIMAL(12, 2),\n    SUBPGM_SORTC                   INTEGER,\n    SUBPGM_AV_BAL                  DECIMAL(12, 2),\n    SUBPGM_ACT_BAL                 DECIMAL(12, 2),\n    SUBPGM_APPLID                  VARCHAR(8),\n    SUBPGM_USERID                  VARCHAR(8),\n    SUBPGM_FACILITY_NAME           VARCHAR(8),\n    SUBPGM_NETWRK_ID               VARCHAR(8),\n    SUBPGM_FACILTYPE               INTEGER,\n    SUBPGM_SUCCESS                 VARCHAR(1),\n    SUBPGM_FAIL_CODE               VARCHAR(1),\n    AVAILABLE_BALANCE_DISPLAY      DECIMAL(12, 2),\n    ACTUAL_BALANCE_DISPLAY         DECIMAL(12, 2),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    INTEGER,\n    WS_TIME_NOW_GRP_HH             SMALLINT,\n    WS_TIME_NOW_GRP_MM             SMALLINT,\n    WS_TIME_NOW_GRP_SS             SMALLINT,\n    WS_ABEND_PGM                   VARCHAR(8),\n    COMM_ACCNO                     VARCHAR(8),\n    COMM_SIGN                      VARCHAR(1),\n    COMM_AMT                       BIGINT\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
@@ -127,7 +127,7 @@
           },
           "WS_AMOUNT_UNSTR": {
             "type": "string",
-            "description": "Legacy PIC: X(13)."
+            "description": "Legacy PIC: X(13)"
           },
           "WS_AMOUNT_UNSTR_L": {
             "type": "integer",
@@ -135,79 +135,79 @@
           },
           "WS_AMOUNT_UNSTR_REVERSE": {
             "type": "string",
-            "description": "Legacy PIC: X(13)."
+            "description": "Legacy PIC: X(13)"
           },
           "WS_COMM_ACCNO": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "WS_COMM_SIGN": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "WS_COMM_AMT": {
-            "type": "number",
-            "description": "Legacy PIC: 9(12)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(12)"
           },
           "WS_CONVERT_PIC1_1ST": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_CONVERT_PIC1_POINT": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "WS_CONVERT_PIC1_2ND": {
             "type": "string",
-            "description": "Legacy PIC: XX."
+            "description": "Legacy PIC: XX"
           },
           "WS_CONVERT_DEC": {
-            "type": "number",
-            "description": "Legacy PIC: 9(10)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
           },
           "WS_CONVERT_POINT": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "WS_CONVERT_REMAIN": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "SUBPGM_ACCNO": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "SUBPGM_AMT": {
             "type": "number",
-            "description": "Legacy PIC: S9(10)V99."
+            "description": "Legacy PIC: S9(10)V99"
           },
           "SUBPGM_SORTC": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "SUBPGM_AV_BAL": {
             "type": "number",
-            "description": "Legacy PIC: S9(10)V99."
+            "description": "Legacy PIC: S9(10)V99"
           },
           "SUBPGM_ACT_BAL": {
             "type": "number",
-            "description": "Legacy PIC: S9(10)V99."
+            "description": "Legacy PIC: S9(10)V99"
           },
           "SUBPGM_APPLID": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "SUBPGM_USERID": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "SUBPGM_FACILITY_NAME": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "SUBPGM_NETWRK_ID": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "SUBPGM_FACILTYPE": {
             "type": "integer",
@@ -215,11 +215,19 @@
           },
           "SUBPGM_SUCCESS": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "SUBPGM_FAIL_CODE": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
+          },
+          "AVAILABLE_BALANCE_DISPLAY": {
+            "type": "number",
+            "description": "Legacy PIC: +9(10).99"
+          },
+          "ACTUAL_BALANCE_DISPLAY": {
+            "type": "number",
+            "description": "Legacy PIC: +9(10).99"
           },
           "WS_U_TIME": {
             "type": "integer",
@@ -227,23 +235,23 @@
           },
           "WS_ORIG_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_TIME_NOW": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "WS_TIME_NOW_GRP_HH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_MM": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_SS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_ABEND_PGM": {
             "type": "string",
@@ -251,15 +259,15 @@
           },
           "COMM_ACCNO": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "COMM_SIGN": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "COMM_AMT": {
-            "type": "number",
-            "description": "Legacy PIC: 9(12)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(12)"
           }
         }
       }

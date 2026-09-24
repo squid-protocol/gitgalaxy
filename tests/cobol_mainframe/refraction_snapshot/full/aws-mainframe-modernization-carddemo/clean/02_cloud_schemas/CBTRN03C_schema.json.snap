@@ -5,31 +5,31 @@
   "properties": {
     "FD_XREF_CARD_NUM": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     },
     "FD_TRAN_TYPE": {
       "type": "string",
-      "description": "Legacy PIC: X(02)."
+      "description": "Legacy PIC: X(02)"
     },
     "FD_TRAN_TYPE_CD": {
       "type": "string",
-      "description": "Legacy PIC: X(02)."
+      "description": "Legacy PIC: X(02)"
     },
     "FD_TRAN_CAT_CD": {
-      "type": "number",
-      "description": "Legacy PIC: 9(04)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(04)"
     },
     "FD_REPTFILE_REC": {
       "type": "string",
-      "description": "Legacy PIC: X(133)."
+      "description": "Legacy PIC: X(133)"
     },
     "WS_START_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_END_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_FIRST_TIME": {
       "type": "string",
@@ -65,11 +65,11 @@
     },
     "IO_STAT1": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "IO_STAT2": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "TWO_BYTES_BINARY": {
       "type": "integer",
@@ -77,7 +77,7 @@
     },
     "TWO_BYTES_RIGHT": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "IO_STATUS_0403": {
       "type": "integer",

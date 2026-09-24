@@ -52,13 +52,13 @@ public class Bnk1ccaDfhcommareaDto {
 
     private String wsOrigDate;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     private String wsAbendPgm;
 

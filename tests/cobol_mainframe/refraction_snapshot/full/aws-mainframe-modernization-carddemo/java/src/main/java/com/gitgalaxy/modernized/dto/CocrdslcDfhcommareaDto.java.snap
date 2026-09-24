@@ -24,7 +24,7 @@ public class CocrdslcDfhcommareaDto {
 
     private String wsCardRidCardnum;
 
-    private BigDecimal wsCardRidAcctId;
+    private Integer wsCardRidAcctId;
 
     private String errorOpname;
 

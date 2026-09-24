@@ -7,7 +7,7 @@ CREATE TABLE DFHCOMMAREA (
     CARD_EXPIRY_MONTH              VARCHAR(2),
     CARD_EXPIRY_DAY                VARCHAR(2),
     WS_CARD_RID_CARDNUM            VARCHAR(16),
-    WS_CARD_RID_ACCT_ID            DECIMAL(11, 0),
+    WS_CARD_RID_ACCT_ID            BIGINT,
     ERROR_OPNAME                   VARCHAR(8),
     ERROR_FILE                     VARCHAR(9),
     ERROR_RESP                     VARCHAR(10),

@@ -5,31 +5,31 @@
   "properties": {
     "REPORT_RECORD": {
       "type": "string",
-      "description": "Legacy PIC: X(132)."
+      "description": "Legacy PIC: X(132)"
     },
     "CURRENT_YEAR": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "CURRENT_MONTH": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "CURRENT_DAY": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "CURRENT_HOUR": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "CURRENT_MINUTE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "CURRENT_SECOND": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "NUM_TRAN_RECS": {
       "type": "integer",
@@ -117,31 +117,31 @@
     },
     "ERR_MSG_DATA3": {
       "type": "string",
-      "description": "Legacy PIC: X(80)."
+      "description": "Legacy PIC: X(80)"
     },
     "RPT_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_DD": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_YY": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_HH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_MIN": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_SS": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_TRAN_MSG1": {
       "type": "string",
@@ -153,19 +153,19 @@
     },
     "RPT_TRAN": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "RPT_NUM_TRANS": {
-      "type": "string",
-      "description": "Legacy PIC: ZZZ"
+      "type": "integer",
+      "description": "Legacy PIC: ZZZ,ZZZ,ZZ9"
     },
     "RPT_NUM_TRAN_PROC": {
-      "type": "string",
-      "description": "Legacy PIC: ZZZ"
+      "type": "integer",
+      "description": "Legacy PIC: ZZZ,ZZZ,ZZ9"
     },
     "RPT_NUM_TRAN_ERR": {
-      "type": "string",
-      "description": "Legacy PIC: ZZZ"
+      "type": "integer",
+      "description": "Legacy PIC: ZZZ,ZZZ,ZZ9"
     }
   }
 }

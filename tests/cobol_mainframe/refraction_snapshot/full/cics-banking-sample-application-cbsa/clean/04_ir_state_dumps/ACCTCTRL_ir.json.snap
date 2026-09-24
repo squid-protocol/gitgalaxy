@@ -93,7 +93,7 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    REQUIRED_SORT_CODE             INTEGER,\n    SQLCODE_DISPLAY                INTEGER,\n    WS_ACCOUNT_RANGE_TOP           VARCHAR(1),\n    WS_ACCOUNT_RANGE_MIDDLE        VARCHAR(1),\n    WS_ACCOUNT_RANGE_BOTTOM        VARCHAR(1),\n    HV_NUMBER_OF_ACCOUNTS          INTEGER,\n    HV_ACCOUNT_SORTCODE            VARCHAR(6),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    REQUIRED_SORT_CODE             INTEGER,\n    SQLCODE_DISPLAY                INTEGER,\n    WS_ACCOUNT_RANGE_TOP           VARCHAR(1),\n    WS_ACCOUNT_RANGE_MIDDLE        VARCHAR(1),\n    WS_ACCOUNT_RANGE_BOTTOM        VARCHAR(1),\n    HV_NUMBER_OF_ACCOUNTS          INTEGER,\n    HV_ACCOUNT_SORTCODE            VARCHAR(6),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    INTEGER,\n    WS_TIME_NOW_GRP_HH             SMALLINT,\n    WS_TIME_NOW_GRP_MM             SMALLINT,\n    WS_TIME_NOW_GRP_SS             SMALLINT\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
@@ -109,15 +109,15 @@
           },
           "WS_ACCOUNT_RANGE_TOP": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "WS_ACCOUNT_RANGE_MIDDLE": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "WS_ACCOUNT_RANGE_BOTTOM": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "HV_NUMBER_OF_ACCOUNTS": {
             "type": "integer",
@@ -125,7 +125,7 @@
           },
           "HV_ACCOUNT_SORTCODE": {
             "type": "string",
-            "description": "Legacy PIC: X(6)."
+            "description": "Legacy PIC: X(6)"
           },
           "WS_U_TIME": {
             "type": "integer",
@@ -133,23 +133,23 @@
           },
           "WS_ORIG_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_TIME_NOW": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "WS_TIME_NOW_GRP_HH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_MM": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_SS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           }
         }
       }

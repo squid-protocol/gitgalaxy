@@ -195,7 +195,7 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_PGMNAME                     VARCHAR(08),\n    WS_TRANID                      VARCHAR(04),\n    WS_MESSAGE                     VARCHAR(80),\n    WS_ERR_FLG                     VARCHAR(01),\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_IDX                         SMALLINT,\n    WS_REPORT_NAME                 VARCHAR(10),\n    WS_START_DATE_YYYY             VARCHAR(04),\n    WS_START_DATE_MM               VARCHAR(02),\n    WS_START_DATE_DD               VARCHAR(02),\n    WS_END_DATE_YYYY               VARCHAR(04),\n    WS_END_DATE_MM                 VARCHAR(02),\n    WS_END_DATE_DD                 VARCHAR(02),\n    WS_DATE_FORMAT                 VARCHAR(10),\n    WS_NUM_99                      SMALLINT,\n    WS_NUM_9999                    SMALLINT,\n    JCL_RECORD                     VARCHAR(80),\n    PARM_START_DATE_1              VARCHAR(10),\n    PARM_END_DATE_1                VARCHAR(10),\n    PARM_START_DATE_2              VARCHAR(10),\n    PARM_END_DATE_2                VARCHAR(10),\n    CSUTLDTC_DATE                  VARCHAR(10),\n    CSUTLDTC_DATE_FORMAT           VARCHAR(10),\n    CSUTLDTC_RESULT_SEV_CD         VARCHAR(04),\n    CSUTLDTC_RESULT_MSG_NUM        VARCHAR(04),\n    CSUTLDTC_RESULT_MSG            VARCHAR(61)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_PGMNAME                     VARCHAR(08),\n    WS_TRANID                      VARCHAR(04),\n    WS_MESSAGE                     VARCHAR(80),\n    WS_ERR_FLG                     VARCHAR(01),\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_IDX                         SMALLINT,\n    WS_REPORT_NAME                 VARCHAR(10),\n    WS_START_DATE_YYYY             VARCHAR(04),\n    WS_START_DATE_MM               VARCHAR(02),\n    WS_START_DATE_DD               VARCHAR(02),\n    WS_END_DATE_YYYY               VARCHAR(04),\n    WS_END_DATE_MM                 VARCHAR(02),\n    WS_END_DATE_DD                 VARCHAR(02),\n    WS_DATE_FORMAT                 VARCHAR(10),\n    WS_NUM_99                      SMALLINT,\n    WS_NUM_9999                    SMALLINT,\n    JCL_RECORD                     VARCHAR(80),\n    PARM_START_DATE_1              VARCHAR(10),\n    PARM_END_DATE_1                VARCHAR(10),\n    PARM_START_DATE_2              VARCHAR(10),\n    PARM_END_DATE_2                VARCHAR(10),\n    JOB_LINES                      VARCHAR(80),\n    CSUTLDTC_DATE                  VARCHAR(10),\n    CSUTLDTC_DATE_FORMAT           VARCHAR(10),\n    CSUTLDTC_RESULT_SEV_CD         VARCHAR(04),\n    CSUTLDTC_RESULT_MSG_NUM        VARCHAR(04),\n    CSUTLDTC_RESULT_MSG            VARCHAR(61)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
@@ -289,25 +289,29 @@
             "type": "string",
             "description": "Legacy PIC: X(10)"
           },
+          "JOB_LINES": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
           "CSUTLDTC_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "CSUTLDTC_DATE_FORMAT": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "CSUTLDTC_RESULT_SEV_CD": {
             "type": "string",
-            "description": "Legacy PIC: X(04)."
+            "description": "Legacy PIC: X(04)"
           },
           "CSUTLDTC_RESULT_MSG_NUM": {
             "type": "string",
-            "description": "Legacy PIC: X(04)."
+            "description": "Legacy PIC: X(04)"
           },
           "CSUTLDTC_RESULT_MSG": {
             "type": "string",
-            "description": "Legacy PIC: X(61)."
+            "description": "Legacy PIC: X(61)"
           }
         }
       }

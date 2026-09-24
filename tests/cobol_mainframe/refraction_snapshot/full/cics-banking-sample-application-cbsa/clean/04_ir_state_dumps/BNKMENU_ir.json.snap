@@ -53,7 +53,7 @@
   "generation": {
     "schemas": {
       "table": "ABNDINFO_REC",
-      "sql": "CREATE TABLE ABNDINFO_REC (\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    WS_CICS_FAIL_MSG               VARCHAR(70),\n    WS_CICS_RESP_DISP              BIGINT,\n    WS_CICS_RESP2_DISP             BIGINT,\n    VALID_DATA_SW                  VARCHAR(1),\n    END_OF_SESSION_MESSAGE         VARCHAR(13),\n    COMMUNICATION_AREA             VARCHAR(1),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0),\n    WS_ABEND_PGM                   VARCHAR(8)\n);",
+      "sql": "CREATE TABLE ABNDINFO_REC (\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    WS_CICS_FAIL_MSG               VARCHAR(70),\n    WS_CICS_RESP_DISP              BIGINT,\n    WS_CICS_RESP2_DISP             BIGINT,\n    VALID_DATA_SW                  VARCHAR(1),\n    END_OF_SESSION_MESSAGE         VARCHAR(13),\n    COMMUNICATION_AREA             VARCHAR(1),\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    INTEGER,\n    WS_TIME_NOW_GRP_HH             SMALLINT,\n    WS_TIME_NOW_GRP_MM             SMALLINT,\n    WS_TIME_NOW_GRP_SS             SMALLINT,\n    WS_ABEND_PGM                   VARCHAR(8)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "ABNDINFO_REC",
@@ -89,7 +89,7 @@
           },
           "COMMUNICATION_AREA": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "WS_U_TIME": {
             "type": "integer",
@@ -97,23 +97,23 @@
           },
           "WS_ORIG_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_TIME_NOW": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "WS_TIME_NOW_GRP_HH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_MM": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_SS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_ABEND_PGM": {
             "type": "string",

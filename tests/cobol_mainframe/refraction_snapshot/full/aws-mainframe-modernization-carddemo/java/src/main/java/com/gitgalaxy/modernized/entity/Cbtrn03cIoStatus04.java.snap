@@ -26,7 +26,7 @@ public class Cbtrn03cIoStatus04 {
     private String fdTranTypeCd;
 
     @Column(name = "FD_TRAN_CAT_CD")
-    private BigDecimal fdTranCatCd;
+    private Integer fdTranCatCd;
 
     @Column(name = "FD_REPTFILE_REC")
     private String fdReptfileRec;

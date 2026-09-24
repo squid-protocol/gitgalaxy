@@ -16,12 +16,20 @@
       "description": "Legacy PIC: X(4)"
     },
     "WS_CARD_RID_CUST_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(09)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(09)"
+    },
+    "WS_CARD_RID_CUST_ID_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(09)"
     },
     "WS_CARD_RID_ACCT_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(11)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
+    },
+    "WS_CARD_RID_ACCT_ID_X": {
+      "type": "string",
+      "description": "Legacy PIC: X(11)"
     },
     "ERROR_OPNAME": {
       "type": "string",
@@ -41,15 +49,15 @@
     },
     "WS_LONG_MSG": {
       "type": "string",
-      "description": "Legacy PIC: X(500)."
+      "description": "Legacy PIC: X(500)"
     },
     "WS_INFO_MSG": {
       "type": "string",
-      "description": "Legacy PIC: X(40)."
+      "description": "Legacy PIC: X(40)"
     },
     "WS_RETURN_MSG": {
       "type": "string",
-      "description": "Legacy PIC: X(75)."
+      "description": "Legacy PIC: X(75)"
     },
     "LIT_THISPGM": {
       "type": "string",
@@ -89,15 +97,15 @@
     },
     "CA_FROM_PROGRAM": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     },
     "CA_FROM_TRANID": {
       "type": "string",
-      "description": "Legacy PIC: X(04)."
+      "description": "Legacy PIC: X(04)"
     },
     "WS_COMMAREA": {
       "type": "string",
-      "description": "Legacy PIC: X(2000)."
+      "description": "Legacy PIC: X(2000)"
     }
   }
 }

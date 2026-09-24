@@ -26,6 +26,8 @@ public class CocrdupcDfhcommareaDto {
 
     private String cardCvvCdX;
 
+    private Integer cardCvvCdN;
+
     private String cardExpiryYear;
 
     private String cardExpiryMonth;
@@ -34,7 +36,7 @@ public class CocrdupcDfhcommareaDto {
 
     private String wsCardRidCardnum;
 
-    private BigDecimal wsCardRidAcctId;
+    private Integer wsCardRidAcctId;
 
     private String errorOpname;
 
@@ -110,9 +112,9 @@ public class CocrdupcDfhcommareaDto {
 
     private String cardUpdateNum;
 
-    private BigDecimal cardUpdateAcctId;
+    private Integer cardUpdateAcctId;
 
-    private BigDecimal cardUpdateCvvCd;
+    private Integer cardUpdateCvvCd;
 
     private String cardUpdateEmbossedName;
 

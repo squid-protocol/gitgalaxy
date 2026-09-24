@@ -69,43 +69,43 @@
   "generation": {
     "schemas": {
       "table": "PARM_BUFFER",
-      "sql": "CREATE TABLE PARM_BUFFER (\n    WS_ACCOUNT_OPENED_DAY          DECIMAL(2, 0),\n    WS_ACCOUNT_OPENED_MONTH        DECIMAL(2, 0),\n    WS_ACCOUNT_OPENED_YEAR         DECIMAL(4, 0),\n    HV_ACCOUNT_EYECATCHER          VARCHAR(4),\n    HV_ACCOUNT_CUST_NO             VARCHAR(10),\n    HV_ACCOUNT_SORT_CODE           VARCHAR(6),\n    HV_ACCOUNT_NUMBER              VARCHAR(8),\n    HV_ACCOUNT_TYPE                VARCHAR(8),\n    HV_ACCOUNT_INTEREST_RATE       DECIMAL(6, 2) -- Legacy: COMP-3 (Packed Decimal),\n    HV_ACCOUNT_OPENED              VARCHAR(10),\n    HV_ACCOUNT_OPENED_DAY          VARCHAR(2),\n    HV_ACCOUNT_OPENED_DELIM1       VARCHAR(1),\n    HV_ACCOUNT_OPENED_MONTH        VARCHAR(2),\n    HV_ACCOUNT_OPENED_DELIM2       VARCHAR(1),\n    HV_ACCOUNT_OPENED_YEAR         VARCHAR(4),\n    HV_ACCOUNT_OVERDRAFT_LIMIT     INTEGER,\n    HV_ACCOUNT_LAST_STMT_DATE      VARCHAR(10),\n    HV_ACCOUNT_LAST_STMT_DAY       VARCHAR(2),\n    HV_ACCOUNT_LAST_STMT_DELIM1    VARCHAR(1),\n    HV_ACCOUNT_LAST_STMT_MONTH     VARCHAR(2),\n    HV_ACCOUNT_LAST_STMT_DELIM2    VARCHAR(1),\n    HV_ACCOUNT_LAST_STMT_YEAR      VARCHAR(4),\n    HV_ACCOUNT_NEXT_STMT_DATE      VARCHAR(10),\n    HV_ACCOUNT_NEXT_STMT_DAY       VARCHAR(2),\n    HV_ACCOUNT_NEXT_STMT_DELIM1    VARCHAR(1),\n    HV_ACCOUNT_NEXT_STMT_MONTH     VARCHAR(2),\n    HV_ACCOUNT_NEXT_STMT_DELIM2    VARCHAR(1),\n    HV_ACCOUNT_NEXT_STMT_YEAR      VARCHAR(4),\n    HV_ACCOUNT_AVAILABLE_BALANCE   DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    HV_ACCOUNT_ACTUAL_BALANCE      DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    DISP_SIGN                      VARCHAR(1),\n    DISP_SQLCD                     DECIMAL(4, 0),\n    DISP_REASON_CODE               VARCHAR(18),\n    START_KEY                      BIGINT,\n    END_KEY                        BIGINT,\n    STEP_KEY                       BIGINT,\n    NEXT_KEY                       BIGINT,\n    FORENAME                       VARCHAR(20),\n    FORENAMES_CNT                  INTEGER,\n    FORENAMES_PTR                  INTEGER,\n    STREET_NAME_TREE               VARCHAR(20),\n    STREET_NAME_T_CNT              INTEGER,\n    STREET_NAME_T_PTR              INTEGER,\n    STREET_NAME_ROAD               VARCHAR(20),\n    STREET_NAME_R_CNT              INTEGER,\n    STREET_NAME_R_PTR              INTEGER,\n    TOWN                           VARCHAR(20),\n    TOWN_COUNT                     INTEGER,\n    TOWN_PTR                       INTEGER,\n    INITIAL_CHARACTER              VARCHAR(1),\n    INITIALS_CNT                   INTEGER,\n    INITIALS_PTR                   INTEGER,\n    TITLE_NUMBER                   INTEGER,\n    HOUSE_NUMBER                   DECIMAL(2, 0),\n    SURNAME                        VARCHAR(20),\n    SURNAMES_CNT                   INTEGER,\n    SURNAMES_PTR                   INTEGER,\n    RDATE                          VARCHAR(21),\n    RANDOM_SEED                    VARCHAR(16),\n    WS_CNT                         SMALLINT,\n    WS_ACCOUNT_NUMBER              INTEGER,\n    WS_ACCOUNT_TYPE                VARCHAR(8),\n    ACCOUNT_TYPES_COUNT            INTEGER,\n    ACCOUNT_TYPES_PTR              INTEGER,\n    WS_ACCOUNT_INT_RATE            DECIMAL(6, 2),\n    ACCOUNT_INT_RATES_COUNT        INTEGER,\n    WS_ACCOUNT_OVERDRAFT_LIM       INTEGER,\n    ACCOUNT_OVERDRAFT_COUNT        INTEGER,\n    NO_OF_ACCOUNTS                 INTEGER,\n    WS_OVERDRAFT_CONVERSION        INTEGER,\n    WS_SQLCODE_DISPLAY             INTEGER,\n    OPENED_DATE_ATTEMPTS           INTEGER,\n    OPENED_DATE_VALID              VARCHAR(1),\n    COMMIT_COUNT                   INTEGER,\n    PERIOD_NEXT_F                  DECIMAL(14, 0),\n    GMT_LILIAN                     INTEGER,\n    FC                             VARCHAR(12),\n    DATM_CONV                      VARCHAR(80),\n    DATM_LENGTH                    SMALLINT,\n    DATM_FORMAT                    VARCHAR(14),\n    TIMESTAMP_FUNCTION             VARCHAR(40),\n    WS_CURRENT_YYYY                DECIMAL(4, 0),\n    WS_CURRENT_MM                  DECIMAL(2, 0),\n    WS_CURRENT_DD                  DECIMAL(2, 0),\n    WS_CURRENT_HOURS               DECIMAL(2, 0),\n    WS_CURRENT_MINS                DECIMAL(2, 0),\n    WS_CURRENT_SECS                DECIMAL(2, 0),\n    WS_CURRENT_MILLI               DECIMAL(2, 0),\n    WS_CURRENT_DATE_9              INTEGER,\n    WS_TODAY_INT                   INTEGER,\n    WS_REVIEW_DATE_ADD             SMALLINT,\n    WS_NEW_REVIEW_DATE_INT         INTEGER,\n    WS_NEW_REVIEW_YYYYMMDD         INTEGER,\n    HV_CONTROL_NAME                VARCHAR(32),\n    HV_CONTROL_VALUE_NUM           INTEGER,\n    HV_CONTROL_VALUE_STR           VARCHAR(40),\n    WS_WEEKDAYS                    VARCHAR(63),\n    WS_WEEKDAY                     VARCHAR(9),\n    WS_DT                          INTEGER,\n    WS_DT_REM                      INTEGER,\n    WS_DAY_OF_WEEK_VAL             SMALLINT,\n    WS_DAY_TODAY                   VARCHAR(9),\n    SQLCODE_DISPLAY                INTEGER,\n    PARM_LENGTH                    SMALLINT,\n    PARM                           VARCHAR(256)\n);",
+      "sql": "CREATE TABLE PARM_BUFFER (\n    WS_ACCOUNT_OPENED_DAY          SMALLINT,\n    WS_ACCOUNT_OPENED_MONTH        SMALLINT,\n    WS_ACCOUNT_OPENED_YEAR         SMALLINT,\n    HV_ACCOUNT_EYECATCHER          VARCHAR(4),\n    HV_ACCOUNT_CUST_NO             VARCHAR(10),\n    HV_ACCOUNT_SORT_CODE           VARCHAR(6),\n    HV_ACCOUNT_NUMBER              VARCHAR(8),\n    HV_ACCOUNT_TYPE                VARCHAR(8),\n    HV_ACCOUNT_INTEREST_RATE       DECIMAL(6, 2) -- Legacy: COMP-3 (Packed Decimal),\n    HV_ACCOUNT_OPENED              VARCHAR(10),\n    HV_ACCOUNT_OPENED_DAY          VARCHAR(2),\n    HV_ACCOUNT_OPENED_DELIM1       VARCHAR(1),\n    HV_ACCOUNT_OPENED_MONTH        VARCHAR(2),\n    HV_ACCOUNT_OPENED_DELIM2       VARCHAR(1),\n    HV_ACCOUNT_OPENED_YEAR         VARCHAR(4),\n    HV_ACCOUNT_OVERDRAFT_LIMIT     INTEGER,\n    HV_ACCOUNT_LAST_STMT_DATE      VARCHAR(10),\n    HV_ACCOUNT_LAST_STMT_DAY       VARCHAR(2),\n    HV_ACCOUNT_LAST_STMT_DELIM1    VARCHAR(1),\n    HV_ACCOUNT_LAST_STMT_MONTH     VARCHAR(2),\n    HV_ACCOUNT_LAST_STMT_DELIM2    VARCHAR(1),\n    HV_ACCOUNT_LAST_STMT_YEAR      VARCHAR(4),\n    HV_ACCOUNT_NEXT_STMT_DATE      VARCHAR(10),\n    HV_ACCOUNT_NEXT_STMT_DAY       VARCHAR(2),\n    HV_ACCOUNT_NEXT_STMT_DELIM1    VARCHAR(1),\n    HV_ACCOUNT_NEXT_STMT_MONTH     VARCHAR(2),\n    HV_ACCOUNT_NEXT_STMT_DELIM2    VARCHAR(1),\n    HV_ACCOUNT_NEXT_STMT_YEAR      VARCHAR(4),\n    HV_ACCOUNT_AVAILABLE_BALANCE   DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    HV_ACCOUNT_ACTUAL_BALANCE      DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),\n    DISP_SIGN                      VARCHAR(1),\n    DISP_SQLCD                     SMALLINT,\n    DISP_REASON_CODE               VARCHAR(18),\n    START_KEY                      BIGINT,\n    END_KEY                        BIGINT,\n    STEP_KEY                       BIGINT,\n    NEXT_KEY                       BIGINT,\n    FORENAME                       VARCHAR(20) -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB.,\n    FORENAMES_CNT                  INTEGER,\n    FORENAMES_PTR                  INTEGER,\n    STREET_NAME_TREE               VARCHAR(20) -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB.,\n    STREET_NAME_T_CNT              INTEGER,\n    STREET_NAME_T_PTR              INTEGER,\n    STREET_NAME_ROAD               VARCHAR(20) -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB.,\n    STREET_NAME_R_CNT              INTEGER,\n    STREET_NAME_R_PTR              INTEGER,\n    TOWN                           VARCHAR(20) -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB.,\n    TOWN_COUNT                     INTEGER,\n    TOWN_PTR                       INTEGER,\n    INITIAL_CHARACTER              VARCHAR(1),\n    INITIALS_CNT                   INTEGER,\n    INITIALS_PTR                   INTEGER,\n    TITLE_WORD                     VARCHAR(9),\n    TITLE_NUMBER                   INTEGER,\n    HOUSE_NUMBER                   SMALLINT,\n    SURNAME                        VARCHAR(20) -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB.,\n    SURNAMES_CNT                   INTEGER,\n    SURNAMES_PTR                   INTEGER,\n    RDATE                          VARCHAR(21),\n    RANDOM_SEED                    VARCHAR(16),\n    RANDOM_SEED_NUMERIC            BIGINT,\n    WS_CNT                         SMALLINT,\n    WS_ACCOUNT_NUMBER              INTEGER,\n    WS_ACCOUNT_TYPE                VARCHAR(8) -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB.,\n    ACCOUNT_TYPES_COUNT            INTEGER,\n    ACCOUNT_TYPES_PTR              INTEGER,\n    WS_ACCOUNT_INT_RATE            DECIMAL(6, 2) -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB.,\n    ACCOUNT_INT_RATES_COUNT        INTEGER,\n    WS_ACCOUNT_OVERDRAFT_LIM       INTEGER -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB.,\n    ACCOUNT_OVERDRAFT_COUNT        INTEGER,\n    NO_OF_ACCOUNTS                 INTEGER,\n    WS_OVERDRAFT_CONVERSION        INTEGER,\n    WS_SQLCODE_DISPLAY             INTEGER,\n    OPENED_DATE_ATTEMPTS           INTEGER,\n    OPENED_DATE_VALID              VARCHAR(1),\n    COMMIT_COUNT                   INTEGER,\n    PERIOD_NEXT_F                  BIGINT,\n    GMT_LILIAN                     INTEGER,\n    FC                             VARCHAR(12),\n    DATM_CONV                      VARCHAR(80),\n    DATM_LENGTH                    SMALLINT,\n    DATM_FORMAT                    VARCHAR(14),\n    TIMESTAMP_FUNCTION             VARCHAR(40),\n    WS_CURRENT_YYYY                SMALLINT,\n    WS_CURRENT_MM                  SMALLINT,\n    WS_CURRENT_DD                  SMALLINT,\n    WS_CURRENT_HOURS               SMALLINT,\n    WS_CURRENT_MINS                SMALLINT,\n    WS_CURRENT_SECS                SMALLINT,\n    WS_CURRENT_MILLI               SMALLINT,\n    WS_CURRENT_DATE_9              INTEGER,\n    WS_TODAY_INT                   INTEGER,\n    WS_REVIEW_DATE_ADD             SMALLINT,\n    WS_NEW_REVIEW_DATE_INT         INTEGER,\n    WS_NEW_REVIEW_YYYYMMDD         INTEGER,\n    HV_CONTROL_NAME                VARCHAR(32),\n    HV_CONTROL_VALUE_NUM           INTEGER,\n    HV_CONTROL_VALUE_STR           VARCHAR(40),\n    WS_WEEKDAYS                    VARCHAR(63),\n    WS_WEEKDAY                     VARCHAR(9),\n    WS_DT                          INTEGER,\n    WS_DT_REM                      INTEGER,\n    WS_DAY_OF_WEEK_VAL             SMALLINT,\n    WS_DAY_TODAY                   VARCHAR(9),\n    SQLCODE_DISPLAY                INTEGER,\n    PARM_LENGTH                    SMALLINT,\n    PARM                           VARCHAR(256)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "PARM_BUFFER",
         "type": "object",
         "properties": {
           "WS_ACCOUNT_OPENED_DAY": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_ACCOUNT_OPENED_MONTH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_ACCOUNT_OPENED_YEAR": {
-            "type": "number",
-            "description": "Legacy PIC: 9999."
+            "type": "integer",
+            "description": "Legacy PIC: 9999"
           },
           "HV_ACCOUNT_EYECATCHER": {
             "type": "string",
-            "description": "Legacy PIC: X(4)."
+            "description": "Legacy PIC: X(4)"
           },
           "HV_ACCOUNT_CUST_NO": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "HV_ACCOUNT_SORT_CODE": {
             "type": "string",
-            "description": "Legacy PIC: X(6)."
+            "description": "Legacy PIC: X(6)"
           },
           "HV_ACCOUNT_NUMBER": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "HV_ACCOUNT_TYPE": {
             "type": "string",
-            "description": "Legacy PIC: X(8)."
+            "description": "Legacy PIC: X(8)"
           },
           "HV_ACCOUNT_INTEREST_RATE": {
             "type": "number",
@@ -113,27 +113,27 @@
           },
           "HV_ACCOUNT_OPENED": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "HV_ACCOUNT_OPENED_DAY": {
             "type": "string",
-            "description": "Legacy PIC: XX."
+            "description": "Legacy PIC: XX"
           },
           "HV_ACCOUNT_OPENED_DELIM1": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "HV_ACCOUNT_OPENED_MONTH": {
             "type": "string",
-            "description": "Legacy PIC: XX."
+            "description": "Legacy PIC: XX"
           },
           "HV_ACCOUNT_OPENED_DELIM2": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "HV_ACCOUNT_OPENED_YEAR": {
             "type": "string",
-            "description": "Legacy PIC: X(4)."
+            "description": "Legacy PIC: X(4)"
           },
           "HV_ACCOUNT_OVERDRAFT_LIMIT": {
             "type": "integer",
@@ -141,51 +141,51 @@
           },
           "HV_ACCOUNT_LAST_STMT_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "HV_ACCOUNT_LAST_STMT_DAY": {
             "type": "string",
-            "description": "Legacy PIC: XX."
+            "description": "Legacy PIC: XX"
           },
           "HV_ACCOUNT_LAST_STMT_DELIM1": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "HV_ACCOUNT_LAST_STMT_MONTH": {
             "type": "string",
-            "description": "Legacy PIC: XX."
+            "description": "Legacy PIC: XX"
           },
           "HV_ACCOUNT_LAST_STMT_DELIM2": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "HV_ACCOUNT_LAST_STMT_YEAR": {
             "type": "string",
-            "description": "Legacy PIC: X(4)."
+            "description": "Legacy PIC: X(4)"
           },
           "HV_ACCOUNT_NEXT_STMT_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "HV_ACCOUNT_NEXT_STMT_DAY": {
             "type": "string",
-            "description": "Legacy PIC: XX."
+            "description": "Legacy PIC: XX"
           },
           "HV_ACCOUNT_NEXT_STMT_DELIM1": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "HV_ACCOUNT_NEXT_STMT_MONTH": {
             "type": "string",
-            "description": "Legacy PIC: XX."
+            "description": "Legacy PIC: XX"
           },
           "HV_ACCOUNT_NEXT_STMT_DELIM2": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "HV_ACCOUNT_NEXT_STMT_YEAR": {
             "type": "string",
-            "description": "Legacy PIC: X(4)."
+            "description": "Legacy PIC: X(4)"
           },
           "HV_ACCOUNT_AVAILABLE_BALANCE": {
             "type": "number",
@@ -197,15 +197,15 @@
           },
           "DISP_SIGN": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "DISP_SQLCD": {
-            "type": "number",
-            "description": "Legacy PIC: 9999."
+            "type": "integer",
+            "description": "Legacy PIC: 9999"
           },
           "DISP_REASON_CODE": {
             "type": "string",
-            "description": "Legacy PIC: X(18)."
+            "description": "Legacy PIC: X(18)"
           },
           "START_KEY": {
             "type": "integer",
@@ -283,13 +283,17 @@
             "type": "integer",
             "description": "Legacy PIC: 9(8)"
           },
+          "TITLE_WORD": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
           "TITLE_NUMBER": {
             "type": "integer",
             "description": "Legacy PIC: S9(9)"
           },
           "HOUSE_NUMBER": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "SURNAME": {
             "type": "string",
@@ -305,11 +309,15 @@
           },
           "RDATE": {
             "type": "string",
-            "description": "Legacy PIC: X(21)."
+            "description": "Legacy PIC: X(21)"
           },
           "RANDOM_SEED": {
             "type": "string",
-            "description": "Legacy PIC: X(16)."
+            "description": "Legacy PIC: X(16)"
+          },
+          "RANDOM_SEED_NUMERIC": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(16)"
           },
           "WS_CNT": {
             "type": "integer",
@@ -372,8 +380,8 @@
             "description": "Legacy PIC: S9(8)"
           },
           "PERIOD_NEXT_F": {
-            "type": "number",
-            "description": "Legacy PIC: 9(14)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(14)"
           },
           "GMT_LILIAN": {
             "type": "integer",
@@ -381,11 +389,11 @@
           },
           "FC": {
             "type": "string",
-            "description": "Legacy PIC: X(12)."
+            "description": "Legacy PIC: X(12)"
           },
           "DATM_CONV": {
             "type": "string",
-            "description": "Legacy PIC: X(80)."
+            "description": "Legacy PIC: X(80)"
           },
           "DATM_LENGTH": {
             "type": "integer",
@@ -393,39 +401,39 @@
           },
           "DATM_FORMAT": {
             "type": "string",
-            "description": "Legacy PIC: X(14)."
+            "description": "Legacy PIC: X(14)"
           },
           "TIMESTAMP_FUNCTION": {
             "type": "string",
-            "description": "Legacy PIC: X(40)."
+            "description": "Legacy PIC: X(40)"
           },
           "WS_CURRENT_YYYY": {
-            "type": "number",
-            "description": "Legacy PIC: 9(4)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
           },
           "WS_CURRENT_MM": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_CURRENT_DD": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_CURRENT_HOURS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_CURRENT_MINS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_CURRENT_SECS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_CURRENT_MILLI": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_CURRENT_DATE_9": {
             "type": "integer",
@@ -449,7 +457,7 @@
           },
           "HV_CONTROL_NAME": {
             "type": "string",
-            "description": "Legacy PIC: X(32)."
+            "description": "Legacy PIC: X(32)"
           },
           "HV_CONTROL_VALUE_NUM": {
             "type": "integer",
@@ -457,7 +465,7 @@
           },
           "HV_CONTROL_VALUE_STR": {
             "type": "string",
-            "description": "Legacy PIC: X(40)."
+            "description": "Legacy PIC: X(40)"
           },
           "WS_WEEKDAYS": {
             "type": "string",
@@ -493,7 +501,7 @@
           },
           "PARM": {
             "type": "string",
-            "description": "Legacy PIC: X(256)."
+            "description": "Legacy PIC: X(256)"
           }
         }
       }

@@ -2,6 +2,8 @@ import sys
 import time
 from unittest.mock import patch
 
+import pytest
+
 # IMPORTANT: Adjust this path to match exactly where your file is located
 import gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder as graveyard_module
 
@@ -416,3 +418,36 @@ def test_replacing_clause_still_substitutes_into_the_copybook(tmp_path):
     assert "01 WS-CUST" in resolved
     assert "01 TAG-BAL" not in resolved
     assert graveyard_module.x_ray_dead_code(pgm, copybook_root=repo)["orphaned_vars"] == set()
+
+
+# ==============================================================================
+# #3414: copy statements the fallback resolver missed
+# ==============================================================================
+@pytest.mark.parametrize(
+    ("source", "member"),
+    [
+        ("       COPY 'CSSTRPFY'\n           .\n", "CSSTRPFY"),  # quoted, period on the next line
+        ("       COPY CSUTLDPY\n           .\n", "CSUTLDPY"),
+        ("206400 COPY 'CSSTRPFY'\n206500     .\n", "CSSTRPFY"),  # period after a sequence field
+        ("       COPY DATETIME IN MYFILE.\n", "DATETIME"),  # IN library
+        (
+            "           COPY CSSETATY REPLACING\n"
+            "             ==(TESTVAR1)== BY ==ACCT-STATUS==\n"
+            "             ==(MAPNAME3)== BY ==CACTUPA== .\n",
+            "CSSETATY",
+        ),
+        ("030400     EXEC SQL INCLUDE CSDB2RWY END-EXEC\n", "CSDB2RWY"),  # one-line SQL INCLUDE
+        ("           EXEC SQL\n                INCLUDE AUTHFRDS\n           END-EXEC.\n", "AUTHFRDS"),
+    ],
+)
+def test_copy_pattern_reads_every_copy_shape(source, member):
+    matches = list(graveyard_module.COPY_PATTERN.finditer(source))
+    assert [graveyard_module.copy_member(m) for m in matches] == [member]
+
+
+def test_sql_include_resolves_to_a_dclgen_member(tmp_path):
+    (tmp_path / "dcl").mkdir()
+    (tmp_path / "dcl" / "AUTHFRDS.dcl").write_text("       01 DCL-AUTH.\n", encoding="utf-8")
+    prog = tmp_path / "PROG.cbl"
+    prog.write_text("       PROGRAM-ID. PROG.\n", encoding="utf-8")
+    assert graveyard_module.find_copybook("AUTHFRDS", tmp_path, prog) == tmp_path / "dcl" / "AUTHFRDS.dcl"

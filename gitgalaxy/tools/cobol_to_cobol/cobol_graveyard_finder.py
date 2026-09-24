@@ -23,7 +23,8 @@ from typing import Optional
 # Copybook members are found by stem. .cbl/.cob are allowed because some shops keep
 # copybooks under program extensions, but a member with a PROGRAM-ID is a program
 # and is never inlined (#3203: `COPY ACCTCTRL` used to inline ACCTCTRL.cbl).
-_COPYBOOK_EXTS = (".cpy", ".copy", ".cbl", ".cob")
+# `.dcl`: a DCLGEN member, which `EXEC SQL INCLUDE` pulls in like a copybook (#3414).
+_COPYBOOK_EXTS = (".cpy", ".copy", ".dcl", ".cbl", ".cob")
 _PROGRAM_ID = re.compile(r"\bPROGRAM-ID\b", re.IGNORECASE)
 
 # Fixed-format sequence area (cols 1-6, blanks or a sequence field) + indicator (col 7).
@@ -33,12 +34,33 @@ _SEQ_AREA = r"(?:[^\n]{6} )?"
 # None of these can name a paragraph (#3203 defect 1).
 _NOT_A_PARAGRAPH = re.compile(r"END-[A-Z0-9\-]+|GOBACK|EXIT|CONTINUE|STOP|DECLARATIVES")
 
-# Matches: COPY NAME. or COPY NAME REPLACING ==A== BY ==B==., with or without
-# a sequence field in cols 1-6 (`R2     COPY SAM2PARM.`).
+# Matches a copy statement, with or without a sequence field in cols 1-6
+# (`R2     COPY SAM2PARM.`):
+#   COPY NAME.  /  COPY 'NAME'.  /  COPY NAME IN|OF LIB.  /  COPY NAME REPLACING ... .
+#   EXEC SQL INCLUDE NAME END-EXEC   (one line, or split over lines)
+# Named groups: `name` (COPY) or `inc` (SQL INCLUDE), `lib`, `rep`.
+# #3414: the period may follow on a later line (CardDemo `COPY CSUTLDPY` /
+# `    .`, `COPY 'CSSTRPFY'` / `    .`), REPLACING may span lines (CSSETATY),
+# and `IN LIB` / `EXEC SQL INCLUDE` were not matched at all (zopeneditor
+# SAM1LIB, CBSA's DB2 members, CardDemo's .dcl DCLGEN members). A split
+# `EXEC SQL` / `INCLUDE X`, or a period on the next line (`206500     .`), may
+# carry a sequence field there.
 COPY_PATTERN = re.compile(
-    "^" + _SEQ_AREA + r"[ \t]*COPY\s+[\'\"]?([A-Z0-9_\-]+)[\'\"]?(?:\s+REPLACING\s+(.+?))?\.",
+    "^"
+    + _SEQ_AREA
+    + r"[ \t]*(?:"
+    + r"COPY\s+[\'\"]?(?P<name>[A-Z0-9_\-]+)[\'\"]?(?:\s+(?:IN|OF)\s+(?P<lib>[A-Z0-9_\-]+))?"
+    + r"(?:\s+REPLACING\s+(?P<rep>[^.]+?))?\s*(?:[0-9]{6}[ \t]*)?\."
+    + r"|EXEC\s+SQL\s+(?:\S{6}\s+)?INCLUDE\s+(?P<inc>[A-Z0-9_\-]+)(?:\s+(?:\S{6}\s+)?END-EXEC)?\.?"
+    + r")",
     re.MULTILINE | re.IGNORECASE,
 )
+
+
+def copy_member(match: re.Match) -> str:
+    """The member a COPY_PATTERN match names (COPY or SQL INCLUDE), upper-cased."""
+    return (match.group("name") or match.group("inc")).upper()
+
 
 _NAME = r"[A-Z0-9][A-Z0-9\-]*"
 
@@ -317,8 +339,8 @@ def resolve_copybooks(
     origin = origin if origin is not None else source_path
 
     def replacer(match):
-        copy_name = match.group(1).upper()
-        replacing_clause = match.group(2)
+        copy_name = copy_member(match)
+        replacing_clause = match.group("rep")
         cpy_file = find_copybook(copy_name, root, origin)
         if cpy_file is not None:
             cpy_content = cpy_file.read_text(encoding="utf-8", errors="ignore").upper()

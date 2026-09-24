@@ -39,6 +39,10 @@
       "type": "integer",
       "description": "Legacy PIC: S9(09)"
     },
+    "WS_TRAN_AMT": {
+      "type": "number",
+      "description": "Legacy PIC: +99999999.99"
+    },
     "WS_ACCT_ID_N": {
       "type": "integer",
       "description": "Legacy PIC: 9(11)"
@@ -55,41 +59,45 @@
       "type": "number",
       "description": "Legacy PIC: S9(9)V99"
     },
+    "WS_TRAN_AMT_E": {
+      "type": "number",
+      "description": "Legacy PIC: +99999999.99"
+    },
     "WS_DATE_FORMAT": {
       "type": "string",
       "description": "Legacy PIC: X(10)"
     },
     "CSUTLDTC_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "CSUTLDTC_DATE_FORMAT": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "CSUTLDTC_RESULT_SEV_CD": {
       "type": "string",
-      "description": "Legacy PIC: X(04)."
+      "description": "Legacy PIC: X(04)"
     },
     "CSUTLDTC_RESULT_MSG_NUM": {
       "type": "string",
-      "description": "Legacy PIC: X(04)."
+      "description": "Legacy PIC: X(04)"
     },
     "CSUTLDTC_RESULT_MSG": {
       "type": "string",
-      "description": "Legacy PIC: X(61)."
+      "description": "Legacy PIC: X(61)"
     },
     "CDEMO_CT02_TRNID_FIRST": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     },
     "CDEMO_CT02_TRNID_LAST": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     },
     "CDEMO_CT02_PAGE_NUM": {
-      "type": "number",
-      "description": "Legacy PIC: 9(08)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(08)"
     },
     "CDEMO_CT02_NEXT_PAGE_FLG": {
       "type": "string",
@@ -97,11 +105,11 @@
     },
     "CDEMO_CT02_TRN_SEL_FLG": {
       "type": "string",
-      "description": "Legacy PIC: X(01)."
+      "description": "Legacy PIC: X(01)"
     },
     "CDEMO_CT02_TRN_SELECTED": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     }
   }
 }

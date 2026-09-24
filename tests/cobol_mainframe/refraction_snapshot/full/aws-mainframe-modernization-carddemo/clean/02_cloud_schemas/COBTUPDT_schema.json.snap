@@ -12,8 +12,8 @@
       "description": "Legacy PIC: X(80)"
     },
     "WS_VAR_SQLCODE": {
-      "type": "number",
-      "description": "Legacy PIC: ----9."
+      "type": "integer",
+      "description": "Legacy PIC: ----9"
     },
     "INPUT_REC_TYPE": {
       "type": "string",

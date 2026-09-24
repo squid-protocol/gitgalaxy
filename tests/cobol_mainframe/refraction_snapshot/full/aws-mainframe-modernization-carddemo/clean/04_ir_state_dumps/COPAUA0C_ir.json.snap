@@ -95,7 +95,7 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_PGM_AUTH                    VARCHAR(08),\n    WS_CICS_TRANID                 VARCHAR(04),\n    WS_ACCTFILENAME                VARCHAR(8),\n    WS_CUSTFILENAME                VARCHAR(8),\n    WS_CCXREF_FILE                 VARCHAR(08),\n    WS_REQSTS_PROCESS_LIMIT        SMALLINT,\n    WS_MSG_PROCESSED               SMALLINT,\n    WS_REQUEST_QNAME               VARCHAR(48),\n    WS_REPLY_QNAME                 VARCHAR(48),\n    WS_SAVE_CORRELID               VARCHAR(24),\n    WS_RESP_LENGTH                 SMALLINT,\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_ABS_TIME                    BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_CUR_DATE_X6                 VARCHAR(06),\n    WS_CUR_TIME_X6                 VARCHAR(06),\n    WS_CUR_TIME_N6                 INTEGER,\n    WS_CUR_TIME_MS                 INTEGER,\n    WS_YYDDD                       DECIMAL(5, 0),\n    WS_TIME_WITH_MS                INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    WS_OPTIONS                     INTEGER,\n    WS_COMPCODE                    INTEGER,\n    WS_REASON                      INTEGER,\n    WS_WAIT_INTERVAL               INTEGER,\n    WS_CODE_DISPLAY                DECIMAL(9, 0),\n    WS_AVAILABLE_AMT               DECIMAL(11, 2) -- Legacy: COMP-3 (Packed Decimal),\n    WS_TRANSACTION_AMT_AN          VARCHAR(13),\n    WS_TRANSACTION_AMT             DECIMAL(12, 2),\n    WS_APPROVED_AMT                DECIMAL(12, 2),\n    WS_APPROVED_AMT_DIS            DECIMAL(3, 2),\n    WS_TRIGGER_DATA                VARCHAR(64),\n    WS_CARD_RID_CUST_ID            DECIMAL(9, 0),\n    WS_CARD_RID_ACCT_ID            DECIMAL(11, 0),\n    PSB_NAME                       VARCHAR(8),\n    PAUT_PCB_NUM                   SMALLINT,\n    IMS_RETURN_CODE                VARCHAR(02),\n    W01_HCONN_REQUEST              INTEGER,\n    W01_HOBJ_REQUEST               INTEGER,\n    W01_BUFFLEN                    INTEGER,\n    W01_DATALEN                    INTEGER,\n    W01_GET_BUFFER                 VARCHAR(500),\n    W02_HCONN_REPLY                INTEGER,\n    W02_BUFFLEN                    INTEGER,\n    W02_PUT_BUFFER                 VARCHAR(200)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_PGM_AUTH                    VARCHAR(08),\n    WS_CICS_TRANID                 VARCHAR(04),\n    WS_ACCTFILENAME                VARCHAR(8),\n    WS_CUSTFILENAME                VARCHAR(8),\n    WS_CCXREF_FILE                 VARCHAR(08),\n    WS_REQSTS_PROCESS_LIMIT        SMALLINT,\n    WS_MSG_PROCESSED               SMALLINT,\n    WS_REQUEST_QNAME               VARCHAR(48),\n    WS_REPLY_QNAME                 VARCHAR(48),\n    WS_SAVE_CORRELID               VARCHAR(24),\n    WS_RESP_LENGTH                 SMALLINT,\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_ABS_TIME                    BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_CUR_DATE_X6                 VARCHAR(06),\n    WS_CUR_TIME_X6                 VARCHAR(06),\n    WS_CUR_TIME_N6                 INTEGER,\n    WS_CUR_TIME_MS                 INTEGER,\n    WS_YYDDD                       INTEGER,\n    WS_TIME_WITH_MS                INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    WS_OPTIONS                     INTEGER,\n    WS_COMPCODE                    INTEGER,\n    WS_REASON                      INTEGER,\n    WS_WAIT_INTERVAL               INTEGER,\n    WS_CODE_DISPLAY                INTEGER,\n    WS_AVAILABLE_AMT               DECIMAL(11, 2) -- Legacy: COMP-3 (Packed Decimal),\n    WS_TRANSACTION_AMT_AN          VARCHAR(13),\n    WS_TRANSACTION_AMT             DECIMAL(12, 2),\n    WS_APPROVED_AMT                DECIMAL(12, 2),\n    WS_APPROVED_AMT_DIS            DECIMAL(3, 2),\n    WS_TRIGGER_DATA                VARCHAR(64),\n    WS_CARD_RID_CUST_ID            INTEGER,\n    WS_CARD_RID_CUST_ID_X          VARCHAR(09),\n    WS_CARD_RID_ACCT_ID            BIGINT,\n    WS_CARD_RID_ACCT_ID_X          VARCHAR(11),\n    PSB_NAME                       VARCHAR(8),\n    PAUT_PCB_NUM                   SMALLINT,\n    IMS_RETURN_CODE                VARCHAR(02),\n    W01_HCONN_REQUEST              INTEGER,\n    W01_HOBJ_REQUEST               INTEGER,\n    W01_BUFFLEN                    INTEGER,\n    W01_DATALEN                    INTEGER,\n    W01_GET_BUFFER                 VARCHAR(500),\n    W02_HCONN_REPLY                INTEGER,\n    W02_BUFFLEN                    INTEGER,\n    W02_PUT_BUFFER                 VARCHAR(200)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
@@ -131,15 +131,15 @@
           },
           "WS_REQUEST_QNAME": {
             "type": "string",
-            "description": "Legacy PIC: X(48)."
+            "description": "Legacy PIC: X(48)"
           },
           "WS_REPLY_QNAME": {
             "type": "string",
-            "description": "Legacy PIC: X(48)."
+            "description": "Legacy PIC: X(48)"
           },
           "WS_SAVE_CORRELID": {
             "type": "string",
-            "description": "Legacy PIC: X(24)."
+            "description": "Legacy PIC: X(24)"
           },
           "WS_RESP_LENGTH": {
             "type": "integer",
@@ -174,8 +174,8 @@
             "description": "Legacy PIC: S9(08)"
           },
           "WS_YYDDD": {
-            "type": "number",
-            "description": "Legacy PIC: 9(05)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(05)"
           },
           "WS_TIME_WITH_MS": {
             "type": "integer",
@@ -198,8 +198,8 @@
             "description": "Legacy PIC: S9(9)"
           },
           "WS_CODE_DISPLAY": {
-            "type": "number",
-            "description": "Legacy PIC: 9(9)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
           },
           "WS_AVAILABLE_AMT": {
             "type": "number",
@@ -207,31 +207,39 @@
           },
           "WS_TRANSACTION_AMT_AN": {
             "type": "string",
-            "description": "Legacy PIC: X(13)."
+            "description": "Legacy PIC: X(13)"
           },
           "WS_TRANSACTION_AMT": {
             "type": "number",
-            "description": "Legacy PIC: S9(10)V99."
+            "description": "Legacy PIC: S9(10)V99"
           },
           "WS_APPROVED_AMT": {
             "type": "number",
-            "description": "Legacy PIC: S9(10)V99."
+            "description": "Legacy PIC: S9(10)V99"
           },
           "WS_APPROVED_AMT_DIS": {
             "type": "number",
-            "description": "Legacy PIC: -ZZZZZZZZZ9.99."
+            "description": "Legacy PIC: -ZZZZZZZZZ9.99"
           },
           "WS_TRIGGER_DATA": {
             "type": "string",
-            "description": "Legacy PIC: X(64)."
+            "description": "Legacy PIC: X(64)"
           },
           "WS_CARD_RID_CUST_ID": {
-            "type": "number",
-            "description": "Legacy PIC: 9(09)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(09)"
+          },
+          "WS_CARD_RID_CUST_ID_X": {
+            "type": "string",
+            "description": "Legacy PIC: X(09)"
           },
           "WS_CARD_RID_ACCT_ID": {
-            "type": "number",
-            "description": "Legacy PIC: 9(11)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(11)"
+          },
+          "WS_CARD_RID_ACCT_ID_X": {
+            "type": "string",
+            "description": "Legacy PIC: X(11)"
           },
           "PSB_NAME": {
             "type": "string",
@@ -243,7 +251,7 @@
           },
           "IMS_RETURN_CODE": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "W01_HCONN_REQUEST": {
             "type": "integer",
@@ -263,7 +271,7 @@
           },
           "W01_GET_BUFFER": {
             "type": "string",
-            "description": "Legacy PIC: X(500)."
+            "description": "Legacy PIC: X(500)"
           },
           "W02_HCONN_REPLY": {
             "type": "integer",
@@ -275,7 +283,7 @@
           },
           "W02_PUT_BUFFER": {
             "type": "string",
-            "description": "Legacy PIC: X(200)."
+            "description": "Legacy PIC: X(200)"
           }
         }
       }

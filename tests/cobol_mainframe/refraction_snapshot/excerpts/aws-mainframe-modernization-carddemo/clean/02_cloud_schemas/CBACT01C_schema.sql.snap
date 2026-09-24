@@ -1,5 +1,5 @@
-CREATE TABLE WS_REISSUE_DATE (
-    OUT_ACCT_ID                    DECIMAL(11, 0),
+CREATE TABLE WS_ACCT_REISSUE_DATE (
+    OUT_ACCT_ID                    BIGINT,
     OUT_ACCT_ACTIVE_STATUS         VARCHAR(01),
     OUT_ACCT_CURR_BAL              DECIMAL(12, 2),
     OUT_ACCT_CREDIT_LIMIT          DECIMAL(12, 2),
@@ -8,11 +8,11 @@ CREATE TABLE WS_REISSUE_DATE (
     OUT_ACCT_EXPIRAION_DATE        VARCHAR(10),
     OUT_ACCT_REISSUE_DATE          VARCHAR(10),
     OUT_ACCT_CURR_CYC_CREDIT       DECIMAL(12, 2),
-    OUT_ACCT_CURR_CYC_DEBIT        DECIMAL(12, 2),
+    OUT_ACCT_CURR_CYC_DEBIT        DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),
     OUT_ACCT_GROUP_ID              VARCHAR(10),
-    ARR_ACCT_ID                    DECIMAL(11, 0),
+    ARR_ACCT_ID                    BIGINT,
     ARR_ACCT_CURR_BAL              DECIMAL(12, 2),
-    ARR_ACCT_CURR_CYC_DEBIT        DECIMAL(12, 2),
+    ARR_ACCT_CURR_CYC_DEBIT        DECIMAL(12, 2) -- Legacy: COMP-3 (Packed Decimal),
     VBR_REC                        VARCHAR(80),
     IO_STAT1                       VARCHAR(1),
     IO_STAT2                       VARCHAR(1),
@@ -23,12 +23,13 @@ CREATE TABLE WS_REISSUE_DATE (
     END_OF_FILE                    VARCHAR(01),
     ABCODE                         INTEGER,
     TIMING                         INTEGER,
-    WS_RECD_LEN                    DECIMAL(4, 0),
-    VB1_ACCT_ID                    DECIMAL(11, 0),
+    WS_RECD_LEN                    SMALLINT,
+    VB1_ACCT_ID                    BIGINT,
     VB1_ACCT_ACTIVE_STATUS         VARCHAR(01),
-    VB2_ACCT_ID                    DECIMAL(11, 0),
+    VB2_ACCT_ID                    BIGINT,
     VB2_ACCT_CURR_BAL              DECIMAL(12, 2),
     VB2_ACCT_CREDIT_LIMIT          DECIMAL(12, 2),
     VB2_ACCT_REISSUE_YYYY          VARCHAR(04),
-    WS_ACCT_REISSUE_YYYY           VARCHAR(04)
+    WS_ACCT_REISSUE_YYYY           VARCHAR(04),
+    WS_REISSUE_DATE                VARCHAR(10)
 );

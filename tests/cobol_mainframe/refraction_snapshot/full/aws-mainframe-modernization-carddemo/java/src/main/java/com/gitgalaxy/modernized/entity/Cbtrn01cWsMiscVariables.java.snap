@@ -20,7 +20,7 @@ public class Cbtrn01cWsMiscVariables {
     private String fdXrefCardNum;
 
     @Column(name = "FD_ACCT_ID")
-    private BigDecimal fdAcctId;
+    private Integer fdAcctId;
 
     @Column(name = "IO_STAT1")
     private String ioStat1;
@@ -50,9 +50,9 @@ public class Cbtrn01cWsMiscVariables {
     private Integer timing;
 
     @Column(name = "WS_XREF_READ_STATUS")
-    private BigDecimal wsXrefReadStatus;
+    private Integer wsXrefReadStatus;
 
     @Column(name = "WS_ACCT_READ_STATUS")
-    private BigDecimal wsAcctReadStatus;
+    private Integer wsAcctReadStatus;
 
 }

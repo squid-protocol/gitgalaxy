@@ -17,13 +17,13 @@ public class BankdataParmBuffer {
     private Long sysId;
 
     @Column(name = "WS_ACCOUNT_OPENED_DAY")
-    private BigDecimal wsAccountOpenedDay;
+    private Integer wsAccountOpenedDay;
 
     @Column(name = "WS_ACCOUNT_OPENED_MONTH")
-    private BigDecimal wsAccountOpenedMonth;
+    private Integer wsAccountOpenedMonth;
 
     @Column(name = "WS_ACCOUNT_OPENED_YEAR")
-    private BigDecimal wsAccountOpenedYear;
+    private Integer wsAccountOpenedYear;
 
     @Column(name = "HV_ACCOUNT_EYECATCHER")
     private String hvAccountEyecatcher;
@@ -110,7 +110,7 @@ public class BankdataParmBuffer {
     private String dispSign;
 
     @Column(name = "DISP_SQLCD")
-    private BigDecimal dispSqlcd;
+    private Integer dispSqlcd;
 
     @Column(name = "DISP_REASON_CODE")
     private String dispReasonCode;
@@ -172,11 +172,14 @@ public class BankdataParmBuffer {
     @Column(name = "INITIALS_PTR")
     private Integer initialsPtr;
 
+    @Column(name = "TITLE_WORD")
+    private String titleWord;
+
     @Column(name = "TITLE_NUMBER")
     private Integer titleNumber;
 
     @Column(name = "HOUSE_NUMBER")
-    private BigDecimal houseNumber;
+    private Integer houseNumber;
 
     @Column(name = "SURNAME")
     private String surname;
@@ -192,6 +195,9 @@ public class BankdataParmBuffer {
 
     @Column(name = "RANDOM_SEED")
     private String randomSeed;
+
+    @Column(name = "RANDOM_SEED_NUMERIC")
+    private Integer randomSeedNumeric;
 
     @Column(name = "WS_CNT")
     private Integer wsCnt;
@@ -239,7 +245,7 @@ public class BankdataParmBuffer {
     private Integer commitCount;
 
     @Column(name = "PERIOD_NEXT_F")
-    private BigDecimal periodNextF;
+    private Integer periodNextF;
 
     @Column(name = "GMT_LILIAN")
     private Integer gmtLilian;
@@ -260,25 +266,25 @@ public class BankdataParmBuffer {
     private String timestampFunction;
 
     @Column(name = "WS_CURRENT_YYYY")
-    private BigDecimal wsCurrentYyyy;
+    private Integer wsCurrentYyyy;
 
     @Column(name = "WS_CURRENT_MM")
-    private BigDecimal wsCurrentMm;
+    private Integer wsCurrentMm;
 
     @Column(name = "WS_CURRENT_DD")
-    private BigDecimal wsCurrentDd;
+    private Integer wsCurrentDd;
 
     @Column(name = "WS_CURRENT_HOURS")
-    private BigDecimal wsCurrentHours;
+    private Integer wsCurrentHours;
 
     @Column(name = "WS_CURRENT_MINS")
-    private BigDecimal wsCurrentMins;
+    private Integer wsCurrentMins;
 
     @Column(name = "WS_CURRENT_SECS")
-    private BigDecimal wsCurrentSecs;
+    private Integer wsCurrentSecs;
 
     @Column(name = "WS_CURRENT_MILLI")
-    private BigDecimal wsCurrentMilli;
+    private Integer wsCurrentMilli;
 
     @Column(name = "WS_CURRENT_DATE_9")
     private Integer wsCurrentDate9;

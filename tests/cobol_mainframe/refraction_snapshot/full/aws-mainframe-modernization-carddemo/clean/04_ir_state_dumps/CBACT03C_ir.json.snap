@@ -60,11 +60,11 @@
         "properties": {
           "IO_STAT1": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "IO_STAT2": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "TWO_BYTES_BINARY": {
             "type": "integer",
@@ -72,7 +72,7 @@
           },
           "TWO_BYTES_RIGHT": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "IO_STATUS_0403": {
             "type": "integer",

@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class DelcusDfhcommareaDto {
 
-    private BigDecimal sysiderrRetry;
+    private Integer sysiderrRetry;
 
     private String hvProctranEyecatcher;
 
@@ -32,17 +32,17 @@ public class DelcusDfhcommareaDto {
 
     private Integer wsCicsResp2;
 
-    private BigDecimal returnedSortCode;
+    private Integer returnedSortCode;
 
-    private BigDecimal returnedNumber;
+    private Integer returnedNumber;
 
     private Integer wsEibtaskn12;
 
     private Integer requiredSortCode;
 
-    private BigDecimal desiredKeySortcode;
+    private Integer desiredKeySortcode;
 
-    private BigDecimal desiredKeyCustomer;
+    private Integer desiredKeyCustomer;
 
     private Integer wsUTime;
 
@@ -54,9 +54,9 @@ public class DelcusDfhcommareaDto {
 
     private String wsStoredcEyecatcher;
 
-    private BigDecimal wsStoredcSortcode;
+    private Integer wsStoredcSortcode;
 
-    private BigDecimal wsStoredcNumber;
+    private Integer wsStoredcNumber;
 
     private String wsStoredcName;
 
@@ -64,13 +64,13 @@ public class DelcusDfhcommareaDto {
 
     private String wsStoredcDateOfBirth;
 
-    private BigDecimal wsStoredcCreditScore;
+    private Integer wsStoredcCreditScore;
 
     private String wsStoredcCsReviewDate;
 
     private Integer sqlcodeDisplay;
 
-    private BigDecimal delaccCommAccno;
+    private Integer delaccCommAccno;
 
     private String delaccCommApplid;
 
@@ -80,13 +80,13 @@ public class DelcusDfhcommareaDto {
 
     private String inqcustProgram;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     private String wsAbendPgm;
 

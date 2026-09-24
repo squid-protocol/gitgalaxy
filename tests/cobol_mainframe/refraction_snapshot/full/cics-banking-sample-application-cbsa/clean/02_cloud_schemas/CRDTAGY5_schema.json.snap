@@ -12,20 +12,20 @@
       "description": "Legacy PIC: 9(10)"
     },
     "WS_CONT_IN_BIRTH_DAY": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_CONT_IN_BIRTH_MONTH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_CONT_IN_BIRTH_YEAR": {
-      "type": "number",
-      "description": "Legacy PIC: 9999."
+      "type": "integer",
+      "description": "Legacy PIC: 9999"
     },
     "WS_CONT_IN_CREDIT_SCORE": {
-      "type": "number",
-      "description": "Legacy PIC: 999."
+      "type": "integer",
+      "description": "Legacy PIC: 999"
     },
     "WS_CICS_RESP": {
       "type": "integer",
@@ -65,23 +65,23 @@
     },
     "WS_ORIG_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_TIME_NOW": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "WS_TIME_NOW_GRP_HH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_SS": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_ABEND_PGM": {
       "type": "string",

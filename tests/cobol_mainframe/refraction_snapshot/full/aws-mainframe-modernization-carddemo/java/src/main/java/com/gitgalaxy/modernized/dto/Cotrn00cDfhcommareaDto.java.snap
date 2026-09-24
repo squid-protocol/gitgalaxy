@@ -24,13 +24,15 @@ public class Cotrn00cDfhcommareaDto {
 
     private Integer wsIdx;
 
+    private BigDecimal wsTranAmt;
+
     private String wsTranDate;
 
     private String cdemoCt00TrnidFirst;
 
     private String cdemoCt00TrnidLast;
 
-    private BigDecimal cdemoCt00PageNum;
+    private Integer cdemoCt00PageNum;
 
     private String cdemoCt00NextPageFlg;
 

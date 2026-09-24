@@ -206,7 +206,7 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_PGMNAME                     VARCHAR(08),\n    WS_TRANID                      VARCHAR(04),\n    WS_MESSAGE                     VARCHAR(80),\n    WS_TRANSACT_FILE               VARCHAR(08),\n    WS_ERR_FLG                     VARCHAR(01),\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    CDEMO_CT01_TRNID_FIRST         VARCHAR(16),\n    CDEMO_CT01_TRNID_LAST          VARCHAR(16),\n    CDEMO_CT01_PAGE_NUM            DECIMAL(8, 0),\n    CDEMO_CT01_NEXT_PAGE_FLG       VARCHAR(01),\n    CDEMO_CT01_TRN_SEL_FLG         VARCHAR(01),\n    CDEMO_CT01_TRN_SELECTED        VARCHAR(16)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_PGMNAME                     VARCHAR(08),\n    WS_TRANID                      VARCHAR(04),\n    WS_MESSAGE                     VARCHAR(80),\n    WS_TRANSACT_FILE               VARCHAR(08),\n    WS_ERR_FLG                     VARCHAR(01),\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_TRAN_AMT                    DECIMAL(10, 2),\n    CDEMO_CT01_TRNID_FIRST         VARCHAR(16),\n    CDEMO_CT01_TRNID_LAST          VARCHAR(16),\n    CDEMO_CT01_PAGE_NUM            INTEGER,\n    CDEMO_CT01_NEXT_PAGE_FLG       VARCHAR(01),\n    CDEMO_CT01_TRN_SEL_FLG         VARCHAR(01),\n    CDEMO_CT01_TRN_SELECTED        VARCHAR(16)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
@@ -240,17 +240,21 @@
             "type": "integer",
             "description": "Legacy PIC: S9(09)"
           },
+          "WS_TRAN_AMT": {
+            "type": "number",
+            "description": "Legacy PIC: +99999999.99"
+          },
           "CDEMO_CT01_TRNID_FIRST": {
             "type": "string",
-            "description": "Legacy PIC: X(16)."
+            "description": "Legacy PIC: X(16)"
           },
           "CDEMO_CT01_TRNID_LAST": {
             "type": "string",
-            "description": "Legacy PIC: X(16)."
+            "description": "Legacy PIC: X(16)"
           },
           "CDEMO_CT01_PAGE_NUM": {
-            "type": "number",
-            "description": "Legacy PIC: 9(08)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(08)"
           },
           "CDEMO_CT01_NEXT_PAGE_FLG": {
             "type": "string",
@@ -258,11 +262,11 @@
           },
           "CDEMO_CT01_TRN_SEL_FLG": {
             "type": "string",
-            "description": "Legacy PIC: X(01)."
+            "description": "Legacy PIC: X(01)"
           },
           "CDEMO_CT01_TRN_SELECTED": {
             "type": "string",
-            "description": "Legacy PIC: X(16)."
+            "description": "Legacy PIC: X(16)"
           }
         }
       }

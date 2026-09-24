@@ -22,21 +22,21 @@ public class Bnk1cacDfhcommareaDto {
 
     private String endOfSessionMessage;
 
-    private BigDecimal wsCommCustno;
+    private Integer wsCommCustno;
 
     private String wsCommAcctype;
 
     private BigDecimal wsCommIntrt;
 
-    private BigDecimal wsCommOverdr;
+    private Integer wsCommOverdr;
 
-    private BigDecimal nstmtddNum;
+    private Integer nstmtddNum;
 
-    private BigDecimal nstmtmmiNum;
+    private Integer nstmtmmiNum;
 
-    private BigDecimal nstmtyyiNum;
+    private Integer nstmtyyiNum;
 
-    private BigDecimal nstNum;
+    private Integer nstNum;
 
     private BigDecimal intrtPic9;
 
@@ -48,7 +48,7 @@ public class Bnk1cacDfhcommareaDto {
 
     private String subpgmEyecatcher;
 
-    private BigDecimal subpgmCustno;
+    private Integer subpgmCustno;
 
     private Integer subpgmSortcode;
 
@@ -58,13 +58,13 @@ public class Bnk1cacDfhcommareaDto {
 
     private BigDecimal subpgmIntRt;
 
-    private BigDecimal subpgmOpened;
+    private Integer subpgmOpened;
 
-    private BigDecimal subpgmOverdrLim;
+    private Integer subpgmOverdrLim;
 
-    private BigDecimal subpgmLastStmtDt;
+    private Integer subpgmLastStmtDt;
 
-    private BigDecimal subpgmNextStmtDt;
+    private Integer subpgmNextStmtDt;
 
     private BigDecimal subpgmAvailBal;
 
@@ -74,26 +74,30 @@ public class Bnk1cacDfhcommareaDto {
 
     private String subpgmFailCode;
 
+    private BigDecimal availableBalanceDisplay;
+
+    private BigDecimal actualBalanceDisplay;
+
     private Integer wsUTime;
 
     private String wsOrigDate;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     private String wsAbendPgm;
 
-    private BigDecimal commCustno;
+    private Integer commCustno;
 
     private String commAcctype;
 
     private BigDecimal commIntrt;
 
-    private BigDecimal commOverdr;
+    private Integer commOverdr;
 
 }

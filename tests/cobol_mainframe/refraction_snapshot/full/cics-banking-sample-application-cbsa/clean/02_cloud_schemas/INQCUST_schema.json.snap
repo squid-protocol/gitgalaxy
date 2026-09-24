@@ -4,12 +4,12 @@
   "type": "object",
   "properties": {
     "SYSIDERR_RETRY": {
-      "type": "number",
-      "description": "Legacy PIC: 999."
+      "type": "integer",
+      "description": "Legacy PIC: 999"
     },
     "INQCUST_RETRY": {
-      "type": "number",
-      "description": "Legacy PIC: 9999."
+      "type": "integer",
+      "description": "Legacy PIC: 9999"
     },
     "WS_CICS_RESP": {
       "type": "integer",
@@ -69,27 +69,27 @@
     },
     "WS_CUSTOMER_RANGE_TOP": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "WS_CUSTOMER_RANGE_MIDDLE": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "WS_CUSTOMER_RANGE_BOTTOM": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "REMIX_SCODE_NUM": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "REMIX2_CREDIT_SCR_NUM": {
-      "type": "number",
-      "description": "Legacy PIC: 9(3)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(3)"
     },
     "MY_ABEND_CODE": {
       "type": "string",
-      "description": "Legacy PIC: XXXX."
+      "description": "Legacy PIC: XXXX"
     },
     "WS_STORM_DRAIN": {
       "type": "string",
@@ -101,23 +101,23 @@
     },
     "WS_ORIG_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_TIME_NOW": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "WS_TIME_NOW_GRP_HH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_SS": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_ABEND_PGM": {
       "type": "string",

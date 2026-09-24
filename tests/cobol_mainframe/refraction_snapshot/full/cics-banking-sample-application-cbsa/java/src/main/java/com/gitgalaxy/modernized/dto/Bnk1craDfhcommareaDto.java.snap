@@ -38,7 +38,7 @@ public class Bnk1craDfhcommareaDto {
 
     private String wsCommSign;
 
-    private BigDecimal wsCommAmt;
+    private Integer wsCommAmt;
 
     private String wsConvertPic11St;
 
@@ -46,17 +46,17 @@ public class Bnk1craDfhcommareaDto {
 
     private String wsConvertPic12Nd;
 
-    private BigDecimal wsConvertDec;
+    private Integer wsConvertDec;
 
     private String wsConvertPoint;
 
-    private BigDecimal wsConvertRemain;
+    private Integer wsConvertRemain;
 
     private String subpgmAccno;
 
     private BigDecimal subpgmAmt;
 
-    private BigDecimal subpgmSortc;
+    private Integer subpgmSortc;
 
     private BigDecimal subpgmAvBal;
 
@@ -76,17 +76,21 @@ public class Bnk1craDfhcommareaDto {
 
     private String subpgmFailCode;
 
+    private BigDecimal availableBalanceDisplay;
+
+    private BigDecimal actualBalanceDisplay;
+
     private Integer wsUTime;
 
     private String wsOrigDate;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     private String wsAbendPgm;
 
@@ -94,6 +98,6 @@ public class Bnk1craDfhcommareaDto {
 
     private String commSign;
 
-    private BigDecimal commAmt;
+    private Integer commAmt;
 
 }

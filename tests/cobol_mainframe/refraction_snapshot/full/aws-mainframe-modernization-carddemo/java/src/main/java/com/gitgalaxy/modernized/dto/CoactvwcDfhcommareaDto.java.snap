@@ -14,9 +14,13 @@ public class CoactvwcDfhcommareaDto {
 
     private String wsTranid;
 
-    private BigDecimal wsCardRidCustId;
+    private Integer wsCardRidCustId;
 
-    private BigDecimal wsCardRidAcctId;
+    private String wsCardRidCustIdX;
+
+    private Integer wsCardRidAcctId;
+
+    private String wsCardRidAcctIdX;
 
     private String errorOpname;
 

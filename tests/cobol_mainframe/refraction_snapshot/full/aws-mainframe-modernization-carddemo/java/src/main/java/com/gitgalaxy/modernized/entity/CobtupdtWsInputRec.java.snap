@@ -23,7 +23,7 @@ public class CobtupdtWsInputRec {
     private String wsReturnMsg;
 
     @Column(name = "WS_VAR_SQLCODE")
-    private BigDecimal wsVarSqlcode;
+    private Integer wsVarSqlcode;
 
     @Column(name = "INPUT_REC_TYPE")
     private String inputRecType;

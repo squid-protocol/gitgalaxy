@@ -35,21 +35,25 @@
       "type": "integer",
       "description": "Legacy PIC: S9(04)"
     },
+    "WS_TRAN_AMT": {
+      "type": "number",
+      "description": "Legacy PIC: +99999999.99"
+    },
     "WS_TRAN_DATE": {
       "type": "string",
       "description": "Legacy PIC: X(08)"
     },
     "CDEMO_CT00_TRNID_FIRST": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     },
     "CDEMO_CT00_TRNID_LAST": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     },
     "CDEMO_CT00_PAGE_NUM": {
-      "type": "number",
-      "description": "Legacy PIC: 9(08)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(08)"
     },
     "CDEMO_CT00_NEXT_PAGE_FLG": {
       "type": "string",
@@ -57,11 +61,11 @@
     },
     "CDEMO_CT00_TRN_SEL_FLG": {
       "type": "string",
-      "description": "Legacy PIC: X(01)."
+      "description": "Legacy PIC: X(01)"
     },
     "CDEMO_CT00_TRN_SELECTED": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     }
   }
 }

@@ -45,43 +45,43 @@
     },
     "DOBDDI_CHAR": {
       "type": "string",
-      "description": "Legacy PIC: XX."
+      "description": "Legacy PIC: XX"
     },
     "DOBDDI_NUM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "DOBMMI_CHAR": {
       "type": "string",
-      "description": "Legacy PIC: XX."
+      "description": "Legacy PIC: XX"
     },
     "DOBMMI_NUM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "DOBYYI_NUM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_ABCODE": {
       "type": "string",
-      "description": "Legacy PIC: XXXX."
+      "description": "Legacy PIC: XXXX"
     },
     "WS_ADDR_SPLIT1": {
       "type": "string",
-      "description": "Legacy PIC: X(60)."
+      "description": "Legacy PIC: X(60)"
     },
     "WS_ADDR_SPLIT2": {
       "type": "string",
-      "description": "Legacy PIC: X(60)."
+      "description": "Legacy PIC: X(60)"
     },
     "WS_ADDR_SPLIT3": {
       "type": "string",
-      "description": "Legacy PIC: X(40)."
+      "description": "Legacy PIC: X(40)"
     },
     "SUBPGM_EYECATCHER": {
       "type": "string",
-      "description": "Legacy PIC: X(4)."
+      "description": "Legacy PIC: X(4)"
     },
     "SUBPGM_SORTCODE": {
       "type": "integer",
@@ -93,39 +93,39 @@
     },
     "SUBPGM_NAME": {
       "type": "string",
-      "description": "Legacy PIC: X(60)."
+      "description": "Legacy PIC: X(60)"
     },
     "SUBPGM_ADDRESS": {
       "type": "string",
-      "description": "Legacy PIC: X(160)."
+      "description": "Legacy PIC: X(160)"
     },
     "SUBPGM_BIRTH_DAY": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "SUBPGM_BIRTH_MONTH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "SUBPGM_BIRTH_YEAR": {
-      "type": "number",
-      "description": "Legacy PIC: 9999."
+      "type": "integer",
+      "description": "Legacy PIC: 9999"
     },
     "SUBPGM_CREDIT_SCORE": {
-      "type": "number",
-      "description": "Legacy PIC: 999."
+      "type": "integer",
+      "description": "Legacy PIC: 999"
     },
     "SUBPGM_CS_REVIEW_DATE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "SUBPGM_SUCCESS": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "SUBPGM_FAIL_CODE": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "WS_U_TIME": {
       "type": "integer",
@@ -133,23 +133,23 @@
     },
     "WS_ORIG_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_TIME_NOW": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "WS_TIME_NOW_GRP_HH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_SS": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_ABEND_PGM": {
       "type": "string",

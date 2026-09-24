@@ -1,7 +1,7 @@
 CREATE TABLE WS_INPUT_REC (
     LASTREC                        VARCHAR(1),
     WS_RETURN_MSG                  VARCHAR(80),
-    WS_VAR_SQLCODE                 DECIMAL(1, 0),
+    WS_VAR_SQLCODE                 SMALLINT,
     INPUT_REC_TYPE                 VARCHAR(1),
     INPUT_REC_NUMBER               VARCHAR(2),
     INPUT_REC_DESC                 VARCHAR(50)

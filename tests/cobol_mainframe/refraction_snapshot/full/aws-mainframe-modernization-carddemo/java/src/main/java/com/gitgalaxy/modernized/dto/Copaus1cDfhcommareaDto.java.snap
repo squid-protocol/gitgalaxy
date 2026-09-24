@@ -20,7 +20,7 @@ public class Copaus1cDfhcommareaDto {
 
     private String wsErrFlg;
 
-    private BigDecimal wsAcctId;
+    private Integer wsAcctId;
 
     private String wsAuthKey;
 
@@ -40,9 +40,9 @@ public class Copaus1cDfhcommareaDto {
 
     private String imsReturnCode;
 
-    private BigDecimal wsFrdAcctId;
+    private Integer wsFrdAcctId;
 
-    private BigDecimal wsFrdCustId;
+    private Integer wsFrdCustId;
 
     private String wsFraudAuthRecord;
 

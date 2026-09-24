@@ -36,15 +36,15 @@ public class InqacccuDfhcommareaDto {
 
     private Integer wsCicsResp2;
 
-    private BigDecimal returnedSortCode;
+    private Integer returnedSortCode;
 
-    private BigDecimal returnedNumber;
+    private Integer returnedNumber;
 
-    private BigDecimal db2DateRefYr;
+    private Integer db2DateRefYr;
 
-    private BigDecimal db2DateRefMnth;
+    private Integer db2DateRefMnth;
 
-    private BigDecimal db2DateRefDay;
+    private Integer db2DateRefDay;
 
     private Integer requiredSortCode;
 
@@ -60,13 +60,13 @@ public class InqacccuDfhcommareaDto {
 
     private String wsOrigDate;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     private String wsAbendPgm;
 

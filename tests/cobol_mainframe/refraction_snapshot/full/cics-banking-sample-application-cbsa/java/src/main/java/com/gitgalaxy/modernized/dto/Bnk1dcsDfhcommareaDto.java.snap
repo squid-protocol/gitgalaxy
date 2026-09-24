@@ -26,11 +26,11 @@ public class Bnk1dcsDfhcommareaDto {
 
     private Integer storedUctrans;
 
-    private BigDecimal commDobSplitDd;
+    private Integer commDobSplitDd;
 
-    private BigDecimal commDobSplitMm;
+    private Integer commDobSplitMm;
 
-    private BigDecimal commDobSplitYyyy;
+    private Integer commDobSplitYyyy;
 
     private String commAddrSplit1;
 
@@ -44,11 +44,11 @@ public class Bnk1dcsDfhcommareaDto {
 
     private String commDobxYyyy;
 
-    private BigDecimal commDob9Dd;
+    private Integer commDob9Dd;
 
-    private BigDecimal commDob9Mm;
+    private Integer commDob9Mm;
 
-    private BigDecimal commDob9Yyyy;
+    private Integer commDob9Yyyy;
 
     private String commCsReviewxDd;
 
@@ -56,15 +56,15 @@ public class Bnk1dcsDfhcommareaDto {
 
     private String commCsReviewxYyyy;
 
-    private BigDecimal commCsReview9Dd;
+    private Integer commCsReview9Dd;
 
-    private BigDecimal commCsReview9Mm;
+    private Integer commCsReview9Mm;
 
-    private BigDecimal commCsReview9Yyyy;
+    private Integer commCsReview9Yyyy;
 
     private String creditScoreX;
 
-    private BigDecimal creditScore9;
+    private Integer creditScore9;
 
     private String commAddrUpd1;
 
@@ -84,11 +84,11 @@ public class Bnk1dcsDfhcommareaDto {
 
     private String wsCommAddr;
 
-    private BigDecimal wsCommDob;
+    private Integer wsCommDob;
 
-    private BigDecimal wsCommCreditScore;
+    private Integer wsCommCreditScore;
 
-    private BigDecimal wsCommCsReviewDate;
+    private Integer wsCommCsReviewDate;
 
     private String wsCommUpdate;
 
@@ -102,13 +102,13 @@ public class Bnk1dcsDfhcommareaDto {
 
     private String wsOrigDate;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     private String wsAbendPgm;
 
@@ -124,11 +124,11 @@ public class Bnk1dcsDfhcommareaDto {
 
     private String commAddr;
 
-    private BigDecimal commDob;
+    private Integer commDob;
 
-    private BigDecimal commCreditScore;
+    private Integer commCreditScore;
 
-    private BigDecimal commCsReviewDate;
+    private Integer commCsReviewDate;
 
     private String commDelSuccess;
 

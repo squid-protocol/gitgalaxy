@@ -20,16 +20,16 @@ public class Cbtrn02cWsFlags {
     private String fdXrefCardNum;
 
     @Column(name = "FD_ACCT_ID")
-    private BigDecimal fdAcctId;
+    private Integer fdAcctId;
 
     @Column(name = "FD_TRANCAT_ACCT_ID")
-    private BigDecimal fdTrancatAcctId;
+    private Integer fdTrancatAcctId;
 
     @Column(name = "FD_TRANCAT_TYPE_CD")
     private String fdTrancatTypeCd;
 
     @Column(name = "FD_TRANCAT_CD")
-    private BigDecimal fdTrancatCd;
+    private Integer fdTrancatCd;
 
     @Column(name = "IO_STAT1")
     private String ioStat1;
@@ -119,7 +119,7 @@ public class Cbtrn02cWsFlags {
     private String db2Dot3;
 
     @Column(name = "DB2_MIL")
-    private BigDecimal db2Mil;
+    private Integer db2Mil;
 
     @Column(name = "DB2_REST")
     private String db2Rest;
@@ -131,7 +131,7 @@ public class Cbtrn02cWsFlags {
     private String validationTrailer;
 
     @Column(name = "WS_VALIDATION_FAIL_REASON")
-    private BigDecimal wsValidationFailReason;
+    private Integer wsValidationFailReason;
 
     @Column(name = "WS_VALIDATION_FAIL_REASON_DESC")
     private String wsValidationFailReasonDesc;

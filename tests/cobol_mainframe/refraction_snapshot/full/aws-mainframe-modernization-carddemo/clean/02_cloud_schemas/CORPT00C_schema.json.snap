@@ -91,25 +91,29 @@
       "type": "string",
       "description": "Legacy PIC: X(10)"
     },
+    "JOB_LINES": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
     "CSUTLDTC_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "CSUTLDTC_DATE_FORMAT": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "CSUTLDTC_RESULT_SEV_CD": {
       "type": "string",
-      "description": "Legacy PIC: X(04)."
+      "description": "Legacy PIC: X(04)"
     },
     "CSUTLDTC_RESULT_MSG_NUM": {
       "type": "string",
-      "description": "Legacy PIC: X(04)."
+      "description": "Legacy PIC: X(04)"
     },
     "CSUTLDTC_RESULT_MSG": {
       "type": "string",
-      "description": "Legacy PIC: X(61)."
+      "description": "Legacy PIC: X(61)"
     }
   }
 }

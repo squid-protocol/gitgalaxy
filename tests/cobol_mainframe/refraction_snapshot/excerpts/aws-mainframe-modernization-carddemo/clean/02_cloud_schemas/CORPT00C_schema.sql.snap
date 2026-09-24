@@ -21,6 +21,7 @@ CREATE TABLE DFHCOMMAREA (
     PARM_END_DATE_1                VARCHAR(10),
     PARM_START_DATE_2              VARCHAR(10),
     PARM_END_DATE_2                VARCHAR(10),
+    JOB_LINES                      VARCHAR(80),
     CSUTLDTC_DATE                  VARCHAR(10),
     CSUTLDTC_DATE_FORMAT           VARCHAR(10),
     CSUTLDTC_RESULT_SEV_CD         VARCHAR(04),

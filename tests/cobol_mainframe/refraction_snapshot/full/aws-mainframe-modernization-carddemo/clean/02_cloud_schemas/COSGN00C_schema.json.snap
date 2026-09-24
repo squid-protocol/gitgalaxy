@@ -33,11 +33,11 @@
     },
     "WS_USER_ID": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     },
     "WS_USER_PWD": {
       "type": "string",
-      "description": "Legacy PIC: X(08)."
+      "description": "Legacy PIC: X(08)"
     }
   }
 }

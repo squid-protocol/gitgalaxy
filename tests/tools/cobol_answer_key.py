@@ -1968,9 +1968,18 @@ def old_paragraphs(path: Path, repo: Path) -> set[str]:
 def old_copybooks(path: Path, repo: Path) -> tuple[set[str], dict[str, Path]]:
     """(named, resolved): the COPY names the forge sees and the member it resolves
     each to (searched under `repo`, as the refractor does)."""
-    from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import COPY_PATTERN, find_copybook
+    from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import (
+        COPY_PATTERN,
+        _trim_fixed_format,
+        copy_member,
+        find_copybook,
+    )
 
-    named = {m.group(1).upper() for m in COPY_PATTERN.finditer(path.read_text(encoding="utf-8", errors="ignore"))}
+    # Cols 73-80 trimmed first, exactly as resolve_copybooks does before matching.
+    text = "\n".join(
+        _trim_fixed_format(line) for line in path.read_text(encoding="utf-8", errors="ignore").splitlines()
+    )
+    named = {copy_member(m) for m in COPY_PATTERN.finditer(text)}
     resolved = {n: hit for n in named if (hit := find_copybook(n, repo, path)) is not None}
     return named, resolved
 

@@ -5,31 +5,31 @@
   "properties": {
     "FD_XREF_CARD_NUM": {
       "type": "string",
-      "description": "Legacy PIC: X(16)."
+      "description": "Legacy PIC: X(16)"
     },
     "FD_ACCT_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(11)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
     },
     "FD_TRANCAT_ACCT_ID": {
-      "type": "number",
-      "description": "Legacy PIC: 9(11)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(11)"
     },
     "FD_TRANCAT_TYPE_CD": {
       "type": "string",
-      "description": "Legacy PIC: X(02)."
+      "description": "Legacy PIC: X(02)"
     },
     "FD_TRANCAT_CD": {
-      "type": "number",
-      "description": "Legacy PIC: 9(04)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(04)"
     },
     "IO_STAT1": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "IO_STAT2": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "TWO_BYTES_BINARY": {
       "type": "integer",
@@ -37,7 +37,7 @@
     },
     "TWO_BYTES_RIGHT": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "IO_STATUS_0403": {
       "type": "integer",
@@ -61,107 +61,107 @@
     },
     "COB_YYYY": {
       "type": "string",
-      "description": "Legacy PIC: X(04)."
+      "description": "Legacy PIC: X(04)"
     },
     "COB_MM": {
       "type": "string",
-      "description": "Legacy PIC: X(02)."
+      "description": "Legacy PIC: X(02)"
     },
     "COB_DD": {
       "type": "string",
-      "description": "Legacy PIC: X(02)."
+      "description": "Legacy PIC: X(02)"
     },
     "COB_HH": {
       "type": "string",
-      "description": "Legacy PIC: X(02)."
+      "description": "Legacy PIC: X(02)"
     },
     "COB_MIN": {
       "type": "string",
-      "description": "Legacy PIC: X(02)."
+      "description": "Legacy PIC: X(02)"
     },
     "COB_SS": {
       "type": "string",
-      "description": "Legacy PIC: X(02)."
+      "description": "Legacy PIC: X(02)"
     },
     "COB_MIL": {
       "type": "string",
-      "description": "Legacy PIC: X(02)."
+      "description": "Legacy PIC: X(02)"
     },
     "DB2_FORMAT_TS": {
       "type": "string",
-      "description": "Legacy PIC: X(26)."
+      "description": "Legacy PIC: X(26)"
     },
     "DB2_YYYY": {
       "type": "string",
-      "description": "Legacy PIC: X(004)."
+      "description": "Legacy PIC: X(004)"
     },
     "DB2_STREEP_1": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "DB2_MM": {
       "type": "string",
-      "description": "Legacy PIC: X(002)."
+      "description": "Legacy PIC: X(002)"
     },
     "DB2_STREEP_2": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "DB2_DD": {
       "type": "string",
-      "description": "Legacy PIC: X(002)."
+      "description": "Legacy PIC: X(002)"
     },
     "DB2_STREEP_3": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "DB2_HH": {
       "type": "string",
-      "description": "Legacy PIC: X(002)."
+      "description": "Legacy PIC: X(002)"
     },
     "DB2_DOT_1": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "DB2_MIN": {
       "type": "string",
-      "description": "Legacy PIC: X(002)."
+      "description": "Legacy PIC: X(002)"
     },
     "DB2_DOT_2": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "DB2_SS": {
       "type": "string",
-      "description": "Legacy PIC: X(002)."
+      "description": "Legacy PIC: X(002)"
     },
     "DB2_DOT_3": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "DB2_MIL": {
-      "type": "number",
-      "description": "Legacy PIC: 9(002)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(002)"
     },
     "DB2_REST": {
       "type": "string",
-      "description": "Legacy PIC: X(04)."
+      "description": "Legacy PIC: X(04)"
     },
     "REJECT_TRAN_DATA": {
       "type": "string",
-      "description": "Legacy PIC: X(350)."
+      "description": "Legacy PIC: X(350)"
     },
     "VALIDATION_TRAILER": {
       "type": "string",
-      "description": "Legacy PIC: X(80)."
+      "description": "Legacy PIC: X(80)"
     },
     "WS_VALIDATION_FAIL_REASON": {
-      "type": "number",
-      "description": "Legacy PIC: 9(04)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(04)"
     },
     "WS_VALIDATION_FAIL_REASON_DESC": {
       "type": "string",
-      "description": "Legacy PIC: X(76)."
+      "description": "Legacy PIC: X(76)"
     },
     "WS_TRANSACTION_COUNT": {
       "type": "integer",
@@ -173,7 +173,7 @@
     },
     "WS_TEMP_BAL": {
       "type": "number",
-      "description": "Legacy PIC: S9(09)V99."
+      "description": "Legacy PIC: S9(09)V99"
     },
     "WS_CREATE_TRANCAT_REC": {
       "type": "string",

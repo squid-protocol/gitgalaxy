@@ -20,6 +20,6 @@ public class AbndprocDfhcommareaDto {
 
     private Integer commUtimeKey;
 
-    private BigDecimal commTasknoKey;
+    private Integer commTasknoKey;
 
 }

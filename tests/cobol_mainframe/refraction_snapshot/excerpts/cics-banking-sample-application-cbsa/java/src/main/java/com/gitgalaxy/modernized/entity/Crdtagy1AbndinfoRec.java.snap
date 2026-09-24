@@ -23,16 +23,16 @@ public class Crdtagy1AbndinfoRec {
     private Integer wsContInNumber;
 
     @Column(name = "WS_CONT_IN_BIRTH_DAY")
-    private BigDecimal wsContInBirthDay;
+    private Integer wsContInBirthDay;
 
     @Column(name = "WS_CONT_IN_BIRTH_MONTH")
-    private BigDecimal wsContInBirthMonth;
+    private Integer wsContInBirthMonth;
 
     @Column(name = "WS_CONT_IN_BIRTH_YEAR")
-    private BigDecimal wsContInBirthYear;
+    private Integer wsContInBirthYear;
 
     @Column(name = "WS_CONT_IN_CREDIT_SCORE")
-    private BigDecimal wsContInCreditScore;
+    private Integer wsContInCreditScore;
 
     @Column(name = "WS_CICS_RESP")
     private Integer wsCicsResp;
@@ -65,16 +65,16 @@ public class Crdtagy1AbndinfoRec {
     private String wsOrigDate;
 
     @Column(name = "WS_TIME_NOW")
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
     @Column(name = "WS_TIME_NOW_GRP_HH")
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
     @Column(name = "WS_TIME_NOW_GRP_MM")
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
     @Column(name = "WS_TIME_NOW_GRP_SS")
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     @Column(name = "WS_ABEND_PGM")
     private String wsAbendPgm;

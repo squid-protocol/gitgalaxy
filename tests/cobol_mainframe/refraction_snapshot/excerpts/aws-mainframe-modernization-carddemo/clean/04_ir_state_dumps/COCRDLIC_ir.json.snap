@@ -398,7 +398,7 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_TRANID                      VARCHAR(4),\n    WS_EDIT_SELECT_FLAGS           VARCHAR(7),\n    WS_EDIT_SELECT                 VARCHAR(1),\n    WS_EDIT_SELECT_ERROR_FLAGS     VARCHAR(7),\n    WS_ROW_CRDSELECT_ERROR         VARCHAR(1),\n    I                              SMALLINT,\n    I_SELECTED                     SMALLINT,\n    FLG_PROTECT_SELECT_ROWS        VARCHAR(1),\n    WS_LONG_MSG                    VARCHAR(500),\n    WS_INFO_MSG                    VARCHAR(45),\n    WS_ERROR_MSG                   VARCHAR(75),\n    WS_CARD_RID_CARDNUM            VARCHAR(16),\n    WS_CARD_RID_ACCT_ID            DECIMAL(11, 0),\n    WS_SCRN_COUNTER                SMALLINT,\n    ERROR_OPNAME                   VARCHAR(8),\n    ERROR_FILE                     VARCHAR(9),\n    ERROR_RESP                     VARCHAR(10),\n    ERROR_RESP2                    VARCHAR(10),\n    WS_MAX_SCREEN_LINES            SMALLINT,\n    LIT_THISPGM                    VARCHAR(8),\n    LIT_THISTRANID                 VARCHAR(4),\n    LIT_THISMAPSET                 VARCHAR(7),\n    LIT_THISMAP                    VARCHAR(7),\n    LIT_MENUPGM                    VARCHAR(8),\n    LIT_MENUMAPSET                 VARCHAR(7),\n    LIT_CARDDTLPGM                 VARCHAR(8),\n    LIT_CARDDTLMAPSET              VARCHAR(7),\n    LIT_CARDDTLMAP                 VARCHAR(7),\n    LIT_CARDUPDPGM                 VARCHAR(8),\n    LIT_CARDUPDMAPSET              VARCHAR(7),\n    LIT_CARDUPDMAP                 VARCHAR(7),\n    LIT_CARD_FILE                  VARCHAR(8),\n    WS_CA_LAST_CARD_NUM            VARCHAR(16),\n    WS_CA_LAST_CARD_ACCT_ID        DECIMAL(11, 0),\n    WS_CA_FIRST_CARD_NUM           VARCHAR(16),\n    WS_CA_FIRST_CARD_ACCT_ID       DECIMAL(11, 0),\n    WS_CA_SCREEN_NUM               DECIMAL(1, 0),\n    WS_CA_LAST_PAGE_DISPLAYED      DECIMAL(1, 0),\n    WS_CA_NEXT_PAGE_IND            VARCHAR(1),\n    WS_RETURN_FLAG                 VARCHAR(1),\n    WS_ALL_ROWS                    VARCHAR(196),\n    WS_ROW_ACCTNO                  VARCHAR(11),\n    WS_ROW_CARD_NUM                VARCHAR(16),\n    WS_ROW_CARD_STATUS             VARCHAR(1),\n    WS_COMMAREA                    VARCHAR(2000)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_TRANID                      VARCHAR(4),\n    WS_EDIT_SELECT_FLAGS           VARCHAR(7),\n    WS_EDIT_SELECT                 VARCHAR(1),\n    WS_EDIT_SELECT_ERROR_FLAGS     VARCHAR(7),\n    WS_ROW_CRDSELECT_ERROR         VARCHAR(1),\n    I                              SMALLINT,\n    I_SELECTED                     SMALLINT,\n    FLG_PROTECT_SELECT_ROWS        VARCHAR(1),\n    WS_LONG_MSG                    VARCHAR(500),\n    WS_INFO_MSG                    VARCHAR(45),\n    WS_ERROR_MSG                   VARCHAR(75),\n    WS_CARD_RID_CARDNUM            VARCHAR(16),\n    WS_CARD_RID_ACCT_ID            BIGINT,\n    WS_CARD_RID_ACCT_ID_X          VARCHAR(11),\n    WS_SCRN_COUNTER                SMALLINT,\n    ERROR_OPNAME                   VARCHAR(8),\n    ERROR_FILE                     VARCHAR(9),\n    ERROR_RESP                     VARCHAR(10),\n    ERROR_RESP2                    VARCHAR(10),\n    WS_MAX_SCREEN_LINES            SMALLINT,\n    LIT_THISPGM                    VARCHAR(8),\n    LIT_THISTRANID                 VARCHAR(4),\n    LIT_THISMAPSET                 VARCHAR(7),\n    LIT_THISMAP                    VARCHAR(7),\n    LIT_MENUPGM                    VARCHAR(8),\n    LIT_MENUMAPSET                 VARCHAR(7),\n    LIT_CARDDTLPGM                 VARCHAR(8),\n    LIT_CARDDTLMAPSET              VARCHAR(7),\n    LIT_CARDDTLMAP                 VARCHAR(7),\n    LIT_CARDUPDPGM                 VARCHAR(8),\n    LIT_CARDUPDMAPSET              VARCHAR(7),\n    LIT_CARDUPDMAP                 VARCHAR(7),\n    LIT_CARD_FILE                  VARCHAR(8),\n    WS_CA_LAST_CARD_NUM            VARCHAR(16),\n    WS_CA_LAST_CARD_ACCT_ID        BIGINT,\n    WS_CA_FIRST_CARD_NUM           VARCHAR(16),\n    WS_CA_FIRST_CARD_ACCT_ID       BIGINT,\n    WS_CA_SCREEN_NUM               SMALLINT,\n    WS_CA_LAST_PAGE_DISPLAYED      SMALLINT,\n    WS_CA_NEXT_PAGE_IND            VARCHAR(1),\n    WS_RETURN_FLAG                 VARCHAR(1),\n    WS_ALL_ROWS                    VARCHAR(196),\n    WS_ROW_ACCTNO                  VARCHAR(11),\n    WS_ROW_CARD_NUM                VARCHAR(16),\n    WS_ROW_CARD_STATUS             VARCHAR(1),\n    WS_COMMAREA                    VARCHAR(2000)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
@@ -426,11 +426,11 @@
           },
           "WS_EDIT_SELECT_ERROR_FLAGS": {
             "type": "string",
-            "description": "Legacy PIC: X(7)."
+            "description": "Legacy PIC: X(7)"
           },
           "WS_ROW_CRDSELECT_ERROR": {
             "type": "string",
-            "description": "Legacy PIC: X(1)."
+            "description": "Legacy PIC: X(1)"
           },
           "I": {
             "type": "integer",
@@ -442,27 +442,31 @@
           },
           "FLG_PROTECT_SELECT_ROWS": {
             "type": "string",
-            "description": "Legacy PIC: X(1)."
+            "description": "Legacy PIC: X(1)"
           },
           "WS_LONG_MSG": {
             "type": "string",
-            "description": "Legacy PIC: X(500)."
+            "description": "Legacy PIC: X(500)"
           },
           "WS_INFO_MSG": {
             "type": "string",
-            "description": "Legacy PIC: X(45)."
+            "description": "Legacy PIC: X(45)"
           },
           "WS_ERROR_MSG": {
             "type": "string",
-            "description": "Legacy PIC: X(75)."
+            "description": "Legacy PIC: X(75)"
           },
           "WS_CARD_RID_CARDNUM": {
             "type": "string",
-            "description": "Legacy PIC: X(16)."
+            "description": "Legacy PIC: X(16)"
           },
           "WS_CARD_RID_ACCT_ID": {
-            "type": "number",
-            "description": "Legacy PIC: 9(11)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(11)"
+          },
+          "WS_CARD_RID_ACCT_ID_X": {
+            "type": "string",
+            "description": "Legacy PIC: X(11)"
           },
           "WS_SCRN_COUNTER": {
             "type": "integer",
@@ -542,55 +546,55 @@
           },
           "WS_CA_LAST_CARD_NUM": {
             "type": "string",
-            "description": "Legacy PIC: X(16)."
+            "description": "Legacy PIC: X(16)"
           },
           "WS_CA_LAST_CARD_ACCT_ID": {
-            "type": "number",
-            "description": "Legacy PIC: 9(11)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(11)"
           },
           "WS_CA_FIRST_CARD_NUM": {
             "type": "string",
-            "description": "Legacy PIC: X(16)."
+            "description": "Legacy PIC: X(16)"
           },
           "WS_CA_FIRST_CARD_ACCT_ID": {
-            "type": "number",
-            "description": "Legacy PIC: 9(11)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(11)"
           },
           "WS_CA_SCREEN_NUM": {
-            "type": "number",
-            "description": "Legacy PIC: 9(1)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(1)"
           },
           "WS_CA_LAST_PAGE_DISPLAYED": {
-            "type": "number",
-            "description": "Legacy PIC: 9(1)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(1)"
           },
           "WS_CA_NEXT_PAGE_IND": {
             "type": "string",
-            "description": "Legacy PIC: X(1)."
+            "description": "Legacy PIC: X(1)"
           },
           "WS_RETURN_FLAG": {
             "type": "string",
-            "description": "Legacy PIC: X(1)."
+            "description": "Legacy PIC: X(1)"
           },
           "WS_ALL_ROWS": {
             "type": "string",
-            "description": "Legacy PIC: X(196)."
+            "description": "Legacy PIC: X(196)"
           },
           "WS_ROW_ACCTNO": {
             "type": "string",
-            "description": "Legacy PIC: X(11)."
+            "description": "Legacy PIC: X(11)"
           },
           "WS_ROW_CARD_NUM": {
             "type": "string",
-            "description": "Legacy PIC: X(16)."
+            "description": "Legacy PIC: X(16)"
           },
           "WS_ROW_CARD_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(1)."
+            "description": "Legacy PIC: X(1)"
           },
           "WS_COMMAREA": {
             "type": "string",
-            "description": "Legacy PIC: X(2000)."
+            "description": "Legacy PIC: X(2000)"
           }
         }
       }

@@ -38,7 +38,7 @@
   "generation": {
     "schemas": {
       "table": "FEEDBACK_CODE",
-      "sql": "CREATE TABLE FEEDBACK_CODE (\n    VSTRING_LENGTH                 SMALLINT,\n    VSTRING_CHAR                   VARCHAR(1),\n    VSTRING_LENGTH                 SMALLINT,\n    VSTRING_CHAR                   VARCHAR(1),\n    OUTPUT_LILLIAN                 INTEGER,\n    WS_SEVERITY                    VARCHAR(04),\n    WS_MSG_NO                      VARCHAR(04),\n    WS_RESULT                      VARCHAR(15),\n    WS_DATE                        VARCHAR(10),\n    WS_DATE_FMT                    VARCHAR(10),\n    SEVERITY                       SMALLINT,\n    MSG_NO                         SMALLINT,\n    CLASS_CODE                     SMALLINT,\n    CAUSE_CODE                     SMALLINT,\n    CASE_SEV_CTL                   VARCHAR(1),\n    FACILITY_ID                    VARCHAR(3),\n    LS_DATE                        VARCHAR(10),\n    LS_DATE_FORMAT                 VARCHAR(10),\n    LS_RESULT                      VARCHAR(80)\n);",
+      "sql": "CREATE TABLE FEEDBACK_CODE (\n    VSTRING_LENGTH                 SMALLINT,\n    VSTRING_CHAR                   VARCHAR(1) -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB.,\n    VSTRING_LENGTH                 SMALLINT,\n    VSTRING_CHAR                   VARCHAR(1) -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB.,\n    OUTPUT_LILLIAN                 INTEGER,\n    WS_SEVERITY                    VARCHAR(04),\n    WS_SEVERITY_N                  SMALLINT,\n    WS_MSG_NO                      VARCHAR(04),\n    WS_MSG_NO_N                    SMALLINT,\n    WS_RESULT                      VARCHAR(15),\n    WS_DATE                        VARCHAR(10),\n    WS_DATE_FMT                    VARCHAR(10),\n    SEVERITY                       SMALLINT,\n    MSG_NO                         SMALLINT,\n    CLASS_CODE                     SMALLINT,\n    CAUSE_CODE                     SMALLINT,\n    CASE_SEV_CTL                   VARCHAR(1),\n    FACILITY_ID                    VARCHAR(3),\n    LS_DATE                        VARCHAR(10),\n    LS_DATE_FORMAT                 VARCHAR(10),\n    LS_RESULT                      VARCHAR(80)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "FEEDBACK_CODE",
@@ -58,15 +58,23 @@
           },
           "WS_SEVERITY": {
             "type": "string",
-            "description": "Legacy PIC: X(04)."
+            "description": "Legacy PIC: X(04)"
+          },
+          "WS_SEVERITY_N": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
           },
           "WS_MSG_NO": {
             "type": "string",
-            "description": "Legacy PIC: X(04)."
+            "description": "Legacy PIC: X(04)"
+          },
+          "WS_MSG_NO_N": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
           },
           "WS_RESULT": {
             "type": "string",
-            "description": "Legacy PIC: X(15)."
+            "description": "Legacy PIC: X(15)"
           },
           "WS_DATE": {
             "type": "string",
@@ -74,7 +82,7 @@
           },
           "WS_DATE_FMT": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "SEVERITY": {
             "type": "integer",
@@ -94,23 +102,23 @@
           },
           "CASE_SEV_CTL": {
             "type": "string",
-            "description": "Legacy PIC: X."
+            "description": "Legacy PIC: X"
           },
           "FACILITY_ID": {
             "type": "string",
-            "description": "Legacy PIC: XXX."
+            "description": "Legacy PIC: XXX"
           },
           "LS_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "LS_DATE_FORMAT": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "LS_RESULT": {
             "type": "string",
-            "description": "Legacy PIC: X(80)."
+            "description": "Legacy PIC: X(80)"
           }
         }
       }

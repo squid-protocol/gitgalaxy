@@ -5,23 +5,23 @@
   "properties": {
     "HV_ACCOUNT_EYECATCHER": {
       "type": "string",
-      "description": "Legacy PIC: X(4)."
+      "description": "Legacy PIC: X(4)"
     },
     "HV_ACCOUNT_CUST_NO": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "HV_ACCOUNT_SORTCODE": {
       "type": "string",
-      "description": "Legacy PIC: X(6)."
+      "description": "Legacy PIC: X(6)"
     },
     "HV_ACCOUNT_ACC_NO": {
       "type": "string",
-      "description": "Legacy PIC: X(8)."
+      "description": "Legacy PIC: X(8)"
     },
     "HV_ACCOUNT_ACC_TYPE": {
       "type": "string",
-      "description": "Legacy PIC: X(8)."
+      "description": "Legacy PIC: X(8)"
     },
     "HV_ACCOUNT_INT_RATE": {
       "type": "number",
@@ -29,7 +29,7 @@
     },
     "HV_ACCOUNT_OPENED": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "HV_ACCOUNT_OVERDRAFT_LIM": {
       "type": "integer",
@@ -37,11 +37,11 @@
     },
     "HV_ACCOUNT_LAST_STMT": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "HV_ACCOUNT_NEXT_STMT": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "HV_ACCOUNT_AVAIL_BAL": {
       "type": "number",
@@ -60,24 +60,24 @@
       "description": "Legacy PIC: S9(8)"
     },
     "RETURNED_SORT_CODE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "RETURNED_NUMBER": {
-      "type": "number",
-      "description": "Legacy PIC: 9(8)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(8)"
     },
     "DB2_DATE_REF_YR": {
-      "type": "number",
-      "description": "Legacy PIC: 9(4)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
     },
     "DB2_DATE_REF_MNTH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "DB2_DATE_REF_DAY": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "REQUIRED_SORT_CODE": {
       "type": "integer",
@@ -85,7 +85,7 @@
     },
     "MY_ABEND_CODE": {
       "type": "string",
-      "description": "Legacy PIC: XXXX."
+      "description": "Legacy PIC: XXXX"
     },
     "WS_STORM_DRAIN": {
       "type": "string",
@@ -93,7 +93,7 @@
     },
     "STORM_DRAIN_CONDITION": {
       "type": "string",
-      "description": "Legacy PIC: X(20)."
+      "description": "Legacy PIC: X(20)"
     },
     "SQLCODE_DISPLAY": {
       "type": "integer",
@@ -125,23 +125,23 @@
     },
     "WS_ORIG_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_TIME_NOW": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "WS_TIME_NOW_GRP_HH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_SS": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_ABEND_PGM": {
       "type": "string",

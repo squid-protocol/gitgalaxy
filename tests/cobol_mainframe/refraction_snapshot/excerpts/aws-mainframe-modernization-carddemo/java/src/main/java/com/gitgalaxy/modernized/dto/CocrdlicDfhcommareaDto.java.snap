@@ -36,7 +36,9 @@ public class CocrdlicDfhcommareaDto {
 
     private String wsCardRidCardnum;
 
-    private BigDecimal wsCardRidAcctId;
+    private Integer wsCardRidAcctId;
+
+    private String wsCardRidAcctIdX;
 
     private Integer wsScrnCounter;
 
@@ -78,15 +80,15 @@ public class CocrdlicDfhcommareaDto {
 
     private String wsCaLastCardNum;
 
-    private BigDecimal wsCaLastCardAcctId;
+    private Integer wsCaLastCardAcctId;
 
     private String wsCaFirstCardNum;
 
-    private BigDecimal wsCaFirstCardAcctId;
+    private Integer wsCaFirstCardAcctId;
 
-    private BigDecimal wsCaScreenNum;
+    private Integer wsCaScreenNum;
 
-    private BigDecimal wsCaLastPageDisplayed;
+    private Integer wsCaLastPageDisplayed;
 
     private String wsCaNextPageInd;
 

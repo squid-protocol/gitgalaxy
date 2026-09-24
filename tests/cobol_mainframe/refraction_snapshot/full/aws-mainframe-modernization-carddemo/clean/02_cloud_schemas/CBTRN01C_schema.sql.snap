@@ -1,6 +1,6 @@
 CREATE TABLE WS_MISC_VARIABLES (
     FD_XREF_CARD_NUM               VARCHAR(16),
-    FD_ACCT_ID                     DECIMAL(11, 0),
+    FD_ACCT_ID                     BIGINT,
     IO_STAT1                       VARCHAR(1),
     IO_STAT2                       VARCHAR(1),
     TWO_BYTES_BINARY               SMALLINT,
@@ -10,6 +10,6 @@ CREATE TABLE WS_MISC_VARIABLES (
     END_OF_DAILY_TRANS_FILE        VARCHAR(01),
     ABCODE                         INTEGER,
     TIMING                         INTEGER,
-    WS_XREF_READ_STATUS            DECIMAL(4, 0),
-    WS_ACCT_READ_STATUS            DECIMAL(4, 0)
+    WS_XREF_READ_STATUS            SMALLINT,
+    WS_ACCT_READ_STATUS            SMALLINT
 );

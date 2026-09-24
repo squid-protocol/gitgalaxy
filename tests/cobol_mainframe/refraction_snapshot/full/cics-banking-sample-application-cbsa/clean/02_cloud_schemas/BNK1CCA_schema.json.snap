@@ -33,27 +33,27 @@
     },
     "WS_AVAIL_BAL_9": {
       "type": "number",
-      "description": "Legacy PIC: 9(10)V99."
+      "description": "Legacy PIC: 9(10)V99"
     },
     "WS_AVAIL_BAL_X_PND": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_AVAIL_BAL_X_PNCE": {
       "type": "string",
-      "description": "Legacy PIC: X(2)."
+      "description": "Legacy PIC: X(2)"
     },
     "WS_ACT_BAL_9": {
       "type": "number",
-      "description": "Legacy PIC: 9(10)V99."
+      "description": "Legacy PIC: 9(10)V99"
     },
     "WS_ACT_BAL_X_PND": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_ACT_BAL_X_PNCE": {
       "type": "string",
-      "description": "Legacy PIC: X(2)."
+      "description": "Legacy PIC: X(2)"
     },
     "INQACCCU_PROGRAM": {
       "type": "string",
@@ -65,11 +65,11 @@
     },
     "SCODE_CHAR": {
       "type": "string",
-      "description": "Legacy PIC: X(6)."
+      "description": "Legacy PIC: X(6)"
     },
     "ACCNO_CHAR": {
       "type": "string",
-      "description": "Legacy PIC: X(8)."
+      "description": "Legacy PIC: X(8)"
     },
     "NUMBER_OF_ACCOUNTS_DISPLAY": {
       "type": "integer",
@@ -89,23 +89,23 @@
     },
     "WS_ORIG_DATE": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "WS_TIME_NOW": {
-      "type": "number",
-      "description": "Legacy PIC: 9(6)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
     },
     "WS_TIME_NOW_GRP_HH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_TIME_NOW_GRP_SS": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "WS_ABEND_PGM": {
       "type": "string",
@@ -113,7 +113,7 @@
     },
     "COMM_SCODE": {
       "type": "string",
-      "description": "Legacy PIC: X(6)."
+      "description": "Legacy PIC: X(6)"
     }
   }
 }

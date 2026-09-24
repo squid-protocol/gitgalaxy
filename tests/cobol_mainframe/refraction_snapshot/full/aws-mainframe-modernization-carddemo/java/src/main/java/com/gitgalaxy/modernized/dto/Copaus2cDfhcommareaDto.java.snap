@@ -8,7 +8,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class Copaus2cDfhcommareaDto {
 
-    private BigDecimal wsAuthTime;
+    private Integer wsAuthTime;
+
+    private String wsAuthTimeAn;
 
     private String wsAuthYy;
 
@@ -24,13 +26,17 @@ public class Copaus2cDfhcommareaDto {
 
     private String wsAuthSss;
 
+    private Integer wsSqlcode;
+
+    private Integer wsSqlstate;
+
     private Integer wsAbsTime;
 
     private String wsCurDate;
 
-    private BigDecimal wsAcctId;
+    private Integer wsAcctId;
 
-    private BigDecimal wsCustId;
+    private Integer wsCustId;
 
     private String wsFrdAction;
 

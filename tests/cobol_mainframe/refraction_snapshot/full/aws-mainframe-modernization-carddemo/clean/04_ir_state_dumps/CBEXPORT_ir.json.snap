@@ -80,7 +80,7 @@
   "generation": {
     "schemas": {
       "table": "WS_EXPORT_STATISTICS",
-      "sql": "CREATE TABLE WS_EXPORT_STATISTICS (\n    EXPORT_OUTPUT_RECORD           VARCHAR(500),\n    WS_CUSTOMER_STATUS             VARCHAR(02),\n    WS_ACCOUNT_STATUS              VARCHAR(02),\n    WS_XREF_STATUS                 VARCHAR(02),\n    WS_TRANSACTION_STATUS          VARCHAR(02),\n    WS_CARD_STATUS                 VARCHAR(02),\n    WS_EXPORT_STATUS               VARCHAR(02),\n    WS_EXPORT_DATE                 VARCHAR(10),\n    WS_EXPORT_TIME                 VARCHAR(08),\n    WS_FORMATTED_TIMESTAMP         VARCHAR(26),\n    WS_SEQUENCE_COUNTER            INTEGER,\n    WS_CURR_YEAR                   DECIMAL(4, 0),\n    WS_CURR_MONTH                  DECIMAL(2, 0),\n    WS_CURR_DAY                    DECIMAL(2, 0),\n    WS_CURR_HOUR                   DECIMAL(2, 0),\n    WS_CURR_MINUTE                 DECIMAL(2, 0),\n    WS_CURR_SECOND                 DECIMAL(2, 0),\n    WS_CURR_HUNDREDTH              DECIMAL(2, 0),\n    WS_CUSTOMER_RECORDS_EXPORTED   INTEGER,\n    WS_ACCOUNT_RECORDS_EXPORTED    INTEGER,\n    WS_XREF_RECORDS_EXPORTED       INTEGER,\n    WS_TRAN_RECORDS_EXPORTED       INTEGER,\n    WS_CARD_RECORDS_EXPORTED       INTEGER,\n    WS_TOTAL_RECORDS_EXPORTED      INTEGER\n);",
+      "sql": "CREATE TABLE WS_EXPORT_STATISTICS (\n    EXPORT_OUTPUT_RECORD           VARCHAR(500),\n    WS_CUSTOMER_STATUS             VARCHAR(02),\n    WS_ACCOUNT_STATUS              VARCHAR(02),\n    WS_XREF_STATUS                 VARCHAR(02),\n    WS_TRANSACTION_STATUS          VARCHAR(02),\n    WS_CARD_STATUS                 VARCHAR(02),\n    WS_EXPORT_STATUS               VARCHAR(02),\n    WS_EXPORT_DATE                 VARCHAR(10),\n    WS_EXPORT_TIME                 VARCHAR(08),\n    WS_FORMATTED_TIMESTAMP         VARCHAR(26),\n    WS_SEQUENCE_COUNTER            INTEGER,\n    WS_CURR_YEAR                   SMALLINT,\n    WS_CURR_MONTH                  SMALLINT,\n    WS_CURR_DAY                    SMALLINT,\n    WS_CURR_HOUR                   SMALLINT,\n    WS_CURR_MINUTE                 SMALLINT,\n    WS_CURR_SECOND                 SMALLINT,\n    WS_CURR_HUNDREDTH              SMALLINT,\n    WS_CUSTOMER_RECORDS_EXPORTED   INTEGER,\n    WS_ACCOUNT_RECORDS_EXPORTED    INTEGER,\n    WS_XREF_RECORDS_EXPORTED       INTEGER,\n    WS_TRAN_RECORDS_EXPORTED       INTEGER,\n    WS_CARD_RECORDS_EXPORTED       INTEGER,\n    WS_TOTAL_RECORDS_EXPORTED      INTEGER\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "WS_EXPORT_STATISTICS",
@@ -88,75 +88,75 @@
         "properties": {
           "EXPORT_OUTPUT_RECORD": {
             "type": "string",
-            "description": "Legacy PIC: X(500)."
+            "description": "Legacy PIC: X(500)"
           },
           "WS_CUSTOMER_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_ACCOUNT_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_XREF_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_TRANSACTION_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_CARD_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_EXPORT_STATUS": {
             "type": "string",
-            "description": "Legacy PIC: X(02)."
+            "description": "Legacy PIC: X(02)"
           },
           "WS_EXPORT_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_EXPORT_TIME": {
             "type": "string",
-            "description": "Legacy PIC: X(08)."
+            "description": "Legacy PIC: X(08)"
           },
           "WS_FORMATTED_TIMESTAMP": {
             "type": "string",
-            "description": "Legacy PIC: X(26)."
+            "description": "Legacy PIC: X(26)"
           },
           "WS_SEQUENCE_COUNTER": {
             "type": "integer",
             "description": "Legacy PIC: 9(09)"
           },
           "WS_CURR_YEAR": {
-            "type": "number",
-            "description": "Legacy PIC: 9(04)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(04)"
           },
           "WS_CURR_MONTH": {
-            "type": "number",
-            "description": "Legacy PIC: 9(02)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(02)"
           },
           "WS_CURR_DAY": {
-            "type": "number",
-            "description": "Legacy PIC: 9(02)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(02)"
           },
           "WS_CURR_HOUR": {
-            "type": "number",
-            "description": "Legacy PIC: 9(02)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(02)"
           },
           "WS_CURR_MINUTE": {
-            "type": "number",
-            "description": "Legacy PIC: 9(02)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(02)"
           },
           "WS_CURR_SECOND": {
-            "type": "number",
-            "description": "Legacy PIC: 9(02)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(02)"
           },
           "WS_CURR_HUNDREDTH": {
-            "type": "number",
-            "description": "Legacy PIC: 9(02)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(02)"
           },
           "WS_CUSTOMER_RECORDS_EXPORTED": {
             "type": "integer",

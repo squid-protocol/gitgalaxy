@@ -58,7 +58,7 @@
   "generation": {
     "schemas": {
       "table": "ABNDINFO_REC",
-      "sql": "CREATE TABLE ABNDINFO_REC (\n    WS_CONT_IN_SORTCODE            INTEGER,\n    WS_CONT_IN_NUMBER              BIGINT,\n    WS_CONT_IN_BIRTH_DAY           DECIMAL(2, 0),\n    WS_CONT_IN_BIRTH_MONTH         DECIMAL(2, 0),\n    WS_CONT_IN_BIRTH_YEAR          DECIMAL(4, 0),\n    WS_CONT_IN_CREDIT_SCORE        DECIMAL(3, 0),\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    WS_DELAY_AMT                   INTEGER,\n    WS_CONTAINER_NAME              VARCHAR(16),\n    WS_CHANNEL_NAME                VARCHAR(16),\n    WS_CONTAINER_LEN               INTEGER,\n    WS_NEW_CREDSCORE               SMALLINT,\n    WS_SEED                        BIGINT,\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    DECIMAL(6, 0),\n    WS_TIME_NOW_GRP_HH             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_MM             DECIMAL(2, 0),\n    WS_TIME_NOW_GRP_SS             DECIMAL(2, 0),\n    WS_ABEND_PGM                   VARCHAR(8)\n);",
+      "sql": "CREATE TABLE ABNDINFO_REC (\n    WS_CONT_IN_SORTCODE            INTEGER,\n    WS_CONT_IN_NUMBER              BIGINT,\n    WS_CONT_IN_BIRTH_DAY           SMALLINT,\n    WS_CONT_IN_BIRTH_MONTH         SMALLINT,\n    WS_CONT_IN_BIRTH_YEAR          SMALLINT,\n    WS_CONT_IN_CREDIT_SCORE        SMALLINT,\n    WS_CICS_RESP                   INTEGER,\n    WS_CICS_RESP2                  INTEGER,\n    WS_DELAY_AMT                   INTEGER,\n    WS_CONTAINER_NAME              VARCHAR(16),\n    WS_CHANNEL_NAME                VARCHAR(16),\n    WS_CONTAINER_LEN               INTEGER,\n    WS_NEW_CREDSCORE               SMALLINT,\n    WS_SEED                        BIGINT,\n    WS_U_TIME                      BIGINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_ORIG_DATE                   VARCHAR(10),\n    WS_TIME_NOW                    INTEGER,\n    WS_TIME_NOW_GRP_HH             SMALLINT,\n    WS_TIME_NOW_GRP_MM             SMALLINT,\n    WS_TIME_NOW_GRP_SS             SMALLINT,\n    WS_ABEND_PGM                   VARCHAR(8)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "ABNDINFO_REC",
@@ -73,20 +73,20 @@
             "description": "Legacy PIC: 9(10)"
           },
           "WS_CONT_IN_BIRTH_DAY": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_CONT_IN_BIRTH_MONTH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_CONT_IN_BIRTH_YEAR": {
-            "type": "number",
-            "description": "Legacy PIC: 9999."
+            "type": "integer",
+            "description": "Legacy PIC: 9999"
           },
           "WS_CONT_IN_CREDIT_SCORE": {
-            "type": "number",
-            "description": "Legacy PIC: 999."
+            "type": "integer",
+            "description": "Legacy PIC: 999"
           },
           "WS_CICS_RESP": {
             "type": "integer",
@@ -126,23 +126,23 @@
           },
           "WS_ORIG_DATE": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "WS_TIME_NOW": {
-            "type": "number",
-            "description": "Legacy PIC: 9(6)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
           },
           "WS_TIME_NOW_GRP_HH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_MM": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_TIME_NOW_GRP_SS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "WS_ABEND_PGM": {
             "type": "string",

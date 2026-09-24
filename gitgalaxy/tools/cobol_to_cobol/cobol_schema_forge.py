@@ -63,6 +63,70 @@ def parse_cobol_picture(pic_clause: str) -> dict:
     return {"sql": "TEXT", "json": "string"}
 
 
+_LEVEL_ENTRY = re.compile(r"\s*(0[1-9]|[1-4][0-9]|66|77|88)\s+(?:([A-Z0-9][A-Z0-9\-]*)(?=\s|$))?(.*)", re.S)
+_PIC_CLAUSE = re.compile(r"(?<![A-Z0-9\-])PIC(?:TURE)?\s+(?:IS\s+)?([-A-Z0-9(),.$/*+]+)")
+_USAGE_CLAUSE = re.compile(r"(?<![A-Z0-9\-])(COMP(?:UTATIONAL)?(?:-[1-5])?|BINARY|PACKED-DECIMAL)(?![A-Z0-9\-])")
+_CLAUSE_WORDS = frozenset({"PIC", "PICTURE", "REDEFINES", "OCCURS", "VALUE", "VALUES", "USAGE", "COMP", "BINARY"})
+
+
+def _code_lines(content: str) -> list[str]:
+    """Fixed-format lines as code: comment lines dropped, cols 73-80 cut, and the
+    cols 1-6 sequence area blanked where column 7 is a blank indicator (so
+    `000100 05 X ...` and zopeneditor's `R2     05 X ...` read as `05 X ...`).
+    A line that is already a level entry in those columns (free format) is kept."""
+    out = []
+    for line in content.split("\n"):
+        if len(line) > 6 and line[6] in "*/":
+            continue
+        line = line[:72]
+        if re.fullmatch(r"[0-9]{1,6}", line):  # an empty line that carries only its sequence number
+            line = ""
+        elif (
+            len(line) >= 7
+            and line[6] == " "
+            and re.fullmatch(r"[0-9A-Z ]{6}", line[:6])
+            and not re.match(r"\s*(?:0[1-9]|[1-4][0-9]|66|77|88)\s", line[:7])
+        ):
+            line = " " * 6 + line[6:]
+        out.append(line)
+    return out
+
+
+def data_entries(content: str) -> list[dict]:
+    """The data description entries of upper-cased DATA DIVISION text, in order.
+
+    #3348: read per ENTRY (a sentence), not per line, so a PIC on the next line,
+    a PIC after `REDEFINES X` / `OCCURS n`, and an edited picture
+    (`PIC +9(10).99`, `ZZZ,ZZ9`, `$$$9.99`) are all seen. The line reader lost
+    every one of those: 385 hand-verified record fields across the three pinned
+    corpora. Literal contents are blanked first, so a period inside a VALUE
+    literal cannot end the entry.
+    """
+    from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import _blank_literals
+
+    code = _blank_literals("\n".join(_code_lines(content)))
+    entries = []
+    for raw in re.split(r"\.(?=\s|$)", code):
+        m = _LEVEL_ENTRY.match(raw)
+        if not m:
+            continue
+        level, name, rest = m.group(1), m.group(2), m.group(3)
+        if name in _CLAUSE_WORDS:  # an unnamed item: the "name" is its first clause
+            rest, name = f"{name} {rest}", None
+        pic = _PIC_CLAUSE.search(rest)
+        usage = _USAGE_CLAUSE.search(rest)
+        entries.append(
+            {
+                "level": level,
+                "name": name,
+                "pic": pic.group(1) if pic else None,
+                "usage": usage.group(1) if usage else None,
+                "depending": "DEPENDING ON" in re.sub(r"\s+", " ", rest),
+            }
+        )
+    return entries
+
+
 def forge_schemas(filepath: Path, ignore_vars: Optional[set] = None, corporate_header: str = ""):
     """
     Analyzes a COBOL/Copybook file and generates modern schemas.
@@ -82,28 +146,15 @@ def forge_schemas(filepath: Path, ignore_vars: Optional[set] = None, corporate_h
         if "DATA DIVISION" in content:
             content = content.split("DATA DIVISION")[1]
 
-    # Regex to capture: Level, Name, PIC clause (optional), and USAGE (optional)
-    pattern = re.compile(
-        r"^[ \t]*(?P<level>0[1-9]|[1-4][0-9]|77)[ \t]+"
-        r"(?P<name>[A-Z0-9\-]+)"
-        r"(?:[ \t]+PIC(?:TURE)?[ \t]+(?P<pic>[A-Z0-9\(\)V\.\-]+))?"
-        r"(?:[ \t]+(?:IS[ \t]+)?(?P<usage>COMP(?:-[1-5])?|BINARY|PACKED-DECIMAL))?"
-        r".*$",
-        re.MULTILINE,
-    )
-
     table_name = filepath.stem.upper().replace("-", "_")
     columns = []
     json_properties = {}
 
-    for match in pattern.finditer(content):
-        level = match.group("level")
-        name = match.group("name")
-        pic = match.group("pic")
-        usage = match.group("usage")
+    for entry in data_entries(content):
+        level, name, pic, usage = entry["level"], entry["name"], entry["pic"], entry["usage"]
 
         # Skip FILLERs (empty byte spaces) and 88-level conditions (booleans)
-        if name == "FILLER" or level == "88":
+        if name == "FILLER" or level in ("66", "88") or not name:
             continue
 
         # 01 levels are usually the table/record name itself
@@ -130,7 +181,7 @@ def forge_schemas(filepath: Path, ignore_vars: Optional[set] = None, corporate_h
         # ARCHITECTURAL ANOMALY (DYNAMIC MEMORY ARRAY):
         # match.group(0) grabs the full matched string from the regex
         # ======================================================================
-        warning = " -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB." if "DEPENDING ON" in match.group(0) else ""
+        warning = " -- ⚠️ WARNING: OCCURS DEPENDING ON detected. Use JSONB." if entry["depending"] else ""
 
         # Add notes if it's a legacy packed decimal
         comment = " -- Legacy: COMP-3 (Packed Decimal)" if usage and "COMP-3" in usage else ""

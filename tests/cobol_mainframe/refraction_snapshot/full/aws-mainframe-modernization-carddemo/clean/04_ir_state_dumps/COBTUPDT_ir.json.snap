@@ -8,8 +8,11 @@
   "analysis": {
     "dead_code": {
       "program_id": "COBTUPDT.cbl",
-      "total_vars": 17,
+      "total_vars": 20,
       "orphaned_vars": [
+        "DCL-TR-DESCRIPTION",
+        "DCL-TR-TYPE",
+        "DCLTRANSACTION-TYPE",
         "FLAGS",
         "INPUT-TR-DESC",
         "INPUT-TR-NUMBER",
@@ -22,7 +25,7 @@
       ],
       "total_paras": 9,
       "dead_paras": [],
-      "loc_saved": 9
+      "loc_saved": 12
     },
     "lineage": {
       "program_id": "COBTUPDT",
@@ -50,7 +53,7 @@
   "generation": {
     "schemas": {
       "table": "WS_INPUT_REC",
-      "sql": "CREATE TABLE WS_INPUT_REC (\n    LASTREC                        VARCHAR(1),\n    WS_RETURN_MSG                  VARCHAR(80),\n    WS_VAR_SQLCODE                 DECIMAL(1, 0),\n    INPUT_REC_TYPE                 VARCHAR(1),\n    INPUT_REC_NUMBER               VARCHAR(2),\n    INPUT_REC_DESC                 VARCHAR(50)\n);",
+      "sql": "CREATE TABLE WS_INPUT_REC (\n    LASTREC                        VARCHAR(1),\n    WS_RETURN_MSG                  VARCHAR(80),\n    WS_VAR_SQLCODE                 SMALLINT,\n    INPUT_REC_TYPE                 VARCHAR(1),\n    INPUT_REC_NUMBER               VARCHAR(2),\n    INPUT_REC_DESC                 VARCHAR(50)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "WS_INPUT_REC",
@@ -65,8 +68,8 @@
             "description": "Legacy PIC: X(80)"
           },
           "WS_VAR_SQLCODE": {
-            "type": "number",
-            "description": "Legacy PIC: ----9."
+            "type": "integer",
+            "description": "Legacy PIC: ----9"
           },
           "INPUT_REC_TYPE": {
             "type": "string",

@@ -8,8 +8,8 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "WS_REISSUE_DATE")
-public class Cbact01cWsReissueDate {
+@Table(name = "WS_ACCT_REISSUE_DATE")
+public class Cbact01cWsAcctReissueDate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,7 +17,7 @@ public class Cbact01cWsReissueDate {
     private Long sysId;
 
     @Column(name = "OUT_ACCT_ID")
-    private BigDecimal outAcctId;
+    private Integer outAcctId;
 
     @Column(name = "OUT_ACCT_ACTIVE_STATUS")
     private String outAcctActiveStatus;
@@ -50,7 +50,7 @@ public class Cbact01cWsReissueDate {
     private String outAcctGroupId;
 
     @Column(name = "ARR_ACCT_ID")
-    private BigDecimal arrAcctId;
+    private Integer arrAcctId;
 
     @Column(name = "ARR_ACCT_CURR_BAL")
     private BigDecimal arrAcctCurrBal;
@@ -89,16 +89,16 @@ public class Cbact01cWsReissueDate {
     private Integer timing;
 
     @Column(name = "WS_RECD_LEN")
-    private BigDecimal wsRecdLen;
+    private Integer wsRecdLen;
 
     @Column(name = "VB1_ACCT_ID")
-    private BigDecimal vb1AcctId;
+    private Integer vb1AcctId;
 
     @Column(name = "VB1_ACCT_ACTIVE_STATUS")
     private String vb1AcctActiveStatus;
 
     @Column(name = "VB2_ACCT_ID")
-    private BigDecimal vb2AcctId;
+    private Integer vb2AcctId;
 
     @Column(name = "VB2_ACCT_CURR_BAL")
     private BigDecimal vb2AcctCurrBal;
@@ -111,5 +111,8 @@ public class Cbact01cWsReissueDate {
 
     @Column(name = "WS_ACCT_REISSUE_YYYY")
     private String wsAcctReissueYyyy;
+
+    @Column(name = "WS_REISSUE_DATE")
+    private String wsReissueDate;
 
 }

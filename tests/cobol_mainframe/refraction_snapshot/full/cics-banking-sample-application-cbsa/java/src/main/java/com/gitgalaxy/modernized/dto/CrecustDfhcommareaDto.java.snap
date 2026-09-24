@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class CrecustDfhcommareaDto {
 
-    private BigDecimal sysiderrRetry;
+    private Integer sysiderrRetry;
 
     private String hvProctranEyecatcher;
 
@@ -32,13 +32,13 @@ public class CrecustDfhcommareaDto {
 
     private Integer wsCicsResp2;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     private String wsAbendPgm;
 
@@ -64,11 +64,11 @@ public class CrecustDfhcommareaDto {
 
     private String wsOrigDate;
 
-    private BigDecimal wsOrigDateDd;
+    private Integer wsOrigDateDd;
 
-    private BigDecimal wsOrigDateMm;
+    private Integer wsOrigDateMm;
 
-    private BigDecimal wsOrigDateYyyy;
+    private Integer wsOrigDateYyyy;
 
     private String storedSortcode;
 
@@ -118,9 +118,13 @@ public class CrecustDfhcommareaDto {
 
     private Integer wsChildDataNumber;
 
-    private BigDecimal wsChildDataBirthDay;
+    private Integer wsChildDataBirthDay;
 
-    private BigDecimal wsChildDataCreditScore;
+    private Integer wsChildDataBirthMonth;
+
+    private Integer wsChildDataBirthYear;
+
+    private Integer wsChildDataCreditScore;
 
     private String wsContainerName;
 
@@ -128,25 +132,25 @@ public class CrecustDfhcommareaDto {
 
     private String wsRunTransid;
 
-    private BigDecimal wsCicstsLevelNumVv;
+    private Integer wsCicstsLevelNumVv;
 
-    private BigDecimal wsCicstsLevelNumRr;
+    private Integer wsCicstsLevelNumRr;
 
-    private BigDecimal wsCicstsLevelNumMm;
+    private Integer wsCicstsLevelNumMm;
 
-    private BigDecimal wsCurrentYyyy;
+    private Integer wsCurrentYyyy;
 
-    private BigDecimal wsCurrentMm;
+    private Integer wsCurrentMm;
 
-    private BigDecimal wsCurrentDd;
+    private Integer wsCurrentDd;
 
-    private BigDecimal wsCurrentHours;
+    private Integer wsCurrentHours;
 
-    private BigDecimal wsCurrentMins;
+    private Integer wsCurrentMins;
 
-    private BigDecimal wsCurrentSecs;
+    private Integer wsCurrentSecs;
 
-    private BigDecimal wsCurrentMilli;
+    private Integer wsCurrentMilli;
 
     private Integer wsCurrentDate9;
 
@@ -168,11 +172,11 @@ public class CrecustDfhcommareaDto {
 
     private Integer wsDateOfBirthLillian;
 
-    private BigDecimal ceedaysYear;
+    private Integer ceedaysYear;
 
-    private BigDecimal ceedaysMonth;
+    private Integer ceedaysMonth;
 
-    private BigDecimal ceedaysDay;
+    private Integer ceedaysDay;
 
     private Integer severity;
 
@@ -188,10 +192,10 @@ public class CrecustDfhcommareaDto {
 
     private Integer wsTodayLillian;
 
-    private BigDecimal wsTodayGYear;
+    private Integer wsTodayGYear;
 
     private String vstringChar;
 
-    private BigDecimal wsCustomerAge;
+    private Integer wsCustomerAge;
 
 }

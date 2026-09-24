@@ -83,7 +83,7 @@
   "generation": {
     "schemas": {
       "table": "RPT_STATS_DETAIL",
-      "sql": "CREATE TABLE RPT_STATS_DETAIL (\n    REPORT_RECORD                  VARCHAR(132),\n    WS_CUSTFILE_STATUS             VARCHAR(2),\n    WS_CUSTOUT_STATUS              VARCHAR(2),\n    WS_TRANFILE_STATUS             VARCHAR(2),\n    WS_REPORT_STATUS               VARCHAR(2),\n    WS_TRAN_EOF                    VARCHAR(1),\n    WS_TRAN_OK                     VARCHAR(1),\n    WS_CUST_FILE_EOF               VARCHAR(1),\n    WS_TRAN_MSG                    VARCHAR(50),\n    WS_PREV_TRAN_KEY               VARCHAR(13),\n    SAM2                           VARCHAR(8),\n    I                              INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    ERR_MSG_DATA1                  VARCHAR(35),\n    ERR_MSG_DATA2                  VARCHAR(66),\n    ERR_MSG_DATA3                  VARCHAR(80),\n    RPT_MM                         DECIMAL(2, 0),\n    RPT_DD                         DECIMAL(2, 0),\n    RPT_YY                         DECIMAL(2, 0),\n    RPT_HH                         DECIMAL(2, 0),\n    RPT_MIN                        DECIMAL(2, 0),\n    RPT_SS                         DECIMAL(2, 0),\n    RPT_TRAN_MSG1                  VARCHAR(31),\n    RPT_TRAN_RECORD                VARCHAR(80),\n    RPT_TRAN                       VARCHAR(10),\n    RPT_NUM_TRANS                  TEXT,\n    RPT_NUM_TRAN_PROC              TEXT,\n    RPT_NUM_TRAN_ERR               TEXT\n);",
+      "sql": "CREATE TABLE RPT_STATS_DETAIL (\n    REPORT_RECORD                  VARCHAR(132),\n    WS_CUSTFILE_STATUS             VARCHAR(2),\n    WS_CUSTOUT_STATUS              VARCHAR(2),\n    WS_TRANFILE_STATUS             VARCHAR(2),\n    WS_REPORT_STATUS               VARCHAR(2),\n    WS_TRAN_EOF                    VARCHAR(1),\n    WS_TRAN_OK                     VARCHAR(1),\n    WS_CUST_FILE_EOF               VARCHAR(1),\n    WS_TRAN_MSG                    VARCHAR(50),\n    WS_PREV_TRAN_KEY               VARCHAR(13),\n    SAM2                           VARCHAR(8),\n    I                              INTEGER -- Legacy: COMP-3 (Packed Decimal),\n    ERR_MSG_DATA1                  VARCHAR(35),\n    ERR_MSG_DATA2                  VARCHAR(66),\n    ERR_MSG_DATA3                  VARCHAR(80),\n    RPT_MM                         SMALLINT,\n    RPT_DD                         SMALLINT,\n    RPT_YY                         SMALLINT,\n    RPT_HH                         SMALLINT,\n    RPT_MIN                        SMALLINT,\n    RPT_SS                         SMALLINT,\n    RPT_TRAN_MSG1                  VARCHAR(31),\n    RPT_TRAN_RECORD                VARCHAR(80),\n    RPT_TRAN                       VARCHAR(10),\n    RPT_NUM_TRANS                  SMALLINT,\n    RPT_NUM_TRAN_PROC              SMALLINT,\n    RPT_NUM_TRAN_ERR               SMALLINT\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "RPT_STATS_DETAIL",
@@ -91,7 +91,7 @@
         "properties": {
           "REPORT_RECORD": {
             "type": "string",
-            "description": "Legacy PIC: X(132)."
+            "description": "Legacy PIC: X(132)"
           },
           "WS_CUSTFILE_STATUS": {
             "type": "string",
@@ -147,31 +147,31 @@
           },
           "ERR_MSG_DATA3": {
             "type": "string",
-            "description": "Legacy PIC: X(80)."
+            "description": "Legacy PIC: X(80)"
           },
           "RPT_MM": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "RPT_DD": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "RPT_YY": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "RPT_HH": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "RPT_MIN": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "RPT_SS": {
-            "type": "number",
-            "description": "Legacy PIC: 99."
+            "type": "integer",
+            "description": "Legacy PIC: 99"
           },
           "RPT_TRAN_MSG1": {
             "type": "string",
@@ -183,19 +183,19 @@
           },
           "RPT_TRAN": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "RPT_NUM_TRANS": {
-            "type": "string",
-            "description": "Legacy PIC: ZZZ"
+            "type": "integer",
+            "description": "Legacy PIC: ZZZ,ZZZ,ZZ9"
           },
           "RPT_NUM_TRAN_PROC": {
-            "type": "string",
-            "description": "Legacy PIC: ZZZ"
+            "type": "integer",
+            "description": "Legacy PIC: ZZZ,ZZZ,ZZ9"
           },
           "RPT_NUM_TRAN_ERR": {
-            "type": "string",
-            "description": "Legacy PIC: ZZZ"
+            "type": "integer",
+            "description": "Legacy PIC: ZZZ,ZZZ,ZZ9"
           }
         }
       }

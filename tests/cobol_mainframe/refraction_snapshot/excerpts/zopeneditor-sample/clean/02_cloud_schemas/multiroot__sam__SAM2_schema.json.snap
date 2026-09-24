@@ -33,11 +33,11 @@
     },
     "TRAN_OK": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "TRAN_MSG": {
       "type": "string",
-      "description": "Legacy PIC: X(50)."
+      "description": "Legacy PIC: X(50)"
     }
   }
 }

@@ -26,7 +26,7 @@ public class Cousr02cDfhcommareaDto {
 
     private String cdemoCu02UsridLast;
 
-    private BigDecimal cdemoCu02PageNum;
+    private Integer cdemoCu02PageNum;
 
     private String cdemoCu02NextPageFlg;
 

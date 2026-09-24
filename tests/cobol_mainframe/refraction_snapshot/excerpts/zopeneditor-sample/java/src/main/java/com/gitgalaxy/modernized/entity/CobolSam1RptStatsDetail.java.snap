@@ -20,22 +20,22 @@ public class CobolSam1RptStatsDetail {
     private String reportRecord;
 
     @Column(name = "CURRENT_YEAR")
-    private BigDecimal currentYear;
+    private Integer currentYear;
 
     @Column(name = "CURRENT_MONTH")
-    private BigDecimal currentMonth;
+    private Integer currentMonth;
 
     @Column(name = "CURRENT_DAY")
-    private BigDecimal currentDay;
+    private Integer currentDay;
 
     @Column(name = "CURRENT_HOUR")
-    private BigDecimal currentHour;
+    private Integer currentHour;
 
     @Column(name = "CURRENT_MINUTE")
-    private BigDecimal currentMinute;
+    private Integer currentMinute;
 
     @Column(name = "CURRENT_SECOND")
-    private BigDecimal currentSecond;
+    private Integer currentSecond;
 
     @Column(name = "NUM_TRAN_RECS")
     private Integer numTranRecs;
@@ -104,22 +104,22 @@ public class CobolSam1RptStatsDetail {
     private String errMsgData3;
 
     @Column(name = "RPT_MM")
-    private BigDecimal rptMm;
+    private Integer rptMm;
 
     @Column(name = "RPT_DD")
-    private BigDecimal rptDd;
+    private Integer rptDd;
 
     @Column(name = "RPT_YY")
-    private BigDecimal rptYy;
+    private Integer rptYy;
 
     @Column(name = "RPT_HH")
-    private BigDecimal rptHh;
+    private Integer rptHh;
 
     @Column(name = "RPT_MIN")
-    private BigDecimal rptMin;
+    private Integer rptMin;
 
     @Column(name = "RPT_SS")
-    private BigDecimal rptSs;
+    private Integer rptSs;
 
     @Column(name = "RPT_TRAN_MSG1")
     private String rptTranMsg1;
@@ -131,12 +131,12 @@ public class CobolSam1RptStatsDetail {
     private String rptTran;
 
     @Column(name = "RPT_NUM_TRANS")
-    private String rptNumTrans;
+    private Integer rptNumTrans;
 
     @Column(name = "RPT_NUM_TRAN_PROC")
-    private String rptNumTranProc;
+    private Integer rptNumTranProc;
 
     @Column(name = "RPT_NUM_TRAN_ERR")
-    private String rptNumTranErr;
+    private Integer rptNumTranErr;
 
 }

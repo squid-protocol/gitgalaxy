@@ -42,19 +42,19 @@ public class Bnk1tfnDfhcommareaDto {
 
     private String wsConvertPic12Nd;
 
-    private BigDecimal wsConvertDec;
+    private Integer wsConvertDec;
 
     private String wsConvertPoint;
 
-    private BigDecimal wsConvertRemain;
+    private Integer wsConvertRemain;
 
-    private BigDecimal subpgmFaccno;
+    private Integer subpgmFaccno;
 
-    private BigDecimal subpgmFscode;
+    private Integer subpgmFscode;
 
-    private BigDecimal subpgmTaccno;
+    private Integer subpgmTaccno;
 
-    private BigDecimal subpgmTscode;
+    private Integer subpgmTscode;
 
     private BigDecimal subpgmAmt;
 
@@ -70,17 +70,25 @@ public class Bnk1tfnDfhcommareaDto {
 
     private String subpgmSuccess;
 
+    private BigDecimal fromAvailableBalanceDisplay;
+
+    private BigDecimal fromActualBalanceDisplay;
+
+    private BigDecimal toAvailableBalanceDisplay;
+
+    private BigDecimal toActualBalanceDisplay;
+
     private Integer wsUTime;
 
     private String wsOrigDate;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     private String wsAbendPgm;
 

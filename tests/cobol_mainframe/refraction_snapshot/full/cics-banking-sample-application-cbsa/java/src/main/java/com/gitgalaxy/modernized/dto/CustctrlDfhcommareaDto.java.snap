@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class CustctrlDfhcommareaDto {
 
-    private BigDecimal sysiderrRetry;
+    private Integer sysiderrRetry;
 
     private Integer requiredSortCode;
 
@@ -26,12 +26,12 @@ public class CustctrlDfhcommareaDto {
 
     private String wsOrigDate;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
 }

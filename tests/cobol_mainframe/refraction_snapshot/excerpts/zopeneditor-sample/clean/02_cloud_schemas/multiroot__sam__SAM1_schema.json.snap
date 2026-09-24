@@ -1,35 +1,35 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "RPT_STATS_DETAIL",
+  "title": "RPT_STATS_CUST_DETAIL",
   "type": "object",
   "properties": {
     "REPORT_RECORD": {
       "type": "string",
-      "description": "Legacy PIC: X(132)."
+      "description": "Legacy PIC: X(132)"
     },
     "CURRENT_YEAR": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "CURRENT_MONTH": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "CURRENT_DAY": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "CURRENT_HOUR": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "CURRENT_MINUTE": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "CURRENT_SECOND": {
-      "type": "number",
-      "description": "Legacy PIC: 9(2)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(2)"
     },
     "WS_CUSTFILE_STATUS": {
       "type": "string",
@@ -115,6 +115,14 @@
       "type": "integer",
       "description": "Legacy PIC: S9(9)"
     },
+    "NUM_PRE_CUSTOMERS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "NUM_POST_CUSTOMERS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
     "ERR_MSG_DATA1": {
       "type": "string",
       "description": "Legacy PIC: X(35)"
@@ -125,31 +133,31 @@
     },
     "ERR_MSG_DATA3": {
       "type": "string",
-      "description": "Legacy PIC: X(80)."
+      "description": "Legacy PIC: X(80)"
     },
     "RPT_MM": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_DD": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_YY": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_HH": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_MIN": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_SS": {
-      "type": "number",
-      "description": "Legacy PIC: 99."
+      "type": "integer",
+      "description": "Legacy PIC: 99"
     },
     "RPT_TRAN_MSG1": {
       "type": "string",
@@ -159,21 +167,41 @@
       "type": "string",
       "description": "Legacy PIC: X(80)"
     },
+    "RPT_CRUNCH_CUST": {
+      "type": "string",
+      "description": "Legacy PIC: X(14)"
+    },
+    "RPT_CRUNCH_TOTAL": {
+      "type": "integer",
+      "description": "Legacy PIC: ZZZ,ZZZ,ZZZ,ZZ9"
+    },
+    "RPT_CRUNCH_AVG": {
+      "type": "integer",
+      "description": "Legacy PIC: ZZZ,ZZZ,ZZZ,ZZ9"
+    },
     "RPT_TRAN": {
       "type": "string",
-      "description": "Legacy PIC: X(10)."
+      "description": "Legacy PIC: X(10)"
     },
     "RPT_NUM_TRANS": {
-      "type": "string",
-      "description": "Legacy PIC: ZZZ"
+      "type": "integer",
+      "description": "Legacy PIC: ZZZ,ZZZ,ZZ9"
     },
     "RPT_NUM_TRAN_PROC": {
-      "type": "string",
-      "description": "Legacy PIC: ZZZ"
+      "type": "integer",
+      "description": "Legacy PIC: ZZZ,ZZZ,ZZ9"
     },
     "RPT_NUM_TRAN_ERR": {
+      "type": "integer",
+      "description": "Legacy PIC: ZZZ,ZZZ,ZZ9"
+    },
+    "CUST_CNT_NAME": {
       "type": "string",
-      "description": "Legacy PIC: ZZZ"
+      "description": "Legacy PIC: X(30)"
+    },
+    "RPT_NUM_CUST": {
+      "type": "integer",
+      "description": "Legacy PIC: ZZZ,ZZZ,ZZ9"
     }
   }
 }

@@ -77,7 +77,7 @@ public class CbimportWsErrorRecord {
     private String errRecordType;
 
     @Column(name = "ERR_SEQUENCE")
-    private BigDecimal errSequence;
+    private Integer errSequence;
 
     @Column(name = "ERR_MESSAGE")
     private String errMessage;

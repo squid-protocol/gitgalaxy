@@ -34,26 +34,26 @@ public class UpdaccDfhcommareaDto {
 
     private Integer sqlcodeDisplay;
 
-    private BigDecimal db2DateRefYr;
+    private Integer db2DateRefYr;
 
-    private BigDecimal db2DateRefMnth;
+    private Integer db2DateRefMnth;
 
-    private BigDecimal db2DateRefDay;
+    private Integer db2DateRefDay;
 
-    private BigDecimal desiredSortCode;
+    private Integer desiredSortCode;
 
-    private BigDecimal desiredAccNo;
+    private Integer desiredAccNo;
 
     private Integer wsUTime;
 
     private String wsOrigDate;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
 }

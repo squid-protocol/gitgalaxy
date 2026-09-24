@@ -13,23 +13,23 @@
     },
     "WS_CUSTOMER_RANGE_TOP": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "WS_CUSTOMER_RANGE_MIDDLE": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "WS_CUSTOMER_RANGE_BOTTOM": {
       "type": "string",
-      "description": "Legacy PIC: X."
+      "description": "Legacy PIC: X"
     },
     "COMM_UTIME_KEY": {
       "type": "integer",
       "description": "Legacy PIC: S9(15)"
     },
     "COMM_TASKNO_KEY": {
-      "type": "number",
-      "description": "Legacy PIC: 9(4)."
+      "type": "integer",
+      "description": "Legacy PIC: 9(4)"
     }
   }
 }

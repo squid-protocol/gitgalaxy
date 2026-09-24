@@ -8,7 +8,7 @@
   "analysis": {
     "dead_code": {
       "program_id": "COTRTUPC.cbl",
-      "total_vars": 268,
+      "total_vars": 275,
       "orphaned_vars": [
         "CC-WORK-AREAS",
         "CCDA-COMMON-MESSAGES",
@@ -37,6 +37,11 @@
         "CURTIMEL",
         "CURTIMEP",
         "CURTIMEV",
+        "DCL-TRC-CAT-DATA",
+        "DCL-TRC-TYPE-CATEGORY",
+        "DCL-TRC-TYPE-CODE",
+        "DCLTRANSACTION-TYPE",
+        "DCLTRANSACTION-TYPE-CATEGORY",
         "ERRMSGC",
         "ERRMSGF",
         "ERRMSGH",
@@ -184,11 +189,11 @@
         "WS-TIMESTAMP-TM-SS",
         "WS-TRANTYPE-MASTER-READ-FLAG"
       ],
-      "total_paras": 63,
+      "total_paras": 65,
       "dead_paras": [
         "0000-MAIN-EXIT"
       ],
-      "loc_saved": 183
+      "loc_saved": 188
     },
     "lineage": {
       "program_id": "00220000",
@@ -209,7 +214,181 @@
     ]
   },
   "generation": {
-    "schemas": null,
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_TRANID                      VARCHAR(4),\n    WS_UCTRANS                     VARCHAR(4),\n    WS_EDIT_VARIABLE_NAME          VARCHAR(25),\n    WS_EDIT_ALPHANUM_ONLY          VARCHAR(256),\n    WS_EDIT_ALPHANUM_LENGTH        SMALLINT -- Legacy: COMP-3 (Packed Decimal),\n    WS_EDIT_ALPHANUM_ONLY_FLAGS    VARCHAR(1),\n    WS_DISP_SQLCODE                SMALLINT,\n    WS_STRING_MID                  SMALLINT,\n    WS_STRING_LEN                  SMALLINT,\n    WS_STRING_OUT                  VARCHAR(40),\n    WS_EDIT_TTYP_FLAG              VARCHAR(1),\n    WS_EDIT_DESC_FLAGS             VARCHAR(1),\n    WS_EDIT_DATE_X_YEAR            VARCHAR(4),\n    WS_EDIT_DATE_MONTH             VARCHAR(2),\n    WS_EDIT_DATE_DAY               VARCHAR(2),\n    WS_EDIT_NUMERIC_2              SMALLINT,\n    WS_EDIT_ALPHANUMERIC_2         VARCHAR(02),\n    TTUP_UPDATE_TTYP_TYPE          VARCHAR(02),\n    TTUP_UPDATE_TTYP_TYPE_DESC     VARCHAR(50),\n    WS_INFO_MSG                    VARCHAR(40),\n    WS_RETURN_MSG                  VARCHAR(75),\n    LIT_THISPGM                    VARCHAR(8),\n    LIT_THISTRANID                 VARCHAR(4),\n    LIT_THISMAPSET                 VARCHAR(8),\n    LIT_THISMAP                    VARCHAR(7),\n    LIT_ADMINPGM                   VARCHAR(8),\n    LIT_ADMINTRANID                VARCHAR(4),\n    LIT_LISTTPGM                   VARCHAR(8),\n    LIT_UPPER                      VARCHAR(26),\n    LIT_LOWER                      VARCHAR(26),\n    LIT_NUMBERS                    VARCHAR(10),\n    LIT_ALL_ALPHANUM_FROM          VARCHAR(62),\n    LIT_ALPHANUM_SPACES_TO         VARCHAR(62),\n    TTUP_CHANGE_ACTION             VARCHAR(1),\n    TTUP_OLD_TTYP_TYPE             VARCHAR(02),\n    TTUP_OLD_TTYP_TYPE_DESC        VARCHAR(50),\n    TTUP_NEW_TTYP_TYPE             VARCHAR(02),\n    TTUP_NEW_TTYP_TYPE_DESC        VARCHAR(50),\n    WS_COMMAREA                    VARCHAR(2000)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_RESP_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_REAS_CD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(09)"
+          },
+          "WS_TRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_UCTRANS": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_EDIT_VARIABLE_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(25)"
+          },
+          "WS_EDIT_ALPHANUM_ONLY": {
+            "type": "string",
+            "description": "Legacy PIC: X(256)"
+          },
+          "WS_EDIT_ALPHANUM_LENGTH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_EDIT_ALPHANUM_ONLY_FLAGS": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "WS_DISP_SQLCODE": {
+            "type": "integer",
+            "description": "Legacy PIC: ----9"
+          },
+          "WS_STRING_MID": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(3)"
+          },
+          "WS_STRING_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(3)"
+          },
+          "WS_STRING_OUT": {
+            "type": "string",
+            "description": "Legacy PIC: X(40)"
+          },
+          "WS_EDIT_TTYP_FLAG": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "WS_EDIT_DESC_FLAGS": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "WS_EDIT_DATE_X_YEAR": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_EDIT_DATE_MONTH": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_EDIT_DATE_DAY": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_EDIT_NUMERIC_2": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(02)"
+          },
+          "WS_EDIT_ALPHANUMERIC_2": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "TTUP_UPDATE_TTYP_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "TTUP_UPDATE_TTYP_TYPE_DESC": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "WS_INFO_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(40)"
+          },
+          "WS_RETURN_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(75)"
+          },
+          "LIT_THISPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_THISTRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "LIT_THISMAPSET": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_THISMAP": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "LIT_ADMINPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_ADMINTRANID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "LIT_LISTTPGM": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "LIT_UPPER": {
+            "type": "string",
+            "description": "Legacy PIC: X(26)"
+          },
+          "LIT_LOWER": {
+            "type": "string",
+            "description": "Legacy PIC: X(26)"
+          },
+          "LIT_NUMBERS": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "LIT_ALL_ALPHANUM_FROM": {
+            "type": "string",
+            "description": "Legacy PIC: X(62)"
+          },
+          "LIT_ALPHANUM_SPACES_TO": {
+            "type": "string",
+            "description": "Legacy PIC: X(62)"
+          },
+          "TTUP_CHANGE_ACTION": {
+            "type": "string",
+            "description": "Legacy PIC: X(1)"
+          },
+          "TTUP_OLD_TTYP_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "TTUP_OLD_TTYP_TYPE_DESC": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "TTUP_NEW_TTYP_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(02)"
+          },
+          "TTUP_NEW_TTYP_TYPE_DESC": {
+            "type": "string",
+            "description": "Legacy PIC: X(50)"
+          },
+          "WS_COMMAREA": {
+            "type": "string",
+            "description": "Legacy PIC: X(2000)"
+          }
+        }
+      }
+    },
     "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS + DB2\n//* ==========================================================\n//STEP01   EXEC PGM=00220000\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
   }
 }

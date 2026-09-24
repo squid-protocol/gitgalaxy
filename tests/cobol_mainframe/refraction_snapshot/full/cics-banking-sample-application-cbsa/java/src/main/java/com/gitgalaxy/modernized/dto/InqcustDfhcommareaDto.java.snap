@@ -8,9 +8,9 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class InqcustDfhcommareaDto {
 
-    private BigDecimal sysiderrRetry;
+    private Integer sysiderrRetry;
 
-    private BigDecimal inqcustRetry;
+    private Integer inqcustRetry;
 
     private Integer wsCicsResp;
 
@@ -46,9 +46,9 @@ public class InqcustDfhcommareaDto {
 
     private String wsCustomerRangeBottom;
 
-    private BigDecimal remixScodeNum;
+    private Integer remixScodeNum;
 
-    private BigDecimal remix2CreditScrNum;
+    private Integer remix2CreditScrNum;
 
     private String myAbendCode;
 
@@ -58,13 +58,13 @@ public class InqcustDfhcommareaDto {
 
     private String wsOrigDate;
 
-    private BigDecimal wsTimeNow;
+    private Integer wsTimeNow;
 
-    private BigDecimal wsTimeNowGrpHh;
+    private Integer wsTimeNowGrpHh;
 
-    private BigDecimal wsTimeNowGrpMm;
+    private Integer wsTimeNowGrpMm;
 
-    private BigDecimal wsTimeNowGrpSs;
+    private Integer wsTimeNowGrpSs;
 
     private String wsAbendPgm;
 

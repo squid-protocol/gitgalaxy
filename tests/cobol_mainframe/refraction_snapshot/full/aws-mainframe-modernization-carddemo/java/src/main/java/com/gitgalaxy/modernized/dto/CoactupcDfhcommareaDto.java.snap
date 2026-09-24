@@ -38,9 +38,15 @@ public class CoactupcDfhcommareaDto {
 
     private String wsEditUsPhoneNuma;
 
+    private Integer wsEditUsPhoneNumaN;
+
     private String wsEditUsPhoneNumb;
 
+    private Integer wsEditUsPhoneNumbN;
+
     private String wsEditUsPhoneNumc;
+
+    private Integer wsEditUsPhoneNumcN;
 
     private String wsEditUsPhoneaFlg;
 
@@ -50,15 +56,27 @@ public class CoactupcDfhcommareaDto {
 
     private String wsEditUsSsnPart1;
 
+    private Integer wsEditUsSsnPart1N;
+
     private String wsEditUsSsnPart2;
 
+    private Integer wsEditUsSsnPart2N;
+
     private String wsEditUsSsnPart3;
+
+    private Integer wsEditUsSsnPart3N;
 
     private String wsEditUsSsnPart1Flgs;
 
     private String wsEditUsSsnPart2Flgs;
 
     private String wsEditUsSsnPart3Flgs;
+
+    private Integer wsDivBy;
+
+    private Integer wsDividend;
+
+    private Integer wsRemainder;
 
     private String wsEditAcctStatus;
 
@@ -140,9 +158,15 @@ public class CoactupcDfhcommareaDto {
 
     private String wsEditCurrency92;
 
-    private BigDecimal wsCardRidCustId;
+    private BigDecimal wsEditCurrency92F;
 
-    private BigDecimal wsCardRidAcctId;
+    private Integer wsCardRidCustId;
+
+    private String wsCardRidCustIdX;
+
+    private Integer wsCardRidAcctId;
+
+    private String wsCardRidAcctIdX;
 
     private String errorOpname;
 
@@ -162,7 +186,7 @@ public class CoactupcDfhcommareaDto {
 
     private String acupNewCurrCycDebitX;
 
-    private BigDecimal acctUpdateId;
+    private Integer acctUpdateId;
 
     private String acctUpdateActiveStatus;
 
@@ -184,7 +208,7 @@ public class CoactupcDfhcommareaDto {
 
     private String acctUpdateGroupId;
 
-    private BigDecimal custUpdateId;
+    private Integer custUpdateId;
 
     private String custUpdateFirstName;
 
@@ -208,7 +232,7 @@ public class CoactupcDfhcommareaDto {
 
     private String custUpdatePhoneNum2;
 
-    private BigDecimal custUpdateSsn;
+    private Integer custUpdateSsn;
 
     private String custUpdateGovtIssuedId;
 
@@ -218,7 +242,7 @@ public class CoactupcDfhcommareaDto {
 
     private String custUpdatePriCardInd;
 
-    private BigDecimal custUpdateFicoCreditScore;
+    private Integer custUpdateFicoCreditScore;
 
     private String wsLongMsg;
 
@@ -264,13 +288,21 @@ public class CoactupcDfhcommareaDto {
 
     private String acupOldAcctIdX;
 
+    private Integer acupOldAcctId;
+
     private String acupOldActiveStatus;
 
     private String acupOldCurrBal;
 
+    private BigDecimal acupOldCurrBalN;
+
     private String acupOldCreditLimit;
 
+    private BigDecimal acupOldCreditLimitN;
+
     private String acupOldCashCreditLimit;
+
+    private BigDecimal acupOldCashCreditLimitN;
 
     private String acupOldOpenDate;
 
@@ -298,11 +330,17 @@ public class CoactupcDfhcommareaDto {
 
     private String acupOldCurrCycCredit;
 
+    private BigDecimal acupOldCurrCycCreditN;
+
     private String acupOldCurrCycDebit;
+
+    private BigDecimal acupOldCurrCycDebitN;
 
     private String acupOldGroupId;
 
     private String acupOldCustIdX;
+
+    private Integer acupOldCustId;
 
     private String acupOldCustFirstName;
 
@@ -340,6 +378,8 @@ public class CoactupcDfhcommareaDto {
 
     private String acupOldCustSsnX;
 
+    private Integer acupOldCustSsn;
+
     private String acupOldCustGovtIssuedId;
 
     private String acupOldCustDobYyyyMmDd;
@@ -356,15 +396,25 @@ public class CoactupcDfhcommareaDto {
 
     private String acupOldCustFicoScoreX;
 
+    private Integer acupOldCustFicoScore;
+
     private String acupNewAcctIdX;
+
+    private Integer acupNewAcctId;
 
     private String acupNewActiveStatus;
 
     private String acupNewCurrBal;
 
+    private BigDecimal acupNewCurrBalN;
+
     private String acupNewCreditLimit;
 
+    private BigDecimal acupNewCreditLimitN;
+
     private String acupNewCashCreditLimit;
+
+    private BigDecimal acupNewCashCreditLimitN;
 
     private String acupNewOpenDate;
 
@@ -392,11 +442,17 @@ public class CoactupcDfhcommareaDto {
 
     private String acupNewCurrCycCredit;
 
+    private BigDecimal acupNewCurrCycCreditN;
+
     private String acupNewCurrCycDebit;
+
+    private BigDecimal acupNewCurrCycDebitN;
 
     private String acupNewGroupId;
 
     private String acupNewCustIdX;
+
+    private Integer acupNewCustId;
 
     private String acupNewCustFirstName;
 
@@ -438,6 +494,8 @@ public class CoactupcDfhcommareaDto {
 
     private String acupNewCustSsn3;
 
+    private Integer acupNewCustSsn;
+
     private String acupNewCustGovtIssuedId;
 
     private String acupNewCustDobYyyyMmDd;
@@ -453,6 +511,8 @@ public class CoactupcDfhcommareaDto {
     private String acupNewCustPriHolderInd;
 
     private String acupNewCustFicoScoreX;
+
+    private Integer acupNewCustFicoScore;
 
     private String wsCommarea;
 

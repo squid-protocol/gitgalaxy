@@ -192,7 +192,7 @@
         "WS-TIMESTAMP-TM-SS",
         "XREF-READ-ERROR"
       ],
-      "total_paras": 34,
+      "total_paras": 36,
       "dead_paras": [
         "0000-MAIN-EXIT",
         "9150-GETCARD-BYACCT",
@@ -222,7 +222,7 @@
   "generation": {
     "schemas": {
       "table": "DFHCOMMAREA",
-      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_TRANID                      VARCHAR(4),\n    CARD_EXPIRAION_DATE_X          VARCHAR(10),\n    CARD_EXPIRY_YEAR               VARCHAR(4),\n    CARD_EXPIRY_MONTH              VARCHAR(2),\n    CARD_EXPIRY_DAY                VARCHAR(2),\n    WS_CARD_RID_CARDNUM            VARCHAR(16),\n    WS_CARD_RID_ACCT_ID            DECIMAL(11, 0),\n    ERROR_OPNAME                   VARCHAR(8),\n    ERROR_FILE                     VARCHAR(9),\n    ERROR_RESP                     VARCHAR(10),\n    ERROR_RESP2                    VARCHAR(10),\n    WS_LONG_MSG                    VARCHAR(500),\n    WS_INFO_MSG                    VARCHAR(40),\n    WS_RETURN_MSG                  VARCHAR(75),\n    LIT_THISPGM                    VARCHAR(8),\n    LIT_THISTRANID                 VARCHAR(4),\n    LIT_THISMAPSET                 VARCHAR(8),\n    LIT_THISMAP                    VARCHAR(7),\n    LIT_CCLISTPGM                  VARCHAR(8),\n    LIT_CCLISTMAPSET               VARCHAR(7),\n    LIT_MENUPGM                    VARCHAR(8),\n    LIT_MENUTRANID                 VARCHAR(4),\n    LIT_CARDFILENAME               VARCHAR(8),\n    LIT_CARDFILENAME_ACCT_PATH     VARCHAR(8),\n    CA_FROM_PROGRAM                VARCHAR(08),\n    CA_FROM_TRANID                 VARCHAR(04),\n    WS_COMMAREA                    VARCHAR(2000)\n);",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP_CD                     INTEGER,\n    WS_REAS_CD                     INTEGER,\n    WS_TRANID                      VARCHAR(4),\n    CARD_EXPIRAION_DATE_X          VARCHAR(10),\n    CARD_EXPIRY_YEAR               VARCHAR(4),\n    CARD_EXPIRY_MONTH              VARCHAR(2),\n    CARD_EXPIRY_DAY                VARCHAR(2),\n    WS_CARD_RID_CARDNUM            VARCHAR(16),\n    WS_CARD_RID_ACCT_ID            BIGINT,\n    ERROR_OPNAME                   VARCHAR(8),\n    ERROR_FILE                     VARCHAR(9),\n    ERROR_RESP                     VARCHAR(10),\n    ERROR_RESP2                    VARCHAR(10),\n    WS_LONG_MSG                    VARCHAR(500),\n    WS_INFO_MSG                    VARCHAR(40),\n    WS_RETURN_MSG                  VARCHAR(75),\n    LIT_THISPGM                    VARCHAR(8),\n    LIT_THISTRANID                 VARCHAR(4),\n    LIT_THISMAPSET                 VARCHAR(8),\n    LIT_THISMAP                    VARCHAR(7),\n    LIT_CCLISTPGM                  VARCHAR(8),\n    LIT_CCLISTMAPSET               VARCHAR(7),\n    LIT_MENUPGM                    VARCHAR(8),\n    LIT_MENUTRANID                 VARCHAR(4),\n    LIT_CARDFILENAME               VARCHAR(8),\n    LIT_CARDFILENAME_ACCT_PATH     VARCHAR(8),\n    CA_FROM_PROGRAM                VARCHAR(08),\n    CA_FROM_TRANID                 VARCHAR(04),\n    WS_COMMAREA                    VARCHAR(2000)\n);",
       "json": {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "title": "DFHCOMMAREA",
@@ -242,27 +242,27 @@
           },
           "CARD_EXPIRAION_DATE_X": {
             "type": "string",
-            "description": "Legacy PIC: X(10)."
+            "description": "Legacy PIC: X(10)"
           },
           "CARD_EXPIRY_YEAR": {
             "type": "string",
-            "description": "Legacy PIC: X(4)."
+            "description": "Legacy PIC: X(4)"
           },
           "CARD_EXPIRY_MONTH": {
             "type": "string",
-            "description": "Legacy PIC: X(2)."
+            "description": "Legacy PIC: X(2)"
           },
           "CARD_EXPIRY_DAY": {
             "type": "string",
-            "description": "Legacy PIC: X(2)."
+            "description": "Legacy PIC: X(2)"
           },
           "WS_CARD_RID_CARDNUM": {
             "type": "string",
-            "description": "Legacy PIC: X(16)."
+            "description": "Legacy PIC: X(16)"
           },
           "WS_CARD_RID_ACCT_ID": {
-            "type": "number",
-            "description": "Legacy PIC: 9(11)."
+            "type": "integer",
+            "description": "Legacy PIC: 9(11)"
           },
           "ERROR_OPNAME": {
             "type": "string",
@@ -282,15 +282,15 @@
           },
           "WS_LONG_MSG": {
             "type": "string",
-            "description": "Legacy PIC: X(500)."
+            "description": "Legacy PIC: X(500)"
           },
           "WS_INFO_MSG": {
             "type": "string",
-            "description": "Legacy PIC: X(40)."
+            "description": "Legacy PIC: X(40)"
           },
           "WS_RETURN_MSG": {
             "type": "string",
-            "description": "Legacy PIC: X(75)."
+            "description": "Legacy PIC: X(75)"
           },
           "LIT_THISPGM": {
             "type": "string",
@@ -334,15 +334,15 @@
           },
           "CA_FROM_PROGRAM": {
             "type": "string",
-            "description": "Legacy PIC: X(08)."
+            "description": "Legacy PIC: X(08)"
           },
           "CA_FROM_TRANID": {
             "type": "string",
-            "description": "Legacy PIC: X(04)."
+            "description": "Legacy PIC: X(04)"
           },
           "WS_COMMAREA": {
             "type": "string",
-            "description": "Legacy PIC: X(2000)."
+            "description": "Legacy PIC: X(2000)"
           }
         }
       }

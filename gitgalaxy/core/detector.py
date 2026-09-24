@@ -4962,6 +4962,39 @@ class StructuralExtractor:
 
         return "".join(lines)
 
+    def _ts_js_arrow_body_end(self, safe_code: str, body_idx: int, limit: int, opener: str, closer: str) -> int:
+        """End of a TS/JS arrow function's body, starting just past its `=>` (#3339).
+
+        The arrow branch used to end every arrow at the next `func_start` match,
+        so a unit nested in a larger one ran on into its parent's code. That
+        happened in two cases. A block-bodied arrow (`const collect = (d) => {
+        ... };` in playwright/dispatcher.ts) took in the enclosing method's
+        remaining statements. An expression-bodied one (`dispose: () =>
+        ref.dispose()` inside an object literal, vscode/lifecycle.ts) took in
+        the enclosing `catch`. A `{` body now ends at its balanced close. An
+        expression body ends at the first depth-0 `,` or `;`, or at a closer
+        with no opener (the end of the object literal or call it sits in). The
+        result is never past `limit`, the old bound, so a span only shrinks.
+        """
+        pos = body_idx
+        while pos < limit and safe_code[pos] in " \t\r\n":
+            pos += 1
+        if pos < limit and safe_code[pos] == opener:
+            return min(self._find_balanced_end(safe_code, pos, opener, closer), limit)
+        depth = 0
+        while pos < limit:
+            ch = safe_code[pos]
+            if ch in "([{":
+                depth += 1
+            elif ch in ")]}":
+                if depth == 0:
+                    return pos
+                depth -= 1
+            elif depth == 0 and ch in ",;":
+                return pos + 1 if ch == ";" else pos
+            pos += 1
+        return limit
+
     def _slice_by_braces(
         self,
         code: str,
@@ -5970,7 +6003,7 @@ class StructuralExtractor:
                 if term_kind == "brace":
                     end_idx = self._find_balanced_end(safe_code, term_idx, opener, closer)
                 elif term_kind == "arrow":
-                    end_idx = next_match_start
+                    end_idx = self._ts_js_arrow_body_end(safe_code, term_idx + 2, next_match_start, opener, closer)
                 elif term_kind == "semi":
                     end_idx = term_idx + 1
                 else:
@@ -6726,11 +6759,17 @@ class StructuralExtractor:
         # modifier guard), and computing it twice would risk the two scans
         # silently drifting out of sync.
         net_changes: list[int] = []
+        # #3339: char offsets index `code`, not `safe_code` -- every consumer
+        # slices `code_stream` and bisects `spatial_map` with them, and the
+        # shield collapses each string literal to `""`, so a `safe_line` is
+        # shorter than its original. Measuring safe lines slid each nested span
+        # back by every string char above it (cosmopolitan/heavy.lua `aux`
+        # started 468 chars early).
         line_char_starts: list[int] = []
         running_char_offset = 0
-        for safe_line in safe_lines:
+        for line_idx, safe_line in enumerate(safe_lines):
             line_char_starts.append(running_char_offset)
-            running_char_offset += len(safe_line)
+            running_char_offset += len(original_lines[line_idx]) if line_idx < total_lines else len(safe_line)
 
             opens = len(open_pattern.findall(safe_line))
             closes = len(close_pattern.findall(safe_line))
@@ -7054,7 +7093,7 @@ class StructuralExtractor:
                 nested_start_line = offset + i + 1
                 nested_end_line = offset + j + 1
                 nested_start_char = line_char_starts[i]
-                nested_end_char = line_char_starts[j] + len(safe_lines[j])
+                nested_end_char = line_char_starts[j] + len(original_lines[j])
 
                 sat, mag = self._calculate_block_metrics(
                     name,

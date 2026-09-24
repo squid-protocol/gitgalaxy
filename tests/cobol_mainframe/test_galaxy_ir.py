@@ -1639,3 +1639,119 @@ def test_a_pre_3450_db_loads_with_no_dli(ims_scanned, tmp_path):
         conn.execute("DROP TABLE dli_call_data")
     ir = load_galaxy_ir(old)
     assert ir.ims_calls() == [] and ir.ims_segment_access() == []
+
+
+# ---- #3477: IMS PSB / DBD definitions and the access check --------------------
+PSBRO = """\
+ROPCB    PCB   TYPE=DB,DBDNAME=DBDA,PROCOPT=G,KEYLEN=14
+         SENSEG  NAME=PAUTSUM0,PARENT=0
+         PSBGEN  LANG=COBOL,PSBNAME=PSBRO
+         END
+"""
+PSBAP = """\
+APPCB    PCB   TYPE=DB,DBDNAME=DBDA,PROCOPT=AP,KEYLEN=14
+         SENSEG  NAME=PAUTSUM0,PARENT=0
+         SENSEG  NAME=PAUTDTL1,PARENT=PAUTSUM0
+         PSBGEN  LANG=COBOL,PSBNAME=PSBAP
+         END
+"""
+DBDA = """\
+       DBD     NAME=DBDA,ACCESS=(HIDAM,VSAM)
+       SEGM    NAME=PAUTSUM0,PARENT=0,BYTES=100
+       FIELD   NAME=(ACCNTID,SEQ,U),START=1,BYTES=6
+       SEGM    NAME=PAUTDTL1,PARENT=((PAUTSUM0,)),BYTES=200
+       DBDGEN
+"""
+IMSRUN = """\
+//IMSRUN   JOB (1),'X'
+//STEP01   EXEC PGM=DFSRRC00,PARM='BMP,IMSPGM,PSBRO'
+"""
+IMSSCH = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. IMSSCH.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 PSB-NAME           PIC X(08) VALUE 'PSBAP'.
+       01 SUMM               PIC X(100).
+       PROCEDURE DIVISION.
+           EXEC DLI SCHD PSB((PSB-NAME)) END-EXEC.
+           EXEC DLI GU USING PCB(1) SEGMENT(PAUTSUM0) INTO(SUMM)
+           END-EXEC.
+           GOBACK.
+"""
+IMSORPH = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. IMSORPH.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 SUMM               PIC X(100).
+       PROCEDURE DIVISION.
+           EXEC DLI GU USING PCB(1) SEGMENT(PAUTSUM0) INTO(SUMM)
+           END-EXEC.
+           GOBACK.
+"""
+
+
+@pytest.fixture(scope="module")
+def ims_gen_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_ims_gen")
+    repo = base / "imsgen"
+    files = {
+        "cbl/IMSPGM.cbl": IMSPGM,
+        "cpy/IMSFUNC.cpy": IMSFUNC,
+        "cbl/IMSSCH.cbl": IMSSCH,
+        "cbl/IMSORPH.cbl": IMSORPH,
+        "ims/PSBRO.psb": PSBRO,
+        "ims/PSBAP.PSB": PSBAP,
+        "ims/DBDA.dbd": DBDA,
+        "jcl/IMSRUN.jcl": IMSRUN,
+    }
+    for rel, text in files.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_ims_psbs_and_databases(ims_gen_scanned):
+    ir = load_galaxy_ir(ims_gen_scanned)
+    assert {
+        k: [(p["pcb"], p["dbd"], p["procopt"], p["sensegs"]) for p in v["pcbs"]] for k, v in ir.ims_psbs().items()
+    } == {
+        "PSBRO": [("ROPCB", "DBDA", "G", ["PAUTSUM0"])],
+        "PSBAP": [("APPCB", "DBDA", "AP", ["PAUTSUM0", "PAUTDTL1"])],
+    }
+    assert ir.ims_databases()["DBDA"]["segments"] == [
+        {"segment": "PAUTSUM0", "parent": "0", "bytes": 100, "key": "ACCNTID"},
+        {"segment": "PAUTDTL1", "parent": "PAUTSUM0", "bytes": 200, "key": None},
+    ]
+    # The JCL region names IMSPGM's PROGRAM-ID; IMSSCH schedules PSB-NAME's VALUE.
+    assert ir.ims_program_psbs() == {"cbl/IMSPGM.cbl": ["PSBRO"], "cbl/IMSSCH.cbl": ["PSBAP"]}
+
+
+def test_ims_access_check_statuses(ims_gen_scanned):
+    got = {
+        (c["file"].rsplit("/", 1)[-1], c["segment"]): (
+            c["status"],
+            [(p["pcb"], p["denied"]) for p in c["pcbs"]],
+            c["databases"],
+        )
+        for c in load_galaxy_ir(ims_gen_scanned).ims_access_check()
+    }
+    assert got == {
+        # PSBRO's PROCOPT=G reads but refuses IMSPGM's REPL; it has no PAUTDTL1 SENSEG.
+        ("IMSPGM.cbl", "PAUTSUM0"): ("denied", [("ROPCB", ["update"])], ["DBDA"]),
+        ("IMSPGM.cbl", "PAUTDTL1"): ("not_sensitive", [], ["DBDA"]),
+        ("IMSSCH.cbl", "PAUTSUM0"): ("ok", [("APPCB", [])], ["DBDA"]),
+        ("IMSORPH.cbl", "PAUTSUM0"): ("no_psb", [], ["DBDA"]),
+    }
+
+
+def test_a_pre_3477_db_loads_with_no_ims_definitions(ims_gen_scanned, tmp_path):
+    old = tmp_path / "old.db"
+    shutil.copy(ims_gen_scanned, old)
+    with sqlite3.connect(old) as conn:
+        conn.execute("DROP TABLE ims_gen_data")
+    ir = load_galaxy_ir(old)
+    assert ir.ims_psbs() == {} and ir.ims_databases() == {}
+    assert {c["status"] for c in ir.ims_access_check()} == {"no_psb"}

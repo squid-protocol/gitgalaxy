@@ -1088,3 +1088,44 @@ def test_dli_reader_resolves_on_its_own(tmp_path):
         "L11 EXEC FN=ISRT PCB=1 IO=IOB SEG=PAUTSUM0,PAUTDTL1 WHERE=- PSB=-",
     }
     assert entry["segment_access"] == ["insert PAUTDTL1", "read PAUTSUM0"]
+
+
+def test_ims_gen_reader_and_access_check_on_its_own(tmp_path):
+    """#3477: the key's own PSB / DBD / region reading and access check -- a
+    column-72 continuation, an unlabeled PCB, a region by PROGRAM-ID, a PROCOPT
+    that refuses an update."""
+    (tmp_path / "ims").mkdir()
+    (tmp_path / "ims" / "PSBX.psb").write_text(
+        "XPCB     PCB   TYPE=DB,DBDNAME=DBDX,PROCOPT=G\n"
+        "         SENSEG  NAME=SEGA,PARENT=0\n"
+        "         PCB   TYPE=GSAM,DBDNAME=GSX,PROCOPT=LS\n"
+        "         PSBGEN  LANG=COBOL,PSBNAME=PSBX\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "ims" / "DBDX.dbd").write_text(
+        "       DBD     NAME=DBDX,".ljust(71) + "C\n" + " " * 15 + "ACCESS=(HIDAM,VSAM)\n"
+        "       SEGM    NAME=SEGA,PARENT=0,BYTES=(50)\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "RUN.jcl").write_text("//RUN JOB\n//S1 EXEC PGM=DFSRRC00,PARM='DLI,PGMX,PSBX'\n", encoding="utf-8")
+    (tmp_path / "PGMX.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. PGMX.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           EXEC DLI REPL USING PCB(1) SEGMENT(SEGA) FROM(IOA)\n"
+        "           END-EXEC.\n",
+        encoding="utf-8",
+    )
+    ig = ak.draft_ims_gen(tmp_path, ak.draft_dli(tmp_path))
+    assert ak.ims_gen_keys(ig["ims/PSBX.psb"]["rows"]) == {
+        "L1 PCB name=XPCB dbd=DBDX procopt=G type=DB",
+        "L2 SENSEG name=SEGA parent=0 owner=XPCB",
+        "L3 PCB name=PCB@3 dbd=GSX procopt=LS type=GSAM",
+        "L4 PSBGEN name=PSBX",
+    }
+    assert ak.ims_gen_keys(ig["ims/DBDX.dbd"]["rows"]) == {
+        "L1 DBD name=DBDX access=HIDAM",
+        "L3 SEGM name=SEGA parent=0 owner=DBDX bytes=50",
+    }
+    assert ak.ims_gen_keys(ig["RUN.jcl"]["rows"]) == {"L2 REGION name=PGMX access=DLI psb=PSBX program=PGMX"}
+    assert ig["PGMX.cbl"]["access_check"] == ["SEGA denied PSBX/XPCB:update"]

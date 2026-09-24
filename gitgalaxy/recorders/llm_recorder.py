@@ -572,6 +572,7 @@ class LLMRecorder:
                 + len(f.get("vsam_defines") or [])  # #3455
                 + len(f.get("job_flow") or [])  # #3451
                 + len(f.get("dli_calls") or [])  # #3450
+                + len(f.get("ims_gen") or [])  # #3477
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -865,6 +866,19 @@ class LLMRecorder:
                     f"- **Job flow:** {' -> '.join(f'`{s_}`' for s_ in seq[:10])}"
                     + (f"; creates {', '.join(f'`{d}`' for d in made[:6])}" if made else "")
                 )
+            # #3477: IMS definitions -- PSB PCBs, DBD segments, region steps.
+            gen = f.get("ims_gen") or []
+            if gen:
+                labels = []
+                for g in gen:
+                    if g.get("kind") == "PCB":
+                        labels.append(f"PCB {g.get('name')}->{g.get('dbd_name')} ({g.get('procopt')})")
+                    elif g.get("kind") in ("DBD", "SEGM"):
+                        labels.append(f"{g.get('kind')} {g.get('name')}")
+                    elif g.get("kind") == "REGION":
+                        labels.append(f"{g.get('access')} {g.get('program')} PSB={g.get('psb_name')}")
+                if labels:
+                    lines.append(f"- **IMS definitions:** {', '.join(f'`{x}`' for x in labels[:10])}")
             # #3450: IMS DL/I calls -- each command / function and what it names.
             dli = f.get("dli_calls") or []
             if dli:

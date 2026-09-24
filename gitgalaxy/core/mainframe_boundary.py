@@ -89,6 +89,7 @@ from gitgalaxy.core.db2_declare_table import extract_sql_tables
 from gitgalaxy.core.db2_sql_statements import extract_sql_statements
 from gitgalaxy.core.dli_calls import extract_dli_calls
 from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
+from gitgalaxy.core.ims_gen import ims_gen_macros, jcl_ims_regions
 from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
@@ -100,7 +101,8 @@ from gitgalaxy.core.uow_handlers import extract_uow_handlers
 # deck (#3211-followup); jcl additionally carries a DFHCSDUP SYSIN deck inline.
 # `pli` carries only the record channel: its DECLAREd structures (#3250).
 # `bms` carries only the screen-field channel: its map field layouts (#3347).
-BOUNDARY_DIALECTS = ("cobol", "jcl", "csd", "pli", "bms")
+# `hlasm` carries only the IMS definition channel: PSB / DBD macros (#3477).
+BOUNDARY_DIALECTS = ("cobol", "jcl", "csd", "pli", "bms", "hlasm")
 
 # #3211-followup: the call-site verbs whose `target` is a TRANSACTION, not a
 # program. They ride in call_site_data alongside program invocations, but their
@@ -1909,6 +1911,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     condition / abend / AID handlers, explicit ABENDs and RESP checks.
     #3455: cobol also carries `file_control` (each SELECT's organisation, access
     mode and keys) and jcl `vsam_defines` (IDCAMS DEFINE CLUSTER / AIX / PATH).
+    #3477: hlasm carries `ims_gen` (IMS PSB / DBD macros) and jcl adds the IMS
+    region steps (DFSRRC00 PARM) to it.
     #3451: jcl also carries `job_flow` -- job / step order, COND / IF conditions,
     PROC calls, and each DSN DD's disposition and GDG generation (job_flow).
     """
@@ -1941,7 +1945,11 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         boundary["job_submits"] = jcl_intrdr_dds(_jcl_statements(code_stream))  # #3448
         boundary["vsam_defines"] = jcl_vsam_defines(code_stream)  # #3455
         boundary["job_flow"] = jcl_job_flow(code_stream)  # #3451
+        boundary["ims_gen"] = jcl_ims_regions(_jcl_statements(code_stream))  # #3477
         return boundary
+    if dialect == "hlasm":
+        # #3477: IMS PSB / DBD generation macros (PSBGEN, PCB, SENSEG, DBD, SEGM, ...).
+        return {"calls": [], "datasets": [], "records": [], "transactions": [], "ims_gen": ims_gen_macros(code_stream)}
     if dialect == "csd":
         return {
             "calls": [],

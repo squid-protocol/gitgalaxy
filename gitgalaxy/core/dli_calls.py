@@ -23,8 +23,9 @@
 #     code or an SSA's segment / qualification through its working-storage VALUEs
 #     (which live in copybooks) is the reader's (GalaxyIR.ims_calls), which sees
 #     every COPY-expanded record.
-#   - PSB / DBD generation sources (`.psb`, `.dbd`) are not scanned yet, so a PCB
-#     is kept as written and not resolved to a database (follow-up issue).
+#   - A PCB is kept as written; which database a segment lives in and whether the
+#     program's PSB allows each access is #3477's (core/ims_gen.py,
+#     GalaxyIR.ims_access_check).
 #   - Bounded: the EXEC DLI block at END-EXEC / the next EXEC / `_BLOCK_LIMIT`,
 #     read with the cics_resources option walker; CBLTDLI arguments with the
 #     #3454 USING reader.

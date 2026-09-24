@@ -22,6 +22,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-job-flow <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-call-using <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-dli <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-ims-gen <repo> --key key.json
     python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
@@ -3527,6 +3528,216 @@ def draft_dli(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# IMS PSB / DBD definitions and the access check (#3477)
+# ==============================================================================
+# This tool's own reading of the generation macros: a statement is the columns
+# 1-71 of its first line plus columns 16-71 of each line after a non-blank column
+# 72; operands are walked with a paren-depth regex scan. A SENSEG / SEGM belongs
+# to the PCB / DBD above it, an unlabeled PCB is `PCB@<line>`. JCL regions come
+# from the job-flow statement reader. The access check joins, on its own, the
+# program's PSB (DFSRRC00 PARM by PROGRAM-ID, or SCHD PSB through its VALUE) to
+# the PCBs whose SENSEGs name the segment, and each access to the PROCOPT letters.
+IMS_GEN_EXTS = (".psb", ".dbd")
+_IMS_MACROS = ("PSBGEN", "PCB", "SENSEG", "DBD", "SEGM", "FIELD", "LCHILD", "DATASET")
+_IMS_OPERAND = re.compile(r"([A-Z0-9]+)=((?:\([^()]*(?:\([^()]*\)[^()]*)*\)|[^,()\s])*)|([^,=\s]+)")
+
+
+def _ims_ops(text: str) -> dict[str, str]:
+    field = text.split()[0] if text.split() else ""
+    return {m.group(1): m.group(2) for m in _IMS_OPERAND.finditer(field) if m.group(1)}
+
+
+def _ims_name(v: Optional[str]) -> Optional[str]:
+    names = re.findall(r"[A-Z0-9@#$]+", v or "")
+    return names[0] if names else None
+
+
+def ims_gen_rows(text: str) -> list[dict[str, Any]]:
+    lines = text.upper().split("\n")
+    stmts: list[tuple[int, str]] = []
+    no = 0
+    while no < len(lines):
+        if lines[no].startswith("*") or not lines[no].strip():
+            no += 1
+            continue
+        first, body = no, lines[no][:71].rstrip()
+        while len(lines[no]) >= 72 and lines[no][71].strip() and no + 1 < len(lines):
+            no += 1
+            body += lines[no][15:71].rstrip()
+        stmts.append((first + 1, body.rstrip()))
+        no += 1
+    rows: list[dict[str, Any]] = []
+    pcb = dbd = seg = None
+    for line, body in stmts:
+        m = re.match(r"(\S*)\s+(\S+)\s*(.*)", body)
+        if not m or m.group(2) not in _IMS_MACROS:
+            continue
+        label, op, o = m.group(1), m.group(2), _ims_ops(m.group(3))
+        r: dict[str, Any] = {"kind": op, "line": line}
+        if op == "PCB":
+            pcb = label or o.get("PCBNAME") or f"PCB@{line}"
+            r.update(name=pcb, type=o.get("TYPE"), dbd=o.get("DBDNAME") or o.get("NAME"), procopt=o.get("PROCOPT"))
+        elif op == "SENSEG":
+            r.update(
+                name=_ims_name(o.get("NAME")), parent=_ims_name(o.get("PARENT")), owner=pcb, procopt=o.get("PROCOPT")
+            )
+        elif op == "PSBGEN":
+            r.update(name=o.get("PSBNAME"))
+        elif op == "DBD":
+            dbd = o.get("NAME")
+            r.update(name=dbd, access=_ims_name(o.get("ACCESS")))
+        elif op == "SEGM":
+            seg = _ims_name(o.get("NAME"))
+            b = re.match(r"\(?(\d+)", o.get("BYTES", ""))
+            r.update(name=seg, parent=_ims_name(o.get("PARENT")), owner=dbd, bytes=int(b.group(1)) if b else None)
+        elif op == "FIELD":
+            parts = re.findall(r"[A-Z0-9@#$]+", o.get("NAME", ""))
+            r.update(
+                name=parts[0] if parts else None, parent=seg, owner=dbd, access="SEQ" if "SEQ" in parts[1:] else None,
+                start=int(o["START"]) if o.get("START", "").isdigit() else None,
+                bytes=int(o["BYTES"]) if o.get("BYTES", "").isdigit() else None,
+            )  # fmt: skip
+        elif op == "LCHILD":
+            parts = re.findall(r"[A-Z0-9@#$]+", o.get("NAME", ""))
+            r.update(name=parts[0] if parts else None, parent=seg, owner=dbd, dbd=parts[1] if len(parts) > 1 else None)
+        elif op == "DATASET":
+            r.update(name=o.get("DD1"), owner=dbd)
+        rows.append(r)
+    return rows
+
+
+def ims_region_rows(text: str) -> list[dict[str, Any]]:
+    rows = []
+    for line, _name, op, field in _jcl_key_statements(text.upper()):
+        if op != "EXEC" or not re.search(r"\bPGM=DFSRRC00\b", field):
+            continue
+        parm = re.search(r"PARM=\(?'?([^')]*)", field)
+        if parm:
+            p = [x.strip() for x in parm.group(1).split(",")] + ["", "", ""]
+            rows.append({"kind": "REGION", "access": p[0] or None, "name": p[1] or None, "program": p[1] or None,
+                         "psb": p[2] or None, "line": line})  # fmt: skip
+    return rows
+
+
+_IMS_KEY_FIELDS = ("name", "parent", "owner", "dbd", "procopt", "type", "access", "bytes", "start", "psb", "program")
+
+
+def ims_gen_keys(rows: list[dict[str, Any]]) -> set[str]:
+    """`L<line> KIND name=.. parent=.. ...` per statement, set fields only."""
+    return {
+        f"L{r['line']} {r['kind']} " + " ".join(f"{k}={r[k]}" for k in _IMS_KEY_FIELDS if r.get(k) not in (None, ""))
+        for r in rows
+    }
+
+
+def engine_ims_gen_row(g: Any) -> dict[str, Any]:
+    return {
+        "kind": g.kind, "line": g.line, "name": g.name, "parent": g.parent, "owner": g.owner, "dbd": g.dbd_name,
+        "procopt": g.procopt, "type": g.pcb_type, "access": g.access, "bytes": g.bytes, "start": g.start,
+        "psb": g.psb_name, "program": g.program,
+    }  # fmt: skip
+
+
+_IMS_PROCOPT = {"read": "G", "insert": "I", "update": "R", "delete": "D"}
+
+
+def ims_access_check(
+    repo: Path, gen: dict[str, dict[str, Any]], dli: dict[str, dict[str, Any]]
+) -> dict[str, list[str]]:
+    """Program -> `SEGMENT status PSB/PCB[:denied]...` per segment it accesses, from
+    this tool's own IMS definition rows and DL/I segment access."""
+    psbs: dict[str, list[dict[str, Any]]] = {}
+    regions: dict[str, set[str]] = {}
+    for entry in gen.values():
+        rows = entry["rows"]
+        name = next((r["name"] for r in rows if r["kind"] == "PSBGEN" and r.get("name")), None)
+        if name:
+            psbs[name] = [
+                dict(r, sensegs={x["name"] for x in rows if x["kind"] == "SENSEG" and x.get("owner") == r["name"]})
+                for r in rows if r["kind"] == "PCB"
+            ]  # fmt: skip
+        for r in rows:
+            if r["kind"] == "REGION" and r.get("program") and r.get("psb"):
+                regions.setdefault(r["program"], set()).add(r["psb"])
+    out: dict[str, list[str]] = {}
+    for rel, k in dli.items():
+        path = repo / rel
+        pid = re.search(r"PROGRAM-ID\.?\s+['\"]?([A-Z0-9@#$-]+)", Source(path).text)
+        names = set(regions.get(pid.group(1), set())) if pid else set()
+        for c in k.get("calls", []):
+            if c.get("function") == "SCHD" and c.get("psb"):
+                v = c["psb"] if c["psb"][0] in "'\"" else _dli_value(path, repo, c["psb"])
+                if v and "?" not in v and v.strip(" '\""):
+                    names.add(v.strip(" '\"").upper())
+        by_seg: dict[str, set[str]] = {}
+        for a in k.get("segment_access", []):
+            acc, seg = a.split(" ", 1)
+            by_seg.setdefault(seg, set()).add(acc)
+        lines = []
+        for seg, accs in sorted(by_seg.items()):
+            hits = []
+            for psb in sorted(names):
+                for pcb in psbs.get(psb, []):
+                    if seg in pcb["sensegs"]:
+                        opt = pcb.get("procopt") or ""
+                        bad = sorted(
+                            a
+                            for a in accs
+                            if not ("A" in opt or _IMS_PROCOPT[a] in opt or (a == "insert" and "L" in opt))
+                        )
+                        hits.append((psb, pcb["name"], bad))
+            if not any(n in psbs for n in names):
+                status = "no_psb"
+            elif not hits:
+                status = "not_sensitive"
+            elif all(b for _, _, b in hits):
+                status = "denied"
+            else:
+                status = "ok"
+            lines.append(
+                f"{seg} {status} "
+                + (",".join(f"{p}/{c}" + (":" + "+".join(b) if b else "") for p, c, b in hits) or "-")
+            )
+        out[rel] = lines
+    return out
+
+
+def engine_ims_check_lines(checks: list[dict[str, Any]]) -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
+    for c in checks:
+        hits = ",".join(
+            f"{p['psb']}/{p['pcb']}" + (":" + "+".join(p["denied"]) if p["denied"] else "") for p in c["pcbs"]
+        )
+        out.setdefault(c["file"], []).append(f"{c['segment']} {c['status']} {hits or '-'}")
+    return out
+
+
+def draft_ims_gen(repo: Path, dli: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Drafted IMS definitions per PSB / DBD / region JCL member, and the access
+    check per DL/I program (#3477); `ims_gen_validated` signs it off."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if not p.is_file() or ".git" in p.parts:
+            continue
+        ext = p.suffix.lower()
+        if ext in IMS_GEN_EXTS:
+            rows = ims_gen_rows(p.read_text(encoding="utf-8", errors="ignore"))
+        elif ext in JCL_EXTS:
+            rows = ims_region_rows(p.read_text(encoding="utf-8", errors="ignore"))
+        else:
+            continue
+        if rows:
+            out[p.relative_to(repo).as_posix()] = {
+                "rows": rows,
+                "ims_gen_validated": False,
+                "verification": {"status": "draft", "notes": []},
+            }
+    for rel, lines in ims_access_check(repo, out, dli).items():
+        out[rel] = {"access_check": lines, "ims_gen_validated": False, "verification": {"status": "draft", "notes": []}}
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -3940,6 +4151,12 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # is this tool's own reader; engine is dli_call_data + GalaxyIR.ims_segment_access.
         "DL/I calls",
         "IMS segment access",
+        # #3477: IMS PSB / DBD macros and JCL IMS regions as rows, and each DL/I
+        # program's segment access checked against its PSB's SENSEGs and PROCOPT.
+        # Truth is this tool's own reader and join; engine is ims_gen_data +
+        # GalaxyIR.ims_access_check.
+        "IMS definitions",
+        "IMS access check",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -4292,6 +4509,26 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             engine_ims.get(rel, set()) if ir is not None and rel in ir.files else None,
         )
 
+    engine_checks = engine_ims_check_lines(ir.ims_access_check()) if ir is not None else {}
+    for rel, k in key.get("ims_gen", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        if "rows" in k:
+            add(
+                "IMS definitions",
+                rel,
+                ims_gen_keys(k["rows"]),
+                None,
+                ims_gen_keys([engine_ims_gen_row(g) for g in ef.ims_gen]) if ef else None,
+            )
+        else:
+            add(
+                "IMS access check",
+                rel,
+                set(k.get("access_check", [])),
+                None,
+                set(engine_checks.get(rel, [])) if ef else None,
+            )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -4408,6 +4645,9 @@ def main() -> int:
     dlp = sub.add_parser("add-dli")
     dlp.add_argument("repo", type=Path)
     dlp.add_argument("--key", type=Path, required=True)
+    igp = sub.add_parser("add-ims-gen")
+    igp.add_argument("repo", type=Path)
+    igp.add_argument("--key", type=Path, required=True)
     cup = sub.add_parser("add-call-using")
     cup.add_argument("repo", type=Path)
     cup.add_argument("--key", type=Path, required=True)
@@ -4560,6 +4800,16 @@ def main() -> int:
         key["dli_calls"] = dl
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(dl)} DL/I files -> {args.key}")
+        return 0
+    if args.cmd == "add-ims-gen":
+        # #3477: the add-pli discipline -- refresh drafts, keep signed-off files.
+        ig = key.get("ims_gen", {})
+        for rel, entry in draft_ims_gen(repo, key.get("dli_calls", {})).items():
+            if not ig.get(rel, {}).get("ims_gen_validated"):
+                ig[rel] = entry
+        key["ims_gen"] = ig
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(ig)} IMS definition / access-check files -> {args.key}")
         return 0
     if args.cmd == "add-call-using":
         # #3454: the add-pli discipline -- refresh drafts, keep signed-off files.

@@ -244,7 +244,7 @@ def test_hlasm_none_keys_are_the_intended_set():
 # TEST 3: REGISTRATION -- THE #2503 .asm COLLISION ITSELF
 # ==============================================================================
 def test_hlasm_registration():
-    assert set(HLASM["extensions"]) == {".asm", ".hlasm", ".mac"}
+    assert set(HLASM["extensions"]) == {".asm", ".hlasm", ".mac", ".psb", ".dbd"}
     assert HLASM["case_insensitive_imports"] is True
     assert HLASM["lexical_family"] == "positional_anchored"
     # by_name is DELIBERATE (unlike bms/jcl): =V(name)+BALR, the CALL macro

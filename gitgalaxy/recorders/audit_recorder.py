@@ -450,6 +450,30 @@ class AuditRecorder:
                 }
                 for d in dli
             ]
+        gen = file_data.get("ims_gen") or []
+        if gen:
+            # #3477: IMS PSB / DBD macros and region steps (only the keys a row carries).
+            labels = {
+                "name": "Name",
+                "parent": "Parent",
+                "owner": "Owner",
+                "dbd_name": "DBD",
+                "procopt": "PROCOPT",
+                "pcb_type": "PCB Type",
+                "access": "Access",
+                "bytes": "Bytes",
+                "start": "Start",
+                "psb_name": "PSB",
+                "program": "Program",
+            }
+            block["IMS Definitions"] = [
+                {
+                    "Kind": g.get("kind"),
+                    **{lbl: g[k] for k, lbl in labels.items() if g.get(k) is not None},
+                    "Line": g.get("line", 0),
+                }
+                for g in gen
+            ]
         return block
 
     def generate_report(

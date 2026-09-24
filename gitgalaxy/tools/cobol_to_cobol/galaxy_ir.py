@@ -99,6 +99,10 @@
 # resolves a CBLTDLI function code and each SSA's segment / qualification
 # through the COPY-expanded working-storage VALUEs, and ims_segment_access is the
 # program x segment matrix (the IMS counterpart of sql_table_access).
+# Since #3477, IMS PSB / DBD generation macros and JCL IMS region steps
+# (ims_gen_data, per EngineFile.ims_gen); GalaxyIR.ims_access_check joins each
+# program's segment access to its PSB (the DFSRRC00 PARM, or an EXEC DLI SCHD
+# PSB), the PCB whose SENSEGs include the segment, that PCB's DBD and PROCOPT.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -654,6 +658,27 @@ class EngineDliCall:
 
 
 @dataclass
+class EngineImsGen:
+    """One IMS PSB / DBD macro statement or JCL IMS region step (#3477), from
+    `ims_gen_data` (see core/ims_gen.py for the kinds)."""
+
+    kind: str
+    name: Optional[str]
+    parent: Optional[str]
+    owner: Optional[str]
+    dbd_name: Optional[str]
+    procopt: Optional[str]
+    pcb_type: Optional[str]
+    access: Optional[str]
+    bytes: Optional[int]
+    start: Optional[int]
+    psb_name: Optional[str]
+    program: Optional[str]
+    attributes: Optional[str]
+    line: int
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -681,6 +706,7 @@ class EngineFile:
     job_flow: list = field(default_factory=list)  # EngineJobFlow, source order, #3451
     entry_points: list = field(default_factory=list)  # EngineEntryPoint, source order, #3454
     dli_calls: list = field(default_factory=list)  # EngineDliCall, source order, #3450
+    ims_gen: list = field(default_factory=list)  # EngineImsGen, source order, #3477
 
     @property
     def is_program(self) -> bool:
@@ -2489,6 +2515,117 @@ class GalaxyIR:
                     e["pcbs"].add(c["pcb"])
         return [dict(e, accesses=sorted(e["accesses"]), pcbs=sorted(e["pcbs"])) for _, e in sorted(by.items())]
 
+    def ims_psbs(self) -> dict:
+        """PSB name -> {`file`, `pcbs`: [{`pcb`, `type`, `dbd`, `procopt`, `sensegs`
+        (segment names)}]} from the PSBGEN sources (#3477)."""
+        out: dict = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            gen = [g for g in f.ims_gen if g.kind in ("PCB", "SENSEG", "PSBGEN")]
+            psb = next((g.name for g in gen if g.kind == "PSBGEN" and g.name), None)
+            if not psb:
+                continue
+            pcbs = [
+                {
+                    "pcb": g.name,
+                    "type": g.pcb_type,
+                    "dbd": g.dbd_name,
+                    "procopt": g.procopt,
+                    "sensegs": [x.name for x in gen if x.kind == "SENSEG" and x.owner == g.name and x.name],
+                }
+                for g in gen
+                if g.kind == "PCB"
+            ]
+            out[psb] = {"file": f.file_path, "pcbs": pcbs}
+        return out
+
+    def ims_databases(self) -> dict:
+        """DBD name -> {`file`, `access`, `segments`: [{`segment`, `parent`, `bytes`,
+        `key` (the SEQ field)}]} from the DBDGEN sources (#3477)."""
+        out: dict = {}
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for g in f.ims_gen:
+                if g.kind == "DBD" and g.name:
+                    out[g.name] = {"file": f.file_path, "access": g.access, "segments": []}
+            for g in f.ims_gen:
+                if g.kind == "SEGM" and g.owner in out and g.name:
+                    key = next(
+                        (x.name for x in f.ims_gen if x.kind == "FIELD" and x.parent == g.name and x.access == "SEQ"),
+                        None,
+                    )
+                    out[g.owner]["segments"].append(
+                        {"segment": g.name, "parent": g.parent, "bytes": g.bytes, "key": key}
+                    )
+        return out
+
+    def ims_program_psbs(self) -> dict:
+        """Program file -> the PSB names it runs under: a JCL DFSRRC00 region step
+        naming its PROGRAM-ID, and each EXEC DLI SCHD PSB resolved through VALUE."""
+        by_pid: dict[str, str] = {}
+        for f in self.files.values():
+            for pid in f.program_ids:
+                by_pid.setdefault(pid.upper(), f.file_path)
+        out: dict[str, set] = {}
+        for f in self.files.values():
+            for g in f.ims_gen:
+                if g.kind == "REGION" and g.program and g.psb_name and g.program in by_pid:
+                    out.setdefault(by_pid[g.program], set()).add(g.psb_name)
+            for d in f.dli_calls:
+                if d.function == "SCHD" and d.psb:
+                    value = d.psb if d.psb[:1] in "'\"" else self._value_text(f, d.psb)
+                    name = (value or "").strip(" '\"").upper()
+                    if name and "?" not in name:
+                        out.setdefault(f.file_path, set()).add(name)
+        return {k: sorted(v) for k, v in out.items()}
+
+    def ims_access_check(self) -> list:
+        """Each program x segment access (#3450) checked against the IMS definitions
+        (#3477). Per entry: `file`, `segment`, `accesses`, `databases` (the DBDs
+        defining the segment), `psbs` (the program's PSBs), and `pcbs` -- for each
+        PSB PCB sensitive to the segment: `psb`, `pcb`, `dbd`, `procopt` and
+        `denied` (accesses its PROCOPT does not allow). `status`: ok | denied (a
+        sensitive PCB's PROCOPT refuses an access) | not_sensitive (no PCB of the
+        program's PSBs has the segment as a SENSEG) | no_psb (none is known)."""
+        letters = {"read": "G", "insert": "I", "update": "R", "delete": "D"}
+        psbs, dbds, program_psbs = self.ims_psbs(), self.ims_databases(), self.ims_program_psbs()
+        out = []
+        for e in self.ims_segment_access():
+            names = program_psbs.get(e["file"], [])
+            pcbs = []
+            for psb in names:
+                for pcb in psbs.get(psb, {}).get("pcbs", []):
+                    if e["segment"] not in pcb["sensegs"]:
+                        continue
+                    opt = (pcb["procopt"] or "").upper()
+                    denied = [
+                        a for a in e["accesses"]
+                        if "A" not in opt and letters[a] not in opt and not (a == "insert" and "L" in opt)
+                    ]  # fmt: skip
+                    pcbs.append(
+                        {"psb": psb, "pcb": pcb["pcb"], "dbd": pcb["dbd"], "procopt": pcb["procopt"], "denied": denied}
+                    )
+            if not names or not any(n in psbs for n in names):
+                status = "no_psb"
+            elif not pcbs:
+                status = "not_sensitive"
+            elif all(p["denied"] for p in pcbs):
+                status = "denied"
+            else:
+                status = "ok"
+            out.append(
+                {
+                    "file": e["file"],
+                    "segment": e["segment"],
+                    "accesses": e["accesses"],
+                    "databases": sorted(
+                        n for n, d in dbds.items() if any(s["segment"] == e["segment"] for s in d["segments"])
+                    ),
+                    "psbs": names,
+                    "pcbs": pcbs,
+                    "status": status,
+                }
+            )
+        return out
+
     def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
         try:
             rel = path.resolve().relative_to(target_root.resolve()).as_posix()
@@ -3020,6 +3157,33 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         line=int(row[13] or 0),
                     )
                 )
+        # #3477: IMS PSB / DBD macros and region steps. A pre-#3477 database has none.
+        if _has_table(cur, "ims_gen_data"):
+            for row in cur.execute(
+                "SELECT file_id, kind, name, parent, owner, dbd_name, procopt, pcb_type, access, bytes, start_pos, "
+                "psb_name, program, attributes, line_number FROM ims_gen_data "
+                "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] in by_id:
+                    by_id[row[0]].ims_gen.append(
+                        EngineImsGen(
+                            kind=row[1] or "",
+                            name=row[2],
+                            parent=row[3],
+                            owner=row[4],
+                            dbd_name=row[5],
+                            procopt=row[6],
+                            pcb_type=row[7],
+                            access=row[8],
+                            bytes=int(row[9]) if row[9] is not None else None,
+                            start=int(row[10]) if row[10] is not None else None,
+                            psb_name=row[11],
+                            program=row[12],
+                            attributes=row[13],
+                            line=int(row[14] or 0),
+                        )
+                    )
         # #3450: IMS DL/I calls. A pre-#3450 database has none.
         if _has_table(cur, "dli_call_data"):
             for row in cur.execute(

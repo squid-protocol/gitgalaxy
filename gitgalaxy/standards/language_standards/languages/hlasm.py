@@ -55,7 +55,9 @@ DEFINITION: dict[str, Any] = {
     # (_lens_config.py) and never locks at Tier 1 on extension alone; routing
     # resolves through the internal_discriminator below (Tier 2), the
     # mainframe-sibling ecosystem gravity (Tier 1.5), or the lexical scan.
-    "extensions": [".asm", ".hlasm", ".mac"],
+    # #3477: IMS PSB / DBD generation sources are HLASM macro members (PSBGEN,
+    # PCB, SENSEG, DBDGEN, SEGM, FIELD ...); nothing else claims `.psb` / `.dbd`.
+    "extensions": [".asm", ".hlasm", ".mac", ".psb", ".dbd"],
     "exact_matches": [],
     # ECOSYSTEM ANCHORS (#2503's ask): the mainframe sources HLASM lives
     # beside -- the JCL that assembles and runs it, the COBOL/PL/I programs and
@@ -114,6 +116,9 @@ DEFINITION: dict[str, Any] = {
     # map's own build JCL. Every other language keeps unconstrained
     # cross-language resolution (an HTML page importing a .css file).
     "imports_are_source_members": True,
+    # #3477: IMS PSB / DBD macros become ims_gen_data rows (core/ims_gen.py) via
+    # mainframe_boundary's `hlasm` dialect -- the #3200 boundary_extraction pattern.
+    "boundary_extraction": "hlasm",
     # invocation_model: DEFAULT (by_name), deliberately unlike bms/jcl: HLASM
     # reaches the units func_start extracts by writing their names -- `L
     # R15,=V(SUBRTN)` + `BALR 14,15`, the CALL macro, and a DSECT is reached by

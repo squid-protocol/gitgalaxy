@@ -90,6 +90,14 @@ ALLOWLIST = {
     "INTO": "EXEC DLI option keyword parsed from source (dli_calls.py, #3450)",
     "PCB": "EXEC DLI option keyword parsed from source (dli_calls.py, #3450)",
     "PSB": "EXEC DLI option keyword parsed from source (dli_calls.py, #3450)",
+    "ACCESS": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
+    "BYTES": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
+    "DBDNAME": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
+    "DD1": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
+    "PARENT": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
+    "PCBNAME": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
+    "PROCOPT": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
+    "PSBNAME": "IMS PSBGEN / DBDGEN macro operand parsed from source (ims_gen.py, #3477)",
     # --- External package manifests (package.json / composer.json / lockfiles) ---
     # manifest_parser.py and guidestar_lens.py json.load() a THIRD-PARTY file;
     # these keys are that file format's schema, not a dict this repo produces.

@@ -97,6 +97,8 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "CALL USING": ("call_using", "call_using_validated"),
     "DL/I calls": ("dli_calls", "dli_validated"),
     "IMS segment access": ("dli_calls", "dli_validated"),
+    "IMS definitions": ("ims_gen", "ims_gen_validated"),
+    "IMS access check": ("ims_gen", "ims_gen_validated"),
 }
 
 

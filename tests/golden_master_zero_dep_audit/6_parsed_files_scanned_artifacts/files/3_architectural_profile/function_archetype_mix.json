@@ -3109,7 +3109,7 @@
       },
       "cobol/cobol-check/src_main_cobol_MOCK.CBL": {
         "I/O & Config Routines": 5,
-        "Interface Declarations": 3,
+        "Interface Declarations": 5,
         "State Mutators": 2
       },
       "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": {
@@ -3118,7 +3118,7 @@
       },
       "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": {
         "I/O & Config Routines": 4,
-        "Interface Declarations": 8,
+        "Interface Declarations": 10,
         "State Mutators": 2
       },
       "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": {},

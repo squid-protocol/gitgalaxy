@@ -295,7 +295,13 @@ DEFINITION: dict[str, Any] = {
             # accepted by modern compilers for legacy program support.
             # Without it, any segmented section header was entirely
             # invisible. Added an optional 1-2-digit segment number.
-            r"(?=(?:[ \t\n]+SECTION(?:[ \t\n]+[0-9]{1,2})?)?[ \t]*\.(?:[ \t\n]|$))",
+            # #3419: the separator period may sit on the NEXT line (CardDemo
+            # COTRTLIC `127400 2000-SEND-MAP` / `127500      .`, PERFORMed THRU five
+            # times). Bounded: exactly one newline, then the fixed 6-char
+            # sequence area, then the period -- no open-ended vertical gap,
+            # which is what the #2480 note above rejected.
+            r"(?=(?:[ \t\n]+SECTION(?:[ \t\n]+[0-9]{1,2})?)?"
+            r"(?:[ \t]*\.|[ \t]*\n(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*\.)(?:[ \t\n]|$))",
             re.I | re.M,
         ),
         # 5. class_start: Object / Entity Declarations. Defines structural program and modern OO boundaries.
@@ -326,8 +332,21 @@ DEFINITION: dict[str, Any] = {
         #    CLASS-ID/INTERFACE-ID clause ever legitimately contains
         #    that word, since a division header always starts its own
         #    separate paragraph.
+        # 3. #3418: `PROGRAM-ID.` alone on its line, name on the next. `\s+` ran
+        #    straight into the next line's sequence area (CardDemo COTRTLIC
+        #    read `002600`) or, with nothing else on the line, into the cols
+        #    73-80 identification area (COTRTUPC read `00220000`). A COBOL
+        #    user-defined word must contain a letter, so the name now does; and
+        #    when the name is not on the same line, the gap may cross one
+        #    identification-area token, the newline and the next line's
+        #    sequence area -- the same `[0-9a-zA-Z \t]{6}[ \-]?` prefix the rule
+        #    already allows at line start. The `\b` before the name is func_start's
+        #    greedy-margin guard: without it that 6-char prefix ate `    My` of an
+        #    indented `MyProgram` and captured `Program`.
         "class_start": re.compile(
-            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\.\s+([A-Za-z0-9_-]+)(?:[ \t\n]+(?!DIVISION\b)[A-Za-z0-9_-]+){0,6}(?=[ \t]*\.|\n|$)",
+            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:PROGRAM-ID|CLASS-ID|INTERFACE-ID|FACTORY|OBJECT)\."
+            r"(?:[ \t]+|(?:[ \t]+\S{1,8})?[ \t]*\n(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*)"
+            r"\b([0-9_-]*[A-Za-z][A-Za-z0-9_-]*)(?:[ \t\n]+(?!DIVISION\b)[A-Za-z0-9_-]+){0,6}(?=[ \t]*\.|\n|$)",
             re.I | re.M,
         ),
         # --- PHASE 2: RISK & STRUCTURAL INTEGRITY ---
@@ -547,9 +566,16 @@ DEFINITION: dict[str, Any] = {
         # how_to_add_a_language.md's Strict Feature Parity rule); a
         # silently absent key is a real schema-completeness gap, not an
         # intentional None.
-        "import": re.compile(r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:COPY|INCLUDE)\b", re.I | re.M),
+        # #3416: `EXEC SQL INCLUDE <member> END-EXEC` on ONE line was invisible --
+        # INCLUDE had to begin its own line, which only the two-line form
+        # (`EXEC SQL` / `INCLUDE X`, CBSA's style) satisfies. CardDemo's
+        # app-transaction-type-db2 programs use the one-line form, so 6 copybook
+        # edges (CSDB2RWY, CSDB2RPY and the DCLGEN .dcl members) were lost.
+        "import": re.compile(
+            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)\b", re.I | re.M
+        ),
         "_dependency_capture": re.compile(
-            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:COPY|INCLUDE)[ \t\n]+['\"]?([A-Za-z0-9_-]+)['\"]?",
+            r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*(?:EXEC[ \t]+SQL[ \t]+)?(?:COPY|INCLUDE)[ \t\n]+['\"]?([A-Za-z0-9_-]+)['\"]?",
             re.I | re.M,
         ),
         # 25. ownership: Authorship indicators.

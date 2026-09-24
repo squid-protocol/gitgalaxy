@@ -586,7 +586,7 @@
     "cobol/che-che4z-lsp-for-cobol": {
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DATACOM.cpy": -0.514,
       "cobol/che-che4z-lsp-for-cobol/SQLCA_DB2.cpy": -0.381,
-      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": -0.384
+      "cobol/che-che4z-lsp-for-cobol/SQLDA.cpy": -0.347
     },
     "cobol/che-che4z_lsp_project_fixtures": {
       "cobol/che-che4z_lsp_project_fixtures/ABCD.cbl": 0.0,
@@ -878,8 +878,8 @@
       "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": 1.529,
       "cobol/cics-banking-sample-application-cbsa/UPDCUST.cpy": -0.259,
       "cobol/cics-banking-sample-application-cbsa/WAZI.cpy": 0.0,
-      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": 1.278,
-      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cpy": -0.045
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": 1.309,
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cpy": -0.077
     },
     "cobol/cics-genapp": {
       "cobol/cics-genapp/README.md": 0.0,
@@ -939,14 +939,14 @@
       "cobol/cobol-check/copybooks_DFHEIBLK.CPY": -0.204,
       "cobol/cobol-check/src_main_cobol_ALPHA.CBL": -0.443,
       "cobol/cobol-check/src_main_cobol_BIPM012.CBL": 3.194,
-      "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": 2.549,
+      "cobol/cobol-check/src_main_cobol_DB2PROG.cbl": 2.439,
       "cobol/cobol-check/src_main_cobol_DPICNUMBERS.CBL": 1.368,
       "cobol/cobol-check/src_main_cobol_FileCopy.cbl": 3.209,
       "cobol/cobol-check/src_main_cobol_GREETING.CBL": 3.276,
       "cobol/cobol-check/src_main_cobol_LONGLINESANDNUMBERS.CBL": 3.264,
-      "cobol/cobol-check/src_main_cobol_MOCK.CBL": 3.272,
+      "cobol/cobol-check/src_main_cobol_MOCK.CBL": 2.066,
       "cobol/cobol-check/src_main_cobol_MOCKPARA.CBL": -0.171,
-      "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": 1.986,
+      "cobol/cobol-check/src_main_cobol_MOCKTEST.CBL": 1.531,
       "cobol/cobol-check/src_main_cobol_NUMBERS.CBL": -0.393,
       "cobol/cobol-check/src_main_cobol_REPLAC.CBL": 2.662,
       "cobol/cobol-check/src_main_cobol_RETURNCODE.CBL": 3.57,
@@ -982,9 +982,9 @@
     "cobol/cobol-programming-course": {
       "cobol/cobol-programming-course/CBL0106.cbl": 2.459,
       "cobol/cobol-programming-course/CBL0106C.cbl": 2.452,
-      "cobol/cobol-programming-course/CBLDB21.cbl": 2.43,
-      "cobol/cobol-programming-course/CBLDB22.cbl": 1.584,
-      "cobol/cobol-programming-course/CBLDB23.cbl": 1.506,
+      "cobol/cobol-programming-course/CBLDB21.cbl": 2.385,
+      "cobol/cobol-programming-course/CBLDB22.cbl": 1.433,
+      "cobol/cobol-programming-course/CBLDB23.cbl": 1.354,
       "cobol/cobol-programming-course/DEPTPAY.CBL": 3.267,
       "cobol/cobol-programming-course/EMPPAY.CBL": 2.616
     },
@@ -1026,7 +1026,7 @@
       "cobol/gnucobol/COPYING": 0.0,
       "cobol/gnucobol/numeric-display.cob": -0.109,
       "cobol/gnucobol/numeric-dump.cob": 0.32,
-      "cobol/gnucobol/sqlca.cpy": 0.194,
+      "cobol/gnucobol/sqlca.cpy": 0.231,
       "cobol/gnucobol/sqlda.cpy": -0.27,
       "cobol/gnucobol/tutorial.cob": 2.436,
       "cobol/gnucobol/xfhfcd.cpy": 0.0,
@@ -1220,12 +1220,12 @@
       "dockerfile/moby/builder/dockerfile/dispatchers_unix_test.go": -0.689,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows.go": -0.322,
       "dockerfile/moby/builder/dockerfile/dispatchers_windows_test.go": -0.725,
-      "dockerfile/moby/builder/dockerfile/evaluator.go": -0.69,
+      "dockerfile/moby/builder/dockerfile/evaluator.go": -0.719,
       "dockerfile/moby/builder/dockerfile/evaluator_test.go": 2.648,
       "dockerfile/moby/builder/dockerfile/imagecontext.go": -0.044,
       "dockerfile/moby/builder/dockerfile/imagecontext_test.go": -0.075,
       "dockerfile/moby/builder/dockerfile/imageprobe.go": 0.252,
-      "dockerfile/moby/builder/dockerfile/internals.go": 0.583,
+      "dockerfile/moby/builder/dockerfile/internals.go": 0.559,
       "dockerfile/moby/builder/dockerfile/internals_linux.go": -1.005,
       "dockerfile/moby/builder/dockerfile/internals_linux_test.go": 3.021,
       "dockerfile/moby/builder/dockerfile/internals_test.go": 1.006,
@@ -1860,7 +1860,7 @@
     "javascript/react": {
       "javascript/react/BabelPlugin.ts": 1.538,
       "javascript/react/ReactFiberBeginWork.js": 0.414,
-      "javascript/react/ReactFiberWorkLoop.js": -0.292,
+      "javascript/react/ReactFiberWorkLoop.js": -0.326,
       "javascript/react/ReactFlightServer.js": -0.076,
       "javascript/react/ReactSymbols.js": 2.21,
       "javascript/react/build.js": -0.156
@@ -3641,7 +3641,7 @@
     "typescript/vscode": {
       "typescript/vscode/LICENSE.txt": 0.0,
       "typescript/vscode/async.ts": -0.268,
-      "typescript/vscode/codeEditorWidget.ts": -0.595,
+      "typescript/vscode/codeEditorWidget.ts": -0.619,
       "typescript/vscode/eslint.config.js": 1.705,
       "typescript/vscode/extHost.api.impl.ts": 0.107,
       "typescript/vscode/gulpfile.vscode.ts": 1.158,

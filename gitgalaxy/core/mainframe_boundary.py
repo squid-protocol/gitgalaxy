@@ -204,6 +204,8 @@ _CICS_CONTRACT_OPERANDS = (
     ("commarea", re.compile(r"(?<![A-Z0-9-])COMMAREA[ \t\n]*\(", re.I)),
     ("commarea_length", re.compile(r"(?<![A-Z0-9-])LENGTH[ \t\n]*\(", re.I)),
     ("commarea_datalength", re.compile(r"(?<![A-Z0-9-])DATALENGTH[ \t\n]*\(", re.I)),
+    # #3494: the region a LINK / START ships to (Distributed Program Link).
+    ("sysid", re.compile(r"(?<![A-Z0-9-])SYSID[ \t\n]*\(", re.I)),
 )
 _CICS_OPERAND_LIMIT = 160
 

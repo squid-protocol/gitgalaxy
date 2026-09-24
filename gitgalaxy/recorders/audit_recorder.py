@@ -125,6 +125,7 @@ class AuditRecorder:
                             ("commarea_length", "COMMAREA Length"),
                             ("commarea_datalength", "COMMAREA Data Length"),
                             ("using_args", "USING"),  # #3454
+                            ("sysid", "SYSID"),  # #3494
                         )
                         if c.get(key)
                     },

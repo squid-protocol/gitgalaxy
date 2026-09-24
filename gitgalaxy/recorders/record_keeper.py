@@ -904,6 +904,7 @@ class RecordKeeper:
                 commarea_length TEXT,
                 commarea_datalength TEXT,
                 using_args TEXT,
+                sysid TEXT,
                 FOREIGN KEY(src_file_id) REFERENCES file_data(id) ON DELETE CASCADE,
                 FOREIGN KEY(dst_file_id) REFERENCES file_data(id) ON DELETE CASCADE
             )
@@ -920,6 +921,10 @@ class RecordKeeper:
         # NULL for a CALL without USING and every non-CALL row. Paired with the
         # callee's entry_point_data params by GalaxyIR.call_contracts.
         _ensure_columns(cursor, "call_site_data", ["using_args TEXT"])
+        # #3494: a CICS LINK / START's SYSID(...) as written (the remote region it
+        # ships to), NULL otherwise. Joined with the CSD's REMOTESYSTEM definitions
+        # by GalaxyIR.remote_calls.
+        _ensure_columns(cursor, "call_site_data", ["sysid TEXT"])
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_src_file_id ON call_site_data(src_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_dst_file_id ON call_site_data(dst_file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_call_target ON call_site_data(target);")
@@ -2679,6 +2684,7 @@ class RecordKeeper:
                         site.get("commarea_length"),
                         site.get("commarea_datalength"),
                         site.get("using_args"),  # #3454
+                        site.get("sysid"),  # #3494
                     )
                 )
             if call_rows:
@@ -2687,8 +2693,8 @@ class RecordKeeper:
                     INSERT INTO call_site_data (
                         repo_name, commit_hash, src_file_id, verb, form,
                         operand, target, dst_file_id, line_number,
-                        commarea, commarea_length, commarea_datalength, using_args
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        commarea, commarea_length, commarea_datalength, using_args, sysid
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     call_rows,
                 )

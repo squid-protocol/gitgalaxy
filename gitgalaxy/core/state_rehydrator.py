@@ -405,13 +405,19 @@ class StateRehydrator:
                     if _has_table(cursor, "call_site_data") and _has_column(cursor, "call_site_data", "using_args")
                     else "NULL AS using_args"
                 )
+                # #3494: SYSID, restored the same way (absent before #3494).
+                sysid_col = (
+                    "cs.sysid"
+                    if _has_table(cursor, "call_site_data") and _has_column(cursor, "call_site_data", "sysid")
+                    else "NULL AS sysid"
+                )
                 calls_by_file = _restore_child_table(
                     cursor,
                     repo_name,
                     baseline_hash,
                     "call_site_data",
                     "SELECT fd.file_path AS _fp, cs.verb, cs.form, cs.operand, cs.target, cs.line_number AS line, "  # noqa: S608 -- commarea_cols is one of two literals; values are bound
-                    f"{commarea_cols}, {using_col} "
+                    f"{commarea_cols}, {using_col}, {sysid_col} "
                     "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id",
                     lambda r: {
@@ -422,7 +428,7 @@ class StateRehydrator:
                         "line": int(r["line"] or 0),
                         **{
                             k: r[k]
-                            for k in ("commarea", "commarea_length", "commarea_datalength", "using_args")
+                            for k in ("commarea", "commarea_length", "commarea_datalength", "using_args", "sysid")
                             if r[k]
                         },
                     },

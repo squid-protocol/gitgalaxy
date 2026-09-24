@@ -283,7 +283,23 @@ def _unconditional(sentence: str) -> bool:
     return len(re.findall(r"(?<![\w-])EVALUATE\b", sentence)) == len(re.findall(r"\bEND-EVALUATE\b", sentence))
 
 
+def _evaluate_is_terminal(sentence: str) -> bool:
+    """A sentence that is one EVALUATE with WHEN OTHER, every branch of which ends
+    in an unconditional transfer, never falls through (CICS GENAPP LGTESTP4 NO-ADD:
+    `WHEN 70 ... GO TO ERROR-OUT  WHEN OTHER ... GO TO ERROR-OUT`, found by the
+    blind census). Nested EVALUATEs or IFs inside a branch are not claimed."""
+    m = re.fullmatch(r"EVALUATE\s(.*)\sEND-EVALUATE", sentence)
+    if not m or len(re.findall(r"(?<![\w-])(?:EVALUATE|IF)\b", m.group(1))) or "END-IF" in m.group(1):
+        return False
+    branches = re.split(r"(?<![\w-])WHEN\s", m.group(1))[1:]
+    if not branches or not any(b.startswith("OTHER") for b in branches):
+        return False
+    return all(_TERMINAL_TAIL.search(b.strip()) and " DEPENDING " not in b for b in branches)
+
+
 def _sentence_is_terminal(sentence: str) -> bool:
+    if _evaluate_is_terminal(sentence):
+        return True
     if not _unconditional(sentence):
         return False  # the transfer sits inside an unterminated IF: conditional
     if sentence.endswith("END-EXEC"):
@@ -3942,10 +3958,16 @@ def data_move_rows(path: Path, verbs: tuple = _MV_VERBS) -> list[dict[str, Any]]
     blank = src.text  # EXEC blocks blanked for the verb search; statements still end at EXEC
     for m in re.finditer(r"(?<![A-Z0-9-])EXEC\s.*?(?<![A-Z0-9-])END-EXEC(?![A-Z0-9-])", src.text, re.S):
         blank = blank[: m.start()] + " " * (m.end() - m.start()) + blank[m.end() :]
-    enders = re.compile(r"(?<![A-Z0-9-])(?:" + "|".join(_MV_ENDERS) + r"|END-[A-Z-]+)(?![A-Z0-9-])|\.(?=\s|$)")
+    # Only COBOL's scope terminators end a statement: a data name may start END- too.
+    ends = r"END-(?:ACCEPT|ADD|CALL|COMPUTE|DELETE|DISPLAY|DIVIDE|EVALUATE|EXEC|IF|INVOKE|JSON|MULTIPLY|PERFORM|READ|RECEIVE|RETURN|REWRITE|SEARCH|START|STRING|SUBTRACT|UNSTRING|WRITE|XML)"
+    enders = re.compile(r"(?<![A-Z0-9-])(?:" + "|".join(_MV_ENDERS) + "|" + ends + r")(?![A-Z0-9-])|\.(?=\s|$)")
     # READ's own NEXT (READ f NEXT RECORD INTO t) is not NEXT SENTENCE.
     read_enders = re.compile(
-        r"(?<![A-Z0-9-])(?:" + "|".join(e for e in _MV_ENDERS if e != "NEXT") + r"|END-[A-Z-]+)(?![A-Z0-9-])|\.(?=\s|$)"
+        r"(?<![A-Z0-9-])(?:"
+        + "|".join(e for e in _MV_ENDERS if e != "NEXT")
+        + "|"
+        + ends
+        + r")(?![A-Z0-9-])|\.(?=\s|$)"
     )
     rows = []
     for m in re.finditer(r"(?<![A-Z0-9-])(" + "|".join(verbs) + r")(?![A-Z0-9-])", blank):
@@ -4047,9 +4069,23 @@ def data_move_truncations(path: Path, repo: Path, rows: list[dict[str, Any]]) ->
     src = Source(path)
     proc = src.proc_start if src.proc_start is not None else len(src.lines)
     entries = _mv_entries([a for _, a in src.lines[:proc]], repo, stems)
+    # #3490: a COPY of a BMS mapset with no real copybook gets the generated
+    # symbolic map -- this tool's own layout arithmetic gives its widths.
+    sym: dict[str, int] = {}
+    members = set(re.findall(r"\bCOPY\s+['\"]?([A-Z0-9@#$-]+)", "\n".join(a for _, a in src.lines[:proc])))
+    wanted = {m for m in members if m not in stems}
+    if wanted:
+        for mapset, units in _symbolic_layouts(repo).items():
+            if mapset in wanted:
+                for u in units:
+                    nm, _, rest = u.partition(" @")
+                    sym[nm] = int(rest.split("+")[1])
 
     def width(name: str) -> tuple[Optional[int], str]:
         parts = name.split(" OF ")
+        if parts[0] in sym and not any(e[1] == parts[0] for e in entries):
+            # L is S9(4) COMP; the F / A / attribute bytes and I / O data are PIC X.
+            return sym[parts[0]], ("B" if parts[0].endswith("L") else "X")
         hits = []
         for i, (lv, nm, _) in enumerate(entries):
             if nm != parts[0] or lv in (66, 88):
@@ -4098,6 +4134,16 @@ def draft_io_moves(repo: Path) -> dict[str, dict[str, Any]]:
                     "verification": {"status": "draft", "notes": []},
                 }
     return out
+
+
+_SYM_CACHE: dict = {}
+
+
+def _symbolic_layouts(repo: Path) -> dict[str, list[str]]:
+    """Mapset -> its symbolic-map units, under the draft_symbolic_maps ownership rule (#3490)."""
+    if repo not in _SYM_CACHE:
+        _SYM_CACHE[repo] = {ms: u for e in draft_symbolic_maps(repo).values() for ms, u in e["layouts"].items()}
+    return _SYM_CACHE[repo]
 
 
 def draft_data_moves(repo: Path) -> dict[str, dict[str, Any]]:
@@ -5549,6 +5595,7 @@ def main() -> int:
         key["symbolic_maps"] = sm
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(sm)} BMS symbolic-map files -> {args.key}")
+        return 0
     if args.cmd == "add-io-moves":
         # #3492: the add-pli discipline; an unvalidated file no longer drafted is dropped.
         io = {rel: e for rel, e in key.get("io_moves", {}).items() if e.get("io_moves_validated")}

@@ -1,0 +1,186 @@
+{
+  "metadata": {
+    "file_name": "lgacus01.cbl",
+    "path": "<WORK>/cics-genapp/base/src/lgacus01.cbl",
+    "corporate_header": "",
+    "loc": 179
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "lgacus01.cbl",
+      "total_vars": 101,
+      "orphaned_vars": [
+        "CA-CUSTOMER-NUM",
+        "CA-CUSTOMER-REQUEST",
+        "CA-CUSTSECR-REQUEST",
+        "CA-POLICY-REQUEST",
+        "CA-REQUEST-ID",
+        "CA-REQUEST-SPECIFIC",
+        "DB2-B-ADDRESS",
+        "DB2-B-CRIMEPERIL",
+        "DB2-B-CRIMEPREMIUM",
+        "DB2-B-CUSTOMER",
+        "DB2-B-FIREPERIL",
+        "DB2-B-FIREPREMIUM",
+        "DB2-B-FLOODPERIL",
+        "DB2-B-FLOODPREMIUM",
+        "DB2-B-LATITUDE",
+        "DB2-B-LONGITUDE",
+        "DB2-B-POSTCODE",
+        "DB2-B-PROPTYPE",
+        "DB2-B-REJECTREASON",
+        "DB2-B-STATUS",
+        "DB2-B-WEATHERPERIL",
+        "DB2-B-WEATHERPREMIUM",
+        "DB2-C-CAUSE",
+        "DB2-C-DATE",
+        "DB2-C-NUM",
+        "DB2-C-OBSERVATIONS",
+        "DB2-C-PAID",
+        "DB2-C-VALUE",
+        "DB2-CLAIM",
+        "DB2-COMMERCIAL",
+        "DB2-CUSTOMER",
+        "DB2-DATEOFBIRTH",
+        "DB2-E-PADDINGDATA",
+        "DB2-EMAIL-ADDRESS",
+        "DB2-ENDOW-FIXED",
+        "DB2-ENDOWMENT",
+        "DB2-FIRSTNAME",
+        "DB2-H-BEDROOMS",
+        "DB2-H-HOUSENAME",
+        "DB2-H-HOUSENUMBER",
+        "DB2-H-POSTCODE",
+        "DB2-H-PROPERTYTYPE",
+        "DB2-H-VALUE",
+        "DB2-HOUSE",
+        "DB2-HOUSENAME",
+        "DB2-HOUSENUMBER",
+        "DB2-LASTNAME",
+        "DB2-M-ACCIDENTS",
+        "DB2-M-CC",
+        "DB2-M-COLOUR",
+        "DB2-M-MAKE",
+        "DB2-M-MANUFACTURED",
+        "DB2-M-MODEL",
+        "DB2-M-PREMIUM",
+        "DB2-M-REGNUMBER",
+        "DB2-M-VALUE",
+        "DB2-MOTOR",
+        "DB2-PHONE-HOME",
+        "DB2-PHONE-MOBILE",
+        "DB2-POLICY",
+        "DB2-POLICY-COMMON",
+        "DB2-POLICYNUMBER",
+        "DB2-POLICYTYPE",
+        "DB2-POSTCODE",
+        "WS-CLAIM-LEN",
+        "WS-COMM-LEN",
+        "WS-COMMAREA-LENGTHS",
+        "WS-ENDOW-LEN",
+        "WS-EYECATCHER",
+        "WS-FILLER",
+        "WS-FULL-CLAIM-LEN",
+        "WS-FULL-COMM-LEN",
+        "WS-FULL-ENDOW-LEN",
+        "WS-FULL-HOUSE-LEN",
+        "WS-FULL-MOTOR-LEN",
+        "WS-HOUSE-LEN",
+        "WS-MOTOR-LEN",
+        "WS-POLICY-LEN",
+        "WS-POLICY-LENGTHS",
+        "WS-SUMRY-ENDOW-LEN"
+      ],
+      "total_paras": 4,
+      "dead_paras": [
+        "MAINLINE-EXIT"
+      ],
+      "loc_saved": 90
+    },
+    "lineage": {
+      "program_id": "LGACUS01",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "LGACUS01",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 9,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_TRANSID                     VARCHAR(4),\n    WS_TERMID                      VARCHAR(4),\n    WS_TASKNUM                     INTEGER,\n    WS_CALEN                       SMALLINT,\n    WS_ABSTIME                     INTEGER,\n    WS_TIME                        VARCHAR(8),\n    WS_DATE                        VARCHAR(10),\n    EM_DATE                        VARCHAR(8),\n    EM_TIME                        VARCHAR(6),\n    EM_VARIABLE                    VARCHAR(21),\n    CA_DATA                        VARCHAR(90),\n    WS_CA_HEADER_LEN               SMALLINT,\n    WS_REQUIRED_CA_LEN             SMALLINT,\n    LGACDB01                       VARCHAR(8)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_TRANSID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TERMID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TASKNUM": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(7)"
+          },
+          "WS_CALEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_ABSTIME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "EM_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)"
+          },
+          "EM_VARIABLE": {
+            "type": "string",
+            "description": "Legacy PIC: X(21)"
+          },
+          "CA_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(90)"
+          },
+          "WS_CA_HEADER_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_REQUIRED_CA_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "LGACDB01": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=LGACUS01\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

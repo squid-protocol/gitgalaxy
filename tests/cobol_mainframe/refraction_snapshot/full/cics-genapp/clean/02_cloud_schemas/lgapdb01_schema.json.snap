@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_TRANSID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_TERMID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_TASKNUM": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(7)"
+    },
+    "WS_CALEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "ABS_TIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "TIME1": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "DATE1": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "EM_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "EM_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)"
+    },
+    "EM_CUSNUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "EM_POLNUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "EM_SQLREQ": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "EM_SQLRC": {
+      "type": "integer",
+      "description": "Legacy PIC: +9(5)"
+    },
+    "CA_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(90)"
+    },
+    "WS_CA_HEADER_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_REQUIRED_CA_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_VARY_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_VARY_CHAR": {
+      "type": "string",
+      "description": "Legacy PIC: X(3900)"
+    },
+    "DB2_CUSTOMERNUM_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_BROKERID_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_PAYMENT_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_E_TERM_SINT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "DB2_E_SUMASSURED_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_H_BEDROOMS_SINT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "DB2_H_VALUE_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_M_VALUE_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_M_CC_SINT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "DB2_M_PREMIUM_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_M_ACCIDENTS_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_B_FIREPERIL_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "DB2_B_FIREPREMIUM_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_B_CRIMEPERIL_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "DB2_B_CRIMEPREMIUM_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_B_FLOODPERIL_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "DB2_B_FLOODPREMIUM_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_B_WEATHERPERIL_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "DB2_B_WEATHERPREMIUM_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_B_STATUS_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "DB2_C_POLICYNUM_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "DB2_POLICYNUM_INT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "LGAPVS01": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    }
+  }
+}

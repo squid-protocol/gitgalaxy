@@ -1,0 +1,59 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_RESP2": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_COMMAREA_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_ABSTIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "EM_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "EM_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)"
+    },
+    "EM_CUSNUM": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "EM_RESPRC": {
+      "type": "integer",
+      "description": "Legacy PIC: +9(5)"
+    },
+    "EM_RESP2RC": {
+      "type": "integer",
+      "description": "Legacy PIC: +9(5)"
+    },
+    "CA_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(90)"
+    },
+    "CUSTOMER_RECORD_SIZE": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    }
+  }
+}

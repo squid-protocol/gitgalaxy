@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_FLAG": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_INVOKEPROG": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_RECV_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(74)"
+    },
+    "WS_RECV_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WRITE_MSG_SYSID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "FILLER_X": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WRITE_MSG_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(90)"
+    },
+    "WRITE_MSG_REST": {
+      "type": "string",
+      "description": "Legacy PIC: X(83)"
+    },
+    "STSQ_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "STSQ_EXT": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "TEMPO": {
+      "type": "string",
+      "description": "Legacy PIC: X(90)"
+    },
+    "STDQ_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "COMMA_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(90)"
+    }
+  }
+}

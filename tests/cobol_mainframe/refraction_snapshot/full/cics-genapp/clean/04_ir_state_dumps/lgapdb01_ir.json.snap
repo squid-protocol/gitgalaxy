@@ -1,0 +1,277 @@
+{
+  "metadata": {
+    "file_name": "lgapdb01.cbl",
+    "path": "<WORK>/cics-genapp/base/src/lgapdb01.cbl",
+    "corporate_header": "",
+    "loc": 595
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "lgapdb01.cbl",
+      "total_vars": 132,
+      "orphaned_vars": [
+        "CA-CUSTOMER-REQUEST",
+        "CA-CUSTSECR-REQUEST",
+        "CA-POLICY-REQUEST",
+        "CA-REQUEST-SPECIFIC",
+        "DB2-B-ADDRESS",
+        "DB2-B-CUSTOMER",
+        "DB2-B-LATITUDE",
+        "DB2-B-LONGITUDE",
+        "DB2-B-POSTCODE",
+        "DB2-B-PROPTYPE",
+        "DB2-B-REJECTREASON",
+        "DB2-C-CAUSE",
+        "DB2-C-DATE",
+        "DB2-C-NUM",
+        "DB2-C-NUM-INT",
+        "DB2-C-OBSERVATIONS",
+        "DB2-C-PAID",
+        "DB2-C-PAID-INT",
+        "DB2-C-VALUE",
+        "DB2-C-VALUE-INT",
+        "DB2-CLAIM",
+        "DB2-COMMERCIAL",
+        "DB2-CUSTOMER",
+        "DB2-DATEOFBIRTH",
+        "DB2-E-PADDING-LEN",
+        "DB2-E-PADDINGDATA",
+        "DB2-EMAIL-ADDRESS",
+        "DB2-ENDOW-FIXED",
+        "DB2-ENDOWMENT",
+        "DB2-FIRSTNAME",
+        "DB2-H-HOUSENAME",
+        "DB2-H-HOUSENUMBER",
+        "DB2-H-POSTCODE",
+        "DB2-H-PROPERTYTYPE",
+        "DB2-HOUSE",
+        "DB2-HOUSENAME",
+        "DB2-HOUSENUMBER",
+        "DB2-LASTNAME",
+        "DB2-M-COLOUR",
+        "DB2-M-MAKE",
+        "DB2-M-MANUFACTURED",
+        "DB2-M-MODEL",
+        "DB2-M-REGNUMBER",
+        "DB2-MOTOR",
+        "DB2-PHONE-HOME",
+        "DB2-PHONE-MOBILE",
+        "DB2-POLICY",
+        "DB2-POLICY-COMMON",
+        "DB2-POLICYNUMBER",
+        "DB2-POSTCODE",
+        "WS-CLAIM-LEN",
+        "WS-COMM-LEN",
+        "WS-COMMAREA-LENGTHS",
+        "WS-CUSTOMER-LEN",
+        "WS-ENDOW-LEN",
+        "WS-EYECATCHER",
+        "WS-FILLER",
+        "WS-FULL-CLAIM-LEN",
+        "WS-HOUSE-LEN",
+        "WS-MOTOR-LEN",
+        "WS-POLICY-LEN",
+        "WS-POLICY-LENGTHS",
+        "WS-SUMRY-ENDOW-LEN"
+      ],
+      "total_paras": 8,
+      "dead_paras": [
+        "MAINLINE-EXIT"
+      ],
+      "loc_saved": 73
+    },
+    "lineage": {
+      "program_id": "LGAPDB01",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "LGAPDB01",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": true,
+      "cics_calls": 20,
+      "sql_calls": 11
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_TRANSID                     VARCHAR(4),\n    WS_TERMID                      VARCHAR(4),\n    WS_TASKNUM                     INTEGER,\n    WS_CALEN                       SMALLINT,\n    ABS_TIME                       INTEGER,\n    TIME1                          VARCHAR(8),\n    DATE1                          VARCHAR(10),\n    EM_DATE                        VARCHAR(8),\n    EM_TIME                        VARCHAR(6),\n    EM_CUSNUM                      VARCHAR(10),\n    EM_POLNUM                      VARCHAR(10),\n    EM_SQLREQ                      VARCHAR(16),\n    EM_SQLRC                       INTEGER,\n    CA_DATA                        VARCHAR(90),\n    WS_CA_HEADER_LEN               SMALLINT,\n    WS_REQUIRED_CA_LEN             SMALLINT,\n    WS_VARY_LEN                    SMALLINT,\n    WS_VARY_CHAR                   VARCHAR(3900),\n    DB2_CUSTOMERNUM_INT            INTEGER,\n    DB2_BROKERID_INT               INTEGER,\n    DB2_PAYMENT_INT                INTEGER,\n    DB2_E_TERM_SINT                SMALLINT,\n    DB2_E_SUMASSURED_INT           INTEGER,\n    DB2_H_BEDROOMS_SINT            SMALLINT,\n    DB2_H_VALUE_INT                INTEGER,\n    DB2_M_VALUE_INT                INTEGER,\n    DB2_M_CC_SINT                  SMALLINT,\n    DB2_M_PREMIUM_INT              INTEGER,\n    DB2_M_ACCIDENTS_INT            INTEGER,\n    DB2_B_FIREPERIL_INT            SMALLINT,\n    DB2_B_FIREPREMIUM_INT          INTEGER,\n    DB2_B_CRIMEPERIL_INT           SMALLINT,\n    DB2_B_CRIMEPREMIUM_INT         INTEGER,\n    DB2_B_FLOODPERIL_INT           SMALLINT,\n    DB2_B_FLOODPREMIUM_INT         INTEGER,\n    DB2_B_WEATHERPERIL_INT         SMALLINT,\n    DB2_B_WEATHERPREMIUM_INT       INTEGER,\n    DB2_B_STATUS_INT               SMALLINT,\n    DB2_C_POLICYNUM_INT            INTEGER,\n    DB2_POLICYNUM_INT              INTEGER,\n    LGAPVS01                       VARCHAR(8)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_TRANSID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TERMID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TASKNUM": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(7)"
+          },
+          "WS_CALEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "ABS_TIME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "TIME1": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "DATE1": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "EM_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)"
+          },
+          "EM_CUSNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_POLNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_SQLREQ": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "EM_SQLRC": {
+            "type": "integer",
+            "description": "Legacy PIC: +9(5)"
+          },
+          "CA_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(90)"
+          },
+          "WS_CA_HEADER_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_REQUIRED_CA_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_VARY_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WS_VARY_CHAR": {
+            "type": "string",
+            "description": "Legacy PIC: X(3900)"
+          },
+          "DB2_CUSTOMERNUM_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_BROKERID_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_PAYMENT_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_E_TERM_SINT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "DB2_E_SUMASSURED_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_H_BEDROOMS_SINT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "DB2_H_VALUE_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_M_VALUE_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_M_CC_SINT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "DB2_M_PREMIUM_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_M_ACCIDENTS_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_B_FIREPERIL_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "DB2_B_FIREPREMIUM_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_B_CRIMEPERIL_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "DB2_B_CRIMEPREMIUM_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_B_FLOODPERIL_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "DB2_B_FLOODPREMIUM_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_B_WEATHERPERIL_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "DB2_B_WEATHERPREMIUM_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_B_STATUS_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "DB2_C_POLICYNUM_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "DB2_POLICYNUM_INT": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "LGAPVS01": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS + DB2\n//* ==========================================================\n//STEP01   EXEC PGM=LGAPDB01\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

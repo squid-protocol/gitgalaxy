@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_TRANSID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_TERMID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_TASKNUM": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(7)"
+    },
+    "WS_CALEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_ABSTIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "EM_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "EM_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)"
+    },
+    "EM_VARIABLE": {
+      "type": "string",
+      "description": "Legacy PIC: X(21)"
+    },
+    "CA_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(90)"
+    },
+    "LGICDB01": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_CA_HEADERTRAILER_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_REQUIRED_CA_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    }
+  }
+}

@@ -70,6 +70,14 @@ _VERBS = frozenset(
         "SUBTRACT", "UNSTRING", "WHEN", "WRITE", "COPY", "OTHERWISE", "THEN", "NEXT",
     }
 )  # fmt: skip
+# The COBOL explicit scope terminators: a data name may itself start with END-
+# (GENAPP's END-POLICY-POS), so only these words end a statement.
+_END_WORDS = frozenset(
+    "END-" + w
+    for w in ("ACCEPT", "ADD", "CALL", "COMPUTE", "DELETE", "DISPLAY", "DIVIDE", "EVALUATE", "EXEC", "IF",
+              "INVOKE", "JSON", "MULTIPLY", "PERFORM", "READ", "RECEIVE", "RETURN", "REWRITE", "SEARCH", "START",
+              "STRING", "SUBTRACT", "UNSTRING", "WRITE", "XML")
+)  # fmt: skip
 _DATA_VERBS = ("MOVE", "COMPUTE", "ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "STRING", "UNSTRING", "INITIALIZE",
                "READ", "RETURN", "WRITE", "REWRITE", "RELEASE", "ACCEPT")  # fmt: skip
 # #3492: the file-I/O verbs above move a whole record, as a MOVE does.
@@ -113,13 +121,13 @@ class _Stream:
 
     def done(self) -> bool:
         t = self.peek()
-        return self.i >= self.end or t == "." or t in _VERBS or t.startswith("END-")
+        return self.i >= self.end or t == "." or t in _VERBS or t in _END_WORDS
 
     def operand(self) -> Optional[tuple[str, str, bool]]:
         """(text, kind, refmod) of the operand at the cursor, advancing past it, or
         None (cursor unmoved) when the cursor is not at an operand."""
         t = self.peek()
-        if not t or t == "." or t in _VERBS or t in _STOPS or t.startswith("END-"):
+        if not t or t == "." or t in _VERBS or t in _STOPS or t in _END_WORDS:
             return None
         raw = self.toks[self.i][0]
         if raw[:1] in "'\"" or (len(raw) > 1 and raw[1] in "'\"" and raw[0].upper() in "XNGZ"):

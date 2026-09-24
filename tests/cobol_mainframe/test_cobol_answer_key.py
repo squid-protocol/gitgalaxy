@@ -1257,3 +1257,14 @@ def test_dynamic_targets_on_its_own(tmp_path):
         "L9 XCTL MENU-OPT-PGM -> PGMAAA",
         "L9 XCTL MENU-OPT-PGM -> PGMBBB",
     ]
+
+
+def test_exhaustive_evaluate_ending_every_branch_in_a_transfer_is_terminal():
+    """GENAPP LGTESTP4 NO-ADD (found by the blind census): an EVALUATE with WHEN
+    OTHER whose every branch GO TOs never falls through; without WHEN OTHER, or
+    with a branch that does not transfer, it can."""
+    assert ak._sentence_is_terminal(
+        "EVALUATE CA-RETURN-CODE WHEN 70 MOVE 'X' TO A GO TO ERROR-OUT WHEN OTHER MOVE 'Y' TO A GO TO ERROR-OUT END-EVALUATE"
+    )
+    assert not ak._sentence_is_terminal("EVALUATE A WHEN 70 GO TO E1 WHEN 80 GO TO E2 END-EVALUATE")
+    assert not ak._sentence_is_terminal("EVALUATE A WHEN 70 GO TO E1 WHEN OTHER MOVE 1 TO B END-EVALUATE")

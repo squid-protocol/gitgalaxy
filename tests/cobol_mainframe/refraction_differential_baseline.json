@@ -4,8 +4,8 @@
     "aws-mainframe-modernization-carddemo": {
       "by_cause": {
         "entry_point": 2,
-        "forge_flat_schema": 6,
-        "stated_absence": 16,
+        "key:engine defect": 1,
+        "stated_absence": 13,
         "system_copybook": 4
       },
       "note": "No answer key yet (#3210 pending for carddemo); this excerpt classifies by mechanism only and lands at 0 unexplained.",
@@ -14,19 +14,23 @@
     "cics-banking-sample-application-cbsa": {
       "by_cause": {
         "bms_symbolic_map": 1,
-        "entry_point": 38,
-        "exec_sql_include": 2,
-        "forge_flat_schema": 5,
+        "entry_point": 37,
+        "exec_sql_include": 1,
         "stated_absence": 10,
         "system_copybook": 1
       },
       "note": null,
       "unexplained": 0
     },
+    "cics-genapp": {
+      "by_cause": {},
+      "note": null,
+      "unexplained": 0
+    },
     "zopeneditor-sample": {
       "by_cause": {
         "entry_point": 5,
-        "forge_flat_schema": 7,
+        "key:engine defect": 2,
         "stated_absence": 32
       },
       "note": null,
@@ -58,6 +62,16 @@
         "usage_status_not_reachability": 33
       },
       "note": "0 unexplained. The 33 usage_status_not_reachability cells are the forge's reachability-based dead vs the engine's unreferenced-by-name usage_status -- a deliberately different signal (#3198 closed by design; docs/unreferenced_by_name_contract.md). Not a pending fix.",
+      "unexplained": 0
+    },
+    "cics-genapp": {
+      "by_cause": {
+        "bms_symbolic_map": 5,
+        "entry_point": 39,
+        "exec_sql_include": 8,
+        "stated_absence": 70
+      },
+      "note": null,
       "unexplained": 0
     },
     "zopeneditor-sample": {

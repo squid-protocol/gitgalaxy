@@ -1,0 +1,14 @@
+CREATE TABLE COMM_AREA (
+    WS_RESP                        INTEGER,
+    WS_ITEM_COUNT                  SMALLINT,
+    WS_FLAG_TSQH                   VARCHAR(1),
+    READ_MSG_MSG                   VARCHAR(80),
+    WRITE_MSG_E                    VARCHAR(20),
+    WRITE_MSG_L                    VARCHAR(13),
+    WRITE_MSG_LOW                  BIGINT,
+    WRITE_MSG_H                    VARCHAR(14),
+    WRITE_MSG_HIGH                 BIGINT,
+    STSQ_NAME                      VARCHAR(8),
+    F24                            SMALLINT,
+    MSGEND                         VARCHAR(24)
+);

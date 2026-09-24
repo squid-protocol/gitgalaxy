@@ -4360,6 +4360,11 @@
       ],
       "jcl/cics-genapp/sampcma.jcl": [
         {
+          "Job": "<CMASAPPL>",
+          "Kind": "JOB",
+          "Line": 1
+        },
+        {
           "Kind": "STEP",
           "Line": 6,
           "Program": "EYU9XECS",
@@ -4548,6 +4553,11 @@
         }
       ],
       "jcl/cics-genapp/sampwui.jcl": [
+        {
+          "Job": "<WUIAPPL>",
+          "Kind": "JOB",
+          "Line": 1
+        },
         {
           "Kind": "STEP",
           "Line": 5,

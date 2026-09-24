@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "file_name": "lgapvs01.cbl",
+    "path": "<WORK>/cics-genapp/base/src/lgapvs01.cbl",
+    "corporate_header": "",
+    "loc": 188
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "lgapvs01.cbl",
+      "total_vars": 51,
+      "orphaned_vars": [
+        "CA-CUSTOMER-REQUEST",
+        "CA-CUSTSECR-REQUEST",
+        "CA-POLICY-REQUEST",
+        "CA-REQUEST-SPECIFIC",
+        "EM-VARIABLE",
+        "EYECATCHER",
+        "WF-C-POLICY-DATA",
+        "WF-E-POLICY-DATA",
+        "WF-H-POLICY-DATA",
+        "WF-M-POLICY-DATA",
+        "WS-COMM-LEN",
+        "WS-STARTCODE",
+        "WS-SYSID"
+      ],
+      "total_paras": 3,
+      "dead_paras": [],
+      "loc_saved": 13
+    },
+    "lineage": {
+      "program_id": "LGAPVS01",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "LGAPVS01",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 7,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP                        INTEGER,\n    WS_RESP2                       INTEGER,\n    WS_COMMAREA_LEN                SMALLINT,\n    WF_REQUEST_ID                  VARCHAR(1),\n    WF_CUSTOMER_NUM                VARCHAR(10),\n    WF_POLICY_NUM                  VARCHAR(10),\n    WF_POLICY_DATA                 VARCHAR(43),\n    WF_B_POSTCODE                  VARCHAR(8),\n    WF_B_STATUS                    SMALLINT,\n    WF_B_CUSTOMER                  VARCHAR(31),\n    WF_E_WITH_PROFITS              VARCHAR(1),\n    WF_E_EQUITIES                  VARCHAR(1),\n    WF_E_MANAGED_FUND              VARCHAR(1),\n    WF_E_FUND_NAME                 VARCHAR(10),\n    WF_E_LIFE_ASSURED              VARCHAR(30),\n    WF_H_PROPERTY_TYPE             VARCHAR(15),\n    WF_H_BEDROOMS                  SMALLINT,\n    WF_H_VALUE                     INTEGER,\n    WF_H_POSTCODE                  VARCHAR(8),\n    WF_H_HOUSE_NAME                VARCHAR(9),\n    WF_M_MAKE                      VARCHAR(15),\n    WF_M_MODEL                     VARCHAR(15),\n    WF_M_VALUE                     INTEGER,\n    WF_M_REGNUMBER                 VARCHAR(7),\n    WS_ABSTIME                     INTEGER,\n    WS_TIME                        VARCHAR(8),\n    WS_DATE                        VARCHAR(10),\n    EM_DATE                        VARCHAR(8),\n    EM_TIME                        VARCHAR(6),\n    EM_POLNUM                      VARCHAR(10),\n    EM_CUSNUM                      VARCHAR(10),\n    EM_RESPRC                      INTEGER,\n    EM_RESP2RC                     INTEGER,\n    CA_DATA                        VARCHAR(90)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_RESP2": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_COMMAREA_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WF_REQUEST_ID": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WF_CUSTOMER_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WF_POLICY_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WF_POLICY_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(43)"
+          },
+          "WF_B_POSTCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WF_B_STATUS": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(4)"
+          },
+          "WF_B_CUSTOMER": {
+            "type": "string",
+            "description": "Legacy PIC: X(31)"
+          },
+          "WF_E_WITH_PROFITS": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WF_E_EQUITIES": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WF_E_MANAGED_FUND": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WF_E_FUND_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WF_E_LIFE_ASSURED": {
+            "type": "string",
+            "description": "Legacy PIC: X(30)"
+          },
+          "WF_H_PROPERTY_TYPE": {
+            "type": "string",
+            "description": "Legacy PIC: X(15)"
+          },
+          "WF_H_BEDROOMS": {
+            "type": "integer",
+            "description": "Legacy PIC: 999"
+          },
+          "WF_H_VALUE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
+          },
+          "WF_H_POSTCODE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WF_H_HOUSE_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "WF_M_MAKE": {
+            "type": "string",
+            "description": "Legacy PIC: X(15)"
+          },
+          "WF_M_MODEL": {
+            "type": "string",
+            "description": "Legacy PIC: X(15)"
+          },
+          "WF_M_VALUE": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
+          },
+          "WF_M_REGNUMBER": {
+            "type": "string",
+            "description": "Legacy PIC: X(7)"
+          },
+          "WS_ABSTIME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "EM_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)"
+          },
+          "EM_POLNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_CUSNUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "EM_RESPRC": {
+            "type": "integer",
+            "description": "Legacy PIC: +9(5)"
+          },
+          "EM_RESP2RC": {
+            "type": "integer",
+            "description": "Legacy PIC: +9(5)"
+          },
+          "CA_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(90)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=LGAPVS01\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

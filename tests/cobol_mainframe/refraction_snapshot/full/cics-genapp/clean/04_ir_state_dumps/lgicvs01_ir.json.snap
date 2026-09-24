@@ -1,0 +1,170 @@
+{
+  "metadata": {
+    "file_name": "lgicvs01.cbl",
+    "path": "<WORK>/cics-genapp/base/src/lgicvs01.cbl",
+    "corporate_header": "",
+    "loc": 230
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "lgicvs01.cbl",
+      "total_vars": 41,
+      "orphaned_vars": [
+        "DFHCOMMAREA",
+        "MSGEND",
+        "PIC",
+        "STSQ-EXT",
+        "TEMPO",
+        "WS-CUST-NUMBER",
+        "WS-RANDOM-SEED",
+        "WS-RECV-TRANID"
+      ],
+      "total_paras": 2,
+      "dead_paras": [
+        "A-EXIT"
+      ],
+      "loc_saved": 18
+    },
+    "lineage": {
+      "program_id": "LGICVS01",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "LGICVS01",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 14,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_FLAG_TSQE                   VARCHAR(1),\n    WS_FLAG_TSQH                   VARCHAR(1),\n    WS_FLAG_TSQL                   VARCHAR(1),\n    WS_FLAG                        VARCHAR(1),\n    WS_RANDOM_NUMBER               INTEGER,\n    WS_RESP                        INTEGER,\n    WS_STARTCODE                   VARCHAR(2),\n    WS_SYSID                       VARCHAR(4),\n    WS_INVOKEPROG                  VARCHAR(8),\n    WS_COMMAREA                    VARCHAR(80),\n    WS_RECV_DATA                   VARCHAR(74),\n    WS_RECV_LEN                    SMALLINT,\n    READ_MSG_MSG                   VARCHAR(80),\n    READ_CUST_LOW                  BIGINT,\n    READ_CUST_HIGH                 BIGINT,\n    WS_CUST_LOW                    BIGINT,\n    WS_CUST_HIGH                   BIGINT,\n    WRITE_MSG_E                    VARCHAR(20),\n    WRITE_MSG_L                    VARCHAR(13),\n    WRITE_MSG_LOW                  VARCHAR(10),\n    WRITE_MSG_H                    VARCHAR(14),\n    WRITE_MSG_HIGH                 BIGINT,\n    STSQ_NAME                      VARCHAR(8),\n    CA_CUSTOMER_NUM                VARCHAR(10),\n    F82                            SMALLINT,\n    F10                            SMALLINT,\n    COMMA_DATA_H                   VARCHAR(14),\n    COMMA_DATA_HIGH                BIGINT\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_FLAG_TSQE": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WS_FLAG_TSQH": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WS_FLAG_TSQL": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WS_FLAG": {
+            "type": "string",
+            "description": "Legacy PIC: X"
+          },
+          "WS_RANDOM_NUMBER": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(8)"
+          },
+          "WS_RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_STARTCODE": {
+            "type": "string",
+            "description": "Legacy PIC: XX"
+          },
+          "WS_SYSID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_INVOKEPROG": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_COMMAREA": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "WS_RECV_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(74)"
+          },
+          "WS_RECV_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "READ_MSG_MSG": {
+            "type": "string",
+            "description": "Legacy PIC: X(80)"
+          },
+          "READ_CUST_LOW": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "READ_CUST_HIGH": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "WS_CUST_LOW": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(10)"
+          },
+          "WS_CUST_HIGH": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(10)"
+          },
+          "WRITE_MSG_E": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "WRITE_MSG_L": {
+            "type": "string",
+            "description": "Legacy PIC: X(13)"
+          },
+          "WRITE_MSG_LOW": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WRITE_MSG_H": {
+            "type": "string",
+            "description": "Legacy PIC: X(14)"
+          },
+          "WRITE_MSG_HIGH": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "STSQ_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "CA_CUSTOMER_NUM": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "F82": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "F10": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "COMMA_DATA_H": {
+            "type": "string",
+            "description": "Legacy PIC: X(14)"
+          },
+          "COMMA_DATA_HIGH": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=LGICVS01\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

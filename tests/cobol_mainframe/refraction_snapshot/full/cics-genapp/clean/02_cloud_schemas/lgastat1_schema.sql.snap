@@ -1,0 +1,21 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_ABSTIME                     INTEGER,
+    WS_TIME                        VARCHAR(8),
+    WS_DATE                        VARCHAR(10),
+    WS_AREA_D                      VARCHAR(8),
+    WS_AREA_T                      VARCHAR(6),
+    WS_QNAME                       VARCHAR(8),
+    WS_CHANNAME1                   VARCHAR(16),
+    WS_CHANNAME2                   VARCHAR(16),
+    WS_DATA_REQ                    VARCHAR(6),
+    WS_DATA_RC                     VARCHAR(2),
+    WS_TRANSID                     VARCHAR(4),
+    WS_TERMID                      VARCHAR(4),
+    WS_TASKNUM                     INTEGER,
+    WS_CALEN                       INTEGER,
+    WS_RESP                        INTEGER,
+    GENACOUNTER                    VARCHAR(6),
+    GENATYPE                       VARCHAR(2),
+    TRANCOUNT                      INTEGER,
+    GENAPOOL                       VARCHAR(8)
+);

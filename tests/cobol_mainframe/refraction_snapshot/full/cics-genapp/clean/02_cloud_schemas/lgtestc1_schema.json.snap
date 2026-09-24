@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "COMM_AREA",
+  "type": "object",
+  "properties": {
+    "WS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_ITEM_COUNT": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WS_FLAG_TSQH": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "READ_MSG_MSG": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "WRITE_MSG_E": {
+      "type": "string",
+      "description": "Legacy PIC: X(20)"
+    },
+    "WRITE_MSG_L": {
+      "type": "string",
+      "description": "Legacy PIC: X(13)"
+    },
+    "WRITE_MSG_LOW": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "WRITE_MSG_H": {
+      "type": "string",
+      "description": "Legacy PIC: X(14)"
+    },
+    "WRITE_MSG_HIGH": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "STSQ_NAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "F24": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "MSGEND": {
+      "type": "string",
+      "description": "Legacy PIC: X(24)"
+    }
+  }
+}

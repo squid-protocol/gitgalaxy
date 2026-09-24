@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "WS_FLAG": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "WS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_STARTCODE": {
+      "type": "string",
+      "description": "Legacy PIC: XX"
+    },
+    "WS_SYSID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_INVOKEPROG": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_COMMAREA": {
+      "type": "string",
+      "description": "Legacy PIC: X(80)"
+    },
+    "WS_RECV_DATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(74)"
+    },
+    "WS_RECV_LEN": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "WRITE_MSG_TEXT": {
+      "type": "string",
+      "description": "Legacy PIC: X(11)"
+    },
+    "WRITE_MSG_CUSTNUM": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "WRITE_MSG_POLNUM": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "PART_KEY_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "PART_KEY_NUM": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(10)"
+    },
+    "CA_POLICY_TYPE": {
+      "type": "string",
+      "description": "Legacy PIC: X"
+    },
+    "F64": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "F11": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(4)"
+    },
+    "COMMA_DATA_TEXT": {
+      "type": "string",
+      "description": "Legacy PIC: X(11)"
+    },
+    "COMMA_DATA_KEY": {
+      "type": "string",
+      "description": "Legacy PIC: X(21)"
+    }
+  }
+}

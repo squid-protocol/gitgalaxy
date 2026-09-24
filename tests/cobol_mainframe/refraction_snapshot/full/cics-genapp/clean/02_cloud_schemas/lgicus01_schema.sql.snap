@@ -1,0 +1,16 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_TRANSID                     VARCHAR(4),
+    WS_TERMID                      VARCHAR(4),
+    WS_TASKNUM                     INTEGER,
+    WS_CALEN                       SMALLINT,
+    WS_ABSTIME                     INTEGER,
+    WS_TIME                        VARCHAR(8),
+    WS_DATE                        VARCHAR(10),
+    EM_DATE                        VARCHAR(8),
+    EM_TIME                        VARCHAR(6),
+    EM_VARIABLE                    VARCHAR(21),
+    CA_DATA                        VARCHAR(90),
+    LGICDB01                       VARCHAR(8),
+    WS_CA_HEADERTRAILER_LEN        SMALLINT,
+    WS_REQUIRED_CA_LEN             SMALLINT
+);

@@ -82,11 +82,15 @@ def test_markdown_lists_every_channel_and_input(estate):
 PINNED = {
     "aws-mainframe-modernization-carddemo": {
         "program calls": (63, 82), "copybooks": (173, 173), "transactions": (62, 73), "screens": (42, 47),
-        "data flows": (4933, 5042), "IMS PSBs": (7, 7), "batch entry": (11, 17),
+        "data flows": (4945, 5054), "IMS PSBs": (7, 7), "batch entry": (11, 17),
     },
     "cics-banking-sample-application-cbsa": {
         "program calls": (140, 140), "copybooks": (88, 88), "transactions": (40, 47), "screens": (36, 37),
-        "data flows": (4735, 4736), "IMS PSBs": (0, 0), "batch entry": (0, 1),
+        "data flows": (4738, 4739), "IMS PSBs": (0, 0), "batch entry": (0, 1),
+    },
+    "cics-genapp": {
+        "program calls": (95, 101), "copybooks": (29, 29), "transactions": (74, 74), "screens": (52, 52),
+        "data flows": (1284, 1285), "IMS PSBs": (0, 0), "batch entry": (0, 0),
     },
     "zopeneditor-sample": {
         "program calls": (4, 6), "copybooks": (6, 6), "transactions": (0, 0), "screens": (0, 0),

@@ -4791,7 +4791,72 @@
       ]
     },
     "jcl/cics-genapp": {
+      "jcl/cics-genapp/adef121.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DDIN",
+          "DSN": "<KSDSCUS>",
+          "Internal Name": null,
+          "Line": 62,
+          "Step": "CUSTDATA"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DDOUT",
+          "DSN": "<USRHLQ>.GENAPP.KSDSCUST",
+          "Internal Name": null,
+          "Line": 63,
+          "Step": "CUSTDATA"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DDIN",
+          "DSN": "<KSDSPOL>",
+          "Internal Name": null,
+          "Line": 72,
+          "Step": "POLYDATA"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DDOUT",
+          "DSN": "<USRHLQ>.GENAPP.KSDSPOLY",
+          "Internal Name": null,
+          "Line": 73,
+          "Step": "POLYDATA"
+        }
+      ],
       "jcl/cics-genapp/asmmap.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT1",
+          "DSN": "<SOURCEX>(SSMAP)",
+          "Internal Name": null,
+          "Line": 12,
+          "Step": "COPY"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<CICSHLQ>.SDFHMAC",
+          "Internal Name": null,
+          "Line": 25,
+          "Step": "ASMMAP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<SOURCEX>",
+          "Internal Name": null,
+          "Line": 26,
+          "Step": "ASMMAP"
+        },
         {
           "Access Modes": [],
           "Assign Name": null,
@@ -4813,6 +4878,33 @@
         {
           "Access Modes": [],
           "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "<LOADX>(SSMAP)",
+          "Internal Name": null,
+          "Line": 43,
+          "Step": "LINKMAP"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<CICSHLQ>.SDFHMAC",
+          "Internal Name": null,
+          "Line": 57,
+          "Step": "ASMDSECT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<SOURCEX>",
+          "Internal Name": null,
+          "Line": 58,
+          "Step": "ASMDSECT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
           "DD Name": "SYSLIB",
           "DSN": "SYS1.MODGEN",
           "Internal Name": null,
@@ -4827,6 +4919,831 @@
           "Internal Name": null,
           "Line": 60,
           "Step": "ASMDSECT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSPUNCH",
+          "DSN": "<MAPCOPX>(SSMAP)",
+          "Internal Name": null,
+          "Line": 64,
+          "Step": "ASMDSECT"
+        }
+      ],
+      "jcl/cics-genapp/cdef121.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "CSDDEFS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHCSD",
+          "DSN": "<CSDNAME>",
+          "Internal Name": null,
+          "Line": 10,
+          "Step": "CSDDEFS"
+        }
+      ],
+      "jcl/cics-genapp/cdef122.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "CSDDEFS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHCSD",
+          "DSN": "<CSDNAME>",
+          "Internal Name": null,
+          "Line": 10,
+          "Step": "CSDDEFS"
+        }
+      ],
+      "jcl/cics-genapp/cdef123.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "CSDDEFS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHCSD",
+          "DSN": "<CSDNAME>",
+          "Internal Name": null,
+          "Line": 10,
+          "Step": "CSDDEFS"
+        }
+      ],
+      "jcl/cics-genapp/cdef124.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "CSDDEFS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHCSD",
+          "DSN": "<CSDNAME>",
+          "Internal Name": null,
+          "Line": 10,
+          "Step": "CSDDEFS"
+        }
+      ],
+      "jcl/cics-genapp/cdef125.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "CSDDEFS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHCSD",
+          "DSN": "<CSDNAME>",
+          "Internal Name": null,
+          "Line": 10,
+          "Step": "CSDDEFS"
+        }
+      ],
+      "jcl/cics-genapp/cobol.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<COBOLHLQ>.SIGYCOMP",
+          "Internal Name": null,
+          "Line": 13,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Internal Name": null,
+          "Line": 14,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<DB2HLQ>.SDSNEXIT",
+          "Internal Name": null,
+          "Line": 15,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 16,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<CICSHLQ>.SDFHCOB",
+          "Internal Name": null,
+          "Line": 17,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<CICSHLQ>.SDFHMAC",
+          "Internal Name": null,
+          "Line": 18,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<CICSHLQ>.SDFHSAMP",
+          "Internal Name": null,
+          "Line": 19,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<DB2HLQ>.SDSNSAMP",
+          "Internal Name": null,
+          "Line": 20,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<DB2HLQ>.SDSNMACS",
+          "Internal Name": null,
+          "Line": 21,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<MAPCOPX>",
+          "Internal Name": null,
+          "Line": 22,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<SOURCEX>",
+          "Internal Name": null,
+          "Line": 23,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "<SOURCEX>(&MEM)",
+          "DSN Resolution": "ambiguous",
+          "Internal Name": null,
+          "Line": 24,
+          "Resolved DSN": null,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "<DBRMLIX>(&MEM)",
+          "DSN Resolution": "ambiguous",
+          "Internal Name": null,
+          "Line": 25,
+          "Resolved DSN": null,
+          "Step": "COBL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT1",
+          "DSN": "<CICSHLQ>.SDFHCOB(DFHEILIC)",
+          "Internal Name": null,
+          "Line": 57,
+          "Step": "COPYLINK"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Internal Name": null,
+          "Line": 69,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 70,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<CEEHLQ>.SCEELKED",
+          "Internal Name": null,
+          "Line": 71,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<LOADX>",
+          "Internal Name": null,
+          "Line": 72,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLMOD",
+          "DSN": "<LOADX>(&MEM)",
+          "DSN Resolution": "ambiguous",
+          "Internal Name": null,
+          "Line": 73,
+          "Resolved DSN": null,
+          "Step": "LKED"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIN",
+          "DSN": "<SOURCEX>(LINKPARM)",
+          "Internal Name": null,
+          "Line": 79,
+          "Step": "LKED"
+        }
+      ],
+      "jcl/cics-genapp/db2bind.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 7,
+          "Step": "BIND"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DBRMLIB",
+          "DSN": "<DBRMLIX>",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": "BIND"
+        }
+      ],
+      "jcl/cics-genapp/db2cre.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 6,
+          "Step": null
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 405,
+          "Step": "INSERT"
+        }
+      ],
+      "jcl/cics-genapp/db2del.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "JOBLIB",
+          "DSN": "<DB2HLQ>.SDSNLOAD",
+          "Internal Name": null,
+          "Line": 6,
+          "Step": null
+        }
+      ],
+      "jcl/cics-genapp/defdrep.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CPSMHLQ>.SEYUAUTH",
+          "Internal Name": null,
+          "Line": 49,
+          "Step": "DREPINIT"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "EYUDREP",
+          "DSN": "<USRHLQ>.<CMASAPPL>.EYUDREP",
+          "Internal Name": null,
+          "Line": 50,
+          "Step": "DREPINIT"
+        }
+      ],
+      "jcl/cics-genapp/itpentr.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<WSIMHLQ>.SITPLOAD",
+          "Internal Name": null,
+          "Line": 7,
+          "Step": "RUNSIM"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "INITDD",
+          "DSN": "<WSIMWSX>",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": "RUNSIM"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "MSGDD",
+          "DSN": "<WSIMMSX>",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "RUNSIM"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "MSGDD",
+          "DSN": "<WSIMWSX>",
+          "Internal Name": null,
+          "Line": 10,
+          "Step": "RUNSIM"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "LOGDD",
+          "DSN": "<WSIMLGX>",
+          "Internal Name": null,
+          "Line": 11,
+          "Step": "RUNSIM"
+        }
+      ],
+      "jcl/cics-genapp/itpll.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<WSIMHLQ>.SITPLOAD",
+          "Internal Name": null,
+          "Line": 7,
+          "Step": "LOGLIST"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSUT1",
+          "DSN": "<WSIMLGX>",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "LOGLIST"
+        }
+      ],
+      "jcl/cics-genapp/itpstl.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<WSIMHLQ>.SITPLOAD",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": "ITPSTL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSIN",
+          "DSN": "<WSIMWSX>(&MEM)",
+          "DSN Resolution": "ambiguous",
+          "Internal Name": null,
+          "Line": 11,
+          "Resolved DSN": null,
+          "Step": "ITPSTL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "SYSLIB",
+          "DSN": "<WSIMWSX>",
+          "Internal Name": null,
+          "Line": 12,
+          "Step": "ITPSTL"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "MSGDD",
+          "DSN": "<WSIMMSX>",
+          "Internal Name": null,
+          "Line": 13,
+          "Step": "ITPSTL"
+        }
+      ],
+      "jcl/cics-genapp/sampcma.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSHLQ>.SDFHAUTH",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSLIC>.SDFHLIC",
+          "Internal Name": null,
+          "Line": 10,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CPSMHLQ>.SEYUAUTH",
+          "Internal Name": null,
+          "Line": 11,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CEEHLQ>.SCEECICS",
+          "Internal Name": null,
+          "Line": 12,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Internal Name": null,
+          "Line": 14,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "<CPSMHLQ>.SEYULOAD",
+          "Internal Name": null,
+          "Line": 15,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "<CEEHLQ>.SCEECICS",
+          "Internal Name": null,
+          "Line": 16,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "<CEEHLQ>.SCEERUN",
+          "Internal Name": null,
+          "Line": 17,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "EYUDREP",
+          "DSN": "<USRHLQ>.<CMASAPPL>.EYUDREP",
+          "Internal Name": null,
+          "Line": 19,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHCSD",
+          "DSN": "<CSDNAME>",
+          "Internal Name": null,
+          "Line": 41,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHDMPA",
+          "DSN": "<USRHLQ>.<CMASAPPL>.DFHDMPA",
+          "Internal Name": null,
+          "Line": 42,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHGCD",
+          "DSN": "<USRHLQ>.<CMASAPPL>.DFHGCD",
+          "Internal Name": null,
+          "Line": 43,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHINTRA",
+          "DSN": "<USRHLQ>.<CMASAPPL>.DFHINTRA",
+          "Internal Name": null,
+          "Line": 44,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHLCD",
+          "DSN": "<USRHLQ>.<CMASAPPL>.DFHLCD",
+          "Internal Name": null,
+          "Line": 45,
+          "Step": "CMAS"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHTEMP",
+          "DSN": "<USRHLQ>.<CMASAPPL>.DFHTEMP",
+          "Internal Name": null,
+          "Line": 46,
+          "Step": "CMAS"
+        }
+      ],
+      "jcl/cics-genapp/sampncs.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSHLQ>.SDFHAUTH",
+          "Internal Name": null,
+          "Line": 7,
+          "Step": "NCSERVER"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSLIC>.SDFHLIC",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": "NCSERVER"
+        }
+      ],
+      "jcl/cics-genapp/samptsq.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSHLQ>.SDFHAUTH",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "SHARETSQ"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSLIC>.SDFHLIC",
+          "Internal Name": null,
+          "Line": 10,
+          "Step": "SHARETSQ"
+        }
+      ],
+      "jcl/cics-genapp/sampwui.jcl": [
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSHLQ>.SDFHAUTH",
+          "Internal Name": null,
+          "Line": 7,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CICSLIC>.SDFHLIC",
+          "Internal Name": null,
+          "Line": 8,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CPSMHLQ>.SEYUAUTH",
+          "Internal Name": null,
+          "Line": 9,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "STEPLIB",
+          "DSN": "<CEEHLQ>.SCEECICS",
+          "Internal Name": null,
+          "Line": 10,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "<CICSHLQ>.SDFHLOAD",
+          "Internal Name": null,
+          "Line": 12,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "<CPSMHLQ>.SEYULOAD",
+          "Internal Name": null,
+          "Line": 13,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "<CEEHLQ>.SCEECICS",
+          "Internal Name": null,
+          "Line": 14,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "<CEEHLQ>.SCEERUN",
+          "Internal Name": null,
+          "Line": 15,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHRPL",
+          "DSN": "<LOADX>",
+          "Internal Name": null,
+          "Line": 16,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "EYUWREP",
+          "DSN": "<USRHLQ>.<WUIAPPL>.EYUWREP",
+          "Internal Name": null,
+          "Line": 18,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHCSD",
+          "DSN": "<CSDNAME>",
+          "Internal Name": null,
+          "Line": 57,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHDMPA",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHDMPA",
+          "Internal Name": null,
+          "Line": 58,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHDMPB",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHDMPB",
+          "Internal Name": null,
+          "Line": 59,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHAUXT",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHAUXT",
+          "Internal Name": null,
+          "Line": 60,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHBUXT",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHBUXT",
+          "Internal Name": null,
+          "Line": 61,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHGCD",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHGCD",
+          "Internal Name": null,
+          "Line": 62,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHINTRA",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHINTRA",
+          "Internal Name": null,
+          "Line": 63,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHLCD",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHLCD",
+          "Internal Name": null,
+          "Line": 64,
+          "Step": "GENAPP1"
+        },
+        {
+          "Access Modes": [],
+          "Assign Name": null,
+          "DD Name": "DFHTEMP",
+          "DSN": "<USRHLQ>.<WUIAPPL>.DFHTEMP",
+          "Internal Name": null,
+          "Line": 65,
+          "Step": "GENAPP1"
         }
       ]
     },

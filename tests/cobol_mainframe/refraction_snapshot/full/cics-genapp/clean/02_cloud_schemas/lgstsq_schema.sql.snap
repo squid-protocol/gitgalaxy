@@ -1,0 +1,16 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_FLAG                        VARCHAR(1),
+    WS_RESP                        INTEGER,
+    WS_INVOKEPROG                  VARCHAR(8),
+    WS_RECV_DATA                   VARCHAR(74),
+    WS_RECV_LEN                    SMALLINT,
+    WRITE_MSG_SYSID                VARCHAR(4),
+    FILLER_X                       VARCHAR(1),
+    WRITE_MSG_MSG                  VARCHAR(90),
+    WRITE_MSG_REST                 VARCHAR(83),
+    STSQ_NAME                      VARCHAR(8),
+    STSQ_EXT                       VARCHAR(4),
+    TEMPO                          VARCHAR(90),
+    STDQ_NAME                      VARCHAR(4),
+    COMMA_DATA                     VARCHAR(90)
+);

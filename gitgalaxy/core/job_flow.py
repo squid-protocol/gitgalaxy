@@ -34,7 +34,8 @@
 import re
 from typing import Any, Optional
 
-_STMT = re.compile(r"^//([A-Z0-9@#$.]{0,17})[ \t]+([A-Z]{2,8})(?:[ \t]+(.*))?$", re.I)
+# `<NAME>`: a template JCL's installation placeholder (#3489 GENAPP), kept as written.
+_STMT = re.compile(r"^//([A-Z0-9@#$.<>]{0,17})[ \t]+([A-Z]{2,8})(?:[ \t]+(.*))?$", re.I)
 _OPS = frozenset({"JOB", "EXEC", "DD", "PROC", "PEND", "IF", "ELSE", "ENDIF", "SET", "INCLUDE", "JCLLIB", "OUTPUT"})
 _STATEMENT_LIMIT = 4000
 _GEN = re.compile(r"\(([+-]?[0-9]{1,3})\)$")

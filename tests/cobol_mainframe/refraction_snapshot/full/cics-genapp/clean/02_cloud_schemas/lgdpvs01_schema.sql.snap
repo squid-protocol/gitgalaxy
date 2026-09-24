@@ -1,0 +1,18 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_RESP                        INTEGER,
+    WS_RESP2                       INTEGER,
+    WS_COMMAREA_LEN                SMALLINT,
+    WF_REQUEST_ID                  VARCHAR(1),
+    WF_CUSTOMER_NUM                VARCHAR(10),
+    WF_POLICY_NUM                  VARCHAR(10),
+    WS_ABSTIME                     INTEGER,
+    WS_TIME                        VARCHAR(8),
+    WS_DATE                        VARCHAR(10),
+    EM_DATE                        VARCHAR(8),
+    EM_TIME                        VARCHAR(6),
+    EM_POLNUM                      VARCHAR(10),
+    EM_CUSNUM                      VARCHAR(10),
+    EM_RESPRC                      INTEGER,
+    EM_RESP2RC                     INTEGER,
+    CA_DATA                        VARCHAR(90)
+);

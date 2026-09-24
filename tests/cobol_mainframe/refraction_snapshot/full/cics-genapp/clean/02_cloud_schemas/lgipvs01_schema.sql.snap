@@ -1,0 +1,20 @@
+CREATE TABLE DFHCOMMAREA (
+    WS_FLAG                        VARCHAR(1),
+    WS_RESP                        INTEGER,
+    WS_STARTCODE                   VARCHAR(2),
+    WS_SYSID                       VARCHAR(4),
+    WS_INVOKEPROG                  VARCHAR(8),
+    WS_COMMAREA                    VARCHAR(80),
+    WS_RECV_DATA                   VARCHAR(74),
+    WS_RECV_LEN                    SMALLINT,
+    WRITE_MSG_TEXT                 VARCHAR(11),
+    WRITE_MSG_CUSTNUM              BIGINT,
+    WRITE_MSG_POLNUM               BIGINT,
+    PART_KEY_TYPE                  VARCHAR(1),
+    PART_KEY_NUM                   BIGINT,
+    CA_POLICY_TYPE                 VARCHAR(1),
+    F64                            SMALLINT,
+    F11                            SMALLINT,
+    COMMA_DATA_TEXT                VARCHAR(11),
+    COMMA_DATA_KEY                 VARCHAR(21)
+);

@@ -1,0 +1,668 @@
+{
+  "metadata": {
+    "file_name": "lgwebst5.cbl",
+    "path": "<WORK>/cics-genapp/base/src/lgwebst5.cbl",
+    "corporate_header": "",
+    "loc": 802
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "lgwebst5.cbl",
+      "total_vars": 177,
+      "orphaned_vars": [
+        "COMMA-DATA",
+        "COMMA-DATA-H",
+        "COMMA-DATA-HIGH",
+        "DFHCOMMAREA",
+        "GENACNTI00-V",
+        "PART1",
+        "PART2",
+        "PART3",
+        "PART4",
+        "S2",
+        "S40",
+        "STATQ",
+        "SYMBLIST",
+        "TCPADDRESS",
+        "TCPADDRLEN",
+        "TCPSERVICE",
+        "TEMPLATENAME",
+        "WRITE-MSG-H",
+        "WS-CHARSET",
+        "WS-CODE",
+        "WS-EYECATCHER",
+        "WS-MTYPE",
+        "WS-STARTUP",
+        "WS-TEXT",
+        "WS-TOKEN",
+        "WS-TSQSTART"
+      ],
+      "total_paras": 4,
+      "dead_paras": [
+        "A-EXIT"
+      ],
+      "loc_saved": 36
+    },
+    "lineage": {
+      "program_id": "LGWEBST5",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "LGWEBST5",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 50,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    COUNTVAL                       INTEGER,\n    COUNTSUCCESS                   INTEGER,\n    COUNTERRORS                    INTEGER,\n    COUNTINQ                       INTEGER,\n    COUNTADD                       INTEGER,\n    COUNTUPD                       INTEGER,\n    COUNTDEL                       INTEGER,\n    DRATEVAL                       INTEGER,\n    NRATEVAL                       INTEGER,\n    ORATEVAL                       INTEGER,\n    ICOUNTVAL                      INTEGER,\n    OCOUNTVAL                      INTEGER,\n    NCOUNTVAL                      INTEGER,\n    HHVAL                          INTEGER,\n    MMVAL                          INTEGER,\n    SSVAL                          INTEGER,\n    WS_RESP                        INTEGER,\n    WS_ABSTIME                     INTEGER,\n    WS_TIME                        VARCHAR(8),\n    TSQPRE                         VARCHAR(4),\n    WS_TSQNAME                     VARCHAR(8),\n    WS_TSQDATA                     VARCHAR(9),\n    WS_HH                          VARCHAR(2),\n    WS_MM                          VARCHAR(2),\n    WS_SS                          VARCHAR(2),\n    WS_DATE                        VARCHAR(10),\n    WS_APPLID                      VARCHAR(8),\n    WS_OLDVHH                      VARCHAR(2),\n    WS_OLDVMM                      VARCHAR(2),\n    WS_OLDVSS                      VARCHAR(2),\n    WS_NEWV                        VARCHAR(6),\n    WS_TRANSID                     VARCHAR(4),\n    WS_TERMID                      VARCHAR(4),\n    WS_TASKNUM                     INTEGER,\n    WS_CALEN                       INTEGER,\n    S1                             VARCHAR(8),\n    S3                             VARCHAR(9),\n    S4                             SMALLINT,\n    S5                             VARCHAR(9),\n    S6                             SMALLINT,\n    S7                             VARCHAR(9),\n    S8                             SMALLINT,\n    S9                             VARCHAR(9),\n    S10                            SMALLINT,\n    S11                            VARCHAR(9),\n    S12                            SMALLINT,\n    S13                            VARCHAR(9),\n    S14                            SMALLINT,\n    S15                            VARCHAR(9),\n    S16                            SMALLINT,\n    S17                            VARCHAR(9),\n    S18                            SMALLINT,\n    S19                            VARCHAR(9),\n    S20                            SMALLINT,\n    S21                            VARCHAR(9),\n    S22                            SMALLINT,\n    S23                            VARCHAR(9),\n    S24                            SMALLINT,\n    S25                            VARCHAR(9),\n    S26                            SMALLINT,\n    S27                            VARCHAR(9),\n    S28                            SMALLINT,\n    S29                            VARCHAR(9),\n    S30                            SMALLINT,\n    S31                            VARCHAR(9),\n    S32                            SMALLINT,\n    S33                            VARCHAR(9),\n    S34                            SMALLINT,\n    S35                            VARCHAR(9),\n    S36                            SMALLINT,\n    S37                            SMALLINT,\n    S38                            SMALLINT,\n    S39                            SMALLINT,\n    GENACOUNT_V                    INTEGER,\n    GENACNT100_V                   INTEGER,\n    GENACNT199_V                   INTEGER,\n    GENACNT200_V                   INTEGER,\n    GENACNT299_V                   INTEGER,\n    GENACNT300_V                   INTEGER,\n    GENACNT399_V                   INTEGER,\n    GENACNT400_V                   INTEGER,\n    GENACNT499_V                   INTEGER,\n    GENACNT500_V                   INTEGER,\n    GENACNT599_V                   INTEGER,\n    GENACNT600_V                   INTEGER,\n    GENACNT699_V                   INTEGER,\n    GENACNT700_V                   INTEGER,\n    GENACNT799_V                   INTEGER,\n    GENACNT800_V                   INTEGER,\n    GENACNT899_V                   INTEGER,\n    GENACNT900_V                   INTEGER,\n    GENACNT999_V                   INTEGER,\n    GENACNTA00_V                   INTEGER,\n    GENACNTA99_V                   INTEGER,\n    GENACNTB00_V                   INTEGER,\n    GENACNTB99_V                   INTEGER,\n    GENACNTC00_V                   INTEGER,\n    GENACNTC99_V                   INTEGER,\n    GENACNTD00_V                   INTEGER,\n    GENACNTD99_V                   INTEGER,\n    GENACNTE00_V                   INTEGER,\n    GENACNTE99_V                   INTEGER,\n    GENACNTF00_V                   INTEGER,\n    GENACNTF99_V                   INTEGER,\n    GENACNTG00_V                   INTEGER,\n    GENACNTG99_V                   INTEGER,\n    GENACNTH00_V                   INTEGER,\n    GENACNTH99_V                   INTEGER,\n    GENACNTI99_V                   INTEGER,\n    GENASUCCES_V                   INTEGER,\n    GENAERRORS_V                   INTEGER,\n    GENACOUNT                      VARCHAR(16),\n    GENAPOOL                       VARCHAR(8),\n    GENACNT100                     VARCHAR(16),\n    GENACNT199                     VARCHAR(32),\n    GENACNT200                     VARCHAR(16),\n    GENACNT299                     VARCHAR(32),\n    GENACNT300                     VARCHAR(16),\n    GENACNT399                     VARCHAR(32),\n    GENACNT400                     VARCHAR(16),\n    GENACNT499                     VARCHAR(32),\n    GENACNT500                     VARCHAR(16),\n    GENACNT599                     VARCHAR(32),\n    GENACNT600                     VARCHAR(16),\n    GENACNT699                     VARCHAR(32),\n    GENACNT700                     VARCHAR(16),\n    GENACNT799                     VARCHAR(32),\n    GENACNT800                     VARCHAR(16),\n    GENACNT899                     VARCHAR(32),\n    GENACNT900                     VARCHAR(16),\n    GENACNT999                     VARCHAR(32),\n    GENACNTA00                     VARCHAR(16),\n    GENACNTA99                     VARCHAR(32),\n    GENACNTB00                     VARCHAR(16),\n    GENACNTB99                     VARCHAR(32),\n    GENACNTC00                     VARCHAR(16),\n    GENACNTC99                     VARCHAR(32),\n    GENACNTD00                     VARCHAR(16),\n    GENACNTD99                     VARCHAR(32),\n    GENACNTE00                     VARCHAR(16),\n    GENACNTE99                     VARCHAR(32),\n    GENACNTF00                     VARCHAR(16),\n    GENACNTF99                     VARCHAR(32),\n    GENACNTG00                     VARCHAR(16),\n    GENACNTG99                     VARCHAR(32),\n    GENACNTH00                     VARCHAR(16),\n    GENACNTH99                     VARCHAR(32),\n    GENACNTI99                     VARCHAR(16)\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "COUNTVAL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "COUNTSUCCESS": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(9)"
+          },
+          "COUNTERRORS": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "COUNTINQ": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "COUNTADD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "COUNTUPD": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "COUNTDEL": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "DRATEVAL": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "NRATEVAL": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "ORATEVAL": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "ICOUNTVAL": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
+          },
+          "OCOUNTVAL": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
+          },
+          "NCOUNTVAL": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
+          },
+          "HHVAL": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
+          },
+          "MMVAL": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
+          },
+          "SSVAL": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(6)"
+          },
+          "WS_RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_ABSTIME": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_TIME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "TSQPRE": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TSQNAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_TSQDATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "WS_HH": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_MM": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_SS": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_DATE": {
+            "type": "string",
+            "description": "Legacy PIC: X(10)"
+          },
+          "WS_APPLID": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "WS_OLDVHH": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_OLDVMM": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_OLDVSS": {
+            "type": "string",
+            "description": "Legacy PIC: X(2)"
+          },
+          "WS_NEWV": {
+            "type": "string",
+            "description": "Legacy PIC: X(6)"
+          },
+          "WS_TRANSID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TERMID": {
+            "type": "string",
+            "description": "Legacy PIC: X(4)"
+          },
+          "WS_TASKNUM": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(7)"
+          },
+          "WS_CALEN": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(7)"
+          },
+          "S1": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "S3": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S4": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S5": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S6": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S7": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S8": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S9": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S10": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S11": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S12": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S13": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S14": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S15": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S16": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S17": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S18": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S19": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S20": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S21": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S22": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S23": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S24": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S25": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S26": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S27": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S28": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S29": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S30": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S31": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S32": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S33": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S34": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S35": {
+            "type": "string",
+            "description": "Legacy PIC: X(9)"
+          },
+          "S36": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(8)9"
+          },
+          "S37": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(9)9"
+          },
+          "S38": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(9)9"
+          },
+          "S39": {
+            "type": "integer",
+            "description": "Legacy PIC: Z(9)9"
+          },
+          "GENACOUNT_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT100_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT199_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT200_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT299_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT300_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT399_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT400_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT499_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT500_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT599_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT600_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT699_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT700_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT799_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT800_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT899_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT900_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNT999_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTA00_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTA99_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTB00_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTB99_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTC00_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTC99_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTD00_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTD99_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTE00_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTE99_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTF00_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTF99_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTG00_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTG99_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTH00_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTH99_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACNTI99_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENASUCCES_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENAERRORS_V": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(9)"
+          },
+          "GENACOUNT": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENAPOOL": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "GENACNT100": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT199": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNT200": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT299": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNT300": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT399": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNT400": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT499": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNT500": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT599": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNT600": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT699": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNT700": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT799": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNT800": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT899": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNT900": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT999": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNTA00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTA99": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNTB00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTB99": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNTC00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTC99": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNTD00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTD99": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNTE00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTE99": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNTF00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTF99": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNTG00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTG99": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNTH00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTH99": {
+            "type": "string",
+            "description": "Legacy PIC: X(32)"
+          },
+          "GENACNTI99": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=LGWEBST5\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

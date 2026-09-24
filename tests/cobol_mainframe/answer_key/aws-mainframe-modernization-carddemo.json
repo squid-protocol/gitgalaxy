@@ -104525,8 +104525,10 @@
     "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL": {
       "moves": [
         "L229 MOVE INFIL1-REC -> PENDING-AUTH-SUMMARY",
+        "L233 MOVE 'Y' -> END-ROOT-SEG-FILE",
         "L277 MOVE ROOT-SEG-KEY -> QUAL-SSA-KEY-VALUE",
         "L280 MOVE CHILD-SEG-REC -> PENDING-AUTH-DETAILS",
+        "L285 MOVE 'Y' -> END-CHILD-SEG-FILE",
         "L295 INITIALIZE - -> PAUT-PCB-STATUS",
         "L365 MOVE 16 -> RETURN-CODE"
       ],
@@ -105390,6 +105392,7 @@
         "L175 INITIALIZE - -> VBRC-REC1",
         "L181 MOVE 16 -> APPL-RESULT",
         "L183 MOVE 12 -> APPL-RESULT",
+        "L190 MOVE 'Y' -> END-OF-FILE",
         "L193 MOVE ACCTFILE-STATUS -> IO-STATUS",
         "L216 MOVE ACCT-ID -> OUT-ACCT-ID",
         "L217 MOVE ACCT-ACTIVE-STATUS -> OUT-ACCT-ACTIVE-STATUS",
@@ -105476,6 +105479,7 @@
     "app/cbl/CBACT02C.cbl": {
       "moves": [
         "L101 MOVE 12 -> APPL-RESULT",
+        "L108 MOVE 'Y' -> END-OF-FILE",
         "L111 MOVE CARDFILE-STATUS -> IO-STATUS",
         "L119 MOVE 8 -> APPL-RESULT",
         "L122 MOVE 0 -> APPL-RESULT",
@@ -105514,6 +105518,7 @@
     "app/cbl/CBACT03C.cbl": {
       "moves": [
         "L101 MOVE 12 -> APPL-RESULT",
+        "L108 MOVE 'Y' -> END-OF-FILE",
         "L111 MOVE XREFFILE-STATUS -> IO-STATUS",
         "L119 MOVE 8 -> APPL-RESULT",
         "L122 MOVE 0 -> APPL-RESULT",
@@ -105583,6 +105588,7 @@
         "L328 MOVE 0 -> APPL-RESULT",
         "L331 MOVE 16 -> APPL-RESULT",
         "L333 MOVE 12 -> APPL-RESULT",
+        "L340 MOVE 'Y' -> END-OF-FILE",
         "L343 MOVE TCATBALF-STATUS -> IO-STATUS",
         "L352 ADD WS-TOTAL-INT -> ACCT-CURR-BAL",
         "L353 MOVE 0 -> ACCT-CURR-CYC-CREDIT",
@@ -105685,6 +105691,7 @@
     "app/cbl/CBCUS01C.cbl": {
       "moves": [
         "L101 MOVE 12 -> APPL-RESULT",
+        "L108 MOVE 'Y' -> END-OF-FILE",
         "L111 MOVE CUSTFILE-STATUS -> IO-STATUS",
         "L119 MOVE 8 -> APPL-RESULT",
         "L122 MOVE 0 -> APPL-RESULT",
@@ -105951,6 +105958,7 @@
         "L347 MOVE 'XREFFILE' -> WS-M03B-DD",
         "L349 MOVE ZERO -> WS-M03B-RC",
         "L350 MOVE SPACES -> WS-M03B-FLDT",
+        "L357 MOVE 'Y' -> END-OF-FILE",
         "L364 MOVE WS-M03B-FLDT -> CARD-XREF-RECORD",
         "L370 MOVE 'CUSTFILE' -> WS-M03B-DD",
         "L372 MOVE XREF-CUST-ID -> WS-M03B-KEY",
@@ -106124,6 +106132,7 @@
         "L205 MOVE 0 -> APPL-RESULT",
         "L208 MOVE 16 -> APPL-RESULT",
         "L210 MOVE 12 -> APPL-RESULT",
+        "L217 MOVE 'Y' -> END-OF-DAILY-TRANS-FILE",
         "L220 MOVE DALYTRAN-STATUS -> IO-STATUS",
         "L228 MOVE XREF-CARD-NUM -> FD-XREF-CARD-NUM",
         "L233 MOVE 4 -> WS-XREF-READ-STATUS",
@@ -106239,6 +106248,7 @@
         "L348 MOVE 0 -> APPL-RESULT",
         "L352 MOVE 16 -> APPL-RESULT",
         "L354 MOVE 12 -> APPL-RESULT",
+        "L361 MOVE 'Y' -> END-OF-FILE",
         "L364 MOVE DALYTRAN-STATUS -> IO-STATUS",
         "L382 MOVE DALYTRAN-CARD-NUM -> FD-XREF-CARD-NUM",
         "L385 MOVE 100 -> WS-VALIDATION-FAIL-REASON",
@@ -106374,10 +106384,12 @@
         "L224 MOVE 0 -> APPL-RESULT",
         "L226 MOVE 16 -> APPL-RESULT",
         "L228 MOVE 12 -> APPL-RESULT",
+        "L236 MOVE 'Y' -> END-OF-FILE",
         "L239 MOVE DATEPARM-STATUS -> IO-STATUS",
         "L253 MOVE 0 -> APPL-RESULT",
         "L255 MOVE 16 -> APPL-RESULT",
         "L257 MOVE 12 -> APPL-RESULT",
+        "L264 MOVE 'Y' -> END-OF-FILE",
         "L267 MOVE TRANFILE-STATUS -> IO-STATUS",
         "L276 MOVE 'N' -> WS-FIRST-TIME",
         "L277 MOVE WS-START-DATE -> REPT-START-DATE",
@@ -110258,7 +110270,88 @@
       ],
       "asked": 323,
       "key_errors": 0,
-      "upper_bound_95": 0.00923
+      "upper_bound_95": 0.00923,
+      "post_census_fixes": [
+        {
+          "at": "2026-09-24",
+          "issue": "#3489 (GENAPP pin)",
+          "why": "A data name starting END- (END-OF-FILE, END-KEY) was read as a scope terminator by both the engine and this key's reader, so statements into it were dropped. Found when GENAPP's END-POLICY-POS exposed it; both now use COBOL's explicit END- terminator list. Each added row is a plain MOVE / UNSTRING into that item in the source; the sample's error statistics are unchanged (these rows were outside every sampled window).",
+          "files": [
+            {
+              "file": "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+              "added": [
+                "L233 MOVE 'Y' -> END-ROOT-SEG-FILE",
+                "L285 MOVE 'Y' -> END-CHILD-SEG-FILE"
+              ],
+              "removed": []
+            },
+            {
+              "file": "app/cbl/CBACT01C.cbl",
+              "added": [
+                "L190 MOVE 'Y' -> END-OF-FILE"
+              ],
+              "removed": []
+            },
+            {
+              "file": "app/cbl/CBACT02C.cbl",
+              "added": [
+                "L108 MOVE 'Y' -> END-OF-FILE"
+              ],
+              "removed": []
+            },
+            {
+              "file": "app/cbl/CBACT03C.cbl",
+              "added": [
+                "L108 MOVE 'Y' -> END-OF-FILE"
+              ],
+              "removed": []
+            },
+            {
+              "file": "app/cbl/CBACT04C.cbl",
+              "added": [
+                "L340 MOVE 'Y' -> END-OF-FILE"
+              ],
+              "removed": []
+            },
+            {
+              "file": "app/cbl/CBCUS01C.cbl",
+              "added": [
+                "L108 MOVE 'Y' -> END-OF-FILE"
+              ],
+              "removed": []
+            },
+            {
+              "file": "app/cbl/CBSTM03A.CBL",
+              "added": [
+                "L357 MOVE 'Y' -> END-OF-FILE"
+              ],
+              "removed": []
+            },
+            {
+              "file": "app/cbl/CBTRN01C.cbl",
+              "added": [
+                "L217 MOVE 'Y' -> END-OF-DAILY-TRANS-FILE"
+              ],
+              "removed": []
+            },
+            {
+              "file": "app/cbl/CBTRN02C.cbl",
+              "added": [
+                "L361 MOVE 'Y' -> END-OF-FILE"
+              ],
+              "removed": []
+            },
+            {
+              "file": "app/cbl/CBTRN03C.cbl",
+              "added": [
+                "L236 MOVE 'Y' -> END-OF-FILE",
+                "L264 MOVE 'Y' -> END-OF-FILE"
+              ],
+              "removed": []
+            }
+          ]
+        }
+      ]
     }
   },
   "symbolic_maps": {

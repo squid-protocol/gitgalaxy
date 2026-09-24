@@ -72235,7 +72235,10 @@
         "L1456 MOVE 14 -> DATM-LENGTH",
         "L1457 MOVE 'YYYYMMDDHHMISS' -> DATM-FORMAT",
         "L371 MOVE 'STARTING BANKDATA' -> TIMESTAMP-FUNCTION",
+        "L385 UNSTRING PARM(:) -> END-KEY",
+        "L385 UNSTRING PARM(:) -> RANDOM-SEED",
         "L385 UNSTRING PARM(:) -> START-KEY",
+        "L385 UNSTRING PARM(:) -> STEP-KEY",
         "L398 MOVE 12 -> RETURN-CODE",
         "L404 MOVE 12 -> RETURN-CODE",
         "L428 COMPUTE FORENAMES-CNT -> FORENAMES-PTR",
@@ -78082,7 +78085,25 @@
       ],
       "asked": 322,
       "key_errors": 0,
-      "upper_bound_95": 0.00926
+      "upper_bound_95": 0.00926,
+      "post_census_fixes": [
+        {
+          "at": "2026-09-24",
+          "issue": "#3489 (GENAPP pin)",
+          "why": "A data name starting END- (END-OF-FILE, END-KEY) was read as a scope terminator by both the engine and this key's reader, so statements into it were dropped. Found when GENAPP's END-POLICY-POS exposed it; both now use COBOL's explicit END- terminator list. Each added row is a plain MOVE / UNSTRING into that item in the source; the sample's error statistics are unchanged (these rows were outside every sampled window).",
+          "files": [
+            {
+              "file": "src/base/cobol_src/BANKDATA.cbl",
+              "added": [
+                "L385 UNSTRING PARM(:) -> END-KEY",
+                "L385 UNSTRING PARM(:) -> RANDOM-SEED",
+                "L385 UNSTRING PARM(:) -> STEP-KEY"
+              ],
+              "removed": []
+            }
+          ]
+        }
+      ]
     }
   },
   "symbolic_maps": {

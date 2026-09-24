@@ -1,0 +1,599 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DFHCOMMAREA",
+  "type": "object",
+  "properties": {
+    "COUNTVAL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "COUNTSUCCESS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(9)"
+    },
+    "COUNTERRORS": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "COUNTINQ": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "COUNTADD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "COUNTUPD": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "COUNTDEL": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "DRATEVAL": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "NRATEVAL": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "ORATEVAL": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "ICOUNTVAL": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "OCOUNTVAL": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "NCOUNTVAL": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "HHVAL": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "MMVAL": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "SSVAL": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(6)"
+    },
+    "WS_RESP": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_ABSTIME": {
+      "type": "integer",
+      "description": "Legacy PIC: S9(8)"
+    },
+    "WS_TIME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "TSQPRE": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_TSQNAME": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_TSQDATA": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "WS_HH": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "WS_MM": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "WS_SS": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "WS_DATE": {
+      "type": "string",
+      "description": "Legacy PIC: X(10)"
+    },
+    "WS_APPLID": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "WS_OLDVHH": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "WS_OLDVMM": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "WS_OLDVSS": {
+      "type": "string",
+      "description": "Legacy PIC: X(2)"
+    },
+    "WS_NEWV": {
+      "type": "string",
+      "description": "Legacy PIC: X(6)"
+    },
+    "WS_TRANSID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_TERMID": {
+      "type": "string",
+      "description": "Legacy PIC: X(4)"
+    },
+    "WS_TASKNUM": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(7)"
+    },
+    "WS_CALEN": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(7)"
+    },
+    "S1": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "S3": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S4": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S5": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S6": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S7": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S8": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S9": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S10": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S11": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S12": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S13": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S14": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S15": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S16": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S17": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S18": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S19": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S20": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S21": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S22": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S23": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S24": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S25": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S26": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S27": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S28": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S29": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S30": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S31": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S32": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S33": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S34": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S35": {
+      "type": "string",
+      "description": "Legacy PIC: X(9)"
+    },
+    "S36": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(8)9"
+    },
+    "S37": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(9)9"
+    },
+    "S38": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(9)9"
+    },
+    "S39": {
+      "type": "integer",
+      "description": "Legacy PIC: Z(9)9"
+    },
+    "GENACOUNT_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT100_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT199_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT200_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT299_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT300_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT399_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT400_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT499_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT500_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT599_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT600_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT699_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT700_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT799_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT800_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT899_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT900_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNT999_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTA00_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTA99_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTB00_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTB99_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTC00_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTC99_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTD00_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTD99_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTE00_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTE99_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTF00_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTF99_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTG00_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTG99_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTH00_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTH99_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACNTI99_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENASUCCES_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENAERRORS_V": {
+      "type": "integer",
+      "description": "Legacy PIC: 9(9)"
+    },
+    "GENACOUNT": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENAPOOL": {
+      "type": "string",
+      "description": "Legacy PIC: X(8)"
+    },
+    "GENACNT100": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNT199": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNT200": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNT299": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNT300": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNT399": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNT400": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNT499": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNT500": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNT599": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNT600": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNT699": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNT700": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNT799": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNT800": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNT899": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNT900": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNT999": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNTA00": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNTA99": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNTB00": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNTB99": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNTC00": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNTC99": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNTD00": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNTD99": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNTE00": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNTE99": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNTF00": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNTF99": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNTG00": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNTG99": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNTH00": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    },
+    "GENACNTH99": {
+      "type": "string",
+      "description": "Legacy PIC: X(32)"
+    },
+    "GENACNTI99": {
+      "type": "string",
+      "description": "Legacy PIC: X(16)"
+    }
+  }
+}

@@ -1,0 +1,285 @@
+{
+  "metadata": {
+    "file_name": "lgsetup.cbl",
+    "path": "<WORK>/cics-genapp/base/src/lgsetup.cbl",
+    "corporate_header": "",
+    "loc": 533
+  },
+  "analysis": {
+    "dead_code": {
+      "program_id": "lgsetup.cbl",
+      "total_vars": 78,
+      "orphaned_vars": [
+        "CA-AREA",
+        "CA-CUSTOMER-NUM",
+        "COMMA-DATA",
+        "COMMA-DATA-H",
+        "COMMA-DATA-HIGH",
+        "DFHCOMMAREA",
+        "F82",
+        "MSGEND",
+        "PIC",
+        "READ-CUST-HIGH",
+        "READ-CUST-LOW",
+        "READ-MSG",
+        "READ-MSG-MSG",
+        "STSQ-EXT",
+        "TEMPO",
+        "WS-CUST-HIGH",
+        "WS-CUST-LOW",
+        "WS-CUST-NUMBER",
+        "WS-FLAG",
+        "WS-FLAG-TSQE",
+        "WS-FLAG-TSQH",
+        "WS-FLAG-TSQL",
+        "WS-RECV-TRANID"
+      ],
+      "total_paras": 2,
+      "dead_paras": [
+        "A-EXIT"
+      ],
+      "loc_saved": 33
+    },
+    "lineage": {
+      "program_id": "LGSETUP",
+      "inputs": [],
+      "outputs": [],
+      "unresolved_calls": []
+    },
+    "base_intent": {
+      "program_id": "LGSETUP",
+      "files_requested": [],
+      "is_cics": true,
+      "is_db2": false,
+      "cics_calls": 84,
+      "sql_calls": 0
+    },
+    "honesty_flags": []
+  },
+  "generation": {
+    "schemas": {
+      "table": "DFHCOMMAREA",
+      "sql": "CREATE TABLE DFHCOMMAREA (\n    WS_RESP                        INTEGER,\n    WS_RECV_DATA                   VARCHAR(74),\n    WS_RECV_LEN                    SMALLINT,\n    WRITE_MSG_E                    VARCHAR(20),\n    WRITE_MSG_L                    VARCHAR(13),\n    WRITE_MSG_LOW                  BIGINT,\n    WRITE_MSG_H                    VARCHAR(14),\n    WRITE_MSG_HIGH                 BIGINT,\n    FRSTCUSTNUM                    INTEGER,\n    LASTCUSTNUM                    INTEGER,\n    GENACOUNT                      VARCHAR(16),\n    GENAPOOL                       VARCHAR(8),\n    STSQ_STRT                      VARCHAR(8),\n    STSQ_STAT                      VARCHAR(8),\n    STSQ_ERRS                      VARCHAR(8),\n    GENACNT100                     VARCHAR(16),\n    GENACNT199                     VARCHAR(16),\n    GENACNT200                     VARCHAR(16),\n    GENACNT299                     VARCHAR(16),\n    GENACNT300                     VARCHAR(16),\n    GENACNT399                     VARCHAR(16),\n    GENACNT400                     VARCHAR(16),\n    GENACNT499                     VARCHAR(16),\n    GENACNT500                     VARCHAR(16),\n    GENACNT599                     VARCHAR(16),\n    GENACNT600                     VARCHAR(16),\n    GENACNT699                     VARCHAR(16),\n    GENACNT700                     VARCHAR(16),\n    GENACNT799                     VARCHAR(16),\n    GENACNT800                     VARCHAR(16),\n    GENACNT899                     VARCHAR(16),\n    GENACNT900                     VARCHAR(16),\n    GENACNT999                     VARCHAR(16),\n    GENACNTA00                     VARCHAR(16),\n    GENACNTA99                     VARCHAR(16),\n    GENACNTB00                     VARCHAR(16),\n    GENACNTB99                     VARCHAR(16),\n    GENACNTC00                     VARCHAR(16),\n    GENACNTC99                     VARCHAR(16),\n    GENACNTD00                     VARCHAR(16),\n    GENACNTD99                     VARCHAR(16),\n    GENACNTE00                     VARCHAR(16),\n    GENACNTE99                     VARCHAR(16),\n    GENACNTF00                     VARCHAR(16),\n    GENACNTF99                     VARCHAR(16),\n    GENACNTG00                     VARCHAR(16),\n    GENACNTG99                     VARCHAR(16),\n    GENACNTH00                     VARCHAR(16),\n    GENACNTH99                     VARCHAR(16),\n    GENACNTI00                     VARCHAR(16),\n    GENACNTI99                     VARCHAR(16),\n    STSQ_NAME                      VARCHAR(8),\n    F10                            SMALLINT\n);",
+      "json": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "DFHCOMMAREA",
+        "type": "object",
+        "properties": {
+          "WS_RESP": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "WS_RECV_DATA": {
+            "type": "string",
+            "description": "Legacy PIC: X(74)"
+          },
+          "WS_RECV_LEN": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          },
+          "WRITE_MSG_E": {
+            "type": "string",
+            "description": "Legacy PIC: X(20)"
+          },
+          "WRITE_MSG_L": {
+            "type": "string",
+            "description": "Legacy PIC: X(13)"
+          },
+          "WRITE_MSG_LOW": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "WRITE_MSG_H": {
+            "type": "string",
+            "description": "Legacy PIC: X(14)"
+          },
+          "WRITE_MSG_HIGH": {
+            "type": "integer",
+            "description": "Legacy PIC: 9(10)"
+          },
+          "FRSTCUSTNUM": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "LASTCUSTNUM": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(8)"
+          },
+          "GENACOUNT": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENAPOOL": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "STSQ_STRT": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "STSQ_STAT": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "STSQ_ERRS": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "GENACNT100": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT199": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT200": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT299": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT300": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT399": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT400": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT499": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT500": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT599": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT600": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT699": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT700": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT799": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT800": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT899": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT900": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNT999": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTA00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTA99": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTB00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTB99": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTC00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTC99": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTD00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTD99": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTE00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTE99": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTF00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTF99": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTG00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTG99": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTH00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTH99": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTI00": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "GENACNTI99": {
+            "type": "string",
+            "description": "Legacy PIC: X(16)"
+          },
+          "STSQ_NAME": {
+            "type": "string",
+            "description": "Legacy PIC: X(8)"
+          },
+          "F10": {
+            "type": "integer",
+            "description": "Legacy PIC: S9(4)"
+          }
+        }
+      }
+    },
+    "jcl": "//GITGJOB JOB (12345),'GITGALAXY GENERATOR',\n//             CLASS=A,MSGCLASS=A,MSGLEVEL=(1,1),\n//             USER=HERC01,PASSWORD=CUL8TR,\n//             TIME=10,REGION=4M\n//* ==========================================================\n//* AUTOGENERATED BY GITGALAXY ZERO-TRUST GENERATOR\n//* ARCHITECTURE REQUIRES: CICS\n//* ==========================================================\n//STEP01   EXEC PGM=LGSETUP\n//STEPLIB  DD DSN=HERC01.LOADLIB,DISP=SHR\n//SYSOUT   DD SYSOUT=*\n//SYSPRINT DD SYSOUT=*\n//SYSUDUMP DD SYSOUT=*\n//"
+  }
+}

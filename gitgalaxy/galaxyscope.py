@@ -695,6 +695,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             dli_calls: list = []  # #3450: IMS DL/I calls (cobol)
             ims_gen: list = []  # #3477: IMS PSB / DBD macros (hlasm), IMS region steps (jcl)
             data_moves: list = []  # #3452: MOVE / COMPUTE / STRING ... source -> target pairs (cobol)
+            web_services: list = []  # #3496: web-services assistant steps (jcl)
 
             # 1. Extract raw file dependencies. An inert (static-asset) language
             # normally skips this whole phase, but one that explicitly DECLARES
@@ -791,6 +792,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     ims_gen = boundary.get("ims_gen", [])
                     # #3452: field-level data movement (cobol only).
                     data_moves = boundary.get("data_moves", [])
+                    # #3496: web-services assistant steps (jcl only).
+                    web_services = boundary.get("web_services", [])
                 except Exception:
                     logging.exception("Boundary extraction failed for language '%s'.", lang_id)
 
@@ -884,6 +887,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "ims_gen": ims_gen,
             # #3452: field-level data movement -> data_move_data.
             "data_moves": data_moves,
+            # #3496: web / API services -> web_service_data.
+            "web_services": web_services,
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }

@@ -574,6 +574,7 @@ class LLMRecorder:
                 + len(f.get("dli_calls") or [])  # #3450
                 + len(f.get("ims_gen") or [])  # #3477
                 + len(f.get("data_moves") or [])  # #3452
+                + len(f.get("web_services") or [])  # #3496
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -866,6 +867,16 @@ class LLMRecorder:
                 lines.append(
                     f"- **Job flow:** {' -> '.join(f'`{s_}`' for s_ in seq[:10])}"
                     + (f"; creates {', '.join(f'`{d}`' for d in made[:6])}" if made else "")
+                )
+            # #3496: web / API services -- which program each URI exposes.
+            web = f.get("web_services") or []
+            if web:
+                lines.append(
+                    "- **Web services:** "
+                    + ", ".join(
+                        f"`{w.get('uri') or '?'}` -> `{w.get('program') or '?'}` ({w.get('direction')})"
+                        for w in web[:8]
+                    )
                 )
             # #3452: field-level data movement -- volume per verb, busiest targets.
             moves = f.get("data_moves") or []

@@ -26,6 +26,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-data-moves <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-symbolic-maps <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-dynamic-targets <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-web-services <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-io-moves <repo> --key key.json
     python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
@@ -4169,6 +4170,73 @@ def draft_data_moves(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# Web / API services from the web-services assistant JCL (#3496)
+# ==============================================================================
+# This tool's own reading: the JCL statements (the job-flow statement reader) find
+# each EXEC of DFHLS2WS / DFHLS2JS / DFHWS2LS / DFHJS2LS; the in-stream data lines
+# between the next `DD *` / `DD DATA` and the `/*` or next `//` statement are read
+# as KEY=VALUE parameters.
+_WS_ASSISTANTS = {"DFHLS2WS": "provider", "DFHLS2JS": "provider", "DFHWS2LS": "requester", "DFHJS2LS": "requester"}
+_WS_KEYS = {"PGMNAME": "program", "URI": "uri", "REQMEM": "request", "RESPMEM": "response", "PGMINT": "interface"}
+
+
+def web_service_rows(text: str) -> list[dict[str, Any]]:
+    lines = text.upper().split("\n")
+    rows = []
+    for i, line in enumerate(lines):
+        m = re.match(r"//\S*\s+EXEC\s+(?:PROC=|PGM=)?(DFH(?:LS2WS|LS2JS|WS2LS|JS2LS))\b", line[:72])
+        if not m:
+            continue
+        row: dict[str, Any] = {"assistant": m.group(1), "direction": _WS_ASSISTANTS[m.group(1)], "line": i + 1}
+        data = False
+        for nxt in lines[i + 1 :]:
+            if nxt.startswith("/*"):
+                break
+            if nxt.startswith("//"):
+                if data or re.search(r"\bEXEC\b", nxt[:72]):
+                    break
+                data = bool(re.search(r"\bDD\s+(?:\*|DATA)", nxt[:72]))
+                continue
+            if data:
+                kv = re.match(r"\s*([A-Z][A-Z0-9-]*)\s*=\s*(\S+)", nxt[:72])
+                if kv and kv.group(1) in _WS_KEYS:
+                    row.setdefault(_WS_KEYS[kv.group(1)], kv.group(2))
+        rows.append(row)
+    return rows
+
+
+def web_service_keys(rows: list[dict[str, Any]]) -> set[str]:
+    """`L<line> ASSISTANT direction program=.. uri=.. request=.. response=.. interface=..`."""
+    return {
+        f"L{r['line']} {r['assistant']} {r['direction']} "
+        + " ".join(
+            f"{k}={str(r[k]).upper()}" for k in ("program", "uri", "request", "response", "interface") if r.get(k)
+        )
+        for r in rows
+    }
+
+
+def engine_web_service_row(w: Any) -> dict[str, Any]:
+    return {"assistant": w.assistant, "direction": w.direction, "program": w.program, "uri": w.uri,
+            "request": w.request, "response": w.response, "interface": w.interface, "line": w.line}  # fmt: skip
+
+
+def draft_web_services(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted web-services assistant steps per JCL member (#3496); `web_validated` signs it off."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in JCL_EXTS and ".git" not in p.parts:
+            rows = web_service_rows(p.read_text(encoding="utf-8", errors="ignore"))
+            if rows:
+                out[p.relative_to(repo).as_posix()] = {
+                    "services": sorted(web_service_keys(rows)),
+                    "web_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
 # Data-driven LINK / XCTL / CALL targets (#3493)
 # ==============================================================================
 # This tool's own reading: a site whose program operand is a data name (in the
@@ -4861,6 +4929,9 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # OCCURS table over a VALUE-filled REDEFINES, MOVEd literals). Truth is this
         # tool's own reader; engine is GalaxyIR.dynamic_call_targets.
         "dynamic call targets",
+        # #3496: the web-services assistant steps (the estate's API surface). Truth
+        # is this tool's own reader; engine is web_service_data.
+        "web services",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -5213,6 +5284,15 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             engine_ims.get(rel, set()) if ir is not None and rel in ir.files else None,
         )
 
+    for rel, k in key.get("web_services", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "web services",
+            rel,
+            set(k.get("services", [])),
+            None,
+            web_service_keys([engine_web_service_row(w) for w in ef.web_services]) if ef else None,
+        )
     engine_dyn: dict[str, set[str]] = {}
     if ir is not None:
         for d in ir.dynamic_call_targets():
@@ -5408,6 +5488,9 @@ def main() -> int:
     dlp = sub.add_parser("add-dli")
     dlp.add_argument("repo", type=Path)
     dlp.add_argument("--key", type=Path, required=True)
+    wsp = sub.add_parser("add-web-services")
+    wsp.add_argument("repo", type=Path)
+    wsp.add_argument("--key", type=Path, required=True)
     dyp = sub.add_parser("add-dynamic-targets")
     dyp.add_argument("repo", type=Path)
     dyp.add_argument("--key", type=Path, required=True)
@@ -5575,6 +5658,16 @@ def main() -> int:
         key["dli_calls"] = dl
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(dl)} DL/I files -> {args.key}")
+        return 0
+    if args.cmd == "add-web-services":
+        # #3496: the add-pli discipline; an unvalidated file no longer drafted is dropped.
+        ws = {rel: e for rel, e in key.get("web_services", {}).items() if e.get("web_validated")}
+        for rel, entry in draft_web_services(repo).items():
+            if not ws.get(rel, {}).get("web_validated"):
+                ws[rel] = entry
+        key["web_services"] = ws
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(ws)} web-service JCL members -> {args.key}")
         return 0
     if args.cmd == "add-dynamic-targets":
         # #3493: the add-pli discipline; an unvalidated file no longer drafted is dropped.

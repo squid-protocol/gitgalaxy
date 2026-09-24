@@ -43634,6 +43634,191 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewer (web census)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "base/cntl/adef121.jcl",
+        "base/cntl/asmmap.jcl",
+        "base/cntl/cdef121.jcl",
+        "base/cntl/cdef122.jcl",
+        "base/cntl/cdef123.jcl",
+        "base/cntl/cdef124.jcl",
+        "base/cntl/cdef125.jcl",
+        "base/cntl/cobol.jcl",
+        "base/cntl/cpsmde2.jcl",
+        "base/cntl/db2bind.jcl",
+        "base/cntl/db2cre.jcl",
+        "base/cntl/db2del.jcl",
+        "base/cntl/defdrep.jcl",
+        "base/cntl/defwrep.jcl",
+        "base/cntl/itpentr.jcl",
+        "base/cntl/itpll.jcl",
+        "base/cntl/itpstl.jcl",
+        "base/cntl/sampcma.jcl",
+        "base/cntl/sampncs.jcl",
+        "base/cntl/samptsq.jcl",
+        "base/cntl/sampwui.jcl",
+        "base/cntl/wsaac01.jcl",
+        "base/cntl/wsaap01.jcl",
+        "base/cntl/wsaic01.jcl",
+        "base/cntl/wsaip01.jcl",
+        "base/cntl/wsauc01.jcl",
+        "base/cntl/wsaup01.jcl",
+        "base/cntl/wsavc01.jcl",
+        "base/cntl/wsavp01.jcl"
+      ],
+      "wide": false,
+      "suite": "web",
+      "tasks": {
+        "web": {
+          "agree": 18,
+          "asked": 18
+        }
+      },
+      "rulings": {}
     }
-  ]
+  ],
+  "web_services": {
+    "base/cntl/wsaac01.jcl": {
+      "services": [
+        "L13 DFHLS2WS provider program=LGACUS01 uri=GENAPP/LGACUS01 request=SOAIC01 response=SOAIC01 interface=COMMAREA"
+      ],
+      "web_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (web census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (web census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "base/cntl/wsaap01.jcl": {
+      "services": [
+        "L14 DFHLS2WS provider program=LGAPOL01 uri=GENAPP/LGAPOLM1 request=SOAIPM1 response=SOAIPM1 interface=COMMAREA",
+        "L36 DFHLS2WS provider program=LGAPOL01 uri=GENAPP/LGAPOLH1 request=SOAIPH1 response=SOAIPH1 interface=COMMAREA",
+        "L58 DFHLS2WS provider program=LGAPOL01 uri=GENAPP/LGAPOLE1 request=SOAIPE1 response=SOAIPE1 interface=COMMAREA",
+        "L80 DFHLS2WS provider program=LGAPOL01 uri=GENAPP/LGAPOLB1 request=SOAIPB1 response=SOAIPB1 interface=COMMAREA"
+      ],
+      "web_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (web census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (web census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "base/cntl/wsaic01.jcl": {
+      "services": [
+        "L13 DFHLS2WS provider program=LGICUS01 uri=GENAPP/LGICUS01 request=SOAIC01 response=SOAIC01 interface=COMMAREA"
+      ],
+      "web_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (web census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (web census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "base/cntl/wsaip01.jcl": {
+      "services": [
+        "L103 DFHLS2WS provider program=IPPROGMB uri=GENAPP/LGIPOL02 request=POLLOOK response=POLLOO2 interface=COMMAREA",
+        "L15 DFHLS2WS provider program=LGIPOL01 uri=GENAPP/LGIPOLM1 request=SOAIPM1 response=SOAIPM1 interface=COMMAREA",
+        "L37 DFHLS2WS provider program=LGIPOL01 uri=GENAPP/LGIPOLH1 request=SOAIPH1 response=SOAIPH1 interface=COMMAREA",
+        "L59 DFHLS2WS provider program=LGIPOL01 uri=GENAPP/LGIPOLE1 request=SOAIPE1 response=SOAIPE1 interface=COMMAREA",
+        "L81 DFHLS2WS provider program=LGIPOL01 uri=GENAPP/LGIPOLB1 request=SOAIPB1 response=SOAIPB1 interface=COMMAREA"
+      ],
+      "web_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (web census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (web census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "base/cntl/wsauc01.jcl": {
+      "services": [
+        "L13 DFHLS2WS provider program=LGUCUS01 uri=GENAPP/LGUCUS01 request=SOAIC01 response=SOAIC01 interface=COMMAREA"
+      ],
+      "web_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (web census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (web census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "base/cntl/wsaup01.jcl": {
+      "services": [
+        "L14 DFHLS2WS provider program=LGUPOL01 uri=GENAPP/LGUPOLM1 request=SOAIPM1 response=SOAIPM1 interface=COMMAREA",
+        "L36 DFHLS2WS provider program=LGUPOL01 uri=GENAPP/LGUPOLH1 request=SOAIPH1 response=SOAIPH1 interface=COMMAREA",
+        "L58 DFHLS2WS provider program=LGUPOL01 uri=GENAPP/LGUPOLE1 request=SOAIPE1 response=SOAIPE1 interface=COMMAREA",
+        "L80 DFHLS2WS provider program=LGUPOL01 uri=GENAPP/LGUPOLB1 request=SOAIPB1 response=SOAIPB1 interface=COMMAREA"
+      ],
+      "web_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (web census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (web census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "base/cntl/wsavc01.jcl": {
+      "services": [
+        "L13 DFHLS2WS provider program=LGICVS01 uri=GENAPP/LGICVS01 request=SOAVCII response=SOAVCIO interface=COMMAREA"
+      ],
+      "web_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (web census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (web census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "base/cntl/wsavp01.jcl": {
+      "services": [
+        "L13 DFHLS2WS provider program=LGIPVS01 uri=GENAPP/LGIPVS01 request=SOAVPII response=SOAVPIO interface=COMMAREA"
+      ],
+      "web_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewer (web census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewer (web census)",
+          "at": "2026-09-24"
+        }
+      }
+    }
+  }
 }

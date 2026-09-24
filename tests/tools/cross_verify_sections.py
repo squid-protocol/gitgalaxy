@@ -48,6 +48,10 @@ keyed rows, in full:
 
     dynamic_targets   dynamic_validated        the programs a data-name LINK / XCTL / CALL can name
 
+`web` (#3496) is asked of every JCL member, in full:
+
+    web_services      web_validated            web-services assistant steps (the API surface)
+
 The data-move sample is fixed when the census is cut and stored in the key under
 `sample_census.data_moves.plan`: windows around truncation claims and around the
 rarer verbs (so every contract clause is exercised), then random windows over all
@@ -1239,6 +1243,71 @@ OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-re
     return brief, truth
 
 
+# ---- the `web` suite (#3496) ----------------------------------------------------
+def corpus_files_web(key: dict[str, Any], repo: Path) -> list[str]:
+    """Every JCL member (and any keyed file): the assistant can run from any of them."""
+    return sorted(
+        set(key.get("web_services", {}))
+        | {
+            p.relative_to(repo).as_posix()
+            for p in repo.rglob("*")
+            if p.is_file() and p.suffix.lower() in (".jcl", ".prc", ".proc") and ".git" not in p.parts
+        }
+    )
+
+
+def canon_web(r: dict[str, Any]) -> str:
+    fields = " ".join(f"{k}={_ws(r[k])}" for k in ("program", "uri", "request", "response", "interface") if r.get(k))
+    # One case for both sides: the key's strings are compared upper-cased (_ws).
+    return _ws(f"L{int(r.get('line') or 0)} {r.get('assistant') or ''} {r.get('direction') or ''} {fields}")
+
+
+def key_facts_web(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    ws = key.get("web_services", {})
+    return {"web": {rel: sorted({_ws(x) for x in ws.get(rel, {}).get("services", [])}) for rel in files}}
+
+
+def reviewer_facts_web(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"web": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        out["web"][r] = {canon_web(x) for x in (v or {}).get("web", []) if isinstance(x, dict)}
+    return out
+
+
+def render_web(key: dict[str, Any], repo: Path, files: list[str], index: int, of: int) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "web", "batch": index, "of": of, "files": files, "facts": key_facts_web(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM mainframe JCL, as a second reviewer.
+Read the files yourself. They are all under the repository root {repo}; read only inside that directory. Do NOT
+edit or create any files except your answers file, and do not look for any existing answer key or analysis of this
+code: the point is an independent reading. Line numbers are 1-based physical line numbers. Ignore `//*` comment
+lines and columns 73-80.
+
+For EACH JCL member below list, in "web", one entry per job step that runs one of IBM's CICS web-services assistants
+-- `EXEC DFHLS2WS`, `DFHLS2JS`, `DFHWS2LS` or `DFHJS2LS` (as a procedure, `PROC=`, or `PGM=`); an empty list when it
+has none. Each entry:
+  {{"line" (of the EXEC), "assistant" (which of the four), "direction": "provider" for DFHLS2WS / DFHLS2JS,
+    "requester" for DFHWS2LS / DFHJS2LS, and from the step's in-stream parameters (the KEY=VALUE lines after the
+    step's `DD *` / `DD DATA` statement, up to `/*` or the next JCL statement), exactly as written, upper-case:
+    "program" (PGMNAME=), "uri" (URI=), "request" (REQMEM=), "response" (RESPMEM=), "interface" (PGMINT=);
+    null for a parameter the step does not code}}
+
+JCL members:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"web": [...]}}, ...every member above...}}}}
+"""
+    return brief, truth
+
+
+def batches_web(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    return _pack({f: len(v) for f, v in key_facts_web(key, files)["web"].items()}, max_items)
+
+
 def upper_bound_95(errors: int, n: int) -> float:
     """One-sided 95% upper bound on an error rate from `errors` in `n` (Clopper-Pearson
     for 0, else a Wilson score bound): what a clean sample does and does not prove."""
@@ -1263,6 +1332,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "io"
         else reviewer_facts_dynamic(answers, repo)
         if suite == "dynamic"
+        else reviewer_facts_web(answers, repo)
+        if suite == "web"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -1321,6 +1392,8 @@ def sign(
         if truth.get("suite") == "io"
         else {("dynamic_targets", "dynamic_validated")}
         if truth.get("suite") == "dynamic"
+        else {("web_services", "web_validated")}
+        if truth.get("suite") == "web"
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -1404,12 +1477,16 @@ def main() -> int:
     c.add_argument("--out", type=Path, required=True)
     c.add_argument("--stage", type=Path, required=True)
     c.add_argument("--max-items", type=int, default=70)
-    c.add_argument("--suite", choices=("channels", "files", "calls", "lineage", "io", "dynamic"), default="channels")
+    c.add_argument(
+        "--suite", choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web"), default="channels"
+    )
     c.add_argument("--sample-facts", type=int, default=400, help="lineage: key facts the data-move sample covers")
     c.add_argument("--seed", type=int, default=3452, help="lineage: the sample's seed")
     cov = sub.add_parser("coverage")
     cov.add_argument("--corpus", required=True)
-    cov.add_argument("--suite", choices=("channels", "files", "calls", "lineage", "io", "dynamic"), default="channels")
+    cov.add_argument(
+        "--suite", choices=("channels", "files", "calls", "lineage", "io", "dynamic", "web"), default="channels"
+    )
     for name in ("grade", "sign"):
         s = sub.add_parser(name)
         s.add_argument("--corpus", required=True)
@@ -1429,6 +1506,8 @@ def main() -> int:
         if suite == "io"
         else corpus_files_dynamic(key, repo)
         if suite == "dynamic"
+        else corpus_files_web(key, repo)
+        if suite == "web"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -1465,16 +1544,24 @@ def main() -> int:
                 n = sum(len(v) for t in truth["facts"].values() for v in t.values())
                 print(f"{d}: {len(fs)} IMS files, {len(ws)} windows, {n} key facts")
             return 0
-        pack = {"files": batches_files, "calls": batches_calls, "io": batches_io, "dynamic": batches_dynamic}.get(
-            suite, batches
-        )
+        pack = {
+            "files": batches_files,
+            "calls": batches_calls,
+            "io": batches_io,
+            "dynamic": batches_dynamic,
+            "web": batches_web,
+        }.get(suite, batches)
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
             d = args.out / f"batch_{i:02d}"
             d.mkdir(parents=True, exist_ok=True)
-            make = {"files": render_files, "calls": render_calls, "io": render_io, "dynamic": render_dynamic}.get(
-                suite, render
-            )
+            make = {
+                "files": render_files,
+                "calls": render_calls,
+                "io": render_io,
+                "dynamic": render_dynamic,
+                "web": render_web,
+            }.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
             (d / "truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
@@ -1506,6 +1593,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_files(key, truth["files"]))
     elif truth.get("suite") == "calls":
         current = dict(truth, facts=key_facts_calls(key, truth["files"]))
+    elif truth.get("suite") == "web":
+        current = dict(truth, facts=key_facts_web(key, truth["files"]))
     elif truth.get("suite") == "dynamic":
         current = dict(truth, facts=key_facts_dynamic(key, truth["files"]))
     elif truth.get("suite") == "io":

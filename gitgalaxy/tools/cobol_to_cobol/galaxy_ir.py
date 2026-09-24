@@ -114,6 +114,10 @@
 # symbolic map its BMS source generates (core/bms_symbolic.py, parsed by the
 # record parser; EngineFile.symbolic_copies, never in `files`), so screen fields
 # resolve to storage; GalaxyIR.symbolic_map_layouts lists every generated map.
+# Since #3496, the web-services assistant JCL (web_service_data, per
+# EngineFile.web_services): GalaxyIR.api_surface joins each service's program
+# and request / response copybooks, with the CSD's URIMAP / PIPELINE /
+# WEBSERVICE / TCPIPSERVICE definitions.
 # Since #3494, the CSD's REMOTESYSTEM definitions and call sites' SYSID
 # (call_site_data.sysid): GalaxyIR.remote_programs / remote_calls (DPL, remote
 # START) / remote_resources (function-shipped FILE / TD / TS queues).
@@ -695,6 +699,30 @@ class EngineDataMove:
     line: int
 
 
+_WEB_FIELDS = ("assistant", "direction", "program", "uri", "request", "response", "interface", "container", "binding",
+               "document", "transaction")  # fmt: skip
+
+
+@dataclass
+class EngineWebService:
+    """One web-services assistant step (#3496), from `web_service_data` (see
+    core/web_services.py): the program a provider exposes at `uri` (or a requester
+    calls out from), its request / response copybook members, and the rest."""
+
+    assistant: Optional[str]
+    direction: Optional[str]
+    program: Optional[str]
+    uri: Optional[str]
+    request: Optional[str]
+    response: Optional[str]
+    interface: Optional[str]
+    container: Optional[str]
+    binding: Optional[str]
+    document: Optional[str]
+    transaction: Optional[str]
+    line: int
+
+
 @dataclass
 class EngineImsGen:
     """One IMS PSB / DBD macro statement or JCL IMS region step (#3477), from
@@ -746,6 +774,7 @@ class EngineFile:
     dli_calls: list = field(default_factory=list)  # EngineDliCall, source order, #3450
     ims_gen: list = field(default_factory=list)  # EngineImsGen, source order, #3477
     data_moves: list = field(default_factory=list)  # EngineDataMove, source order, #3452
+    web_services: list = field(default_factory=list)  # EngineWebService, source order, #3496
     # #3490: symbolic maps generated from BMS source for COPY members no real
     # copybook answers (EngineFile, file_path `<bms>#<MAPSET>`); never in `files`.
     symbolic_copies: list = field(default_factory=list)
@@ -1210,8 +1239,9 @@ class GalaxyIR:
                           non-COBOL program not linked (an engine gap)
           copybooks       COBOL COPY members answered by a copybook (or a generated
                           symbolic map, #3490); gap: missing copybook
-          transactions    CICS programs a transaction or a LINK / XCTL / START
-                          reaches, and CSD transactions whose program exists;
+          transactions    CICS programs a transaction, a LINK / XCTL / START or a
+                          web service (#3496) reaches, and CSD transactions whose
+                          program exists;
                           gaps: CICS program no transaction reaches, transaction to
                           a missing program
           screens         SEND / RECEIVE MAP commands whose BMS source is scanned;
@@ -1287,6 +1317,12 @@ class GalaxyIR:
         reached |= {c.resolves_to for f in self.files.values() for c in f.calls if c.resolves_to and c.verb != "CALL"}
         reached |= {
             c["resolves_to"] for d in dynamic if d["verb"] != "CALL" for c in d["candidates"] if c["resolves_to"]
+        }
+        # #3496: a program a web / JSON service exposes is a front door too.
+        reached |= {
+            s["program_file"]
+            for s in self.api_surface()["services"]
+            if s["program_file"] and s["direction"] == "provider"
         }
         for c in (c for f in self.files.values() for c in f.calls if c.verb in TRANSACTION_ROUTING_VERBS):
             prog = self._transaction_program(c.target) if c.target else None
@@ -1384,6 +1420,51 @@ class GalaxyIR:
             "channels": channels,
             "missing_inputs": missing,
         }
+
+    # ---- #3496: the web / API surface --------------------------------------------
+    def api_surface(self) -> dict:
+        """The estate's web / API surface (#3496).
+
+        `services`: one entry per web-services assistant step (core/web_services.py)
+        -- `defined_in`, `line`, `assistant`, `direction` (provider | requester),
+        `uri`, `program` and `program_file` (the PROGRAM-ID's file, or None),
+        `request` / `response` (copybook members) with `request_file` /
+        `response_file` (the copybook, or None), `interface`, `binding`,
+        `document`. `csd`: the CSD definitions that serve HTTP -- every URIMAP,
+        PIPELINE, WEBSERVICE and TCPIPSERVICE, with `name`, `group`, `defined_in`
+        and its kept `attributes` (a URIMAP's PATH / PROGRAM / PIPELINE)."""
+        by_pid = {pid.upper(): f.file_path for f in self.files.values() if f.is_program for pid in f.program_ids}
+        copybooks: dict = {}
+        for path, f in self.files.items():
+            if f.language == "cobol" and not f.is_program:
+                copybooks.setdefault(Path(path).stem.upper(), []).append(path)
+
+        def book(member: Optional[str]) -> Optional[str]:
+            hits = copybooks.get((member or "").upper(), [])
+            return hits[0] if len(hits) == 1 else None
+
+        services = [
+            {"defined_in": f.file_path, "line": w.line, "assistant": w.assistant, "direction": w.direction,
+             "uri": w.uri, "program": w.program, "program_file": by_pid.get((w.program or "").upper()),
+             "request": w.request, "request_file": book(w.request), "response": w.response,
+             "response_file": book(w.response), "interface": w.interface, "binding": w.binding,
+             "document": w.document}
+            for f in sorted(self.files.values(), key=lambda x: x.file_path)
+            for w in f.web_services
+        ]  # fmt: skip
+        csd = [
+            {
+                "type": r.resource_type,
+                "name": r.name,
+                "group": r.group,
+                "defined_in": f.file_path,
+                "attributes": r.attributes,
+            }
+            for f in sorted(self.files.values(), key=lambda x: x.file_path)
+            for r in f.csd_resources
+            if (r.resource_type or "").upper() in ("URIMAP", "PIPELINE", "WEBSERVICE", "TCPIPSERVICE")
+        ]
+        return {"services": services, "csd": csd}
 
     def symbolic_map_layouts(self) -> dict:
         """Mapset -> {`file` (the BMS source), `items`: sorted `NAME @offset+bytes`}
@@ -4066,6 +4147,16 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         line=int(row[13] or 0),
                     )
                 )
+        # #3496: web-services assistant steps. A pre-#3496 database has none.
+        if _has_table(cur, "web_service_data"):
+            for row in cur.execute(
+                "SELECT file_id, assistant, direction, program, uri, request, response, interface, container, binding, document, transaction_id, line_number FROM web_service_data "
+                "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] in by_id:
+                    fields = dict(zip(_WEB_FIELDS, row[1:-1]))
+                    by_id[row[0]].web_services.append(EngineWebService(**fields, line=int(row[-1] or 0)))
         # #3452: field-level data movement. A pre-#3452 database has none.
         if _has_table(cur, "data_move_data"):
             for row in cur.execute(

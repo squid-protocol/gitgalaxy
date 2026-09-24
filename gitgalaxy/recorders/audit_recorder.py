@@ -475,6 +475,16 @@ class AuditRecorder:
                 }
                 for g in gen
             ]
+        web = file_data.get("web_services") or []
+        if web:
+            # #3496: web-services assistant steps (the API surface), set keys only.
+            block["Web Services"] = [
+                {"Assistant": w.get("assistant"), "Direction": w.get("direction"),
+                 **{k.title(): w[k] for k in ("program", "uri", "request", "response", "interface", "container",
+                                             "binding", "document", "transaction") if w.get(k)},
+                 "Line": w.get("line", 0)}
+                for w in web
+            ]  # fmt: skip
         moves = file_data.get("data_moves") or []
         if moves:
             # #3452: field-level data movement, one compact line per source -> target pair.

@@ -95,6 +95,7 @@ from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
+from gitgalaxy.core.web_services import jcl_web_services
 
 # The dialects that carry a top-level `boundary_extraction` declaration. It is
 # top level rather than inside `rules` because language_lens.py re.compile()s
@@ -1937,6 +1938,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     mode and keys) and jcl `vsam_defines` (IDCAMS DEFINE CLUSTER / AIX / PATH).
     #3452: cobol also carries `data_moves` -- one source -> target pair per MOVE /
     COMPUTE / ADD / SUBTRACT / MULTIPLY / DIVIDE / STRING / UNSTRING / INITIALIZE.
+    #3496: jcl also carries `web_services` -- the web-services assistant steps
+    (DFHLS2WS / DFHLS2JS providers, DFHWS2LS / DFHJS2LS requesters).
     #3477: hlasm carries `ims_gen` (IMS PSB / DBD macros) and jcl adds the IMS
     region steps (DFSRRC00 PARM) to it.
     #3451: jcl also carries `job_flow` -- job / step order, COND / IF conditions,
@@ -1973,6 +1976,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         boundary["vsam_defines"] = jcl_vsam_defines(code_stream)  # #3455
         boundary["job_flow"] = jcl_job_flow(code_stream)  # #3451
         boundary["ims_gen"] = jcl_ims_regions(_jcl_statements(code_stream))  # #3477
+        boundary["web_services"] = jcl_web_services(code_stream)  # #3496
         return boundary
     if dialect == "hlasm":
         # #3477: IMS PSB / DBD generation macros (PSBGEN, PCB, SENSEG, DBD, SEGM, ...).

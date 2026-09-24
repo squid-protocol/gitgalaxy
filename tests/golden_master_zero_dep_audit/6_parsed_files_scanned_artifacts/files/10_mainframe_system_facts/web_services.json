@@ -1,0 +1,243 @@
+{
+  "groups": {
+    "jcl/cics-genapp": {
+      "jcl/cics-genapp/wsaac01.jcl": [
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGACUS01.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGACUS01.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 13,
+          "Program": "LGACUS01",
+          "Request": "SOAIC01",
+          "Response": "SOAIC01",
+          "Uri": "GENAPP/LGACUS01"
+        }
+      ],
+      "jcl/cics-genapp/wsaap01.jcl": [
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGAPOLM1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGAPOLM1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 14,
+          "Program": "LGAPOL01",
+          "Request": "SOAIPM1",
+          "Response": "SOAIPM1",
+          "Uri": "GENAPP/LGAPOLM1"
+        },
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGAPOLH1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGAPOLH1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 36,
+          "Program": "LGAPOL01",
+          "Request": "SOAIPH1",
+          "Response": "SOAIPH1",
+          "Uri": "GENAPP/LGAPOLH1"
+        },
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGAPOLE1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGAPOLE1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 58,
+          "Program": "LGAPOL01",
+          "Request": "SOAIPE1",
+          "Response": "SOAIPE1",
+          "Uri": "GENAPP/LGAPOLE1"
+        },
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGAPOLB1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGAPOLB1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 80,
+          "Program": "LGAPOL01",
+          "Request": "SOAIPB1",
+          "Response": "SOAIPB1",
+          "Uri": "GENAPP/LGAPOLB1"
+        }
+      ],
+      "jcl/cics-genapp/wsaic01.jcl": [
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGICUS01.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGICUS01.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 13,
+          "Program": "LGICUS01",
+          "Request": "SOAIC01",
+          "Response": "SOAIC01",
+          "Uri": "GENAPP/LGICUS01"
+        }
+      ],
+      "jcl/cics-genapp/wsaip01.jcl": [
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGIPOLM1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGIPOLM1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 15,
+          "Program": "LGIPOL01",
+          "Request": "SOAIPM1",
+          "Response": "SOAIPM1",
+          "Uri": "GENAPP/LGIPOLM1"
+        },
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGIPOLH1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGIPOLH1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 37,
+          "Program": "LGIPOL01",
+          "Request": "SOAIPH1",
+          "Response": "SOAIPH1",
+          "Uri": "GENAPP/LGIPOLH1"
+        },
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGIPOLE1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGIPOLE1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 59,
+          "Program": "LGIPOL01",
+          "Request": "SOAIPE1",
+          "Response": "SOAIPE1",
+          "Uri": "GENAPP/LGIPOLE1"
+        },
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGIPOLB1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGIPOLB1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 81,
+          "Program": "LGIPOL01",
+          "Request": "SOAIPB1",
+          "Response": "SOAIPB1",
+          "Uri": "GENAPP/LGIPOLB1"
+        },
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGIPOL02.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGIPOL02.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 103,
+          "Program": "IPPROGMB",
+          "Request": "POLLOOK",
+          "Response": "POLLOO2",
+          "Uri": "GENAPP/LGIPOL02"
+        }
+      ],
+      "jcl/cics-genapp/wsauc01.jcl": [
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGUCUS01.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGUCUS01.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 13,
+          "Program": "LGUCUS01",
+          "Request": "SOAIC01",
+          "Response": "SOAIC01",
+          "Uri": "GENAPP/LGUCUS01"
+        }
+      ],
+      "jcl/cics-genapp/wsaup01.jcl": [
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGUPOLM1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGUPOLM1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 14,
+          "Program": "LGUPOL01",
+          "Request": "SOAIPM1",
+          "Response": "SOAIPM1",
+          "Uri": "GENAPP/LGUPOLM1"
+        },
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGUPOLH1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGUPOLH1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 36,
+          "Program": "LGUPOL01",
+          "Request": "SOAIPH1",
+          "Response": "SOAIPH1",
+          "Uri": "GENAPP/LGUPOLH1"
+        },
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGUPOLE1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGUPOLE1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 58,
+          "Program": "LGUPOL01",
+          "Request": "SOAIPE1",
+          "Response": "SOAIPE1",
+          "Uri": "GENAPP/LGUPOLE1"
+        },
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGUPOLB1.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGUPOLB1.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 80,
+          "Program": "LGUPOL01",
+          "Request": "SOAIPB1",
+          "Response": "SOAIPB1",
+          "Uri": "GENAPP/LGUPOLB1"
+        }
+      ],
+      "jcl/cics-genapp/wsavc01.jcl": [
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGICVS01.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGICVS01.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 13,
+          "Program": "LGICVS01",
+          "Request": "SOAVCII",
+          "Response": "SOAVCIO",
+          "Uri": "GENAPP/LGICVS01"
+        }
+      ],
+      "jcl/cics-genapp/wsavp01.jcl": [
+        {
+          "Assistant": "DFHLS2WS",
+          "Binding": "<ZFSHOME>/genapp/wsdir/LGIPVS01.wsbind",
+          "Direction": "provider",
+          "Document": "<ZFSHOME>/genapp/wsdir/LGIPVS01.wsdl",
+          "Interface": "COMMAREA",
+          "Line": 13,
+          "Program": "LGIPVS01",
+          "Request": "SOAVPII",
+          "Response": "SOAVPIO",
+          "Uri": "GENAPP/LGIPVS01"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "Web Services"
+  ]
+}

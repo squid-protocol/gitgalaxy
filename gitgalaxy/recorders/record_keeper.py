@@ -184,6 +184,12 @@ def _qualifiers_json(func: dict) -> Optional[str]:
     return None if encoded is None else json.dumps(encoded, separators=(",", ":"))
 
 
+# #3496: web_service_data's row fields, in column order (`transaction` is stored
+# as transaction_id: TRANSACTION is an SQL keyword).
+_WEB_SERVICE_FIELDS = ("assistant", "direction", "program", "uri", "request", "response", "interface", "container",
+                       "binding", "document", "transaction")  # fmt: skip
+
+
 class RecordKeeper:
     """
     SQLite Telemetry Recorder.
@@ -503,6 +509,7 @@ class RecordKeeper:
         calls (#3450) ride on `dli_calls` and become dli_call_data. IMS PSB / DBD
         macros and IMS region steps (#3477) ride on `ims_gen` -> ims_gen_data.
         Field-level data movement (#3452) rides on `data_moves` -> data_move_data.
+        Web-services assistant steps (#3496) ride on `web_services` -> web_service_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1436,6 +1443,36 @@ class RecordKeeper:
         """)
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_ims_gen_file_id ON ims_gen_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_ims_gen_snapshot ON ims_gen_data(repo_name, commit_hash);")
+
+        # #3496: CICS web / API services from the web-services assistant JCL
+        # (core/web_services.py): one row per DFHLS2WS / DFHLS2JS (provider) or
+        # DFHWS2LS / DFHJS2LS (requester) step -- the program, its URI, the request /
+        # response copybook members, PGMINT, the WSBIND and WSDL / JSON schema.
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS web_service_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                assistant TEXT,
+                direction TEXT,
+                program TEXT,
+                uri TEXT,
+                request TEXT,
+                response TEXT,
+                interface TEXT,
+                container TEXT,
+                binding TEXT,
+                document TEXT,
+                transaction_id TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_web_service_file_id ON web_service_data(file_id);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_web_service_snapshot ON web_service_data(repo_name, commit_hash);"
+        )
 
         # #3452: field-level data movement (core/data_moves.py), one row per source ->
         # target pair of a MOVE / COMPUTE / ADD / SUBTRACT / MULTIPLY / DIVIDE /
@@ -3245,6 +3282,35 @@ class RecordKeeper:
                 g.get("program"),
                 g.get("attributes"),
                 int(g.get("line", 0) or 0),
+            ),
+        )
+
+        # #3496: web-services assistant steps -- per-file.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "web_service_data",
+            (
+                "assistant",
+                "direction",
+                "program",
+                "uri",
+                "request",
+                "response",
+                "interface",
+                "container",
+                "binding",
+                "document",
+                "transaction_id",
+                "line_number",
+            ),
+            "web_services",
+            lambda w: (
+                *(w.get(c) for c in _WEB_SERVICE_FIELDS),
+                int(w.get("line", 0) or 0),
             ),
         )
 

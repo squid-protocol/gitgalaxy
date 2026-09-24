@@ -105,6 +105,7 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "MOVE truncation": ("data_moves", "data_moves_validated"),
     "symbolic maps": ("symbolic_maps", "symbolic_validated"),
     "dynamic call targets": ("dynamic_targets", "dynamic_validated"),
+    "web services": ("web_services", "web_validated"),
     "file I/O moves": ("io_moves", "io_moves_validated"),
 }
 

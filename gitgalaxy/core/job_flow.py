@@ -170,7 +170,9 @@ def jcl_job_flow(code_stream: str) -> list[dict[str, Any]]:
             exec_ops = _split(field)
             keyed = {k: v for k, v in exec_ops if k}
             program = keyed.get("PGM")
-            proc = keyed.get("PROC") or (next((v for k, v in exec_ops if k is None and v), None) if not program else None)
+            proc = keyed.get("PROC") or (
+                next((v for k, v in exec_ops if k is None and v), None) if not program else None
+            )
             ordinal += 1
             step = name or None
             last_dd = None

@@ -274,7 +274,9 @@ class HlasmSource(Source):
                 self.dc.setdefault(dc.group(1), dc.group(2).strip())
             lines.extend(group)
         super().__init__(path, lines)
-        self.proc_start = 0  # no divisions: every statement is procedure code
+
+    def _procedure_start(self) -> Optional[int]:
+        return 0  # no divisions: every statement is procedure code
 
     def program_id(self) -> Optional[str]:
         return None
@@ -305,7 +307,9 @@ class PliSource(Source):
         out.append(text[pos:])
         self.inits = pli_char_inits(raw)
         super().__init__(path, list(enumerate("".join(out).split("\n"), 1)))
-        self.proc_start = 0
+
+    def _procedure_start(self) -> Optional[int]:
+        return 0  # no divisions: every statement is procedure code
 
     def program_id(self) -> Optional[str]:
         return None

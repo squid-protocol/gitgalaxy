@@ -187,15 +187,19 @@ def _blank_literals(text: str) -> str:
 class Source:
     """One program's code lines, split into divisions, with literal-blanked twins."""
 
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, lines: Optional[list[tuple[int, str]]] = None):
+        """`lines` is another reading's (line, text) pairs (#3495: HlasmSource);
+        without it the file is read as fixed-format COBOL."""
         self.path = path
-        self.lines: list[tuple[int, str]] = []  # (1-based line, Area A..B text), comments dropped
-        for no, raw in enumerate(path.read_text(encoding="utf-8", errors="ignore").splitlines(), 1):
-            if len(raw) > 6 and raw[6] in "*/Dd":
-                continue
-            area = raw[7:72] if len(raw) > 7 else ""
-            area = area.split("*>", 1)[0]
-            self.lines.append((no, area.upper()))
+        if lines is None:
+            lines = []
+            for no, raw in enumerate(path.read_text(encoding="utf-8", errors="ignore").splitlines(), 1):
+                if len(raw) > 6 and raw[6] in "*/Dd":
+                    continue
+                area = raw[7:72] if len(raw) > 7 else ""
+                area = area.split("*>", 1)[0]
+                lines.append((no, area.upper()))
+        self.lines: list[tuple[int, str]] = lines  # (1-based line, Area A..B text), comments dropped
         self.raw_text = "\n".join(a for _, a in self.lines)
         self.text = _blank_literals(self.raw_text)
         self._line_at = []
@@ -242,10 +246,9 @@ _HLASM_DC = re.compile(rf"^({HLASM_NAME})\s+DC\s+C(?:L\d+)?'([^']*)'")
 class HlasmSource(Source):
     """An assembler source as a `Source`: statements joined, each EXEC CICS closed."""
 
-    def __init__(self, path: Path):  # noqa: D107 -- deliberately does not call Source.__init__
-        self.path = path
+    def __init__(self, path: Path):
         physical = path.read_text(encoding="utf-8", errors="ignore").splitlines()
-        self.lines = []
+        lines: list[tuple[int, str]] = []
         self.dc: dict[str, str] = {}
         i = 0
         while i < len(physical):
@@ -268,13 +271,9 @@ class HlasmSource(Source):
             dc = _HLASM_DC.match(group[0][1])
             if dc and dc.group(2).strip():
                 self.dc.setdefault(dc.group(1), dc.group(2).strip())
-            self.lines.extend(group)
-        self.raw_text = "\n".join(a for _, a in self.lines)
-        self.text = _blank_literals(self.raw_text)
-        self._line_at = []
-        for no, area in self.lines:
-            self._line_at.extend([no] * (len(area) + 1))
-        self.proc_start = 0
+            lines.extend(group)
+        super().__init__(path, lines)
+        self.proc_start = 0  # no divisions: every statement is procedure code
 
     def program_id(self) -> Optional[str]:
         return None

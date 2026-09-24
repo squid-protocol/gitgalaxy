@@ -133,6 +133,15 @@ jobs:
         run: |
           galaxyscope . --config .galaxyscope.yaml --fail-on-malware --output gitgalaxy-results.json
 
+      # #935: GitHub's tool-status page shows per-language scan coverage only
+      # for integrated tools like CodeQL, and SARIF has no field to fill it.
+      # Put the equivalent (per-language table, top files, security status) on
+      # the run page instead, from the audit JSON the scan above already wrote.
+      # Stdlib-only script, so it runs beside the PyPI-installed gitgalaxy.
+      - name: Write Job Summary
+        if: always() && hashFiles('gitgalaxy-results_audit.json') != ''
+        run: python tests/tools/ci_job_summary.py gitgalaxy-results_audit.json --sbom gitgalaxy-results_sbom.json
+
       - name: Upload SARIF to GitHub Security Tab   # unchanged
         uses: github/codeql-action/upload-sarif@b96794f015dfd88f77b49b1c93e0fa7110f94c63 # v4
         with:

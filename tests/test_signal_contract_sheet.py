@@ -116,3 +116,22 @@ def test_audit_has_no_findings_outside_its_baseline():
     baseline = audit.load_baseline()
     new = sorted(audit._key(f) for f in audit.run_audit() if audit._key(f) not in baseline)
     assert new == []
+
+
+# ==============================================================================
+# TEST 7: THE RENDERED SHEET IS IN SYNC, AND --ci CATCHES DRIFT (#3341)
+# ==============================================================================
+def test_committed_render_matches_the_module():
+    assert not audit.render_is_stale(), "run `python tests/signal_contract_audit.py --render`"
+
+
+def test_ci_mode_fails_on_a_stale_render(tmp_path, monkeypatch, capsys):
+    stale = tmp_path / "signal_contracts.md"
+    stale.write_text(audit.render() + "hand edit\n", encoding="utf-8")
+    monkeypatch.setattr(audit, "RENDER_PATH", stale)
+    monkeypatch.setattr(audit, "REPO_ROOT", tmp_path)
+    assert audit.main(["--ci"]) == 1
+    assert "--render" in capsys.readouterr().out
+
+    stale.write_text(audit.render(), encoding="utf-8")
+    assert audit.main(["--ci"]) == 0

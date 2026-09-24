@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "gitgalaxy/standards/**"
+      - "docs/signal_contracts.md"
       - "tests/signal_contract_audit.py"
       - "tests/signal_contract_audit_baseline.json"
 

@@ -12,7 +12,7 @@ audit keeps the two from drifting apart.
 
 USAGE
     python tests/signal_contract_audit.py            # full report, exits 1 on any finding
-    python tests/signal_contract_audit.py --ci       # baseline-gated regression check
+    python tests/signal_contract_audit.py --ci       # baseline-gated regression check + render sync
     python tests/signal_contract_audit.py --render   # rewrite docs/signal_contracts.md
     python tests/signal_contract_audit.py --regenerate-baseline
 
@@ -39,6 +39,11 @@ only on findings not already in tests/signal_contract_audit_baseline.json. A
 draft becoming stated shrinks the baseline -- that is a deliberate, reviewable
 edit made with --regenerate-baseline in the same PR as the contract doc, never a
 silent overwrite. `--ci` prints already-resolved baseline entries as an FYI.
+
+RENDER SYNC (#3341)
+docs/signal_contracts.md says "Do not edit by hand", and `--ci` enforces it: the
+committed file must equal render() byte for byte, so the PR that changes a contract
+also carries its re-render. Fix a failure with `--render`.
 """
 
 from __future__ import annotations
@@ -231,6 +236,15 @@ def render() -> str:
     return "\n".join(lines) + "\n"
 
 
+def render_is_stale() -> bool:
+    """True when the committed docs/signal_contracts.md differs from render()."""
+    try:
+        committed = RENDER_PATH.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return True
+    return committed != render()
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--ci", action="store_true", help="baseline-gated regression check")
@@ -268,8 +282,15 @@ def main(argv: list[str] | None = None) -> int:
         for f in findings:
             if _key(f) in new:
                 print(f"  NEW {f['kind']:18s} {f['signal']:28s} {f['detail']}")
+        stale = render_is_stale()
+        if stale:
+            print(
+                f"  STALE {RENDER_PATH.relative_to(REPO_ROOT).as_posix()} does not match render(); "
+                "run `python tests/signal_contract_audit.py --render`"
+            )
         if new:
             print(f"signal_contract_audit: {len(new)} new finding(s) not in baseline")
+        if new or stale:
             return 1
         print("signal_contract_audit: no new findings")
         return 0

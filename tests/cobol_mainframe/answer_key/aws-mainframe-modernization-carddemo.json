@@ -101191,5 +101191,640 @@
         }
       }
     }
+  },
+  "call_using": {
+    "app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "IO-PCB-MASK,PGM-PCB-MASK",
+          "line": 132
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "MQOPEN",
+          "args": "W01-HCONN-REQUEST,MQM-OD-REQUEST,WS-OPTIONS,W01-HOBJ-REQUEST,WS-COMPCODE,WS-REASON",
+          "line": 262
+        },
+        {
+          "kind": "CALL",
+          "name": "MQGET",
+          "args": "W01-HCONN-REQUEST,W01-HOBJ-REQUEST,MQM-MD-REQUEST,MQM-GET-MESSAGE-OPTIONS,W01-BUFFLEN,W01-GET-BUFFER,W01-DATALEN,WS-COMPCODE,WS-REASON",
+          "line": 400
+        },
+        {
+          "kind": "CALL",
+          "name": "MQPUT1",
+          "args": "W02-HCONN-REPLY,MQM-OD-REPLY,MQM-MD-REPLY,MQM-PUT-MESSAGE-OPTIONS,W02-BUFFLEN,W02-PUT-BUFFER,WS-COMPCODE,WS-REASON",
+          "line": 758
+        },
+        {
+          "kind": "CALL",
+          "name": "MQCLOSE",
+          "args": "W01-HCONN-REQUEST,W01-HOBJ-REQUEST,MQCO-NONE,WS-COMPCODE,WS-REASON",
+          "line": 956
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CBLTDLI",
+          "args": "FUNC-GN,PAUTBPCB,PENDING-AUTH-SUMMARY,ROOT-UNQUAL-SSA",
+          "line": 222
+        },
+        {
+          "kind": "CALL",
+          "name": "CBLTDLI",
+          "args": "FUNC-GNP,PAUTBPCB,PENDING-AUTH-DETAILS,CHILD-UNQUAL-SSA",
+          "line": 267
+        },
+        {
+          "kind": "CALL",
+          "name": "CBLTDLI",
+          "args": "FUNC-ISRT,PASFLPCB,PENDING-AUTH-SUMMARY",
+          "line": 302
+        },
+        {
+          "kind": "CALL",
+          "name": "CBLTDLI",
+          "args": "FUNC-ISRT,PADFLPCB,PENDING-AUTH-DETAILS",
+          "line": 321
+        },
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "PAUTBPCB,PASFLPCB,PADFLPCB",
+          "line": 159
+        },
+        {
+          "kind": "ENTRY",
+          "name": "DLITCBL",
+          "args": "PAUTBPCB,PASFLPCB,PADFLPCB",
+          "line": 165
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CBLTDLI",
+          "args": "FUNC-ISRT,PAUTBPCB,PENDING-AUTH-SUMMARY,ROOT-UNQUAL-SSA",
+          "line": 244
+        },
+        {
+          "kind": "CALL",
+          "name": "CBLTDLI",
+          "args": "FUNC-GU,PAUTBPCB,PENDING-AUTH-SUMMARY,ROOT-QUAL-SSA",
+          "line": 296
+        },
+        {
+          "kind": "CALL",
+          "name": "CBLTDLI",
+          "args": "FUNC-ISRT,PAUTBPCB,PENDING-AUTH-DETAILS,CHILD-UNQUAL-SSA",
+          "line": 321
+        },
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "IO-PCB-MASK,PAUTBPCB",
+          "line": 164
+        },
+        {
+          "kind": "ENTRY",
+          "name": "DLITCBL",
+          "args": "PAUTBPCB",
+          "line": 171
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CBLTDLI",
+          "args": "FUNC-GN,PAUTBPCB,PENDING-AUTH-SUMMARY,ROOT-UNQUAL-SSA",
+          "line": 213
+        },
+        {
+          "kind": "CALL",
+          "name": "CBLTDLI",
+          "args": "FUNC-GNP,PAUTBPCB,PENDING-AUTH-DETAILS,CHILD-UNQUAL-SSA",
+          "line": 257
+        },
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "PAUTBPCB",
+          "line": 153
+        },
+        {
+          "kind": "ENTRY",
+          "name": "DLITCBL",
+          "args": "PAUTBPCB",
+          "line": 158
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "LIT-DSNTIAC",
+          "args": "DFHEIBLK,DFHCOMMAREA,SQLCA,WS-DSNTIAC-FORMATTED,WS-DSNTIAC-LRECL",
+          "line": 57
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-vsam-mq/cbl/COACCT01.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "MQOPEN",
+          "args": "QMGR-HANDLE-CONN,MQ-OBJECT-DESCRIPTOR,MQ-OPTIONS,MQ-HOBJ,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 233
+        },
+        {
+          "kind": "CALL",
+          "name": "MQOPEN",
+          "args": "QMGR-HANDLE-CONN,MQ-OBJECT-DESCRIPTOR,MQ-OPTIONS,MQ-HOBJ,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 267
+        },
+        {
+          "kind": "CALL",
+          "name": "MQOPEN",
+          "args": "QMGR-HANDLE-CONN,MQ-OBJECT-DESCRIPTOR,MQ-OPTIONS,MQ-HOBJ,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 302
+        },
+        {
+          "kind": "CALL",
+          "name": "MQGET",
+          "args": "MQ-HCONN,MQ-HOBJ,MQ-MESSAGE-DESCRIPTOR,MQ-GET-MESSAGE-OPTIONS,MQ-BUFFER-LENGTH,MQ-BUFFER,MQ-DATA-LENGTH,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 352
+        },
+        {
+          "kind": "CALL",
+          "name": "MQPUT",
+          "args": "MQ-HCONN,OUTPUT-QUEUE-HANDLE,MQ-MESSAGE-DESCRIPTOR,MQ-PUT-MESSAGE-OPTIONS,MQ-BUFFER-LENGTH,MQ-BUFFER,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 479
+        },
+        {
+          "kind": "CALL",
+          "name": "MQPUT",
+          "args": "MQ-HCONN,ERROR-QUEUE-HANDLE,MQ-MESSAGE-DESCRIPTOR,MQ-PUT-MESSAGE-OPTIONS,MQ-BUFFER-LENGTH,MQ-BUFFER,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 516
+        },
+        {
+          "kind": "CALL",
+          "name": "MQCLOSE",
+          "args": "MQ-HCONN,MQ-HOBJ,MQ-OPTIONS,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 557
+        },
+        {
+          "kind": "CALL",
+          "name": "MQCLOSE",
+          "args": "MQ-HCONN,MQ-HOBJ,MQ-OPTIONS,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 579
+        },
+        {
+          "kind": "CALL",
+          "name": "MQCLOSE",
+          "args": "MQ-HCONN,MQ-HOBJ,MQ-OPTIONS,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 602
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-vsam-mq/cbl/CODATE01.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "MQOPEN",
+          "args": "QMGR-HANDLE-CONN,MQ-OBJECT-DESCRIPTOR,MQ-OPTIONS,MQ-HOBJ,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 182
+        },
+        {
+          "kind": "CALL",
+          "name": "MQOPEN",
+          "args": "QMGR-HANDLE-CONN,MQ-OBJECT-DESCRIPTOR,MQ-OPTIONS,MQ-HOBJ,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 216
+        },
+        {
+          "kind": "CALL",
+          "name": "MQOPEN",
+          "args": "QMGR-HANDLE-CONN,MQ-OBJECT-DESCRIPTOR,MQ-OPTIONS,MQ-HOBJ,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 251
+        },
+        {
+          "kind": "CALL",
+          "name": "MQGET",
+          "args": "MQ-HCONN,MQ-HOBJ,MQ-MESSAGE-DESCRIPTOR,MQ-GET-MESSAGE-OPTIONS,MQ-BUFFER-LENGTH,MQ-BUFFER,MQ-DATA-LENGTH,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 301
+        },
+        {
+          "kind": "CALL",
+          "name": "MQPUT",
+          "args": "MQ-HCONN,OUTPUT-QUEUE-HANDLE,MQ-MESSAGE-DESCRIPTOR,MQ-PUT-MESSAGE-OPTIONS,MQ-BUFFER-LENGTH,MQ-BUFFER,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 383
+        },
+        {
+          "kind": "CALL",
+          "name": "MQPUT",
+          "args": "MQ-HCONN,ERROR-QUEUE-HANDLE,MQ-MESSAGE-DESCRIPTOR,MQ-PUT-MESSAGE-OPTIONS,MQ-BUFFER-LENGTH,MQ-BUFFER,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 420
+        },
+        {
+          "kind": "CALL",
+          "name": "MQCLOSE",
+          "args": "MQ-HCONN,MQ-HOBJ,MQ-OPTIONS,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 461
+        },
+        {
+          "kind": "CALL",
+          "name": "MQCLOSE",
+          "args": "MQ-HCONN,MQ-HOBJ,MQ-OPTIONS,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 483
+        },
+        {
+          "kind": "CALL",
+          "name": "MQCLOSE",
+          "args": "MQ-HCONN,MQ-HOBJ,MQ-OPTIONS,MQ-CONDITION-CODE,MQ-REASON-CODE",
+          "line": 506
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT01C.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "COBDATFT",
+          "args": "CODATECN-REC",
+          "line": 231
+        },
+        {
+          "kind": "CALL",
+          "name": "CEE3ABD",
+          "args": "ABCODE,TIMING",
+          "line": 410
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT02C.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CEE3ABD",
+          "args": "ABCODE,TIMING",
+          "line": 158
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT03C.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CEE3ABD",
+          "args": "ABCODE,TIMING",
+          "line": 158
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT04C.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CEE3ABD",
+          "args": "ABCODE,TIMING",
+          "line": 632
+        },
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "EXTERNAL-PARMS",
+          "line": 180
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBCUS01C.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CEE3ABD",
+          "args": "ABCODE,TIMING",
+          "line": 158
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBSTM03A.CBL": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 351
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 377
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 401
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 734
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 746
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 769
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 787
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 805
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 835
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 860
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 877
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 893
+        },
+        {
+          "kind": "CALL",
+          "name": "CBSTM03B",
+          "args": "WS-M03B-AREA",
+          "line": 909
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBSTM03B.CBL": {
+      "rows": [
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "LK-M03B-AREA",
+          "line": 114
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBTRN01C.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CEE3ABD",
+          "args": "ABCODE,TIMING",
+          "line": 473
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBTRN02C.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CEE3ABD",
+          "args": "ABCODE,TIMING",
+          "line": 711
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBTRN03C.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CEE3ABD",
+          "args": "ABCODE,TIMING",
+          "line": 630
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COBSWAIT.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "MVSWAIT",
+          "args": "MVSWAIT-TIME",
+          "line": 38
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CORPT00C.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CSUTLDTC",
+          "args": "CSUTLDTC-DATE,CSUTLDTC-DATE-FORMAT,CSUTLDTC-RESULT",
+          "line": 392
+        },
+        {
+          "kind": "CALL",
+          "name": "CSUTLDTC",
+          "args": "CSUTLDTC-DATE,CSUTLDTC-DATE-FORMAT,CSUTLDTC-RESULT",
+          "line": 412
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COTRN02C.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CSUTLDTC",
+          "args": "CSUTLDTC-DATE,CSUTLDTC-DATE-FORMAT,CSUTLDTC-RESULT",
+          "line": 393
+        },
+        {
+          "kind": "CALL",
+          "name": "CSUTLDTC",
+          "args": "CSUTLDTC-DATE,CSUTLDTC-DATE-FORMAT,CSUTLDTC-RESULT",
+          "line": 413
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CSUTLDTC.cbl": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CEEDAYS",
+          "args": "WS-DATE-TO-TEST,WS-DATE-FORMAT,OUTPUT-LILLIAN,FEEDBACK-CODE",
+          "line": 116
+        },
+        {
+          "kind": "PROCEDURE",
+          "name": null,
+          "args": "LS-DATE,LS-DATE-FORMAT,LS-RESULT",
+          "line": 88
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cpy/CSUTLDPY.cpy": {
+      "rows": [
+        {
+          "kind": "CALL",
+          "name": "CSUTLDTC",
+          "args": "WS-EDIT-DATE-CCYYMMDD,WS-DATE-FORMAT,WS-DATE-VALIDATION-RESULT",
+          "line": 293
+        }
+      ],
+      "call_using_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

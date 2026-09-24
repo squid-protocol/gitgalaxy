@@ -1496,3 +1496,72 @@ def test_a_pre_3451_db_loads_with_no_job_flow(flow_scanned, tmp_path):
         conn.execute("DROP TABLE job_flow_data")
     ir = load_galaxy_ir(old)
     assert ir.job_steps() == [] and ir.job_dataset_flow() == []
+
+
+# ---- #3454: batch CALL USING contracts ---------------------------------------
+CALLER = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CALLER.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-DATE          PIC X(10).
+       01 WS-FMT           PIC X(10).
+       01 WS-RESULT        PIC X(60).
+       PROCEDURE DIVISION.
+           CALL 'DATEUTL' USING WS-DATE WS-FMT WS-RESULT.
+           CALL 'DATEUTL' USING WS-DATE WS-FMT.
+           CALL 'CEE3ABD' USING WS-DATE.
+           GOBACK.
+"""
+CALLEE = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DATEUTL.
+       DATA DIVISION.
+       LINKAGE SECTION.
+       01 LS-DATE          PIC X(10).
+       01 LS-FMT           PIC X(10).
+       01 LS-RESULT        PIC X(80).
+       PROCEDURE DIVISION USING LS-DATE, LS-FMT, LS-RESULT.
+           GOBACK.
+"""
+
+
+@pytest.fixture(scope="module")
+def using_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_using")
+    repo = base / "batch"
+    (repo / "cbl").mkdir(parents=True)
+    (repo / "cbl" / "CALLER.cbl").write_text(CALLER, encoding="utf-8")
+    (repo / "cbl" / "DATEUTL.cbl").write_text(CALLEE, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_call_contracts_pair_arguments_with_parameters(using_scanned):
+    contracts = [c for c in load_galaxy_ir(using_scanned).call_contracts() if c["caller"] == "cbl/CALLER.cbl"]
+    assert [(c["line"], c["target"], c["status"]) for c in contracts] == [
+        (9, "DATEUTL", "paired"),
+        (10, "DATEUTL", "arity_mismatch"),
+        (11, "CEE3ABD", "callee_unresolved"),
+    ]
+    args = [
+        (a["argument"], a["parameter"], a["caller_bytes"], a["callee_bytes"], a["length_match"])
+        for a in contracts[0]["args"]
+    ]
+    # WS-RESULT is 60 bytes, the callee's LS-RESULT 80: a real length difference.
+    assert args == [
+        ("WS-DATE", "LS-DATE", 10, 10, True),
+        ("WS-FMT", "LS-FMT", 10, 10, True),
+        ("WS-RESULT", "LS-RESULT", 60, 80, False),
+    ]
+    assert contracts[1]["args"][2]["argument"] is None
+
+
+def test_a_pre_3454_db_loads_with_no_using(using_scanned, tmp_path):
+    old = tmp_path / "old.db"
+    shutil.copy(using_scanned, old)
+    with sqlite3.connect(old) as conn:
+        conn.execute("DROP TABLE entry_point_data")
+        conn.execute("ALTER TABLE call_site_data DROP COLUMN using_args")
+    ir = load_galaxy_ir(old)
+    assert all(not c.using_args for f in ir.files.values() for c in f.calls)
+    assert all(f.entry_points == [] for f in ir.files.values())

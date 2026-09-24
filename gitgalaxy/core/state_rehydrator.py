@@ -399,13 +399,19 @@ class StateRehydrator:
                     if _has_table(cursor, "call_site_data") and _has_column(cursor, "call_site_data", "commarea")
                     else "NULL AS commarea, NULL AS commarea_length, NULL AS commarea_datalength"
                 )
+                # #3454: the USING list, restored the same way (absent before #3454).
+                using_col = (
+                    "cs.using_args"
+                    if _has_table(cursor, "call_site_data") and _has_column(cursor, "call_site_data", "using_args")
+                    else "NULL AS using_args"
+                )
                 calls_by_file = _restore_child_table(
                     cursor,
                     repo_name,
                     baseline_hash,
                     "call_site_data",
                     "SELECT fd.file_path AS _fp, cs.verb, cs.form, cs.operand, cs.target, cs.line_number AS line, "  # noqa: S608 -- commarea_cols is one of two literals; values are bound
-                    f"{commarea_cols} "
+                    f"{commarea_cols}, {using_col} "
                     "FROM call_site_data cs JOIN file_data fd ON cs.src_file_id = fd.id "
                     "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY cs.id",
                     lambda r: {
@@ -414,7 +420,11 @@ class StateRehydrator:
                         "operand": r["operand"],
                         "target": r["target"],
                         "line": int(r["line"] or 0),
-                        **{k: r[k] for k in ("commarea", "commarea_length", "commarea_datalength") if r[k]},
+                        **{
+                            k: r[k]
+                            for k in ("commarea", "commarea_length", "commarea_datalength", "using_args")
+                            if r[k]
+                        },
                     },
                 )
                 # #3345: the resolved-DSN pair is per-file (one JCL file determines
@@ -832,6 +842,23 @@ class StateRehydrator:
                     },
                 )
 
+                # #3454: program entry points.
+                entry_points_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "entry_point_data",
+                    "SELECT fd.file_path AS _fp, ep.kind, ep.entry_name, ep.params, ep.line_number AS line "
+                    "FROM entry_point_data ep JOIN file_data fd ON ep.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY ep.id",
+                    lambda r: {
+                        "kind": r["kind"],
+                        "entry_name": r["entry_name"],
+                        "params": r["params"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
@@ -851,6 +878,7 @@ class StateRehydrator:
                     node["file_control"] = file_control_by_file.get(rel_path, [])
                     node["vsam_defines"] = vsam_defines_by_file.get(rel_path, [])
                     node["job_flow"] = job_flow_by_file.get(rel_path, [])
+                    node["entry_points"] = entry_points_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

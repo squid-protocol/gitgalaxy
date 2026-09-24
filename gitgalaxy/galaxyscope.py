@@ -691,6 +691,7 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             file_control: list = []  # #3455: FILE-CONTROL SELECT organisation / access / keys (cobol)
             vsam_defines: list = []  # #3455: IDCAMS DEFINE CLUSTER / AIX / PATH (jcl)
             job_flow: list = []  # #3451: JCL job / step / DD-disposition flow (jcl)
+            entry_points: list = []  # #3454: PROCEDURE DIVISION / ENTRY USING params (cobol)
 
             # 1. Extract raw file dependencies. An inert (static-asset) language
             # normally skips this whole phase, but one that explicitly DECLARES
@@ -779,6 +780,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     vsam_defines = boundary.get("vsam_defines", [])
                     # #3451: JCL job flow (jcl only).
                     job_flow = boundary.get("job_flow", [])
+                    # #3454: program entry points (cobol only).
+                    entry_points = boundary.get("entry_points", [])
                 except Exception:
                     logging.exception("Boundary extraction failed for language '%s'.", lang_id)
 
@@ -864,6 +867,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "vsam_defines": vsam_defines,
             # #3451: JCL job flow -> job_flow_data.
             "job_flow": job_flow,
+            # #3454: program entry points -> entry_point_data.
+            "entry_points": entry_points,
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }

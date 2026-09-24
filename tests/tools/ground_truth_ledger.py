@@ -94,6 +94,7 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "file control": ("file_control", "file_control_validated"),
     "VSAM defines": ("vsam_defines", "vsam_validated"),
     "JCL job flow": ("job_flow", "jobflow_validated"),
+    "CALL USING": ("call_using", "call_using_validated"),
 }
 
 

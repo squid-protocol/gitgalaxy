@@ -89,6 +89,11 @@
 # procedure's steps and job_dataset_flow pairs the DDs that create a dataset with
 # the DDs (of later steps, or of other jobs) that read it. Scheduler order is not
 # in the repository, so cross-job edges are candidates.
+# Since #3454, batch CALL USING contracts: each CALL's USING list
+# (call_site_data.using_args) and each program's PROCEDURE DIVISION / ENTRY USING
+# parameters (entry_point_data, per EngineFile.entry_points); GalaxyIR.call_contracts
+# pairs them by position -- arity, and each argument's byte length through
+# record_layout -- the batch counterpart of commarea_contracts.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -156,6 +161,28 @@ class EngineCall:
     commarea: Optional[str] = None
     commarea_length: Optional[str] = None
     commarea_datalength: Optional[str] = None
+    # #3454: a batch CALL's USING list, comma-joined by position (call_using.py).
+    using_args: Optional[str] = None
+
+    @property
+    def using(self) -> list:
+        """The USING arguments in order (`CONTENT:X` / `VALUE:X` keep their mode)."""
+        return [a for a in (self.using_args or "").split(",") if a]
+
+
+@dataclass
+class EngineEntryPoint:
+    """A program entry point (#3454), from `entry_point_data`: the PROCEDURE
+    DIVISION or an `ENTRY 'X'`, with its USING `params` (comma-joined, or None)."""
+
+    kind: str
+    entry_name: Optional[str]
+    params: Optional[str]
+    line: int
+
+    @property
+    def parameters(self) -> list:
+        return [p for p in (self.params or "").split(",") if p]
 
 
 @dataclass
@@ -630,6 +657,7 @@ class EngineFile:
     file_control: list = field(default_factory=list)  # EngineFileControl, source order, #3455
     vsam_defines: list = field(default_factory=list)  # EngineVsamDefine, source order, #3455
     job_flow: list = field(default_factory=list)  # EngineJobFlow, source order, #3451
+    entry_points: list = field(default_factory=list)  # EngineEntryPoint, source order, #3454
 
     @property
     def is_program(self) -> bool:
@@ -2222,6 +2250,95 @@ class GalaxyIR:
                 out.append({"dataset": name, "producer": p, "consumer": c, "same_job": same})
         return out
 
+    def _item_bytes(self, ef: EngineFile, operand: str) -> tuple[Optional[int], bool, Optional[str]]:
+        """(bytes, variable, name) of one USING operand as seen from `ef`: a data
+        item (COPY-expanded record_layout), a literal's own length, or (None, False,
+        None) for ADDRESS OF / LENGTH OF / OMITTED and names not found."""
+        text = operand.split(":", 1)[1] if operand.split(":", 1)[0] in ("CONTENT", "VALUE") else operand
+        if text[:1] in "'\"":
+            return len(text) - 2, False, text
+        if text.startswith(("ADDRESS OF", "LENGTH OF")) or text == "OMITTED":
+            return None, False, text
+        name, _, qual = text.partition(" OF ")
+        found = self._find_item(ef, name, qual.split(" OF ")[0] or None)
+        if not found:
+            return None, False, name
+        owner, item, extension = found[0]
+        layout = self.record_layout(owner, item, extension)
+        return layout["bytes"], bool(layout["variable"]), name
+
+    def call_contracts(self, language: str = "cobol") -> list:
+        """Every batch CALL paired with its callee's USING parameters (#3454).
+
+        One entry per CALL site that passes a USING list or reaches a program in the
+        repository: `caller`, `line`, `target`, `callee` (file), `entry` (PROCEDURE,
+        or the ENTRY literal the target names), `status` -- paired | arity_mismatch |
+        callee_unresolved | callee_no_using | caller_no_using -- and `args`, one per
+        position: `argument` / `parameter` as written with their `caller_bytes` /
+        `callee_bytes` (None when not computable) and `length_match` (True / False
+        when both are fixed-length and known, else None). A length difference is
+        data for a modernizer, not a verdict: a callee may declare a larger area
+        than the caller passes and only read part of it.
+        """
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            if f.language != language:
+                continue
+            for call in f.calls:
+                if call.verb != "CALL" or not (call.using or call.resolves_to):
+                    continue
+                callee = self.files.get(call.resolves_to or "")
+                entry = None
+                if callee is not None:
+                    named = [
+                        e
+                        for e in callee.entry_points
+                        if e.kind == "ENTRY" and e.entry_name == (call.target or "").upper()
+                    ]
+                    entry = named[0] if named else next((e for e in callee.entry_points if e.kind == "PROCEDURE"), None)
+                params = entry.parameters if entry else []
+                if callee is None:
+                    status = "callee_unresolved"
+                elif not params and call.using:
+                    status = "callee_no_using"
+                elif params and not call.using:
+                    status = "caller_no_using"
+                elif len(params) != len(call.using):
+                    status = "arity_mismatch"
+                else:
+                    status = "paired"
+                args = []
+                for i in range(max(len(call.using), len(params))):
+                    a = call.using[i] if i < len(call.using) else None
+                    p = params[i] if i < len(params) else None
+                    a_bytes, a_var, _ = self._item_bytes(f, a) if a else (None, False, None)
+                    p_bytes, p_var, _ = (
+                        self._item_bytes(callee, p) if (p and callee is not None) else (None, False, None)
+                    )
+                    known = a_bytes is not None and p_bytes is not None and not a_var and not p_var
+                    args.append(
+                        {
+                            "position": i + 1,
+                            "argument": a,
+                            "parameter": p,
+                            "caller_bytes": a_bytes,
+                            "callee_bytes": p_bytes,
+                            "length_match": (a_bytes == p_bytes) if known else None,
+                        }
+                    )
+                out.append(
+                    {
+                        "caller": f.file_path,
+                        "line": call.line,
+                        "target": call.target,
+                        "callee": callee.file_path if callee is not None else None,
+                        "entry": (entry.entry_name or entry.kind) if entry else None,
+                        "status": status,
+                        "args": args,
+                    }
+                )
+        return out
+
     def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
         try:
             rel = path.resolve().relative_to(target_root.resolve()).as_posix()
@@ -2478,9 +2595,11 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 if _has_column(cur, "call_site_data", "commarea")
                 else "NULL, NULL, NULL"
             )
-            for file_id, verb, form, operand, target, dst_id, line, commarea, c_len, c_dlen in cur.execute(
-                "SELECT src_file_id, verb, form, operand, target, dst_file_id, line_number, "  # noqa: S608 -- commarea_cols is one of two literals; values are bound
-                f"{commarea_cols} FROM call_site_data WHERE repo_name = ? AND commit_hash = ? "
+            # #3454: the USING list is NULL on a DB written before it.
+            using_col = "using_args" if _has_column(cur, "call_site_data", "using_args") else "NULL"
+            for file_id, verb, form, operand, target, dst_id, line, commarea, c_len, c_dlen, using in cur.execute(
+                "SELECT src_file_id, verb, form, operand, target, dst_file_id, line_number, "  # noqa: S608 -- commarea_cols / using_col are fixed literals; values are bound
+                f"{commarea_cols}, {using_col} FROM call_site_data WHERE repo_name = ? AND commit_hash = ? "
                 "ORDER BY src_file_id, line_number, id",
                 (repo_name, commit_hash),
             ):
@@ -2489,7 +2608,16 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                 resolved = by_id[dst_id].file_path if dst_id in by_id else None
                 by_id[file_id].calls.append(
                     EngineCall(
-                        verb or "", form or "", operand, target, resolved, int(line or 0), commarea, c_len, c_dlen
+                        verb or "",
+                        form or "",
+                        operand,
+                        target,
+                        resolved,
+                        int(line or 0),
+                        commarea,
+                        c_len,
+                        c_dlen,
+                        using,
                     )
                 )
 
@@ -2742,6 +2870,15 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         line=int(row[13] or 0),
                     )
                 )
+        # #3454: program entry points. A pre-#3454 database has none.
+        if _has_table(cur, "entry_point_data"):
+            for file_id, kind, name, params, line in cur.execute(
+                "SELECT file_id, kind, entry_name, params, line_number FROM entry_point_data "
+                "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if file_id in by_id:
+                    by_id[file_id].entry_points.append(EngineEntryPoint(kind or "", name, params, int(line or 0)))
         # #3451: JCL job flow. A pre-#3451 database has none.
         if _has_table(cur, "job_flow_data"):
             for row in cur.execute(

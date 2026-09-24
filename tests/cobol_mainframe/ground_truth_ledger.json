@@ -139,6 +139,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "CALL USING": {
+          "engine": {
+            "got": 71,
+            "tp": 71,
+            "truth": 71
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "CICS resources": {
           "engine": {
             "got": 107,
@@ -904,6 +913,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "CALL USING": {
+          "engine": {
+            "got": 22,
+            "tp": 22,
+            "truth": 22
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "CICS resources": {
           "engine": {
             "got": 75,
@@ -1200,6 +1218,15 @@
       "scoreboard": {
         "BMS screen fields": {
           "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
+        "CALL USING": {
+          "engine": {
+            "got": 5,
+            "tp": 5,
+            "truth": 5
+          },
           "forge": null,
           "truth": "draft"
         },

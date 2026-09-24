@@ -1,0 +1,381 @@
+{
+  "groups": {
+    "cobol/aws-mainframe-modernization-carddemo": {
+      "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 180,
+          "Params": "EXTERNAL-PARMS"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CSUTLDTC.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 88,
+          "Params": "LS-DATE,LS-DATE-FORMAT,LS-RESULT"
+        }
+      ]
+    },
+    "cobol/che-che4z_lsp_project_fixtures": {
+      "cobol/che-che4z_lsp_project_fixtures/ADSORT.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 36,
+          "Params": "ARRAY-SIZE,ARRAY-OF-NUMBERS"
+        }
+      ]
+    },
+    "cobol/che-che4z_nist_ccvs85": {
+      "cobol/che-che4z_nist_ccvs85/IC1024.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 39,
+          "Params": "DN1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1044.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 56,
+          "Params": "GRP-01,ELEM-01,GRP-02"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1054.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 32,
+          "Params": "DN1,DN2"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 59,
+          "Params": "IDN2,GROUP-1,GROUP-2"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1094.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 53,
+          "Params": "GRP-01"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 55,
+          "Params": "LS1,GRP-01"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1114.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 45,
+          "Params": "LS1,GRP-01,LS2"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1134.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 54,
+          "Params": "RECORDS-IN-ERROR,SQ-FS3-R1-G-120,IC1134"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2024.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 45,
+          "Params": "DN1,DN2,DN3,DN4"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2044.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 50,
+          "Params": "SUB-TABLE-1,SUB-DN1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2054.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 48,
+          "Params": "TABLE-1,TABLE-2,DN1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2064.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 46,
+          "Params": "DN1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2084.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 46,
+          "Params": "TABLE-01,TABLE-02,INDEX-1,DN3"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2104.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 32,
+          "Params": "TEST-AREA"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2114.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 32,
+          "Params": "TEST-AREA"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2124.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 32,
+          "Params": "TEST-AREA"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2144.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 28,
+          "Params": "DN1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2154.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 29,
+          "Params": "DN2,DN3"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2174.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 36,
+          "Params": "DN1,DN4"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 685,
+          "Params": "DN1,DN2,DN3,DN4"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 416,
+          "Params": "L-A,L-B,L-C"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 65,
+          "Params": "GLOB-2"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 125,
+          "Params": "SORT-LINK"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 192,
+          "Params": "PRINT-LINE-VALUES,PRINT-FLAG"
+        }
+      ]
+    },
+    "cobol/cics-banking-sample-application-cbsa": {
+      "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 130,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 368,
+          "Params": "PARM-BUFFER"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 159,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 176,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 188,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 286,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 356,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 198,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DELACC.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 203,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 245,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/GETCOMPY.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 35,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/GETSCODE.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 36,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQACC.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 202,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 193,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 165,
+          "Params": "DFHCOMMAREA"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 268,
+          "Params": "DFHCOMMAREA"
+        }
+      ]
+    },
+    "cobol/gnucobol": {
+      "cobol/gnucobol/CBL_OC_DUMP.cob": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 99,
+          "Params": "BUFFER,VALUELEN"
+        }
+      ]
+    },
+    "cobol/zopeneditor-sample": {
+      "cobol/zopeneditor-sample/SAM2.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 52,
+          "Params": "CUST-REC,TRANSACTION-RECORD,TRAN-OK,TRAN-MSG"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "Entry Points"
+  ]
+}

@@ -1036,3 +1036,25 @@ def test_job_flow_reader_is_independent():
         "L10 STEP 3 S3 PGM=X PROC=- COND=- IF=NOT (S1.RC = 0) IN=-",
         "L11 DD S3.OUT DSN=A.E DISP=NEW GEN=+1 IN=-",
     }
+
+
+def test_call_using_reader_is_independent(tmp_path):
+    """#3454: the key's own reading of CALL USING lists and entry parameters."""
+    src = (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. CU.\n"
+        "       PROCEDURE DIVISION USING LS-A, LS-B.\n"
+        "           CALL 'X' USING BY CONTENT 'LIT' WS-A\n"
+        "                BY REFERENCE T OF G (I)\n"
+        "           END-CALL\n"
+        "           CALL 'Y'.\n"
+        "           ENTRY 'DLITCBL' USING PCB-1.\n"
+        "           DISPLAY 'CALL Z USING Q'.\n"
+    )
+    assert all(len(line) <= 72 for line in src.splitlines())
+    (tmp_path / "CU.cbl").write_text(src, encoding="utf-8")
+    assert ak.call_using_keys(ak.draft_call_using(tmp_path)["CU.cbl"]["rows"]) == {
+        "L3 PROCEDURE - USING LS-A,LS-B",
+        "L4 CALL X USING CONTENT:'LIT',CONTENT:WS-A,T OF G",
+        "L8 ENTRY DLITCBL USING PCB-1",
+    }

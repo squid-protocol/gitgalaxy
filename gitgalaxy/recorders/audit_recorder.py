@@ -124,6 +124,7 @@ class AuditRecorder:
                             ("commarea", "COMMAREA"),
                             ("commarea_length", "COMMAREA Length"),
                             ("commarea_datalength", "COMMAREA Data Length"),
+                            ("using_args", "USING"),  # #3454
                         )
                         if c.get(key)
                     },
@@ -415,6 +416,18 @@ class AuditRecorder:
                     "Line": j.get("line", 0),
                 }
                 for j in flow
+            ]
+        eps = [e for e in (file_data.get("entry_points") or []) if e.get("params") or e.get("kind") == "ENTRY"]
+        if eps:
+            # #3454: program entry points that take parameters, mirroring entry_point_data.
+            block["Entry Points"] = [
+                {
+                    "Kind": e.get("kind"),
+                    "Entry": e.get("entry_name"),
+                    "Params": e.get("params"),
+                    "Line": e.get("line", 0),
+                }
+                for e in eps
             ]
         return block
 

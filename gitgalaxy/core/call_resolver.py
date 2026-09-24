@@ -96,6 +96,113 @@ _SUPER_RECEIVERS = frozenset({"super", "base", "parent"})
 # reach any definition, not only a method.
 _OWNERLESS_METHOD_LANGS = frozenset({"go"})
 
+# #3401: names a BARE call always means as the language's built-in, whatever
+# the repository defines. Perl's named operators and built-in functions take
+# precedence over a user `sub` of the same name -- `sub map` in Mojo's
+# Promise.pm is reachable only as `$promise->map`, `&map` or
+# `Mojo::Promise::map` -- so a bare `map(` is never an edge to it. Measured on
+# language-crucible: bugzilla's and spamassassin's `map(` all resolved
+# `unique` to Mojo's Promise.pm, inflating its Popularity Rank. A language
+# where a user definition CAN shadow a built-in (Python, Lua, JS) is not listed.
+_BARE_BUILTINS: dict[str, frozenset[str]] = {
+    "perl": frozenset(
+        {
+            "abs",
+            "binmode",
+            "bless",
+            "caller",
+            "chdir",
+            "chmod",
+            "chomp",
+            "chop",
+            "chown",
+            "chr",
+            "close",
+            "closedir",
+            "cos",
+            "defined",
+            "delete",
+            "die",
+            "each",
+            "eof",
+            "eval",
+            "exec",
+            "exists",
+            "exit",
+            "exp",
+            "fork",
+            "grep",
+            "hex",
+            "index",
+            "int",
+            "join",
+            "keys",
+            "kill",
+            "lc",
+            "lcfirst",
+            "length",
+            "local",
+            "localtime",
+            "gmtime",
+            "lock",
+            "log",
+            "map",
+            "mkdir",
+            "oct",
+            "open",
+            "opendir",
+            "ord",
+            "pack",
+            "pop",
+            "pos",
+            "print",
+            "printf",
+            "push",
+            "quotemeta",
+            "rand",
+            "read",
+            "readdir",
+            "ref",
+            "rename",
+            "require",
+            "return",
+            "reverse",
+            "rindex",
+            "rmdir",
+            "scalar",
+            "seek",
+            "select",
+            "shift",
+            "sin",
+            "sleep",
+            "sort",
+            "splice",
+            "split",
+            "sprintf",
+            "sqrt",
+            "srand",
+            "substr",
+            "system",
+            "tell",
+            "tie",
+            "tied",
+            "time",
+            "uc",
+            "ucfirst",
+            "undef",
+            "unlink",
+            "unpack",
+            "unshift",
+            "untie",
+            "values",
+            "wait",
+            "waitpid",
+            "wantarray",
+            "warn",
+        }
+    ),
+}
+
 # Languages where a directory is a namespace: a class in a sibling file is
 # visible without an import (a Java/Kotlin/Scala/Groovy package, a Go package,
 # a C# namespace by convention). Elsewhere (Python, JS/TS, Ruby, PHP, C++) a
@@ -506,6 +613,8 @@ def _resolve_one(
 
     ownerless = caller.lang in _OWNERLESS_METHOD_LANGS
 
+    if qualifier == "" and bucket.defs and _leaf(bucket.defs[0].name)[0] in _BARE_BUILTINS.get(caller.lang, ()):
+        return "none", None  # the built-in (#3401), external like any library call
     if qualifier is None or qualifier == "":
         for owner_key in lineage:
             d = owned(owner_key)

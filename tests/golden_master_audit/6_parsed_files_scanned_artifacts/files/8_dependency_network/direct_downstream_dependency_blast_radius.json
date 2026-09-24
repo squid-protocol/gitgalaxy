@@ -2416,7 +2416,7 @@
     "perl/mojo": {
       "perl/mojo/IOLoop.pm": 1,
       "perl/mojo/Makefile.PL": 0,
-      "perl/mojo/Promise.pm": 12,
+      "perl/mojo/Promise.pm": 7,
       "perl/mojo/Template.pm": 1,
       "perl/mojo/WebSocket.pm": 0
     },

@@ -61405,5 +61405,2946 @@
     }
   },
   "job_submissions": {},
-  "mq_calls": {}
+  "mq_calls": {},
+  "uow_handlers": {
+    "src/base/cobol_src/ABNDPROC.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "WRITE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 141
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BANKDATA.cbl": {
+      "rows": [
+        {
+          "kind": "COMMIT",
+          "source": "SQL",
+          "verb": "COMMIT WORK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 581
+        },
+        {
+          "kind": "COMMIT",
+          "source": "SQL",
+          "verb": "COMMIT WORK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 706
+        },
+        {
+          "kind": "COMMIT",
+          "source": "SQL",
+          "verb": "COMMIT WORK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1375
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CAC.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 186
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 248
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 356
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 775
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 966
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1040
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1117
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1197
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HBNK",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 1274
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CCA.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 178
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 225
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 333
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 435
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 622
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 696
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 772
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 854
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HBNK",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 928
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CCS.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "HANDLE-ABEND",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 161
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 208
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 276
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "INQUIRE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 392
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 409
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 500
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 976
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "INQUIRE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1105
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1127
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1211
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1286
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1364
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1441
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1523
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SET",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1605
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HBNK",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 1613
+        },
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": null,
+          "target_kind": "CANCEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 1649
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "WS-ABCODE",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 1652
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1CRA.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 201
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 263
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 370
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 511
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 649
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 723
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 797
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 876
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HBNK",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 950
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1DAC.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 213
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 295
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 426
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 553
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 712
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 827
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 906
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 980
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1060
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HBNK",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 1133
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1DCS.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "ABEND-HANDLING",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 195
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 233
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 326
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "INQUIRE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 509
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 525
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 597
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 833
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 969
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1155
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1410
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1487
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1564
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "INQUIRE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1648
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1669
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1754
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1833
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HBNK",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 1911
+        },
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": null,
+          "target_kind": "CANCEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 2045
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1TFN.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 198
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 247
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 356
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 496
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 672
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 746
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 820
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 899
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HBNK",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 976
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNK1UAC.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 222
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 295
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 419
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 767
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 954
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1074
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1150
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1225
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1306
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HBNK",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 1381
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/BNKMENU.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 170
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": "MAPFAIL,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 274
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 387
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 459
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 532
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 605
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 678
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 751
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 824
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETURN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 898
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 979
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1053
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1129
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1210
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HBNK",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 1286
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY1.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "DELAY",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 127
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "PLOP",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 185
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "GET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 192
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "PUT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 225
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY2.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "DELAY",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 126
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "PLOP",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 185
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "GET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 193
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "PUT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 225
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY3.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "DELAY",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 126
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "PLOP",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 184
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "GET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 191
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "PUT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 224
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY4.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "DELAY",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 127
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "PLOP",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 186
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "GET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 194
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "PUT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 227
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRDTAGY5.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "DELAY",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 126
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "PLOP",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 185
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "GET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 192
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "PUT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 227
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CREACC.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 304
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "ENQ",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 390
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "DEQ",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 412
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HNCS",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 517
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HNCS",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 595
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HNCS",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 683
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HNCS",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 760
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HWPT",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1059
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1088
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CRECUST.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "ENQ",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 446
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "DEQ",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 471
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "PUT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 557
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RUN",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 582
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "FETCH",
+          "condition": "INVREQ,NORMAL,NOTFINISHED,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 639
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "GET",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 892
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "WRITE",
+          "condition": "NORMAL,SYSIDERR",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1029
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "WRITE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1048
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HWPT",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1262
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,SYSIDERR",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1290
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1306
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "REWRITE",
+          "condition": "NORMAL,SYSIDERR",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1326
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "REWRITE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1340
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/CUSTCTRL.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,SYSIDERR",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 162
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 178
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DBCRFUN.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "ABEND-HANDLING",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 207
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 564
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 564
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL",
+          "line": 630
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 750
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 750
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL",
+          "line": 818
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "MY-ABEND-CODE",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 834
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELACC.cbl": {
+      "rows": [
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HRAC",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 339
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HWPT",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 612
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/DELCUS.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,SYSIDERR",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 353
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 371
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "WPV6",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 448
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "DELETE",
+          "condition": "NORMAL,SYSIDERR",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 491
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "DELETE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 508
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "WPV7",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 574
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HWPT",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 726
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQACC.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "ABEND-HANDLING",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 210
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HRAC",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL NODUMP",
+          "line": 335
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HRAC",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL NODUMP",
+          "line": 415
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HRAC",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL NODUMP",
+          "line": 524
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 682
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 682
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 748
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "MY-ABEND-CODE",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 814
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HNCS",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 932
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQACCCU.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "ABEND-HANDLING",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 199
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 266
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 266
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL",
+          "line": 331
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 368
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 368
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL",
+          "line": 439
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 507
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 507
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL",
+          "line": 573
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 738
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 738
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL",
+          "line": 803
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "MY-ABEND-CODE",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 818
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/INQCUST.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "ABEND-HANDLING",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 171
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,SYSIDERR",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 265
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 290
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "CVR1",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL",
+          "line": 418
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 472
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 472
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL",
+          "line": 537
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "MY-ABEND-CODE",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 554
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "STARTBR",
+          "condition": "NORMAL,SYSIDERR",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 574
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "STARTBR",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 589
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READPREV",
+          "condition": "NORMAL,SYSIDERR",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 609
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READPREV",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 625
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "ENDBR",
+          "condition": "NORMAL,SYSIDERR",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 642
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "ENDBR",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 656
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/UPDCUST.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 220
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "REWRITE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 294
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "src/base/cobol_src/XFRFUN.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "ABEND-HANDLING",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 272
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "SAME",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 370
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 407
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 407
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 472
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "TO",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 488
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 503
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 503
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 519
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "FROM",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 579
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "FROM",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 669
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 679
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 679
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 747
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "TO",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "CANCEL NODUMP",
+          "line": 819
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 826
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 826
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 890
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1111
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1111
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 1174
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1204
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1204
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 1271
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "RUF2",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1345
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1403
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1403
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP CANCEL",
+          "line": 1468
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "RUF3",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1545
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "WPCD",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1716
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1815
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP",
+          "attributes": null,
+          "line": 1815
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "HROL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1882
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "MY-ABEND-CODE",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": "NODUMP",
+          "line": 1899
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  },
+  "tdq_triggers": {}
 }

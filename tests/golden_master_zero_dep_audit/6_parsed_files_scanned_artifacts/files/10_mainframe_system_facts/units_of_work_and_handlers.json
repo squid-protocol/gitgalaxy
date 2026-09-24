@@ -1,0 +1,6300 @@
+{
+  "groups": {
+    "cobol/aws-mainframe-modernization-carddemo": {
+      "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 870,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ABEND-ROUTINE",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "COMMIT",
+          "Line": 960,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 1048,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 3602,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 3662,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 3711,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 3761,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 3902,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 3929,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 4073,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 4093,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 4107,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 4219,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 4226,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": "CANCEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "9999",
+          "Kind": "ABEND",
+          "Line": 4230,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COACTVWC.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 264,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ABEND-ROUTINE",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 583,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 611,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 727,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 776,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 826,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 924,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 930,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": "CANCEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "9999",
+          "Kind": "ABEND",
+          "Line": 934,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COADM01C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 191,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COBIL00C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 308,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 345,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 379,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 410,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 443,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "STARTBR"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 474,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READPREV"
+        },
+        {
+          "Attributes": null,
+          "Condition": "DUPKEY,DUPREC,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 512,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COCRDLIC.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 939,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 963,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 1129,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "STARTBR"
+        },
+        {
+          "Attributes": null,
+          "Condition": "DUPREC,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1146,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READNEXT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "DUPREC,ENDFILE,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1197,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READNEXT"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 1273,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "STARTBR"
+        },
+        {
+          "Attributes": null,
+          "Condition": "DUPREC,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1294,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READPREV"
+        },
+        {
+          "Attributes": null,
+          "Condition": "DUPREC,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1322,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READPREV"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COCRDSLC.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 250,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ABEND-ROUTINE",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 569,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 597,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 742,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 783,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 865,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 871,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": "CANCEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "9999",
+          "Kind": "ABEND",
+          "Line": 875,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COCRDUPC.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 370,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ABEND-ROUTINE",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "COMMIT",
+          "Line": 469,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 579,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 1329,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 1382,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1427,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1477,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 1539,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 1546,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": "CANCEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "9999",
+          "Kind": "ABEND",
+          "Line": 1550,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COMEN01C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 201,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CORPT00C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 517,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 598,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COSGN00C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 110,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 211,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COTRN00C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 556,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 593,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "STARTBR"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 626,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READNEXT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 660,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READPREV"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COTRN01C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 232,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 269,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COTRN02C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 541,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 578,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 611,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 644,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "STARTBR"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 675,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READPREV"
+        },
+        {
+          "Attributes": null,
+          "Condition": "DUPKEY,DUPREC,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 713,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COUSR00C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 551,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 588,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "STARTBR"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 621,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READNEXT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENDFILE,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 655,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READPREV"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COUSR01C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 203,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "DUPKEY,DUPREC,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 240,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COUSR02C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 285,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 322,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 360,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/COUSR03C.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 232,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 269,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 307,
+          "RESP Field": "WS-RESP-CD",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        }
+      ]
+    },
+    "cobol/cash-account-cobol": {
+      "cobol/cash-account-cobol/CASH00.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NOTOPEN",
+          "Kind": "IGNORE_CONDITION",
+          "Line": 123,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "IGNORE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "DUPREC",
+          "Kind": "IGNORE_CONDITION",
+          "Line": 124,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "IGNORE CONDITION"
+        }
+      ]
+    },
+    "cobol/cics-banking-sample-application-cbsa": {
+      "cobol/cics-banking-sample-application-cbsa/ABNDPROC.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 141,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "COMMIT",
+          "Line": 581,
+          "RESP Field": null,
+          "Source": "SQL",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "COMMIT WORK"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "COMMIT",
+          "Line": 706,
+          "RESP Field": null,
+          "Source": "SQL",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "COMMIT WORK"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "COMMIT",
+          "Line": 1375,
+          "RESP Field": null,
+          "Source": "SQL",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "COMMIT WORK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CAC.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 186,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 248,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 356,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 775,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 966,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1041,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1119,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1200,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HBNK",
+          "Kind": "ABEND",
+          "Line": 1277,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CCA.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 178,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 225,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 333,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 435,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 622,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 697,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 774,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 857,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HBNK",
+          "Kind": "ABEND",
+          "Line": 931,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CCS.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 161,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "HANDLE-ABEND",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 208,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 276,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 392,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "INQUIRE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 409,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 500,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 976,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 1105,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "INQUIRE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1127,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1211,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1286,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1365,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1443,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1526,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 1608,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SET"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "HBNK",
+          "Kind": "ABEND",
+          "Line": 1616,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 1652,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": "CANCEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "WS-ABCODE",
+          "Kind": "ABEND",
+          "Line": 1655,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1CRA.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 201,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 263,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 370,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 511,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 649,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 724,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 799,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 879,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HBNK",
+          "Kind": "ABEND",
+          "Line": 953,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1DAC.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 213,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 295,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 426,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 553,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 712,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 827,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 907,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 982,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1063,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HBNK",
+          "Kind": "ABEND",
+          "Line": 1136,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1DCS.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 195,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ABEND-HANDLING",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 233,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 326,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 509,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "INQUIRE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 525,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 597,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 833,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 969,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1155,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1410,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1488,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1566,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 1651,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "INQUIRE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1672,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1757,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1836,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "HBNK",
+          "Kind": "ABEND",
+          "Line": 1914,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 2048,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": "CANCEL",
+          "Verb": "HANDLE ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1TFN.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 198,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 247,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 356,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 496,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 672,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 747,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 822,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 902,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HBNK",
+          "Kind": "ABEND",
+          "Line": 979,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNK1UAC.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 222,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 295,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 419,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 767,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 954,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1074,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1151,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1227,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1309,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HBNK",
+          "Kind": "ABEND",
+          "Line": 1384,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/BNKMENU.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 170,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "MAPFAIL,NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 274,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 387,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 459,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 532,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 605,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 678,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 751,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 824,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 898,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETURN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 979,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1054,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1131,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1213,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HBNK",
+          "Kind": "ABEND",
+          "Line": 1289,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY1.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 127,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELAY"
+        },
+        {
+          "Attributes": null,
+          "Condition": "PLOP",
+          "Kind": "ABEND",
+          "Line": 185,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 192,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "GET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 225,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "PUT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY2.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 126,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELAY"
+        },
+        {
+          "Attributes": null,
+          "Condition": "PLOP",
+          "Kind": "ABEND",
+          "Line": 185,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 193,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "GET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 225,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "PUT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY3.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 126,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELAY"
+        },
+        {
+          "Attributes": null,
+          "Condition": "PLOP",
+          "Kind": "ABEND",
+          "Line": 184,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 191,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "GET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 224,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "PUT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY4.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 127,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELAY"
+        },
+        {
+          "Attributes": null,
+          "Condition": "PLOP",
+          "Kind": "ABEND",
+          "Line": 186,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 194,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "GET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 227,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "PUT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRDTAGY5.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 126,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELAY"
+        },
+        {
+          "Attributes": null,
+          "Condition": "PLOP",
+          "Kind": "ABEND",
+          "Line": 185,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 192,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "GET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 227,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "PUT"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CREACC.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 304,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 390,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ENQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 412,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEQ"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HNCS",
+          "Kind": "ABEND",
+          "Line": 517,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HNCS",
+          "Kind": "ABEND",
+          "Line": 595,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HNCS",
+          "Kind": "ABEND",
+          "Line": 683,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HNCS",
+          "Kind": "ABEND",
+          "Line": 760,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "HWPT",
+          "Kind": "ABEND",
+          "Line": 1059,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 1088,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "LINK"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/CRECUST.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 504,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ENQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 529,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 615,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "PUT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 640,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RUN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "INVREQ,NORMAL,NOTFINISHED,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 697,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 950,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "GET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,SYSIDERR",
+          "Kind": "RESP_CHECK",
+          "Line": 1087,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1106,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "HWPT",
+          "Kind": "ABEND",
+          "Line": 1320,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,SYSIDERR",
+          "Kind": "RESP_CHECK",
+          "Line": 1348,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1364,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,SYSIDERR",
+          "Kind": "RESP_CHECK",
+          "Line": 1384,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1398,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DBCRFUN.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 207,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ABEND-HANDLING",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 564,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 564,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 630,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 750,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 750,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 818,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "MY-ABEND-CODE",
+          "Kind": "ABEND",
+          "Line": 834,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DELACC.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HRAC",
+          "Kind": "ABEND",
+          "Line": 339,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "HWPT",
+          "Kind": "ABEND",
+          "Line": 612,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/DELCUS.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,SYSIDERR",
+          "Kind": "RESP_CHECK",
+          "Line": 353,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 371,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "WPV6",
+          "Kind": "ABEND",
+          "Line": 448,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,SYSIDERR",
+          "Kind": "RESP_CHECK",
+          "Line": 491,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 508,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "WPV7",
+          "Kind": "ABEND",
+          "Line": 574,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HWPT",
+          "Kind": "ABEND",
+          "Line": 726,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQACC.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 210,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ABEND-HANDLING",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": "CANCEL NODUMP",
+          "Condition": "HRAC",
+          "Kind": "ABEND",
+          "Line": 335,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "CANCEL NODUMP",
+          "Condition": "HRAC",
+          "Kind": "ABEND",
+          "Line": 415,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "CANCEL NODUMP",
+          "Condition": "HRAC",
+          "Kind": "ABEND",
+          "Line": 524,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 682,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 682,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 748,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "MY-ABEND-CODE",
+          "Kind": "ABEND",
+          "Line": 814,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "HNCS",
+          "Kind": "ABEND",
+          "Line": 932,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQACCCU.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 199,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ABEND-HANDLING",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 266,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 266,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 331,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 368,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 368,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 439,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 507,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 507,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 573,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 738,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 738,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 803,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "MY-ABEND-CODE",
+          "Kind": "ABEND",
+          "Line": 818,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/INQCUST.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 171,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ABEND-HANDLING",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,SYSIDERR",
+          "Kind": "RESP_CHECK",
+          "Line": 265,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 290,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": "CANCEL",
+          "Condition": "CVR1",
+          "Kind": "ABEND",
+          "Line": 418,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 472,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 472,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 537,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "MY-ABEND-CODE",
+          "Kind": "ABEND",
+          "Line": 554,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,SYSIDERR",
+          "Kind": "RESP_CHECK",
+          "Line": 574,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "STARTBR"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 589,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "STARTBR"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,SYSIDERR",
+          "Kind": "RESP_CHECK",
+          "Line": 609,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READPREV"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 625,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READPREV"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,SYSIDERR",
+          "Kind": "RESP_CHECK",
+          "Line": 642,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ENDBR"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 656,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ENDBR"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/UPDCUST.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 220,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 294,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        }
+      ],
+      "cobol/cics-banking-sample-application-cbsa/XFRFUN.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 272,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ABEND-HANDLING",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "SAME",
+          "Kind": "ABEND",
+          "Line": 370,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 407,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 407,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 472,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "TO",
+          "Kind": "ABEND",
+          "Line": 488,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 503,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 503,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 519,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "FROM",
+          "Kind": "ABEND",
+          "Line": 579,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "FROM",
+          "Kind": "ABEND",
+          "Line": 669,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 679,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 679,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 747,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "CANCEL NODUMP",
+          "Condition": "TO",
+          "Kind": "ABEND",
+          "Line": 819,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 826,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 826,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 890,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 1111,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1111,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 1174,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 1204,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1204,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 1271,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "RUF2",
+          "Kind": "ABEND",
+          "Line": 1345,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 1403,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1403,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": "NODUMP CANCEL",
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 1468,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "RUF3",
+          "Kind": "ABEND",
+          "Line": 1545,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "WPCD",
+          "Kind": "ABEND",
+          "Line": 1716,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 1815,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 1815,
+          "RESP Field": "WS-CICS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "HROL",
+          "Kind": "ABEND",
+          "Line": 1882,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "MY-ABEND-CODE",
+          "Kind": "ABEND",
+          "Line": 1899,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ]
+    },
+    "cobol/cics-genapp": {
+      "cobol/cics-genapp/lgacdb01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 152,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 201,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "GET"
+        }
+      ],
+      "cobol/cics-genapp/lgacdb02.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 134,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgacus01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 98,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgacvs01.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 68,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGV0",
+          "Kind": "ABEND",
+          "Line": 79,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgapdb01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 168,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGSQ",
+          "Kind": "ABEND",
+          "Line": 393,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGSQ",
+          "Kind": "ABEND",
+          "Line": 431,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGSQ",
+          "Kind": "ABEND",
+          "Line": 477,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGSQ",
+          "Kind": "ABEND",
+          "Line": 551,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgapol01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 101,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgapvs01.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 135,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        }
+      ],
+      "cobol/cics-genapp/lgastat1.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 79,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "GET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 84,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "GET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "QIDERR",
+          "Kind": "RESP_CHECK",
+          "Line": 101,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 115,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 129,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "GET"
+        }
+      ],
+      "cobol/cics-genapp/lgdpdb01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 134,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgdpol01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 98,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgdpvs01.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 81,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        }
+      ],
+      "cobol/cics-genapp/lgicdb01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 122,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgicus01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 90,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgicvs01.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 97,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASSIGN"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 101,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASSIGN"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 105,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASSIGN"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 114,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 132,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 140,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 163,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 172,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 181,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 199,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        }
+      ],
+      "cobol/cics-genapp/lgipdb01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 254,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgipol01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 82,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgipvs01.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 79,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASSIGN"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 83,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASSIGN"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 87,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASSIGN"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 98,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 111,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        }
+      ],
+      "cobol/cics-genapp/lgsetup.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 128,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 138,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 142,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 146,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 150,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 157,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 164,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 171,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 179,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 183,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 189,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 193,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 198,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 202,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 207,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 211,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 216,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 220,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 226,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 230,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 235,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 239,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 244,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 248,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 253,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 257,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 262,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 266,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 271,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 275,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 280,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 284,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 289,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 293,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 299,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 303,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 308,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 312,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 317,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 321,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 326,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 330,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 335,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 339,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 344,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 348,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 353,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 357,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 362,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 366,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 372,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 376,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 381,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 385,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 390,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 394,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 399,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 403,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 408,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 412,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 417,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 421,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 426,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 430,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 435,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 439,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 445,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 449,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 454,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 458,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 463,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 467,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 472,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 476,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 481,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 485,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 490,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 494,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 499,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 503,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 508,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 512,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        }
+      ],
+      "cobol/cics-genapp/lgstsq.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 60,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASSIGN"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 64,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASSIGN"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 73,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 94,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 105,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        }
+      ],
+      "cobol/cics-genapp/lgtestc1.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "CLEAR",
+          "Kind": "HANDLE_AID",
+          "Line": 72,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "CLEARIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE AID"
+        },
+        {
+          "Attributes": null,
+          "Condition": "PF3",
+          "Kind": "HANDLE_AID",
+          "Line": 72,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ENDIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE AID"
+        },
+        {
+          "Attributes": null,
+          "Condition": "MAPFAIL",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 75,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ENDIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 133,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 290,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 297,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 307,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 321,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 329,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 335,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        }
+      ],
+      "cobol/cics-genapp/lgtestp1.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "CLEAR",
+          "Kind": "HANDLE_AID",
+          "Line": 54,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "CLEARIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE AID"
+        },
+        {
+          "Attributes": null,
+          "Condition": "PF3",
+          "Kind": "HANDLE_AID",
+          "Line": 54,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ENDIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE AID"
+        },
+        {
+          "Attributes": null,
+          "Condition": "MAPFAIL",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 57,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ENDIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 120,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 144,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        }
+      ],
+      "cobol/cics-genapp/lgtestp2.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "CLEAR",
+          "Kind": "HANDLE_AID",
+          "Line": 49,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "CLEARIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE AID"
+        },
+        {
+          "Attributes": null,
+          "Condition": "PF3",
+          "Kind": "HANDLE_AID",
+          "Line": 49,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ENDIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE AID"
+        },
+        {
+          "Attributes": null,
+          "Condition": "MAPFAIL",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 52,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ENDIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 110,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 134,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        }
+      ],
+      "cobol/cics-genapp/lgtestp3.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "CLEAR",
+          "Kind": "HANDLE_AID",
+          "Line": 52,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "CLEARIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE AID"
+        },
+        {
+          "Attributes": null,
+          "Condition": "PF3",
+          "Kind": "HANDLE_AID",
+          "Line": 52,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ENDIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE AID"
+        },
+        {
+          "Attributes": null,
+          "Condition": "MAPFAIL",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 55,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ENDIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 111,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 134,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        }
+      ],
+      "cobol/cics-genapp/lgtestp4.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "CLEAR",
+          "Kind": "HANDLE_AID",
+          "Line": 59,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "CLEARIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE AID"
+        },
+        {
+          "Attributes": null,
+          "Condition": "PF3",
+          "Kind": "HANDLE_AID",
+          "Line": 59,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ENDIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE AID"
+        },
+        {
+          "Attributes": null,
+          "Condition": "MAPFAIL",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 62,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ENDIT",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 183,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 206,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        }
+      ],
+      "cobol/cics-genapp/lgucdb01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 120,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgucus01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 102,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgucvs01.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 69,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGV1",
+          "Kind": "ABEND",
+          "Line": 81,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 85,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGV2",
+          "Kind": "ABEND",
+          "Line": 94,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgupdb01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 186,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "ROLLBACK",
+          "Line": 338,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT ROLLBACK"
+        }
+      ],
+      "cobol/cics-genapp/lgupol01.cbl": [
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGCA",
+          "Kind": "ABEND",
+          "Line": 102,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgupvs01.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 139,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGV3",
+          "Kind": "ABEND",
+          "Line": 151,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 155,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        },
+        {
+          "Attributes": "NODUMP",
+          "Condition": "LGV4",
+          "Kind": "ABEND",
+          "Line": 164,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-genapp/lgwebst5.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 268,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 281,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 296,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 304,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 318,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 327,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 341,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 349,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 363,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 371,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 385,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 393,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 407,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 416,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 430,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 438,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 452,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 460,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 474,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 482,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 496,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 505,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 519,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 527,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 541,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 549,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 563,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 571,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 585,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 594,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 608,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 616,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 630,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 638,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 652,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 662,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "QUERY"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 720,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 729,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 734,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 756,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 761,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "START"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 771,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 778,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 783,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 789,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 796,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        }
+      ]
+    },
+    "cobol/cics-java-jcics-samples": {
+      "cobol/cics-java-jcics-samples/EC01.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "ERROR",
+          "Kind": "HANDLE_CONDITION",
+          "Line": 66,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "ZZX-CICS-ERROR-ROUTINE",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE CONDITION"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ECOM",
+          "Kind": "ABEND",
+          "Line": 103,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ERRO",
+          "Kind": "ABEND",
+          "Line": 108,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ],
+      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 82,
+          "RESP Field": "RESPCODE",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "GET"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 92,
+          "RESP Field": "RESPCODE",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "PUT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 106,
+          "RESP Field": "RESPCODE",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "PUT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 122,
+          "RESP Field": "RESPCODE",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "FORMATTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 138,
+          "RESP Field": "RESPCODE",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "PUT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ABENDCODE",
+          "Kind": "ABEND",
+          "Line": 165,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "Units Of Work And Handlers"
+  ]
+}

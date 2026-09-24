@@ -1247,3 +1247,87 @@ def test_a_pre_3447_db_loads_with_no_mq_calls(mq_scanned, tmp_path):
     ir = load_galaxy_ir(old)
     assert all(ef.mq_calls == [] for ef in ir.files.values())
     assert ir.mq_queues() == [] and ir.mq_flows() == []
+
+
+# ---- #3453: units of work, error handlers, RESP checks, TD trigger starts -----
+UOW_CSD = """\
+ DEFINE TDQUEUE(PRTQ) GROUP(DEMO)
+        TYPE(INTRA) TRIGGERLEVEL(5) TRANSID(PRT1)
+ DEFINE TDQUEUE(LOGQ) GROUP(DEMO)
+        TYPE(INTRA)
+ DEFINE TRANSACTION(PRT1) GROUP(DEMO)
+        PROGRAM(PRTPGM)
+"""
+
+UOWPGM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. UOWPGM.
+       PROCEDURE DIVISION.
+       A000-MAIN.
+           EXEC CICS HANDLE ABEND LABEL(Z999-ABEND) END-EXEC.
+           EXEC CICS HANDLE CONDITION NOTFND(MISSING-PARA) END-EXEC.
+           EXEC CICS READ FILE('F') INTO(R) RESP(WS-RESP) END-EXEC.
+           IF WS-RESP NOT = DFHRESP(NORMAL)
+              EXEC CICS SYNCPOINT ROLLBACK END-EXEC
+           END-IF.
+           EXEC CICS WRITEQ TD QUEUE('PRTQ') FROM(R) RESP(WS-RESP)
+           END-EXEC.
+           EXEC CICS WRITEQ TD QUEUE('LOGQ') FROM(R) END-EXEC.
+           EXEC CICS SYNCPOINT END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+       Z999-ABEND.
+           EXEC CICS ABEND ABCODE('UOW1') END-EXEC.
+"""
+
+
+@pytest.fixture(scope="module")
+def uow_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_uow")
+    repo = base / "demo"
+    files = {
+        "csd/DEMO.csd": UOW_CSD,
+        "cbl/UOWPGM.cbl": UOWPGM,
+        "cbl/PRTPGM.cbl": _writer("PRTPGM", "OTHQ"),
+    }
+    for rel, text in files.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_units_of_work_and_handlers_are_placed_in_their_paragraph(uow_scanned):
+    ir = load_galaxy_ir(uow_scanned)
+    assert [(u["kind"], u["verb"], u["unit"]) for u in ir.units_of_work() if u["file"] == "cbl/UOWPGM.cbl"] == [
+        ("ROLLBACK", "SYNCPOINT ROLLBACK", "A000-MAIN"),
+        ("COMMIT", "SYNCPOINT", "A000-MAIN"),
+    ]
+    handlers = [(h["kind"], h["condition"], h["target"], h["handler_found"]) for h in ir.error_handlers()]
+    # MISSING-PARA is not a paragraph of the program: a real finding.
+    assert handlers == [
+        ("HANDLE_ABEND", None, "Z999-ABEND", True),
+        ("HANDLE_CONDITION", "NOTFND", "MISSING-PARA", False),
+    ]
+    # READ is tested; WRITEQ PRTQ reuses WS-RESP but nothing tests it.
+    assert [(u["verb"], u["line"]) for u in ir.unchecked_responses()] == [("WRITEQ", 11)]
+
+
+def test_a_triggered_td_queue_starts_its_transaction(uow_scanned):
+    (start,) = load_galaxy_ir(uow_scanned).tdq_trigger_starts()
+    assert (start["writer"], start["queue"], start["trigger_level"], start["transid"]) == (
+        "cbl/UOWPGM.cbl",
+        "PRTQ",
+        5,
+        "PRT1",
+    )
+    assert (start["program"], start["resolves_to"]) == ("PRTPGM", "cbl/PRTPGM.cbl")
+
+
+def test_a_pre_3453_db_loads_with_no_uow_rows(uow_scanned, tmp_path):
+    old = tmp_path / "old.db"
+    shutil.copy(uow_scanned, old)
+    with sqlite3.connect(old) as conn:
+        conn.execute("DROP TABLE uow_handler_data")
+    ir = load_galaxy_ir(old)
+    assert all(ef.uow_handlers == [] for ef in ir.files.values())
+    assert ir.units_of_work() == [] and ir.error_handlers() == [] and ir.unchecked_responses() == []

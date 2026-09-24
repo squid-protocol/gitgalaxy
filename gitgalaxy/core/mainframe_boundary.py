@@ -88,6 +88,7 @@ from gitgalaxy.core.db2_declare_table import extract_sql_tables
 from gitgalaxy.core.db2_sql_statements import extract_sql_statements
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
+from gitgalaxy.core.uow_handlers import extract_uow_handlers
 
 # The dialects that carry a top-level `boundary_extraction` declaration. It is
 # top level rather than inside `rules` because language_lens.py re.compile()s
@@ -1801,6 +1802,19 @@ def _cics_tasks(
     return extract_cics_tasks(code_stream, values, moves, pics, dialect, _shielded)
 
 
+def _uow_handlers(code_stream: str, values: dict[str, str]) -> list[dict[str, Any]]:
+    """Commit / rollback points, HANDLE CONDITION / ABEND / AID handlers, explicit
+    ABENDs and RESP checks of one COBOL file (#3453)."""
+    newlines = [i for i, ch in enumerate(code_stream) if ch == "\n"]
+
+    def _shielded(offset: int) -> bool:
+        index = bisect.bisect_left(newlines, offset)
+        line_start = newlines[index - 1] + 1 if index else 0
+        return _opens_inside_literal(code_stream, line_start, offset)
+
+    return extract_uow_handlers(code_stream, values, _shielded)
+
+
 def _mq_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any]]:
     """Every IBM MQ call of one COBOL file (#3447), with the queue each reaches
     (via its object descriptor, or the MQOPEN its handle came from)."""
@@ -1861,6 +1875,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     internal reader, SYSOUT=(x,INTRDR)) carry `job_submits` (job_submits).
     #3447: cobol also carries `mq_calls` -- every IBM MQ call with its queue,
     direction, handle and options (mq_calls), read with a default.
+    #3453: cobol also carries `uow_handlers` -- commit / rollback points,
+    condition / abend / AID handlers, explicit ABENDs and RESP checks.
     """
     if not code_stream:
         return {"calls": [], "datasets": [], "records": [], "transactions": []}
@@ -1878,6 +1894,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "cics_tasks": _cics_tasks(code_stream, values, records, "cobol"),  # #3449
             "job_submits": _cobol_job_cards(code_stream),  # #3448
             "mq_calls": _mq_calls(code_stream, values),  # #3447
+            "uow_handlers": _uow_handlers(code_stream, values),  # #3453
         }
     if dialect == "jcl":
         boundary = _jcl_boundary(code_stream)

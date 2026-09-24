@@ -736,6 +736,29 @@ class StateRehydrator:
                     },
                 )
 
+                # #3453: units of work and error handling, aliased to the payload keys.
+                uow_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "uow_handler_data",
+                    "SELECT fd.file_path AS _fp, u.kind, u.source, u.verb, u.condition_name AS condition, "
+                    "u.target, u.target_kind, u.resp_var, u.attributes, u.line_number AS line "
+                    "FROM uow_handler_data u JOIN file_data fd ON u.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY u.id",
+                    lambda r: {
+                        "kind": r["kind"],
+                        "source": r["source"],
+                        "verb": r["verb"],
+                        "condition": r["condition"],
+                        "target": r["target"],
+                        "target_kind": r["target_kind"],
+                        "resp_var": r["resp_var"],
+                        "attributes": r["attributes"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
@@ -751,6 +774,7 @@ class StateRehydrator:
                     node["cics_tasks"] = cics_tasks_by_file.get(rel_path, [])
                     node["job_submits"] = job_submits_by_file.get(rel_path, [])
                     node["mq_calls"] = mq_calls_by_file.get(rel_path, [])
+                    node["uow_handlers"] = uow_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

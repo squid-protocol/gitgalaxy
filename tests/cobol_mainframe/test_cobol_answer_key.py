@@ -925,3 +925,40 @@ def test_mq_reader_is_independent_and_follows_handles(tmp_path):
         "L16 MQPUT dir=put q=APP.OUT open=L11",
         "L7 MQOPEN dir=get q=<trigger>",
     ]
+
+
+def test_uow_and_tdq_trigger_readers_are_independent(tmp_path):
+    """#3453: the key's own reading of unit-of-work points, handlers and RESP
+    checks (a paragraph header ends a RESP window), and of TD trigger starts."""
+    (tmp_path / "D.csd").write_text(
+        " DEFINE TDQUEUE(PRTQ) GROUP(D)\n        TYPE(INTRA) TRIGGERLEVEL(1) TRANSID(PRT1)\n"
+        " DEFINE TRANSACTION(PRT1) GROUP(D)\n        PROGRAM(PRTPGM)\n",
+        encoding="utf-8",
+    )
+    src = (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. UOWK.\n"
+        "       PROCEDURE DIVISION.\n"
+        "       P1.\n"
+        "           EXEC CICS HANDLE ABEND LABEL(P9) END-EXEC.\n"
+        "           EXEC CICS READ FILE('F') INTO(R) RESP(WS-R) END-EXEC.\n"
+        "           IF WS-R NOT = DFHRESP(NORMAL)\n"
+        "              EXEC CICS SYNCPOINT ROLLBACK END-EXEC\n"
+        "           END-IF.\n"
+        "           EXEC CICS WRITEQ TD QUEUE('PRTQ') FROM(R) RESP(WS-R)\n"
+        "           END-EXEC.\n"
+        "       P9.\n"
+        "           IF WS-R = DFHRESP(QIDERR) CONTINUE END-IF.\n"
+        "           EXEC CICS ABEND ABCODE('K001') NODUMP END-EXEC.\n"
+    )
+    assert all(len(line) <= 72 for line in src.splitlines())
+    (tmp_path / "UOWK.cbl").write_text(src, encoding="utf-8")
+    rows = ak.draft_uow(tmp_path)["UOWK.cbl"]["rows"]
+    assert sorted(ak.uow_keys(rows), key=lambda k: int(k.split()[0][1:])) == [
+        "L5 HANDLE_ABEND HANDLE ABEND c=- t=P9/LABEL v=- a=-",
+        "L6 RESP_CHECK READ c=NORMAL t=-/- v=WS-R a=-",
+        "L8 ROLLBACK SYNCPOINT ROLLBACK c=- t=-/- v=- a=-",
+        "L10 RESP_CHECK WRITEQ c=- t=-/- v=WS-R a=-",
+        "L14 ABEND ABEND c=K001 t=-/- v=- a=NODUMP",
+    ]
+    assert ak.draft_tdq_triggers(tmp_path)["UOWK.cbl"]["starts"] == ["PRTQ -> PRT1 -> PRTPGM"]

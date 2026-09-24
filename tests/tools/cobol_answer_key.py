@@ -17,6 +17,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-cics-tasks <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-job-submissions <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-mq <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-uow <repo> --key key.json
     python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
@@ -45,6 +46,10 @@ SYSOUT=(x,INTRDR) step) into `job_submissions`, the add-pli way.
 
 `add-mq` (#3447) drafts every COBOL source's IBM MQ calls (verb, direction, the
 queue or why it is unnamed, the MQOPEN a handle came from) into `mq_calls`.
+
+`add-uow` (#3453) drafts every COBOL source's commit / rollback points, error
+handlers, explicit ABENDs and RESP checks into `uow_handlers`, and the TD queues
+whose TRIGGERLEVEL starts a transaction into `tdq_triggers`.
 
 AUTHORITY. `draft` computes CANDIDATE values with its own fixed-format reading
 (Area A headers, PERFORM ... THRU, GO TO, SECTION fall-through, terminal
@@ -2530,6 +2535,207 @@ def draft_mq(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# Units of work and error handling (#3453)
+# ==============================================================================
+# This tool's own reading of commit / rollback points, HANDLE CONDITION / ABEND /
+# AID handlers, explicit ABENDs and RESP checks. Commands are found the CICS
+# section's way (`_CICS_EXEC` over the literal-blanked twin, options by
+# `_CICS_OPTION`); EXEC SQL COMMIT / ROLLBACK by its own regex. A RESP check's
+# window is read here from this tool's Source: from END-EXEC to the next command
+# setting the same RESP field, the next Area A paragraph / section header, or
+# 8000 characters; a DFHRESP(x) in it counts once the field has been named.
+_UOW_SQL = re.compile(r"\bEXEC\s+SQL\s+(COMMIT|ROLLBACK)\b((?:\s+(?:WORK|TO|SAVEPOINT|RELEASE)\b)*)")
+_UOW_DFHRESP = re.compile(r"DFHRESP\s*\(\s*([A-Z][A-Z0-9]*)\s*\)")
+_UOW_HEADER = re.compile(r"^[A-Z0-9][A-Z0-9-]*(?:\s+SECTION)?\s*\.\s*$")
+_UOW_SKIP = {"HANDLE", "IGNORE", "PUSH", "POP", "ABEND"}
+
+
+def uow_handler_ops(path: Path) -> list[dict[str, Any]]:
+    """Every unit-of-work point, handler, ABEND and RESP check in one COBOL
+    source, this tool's own reading (see the section header)."""
+    src = Source(path)
+
+    def value(op: Optional[str]) -> Optional[str]:
+        if not op:
+            return None
+        op = op.strip()
+        if op[:1] in "'\"" and op[-1:] == op[:1] and len(op) > 1:
+            return op[1:-1].strip() or None
+        return _cics_value_of(src, op) or op
+
+    # Offsets (in src.text) where an Area A header line starts.
+    headers, offset = [], 0
+    for _no, area in src.lines:
+        if area[:4].strip() and _UOW_HEADER.match(area.strip()):
+            headers.append(offset)
+        offset += len(area) + 1
+
+    cmds = []
+    for m in _CICS_EXEC.finditer(src.text):
+        end = _CICS_END.search(src.text, m.end())
+        stop = end.start() if end else len(src.text)
+        opts = [
+            (o.group(1), " ".join(o.group(2)[1:-1].split()) if o.group(2) else None)
+            for o in _CICS_OPTION.finditer(src.raw_text[m.end() : stop])
+        ]
+        if opts and opts[0][1] is None:
+            cmds.append((m.start(), end.end() if end else stop, opts))
+
+    def mk(kind: str, source: str, verb: str, off: int, **kw: Any) -> dict[str, Any]:
+        r = {"kind": kind, "source": source, "verb": verb, "condition": None, "target": None}
+        r.update({"target_kind": None, "resp_var": None, "attributes": None, "line": src.line_of(off)})
+        r.update(kw)
+        return r
+
+    out: list[tuple[int, int, dict[str, Any]]] = []
+    for i, (pos, end, opts) in enumerate(cmds):
+        verb, rest = opts[0][0], opts[1:]
+        d = dict(rest)
+        if verb == "SYNCPOINT":
+            rb = "ROLLBACK" in d
+            out.append(
+                (pos, 0, mk("ROLLBACK" if rb else "COMMIT", "CICS", "SYNCPOINT ROLLBACK" if rb else "SYNCPOINT", pos))
+            )
+        elif verb == "ABEND":
+            flags = " ".join(k for k, v in rest if v is None and k in ("NODUMP", "CANCEL")) or None
+            out.append((pos, 0, mk("ABEND", "CICS", "ABEND", pos, condition=value(d.get("ABCODE")), attributes=flags)))
+        elif verb == "HANDLE" and rest and rest[0][0] == "ABEND":
+            h = dict(rest[1:])
+            if h.get("LABEL"):
+                tgt, tk = h["LABEL"], "LABEL"
+            elif h.get("PROGRAM"):
+                tgt, tk = value(h["PROGRAM"]), "PROGRAM"
+            else:
+                tgt, tk = None, "RESET" if "RESET" in h else "CANCEL"
+            out.append((pos, 0, mk("HANDLE_ABEND", "CICS", "HANDLE ABEND", pos, target=tgt, target_kind=tk)))
+        elif verb in ("HANDLE", "IGNORE") and rest and rest[0][0] in ("CONDITION", "AID"):
+            for cond, label in rest[1:]:
+                if cond in ("RESP", "RESP2", "NOHANDLE"):
+                    continue
+                if verb == "IGNORE":
+                    out.append((pos, 0, mk(f"IGNORE_{rest[0][0]}", "CICS", "IGNORE CONDITION", pos, condition=cond)))
+                else:
+                    tk = "LABEL" if label else "DEFAULT"
+                    kind = f"HANDLE_{rest[0][0]}"
+                    out.append(
+                        (
+                            pos,
+                            0,
+                            mk(kind, "CICS", f"HANDLE {rest[0][0]}", pos, condition=cond, target=label, target_kind=tk),
+                        )
+                    )
+        elif verb in ("PUSH", "POP") and rest and rest[0][0] == "HANDLE":
+            out.append((pos, 0, mk(f"{verb}_HANDLE", "CICS", f"{verb} HANDLE", pos)))
+        if verb in _UOW_SKIP:
+            continue
+        var = (d.get("RESP") or "") or ("EIBRESP" if "NOHANDLE" in d else "")
+        if not var:
+            continue
+        limit = min(len(src.text), end + 8000)
+        limit = min([h for h in headers if h > end] + [limit])
+        for later_pos, _e, later in cmds[i + 1 :]:
+            if later_pos >= limit:
+                break
+            ld = dict(later[1:])
+            if (ld.get("RESP") or "") == var or (var == "EIBRESP" and "NOHANDLE" in ld):
+                limit = later_pos
+                break
+        window = src.text[end:limit]
+        first = re.search(rf"(?<![A-Z0-9-]){re.escape(var)}(?![A-Z0-9-])", window)
+        seen = set(_UOW_DFHRESP.findall(src.raw_text[end + first.start() : limit])) if first else set()
+        out.append(
+            (pos, 1, mk("RESP_CHECK", "CICS", verb, pos, condition=",".join(sorted(seen)) or None, resp_var=var))
+        )
+    for m in _UOW_SQL.finditer(src.text):
+        tail = " ".join(m.group(2).split())
+        out.append(
+            (
+                m.start(),
+                0,
+                mk(
+                    "COMMIT" if m.group(1) == "COMMIT" else "ROLLBACK", "SQL", f"{m.group(1)} {tail}".strip(), m.start()
+                ),
+            )
+        )
+    out.sort(key=lambda x: (x[0], x[1]))
+    return [r for _p, _k, r in out]
+
+
+def uow_keys(rows: list[dict[str, Any]]) -> set[str]:
+    """One unit per row: `L<line> KIND VERB c=<condition> t=<target>/<kind> v=<resp field> a=<attrs>`.
+    Works on this reader's rows and the engine's."""
+    return {
+        f"L{r['line']} {r['kind']} {r['verb']} c={r.get('condition') or '-'} "
+        f"t={(r.get('target') or '-').upper()}/{r.get('target_kind') or '-'} v={r.get('resp_var') or '-'} "
+        f"a={r.get('attributes') or '-'}"
+        for r in rows
+    }
+
+
+def engine_uow_row(u: Any) -> dict[str, Any]:
+    """An engine `EngineUowHandler` in this reader's row shape."""
+    return {
+        k: getattr(u, k)
+        for k in ("kind", "source", "verb", "condition", "target", "target_kind", "resp_var", "attributes", "line")
+    }
+
+
+def draft_uow(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted units of work and handlers for every COBOL source (#3453).
+    Adjudicates nothing until signed off with `uow_validated`."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in CICS_EXTS and ".git" not in p.parts:
+            rows = uow_handler_ops(p)
+            if rows:
+                out[p.relative_to(repo).as_posix()] = {
+                    "rows": rows,
+                    "uow_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+def draft_tdq_triggers(repo: Path) -> dict[str, dict[str, Any]]:
+    """#3453 add-on: per writing program, the transactions CICS starts because a
+    TD queue it writes carries TRIGGERLEVEL + TRANSID in the CSD, as
+    `QUEUE -> TRANSID -> PROGRAM` (this tool's CSD, WRITEQ and transaction reads)."""
+    triggered: dict[str, str] = {}
+    programs: dict[str, str] = {}
+    for p in sorted(repo.rglob("*")):
+        if not p.is_file() or ".git" in p.parts or p.suffix.lower() not in CSD_EXTS + JCL_EXTS:
+            continue
+        text = p.read_text(encoding="utf-8", errors="ignore")
+        if not is_csd_deck(p, text):
+            continue
+        for r in csd_resource_definitions(text):
+            if r["resource_type"] == "TDQUEUE" and r["transid"]:
+                triggered[r["name"]] = r["transid"]
+        for transid, program in _csd_pairs(text):
+            programs.setdefault(transid, program)
+    out: dict[str, dict[str, Any]] = {}
+    if not triggered:
+        return out
+    for p in sorted(repo.rglob("*")):
+        if not (p.is_file() and p.suffix.lower() in CICS_EXTS and ".git" not in p.parts):
+            continue
+        starts = set()
+        for r in cics_resource_ops(p):
+            if r["kind"] != "QUEUE" or r["access"] != "write" or r["qualifier"] != "TD":
+                continue
+            names = {r["name"].upper()} if r["name"] else set((r["candidates"] or "").upper().split(",")) - {""}
+            for q in names & set(triggered):
+                starts.add(f"{q} -> {triggered[q]} -> {programs.get(triggered[q], '?')}")
+        if starts:
+            out[p.relative_to(repo).as_posix()] = {
+                "starts": sorted(starts),
+                "tdq_triggers_validated": False,
+                "verification": {"status": "draft", "notes": []},
+            }
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -2918,6 +3124,13 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # #3447: IBM MQ calls (verb, direction, queue or why unnamed, matched open),
         # per COBOL source. Truth is this tool's own token walk; engine is mq_call_data.
         "MQ calls",
+        # #3453: units of work (commit / rollback points), HANDLE CONDITION / ABEND
+        # / AID handlers, explicit ABENDs and RESP checks, per COBOL source. Truth
+        # is this tool's own reader; engine is uow_handler_data.
+        "units of work and handlers",
+        # #3453 add-on: transactions CICS starts when a written TD queue fills
+        # (TRIGGERLEVEL + TRANSID), per writer. Engine is GalaxyIR.tdq_trigger_starts().
+        "TD trigger starts",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -3186,6 +3399,30 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             mq_call_keys([engine_mq_row(q) for q in ef.mq_calls]) if ef else None,
         )
 
+    for rel, k in key.get("uow_handlers", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "units of work and handlers",
+            rel,
+            uow_keys(k.get("rows", [])),
+            None,
+            uow_keys([engine_uow_row(u) for u in ef.uow_handlers]) if ef else None,
+        )
+    engine_triggers: dict[str, set[str]] = {}
+    if ir is not None:
+        for t in ir.tdq_trigger_starts():
+            engine_triggers.setdefault(t["writer"], set()).add(
+                f"{t['queue']} -> {t['transid']} -> {t['program'] or '?'}"
+            )
+    for rel, k in key.get("tdq_triggers", {}).items():
+        add(
+            "TD trigger starts",
+            rel,
+            set(k.get("starts", [])),
+            None,
+            engine_triggers.get(rel, set()) if ir is not None and rel in ir.files else None,
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -3299,6 +3536,9 @@ def main() -> int:
     x = sub.add_parser("add-cics")
     x.add_argument("repo", type=Path)
     x.add_argument("--key", type=Path, required=True)
+    uw = sub.add_parser("add-uow")
+    uw.add_argument("repo", type=Path)
+    uw.add_argument("--key", type=Path, required=True)
     mq = sub.add_parser("add-mq")
     mq.add_argument("repo", type=Path)
     mq.add_argument("--key", type=Path, required=True)
@@ -3429,6 +3669,21 @@ def main() -> int:
         key["cics_resources"] = ops
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(ops)} CICS files -> {args.key}")
+        return 0
+    if args.cmd == "add-uow":
+        # #3453: the add-pli discipline -- refresh drafts, keep signed-off files.
+        uow = key.get("uow_handlers", {})
+        for rel, entry in draft_uow(repo).items():
+            if not uow.get(rel, {}).get("uow_validated"):
+                uow[rel] = entry
+        key["uow_handlers"] = uow
+        trig = key.get("tdq_triggers", {})
+        for rel, entry in draft_tdq_triggers(repo).items():
+            if not trig.get(rel, {}).get("tdq_triggers_validated"):
+                trig[rel] = entry
+        key["tdq_triggers"] = trig
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(uow)} unit-of-work files, {len(trig)} TD-trigger writers -> {args.key}")
         return 0
     if args.cmd == "add-mq":
         # #3447: the add-pli discipline -- refresh drafts, keep signed-off files.

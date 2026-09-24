@@ -567,6 +567,7 @@ class LLMRecorder:
                 + len(f.get("cics_tasks") or [])  # #3449
                 + len(f.get("job_submits") or [])  # #3448
                 + len(f.get("mq_calls") or [])  # #3447
+                + len(f.get("uow_handlers") or [])  # #3453
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -824,6 +825,23 @@ class LLMRecorder:
                 if queues:
                     labels = [f"{k} ({'/'.join(sorted(v))})" for k, v in queues.items()]
                     lines.append(f"- **MQ queues:** {', '.join(f'`{x}`' for x in labels[:12])}")
+            # #3453: where the unit of work ends and what handles errors.
+            uow = f.get("uow_handlers") or []
+            if uow:
+                commits = sum(1 for u in uow if u.get("kind") == "COMMIT")
+                rollbacks = sum(1 for u in uow if u.get("kind") == "ROLLBACK")
+                handlers = [
+                    f"{u.get('condition') or 'ABEND'}->{u.get('target') or u.get('target_kind')}"
+                    for u in uow
+                    if u.get("kind") in ("HANDLE_CONDITION", "HANDLE_ABEND")
+                ]
+                resp = [u for u in uow if u.get("kind") == "RESP_CHECK"]
+                untested = sum(1 for u in resp if not u.get("condition"))
+                lines.append(
+                    f"- **Unit of work:** `{commits}` commit / `{rollbacks}` rollback points; "
+                    f"handlers {', '.join(f'`{h}`' for h in handlers[:6]) or 'none'}; "
+                    f"`{len(resp) - untested}/{len(resp)}` RESP results tested"
+                )
             lines.append("")
 
         if len(carriers) > 20:

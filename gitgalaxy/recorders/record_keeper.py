@@ -494,7 +494,8 @@ class RecordKeeper:
         Job-submission evidence (#3448: JCL card literals in COBOL, INTRDR DDs in
         JCL) rides on each file's own `job_submits` and becomes job_submit_data.
         IBM MQ calls (#3447) ride on each file's own `mq_calls` and become
-        mq_call_data.
+        mq_call_data. Units of work and error handling (#3453) ride on each
+        file's own `uow_handlers` and become uow_handler_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1201,6 +1202,42 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_mq_call_file_id ON mq_call_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_mq_call_queue ON mq_call_data(queue_name);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_mq_call_snapshot ON mq_call_data(repo_name, commit_hash);")
+
+        # #3453: units of work and error handling (core/uow_handlers.py).
+        #   kind            -- COMMIT | ROLLBACK | HANDLE_CONDITION | IGNORE_CONDITION |
+        #                      HANDLE_ABEND | HANDLE_AID | PUSH_HANDLE | POP_HANDLE |
+        #                      ABEND | RESP_CHECK
+        #   source          -- CICS | SQL
+        #   verb            -- as written (SYNCPOINT ROLLBACK, COMMIT WORK, HANDLE ABEND,
+        #                      or for RESP_CHECK the checked command: READ, LINK, ...)
+        #   condition_name  -- the condition / AID key handled, the ABEND's ABCODE, or a
+        #                      RESP_CHECK's tested DFHRESP(...) names (NULL = untested)
+        #   target          -- handler paragraph (LABEL) or program (PROGRAM)
+        #   target_kind     -- LABEL | PROGRAM | CANCEL | RESET | DEFAULT
+        #   resp_var        -- a RESP_CHECK's RESP field (EIBRESP under NOHANDLE)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS uow_handler_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                source TEXT,
+                verb TEXT,
+                condition_name TEXT,
+                target TEXT,
+                target_kind TEXT,
+                resp_var TEXT,
+                attributes TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_uow_handler_file_id ON uow_handler_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_uow_handler_kind ON uow_handler_data(kind);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_uow_handler_snapshot ON uow_handler_data(repo_name, commit_hash);"
+        )
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
@@ -2742,6 +2779,39 @@ class RecordKeeper:
                 int(q["open_line"]) if q.get("open_line") is not None else None,
                 q.get("options"),
                 int(q.get("line", 0) or 0),
+            ),
+        )
+
+        # #3453: units of work and error handling -- per-file, like mq_call_data.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "uow_handler_data",
+            (
+                "kind",
+                "source",
+                "verb",
+                "condition_name",
+                "target",
+                "target_kind",
+                "resp_var",
+                "attributes",
+                "line_number",
+            ),
+            "uow_handlers",
+            lambda u: (
+                u.get("kind"),
+                u.get("source"),
+                u.get("verb"),
+                u.get("condition"),
+                u.get("target"),
+                u.get("target_kind"),
+                u.get("resp_var"),
+                u.get("attributes"),
+                int(u.get("line", 0) or 0),
             ),
         )
 

@@ -8089,5 +8089,7 @@
   "sql_access": {},
   "cics_tasks": {},
   "job_submissions": {},
-  "mq_calls": {}
+  "mq_calls": {},
+  "uow_handlers": {},
+  "tdq_triggers": {}
 }

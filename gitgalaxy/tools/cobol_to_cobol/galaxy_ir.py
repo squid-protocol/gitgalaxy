@@ -70,6 +70,13 @@
 # GalaxyIR.mq_queues lists every program's queue endpoints -- `trigger` and
 # `reply_to` named as runtime queues -- and mq_flows pairs producers with
 # consumers of the same named queue.
+# Since #3453, units of work and error handling (uow_handler_data, per
+# EngineFile.uow_handlers): SYNCPOINT / SQL COMMIT / ROLLBACK points, HANDLE
+# CONDITION / ABEND / AID handlers, explicit ABENDs and the DFHRESP conditions
+# each RESP-coded command's result is tested for; GalaxyIR.units_of_work,
+# error_handlers and unchecked_responses place them in their owning paragraph.
+# tdq_trigger_starts joins a WRITEQ TD to a CSD TDQUEUE with TRIGGERLEVEL and
+# TRANSID -- the transaction CICS starts when the queue fills.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -78,6 +85,7 @@
 # ==============================================================================
 import fnmatch
 import os
+import re
 import sqlite3
 import subprocess
 import sys
@@ -506,6 +514,27 @@ class EngineMqCall:
 
 
 @dataclass
+class EngineUowHandler:
+    """One unit-of-work point, handler, explicit ABEND or RESP check (#3453),
+    from `uow_handler_data` (see core/uow_handlers.py for the kinds).
+
+    `condition` is the handled condition / AID key, an ABEND's ABCODE, or a
+    RESP_CHECK's tested DFHRESP names comma-joined (None: the result is never
+    tested). `target` is a handler paragraph (`target_kind` LABEL) or program.
+    """
+
+    kind: str
+    source: str
+    verb: str
+    condition: Optional[str]
+    target: Optional[str]
+    target_kind: Optional[str]
+    resp_var: Optional[str]
+    attributes: Optional[str]
+    line: int
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -527,6 +556,7 @@ class EngineFile:
     cics_tasks: list = field(default_factory=list)  # EngineCicsTask, source order, #3449
     job_submits: list = field(default_factory=list)  # EngineJobSubmit, source order, #3448
     mq_calls: list = field(default_factory=list)  # EngineMqCall, source order, #3447
+    uow_handlers: list = field(default_factory=list)  # EngineUowHandler, source order, #3453
 
     @property
     def is_program(self) -> bool:
@@ -1774,6 +1804,116 @@ class GalaxyIR:
             if c["direction"] in ("get", "browse") and c["queue"] == p["queue"] and c["file"] != p["file"]
         ]
 
+    @staticmethod
+    def _owning_unit(ef: EngineFile, line: int) -> Optional[str]:
+        """The paragraph / section a line belongs to: the last unit starting at or before it."""
+        owner = None
+        for u in sorted(ef.units, key=lambda x: x.start_line):
+            if u.start_line > line:
+                break
+            owner = u.name
+        return owner
+
+    def units_of_work(self) -> list:
+        """Every commit / rollback point (#3453): `file`, `kind` (COMMIT |
+        ROLLBACK), `source` (CICS | SQL), `verb`, `line` and the owning `unit`.
+        The implicit commit at task end (EXEC CICS RETURN) is not a row."""
+        return [
+            {
+                "file": f.file_path,
+                "kind": u.kind,
+                "source": u.source,
+                "verb": u.verb,
+                "line": u.line,
+                "unit": self._owning_unit(f, u.line),
+            }
+            for f in sorted(self.files.values(), key=lambda x: x.file_path)
+            for u in f.uow_handlers
+            if u.kind in ("COMMIT", "ROLLBACK")
+        ]
+
+    def error_handlers(self) -> list:
+        """Every HANDLE CONDITION / HANDLE ABEND / HANDLE AID (#3453): `file`,
+        `kind`, `condition`, `target`, `target_kind`, `line`, the owning `unit`,
+        and `handler_found` -- whether a LABEL target is a paragraph / section of
+        the same program (None for a non-LABEL target)."""
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            names = {u.name.upper() for u in f.units}
+            for u in f.uow_handlers:
+                if u.kind not in ("HANDLE_CONDITION", "HANDLE_ABEND", "HANDLE_AID"):
+                    continue
+                out.append(
+                    {
+                        "file": f.file_path,
+                        "kind": u.kind,
+                        "condition": u.condition,
+                        "target": u.target,
+                        "target_kind": u.target_kind,
+                        "line": u.line,
+                        "unit": self._owning_unit(f, u.line),
+                        "handler_found": (u.target or "").upper() in names if u.target_kind == "LABEL" else None,
+                    }
+                )
+        return out
+
+    def unchecked_responses(self) -> list:
+        """RESP-coded CICS commands whose result is never tested (#3453): `file`,
+        `verb`, `resp_var`, `line` and the owning `unit`."""
+        return [
+            {
+                "file": f.file_path,
+                "verb": u.verb,
+                "resp_var": u.resp_var,
+                "line": u.line,
+                "unit": self._owning_unit(f, u.line),
+            }
+            for f in sorted(self.files.values(), key=lambda x: x.file_path)
+            for u in f.uow_handlers
+            if u.kind == "RESP_CHECK" and not u.condition
+        ]
+
+    def tdq_trigger_starts(self) -> list:
+        """Transactions CICS starts because a TD queue fills (#3453 add-on).
+
+        A CSD `DEFINE TDQUEUE(Q) TRIGGERLEVEL(n) TRANSID(T)` makes CICS start T
+        once n records sit on intrapartition queue Q, so every program that
+        `WRITEQ TD`s Q implicitly starts T. Each entry: `writer` (file), `line`
+        (the WRITEQ), `queue`, `trigger_level`, `transid`, `program` (the CSD
+        transaction's program) and `resolves_to` (its file, or None).
+        """
+        triggered: dict[str, tuple[str, Optional[int]]] = {}
+        for f in self.files.values():
+            for r in f.csd_resources:
+                if r.resource_type != "TDQUEUE" or not r.transid:
+                    continue
+                found = re.search(r"TRIGGERLEVEL\(\s*(\d+)\s*\)", r.attributes or "", re.I)
+                triggered[r.name.upper()] = (r.transid.upper(), int(found.group(1)) if found else None)
+        programs: dict[str, tuple] = {}
+        for f in self.files.values():
+            for t in f.transactions:
+                programs.setdefault(t.transid.upper(), (t.program, t.resolves_to))
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for op in f.cics_resources:
+                if op.kind != "QUEUE" or op.access != "write" or (op.qualifier or "").upper() != "TD":
+                    continue
+                for q in sorted(op.names & set(triggered)):
+                    transid, level = triggered[q]
+                    program, resolves_to = programs.get(transid, (None, None))
+                    out.append(
+                        {
+                            "writer": f.file_path,
+                            "line": op.line,
+                            "queue": q,
+                            "trigger_level": level,
+                            "transid": transid,
+                            "program": program,
+                            "resolves_to": resolves_to,
+                        }
+                    )
+        return out
+
     def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
         try:
             rel = path.resolve().relative_to(target_root.resolve()).as_posix()
@@ -2294,6 +2434,28 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         line=int(row[13] or 0),
                     )
                 )
+        # #3453: units of work and error handling. A pre-#3453 database has none.
+        if _has_table(cur, "uow_handler_data"):
+            for row in cur.execute(
+                "SELECT file_id, kind, source, verb, condition_name, target, target_kind, resp_var, attributes, "
+                "line_number FROM uow_handler_data WHERE repo_name = ? AND commit_hash = ? "
+                "ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] in by_id:
+                    by_id[row[0]].uow_handlers.append(
+                        EngineUowHandler(
+                            kind=row[1] or "",
+                            source=row[2] or "",
+                            verb=row[3] or "",
+                            condition=row[4],
+                            target=row[5],
+                            target_kind=row[6],
+                            resp_var=row[7],
+                            attributes=row[8],
+                            line=int(row[9] or 0),
+                        )
+                    )
         # #3447: IBM MQ calls. A pre-#3447 database has none.
         if _has_table(cur, "mq_call_data"):
             for row in cur.execute(

@@ -336,6 +336,23 @@ class AuditRecorder:
                 }
                 for q in mq
             ]
+        uow = file_data.get("uow_handlers") or []
+        if uow:
+            # #3453: units of work and error handling, mirroring uow_handler_data.
+            block["Units Of Work And Handlers"] = [
+                {
+                    "Kind": u.get("kind"),
+                    "Source": u.get("source"),
+                    "Verb": u.get("verb"),
+                    "Condition": u.get("condition"),
+                    "Target": u.get("target"),
+                    "Target Kind": u.get("target_kind"),
+                    "RESP Field": u.get("resp_var"),
+                    "Attributes": u.get("attributes"),
+                    "Line": u.get("line", 0),
+                }
+                for u in uow
+            ]
         return block
 
     def generate_report(

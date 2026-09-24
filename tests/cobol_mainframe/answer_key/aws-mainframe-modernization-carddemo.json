@@ -90752,5 +90752,1641 @@
         "notes": []
       }
     }
-  }
+  },
+  "uow_handlers": {
+    "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETRIEVE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 233
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 334
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 477
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 525
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 573
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "ASKTIME",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 857
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "ASKTIME",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 986
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "WRITEQ",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 1001
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
+      "rows": [
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 686
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 715
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 818
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 869
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 920
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "LINK",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 248
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 400
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 558
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 566
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "ASKTIME",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 91
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "FORMATTIME",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 95
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/cbl/COTRTLIC.cbl": {
+      "rows": [
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 616
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 931
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1588
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1856
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1909
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/cbl/COTRTUPC.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "ABEND-ROUTINE",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 348
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 453
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 642
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1433
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1557
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1606
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1637
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 1684
+        },
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": null,
+          "target_kind": "CANCEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 1691
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "ABEND-CODE",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1695
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-vsam-mq/cbl/COACCT01.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETRIEVE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP1-CD",
+          "attributes": null,
+          "line": 191
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 326
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 396
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-vsam-mq/cbl/CODATE01.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RETRIEVE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-CICS-RESP1-CD",
+          "attributes": null,
+          "line": 140
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 275
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COACTUPC.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "ABEND-ROUTINE",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 862
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 952
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1040
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 3594
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 3654
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 3703
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 3753
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 3894
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 3921
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "REWRITE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 4065
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "REWRITE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 4085
+        },
+        {
+          "kind": "ROLLBACK",
+          "source": "CICS",
+          "verb": "SYNCPOINT ROLLBACK",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 4099
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 4211
+        },
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": null,
+          "target_kind": "CANCEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 4218
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "9999",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 4222
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COACTVWC.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "ABEND-ROUTINE",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 264
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 583
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 611
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 727
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 776
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 826
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 924
+        },
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": null,
+          "target_kind": "CANCEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 930
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "9999",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 934
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COADM01C.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_CONDITION",
+          "source": "CICS",
+          "verb": "HANDLE CONDITION",
+          "condition": "PGMIDERR",
+          "target": "PGMIDERR-ERR-PARA",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 77
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 194
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COBIL00C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 308
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 345
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "REWRITE",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 379
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 410
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "STARTBR",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 443
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READPREV",
+          "condition": "ENDFILE,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 474
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "WRITE",
+          "condition": "DUPKEY,DUPREC,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 512
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COCRDLIC.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 939
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 963
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "STARTBR",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1129
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READNEXT",
+          "condition": "DUPREC,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1146
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READNEXT",
+          "condition": "DUPREC,ENDFILE,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1197
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "STARTBR",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1273
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READPREV",
+          "condition": "DUPREC,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1294
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READPREV",
+          "condition": "DUPREC,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1322
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COCRDSLC.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "ABEND-ROUTINE",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 250
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 569
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 597
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 742
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 783
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 865
+        },
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": null,
+          "target_kind": "CANCEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 871
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "9999",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 875
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COCRDUPC.cbl": {
+      "rows": [
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": "ABEND-ROUTINE",
+          "target_kind": "LABEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 370
+        },
+        {
+          "kind": "COMMIT",
+          "source": "CICS",
+          "verb": "SYNCPOINT",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 469
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 579
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1329
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1382
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1427
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "REWRITE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 1477
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "SEND",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 1539
+        },
+        {
+          "kind": "HANDLE_ABEND",
+          "source": "CICS",
+          "verb": "HANDLE ABEND",
+          "condition": null,
+          "target": null,
+          "target_kind": "CANCEL",
+          "resp_var": null,
+          "attributes": null,
+          "line": 1546
+        },
+        {
+          "kind": "ABEND",
+          "source": "CICS",
+          "verb": "ABEND",
+          "condition": "9999",
+          "target": null,
+          "target_kind": null,
+          "resp_var": null,
+          "attributes": null,
+          "line": 1550
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COMEN01C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "INQUIRE",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "EIBRESP",
+          "attributes": null,
+          "line": 148
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 227
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CORPT00C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "WRITEQ",
+          "condition": "NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 517
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 598
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COSGN00C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 110
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 211
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COTRN00C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 556
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "STARTBR",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 593
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READNEXT",
+          "condition": "ENDFILE,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 626
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READPREV",
+          "condition": "ENDFILE,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 660
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COTRN01C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 232
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 269
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COTRN02C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 541
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 578
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 611
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "STARTBR",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 644
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READPREV",
+          "condition": "ENDFILE,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 675
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "WRITE",
+          "condition": "DUPKEY,DUPREC,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 713
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR00C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 551
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "STARTBR",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 588
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READNEXT",
+          "condition": "ENDFILE,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 621
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READPREV",
+          "condition": "ENDFILE,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 655
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR01C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 203
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "WRITE",
+          "condition": "DUPKEY,DUPREC,NORMAL",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 240
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR02C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 285
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 322
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "REWRITE",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 360
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/COUSR03C.cbl": {
+      "rows": [
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "RECEIVE",
+          "condition": null,
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 232
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "READ",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 269
+        },
+        {
+          "kind": "RESP_CHECK",
+          "source": "CICS",
+          "verb": "DELETE",
+          "condition": "NORMAL,NOTFND",
+          "target": null,
+          "target_kind": null,
+          "resp_var": "WS-RESP-CD",
+          "attributes": null,
+          "line": 307
+        }
+      ],
+      "uow_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  },
+  "tdq_triggers": {}
 }

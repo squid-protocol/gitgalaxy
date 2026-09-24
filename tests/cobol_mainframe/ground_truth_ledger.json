@@ -220,6 +220,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "TD trigger starts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "async children": {
           "engine": {
             "got": 0,
@@ -385,6 +390,15 @@
             "truth": 870
           },
           "truth": "cross_verified"
+        },
+        "units of work and handlers": {
+          "engine": {
+            "got": 128,
+            "tp": 128,
+            "truth": 128
+          },
+          "forge": null,
+          "truth": "draft"
         }
       }
     },
@@ -940,6 +954,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "TD trigger starts": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "async children": {
           "engine": {
             "got": 5,
@@ -1101,6 +1120,15 @@
             "truth": 680
           },
           "truth": "cross_verified"
+        },
+        "units of work and handlers": {
+          "engine": {
+            "got": 245,
+            "tp": 245,
+            "truth": 245
+          },
+          "forge": null,
+          "truth": "draft"
         }
       }
     },
@@ -1179,6 +1207,11 @@
             "tp": 113,
             "truth": 113
           },
+          "forge": null,
+          "truth": "draft"
+        },
+        "TD trigger starts": {
+          "engine": null,
           "forge": null,
           "truth": "draft"
         },
@@ -1339,6 +1372,11 @@
             "truth": 58
           },
           "truth": "cross_verified"
+        },
+        "units of work and handlers": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
         }
       }
     }

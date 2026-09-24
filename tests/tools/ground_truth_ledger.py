@@ -89,6 +89,8 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "async children": ("cics_tasks", "cics_tasks_validated"),
     "job submissions": ("job_submissions", "submissions_validated"),
     "MQ calls": ("mq_calls", "mq_validated"),
+    "units of work and handlers": ("uow_handlers", "uow_validated"),
+    "TD trigger starts": ("tdq_triggers", "tdq_triggers_validated"),
 }
 
 

@@ -87,6 +87,7 @@ from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_reso
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
 from gitgalaxy.core.db2_declare_table import extract_sql_tables
 from gitgalaxy.core.db2_sql_statements import extract_sql_statements
+from gitgalaxy.core.dli_calls import extract_dli_calls
 from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
 from gitgalaxy.core.job_flow import jcl_job_flow
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
@@ -1817,6 +1818,20 @@ def _cics_tasks(
     return extract_cics_tasks(code_stream, values, moves, pics, dialect, _shielded)
 
 
+def _dli_calls(code_stream: str) -> list[dict[str, Any]]:
+    """IMS DL/I calls of one COBOL file (#3450): EXEC DLI and CALL 'CBLTDLI'."""
+    if "DLI" not in code_stream.upper():
+        return []
+    newlines = [i for i, ch in enumerate(code_stream) if ch == "\n"]
+
+    def _shielded(offset: int) -> bool:
+        index = bisect.bisect_left(newlines, offset)
+        line_start = newlines[index - 1] + 1 if index else 0
+        return _opens_inside_literal(code_stream, line_start, offset)
+
+    return extract_dli_calls(code_stream, _shielded)
+
+
 def _uow_handlers(code_stream: str, values: dict[str, str]) -> list[dict[str, Any]]:
     """Commit / rollback points, HANDLE CONDITION / ABEND / AID handlers, explicit
     ABENDs and RESP checks of one COBOL file (#3453)."""
@@ -1911,6 +1926,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "sql_statements": extract_sql_statements(code_stream, "cobol"),  # #3446
             "cics_resources": _cics_resources(code_stream, values, "cobol"),  # #3351-#3354
             "entry_points": entry_points(code_stream),  # #3454
+            "dli_calls": _dli_calls(code_stream),  # #3450
             "cics_tasks": _cics_tasks(code_stream, values, records, "cobol"),  # #3449
             "job_submits": _cobol_job_cards(code_stream),  # #3448
             "mq_calls": _mq_calls(code_stream, values),  # #3447

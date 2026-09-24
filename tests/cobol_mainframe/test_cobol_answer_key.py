@@ -1058,3 +1058,33 @@ def test_call_using_reader_is_independent(tmp_path):
         "L4 CALL X USING CONTENT:'LIT',CONTENT:WS-A,T OF G",
         "L8 ENTRY DLITCBL USING PCB-1",
     }
+
+
+def test_dli_reader_resolves_on_its_own(tmp_path):
+    """#3450: the key's own DL/I reading -- a function code through a copybook
+    VALUE, an SSA's segment from its group VALUEs, path calls read their parents."""
+    (tmp_path / "IMSF.cpy").write_text(
+        "       01 FUNCS.\n          05 FUNC-GN PIC X(4) VALUE 'GN  '.\n", encoding="utf-8"
+    )
+    src = (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. IMSK.\n"
+        "       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n"
+        "       COPY IMSF.\n"
+        "       01 SSA1.\n"
+        "          05 FILLER PIC X(08) VALUE 'PAUTSUM0'.\n"
+        "          05 FILLER PIC X(01) VALUE ' '.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           CALL 'CBLTDLI' USING FUNC-GN PCB1 IOA SSA1.\n"
+        "           EXEC DLI ISRT USING PCB(1) SEGMENT(PAUTSUM0)\n"
+        "                SEGMENT(PAUTDTL1) FROM(IOB) END-EXEC.\n"
+    )
+    assert all(len(line) <= 72 for line in src.splitlines())
+    (tmp_path / "IMSK.cbl").write_text(src, encoding="utf-8")
+    entry = ak.draft_dli(tmp_path)["IMSK.cbl"]
+    assert ak.dli_keys(entry["calls"]) == {
+        "L10 CALL FN=FUNC-GN PCB=PCB1 IO=IOA SEG=SSA1 WHERE=- PSB=-",
+        "L11 EXEC FN=ISRT PCB=1 IO=IOB SEG=PAUTSUM0,PAUTDTL1 WHERE=- PSB=-",
+    }
+    assert entry["segment_access"] == ["insert PAUTDTL1", "read PAUTSUM0"]

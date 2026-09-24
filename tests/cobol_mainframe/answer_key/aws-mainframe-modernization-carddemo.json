@@ -101826,5 +101826,546 @@
         "notes": []
       }
     }
+  },
+  "dli_calls": {
+    "app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl": {
+      "calls": [
+        {
+          "interface": "EXEC",
+          "function": "GN",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [
+            "PAUTSUM0"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 223
+        },
+        {
+          "interface": "EXEC",
+          "function": "GNP",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [
+            "PAUTDTL1"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 255
+        },
+        {
+          "interface": "EXEC",
+          "function": "DLET",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [
+            "PAUTDTL1"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 310
+        },
+        {
+          "interface": "EXEC",
+          "function": "DLET",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [
+            "PAUTSUM0"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 335
+        },
+        {
+          "interface": "EXEC",
+          "function": "CHKP",
+          "operand": null,
+          "pcb": null,
+          "io": null,
+          "segs": [],
+          "where": [],
+          "psb": null,
+          "line": 355
+        }
+      ],
+      "segment_access": [
+        "delete PAUTDTL1",
+        "delete PAUTSUM0",
+        "read PAUTDTL1",
+        "read PAUTSUM0"
+      ],
+      "dli_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
+      "calls": [
+        {
+          "interface": "EXEC",
+          "function": "SCHD",
+          "operand": null,
+          "pcb": null,
+          "io": null,
+          "segs": [],
+          "where": [],
+          "psb": "PSB-NAME",
+          "line": 293
+        },
+        {
+          "interface": "EXEC",
+          "function": "TERM",
+          "operand": null,
+          "pcb": null,
+          "io": null,
+          "segs": [],
+          "where": [],
+          "psb": null,
+          "line": 299
+        },
+        {
+          "interface": "EXEC",
+          "function": "SCHD",
+          "operand": null,
+          "pcb": null,
+          "io": null,
+          "segs": [],
+          "where": [],
+          "psb": "PSB-NAME",
+          "line": 302
+        },
+        {
+          "interface": "EXEC",
+          "function": "GU",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [
+            "PAUTSUM0"
+          ],
+          "where": [
+            "ACCNTID = PA-ACCT-ID"
+          ],
+          "psb": null,
+          "line": 620
+        },
+        {
+          "interface": "EXEC",
+          "function": "REPL",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [
+            "PAUTSUM0"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 825
+        },
+        {
+          "interface": "EXEC",
+          "function": "ISRT",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [
+            "PAUTSUM0"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 830
+        },
+        {
+          "interface": "EXEC",
+          "function": "ISRT",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [
+            "PAUTSUM0",
+            "PAUTDTL1"
+          ],
+          "where": [
+            "ACCNTID = PA-ACCT-ID"
+          ],
+          "psb": null,
+          "line": 913
+        },
+        {
+          "interface": "EXEC",
+          "function": "TERM",
+          "operand": null,
+          "pcb": null,
+          "io": null,
+          "segs": [],
+          "where": [],
+          "psb": null,
+          "line": 944
+        }
+      ],
+      "segment_access": [
+        "insert PAUTDTL1",
+        "insert PAUTSUM0",
+        "read PAUTSUM0",
+        "update PAUTSUM0"
+      ],
+      "dli_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
+      "calls": [
+        {
+          "interface": "EXEC",
+          "function": "GNP",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [
+            "PAUTDTL1"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 461
+        },
+        {
+          "interface": "EXEC",
+          "function": "GNP",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [
+            "PAUTDTL1"
+          ],
+          "where": [
+            "PAUT9CTS = PA-AUTHORIZATION-KEY"
+          ],
+          "psb": null,
+          "line": 493
+        },
+        {
+          "interface": "EXEC",
+          "function": "GU",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [
+            "PAUTSUM0"
+          ],
+          "where": [
+            "ACCNTID = PA-ACCT-ID"
+          ],
+          "psb": null,
+          "line": 973
+        },
+        {
+          "interface": "EXEC",
+          "function": "SCHD",
+          "operand": null,
+          "pcb": null,
+          "io": null,
+          "segs": [],
+          "where": [],
+          "psb": "PSB-NAME",
+          "line": 1002
+        },
+        {
+          "interface": "EXEC",
+          "function": "TERM",
+          "operand": null,
+          "pcb": null,
+          "io": null,
+          "segs": [],
+          "where": [],
+          "psb": null,
+          "line": 1008
+        },
+        {
+          "interface": "EXEC",
+          "function": "SCHD",
+          "operand": null,
+          "pcb": null,
+          "io": null,
+          "segs": [],
+          "where": [],
+          "psb": "PSB-NAME",
+          "line": 1011
+        }
+      ],
+      "segment_access": [
+        "read PAUTDTL1",
+        "read PAUTSUM0"
+      ],
+      "dli_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl": {
+      "calls": [
+        {
+          "interface": "EXEC",
+          "function": "GU",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [
+            "PAUTSUM0"
+          ],
+          "where": [
+            "ACCNTID = PA-ACCT-ID"
+          ],
+          "psb": null,
+          "line": 439
+        },
+        {
+          "interface": "EXEC",
+          "function": "GNP",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [
+            "PAUTDTL1"
+          ],
+          "where": [
+            "PAUT9CTS = PA-AUTHORIZATION-KEY"
+          ],
+          "psb": null,
+          "line": 465
+        },
+        {
+          "interface": "EXEC",
+          "function": "GNP",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [
+            "PAUTDTL1"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 495
+        },
+        {
+          "interface": "EXEC",
+          "function": "REPL",
+          "operand": null,
+          "pcb": "PAUT-PCB-NUM",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [
+            "PAUTDTL1"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 525
+        },
+        {
+          "interface": "EXEC",
+          "function": "SCHD",
+          "operand": null,
+          "pcb": null,
+          "io": null,
+          "segs": [],
+          "where": [],
+          "psb": "PSB-NAME",
+          "line": 575
+        },
+        {
+          "interface": "EXEC",
+          "function": "TERM",
+          "operand": null,
+          "pcb": null,
+          "io": null,
+          "segs": [],
+          "where": [],
+          "psb": null,
+          "line": 581
+        },
+        {
+          "interface": "EXEC",
+          "function": "SCHD",
+          "operand": null,
+          "pcb": null,
+          "io": null,
+          "segs": [],
+          "where": [],
+          "psb": "PSB-NAME",
+          "line": 584
+        }
+      ],
+      "segment_access": [
+        "read PAUTDTL1",
+        "read PAUTSUM0",
+        "update PAUTDTL1"
+      ],
+      "dli_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL": {
+      "calls": [
+        {
+          "interface": "CALL",
+          "function": null,
+          "operand": "FUNC-GN",
+          "pcb": "PAUTBPCB",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [
+            "ROOT-UNQUAL-SSA"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 222
+        },
+        {
+          "interface": "CALL",
+          "function": null,
+          "operand": "FUNC-GNP",
+          "pcb": "PAUTBPCB",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [
+            "CHILD-UNQUAL-SSA"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 267
+        },
+        {
+          "interface": "CALL",
+          "function": null,
+          "operand": "FUNC-ISRT",
+          "pcb": "PASFLPCB",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [],
+          "where": [],
+          "psb": null,
+          "line": 302
+        },
+        {
+          "interface": "CALL",
+          "function": null,
+          "operand": "FUNC-ISRT",
+          "pcb": "PADFLPCB",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [],
+          "where": [],
+          "psb": null,
+          "line": 321
+        }
+      ],
+      "segment_access": [
+        "read PAUTDTL1",
+        "read PAUTSUM0"
+      ],
+      "dli_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL": {
+      "calls": [
+        {
+          "interface": "CALL",
+          "function": null,
+          "operand": "FUNC-ISRT",
+          "pcb": "PAUTBPCB",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [
+            "ROOT-UNQUAL-SSA"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 244
+        },
+        {
+          "interface": "CALL",
+          "function": null,
+          "operand": "FUNC-GU",
+          "pcb": "PAUTBPCB",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [
+            "ROOT-QUAL-SSA"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 296
+        },
+        {
+          "interface": "CALL",
+          "function": null,
+          "operand": "FUNC-ISRT",
+          "pcb": "PAUTBPCB",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [
+            "CHILD-UNQUAL-SSA"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 321
+        }
+      ],
+      "segment_access": [
+        "insert PAUTDTL1",
+        "insert PAUTSUM0",
+        "read PAUTSUM0"
+      ],
+      "dli_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL": {
+      "calls": [
+        {
+          "interface": "CALL",
+          "function": null,
+          "operand": "FUNC-GN",
+          "pcb": "PAUTBPCB",
+          "io": "PENDING-AUTH-SUMMARY",
+          "segs": [
+            "ROOT-UNQUAL-SSA"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 213
+        },
+        {
+          "interface": "CALL",
+          "function": null,
+          "operand": "FUNC-GNP",
+          "pcb": "PAUTBPCB",
+          "io": "PENDING-AUTH-DETAILS",
+          "segs": [
+            "CHILD-UNQUAL-SSA"
+          ],
+          "where": [],
+          "psb": null,
+          "line": 257
+        }
+      ],
+      "segment_access": [
+        "read PAUTDTL1",
+        "read PAUTSUM0"
+      ],
+      "dli_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

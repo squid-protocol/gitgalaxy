@@ -499,7 +499,8 @@ class RecordKeeper:
         (#3455) ride on `file_control` (COBOL SELECTs -> file_control_data) and
         `vsam_defines` (JCL IDCAMS -> vsam_define_data). JCL job flow (#3451)
         rides on `job_flow` and becomes job_flow_data. Program entry points
-        (#3454) ride on `entry_points` and become entry_point_data.
+        (#3454) ride on `entry_points` and become entry_point_data. IMS DL/I
+        calls (#3450) ride on `dli_calls` and become dli_call_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1366,6 +1367,35 @@ class RecordKeeper:
         cursor.execute(
             "CREATE INDEX IF NOT EXISTS idx_entry_point_snapshot ON entry_point_data(repo_name, commit_hash);"
         )
+
+        # #3450: IMS DL/I calls (core/dli_calls.py), operands as written.
+        #   interface         -- EXEC (EXEC DLI) | CALL (CALL 'CBLTDLI' / 'AIBTDLI')
+        #   function          -- the EXEC command (GU / GN / ISRT / SCHD ...); NULL on a
+        #                        CALL, whose code lives in function_operand's VALUE
+        #   pcb / io_area     -- PCB(...) / INTO|FROM, or a CALL's 2nd / 3rd argument
+        #   segments / where_text -- EXEC SEGMENT(...)s (comma) / WHERE(...)s (`;`)
+        #   ssas              -- a CALL's SSA arguments (comma);  psb -- SCHD PSB(...)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS dli_call_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                interface TEXT,
+                function TEXT,
+                function_operand TEXT,
+                pcb TEXT,
+                io_area TEXT,
+                segments TEXT,
+                ssas TEXT,
+                where_text TEXT,
+                psb TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dli_call_file_id ON dli_call_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_dli_call_snapshot ON dli_call_data(repo_name, commit_hash);")
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
@@ -3071,6 +3101,41 @@ class RecordKeeper:
             ("kind", "entry_name", "params", "line_number"),
             "entry_points",
             lambda e: (e.get("kind"), e.get("entry_name"), e.get("params"), int(e.get("line", 0) or 0)),
+        )
+
+        # #3450: IMS DL/I calls -- per-file, like entry_point_data.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "dli_call_data",
+            (
+                "interface",
+                "function",
+                "function_operand",
+                "pcb",
+                "io_area",
+                "segments",
+                "ssas",
+                "where_text",
+                "psb",
+                "line_number",
+            ),
+            "dli_calls",
+            lambda d: (
+                d.get("interface"),
+                d.get("function"),
+                d.get("function_operand"),
+                d.get("pcb"),
+                d.get("io_area"),
+                d.get("segments"),
+                d.get("ssas"),
+                d.get("where"),
+                d.get("psb"),
+                int(d.get("line", 0) or 0),
+            ),
         )
 
         # #3211-followup: the transaction map, resolved cross-file (transid ->

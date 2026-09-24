@@ -1809,6 +1809,7 @@
         "DFHBMSCA"
       ],
       "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": [],
+      "cobol/aws-mainframe-modernization-carddemo/CSLKPCDY.cpy": [],
       "cobol/aws-mainframe-modernization-carddemo/CSMSG01Y.cpy": [],
       "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": [],
       "cobol/aws-mainframe-modernization-carddemo/CSSETATY.cpy": [],
@@ -2447,6 +2448,7 @@
         "LGPOLICY"
       ],
       "cobol/cics-genapp/lgipvs01.cbl": [],
+      "cobol/cics-genapp/lgpolicy.cpy": [],
       "cobol/cics-genapp/lgsetup.cbl": [],
       "cobol/cics-genapp/lgstsq.cbl": [],
       "cobol/cics-genapp/lgtestc1.cbl": [
@@ -2583,7 +2585,6 @@
       "cobol/cobrix/companies_copybook.cpy": [],
       "cobol/cobrix/copybook.cpy": [],
       "cobol/cobrix/copybook_codec.cob": [],
-      "cobol/cobrix/data_types.cpy": [],
       "cobol/cobrix/example_copybook.cpy": [],
       "cobol/cobrix/multisegment.cob": [],
       "cobol/cobrix/raw_file.cob": [],
@@ -2603,15 +2604,12 @@
       "cobol/cobrix/test1_copybook.cob": [],
       "cobol/cobrix/test1a_copybook.cob": [],
       "cobol/cobrix/test21_copybook.cob": [],
-      "cobol/cobrix/test24_copybook.cob": [],
       "cobol/cobrix/test25_copybook.cob": [],
       "cobol/cobrix/test2_copybook.cob": [],
       "cobol/cobrix/test3_copybook.cob": [],
-      "cobol/cobrix/test40_copybook.cob": [],
       "cobol/cobrix/test4_copybook.cob": [],
       "cobol/cobrix/test5_copybook.cob": [],
       "cobol/cobrix/test5d_copybook.cob": [],
-      "cobol/cobrix/test6_copybook.cob": [],
       "cobol/cobrix/test7_fillers.cob": [],
       "cobol/cobrix/test8_copybook.cob": [],
       "cobol/cobrix/test9_copybook.cob": []
@@ -2621,7 +2619,6 @@
       "cobol/gnucobol/COPYING": [],
       "cobol/gnucobol/numeric-display.cob": [],
       "cobol/gnucobol/numeric-dump.cob": [],
-      "cobol/gnucobol/screenio.cpy": [],
       "cobol/gnucobol/sqlca.cpy": [],
       "cobol/gnucobol/sqlda.cpy": [],
       "cobol/gnucobol/tutorial.cob": [
@@ -2687,7 +2684,6 @@
         "tree.h",
         "unistd.h"
       ],
-      "cobol/gnucobol_internals/screenio.cpy": [],
       "cobol/gnucobol_internals/syn_misc.at": []
     },
     "cobol/zopeneditor-sample": {

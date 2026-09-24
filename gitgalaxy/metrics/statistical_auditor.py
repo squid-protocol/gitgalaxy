@@ -303,6 +303,13 @@ class StatisticalAuditor:
                 by_lang[lid] = []
             by_lang[lid].append(artifact)
 
+        # #3417: languages whose imports are source members pasted into the
+        # importer (`imports_are_source_members`: cobol, pli, hlasm, bms).
+        include_langs = {
+            lid: bool(d.get("imports_are_source_members"))
+            for lid, d in (getattr(self, "lang_defs", None) or {}).items()
+        }
+
         # 5. Process each species independently
         for lid, group in by_lang.items():
             if lid in ("undeterminable", "unknown"):
@@ -441,8 +448,20 @@ class StatisticalAuditor:
                 source_proof = telemetry.get("identity_source_proof", artifact.get("source_proof", "Discovery"))
                 confidence = telemetry.get("identity_confidence", artifact.get("intensity", 0.0))
 
+                # #3417: a member another file compiles in (a COBOL copybook,
+                # a PL/I %INCLUDE) is a dependency, not a data dump -- record
+                # layouts and lookup tables are data by design, so zero or low
+                # density is its normal shape. Relegating it dropped the COPY
+                # edge to it (CardDemo COACTUPC -> CSLKPCDY.cpy). Only the two
+                # "too sparse" tests are waived; the packed-payload guard stays.
+                included_member = bool(
+                    include_langs.get(lid) and artifact.get("telemetry", {}).get("popularity", 0) > 0
+                )
+
                 # ZERO-DENSITY THRESHOLD: Hard Floor check for data dumps disguised as code
-                if loc > 50 and rho == 0 and not is_minified:
+                if included_member and rho <= 3.0:
+                    pass
+                elif loc > 50 and rho == 0 and not is_minified:
                     is_outlier = True
                     relegation_reason = f"Zero-Density Threshold (LOC: {loc}, Signals: 0)"
 

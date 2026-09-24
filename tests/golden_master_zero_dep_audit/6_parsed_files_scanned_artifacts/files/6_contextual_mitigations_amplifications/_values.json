@@ -418,6 +418,7 @@
       "cobol/aws-mainframe-modernization-carddemo/COUSR02.CPY": "None Detected",
       "cobol/aws-mainframe-modernization-carddemo/COUSR03.CPY": "None Detected",
       "cobol/aws-mainframe-modernization-carddemo/CSDAT01Y.cpy": "None Detected",
+      "cobol/aws-mainframe-modernization-carddemo/CSLKPCDY.cpy": "None Detected",
       "cobol/aws-mainframe-modernization-carddemo/CSMSG01Y.cpy": "None Detected",
       "cobol/aws-mainframe-modernization-carddemo/CSMSG02Y.cpy": "None Detected",
       "cobol/aws-mainframe-modernization-carddemo/CSUSR01Y.cpy": "None Detected",
@@ -531,6 +532,7 @@
       "cobol/che-che4z_nist_ccvs85/IC4014.2.cbl": "None Detected",
       "cobol/che-che4z_nist_ccvs85/IF4014.2.cbl": "None Detected",
       "cobol/che-che4z_nist_ccvs85/IF4024.2.cbl": "None Detected",
+      "cobol/che-che4z_nist_ccvs85/IF4034.2.cbl": "None Detected",
       "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": "None Detected",
       "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": "None Detected",
       "cobol/che-che4z_nist_ccvs85/LICENSE.md": "None Detected",
@@ -590,6 +592,7 @@
     "cobol/cics-genapp": {
       "cobol/cics-genapp/README.md": "None Detected",
       "cobol/cics-genapp/lgcmarea.cpy": "None Detected",
+      "cobol/cics-genapp/lgpolicy.cpy": "None Detected",
       "cobol/cics-genapp/polloo2.cpy": "None Detected",
       "cobol/cics-genapp/pollook.cpy": "None Detected",
       "cobol/cics-genapp/soaic01.cpy": "None Detected",
@@ -646,7 +649,6 @@
       "cobol/cobrix/companies_copybook.cpy": "None Detected",
       "cobol/cobrix/copybook.cpy": "None Detected",
       "cobol/cobrix/copybook_codec.cob": "None Detected",
-      "cobol/cobrix/data_types.cpy": "None Detected",
       "cobol/cobrix/example_copybook.cpy": "None Detected",
       "cobol/cobrix/multisegment.cob": "None Detected",
       "cobol/cobrix/raw_file.cob": "None Detected",
@@ -666,15 +668,12 @@
       "cobol/cobrix/test1_copybook.cob": "None Detected",
       "cobol/cobrix/test1a_copybook.cob": "None Detected",
       "cobol/cobrix/test21_copybook.cob": "None Detected",
-      "cobol/cobrix/test24_copybook.cob": "None Detected",
       "cobol/cobrix/test25_copybook.cob": "None Detected",
       "cobol/cobrix/test2_copybook.cob": "None Detected",
       "cobol/cobrix/test3_copybook.cob": "None Detected",
-      "cobol/cobrix/test40_copybook.cob": "None Detected",
       "cobol/cobrix/test4_copybook.cob": "None Detected",
       "cobol/cobrix/test5_copybook.cob": "None Detected",
       "cobol/cobrix/test5d_copybook.cob": "None Detected",
-      "cobol/cobrix/test6_copybook.cob": "None Detected",
       "cobol/cobrix/test7_fillers.cob": "None Detected",
       "cobol/cobrix/test8_copybook.cob": "None Detected",
       "cobol/cobrix/test9_copybook.cob": "None Detected"
@@ -683,14 +682,12 @@
       "cobol/gnucobol/COPYING": "None Detected",
       "cobol/gnucobol/numeric-display.cob": "None Detected",
       "cobol/gnucobol/numeric-dump.cob": "None Detected",
-      "cobol/gnucobol/screenio.cpy": "None Detected",
       "cobol/gnucobol/sqlca.cpy": "None Detected",
       "cobol/gnucobol/sqlda.cpy": "None Detected",
       "cobol/gnucobol/xfhfcd.cpy": "None Detected",
       "cobol/gnucobol/xfhfcd3.cpy": "None Detected"
     },
     "cobol/gnucobol_internals": {
-      "cobol/gnucobol_internals/screenio.cpy": "None Detected",
       "cobol/gnucobol_internals/syn_misc.at": "None Detected"
     },
     "cobol/zopeneditor-sample": {

@@ -69,9 +69,34 @@ _NOT_STATEMENTS = frozenset({"INCLUDE", "WHENEVER", "BEGIN", "END"})
 # `FROM` / `JOIN` followed by a table (not a `(` subquery or a table function).
 _FROM = re.compile(r"(?<![A-Z0-9_@#$])(?:FROM|JOIN)[ \t\r\n]{1,200}(?!\()(" + _QNAME + r")", re.I)
 # The rest of a FROM list: `, t2 [AS] b` after the first table and its alias.
+# Words that end a FROM-list entry rather than alias it.
+_ALIAS_STOP = "|".join(
+    (
+        "WHERE",
+        "GROUP",
+        "ORDER",
+        "HAVING",
+        "FETCH",
+        "FOR",
+        "WITH",
+        "UNION",
+        "EXCEPT",
+        "INTERSECT",
+        "JOIN",
+        "INNER",
+        "LEFT",
+        "RIGHT",
+        "FULL",
+        "CROSS",
+        "ON",
+        "OPTIMIZE",
+        "QUERYNO",
+        "SKIP",
+    )
+)
+_S = r"[ \t\r\n]{1,200}"
 _FROM_LIST_NEXT = re.compile(
-    r"(?:[ \t\r\n]{1,200}(?:AS[ \t\r\n]{1,200})?(?!WHERE|GROUP|ORDER|HAVING|FETCH|FOR|WITH|UNION|EXCEPT|"
-    r"INTERSECT|JOIN|INNER|LEFT|RIGHT|FULL|CROSS|ON|OPTIMIZE|QUERYNO|SKIP)[A-Z][A-Z0-9_]{0,127})?"
+    r"(?:" + _S + r"(?:AS" + _S + r")?(?!" + _ALIAS_STOP + r")[A-Z][A-Z0-9_]{0,127})?"
     r"[ \t\r\n]{0,200},[ \t\r\n]{0,200}(?!\()(" + _QNAME + r")",
     re.I,
 )
@@ -84,15 +109,34 @@ _LOCK = re.compile(r"^LOCK[ \t\r\n]{1,200}TABLE[ \t\r\n]{1,200}(" + _QNAME + r")
 _DECLARE_CURSOR = re.compile(
     r"^DECLARE[ \t\r\n]{1,200}([A-Z][A-Z0-9_-]{0,127})[ \t\r\n]{1,200}(?:[A-Z ]{0,60}?)CURSOR\b", re.I
 )
+# What may sit between OPEN/FETCH/CLOSE and the cursor name.
+_FETCH_ORIENTATION = "|".join(
+    (
+        "NEXT",
+        "PRIOR",
+        "FIRST",
+        "LAST",
+        "CURRENT",
+        "FROM",
+        "ROWSET",
+        "STARTING",
+        "AT",
+        "ABSOLUTE",
+        "RELATIVE",
+        r"[+-]?[0-9]{1,9}",
+        r":[A-Z0-9_-]{1,128}",
+    )
+)
 _CURSOR_VERB = re.compile(
-    r"^(OPEN|FETCH|CLOSE)(?:[ \t\r\n]{1,200}(?:NEXT|PRIOR|FIRST|LAST|CURRENT|FROM|ROWSET|STARTING|AT|ABSOLUTE|RELATIVE|[+-]?[0-9]{1,9}|:[A-Z0-9_-]{1,128}))*[ \t\r\n]{1,200}([A-Z][A-Z0-9_-]{0,127})",
+    r"^(OPEN|FETCH|CLOSE)(?:" + _S + r"(?:" + _FETCH_ORIENTATION + r"))*" + _S + r"([A-Z][A-Z0-9_-]{0,127})",
     re.I,
 )
 _WHERE_CURRENT_OF = re.compile(
     r"(?<![A-Z0-9_@#$])WHERE[ \t\r\n]{1,200}CURRENT[ \t\r\n]{1,200}OF[ \t\r\n]{1,200}([A-Z][A-Z0-9_-]{0,127})", re.I
 )
 # A host variable: `:WS-NAME`, `:REC.FIELD`, an indicator `:X:IND` (two hits).
-_HOST_VAR = re.compile(r"(?<![A-Z0-9_@#$-]):[ \t]{0,4}([A-Z][A-Z0-9_-]{0,127}(?:\.[A-Z][A-Z0-9_-]{0,127})?)", re.I)
+_HOST_NAME = r"[A-Z][A-Z0-9_-]{0,127}"
+_HOST_VAR = re.compile(r"(?<![A-Z0-9_@#$-]):[ \t]{0,4}(" + _HOST_NAME + r"(?:\." + _HOST_NAME + r")?)", re.I)
 _WS = re.compile(r"[ \t\r\n]+")
 # SQL keywords that can follow FROM / JOIN in a position the table regex would
 # otherwise read as a name (`FROM FINAL TABLE (...)`, `DELETE FROM` handled apart).

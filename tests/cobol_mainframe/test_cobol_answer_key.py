@@ -1129,3 +1129,52 @@ def test_ims_gen_reader_and_access_check_on_its_own(tmp_path):
     }
     assert ak.ims_gen_keys(ig["RUN.jcl"]["rows"]) == {"L2 REGION name=PGMX access=DLI psb=PSBX program=PGMX"}
     assert ig["PGMX.cbl"]["access_check"] == ["SEGA denied PSBX/XPCB:update"]
+
+
+def test_data_move_reader_and_truncation_on_its_own(tmp_path):
+    """#3452: the key's own data-move reading -- a keyword inside a literal, an
+    EXEC block, STRING delimiters, INVALID KEY -- and its own widths: a group with
+    a COPY spliced in, a REDEFINES skipped, a VALUES continuation line."""
+    (tmp_path / "DATES.cpy").write_text(
+        "           10 WS-DATE.\n"
+        "              20 WS-MM                 PIC X(2).\n"
+        "                 88 WS-VALID-MONTH     VALUES\n"
+        "                                       1 THROUGH 12.\n"
+        "              20 WS-MM-N REDEFINES WS-MM PIC 9(2).\n"
+        "              20 WS-DD                 PIC X(2).\n",
+        encoding="utf-8",
+    )
+    src = (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. MV.\n"
+        "       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n"
+        "       01 WS-AREA.\n"
+        "           COPY DATES.\n"
+        "       01 WS-LONG               PIC X(6).\n"
+        "       01 WS-SHORT              PIC X(3).\n"
+        "       PROCEDURE DIVISION.\n"
+        "           MOVE 'FAILED TO READ' TO WS-LONG.\n"
+        "           EXEC SQL SELECT A INTO :WS-LONG FROM T END-EXEC.\n"
+        "           MOVE WS-LONG TO WS-DATE.\n"
+        "           MOVE WS-LONG TO WS-SHORT.\n"
+        "           STRING WS-MM DELIMITED BY SIZE '/' INTO WS-LONG.\n"
+        "           READ F INVALID KEY MOVE 4 TO WS-SHORT END-READ.\n"
+    )
+    assert all(len(line) <= 72 for line in src.splitlines())
+    (tmp_path / "MV.cbl").write_text(src, encoding="utf-8")
+    entry = ak.draft_data_moves(tmp_path)["MV.cbl"]
+    assert entry["moves"] == [
+        "L10 MOVE 'FAILED TO READ' -> WS-LONG",
+        "L12 MOVE WS-LONG -> WS-DATE",
+        "L13 MOVE WS-LONG -> WS-SHORT",
+        "L14 STRING '/' -> WS-LONG",
+        "L14 STRING WS-MM -> WS-LONG",
+        "L15 MOVE 4 -> WS-SHORT",
+    ]
+    # WS-DATE is 4 bytes (MM + DD; the REDEFINES and the VALUES line add nothing).
+    assert entry["truncations"] == [
+        "L10 'FAILED TO READ' -> WS-LONG",
+        "L12 WS-LONG -> WS-DATE",
+        "L13 WS-LONG -> WS-SHORT",
+    ]

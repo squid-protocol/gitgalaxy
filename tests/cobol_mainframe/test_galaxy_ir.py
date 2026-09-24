@@ -1755,3 +1755,137 @@ def test_a_pre_3477_db_loads_with_no_ims_definitions(ims_gen_scanned, tmp_path):
     ir = load_galaxy_ir(old)
     assert ir.ims_psbs() == {} and ir.ims_databases() == {}
     assert {c["status"] for c in ir.ims_access_check()} == {"no_psb"}
+
+
+# ---- #3452: field-level data movement -----------------------------------------
+LINEAGE_CALLER = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. LCALLER.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT OUT-FILE ASSIGN TO OUTDD.
+       DATA DIVISION.
+       FILE SECTION.
+       FD OUT-FILE.
+       01 OUT-REC.
+          05 OUT-NAME        PIC X(10).
+          05 OUT-AMT         PIC 9(5).
+       WORKING-STORAGE SECTION.
+       01 WS-IN.
+          05 WS-NAME         PIC X(20).
+          05 WS-AMT          PIC 9(5).
+       01 WS-ALT REDEFINES WS-IN.
+          05 WS-ALT-FIRST    PIC X(4).
+          05 FILLER          PIC X(21).
+       01 WS-COPY.
+          05 WS-C-NAME       PIC X(20).
+          05 WS-C-AMT        PIC 9(5).
+       01 WS-SHORT           PIC X(5).
+       01 WS-TOTAL           PIC 9(7).
+       01 PARM-AREA.
+          COPY LPARM.
+       PROCEDURE DIVISION.
+           MOVE WS-IN TO WS-COPY.
+           MOVE WS-C-NAME TO OUT-NAME.
+           MOVE WS-ALT-FIRST TO WS-SHORT.
+           MOVE 'TOO LONG TEXT' TO WS-SHORT.
+           COMPUTE WS-TOTAL = WS-AMT + EIBCALEN.
+           MOVE WS-NAME TO P-NAME OF PARM-AREA.
+           CALL 'LCALLEE' USING PARM-AREA.
+           MOVE NOSUCH-ITEM TO WS-SHORT.
+           COPY LPROC.
+           GOBACK.
+"""
+LINEAGE_CALLEE = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. LCALLEE.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-HOLD            PIC X(20).
+       LINKAGE SECTION.
+       01 LK-AREA.
+          05 LK-NAME         PIC X(20).
+       PROCEDURE DIVISION USING LK-AREA.
+           MOVE LK-NAME TO WS-HOLD.
+           GOBACK.
+"""
+
+
+@pytest.fixture(scope="module")
+def lineage_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_lineage")
+    repo = base / "lineage"
+    files = {
+        "cbl/LCALLER.cbl": LINEAGE_CALLER,
+        "cbl/LCALLEE.cbl": LINEAGE_CALLEE,
+        "cpy/LPARM.cpy": "          05 P-NAME          PIC X(20).\n",
+        "cpy/LPROC.cpy": "           MOVE WS-AMT TO WS-TOTAL.\n",
+    }
+    for rel, text in files.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_data_flows_resolve_storage_and_truncation(lineage_scanned):
+    flows = load_galaxy_ir(lineage_scanned).data_flows()
+    got = {
+        (f["line"], f["copybook"] is not None, f["source"], f["target"]): (
+            f["status"],
+            f["target_span"] and (f["target_span"]["record"], f["target_span"]["offset"], f["target_span"]["bytes"]),
+            f["truncates"],
+        )
+        for f in flows
+        if f["file"] == "cbl/LCALLER.cbl"
+    }
+    assert got == {
+        (28, False, "WS-IN", "WS-COPY"): ("resolved", ("WS-COPY", 0, 25), False),
+        (29, False, "WS-C-NAME", "OUT-NAME"): ("resolved", ("OUT-REC", 0, 10), True),
+        (30, False, "WS-ALT-FIRST", "WS-SHORT"): ("resolved", ("WS-SHORT", 0, 5), False),
+        (31, False, "'TOO LONG TEXT'", "WS-SHORT"): ("resolved", ("WS-SHORT", 0, 5), True),
+        (32, False, "WS-AMT", "WS-TOTAL"): ("resolved", ("WS-TOTAL", 0, 7), None),
+        (32, False, "EIBCALEN", "WS-TOTAL"): ("system", ("WS-TOTAL", 0, 7), None),
+        # P-NAME is qualified by the program's group its copybook expands under.
+        (33, False, "WS-NAME", "P-NAME OF PARM-AREA"): ("resolved", ("PARM-AREA", 0, 20), False),
+        (35, False, "NOSUCH-ITEM", "WS-SHORT"): ("source_unresolved", ("WS-SHORT", 0, 5), None),
+        # The procedure copybook's MOVE, resolved in its includer's storage.
+        (1, True, "WS-AMT", "WS-TOTAL"): ("resolved", ("WS-TOTAL", 0, 7), None),
+    }
+
+
+def test_field_lineage_follows_storage_across_programs(lineage_scanned):
+    ir = load_galaxy_ir(lineage_scanned)
+    hops = ir.field_lineage("cbl/LCALLER.cbl", "WS-NAME")
+    got = [
+        (h["depth"], h["file"].rsplit("/", 1)[-1], h["item"], h["via"] and h["via"]["kind"], h["endpoints"])
+        for h in hops
+    ]
+    assert got == [
+        (0, "LCALLER.cbl", "WS-NAME", None, []),
+        # The group MOVE carries WS-NAME to the same offset of WS-COPY.
+        (1, "LCALLER.cbl", "WS-C-NAME", "move", []),
+        # WS-ALT REDEFINES WS-IN: its first four bytes are WS-NAME's.
+        (1, "LCALLER.cbl", "WS-SHORT", "move", []),
+        (1, "LCALLER.cbl", "P-NAME", "move", []),
+        (2, "LCALLER.cbl", "OUT-NAME", "move", ["file FD OUT-FILE"]),
+        (2, "LCALLEE.cbl", "LK-NAME", "call", []),
+        (3, "LCALLEE.cbl", "WS-HOLD", "move", []),
+    ]
+    back = ir.field_lineage("cbl/LCALLER.cbl", "WS-SHORT", "backward")
+    assert [(h["item"], h["resolved"]) for h in back] == [
+        ("WS-SHORT", True),
+        ("NOSUCH-ITEM", False),  # not declared anywhere: the trail ends in a named stub
+        ("WS-ALT-FIRST", True),
+    ]
+    assert ir.field_lineage("cbl/LCALLER.cbl", "NOSUCH-ITEM") == []
+
+
+def test_a_pre_3452_db_loads_with_no_data_moves(lineage_scanned, tmp_path):
+    old = tmp_path / "old.db"
+    shutil.copy(lineage_scanned, old)
+    with sqlite3.connect(old) as conn:
+        conn.execute("DROP TABLE data_move_data")
+    ir = load_galaxy_ir(old)
+    assert ir.data_flows() == [] and [h["item"] for h in ir.field_lineage("cbl/LCALLER.cbl", "WS-NAME")] == ["WS-NAME"]

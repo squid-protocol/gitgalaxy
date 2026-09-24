@@ -99,6 +99,8 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "IMS segment access": ("dli_calls", "dli_validated"),
     "IMS definitions": ("ims_gen", "ims_gen_validated"),
     "IMS access check": ("ims_gen", "ims_gen_validated"),
+    "data moves": ("data_moves", "data_moves_validated"),
+    "MOVE truncation": ("data_moves", "data_moves_validated"),
 }
 
 

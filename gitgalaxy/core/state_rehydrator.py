@@ -909,6 +909,28 @@ class StateRehydrator:
                     },
                 )
 
+                # #3452: field-level data movement.
+                moves_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "data_move_data",
+                    "SELECT fd.file_path AS _fp, dm.verb, dm.source, dm.source_kind, dm.target, dm.corresponding, "
+                    'dm.source_refmod, dm.target_refmod, dm.line_number AS "line" '
+                    "FROM data_move_data dm JOIN file_data fd ON dm.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY dm.id",
+                    lambda r: {
+                        "verb": r["verb"],
+                        "source": r["source"],
+                        "source_kind": r["source_kind"],
+                        "target": r["target"],
+                        "corresponding": bool(r["corresponding"]),
+                        "source_refmod": bool(r["source_refmod"]),
+                        "target_refmod": bool(r["target_refmod"]),
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
@@ -931,6 +953,7 @@ class StateRehydrator:
                     node["entry_points"] = entry_points_by_file.get(rel_path, [])
                     node["dli_calls"] = dli_by_file.get(rel_path, [])
                     node["ims_gen"] = ims_gen_by_file.get(rel_path, [])
+                    node["data_moves"] = moves_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

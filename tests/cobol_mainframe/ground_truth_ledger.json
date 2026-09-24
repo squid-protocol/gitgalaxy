@@ -260,6 +260,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "MOVE truncation": {
+          "engine": {
+            "got": 82,
+            "tp": 82,
+            "truth": 82
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "MQ calls": {
           "engine": {
             "got": 22,
@@ -327,6 +336,15 @@
             "truth": 253
           },
           "truth": "cross_verified"
+        },
+        "data moves": {
+          "engine": {
+            "got": 5171,
+            "tp": 5171,
+            "truth": 5171
+          },
+          "forge": null,
+          "truth": "draft"
         },
         "dead": {
           "engine": {
@@ -1054,6 +1072,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "MOVE truncation": {
+          "engine": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "MQ calls": {
           "engine": null,
           "forge": null,
@@ -1117,6 +1144,15 @@
             "truth": 114
           },
           "truth": "cross_verified"
+        },
+        "data moves": {
+          "engine": {
+            "got": 5179,
+            "tp": 5179,
+            "truth": 5179
+          },
+          "forge": null,
+          "truth": "draft"
         },
         "dead": {
           "engine": {
@@ -1362,6 +1398,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "MOVE truncation": {
+          "engine": {
+            "got": 9,
+            "tp": 9,
+            "truth": 9
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "MQ calls": {
           "engine": null,
           "forge": null,
@@ -1421,6 +1466,15 @@
             "truth": 14
           },
           "truth": "cross_verified"
+        },
+        "data moves": {
+          "engine": {
+            "got": 323,
+            "tp": 323,
+            "truth": 323
+          },
+          "forge": null,
+          "truth": "draft"
         },
         "dead": {
           "engine": {

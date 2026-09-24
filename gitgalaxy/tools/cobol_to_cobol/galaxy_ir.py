@@ -103,6 +103,13 @@
 # (ims_gen_data, per EngineFile.ims_gen); GalaxyIR.ims_access_check joins each
 # program's segment access to its PSB (the DFSRRC00 PARM, or an EXEC DLI SCHD
 # PSB), the PCB whose SENSEGs include the segment, that PCB's DBD and PROCOPT.
+# Since #3452, field-level data movement (data_move_data, per
+# EngineFile.data_moves): GalaxyIR.data_flows resolves each MOVE / COMPUTE /
+# STRING ... operand to its storage span (record, offset, bytes -- so group moves
+# and REDEFINES overlays meet by storage, not by name), and field_lineage follows
+# a field through the program, across CALL USING / COMMAREA storage, to the
+# channel endpoints (FD records, SQL host variables, DL/I I/O areas, CICS
+# FILE / MAP / QUEUE / CONTAINER records).
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -658,6 +665,21 @@ class EngineDliCall:
 
 
 @dataclass
+class EngineDataMove:
+    """One source -> target pair of a data-moving statement (#3452), from
+    `data_move_data` (see core/data_moves.py for the verbs and operand forms)."""
+
+    verb: str
+    source: Optional[str]
+    source_kind: Optional[str]
+    target: str
+    corresponding: bool
+    source_refmod: bool
+    target_refmod: bool
+    line: int
+
+
+@dataclass
 class EngineImsGen:
     """One IMS PSB / DBD macro statement or JCL IMS region step (#3477), from
     `ims_gen_data` (see core/ims_gen.py for the kinds)."""
@@ -707,6 +729,7 @@ class EngineFile:
     entry_points: list = field(default_factory=list)  # EngineEntryPoint, source order, #3454
     dli_calls: list = field(default_factory=list)  # EngineDliCall, source order, #3450
     ims_gen: list = field(default_factory=list)  # EngineImsGen, source order, #3477
+    data_moves: list = field(default_factory=list)  # EngineDataMove, source order, #3452
 
     @property
     def is_program(self) -> bool:
@@ -2515,6 +2538,352 @@ class GalaxyIR:
                     e["pcbs"].add(c["pcb"])
         return [dict(e, accesses=sorted(e["accesses"]), pcbs=sorted(e["pcbs"])) for _, e in sorted(by.items())]
 
+    # ---- #3452: field-level data movement --------------------------------------
+    def _storage_spans(self, ef: EngineFile) -> dict:
+        """id(EngineDataItem) -> (record key, offset, bytes, one occurrence's bytes) for every item program
+        `ef` can see, COPY-expanded: its own 01 / 77 records, then the records of
+        the copybooks it COPYs that no own record already reached. The record key
+        is (defining file, root name). A REDEFINES item takes the offset of the
+        item it overlays; bytes is None when a width inside is unknown. Cached."""
+        cache = self.__dict__.setdefault("_span_cache", {})
+        if ef.file_path in cache:
+            return cache[ef.file_path]
+        spans: dict = {}
+        paths: dict = {}  # id(item) -> the names of its storage ancestors, innermost first
+        items: dict = {}  # record key -> [(offset, bytes, depth, name)]
+
+        def walk(
+            owner: EngineFile, it: EngineDataItem, key: tuple, offset: int, depth: int, ext: Optional[list], path: tuple
+        ):
+            if it.level in (66, 88) or depth > 12:
+                return 0
+            times = it.occurs_max or 1
+            kids = [] if _is_elementary(it) else self._expanded_children(owner, it, ef, depth)
+            if ext:
+                kids = kids + list(ext)
+            if kids:
+                size: Optional[int] = 0
+                at: dict = {}
+                for kid_file, kid in kids:
+                    if kid_file is None:
+                        size = None
+                        continue
+                    if kid.level in (66, 88):
+                        continue
+                    if kid.redefines:
+                        base = at.get(kid.redefines.upper())
+                        at_base = base if base is not None else offset + (size or 0)
+                        walk(kid_file, kid, key, at_base, depth + 1, None, (it.name, *path))
+                        continue
+                    at[kid.name.upper()] = offset + (size or 0)
+                    width = walk(kid_file, kid, key, offset + (size or 0), depth + 1, None, (it.name, *path))
+                    size = None if size is None or width is None else size + width
+                total = None if size is None else size * times
+            else:
+                width = _elementary_bytes(it)
+                total = None if width is None else width * times
+            # One occurrence's width rides along: a subscripted reference moves one.
+            spans[id(it)] = (key, offset, total, None if total is None else total // times)
+            paths[id(it)] = path
+            items.setdefault(key, []).append((offset, total, len(path), it.name))
+            return total
+
+        for root in ef.records:
+            if id(root) not in spans:
+                # `01 B REDEFINES A` overlays record A: same storage, same record key.
+                walk(ef, root, (ef.file_path, root.redefines or root.name), 0, 0, None, ())
+        for path in ef.copy_deps:
+            cb = self.files.get(path)
+            if cb is None:
+                continue
+            roots = [r for r in cb.records if r.level not in (66, 88)]
+            for root in roots:
+                if id(root) not in spans:
+                    ext = self._copy_extension(ef, cb) if roots[-1:] == [root] else None
+                    walk(cb, root, (cb.file_path, root.name), 0, 0, ext, ())
+        cache[ef.file_path] = spans
+        self.__dict__.setdefault("_span_paths", {})[ef.file_path] = paths
+        self.__dict__.setdefault("_span_items", {})[ef.file_path] = items
+        return spans
+
+    def _name_at(self, file_path: str, span: dict) -> Optional[str]:
+        """The most specific item of program `file_path` at `span`: the deepest one
+        with exactly its offset and width, else the smallest one containing it."""
+        self._storage_spans(self.files[file_path])
+        entries = self.__dict__["_span_items"][file_path].get((span["record_file"], span["record"]), [])
+        exact = [e for e in entries if e[0] == span["offset"] and e[1] == span["bytes"]]
+        if exact:
+            return max(exact, key=lambda e: e[2])[3]
+        end = span["offset"] + (span["bytes"] or 1)
+        inside = [e for e in entries if e[1] is not None and e[0] <= span["offset"] and end <= e[0] + e[1]]
+        return min(inside, key=lambda e: (e[1], -e[2]))[3] if inside else None
+
+    def _operand_span(self, ef: EngineFile, operand: Optional[str]) -> tuple[Optional[dict], str]:
+        """(span, status) of one data-name operand as seen from `ef`: span is
+        {record, record_file, offset, bytes (the whole table for an OCCURS item),
+        occurrence_bytes, item, item_class (_item_class, or group)}, status resolved | unresolved | ambiguous (several
+        items answer to the name and its qualifiers) | system (an unresolved name
+        the runtime supplies: EIB / DIB / SQLCA fields, DFH constants, special
+        registers)."""
+        if not operand:
+            return None, "unresolved"
+        parts = operand.upper().split(" OF ")
+        spans = self._storage_spans(ef)
+        paths = self.__dict__["_span_paths"][ef.file_path]
+        found = self._find_item(ef, parts[0], None)
+        if len(parts) > 1:
+            # Qualifiers are matched against the STORAGE ancestors, so a copybook
+            # item expanded under the program's own group (`01 DFHCOMMAREA.` + `COPY
+            # PAYDBCR.`) answers to that group, which its copybook never names. Every
+            # same-named item is a candidate, the program's own and each copybook's.
+            owners = [ef] + [self.files[p] for p in ef.copy_deps if p in self.files]
+            found = [
+                (o, it, None)
+                for o in owners
+                for it in o.data_items
+                if it.name == parts[0] and it.level not in (66, 88) and _in_order(parts[1:], paths.get(id(it), ()))
+            ]
+        if not found:
+            return None, ("system" if _SYSTEM_NAME.match(parts[0]) else "unresolved")
+        hits = {spans[id(it)]: it for _, it, _ in found if id(it) in spans}
+        if len(hits) != 1:
+            return None, ("ambiguous" if len(hits) > 1 else "unresolved")
+        (key, offset, size, unit), item = next(iter(hits.items()))
+        span = {"record": key[1], "record_file": key[0], "offset": offset, "bytes": size, "item": parts[0]}
+        cls = _item_class(item) if _is_elementary(item) else "group"
+        return dict(span, occurrence_bytes=unit, item_class=cls), "resolved"
+
+    def data_flows(self, language: str = "cobol") -> list:
+        """Every data move (#3452) with both operands resolved to storage.
+
+        A copybook of procedure statements (`COPY CSUTLDPY.` in the PROCEDURE
+        DIVISION) acts on its includer's data, so its moves are resolved once per
+        including program, with `file` the program and `copybook` the member
+        (None for a program's own statements; `line` is the member's line).
+
+        One entry per source -> target pair: `file`, `copybook`, `line`, `verb`, `source`,
+        `source_kind`, `target`, `corresponding`, `source_span` / `target_span`
+        ({record, record_file, offset, bytes, item}, None when not an item or not
+        resolved), `status` -- resolved | source_unresolved | target_unresolved |
+        ambiguous | system (an operand is a runtime-supplied name) -- and `truncates`: True when a MOVE into an alphanumeric or group
+        target is shorter than its item or literal source (no reference
+        modification), False when it is not, None when that cannot be told (a
+        numeric target, an unknown width)."""
+        out = []
+        includers: dict = {}
+        for f in self.files.values():
+            for dep in f.copy_deps:
+                includers.setdefault(dep, []).append(f)
+        scopes = []  # (the program whose storage resolves the names, the statement's file)
+        for g in sorted(self.files.values(), key=lambda x: x.file_path):
+            if g.language != language or not g.data_moves:
+                continue
+            if g.is_program or not includers.get(g.file_path):
+                scopes.append((g, g))
+            else:  # a copybook of procedure statements acts on each includer's data
+                scopes.extend((h, g) for h in sorted(includers[g.file_path], key=lambda x: x.file_path))
+        for f, home in sorted(scopes, key=lambda x: (x[0].file_path, x[1] is not x[0], x[1].file_path)):
+            for m in home.data_moves:
+                target, t_status = self._operand_span(f, m.target)
+                source, s_status = self._operand_span(f, m.source) if m.source_kind == "item" else (None, "resolved")
+                status = "resolved"
+                if "ambiguous" in (t_status, s_status):
+                    status = "ambiguous"
+                elif s_status == "unresolved":
+                    status = "source_unresolved"
+                elif t_status == "unresolved":
+                    status = "target_unresolved"
+                elif "system" in (t_status, s_status):
+                    status = "system"
+                truncates = None
+                if (
+                    m.verb == "MOVE"
+                    and target
+                    and target["occurrence_bytes"]
+                    and not (m.source_refmod or m.target_refmod)
+                ):
+                    t_class = target["item_class"]
+                    s_bytes = source["occurrence_bytes"] if source else (
+                        len(m.source) - 2 if m.source_kind == "literal" and (m.source or "")[:1] in "'\"" else None
+                    )  # fmt: skip
+                    if t_class in ("X", "group") and s_bytes and not m.corresponding:
+                        truncates = s_bytes > target["occurrence_bytes"]
+                out.append(
+                    {
+                        "file": f.file_path,
+                        "copybook": None if home is f else home.file_path,
+                        "line": m.line,
+                        "verb": m.verb,
+                        "source": m.source,
+                        "source_kind": m.source_kind,
+                        "target": m.target,
+                        "corresponding": m.corresponding,
+                        "source_span": source,
+                        "target_span": target,
+                        "status": status,
+                        "truncates": truncates,
+                    }
+                )
+        return out
+
+    def _lineage_endpoints(self, ef: EngineFile) -> list:
+        """(span, endpoint label) pairs of program `ef`: FD records, SQL host
+        variables, DL/I I/O areas, and CICS FILE / MAP / QUEUE / CONTAINER records."""
+        out = []
+        for root in ef.records:
+            if root.fd_name:
+                span, _ = self._operand_span(ef, root.name)
+                if span:
+                    out.append((span, f"file FD {root.fd_name}"))
+        for st in ef.sql_statements:
+            for hv in st.host_variables if isinstance(st.host_variables, list) else []:
+                parts = hv.lstrip(":").split(":")[0].split(".")  # :GROUP.ITEM:INDICATOR
+                span, _ = self._operand_span(ef, " OF ".join(reversed(parts)))
+                if span:
+                    out.append((span, f"sql {st.verb} {st.table or '-'}"))
+        for d in ef.dli_calls:
+            if d.io_area:
+                span, _ = self._operand_span(ef, d.io_area)
+                if span:
+                    out.append((span, f"ims {d.function or d.function_operand} {d.segments or d.ssas or '-'}"))
+        for op in ef.cics_resources:
+            if op.record and op.kind in ("FILE", "MAP", "QUEUE", "CONTAINER"):
+                span, _ = self._operand_span(ef, op.record)
+                if span:
+                    out.append((span, f"cics {op.kind} {op.name or op.operand or '-'} {op.access}"))
+        return out
+
+    def field_lineage(self, file_path: str, item: str, direction: str = "forward", max_hops: int = 400) -> list:
+        """Where the data in `item` of program `file_path` goes (`forward`) or comes
+        from (`backward`), following storage, not names (#3452).
+
+        A MOVE of a group carries a field inside it to the same offset of the
+        target, so a field moved as part of a record keeps its identity; every
+        other statement (COMPUTE, STRING, arithmetic, a reference-modified MOVE)
+        taints the whole target. Across programs, a CALL USING argument and its
+        callee parameter, and a COMMAREA record and the callee's DFHCOMMAREA, are
+        the same storage. Each hop: `file`, `record`, `record_file`, `offset`,
+        `bytes`, `depth`, `via` ({kind: move|call|commarea, verb, line, file} of
+        the edge that reached it; None for the start), `item` (the most specific
+        data item at that storage), `endpoints` (labels of the channel endpoints
+        whose storage overlaps it) and `resolved`. A move whose other operand is not
+        declared in the repository (a generated BMS symbolic map, an EIB field)
+        ends the trail in a hop with `resolved` False, `item` that name and no
+        storage. Returns [] when `item` does not resolve."""
+        ef = self.files.get(file_path)
+        if ef is None:
+            return []
+        start, _ = self._operand_span(ef, item)
+        if start is None:
+            return []
+        forward = direction == "forward"
+
+        def overlap(a: dict, b: dict) -> bool:
+            if (a["record_file"], a["record"]) != (b["record_file"], b["record"]):
+                return False
+            a_end = a["offset"] + (a["bytes"] or 1)
+            b_end = b["offset"] + (b["bytes"] or 1)
+            return a["offset"] < b_end and b["offset"] < a_end
+
+        def carried(node: dict, whole_from: dict, to: dict) -> dict:
+            """`node`'s slice of `whole_from` at the same offset inside `to`."""
+            if whole_from["bytes"] is None or node["bytes"] is None:
+                return dict(to)
+            lo = max(node["offset"], whole_from["offset"]) - whole_from["offset"]
+            hi = min(node["offset"] + node["bytes"], whole_from["offset"] + whole_from["bytes"]) - whole_from["offset"]
+            if to["bytes"] is not None and lo >= to["bytes"]:
+                return dict(to)
+            size = hi - lo if to["bytes"] is None else min(hi, to["bytes"]) - lo
+            return dict(to, offset=to["offset"] + lo, bytes=max(size, 1))
+
+        flows: dict = {}
+        for fl in self.data_flows():
+            if fl["source_span"] or fl["target_span"]:
+                flows.setdefault(fl["file"], []).append(fl)
+        # file -> [(this side span, other file, other side span, via)]: the shared
+        # storage of a CALL USING BY REFERENCE / COMMAREA, walked both ways.
+        links: dict = {}
+        for c in self.call_contracts():
+            if c.get("status") != "paired" or not c.get("callee"):
+                continue
+            caller, callee = self.files.get(c["caller"]), self.files.get(c["callee"])
+            if caller is None or callee is None:
+                continue
+            for a in c.get("args", []):
+                arg, param = a.get("argument") or "", a.get("parameter") or ""
+                by_ref = ":" not in arg
+                a_span, _ = self._operand_span(caller, arg.split(":")[-1])
+                p_span, _ = self._operand_span(callee, param.split(":")[-1])
+                if not (a_span and p_span):
+                    continue
+                via = {"kind": "call", "verb": "CALL", "line": c["line"], "file": c["caller"]}
+                links.setdefault(c["caller"], []).append((a_span, c["callee"], p_span, via))
+                if by_ref:  # BY CONTENT / VALUE storage does not come back
+                    links.setdefault(c["callee"], []).append((p_span, c["caller"], a_span, via))
+        for c in self.commarea_contracts():
+            if c.get("status") != "paired" or not c.get("commarea"):
+                continue
+            caller, callee = self.files.get(c["caller"]), self.files.get(c["callee"])
+            if caller is None or callee is None:
+                continue
+            a_span, _ = self._operand_span(caller, c["commarea"])
+            p_span, _ = self._operand_span(callee, "DFHCOMMAREA")
+            if a_span and p_span:
+                via = {"kind": "commarea", "verb": c["verb"], "line": c["line"], "file": c["caller"]}
+                links.setdefault(c["caller"], []).append((a_span, c["callee"], p_span, via))
+                links.setdefault(c["callee"], []).append((p_span, c["caller"], a_span, via))
+        endpoints: dict = {}
+
+        def tag(file: str, span: dict) -> list:
+            if file not in endpoints:
+                endpoints[file] = self._lineage_endpoints(self.files[file])
+            return sorted({label for sp, label in endpoints[file] if overlap(sp, span)})
+
+        def key(file: str, span: dict) -> tuple:
+            return (file, span["record_file"], span["record"], span["offset"], span["bytes"])
+
+        start = {k: start[k] for k in ("record", "record_file", "offset", "bytes", "item")}
+        hops = [dict(start, file=file_path, depth=0, via=None, endpoints=tag(file_path, start), resolved=True)]
+        seen = {key(file_path, start)}
+        queue = [hops[0]]
+        while queue and len(hops) < max_hops:
+            node = queue.pop(0)
+            nxt = []
+            for fl in flows.get(node["file"], []):
+                src, dst = (fl["source_span"], fl["target_span"]) if forward else (fl["target_span"], fl["source_span"])
+                if src is None or not overlap(src, node):
+                    continue
+                via = {"kind": "move", "verb": fl["verb"], "line": fl["line"], "file": node["file"]}
+                if dst is None:
+                    # The other operand is a name this repository does not declare (a
+                    # generated symbolic map, a system field): the trail ends there.
+                    name = fl["target"] if forward else fl["source"]
+                    if (forward or fl["source_kind"] == "item") and (node["file"], None, name) not in seen:
+                        seen.add((node["file"], None, name))
+                        hops.append(
+                            {"record": None, "record_file": None, "offset": None, "bytes": None, "item": name,
+                             "file": node["file"], "depth": node["depth"] + 1, "via": via, "endpoints": [],
+                             "resolved": False}
+                        )  # fmt: skip
+                    continue
+                exact = fl["verb"] == "MOVE" and not fl["corresponding"] and fl["source_kind"] == "item"
+                span = carried(node, src, dst) if exact else dict(dst)
+                nxt.append((node["file"], span, via))
+            for this, other, that, via in links.get(node["file"], []):
+                if overlap(this, node):
+                    nxt.append((other, carried(node, this, that), via))
+            for file, span, via in nxt:
+                span = {k: span.get(k) for k in ("record", "record_file", "offset", "bytes", "item")}
+                k = key(file, span)
+                if k in seen:
+                    continue
+                seen.add(k)
+                span["item"] = self._name_at(file, span) or span["item"]
+                hop = dict(span, file=file, depth=node["depth"] + 1, via=via, endpoints=tag(file, span), resolved=True)
+                hops.append(hop)
+                queue.append(hop)
+        return hops
+
     def ims_psbs(self) -> dict:
         """PSB name -> {`file`, `pcbs`: [{`pcb`, `type`, `dbd`, `procopt`, `sensegs`
         (segment names)}]} from the PSBGEN sources (#3477)."""
@@ -2672,6 +3041,24 @@ def _pic_positions(pic: str) -> Optional[list]:
 # a group, even with a USAGE of its own (`01 X USAGE DISPLAY.` applies to its
 # children) -- and even when the engine read a stray USAGE into it.
 _PICLESS_USAGES = ("COMP-1", "COMPUTATIONAL-1", "COMP-2", "COMPUTATIONAL-2", "POINTER", "INDEX")
+
+
+# #3452: data names the runtime supplies, never declared in the repository: the
+# CICS EIB and IMS DIB fields, the SQLCA, the DFHBMSCA / DFHAID constants, and
+# the COBOL special registers.
+_SYSTEM_NAME = re.compile(
+    r"(?:EIB|DIB|DFH)[A-Z0-9-]*$|SQL(?:CODE|STATE|ERRM|ERRMC|ERRML|ERRD|ERRP|WARN[0-9A]?|CA|EXT)$"
+    r"|(?:RETURN-CODE|SORT-RETURN|TALLY|WHEN-COMPILED|DEBUG-ITEM|XML-CODE|JSON-CODE)$"
+)
+
+
+def _in_order(wanted: list, path: tuple) -> bool:
+    """Every name of `wanted` appears in `path`, in the same (outward) order."""
+    at = 0
+    for name in path:
+        if at < len(wanted) and name == wanted[at]:
+            at += 1
+    return at == len(wanted)
 
 
 def _is_elementary(item: EngineDataItem) -> bool:
@@ -3157,6 +3544,26 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         line=int(row[13] or 0),
                     )
                 )
+        # #3452: field-level data movement. A pre-#3452 database has none.
+        if _has_table(cur, "data_move_data"):
+            for row in cur.execute(
+                "SELECT file_id, verb, source, source_kind, target, corresponding, source_refmod, target_refmod, "
+                "line_number FROM data_move_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] in by_id:
+                    by_id[row[0]].data_moves.append(
+                        EngineDataMove(
+                            verb=row[1] or "",
+                            source=row[2],
+                            source_kind=row[3],
+                            target=row[4] or "",
+                            corresponding=bool(row[5]),
+                            source_refmod=bool(row[6]),
+                            target_refmod=bool(row[7]),
+                            line=int(row[8] or 0),
+                        )
+                    )
         # #3477: IMS PSB / DBD macros and region steps. A pre-#3477 database has none.
         if _has_table(cur, "ims_gen_data"):
             for row in cur.execute(

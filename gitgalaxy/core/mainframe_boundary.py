@@ -85,6 +85,7 @@ from gitgalaxy.core.bms_screen_fields import bms_screen_fields
 from gitgalaxy.core.call_using import blank_stream, call_using_args, entry_points
 from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_resources
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
+from gitgalaxy.core.data_moves import data_moves
 from gitgalaxy.core.db2_declare_table import extract_sql_tables
 from gitgalaxy.core.db2_sql_statements import extract_sql_statements
 from gitgalaxy.core.dli_calls import extract_dli_calls
@@ -122,6 +123,11 @@ _COBOL_AREA_A = r"^(?:[0-9a-zA-Z \t]{6}[ \-]?)?[ \t]*"
 # buffer it is handed -- without it the entry above a blank line was invisible,
 # which lost all 124 of CBSA's `VALUE`-resolved LINK targets.
 _LEVEL_START = re.compile(_COBOL_AREA_A + r"(\d{1,2})[ \t]+([A-Z][A-Z0-9-]*)(?![A-Z0-9-])", re.I | re.M)
+
+# The period that ends a data description entry (not a decimal point), and an
+# entry left open mid VALUE list (#3452).
+_ENTRY_END = re.compile(r"\.(?=[ \t\n]|$)")
+_OPEN_VALUE_LIST = re.compile(r"(?:(?<![A-Z0-9-])VALUES?(?:[ \t]+(?:IS|ARE))?|,)[ \t\n]*$", re.I)
 
 # A data description entry runs to the next level number. Capped so the last
 # entry before PROCEDURE DIVISION cannot swallow the procedure body and read a
@@ -702,7 +708,20 @@ def _cobol_records(code_stream: str) -> list[dict[str, Any]]:
                 fd_name = fds[f_idx][1]
         return section, fd_name
 
-    entries = list(_LEVEL_START.finditer(code_stream))
+    # A level-number-looking line that continues an unfinished entry's VALUE
+    # list is not a new item -- carddemo CSUTLDWY's `88 WS-VALID-MONTH VALUES` +
+    # `1 THROUGH 12.` (#3452). Only a clear continuation is skipped (a THRU range,
+    # or an entry left open after VALUE(S) or a comma): a missing period alone
+    # still starts a new entry, as genapp's `03 CA-CUSPOL-REQUEST` + `05 ...`.
+    unquoted = re.sub(r"'[^'\n]*'|\"[^\"\n]*\"", lambda m: " " * len(m.group(0)), code_stream)
+    entries: list[re.Match] = []
+    for m in _LEVEL_START.finditer(code_stream):
+        if entries and not _ENTRY_END.search(unquoted, entries[-1].end(), m.start()):
+            if m.group(2).upper() in ("THRU", "THROUGH") or _OPEN_VALUE_LIST.search(
+                unquoted, entries[-1].end(), m.start()
+            ):
+                continue
+        entries.append(m)
     records: list[dict[str, Any]] = []
     stack: list[tuple[int, int]] = []  # (level, ordinal) of the open group items
     last_item_ordinal: Optional[int] = None
@@ -1911,6 +1930,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     condition / abend / AID handlers, explicit ABENDs and RESP checks.
     #3455: cobol also carries `file_control` (each SELECT's organisation, access
     mode and keys) and jcl `vsam_defines` (IDCAMS DEFINE CLUSTER / AIX / PATH).
+    #3452: cobol also carries `data_moves` -- one source -> target pair per MOVE /
+    COMPUTE / ADD / SUBTRACT / MULTIPLY / DIVIDE / STRING / UNSTRING / INITIALIZE.
     #3477: hlasm carries `ims_gen` (IMS PSB / DBD macros) and jcl adds the IMS
     region steps (DFSRRC00 PARM) to it.
     #3451: jcl also carries `job_flow` -- job / step order, COND / IF conditions,
@@ -1936,6 +1957,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "mq_calls": _mq_calls(code_stream, values),  # #3447
             "uow_handlers": _uow_handlers(code_stream, values),  # #3453
             "file_control": cobol_file_control(code_stream),  # #3455
+            "data_moves": data_moves(code_stream),  # #3452
         }
     if dialect == "jcl":
         boundary = _jcl_boundary(code_stream)

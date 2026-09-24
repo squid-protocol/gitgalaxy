@@ -474,6 +474,15 @@ class AuditRecorder:
                 }
                 for g in gen
             ]
+        moves = file_data.get("data_moves") or []
+        if moves:
+            # #3452: field-level data movement, one compact line per source -> target pair.
+            block["Data Moves"] = [
+                f"L{m.get('line', 0)} {m.get('verb')}{' CORR' if m.get('corresponding') else ''} "
+                f"{m.get('source') or '-'}{'(:)' if m.get('source_refmod') else ''} -> "
+                f"{m.get('target')}{'(:)' if m.get('target_refmod') else ''}"
+                for m in moves
+            ]
         return block
 
     def generate_report(

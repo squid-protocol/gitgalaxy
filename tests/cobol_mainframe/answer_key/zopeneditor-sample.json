@@ -8091,5 +8091,59 @@
   "job_submissions": {},
   "mq_calls": {},
   "uow_handlers": {},
-  "tdq_triggers": {}
+  "tdq_triggers": {},
+  "section_census": [
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "COBOL/SAM1.cbl",
+        "COBOL/SAM1LIB.cbl",
+        "COBOL/SAM2.cbl",
+        "COPYBOOK/CUSTCOPY.cpy",
+        "COPYBOOK/TRANREC.cpy",
+        "COPYLIB-MVS/REPTTOTL.cpy",
+        "COPYLIB/DATETIME.cpy",
+        "multiroot/copybooks/cust/CUSTCOPY.cpy",
+        "multiroot/copybooks/trans/SAM2PAR5.cpy",
+        "multiroot/copybooks/trans/SAM2PARM.cpy",
+        "multiroot/copybooks/trans/TRANREC.cpy",
+        "multiroot/sam/SAM1.cbl",
+        "multiroot/sam/SAM2.cbl"
+      ],
+      "wide": true,
+      "tasks": {
+        "sql": {
+          "agree": 0,
+          "asked": 0
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
+        },
+        "jobs": {
+          "agree": 0,
+          "asked": 0
+        },
+        "triggers": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    }
+  ]
 }

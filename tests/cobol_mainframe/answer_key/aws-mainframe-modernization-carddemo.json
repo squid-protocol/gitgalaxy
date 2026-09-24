@@ -90381,10 +90381,16 @@
         "insert CARDDEMO.AUTHFRDS",
         "update CARDDEMO.AUTHFRDS"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-transaction-type-db2/cbl/COBTUPDT.cbl": {
@@ -90393,10 +90399,16 @@
         "insert CARDDEMO.TRANSACTION_TYPE",
         "update CARDDEMO.TRANSACTION_TYPE"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-transaction-type-db2/cbl/COTRTLIC.cbl": {
@@ -90405,10 +90417,16 @@
         "read CARDDEMO.TRANSACTION_TYPE",
         "update CARDDEMO.TRANSACTION_TYPE"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-transaction-type-db2/cbl/COTRTUPC.cbl": {
@@ -90418,20 +90436,32 @@
         "read CARDDEMO.TRANSACTION_TYPE",
         "update CARDDEMO.TRANSACTION_TYPE"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy": {
       "accesses": [
         "read SYSIBM.SYSDUMMY1"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     }
   },
@@ -90452,10 +90482,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-vsam-mq/cbl/COACCT01.cbl": {
@@ -90474,10 +90510,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-vsam-mq/cbl/CODATE01.cbl": {
@@ -90496,10 +90538,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     }
   },
@@ -90509,20 +90557,32 @@
         "tdq JOBS -> JOB TRNRPT00",
         "tdq JOBS -> PROC TRANREPT = app/proc/TRANREPT.prc"
       ],
-      "submissions_validated": false,
+      "submissions_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/jcl/INTRDRJ1.JCL": {
       "submissions": [
         "intrdr SYSUT2 -> JOB INTRDRJ2 = app/jcl/INTRDRJ2.JCL"
       ],
-      "submissions_validated": false,
+      "submissions_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     }
   },
@@ -90566,10 +90626,16 @@
           "line": 956
         }
       ],
-      "mq_validated": false,
+      "mq_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-vsam-mq/cbl/COACCT01.cbl": {
@@ -90656,10 +90722,16 @@
           "line": 602
         }
       ],
-      "mq_validated": false,
+      "mq_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-vsam-mq/cbl/CODATE01.cbl": {
@@ -90746,10 +90818,16 @@
           "line": 506
         }
       ],
-      "mq_validated": false,
+      "mq_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     }
   },
@@ -90845,10 +90923,16 @@
           "line": 1001
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
@@ -90909,10 +90993,16 @@
           "line": 920
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl": {
@@ -90962,10 +91052,16 @@
           "line": 566
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl": {
@@ -90993,10 +91089,16 @@
           "line": 95
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-transaction-type-db2/cbl/COTRTLIC.cbl": {
@@ -91057,10 +91159,16 @@
           "line": 1909
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-transaction-type-db2/cbl/COTRTUPC.cbl": {
@@ -91176,10 +91284,16 @@
           "line": 1695
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-vsam-mq/cbl/COACCT01.cbl": {
@@ -91218,10 +91332,16 @@
           "line": 396
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/app-vsam-mq/cbl/CODATE01.cbl": {
@@ -91249,10 +91369,16 @@
           "line": 275
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COACTUPC.cbl": {
@@ -91423,10 +91549,16 @@
           "line": 4222
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COACTVWC.cbl": {
@@ -91531,10 +91663,16 @@
           "line": 934
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COADM01C.cbl": {
@@ -91562,10 +91700,16 @@
           "line": 194
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COBIL00C.cbl": {
@@ -91648,10 +91792,16 @@
           "line": 512
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COCRDLIC.cbl": {
@@ -91745,10 +91895,16 @@
           "line": 1322
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COCRDSLC.cbl": {
@@ -91842,10 +91998,16 @@
           "line": 875
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COCRDUPC.cbl": {
@@ -91961,10 +92123,16 @@
           "line": 1550
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COMEN01C.cbl": {
@@ -91992,10 +92160,16 @@
           "line": 227
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/CORPT00C.cbl": {
@@ -92023,10 +92197,16 @@
           "line": 598
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COSGN00C.cbl": {
@@ -92054,10 +92234,16 @@
           "line": 211
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COTRN00C.cbl": {
@@ -92107,10 +92293,16 @@
           "line": 660
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COTRN01C.cbl": {
@@ -92138,10 +92330,16 @@
           "line": 269
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COTRN02C.cbl": {
@@ -92213,10 +92411,16 @@
           "line": 713
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COUSR00C.cbl": {
@@ -92266,10 +92470,16 @@
           "line": 655
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COUSR01C.cbl": {
@@ -92297,10 +92507,16 @@
           "line": 240
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COUSR02C.cbl": {
@@ -92339,10 +92555,16 @@
           "line": 360
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "app/cbl/COUSR03C.cbl": {
@@ -92381,12 +92603,284 @@
           "line": 307
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     }
   },
-  "tdq_triggers": {}
+  "tdq_triggers": {},
+  "section_census": [
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+        "app/app-vsam-mq/cbl/COACCT01.cbl",
+        "app/cbl/COACTUPC.cbl",
+        "app/cbl/COCRDUPC.cbl"
+      ],
+      "wide": true,
+      "tasks": {
+        "sql": {
+          "agree": 4,
+          "asked": 4
+        },
+        "tasks": {
+          "agree": 2,
+          "asked": 2
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 13,
+          "asked": 13
+        },
+        "uow": {
+          "agree": 46,
+          "asked": 46
+        },
+        "jobs": {
+          "agree": 2,
+          "asked": 4
+        },
+        "triggers": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {
+        "jobs:app/jcl/INTRDRJ1.JCL::INTRDR DD -> JOB INTRDRJ2 = APP/JCL/INTRDRJ2.JCL": {
+          "verdict": "key_correct",
+          "why": "INTRDRJ1.JCL:18 is `//SYSUT2 DD SYSOUT=(A,INTRDR)`: the DD routed to the internal reader is SYSUT2. The reviewer wrote the brief's placeholder `DD` in place of the ddname (the brief now says <ddname>); the job (INTRDRJ2) and its path agree."
+        },
+        "jobs:app/jcl/INTRDRJ1.JCL::INTRDR SYSUT2 -> JOB INTRDRJ2 = APP/JCL/INTRDRJ2.JCL": {
+          "verdict": "key_correct",
+          "why": "INTRDRJ1.JCL:18 is `//SYSUT2 DD SYSOUT=(A,INTRDR)`: the DD routed to the internal reader is SYSUT2. The reviewer wrote the brief's placeholder `DD` in place of the ddname (the brief now says <ddname>); the job (INTRDRJ2) and its path agree."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 2,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+        "app/app-vsam-mq/cbl/CODATE01.cbl",
+        "app/cbl/COACTVWC.cbl",
+        "app/cbl/COBIL00C.cbl",
+        "app/cbl/COCRDLIC.cbl",
+        "app/cbl/COCRDSLC.cbl",
+        "app/cbl/COTRN02C.cbl"
+      ],
+      "wide": false,
+      "tasks": {
+        "sql": {
+          "agree": 3,
+          "asked": 3
+        },
+        "tasks": {
+          "agree": 1,
+          "asked": 1
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 9,
+          "asked": 9
+        },
+        "uow": {
+          "agree": 47,
+          "asked": 51
+        }
+      },
+      "rulings": {
+        "uow:app/cbl/COACTVWC.cbl::L264 HANDLE_ABEND HANDLE ABEND C=- T=- TK=ABEND-ROUTINE V=LABEL A=-": {
+          "verdict": "key_correct",
+          "why": "COACTVWC.cbl:264-265 is EXEC CICS HANDLE ABEND LABEL(ABEND-ROUTINE): target ABEND-ROUTINE, target_kind LABEL, no RESP field. The reviewer put the label in target_kind and LABEL in resp_var; it is the same fact shifted one field."
+        },
+        "uow:app/cbl/COACTVWC.cbl::L264 HANDLE_ABEND HANDLE ABEND C=- T=ABEND-ROUTINE TK=LABEL V=- A=-": {
+          "verdict": "key_correct",
+          "why": "COACTVWC.cbl:264-265 is EXEC CICS HANDLE ABEND LABEL(ABEND-ROUTINE): target ABEND-ROUTINE, target_kind LABEL, no RESP field. The reviewer put the label in target_kind and LABEL in resp_var; it is the same fact shifted one field."
+        },
+        "uow:app/cbl/COCRDSLC.cbl::L250 HANDLE_ABEND HANDLE ABEND C=- T=- TK=ABEND-ROUTINE V=LABEL A=-": {
+          "verdict": "key_correct",
+          "why": "COCRDSLC.cbl:250 is EXEC CICS HANDLE ABEND LABEL(ABEND-ROUTINE): target ABEND-ROUTINE, target_kind LABEL. The reviewer shifted the label into target_kind and LABEL into resp_var; same fact."
+        },
+        "uow:app/cbl/COCRDSLC.cbl::L250 HANDLE_ABEND HANDLE ABEND C=- T=ABEND-ROUTINE TK=LABEL V=- A=-": {
+          "verdict": "key_correct",
+          "why": "COCRDSLC.cbl:250 is EXEC CICS HANDLE ABEND LABEL(ABEND-ROUTINE): target ABEND-ROUTINE, target_kind LABEL. The reviewer shifted the label into target_kind and LABEL into resp_var; same fact."
+        }
+      }
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 3,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL",
+        "app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy",
+        "app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/CCPAUERY.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/CCPAURLY.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/CCPAURQY.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/IMSFUNCS.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY",
+        "app/app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY",
+        "app/app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY",
+        "app/app-transaction-type-db2/cbl/COBTUPDT.cbl",
+        "app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy",
+        "app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy",
+        "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy",
+        "app/cbl/COADM01C.cbl",
+        "app/cbl/COMEN01C.cbl",
+        "app/cbl/CORPT00C.cbl",
+        "app/cbl/COSGN00C.cbl",
+        "app/cbl/COTRN00C.cbl",
+        "app/cbl/COTRN01C.cbl",
+        "app/cbl/COUSR00C.cbl",
+        "app/cbl/COUSR01C.cbl",
+        "app/cbl/COUSR02C.cbl",
+        "app/cbl/COUSR03C.cbl"
+      ],
+      "wide": false,
+      "tasks": {
+        "sql": {
+          "agree": 6,
+          "asked": 6
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 33,
+          "asked": 33
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 4,
+      "files": [
+        "app/app-transaction-type-db2/cpy/CSDB2RWY.cpy",
+        "app/cbl/CBACT01C.cbl",
+        "app/cbl/CBACT02C.cbl",
+        "app/cbl/CBACT03C.cbl",
+        "app/cbl/CBACT04C.cbl",
+        "app/cbl/CBCUS01C.cbl",
+        "app/cbl/CBEXPORT.cbl",
+        "app/cbl/CBIMPORT.cbl",
+        "app/cbl/CBSTM03A.CBL",
+        "app/cbl/CBSTM03B.CBL",
+        "app/cbl/CBTRN01C.cbl",
+        "app/cbl/CBTRN02C.cbl",
+        "app/cbl/CBTRN03C.cbl",
+        "app/cbl/COBSWAIT.cbl",
+        "app/cbl/CSUTLDTC.cbl",
+        "app/cpy-bms/COACTUP.CPY",
+        "app/cpy-bms/COACTVW.CPY",
+        "app/cpy-bms/COADM01.CPY",
+        "app/cpy-bms/COBIL00.CPY",
+        "app/cpy-bms/COCRDLI.CPY",
+        "app/cpy-bms/COCRDSL.CPY",
+        "app/cpy-bms/COCRDUP.CPY",
+        "app/cpy-bms/COMEN01.CPY",
+        "app/cpy-bms/CORPT00.CPY",
+        "app/cpy-bms/COSGN00.CPY",
+        "app/cpy-bms/COTRN00.CPY",
+        "app/cpy-bms/COTRN01.CPY",
+        "app/cpy-bms/COTRN02.CPY",
+        "app/cpy-bms/COUSR00.CPY",
+        "app/cpy-bms/COUSR01.CPY",
+        "app/cpy-bms/COUSR02.CPY",
+        "app/cpy-bms/COUSR03.CPY",
+        "app/cpy/COADM02Y.cpy",
+        "app/cpy/COCOM01Y.cpy",
+        "app/cpy/CODATECN.cpy",
+        "app/cpy/COMEN02Y.cpy",
+        "app/cpy/COSTM01.CPY",
+        "app/cpy/COTTL01Y.cpy",
+        "app/cpy/CSDAT01Y.cpy",
+        "app/cpy/CSLKPCDY.cpy",
+        "app/cpy/CSMSG01Y.cpy",
+        "app/cpy/CSMSG02Y.cpy",
+        "app/cpy/CSSETATY.cpy",
+        "app/cpy/CSSTRPFY.cpy",
+        "app/cpy/CSUSR01Y.cpy",
+        "app/cpy/CSUTLDPY.cpy",
+        "app/cpy/CSUTLDWY.cpy",
+        "app/cpy/CUSTREC.cpy",
+        "app/cpy/CVACT01Y.cpy",
+        "app/cpy/CVACT02Y.cpy",
+        "app/cpy/CVACT03Y.cpy",
+        "app/cpy/CVCRD01Y.cpy",
+        "app/cpy/CVCUS01Y.cpy",
+        "app/cpy/CVEXPORT.cpy",
+        "app/cpy/CVTRA01Y.cpy",
+        "app/cpy/CVTRA02Y.cpy",
+        "app/cpy/CVTRA03Y.cpy",
+        "app/cpy/CVTRA04Y.cpy",
+        "app/cpy/CVTRA05Y.cpy",
+        "app/cpy/CVTRA06Y.cpy",
+        "app/cpy/CVTRA07Y.cpy",
+        "app/cpy/UNUSED1Y.cpy"
+      ],
+      "wide": false,
+      "tasks": {
+        "sql": {
+          "agree": 0,
+          "asked": 0
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    }
+  ]
 }

@@ -15,6 +15,7 @@ extraction accuracy comes from the ledger's scoreboard, never from "the output l
 | `tests/tools/cobol_answer_key.py` | the key's **own** reader (draft / add-* / score / sample). It never imports the engine or the forge; a runtime test enforces this |
 | `tests/tools/ground_truth_ledger.py` + `ground_truth_ledger.json` | every engine/forge disagreement with the key → cause → kind (`defect` or `deliberate`) → issue |
 | `tests/tools/cross_verify.py` | blind second reviewer: `brief` / `census` → `grade` → `sign`, plus `coverage` |
+| `tests/tools/cross_verify_sections.py` | the same blind census for the per-file fact-channel sections (SQL access, CICS tasks, MQ, units of work, job submissions, TD triggers): every COBOL file asked, empty ones too; signing sets each section's `*_validated` flag and `cross_verified` tier |
 | `.github/workflows/mainframe-ground-truth.yml` | every PR: fetch, scan, score and `check`; also runs `tests/cobol_mainframe/` with the corpora present |
 | `.github/workflows/answer-key-guard.yml` | flags PRs that change a key or the ledger, with a semantic diff of what moved |
 
@@ -76,6 +77,7 @@ python tests/tools/cross_verify.py coverage --corpus <c>        # must reach 100
 - **Rulings.** Rule `key_fixed` (the key was wrong: fix it and its reader, with a test) or `key_correct` (the reviewer was wrong, with the source evidence). `sign` refuses while anything is unruled or a `key_fixed` item still disagrees.
 - **Structural reachability.** Reachability is **structural**: every condition may go either way, with no value analysis. A reviewer's data-flow argument is `key_correct` (the INQACCCU AH999 precedent).
 - **Grader normalisations**, which are not key errors: CICS program names are blank-padded to 8 (`'INQCUST '`); a subscripted table operand (`X(WS-OPTION)`) is the table `X`.
+- **Section census.** `cross_verify_sections.py census --corpus <c> --out <dir> --stage <dir>/src`, one reviewer per batch, then `grade` / `sign` / `coverage`. Before spending reviewers, prove the canonical forms round-trip: a reviewer built from the key's own rows must grade 0 disagreements. Reviewer slips seen so far and how they were handled: a null `verb` on a kind that fixes it (normalised in the grader), a value shifted into the next field and a brief placeholder copied literally (both ruled `key_correct` with the source line). Word the brief's templates with `<angle>` placeholders.
 - **Census gate.** `test_small_corpus_keys_are_fully_censused` fails for any program lacking `verification.census`. Small corpora are censused; for a corpus too large to census, use sampled confidence (rule of three, reset per category on each `key_fixed`) and add a matching gate.
 
 ## COBOL reader traps that have bitten every reader (the key's, the forge's and the engine's)

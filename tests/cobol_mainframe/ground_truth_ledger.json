@@ -155,7 +155,7 @@
             "truth": 3
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CSD resources": {
           "engine": {
@@ -173,7 +173,7 @@
             "truth": 13
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table columns": {
           "engine": {
@@ -213,7 +213,7 @@
             "truth": 22
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "PL/I record fields": {
           "engine": null,
@@ -232,7 +232,7 @@
             "truth": 0
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "call targets": {
           "engine": {
@@ -337,7 +337,7 @@
             "truth": 3
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "outputs": {
           "engine": {
@@ -398,7 +398,7 @@
             "truth": 128
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         }
       }
     },
@@ -893,7 +893,7 @@
             "truth": 24
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CSD resources": {
           "engine": {
@@ -911,7 +911,7 @@
             "truth": 24
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "DB2 table columns": {
           "engine": {
@@ -966,7 +966,7 @@
             "truth": 5
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "call targets": {
           "engine": {
@@ -1128,7 +1128,7 @@
             "truth": 245
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         }
       }
     },

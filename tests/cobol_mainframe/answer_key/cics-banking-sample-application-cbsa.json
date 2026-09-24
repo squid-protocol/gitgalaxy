@@ -60878,10 +60878,16 @@
       "accesses": [
         "read ACCOUNT"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/BANKDATA.cbl": {
@@ -60891,10 +60897,16 @@
         "insert ACCOUNT",
         "insert CONTROL"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CREACC.cbl": {
@@ -60904,20 +60916,32 @@
         "read CONTROL",
         "update CONTROL"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRECUST.cbl": {
       "accesses": [
         "insert PROCTRAN"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/DBCRFUN.cbl": {
@@ -60926,10 +60950,16 @@
         "read ACCOUNT",
         "update ACCOUNT"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/DELACC.cbl": {
@@ -60938,40 +60968,64 @@
         "insert PROCTRAN",
         "read ACCOUNT"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/DELCUS.cbl": {
       "accesses": [
         "insert PROCTRAN"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/INQACC.cbl": {
       "accesses": [
         "read ACCOUNT"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/INQACCCU.cbl": {
       "accesses": [
         "read ACCOUNT"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/UPDACC.cbl": {
@@ -60979,10 +61033,16 @@
         "read ACCOUNT",
         "update ACCOUNT"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/XFRFUN.cbl": {
@@ -60991,10 +61051,16 @@
         "read ACCOUNT",
         "update ACCOUNT"
       ],
-      "sql_access_validated": false,
+      "sql_access_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     }
   },
@@ -61015,10 +61081,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRDTAGY2.cbl": {
@@ -61037,10 +61109,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRDTAGY3.cbl": {
@@ -61059,10 +61137,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRDTAGY4.cbl": {
@@ -61081,10 +61165,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRDTAGY5.cbl": {
@@ -61103,10 +61193,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CREACC.cbl": {
@@ -61137,10 +61233,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRECUST.cbl": {
@@ -61249,10 +61351,16 @@
         "RUN OCR4",
         "RUN OCR5"
       ],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CUSTCTRL.cbl": {
@@ -61271,10 +61379,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/DELCUS.cbl": {
@@ -61305,10 +61419,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/INQCUST.cbl": {
@@ -61363,10 +61483,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/XFRFUN.cbl": {
@@ -61397,10 +61523,16 @@
         }
       ],
       "children": [],
-      "cics_tasks_validated": false,
+      "cics_tasks_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     }
   },
@@ -61421,10 +61553,16 @@
           "line": 141
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/BANKDATA.cbl": {
@@ -61463,10 +61601,16 @@
           "line": 1375
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/BNK1CAC.cbl": {
@@ -61571,10 +61715,16 @@
           "line": 1274
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/BNK1CCA.cbl": {
@@ -61679,10 +61829,16 @@
           "line": 928
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/BNK1CCS.cbl": {
@@ -61886,10 +62042,16 @@
           "line": 1652
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/BNK1CRA.cbl": {
@@ -61994,10 +62156,16 @@
           "line": 950
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/BNK1DAC.cbl": {
@@ -62113,10 +62281,16 @@
           "line": 1133
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/BNK1DCS.cbl": {
@@ -62320,10 +62494,16 @@
           "line": 2045
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/BNK1TFN.cbl": {
@@ -62428,10 +62608,16 @@
           "line": 976
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/BNK1UAC.cbl": {
@@ -62547,10 +62733,16 @@
           "line": 1381
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/BNKMENU.cbl": {
@@ -62721,10 +62913,16 @@
           "line": 1286
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRDTAGY1.cbl": {
@@ -62774,10 +62972,16 @@
           "line": 225
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRDTAGY2.cbl": {
@@ -62827,10 +63031,16 @@
           "line": 225
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRDTAGY3.cbl": {
@@ -62880,10 +63090,16 @@
           "line": 224
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRDTAGY4.cbl": {
@@ -62933,10 +63149,16 @@
           "line": 227
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRDTAGY5.cbl": {
@@ -62986,10 +63208,16 @@
           "line": 227
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CREACC.cbl": {
@@ -63094,10 +63322,16 @@
           "line": 1088
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CRECUST.cbl": {
@@ -63246,10 +63480,16 @@
           "line": 1340
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/CUSTCTRL.cbl": {
@@ -63277,10 +63517,16 @@
           "line": 178
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/DBCRFUN.cbl": {
@@ -63374,10 +63620,16 @@
           "line": 834
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/DELACC.cbl": {
@@ -63405,10 +63657,16 @@
           "line": 612
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/DELCUS.cbl": {
@@ -63491,10 +63749,16 @@
           "line": 726
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/INQACC.cbl": {
@@ -63599,10 +63863,16 @@
           "line": 932
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/INQACCCU.cbl": {
@@ -63762,10 +64032,16 @@
           "line": 818
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/INQCUST.cbl": {
@@ -63925,10 +64201,16 @@
           "line": 656
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/UPDCUST.cbl": {
@@ -63956,10 +64238,16 @@
           "line": 294
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     },
     "src/base/cobol_src/XFRFUN.cbl": {
@@ -64339,12 +64627,282 @@
           "line": 1899
         }
       ],
-      "uow_validated": false,
+      "uow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        },
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)"
       }
     }
   },
-  "tdq_triggers": {}
+  "tdq_triggers": {},
+  "section_census": [
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "src/base/cobol_src/ABNDPROC.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ],
+      "wide": true,
+      "tasks": {
+        "sql": {
+          "agree": 4,
+          "asked": 4
+        },
+        "tasks": {
+          "agree": 10,
+          "asked": 10
+        },
+        "children": {
+          "agree": 5,
+          "asked": 5
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 48,
+          "asked": 48
+        },
+        "jobs": {
+          "agree": 0,
+          "asked": 0
+        },
+        "triggers": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 2,
+      "files": [
+        "src/base/cobol_copy/ABNDINFO.cpy",
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQCUST.cbl"
+      ],
+      "wide": false,
+      "tasks": {
+        "sql": {
+          "agree": 3,
+          "asked": 3
+        },
+        "tasks": {
+          "agree": 4,
+          "asked": 4
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 58,
+          "asked": 58
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 3,
+      "files": [
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/INQACCCU.cbl"
+      ],
+      "wide": false,
+      "tasks": {
+        "sql": {
+          "agree": 5,
+          "asked": 5
+        },
+        "tasks": {
+          "agree": 2,
+          "asked": 2
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 58,
+          "asked": 58
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 4,
+      "files": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACC.cbl"
+      ],
+      "wide": false,
+      "tasks": {
+        "sql": {
+          "agree": 6,
+          "asked": 6
+        },
+        "tasks": {
+          "agree": 2,
+          "asked": 2
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 55,
+          "asked": 55
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 5,
+      "files": [
+        "src/base/cobol_copy/ACCDB2.cpy",
+        "src/base/cobol_copy/ACCOUNT.cpy",
+        "src/base/cobol_copy/ACCTCTRL.cpy",
+        "src/base/cobol_copy/BANKMAP.cpy",
+        "src/base/cobol_copy/BNK1DDM.cpy",
+        "src/base/cobol_copy/CONTDB2.cpy",
+        "src/base/cobol_copy/CONTROLI.cpy",
+        "src/base/cobol_copy/CREACC.cpy",
+        "src/base/cobol_copy/CRECUST.cpy",
+        "src/base/cobol_copy/CUSTCTRL.cpy",
+        "src/base/cobol_copy/CUSTMAP.cpy",
+        "src/base/cobol_copy/CUSTOMER.cpy",
+        "src/base/cobol_copy/DELACC.cpy",
+        "src/base/cobol_copy/DELACCZ.cpy",
+        "src/base/cobol_copy/DELCUS.cpy",
+        "src/base/cobol_copy/GETCOMPY.cpy",
+        "src/base/cobol_copy/GETSCODE.cpy",
+        "src/base/cobol_copy/INQACC.cpy",
+        "src/base/cobol_copy/INQACCCU.cpy",
+        "src/base/cobol_copy/INQACCCZ.cpy",
+        "src/base/cobol_copy/INQACCZ.cpy",
+        "src/base/cobol_copy/INQCUST.cpy",
+        "src/base/cobol_src/ACCTCTRL.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CUSTCTRL.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/UPDACC.cbl",
+        "src/base/cobol_src/UPDCUST.cbl"
+      ],
+      "wide": false,
+      "tasks": {
+        "sql": {
+          "agree": 6,
+          "asked": 6
+        },
+        "tasks": {
+          "agree": 6,
+          "asked": 6
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 26,
+          "asked": 26
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 6,
+      "files": [
+        "src/base/cobol_copy/INQCUSTZ.cpy",
+        "src/base/cobol_copy/NEWACCNO.cpy",
+        "src/base/cobol_copy/NEWCUSNO.cpy",
+        "src/base/cobol_copy/PAYDBCR.cpy",
+        "src/base/cobol_copy/PROCDB2.cpy",
+        "src/base/cobol_copy/PROCISRT.cpy",
+        "src/base/cobol_copy/PROCTRAN.cpy",
+        "src/base/cobol_copy/RESPSTR.cpy",
+        "src/base/cobol_copy/SORTCODE.cpy",
+        "src/base/cobol_copy/STCUSTNO.cpy",
+        "src/base/cobol_copy/UPDACC.cpy",
+        "src/base/cobol_copy/UPDCUST.cpy",
+        "src/base/cobol_copy/WAZI.cpy",
+        "src/base/cobol_copy/XFRFUN.cpy",
+        "src/base/cobol_src/GETCOMPY.cbl",
+        "src/base/cobol_src/GETSCODE.cbl"
+      ],
+      "wide": false,
+      "tasks": {
+        "sql": {
+          "agree": 0,
+          "asked": 0
+        },
+        "tasks": {
+          "agree": 0,
+          "asked": 0
+        },
+        "children": {
+          "agree": 0,
+          "asked": 0
+        },
+        "mq": {
+          "agree": 0,
+          "asked": 0
+        },
+        "uow": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    }
+  ]
 }

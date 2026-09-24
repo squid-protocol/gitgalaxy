@@ -158,7 +158,7 @@ def extract_transactions(repo: Path) -> dict[str, set[str]]:
         if not path.is_file() or ".git" in path.parts:
             continue
         suffix = path.suffix.lower()
-        if suffix == ".csd":
+        if suffix in (".csd", ".rdo"):  # #3495: `.rdo` is a DFHCSDUP member too
             _add(_deck_transactions(path.read_text(encoding="utf-8", errors="ignore")))
         elif suffix == ".jcl":
             text = path.read_text(encoding="utf-8", errors="ignore")

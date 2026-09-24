@@ -64,8 +64,10 @@ DEFINITION: dict[str, Any] = {
     # (aws-mainframe-modernization-carddemo, cics-banking-sample-application-cbsa).
     # It is not a contested extension in the wild, so no COLLISION_FREQUENCIES
     # entry is needed; the internal_discriminator below still locks a `.csd` that
-    # a future collision might contest.
-    "extensions": [".csd"],
+    # a future collision might contest. #3495: `.rdo` is the other name a DFHCSDUP
+    # input member goes by (walmartlabs/zECS `Source/CSDZECS.rdo`, the SYSIN member
+    # of its CSDZECS.jcl); no other language claims it.
+    "extensions": [".csd", ".rdo"],
     "exact_matches": [],
     # ECOSYSTEM ANCHORS: a CSD deck lives beside the COBOL programs it names, the
     # BMS maps its MAPSETs assemble, and the JCL that runs DFHCSDUP to install it.

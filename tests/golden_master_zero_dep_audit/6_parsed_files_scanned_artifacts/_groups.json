@@ -4455,20 +4455,20 @@
         "Cognitive Load Exposure": "7.29%",
         "Commented Logic Exposure": "2.93%",
         "Concurrency Exposure": "8.24%",
-        "Documentation Exposure": "0.0%",
+        "Documentation Exposure": "100.0%",
         "Error & Exception Exposure": "76.83%",
         "Hardcoded Payload Artifacts": "0.0%",
         "Instability Exposure": "50.0%",
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "0.0%",
-        "Tech Debt Exposure": "0.0%",
-        "Testing Exposure": "2.3%",
+        "Tech Debt Exposure": "17.27%",
+        "Testing Exposure": "2.39%",
         "Volatility Exposure": "0.0%"
       },
-      "Directory Group Magnitude": 48.84,
+      "Directory Group Magnitude": 78.04,
       "Ecosystem Fingerprint (Archetypes)": {
-        "file_cluster_12": "50.0%",
-        "file_cluster_7": "50.0%"
+        "file_cluster_1": "50.0%",
+        "file_cluster_9": "50.0%"
       },
       "File Count": 2,
       "Files": [

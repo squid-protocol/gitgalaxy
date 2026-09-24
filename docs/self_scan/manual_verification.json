@@ -107,11 +107,11 @@
   },
   "hlasm": {
    "function": {
-    "note": "Verified against the pinned language-crucible v1.4.0 corpus by the three-way method in the tri-comparison-ledger-sweep skill (gg-only: no tree-sitter, no ctags). (1) real pipeline DB (galaxyscope --db-only): struct_func_start == function_count == 1 on every file, so neither prism.py's comment splitter nor detector.py's Mode A (_slice_by_labels) body-slicing drops or corrupts a match. (2) GitGalaxy's own func_start (NAME CSECT/RSECT/START) regex cross-checked against an independent second parse of the raw source -- EXACT match, 1 == 1, zero false positives, zero false negatives. One control section across the 18-file corpus; the rest are macro/copy members with no CSECT/RSECT/START. The class panel is a genuine absence (0): the corpus contains no NAME DSECT line.",
-    "total": 1,
-    "verified": 1,
-    "verified_at": "2026-09-22",
-    "verified_by": "Claude Opus 4.8"
+    "note": "Re-verified against language-crucible v1.5.0 after gitgalaxy#3495 made `name DFHEIENT` (the command-level CICS entry macro, which generates the program's CSECT) a program entry. gg-only, three-way method. (1) real pipeline DB: struct_func_start == function_count on every file (3). (2) An independent parse of the raw source (`NAME CSECT|RSECT|START|DFHEIENT`, column-1 `*` / `.*` comments dropped) matches EXACTLY, 3 == 3: zopeneditor_sample ASAM1 (CSECT) and walmartlabs/zECS ZECS002 + ZECSNC (DFHEIENT). Zero false positives or negatives.",
+    "total": 3,
+    "verified": 3,
+    "verified_at": "2026-09-24",
+    "verified_by": "Claude Opus 5.5"
    },
    "class": {
     "note": "First verification, against language-crucible v1.5.0 (data/hlasm/zecs adds two production EXEC CICS programs from walmartlabs/zECS). struct_class_start == class_count == 4, and an independent `NAME DSECT` parse of the raw source matches EXACTLY: DFHEISTG + DFHCA in each of ZECS002.asm and ZECSNC.asm. Zero false positives or negatives. (Their DFHEIENT program entries do not form function units, a recall gap tracked on gitgalaxy#3495; the function total is unchanged at 1.)",

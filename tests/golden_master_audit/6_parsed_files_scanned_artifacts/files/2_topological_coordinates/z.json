@@ -935,8 +935,8 @@
       "cobol/cics-genapp/soavpio.cpy": 2175.72
     },
     "cobol/cics-java-jcics-samples": {
-      "cobol/cics-java-jcics-samples/EC01.cbl": 6954.34,
-      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": 6995.17
+      "cobol/cics-java-jcics-samples/EC01.cbl": 8463.63,
+      "cobol/cics-java-jcics-samples/EDUCHAN.cbl": 8504.46
     },
     "cobol/cobol-check": {
       "cobol/cobol-check/TESTPRG.CBL": -2981.25,
@@ -1742,8 +1742,8 @@
       "hlasm/che4z_hlasm/virtual_file.hlasm": -4524.83
     },
     "hlasm/zecs": {
-      "hlasm/zecs/ZECS002.asm": -6978.46,
-      "hlasm/zecs/ZECSNC.asm": -6665.31
+      "hlasm/zecs/ZECS002.asm": 6797.22,
+      "hlasm/zecs/ZECSNC.asm": 7115.98
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": 8415.24,
@@ -1823,7 +1823,7 @@
       "html/polyglot_odoo/database_manager.qweb.html": -8260.61
     },
     "html/polyglot_vscode": {
-      "html/polyglot_vscode/vscode_builtin.html": 7315.52
+      "html/polyglot_vscode/vscode_builtin.html": 7321.65
     },
     "html/revealjs_decks": {
       "html/revealjs_decks/500-slides.html": -8554.7,
@@ -3631,8 +3631,8 @@
       "td/tensorflow/compiler/mlir/tfrt/tf_mlrt_tpu_ops.td": -8169.54
     },
     "td/tensorflow/core/ir": {
-      "td/tensorflow/core/ir/dialect.td": 8414.26,
-      "td/tensorflow/core/ir/ops.td": 8219.9
+      "td/tensorflow/core/ir/dialect.td": -6869.01,
+      "td/tensorflow/core/ir/ops.td": -7063.36
     },
     "text": {
       "text/SOURCES.md": 2239.37

@@ -4236,6 +4236,42 @@
         }
       ]
     },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECS002.asm": [
+        {
+          "Access": "write",
+          "Attributes": null,
+          "Candidates": null,
+          "Kind": "QUEUE",
+          "Line": 296,
+          "Name": "@tdq@",
+          "Operand": "'@tdq@'",
+          "Qualifier": "TD",
+          "Qualifier Operand": null,
+          "Record": "TD_DATA",
+          "Record Clause": "FROM",
+          "Resolution": "literal",
+          "Verb": "WRITEQ"
+        }
+      ],
+      "hlasm/zecs/ZECSNC.asm": [
+        {
+          "Access": "write",
+          "Attributes": null,
+          "Candidates": null,
+          "Kind": "QUEUE",
+          "Line": 219,
+          "Name": "@tdq@",
+          "Operand": "'@tdq@'",
+          "Qualifier": "TD",
+          "Qualifier Operand": null,
+          "Record": "TD_DATA",
+          "Record Clause": "FROM",
+          "Resolution": "literal",
+          "Verb": "WRITEQ"
+        }
+      ]
+    },
     "pli/dsf_cics_admin": {
       "pli/dsf_cics_admin/R0010301.pli": [
         {

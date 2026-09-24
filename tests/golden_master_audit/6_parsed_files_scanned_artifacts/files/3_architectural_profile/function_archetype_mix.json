@@ -5427,8 +5427,12 @@
       "hlasm/che4z_hlasm/virtual_file.hlasm": {}
     },
     "hlasm/zecs": {
-      "hlasm/zecs/ZECS002.asm": {},
-      "hlasm/zecs/ZECSNC.asm": {}
+      "hlasm/zecs/ZECS002.asm": {
+        "I/O & Config Routines": 1
+      },
+      "hlasm/zecs/ZECSNC.asm": {
+        "I/O & Config Routines": 1
+      }
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": {

@@ -312345,8 +312345,36 @@
       "hlasm/che4z_hlasm/virtual_file.hlasm": []
     },
     "hlasm/zecs": {
-      "hlasm/zecs/ZECS002.asm": [],
-      "hlasm/zecs/ZECSNC.asm": []
+      "hlasm/zecs/ZECS002.asm": [
+        {
+          "Control Flow Branches": 19,
+          "Control Flow Ratio": "13.0%",
+          "End Line": 401,
+          "Function Name": "ZECS002",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 334,
+          "Reflection Hits": 0,
+          "Start Line": 68,
+          "Structural Impact": 36.7
+        }
+      ],
+      "hlasm/zecs/ZECSNC.asm": [
+        {
+          "Control Flow Branches": 11,
+          "Control Flow Ratio": "15.9%",
+          "End Line": 300,
+          "Function Name": "ZECSNC",
+          "Input Parameters": 0,
+          "Is Documented": 0,
+          "Is Public": 0,
+          "Lines of Code (LOC)": 210,
+          "Reflection Hits": 0,
+          "Start Line": 91,
+          "Structural Impact": 22.5
+        }
+      ]
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": [

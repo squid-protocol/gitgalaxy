@@ -125,6 +125,13 @@ def _numeric_checks(window: str, var: str) -> list[str]:
                     break
             elif depth == 1 and w.group(2):
                 found.append(int(w.group(2)))
+    # #3495: the assembler forms. `OC v,v` ORs the field with itself only to set the
+    # condition code from it -- a test for zero, NORMAL (walmartlabs/zECS
+    # `OC EIBRESP,EIBRESP  Normal response?`); `CLC v,=F'n'` / `=AL4(n)` compares by number.
+    sym = r"(?<![A-Z0-9@#$_-])"
+    if re.search(rf"{sym}OC[ \t]+{name},{name}(?![A-Z0-9@#$_-])", window, re.I):
+        found.append(0)
+    found += [int(m.group(1)) for m in re.finditer(rf"{sym}CLC[ \t]+{name},=(?:F'|AL4\()([0-9]{{1,4}})", window, re.I)]
     return [_RESP_CODES.get(n, str(n)) for n in found]
 
 

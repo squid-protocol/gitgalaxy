@@ -98,6 +98,8 @@ _HLASM_SIMPLE_CASES = [
     ("func_start", "ACCTPGM  CSECT", "         CSECT"),
     ("func_start", "SUBSECT  RSECT", "WSAREA   DSECT"),
     ("func_start", "PGMSTART START 0", "RESTART  LA    1,4"),
+    # #3495: a command-level CICS program's entry macro generates its CSECT.
+    ("func_start", "ZECS002  DFHEIENT CODEREG=(R12),DATAREG=R10", "         DFHEIRET RCREG=R15"),
     ("class_start", "WSAREA   DSECT", "ACCTPGM  CSECT"),
     # ESTAE 0 CANCELS the handler -- Rule 15's documented exclusion.
     ("safety", "         ESTAEX RTNADDR", "         ESTAEX 0"),

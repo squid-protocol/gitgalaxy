@@ -2120,17 +2120,17 @@
         "cognitive_load": 7.29,
         "concurrency": 8.24,
         "dead_code": 2.93,
-        "documentation": 0.0,
+        "documentation": 100.0,
         "safety_score": 76.83,
         "secrets_risk": 0.0,
         "spec_match": 0.0,
         "stability": 50.0,
         "state_flux": 0.0,
-        "tech_debt": 0.0,
-        "verification": 2.3
+        "tech_debt": 17.27,
+        "verification": 2.39
       },
       "file_count": 2,
-      "total_mass": 48.84
+      "total_mass": 78.04
     },
     "hlasm/zopeneditor_sample": {
       "avg_exposures": {

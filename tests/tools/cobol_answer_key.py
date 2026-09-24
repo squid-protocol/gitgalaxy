@@ -1575,7 +1575,7 @@ def draft_jcl(repo: Path) -> dict[str, dict[str, Any]]:
 # engine tracks quotes anywhere in a value and bounds its scan. It shares the
 # engine's CONTRACT (which operand feeds which key column) and none of its code,
 # so an agreement is evidence and a disagreement is a finding.
-CSD_EXTS = (".csd",)
+CSD_EXTS = (".csd", ".rdo")  # #3495: `.rdo` is a DFHCSDUP member too
 _CSD_KEY_COMMANDS = {"DEFINE", "DELETE", "ALTER", "ADD", "REMOVE", "LIST", "UPGRADE", "COPY"}
 # The comparison unit's attributes, in a fixed order.
 CSD_KEY_FIELDS = (
@@ -4885,7 +4885,7 @@ def _key_transactions(repo: Path) -> dict[str, set[str]]:
         if not path.is_file() or ".git" in path.parts:
             continue
         suffix = path.suffix.lower()
-        if suffix == ".csd":
+        if suffix in CSD_EXTS:
             text = path.read_text(encoding="utf-8", errors="ignore")
         elif suffix == ".jcl":
             text = path.read_text(encoding="utf-8", errors="ignore")

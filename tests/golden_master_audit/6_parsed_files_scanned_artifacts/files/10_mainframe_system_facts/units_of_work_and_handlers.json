@@ -7102,6 +7102,188 @@
           "Verb": "INQUIRE"
         }
       ]
+    },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECS002.asm": [
+        {
+          "Attributes": null,
+          "Condition": "Z001",
+          "Kind": "ABEND",
+          "Line": 90,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 164,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "VERIFY"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 288,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASKTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 289,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "FORMATTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 300,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        }
+      ],
+      "hlasm/zecs/ZECSNC.asm": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 107,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASSIGN"
+        },
+        {
+          "Attributes": null,
+          "Condition": "EIBTRNID",
+          "Kind": "ABEND",
+          "Line": 119,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 134,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 145,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DEFINE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 162,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "START"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 173,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 186,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 197,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 211,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASKTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 212,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "FORMATTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 224,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        }
+      ]
     }
   },
   "path": [

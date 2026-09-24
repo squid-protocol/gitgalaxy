@@ -1742,8 +1742,8 @@
       "hlasm/che4z_hlasm/virtual_file.hlasm": "Declarative / Non-Code"
     },
     "hlasm/zecs": {
-      "hlasm/zecs/ZECS002.asm": "Declarative / Non-Code",
-      "hlasm/zecs/ZECSNC.asm": "Declarative / Non-Code"
+      "hlasm/zecs/ZECS002.asm": "Large Core Modules",
+      "hlasm/zecs/ZECSNC.asm": "Large Core Modules"
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": "Large Core Modules",

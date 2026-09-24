@@ -90,6 +90,7 @@ from gitgalaxy.core.db2_declare_table import extract_sql_tables
 from gitgalaxy.core.db2_sql_statements import extract_sql_statements
 from gitgalaxy.core.dli_calls import extract_dli_calls
 from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
+from gitgalaxy.core.hlasm_cics import cics_stream, dc_values
 from gitgalaxy.core.ims_gen import ims_gen_macros, jcl_ims_regions
 from gitgalaxy.core.jcics import jcics
 from gitgalaxy.core.job_flow import jcl_job_flow
@@ -178,7 +179,9 @@ _CALL_IDENTIFIER = re.compile(r"(?<![A-Z0-9-])CALL[ \t\n]+(?!['\"])([A-Z][A-Z0-9
 # RESP2/SYNCONRETURN) and hard-capped so an unterminated EXEC cannot scan the
 # rest of the file.
 _CICS_TRANSFER = re.compile(r"\bEXEC[ \t\n]+CICS[ \t\n]+(LINK|XCTL)\b", re.I)
-_CICS_PROGRAM_OPERAND = re.compile(r"\bPROGRAM[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z][A-Z0-9-]*))", re.I)
+# #3495: the identifier form also takes HLASM symbols (`_`, `@#$`) -- zECS's
+# `START TRANSID(Z_EXP)` read as `Z`. COBOL names never contain them.
+_CICS_PROGRAM_OPERAND = re.compile(r"\bPROGRAM[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z@#$_][A-Z0-9@#$_-]*))", re.I)
 # Longest real LINK block in the pinned corpora is 6 lines / ~220 chars; 2000
 # leaves an order of magnitude of headroom without ever crossing a paragraph.
 _CICS_BLOCK_LIMIT = 2000
@@ -194,7 +197,7 @@ _CICS_TRANSID_VERB = re.compile(r"\bEXEC[ \t\n]+CICS[ \t\n]+(RETURN|START|RUN)\b
 # resolved through its working-storage VALUE (`TRANSID(WS-TRANID)` where
 # `05 WS-TRANID PIC X(4) VALUE 'CC00'`). A name with no readable VALUE (populated
 # at runtime, `VALUE SPACES`) resolves to None -- data, not a gap.
-_CICS_TRANSID_OPERAND = re.compile(r"\bTRANSID[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z][A-Z0-9-]*))", re.I)
+_CICS_TRANSID_OPERAND = re.compile(r"\bTRANSID[ \t\n]*\([ \t\n]*(?:'([^']*)'|\"([^\"]*)\"|([A-Z@#$_][A-Z0-9@#$_-]*))", re.I)
 
 # #3355: the COMMAREA contract operands of a LINK/XCTL/RETURN block -- which
 # record the call passes (`COMMAREA(x)`) and how many bytes it says it passes
@@ -468,8 +471,11 @@ def _cics_contract_operands(block: str) -> dict[str, str]:
     return out
 
 
-def _cobol_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any]]:
-    """Every COBOL invocation site: `CALL`, and CICS `LINK`/`XCTL PROGRAM(...)`."""
+def _cobol_calls(code_stream: str, values: dict[str, str], cics_only: bool = False) -> list[dict[str, Any]]:
+    """Every COBOL invocation site: `CALL`, and CICS `LINK`/`XCTL PROGRAM(...)`.
+
+    `cics_only` (#3495) reads just the EXEC CICS sites, for a host language whose
+    own CALL is not COBOL's (HLASM's `CALL` macro)."""
     calls: list[dict[str, Any]] = []
 
     # Line numbers come from a precomputed newline index. Counting newlines per
@@ -540,7 +546,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any
         return {"using_args": args} if args else {}
 
     # 2. CALL 'LITERAL'
-    for match in _CALL_LITERAL.finditer(code_stream):
+    for match in () if cics_only else _CALL_LITERAL.finditer(code_stream):
         if _shielded(match.start()):
             continue
         literal = match.group(1) if match.group(1) is not None else match.group(2)
@@ -557,7 +563,7 @@ def _cobol_calls(code_stream: str, values: dict[str, str]) -> list[dict[str, Any
         )
 
     # 3. CALL IDENTIFIER
-    for match in _CALL_IDENTIFIER.finditer(code_stream):
+    for match in () if cics_only else _CALL_IDENTIFIER.finditer(code_stream):
         if _shielded(match.start()):
             continue
         operand = match.group(1).upper()
@@ -1989,7 +1995,19 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
                 "cics_resources": jc["cics_resources"]}  # fmt: skip
     if dialect == "hlasm":
         # #3477: IMS PSB / DBD generation macros (PSBGEN, PCB, SENSEG, DBD, SEGM, ...).
-        return {"calls": [], "datasets": [], "records": [], "transactions": [], "ims_gen": ims_gen_macros(code_stream)}
+        # #3495: command-level EXEC CICS, rewritten into the END-EXEC shape the
+        # COBOL walkers read (core/hlasm_cics.py); operands resolve through DC constants.
+        stream, dc = cics_stream(code_stream), dc_values(code_stream)
+        return {
+            "calls": _cobol_calls(stream, dc, cics_only=True),
+            "datasets": [],
+            "records": [],
+            "transactions": [],
+            "ims_gen": ims_gen_macros(code_stream),
+            "cics_resources": _cics_resources(stream, dc, "hlasm"),
+            "cics_tasks": _cics_tasks(stream, dc, [], "hlasm"),
+            "uow_handlers": _uow_handlers(stream, dc),
+        }
     if dialect == "csd":
         return {
             "calls": [],

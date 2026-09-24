@@ -193,9 +193,12 @@ DEFINITION: dict[str, Any] = {
         # class_start below (the db2_sql documented-deviation shape). A macro
         # definition is compile-time and is macros' (pli's %name: PROC
         # ruling). The name is required: an unnamed ` CSECT` resumes private
-        # code and declares no reachable unit.
+        # code and declares no reachable unit. #3495: `name DFHEIENT` opens a
+        # command-level CICS program -- the translator's entry macro generates the
+        # program's CSECT under that name (walmartlabs/zECS `ZECS002  DFHEIENT
+        # CODEREG=(R12),...`), so a CICS assembler program otherwise had no unit.
         "func_start": re.compile(
-            r"^(" + _NAME + r")[ \t]+(?:CSECT|RSECT|START)" + _OPEND,
+            r"^(" + _NAME + r")[ \t]+(?:CSECT|RSECT|START|DFHEIENT)" + _OPEND,
             re.M | re.I,
         ),
         # class_start (#2856): `name DSECT` -- the dummy section is HLASM's

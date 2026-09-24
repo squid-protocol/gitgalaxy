@@ -4927,6 +4927,18 @@
         }
       ]
     },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECSNC.asm": [
+        {
+          "COMMAREA Length": "4",
+          "Form": "identifier",
+          "Line": 162,
+          "Operand": "Z_EXP",
+          "Target": null,
+          "Verb": "START TRANSID"
+        }
+      ]
+    },
     "jcl/cash-account-cobol": {
       "jcl/cash-account-cobol/DB2BIND.jcl": [
         {

@@ -964,9 +964,6 @@ def test_sql_statements_load_and_the_access_matrix_joins_cursors(scanned_sql):
 
 
 def test_a_pre_3446_db_loads_with_no_sql_statements(scanned_sql, tmp_path):
-    import shutil
-    import sqlite3
-
     old = tmp_path / "old.db"
     shutil.copy(scanned_sql, old)
     with sqlite3.connect(old) as conn:

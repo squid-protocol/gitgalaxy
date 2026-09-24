@@ -429,6 +429,27 @@ class AuditRecorder:
                 }
                 for e in eps
             ]
+        dli = file_data.get("dli_calls") or []
+        if dli:
+            # #3450: IMS DL/I calls, mirroring dli_call_data (only the keys a row carries).
+            labels = {
+                "function": "Function",
+                "function_operand": "Function Operand",
+                "pcb": "PCB",
+                "io_area": "IO Area",
+                "segments": "Segments",
+                "ssas": "SSAs",
+                "where": "Where",
+                "psb": "PSB",
+            }
+            block["DL/I Calls"] = [
+                {
+                    "Interface": d.get("interface"),
+                    **{lbl: d[k] for k, lbl in labels.items() if d.get(k)},
+                    "Line": d.get("line", 0),
+                }
+                for d in dli
+            ]
         return block
 
     def generate_report(

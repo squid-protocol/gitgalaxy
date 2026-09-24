@@ -95,6 +95,8 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "VSAM defines": ("vsam_defines", "vsam_validated"),
     "JCL job flow": ("job_flow", "jobflow_validated"),
     "CALL USING": ("call_using", "call_using_validated"),
+    "DL/I calls": ("dli_calls", "dli_validated"),
+    "IMS segment access": ("dli_calls", "dli_validated"),
 }
 
 

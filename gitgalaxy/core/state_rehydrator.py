@@ -859,6 +859,29 @@ class StateRehydrator:
                     },
                 )
 
+                # #3450: IMS DL/I calls, aliased back to the payload keys.
+                dli_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "dli_call_data",
+                    'SELECT fd.file_path AS _fp, dc.interface, dc.function, dc.function_operand, dc.pcb, dc.io_area, dc.segments, dc.ssas, dc.where_text AS "where", dc.psb, dc.line_number AS "line" '
+                    "FROM dli_call_data dc JOIN file_data fd ON dc.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY dc.id",
+                    lambda r: {
+                        "interface": r["interface"],
+                        "function": r["function"],
+                        "function_operand": r["function_operand"],
+                        "pcb": r["pcb"],
+                        "io_area": r["io_area"],
+                        "segments": r["segments"],
+                        "ssas": r["ssas"],
+                        "where": r["where"],
+                        "psb": r["psb"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
@@ -879,6 +902,7 @@ class StateRehydrator:
                     node["vsam_defines"] = vsam_defines_by_file.get(rel_path, [])
                     node["job_flow"] = job_flow_by_file.get(rel_path, [])
                     node["entry_points"] = entry_points_by_file.get(rel_path, [])
+                    node["dli_calls"] = dli_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

@@ -21,6 +21,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-file-defs <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-job-flow <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-call-using <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-dli <repo> --key key.json
     python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
@@ -3334,6 +3335,198 @@ def draft_call_using(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# IMS DL/I calls (#3450)
+# ==============================================================================
+# This tool's own reading: EXEC DLI blocks through the CICS section's option
+# regex, CALL 'CBLTDLI' arguments through the CALL USING reader above. For the
+# segment matrix it resolves, on its own, a CBLTDLI function operand and each SSA:
+# the data item is looked up in the program and then in every copybook the
+# program COPYs (matched by file stem), and a group's load-time text is its
+# elementary children's VALUEs, each padded / cut to its PIC width.
+_DLI_EXEC = re.compile(r"\bEXEC\s+DLI\b")
+_DLI_ACCESS = {"GU": "read", "GHU": "read", "GN": "read", "GHN": "read", "GNP": "read", "GHNP": "read",
+               "ISRT": "insert", "REPL": "update", "DLET": "delete"}  # fmt: skip
+
+
+def _dli_width(pic: str, usage: str) -> Optional[int]:
+    body = pic.upper().lstrip("S")
+    n = 0
+    for ch, rep in re.findall(r"([9XAV])(?:\((\d+)\))?", body):
+        n += 0 if ch == "V" else int(rep or 1)
+    if not n:
+        return None
+    u = usage.upper()
+    if "COMP-3" in u or "PACKED" in u:
+        return n // 2 + 1
+    if re.search(r"\b(?:COMP|BINARY|COMP-4|COMP-5)\b", u):
+        return 2 if n <= 4 else 4 if n <= 9 else 8
+    return n
+
+
+def _dli_sources(path: Path, repo: Path) -> list[list[str]]:
+    """The program's code lines, then each COPYd member's (by file stem)."""
+    src = Source(path)
+    out = [[a for _, a in src.lines]]
+    stems = {}
+    for p in repo.rglob("*"):
+        if p.is_file() and p.suffix.lower() in COPYBOOK_EXTS and ".git" not in p.parts:
+            stems.setdefault(p.stem.upper(), []).append(p)
+    for member in re.findall(r"\bCOPY\s+([A-Z0-9@#$-]+)", src.text):
+        for cb in stems.get(member, [])[:1]:
+            out.append([a for _, a in Source(cb).lines])
+    return out
+
+
+def _dli_value(path: Path, repo: Path, name: str) -> Optional[str]:
+    for lines in _dli_sources(path, repo):
+        for i, line in enumerate(lines):
+            m = re.match(rf"\s*(\d+)\s+{re.escape(name)}(?![A-Z0-9-])(.*)", line)
+            if not m:
+                continue
+            level = int(m.group(1))
+            entries = [m.group(2)]
+            j = i + 1
+            while j < len(lines) and not re.match(r"\s*\d+\s", lines[j]):
+                entries[-1] += " " + lines[j]
+                j += 1
+            kids = []
+            while j < len(lines):
+                k = re.match(r"\s*(\d+)\s+([A-Z0-9-]+)(.*)", lines[j])
+                if k and int(k.group(1)) <= level and int(k.group(1)) not in (66, 88):
+                    break
+                if k:
+                    kids.append([int(k.group(1)), k.group(3)])
+                elif kids:
+                    kids[-1][1] += " " + lines[j]
+                j += 1
+
+            def text_of(desc: str) -> Optional[str]:
+                pic = re.search(r"\bPIC(?:TURE)?\s+(?:IS\s+)?(\S+?)\.?(?:\s|$)", desc)
+                if not pic:
+                    return ""  # a group line
+                w = _dli_width(pic.group(1), desc)
+                if w is None:
+                    return None
+                v = re.search(r"\bVALUE\s+(?:IS\s+)?(?:'([^']*)'|\"([^\"]*)\"|(SPACES?|ZEROE?S?))", desc)
+                if not v:
+                    return "?" * w
+                lit = v.group(1) if v.group(1) is not None else v.group(2)
+                if lit is None:
+                    lit = (" " if v.group(3).startswith("SPACE") else "0") * w
+                return lit.ljust(w)[:w]
+
+            if not kids:
+                return text_of(entries[0])
+            parts = []
+            for lvl, desc in kids:
+                if lvl in (66, 88) or re.search(r"\bREDEFINES\b", desc):
+                    continue
+                t = text_of(desc)
+                if t is None:
+                    return "".join(parts) or None
+                parts.append(t)
+            return "".join(parts)
+    return None
+
+
+def dli_rows(path: Path) -> list[dict[str, Any]]:
+    src = Source(path)
+    rows = []
+    for m in _DLI_EXEC.finditer(src.text):
+        end = _CICS_END.search(src.text, m.end())
+        body = src.raw_text[m.end() : end.start() if end else len(src.raw_text)]
+        opts = [
+            (o.group(1), " ".join(o.group(2)[1:-1].split()) if o.group(2) else None)
+            for o in _CICS_OPTION.finditer(body)
+        ]
+        if not opts or opts[0][1] is not None:
+            continue
+        rest = [(k, v) for k, v in opts[1:] if k != "USING"]
+        d = dict(rest)
+        psb = d.get("PSB")
+        while psb and psb.startswith("(") and psb.endswith(")"):
+            psb = psb[1:-1].strip()
+        rows.append({
+            "interface": "EXEC", "function": opts[0][0], "operand": None, "pcb": d.get("PCB"),
+            "io": d.get("INTO") or d.get("FROM"), "segs": [v for k, v in rest if k == "SEGMENT" and v],
+            "where": [v for k, v in rest if k == "WHERE" and v], "psb": psb, "line": src.line_of(m.start()),
+        })  # fmt: skip
+    for m in re.finditer(r"\bCALL\s+'(?:CBLTDLI|AIBTDLI)'", src.raw_text):
+        if src.text[m.start() : m.start() + 4] != "CALL":
+            continue
+        args = (_cu_list(src.raw_text[m.end() : m.end() + 6000].lstrip()) or "").split(",")
+        args = [a for a in args if a]
+        rows.append({
+            "interface": "CALL", "function": None, "operand": args[0] if args else None,
+            "pcb": args[1] if len(args) > 1 else None, "io": args[2] if len(args) > 2 else None,
+            "segs": args[3:], "where": [], "psb": None, "line": src.line_of(m.start()),
+        })  # fmt: skip
+    rows.sort(key=lambda r: r["line"])
+    return rows
+
+
+def dli_keys(rows: list[dict[str, Any]]) -> set[str]:
+    """`L<line> EXEC|CALL FN=.. PCB=.. IO=.. SEG=.. WHERE=.. PSB=..` per call (operands as written)."""
+
+    def d(v: Any) -> str:
+        return (",".join(v) if isinstance(v, list) else str(v)) if v else "-"
+
+    return {
+        f"L{r['line']} {r['interface']} FN={d(r['function'] or r['operand'])} PCB={d(r['pcb'])} IO={d(r['io'])} "
+        f"SEG={d(r['segs'])} WHERE={';'.join(r['where']) or '-'} PSB={d(r['psb'])}"
+        for r in rows
+    }
+
+
+def engine_dli_row(c: Any) -> dict[str, Any]:
+    segs = (c.segments or c.ssas or "").split(",") if (c.segments or c.ssas) else []
+    return {
+        "interface": c.interface, "function": c.function, "operand": c.function_operand, "pcb": c.pcb,
+        "io": c.io_area, "segs": segs, "where": (c.where or "").split(";") if c.where else [], "psb": c.psb,
+        "line": c.line,
+    }  # fmt: skip
+
+
+def dli_access(path: Path, repo: Path, rows: list[dict[str, Any]]) -> list[str]:
+    """`access SEGMENT` for the program, this tool's own resolution (path calls act
+    on their last segment and read the parents)."""
+    found = set()
+    for r in rows:
+        fn = r["function"]
+        if r["interface"] == "CALL" and r["operand"]:
+            v = _dli_value(path, repo, r["operand"])
+            fn = v.strip() if v and "?" not in v else None
+        acc = _DLI_ACCESS.get(fn or "")
+        if not acc:
+            continue
+        segs = r["segs"] if r["interface"] == "EXEC" else []
+        if r["interface"] == "CALL":
+            for ssa in r["segs"]:
+                v = _dli_value(path, repo, ssa) or ""
+                if v[:8].strip() and "?" not in v[:8]:
+                    segs.append(v[:8].strip())
+        for i, seg in enumerate(segs):
+            found.add(f"{acc if i == len(segs) - 1 else 'read'} {seg.upper()}")
+    return sorted(found)
+
+
+def draft_dli(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted DL/I calls and segment access per COBOL source (#3450)."""
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in CICS_EXTS and ".git" not in p.parts:
+            rows = dli_rows(p)
+            if rows:
+                out[p.relative_to(repo).as_posix()] = {
+                    "calls": rows,
+                    "segment_access": dli_access(p, repo, rows),
+                    "dli_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -3742,6 +3935,11 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # parameters, per COBOL source. Truth is this tool's own reader; engine is
         # call_site_data.using_args + entry_point_data.
         "CALL USING",
+        # #3450: IMS DL/I calls as written, and the program x segment access they
+        # resolve to (function codes and SSAs through COPY-expanded VALUEs). Truth
+        # is this tool's own reader; engine is dli_call_data + GalaxyIR.ims_segment_access.
+        "DL/I calls",
+        "IMS segment access",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -4073,6 +4271,27 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             call_using_keys(engine_call_using_rows(ef)) if ef else None,
         )
 
+    engine_ims: dict[str, set[str]] = {}
+    if ir is not None:
+        for e in ir.ims_segment_access():
+            engine_ims.setdefault(e["file"], set()).update(f"{a} {e['segment']}" for a in e["accesses"])
+    for rel, k in key.get("dli_calls", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "DL/I calls",
+            rel,
+            dli_keys(k.get("calls", [])),
+            None,
+            dli_keys([engine_dli_row(c) for c in ef.dli_calls]) if ef else None,
+        )
+        add(
+            "IMS segment access",
+            rel,
+            set(k.get("segment_access", [])),
+            None,
+            engine_ims.get(rel, set()) if ir is not None and rel in ir.files else None,
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -4186,6 +4405,9 @@ def main() -> int:
     x = sub.add_parser("add-cics")
     x.add_argument("repo", type=Path)
     x.add_argument("--key", type=Path, required=True)
+    dlp = sub.add_parser("add-dli")
+    dlp.add_argument("repo", type=Path)
+    dlp.add_argument("--key", type=Path, required=True)
     cup = sub.add_parser("add-call-using")
     cup.add_argument("repo", type=Path)
     cup.add_argument("--key", type=Path, required=True)
@@ -4328,6 +4550,16 @@ def main() -> int:
         key["cics_resources"] = ops
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(ops)} CICS files -> {args.key}")
+        return 0
+    if args.cmd == "add-dli":
+        # #3450: the add-pli discipline -- refresh drafts, keep signed-off files.
+        dl = key.get("dli_calls", {})
+        for rel, entry in draft_dli(repo).items():
+            if not dl.get(rel, {}).get("dli_validated"):
+                dl[rel] = entry
+        key["dli_calls"] = dl
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(dl)} DL/I files -> {args.key}")
         return 0
     if args.cmd == "add-call-using":
         # #3454: the add-pli discipline -- refresh drafts, keep signed-off files.

@@ -1565,3 +1565,77 @@ def test_a_pre_3454_db_loads_with_no_using(using_scanned, tmp_path):
     ir = load_galaxy_ir(old)
     assert all(not c.using_args for f in ir.files.values() for c in f.calls)
     assert all(f.entry_points == [] for f in ir.files.values())
+
+
+# ---- #3450: IMS DL/I calls and the segment matrix -----------------------------
+IMSFUNC = """\
+       01 DLI-FUNCTIONS.
+          05 FUNC-GU     PIC X(04) VALUE 'GU  '.
+          05 FUNC-ISRT   PIC X(04) VALUE 'ISRT'.
+"""
+IMSPGM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. IMSPGM.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       COPY IMSFUNC.
+       01 ROOT-QUAL-SSA.
+          05 FILLER          PIC X(08) VALUE 'PAUTSUM0'.
+          05 FILLER          PIC X(01) VALUE '('.
+          05 FILLER          PIC X(08) VALUE 'ACCNTID '.
+          05 FILLER          PIC X(02) VALUE 'EQ'.
+          05 SSA-KEY         PIC S9(11) COMP-3.
+          05 FILLER          PIC X(01) VALUE ')'.
+       01 CHILD-UNQUAL-SSA.
+          05 FILLER          PIC X(08) VALUE 'PAUTDTL1'.
+          05 FILLER          PIC X(01) VALUE ' '.
+       01 SUMM               PIC X(100).
+       LINKAGE SECTION.
+       01 PAUTBPCB           PIC X(40).
+       PROCEDURE DIVISION USING PAUTBPCB.
+           CALL 'CBLTDLI' USING FUNC-GU PAUTBPCB SUMM ROOT-QUAL-SSA.
+           CALL 'CBLTDLI' USING FUNC-ISRT PAUTBPCB SUMM ROOT-QUAL-SSA
+                CHILD-UNQUAL-SSA.
+           EXEC DLI REPL USING PCB(1) SEGMENT(PAUTSUM0) FROM(SUMM)
+           END-EXEC.
+           GOBACK.
+"""
+
+
+@pytest.fixture(scope="module")
+def ims_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_ims")
+    repo = base / "ims"
+    for rel, text in {"cbl/IMSPGM.cbl": IMSPGM, "cpy/IMSFUNC.cpy": IMSFUNC}.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_ims_calls_resolve_function_codes_and_ssas(ims_scanned):
+    calls = load_galaxy_ir(ims_scanned).ims_calls()
+    got = [
+        (c["line"], c["function"], c["access"], [(s["segment"], s["qualification"]) for s in c["segments"]])
+        for c in calls
+    ]
+    assert got == [
+        (20, "GU", "read", [("PAUTSUM0", "ACCNTID EQ")]),
+        (21, "ISRT", "insert", [("PAUTSUM0", "ACCNTID EQ"), ("PAUTDTL1", None)]),
+        (23, "REPL", "update", [("PAUTSUM0", None)]),
+    ]
+
+
+def test_ims_segment_access_reads_the_parents_of_a_path_call(ims_scanned):
+    matrix = {(e["segment"]): e["accesses"] for e in load_galaxy_ir(ims_scanned).ims_segment_access()}
+    # The ISRT path inserts PAUTDTL1 under PAUTSUM0: the parent is only read.
+    assert matrix == {"PAUTSUM0": ["read", "update"], "PAUTDTL1": ["insert"]}
+
+
+def test_a_pre_3450_db_loads_with_no_dli(ims_scanned, tmp_path):
+    old = tmp_path / "old.db"
+    shutil.copy(ims_scanned, old)
+    with sqlite3.connect(old) as conn:
+        conn.execute("DROP TABLE dli_call_data")
+    ir = load_galaxy_ir(old)
+    assert ir.ims_calls() == [] and ir.ims_segment_access() == []

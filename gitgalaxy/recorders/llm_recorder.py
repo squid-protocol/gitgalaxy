@@ -571,6 +571,7 @@ class LLMRecorder:
                 + len(f.get("file_control") or [])  # #3455
                 + len(f.get("vsam_defines") or [])  # #3455
                 + len(f.get("job_flow") or [])  # #3451
+                + len(f.get("dli_calls") or [])  # #3450
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -864,6 +865,14 @@ class LLMRecorder:
                     f"- **Job flow:** {' -> '.join(f'`{s_}`' for s_ in seq[:10])}"
                     + (f"; creates {', '.join(f'`{d}`' for d in made[:6])}" if made else "")
                 )
+            # #3450: IMS DL/I calls -- each command / function and what it names.
+            dli = f.get("dli_calls") or []
+            if dli:
+                labels = []
+                for d in dli:
+                    what = d.get("segments") or d.get("ssas") or d.get("psb") or ""
+                    labels.append(f"{d.get('function') or d.get('function_operand') or '?'} {what}".strip())
+                lines.append(f"- **IMS DL/I:** {', '.join(f'`{x}`' for x in dict.fromkeys(labels))}")
             # #3453: where the unit of work ends and what handles errors.
             uow = f.get("uow_handlers") or []
             if uow:

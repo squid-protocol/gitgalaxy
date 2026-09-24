@@ -15,16 +15,6 @@
       "issue": 3348,
       "kind": "defect",
       "summary": "cobol_schema_forge's flat reader drops level-01 elementary items, REDEFINES items, some nested items, and lines carrying a change marker in the sequence area (zopeneditor multiroot SAM1). The engine's record_data carries every item; #3348 switches the refractor to it."
-    },
-    "header_period_next_line": {
-      "issue": 3419,
-      "kind": "defect",
-      "summary": "A paragraph header whose separator period is on the next line (COTRTLIC 2000-SEND-MAP) is not a unit, so its THRU range's -EXIT reads dead in the forge."
-    },
-    "program_id_on_its_own_line": {
-      "issue": 3418,
-      "kind": "defect",
-      "summary": "PROGRAM-ID. alone on its line with the name on the next: the engine reads a sequence-area token (cols 1-6 of the next line, or cols 73-80); the forge reads cols 73-80."
     }
   },
   "corpora": {

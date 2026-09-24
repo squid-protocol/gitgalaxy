@@ -1592,6 +1592,18 @@
         "Interface Declarations": 5
       }
     },
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": {
+        "I/O & Config Routines": 2
+      },
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": {
+        "I/O & Config Routines": 2
+      },
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": {
+        "I/O & Config Routines": 5
+      },
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": {}
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": {
         "I/O & Config Routines": 4,
@@ -3288,6 +3300,29 @@
       },
       "cobol/gnucobol_internals/syn_misc.at": {}
     },
+    "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": {
+        "I/O & Config Routines": 8,
+        "Interface Declarations": 8
+      },
+      "cobol/zECS/ZECS000.cbl": {
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 21,
+        "Interface Declarations": 24
+      },
+      "cobol/zECS/ZECS003.cbl": {
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 9,
+        "Interface Declarations": 12
+      },
+      "cobol/zECS/ZECSPLT.cbl": {
+        "Defensive Guards": 1,
+        "I/O & Config Routines": 4,
+        "Interface Declarations": 7
+      },
+      "cobol/zECS/ZECSZFC.cpy": {},
+      "cobol/zECS/ZECSZKC.cpy": {}
+    },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": {},
       "cobol/zopeneditor-sample/DATETIME.cpy": {},
@@ -3572,6 +3607,12 @@
         "State Mutators": 14
       },
       "csd/cbsa/PROVENANCE.md": {}
+    },
+    "csd/z_sms_gateway": {
+      "csd/z_sms_gateway/PROVENANCE.md": {},
+      "csd/z_sms_gateway/ZSMSCSD.csd": {
+        "State Mutators": 3
+      }
     },
     "csharp": {
       "csharp/SOURCES.md": {}
@@ -5384,6 +5425,10 @@
       "hlasm/che4z_hlasm/remote2.hlasm": {},
       "hlasm/che4z_hlasm/tutorial.hlasm": {},
       "hlasm/che4z_hlasm/virtual_file.hlasm": {}
+    },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECS002.asm": {},
+      "hlasm/zecs/ZECSNC.asm": {}
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": {
@@ -7808,6 +7853,46 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": {}
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/LICENSE.md": {},
+      "pli/dsf_cics_admin/PROVENANCE.md": {},
+      "pli/dsf_cics_admin/R0010301.pli": {
+        "I/O & Config Routines": 1,
+        "Many-Argument Workhorses": 1
+      },
+      "pli/dsf_cics_admin/R0010420.pli": {
+        "Compute Cores": 1
+      },
+      "pli/dsf_cics_admin/R0010421.pli": {
+        "Compute Cores": 1
+      },
+      "pli/dsf_cics_admin/R0010422.pli": {
+        "Compute Cores": 1,
+        "I/O & Config Routines": 6,
+        "Interface Declarations": 1
+      },
+      "pli/dsf_cics_admin/R0010423.pli": {
+        "I/O & Config Routines": 3,
+        "Interface Declarations": 5
+      },
+      "pli/dsf_cics_admin/R0010424.pli": {
+        "I/O & Config Routines": 3,
+        "Interface Declarations": 5
+      },
+      "pli/dsf_cics_admin/R0010425.pli": {
+        "I/O & Config Routines": 2,
+        "Interface Declarations": 6
+      },
+      "pli/dsf_cics_admin/R0010426.pli": {
+        "Compute Cores": 1
+      },
+      "pli/dsf_cics_admin/R0010427.pli": {
+        "I/O & Config Routines": 1
+      },
+      "pli/dsf_cics_admin/R001TK62.pli": {
+        "I/O & Config Routines": 1
+      }
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": {},

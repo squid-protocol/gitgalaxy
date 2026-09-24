@@ -504,6 +504,12 @@
       "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": "cobol",
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": "cobol"
     },
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": "cobol",
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": "cobol",
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": "cobol",
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": "cobol"
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": "cobol",
       "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": "cobol",
@@ -1040,6 +1046,14 @@
       "cobol/gnucobol_internals/scanner.l": "c",
       "cobol/gnucobol_internals/syn_misc.at": "c"
     },
+    "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": "cobol",
+      "cobol/zECS/ZECS000.cbl": "cobol",
+      "cobol/zECS/ZECS003.cbl": "cobol",
+      "cobol/zECS/ZECSPLT.cbl": "cobol",
+      "cobol/zECS/ZECSZFC.cpy": "cobol",
+      "cobol/zECS/ZECSZKC.cpy": "cobol"
+    },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": "cobol",
       "cobol/zopeneditor-sample/DATETIME.cpy": "cobol",
@@ -1113,6 +1127,10 @@
     "csd/cbsa": {
       "csd/cbsa/BANK.csd": "markdown",
       "csd/cbsa/PROVENANCE.md": "markdown"
+    },
+    "csd/z_sms_gateway": {
+      "csd/z_sms_gateway/PROVENANCE.md": "markdown",
+      "csd/z_sms_gateway/ZSMSCSD.csd": "markdown"
     },
     "csharp": {
       "csharp/SOURCES.md": "markdown"
@@ -1722,6 +1740,10 @@
       "hlasm/che4z_hlasm/remote2.hlasm": "hlasm",
       "hlasm/che4z_hlasm/tutorial.hlasm": "hlasm",
       "hlasm/che4z_hlasm/virtual_file.hlasm": "hlasm"
+    },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECS002.asm": "hlasm",
+      "hlasm/zecs/ZECSNC.asm": "hlasm"
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": "hlasm",
@@ -2498,6 +2520,20 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "plaintext"
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/LICENSE.md": "pli",
+      "pli/dsf_cics_admin/PROVENANCE.md": "pli",
+      "pli/dsf_cics_admin/R0010301.pli": "pli",
+      "pli/dsf_cics_admin/R0010420.pli": "pli",
+      "pli/dsf_cics_admin/R0010421.pli": "pli",
+      "pli/dsf_cics_admin/R0010422.pli": "pli",
+      "pli/dsf_cics_admin/R0010423.pli": "pli",
+      "pli/dsf_cics_admin/R0010424.pli": "pli",
+      "pli/dsf_cics_admin/R0010425.pli": "pli",
+      "pli/dsf_cics_admin/R0010426.pli": "pli",
+      "pli/dsf_cics_admin/R0010427.pli": "pli",
+      "pli/dsf_cics_admin/R001TK62.pli": "pli"
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": "pli",

@@ -504,6 +504,12 @@
       "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": 52,
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": 41
     },
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": 347,
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": 276,
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": 338,
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": 144
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": 144,
       "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": 129,
@@ -1040,6 +1046,14 @@
       "cobol/gnucobol_internals/scanner.l": 10,
       "cobol/gnucobol_internals/syn_misc.at": 3868
     },
+    "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": 255,
+      "cobol/zECS/ZECS000.cbl": 559,
+      "cobol/zECS/ZECS003.cbl": 299,
+      "cobol/zECS/ZECSPLT.cbl": 96,
+      "cobol/zECS/ZECSZFC.cpy": 17,
+      "cobol/zECS/ZECSZKC.cpy": 8
+    },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": 27,
       "cobol/zopeneditor-sample/DATETIME.cpy": 10,
@@ -1113,6 +1127,10 @@
     "csd/cbsa": {
       "csd/cbsa/BANK.csd": 256,
       "csd/cbsa/PROVENANCE.md": 0
+    },
+    "csd/z_sms_gateway": {
+      "csd/z_sms_gateway/PROVENANCE.md": 0,
+      "csd/z_sms_gateway/ZSMSCSD.csd": 19
     },
     "csharp": {
       "csharp/SOURCES.md": 0
@@ -1722,6 +1740,10 @@
       "hlasm/che4z_hlasm/remote2.hlasm": 4,
       "hlasm/che4z_hlasm/tutorial.hlasm": 14,
       "hlasm/che4z_hlasm/virtual_file.hlasm": 14
+    },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECS002.asm": 183,
+      "hlasm/zecs/ZECSNC.asm": 115
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": 76,
@@ -2498,6 +2520,20 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": 0
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/LICENSE.md": 0,
+      "pli/dsf_cics_admin/PROVENANCE.md": 0,
+      "pli/dsf_cics_admin/R0010301.pli": 324,
+      "pli/dsf_cics_admin/R0010420.pli": 97,
+      "pli/dsf_cics_admin/R0010421.pli": 81,
+      "pli/dsf_cics_admin/R0010422.pli": 308,
+      "pli/dsf_cics_admin/R0010423.pli": 178,
+      "pli/dsf_cics_admin/R0010424.pli": 229,
+      "pli/dsf_cics_admin/R0010425.pli": 164,
+      "pli/dsf_cics_admin/R0010426.pli": 95,
+      "pli/dsf_cics_admin/R0010427.pli": 63,
+      "pli/dsf_cics_admin/R001TK62.pli": 187
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": 0,

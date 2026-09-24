@@ -1539,6 +1539,20 @@
       "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": [],
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": []
     },
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": [
+        "SQLCA"
+      ],
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": [
+        "SQLCA"
+      ],
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": [
+        "SQLCA"
+      ],
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": [
+        "ZSMSPWD"
+      ]
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": [
         "CVACT01Y"
@@ -2696,6 +2710,20 @@
       ],
       "cobol/gnucobol_internals/syn_misc.at": []
     },
+    "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": [],
+      "cobol/zECS/ZECS000.cbl": [
+        "ZECSZFC",
+        "ZECSZKC"
+      ],
+      "cobol/zECS/ZECS003.cbl": [
+        "ZECSZFC",
+        "ZECSZKC"
+      ],
+      "cobol/zECS/ZECSPLT.cbl": [],
+      "cobol/zECS/ZECSZFC.cpy": [],
+      "cobol/zECS/ZECSZKC.cpy": []
+    },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": [],
       "cobol/zopeneditor-sample/DATETIME.cpy": [],
@@ -3798,6 +3826,14 @@
         "XFRFUN"
       ],
       "csd/cbsa/PROVENANCE.md": []
+    },
+    "csd/z_sms_gateway": {
+      "csd/z_sms_gateway/PROVENANCE.md": [],
+      "csd/z_sms_gateway/ZSMSCSD.csd": [
+        "BALANCE",
+        "HISTORY",
+        "MESSAGES"
+      ]
     },
     "csharp": {
       "csharp/SOURCES.md": []
@@ -7169,6 +7205,10 @@
       "hlasm/che4z_hlasm/remote2.hlasm": [],
       "hlasm/che4z_hlasm/tutorial.hlasm": [],
       "hlasm/che4z_hlasm/virtual_file.hlasm": []
+    },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECS002.asm": [],
+      "hlasm/zecs/ZECSNC.asm": []
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": [
@@ -11424,6 +11464,103 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": []
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/LICENSE.md": [],
+      "pli/dsf_cics_admin/PROVENANCE.md": [],
+      "pli/dsf_cics_admin/R0010301.pli": [
+        "DFHBMSCA",
+        "P0019906",
+        "P0019908",
+        "P0019910",
+        "P0019912",
+        "P0019959",
+        "P0019990",
+        "R0019904",
+        "R0019998",
+        "R0019999",
+        "S00101",
+        "S0010R",
+        "S00115",
+        "S00118",
+        "S00123",
+        "S001A0",
+        "S001I1",
+        "S001I4",
+        "S001S1",
+        "S001S3",
+        "S001V0"
+      ],
+      "pli/dsf_cics_admin/R0010420.pli": [
+        "P0019906",
+        "P0019908",
+        "P0019910",
+        "P0019912",
+        "P0019921",
+        "R0019999",
+        "S00101",
+        "S001A0"
+      ],
+      "pli/dsf_cics_admin/R0010421.pli": [
+        "P0019906",
+        "P0019908",
+        "P0019910",
+        "P0019912",
+        "S001A1"
+      ],
+      "pli/dsf_cics_admin/R0010422.pli": [
+        "DFHBMSCA",
+        "P0019906",
+        "P0019908",
+        "P0019910",
+        "P0019912",
+        "S001A2"
+      ],
+      "pli/dsf_cics_admin/R0010423.pli": [
+        "DFHBMSCA",
+        "P0019906",
+        "P0019908",
+        "P0019910",
+        "P0019912",
+        "S001A3"
+      ],
+      "pli/dsf_cics_admin/R0010424.pli": [
+        "DFHBMSCA",
+        "P0019906",
+        "P0019908",
+        "P0019910",
+        "P0019912",
+        "S001A4"
+      ],
+      "pli/dsf_cics_admin/R0010425.pli": [
+        "DFHBMSCA",
+        "P0019906",
+        "P0019908",
+        "P0019910",
+        "P0019912",
+        "S001A5"
+      ],
+      "pli/dsf_cics_admin/R0010426.pli": [
+        "P0019906",
+        "P0019908",
+        "P0019910",
+        "P0019912",
+        "S0019A",
+        "S001A6"
+      ],
+      "pli/dsf_cics_admin/R0010427.pli": [
+        "P0019906",
+        "P0019908",
+        "P0019910",
+        "P0019912",
+        "S001A0",
+        "S001A7"
+      ],
+      "pli/dsf_cics_admin/R001TK62.pli": [
+        "DFHBMSCA",
+        "P001TK03",
+        "S001T2"
+      ]
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": [],

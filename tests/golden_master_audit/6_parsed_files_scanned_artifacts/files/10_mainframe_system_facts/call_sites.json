@@ -1,5 +1,17 @@
 {
   "groups": {
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": [
+        {
+          "Form": "literal",
+          "Line": 286,
+          "Operand": "SENDSMS",
+          "Target": "SENDSMS",
+          "USING": "DFHEIBLK,DFHCOMMAREA,WS-SMS-ZONE",
+          "Verb": "CALL"
+        }
+      ]
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": [
         {
@@ -4870,6 +4882,36 @@
           "Target": "EXTFH",
           "USING": "OPCODE,FCD",
           "Verb": "CALL"
+        }
+      ]
+    },
+    "cobol/zECS": {
+      "cobol/zECS/ZECS000.cbl": [
+        {
+          "COMMAREA Length": "ZC-LENGTH",
+          "Form": "identifier",
+          "Line": 713,
+          "Operand": "EIBTRNID",
+          "Target": null,
+          "Verb": "START TRANSID"
+        },
+        {
+          "COMMAREA Length": "ZC-LENGTH",
+          "Form": "identifier",
+          "Line": 732,
+          "Operand": "EIBTRNID",
+          "Target": null,
+          "Verb": "START TRANSID"
+        }
+      ],
+      "cobol/zECS/ZECSPLT.cbl": [
+        {
+          "COMMAREA Length": "4",
+          "Form": "identifier",
+          "Line": 126,
+          "Operand": "ZX-TRANID",
+          "Target": null,
+          "Verb": "START TRANSID"
         }
       ]
     },

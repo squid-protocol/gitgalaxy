@@ -690,6 +690,10 @@
     "cobol/gnucobol_internals": {
       "cobol/gnucobol_internals/syn_misc.at": "None Detected"
     },
+    "cobol/zECS": {
+      "cobol/zECS/ZECSZFC.cpy": "None Detected",
+      "cobol/zECS/ZECSZKC.cpy": "None Detected"
+    },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": "None Detected",
       "cobol/zopeneditor-sample/DATETIME.cpy": "None Detected",
@@ -733,6 +737,10 @@
     "csd/cbsa": {
       "csd/cbsa/BANK.csd": "None Detected",
       "csd/cbsa/PROVENANCE.md": "None Detected"
+    },
+    "csd/z_sms_gateway": {
+      "csd/z_sms_gateway/PROVENANCE.md": "None Detected",
+      "csd/z_sms_gateway/ZSMSCSD.csd": "None Detected"
     },
     "csharp": {
       "csharp/SOURCES.md": "None Detected"
@@ -1722,6 +1730,12 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "None Detected"
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/LICENSE.md": "None Detected",
+      "pli/dsf_cics_admin/PROVENANCE.md": "None Detected",
+      "pli/dsf_cics_admin/R0010421.pli": "None Detected",
+      "pli/dsf_cics_admin/R0010427.pli": "None Detected"
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": "None Detected"

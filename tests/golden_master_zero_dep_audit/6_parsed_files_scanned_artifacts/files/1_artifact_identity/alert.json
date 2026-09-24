@@ -34,6 +34,16 @@
     "perl/spamassassin": {
       "perl/spamassassin/Message.pm": "TYPOSQUATTING THREAT: 'content' mimics 'context'"
     },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/R0010301.pli": "TYPOSQUATTING THREAT: 'S001V0' mimics 'S001A0'",
+      "pli/dsf_cics_admin/R0010421.pli": "TYPOSQUATTING THREAT: 'S001A1' mimics 'S001A0'",
+      "pli/dsf_cics_admin/R0010422.pli": "TYPOSQUATTING THREAT: 'S001A2' mimics 'S001A0'",
+      "pli/dsf_cics_admin/R0010423.pli": "TYPOSQUATTING THREAT: 'S001A3' mimics 'S001A0'",
+      "pli/dsf_cics_admin/R0010424.pli": "TYPOSQUATTING THREAT: 'S001A4' mimics 'S001A0'",
+      "pli/dsf_cics_admin/R0010425.pli": "TYPOSQUATTING THREAT: 'S001A5' mimics 'S001A0'",
+      "pli/dsf_cics_admin/R0010426.pli": "TYPOSQUATTING THREAT: 'S001A6' mimics 'S001A0'",
+      "pli/dsf_cics_admin/R0010427.pli": "TYPOSQUATTING THREAT: 'S001A7' mimics 'S001A0'"
+    },
     "python/numpy": {
       "python/numpy/core.py": "TYPOSQUATTING THREAT: 'builtins' mimics 'builtin'"
     },

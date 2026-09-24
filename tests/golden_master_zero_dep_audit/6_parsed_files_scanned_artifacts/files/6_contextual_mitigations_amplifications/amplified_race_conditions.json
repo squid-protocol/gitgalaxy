@@ -29,6 +29,10 @@
       "cobol/cics-genapp/lgicvs01.cbl": "2 instances",
       "cobol/cics-genapp/lgtestc1.cbl": "1 instances"
     },
+    "cobol/zECS": {
+      "cobol/zECS/ZECS000.cbl": "4 instances",
+      "cobol/zECS/ZECSPLT.cbl": "1 instances"
+    },
     "cpp/NVDA": {
       "cpp/NVDA/braille.py": "2 instances",
       "cpp/NVDA/core.py": "3 instances"

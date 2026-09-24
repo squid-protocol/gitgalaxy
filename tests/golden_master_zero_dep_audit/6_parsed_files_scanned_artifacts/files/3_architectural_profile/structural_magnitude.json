@@ -504,6 +504,12 @@
       "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": 7.94,
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": 14.02
     },
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": 88.94,
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": 60.52,
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": 177.76,
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": 58.88
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": 70.28,
       "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": 68.28,
@@ -1040,6 +1046,14 @@
       "cobol/gnucobol_internals/scanner.l": 1331.14,
       "cobol/gnucobol_internals/syn_misc.at": 137.34
     },
+    "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": 161.92,
+      "cobol/zECS/ZECS000.cbl": 222.28,
+      "cobol/zECS/ZECS003.cbl": 92.28,
+      "cobol/zECS/ZECSPLT.cbl": 33.42,
+      "cobol/zECS/ZECSZFC.cpy": 0.77,
+      "cobol/zECS/ZECSZKC.cpy": 0.71
+    },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": 0.78,
       "cobol/zopeneditor-sample/DATETIME.cpy": 0.76,
@@ -1113,6 +1127,10 @@
     "csd/cbsa": {
       "csd/cbsa/BANK.csd": 83.98,
       "csd/cbsa/PROVENANCE.md": 1.0
+    },
+    "csd/z_sms_gateway": {
+      "csd/z_sms_gateway/PROVENANCE.md": 1.0,
+      "csd/z_sms_gateway/ZSMSCSD.csd": 13.54
     },
     "csharp": {
       "csharp/SOURCES.md": 1.0
@@ -1722,6 +1740,10 @@
       "hlasm/che4z_hlasm/remote2.hlasm": 12.08,
       "hlasm/che4z_hlasm/tutorial.hlasm": 15.4,
       "hlasm/che4z_hlasm/virtual_file.hlasm": 15.34
+    },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECS002.asm": 26.1,
+      "hlasm/zecs/ZECSNC.asm": 22.74
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": 18.6,
@@ -2498,6 +2520,20 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": 1.0
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/LICENSE.md": 1.0,
+      "pli/dsf_cics_admin/PROVENANCE.md": 1.0,
+      "pli/dsf_cics_admin/R0010301.pli": 284.46,
+      "pli/dsf_cics_admin/R0010420.pli": 63.48,
+      "pli/dsf_cics_admin/R0010421.pli": 33.92,
+      "pli/dsf_cics_admin/R0010422.pli": 141.38,
+      "pli/dsf_cics_admin/R0010423.pli": 109.2,
+      "pli/dsf_cics_admin/R0010424.pli": 87.4,
+      "pli/dsf_cics_admin/R0010425.pli": 91.52,
+      "pli/dsf_cics_admin/R0010426.pli": 58.94,
+      "pli/dsf_cics_admin/R0010427.pli": 29.5,
+      "pli/dsf_cics_admin/R001TK62.pli": 77.42
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": 1.0,

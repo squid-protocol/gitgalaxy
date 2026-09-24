@@ -1412,6 +1412,34 @@
         "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl"
       ]
     },
+    "cobol/Z-SMS-Gateway": {
+      "Average Risk Exposures": {
+        "API Exposure": "0.66%",
+        "Cognitive Load Exposure": "59.69%",
+        "Commented Logic Exposure": "1.62%",
+        "Concurrency Exposure": "0.0%",
+        "Documentation Exposure": "75.0%",
+        "Error & Exception Exposure": "76.88%",
+        "Hardcoded Payload Artifacts": "0.0%",
+        "Instability Exposure": "50.0%",
+        "Specification Exposure": "0.0%",
+        "State Flux Exposure": "99.73%",
+        "Tech Debt Exposure": "0.0%",
+        "Testing Exposure": "2.31%",
+        "Volatility Exposure": "0.0%"
+      },
+      "Directory Group Magnitude": 386.1,
+      "Ecosystem Fingerprint (Archetypes)": {
+        "file_cluster_2": "100.0%"
+      },
+      "File Count": 4,
+      "Files": [
+        "cobol/Z-SMS-Gateway/BALANCE.cbl",
+        "cobol/Z-SMS-Gateway/HISTORY.cbl",
+        "cobol/Z-SMS-Gateway/MESSAGES.cbl",
+        "cobol/Z-SMS-Gateway/SENDSMS.cbl"
+      ]
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "Average Risk Exposures": {
         "API Exposure": "1.63%",
@@ -2271,6 +2299,38 @@
         "cobol/gnucobol_internals/syn_misc.at"
       ]
     },
+    "cobol/zECS": {
+      "Average Risk Exposures": {
+        "API Exposure": "1.17%",
+        "Cognitive Load Exposure": "50.69%",
+        "Commented Logic Exposure": "1.14%",
+        "Concurrency Exposure": "27.49%",
+        "Documentation Exposure": "66.67%",
+        "Error & Exception Exposure": "55.55%",
+        "Hardcoded Payload Artifacts": "0.0%",
+        "Instability Exposure": "50.0%",
+        "Specification Exposure": "0.0%",
+        "State Flux Exposure": "59.09%",
+        "Tech Debt Exposure": "3.0%",
+        "Testing Exposure": "28.23%",
+        "Volatility Exposure": "0.0%"
+      },
+      "Directory Group Magnitude": 511.38,
+      "Ecosystem Fingerprint (Archetypes)": {
+        "file_cluster_12": "16.7%",
+        "file_cluster_2": "33.3%",
+        "file_cluster_7": "50.0%"
+      },
+      "File Count": 6,
+      "Files": [
+        "cobol/zECS/ECS001.cbl",
+        "cobol/zECS/ZECS000.cbl",
+        "cobol/zECS/ZECS003.cbl",
+        "cobol/zECS/ZECSPLT.cbl",
+        "cobol/zECS/ZECSZFC.cpy",
+        "cobol/zECS/ZECSZKC.cpy"
+      ]
+    },
     "cobol/zopeneditor-sample": {
       "Average Risk Exposures": {
         "API Exposure": "0.34%",
@@ -2541,6 +2601,33 @@
       "Files": [
         "csd/cbsa/BANK.csd",
         "csd/cbsa/PROVENANCE.md"
+      ]
+    },
+    "csd/z_sms_gateway": {
+      "Average Risk Exposures": {
+        "API Exposure": "4.57%",
+        "Cognitive Load Exposure": "0.0%",
+        "Commented Logic Exposure": "0.0%",
+        "Concurrency Exposure": "0.0%",
+        "Documentation Exposure": "44.98%",
+        "Error & Exception Exposure": "0.0%",
+        "Hardcoded Payload Artifacts": "0.0%",
+        "Instability Exposure": "25.0%",
+        "Specification Exposure": "0.0%",
+        "State Flux Exposure": "0.0%",
+        "Tech Debt Exposure": "0.0%",
+        "Testing Exposure": "1.18%",
+        "Volatility Exposure": "0.0%"
+      },
+      "Directory Group Magnitude": 14.54,
+      "Ecosystem Fingerprint (Archetypes)": {
+        "Static: Literature & Documentation": "50.0%",
+        "file_cluster_2": "50.0%"
+      },
+      "File Count": 2,
+      "Files": [
+        "csd/z_sms_gateway/PROVENANCE.md",
+        "csd/z_sms_gateway/ZSMSCSD.csd"
       ]
     },
     "csharp": {
@@ -4362,6 +4449,33 @@
         "hlasm/che4z_hlasm/virtual_file.hlasm"
       ]
     },
+    "hlasm/zecs": {
+      "Average Risk Exposures": {
+        "API Exposure": "0.0%",
+        "Cognitive Load Exposure": "7.29%",
+        "Commented Logic Exposure": "2.93%",
+        "Concurrency Exposure": "8.24%",
+        "Documentation Exposure": "0.0%",
+        "Error & Exception Exposure": "76.83%",
+        "Hardcoded Payload Artifacts": "0.0%",
+        "Instability Exposure": "50.0%",
+        "Specification Exposure": "0.0%",
+        "State Flux Exposure": "0.0%",
+        "Tech Debt Exposure": "0.0%",
+        "Testing Exposure": "2.3%",
+        "Volatility Exposure": "0.0%"
+      },
+      "Directory Group Magnitude": 48.84,
+      "Ecosystem Fingerprint (Archetypes)": {
+        "file_cluster_12": "50.0%",
+        "file_cluster_7": "50.0%"
+      },
+      "File Count": 2,
+      "Files": [
+        "hlasm/zecs/ZECS002.asm",
+        "hlasm/zecs/ZECSNC.asm"
+      ]
+    },
     "hlasm/zopeneditor_sample": {
       "Average Risk Exposures": {
         "API Exposure": "1.32%",
@@ -5612,7 +5726,7 @@
         "Specification Exposure": "0.0%",
         "State Flux Exposure": "56.53%",
         "Tech Debt Exposure": "69.13%",
-        "Testing Exposure": "16.66%",
+        "Testing Exposure": "16.67%",
         "Volatility Exposure": "0.0%"
       },
       "Directory Group Magnitude": 19874.54,
@@ -6960,6 +7074,47 @@
       "File Count": 1,
       "Files": [
         "plaintext/opencv/include/CMakeLists.txt"
+      ]
+    },
+    "pli/dsf_cics_admin": {
+      "Average Risk Exposures": {
+        "API Exposure": "2.13%",
+        "Cognitive Load Exposure": "65.37%",
+        "Commented Logic Exposure": "1.25%",
+        "Concurrency Exposure": "0.0%",
+        "Documentation Exposure": "46.1%",
+        "Error & Exception Exposure": "68.48%",
+        "Hardcoded Payload Artifacts": "0.0%",
+        "Instability Exposure": "41.67%",
+        "Specification Exposure": "0.0%",
+        "State Flux Exposure": "79.75%",
+        "Tech Debt Exposure": "22.06%",
+        "Testing Exposure": "14.95%",
+        "Volatility Exposure": "0.0%"
+      },
+      "Directory Group Magnitude": 979.22,
+      "Ecosystem Fingerprint (Archetypes)": {
+        "Static: Literature & Documentation": "16.7%",
+        "file_cluster_1": "16.7%",
+        "file_cluster_12": "33.3%",
+        "file_cluster_2": "8.3%",
+        "file_cluster_3": "8.3%",
+        "file_cluster_9": "16.7%"
+      },
+      "File Count": 12,
+      "Files": [
+        "pli/dsf_cics_admin/LICENSE.md",
+        "pli/dsf_cics_admin/PROVENANCE.md",
+        "pli/dsf_cics_admin/R0010301.pli",
+        "pli/dsf_cics_admin/R0010420.pli",
+        "pli/dsf_cics_admin/R0010421.pli",
+        "pli/dsf_cics_admin/R0010422.pli",
+        "pli/dsf_cics_admin/R0010423.pli",
+        "pli/dsf_cics_admin/R0010424.pli",
+        "pli/dsf_cics_admin/R0010425.pli",
+        "pli/dsf_cics_admin/R0010426.pli",
+        "pli/dsf_cics_admin/R0010427.pli",
+        "pli/dsf_cics_admin/R001TK62.pli"
       ]
     },
     "pli/zopeneditor_sample": {

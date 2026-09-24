@@ -1,5 +1,211 @@
 {
   "groups": {
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": [
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "WS-CREDIT-VAL,WS-USERID-VAL",
+          "Line": 166,
+          "Statement": 1,
+          "Table": "ZSMS_USERS",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "WS-USERID-VAL,WS-TEMP-EMAIL,WS-CREDIT-VAL",
+          "Line": 181,
+          "Statement": 2,
+          "Table": "ZSMS_USERS",
+          "Verb": "INSERT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "D-DELIVERED-CNT,D-TYPE-MT,D-STATUS-2000,D-USER-ID",
+          "Line": 233,
+          "Statement": 3,
+          "Table": "ZSMS_MESSAGES",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "D-SENT-CNT,D-TYPE-MT,D-USER-ID",
+          "Line": 283,
+          "Statement": 4,
+          "Table": "ZSMS_MESSAGES",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "D-MO-CNT,WS-MO-NAME,D-USER-ID",
+          "Line": 332,
+          "Statement": 5,
+          "Table": "ZSMS_MESSAGES",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": "C1",
+          "Host Variables": "D-USER-ID",
+          "Line": 381,
+          "Statement": 6,
+          "Table": "ZSMS_USERS",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": null,
+          "Cursor": "C1",
+          "Host Variables": null,
+          "Line": 390,
+          "Statement": 7,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "C1",
+          "Host Variables": "D-CREDIT-AMOUNT",
+          "Line": 403,
+          "Statement": 8,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "C1",
+          "Host Variables": null,
+          "Line": 442,
+          "Statement": 9,
+          "Table": null,
+          "Verb": "CLOSE"
+        }
+      ],
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": [
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "WS-TRACKING-VAL,WS-MSGID-VAL",
+          "Line": 178,
+          "Statement": 1,
+          "Table": "ZSMS_MESSAGES",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "read",
+          "Cursor": "C2",
+          "Host Variables": "D-USER-ID,D-TYPE-MO",
+          "Line": 221,
+          "Statement": 2,
+          "Table": "ZSMS_MESSAGES",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": null,
+          "Cursor": "C2",
+          "Host Variables": null,
+          "Line": 233,
+          "Statement": 3,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "C2",
+          "Host Variables": "D-PHONE,D-MSG-TEXT,D-CREATED-AT",
+          "Line": 245,
+          "Statement": 4,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "C2",
+          "Host Variables": null,
+          "Line": 292,
+          "Statement": 5,
+          "Table": null,
+          "Verb": "CLOSE"
+        },
+        {
+          "Access": "read",
+          "Cursor": "C1",
+          "Host Variables": "D-USER-ID,D-TYPE-MT",
+          "Line": 302,
+          "Statement": 6,
+          "Table": "ZSMS_MESSAGES",
+          "Verb": "DECLARE CURSOR"
+        },
+        {
+          "Access": null,
+          "Cursor": "C1",
+          "Host Variables": null,
+          "Line": 318,
+          "Statement": 7,
+          "Table": null,
+          "Verb": "OPEN"
+        },
+        {
+          "Access": null,
+          "Cursor": "C1",
+          "Host Variables": "D-MSG-ID,D-USER-ID,D-PHONE,D-MSG-TEXT,D-NB-SMS,D-CREATED-AT,D-TRACKING-ST",
+          "Line": 330,
+          "Statement": 8,
+          "Table": null,
+          "Verb": "FETCH"
+        },
+        {
+          "Access": null,
+          "Cursor": "C1",
+          "Host Variables": null,
+          "Line": 391,
+          "Statement": 9,
+          "Table": null,
+          "Verb": "CLOSE"
+        }
+      ],
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": [
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "D-USER-ID,WS-SMS-TEL",
+          "Line": 235,
+          "Statement": 1,
+          "Table": "ZSMS_MESSAGES",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "read",
+          "Cursor": null,
+          "Host Variables": "D-CREDIT-AMOUNT,D-USER-ID",
+          "Line": 361,
+          "Statement": 2,
+          "Table": "ZSMS_USERS",
+          "Verb": "SELECT"
+        },
+        {
+          "Access": "update",
+          "Cursor": null,
+          "Host Variables": "D-CREDIT-AMOUNT,D-USER-ID",
+          "Line": 389,
+          "Statement": 3,
+          "Table": "ZSMS_USERS",
+          "Verb": "UPDATE"
+        },
+        {
+          "Access": "insert",
+          "Cursor": null,
+          "Host Variables": "D-MSG-ID,D-USER-ID,D-PHONE,D-TYPE,D-MSG-TEXT,D-NB-SMS,D-STATUS",
+          "Line": 438,
+          "Statement": 4,
+          "Table": "ZSMS_MESSAGES",
+          "Verb": "INSERT"
+        }
+      ]
+    },
     "cobol/cash-account-cobol": {
       "cobol/cash-account-cobol/CASH00.cbl": [
         {

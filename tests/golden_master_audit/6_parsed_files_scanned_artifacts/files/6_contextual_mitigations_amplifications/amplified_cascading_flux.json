@@ -145,6 +145,12 @@
       "cobol/CICS-Cobol/CBL0805v01TableUseIndiceWithSet.cbl": "3 instances",
       "cobol/CICS-Cobol/CBL0807v01TableSearchAll.cbl": "2 instances"
     },
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": "16 instances",
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": "12 instances",
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": "41 instances",
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": "11 instances"
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": "9 instances",
       "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": "9 instances",
@@ -406,6 +412,12 @@
       "cobol/gnucobol_internals/parser.y": "1820 instances",
       "cobol/gnucobol_internals/scanner.l": "352 instances"
     },
+    "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": "24 instances",
+      "cobol/zECS/ZECS000.cbl": "17 instances",
+      "cobol/zECS/ZECS003.cbl": "9 instances",
+      "cobol/zECS/ZECSPLT.cbl": "1 instances"
+    },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/SAM1.cbl": "48 instances",
       "cobol/zopeneditor-sample/SAM2.cbl": "35 instances"
@@ -653,6 +665,10 @@
       "groovy/spring_boot_gradle/build-plugin_spring-boot-gradle-plugin_build.gradle": "1 instances",
       "groovy/spring_boot_gradle/cli_spring-boot-cli_build.gradle": "2 instances",
       "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-metadata-changelog-generator_build.gradle": "2 instances"
+    },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECS002.asm": "2 instances",
+      "hlasm/zecs/ZECSNC.asm": "1 instances"
     },
     "html/cesium_sandcastle": {
       "html/cesium_sandcastle/gallery_cylinders_and_cones.html": "1 instances"
@@ -930,6 +946,16 @@
       "php/wordpress/plugin.php": "65 instances",
       "php/wordpress/wp-login.php": "148 instances",
       "php/wordpress/wp-settings.php": "15 instances"
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/R0010301.pli": "30 instances",
+      "pli/dsf_cics_admin/R0010420.pli": "3 instances",
+      "pli/dsf_cics_admin/R0010422.pli": "5 instances",
+      "pli/dsf_cics_admin/R0010423.pli": "7 instances",
+      "pli/dsf_cics_admin/R0010424.pli": "4 instances",
+      "pli/dsf_cics_admin/R0010425.pli": "5 instances",
+      "pli/dsf_cics_admin/R0010426.pli": "3 instances",
+      "pli/dsf_cics_admin/R001TK62.pli": "8 instances"
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PSAM1.pli": "21 instances",

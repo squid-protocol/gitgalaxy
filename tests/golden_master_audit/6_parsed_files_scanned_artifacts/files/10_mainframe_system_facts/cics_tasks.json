@@ -477,6 +477,108 @@
           "Verb": "START"
         }
       ]
+    },
+    "cobol/zECS": {
+      "cobol/zECS/ZECS000.cbl": [
+        {
+          "Attributes": "LENGTH(ZC-LENGTH)",
+          "Candidates": null,
+          "Channel": null,
+          "Channel Operand": null,
+          "Line": 257,
+          "Name": null,
+          "Operand": null,
+          "Record": "ZC-PARM",
+          "Record Clause": "INTO",
+          "Resolution": null,
+          "Target Kind": null,
+          "Timing": null,
+          "Token": null,
+          "Verb": "RETRIEVE"
+        },
+        {
+          "Attributes": "LENGTH(LENGTH OF ZC-EXPIRE-ENQ) NOSUSPEND TASK",
+          "Candidates": null,
+          "Channel": null,
+          "Channel Operand": null,
+          "Line": 312,
+          "Name": null,
+          "Operand": "ZC-EXPIRE-ENQ",
+          "Record": null,
+          "Record Clause": null,
+          "Resolution": "unresolved",
+          "Target Kind": "RESOURCE",
+          "Timing": null,
+          "Token": null,
+          "Verb": "ENQ"
+        },
+        {
+          "Attributes": null,
+          "Candidates": null,
+          "Channel": null,
+          "Channel Operand": null,
+          "Line": 563,
+          "Name": null,
+          "Operand": null,
+          "Record": null,
+          "Record Clause": null,
+          "Resolution": null,
+          "Target Kind": null,
+          "Timing": "INTERVAL(0)",
+          "Token": null,
+          "Verb": "DELAY"
+        },
+        {
+          "Attributes": "LENGTH(ZC-LENGTH)",
+          "Candidates": null,
+          "Channel": null,
+          "Channel Operand": null,
+          "Line": 713,
+          "Name": null,
+          "Operand": "EIBTRNID",
+          "Record": "ZC-PARM",
+          "Record Clause": "FROM",
+          "Resolution": "unresolved",
+          "Target Kind": "TRANSID",
+          "Timing": "INTERVAL(1500)",
+          "Token": null,
+          "Verb": "START"
+        },
+        {
+          "Attributes": "LENGTH(ZC-LENGTH)",
+          "Candidates": null,
+          "Channel": null,
+          "Channel Operand": null,
+          "Line": 732,
+          "Name": null,
+          "Operand": "EIBTRNID",
+          "Record": "ZC-PARM",
+          "Record Clause": "FROM",
+          "Resolution": "unresolved",
+          "Target Kind": "TRANSID",
+          "Timing": "INTERVAL(0002)",
+          "Token": null,
+          "Verb": "START"
+        }
+      ],
+      "cobol/zECS/ZECSPLT.cbl": [
+        {
+          "Attributes": "LENGTH(4)",
+          "Candidates": null,
+          "Channel": null,
+          "Channel Operand": null,
+          "Line": 126,
+          "Name": null,
+          "Operand": "ZX-TRANID",
+          "Record": "URI-TRAN",
+          "Record Clause": "FROM",
+          "Resolution": "unresolved",
+          "Target Kind": "TRANSID",
+          "Timing": null,
+          "Token": null,
+          "Verb": "START"
+        }
+      ]
     }
   },
   "path": [

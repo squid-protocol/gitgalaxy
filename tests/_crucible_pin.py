@@ -35,7 +35,7 @@ clone. If you must change the shape, update the sed in all six workflows
 review the diff on this file as your reminder to also run that command.
 """
 
-PINNED_TAG = "v1.4.0"
+PINNED_TAG = "v1.5.0"
 
 # Escape hatch for deliberate off-pin runs (e.g. preparing a pin bump against an
 # untagged crucible commit). Everything else treats a mismatch as an error.

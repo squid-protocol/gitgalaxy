@@ -98,11 +98,11 @@
   },
   "pli": {
    "function": {
-    "note": "Verified against the pinned language-crucible v1.4.0 corpus by the three-way method in the tri-comparison-ledger-sweep skill (gg-only: no tree-sitter, no ctags). (1) real pipeline DB (galaxyscope --db-only): struct_func_start == function_count == 7 on every file, so neither prism.py's comment splitter nor detector.py's Mode A (_slice_by_labels) body-slicing drops or corrupts a match. (2) GitGalaxy's own func_start (label: PROC/PROCEDURE) regex cross-checked against an independent second parse of the raw source -- EXACT match, 7 == 7, zero false positives, zero false negatives. The class panel is a genuine absence (0): the corpus contains no DEFINE STRUCTURE/ORDINAL, PL/I's class_start construct.",
-    "total": 7,
-    "verified": 7,
-    "verified_at": "2026-09-22",
-    "verified_by": "Claude Opus 4.8"
+    "note": "Re-verified against language-crucible v1.5.0 (adds data/pli/dsf_cics_admin, 10 production CICS/PL/I programs from navikt/DSF) by the same three-way method, gg-only. (1) real pipeline DB: struct_func_start == function_count on every file (46 total), so there is no prism/detector drop. (2) An independent parse of the raw source (label(s) + PROC/PROCEDURE, cols 73-80 sequence numbers dropped, comments stripped, national characters allowed) finds the same 46 units, but only 38 NAMES match. In 4 DSF files `OVERF\u00d8R_TIL_MAP: PROC;` / `OVERF\u00d8R_FRA_MAP: PROC;` are named `R_TIL_MAP` / `R_FRA_MAP`: GitGalaxy truncates at the Nordic national character \u00d8 (CP277 renders @#$ as \u00c6\u00d8\u00c5), gitgalaxy#3520. The unit is found but misnamed, so it is not counted as verified. The v1.4.0 zopeneditor_sample 7/7 are unchanged. Class panel is still a genuine absence (0).",
+    "total": 46,
+    "verified": 38,
+    "verified_at": "2026-09-24",
+    "verified_by": "Claude Opus 5.5"
    }
   },
   "hlasm": {
@@ -112,6 +112,13 @@
     "verified": 1,
     "verified_at": "2026-09-22",
     "verified_by": "Claude Opus 4.8"
+   },
+   "class": {
+    "note": "First verification, against language-crucible v1.5.0 (data/hlasm/zecs adds two production EXEC CICS programs from walmartlabs/zECS). struct_class_start == class_count == 4, and an independent `NAME DSECT` parse of the raw source matches EXACTLY: DFHEISTG + DFHCA in each of ZECS002.asm and ZECSNC.asm. Zero false positives or negatives. (Their DFHEIENT program entries do not form function units, a recall gap tracked on gitgalaxy#3495; the function total is unchanged at 1.)",
+    "total": 4,
+    "verified": 4,
+    "verified_at": "2026-09-24",
+    "verified_by": "Claude Opus 5.5"
    }
   },
   "bms": {
@@ -150,18 +157,18 @@
   },
   "csd": {
    "function": {
-    "note": "func_start (DEFINE TRANSACTION) verified against the pinned language-crucible v1.4.0 csd corpus (5 decks: carddemo CARDDEMO.CSD + 3 variants, cbsa BANK.csd), gg-only (no tree-sitter, no ctags). (1) real pipeline DB: struct_func_start == function_count == 39 on every file -- no prism/detector drop (csd extracts via Mode A _slice_by_labels since gitgalaxy#3211-followup / PR #3274). (2) GitGalaxy's func_start cross-checked against an independent DEFINE TRANSACTION(name) parse of the raw decks (excluding *-comment lines and DB2TRAN) -- EXACT match, 39==39, zero false positives, zero false negatives. Each transaction is a CICS entry point.",
-    "total": 39,
-    "verified": 39,
-    "verified_at": "2026-09-22",
-    "verified_by": "Claude Opus 4.8"
+    "note": "Re-verified against language-crucible v1.5.0 (adds data/csd/z_sms_gateway, a hand-written DFHCSDUP deck with URIMAPs): struct_func_start == function_count on every file (42), and an independent DEFINE TRANSACTION(name) parse of the raw decks matches EXACTLY, 42 == 42 (the v1.4.0 39 + MSGS/HIST/BAL). DEFINE URIMAP is correctly not a unit.",
+    "total": 42,
+    "verified": 42,
+    "verified_at": "2026-09-24",
+    "verified_by": "Claude Opus 5.5"
    },
    "class": {
-    "note": "class_start (DEFINE PROGRAM) verified the same way against the v1.4.0 csd corpus: struct_class_start == class_count == 56 on every file, and GitGalaxy's class_start cross-checked against an independent DEFINE PROGRAM(name) parse -- EXACT match, 56==56, zero false positives/negatives. Each program is the deployable module a transaction routes to.",
-    "total": 56,
-    "verified": 56,
-    "verified_at": "2026-09-22",
-    "verified_by": "Claude Opus 4.8"
+    "note": "Re-verified against v1.5.0 the same way: struct_class_start == class_count == 59, and an independent DEFINE PROGRAM(name) parse matches EXACTLY (the v1.4.0 56 + MESSAGES/HISTORY/BALANCE).",
+    "total": 59,
+    "verified": 59,
+    "verified_at": "2026-09-24",
+    "verified_by": "Claude Opus 5.5"
    }
   },
   "yaml": {

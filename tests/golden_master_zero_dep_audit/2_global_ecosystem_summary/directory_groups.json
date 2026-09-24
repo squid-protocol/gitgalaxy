@@ -726,6 +726,25 @@
       "file_count": 50,
       "total_mass": 404.68
     },
+    "cobol/Z-SMS-Gateway": {
+      "avg_exposures": {
+        "api_exposure": 0.66,
+        "churn": 0.0,
+        "cognitive_load": 59.69,
+        "concurrency": 0.0,
+        "dead_code": 1.62,
+        "documentation": 75.0,
+        "safety_score": 76.88,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 99.73,
+        "tech_debt": 0.0,
+        "verification": 2.31
+      },
+      "file_count": 4,
+      "total_mass": 386.1
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "avg_exposures": {
         "api_exposure": 1.63,
@@ -973,6 +992,25 @@
       "file_count": 6,
       "total_mass": 37722.9
     },
+    "cobol/zECS": {
+      "avg_exposures": {
+        "api_exposure": 1.17,
+        "churn": 0.0,
+        "cognitive_load": 50.69,
+        "concurrency": 27.49,
+        "dead_code": 1.14,
+        "documentation": 66.67,
+        "safety_score": 55.55,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 59.09,
+        "tech_debt": 3.0,
+        "verification": 28.23
+      },
+      "file_count": 6,
+      "total_mass": 511.38
+    },
     "cobol/zopeneditor-sample": {
       "avg_exposures": {
         "api_exposure": 0.34,
@@ -1124,6 +1162,25 @@
       },
       "file_count": 2,
       "total_mass": 84.98
+    },
+    "csd/z_sms_gateway": {
+      "avg_exposures": {
+        "api_exposure": 4.57,
+        "churn": 0.0,
+        "cognitive_load": 0.0,
+        "concurrency": 0.0,
+        "dead_code": 0.0,
+        "documentation": 44.98,
+        "safety_score": 0.0,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 25.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 1.18
+      },
+      "file_count": 2,
+      "total_mass": 14.54
     },
     "csharp": {
       "avg_exposures": {
@@ -2056,6 +2113,25 @@
       "file_count": 16,
       "total_mass": 203.84
     },
+    "hlasm/zecs": {
+      "avg_exposures": {
+        "api_exposure": 0.0,
+        "churn": 0.0,
+        "cognitive_load": 7.29,
+        "concurrency": 8.24,
+        "dead_code": 2.93,
+        "documentation": 0.0,
+        "safety_score": 76.83,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 50.0,
+        "state_flux": 0.0,
+        "tech_debt": 0.0,
+        "verification": 2.3
+      },
+      "file_count": 2,
+      "total_mass": 48.84
+    },
     "hlasm/zopeneditor_sample": {
       "avg_exposures": {
         "api_exposure": 1.32,
@@ -2773,7 +2849,7 @@
         "stability": 50.0,
         "state_flux": 56.53,
         "tech_debt": 69.13,
-        "verification": 16.66
+        "verification": 16.67
       },
       "file_count": 98,
       "total_mass": 19874.54
@@ -3518,6 +3594,25 @@
       },
       "file_count": 1,
       "total_mass": 1.0
+    },
+    "pli/dsf_cics_admin": {
+      "avg_exposures": {
+        "api_exposure": 2.13,
+        "churn": 0.0,
+        "cognitive_load": 65.37,
+        "concurrency": 0.0,
+        "dead_code": 1.25,
+        "documentation": 46.1,
+        "safety_score": 68.48,
+        "secrets_risk": 0.0,
+        "spec_match": 0.0,
+        "stability": 41.67,
+        "state_flux": 79.75,
+        "tech_debt": 22.06,
+        "verification": 14.95
+      },
+      "file_count": 12,
+      "total_mass": 979.22
     },
     "pli/zopeneditor_sample": {
       "avg_exposures": {

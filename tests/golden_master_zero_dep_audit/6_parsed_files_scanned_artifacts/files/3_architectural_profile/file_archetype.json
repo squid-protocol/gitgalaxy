@@ -504,6 +504,12 @@
       "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": "N/A",
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": "N/A"
     },
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": "N/A",
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": "N/A",
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": "N/A",
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": "N/A"
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": "N/A",
       "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": "N/A",
@@ -1040,6 +1046,14 @@
       "cobol/gnucobol_internals/scanner.l": "N/A",
       "cobol/gnucobol_internals/syn_misc.at": "N/A"
     },
+    "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": "N/A",
+      "cobol/zECS/ZECS000.cbl": "N/A",
+      "cobol/zECS/ZECS003.cbl": "N/A",
+      "cobol/zECS/ZECSPLT.cbl": "N/A",
+      "cobol/zECS/ZECSZFC.cpy": "N/A",
+      "cobol/zECS/ZECSZKC.cpy": "N/A"
+    },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": "N/A",
       "cobol/zopeneditor-sample/DATETIME.cpy": "N/A",
@@ -1113,6 +1127,10 @@
     "csd/cbsa": {
       "csd/cbsa/BANK.csd": "N/A",
       "csd/cbsa/PROVENANCE.md": "N/A"
+    },
+    "csd/z_sms_gateway": {
+      "csd/z_sms_gateway/PROVENANCE.md": "N/A",
+      "csd/z_sms_gateway/ZSMSCSD.csd": "N/A"
     },
     "csharp": {
       "csharp/SOURCES.md": "N/A"
@@ -1722,6 +1740,10 @@
       "hlasm/che4z_hlasm/remote2.hlasm": "N/A",
       "hlasm/che4z_hlasm/tutorial.hlasm": "N/A",
       "hlasm/che4z_hlasm/virtual_file.hlasm": "N/A"
+    },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECS002.asm": "N/A",
+      "hlasm/zecs/ZECSNC.asm": "N/A"
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": "N/A",
@@ -2498,6 +2520,20 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "N/A"
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/LICENSE.md": "N/A",
+      "pli/dsf_cics_admin/PROVENANCE.md": "N/A",
+      "pli/dsf_cics_admin/R0010301.pli": "N/A",
+      "pli/dsf_cics_admin/R0010420.pli": "N/A",
+      "pli/dsf_cics_admin/R0010421.pli": "N/A",
+      "pli/dsf_cics_admin/R0010422.pli": "N/A",
+      "pli/dsf_cics_admin/R0010423.pli": "N/A",
+      "pli/dsf_cics_admin/R0010424.pli": "N/A",
+      "pli/dsf_cics_admin/R0010425.pli": "N/A",
+      "pli/dsf_cics_admin/R0010426.pli": "N/A",
+      "pli/dsf_cics_admin/R0010427.pli": "N/A",
+      "pli/dsf_cics_admin/R001TK62.pli": "N/A"
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": "N/A",

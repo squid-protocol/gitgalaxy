@@ -1318,6 +1318,154 @@
         }
       ]
     },
+    "csd/z_sms_gateway": {
+      "csd/z_sms_gateway/ZSMSCSD.csd": [
+        {
+          "Attributes": "GROUP(ZSMSGRP) LANGUAGE(COBOL) DATALOCATION(ANY) EXECKEY(USER) RESIDENT(NO)",
+          "Group": "ZSMSGRP",
+          "Line": 7,
+          "Name": "MESSAGES",
+          "Program": "MESSAGES",
+          "Type": "PROGRAM"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) LANGUAGE(COBOL) DATALOCATION(ANY) EXECKEY(USER) RESIDENT(NO)",
+          "Group": "ZSMSGRP",
+          "Line": 10,
+          "Name": "HISTORY",
+          "Program": "HISTORY",
+          "Type": "PROGRAM"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) LANGUAGE(COBOL) DATALOCATION(ANY) EXECKEY(USER) RESIDENT(NO)",
+          "Group": "ZSMSGRP",
+          "Line": 13,
+          "Name": "BALANCE",
+          "Program": "BALANCE",
+          "Type": "PROGRAM"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) PROGRAM(MESSAGES)",
+          "Group": "ZSMSGRP",
+          "Line": 17,
+          "Name": "MSGS",
+          "Program": "MESSAGES",
+          "Transid": "MSGS",
+          "Type": "TRANSACTION"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) PROGRAM(HISTORY)",
+          "Group": "ZSMSGRP",
+          "Line": 18,
+          "Name": "HIST",
+          "Program": "HISTORY",
+          "Transid": "HIST",
+          "Type": "TRANSACTION"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) PROGRAM(BALANCE)",
+          "Group": "ZSMSGRP",
+          "Line": 19,
+          "Name": "BAL",
+          "Program": "BALANCE",
+          "Transid": "BAL",
+          "Type": "TRANSACTION"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) USAGE(SERVER) SCHEME(HTTP) HOST(*) PATH(/messages) TRANSACTION(MSGS) PROGRAM(MESSAGES)",
+          "Group": "ZSMSGRP",
+          "Line": 22,
+          "Name": "ZSMSMSG",
+          "Program": "MESSAGES",
+          "Transid": "MSGS",
+          "Type": "URIMAP"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) USAGE(SERVER) SCHEME(HTTP) HOST(*) PATH(/history) TRANSACTION(HIST) PROGRAM(HISTORY)",
+          "Group": "ZSMSGRP",
+          "Line": 27,
+          "Name": "ZSMSHIST",
+          "Program": "HISTORY",
+          "Transid": "HIST",
+          "Type": "URIMAP"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) USAGE(SERVER) SCHEME(HTTP) HOST(*) PATH(/balance) TRANSACTION(BAL) PROGRAM(BALANCE)",
+          "Group": "ZSMSGRP",
+          "Line": 32,
+          "Name": "ZSMSBAL",
+          "Program": "BALANCE",
+          "Transid": "BAL",
+          "Type": "URIMAP"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) PORTNUMBER(9081) PROTOCOL(HTTP) TRANSACTION(CWXN) STATUS(OPEN)",
+          "Group": "ZSMSGRP",
+          "Line": 39,
+          "Name": "ZSMSPORT",
+          "Transid": "CWXN",
+          "Type": "TCPIPSERVICE"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) DB2ID(DBBG)",
+          "Group": "ZSMSGRP",
+          "Line": 46,
+          "Name": "DB2CONN",
+          "Type": "DB2CONN"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) PLAN(MESSAGES) THREADLIMIT(20) AUTHID(IBMUSER)",
+          "Group": "ZSMSGRP",
+          "Line": 49,
+          "Name": "ZSMSENT",
+          "Plan": "MESSAGES",
+          "Type": "DB2ENTRY"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) PLAN(HISTORY) THREADLIMIT(20) AUTHID(IBMUSER)",
+          "Group": "ZSMSGRP",
+          "Line": 52,
+          "Name": "ZSMSHIS",
+          "Plan": "HISTORY",
+          "Type": "DB2ENTRY"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) PLAN(BALANCE) THREADLIMIT(20) AUTHID(IBMUSER)",
+          "Group": "ZSMSGRP",
+          "Line": 55,
+          "Name": "ZSMSBAL",
+          "Plan": "BALANCE",
+          "Type": "DB2ENTRY"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) ENTRY(ZSMSENT) TRANSID(MSGS)",
+          "DB2 Entry": "ZSMSENT",
+          "Group": "ZSMSGRP",
+          "Line": 59,
+          "Name": "ZSMSTRN",
+          "Transid": "MSGS",
+          "Type": "DB2TRAN"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) ENTRY(ZSMSHIS) TRANSID(HIST)",
+          "DB2 Entry": "ZSMSHIS",
+          "Group": "ZSMSGRP",
+          "Line": 61,
+          "Name": "ZSMSHTRN",
+          "Transid": "HIST",
+          "Type": "DB2TRAN"
+        },
+        {
+          "Attributes": "GROUP(ZSMSGRP) ENTRY(ZSMSBAL) TRANSID(BAL)",
+          "DB2 Entry": "ZSMSBAL",
+          "Group": "ZSMSGRP",
+          "Line": 63,
+          "Name": "ZSMSHBAL",
+          "Transid": "BAL",
+          "Type": "DB2TRAN"
+        }
+      ]
+    },
     "jcl/cics-genapp": {
       "jcl/cics-genapp/cdef121.jcl": [
         {

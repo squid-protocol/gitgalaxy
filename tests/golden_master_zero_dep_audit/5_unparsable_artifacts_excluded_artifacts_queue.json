@@ -12,12 +12,12 @@
       "Size": "20480 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Static Asset Blob without Intent: 2466 LOC)",
+      "Diagnostic Reason": "Blocked (Static Asset Blob without Intent: 2488 LOC)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
       "Path": "PROVENANCE.json",
-      "Size": "73578 bytes"
+      "Size": "74180 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 62 LOC)",
@@ -220,12 +220,20 @@
       "Size": "18092 bytes"
     },
     {
-      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 72 LOC)",
+      "Diagnostic Reason": "Blocked (Machine-Generated Source Code Signature: 74 LOC)",
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
       "Path": "cobol/SOURCES.md",
-      "Size": "7912 bytes"
+      "Size": "8878 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "cobol/Z-SMS-Gateway/LICENSE",
+      "Size": "11357 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -336,6 +344,14 @@
       "Discovery Proof": "Radar Scan",
       "Forensic Category": "Excluded Artifact",
       "Identity Confidence": "0.0%",
+      "Path": "cobol/zECS/LICENSE",
+      "Size": "11357 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
       "Path": "cobol/zopeneditor-sample/LICENSE",
       "Size": "11357 bytes"
     },
@@ -378,6 +394,14 @@
       "Identity Confidence": "0.0%",
       "Path": "cpp/powertoys/LICENSE",
       "Size": "1120 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "csd/z_sms_gateway/LICENSE",
+      "Size": "11357 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
@@ -762,6 +786,14 @@
       "Identity Confidence": "0.0%",
       "Path": "haskell/pandoc/CITATION.cff",
       "Size": "492 bytes"
+    },
+    {
+      "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",
+      "Discovery Proof": "Radar Scan",
+      "Forensic Category": "Excluded Artifact",
+      "Identity Confidence": "0.0%",
+      "Path": "hlasm/zecs/LICENSE",
+      "Size": "11357 bytes"
     },
     {
       "Diagnostic Reason": "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)",

@@ -4,7 +4,7 @@
     "unparsable_files"
   ],
   "value": {
-    "ambig_file_count": 344,
+    "ambig_file_count": 348,
     "binary": 0,
     "composition_by_extension_and_reason": {
       ".ads": {
@@ -64,7 +64,7 @@
         "Packed Payload Guard (Impossible Density: 3.32 hits/line)": 1
       },
       ".json": {
-        "Blocked (Static Asset Blob without Intent: 2466 LOC)": 1
+        "Blocked (Static Asset Blob without Intent: 2488 LOC)": 1
       },
       ".lds": {
         "Blocked (Unsupported Extension: '.lds')": 1
@@ -86,7 +86,7 @@
         "Blocked (Machine-Generated Source Code Signature: 29 LOC)": 1,
         "Blocked (Machine-Generated Source Code Signature: 39 LOC)": 1,
         "Blocked (Machine-Generated Source Code Signature: 48 LOC)": 1,
-        "Blocked (Machine-Generated Source Code Signature: 72 LOC)": 1
+        "Blocked (Machine-Generated Source Code Signature: 74 LOC)": 1
       },
       ".ps1": {
         "Blocked (Machine-Generated Source Code Signature: 99 LOC)": 1,
@@ -174,7 +174,7 @@
       "no_extension": {
         "Blocked (Monolithic Amalgamation: 36288 LOC exceeds safe regex boundaries)": 1,
         "Blocked (Saturation: Line 1 exceeds 500 chars)": 3,
-        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 113,
+        "Blocked (System Exclusion, Hidden Directory, or Dynamic Ignored Dir)": 117,
         "Unsupported Format (.undeterminable)": 1
       }
     },

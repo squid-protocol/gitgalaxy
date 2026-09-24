@@ -1,5 +1,15 @@
 {
   "groups": {
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": [
+        {
+          "Entry": null,
+          "Kind": "PROCEDURE",
+          "Line": 47,
+          "Params": "DFHEIBLK,DFHCOMMAREA,LS-SMS-PARAM"
+        }
+      ]
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": [
         {

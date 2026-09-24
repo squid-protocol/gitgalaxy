@@ -145,6 +145,12 @@
       "cobol/CICS-Cobol/CBL0805v01TableUseIndiceWithSet.cbl": 12,
       "cobol/CICS-Cobol/CBL0807v01TableSearchAll.cbl": 8
     },
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": 76,
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": 49,
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": 146,
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": 40
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": 39,
       "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": 39,
@@ -406,6 +412,12 @@
       "cobol/gnucobol_internals/parser.y": 5824,
       "cobol/gnucobol_internals/scanner.l": 1092
     },
+    "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": 105,
+      "cobol/zECS/ZECS000.cbl": 90,
+      "cobol/zECS/ZECS003.cbl": 38,
+      "cobol/zECS/ZECSPLT.cbl": 7
+    },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/SAM1.cbl": 169,
       "cobol/zopeneditor-sample/SAM2.cbl": 107
@@ -653,6 +665,10 @@
       "groovy/spring_boot_gradle/build-plugin_spring-boot-gradle-plugin_build.gradle": 26,
       "groovy/spring_boot_gradle/cli_spring-boot-cli_build.gradle": 20,
       "groovy/spring_boot_gradle/configuration-metadata_spring-boot-configuration-metadata-changelog-generator_build.gradle": 13
+    },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECS002.asm": 6,
+      "hlasm/zecs/ZECSNC.asm": 3
     },
     "html/cesium_sandcastle": {
       "html/cesium_sandcastle/gallery_cylinders_and_cones.html": 6
@@ -930,6 +946,16 @@
       "php/wordpress/plugin.php": 209,
       "php/wordpress/wp-login.php": 456,
       "php/wordpress/wp-settings.php": 55
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/R0010301.pli": 193,
+      "pli/dsf_cics_admin/R0010420.pli": 26,
+      "pli/dsf_cics_admin/R0010422.pli": 74,
+      "pli/dsf_cics_admin/R0010423.pli": 59,
+      "pli/dsf_cics_admin/R0010424.pli": 40,
+      "pli/dsf_cics_admin/R0010425.pli": 46,
+      "pli/dsf_cics_admin/R0010426.pli": 24,
+      "pli/dsf_cics_admin/R001TK62.pli": 53
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PSAM1.pli": 73,

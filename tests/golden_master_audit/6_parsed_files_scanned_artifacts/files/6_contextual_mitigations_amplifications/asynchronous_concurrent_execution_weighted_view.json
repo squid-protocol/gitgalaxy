@@ -29,6 +29,10 @@
       "cobol/cics-genapp/lgicvs01.cbl": 12,
       "cobol/cics-genapp/lgtestc1.cbl": 7
     },
+    "cobol/zECS": {
+      "cobol/zECS/ZECS000.cbl": 25,
+      "cobol/zECS/ZECSPLT.cbl": 6
+    },
     "cpp/NVDA": {
       "cpp/NVDA/braille.py": 13,
       "cpp/NVDA/core.py": 22

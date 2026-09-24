@@ -1,5 +1,158 @@
 {
   "groups": {
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 97,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 105,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 113,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 121,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 129,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 137,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        }
+      ],
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 121,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 129,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 137,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 145,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        }
+      ],
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 131,
+          "RESP Field": "WS-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        }
+      ],
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 52,
+          "RESP Field": "WS-RESPONSE-CODE",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 97,
+          "RESP Field": "WS-RESPONSE-CODE",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        }
+      ]
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/COACTUPC.cbl": [
         {
@@ -6288,6 +6441,665 @@
           "Target": null,
           "Target Kind": null,
           "Verb": "ABEND"
+        }
+      ]
+    },
+    "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": [
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 99,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RECEIVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 191,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 243,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 259,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 307,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "INQUIRE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 348,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 411,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SEND"
+        }
+      ],
+      "cobol/zECS/ZECS000.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "HANDLE_ABEND",
+          "Line": 252,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": "9100-ABEND",
+          "Target Kind": "LABEL",
+          "Verb": "HANDLE ABEND"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 257,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "RETRIEVE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 269,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASKTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL,NOTFND",
+          "Kind": "RESP_CHECK",
+          "Line": 289,
+          "RESP Field": "ZX-RESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "ENQBUSY",
+          "Kind": "RESP_CHECK",
+          "Line": 312,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ENQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 333,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "FORMATTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": "DUPREC",
+          "Kind": "RESP_CHECK",
+          "Line": 346,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 368,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "FORMATTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 389,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 411,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 478,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 498,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "REWRITE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "COMMIT",
+          "Line": 504,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 504,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 525,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 546,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "COMMIT",
+          "Line": 560,
+          "RESP Field": null,
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 560,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "SYNCPOINT"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 563,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELAY"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 576,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DOCUMENT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 584,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DOCUMENT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 597,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 625,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 651,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "INQUIRE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 672,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 696,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 713,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "START"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 732,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "START"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 771,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "FORMATTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 780,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 793,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASKTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 810,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DOCUMENT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 815,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DOCUMENT"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 827,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        }
+      ],
+      "cobol/zECS/ZECS003.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 196,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "ASKTIME"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 249,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "READ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 272,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 279,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DELETE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 307,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DOCUMENT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 315,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "DOCUMENT"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 328,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 355,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 378,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "INQUIRE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 400,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 426,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 440,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WEB"
+        }
+      ],
+      "cobol/zECS/ZECSPLT.cbl": [
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 77,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "INQUIRE"
+        },
+        {
+          "Attributes": null,
+          "Condition": "NORMAL",
+          "Kind": "RESP_CHECK",
+          "Line": 88,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "INQUIRE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 126,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "START"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 135,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITEQ"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 141,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "WRITE"
+        },
+        {
+          "Attributes": null,
+          "Condition": null,
+          "Kind": "RESP_CHECK",
+          "Line": 153,
+          "RESP Field": "EIBRESP",
+          "Source": "CICS",
+          "Target": null,
+          "Target Kind": null,
+          "Verb": "INQUIRE"
         }
       ]
     }

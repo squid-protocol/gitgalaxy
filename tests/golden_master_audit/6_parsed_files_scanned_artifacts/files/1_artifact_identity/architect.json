@@ -504,6 +504,12 @@
       "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": "ALDV",
       "cobol/CICS-Cobol/CBL1001v01ManejoCICS.cbl": "ALDV"
     },
+    "cobol/Z-SMS-Gateway": {
+      "cobol/Z-SMS-Gateway/BALANCE.cbl": "Unknown Architect",
+      "cobol/Z-SMS-Gateway/HISTORY.cbl": "Unknown Architect",
+      "cobol/Z-SMS-Gateway/MESSAGES.cbl": "Unknown Architect",
+      "cobol/Z-SMS-Gateway/SENDSMS.cbl": "Unknown Architect"
+    },
     "cobol/aws-mainframe-modernization-carddemo": {
       "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": "Unknown Architect",
       "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": "Unknown Architect",
@@ -1040,6 +1046,14 @@
       "cobol/gnucobol_internals/scanner.l": "Unknown Architect",
       "cobol/gnucobol_internals/syn_misc.at": "Unknown Architect"
     },
+    "cobol/zECS": {
+      "cobol/zECS/ECS001.cbl": "Unknown Architect",
+      "cobol/zECS/ZECS000.cbl": "Unknown Architect",
+      "cobol/zECS/ZECS003.cbl": "Unknown Architect",
+      "cobol/zECS/ZECSPLT.cbl": "Unknown Architect",
+      "cobol/zECS/ZECSZFC.cpy": "Unknown Architect",
+      "cobol/zECS/ZECSZKC.cpy": "Unknown Architect"
+    },
     "cobol/zopeneditor-sample": {
       "cobol/zopeneditor-sample/CUSTCOPY.cpy": "Unknown Architect",
       "cobol/zopeneditor-sample/DATETIME.cpy": "Unknown Architect",
@@ -1113,6 +1127,10 @@
     "csd/cbsa": {
       "csd/cbsa/BANK.csd": "Unknown Architect",
       "csd/cbsa/PROVENANCE.md": "Unknown Architect"
+    },
+    "csd/z_sms_gateway": {
+      "csd/z_sms_gateway/PROVENANCE.md": "Unknown Architect",
+      "csd/z_sms_gateway/ZSMSCSD.csd": "Unknown Architect"
     },
     "csharp": {
       "csharp/SOURCES.md": "Unknown Architect"
@@ -1722,6 +1740,10 @@
       "hlasm/che4z_hlasm/remote2.hlasm": "Unknown Architect",
       "hlasm/che4z_hlasm/tutorial.hlasm": "Unknown Architect",
       "hlasm/che4z_hlasm/virtual_file.hlasm": "Unknown Architect"
+    },
+    "hlasm/zecs": {
+      "hlasm/zecs/ZECS002.asm": "Randy Frerking and Rich Jackson",
+      "hlasm/zecs/ZECSNC.asm": "Randy Frerking and Rich Jackson"
     },
     "hlasm/zopeneditor_sample": {
       "hlasm/zopeneditor_sample/ASAM1.asm": "DOUG STOUT",
@@ -2498,6 +2520,20 @@
     },
     "plaintext/opencv/include": {
       "plaintext/opencv/include/CMakeLists.txt": "Unknown Architect"
+    },
+    "pli/dsf_cics_admin": {
+      "pli/dsf_cics_admin/LICENSE.md": "Unknown Architect",
+      "pli/dsf_cics_admin/PROVENANCE.md": "Unknown Architect",
+      "pli/dsf_cics_admin/R0010301.pli": "Unknown Architect",
+      "pli/dsf_cics_admin/R0010420.pli": "Unknown Architect",
+      "pli/dsf_cics_admin/R0010421.pli": "Unknown Architect",
+      "pli/dsf_cics_admin/R0010422.pli": "Unknown Architect",
+      "pli/dsf_cics_admin/R0010423.pli": "Unknown Architect",
+      "pli/dsf_cics_admin/R0010424.pli": "Unknown Architect",
+      "pli/dsf_cics_admin/R0010425.pli": "Unknown Architect",
+      "pli/dsf_cics_admin/R0010426.pli": "Unknown Architect",
+      "pli/dsf_cics_admin/R0010427.pli": "Unknown Architect",
+      "pli/dsf_cics_admin/R001TK62.pli": "Unknown Architect"
     },
     "pli/zopeneditor_sample": {
       "pli/zopeneditor_sample/PROVENANCE.md": "Unknown Architect",

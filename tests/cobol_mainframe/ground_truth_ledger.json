@@ -204,7 +204,7 @@
             "truth": 558
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "JCL resolved DSNs": {
           "engine": {
@@ -241,7 +241,7 @@
             "truth": 24
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "async children": {
           "engine": {
@@ -342,7 +342,7 @@
             "truth": 54
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "inputs": {
           "engine": {
@@ -969,7 +969,7 @@
             "truth": 410
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "JCL resolved DSNs": {
           "engine": {
@@ -1002,7 +1002,7 @@
             "truth": 2
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "async children": {
           "engine": {
@@ -1103,7 +1103,7 @@
             "truth": 1
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "inputs": {
           "engine": {
@@ -1248,7 +1248,7 @@
             "truth": 138
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "JCL resolved DSNs": {
           "engine": {
@@ -1378,7 +1378,7 @@
             "truth": 12
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "inputs": {
           "engine": {

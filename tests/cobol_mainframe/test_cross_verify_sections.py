@@ -156,3 +156,162 @@ def test_a_verb_the_kind_fixes_may_be_omitted():
     assert cs.canon_uow({"line": 3, "kind": "RESP_CHECK", "verb": None}) != cs.canon_uow(
         {"line": 3, "kind": "RESP_CHECK", "verb": "READ"}
     )
+
+
+# ---- the `files` suite (#3455 / #3451) ------------------------------------------
+FILE_KEY = {
+    "corpus": "k",
+    "ref": "0" * 40,
+    "programs": {},
+    "file_control": {
+        "P.cbl": {
+            "selects": [
+                {
+                    "select": "X-FILE",
+                    "assign": "XDD",
+                    "org": "INDEXED",
+                    "access": "RANDOM",
+                    "key": "X-KEY",
+                    "alt": ["X-ALT+DUP"],
+                    "rel": None,
+                    "status": "X-ST",
+                    "copies": ["XREC"],
+                    "line": 5,
+                }
+            ],
+            "file_control_validated": False,
+        }
+    },
+    "vsam_defines": {
+        "D.jcl": {
+            "defines": [
+                {
+                    "kind": "CLUSTER",
+                    "name": "A.KSDS",
+                    "org": "INDEXED",
+                    "keys": [8, 0],
+                    "rec": [80, 80],
+                    "related": None,
+                    "unique": None,
+                    "upgrade": None,
+                    "step": "S1",
+                    "line": 4,
+                }
+            ],
+            "vsam_validated": False,
+        }
+    },
+    "job_flow": {
+        "D.jcl": {
+            "rows": [
+                {"kind": "JOB", "name": "D", "cond": None, "line": 1},
+                {
+                    "kind": "STEP",
+                    "ord": 1,
+                    "step": "S2",
+                    "pgm": "SORT",
+                    "proc": None,
+                    "cond": "(4,LT)",
+                    "if": "(S1.RC = 0)",
+                    "in": None,
+                    "line": 9,
+                },
+                {
+                    "kind": "DD",
+                    "step": "S2",
+                    "dd": "OUT",
+                    "dsn": "A.B",
+                    "disp": "NEW",
+                    "gen": "+1",
+                    "in": None,
+                    "line": 10,
+                },
+            ],
+            "jobflow_validated": False,
+        }
+    },
+}
+
+
+def _files_answer() -> dict:
+    return {
+        "files": {
+            "P.cbl": {
+                "selects": [
+                    {
+                        "line": 5,
+                        "select": "X-FILE",
+                        "assign": "XDD",
+                        "organization": "INDEXED",
+                        "access_mode": "RANDOM",
+                        "record_key": "X-KEY",
+                        "alternate_keys": [{"name": "X-ALT", "duplicates": True}],
+                        "relative_key": None,
+                        "file_status": "X-ST",
+                        "fd_copies": ["XREC"],
+                    }
+                ]
+            },
+            "D.jcl": {
+                "vsam": [
+                    {
+                        "line": 4,
+                        "kind": "CLUSTER",
+                        "name": "A.KSDS",
+                        "organization": "INDEXED",
+                        "key_length": 8,
+                        "key_offset": 0,
+                        "record_avg": 80,
+                        "record_max": 80,
+                        "step": "S1",
+                    }
+                ],
+                "flow": [
+                    {"kind": "JOB", "line": 1, "name": "D"},
+                    # Blanks inside a condition and a bare `1` generation normalise.
+                    {
+                        "kind": "STEP",
+                        "line": 9,
+                        "ordinal": 1,
+                        "step": "S2",
+                        "program": "SORT",
+                        "cond": "(4, LT)",
+                        "if_cond": "(S1.RC=0)",
+                    },
+                    {
+                        "kind": "DD",
+                        "line": 10,
+                        "step": "S2",
+                        "dd": "OUT",
+                        "dsn": "A.B",
+                        "disp": "NEW",
+                        "generation": "1",
+                    },
+                ],
+            },
+        }
+    }
+
+
+def test_files_suite_brief_is_blind_and_an_agreeing_reviewer_grades_clean():
+    brief, truth = cs.render_files(FILE_KEY, REPO, ["P.cbl", "D.jcl"], 1, 1)
+    for leaked in ("X-KEY", "A.KSDS", "SORT", "XREC"):
+        assert leaked not in brief, leaked
+    assert truth["suite"] == "files"
+    g = cs.grade(truth, _files_answer(), REPO)
+    assert g["disagreements"] == [] and g["tasks"]["flow"] == {"agree": 3, "asked": 3}
+
+
+def test_files_suite_sign_sets_its_own_flags_and_coverage():
+    _brief, truth = cs.render_files(FILE_KEY, REPO, ["P.cbl", "D.jcl"], 1, 1)
+    ans = _files_answer()
+    ans["files"]["D.jcl"]["flow"].pop()
+    g = cs.grade(truth, ans, REPO)
+    (d,) = g["disagreements"]
+    signed = cs.sign(
+        copy.deepcopy(FILE_KEY), truth, g, {d["id"]: {"verdict": "key_correct", "why": "D.jcl:10"}}, "rev", at="d"
+    )
+    assert signed["job_flow"]["D.jcl"]["jobflow_validated"] is True
+    assert signed["file_control"]["P.cbl"]["verification"]["tier"] == "cross_verified"
+    assert cs.coverage(signed, ["P.cbl", "D.jcl"], "files")["files"] == [2, 2]
+    assert cs.coverage(signed, ["P.cbl", "D.jcl"], "channels")["files"] == [0, 2]

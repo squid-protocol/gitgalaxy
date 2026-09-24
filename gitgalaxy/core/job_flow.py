@@ -80,7 +80,12 @@ def _statements(code_stream: str) -> list[tuple[int, str, str, str]]:
     pending: Optional[list] = None
     for no, raw in enumerate(code_stream.split("\n"), 1):
         line = raw[:72].rstrip()
-        if not line.startswith("//") or line.startswith("//*"):
+        # A `//*` comment -- or the empty line PRISM leaves for one -- may sit inside a
+        # continued statement (CardDemo BUILDONL: DSN=...,  //* ...  //  DISP=SHR);
+        # it neither ends nor joins it. In-stream data ends it.
+        if not line or line.startswith("//*"):
+            continue
+        if not line.startswith("//"):
             if pending:
                 out.append(tuple(pending))  # type: ignore[arg-type]
                 pending = None

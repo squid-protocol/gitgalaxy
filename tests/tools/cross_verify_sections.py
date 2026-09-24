@@ -13,10 +13,18 @@ their own per-file blocks, each with its own sign-off flag:
     job_submissions   submissions_validated    jobs submitted to the internal reader (corpus-wide)
     tdq_triggers      tdq_triggers_validated   transactions a filling TD queue starts (corpus-wide)
 
-    python tests/tools/cross_verify_sections.py census   --corpus NAME --out DIR --stage DIR [--max-items 70]
+    python tests/tools/cross_verify_sections.py census   --corpus NAME --out DIR --stage DIR [--max-items 70] [--suite channels|files]
     python tests/tools/cross_verify_sections.py grade    --corpus NAME --dir DIR/batch_NN
     python tests/tools/cross_verify_sections.py sign     --corpus NAME --dir DIR/batch_NN --by "REVIEWER"
-    python tests/tools/cross_verify_sections.py coverage --corpus NAME
+    python tests/tools/cross_verify_sections.py coverage --corpus NAME [--suite channels|files]
+
+SUITES. `channels` (the default) is the six sections above, asked of every COBOL
+source. `files` (#3455 / #3451) is the file-definition sections, asked of every
+COBOL program and JCL member:
+
+    file_control      file_control_validated   each FILE-CONTROL SELECT's clauses and FD COPYs
+    vsam_defines      vsam_validated           IDCAMS DEFINE CLUSTER / AIX / PATH
+    job_flow          jobflow_validated        JCL JOB / STEP / DSN-DD rows
 
 The census asks about EVERY COBOL source of the corpus -- files the key lists
 nothing for included, so "none" is checked too (recall, not only precision) --
@@ -318,8 +326,251 @@ OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-re
     return brief, truth
 
 
+# ---- the `files` suite (#3455 / #3451) -------------------------------------------
+FILE_TASKS = ("selects", "vsam", "flow")
+FILE_SECTIONS = {
+    "selects": ("file_control", "file_control_validated"),
+    "vsam": ("vsam_defines", "vsam_validated"),
+    "flow": ("job_flow", "jobflow_validated"),
+}
+PROGRAM_EXTS = (".cbl", ".cob", ".cobol", ".ccp")
+JCL_EXTS = (".jcl", ".prc")
+
+
+def _nsp(v: Any) -> str:
+    """A condition with every blank dropped: `(STEP10.RC = 0)` == `(STEP10.RC=0)`."""
+    return re.sub(r"\s+", "", str(v)).upper() if v not in (None, "") else "-"
+
+
+def _list(v: Any) -> str:
+    return ",".join(sorted(_ws(x) for x in v)) if v else "-"
+
+
+def canon_select(r: dict[str, Any]) -> str:
+    return (
+        f"L{int(r.get('line') or 0)} {_ws(r.get('select'))} ASSIGN={_d(r.get('assign'))} ORG={_d(r.get('org'))} "
+        f"ACCESS={_d(r.get('access'))} KEY={_d(r.get('key'))} ALT={_list(r.get('alt'))} REL={_d(r.get('rel'))} "
+        f"STATUS={_d(r.get('status'))} COPY={_list(r.get('copies'))}"
+    )
+
+
+def canon_vsam(r: dict[str, Any]) -> str:
+    keys = ",".join(str(x) for x in r["keys"]) if r.get("keys") else "-"
+    rec = ",".join(str(x) for x in r["rec"]) if r.get("rec") else "-"
+    return (
+        f"L{int(r.get('line') or 0)} {_ws(r.get('kind'))} {_d(r.get('name'))} ORG={_d(r.get('org'))} KEYS={keys} "
+        f"REC={rec} REL={_d(r.get('related'))} UNIQ={_d(r.get('unique'))} UPG={_d(r.get('upgrade'))} "
+        f"STEP={_d(r.get('step'))}"
+    )
+
+
+def canon_flow(r: dict[str, Any]) -> str:
+    line = int(r.get("line") or 0)
+    kind = _ws(r.get("kind"))
+    if kind == "JOB":
+        return f"L{line} JOB {_d(r.get('name'))} COND={_nsp(r.get('cond'))}"
+    if kind == "STEP":
+        return (
+            f"L{line} STEP {int(r.get('ord') or 0)} {_d(r.get('step'))} PGM={_d(r.get('pgm'))} "
+            f"PROC={_d(r.get('proc'))} COND={_nsp(r.get('cond'))} IF={_nsp(r.get('if'))} IN={_d(r.get('in'))}"
+        )
+    gen = r.get("gen")
+    if gen not in (None, ""):
+        n = int(str(gen))
+        gen = f"+{n}" if n > 0 else str(n)
+    return (
+        f"L{line} DD {_d(r.get('step'))}.{_d(r.get('dd'))} DSN={_d(r.get('dsn'))} DISP={_d(r.get('disp'))} "
+        f"GEN={_d(gen)} IN={_d(r.get('in'))}"
+    )
+
+
+def key_facts_files(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    out: dict[str, dict[str, list[str]]] = {t: {} for t in FILE_TASKS}
+    for rel in files:
+        out["selects"][rel] = sorted(
+            {canon_select(r) for r in key.get("file_control", {}).get(rel, {}).get("selects", [])}
+        )
+        out["vsam"][rel] = sorted({canon_vsam(r) for r in key.get("vsam_defines", {}).get(rel, {}).get("defines", [])})
+        out["flow"][rel] = sorted({canon_flow(r) for r in key.get("job_flow", {}).get(rel, {}).get("rows", [])})
+    return out
+
+
+def reviewer_facts_files(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    def rel(p: str) -> str:
+        root = str(repo).rstrip("/") + "/"
+        return p[len(root) :] if p.startswith(root) else p
+
+    out: dict[str, dict[str, set[str]]] = {t: {} for t in FILE_TASKS}
+    for path, v in (answers.get("files") or {}).items():
+        r, v = rel(path), v or {}
+        sel = []
+        for x in v.get("selects", []):
+            if not isinstance(x, dict):
+                continue
+            alt = [
+                a["name"] + ("+DUP" if a.get("duplicates") else "") if isinstance(a, dict) else a
+                for a in x.get("alternate_keys") or []
+            ]
+            sel.append(
+                canon_select(
+                    {
+                        "line": x.get("line"),
+                        "select": x.get("select"),
+                        "assign": x.get("assign"),
+                        "org": x.get("organization"),
+                        "access": x.get("access_mode"),
+                        "key": x.get("record_key"),
+                        "alt": alt,
+                        "rel": x.get("relative_key"),
+                        "status": x.get("file_status"),
+                        "copies": x.get("fd_copies") or [],
+                    }
+                )
+            )
+        out["selects"][r] = set(sel)
+        vs = []
+        for x in v.get("vsam", []):
+            if not isinstance(x, dict):
+                continue
+            keys = [x.get("key_length"), x.get("key_offset")]
+            rec = [x.get("record_avg"), x.get("record_max")]
+            vs.append(
+                canon_vsam(
+                    {
+                        "line": x.get("line"),
+                        "kind": x.get("kind"),
+                        "name": x.get("name"),
+                        "org": x.get("organization"),
+                        "keys": [k for k in keys if k is not None] or None,
+                        "rec": [k for k in rec if k is not None] or None,
+                        "related": x.get("related"),
+                        "unique": x.get("unique"),
+                        "upgrade": x.get("upgrade"),
+                        "step": x.get("step"),
+                    }
+                )
+            )
+        out["vsam"][r] = set(vs)
+        fl = []
+        for x in v.get("flow", []):
+            if not isinstance(x, dict):
+                continue
+            fl.append(
+                canon_flow(
+                    {
+                        "line": x.get("line"),
+                        "kind": x.get("kind"),
+                        "name": x.get("name"),
+                        "ord": x.get("ordinal"),
+                        "step": x.get("step"),
+                        "pgm": x.get("program"),
+                        "proc": x.get("proc"),
+                        "cond": x.get("cond"),
+                        "if": x.get("if_cond"),
+                        "in": x.get("in_proc"),
+                        "dd": x.get("dd"),
+                        "dsn": x.get("dsn"),
+                        "disp": x.get("disp"),
+                        "gen": x.get("generation"),
+                    }
+                )
+            )
+        out["flow"][r] = set(fl)
+    return out
+
+
+def corpus_files_files(repo: Path) -> list[str]:
+    return sorted(
+        p.relative_to(repo).as_posix()
+        for p in repo.rglob("*")
+        if p.is_file() and p.suffix.lower() in PROGRAM_EXTS + JCL_EXTS and ".git" not in p.parts
+    )
+
+
+def batches_files(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    facts = key_facts_files(key, files)
+    load = {f: 1 + sum(len(facts[t].get(f, [])) for t in FILE_TASKS) for f in files}
+    out: list[list[str]] = []
+    sizes: list[int] = []
+    for f in sorted(files, key=lambda x: (-load[x], x)):
+        for i, sz in enumerate(sizes):
+            if sz + load[f] <= max_items:
+                out[i].append(f)
+                sizes[i] += load[f]
+                break
+        else:
+            out.append([f])
+            sizes.append(load[f])
+    return [sorted(b) for b in out]
+
+
+def render_files(key: dict[str, Any], repo: Path, files: list[str], index: int, of: int) -> tuple[str, dict[str, Any]]:
+    truth = {
+        "corpus": key["corpus"],
+        "ref": key["ref"],
+        "root": str(repo),
+        "mode": "section_census",
+        "suite": "files",
+        "batch": index,
+        "of": of,
+        "files": files,
+        "facts": key_facts_files(key, files),
+    }
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM mainframe COBOL and JCL source code, as a second reviewer.
+Read the source files yourself. They are all under the repository root {repo}; read only inside that directory. Do
+NOT edit or create any files except your answers file, and do not look for any existing answer key or analysis of
+this code: the point is an independent reading. Read the source directly (grep/sed/cat or a file reader). Line
+numbers are 1-based physical line numbers. Ignore comment lines and columns 73-80 of every line.
+
+{FIXED_FORMAT_RULES}
+JCL: a statement starts on a `//` line; it continues onto the next `//` line when its operand field ends with a
+comma. `//*` lines are comments. Lines not starting with `//` are in-stream data.
+
+For EACH file below answer the tasks that apply (COBOL programs: SELECTS; JCL members: VSAM and FLOW); an empty
+list when a file has none.
+
+TASK SELECTS (COBOL) -- every FILE-CONTROL `SELECT` entry: "line" (of the word SELECT), "select" (the file name),
+"assign" (the ASSIGN target, quotes removed), "organization" (INDEXED / RELATIVE / SEQUENTIAL / LINE SEQUENTIAL as
+coded -- `ORGANIZATION IS x` or a bare INDEXED / RELATIVE / SEQUENTIAL -- or null when the file has no
+organization clause), "access_mode" (SEQUENTIAL / RANDOM / DYNAMIC, or null), "record_key", "relative_key",
+"file_status" (the first data-name after FILE STATUS), each null when absent, "alternate_keys" ([{{"name": ..,
+"duplicates": true|false}}]), and "fd_copies" (the members of the COPY statements inside that file's FD entry, from
+`FD name` to the next FD / SD / section header; [] when none).
+
+TASK VSAM (JCL) -- every IDCAMS DEFINE CLUSTER / DEFINE ALTERNATEINDEX (AIX) / DEFINE PATH in in-stream data
+(continuation lines end in `-`): "line" (of the DEFINE), "kind" (CLUSTER / AIX / PATH), "name", "organization"
+(INDEXED / NUMBERED / NONINDEXED / LINEAR, or null), "key_length" / "key_offset" (KEYS(l o)), "record_avg" /
+"record_max" (RECORDSIZE(a m)), "related" (an AIX's RELATE, a PATH's PATHENTRY), "unique" (an AIX's UNIQUE /
+NONUNIQUE when UNIQUEKEY / NONUNIQUEKEY is coded), "upgrade" (an AIX's UPGRADE / NOUPGRADE when coded), "step" (the
+EXEC step name the IDCAMS input belongs to); null where not coded. Read only the object's own parameters, not those
+of its DATA( ) / INDEX( ) components. Not DEFINE GDG.
+
+TASK FLOW (JCL) -- one entry per JOB statement, EXEC statement and DD statement that codes DSN= / DSNAME=:
+  - JOB: "kind": "JOB", "line", "name", "cond" (the JOB's COND= value as written, else null).
+  - EXEC: "kind": "STEP", "line", "ordinal" (1, 2, ... in order within its job; within a PROC definition the
+    numbering restarts at 1), "step" (the step name), "program" (PGM=), "proc" (PROC=x, or the procedure named as
+    the first positional operand), "cond" (COND= as written), "if_cond" (the condition of each enclosing
+    `IF ... THEN`, as written between IF and THEN; inside the ELSE branch write "NOT " before it; nested ones
+    joined with " AND "), "in_proc" (the name of the PROC being defined -- between a PROC statement and PEND, or in
+    a member that starts with a PROC statement -- else null).
+  - DD with a DSN: "kind": "DD", "line", "step" (the current step name; for an override `//PROCSTEP.DDNAME` the
+    PROCSTEP), "dd" (the DD name; an unnamed concatenation DD takes the name of the DD above it), "dsn" (upper
+    case, without a trailing GDG generation like (+1) / (0) / (-1)), "disp" (the first DISP sub-parameter: NEW /
+    OLD / SHR / MOD; NEW when DISP is not coded or its first sub-parameter is omitted, as in DISP=(,CATLG)),
+    "generation" ("+1" / "0" / "-1" ..., else null), "in_proc" (as for EXEC).
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"selects": [...], "vsam": [...], "flow": [...]}}, ...every file above...}}}}
+"""
+    return brief, truth
+
+
 def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[str, Any]:
-    got = reviewer_facts(answers, repo)
+    got = reviewer_facts_files(answers, repo) if truth.get("suite") == "files" else reviewer_facts(answers, repo)
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
     for task, per_file in truth["facts"].items():
         if task in CORPUS_WIDE and not truth.get("wide"):
@@ -365,8 +616,9 @@ def sign(
     at = at or datetime.now(timezone.utc).strftime("%Y-%m-%d")
     # Read twice, blind, with every disagreement settled: the program census tier.
     stamp = {"status": "validated", "tier": "cross_verified", "cross_by": by, "census": {"by": by, "at": at}}
+    per_file = set(FILE_SECTIONS.values()) if truth.get("suite") == "files" else {SECTIONS[t] for t in PER_FILE}
     for rel in truth["files"]:
-        for section, flag in {SECTIONS[t] for t in PER_FILE}:
+        for section, flag in per_file:
             entry = key.get(section, {}).get(rel)
             if entry is not None:
                 entry[flag] = True
@@ -383,6 +635,7 @@ def sign(
             "batch": truth["batch"],
             "files": truth["files"],
             "wide": truth.get("wide", False),
+            "suite": truth.get("suite", "channels"),
             "tasks": g["tasks"],
             "rulings": {i: rulings[i] for i in sorted(rulings)},
         }
@@ -390,9 +643,11 @@ def sign(
     return key
 
 
-def coverage(key: dict[str, Any], files: list[str]) -> dict[str, Any]:
-    done = {f for rec in key.get("section_census", []) for f in rec["files"]}
-    wide = any(rec.get("wide") for rec in key.get("section_census", []))
+def coverage(key: dict[str, Any], files: list[str], suite: str = "channels") -> dict[str, Any]:
+    recs = [r for r in key.get("section_census", []) if r.get("suite", "channels") == suite]
+    done = {f for rec in recs for f in rec["files"]}
+    # The files suite has no corpus-wide task.
+    wide = suite == "files" or any(rec.get("wide") for rec in recs)
     return {"files": [len(done & set(files)), len(files)], "wide": wide, "missing": sorted(set(files) - done)}
 
 
@@ -404,8 +659,10 @@ def main() -> int:
     c.add_argument("--out", type=Path, required=True)
     c.add_argument("--stage", type=Path, required=True)
     c.add_argument("--max-items", type=int, default=70)
+    c.add_argument("--suite", choices=("channels", "files"), default="channels")
     cov = sub.add_parser("coverage")
     cov.add_argument("--corpus", required=True)
+    cov.add_argument("--suite", choices=("channels", "files"), default="channels")
     for name in ("grade", "sign"):
         s = sub.add_parser(name)
         s.add_argument("--corpus", required=True)
@@ -417,11 +674,12 @@ def main() -> int:
     (corpus,) = mc.select([args.corpus])
     key = load_key(corpus)
     repo = mc.require_clone(corpus)
-    files = corpus_files(repo)
+    suite = getattr(args, "suite", "channels")
+    files = corpus_files_files(repo) if suite == "files" else corpus_files(repo)
     if args.cmd == "coverage":
-        cv = coverage(key, files)
+        cv = coverage(key, files, suite)
         print(
-            f"{corpus['name']}: section census covers {cv['files'][0]}/{cv['files'][1]} COBOL files; corpus-wide: {cv['wide']}"
+            f"{corpus['name']}: {suite} census covers {cv['files'][0]}/{cv['files'][1]} files; corpus-wide: {cv['wide']}"
         )
         return 0 if not cv["missing"] and cv["wide"] else 1
     if args.cmd == "census":
@@ -429,11 +687,12 @@ def main() -> int:
         if staged.exists():
             shutil.rmtree(staged)
         shutil.copytree(repo, staged, ignore=shutil.ignore_patterns(".git"))
-        packed = batches(key, files, args.max_items)
+        packed = batches_files(key, files, args.max_items) if suite == "files" else batches(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
             d = args.out / f"batch_{i:02d}"
             d.mkdir(parents=True, exist_ok=True)
-            brief, truth = render(key, staged, batch, i, len(packed))
+            make = render_files if suite == "files" else render
+            brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
             (d / "truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
             n = sum(len(v) for t in truth["facts"].values() for v in t.values())
@@ -460,7 +719,10 @@ def main() -> int:
         print(md)
         return 0 if not g["disagreements"] else 1
     # sign: re-grade the same questions against the CURRENT key.
-    current = dict(truth, facts=key_facts(key, truth["files"], truth.get("wide", False)))
+    if truth.get("suite") == "files":
+        current = dict(truth, facts=key_facts_files(key, truth["files"]))
+    else:
+        current = dict(truth, facts=key_facts(key, truth["files"], truth.get("wide", False)))
     g = grade(current, answers, root)
     rulings_path = args.dir / "rulings.json"
     rulings = json.loads(rulings_path.read_text(encoding="utf-8")) if rulings_path.is_file() else {}

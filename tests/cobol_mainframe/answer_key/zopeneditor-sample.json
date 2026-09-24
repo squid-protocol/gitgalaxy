@@ -8144,6 +8144,69 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "JCL/ASMALLOC.jcl",
+        "JCL/RUN.jcl",
+        "JCL/RUNASAM1.jcl",
+        "JCL/RUNPSAM1.jcl"
+      ],
+      "wide": false,
+      "suite": "files",
+      "tasks": {
+        "selects": {
+          "agree": 0,
+          "asked": 0
+        },
+        "vsam": {
+          "agree": 0,
+          "asked": 0
+        },
+        "flow": {
+          "agree": 86,
+          "asked": 86
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 2,
+      "files": [
+        "COBOL/SAM1.cbl",
+        "COBOL/SAM1LIB.cbl",
+        "COBOL/SAM2.cbl",
+        "JCL/ALLOCATE.jcl",
+        "JCL/INCLUDE.jcl",
+        "JCL/PLIALLOC.jcl",
+        "JCL/REXALLOC.jcl",
+        "JCLLIB/COMPSET.jcl",
+        "JCLPROC/COMPROC.jcl",
+        "multiroot/sam/SAM1.cbl",
+        "multiroot/sam/SAM2.cbl"
+      ],
+      "wide": false,
+      "suite": "files",
+      "tasks": {
+        "selects": {
+          "agree": 12,
+          "asked": 12
+        },
+        "vsam": {
+          "agree": 0,
+          "asked": 0
+        },
+        "flow": {
+          "agree": 52,
+          "asked": 52
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -8204,10 +8267,16 @@
           "copies": []
         }
       ],
-      "file_control_validated": false,
+      "file_control_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "COBOL/SAM1LIB.cbl": {
@@ -8267,10 +8336,16 @@
           "copies": []
         }
       ],
-      "file_control_validated": false,
+      "file_control_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "multiroot/sam/SAM1.cbl": {
@@ -8330,10 +8405,16 @@
           "copies": []
         }
       ],
-      "file_control_validated": false,
+      "file_control_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     }
   },
@@ -8510,10 +8591,16 @@
           "line": 85
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "JCL/ASMALLOC.jcl": {
@@ -8647,10 +8734,16 @@
           "line": 69
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "JCL/INCLUDE.jcl": {
@@ -8673,10 +8766,16 @@
           "line": 23
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "JCL/PLIALLOC.jcl": {
@@ -8850,10 +8949,16 @@
           "line": 85
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "JCL/REXALLOC.jcl": {
@@ -8967,10 +9072,16 @@
           "line": 61
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "JCL/RUN.jcl": {
@@ -9288,10 +9399,16 @@
           "line": 165
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "JCL/RUNASAM1.jcl": {
@@ -9477,10 +9594,16 @@
           "line": 72
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "JCL/RUNPSAM1.jcl": {
@@ -9727,10 +9850,16 @@
           "line": 80
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "JCLPROC/COMPROC.jcl": {
@@ -9787,10 +9916,16 @@
           "line": 34
         }
       ],
-      "jobflow_validated": false,
+      "jobflow_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     }
   }

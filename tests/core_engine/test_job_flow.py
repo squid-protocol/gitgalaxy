@@ -80,3 +80,21 @@ def test_non_jcl_and_bounded():
     started = time.perf_counter()
     jcl_job_flow(src)
     assert time.perf_counter() - started < 5.0
+
+
+def test_a_comment_inside_a_continued_statement_does_not_end_it():
+    # CardDemo samples/proc/BUILDONL.prc: the DISP follows two commented-out lines.
+    src = (
+        "//LKED    EXEC PGM=IEWL\n"
+        "//SYSLMOD  DD DSN=&LOADLIB(&MEM),\n"
+        "//*           DISP=(OLD,KEEP),SPACE=(CYL,(10,20,10)),\n"
+        "//*           UNIT=3390,DSNTYPE=LIBRARY\n"
+        "//            DISP=SHR\n"
+    )
+    ((dd,),) = [[r for r in jcl_job_flow(src) if r["kind"] == "DD"]]
+    assert (dd["dsn"], dd["disp"]) == ("&LOADLIB(&MEM)", "SHR")
+    # PRISM blanks a comment line to an empty one: same reading.
+    blanked = src.replace("//*           DISP=(OLD,KEEP),SPACE=(CYL,(10,20,10)),", "").replace(
+        "//*           UNIT=3390,DSNTYPE=LIBRARY", ""
+    )
+    assert [r["disp"] for r in jcl_job_flow(blanked) if r["kind"] == "DD"] == ["SHR"]

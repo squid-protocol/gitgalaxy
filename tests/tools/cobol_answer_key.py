@@ -3059,7 +3059,9 @@ def job_flow_rows(text: str) -> list[dict[str, Any]]:
     open_stmt = None
     for no, raw in enumerate(text.split("\n"), 1):
         line = raw[:72].rstrip()
-        if not line.startswith("//") or line.startswith("//*"):
+        if not line.strip() or line.startswith("//*"):
+            continue  # a comment inside a continued statement does not end it
+        if not line.startswith("//"):
             open_stmt = None
             continue
         m = re.match(r"//(\S*)\s+(JOB|EXEC|DD|PROC|PEND|IF|ELSE|ENDIF|SET|INCLUDE|JCLLIB|OUTPUT)\b\s*(.*)", line)

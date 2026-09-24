@@ -58,9 +58,10 @@
       ],
       "total_paras": 27,
       "dead_paras": [
+        "A999",
         "ATT999"
       ],
-      "loc_saved": 55
+      "loc_saved": 65
     },
     "lineage": {
       "program_id": "BNK1CCA",

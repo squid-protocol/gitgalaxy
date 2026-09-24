@@ -21,9 +21,7 @@
       "program_id": "CSUTLDTC",
       "inputs": [],
       "outputs": [],
-      "unresolved_calls": [
-        "TO"
-      ]
+      "unresolved_calls": []
     },
     "base_intent": {
       "program_id": "CSUTLDTC",

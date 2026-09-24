@@ -11,9 +11,6 @@ public class Copaua0cService {
 
     private static final Logger log = LoggerFactory.getLogger(Copaua0cService.class);
 
-    // ⚠️ UNRESOLVED EXTERNAL DEPENDENCIES (FROM DAG)
-    // TODO: AI AGENT - Implement or mock interface call to: IfService
-
     public void executeCopaua0c(/* Parameters mapped from Controller */) {
         log.info("Executing modernized business logic for COPAUA0C");
         // TODO: [AI AGENT] Implement extracted business rules here.

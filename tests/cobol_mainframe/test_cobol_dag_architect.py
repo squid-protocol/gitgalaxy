@@ -243,3 +243,48 @@ def test_open_statements_still_read_every_mode_after_anchoring(tmp_path):
 
     assert sorted(lineage["inputs"]) == ["DDIN", "DDUPD"]
     assert sorted(lineage["outputs"]) == ["DDOUT", "DDUPD"]
+
+
+# ==============================================================================
+# #3420: the lineage reads code, not comments, literals or hyphenated names
+# ==============================================================================
+def test_lineage_ignores_comments_literals_and_hyphenated_call_words(tmp_path):
+    """CardDemo: `*CALL ASSEMBLER PROGRAM` comments, `DISPLAY 'GNP CALL FAILED'`,
+    `END-CALL` and `PERFORM 3200-INSERT-IMS-CALL THRU ...` all read as dynamic
+    CALLs; DBUNLDGS's commented SELECT/OPEN read as outputs."""
+    pgm = tmp_path / "PGM.cbl"
+    pgm.write_text(
+        "       PROGRAM-ID. PGM.\n"
+        "      *    SELECT OPFILE1 ASSIGN TO OUTFIL1\n"
+        "           SELECT REAL-FILE ASSIGN TO REALDD.\n"
+        "       PROCEDURE DIVISION.\n"
+        "       MAIN-PARA.\n"
+        "      *    OPEN OUTPUT OPFILE1\n"
+        "      *CALL ASSEMBLER PROGRAM FOR DATE FORMATTING\n"
+        "           OPEN INPUT REAL-FILE\n"
+        "           CALL 'MQOPEN' USING WS-X\n"
+        "           END-CALL\n"
+        "           IF WS-X = 1\n"
+        "              DISPLAY 'GNP CALL FAILED'\n"
+        "              PERFORM 3200-INSERT-IMS-CALL THRU 3200-EXIT\n"
+        "           END-IF\n"
+        "           CALL WS-PGM USING WS-X\n"
+        "           GOBACK.\n",
+        encoding="utf-8",
+    )
+    lineage = dag_module.extract_lineage(pgm)
+    assert lineage["unresolved_calls"] == ["WS-PGM"]
+    assert lineage["inputs"] == {"REALDD"} and lineage["outputs"] == set()
+
+
+@pytest.mark.parametrize(
+    "header",
+    [
+        "002500 PROGRAM-ID.\n002600     COTRTLIC.\n",
+        "002500 PROGRAM-ID." + " " * 54 + "00250000\n002600     COTRTLIC." + " " * 52 + "00260000\n",
+    ],
+)
+def test_program_id_on_its_own_line_is_not_a_sequence_number(tmp_path, header):
+    pgm = tmp_path / "COTRTLIC.cbl"
+    pgm.write_text(header + "000100 PROCEDURE DIVISION.\n000200 MAIN-PARA.\n000300     GOBACK.\n", encoding="utf-8")
+    assert dag_module.extract_lineage(pgm)["program_id"] == "COTRTLIC"

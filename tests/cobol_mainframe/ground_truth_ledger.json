@@ -21,21 +21,6 @@
       "kind": "defect",
       "summary": "cobol_schema_forge's flat reader drops level-01 elementary items, REDEFINES items, some nested items, and lines carrying a change marker in the sequence area (zopeneditor multiroot SAM1). The engine's record_data carries every item; #3348 switches the refractor to it."
     },
-    "forge_hyphen_word_boundary": {
-      "issue": 3420,
-      "kind": "defect",
-      "summary": "The forge uses a word boundary before PERFORM / IF / CALL, and that boundary also matches right after a hyphen. So END-PERFORM swallows the next PERFORM, and a live unit reads as dead. END-IF counts as an IF, so a terminal paragraph reads as falling through, and a dead A999 or ABEND-ROUTINE-EXIT reads as live. END-CALL and names ending in -CALL read as calls."
-    },
-    "forge_last_sentence_only": {
-      "issue": 3420,
-      "kind": "defect",
-      "summary": "The forge's _is_terminal tests only a unit's LAST sentence, so a paragraph with an unconditional EXEC CICS RETURN sentence followed by an IF recovery sentence (CBSA BNK1* A010) reads as falling through and the dead A999 after it as live."
-    },
-    "forge_reads_comment_lines": {
-      "issue": 3420,
-      "kind": "defect",
-      "summary": "cobol_dag_architect reads column-7 comment lines: commented CALL prose (CALL MENU PROGRAM) becomes a dynamic CALL, and commented SELECT/OPEN become outputs."
-    },
     "header_period_next_line": {
       "issue": 3419,
       "kind": "defect",
@@ -159,31 +144,6 @@
         "forge | copybook paths | app/cbl/COCRDLIC.cbl | app/cpy/CSSTRPFY.cpy | fn": "forge_copybook_resolution",
         "forge | copybook paths | app/cbl/COCRDSLC.cbl | app/cpy/CSSTRPFY.cpy | fn": "forge_copybook_resolution",
         "forge | copybook paths | app/cbl/COCRDUPC.cbl | app/cpy/CSSTRPFY.cpy | fn": "forge_copybook_resolution",
-        "forge | dead (non-trivial) | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP-EXIT | fp": "header_period_next_line",
-        "forge | dead (non-trivial) | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR | fp": "forge_hyphen_word_boundary",
-        "forge | dead (non-trivial) | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR-EXIT | fp": "forge_hyphen_word_boundary",
-        "forge | dead | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP-EXIT | fp": "header_period_next_line",
-        "forge | dead | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR | fp": "forge_hyphen_word_boundary",
-        "forge | dead | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 9450-CLOSE-FORWARD-CURSOR-EXIT | fp": "forge_hyphen_word_boundary",
-        "forge | dead | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | ABEND-ROUTINE-EXIT | fn": "forge_hyphen_word_boundary",
-        "forge | dead | app/cbl/COACTUPC.cbl | ABEND-ROUTINE-EXIT | fn": "forge_hyphen_word_boundary",
-        "forge | dead | app/cbl/COCRDUPC.cbl | ABEND-ROUTINE-EXIT | fn": "forge_hyphen_word_boundary",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | IF | fp": "forge_hyphen_word_boundary",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | FAILED | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | FAIL | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | THRU | fp": "forge_hyphen_word_boundary",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL | TO | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL | FAILED | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | MENU | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/cbl/CBACT01C.cbl | ASSEMBLER | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/cbl/CBSTM03A.CBL | TO | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/cbl/COCRDLIC.cbl | CARD | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/cbl/COCRDLIC.cbl | MENU | fp": "forge_reads_comment_lines",
-        "forge | dynamic CALLs | app/cbl/CSUTLDTC.cbl | TO | fp": "forge_reads_comment_lines",
-        "forge | outputs | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | OUTFIL1 | fp": "forge_reads_comment_lines",
-        "forge | outputs | app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL | OUTFIL2 | fp": "forge_reads_comment_lines",
-        "forge | program_id | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | 00220000 | fp": "program_id_on_its_own_line",
-        "forge | program_id | app/app-transaction-type-db2/cbl/COTRTUPC.cbl | COTRTUPC | fn": "program_id_on_its_own_line",
         "forge | record fields | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | WS_CARD_RID_ACCT_ID_X | fn": "forge_flat_schema",
         "forge | record fields | app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl | WS_CARD_RID_CUST_ID_X | fn": "forge_flat_schema",
         "forge | record fields | app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl | WS_CARD_RID_ACCT_ID_X | fn": "forge_flat_schema",
@@ -524,8 +484,7 @@
         "forge | record fields | app/cbl/COTRN02C.cbl | WS_TRAN_AMT | fn": "forge_flat_schema",
         "forge | record fields | app/cbl/COTRN02C.cbl | WS_TRAN_AMT_E | fn": "forge_flat_schema",
         "forge | record fields | app/cbl/CSUTLDTC.cbl | WS_MSG_NO_N | fn": "forge_flat_schema",
-        "forge | record fields | app/cbl/CSUTLDTC.cbl | WS_SEVERITY_N | fn": "forge_flat_schema",
-        "forge | units | app/app-transaction-type-db2/cbl/COTRTLIC.cbl | 2000-SEND-MAP | fn": "header_period_next_line"
+        "forge | record fields | app/cbl/CSUTLDTC.cbl | WS_SEVERITY_N | fn": "forge_flat_schema"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -630,7 +589,7 @@
           },
           "forge": {
             "got": 35,
-            "tp": 32,
+            "tp": 35,
             "truth": 35
           },
           "truth": "cross_verified"
@@ -642,7 +601,7 @@
             "truth": 8
           },
           "forge": {
-            "got": 11,
+            "got": 8,
             "tp": 8,
             "truth": 8
           },
@@ -655,7 +614,7 @@
             "truth": 0
           },
           "forge": {
-            "got": 12,
+            "got": 0,
             "tp": 0,
             "truth": 0
           },
@@ -694,7 +653,7 @@
             "truth": 21
           },
           "forge": {
-            "got": 23,
+            "got": 21,
             "tp": 21,
             "truth": 21
           },
@@ -708,7 +667,7 @@
           },
           "forge": {
             "got": 44,
-            "tp": 43,
+            "tp": 44,
             "truth": 44
           },
           "truth": "cross_verified"
@@ -733,8 +692,8 @@
             "truth": 870
           },
           "forge": {
-            "got": 869,
-            "tp": 869,
+            "got": 870,
+            "tp": 870,
             "truth": 870
           },
           "truth": "cross_verified"
@@ -1220,18 +1179,6 @@
         "forge | copybook paths | src/base/cobol_src/UPDACC.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
         "forge | copybook paths | src/base/cobol_src/XFRFUN.cbl | src/base/cobol_copy/ACCDB2.cpy | fn": "forge_copybook_resolution",
         "forge | copybook paths | src/base/cobol_src/XFRFUN.cbl | src/base/cobol_copy/PROCDB2.cpy | fn": "forge_copybook_resolution",
-        "forge | dead | src/base/cobol_src/BNK1CAC.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1CCA.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1CCS.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1CRA.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1DAC.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1DCS.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1TFN.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNK1UAC.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/BNKMENU.cbl | A999 | fn": "forge_last_sentence_only",
-        "forge | dead | src/base/cobol_src/DELACC.cbl | A999 | fn": "forge_hyphen_word_boundary",
-        "forge | dead | src/base/cobol_src/INQACCCU.cbl | A999 | fn": "forge_hyphen_word_boundary",
-        "forge | dead | src/base/cobol_src/UPDCUST.cbl | A999 | fn": "forge_hyphen_word_boundary",
         "forge | record fields | src/base/cobol_src/ACCTCTRL.cbl | ACCOUNT_KY2_BYTES | fn": "forge_flat_schema",
         "forge | record fields | src/base/cobol_src/BANKDATA.cbl | RANDOM_SEED_NUMERIC | fn": "forge_flat_schema",
         "forge | record fields | src/base/cobol_src/BANKDATA.cbl | RDATE_NUMERIC | fn": "forge_flat_schema",
@@ -1372,8 +1319,8 @@
             "truth": 74
           },
           "forge": {
-            "got": 62,
-            "tp": 62,
+            "got": 74,
+            "tp": 74,
             "truth": 74
           },
           "truth": "cross_verified"

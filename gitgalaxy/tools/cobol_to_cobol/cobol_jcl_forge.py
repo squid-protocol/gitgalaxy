@@ -45,12 +45,19 @@ def analyze_cobol_intent(filepath: Path) -> dict:
         for line in raw_content.splitlines():
             if len(line) > 6 and line[6] in ("*", "/"):
                 continue
-            clean_lines.append(line[7:] if len(line) > 7 else line)
+            # Cols 8-72 only: cols 73-80 are an identification area, and with a
+            # `PROGRAM-ID.` alone on its line they were read as the name
+            # (CardDemo COTRTUPC -> `00220000`, #3420/#3418).
+            clean_lines.append(line[7:72] if len(line) > 7 else line)
 
         monolith_code = " ".join(clean_lines)
 
         # 2. EXTRACT PROGRAM-ID (With fallback to file name)
-        prog_id_match = re.search(r'PROGRAM-ID\.\s+[\'"]?([A-Z0-9\-]+)[\'"]?', monolith_code, re.IGNORECASE)
+        # A COBOL user-defined word contains a letter; a digits-only token is a
+        # sequence number, never the name.
+        prog_id_match = re.search(
+            r'PROGRAM-ID\.\s+[\'"]?([0-9\-]*[A-Z][A-Z0-9\-]*)[\'"]?', monolith_code, re.IGNORECASE
+        )
         if prog_id_match:
             intent["program_id"] = prog_id_match.group(1).strip()
         else:

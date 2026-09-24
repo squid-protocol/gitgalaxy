@@ -11,10 +11,6 @@ public class CocrdlicService {
 
     private static final Logger log = LoggerFactory.getLogger(CocrdlicService.class);
 
-    // ⚠️ UNRESOLVED EXTERNAL DEPENDENCIES (FROM DAG)
-    // TODO: AI AGENT - Implement or mock interface call to: CardService
-    // TODO: AI AGENT - Implement or mock interface call to: MenuService
-
     public void executeCocrdlic(/* Parameters mapped from Controller */) {
         log.info("Executing modernized business logic for COCRDLIC");
         // TODO: [AI AGENT] Implement extracted business rules here.

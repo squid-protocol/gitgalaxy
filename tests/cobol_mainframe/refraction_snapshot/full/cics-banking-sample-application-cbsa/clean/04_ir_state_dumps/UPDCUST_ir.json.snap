@@ -61,12 +61,13 @@
       ],
       "total_paras": 12,
       "dead_paras": [
+        "A999",
         "GMOOH999",
         "POPULATE-TIME-DATE",
         "PTD010",
         "PTD999"
       ],
-      "loc_saved": 88
+      "loc_saved": 98
     },
     "lineage": {
       "program_id": "UPDCUST",

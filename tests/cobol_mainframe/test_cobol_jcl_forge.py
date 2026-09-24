@@ -203,3 +203,14 @@ def test_select_assign_still_reads_every_statement_after_anchoring(tmp_path):
         {"internal": "F-IN", "dd_name": "DDIN"},
         {"internal": "F-OUT", "dd_name": "DDOUT"},
     ]
+
+
+def test_program_id_ignores_the_identification_area(tmp_path):
+    """#3420/#3418 shape (CardDemo COTRTUPC): `PROGRAM-ID.` alone on its line with
+    a cols 73-80 id, which was read as the name and generated `EXEC PGM=00220000`."""
+    pgm = tmp_path / "COTRTUPC.cbl"
+    pgm.write_text(
+        "002200 PROGRAM-ID." + " " * 54 + "00220000\n002300     COTRTUPC." + " " * 52 + "00230000\n",
+        encoding="utf-8",
+    )
+    assert forge_module.analyze_cobol_intent(pgm)["program_id"] == "COTRTUPC"

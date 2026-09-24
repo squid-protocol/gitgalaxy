@@ -21,13 +21,41 @@ from collections import defaultdict, deque
 from pathlib import Path
 from typing import Optional
 
-from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import unit_header
+from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import _blank_literals, unit_header
 
 _OPEN_MODES = frozenset({"INPUT", "OUTPUT", "I-O", "EXTEND"})
 # #3222: anchor only. The operand run used to be `[^.]*\.` inside the pattern,
 # which rescans to the next period from every OPEN -- the #3205 shape. The run
 # is now sliced with str.find, which visits each character once.
-_OPEN_ANCHOR = re.compile(r"\bOPEN\s+(?=(?:INPUT|OUTPUT|I-O|EXTEND)\b)")
+# #3420: `(?<![A-Z0-9-])`, not `\b`: COBOL words run through hyphens, so `\b`
+# matched `END-CALL` / `3200-INSERT-IMS-CALL` as the CALL verb.
+_V = r"(?<![A-Z0-9\-])"
+_OPEN_ANCHOR = re.compile(rf"{_V}OPEN\s+(?=(?:INPUT|OUTPUT|I-O|EXTEND)\b)")
+_DYNAMIC_CALL = re.compile(rf"{_V}CALL\s+(?![\'\"])([A-Z0-9\-]+)")
+_SELECT = re.compile(rf"{_V}SELECT\s+([A-Z0-9\-]+)\s+ASSIGN\s+(?:TO\s+)?([A-Z0-9@#$\-]+)")
+# A COBOL user-defined word contains a letter; a digits-only token after
+# `PROGRAM-ID.` is a sequence number (#3418's shape).
+_PROGRAM_ID = re.compile(r"PROGRAM-ID\.\s+([0-9\-]*[A-Z@#$][A-Z0-9@#$\-]*)")
+
+
+def code_view(content: str) -> str:
+    """The source as code only, line for line (#3420). Comment and debug lines
+    (column 7 `*`, `/`, `D`) become empty, the cols 1-6 sequence area becomes
+    blanks, cols 73-80 are dropped, and literal contents are blanked, so a
+    commented-out `*CALL MENU PROGRAM`, a `DISPLAY 'GNP CALL FAILED'`, a
+    commented `SELECT ... ASSIGN` / `OPEN OUTPUT`, or a sequence number is never
+    read as code. Line count and the column of every kept character are
+    preserved, so unit_header still finds Area-A headers."""
+    out = []
+    for line in content.split("\n"):
+        if len(line) > 6 and line[6] in "*/D":
+            out.append("")
+            continue
+        line = line[:72]
+        if len(line) >= 6:
+            line = " " * 6 + line[6:]
+        out.append(_blank_literals(line))
+    return "\n".join(out)
 
 
 def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optional[dict]:
@@ -39,19 +67,19 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optiona
         dead_paras = set()
 
     try:
-        content = filepath.read_text(encoding="utf-8", errors="ignore").upper()
+        content = code_view(filepath.read_text(encoding="utf-8", errors="ignore").upper())
     except Exception:
         return None
 
     # 1. Extract the permanent PROGRAM-ID
-    prog_match = re.search(r"PROGRAM-ID\.\s+([A-Z0-9@#$]+)", content)
+    prog_match = _PROGRAM_ID.search(content)
     if not prog_match:
         return None
     program_id = prog_match.group(1)
 
     # 2. Map internal file variables to physical external boundaries (DD Names)
     file_map = {}
-    for match in re.finditer(r"SELECT\s+([A-Z0-9\-]+)\s+ASSIGN\s+(?:TO\s+)?([A-Z0-9@#$\-]+)", content):
+    for match in _SELECT.finditer(content):
         raw_dd = match.group(2)
         clean_dd = re.sub(r"^(?:UT|UR)-S-", "", raw_dd)
         file_map[match.group(1)] = clean_dd
@@ -128,7 +156,7 @@ def extract_lineage(filepath: Path, dead_paras: Optional[set] = None) -> Optiona
     # compilation-time DAG incomplete. We flag these for architectural review.
     # ==========================================================================
     dynamic_calls = set()
-    for match in re.finditer(r'CALL\s+(?![\'"])([A-Z0-9\-]+)', safe_content):
+    for match in _DYNAMIC_CALL.finditer(safe_content):
         dynamic_calls.add(match.group(1))
 
     return {

@@ -50,9 +50,7 @@
         "OUTFILE",
         "VBRCFILE"
       ],
-      "unresolved_calls": [
-        "ASSEMBLER"
-      ]
+      "unresolved_calls": []
     },
     "base_intent": {
       "program_id": "CBACT01C",

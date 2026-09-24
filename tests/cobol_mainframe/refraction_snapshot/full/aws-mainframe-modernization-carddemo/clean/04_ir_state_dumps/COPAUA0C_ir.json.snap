@@ -78,9 +78,7 @@
       "program_id": "COPAUA0C",
       "inputs": [],
       "outputs": [],
-      "unresolved_calls": [
-        "IF"
-      ]
+      "unresolved_calls": []
     },
     "base_intent": {
       "program_id": "COPAUA0C",

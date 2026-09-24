@@ -9,7 +9,7 @@ callers a change to it can break -- with the depth each is found at:
     python tests/tools/function_blast_radius.py out_master.db save --downstream   # what it reaches
 
 Reads fcall_data only (the rows core/call_resolver.py writes); ambiguous links
-(nearest / receiver / tie) are never followed, the same rule func_pagerank and
+(unseen / nearest / receiver / tie) are never followed, the same rule func_pagerank and
 func_upstream use. The query is a recursive CTE, so it also works from sqlite3:
 see docs/function_call_graph.md.
 """

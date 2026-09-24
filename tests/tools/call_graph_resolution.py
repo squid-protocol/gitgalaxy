@@ -46,7 +46,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 TOOLS = Path(__file__).resolve().parent
 CRUCIBLE = Path(os.environ.get("LANGUAGE_CRUCIBLE_PATH", REPO_ROOT.parent / "language-crucible"))
 CONFIDENT = ("class", "qualified", "file", "import", "unique")
-AMBIGUOUS = ("nearest", "receiver")
+AMBIGUOUS = ("nearest", "unseen", "receiver")
 _LINE_SLACK = 3
 
 _LINKS_SQL = """

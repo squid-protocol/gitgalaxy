@@ -31,10 +31,13 @@ def _fn(name, line, calls=(), quals=None, owner=None):
 
 
 def _universe():
+    # PHP, a global-namespace language: its bare `Store(` reaches the one
+    # `Store` class without an import (`unique`). In a package-scoped language
+    # (Python, JS/TS, ...) it would be `unseen` instead (#3443).
     return [
         {
-            "path": "app/main.py",
-            "lang_id": "python",
+            "path": "app/main.php",
+            "lang_id": "php",
             "raw_imports": [],
             "functions": [
                 _fn(
@@ -52,10 +55,10 @@ def _universe():
                 _fn("helper", 9),
             ],
         },
-        {"path": "lib/utils.py", "lang_id": "python", "raw_imports": [], "functions": [_fn("parse", 1)]},
+        {"path": "lib/utils.php", "lang_id": "php", "raw_imports": [], "functions": [_fn("parse", 1)]},
         {
-            "path": "lib/store.py",
-            "lang_id": "python",
+            "path": "lib/store.php",
+            "lang_id": "php",
             "raw_imports": [],
             "functions": [_fn("get", 2, owner="Store")],
             "classes": [{"name": "Store", "inheritance": []}],
@@ -63,7 +66,9 @@ def _universe():
     ]
 
 
-_IMPORTS = [{"src": "app/main.py", "dst": "lib/utils.py", "edge_kind": "import", "weight": 1.0, "import_statements": 1}]
+_IMPORTS = [
+    {"src": "app/main.php", "dst": "lib/utils.php", "edge_kind": "import", "weight": 1.0, "import_statements": 1}
+]
 
 
 def _record(db, files):
@@ -96,10 +101,10 @@ def test_every_pair_is_a_row_with_the_right_ids(tmp_path):
     db = tmp_path / "f.db"
     _record(db, _universe())
     assert _rows(db, _SITES_SQL) == [
-        ("main", "Store", "unique", "lib/store.py", None, "Store"),
-        ("main", "get", "receiver", "lib/store.py", "get", None),
-        ("main", "helper", "file", "app/main.py", "helper", None),
-        ("main", "parse", "import", "lib/utils.py", "parse", None),
+        ("main", "Store", "unique", "lib/store.php", None, "Store"),
+        ("main", "get", "receiver", "lib/store.php", "get", None),
+        ("main", "helper", "file", "app/main.php", "helper", None),
+        ("main", "parse", "import", "lib/utils.php", "parse", None),
     ]
 
 
@@ -115,16 +120,16 @@ def test_confident_cross_file_pairs_join_the_graph(tmp_path):
         f.setdefault("telemetry", {})
     sites, stats = resolve_calls(files, _IMPORTS)
     pairs = confident_file_pairs(sites)
-    assert pairs == {("app/main.py", "lib/utils.py"): 1, ("app/main.py", "lib/store.py"): 1}
+    assert pairs == {("app/main.php", "lib/utils.php"): 1, ("app/main.php", "lib/store.php"): 1}
     sensor = NetworkRiskSensor()
-    imports = {("app/main.py", "lib/utils.py"): {"weight": 1.0, "import_statements": 1, "entity_imports": 0}}
+    imports = {("app/main.php", "lib/utils.php"): {"weight": 1.0, "import_statements": 1, "entity_imports": 0}}
     files, _ = sensor.build_dependency_graph(files, pairs, imports)
     assert sorted((e["src"], e["dst"], e["edge_kind"]) for e in sensor.dependency_edges) == [
-        ("app/main.py", "lib/store.py", "fcall"),
-        ("app/main.py", "lib/utils.py", "import"),
+        ("app/main.php", "lib/store.php", "fcall"),
+        ("app/main.php", "lib/utils.php", "import"),
     ]
     by_path = {f["path"]: f["telemetry"] for f in files}
-    assert by_path["lib/store.py"]["popularity"] == 1  # 0 on imports alone
+    assert by_path["lib/store.php"]["popularity"] == 1  # 0 on imports alone
 
     db = tmp_path / "f.db"
     RecordKeeper().record_mission(
@@ -167,7 +172,7 @@ def test_rates_are_recorded_per_language_and_repo(tmp_path):
     _record(db, _universe())  # idempotent per snapshot
     assert _rows(
         db, 'SELECT language, scoped, "unique", ambiguous, external, total FROM fcall_rate_data ORDER BY language'
-    ) == [("*", 2, 1, 1, 1, 5), ("python", 2, 1, 1, 1, 5)]
+    ) == [("*", 2, 1, 1, 1, 5), ("php", 2, 1, 1, 1, 5)]
 
 
 def test_brief_section_states_rates_and_caveat():
@@ -179,5 +184,5 @@ def test_brief_section_states_rates_and_caveat():
     assert lines[0].startswith("## 15. FUNCTION CALL RESOLUTION")
     assert "5 call pairs -- scoped 40.0%, unique 20.0%, ambiguous 20.0%, external 20.0%" in text
     assert "not that the choice was correct" in text
-    assert "| python | 5 | 40.0% | 20.0% | 20.0% | 20.0% |" in text
+    assert "| php | 5 | 40.0% | 20.0% | 20.0% | 20.0% |" in text
     assert LLMRecorder.__new__(LLMRecorder)._call_resolution_lines({}) == []

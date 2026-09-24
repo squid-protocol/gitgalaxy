@@ -20,6 +20,7 @@ Every (caller, callee name) pair goes down the ladder until one step matches:
 | `file` | defined in the caller's own file | scoped |
 | `import` | defined in a file the caller imports, or its own directory for an untyped receiver | scoped |
 | `unique` | the only definition of the name in the repository | unique |
+| `unseen` | the only definition, but a bare call in a package-scoped language (Python, JS/TS, Perl, Zig, Rust, Dart; Go and the JVM languages outside the caller's directory) cannot see it: not imported, not its own package (#3443) | ambiguous |
 | `nearest` | several definitions; the nearest by path is recorded as a guess | ambiguous |
 | `receiver` | `obj.m()` with an untyped `obj`, and `m` not visible to the caller | ambiguous |
 | `tie` | several definitions, equally near | ambiguous |

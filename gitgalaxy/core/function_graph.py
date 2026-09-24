@@ -19,7 +19,7 @@
 #
 # WHAT IS AN EDGE (decided by the #3327 contract and #3328):
 #   - only scoped/unique resolutions (class, qualified, file, import, unique);
-#     an ambiguous pair (nearest, receiver, tie) is never an edge, so a common
+#     an ambiguous pair (unseen, nearest, receiver, tie) is never an edge, so a common
 #     name cannot pool fan-in onto whichever definition happened to be nearest;
 #   - only function targets: a constructor call that resolved to a class has no
 #     function node to land on;

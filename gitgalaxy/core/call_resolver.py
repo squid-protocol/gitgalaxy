@@ -15,6 +15,10 @@
 #   3. `import`  -- a definition in a file the caller's file imports (the
 #                   resolved import graph, NetworkRiskSensor.dependency_edges).
 #   4. `unique`  -- the name is defined exactly once in the repository.
+#                   In a package-scoped language (#3443) a BARE call must also
+#                   see that one definition -- imported, or in its own
+#                   directory where a directory is a namespace -- or it is
+#                   `unseen`: ambiguous, the definition kept as the guess.
 #   5. `nearest` -- several definitions; the nearest by path wins
 #                   (core/path_proximity.py, the rule both import and
 #                   mainframe resolution already use).
@@ -24,7 +28,7 @@
 #                   This is what removes most built-in noise without a
 #                   per-language ignore list (#3327 decision 1).
 # `resolution` groups the steps into the four confidence classes #3331
-# reports: scoped (1-3), unique (4), ambiguous (5-6), external (7).
+# reports: scoped (1-3), unique (4), ambiguous (`unseen`, 5-6), external (7).
 #
 # AMBIGUOUS CALLS ARE NOT EDGES (the decision #3328 asked for). A name with k
 # definitions is exactly the collision this module exists to defeat. Splitting
@@ -74,6 +78,7 @@ RESOLUTION_OF_STEP = {
     "file": "scoped",
     "import": "scoped",
     "unique": "unique",
+    "unseen": "ambiguous",
     "nearest": "ambiguous",
     "tie": "ambiguous",
     "receiver": "ambiguous",
@@ -84,7 +89,9 @@ CONFIDENT_RESOLUTIONS = frozenset({"scoped", "unique"})
 # the ladder's own order, so `self.save()` beats `x.save()` in the same body.
 _RANK = {
     step: i
-    for i, step in enumerate(("class", "qualified", "import", "file", "unique", "nearest", "receiver", "tie", "none"))
+    for i, step in enumerate(
+        ("class", "qualified", "import", "file", "unique", "unseen", "nearest", "receiver", "tie", "none")
+    )
 }
 
 # Receivers that mean "the caller's own object" / "its parent".
@@ -211,6 +218,19 @@ _BARE_BUILTINS: dict[str, frozenset[str]] = {
 # #3333 measured ~3.7k such same-directory Python pairs on cpython alone, which
 # would otherwise have become file-graph edges.
 _PACKAGE_DIR_LANGS = frozenset({"java", "kotlin", "scala", "groovy", "go", "csharp"})
+
+# #3443: languages where a BARE call reaches only the caller's own module, what
+# it imports, and (in _PACKAGE_DIR_LANGS) its own package directory. A name
+# defined exactly once elsewhere is not `unique` there: bugzilla's bare
+# `remove(` is not Mojo's IOLoop.pm `remove`, a TypeScript `pipe(` is not
+# jQuery's. The global-namespace languages (C, Lua, PHP, Ruby, Swift's
+# module-wide scope, the mainframe languages) keep `unique`. Measured on
+# language-crucible: ~530 pairs moved, most of them links into another
+# repository; allowing definitions one import hop (or any number) away
+# rescued almost no correct link and let wrong cross-repository Zig links back.
+_PACKAGE_SCOPED_LANGS = _PACKAGE_DIR_LANGS | frozenset(
+    {"perl", "python", "embedded_python", "javascript", "typescript", "zig", "rust", "dart"}
+)
 
 
 def encode_qualifiers(calls_out_to: list[str], qualifiers: dict[str, list[str]]) -> Optional[list[Any]]:
@@ -624,7 +644,15 @@ def _resolve_one(
         # function, a class (a constructor), or the caller's own lineage,
         # handled above. (Ownerless-method languages keep every candidate.)
         cset = bucket.free if qualifier == "" and not ownerless else bucket.all
-        return _ladder(cset, caller, False, cache)
+        step, d = _ladder(cset, caller, False, cache)
+        if (
+            step == "unique"
+            and qualifier == ""
+            and caller.lang in _PACKAGE_SCOPED_LANGS
+            and not (caller.lang in _PACKAGE_DIR_LANGS and d is not None and d.dir == caller.dir)
+        ):
+            return "unseen", d  # #3443: the only definition, but not one this caller can see
+        return step, d
 
     if qualifier in _SELF_RECEIVERS:
         for owner_key in lineage:

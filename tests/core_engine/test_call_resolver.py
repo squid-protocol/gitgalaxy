@@ -122,11 +122,71 @@ def test_class_qualified_static_call():
 
 def test_constructor_call_resolves_to_the_class():
     files = [
+        _file("a.cpp", "cpp", [_fn("main", 1, calls=["Store"], quals={"Store": [""]})]),
+        _file("s.cpp", "cpp", [], [{"name": "Store", "inheritance": []}]),
+    ]
+    row = _site(resolve_calls(files)[0], "Store")
+    assert (row["resolution"], row["dst_kind"]) == ("unique", "class")
+
+
+# #3443: in a package-scoped language a bare call sees only its own module, what
+# it imports, and (directory-namespaced languages) its own directory. The one
+# definition elsewhere is a guess, not a `unique` edge.
+
+
+def test_package_scoped_bare_call_to_an_unimported_definition_is_unseen():
+    files = [
+        _file("bugzilla/Bug.pm", "perl", [_fn("set_all", 1, calls=["remove"], quals={"remove": [""]})]),
+        _file("mojo/IOLoop.pm", "perl", [_fn("remove", 3)]),
+    ]
+    sites, stats = resolve_calls(files)
+    row = _site(sites, "remove")
+    assert (row["step"], row["resolution"], row["dst_path"]) == ("unseen", "ambiguous", "mojo/IOLoop.pm")
+    assert stats["by_resolution"] == {"ambiguous": 1}
+
+
+def test_package_scoped_constructor_needs_the_class_to_be_visible():
+    files = [
         _file("a.py", "python", [_fn("main", 1, calls=["Store"], quals={"Store": [""]})]),
         _file("s.py", "python", [], [{"name": "Store", "inheritance": []}]),
     ]
     row = _site(resolve_calls(files)[0], "Store")
-    assert (row["resolution"], row["dst_kind"]) == ("unique", "class")
+    assert (row["step"], row["dst_kind"]) == ("unseen", "class")
+    edges = [{"src": "a.py", "dst": "s.py", "edge_kind": "import"}]
+    row = _site(resolve_calls(files, edges)[0], "Store")
+    assert (row["step"], row["resolution"]) == ("import", "scoped")
+
+
+def test_package_directory_keeps_a_same_directory_definition_unique():
+    files = [
+        _file("pkg/a.go", "go", [_fn("run", 1, calls=["helper", "reset"], quals={"helper": [""], "reset": [""]})]),
+        _file("pkg/b.go", "go", [_fn("helper", 3)]),
+        _file("other/proc.go", "go", [_fn("reset", 3)]),
+    ]
+    sites, _ = resolve_calls(files)
+    assert (_site(sites, "helper")["step"], _site(sites, "helper")["dst_path"]) == ("unique", "pkg/b.go")
+    assert (_site(sites, "reset")["step"], _site(sites, "reset")["dst_path"]) == ("unseen", "other/proc.go")
+
+
+def test_unseen_is_only_for_a_bare_call():
+    # an uncaptured qualifier (None) could be `Pkg::name(...)`: the plain ladder
+    files = [
+        _file("a.pl", "perl", [_fn("main", 1, calls=["helper"])]),
+        _file("lib/H.pm", "perl", [_fn("helper", 3)]),
+    ]
+    assert _site(resolve_calls(files)[0], "helper")["step"] == "unique"
+
+
+def test_unseen_pairs_never_join_the_file_graph():
+    from gitgalaxy.core.call_resolver import confident_file_pairs
+
+    files = [
+        _file("fp-ts/TaskEither.ts", "typescript", [_fn("_alt", 1, calls=["pipe"], quals={"pipe": [""]})]),
+        _file("jquery/deferred.js", "javascript", [_fn("pipe", 3)]),
+    ]
+    sites, _ = resolve_calls(files)
+    assert _site(sites, "pipe")["step"] == "unseen"
+    assert confident_file_pairs(sites) == {}
 
 
 def test_equidistant_candidates_are_a_tie_with_no_target():

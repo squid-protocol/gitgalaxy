@@ -1693,7 +1693,7 @@ class RecordKeeper:
         # that the repository DEFINES somewhere -- core/call_resolver.py's link
         # from the call to that definition, and how it was chosen. `step` is the
         # ladder rung (class / qualified / file / import / unique -- confident;
-        # nearest / receiver / tie -- ambiguous, never an edge_data row),
+        # unseen / nearest / receiver / tie -- ambiguous, never an edge_data row),
         # `candidates` how many files define the name. A callee no file defines
         # (a built-in, the standard library, a package) is NOT a row: it is every
         # calls_out_to entry of the function without one, and the resolver's

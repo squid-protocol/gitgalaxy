@@ -37,7 +37,8 @@ import re
 from typing import Any
 
 _ASSISTANTS = {"DFHLS2WS": "provider", "DFHLS2JS": "provider", "DFHWS2LS": "requester", "DFHJS2LS": "requester"}
-_EXEC = re.compile(r"^//[A-Z0-9@#$<>]*\s+EXEC\s+(?:PROC=|PGM=)?(DFHLS2WS|DFHLS2JS|DFHWS2LS|DFHJS2LS)\b", re.I)
+_STEP = r"^//[A-Z0-9@#$<>]*\s+EXEC\s+(?:PROC=|PGM=)?"  # a JCL EXEC statement's head
+_EXEC = re.compile(_STEP + "(" + "|".join(_ASSISTANTS) + r")\b", re.I)
 _PARAM = re.compile(r"^\s*([A-Z][A-Z0-9-]{1,30})\s*=\s*(.*?)\s*$", re.I)
 _FIELDS = {
     "PGMNAME": "program", "URI": "uri", "REQMEM": "request", "RESPMEM": "response", "PGMINT": "interface",

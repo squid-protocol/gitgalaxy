@@ -65528,6 +65528,78 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "src/base/cobol_src/BNK1CCS.cbl",
+        "src/base/cobol_src/BNK1DCS.cbl",
+        "src/base/cobol_src/BNKMENU.cbl",
+        "src/base/cobol_src/CREACC.cbl",
+        "src/base/cobol_src/XFRFUN.cbl"
+      ],
+      "wide": false,
+      "suite": "dynamic",
+      "tasks": {
+        "dynamic": {
+          "agree": 55,
+          "asked": 55
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+      "at": "2026-09-24",
+      "batch": 2,
+      "files": [
+        "src/base/cobol_src/BNK1CAC.cbl",
+        "src/base/cobol_src/BNK1CCA.cbl",
+        "src/base/cobol_src/BNK1CRA.cbl",
+        "src/base/cobol_src/BNK1DAC.cbl",
+        "src/base/cobol_src/BNK1TFN.cbl",
+        "src/base/cobol_src/BNK1UAC.cbl",
+        "src/base/cobol_src/DBCRFUN.cbl",
+        "src/base/cobol_src/INQACC.cbl"
+      ],
+      "wide": false,
+      "suite": "dynamic",
+      "tasks": {
+        "dynamic": {
+          "agree": 52,
+          "asked": 52
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+      "at": "2026-09-24",
+      "batch": 3,
+      "files": [
+        "src/base/cobol_src/BANKDATA.cbl",
+        "src/base/cobol_src/CRDTAGY1.cbl",
+        "src/base/cobol_src/CRDTAGY2.cbl",
+        "src/base/cobol_src/CRDTAGY3.cbl",
+        "src/base/cobol_src/CRDTAGY4.cbl",
+        "src/base/cobol_src/CRDTAGY5.cbl",
+        "src/base/cobol_src/CRECUST.cbl",
+        "src/base/cobol_src/DELACC.cbl",
+        "src/base/cobol_src/DELCUS.cbl",
+        "src/base/cobol_src/INQACCCU.cbl",
+        "src/base/cobol_src/INQCUST.cbl"
+      ],
+      "wide": false,
+      "suite": "dynamic",
+      "tasks": {
+        "dynamic": {
+          "agree": 17,
+          "asked": 17
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -79434,5 +79506,476 @@
       }
     }
   },
-  "io_moves": {}
+  "io_moves": {},
+  "dynamic_targets": {
+    "src/base/cobol_src/BNK1CAC.cbl": {
+      "targets": [
+        "L1026 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1102 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1179 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1257 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L309 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L416 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L834 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/BNK1CCA.cbl": {
+      "targets": [
+        "L280 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L389 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L435 LINK INQACCCU-PROGRAM -> INQACCCU",
+        "L490 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L677 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L752 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L830 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L909 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/BNK1CCS.cbl": {
+      "targets": [
+        "L1031 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1181 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1264 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1342 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1420 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1498 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1578 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L331 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L462 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L557 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/BNK1CRA.cbl": {
+      "targets": [
+        "L318 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L425 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L566 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L704 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L778 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L853 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L931 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/BNK1DAC.cbl": {
+      "targets": [
+        "L1036 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1115 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L350 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L481 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L608 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L882 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L961 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/BNK1DCS.cbl": {
+      "targets": [
+        "L1024 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1210 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1466 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1543 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1621 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1723 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1807 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1888 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L381 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L579 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L654 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L888 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/BNK1TFN.cbl": {
+      "targets": [
+        "L302 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L411 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L551 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L727 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L801 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L876 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L954 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/BNK1UAC.cbl": {
+      "targets": [
+        "L1009 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1130 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1206 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1282 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1361 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L350 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L474 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L822 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/BNKMENU.cbl": {
+      "targets": [
+        "L1034 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1109 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1186 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1265 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L225 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L337 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L441 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L513 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L586 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L659 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L732 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L805 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L878 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L952 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/CRDTAGY1.cbl": {
+      "targets": [
+        "L180 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/CRDTAGY2.cbl": {
+      "targets": [
+        "L179 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/CRDTAGY3.cbl": {
+      "targets": [
+        "L179 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/CRDTAGY4.cbl": {
+      "targets": [
+        "L180 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/CRDTAGY5.cbl": {
+      "targets": [
+        "L179 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/CREACC.cbl": {
+      "targets": [
+        "L1055 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L508 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L586 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L674 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L751 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/CRECUST.cbl": {
+      "targets": [
+        "L1250 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/DBCRFUN.cbl": {
+      "targets": [
+        "L620 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L807 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/DELACC.cbl": {
+      "targets": [
+        "L603 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/DELCUS.cbl": {
+      "targets": [
+        "L260 LINK INQCUST-PROGRAM -> INQCUST",
+        "L439 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L565 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L717 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/INQACC.cbl": {
+      "targets": [
+        "L321 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L401 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L516 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L738 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L810 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L924 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/INQACCCU.cbl": {
+      "targets": [
+        "L321 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L424 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L563 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L794 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/INQCUST.cbl": {
+      "targets": [
+        "L406 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L528 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "src/base/cobol_src/XFRFUN.cbl": {
+      "targets": [
+        "L1165 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1262 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1341 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1459 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1541 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1701 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L1873 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L364 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L463 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L573 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L664 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L737 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L813 LINK WS-ABEND-PGM -> ABNDPROC",
+        "L881 LINK WS-ABEND-PGM -> ABNDPROC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    }
+  }
 }

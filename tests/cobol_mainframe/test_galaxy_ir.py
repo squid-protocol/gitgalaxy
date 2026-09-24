@@ -2013,3 +2013,71 @@ def test_lineage_runs_file_to_file_through_read_into_and_write_from(io_scanned):
     assert ("WS-NAME", "READ", []) in got
     assert any(item in ("OUT-REC",) and verb == "WRITE" and "file FD OUT-FILE" in ep for item, verb, ep in got)
     assert got[0] == ("IN-NAME", None, ["file FD IN-FILE"])
+
+
+# ---- #3493: data-driven LINK / XCTL targets ------------------------------------
+MENU_CPY = """\
+       01 MENU-OPTIONS.
+         05 MENU-DATA.
+           10 FILLER               PIC 9(02) VALUE 1.
+           10 FILLER               PIC X(08) VALUE 'PGMAAA'.
+           10 FILLER               PIC 9(02) VALUE 2.
+           10 FILLER               PIC X(08) VALUE 'PGMBBB'.
+           10 FILLER               PIC 9(02) VALUE 3.
+           10 FILLER               PIC X(08) VALUE SPACES.
+         05 MENU-TABLE REDEFINES MENU-DATA.
+           10 MENU-OPT OCCURS 3 TIMES.
+             15 MENU-OPT-NUM       PIC 9(02).
+             15 MENU-OPT-PGM       PIC X(08).
+"""
+MENU_PGM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. MENUPGM.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-OPT             PIC 9(02).
+       01 WS-NEXT            PIC X(08).
+       01 LIT-SIGNON         PIC X(08) VALUE 'SIGNON'.
+       COPY MENUCPY.
+       LINKAGE SECTION.
+       01 DFHCOMMAREA.
+          05 CA-FROM-PGM     PIC X(08).
+       PROCEDURE DIVISION.
+           EXEC CICS XCTL PROGRAM(MENU-OPT-PGM(WS-OPT)) END-EXEC.
+           MOVE 'PGMBBB' TO WS-NEXT.
+           MOVE LIT-SIGNON TO WS-NEXT.
+           MOVE CA-FROM-PGM TO WS-NEXT.
+           EXEC CICS XCTL PROGRAM(WS-NEXT) END-EXEC.
+"""
+STUB = "       IDENTIFICATION DIVISION.\n       PROGRAM-ID. {}.\n       PROCEDURE DIVISION.\n           GOBACK.\n"
+
+
+@pytest.fixture(scope="module")
+def menu_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_menu")
+    repo = base / "menu"
+    files = {"cbl/MENUPGM.cbl": MENU_PGM, "cpy/MENUCPY.cpy": MENU_CPY}
+    files.update({f"cbl/{p}.cbl": STUB.format(p) for p in ("PGMAAA", "PGMBBB", "SIGNON")})
+    for rel, text in files.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_dynamic_targets_from_tables_values_and_moves(menu_scanned):
+    ir = load_galaxy_ir(menu_scanned)
+    got = {
+        (d["line"], d["operand"].split("(")[0]): ([(c["program"], c["via"], bool(c["resolves_to"])) for c in d["candidates"]], d["other_sources"])
+        for d in ir.dynamic_call_targets()
+    }  # fmt: skip
+    assert got == {
+        # The menu table's two non-blank program slots (the third is SPACES).
+        (13, "MENU-OPT-PGM"): ([("PGMAAA", "table", True), ("PGMBBB", "table", True)], []),
+        # A literal MOVE and a VALUE-holding item's MOVE; the COMMAREA field is "back to the caller".
+        (17, "WS-NEXT"): ([("PGMBBB", "moves", True), ("SIGNON", "moves", True)], ["CA-FROM-PGM"]),
+    }
+    edges = {(e["line"], e["program"], e["via"]) for e in ir.navigation()}
+    assert {(13, "PGMAAA", "table"), (13, "PGMBBB", "table"), (17, "SIGNON", "moves")} <= edges
+    calls = ir.completeness()["channels"]["program calls"]
+    assert calls["gaps"]["dynamic target"] == 0 and calls["resolved"] >= 2

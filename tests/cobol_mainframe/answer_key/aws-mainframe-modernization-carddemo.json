@@ -93696,6 +93696,94 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+        "app/cbl/COADM01C.cbl",
+        "app/cbl/COMEN01C.cbl",
+        "app/cbl/COUSR00C.cbl"
+      ],
+      "wide": false,
+      "suite": "dynamic",
+      "tasks": {
+        "dynamic": {
+          "agree": 54,
+          "asked": 54
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+      "at": "2026-09-24",
+      "batch": 2,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL",
+        "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+        "app/app-vsam-mq/cbl/COACCT01.cbl",
+        "app/app-vsam-mq/cbl/CODATE01.cbl",
+        "app/cbl/CBACT01C.cbl",
+        "app/cbl/CBACT02C.cbl",
+        "app/cbl/CBACT03C.cbl",
+        "app/cbl/CBACT04C.cbl",
+        "app/cbl/CBCUS01C.cbl",
+        "app/cbl/COACTUPC.cbl",
+        "app/cbl/COACTVWC.cbl",
+        "app/cbl/COBIL00C.cbl",
+        "app/cbl/COCRDLIC.cbl",
+        "app/cbl/COCRDSLC.cbl",
+        "app/cbl/COCRDUPC.cbl",
+        "app/cbl/CORPT00C.cbl",
+        "app/cbl/COTRN00C.cbl",
+        "app/cbl/COTRN01C.cbl",
+        "app/cbl/COTRN02C.cbl",
+        "app/cbl/COUSR01C.cbl",
+        "app/cbl/COUSR02C.cbl",
+        "app/cbl/COUSR03C.cbl"
+      ],
+      "wide": false,
+      "suite": "dynamic",
+      "tasks": {
+        "dynamic": {
+          "agree": 35,
+          "asked": 35
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+      "at": "2026-09-24",
+      "batch": 3,
+      "files": [
+        "app/cbl/CBEXPORT.cbl",
+        "app/cbl/CBIMPORT.cbl",
+        "app/cbl/CBSTM03A.CBL",
+        "app/cbl/CBTRN01C.cbl",
+        "app/cbl/CBTRN02C.cbl",
+        "app/cbl/CBTRN03C.cbl",
+        "app/cbl/COBSWAIT.cbl",
+        "app/cbl/COSGN00C.cbl",
+        "app/cbl/CSUTLDTC.cbl"
+      ],
+      "wide": false,
+      "suite": "dynamic",
+      "tasks": {
+        "dynamic": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -116126,6 +116214,397 @@
         "cross_by": "claude-opus-5.5 blind reviewers (io census)",
         "census": {
           "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    }
+  },
+  "dynamic_targets": {
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
+      "targets": [
+        "L322 XCTL CDEMO-TO-PROGRAM -> COMEN01C",
+        "L322 XCTL CDEMO-TO-PROGRAM -> COPAUS0C",
+        "L322 XCTL CDEMO-TO-PROGRAM -> COPAUS1C",
+        "L322 XCTL CDEMO-TO-PROGRAM -> COSGN00C",
+        "L674 XCTL CDEMO-TO-PROGRAM -> COMEN01C",
+        "L674 XCTL CDEMO-TO-PROGRAM -> COPAUS0C",
+        "L674 XCTL CDEMO-TO-PROGRAM -> COPAUS1C",
+        "L674 XCTL CDEMO-TO-PROGRAM -> COSGN00C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl": {
+      "targets": [
+        "L248 LINK WS-PGM-AUTH-FRAUD -> COPAUS2C",
+        "L367 XCTL CDEMO-TO-PROGRAM -> COPAUS0C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/app-transaction-type-db2/cbl/COTRTLIC.cbl": {
+      "targets": [
+        "L57 CALL LIT-DSNTIAC -> DSNTIAC",
+        "L620 XCTL CDEMO-TO-PROGRAM -> COADM01C",
+        "L620 XCTL CDEMO-TO-PROGRAM -> COTRTUPC",
+        "L648 XCTL LIT-ADDTPGM -> COTRTUPC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/app-transaction-type-db2/cbl/COTRTUPC.cbl": {
+      "targets": [
+        "L457 XCTL CDEMO-TO-PROGRAM -> COADM01C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COACTUPC.cbl": {
+      "targets": [
+        "L956 XCTL CDEMO-TO-PROGRAM -> COMEN01C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COACTVWC.cbl": {
+      "targets": [
+        "L349 XCTL CDEMO-TO-PROGRAM -> COMEN01C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COADM01C.cbl": {
+      "targets": [
+        "L145 XCTL CDEMO-ADMIN-OPT-PGMNAME -> COTRTLIC",
+        "L145 XCTL CDEMO-ADMIN-OPT-PGMNAME -> COTRTUPC",
+        "L145 XCTL CDEMO-ADMIN-OPT-PGMNAME -> COUSR00C",
+        "L145 XCTL CDEMO-ADMIN-OPT-PGMNAME -> COUSR01C",
+        "L145 XCTL CDEMO-ADMIN-OPT-PGMNAME -> COUSR02C",
+        "L145 XCTL CDEMO-ADMIN-OPT-PGMNAME -> COUSR03C",
+        "L168 XCTL CDEMO-TO-PROGRAM -> COSGN00C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COBIL00C.cbl": {
+      "targets": [
+        "L281 XCTL CDEMO-TO-PROGRAM -> COMEN01C",
+        "L281 XCTL CDEMO-TO-PROGRAM -> COSGN00C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COCRDLIC.cbl": {
+      "targets": [
+        "L402 XCTL LIT-MENUPGM -> COMEN01C",
+        "L538 XCTL CCARD-NEXT-PROG -> COCRDLIC",
+        "L538 XCTL CCARD-NEXT-PROG -> COCRDSLC",
+        "L538 XCTL CCARD-NEXT-PROG -> COCRDUPC",
+        "L566 XCTL CCARD-NEXT-PROG -> COCRDLIC",
+        "L566 XCTL CCARD-NEXT-PROG -> COCRDSLC",
+        "L566 XCTL CCARD-NEXT-PROG -> COCRDUPC"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COCRDSLC.cbl": {
+      "targets": [
+        "L331 XCTL CDEMO-TO-PROGRAM -> COMEN01C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COCRDUPC.cbl": {
+      "targets": [
+        "L473 XCTL CDEMO-TO-PROGRAM -> COMEN01C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COMEN01C.cbl": {
+      "targets": [
+        "L156 XCTL CDEMO-MENU-OPT-PGMNAME -> COACTUPC",
+        "L156 XCTL CDEMO-MENU-OPT-PGMNAME -> COACTVWC",
+        "L156 XCTL CDEMO-MENU-OPT-PGMNAME -> COBIL00C",
+        "L156 XCTL CDEMO-MENU-OPT-PGMNAME -> COCRDLIC",
+        "L156 XCTL CDEMO-MENU-OPT-PGMNAME -> COCRDSLC",
+        "L156 XCTL CDEMO-MENU-OPT-PGMNAME -> COCRDUPC",
+        "L156 XCTL CDEMO-MENU-OPT-PGMNAME -> COPAUS0C",
+        "L156 XCTL CDEMO-MENU-OPT-PGMNAME -> CORPT00C",
+        "L156 XCTL CDEMO-MENU-OPT-PGMNAME -> COTRN00C",
+        "L156 XCTL CDEMO-MENU-OPT-PGMNAME -> COTRN01C",
+        "L156 XCTL CDEMO-MENU-OPT-PGMNAME -> COTRN02C",
+        "L184 XCTL CDEMO-MENU-OPT-PGMNAME -> COACTUPC",
+        "L184 XCTL CDEMO-MENU-OPT-PGMNAME -> COACTVWC",
+        "L184 XCTL CDEMO-MENU-OPT-PGMNAME -> COBIL00C",
+        "L184 XCTL CDEMO-MENU-OPT-PGMNAME -> COCRDLIC",
+        "L184 XCTL CDEMO-MENU-OPT-PGMNAME -> COCRDSLC",
+        "L184 XCTL CDEMO-MENU-OPT-PGMNAME -> COCRDUPC",
+        "L184 XCTL CDEMO-MENU-OPT-PGMNAME -> COPAUS0C",
+        "L184 XCTL CDEMO-MENU-OPT-PGMNAME -> CORPT00C",
+        "L184 XCTL CDEMO-MENU-OPT-PGMNAME -> COTRN00C",
+        "L184 XCTL CDEMO-MENU-OPT-PGMNAME -> COTRN01C",
+        "L184 XCTL CDEMO-MENU-OPT-PGMNAME -> COTRN02C",
+        "L201 XCTL CDEMO-TO-PROGRAM -> COSGN00C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/CORPT00C.cbl": {
+      "targets": [
+        "L548 XCTL CDEMO-TO-PROGRAM -> COMEN01C",
+        "L548 XCTL CDEMO-TO-PROGRAM -> COSGN00C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COTRN00C.cbl": {
+      "targets": [
+        "L192 XCTL CDEMO-TO-PROGRAM -> COMEN01C",
+        "L192 XCTL CDEMO-TO-PROGRAM -> COSGN00C",
+        "L192 XCTL CDEMO-TO-PROGRAM -> COTRN01C",
+        "L518 XCTL CDEMO-TO-PROGRAM -> COMEN01C",
+        "L518 XCTL CDEMO-TO-PROGRAM -> COSGN00C",
+        "L518 XCTL CDEMO-TO-PROGRAM -> COTRN01C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COTRN01C.cbl": {
+      "targets": [
+        "L205 XCTL CDEMO-TO-PROGRAM -> COMEN01C",
+        "L205 XCTL CDEMO-TO-PROGRAM -> COSGN00C",
+        "L205 XCTL CDEMO-TO-PROGRAM -> COTRN00C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COTRN02C.cbl": {
+      "targets": [
+        "L508 XCTL CDEMO-TO-PROGRAM -> COMEN01C",
+        "L508 XCTL CDEMO-TO-PROGRAM -> COSGN00C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COUSR00C.cbl": {
+      "targets": [
+        "L196 XCTL CDEMO-TO-PROGRAM -> COADM01C",
+        "L196 XCTL CDEMO-TO-PROGRAM -> COSGN00C",
+        "L196 XCTL CDEMO-TO-PROGRAM -> COUSR02C",
+        "L196 XCTL CDEMO-TO-PROGRAM -> COUSR03C",
+        "L206 XCTL CDEMO-TO-PROGRAM -> COADM01C",
+        "L206 XCTL CDEMO-TO-PROGRAM -> COSGN00C",
+        "L206 XCTL CDEMO-TO-PROGRAM -> COUSR02C",
+        "L206 XCTL CDEMO-TO-PROGRAM -> COUSR03C",
+        "L514 XCTL CDEMO-TO-PROGRAM -> COADM01C",
+        "L514 XCTL CDEMO-TO-PROGRAM -> COSGN00C",
+        "L514 XCTL CDEMO-TO-PROGRAM -> COUSR02C",
+        "L514 XCTL CDEMO-TO-PROGRAM -> COUSR03C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COUSR01C.cbl": {
+      "targets": [
+        "L175 XCTL CDEMO-TO-PROGRAM -> COADM01C",
+        "L175 XCTL CDEMO-TO-PROGRAM -> COSGN00C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COUSR02C.cbl": {
+      "targets": [
+        "L258 XCTL CDEMO-TO-PROGRAM -> COADM01C",
+        "L258 XCTL CDEMO-TO-PROGRAM -> COSGN00C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "app/cbl/COUSR03C.cbl": {
+      "targets": [
+        "L205 XCTL CDEMO-TO-PROGRAM -> COADM01C",
+        "L205 XCTL CDEMO-TO-PROGRAM -> COSGN00C"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
           "at": "2026-09-24"
         }
       }

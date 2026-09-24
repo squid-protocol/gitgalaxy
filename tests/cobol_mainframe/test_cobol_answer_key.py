@@ -1218,3 +1218,42 @@ def test_io_move_reader_on_its_own(tmp_path):
         "L7 ACCEPT DATE YYYYMMDD -> WS-DATE",
         "L8 ACCEPT SYSIN -> WS-PARM",
     ]
+
+
+def test_dynamic_targets_on_its_own(tmp_path):
+    """#3493: the key's own candidates -- an OCCURS table over a VALUE-filled
+    REDEFINES, a MOVEd literal and a MOVEd VALUE item."""
+    (tmp_path / "MENUCPY.cpy").write_text(
+        "       01 MENU-OPTIONS.\n"
+        "         05 MENU-DATA.\n"
+        "           10 FILLER PIC 9(02) VALUE 1.\n"
+        "           10 FILLER PIC X(08) VALUE 'PGMAAA'.\n"
+        "           10 FILLER PIC 9(02) VALUE 2.\n"
+        "           10 FILLER PIC X(08) VALUE 'PGMBBB'.\n"
+        "         05 MENU-TABLE REDEFINES MENU-DATA.\n"
+        "           10 MENU-OPT OCCURS 2 TIMES.\n"
+        "             15 MENU-OPT-NUM PIC 9(02).\n"
+        "             15 MENU-OPT-PGM PIC X(08).\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "MENU.cbl").write_text(
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. MENU.\n"
+        "       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n"
+        "       01 WS-NEXT PIC X(08).\n"
+        "       01 LIT-SIGNON PIC X(08) VALUE 'SIGNON'.\n"
+        "       COPY MENUCPY.\n"
+        "       PROCEDURE DIVISION.\n"
+        "           EXEC CICS XCTL PROGRAM(MENU-OPT-PGM(WS-OPT)) END-EXEC.\n"
+        "           MOVE 'PGMBBB' TO WS-NEXT.\n"
+        "           MOVE LIT-SIGNON TO WS-NEXT.\n"
+        "           EXEC CICS XCTL PROGRAM(WS-NEXT) END-EXEC.\n",
+        encoding="utf-8",
+    )
+    assert ak.draft_dynamic_targets(tmp_path)["MENU.cbl"]["targets"] == [
+        "L12 XCTL WS-NEXT -> PGMBBB",
+        "L12 XCTL WS-NEXT -> SIGNON",
+        "L9 XCTL MENU-OPT-PGM -> PGMAAA",
+        "L9 XCTL MENU-OPT-PGM -> PGMBBB",
+    ]

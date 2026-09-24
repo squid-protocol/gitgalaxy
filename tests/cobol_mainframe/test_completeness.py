@@ -81,7 +81,7 @@ def test_markdown_lists_every_channel_and_input(estate):
 # engine improvement (re-pin) or a regression.
 PINNED = {
     "aws-mainframe-modernization-carddemo": {
-        "program calls": (35, 82), "copybooks": (173, 173), "transactions": (62, 73), "screens": (42, 47),
+        "program calls": (63, 82), "copybooks": (173, 173), "transactions": (62, 73), "screens": (42, 47),
         "data flows": (4933, 5042), "IMS PSBs": (7, 7), "batch entry": (11, 17),
     },
     "cics-banking-sample-application-cbsa": {

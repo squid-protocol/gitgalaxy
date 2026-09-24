@@ -385,6 +385,15 @@
           },
           "truth": "cross_verified"
         },
+        "dynamic call targets": {
+          "engine": {
+            "got": 89,
+            "tp": 89,
+            "truth": 89
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
         "entry transactions": {
           "engine": {
             "got": 26,
@@ -1211,6 +1220,15 @@
           },
           "truth": "cross_verified"
         },
+        "dynamic call targets": {
+          "engine": {
+            "got": 124,
+            "tp": 124,
+            "truth": 124
+          },
+          "forge": null,
+          "truth": "cross_verified"
+        },
         "entry transactions": {
           "engine": {
             "got": 14,
@@ -1545,6 +1563,15 @@
             "tp": 3,
             "truth": 3
           },
+          "truth": "cross_verified"
+        },
+        "dynamic call targets": {
+          "engine": {
+            "got": 3,
+            "tp": 3,
+            "truth": 3
+          },
+          "forge": null,
           "truth": "cross_verified"
         },
         "entry transactions": {

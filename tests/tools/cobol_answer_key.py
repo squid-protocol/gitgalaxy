@@ -25,6 +25,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-ims-gen <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-data-moves <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-symbolic-maps <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-dynamic-targets <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-io-moves <repo> --key key.json
     python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
@@ -4122,6 +4123,165 @@ def draft_data_moves(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# Data-driven LINK / XCTL / CALL targets (#3493)
+# ==============================================================================
+# This tool's own reading: a site whose program operand is a data name (in the
+# program, or in a procedure copybook it COPYs -- evaluated in the program) can
+# name (1) the item's VALUE, (2) when it is an element of an OCCURS table that
+# REDEFINES a VALUE-filled group, each occurrence's slice of that group's text,
+# (3) each literal -- or VALUE-holding item -- a MOVE in the program stores in it.
+def _dyn_sites(src: Source) -> list[tuple[int, str, str]]:
+    out = []
+    for m in _CALL.finditer(src.text):
+        form, value = _operand(src, m.end())
+        if form == "identifier" and value:
+            out.append((src.line_of(m.start()), "CALL", value))
+    for m in _CICS_PROGRAM.finditer(src.text):
+        seg = src.text[m.end() : m.end() + 600]
+        end = seg.find("END-EXEC")
+        p = re.search(r"\bPROGRAM\s*\(\s*", seg[: end if end >= 0 else None])
+        if p:
+            form, value = _operand(src, m.end() + p.end())
+            if form == "identifier" and value:
+                out.append((src.line_of(m.start()), m.group(1), value))
+    return out
+
+
+def _dyn_group_text(entries: list[tuple[int, str, str]], base: int) -> Optional[str]:
+    """A group's load-time text: its elementary VALUEs at their PIC widths ('?' unknown)."""
+    text, j = "", base + 1
+    while j < len(entries) and entries[j][0] > entries[base][0]:
+        lvl, _, d = entries[j]
+        pic = re.search(r"\bPIC(?:TURE)?\s+(?:IS\s+)?(\S+)", d)
+        if lvl not in (66, 88) and pic and not re.search(r"\bREDEFINES\b", d):
+            w, _ = _mv_pic_width(pic.group(1).rstrip("."), d)
+            if w is None:
+                return None
+            v = re.search(r"\bVALUE\s+(?:IS\s+)?(?:'([^']*)'|\"([^\"]*)\"|([+-]?\d+))", d)
+            if v is None:
+                text += "?" * w
+            elif v.group(3) is not None:
+                text += v.group(3).rjust(w, "0")[-w:]
+            else:
+                text += (v.group(1) if v.group(1) is not None else v.group(2)).ljust(w)[:w]
+        j += 1
+    return text
+
+
+def _dyn_offset(entries: list[tuple[int, str, str]], group: int, target: int) -> Optional[int]:
+    """Bytes before entry `target` inside entry `group` (children walked in order)."""
+    off, k, glv = 0, group + 1, entries[group][0]
+    while k < len(entries) and entries[k][0] > glv:
+        if k == target:
+            return off
+        end = k + 1
+        while end < len(entries) and entries[end][0] > entries[k][0]:
+            end += 1
+        if target < end:
+            inner = _dyn_offset(entries, k, target)
+            return None if inner is None else off + inner
+        if entries[k][0] not in (66, 88) and not re.search(r"\bREDEFINES\b", entries[k][2]):
+            w, _ = _mv_width(entries, k)
+            if w is None:
+                return None
+            occ = re.search(r"\bOCCURS\s+(?:\d+\s+TO\s+)?(\d+)", entries[k][2])
+            off += w * (int(occ.group(1)) if occ else 1)
+        k = end
+    return None
+
+
+def _dyn_table(entries: list[tuple[int, str, str]], name: str) -> list[str]:
+    """Occurrence values of `name`, an element of an OCCURS table over a REDEFINES."""
+    idx = [i for i, e in enumerate(entries) if e[1] == name and e[0] not in (66, 88)]
+    if len(idx) != 1:
+        return []
+    i = idx[0]
+    chain, lv = [i], entries[i][0]
+    for j in range(i - 1, -1, -1):
+        if entries[j][0] < lv and entries[j][0] not in (66, 88):
+            chain.append(j)
+            lv = entries[j][0]
+            if lv == 1:
+                break
+    table = next((j for j in chain if re.search(r"\bOCCURS\s+(\d+)", entries[j][2])), None)
+    if table is None:
+        return []
+    red = next(
+        (j for j in chain[chain.index(table) :] if re.search(r"\bREDEFINES\s+([A-Z0-9-]+)", entries[j][2])), None
+    )
+    if red is None:
+        return []
+    base_name = re.search(r"\bREDEFINES\s+([A-Z0-9-]+)", entries[red][2]).group(1)
+    base = next((j for j, e in enumerate(entries) if e[1] == base_name), None)
+    text = _dyn_group_text(entries, base) if base is not None else None
+    if not text:
+        return []
+    per, _ = _mv_width(entries, table)
+    size, _ = _mv_width(entries, i)
+    start = 0 if table == red else _dyn_offset(entries, red, table)
+    inner = _dyn_offset(entries, table, i)
+    times = int(re.search(r"\bOCCURS\s+(?:\d+\s+TO\s+)?(\d+)", entries[table][2]).group(1))
+    if not per or not size or start is None or inner is None:
+        return []
+    vals = [text[start + n * per + inner : start + n * per + inner + size] for n in range(times)]
+    return [v.strip() for v in vals if len(v) == size and v.strip() and "?" not in v]
+
+
+def dynamic_target_units(path: Path, repo: Path, stems: dict) -> list[str]:
+    """`L<line> VERB OPERAND -> PROGRAM` per candidate of each data-driven site."""
+    src = Source(path)
+    proc = src.proc_start if src.proc_start is not None else len(src.lines)
+    entries = _mv_entries([a for _, a in src.lines[:proc]], repo, stems)
+    sites = _dyn_sites(src)
+    moved: dict[str, set] = {}
+    for r in data_move_rows(path):
+        moved.setdefault(r["target"].split(" OF ")[0], set()).add((r["kind"], r["source"]))
+    # Procedure copybooks the program COPYs (or EXEC SQL INCLUDEs): their sites and
+    # MOVEs act on its data.
+    includes = r"\b(?:COPY|EXEC\s+SQL\s+INCLUDE)\s+['\"]?([A-Z0-9@#$-]+)"
+    for member in re.findall(includes, "\n".join(a for _, a in src.lines[proc:])):
+        for cb in stems.get(member, [])[:1]:
+            sites += _dyn_sites(Source(cb))
+            for r in data_move_rows(cb):
+                moved.setdefault(r["target"].split(" OF ")[0], set()).add((r["kind"], r["source"]))
+    out = set()
+    for line, verb, name in sites:
+        cands = set()
+        v = _dli_value(path, repo, name)
+        if v and v.strip() and "?" not in v:
+            cands.add(v.strip())
+        cands |= set(_dyn_table(entries, name))
+        for kind, source in moved.get(name, set()):
+            if kind == "literal" and source[:1] in "'\"":
+                cands.add(source.strip("'\"").strip().upper())
+            elif kind == "item":
+                v = _dli_value(path, repo, source.split(" OF ")[0])
+                if v and v.strip() and "?" not in v:
+                    cands.add(v.strip().upper())
+        out |= {f"L{line} {verb} {name} -> {c}" for c in cands}
+    return sorted(out)
+
+
+def draft_dynamic_targets(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted data-driven call targets per COBOL program (#3493); `dynamic_validated` signs it off."""
+    stems: dict = {}
+    for p in repo.rglob("*"):
+        if p.is_file() and p.suffix.lower() in COPYBOOK_EXTS and ".git" not in p.parts:
+            stems.setdefault(p.stem.upper(), []).append(p)
+    out: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if p.is_file() and p.suffix.lower() in PROGRAM_EXTS and ".git" not in p.parts:
+            units = dynamic_target_units(p, repo, stems)
+            if units:
+                out[p.relative_to(repo).as_posix()] = {
+                    "targets": units,
+                    "dynamic_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+    return out
+
+
+# ==============================================================================
 # Symbolic maps generated from BMS source (#3490)
 # ==============================================================================
 # This tool's own computation, by arithmetic, not by writing and parsing COBOL:
@@ -4651,6 +4811,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # #3492: READ / RETURN INTO, WRITE / REWRITE / RELEASE FROM, ACCEPT, as
         # written. Truth is this tool's own reader; engine is data_move_data.
         "file I/O moves",
+        # #3493: the programs a data-driven LINK / XCTL / CALL can name (VALUE, an
+        # OCCURS table over a VALUE-filled REDEFINES, MOVEd literals). Truth is this
+        # tool's own reader; engine is GalaxyIR.dynamic_call_targets.
+        "dynamic call targets",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -5003,6 +5167,21 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             engine_ims.get(rel, set()) if ir is not None and rel in ir.files else None,
         )
 
+    engine_dyn: dict[str, set[str]] = {}
+    if ir is not None:
+        for d in ir.dynamic_call_targets():
+            engine_dyn.setdefault(d["file"], set()).update(
+                f"L{d['line']} {d['verb']} {d['operand'].split('(')[0].strip()} -> {c['program']}"
+                for c in d["candidates"]
+            )
+    for rel, k in key.get("dynamic_targets", {}).items():
+        add(
+            "dynamic call targets",
+            rel,
+            set(k.get("targets", [])),
+            None,
+            engine_dyn.get(rel, set()) if ir is not None and rel in ir.files else None,
+        )
     engine_maps = ir.symbolic_map_layouts() if ir is not None else {}
     for rel, k in key.get("symbolic_maps", {}).items():
         for mapset, units in k.get("layouts", {}).items():
@@ -5183,6 +5362,9 @@ def main() -> int:
     dlp = sub.add_parser("add-dli")
     dlp.add_argument("repo", type=Path)
     dlp.add_argument("--key", type=Path, required=True)
+    dyp = sub.add_parser("add-dynamic-targets")
+    dyp.add_argument("repo", type=Path)
+    dyp.add_argument("--key", type=Path, required=True)
     smp = sub.add_parser("add-symbolic-maps")
     smp.add_argument("repo", type=Path)
     smp.add_argument("--key", type=Path, required=True)
@@ -5347,6 +5529,16 @@ def main() -> int:
         key["dli_calls"] = dl
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(dl)} DL/I files -> {args.key}")
+        return 0
+    if args.cmd == "add-dynamic-targets":
+        # #3493: the add-pli discipline; an unvalidated file no longer drafted is dropped.
+        dt = {rel: e for rel, e in key.get("dynamic_targets", {}).items() if e.get("dynamic_validated")}
+        for rel, entry in draft_dynamic_targets(repo).items():
+            if not dt.get(rel, {}).get("dynamic_validated"):
+                dt[rel] = entry
+        key["dynamic_targets"] = dt
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(dt)} dynamic-target files -> {args.key}")
         return 0
     if args.cmd == "add-symbolic-maps":
         # #3490: the add-pli discipline -- refresh drafts, keep signed-off files.

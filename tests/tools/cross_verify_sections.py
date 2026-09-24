@@ -44,6 +44,10 @@ keyed rows, in full:
 
     io_moves          io_moves_validated       READ / RETURN INTO, WRITE / REWRITE / RELEASE FROM, ACCEPT
 
+`dynamic` (#3493) is asked of every COBOL program with a LINK / XCTL / CALL, in full:
+
+    dynamic_targets   dynamic_validated        the programs a data-name LINK / XCTL / CALL can name
+
 The data-move sample is fixed when the census is cut and stored in the key under
 `sample_census.data_moves.plan`: windows around truncation claims and around the
 rarer verbs (so every contract clause is exercised), then random windows over all
@@ -1126,6 +1130,26 @@ OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-re
     return brief, truth
 
 
+def batches_dynamic(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    return _pack({f: len(v) for f, v in key_facts_dynamic(key, files)["dynamic"].items()}, max_items)
+
+
+def _pack(load: dict[str, int], max_items: int) -> list[list[str]]:
+    out: list[list[str]] = []
+    sizes: list[int] = []
+    for f in sorted(load, key=lambda x: (-load[x], x)):
+        cost = 1 + load[f]
+        for i, sz in enumerate(sizes):
+            if sz + cost <= max_items:
+                out[i].append(f)
+                sizes[i] += cost
+                break
+        else:
+            out.append([f])
+            sizes.append(cost)
+    return [sorted(b) for b in out]
+
+
 def batches_io(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
     facts = key_facts_io(key, files)["io"]
     out: list[list[str]] = []
@@ -1141,6 +1165,78 @@ def batches_io(key: dict[str, Any], files: list[str], max_items: int) -> list[li
             out.append([f])
             sizes.append(load)
     return [sorted(b) for b in out]
+
+
+# ---- the `dynamic` suite (#3493) ------------------------------------------------
+def corpus_files_dynamic(key: dict[str, Any], repo: Path) -> list[str]:
+    """Keyed programs, and every COBOL program with a LINK / XCTL / CALL (recall)."""
+    out = set(key.get("dynamic_targets", {}))
+    for rel in corpus_files(repo):
+        if not rel.lower().endswith((".cbl", ".cob", ".cobol", ".ccp")):
+            continue
+        text = (repo / rel).read_text(encoding="utf-8", errors="ignore").upper()
+        if re.search(r"\b(?:XCTL|LINK)\b|\bCALL\s", text):
+            out.add(rel)
+    return sorted(out)
+
+
+def canon_dynamic(r: dict[str, Any]) -> str:
+    operand = re.sub(r"\s*\(.*$", "", _ws(r.get("operand")))
+    return f"L{int(r.get('line') or 0)} {_ws(r.get('verb'))} {operand} -> {_ws(r.get('program')).strip(chr(39))}"
+
+
+def key_facts_dynamic(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    dt = key.get("dynamic_targets", {})
+    return {"dynamic": {rel: sorted({_ws(t) for t in dt.get(rel, {}).get("targets", [])}) for rel in files}}
+
+
+def reviewer_facts_dynamic(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    root = str(repo).rstrip("/") + "/"
+    out: dict[str, dict[str, set[str]]] = {"dynamic": {}}
+    for path, v in (answers.get("files") or {}).items():
+        r = path[len(root) :] if path.startswith(root) else path
+        facts = set()
+        for site in (v or {}).get("dynamic", []):
+            if isinstance(site, dict):
+                for prog in site.get("programs") or []:
+                    facts.add(canon_dynamic(dict(site, program=prog)))
+        out["dynamic"][r] = facts
+    return out
+
+
+def render_dynamic(
+    key: dict[str, Any], repo: Path, files: list[str], index: int, of: int
+) -> tuple[str, dict[str, Any]]:
+    truth = {"corpus": key["corpus"], "ref": key["ref"], "root": str(repo), "mode": "section_census",
+             "suite": "dynamic", "batch": index, "of": of, "files": files, "facts": key_facts_dynamic(key, files)}  # fmt: skip
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM mainframe COBOL source code, as a second reviewer.
+Read the source files yourself. They are all under the repository root {repo}; read only inside that directory
+(a program's copybooks are other files in it). Do NOT edit or create any files except your answers file, and do
+not look for any existing answer key or analysis of this code: the point is an independent reading. Line numbers
+are 1-based physical line numbers. Ignore comment lines, text inside quoted literals, and columns 73-80.
+
+{FIXED_FORMAT_RULES}
+
+For EACH program below, find every EXEC CICS LINK / XCTL PROGRAM(x) and every CALL x whose program operand x is a
+DATA NAME (not a quoted literal) -- in the program's procedure code, and in any copybook it brings into its
+PROCEDURE DIVISION with COPY or EXEC SQL INCLUDE (line numbers are then the copybook's). For each such site answer
+{{"line" (of EXEC / CALL), "verb": "LINK" | "XCTL" | "CALL", "operand": x (subscript dropped), "programs": [...]}}
+where "programs" lists every program name x can hold, from exactly these three sources (names upper-case, trimmed):
+  1. x's own VALUE clause (x may be defined in a copybook the program COPYs);
+  2. when x is an element of an OCCURS table that REDEFINES a group of FILLERs with VALUEs, each occurrence's
+     slice of that group's text at x's position (skip blank slices);
+  3. every MOVE in the program (and those copybooks) into x: a quoted literal source, or a source data item that
+     has a VALUE (its VALUE). A source item with no VALUE adds nothing.
+Sites with no program from these sources still get an entry with "programs": [].
+
+Programs:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"dynamic": [...]}}, ...every program above...}}}}
+"""
+    return brief, truth
 
 
 def upper_bound_95(errors: int, n: int) -> float:
@@ -1165,6 +1261,8 @@ def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[st
         if suite == "lineage"
         else reviewer_facts_io(answers, repo)
         if suite == "io"
+        else reviewer_facts_dynamic(answers, repo)
+        if suite == "dynamic"
         else reviewer_facts(answers, repo)
     )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
@@ -1221,6 +1319,8 @@ def sign(
         if truth.get("suite") == "lineage"
         else {("io_moves", "io_moves_validated")}
         if truth.get("suite") == "io"
+        else {("dynamic_targets", "dynamic_validated")}
+        if truth.get("suite") == "dynamic"
         else {SECTIONS[t] for t in PER_FILE}
     )
     for rel in truth["files"]:
@@ -1304,12 +1404,12 @@ def main() -> int:
     c.add_argument("--out", type=Path, required=True)
     c.add_argument("--stage", type=Path, required=True)
     c.add_argument("--max-items", type=int, default=70)
-    c.add_argument("--suite", choices=("channels", "files", "calls", "lineage", "io"), default="channels")
+    c.add_argument("--suite", choices=("channels", "files", "calls", "lineage", "io", "dynamic"), default="channels")
     c.add_argument("--sample-facts", type=int, default=400, help="lineage: key facts the data-move sample covers")
     c.add_argument("--seed", type=int, default=3452, help="lineage: the sample's seed")
     cov = sub.add_parser("coverage")
     cov.add_argument("--corpus", required=True)
-    cov.add_argument("--suite", choices=("channels", "files", "calls", "lineage", "io"), default="channels")
+    cov.add_argument("--suite", choices=("channels", "files", "calls", "lineage", "io", "dynamic"), default="channels")
     for name in ("grade", "sign"):
         s = sub.add_parser(name)
         s.add_argument("--corpus", required=True)
@@ -1327,6 +1427,8 @@ def main() -> int:
         if suite == "files"
         else corpus_files_io(key, repo)
         if suite == "io"
+        else corpus_files_dynamic(key, repo)
+        if suite == "dynamic"
         else corpus_files(repo)  # calls: every COBOL source
     )
     if args.cmd == "coverage":
@@ -1363,12 +1465,16 @@ def main() -> int:
                 n = sum(len(v) for t in truth["facts"].values() for v in t.values())
                 print(f"{d}: {len(fs)} IMS files, {len(ws)} windows, {n} key facts")
             return 0
-        pack = {"files": batches_files, "calls": batches_calls, "io": batches_io}.get(suite, batches)
+        pack = {"files": batches_files, "calls": batches_calls, "io": batches_io, "dynamic": batches_dynamic}.get(
+            suite, batches
+        )
         packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
             d = args.out / f"batch_{i:02d}"
             d.mkdir(parents=True, exist_ok=True)
-            make = {"files": render_files, "calls": render_calls, "io": render_io}.get(suite, render)
+            make = {"files": render_files, "calls": render_calls, "io": render_io, "dynamic": render_dynamic}.get(
+                suite, render
+            )
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
             (d / "truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
@@ -1400,6 +1506,8 @@ def main() -> int:
         current = dict(truth, facts=key_facts_files(key, truth["files"]))
     elif truth.get("suite") == "calls":
         current = dict(truth, facts=key_facts_calls(key, truth["files"]))
+    elif truth.get("suite") == "dynamic":
+        current = dict(truth, facts=key_facts_dynamic(key, truth["files"]))
     elif truth.get("suite") == "io":
         current = dict(truth, facts=key_facts_io(key, truth["files"]))
     elif truth.get("suite") == "lineage":

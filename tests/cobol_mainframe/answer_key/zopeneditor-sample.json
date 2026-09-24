@@ -8360,6 +8360,25 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "COBOL/SAM1.cbl",
+        "COBOL/SAM1LIB.cbl",
+        "multiroot/sam/SAM1.cbl"
+      ],
+      "wide": false,
+      "suite": "dynamic",
+      "tasks": {
+        "dynamic": {
+          "agree": 3,
+          "asked": 3
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -10937,6 +10956,56 @@
         "cross_by": "claude-opus-5.5 blind reviewers (io census)",
         "census": {
           "by": "claude-opus-5.5 blind reviewers (io census)",
+          "at": "2026-09-24"
+        }
+      }
+    }
+  },
+  "dynamic_targets": {
+    "COBOL/SAM1.cbl": {
+      "targets": [
+        "L304 CALL SAM2 -> SAM2"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "COBOL/SAM1LIB.cbl": {
+      "targets": [
+        "L287 CALL SAM2 -> SAM2"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
+          "at": "2026-09-24"
+        }
+      }
+    },
+    "multiroot/sam/SAM1.cbl": {
+      "targets": [
+        "L338 CALL SAM2 -> SAM2"
+      ],
+      "dynamic_validated": true,
+      "verification": {
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5.5 blind reviewers (dynamic census)",
+        "census": {
+          "by": "claude-opus-5.5 blind reviewers (dynamic census)",
           "at": "2026-09-24"
         }
       }

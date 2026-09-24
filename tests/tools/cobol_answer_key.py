@@ -15,6 +15,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-commarea <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-cics <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-cics-tasks <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-job-submissions <repo> --key key.json
     python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
@@ -36,6 +37,10 @@ FILE/MAP/QUEUE/CONTAINER/CHANNEL operations into `cics_resources`, the add-pli w
 `add-cics-tasks` (#3449) drafts every COBOL source's CICS task-control commands
 (RUN/START/FETCH/RETRIEVE/DELAY/ENQ ...) and the CSD transactions each RUN/START
 reaches into `cics_tasks`, the add-pli way.
+
+`add-job-submissions` (#3448) drafts, per submitting file, the jobs it submits to
+the internal reader (CICS WRITEQ TD to an extrapartition queue, or a JCL
+SYSOUT=(x,INTRDR) step) into `job_submissions`, the add-pli way.
 
 AUTHORITY. `draft` computes CANDIDATE values with its own fixed-format reading
 (Area A headers, PERFORM ... THRU, GO TO, SECTION fall-through, terminal
@@ -2160,6 +2165,138 @@ def draft_cics_tasks(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# Job submission through the internal reader (#3448)
+# ==============================================================================
+# This tool's own reading of "who submits which job". Online: a COBOL source
+# writes (WRITEQ TD, read by this tool's own cics_resource_ops) a queue that
+# this tool's own CSD reader finds defined TYPE(EXTRA), and either the source
+# holds a literal `//NAME JOB` card or some JCL routes that queue's DDNAME to
+# SYSOUT=(x,INTRDR). Batch: a JCL step routes a DD to SYSOUT=(x,INTRDR), and the
+# job is the member of that step's SYSUT1 library. JCL is read line by line
+# here (no statement parser); a PROC target prefers a procedure member.
+_KEY_JOB_CARD = re.compile(r"[\"']//([A-Z@#$][A-Z0-9@#$]{0,7})\s+JOB\b")
+_KEY_EXEC_CARD = re.compile(r"[\"']//(?:[A-Z@#$][A-Z0-9@#$]{0,7})?\s+EXEC\s+(?:(PROC|PGM)=)?([A-Z@#$][A-Z0-9@#$]{0,7})")
+_KEY_INTRDR = re.compile(r"SYSOUT=\([^,()]*,\s*INTRDR\s*[,)]", re.I)
+
+
+def _key_jcl_member(repo: Path, name: str, proc: bool) -> Optional[str]:
+    hits = sorted(
+        p.relative_to(repo).as_posix()
+        for p in repo.rglob("*")
+        if p.is_file() and p.suffix.lower() in JCL_EXTS and p.stem.upper() == name.upper() and ".git" not in p.parts
+    )
+    wanted = [h for h in hits if (Path(h).suffix.lower() == ".prc" or "/proc/" in f"/{h.lower()}") == proc] or hits
+    return wanted[0] if len(wanted) == 1 else None
+
+
+def _key_intrdr_steps(text: str) -> list[tuple[Optional[str], str, Optional[str]]]:
+    """(step, ddname, SYSUT1 DSN of the step) for each DD routed to the internal reader."""
+    out: list[tuple[Optional[str], str, Optional[str]]] = []
+    step: Optional[str] = None
+    pending: list[tuple[Optional[str], str]] = []
+    sysut1: Optional[str] = None
+    for raw in text.split("\n") + ["// EXEC"]:
+        line = raw[:72].rstrip()
+        if not line.startswith("//") or line.startswith("//*"):
+            continue
+        parts = line[2:].split(None, 2)
+        if not parts:
+            continue
+        label, op = (None, parts[0]) if line[2:3] in (" ", "") else (parts[0], parts[1] if len(parts) > 1 else "")
+        rest = line.split(op, 1)[1] if op and op in line else ""
+        if op.upper() in ("EXEC", "PROC", "PEND", "JOB"):
+            out.extend((s, d, sysut1) for s, d in pending)
+            step, pending, sysut1 = (label.upper() if label and op.upper() == "EXEC" else None), [], None
+        elif op.upper() == "DD":
+            if label and label.upper() == "SYSUT1":
+                m = re.search(r"DSN(?:AME)?=([^,\s]+)", rest, re.I)
+                sysut1 = m.group(1).upper() if m else None
+            if _KEY_INTRDR.search(rest):
+                pending.append((step, (label or "").upper()))
+    return out
+
+
+def draft_job_submissions(repo: Path) -> dict[str, dict[str, Any]]:
+    """Drafted job submissions per submitting file (#3448), as `via X -> ...`
+    strings. Adjudicates nothing until signed off with `submissions_validated`."""
+    files = [p for p in sorted(repo.rglob("*")) if p.is_file() and ".git" not in p.parts]
+    tdqs: dict[str, Optional[str]] = {}
+    intrdr: dict[str, list] = {}
+    for p in files:
+        suffix = p.suffix.lower()
+        if suffix not in CSD_EXTS + JCL_EXTS:
+            continue
+        text = p.read_text(encoding="utf-8", errors="ignore")
+        if is_csd_deck(p, text):
+            for r in csd_resource_definitions(text):
+                if r["resource_type"] == "TDQUEUE" and (r["queue_type"] or "").startswith("EXTRA"):
+                    tdqs[r["name"]] = r["ddname"]
+        if suffix in JCL_EXTS:
+            steps = _key_intrdr_steps(text)
+            if steps:
+                intrdr[p.relative_to(repo).as_posix()] = steps
+    intrdr_dds = {dd for steps in intrdr.values() for _s, dd, _src in steps}
+    out: dict[str, dict[str, Any]] = {}
+    for p in files:
+        if p.suffix.lower() not in PROGRAM_EXTS:
+            continue
+        src = Source(p)
+        jobs = sorted(set(_KEY_JOB_CARD.findall(src.raw_text)))
+        runs = []
+        if jobs:
+            for kind, name in _KEY_EXEC_CARD.findall(src.raw_text):
+                kind = kind or "PROC"
+                runs.append(f"{kind} {name} = {_key_jcl_member(repo, name, kind == 'PROC') or '?'}")
+        queues = set()
+        for r in cics_resource_ops(p):
+            if r["kind"] == "QUEUE" and r["access"] == "write" and r["qualifier"] == "TD":
+                queues |= {r["name"].upper()} if r["name"] else set((r["candidates"] or "").upper().split(",")) - {""}
+        subs = set()
+        for q in sorted(queues & set(tdqs)):
+            if jobs or (tdqs[q] or "") in intrdr_dds:
+                subs |= {f"tdq {q} -> JOB {j}" for j in jobs} | {f"tdq {q} -> {r}" for r in runs}
+                if not jobs:
+                    subs.add(f"tdq {q} -> ?")
+        if subs:
+            out[p.relative_to(repo).as_posix()] = {
+                "submissions": sorted(subs),
+                "submissions_validated": False,
+                "verification": {"status": "draft", "notes": []},
+            }
+    for rel, steps in intrdr.items():
+        subs = set()
+        for _step, dd, source in steps:
+            member = source.rsplit("(", 1)[1].rstrip(")") if source and source.endswith(")") and "(" in source else None
+            if member and not member.lstrip("+-").isdigit():
+                subs.add(f"intrdr {dd} -> JOB {member} = {_key_jcl_member(repo, member, False) or '?'}")
+            else:
+                subs.add(f"intrdr {dd} -> ?")
+        out[rel] = {
+            "submissions": sorted(subs),
+            "submissions_validated": False,
+            "verification": {"status": "draft", "notes": []},
+        }
+    return out
+
+
+def engine_job_submissions(entries: list[dict[str, Any]]) -> dict[str, set[str]]:
+    """GalaxyIR.job_submissions() in this reader's `via X -> ...` unit form."""
+    out: dict[str, set[str]] = {}
+    for e in entries:
+        subs = out.setdefault(e["submitter"], set())
+        if e["via"] == "tdq":
+            subs |= {f"tdq {e['queue']} -> JOB {j}" for j in e["jobs"]}
+            subs |= {f"tdq {e['queue']} -> {r['kind']} {r['name']} = {r['resolves_to'] or '?'}" for r in e["runs"]}
+            if not e["jobs"]:
+                subs.add(f"tdq {e['queue']} -> ?")
+        else:
+            subs |= {f"intrdr {e['dd']} -> JOB {r['name']} = {r['resolves_to'] or '?'}" for r in e["runs"]}
+            if not e["runs"]:
+                subs.add(f"intrdr {e['dd']} -> ?")
+    return out
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -2541,6 +2678,10 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # expanded against the deck (`RUN OCR1`..`RUN OCR5`). Truth is this tool's
         # own pattern + CSD read; engine is GalaxyIR.async_tasks().
         "async children",
+        # #3448: job submission through the internal reader, per submitting file
+        # (CICS WRITEQ TD to an extrapartition queue, or a JCL SYSOUT=(x,INTRDR)
+        # step). Truth is this tool's own join; engine is GalaxyIR.job_submissions().
+        "job submissions",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -2789,6 +2930,16 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         )
         add("async children", rel, set(k.get("children", [])), None, engine_children.get(rel, set()) if ef else None)
 
+    engine_subs = engine_job_submissions(ir.job_submissions()) if ir is not None else {}
+    for rel, k in key.get("job_submissions", {}).items():
+        add(
+            "job submissions",
+            rel,
+            set(k.get("submissions", [])),
+            None,
+            engine_subs.get(rel, set()) if ir is not None and rel in ir.files else None,
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -2902,6 +3053,9 @@ def main() -> int:
     x = sub.add_parser("add-cics")
     x.add_argument("repo", type=Path)
     x.add_argument("--key", type=Path, required=True)
+    js = sub.add_parser("add-job-submissions")
+    js.add_argument("repo", type=Path)
+    js.add_argument("--key", type=Path, required=True)
     xt = sub.add_parser("add-cics-tasks")
     xt.add_argument("repo", type=Path)
     xt.add_argument("--key", type=Path, required=True)
@@ -3026,6 +3180,16 @@ def main() -> int:
         key["cics_resources"] = ops
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(ops)} CICS files -> {args.key}")
+        return 0
+    if args.cmd == "add-job-submissions":
+        # #3448: the add-pli discipline -- refresh drafts, keep signed-off files.
+        subs = key.get("job_submissions", {})
+        for rel, entry in draft_job_submissions(repo).items():
+            if not subs.get(rel, {}).get("submissions_validated"):
+                subs[rel] = entry
+        key["job_submissions"] = subs
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(subs)} job-submitting files -> {args.key}")
         return 0
     if args.cmd == "add-cics-tasks":
         # #3449: the add-pli discipline -- refresh drafts, keep signed-off files.

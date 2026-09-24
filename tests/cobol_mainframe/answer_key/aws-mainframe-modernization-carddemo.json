@@ -90502,5 +90502,28 @@
         "notes": []
       }
     }
+  },
+  "job_submissions": {
+    "app/cbl/CORPT00C.cbl": {
+      "submissions": [
+        "tdq JOBS -> JOB TRNRPT00",
+        "tdq JOBS -> PROC TRANREPT = app/proc/TRANREPT.prc"
+      ],
+      "submissions_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/INTRDRJ1.JCL": {
+      "submissions": [
+        "intrdr SYSUT2 -> JOB INTRDRJ2 = app/jcl/INTRDRJ2.JCL"
+      ],
+      "submissions_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
   }
 }

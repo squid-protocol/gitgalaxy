@@ -1,0 +1,29 @@
+{
+  "groups": {
+    "cobol/aws-mainframe-modernization-carddemo": {
+      "cobol/aws-mainframe-modernization-carddemo/CORPT00C.cbl": [
+        {
+          "Kind": "JOB",
+          "Line": 84,
+          "Name": "TRNRPT00",
+          "Step": null,
+          "Target": null,
+          "Target Kind": null
+        },
+        {
+          "Kind": "EXEC",
+          "Line": 94,
+          "Name": null,
+          "Step": "STEP10",
+          "Target": "TRANREPT",
+          "Target Kind": "PROC"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "Job Submission"
+  ]
+}

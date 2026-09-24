@@ -304,6 +304,20 @@ class AuditRecorder:
                 }
                 for t in tasks
             ]
+        submits = file_data.get("job_submits") or []
+        if submits:
+            # #3448: job-submission evidence, mirroring job_submit_data.
+            block["Job Submission"] = [
+                {
+                    "Kind": j.get("kind"),
+                    "Step": j.get("step"),
+                    "Name": j.get("name"),
+                    "Target Kind": j.get("target_kind"),
+                    "Target": j.get("target"),
+                    "Line": j.get("line", 0),
+                }
+                for j in submits
+            ]
         return block
 
     def generate_report(

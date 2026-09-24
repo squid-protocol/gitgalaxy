@@ -849,3 +849,46 @@ def test_cics_task_reader_is_independent_and_expands_string_ids(tmp_path):
     ]
     assert entry["children"] == ["RUN OCR1"]
     assert entry["cics_tasks_validated"] is False
+
+
+def test_job_submission_reader_is_independent(tmp_path):
+    """#3448: the key's own join -- a WRITEQ TD to an extrapartition queue is a
+    submission only with a JOB card literal (or a region INTRDR DD for its DDNAME);
+    a batch SYSOUT=(x,INTRDR) step submits its SYSUT1 member."""
+    files = {
+        "csd/D.csd": " DEFINE TDQUEUE(JOBS) GROUP(D)\n        TYPE(EXTRA) DDNAME(INREADER)\n"
+        " DEFINE TDQUEUE(AUDT) GROUP(D)\n        TYPE(EXTRA) DDNAME(AUDITDD)\n",
+        "cbl/RPT.cbl": (
+            "       IDENTIFICATION DIVISION.\n"
+            "       PROGRAM-ID. RPT.\n"
+            "       DATA DIVISION.\n"
+            "       WORKING-STORAGE SECTION.\n"
+            "       01 F PIC X(80) VALUE \"//RPTJOB JOB 'R',CLASS=A\".\n"
+            '       01 G PIC X(80) VALUE "//S1 EXEC PROC=RPTPROC".\n'
+            "       PROCEDURE DIVISION.\n"
+            "           EXEC CICS WRITEQ TD QUEUE('JOBS') FROM(F) END-EXEC.\n"
+            "           EXEC CICS WRITEQ TD QUEUE('AUDT') FROM(F) END-EXEC.\n"
+        ),
+        "cbl/AUD.cbl": (
+            "       IDENTIFICATION DIVISION.\n"
+            "       PROGRAM-ID. AUD.\n"
+            "       PROCEDURE DIVISION.\n"
+            "           EXEC CICS WRITEQ TD QUEUE('AUDT') FROM(X) END-EXEC.\n"
+        ),
+        "proc/RPTPROC.prc": "//RPTPROC PROC\n",
+        "jcl/RPTPROC.jcl": "//RPTPROC JOB\n",
+        "jcl/SUB.jcl": "//SUB JOB\n//S1 EXEC PGM=IEBGENER\n//SYSUT1 DD DSN=L(RPTPROC),DISP=SHR\n//SYSUT2 DD SYSOUT=(A,INTRDR)\n",
+    }
+    for rel, text in files.items():
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_text(text, encoding="utf-8")
+    got = {rel: v["submissions"] for rel, v in ak.draft_job_submissions(tmp_path).items()}
+    assert got == {
+        "cbl/RPT.cbl": [
+            "tdq AUDT -> JOB RPTJOB",
+            "tdq AUDT -> PROC RPTPROC = proc/RPTPROC.prc",
+            "tdq JOBS -> JOB RPTJOB",
+            "tdq JOBS -> PROC RPTPROC = proc/RPTPROC.prc",
+        ],
+        "jcl/SUB.jcl": ["intrdr SYSUT2 -> JOB RPTPROC = jcl/RPTPROC.jcl"],
+    }

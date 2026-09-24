@@ -565,6 +565,7 @@ class LLMRecorder:
                 + len(f.get("csd_resources") or [])  # #3356
                 + len(f.get("cics_resources") or [])  # #3351-#3354
                 + len(f.get("cics_tasks") or [])  # #3449
+                + len(f.get("job_submits") or [])  # #3448
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -798,6 +799,18 @@ class LLMRecorder:
                         task_labels.append(label)
                 more = f" … (+{len(task_labels) - 12} more)" if len(task_labels) > 12 else ""
                 lines.append(f"- **CICS task control:** {', '.join(f'`{x}`' for x in task_labels[:12])}{more}")
+            # #3448: what this file submits to the internal reader.
+            submits = f.get("job_submits") or []
+            if submits:
+                parts = []
+                for j in submits:
+                    if j.get("kind") == "JOB":
+                        parts.append(f"JOB {j.get('name') or '?'}")
+                    elif j.get("kind") == "EXEC":
+                        parts.append(f"EXEC {j.get('target_kind')}={j.get('target')}")
+                    else:
+                        parts.append(f"INTRDR {j.get('name')}<-{j.get('target') or '?'}")
+                lines.append(f"- **Job submission:** {', '.join(f'`{x}`' for x in parts[:12])}")
             lines.append("")
 
         if len(carriers) > 20:

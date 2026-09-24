@@ -1083,3 +1083,99 @@ def test_a_pre_3449_db_loads_with_no_tasks(async_scanned, tmp_path):
     ir = load_galaxy_ir(old)
     assert all(ef.cics_tasks == [] for ef in ir.files.values())
     assert ir.async_tasks() == []
+
+
+# ---- #3448: job submission through the internal reader ------------------------
+SUBMIT_CSD = """\
+ DEFINE TDQUEUE(JOBS) GROUP(DEMO)
+        TYPE(EXTRA) DDNAME(INREADER) RECORDSIZE(80)
+ DEFINE TDQUEUE(AUDT) GROUP(DEMO)
+        TYPE(EXTRA) DDNAME(AUDITLOG)
+ DEFINE TDQUEUE(SUBQ) GROUP(DEMO)
+        TYPE(EXTRA) DDNAME(SUBQDD)
+ DEFINE TRANSACTION(CR00) GROUP(DEMO)
+        PROGRAM(RPTPGM)
+"""
+
+
+def _writer(pid: str, queue: str, cards: str = "") -> str:
+    return (
+        "       IDENTIFICATION DIVISION.\n"
+        f"       PROGRAM-ID. {pid}.\n"
+        "       DATA DIVISION.\n"
+        "       WORKING-STORAGE SECTION.\n"
+        "       01 JCL-RECORD PIC X(80).\n" + cards + "       PROCEDURE DIVISION.\n"
+        "       000-MAIN.\n"
+        f"           EXEC CICS WRITEQ TD QUEUE('{queue}') FROM(JCL-RECORD)\n"
+        "           END-EXEC.\n"
+        "           EXEC CICS RETURN END-EXEC.\n"
+    )
+
+
+RPT_CARDS = (
+    "       01 JOB-DATA.\n"
+    "          05 FILLER PIC X(80) VALUE \"//RPTJOB01 JOB 'RPT',CLASS=A\".\n"
+    '          05 FILLER PIC X(80) VALUE "//STEP10 EXEC PROC=RPTPROC".\n'
+)
+
+
+@pytest.fixture(scope="module")
+def submit_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_submit")
+    repo = base / "demo"
+    files = {
+        "csd/DEMO.csd": SUBMIT_CSD,
+        "cbl/RPTPGM.cbl": _writer("RPTPGM", "JOBS", RPT_CARDS),
+        "cbl/AUDPGM.cbl": _writer("AUDPGM", "AUDT"),
+        "cbl/SUBPGM.cbl": _writer("SUBPGM", "SUBQ"),
+        "proc/RPTPROC.prc": "//RPTPROC PROC\n//S1 EXEC PGM=IEFBR14\n",
+        "jcl/RPTPROC.jcl": "//RPTPROC JOB CLASS=A\n//S1 EXEC RPTPROC\n",
+        "jcl/REGION.jcl": "//REGION JOB CLASS=A\n//CICS EXEC PGM=DFHSIP\n//SUBQDD DD SYSOUT=(A,INTRDR)\n",
+        "jcl/SUBMIT1.jcl": (
+            "//SUBMIT1 JOB CLASS=A\n//STEP01 EXEC PGM=IEBGENER\n"
+            "//SYSUT1 DD DSN=MY.JCL(RPTPROC),DISP=SHR\n//SYSUT2 DD SYSOUT=(A,INTRDR)\n"
+        ),
+    }
+    for rel, text in files.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_job_submissions_join_online_and_batch(submit_scanned):
+    subs = {(s["submitter"], s["via"]): s for s in load_galaxy_ir(submit_scanned).job_submissions()}
+    # AUDT is extrapartition too, but nothing says it reaches the internal reader.
+    assert sorted(subs) == [
+        ("cbl/RPTPGM.cbl", "tdq"),
+        ("cbl/SUBPGM.cbl", "tdq"),
+        ("jcl/REGION.jcl", "intrdr_dd"),
+        ("jcl/SUBMIT1.jcl", "intrdr_dd"),
+    ]
+    rpt = subs[("cbl/RPTPGM.cbl", "tdq")]
+    assert (rpt["queue"], rpt["ddname"], rpt["transactions"], rpt["jobs"]) == (
+        "JOBS",
+        "INREADER",
+        ["CR00"],
+        ["RPTJOB01"],
+    )
+    assert rpt["evidence"] == ["job_card"]
+    # PROC=RPTPROC prefers the procedure member over the same-named job.
+    (run,) = rpt["runs"]
+    assert (run["kind"], run["name"], run["resolves_to"]) == ("PROC", "RPTPROC", "proc/RPTPROC.prc")
+    sub = subs[("cbl/SUBPGM.cbl", "tdq")]
+    assert (sub["evidence"], sub["jobs"]) == (["region_jcl"], [])
+    batch = subs[("jcl/SUBMIT1.jcl", "intrdr_dd")]
+    assert (batch["step"], batch["dd"], batch["jobs"]) == ("STEP01", "SYSUT2", ["RPTPROC"])
+    assert batch["runs"][0]["resolves_to"] == "jcl/RPTPROC.jcl"
+    assert subs[("jcl/REGION.jcl", "intrdr_dd")]["jobs"] == []
+
+
+def test_a_pre_3448_db_loads_with_no_submissions(submit_scanned, tmp_path):
+    old = tmp_path / "old.db"
+    shutil.copy(submit_scanned, old)
+    with sqlite3.connect(old) as conn:
+        conn.execute("DROP TABLE job_submit_data")
+    ir = load_galaxy_ir(old)
+    assert all(ef.job_submits == [] for ef in ir.files.values())
+    assert ir.job_submissions() == []

@@ -316,6 +316,15 @@
           },
           "truth": "cross_verified"
         },
+        "job submissions": {
+          "engine": {
+            "got": 3,
+            "tp": 3,
+            "truth": 3
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "outputs": {
           "engine": {
             "got": 21,
@@ -1022,6 +1031,11 @@
           },
           "truth": "cross_verified"
         },
+        "job submissions": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "outputs": {
           "engine": {
             "got": 1,
@@ -1249,6 +1263,11 @@
             "truth": 6
           },
           "truth": "cross_verified"
+        },
+        "job submissions": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
         },
         "outputs": {
           "engine": {

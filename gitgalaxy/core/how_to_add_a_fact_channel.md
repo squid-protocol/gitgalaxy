@@ -25,6 +25,7 @@ before writing anything:
 | DB2 `DECLARE TABLE` / DCLGEN schemas (own table: SQL types don't fit `record_data`) | #3344 | `core/db2_declare_table.py` (via `extract_boundary`, cobol + pli) | `sql_table_data` | `EngineFile.sql_tables` |
 | embedded SQL statements: which tables a program reads / inserts / updates / deletes (cursor OPEN/FETCH joined to its DECLARE in the reader) | #3446 | `core/db2_sql_statements.py` (via `extract_boundary`, cobol + pli) | `sql_statement_data` | `EngineFile.sql_statements` (`GalaxyIR.sql_table_access`) |
 | CICS task control: RUN/START children (a STRING-built transid kept as a PIC-sized fnmatch pattern), FETCH/FREE joins, RETRIEVE, DELAY, POST, WAIT, ENQ/DEQ (children joined to the CSD in the reader) | #3449 | `core/cics_tasks.py` (via `extract_boundary`, cobol + pli) | `cics_task_data` | `EngineFile.cics_tasks` (`GalaxyIR.async_tasks`) |
+| job submission through the internal reader: JCL JOB/EXEC card literals in COBOL, JCL DDs routed to SYSOUT=(x,INTRDR) (WRITEQ TD -> extrapartition TDQUEUE -> job joined in the reader) | #3448 | `core/job_submits.py` (via `extract_boundary`, cobol + jcl) | `job_submit_data` | `EngineFile.job_submits` (`GalaxyIR.job_submissions`) |
 
 The wrapper channel (#3313) is the first global/resolved channel whose raw per-file input is not
 itself a table: `file_data.wrapper_facts` (JSON, the #3220 `raw_imports` precedent) carries each

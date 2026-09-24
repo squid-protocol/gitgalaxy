@@ -8087,5 +8087,6 @@
     }
   ],
   "sql_access": {},
-  "cics_tasks": {}
+  "cics_tasks": {},
+  "job_submissions": {}
 }

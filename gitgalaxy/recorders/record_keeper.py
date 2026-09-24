@@ -491,6 +491,8 @@ class RecordKeeper:
         each file's own `cics_resources` and become cics_resource_data.
         CICS task control (#3449: RUN/START/FETCH/RETRIEVE/DELAY/ENQ ...) rides
         on each file's own `cics_tasks` and becomes cics_task_data.
+        Job-submission evidence (#3448: JCL card literals in COBOL, INTRDR DDs in
+        JCL) rides on each file's own `job_submits` and becomes job_submit_data.
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1137,6 +1139,32 @@ class RecordKeeper:
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_file_id ON cics_task_data(file_id);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_target ON cics_task_data(verb, target_name);")
         cursor.execute("CREATE INDEX IF NOT EXISTS idx_cics_task_snapshot ON cics_task_data(repo_name, commit_hash);")
+
+        # #3448: job submission through the internal reader (core/job_submits.py).
+        #   kind         -- JOB (a COBOL literal `//NAME JOB` card) | EXEC (a COBOL
+        #                   literal `//STEP EXEC PROC=|PGM=` card) | INTRDR (a JCL
+        #                   DD routed to SYSOUT=(x,INTRDR))
+        #   step_name    -- the EXEC card's / INTRDR DD's step
+        #   submit_name  -- the JOB card's job name, or the INTRDR DD's ddname
+        #   target_kind  -- PROC | PGM (EXEC) | DSN (INTRDR: the step's SYSUT1)
+        #   target       -- that procedure / program / dataset
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS job_submit_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                step_name TEXT,
+                submit_name TEXT,
+                target_kind TEXT,
+                target TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_submit_file_id ON job_submit_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_job_submit_snapshot ON job_submit_data(repo_name, commit_hash);")
 
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
@@ -2623,6 +2651,26 @@ class RecordKeeper:
                 t.get("timing"),
                 t.get("attributes"),
                 int(t.get("line", 0) or 0),
+            ),
+        )
+
+        # #3448: job-submission evidence -- per-file, like cics_task_data.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "job_submit_data",
+            ("kind", "step_name", "submit_name", "target_kind", "target", "line_number"),
+            "job_submits",
+            lambda j: (
+                j.get("kind"),
+                j.get("step"),
+                j.get("name"),
+                j.get("target_kind"),
+                j.get("target"),
+                int(j.get("line", 0) or 0),
             ),
         )
 

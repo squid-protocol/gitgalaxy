@@ -59,6 +59,11 @@
 # channel and CHILD/REQID token, FETCH/FREE joins, RETRIEVE, DELAY, POST, WAIT
 # and ENQ/DEQ; GalaxyIR.async_tasks joins each spawn to the CSD transactions and
 # programs it reaches, the containers it passes and the FETCHes that collect it.
+# Since #3448, job submission through the internal reader (job_submit_data, per
+# EngineFile.job_submits): the JCL JOB/EXEC cards a COBOL program holds as
+# literals and the JCL DDs routed to SYSOUT=(x,INTRDR); GalaxyIR.job_submissions
+# joins a CICS `WRITEQ TD` to an extrapartition TDQUEUE and on to the job it
+# submits, and a batch INTRDR step to the JCL member it copies there.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -454,6 +459,24 @@ class EngineCicsTask:
 
 
 @dataclass
+class EngineJobSubmit:
+    """One piece of job-submission evidence (#3448), from `job_submit_data`.
+
+    `kind` JOB: a COBOL literal job card, `name` the job name. `kind` EXEC: a
+    COBOL literal EXEC card, `step` its step and `target` the PROC / PGM
+    (`target_kind`). `kind` INTRDR: a JCL DD routed to the internal reader,
+    `step` / `name` its step and ddname, `target` the step's SYSUT1 DSN.
+    """
+
+    kind: str
+    step: Optional[str]
+    name: Optional[str]
+    target_kind: Optional[str]
+    target: Optional[str]
+    line: int
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -473,6 +496,7 @@ class EngineFile:
     csd_resources: list = field(default_factory=list)  # EngineCsdResource, source order, #3356
     cics_resources: list = field(default_factory=list)  # EngineCicsResource, source order, #3351-#3354
     cics_tasks: list = field(default_factory=list)  # EngineCicsTask, source order, #3449
+    job_submits: list = field(default_factory=list)  # EngineJobSubmit, source order, #3448
 
     @property
     def is_program(self) -> bool:
@@ -1567,6 +1591,117 @@ class GalaxyIR:
                 )
         return out
 
+    def _jcl_member(self, name: Optional[str], proc: bool) -> tuple[Optional[str], list]:
+        """(the one JCL file named `name`, every candidate). A PROC prefers a
+        procedure member (`.prc`/`.proc`, or a `proc` directory); a job the rest."""
+        if not name:
+            return None, []
+        hits = sorted(
+            f.file_path
+            for f in self.files.values()
+            if f.language == "jcl" and Path(f.file_path).stem.upper() == name.upper()
+        )
+
+        def is_proc(p: str) -> bool:
+            return Path(p).suffix.lower() in (".prc", ".proc") or "proc" in {x.lower() for x in Path(p).parts[:-1]}
+
+        preferred = [p for p in hits if is_proc(p) == proc] or hits
+        return (preferred[0] if len(preferred) == 1 else None), hits
+
+    def job_submissions(self) -> list:
+        """Every job submission to the internal reader the repository shows (#3448).
+
+        Online -> batch (`via` 'tdq'): program P writes (`WRITEQ TD`) queue Q, and
+        the CSD defines Q as an extrapartition TDQUEUE (TYPE(EXTRA)). That is a
+        submission when either
+          - `region_jcl`: some JCL in the repository routes Q's DDNAME to
+            SYSOUT=(x,INTRDR) (the CICS region's own startup JCL), or
+          - `job_card`: P holds a literal JCL job card -- it builds the job it
+            writes (CardDemo CORPT00C: `//TRNRPT00 JOB`, `EXEC PROC=TRANREPT`).
+        An extrapartition queue with neither is an ordinary output queue and is
+        not reported.
+        Batch -> batch (`via` 'intrdr_dd'): a JCL step routes a DD to
+        SYSOUT=(x,INTRDR); the job it submits is the member of that step's SYSUT1
+        library (`LIB(INTRDRJ2)`), resolved to the JCL file of that name.
+
+        Each entry: `submitter` (file), `via`, `line`, `queue` / `ddname` (tdq) or
+        `step` / `dd` / `source` (intrdr_dd), `transactions` (the CSD transactions
+        that enter the submitter), `jobs` (job names), `runs` (each EXEC target
+        with `kind`, `name`, `resolves_to`, `candidates`) and `evidence`.
+        """
+        intrdr_ddnames = {
+            (j.name or "").upper() for f in self.files.values() for j in f.job_submits if j.kind == "INTRDR"
+        }
+        tdqs = {
+            r.name.upper(): r
+            for f in self.files.values()
+            for r in f.csd_resources
+            if r.resource_type == "TDQUEUE" and (r.queue_type or "").upper().startswith("EXTRA")
+        }
+        entry: dict[str, set[str]] = {}
+        for f in self.files.values():
+            for t in f.transactions:
+                if t.resolves_to:
+                    entry.setdefault(t.resolves_to, set()).add(t.transid.upper())
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            jobs = [j.name for j in f.job_submits if j.kind == "JOB" and j.name]
+            runs = []
+            for j in f.job_submits:
+                if j.kind == "EXEC":
+                    one, cands = self._jcl_member(j.target, j.target_kind == "PROC")
+                    runs.append({"kind": j.target_kind, "name": j.target, "resolves_to": one, "candidates": cands})
+            for op in f.cics_resources:
+                if op.kind != "QUEUE" or op.access != "write" or (op.qualifier or "").upper() != "TD":
+                    continue
+                for qname in sorted(op.names & set(tdqs)):
+                    tdq = tdqs[qname]
+                    evidence = []
+                    if (tdq.ddname or "").upper() in intrdr_ddnames:
+                        evidence.append("region_jcl")
+                    if jobs:
+                        evidence.append("job_card")
+                    if not evidence:
+                        continue
+                    out.append(
+                        {
+                            "submitter": f.file_path,
+                            "via": "tdq",
+                            "line": op.line,
+                            "queue": qname,
+                            "ddname": tdq.ddname,
+                            "transactions": sorted(entry.get(f.file_path, set())),
+                            "jobs": jobs,
+                            "runs": runs,
+                            "evidence": evidence,
+                        }
+                    )
+            for j in f.job_submits:
+                if j.kind != "INTRDR":
+                    continue
+                member = None
+                if j.target and "(" in j.target and j.target.endswith(")"):
+                    member = j.target.rsplit("(", 1)[1][:-1]
+                    member = None if member.lstrip("+-").isdigit() else member  # a GDG generation
+                one, cands = self._jcl_member(member, False)
+                out.append(
+                    {
+                        "submitter": f.file_path,
+                        "via": "intrdr_dd",
+                        "line": j.line,
+                        "step": j.step,
+                        "dd": j.name,
+                        "source": j.target,
+                        "transactions": [],
+                        "jobs": [member] if member else [],
+                        "runs": [{"kind": "JOB", "name": member, "resolves_to": one, "candidates": cands}]
+                        if member
+                        else [],
+                        "evidence": ["sysout_intrdr"],
+                    }
+                )
+        return out
+
     def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
         try:
             rel = path.resolve().relative_to(target_root.resolve()).as_posix()
@@ -2087,6 +2222,17 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         line=int(row[13] or 0),
                     )
                 )
+        # #3448: job-submission evidence. A pre-#3448 database has none.
+        if _has_table(cur, "job_submit_data"):
+            for file_id, kind, step, name, tkind, target, line in cur.execute(
+                "SELECT file_id, kind, step_name, submit_name, target_kind, target, line_number "
+                "FROM job_submit_data WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if file_id in by_id:
+                    by_id[file_id].job_submits.append(
+                        EngineJobSubmit(kind or "", step, name, tkind, target, int(line or 0))
+                    )
         # #3449: CICS task control. A pre-#3449 database has no such table, so a
         # missing table is "no task commands", never an error.
         if _has_table(cur, "cics_task_data"):

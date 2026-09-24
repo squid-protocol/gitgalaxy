@@ -77,6 +77,12 @@
 # error_handlers and unchecked_responses place them in their owning paragraph.
 # tdq_trigger_starts joins a WRITEQ TD to a CSD TDQUEUE with TRIGGERLEVEL and
 # TRANSID -- the transaction CICS starts when the queue fills.
+# Since #3455, file definitions: each FILE-CONTROL SELECT's organisation,
+# access mode and keys (file_control_data, per EngineFile.file_control) and each
+# IDCAMS DEFINE CLUSTER / AIX / PATH in JCL (vsam_define_data, per
+# EngineFile.vsam_defines); GalaxyIR.vsam_files puts a SELECT's RECORD KEY at its
+# byte offset in the FD record and checks it against the KEYS(l o) of the cluster
+# (or the AIX behind a PATH) its DD is bound to, and against the CSD FILE.
 # NOT in the DB, so still owned by the forge tools:
 # reachability-based dead code. `usage_status` is a same-file "name mentioned
 # elsewhere" test, not reachability -- it is carried as data and must not be fed
@@ -535,6 +541,43 @@ class EngineUowHandler:
 
 
 @dataclass
+class EngineFileControl:
+    """One FILE-CONTROL SELECT (#3455), from `file_control_data`. `organization`
+    is None when the clause is absent (COBOL's default is SEQUENTIAL);
+    `alternate_keys` is a list of (data-name, with_duplicates)."""
+
+    select_name: str
+    assign: Optional[str]
+    organization: Optional[str]
+    access_mode: Optional[str]
+    record_key: Optional[str]
+    alternate_keys: list
+    relative_key: Optional[str]
+    file_status: Optional[str]
+    fd_copies: list
+    line: int
+
+
+@dataclass
+class EngineVsamDefine:
+    """One IDCAMS DEFINE CLUSTER / AIX / PATH (#3455), from `vsam_define_data`.
+    `related` is an AIX's RELATE base cluster or a PATH's PATHENTRY."""
+
+    kind: str
+    name: Optional[str]
+    organization: Optional[str]
+    key_length: Optional[int]
+    key_offset: Optional[int]
+    record_avg: Optional[int]
+    record_max: Optional[int]
+    related: Optional[str]
+    unique_key: Optional[str]
+    upgrade: Optional[str]
+    step: Optional[str]
+    line: int
+
+
+@dataclass
 class EngineFile:
     file_path: str
     language: str
@@ -557,6 +600,8 @@ class EngineFile:
     job_submits: list = field(default_factory=list)  # EngineJobSubmit, source order, #3448
     mq_calls: list = field(default_factory=list)  # EngineMqCall, source order, #3447
     uow_handlers: list = field(default_factory=list)  # EngineUowHandler, source order, #3453
+    file_control: list = field(default_factory=list)  # EngineFileControl, source order, #3455
+    vsam_defines: list = field(default_factory=list)  # EngineVsamDefine, source order, #3455
 
     @property
     def is_program(self) -> bool:
@@ -1914,6 +1959,143 @@ class GalaxyIR:
                     )
         return out
 
+    def _key_position(
+        self, ef: EngineFile, fd_name: str, key: Optional[str], copies: Optional[list] = None
+    ) -> tuple[Optional[int], Optional[int]]:
+        """(byte offset, length) of data-name `key` inside the FD `fd_name`'s record:
+        a 01 of the FD in the program, or a record of a COPY member inside the FD
+        entry (`FD X. COPY Y.`). Offsets are from the record's start."""
+        if not key:
+            return None, None
+        want = key.upper()
+        roots = [(ef, r) for r in ef.records if (r.fd_name or "").upper() == fd_name.upper()]
+        for member in copies or []:
+            cb = self._copybook_file(member, ef)
+            if cb is not None:
+                roots += [(cb, r) for r in cb.records if r.level == 1]
+        for owner, root in roots:
+            layout = self.record_layout(owner, root)
+            hit = next((x for x in layout["fields"] if x["name"].upper() == want), None)
+            if hit:
+                return hit["offset"], hit["bytes"]
+            # A group key: the span of its elementary items.
+            stack, target = [root], None
+            while stack and target is None:
+                it = stack.pop()
+                if it.name.upper() == want:
+                    target = it
+                stack.extend(it.children)
+            if target is None:
+                continue
+            names, stack = set(), list(target.children)
+            while stack:
+                it = stack.pop()
+                names.add(it.name.upper())
+                stack.extend(it.children)
+            parts = [x for x in layout["fields"] if x["name"].upper() in names]
+            if parts and all(x["bytes"] is not None for x in parts):
+                return min(x["offset"] for x in parts), sum(x["bytes"] for x in parts)
+            return None, None
+        return None, None
+
+    def vsam_files(self) -> list:
+        """Every keyed FILE-CONTROL SELECT, checked against the VSAM it reads (#3455).
+
+        For each SELECT with a RECORD KEY or RELATIVE KEY: `program`, `select`,
+        `dd`, `organization`, `access_mode`, `record_key` with its `key_offset` /
+        `key_length` in the FD record (None when unknown), `key_in_record` (False
+        when the FD's record is known and the key is not one of its fields --
+        a definition COBOL does not allow), `alternate_keys`
+        (name, duplicates, offset, length), `datasets` (the datasets the DD is
+        bound to by a job that runs the program), `defines` (every IDCAMS object of
+        that name -- a PATH resolved to the AIX it opens), `key_match` (True / False
+        when a CLUSTER or AIX key and the program key are both known, else None)
+        and `csd_files` (CSD FILEs on that dataset with their key length).
+        """
+        defines: dict[str, list] = {}
+        for f in self.files.values():
+            for d in f.vsam_defines:
+                if d.name:
+                    defines.setdefault(d.name.upper(), []).append((d, f.file_path))
+        csd_by_dsn: dict[str, list] = {}
+        for f in self.files.values():
+            for r in f.csd_resources:
+                if r.resource_type == "FILE" and r.dsname:
+                    csd_by_dsn.setdefault(r.dsname.upper(), []).append(r)
+        lineage: dict[tuple[str, str], set] = {}
+        for e in self.dataset_lineage():
+            if e["dataset"]:
+                lineage.setdefault((e["program"], e["dd_name"].upper()), set()).add(e["dataset"].upper())
+        out = []
+        for f in sorted(self.files.values(), key=lambda x: x.file_path):
+            for sel in f.file_control:
+                key = sel.record_key or sel.relative_key
+                if not key:
+                    continue
+                offset, length = self._key_position(f, sel.select_name, key, sel.fd_copies)
+                # COBOL requires the RECORD KEY to be a field of the file's own record.
+                # False: the FD record is known and the key is not in it (CardDemo
+                # CBEXPORT keys EXPORT-OUTPUT on a WORKING-STORAGE item).
+                fd_known = any((r.fd_name or "").upper() == sel.select_name.upper() for r in f.records) or bool(
+                    sel.fd_copies
+                )
+                key_in_record = True if offset is not None else (False if fd_known else None)
+                alternates = []
+                for name, dup in sel.alternate_keys:
+                    a_off, a_len = self._key_position(f, sel.select_name, name, sel.fd_copies)
+                    alternates.append({"name": name, "duplicates": dup, "offset": a_off, "length": a_len})
+                datasets = sorted(lineage.get((f.file_path, (sel.assign or "").upper()), set()))
+                found = []
+                for ds in datasets:
+                    for d, where in defines.get(ds, []):
+                        # A PATH opens its AIX: its key is the AIX's key.
+                        keyed = d
+                        if d.kind == "PATH" and d.related:
+                            keyed = next((a for a, _ in defines.get(d.related.upper(), []) if a.kind == "AIX"), d)
+                        found.append(
+                            {
+                                "kind": d.kind,
+                                "name": d.name,
+                                "defined_in": where,
+                                "key_length": keyed.key_length,
+                                "key_offset": keyed.key_offset,
+                            }
+                        )
+                comparable = [x for x in found if x["key_length"] is not None and length is not None]
+                key_match = (
+                    all(x["key_length"] == length and x["key_offset"] == offset for x in comparable)
+                    if comparable
+                    else None
+                )
+                csd = [
+                    {
+                        "file": r.name,
+                        "key_length": r.key_length,
+                        "match": (r.key_length == length) if r.key_length and length else None,
+                    }
+                    for ds in datasets
+                    for r in csd_by_dsn.get(ds, [])
+                ]
+                out.append(
+                    {
+                        "program": f.file_path,
+                        "select": sel.select_name,
+                        "dd": sel.assign,
+                        "organization": sel.organization,
+                        "access_mode": sel.access_mode,
+                        "record_key": key,
+                        "key_in_record": key_in_record,
+                        "key_offset": offset,
+                        "key_length": length,
+                        "alternate_keys": alternates,
+                        "datasets": datasets,
+                        "defines": found,
+                        "key_match": key_match,
+                        "csd_files": csd,
+                    }
+                )
+        return out
+
     def lookup(self, path: Path, target_root: Path) -> Optional[EngineFile]:
         try:
             rel = path.resolve().relative_to(target_root.resolve()).as_posix()
@@ -2434,6 +2616,60 @@ def load_galaxy_ir(db_path: Path, repo_name: Optional[str] = None) -> GalaxyIR:
                         line=int(row[13] or 0),
                     )
                 )
+        # #3455: file definitions. A pre-#3455 database has neither table.
+        if _has_table(cur, "file_control_data"):
+            for row in cur.execute(
+                "SELECT file_id, select_name, assign_name, organization, access_mode, record_key, alternate_keys, "
+                "relative_key, file_status, fd_copies, line_number FROM file_control_data "
+                "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] in by_id:
+                    alternates = [
+                        (a[:-4], True) if a.endswith("+DUP") else (a, False) for a in (row[6] or "").split(",") if a
+                    ]
+                    by_id[row[0]].file_control.append(
+                        EngineFileControl(
+                            select_name=row[1] or "",
+                            assign=row[2],
+                            organization=row[3],
+                            access_mode=row[4],
+                            record_key=row[5],
+                            alternate_keys=alternates,
+                            relative_key=row[7],
+                            file_status=row[8],
+                            fd_copies=[c for c in (row[9] or "").split(",") if c],
+                            line=int(row[10] or 0),
+                        )
+                    )
+        if _has_table(cur, "vsam_define_data"):
+            for row in cur.execute(
+                "SELECT file_id, kind, cluster_name, organization, key_length, key_offset, record_avg, record_max, "
+                "related, unique_key, upgrade, step_name, line_number FROM vsam_define_data "
+                "WHERE repo_name = ? AND commit_hash = ? ORDER BY file_id, line_number, id",
+                (repo_name, commit_hash),
+            ):
+                if row[0] in by_id:
+
+                    def _int(v):
+                        return int(v) if v is not None else None
+
+                    by_id[row[0]].vsam_defines.append(
+                        EngineVsamDefine(
+                            kind=row[1] or "",
+                            name=row[2],
+                            organization=row[3],
+                            key_length=_int(row[4]),
+                            key_offset=_int(row[5]),
+                            record_avg=_int(row[6]),
+                            record_max=_int(row[7]),
+                            related=row[8],
+                            unique_key=row[9],
+                            upgrade=row[10],
+                            step=row[11],
+                            line=int(row[12] or 0),
+                        )
+                    )
         # #3453: units of work and error handling. A pre-#3453 database has none.
         if _has_table(cur, "uow_handler_data"):
             for row in cur.execute(

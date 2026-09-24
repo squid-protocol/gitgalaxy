@@ -1331,3 +1331,102 @@ def test_a_pre_3453_db_loads_with_no_uow_rows(uow_scanned, tmp_path):
     ir = load_galaxy_ir(old)
     assert all(ef.uow_handlers == [] for ef in ir.files.values())
     assert ir.units_of_work() == [] and ir.error_handlers() == [] and ir.unchecked_responses() == []
+
+
+# ---- #3455: file definitions and the VSAM key check ----------------------------
+VSAMPGM = """\
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. VSAMPGM.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT GOOD-FILE ASSIGN TO GOODDD
+                  ORGANIZATION IS INDEXED ACCESS MODE IS RANDOM
+                  RECORD KEY IS GOOD-KEY
+                  ALTERNATE RECORD KEY IS GOOD-ALT WITH DUPLICATES.
+           SELECT BAD-FILE ASSIGN TO BADDD
+                  ORGANIZATION IS INDEXED
+                  RECORD KEY IS BAD-KEY.
+           SELECT WS-FILE ASSIGN TO WSDD
+                  ORGANIZATION IS INDEXED
+                  RECORD KEY IS WS-KEY.
+           SELECT ALT-PATH ASSIGN TO PATHDD
+                  ORGANIZATION IS INDEXED
+                  RECORD KEY IS PATH-KEY.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  GOOD-FILE.
+       01  GOOD-REC.
+           05  GOOD-KEY      PIC X(8).
+           05  GOOD-ALT      PIC X(5).
+           05  FILLER        PIC X(7).
+       FD  BAD-FILE.
+       01  BAD-REC.
+           05  BAD-FILL      PIC X(2).
+           05  BAD-KEY       PIC X(6).
+       FD  WS-FILE.
+       01  WS-FILE-REC       PIC X(20).
+       FD  ALT-PATH.
+       01  PATH-REC.
+           05  FILLER        PIC X(8).
+           05  PATH-KEY      PIC X(5).
+       WORKING-STORAGE SECTION.
+       01  WS-KEY            PIC X(4).
+       PROCEDURE DIVISION.
+           OPEN I-O GOOD-FILE BAD-FILE WS-FILE ALT-PATH.
+           GOBACK.
+"""
+
+VSAMJOB = """\
+//VSAMJOB  JOB CLASS=A
+//DEFINE   EXEC PGM=IDCAMS
+//SYSIN    DD *
+   DEFINE CLUSTER (NAME(APP.GOOD.KSDS) INDEXED KEYS(8 0) RECORDSIZE(20 20))
+   DEFINE CLUSTER (NAME(APP.BAD.KSDS) INDEXED KEYS(6 0) RECORDSIZE(8 8))
+   DEFINE CLUSTER (NAME(APP.WS.KSDS) INDEXED KEYS(4 0) RECORDSIZE(20 20))
+   DEFINE AIX (NAME(APP.GOOD.AIX) RELATE(APP.GOOD.KSDS) KEYS(5 8) NONUNIQUEKEY)
+   DEFINE PATH (NAME(APP.GOOD.PATH) PATHENTRY(APP.GOOD.AIX))
+/*
+//RUN      EXEC PGM=VSAMPGM
+//GOODDD   DD DSN=APP.GOOD.KSDS,DISP=SHR
+//BADDD    DD DSN=APP.BAD.KSDS,DISP=SHR
+//WSDD     DD DSN=APP.WS.KSDS,DISP=SHR
+//PATHDD   DD DSN=APP.GOOD.PATH,DISP=SHR
+"""
+
+
+@pytest.fixture(scope="module")
+def vsam_scanned(tmp_path_factory):
+    base = tmp_path_factory.mktemp("galaxy_ir_vsam")
+    repo = base / "app"
+    for rel, text in {"cbl/VSAMPGM.cbl": VSAMPGM, "jcl/VSAMJOB.jcl": VSAMJOB}.items():
+        path = repo / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
+    return scan_to_db(repo, base / "scan")
+
+
+def test_vsam_files_check_the_program_key_against_the_cluster(vsam_scanned):
+    files = {v["select"]: v for v in load_galaxy_ir(vsam_scanned).vsam_files()}
+    good = files["GOOD-FILE"]
+    assert (good["key_offset"], good["key_length"], good["key_match"]) == (0, 8, True)
+    assert good["alternate_keys"] == [{"name": "GOOD-ALT", "duplicates": True, "offset": 8, "length": 5}]
+    # BAD-KEY sits at offset 2; the cluster says KEYS(6 0): a real mismatch.
+    assert (files["BAD-FILE"]["key_offset"], files["BAD-FILE"]["key_match"]) == (2, False)
+    # WS-KEY is not a field of WS-FILE's record: COBOL does not allow that.
+    assert (files["WS-FILE"]["key_in_record"], files["WS-FILE"]["key_match"]) == (False, None)
+    # A PATH opens its AIX, so PATH-KEY (offset 8, 5 bytes) is checked against KEYS(5 8).
+    path = files["ALT-PATH"]
+    assert [(d["kind"], d["key_length"], d["key_offset"]) for d in path["defines"]] == [("PATH", 5, 8)]
+    assert path["key_match"] is True
+
+
+def test_a_pre_3455_db_loads_with_no_file_definitions(vsam_scanned, tmp_path):
+    old = tmp_path / "old.db"
+    shutil.copy(vsam_scanned, old)
+    with sqlite3.connect(old) as conn:
+        conn.execute("DROP TABLE file_control_data")
+        conn.execute("DROP TABLE vsam_define_data")
+    ir = load_galaxy_ir(old)
+    assert all(ef.file_control == [] and ef.vsam_defines == [] for ef in ir.files.values())
+    assert ir.vsam_files() == []

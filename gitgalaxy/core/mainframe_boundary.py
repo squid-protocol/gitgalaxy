@@ -86,6 +86,7 @@ from gitgalaxy.core.cics_resources import cobol_move_literals, extract_cics_reso
 from gitgalaxy.core.cics_tasks import extract_cics_tasks
 from gitgalaxy.core.db2_declare_table import extract_sql_tables
 from gitgalaxy.core.db2_sql_statements import extract_sql_statements
+from gitgalaxy.core.file_control import cobol_file_control, jcl_vsam_defines
 from gitgalaxy.core.job_submits import cobol_job_cards, jcl_intrdr_dds
 from gitgalaxy.core.mq_calls import extract_mq_calls
 from gitgalaxy.core.uow_handlers import extract_uow_handlers
@@ -1877,6 +1878,8 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
     direction, handle and options (mq_calls), read with a default.
     #3453: cobol also carries `uow_handlers` -- commit / rollback points,
     condition / abend / AID handlers, explicit ABENDs and RESP checks.
+    #3455: cobol also carries `file_control` (each SELECT's organisation, access
+    mode and keys) and jcl `vsam_defines` (IDCAMS DEFINE CLUSTER / AIX / PATH).
     """
     if not code_stream:
         return {"calls": [], "datasets": [], "records": [], "transactions": []}
@@ -1895,6 +1898,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
             "job_submits": _cobol_job_cards(code_stream),  # #3448
             "mq_calls": _mq_calls(code_stream, values),  # #3447
             "uow_handlers": _uow_handlers(code_stream, values),  # #3453
+            "file_control": cobol_file_control(code_stream),  # #3455
         }
     if dialect == "jcl":
         boundary = _jcl_boundary(code_stream)
@@ -1902,6 +1906,7 @@ def extract_boundary(dialect: str, code_stream: str) -> dict[str, list[dict[str,
         boundary["transactions"] = _jcl_csd_transactions(code_stream)
         boundary["csd_resources"] = _jcl_csd_resources(code_stream)  # #3356
         boundary["job_submits"] = jcl_intrdr_dds(_jcl_statements(code_stream))  # #3448
+        boundary["vsam_defines"] = jcl_vsam_defines(code_stream)  # #3455
         return boundary
     if dialect == "csd":
         return {

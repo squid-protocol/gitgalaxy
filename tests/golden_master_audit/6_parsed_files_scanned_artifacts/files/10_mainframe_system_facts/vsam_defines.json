@@ -1,0 +1,169 @@
+{
+  "groups": {
+    "jcl/cash-account-cobol": {
+      "jcl/cash-account-cobol/DEFKSDS.jcl": [
+        {
+          "Key Length": 29,
+          "Key Offset": 0,
+          "Kind": "CLUSTER",
+          "Line": 9,
+          "Name": "SYSD.STOCK.HISTORY",
+          "Organization": "INDEXED",
+          "Record Avg": 100,
+          "Record Max": 100,
+          "Related": null,
+          "Step": "STEPNAME",
+          "Unique Key": null,
+          "Upgrade": null
+        }
+      ]
+    },
+    "jcl/cics-banking-sample-application-cbsa": {
+      "jcl/cics-banking-sample-application-cbsa/BANKDATA.jcl": [
+        {
+          "Key Length": 12,
+          "Key Offset": 0,
+          "Kind": "CLUSTER",
+          "Line": 42,
+          "Name": "@BANK_PREFIX@.ABNDFILE",
+          "Organization": "INDEXED",
+          "Record Avg": 681,
+          "Record Max": 681,
+          "Related": null,
+          "Step": "BANKDAT0",
+          "Unique Key": null,
+          "Upgrade": null
+        },
+        {
+          "Key Length": 16,
+          "Key Offset": 4,
+          "Kind": "CLUSTER",
+          "Line": 62,
+          "Name": "@BANK_PREFIX@.CUSTOMER",
+          "Organization": "INDEXED",
+          "Record Avg": 259,
+          "Record Max": 259,
+          "Related": null,
+          "Step": "BANKDAT1",
+          "Unique Key": null,
+          "Upgrade": null
+        }
+      ]
+    },
+    "jcl/cics-genapp": {
+      "jcl/cics-genapp/adef121.jcl": [
+        {
+          "Key Length": null,
+          "Key Offset": null,
+          "Kind": "CLUSTER",
+          "Line": 15,
+          "Name": "<USRHLQ>.GENAPP.KSDSCUST",
+          "Organization": "INDEXED",
+          "Record Avg": null,
+          "Record Max": null,
+          "Related": null,
+          "Step": "DEFINE1",
+          "Unique Key": null,
+          "Upgrade": null
+        },
+        {
+          "Key Length": null,
+          "Key Offset": null,
+          "Kind": "CLUSTER",
+          "Line": 40,
+          "Name": "<USRHLQ>.GENAPP.KSDSPOLY",
+          "Organization": "INDEXED",
+          "Record Avg": null,
+          "Record Max": null,
+          "Related": null,
+          "Step": "DEFINE2",
+          "Unique Key": null,
+          "Upgrade": null
+        }
+      ],
+      "jcl/cics-genapp/defdrep.jcl": [
+        {
+          "Key Length": 64,
+          "Key Offset": 0,
+          "Kind": "CLUSTER",
+          "Line": 22,
+          "Name": "<USRHLQ>.<CMASAPPL>.EYUDREP",
+          "Organization": "INDEXED",
+          "Record Avg": 200,
+          "Record Max": 6550,
+          "Related": null,
+          "Step": "DEFDREP",
+          "Unique Key": null,
+          "Upgrade": null
+        }
+      ],
+      "jcl/cics-genapp/defwrep.jcl": [
+        {
+          "Key Length": null,
+          "Key Offset": null,
+          "Kind": "CLUSTER",
+          "Line": 22,
+          "Name": "<USRHLQ>.<WUIAPPL>.EYUWREP",
+          "Organization": "INDEXED",
+          "Record Avg": null,
+          "Record Max": null,
+          "Related": null,
+          "Step": "DEFWREP",
+          "Unique Key": null,
+          "Upgrade": null
+        }
+      ]
+    },
+    "jcl/cics-java-jcics-samples": {
+      "jcl/cics-java-jcics-samples/etc_VSAM_DEFVSAM.jcl": [
+        {
+          "Key Length": 8,
+          "Key Offset": 0,
+          "Kind": "CLUSTER",
+          "Line": 14,
+          "Name": "JAVAED.TEST.KSDS.STOCK",
+          "Organization": "INDEXED",
+          "Record Avg": 80,
+          "Record Max": 80,
+          "Related": null,
+          "Step": "DEFINE",
+          "Unique Key": null,
+          "Upgrade": null
+        },
+        {
+          "Key Length": 8,
+          "Key Offset": 0,
+          "Kind": "CLUSTER",
+          "Line": 22,
+          "Name": "JAVAED.TEST.ESDS.STOCK",
+          "Organization": "NONINDEXED",
+          "Record Avg": 80,
+          "Record Max": 80,
+          "Related": null,
+          "Step": "DEFINE",
+          "Unique Key": null,
+          "Upgrade": null
+        },
+        {
+          "Key Length": null,
+          "Key Offset": null,
+          "Kind": "CLUSTER",
+          "Line": 30,
+          "Name": "JAVAED.TEST.RRDS.STOCK",
+          "Organization": "NUMBERED",
+          "Record Avg": 80,
+          "Record Max": 80,
+          "Related": null,
+          "Step": "DEFINE",
+          "Unique Key": null,
+          "Upgrade": null
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "VSAM Defines"
+  ]
+}

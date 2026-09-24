@@ -18,6 +18,7 @@ tools and the engine's master DB against it.
     python tests/tools/cobol_answer_key.py add-job-submissions <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-mq <repo> --key key.json
     python tests/tools/cobol_answer_key.py add-uow <repo> --key key.json
+    python tests/tools/cobol_answer_key.py add-file-defs <repo> --key key.json
     python tests/tools/cobol_answer_key.py sample --key key.json [--n 25] [--seed S] [--out checklist.md]
 
 `add-pli` (#3250) drafts the PL/I DECLARE record layouts of every PL/I source in
@@ -2787,6 +2788,245 @@ def draft_tdq_triggers(repo: Path) -> dict[str, dict[str, Any]]:
 
 
 # ==============================================================================
+# File definitions: FILE-CONTROL SELECTs and IDCAMS defines (#3455)
+# ==============================================================================
+# This tool's own reading. A SELECT is read from the key's Source (Area A..B,
+# comments dropped) between FILE-CONTROL and the next division / I-O-CONTROL, one
+# sentence per SELECT, clause by clause over its words. An FD's COPY members are
+# the COPYs between `FD name` and the next FD / SD / section. IDCAMS DEFINE
+# CLUSTER / AIX / PATH are read from JCL in-stream lines (continuation `-`),
+# each parameter by its own regex.
+_FC_WORD = re.compile(r"'[^']*'|\"[^\"]*\"|[A-Z0-9][A-Z0-9-]*")
+
+
+def file_control_rows(path: Path) -> list[dict[str, Any]]:
+    src = Source(path)
+    text = src.text
+    fc = re.search(r"\bFILE-CONTROL\s*\.", text)
+    if not fc:
+        return []
+    end = re.search(r"\b(?:I-O-CONTROL|DATA\s+DIVISION|PROCEDURE\s+DIVISION)\b", text[fc.end() :])
+    region = src.raw_text[fc.end() : fc.end() + end.start() if end else len(text)]
+    copies: dict[str, list[str]] = {}
+    for fd in re.finditer(r"\b[FS]D\s+([A-Z0-9][A-Z0-9-]*)", text):
+        stop = re.search(
+            r"\b(?:[FS]D\s|WORKING-STORAGE|LOCAL-STORAGE|LINKAGE\s+SECTION|PROCEDURE\s+DIVISION)", text[fd.end() :]
+        )
+        chunk = src.raw_text[fd.end() : fd.end() + stop.start() if stop else len(text)]
+        for m in re.finditer(r"\bCOPY\s+['\"]?([A-Z0-9@#$][A-Z0-9@#$-]*)", chunk):
+            if m.group(1) not in copies.setdefault(fd.group(1), []):
+                copies[fd.group(1)].append(m.group(1))
+    rows = []
+    for m in re.finditer(r"\bSELECT\b", region):
+        sentence = region[m.end() :]
+        stop = re.search(r"\.(?=\s|$)", re.sub(r"'[^']*'|\"[^\"]*\"", lambda q: "x" * len(q.group(0)), sentence))
+        words = [w for w in _FC_WORD.findall(sentence[: stop.start() if stop else len(sentence)])]
+        nxt = next((i for i, w in enumerate(words) if w == "SELECT"), None)
+        words = words[:nxt] if nxt is not None else words
+        if words and words[0] == "OPTIONAL":
+            words = words[1:]
+        if not words:
+            continue
+        r: dict[str, Any] = {"select": words[0], "assign": None, "org": None, "access": None, "key": None}
+        r.update({"alt": [], "rel": None, "status": None, "line": src.line_of(fc.end() + m.start())})
+
+        def val(i: int) -> Optional[str]:
+            while i < len(words) and words[i] in ("IS", "ARE", "MODE", "KEY", "TO", "USING"):
+                i += 1
+            return words[i] if i < len(words) else None
+
+        for i, w in enumerate(words[1:], 1):
+            prev = words[i - 1]
+            if w == "ASSIGN":
+                r["assign"] = (val(i + 1) or "").strip("'\"") or None
+            elif w == "ORGANIZATION":
+                v = val(i + 1)
+                j = words.index(v, i + 1) if v in words[i + 1 :] else i
+                r["org"] = (
+                    "LINE SEQUENTIAL" if v == "LINE" and j + 1 < len(words) and words[j + 1] == "SEQUENTIAL" else v
+                )
+            elif (
+                w in ("INDEXED", "RELATIVE", "SEQUENTIAL")
+                and r["org"] is None
+                and prev not in ("IS", "MODE", "ACCESS", "ORGANIZATION", "LINE")
+            ):
+                r["org"] = w
+            elif w == "ACCESS":
+                r["access"] = val(i + 1)
+            elif w == "RECORD" and prev != "ALTERNATE" and i + 1 < len(words) and words[i + 1] in ("KEY", "IS"):
+                r["key"] = val(i + 1)
+            elif w == "ALTERNATE":
+                j = i + 1 + (1 if i + 1 < len(words) and words[i + 1] == "RECORD" else 0)
+                name = val(j)
+                k = words.index(name, j) + 1 if name in words[j:] else j
+                dup = "DUPLICATES" in words[k : k + 2]
+                if name:
+                    r["alt"].append(name + ("+DUP" if dup else ""))
+            elif w == "RELATIVE" and i + 1 < len(words) and words[i + 1] in ("KEY", "IS"):
+                r["rel"] = val(i + 1)
+            elif w == "STATUS":
+                r["status"] = val(i + 1)
+        r["copies"] = copies.get(r["select"], [])
+        rows.append(r)
+    return rows
+
+
+def file_control_keys(rows: list[dict[str, Any]]) -> set[str]:
+    """`L<line> SELECT X ASSIGN=.. ORG=.. ACCESS=.. KEY=.. ALT=.. REL=.. STATUS=.. COPY=..` per SELECT."""
+
+    def d(v: Any) -> str:
+        return (",".join(v) if isinstance(v, list) else str(v)) if v else "-"
+
+    return {
+        f"L{r['line']} SELECT {r['select']} ASSIGN={d(r['assign'])} ORG={d(r['org'])} ACCESS={d(r['access'])} "
+        f"KEY={d(r['key'])} ALT={d(r['alt'])} REL={d(r['rel'])} STATUS={d(r['status'])} COPY={d(r['copies'])}"
+        for r in rows
+    }
+
+
+def engine_file_control_row(fc: Any) -> dict[str, Any]:
+    return {
+        "select": fc.select_name,
+        "assign": fc.assign,
+        "org": fc.organization,
+        "access": fc.access_mode,
+        "key": fc.record_key,
+        "alt": [n + ("+DUP" if dup else "") for n, dup in fc.alternate_keys],
+        "rel": fc.relative_key,
+        "status": fc.file_status,
+        "copies": fc.fd_copies,
+        "line": fc.line,
+    }
+
+
+def vsam_define_rows(text: str) -> list[dict[str, Any]]:
+    """IDCAMS DEFINE CLUSTER / AIX / PATH in one JCL member's in-stream data."""
+    lines = text.split("\n")
+    rows, step, i = [], None, 0
+    verbs = r"(?:DEFINE|DEF|DELETE|DEL|LISTCAT|LISTC|REPRO|PRINT|ALTER|VERIFY|IF|SET|EXPORT|IMPORT|BLDINDEX|BIX)\b"
+    while i < len(lines):
+        line = lines[i]
+        m = re.match(r"//([A-Z0-9@#$]+)\s+EXEC\b", line)
+        if m:
+            step = m.group(1)
+        if line.startswith("//") or not re.match(r"\s*DEF(?:INE)?\s", line):
+            i += 1
+            continue
+        first, body = i + 1, []
+        while i < len(lines):
+            part = re.sub(r"/\*.*?\*/", " ", lines[i][:72].rstrip())
+            if len(body) and (part.startswith("//") or part.startswith("/*") or re.match(r"\s*" + verbs, part)):
+                break
+            body.append(part.rstrip("-+"))
+            i += 1
+            if not part.endswith(("-", "+")):
+                break
+        cmd = " ".join(body)
+        kind = re.match(r"\s*DEF(?:INE)?\s+(CLUSTER|CL|ALTERNATEINDEX|AIX|PATH)\b", cmd)
+        if not kind:
+            continue
+        k = {"CLUSTER": "CLUSTER", "CL": "CLUSTER", "ALTERNATEINDEX": "AIX", "AIX": "AIX", "PATH": "PATH"}[
+            kind.group(1)
+        ]
+        own = cmd[kind.end() :]
+        # The object's own parameter block ends before DATA( / INDEX(.
+        own = re.split(r"\)\s*(?:DATA|INDEX)\s*\(", own)[0]
+
+        def one(*names: str) -> Optional[str]:
+            for n in names:
+                m2 = re.search(rf"\b{n}\s*\(\s*([^()]*?)\s*\)", own)
+                if m2:
+                    return m2.group(1)
+            return None
+
+        def nums(v: Optional[str]) -> list[int]:
+            return [int(x) for x in re.findall(r"\d+", v or "")]
+
+        keys, rec = nums(one("KEYS")), nums(one("RECORDSIZE", "RECSZ"))
+        org = next((w for w in ("NONINDEXED", "NUMBERED", "LINEAR", "INDEXED") if re.search(rf"\b{w}\b", own)), None)
+        uniq = (
+            "NONUNIQUE"
+            if re.search(r"\b(?:NONUNIQUEKEY|NUNQK)\b", own)
+            else ("UNIQUE" if re.search(r"\b(?:UNIQUEKEY|UNQK)\b", own) else None)
+        )
+        upg = (
+            "NOUPGRADE"
+            if re.search(r"\b(?:NOUPGRADE|NUPG)\b", own)
+            else ("UPGRADE" if re.search(r"\b(?:UPGRADE|UPG)\b", own) else None)
+        )
+        rows.append(
+            {
+                "kind": k,
+                "name": one("NAME"),
+                "org": org,
+                "keys": keys[:2] or None,
+                "rec": rec[:2] or None,
+                "related": one("RELATE", "PATHENTRY", "PENT"),
+                "unique": uniq if k == "AIX" else None,
+                "upgrade": upg if k == "AIX" else None,
+                "step": step,
+                "line": first,
+            }
+        )
+    return rows
+
+
+def vsam_define_keys(rows: list[dict[str, Any]]) -> set[str]:
+    """`L<line> KIND NAME ORG=.. KEYS=l,o REC=a,m REL=.. UNIQ=.. UPG=.. STEP=..` per define."""
+
+    def d(v: Any) -> str:
+        return ",".join(str(x) for x in v) if isinstance(v, list) else (str(v) if v else "-")
+
+    return {
+        f"L{r['line']} {r['kind']} {d(r['name'])} ORG={d(r['org'])} KEYS={d(r['keys'])} REC={d(r['rec'])} "
+        f"REL={d(r['related'])} UNIQ={d(r['unique'])} UPG={d(r['upgrade'])} STEP={d(r['step'])}"
+        for r in rows
+    }
+
+
+def engine_vsam_row(v: Any) -> dict[str, Any]:
+    return {
+        "kind": v.kind,
+        "name": v.name,
+        "org": v.organization,
+        "keys": [x for x in (v.key_length, v.key_offset) if x is not None] or None,
+        "rec": [x for x in (v.record_avg, v.record_max) if x is not None] or None,
+        "related": v.related,
+        "unique": v.unique_key,
+        "upgrade": v.upgrade,
+        "step": v.step,
+        "line": v.line,
+    }
+
+
+def draft_file_defs(repo: Path) -> tuple[dict[str, dict[str, Any]], dict[str, dict[str, Any]]]:
+    """(file_control, vsam_defines) sections, drafted (#3455)."""
+    fc: dict[str, dict[str, Any]] = {}
+    vd: dict[str, dict[str, Any]] = {}
+    for p in sorted(repo.rglob("*")):
+        if not p.is_file() or ".git" in p.parts:
+            continue
+        rel = p.relative_to(repo).as_posix()
+        if p.suffix.lower() in PROGRAM_EXTS:
+            rows = file_control_rows(p)
+            if rows:
+                fc[rel] = {
+                    "selects": rows,
+                    "file_control_validated": False,
+                    "verification": {"status": "draft", "notes": []},
+                }
+        elif p.suffix.lower() in JCL_EXTS:
+            text = "\n".join(
+                "" if line.startswith("//*") else line
+                for line in p.read_text(encoding="utf-8", errors="ignore").split("\n")
+            )
+            rows = vsam_define_rows(text.upper())
+            if rows:
+                vd[rel] = {"defines": rows, "vsam_validated": False, "verification": {"status": "draft", "notes": []}}
+    return fc, vd
+
+
+# ==============================================================================
 # Draft
 # ==============================================================================
 def _operand(src: Source, offset: int) -> tuple[str, str]:
@@ -3182,6 +3422,11 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
         # #3453 add-on: transactions CICS starts when a written TD queue fills
         # (TRIGGERLEVEL + TRANSID), per writer. Engine is GalaxyIR.tdq_trigger_starts().
         "TD trigger starts",
+        # #3455: FILE-CONTROL SELECT clauses (organisation, access, keys, FD copies)
+        # per program, and IDCAMS DEFINE CLUSTER / AIX / PATH per JCL member. Truth is
+        # this tool's own readers; engine is file_control_data / vsam_define_data.
+        "file control",
+        "VSAM defines",
     ]
     agg: dict[str, dict[str, list[set]]] = {f: {"truth": [], "forge": [], "engine": []} for f in fields}
 
@@ -3474,6 +3719,25 @@ def score(repo: Path, key: dict[str, Any], db: Optional[Path]) -> tuple[dict[str
             engine_triggers.get(rel, set()) if ir is not None and rel in ir.files else None,
         )
 
+    for rel, k in key.get("file_control", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "file control",
+            rel,
+            file_control_keys(k.get("selects", [])),
+            None,
+            file_control_keys([engine_file_control_row(x) for x in ef.file_control]) if ef else None,
+        )
+    for rel, k in key.get("vsam_defines", {}).items():
+        ef = ir.files.get(rel) if ir else None
+        add(
+            "VSAM defines",
+            rel,
+            vsam_define_keys(k.get("defines", [])),
+            None,
+            vsam_define_keys([engine_vsam_row(x) for x in ef.vsam_defines]) if ef else None,
+        )
+
     result: dict[str, Any] = {
         "corpus": key["corpus"],
         "ref": key["ref"],
@@ -3587,6 +3851,9 @@ def main() -> int:
     x = sub.add_parser("add-cics")
     x.add_argument("repo", type=Path)
     x.add_argument("--key", type=Path, required=True)
+    fdp = sub.add_parser("add-file-defs")
+    fdp.add_argument("repo", type=Path)
+    fdp.add_argument("--key", type=Path, required=True)
     uw = sub.add_parser("add-uow")
     uw.add_argument("repo", type=Path)
     uw.add_argument("--key", type=Path, required=True)
@@ -3720,6 +3987,20 @@ def main() -> int:
         key["cics_resources"] = ops
         args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
         print(f"drafted {len(ops)} CICS files -> {args.key}")
+        return 0
+    if args.cmd == "add-file-defs":
+        # #3455: the add-pli discipline -- refresh drafts, keep signed-off files.
+        fc_new, vd_new = draft_file_defs(repo)
+        fc, vd = key.get("file_control", {}), key.get("vsam_defines", {})
+        for rel, entry in fc_new.items():
+            if not fc.get(rel, {}).get("file_control_validated"):
+                fc[rel] = entry
+        for rel, entry in vd_new.items():
+            if not vd.get(rel, {}).get("vsam_validated"):
+                vd[rel] = entry
+        key["file_control"], key["vsam_defines"] = fc, vd
+        args.key.write_text(json.dumps(key, indent=2) + "\n", encoding="utf-8")
+        print(f"drafted {len(fc)} FILE-CONTROL programs, {len(vd)} IDCAMS JCL members -> {args.key}")
         return 0
     if args.cmd == "add-uow":
         # #3453: the add-pli discipline -- refresh drafts, keep signed-off files.

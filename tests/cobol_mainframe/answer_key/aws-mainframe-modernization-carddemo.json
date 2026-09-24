@@ -92884,5 +92884,1360 @@
       },
       "rulings": {}
     }
-  ]
+  ],
+  "file_control": {
+    "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL": {
+      "selects": [
+        {
+          "select": "INFILE1",
+          "assign": "INFILE1",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-INFIL1-STATUS",
+          "line": 26,
+          "copies": []
+        },
+        {
+          "select": "INFILE2",
+          "assign": "INFILE2",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-INFIL2-STATUS",
+          "line": 32,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL": {
+      "selects": [
+        {
+          "select": "OPFILE1",
+          "assign": "OUTFIL1",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-OUTFL1-STATUS",
+          "line": 26,
+          "copies": []
+        },
+        {
+          "select": "OPFILE2",
+          "assign": "OUTFIL2",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-OUTFL2-STATUS",
+          "line": 32,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/app-transaction-type-db2/cbl/COBTUPDT.cbl": {
+      "selects": [
+        {
+          "select": "TR-RECORD",
+          "assign": "INPFILE",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-INF-STATUS",
+          "line": 31,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT01C.cbl": {
+      "selects": [
+        {
+          "select": "ACCTFILE-FILE",
+          "assign": "ACCTFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "FD-ACCT-ID",
+          "alt": [],
+          "rel": null,
+          "status": "ACCTFILE-STATUS",
+          "line": 29,
+          "copies": []
+        },
+        {
+          "select": "OUT-FILE",
+          "assign": "OUTFILE",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "OUTFILE-STATUS",
+          "line": 35,
+          "copies": []
+        },
+        {
+          "select": "ARRY-FILE",
+          "assign": "ARRYFILE",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "ARRYFILE-STATUS",
+          "line": 40,
+          "copies": []
+        },
+        {
+          "select": "VBRC-FILE",
+          "assign": "VBRCFILE",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "VBRCFILE-STATUS",
+          "line": 45,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT02C.cbl": {
+      "selects": [
+        {
+          "select": "CARDFILE-FILE",
+          "assign": "CARDFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "FD-CARD-NUM",
+          "alt": [],
+          "rel": null,
+          "status": "CARDFILE-STATUS",
+          "line": 29,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT03C.cbl": {
+      "selects": [
+        {
+          "select": "XREFFILE-FILE",
+          "assign": "XREFFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "FD-XREF-CARD-NUM",
+          "alt": [],
+          "rel": null,
+          "status": "XREFFILE-STATUS",
+          "line": 29,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBACT04C.cbl": {
+      "selects": [
+        {
+          "select": "TCATBAL-FILE",
+          "assign": "TCATBALF",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "FD-TRAN-CAT-KEY",
+          "alt": [],
+          "rel": null,
+          "status": "TCATBALF-STATUS",
+          "line": 28,
+          "copies": []
+        },
+        {
+          "select": "XREF-FILE",
+          "assign": "XREFFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-XREF-CARD-NUM",
+          "alt": [
+            "FD-XREF-ACCT-ID"
+          ],
+          "rel": null,
+          "status": "XREFFILE-STATUS",
+          "line": 34,
+          "copies": []
+        },
+        {
+          "select": "ACCOUNT-FILE",
+          "assign": "ACCTFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-ACCT-ID",
+          "alt": [],
+          "rel": null,
+          "status": "ACCTFILE-STATUS",
+          "line": 41,
+          "copies": []
+        },
+        {
+          "select": "DISCGRP-FILE",
+          "assign": "DISCGRP",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-DISCGRP-KEY",
+          "alt": [],
+          "rel": null,
+          "status": "DISCGRP-STATUS",
+          "line": 47,
+          "copies": []
+        },
+        {
+          "select": "TRANSACT-FILE",
+          "assign": "TRANSACT",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "TRANFILE-STATUS",
+          "line": 53,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBCUS01C.cbl": {
+      "selects": [
+        {
+          "select": "CUSTFILE-FILE",
+          "assign": "CUSTFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "FD-CUST-ID",
+          "alt": [],
+          "rel": null,
+          "status": "CUSTFILE-STATUS",
+          "line": 29,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBEXPORT.cbl": {
+      "selects": [
+        {
+          "select": "CUSTOMER-INPUT",
+          "assign": "CUSTFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "CUST-ID",
+          "alt": [],
+          "rel": null,
+          "status": "WS-CUSTOMER-STATUS",
+          "line": 35,
+          "copies": [
+            "CVCUS01Y"
+          ]
+        },
+        {
+          "select": "ACCOUNT-INPUT",
+          "assign": "ACCTFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "ACCT-ID",
+          "alt": [],
+          "rel": null,
+          "status": "WS-ACCOUNT-STATUS",
+          "line": 41,
+          "copies": [
+            "CVACT01Y"
+          ]
+        },
+        {
+          "select": "XREF-INPUT",
+          "assign": "XREFFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "XREF-CARD-NUM",
+          "alt": [],
+          "rel": null,
+          "status": "WS-XREF-STATUS",
+          "line": 47,
+          "copies": [
+            "CVACT03Y"
+          ]
+        },
+        {
+          "select": "TRANSACTION-INPUT",
+          "assign": "TRANSACT",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "TRAN-ID",
+          "alt": [],
+          "rel": null,
+          "status": "WS-TRANSACTION-STATUS",
+          "line": 53,
+          "copies": [
+            "CVTRA05Y"
+          ]
+        },
+        {
+          "select": "CARD-INPUT",
+          "assign": "CARDFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "CARD-NUM",
+          "alt": [],
+          "rel": null,
+          "status": "WS-CARD-STATUS",
+          "line": 59,
+          "copies": [
+            "CVACT02Y"
+          ]
+        },
+        {
+          "select": "EXPORT-OUTPUT",
+          "assign": "EXPFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "EXPORT-SEQUENCE-NUM",
+          "alt": [],
+          "rel": null,
+          "status": "WS-EXPORT-STATUS",
+          "line": 65,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBIMPORT.cbl": {
+      "selects": [
+        {
+          "select": "EXPORT-INPUT",
+          "assign": "EXPFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "EXPORT-SEQUENCE-NUM",
+          "alt": [],
+          "rel": null,
+          "status": "WS-EXPORT-STATUS",
+          "line": 37,
+          "copies": []
+        },
+        {
+          "select": "CUSTOMER-OUTPUT",
+          "assign": "CUSTOUT",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-CUSTOMER-STATUS",
+          "line": 43,
+          "copies": [
+            "CVCUS01Y"
+          ]
+        },
+        {
+          "select": "ACCOUNT-OUTPUT",
+          "assign": "ACCTOUT",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-ACCOUNT-STATUS",
+          "line": 48,
+          "copies": [
+            "CVACT01Y"
+          ]
+        },
+        {
+          "select": "XREF-OUTPUT",
+          "assign": "XREFOUT",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-XREF-STATUS",
+          "line": 53,
+          "copies": [
+            "CVACT03Y"
+          ]
+        },
+        {
+          "select": "TRANSACTION-OUTPUT",
+          "assign": "TRNXOUT",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-TRANSACTION-STATUS",
+          "line": 58,
+          "copies": [
+            "CVTRA05Y"
+          ]
+        },
+        {
+          "select": "CARD-OUTPUT",
+          "assign": "CARDOUT",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-CARD-STATUS",
+          "line": 63,
+          "copies": [
+            "CVACT02Y"
+          ]
+        },
+        {
+          "select": "ERROR-OUTPUT",
+          "assign": "ERROUT",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-ERROR-STATUS",
+          "line": 68,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBSTM03A.CBL": {
+      "selects": [
+        {
+          "select": "STMT-FILE",
+          "assign": "STMTFILE",
+          "org": null,
+          "access": null,
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": null,
+          "line": 39,
+          "copies": []
+        },
+        {
+          "select": "HTML-FILE",
+          "assign": "HTMLFILE",
+          "org": null,
+          "access": null,
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": null,
+          "line": 40,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBSTM03B.CBL": {
+      "selects": [
+        {
+          "select": "TRNX-FILE",
+          "assign": "TRNXFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "FD-TRNXS-ID",
+          "alt": [],
+          "rel": null,
+          "status": "TRNXFILE-STATUS",
+          "line": 31,
+          "copies": []
+        },
+        {
+          "select": "XREF-FILE",
+          "assign": "XREFFILE",
+          "org": "INDEXED",
+          "access": "SEQUENTIAL",
+          "key": "FD-XREF-CARD-NUM",
+          "alt": [],
+          "rel": null,
+          "status": "XREFFILE-STATUS",
+          "line": 37,
+          "copies": []
+        },
+        {
+          "select": "CUST-FILE",
+          "assign": "CUSTFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-CUST-ID",
+          "alt": [],
+          "rel": null,
+          "status": "CUSTFILE-STATUS",
+          "line": 43,
+          "copies": []
+        },
+        {
+          "select": "ACCT-FILE",
+          "assign": "ACCTFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-ACCT-ID",
+          "alt": [],
+          "rel": null,
+          "status": "ACCTFILE-STATUS",
+          "line": 49,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBTRN01C.cbl": {
+      "selects": [
+        {
+          "select": "DALYTRAN-FILE",
+          "assign": "DALYTRAN",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "DALYTRAN-STATUS",
+          "line": 29,
+          "copies": []
+        },
+        {
+          "select": "CUSTOMER-FILE",
+          "assign": "CUSTFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-CUST-ID",
+          "alt": [],
+          "rel": null,
+          "status": "CUSTFILE-STATUS",
+          "line": 34,
+          "copies": []
+        },
+        {
+          "select": "XREF-FILE",
+          "assign": "XREFFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-XREF-CARD-NUM",
+          "alt": [],
+          "rel": null,
+          "status": "XREFFILE-STATUS",
+          "line": 40,
+          "copies": []
+        },
+        {
+          "select": "CARD-FILE",
+          "assign": "CARDFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-CARD-NUM",
+          "alt": [],
+          "rel": null,
+          "status": "CARDFILE-STATUS",
+          "line": 46,
+          "copies": []
+        },
+        {
+          "select": "ACCOUNT-FILE",
+          "assign": "ACCTFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-ACCT-ID",
+          "alt": [],
+          "rel": null,
+          "status": "ACCTFILE-STATUS",
+          "line": 52,
+          "copies": []
+        },
+        {
+          "select": "TRANSACT-FILE",
+          "assign": "TRANFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-TRANS-ID",
+          "alt": [],
+          "rel": null,
+          "status": "TRANFILE-STATUS",
+          "line": 58,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBTRN02C.cbl": {
+      "selects": [
+        {
+          "select": "DALYTRAN-FILE",
+          "assign": "DALYTRAN",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "DALYTRAN-STATUS",
+          "line": 29,
+          "copies": []
+        },
+        {
+          "select": "TRANSACT-FILE",
+          "assign": "TRANFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-TRANS-ID",
+          "alt": [],
+          "rel": null,
+          "status": "TRANFILE-STATUS",
+          "line": 34,
+          "copies": []
+        },
+        {
+          "select": "XREF-FILE",
+          "assign": "XREFFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-XREF-CARD-NUM",
+          "alt": [],
+          "rel": null,
+          "status": "XREFFILE-STATUS",
+          "line": 40,
+          "copies": []
+        },
+        {
+          "select": "DALYREJS-FILE",
+          "assign": "DALYREJS",
+          "org": "SEQUENTIAL",
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "DALYREJS-STATUS",
+          "line": 46,
+          "copies": []
+        },
+        {
+          "select": "ACCOUNT-FILE",
+          "assign": "ACCTFILE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-ACCT-ID",
+          "alt": [],
+          "rel": null,
+          "status": "ACCTFILE-STATUS",
+          "line": 51,
+          "copies": []
+        },
+        {
+          "select": "TCATBAL-FILE",
+          "assign": "TCATBALF",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-TRAN-CAT-KEY",
+          "alt": [],
+          "rel": null,
+          "status": "TCATBALF-STATUS",
+          "line": 57,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/cbl/CBTRN03C.cbl": {
+      "selects": [
+        {
+          "select": "TRANSACT-FILE",
+          "assign": "TRANFILE",
+          "org": "SEQUENTIAL",
+          "access": null,
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "TRANFILE-STATUS",
+          "line": 29,
+          "copies": []
+        },
+        {
+          "select": "XREF-FILE",
+          "assign": "CARDXREF",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-XREF-CARD-NUM",
+          "alt": [],
+          "rel": null,
+          "status": "CARDXREF-STATUS",
+          "line": 33,
+          "copies": []
+        },
+        {
+          "select": "TRANTYPE-FILE",
+          "assign": "TRANTYPE",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-TRAN-TYPE",
+          "alt": [],
+          "rel": null,
+          "status": "TRANTYPE-STATUS",
+          "line": 39,
+          "copies": []
+        },
+        {
+          "select": "TRANCATG-FILE",
+          "assign": "TRANCATG",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "FD-TRAN-CAT-KEY",
+          "alt": [],
+          "rel": null,
+          "status": "TRANCATG-STATUS",
+          "line": 45,
+          "copies": []
+        },
+        {
+          "select": "REPORT-FILE",
+          "assign": "TRANREPT",
+          "org": "SEQUENTIAL",
+          "access": null,
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "TRANREPT-STATUS",
+          "line": 51,
+          "copies": []
+        },
+        {
+          "select": "DATE-PARMS-FILE",
+          "assign": "DATEPARM",
+          "org": "SEQUENTIAL",
+          "access": null,
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "DATEPARM-STATUS",
+          "line": 55,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  },
+  "vsam_defines": {
+    "app/jcl/ACCTFILE.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.ACCTDATA.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            11,
+            0
+          ],
+          "rec": [
+            300,
+            300
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP10",
+          "line": 36
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/CARDFILE.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            16,
+            0
+          ],
+          "rec": [
+            150,
+            150
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP10",
+          "line": 50
+        },
+        {
+          "kind": "AIX",
+          "name": "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX",
+          "org": null,
+          "keys": [
+            11,
+            16
+          ],
+          "rec": [
+            150,
+            150
+          ],
+          "related": "AWS.M2.CARDDEMO.CARDDATA.VSAM.KSDS",
+          "unique": "NONUNIQUE",
+          "upgrade": "UPGRADE",
+          "step": "STEP40",
+          "line": 83
+        },
+        {
+          "kind": "PATH",
+          "name": "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX.PATH",
+          "org": null,
+          "keys": null,
+          "rec": null,
+          "related": "AWS.M2.CARDDEMO.CARDDATA.VSAM.AIX",
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP50",
+          "line": 100
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/CBEXPORT.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.EXPORT.DATA",
+          "org": "INDEXED",
+          "keys": [
+            4,
+            28
+          ],
+          "rec": [
+            500,
+            500
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP01",
+          "line": 30
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/CREASTMT.JCL": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.TRXFL.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            32,
+            0
+          ],
+          "rec": [
+            350,
+            350
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "DELDEF01",
+          "line": 29
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/CUSTFILE.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.CUSTDATA.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            9,
+            0
+          ],
+          "rec": [
+            500,
+            500
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP10",
+          "line": 46
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/DEFCUST.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.CUSTDATA.CLUSTER",
+          "org": "INDEXED",
+          "keys": [
+            10,
+            0
+          ],
+          "rec": [
+            500,
+            500
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP05",
+          "line": 35
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/DISCGRP.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.DISCGRP.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            16,
+            0
+          ],
+          "rec": [
+            50,
+            50
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP10",
+          "line": 36
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/DUSRSECJ.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.USRSEC.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            8,
+            0
+          ],
+          "rec": [
+            80,
+            80
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP02",
+          "line": 64
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/ESDSRRDS.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.USRSEC.VSAM.ESDS",
+          "org": "NONINDEXED",
+          "keys": null,
+          "rec": [
+            80,
+            80
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP02",
+          "line": 65
+        },
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.USRSEC.VSAM.RRDS",
+          "org": "NUMBERED",
+          "keys": null,
+          "rec": [
+            80,
+            80
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP04",
+          "line": 99
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TCATBALF.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.TCATBALF.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            17,
+            0
+          ],
+          "rec": [
+            50,
+            50
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP10",
+          "line": 36
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TRANBKP.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            16,
+            0
+          ],
+          "rec": [
+            350,
+            350
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP10",
+          "line": 54
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TRANCATG.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.TRANCATG.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            6,
+            0
+          ],
+          "rec": [
+            60,
+            60
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP10",
+          "line": 36
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TRANFILE.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            16,
+            0
+          ],
+          "rec": [
+            350,
+            350
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP10",
+          "line": 49
+        },
+        {
+          "kind": "AIX",
+          "name": "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX",
+          "org": null,
+          "keys": [
+            26,
+            304
+          ],
+          "rec": [
+            350,
+            350
+          ],
+          "related": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "unique": "NONUNIQUE",
+          "upgrade": "UPGRADE",
+          "step": "STEP20",
+          "line": 82
+        },
+        {
+          "kind": "PATH",
+          "name": "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.PATH",
+          "org": null,
+          "keys": null,
+          "rec": null,
+          "related": "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX",
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP25",
+          "line": 99
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TRANIDX.jcl": {
+      "defines": [
+        {
+          "kind": "AIX",
+          "name": "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX",
+          "org": null,
+          "keys": [
+            26,
+            304
+          ],
+          "rec": [
+            350,
+            350
+          ],
+          "related": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+          "unique": "NONUNIQUE",
+          "upgrade": "UPGRADE",
+          "step": "STEP20",
+          "line": 25
+        },
+        {
+          "kind": "PATH",
+          "name": "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX.PATH",
+          "org": null,
+          "keys": null,
+          "rec": null,
+          "related": "AWS.M2.CARDDEMO.TRANSACT.VSAM.AIX",
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP25",
+          "line": 42
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/TRANTYPE.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.TRANTYPE.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            2,
+            0
+          ],
+          "rec": [
+            60,
+            60
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP10",
+          "line": 36
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "app/jcl/XREFFILE.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+          "org": "INDEXED",
+          "keys": [
+            16,
+            0
+          ],
+          "rec": [
+            50,
+            50
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP10",
+          "line": 39
+        },
+        {
+          "kind": "AIX",
+          "name": "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX",
+          "org": null,
+          "keys": [
+            11,
+            25
+          ],
+          "rec": [
+            50,
+            50
+          ],
+          "related": "AWS.M2.CARDDEMO.CARDXREF.VSAM.KSDS",
+          "unique": "NONUNIQUE",
+          "upgrade": "UPGRADE",
+          "step": "STEP20",
+          "line": 72
+        },
+        {
+          "kind": "PATH",
+          "name": "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX.PATH",
+          "org": null,
+          "keys": null,
+          "rec": null,
+          "related": "AWS.M2.CARDDEMO.CARDXREF.VSAM.AIX",
+          "unique": null,
+          "upgrade": null,
+          "step": "STEP25",
+          "line": 90
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  }
 }

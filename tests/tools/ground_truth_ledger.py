@@ -91,6 +91,8 @@ TRUTH_FLAGS: dict[str, tuple[str, str]] = {
     "MQ calls": ("mq_calls", "mq_validated"),
     "units of work and handlers": ("uow_handlers", "uow_validated"),
     "TD trigger starts": ("tdq_triggers", "tdq_triggers_validated"),
+    "file control": ("file_control", "file_control_validated"),
+    "VSAM defines": ("vsam_defines", "vsam_validated"),
 }
 
 

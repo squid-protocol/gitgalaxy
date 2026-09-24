@@ -972,3 +972,38 @@ def test_key_reads_resp_codes_tested_by_number():
         " WHEN 13 CONTINUE\nEND-EVALUATE\nIF WS-RESP-CD NOT = 22 CONTINUE END-IF\nIF WS-RESP-CD = 923 CONTINUE END-IF\n"
     )
     assert ak._uow_numeric(text, "WS-RESP-CD") == {"NORMAL", "NOTFND", "LENGERR", "923"}
+
+
+def test_file_definition_readers_are_independent(tmp_path):
+    """#3455: the key's own SELECT and IDCAMS readers."""
+    src = (
+        "       IDENTIFICATION DIVISION.\n"
+        "       PROGRAM-ID. FDK.\n"
+        "       ENVIRONMENT DIVISION.\n"
+        "       FILE-CONTROL.\n"
+        "           SELECT X-FILE ASSIGN TO XDD\n"
+        "                  ORGANIZATION IS INDEXED ACCESS IS DYNAMIC\n"
+        "                  RECORD KEY IS X-KEY\n"
+        "                  ALTERNATE RECORD KEY IS X-ALT WITH DUPLICATES\n"
+        "                  FILE STATUS IS X-STAT.\n"
+        "       DATA DIVISION.\n"
+        "       FILE SECTION.\n"
+        "       FD  X-FILE.\n"
+        "       COPY XREC.\n"
+    )
+    assert all(len(line) <= 72 for line in src.splitlines())
+    (tmp_path / "FDK.cbl").write_text(src, encoding="utf-8")
+    (tmp_path / "DEF.jcl").write_text(
+        "//DEF JOB\n//S1 EXEC PGM=IDCAMS\n//SYSIN DD *\n"
+        "  DEFINE CLUSTER (NAME(A.KSDS) -\n    INDEXED KEYS(8 0) -\n    RECORDSIZE(80 80)) -\n"
+        "    DATA (NAME(A.KSDS.D))\n  DEF AIX (NAME(A.AIX) RELATE(A.KSDS) KEYS(5 8) UNIQUEKEY)\n/*\n",
+        encoding="utf-8",
+    )
+    fc, vd = ak.draft_file_defs(tmp_path)
+    assert ak.file_control_keys(fc["FDK.cbl"]["selects"]) == {
+        "L5 SELECT X-FILE ASSIGN=XDD ORG=INDEXED ACCESS=DYNAMIC KEY=X-KEY ALT=X-ALT+DUP REL=- STATUS=X-STAT COPY=XREC"
+    }
+    assert ak.vsam_define_keys(vd["DEF.jcl"]["defines"]) == {
+        "L4 CLUSTER A.KSDS ORG=INDEXED KEYS=8,0 REC=80,80 REL=- UNIQ=- UPG=- STEP=S1",
+        "L8 AIX A.AIX ORG=- KEYS=5,8 REC=- REL=A.KSDS UNIQ=UNIQUE UPG=- STEP=S1",
+    }

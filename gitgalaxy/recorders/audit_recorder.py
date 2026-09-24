@@ -353,6 +353,44 @@ class AuditRecorder:
                 }
                 for u in uow
             ]
+        selects = file_data.get("file_control") or []
+        if selects:
+            # #3455: FILE-CONTROL SELECT definitions, mirroring file_control_data.
+            block["File Control"] = [
+                {
+                    "Select": f.get("select_name"),
+                    "Assign": f.get("assign"),
+                    "Organization": f.get("organization"),
+                    "Access Mode": f.get("access_mode"),
+                    "Record Key": f.get("record_key"),
+                    "Alternate Keys": f.get("alternate_keys"),
+                    "Relative Key": f.get("relative_key"),
+                    "File Status": f.get("file_status"),
+                    "FD Copies": f.get("fd_copies"),
+                    "Line": f.get("line", 0),
+                }
+                for f in selects
+            ]
+        defines = file_data.get("vsam_defines") or []
+        if defines:
+            # #3455: IDCAMS DEFINE CLUSTER / AIX / PATH, mirroring vsam_define_data.
+            block["VSAM Defines"] = [
+                {
+                    "Kind": v.get("kind"),
+                    "Name": v.get("name"),
+                    "Organization": v.get("organization"),
+                    "Key Length": v.get("key_length"),
+                    "Key Offset": v.get("key_offset"),
+                    "Record Avg": v.get("record_avg"),
+                    "Record Max": v.get("record_max"),
+                    "Related": v.get("related"),
+                    "Unique Key": v.get("unique_key"),
+                    "Upgrade": v.get("upgrade"),
+                    "Step": v.get("step"),
+                    "Line": v.get("line", 0),
+                }
+                for v in defines
+            ]
         return block
 
     def generate_report(

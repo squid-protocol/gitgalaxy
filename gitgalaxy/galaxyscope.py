@@ -688,6 +688,8 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             job_submits: list = []  # #3448: embedded JCL cards (cobol) / INTRDR DDs (jcl)
             mq_calls: list = []  # #3447: IBM MQ calls (cobol)
             uow_handlers: list = []  # #3453: commit/rollback points, handlers, RESP checks (cobol)
+            file_control: list = []  # #3455: FILE-CONTROL SELECT organisation / access / keys (cobol)
+            vsam_defines: list = []  # #3455: IDCAMS DEFINE CLUSTER / AIX / PATH (jcl)
 
             # 1. Extract raw file dependencies. An inert (static-asset) language
             # normally skips this whole phase, but one that explicitly DECLARES
@@ -771,6 +773,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
                     mq_calls = boundary.get("mq_calls", [])
                     # #3453: units of work and error handling (cobol only).
                     uow_handlers = boundary.get("uow_handlers", [])
+                    # #3455: file definitions (cobol SELECTs, jcl IDCAMS defines).
+                    file_control = boundary.get("file_control", [])
+                    vsam_defines = boundary.get("vsam_defines", [])
                 except Exception:
                     logging.exception("Boundary extraction failed for language '%s'.", lang_id)
 
@@ -851,6 +856,9 @@ def _process_file_worker(rel_path: str) -> dict[str, Any]:
             "mq_calls": mq_calls,
             # #3453: units of work and error handling -> uow_handler_data.
             "uow_handlers": uow_handlers,
+            # #3455: file definitions -> file_control_data / vsam_define_data.
+            "file_control": file_control,
+            "vsam_defines": vsam_defines,
             "popularity_hits": popularity_hits,
             "regex_telemetry": (logic_data.pop("regex_telemetry", {}) if is_profiling else {}),
         }

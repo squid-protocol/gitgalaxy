@@ -8145,5 +8145,197 @@
       },
       "rulings": {}
     }
-  ]
+  ],
+  "file_control": {
+    "COBOL/SAM1.cbl": {
+      "selects": [
+        {
+          "select": "CUSTOMER-FILE",
+          "assign": "CUSTFILE",
+          "org": null,
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-CUSTFILE-STATUS",
+          "line": 40,
+          "copies": [
+            "CUSTCOPY"
+          ]
+        },
+        {
+          "select": "CUSTOMER-FILE-OUT",
+          "assign": "CUSTOUT",
+          "org": null,
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-CUSTOUT-STATUS",
+          "line": 44,
+          "copies": [
+            "CUSTCOPY"
+          ]
+        },
+        {
+          "select": "TRANSACTION-FILE",
+          "assign": "TRANFILE",
+          "org": null,
+          "access": null,
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-TRANFILE-STATUS",
+          "line": 48,
+          "copies": [
+            "TRANREC"
+          ]
+        },
+        {
+          "select": "REPORT-FILE",
+          "assign": "CUSTRPT",
+          "org": null,
+          "access": null,
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-REPORT-STATUS",
+          "line": 51,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "COBOL/SAM1LIB.cbl": {
+      "selects": [
+        {
+          "select": "CUSTOMER-FILE",
+          "assign": "CUSTFILE",
+          "org": null,
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-CUSTFILE-STATUS",
+          "line": 40,
+          "copies": [
+            "CUSTCOPY"
+          ]
+        },
+        {
+          "select": "CUSTOMER-FILE-OUT",
+          "assign": "CUSTOUT",
+          "org": null,
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-CUSTOUT-STATUS",
+          "line": 44,
+          "copies": [
+            "CUSTCOPY"
+          ]
+        },
+        {
+          "select": "TRANSACTION-FILE",
+          "assign": "TRANFILE",
+          "org": null,
+          "access": null,
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-TRANFILE-STATUS",
+          "line": 48,
+          "copies": [
+            "TRANREC"
+          ]
+        },
+        {
+          "select": "REPORT-FILE",
+          "assign": "CUSTRPT",
+          "org": null,
+          "access": null,
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-REPORT-STATUS",
+          "line": 51,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    },
+    "multiroot/sam/SAM1.cbl": {
+      "selects": [
+        {
+          "select": "CUSTOMER-FILE",
+          "assign": "CUSTFILE",
+          "org": null,
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-CUSTFILE-STATUS",
+          "line": 44,
+          "copies": [
+            "CUSTCOPY"
+          ]
+        },
+        {
+          "select": "CUSTOMER-FILE-OUT",
+          "assign": "CUSTOUT",
+          "org": null,
+          "access": "SEQUENTIAL",
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-CUSTOUT-STATUS",
+          "line": 48,
+          "copies": [
+            "CUSTCOPY"
+          ]
+        },
+        {
+          "select": "TRANSACTION-FILE",
+          "assign": "TRANFILE",
+          "org": null,
+          "access": null,
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-TRANFILE-STATUS",
+          "line": 52,
+          "copies": [
+            "TRANREC"
+          ]
+        },
+        {
+          "select": "REPORT-FILE",
+          "assign": "CUSTRPT",
+          "org": null,
+          "access": null,
+          "key": null,
+          "alt": [],
+          "rel": null,
+          "status": "WS-REPORT-STATUS",
+          "line": 55,
+          "copies": []
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  },
+  "vsam_defines": {}
 }

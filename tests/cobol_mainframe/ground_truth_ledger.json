@@ -225,6 +225,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "VSAM defines": {
+          "engine": {
+            "got": 24,
+            "tp": 24,
+            "truth": 24
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "async children": {
           "engine": {
             "got": 0,
@@ -315,6 +324,15 @@
             "tp": 26,
             "truth": 26
           },
+          "truth": "draft"
+        },
+        "file control": {
+          "engine": {
+            "got": 54,
+            "tp": 54,
+            "truth": 54
+          },
+          "forge": null,
           "truth": "draft"
         },
         "inputs": {
@@ -959,6 +977,15 @@
           "forge": null,
           "truth": "draft"
         },
+        "VSAM defines": {
+          "engine": {
+            "got": 2,
+            "tp": 2,
+            "truth": 2
+          },
+          "forge": null,
+          "truth": "draft"
+        },
         "async children": {
           "engine": {
             "got": 5,
@@ -1050,6 +1077,15 @@
             "truth": 14
           },
           "truth": "cross_verified"
+        },
+        "file control": {
+          "engine": {
+            "got": 1,
+            "tp": 1,
+            "truth": 1
+          },
+          "forge": null,
+          "truth": "draft"
         },
         "inputs": {
           "engine": {
@@ -1215,6 +1251,11 @@
           "forge": null,
           "truth": "draft"
         },
+        "VSAM defines": {
+          "engine": null,
+          "forge": null,
+          "truth": "draft"
+        },
         "async children": {
           "engine": null,
           "forge": null,
@@ -1302,6 +1343,15 @@
             "truth": 0
           },
           "truth": "cross_verified"
+        },
+        "file control": {
+          "engine": {
+            "got": 12,
+            "tp": 12,
+            "truth": 12
+          },
+          "forge": null,
+          "truth": "draft"
         },
         "inputs": {
           "engine": {

@@ -568,6 +568,8 @@ class LLMRecorder:
                 + len(f.get("job_submits") or [])  # #3448
                 + len(f.get("mq_calls") or [])  # #3447
                 + len(f.get("uow_handlers") or [])  # #3453
+                + len(f.get("file_control") or [])  # #3455
+                + len(f.get("vsam_defines") or [])  # #3455
             )
 
         carriers = sorted((f for f in parsed_files if _volume(f) > 0), key=_volume, reverse=True)
@@ -825,6 +827,22 @@ class LLMRecorder:
                 if queues:
                     labels = [f"{k} ({'/'.join(sorted(v))})" for k, v in queues.items()]
                     lines.append(f"- **MQ queues:** {', '.join(f'`{x}`' for x in labels[:12])}")
+            # #3455: keyed files and the VSAM clusters defined here.
+            keyed = [x for x in (f.get("file_control") or []) if x.get("record_key") or x.get("relative_key")]
+            if keyed:
+                labels = [
+                    f"{x.get('select_name')} {x.get('organization') or '?'}/{x.get('access_mode') or '?'} key {x.get('record_key') or x.get('relative_key')}"
+                    for x in keyed
+                ]
+                lines.append(f"- **Keyed files:** {', '.join(f'`{lbl}`' for lbl in labels[:8])}")
+            defs = f.get("vsam_defines") or []
+            if defs:
+                labels = [
+                    f"{d.get('kind')} {d.get('name')}"
+                    + (f" KEYS({d.get('key_length')} {d.get('key_offset')})" if d.get("key_length") is not None else "")
+                    for d in defs
+                ]
+                lines.append(f"- **VSAM defines:** {', '.join(f'`{lbl}`' for lbl in labels[:8])}")
             # #3453: where the unit of work ends and what handles errors.
             uow = f.get("uow_handlers") or []
             if uow:

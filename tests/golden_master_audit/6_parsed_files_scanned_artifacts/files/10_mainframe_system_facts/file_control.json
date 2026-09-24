@@ -1,0 +1,3373 @@
+{
+  "groups": {
+    "cobol/CICS-Cobol": {
+      "cobol/CICS-Cobol/CBL0102v01DivisionAmbiente.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "TCANAL",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 19,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "APXT01"
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0901v01AccesoSecuencial.cbl": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "HOST01.TXT",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 23,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "HOST001"
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0901v02AccesoSecuencialFiles.cbl": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "HOST01.TXT",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 27,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "HOST001"
+        },
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": "TXT-02",
+          "Assign": "HOST02.TXT",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": "INDEXED",
+          "Record Key": "COD-02",
+          "Relative Key": null,
+          "Select": "HOST002"
+        },
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "HOST03.TXT",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 37,
+          "Organization": "RELATIVE",
+          "Record Key": null,
+          "Relative Key": "COD-03",
+          "Select": "HOST003"
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0902v01AccesoAleatorio.cbl": [
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": "TXT-NOM",
+          "Assign": "HOST04.TXT",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 27,
+          "Organization": "INDEXED",
+          "Record Key": "COD-CANAL",
+          "Relative Key": null,
+          "Select": "HOST004"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "HOST05.TXT",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 33,
+          "Organization": "RELATIVE",
+          "Record Key": null,
+          "Relative Key": "COD-05",
+          "Select": "HOST005"
+        }
+      ],
+      "cobol/CICS-Cobol/CBL0903v01AccesoDinamico.cbl": [
+        {
+          "Access Mode": "DYNAMIC",
+          "Alternate Keys": "TXT-06",
+          "Assign": "HOST06.TXT",
+          "FD Copies": null,
+          "File Status": "EOF-06",
+          "Line": 24,
+          "Organization": "INDEXED",
+          "Record Key": "COD-06",
+          "Relative Key": null,
+          "Select": "HOST006"
+        },
+        {
+          "Access Mode": "DYNAMIC",
+          "Alternate Keys": null,
+          "Assign": "HOST07.TXT",
+          "FD Copies": null,
+          "File Status": "EOF-07",
+          "Line": 31,
+          "Organization": "RELATIVE",
+          "Record Key": null,
+          "Relative Key": "WS-RK-07",
+          "Select": "HOST007"
+        }
+      ]
+    },
+    "cobol/aws-mainframe-modernization-carddemo": {
+      "cobol/aws-mainframe-modernization-carddemo/CBACT01C.cbl": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "ACCTFILE",
+          "FD Copies": null,
+          "File Status": "ACCTFILE-STATUS",
+          "Line": 29,
+          "Organization": "INDEXED",
+          "Record Key": "FD-ACCT-ID",
+          "Relative Key": null,
+          "Select": "ACCTFILE-FILE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBACT02C.cbl": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "CARDFILE",
+          "FD Copies": null,
+          "File Status": "CARDFILE-STATUS",
+          "Line": 29,
+          "Organization": "INDEXED",
+          "Record Key": "FD-CARD-NUM",
+          "Relative Key": null,
+          "Select": "CARDFILE-FILE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBACT03C.cbl": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "XREFFILE",
+          "FD Copies": null,
+          "File Status": "XREFFILE-STATUS",
+          "Line": 29,
+          "Organization": "INDEXED",
+          "Record Key": "FD-XREF-CARD-NUM",
+          "Relative Key": null,
+          "Select": "XREFFILE-FILE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBACT04C.cbl": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "TCATBALF",
+          "FD Copies": null,
+          "File Status": "TCATBALF-STATUS",
+          "Line": 28,
+          "Organization": "INDEXED",
+          "Record Key": "FD-TRAN-CAT-KEY",
+          "Relative Key": null,
+          "Select": "TCATBAL-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": "FD-XREF-ACCT-ID",
+          "Assign": "XREFFILE",
+          "FD Copies": null,
+          "File Status": "XREFFILE-STATUS",
+          "Line": 34,
+          "Organization": "INDEXED",
+          "Record Key": "FD-XREF-CARD-NUM",
+          "Relative Key": null,
+          "Select": "XREF-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "ACCTFILE",
+          "FD Copies": null,
+          "File Status": "ACCTFILE-STATUS",
+          "Line": 41,
+          "Organization": "INDEXED",
+          "Record Key": "FD-ACCT-ID",
+          "Relative Key": null,
+          "Select": "ACCOUNT-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "DISCGRP",
+          "FD Copies": null,
+          "File Status": "DISCGRP-STATUS",
+          "Line": 47,
+          "Organization": "INDEXED",
+          "Record Key": "FD-DISCGRP-KEY",
+          "Relative Key": null,
+          "Select": "DISCGRP-FILE"
+        },
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "TRANSACT",
+          "FD Copies": null,
+          "File Status": "TRANFILE-STATUS",
+          "Line": 53,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TRANSACT-FILE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBCUS01C.cbl": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "CUSTFILE",
+          "FD Copies": null,
+          "File Status": "CUSTFILE-STATUS",
+          "Line": 29,
+          "Organization": "INDEXED",
+          "Record Key": "FD-CUST-ID",
+          "Relative Key": null,
+          "Select": "CUSTFILE-FILE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN01C.cbl": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "DALYTRAN",
+          "FD Copies": null,
+          "File Status": "DALYTRAN-STATUS",
+          "Line": 29,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "DALYTRAN-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "CUSTFILE",
+          "FD Copies": null,
+          "File Status": "CUSTFILE-STATUS",
+          "Line": 34,
+          "Organization": "INDEXED",
+          "Record Key": "FD-CUST-ID",
+          "Relative Key": null,
+          "Select": "CUSTOMER-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "XREFFILE",
+          "FD Copies": null,
+          "File Status": "XREFFILE-STATUS",
+          "Line": 40,
+          "Organization": "INDEXED",
+          "Record Key": "FD-XREF-CARD-NUM",
+          "Relative Key": null,
+          "Select": "XREF-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "CARDFILE",
+          "FD Copies": null,
+          "File Status": "CARDFILE-STATUS",
+          "Line": 46,
+          "Organization": "INDEXED",
+          "Record Key": "FD-CARD-NUM",
+          "Relative Key": null,
+          "Select": "CARD-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "ACCTFILE",
+          "FD Copies": null,
+          "File Status": "ACCTFILE-STATUS",
+          "Line": 52,
+          "Organization": "INDEXED",
+          "Record Key": "FD-ACCT-ID",
+          "Relative Key": null,
+          "Select": "ACCOUNT-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "TRANFILE",
+          "FD Copies": null,
+          "File Status": "TRANFILE-STATUS",
+          "Line": 58,
+          "Organization": "INDEXED",
+          "Record Key": "FD-TRANS-ID",
+          "Relative Key": null,
+          "Select": "TRANSACT-FILE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN02C.cbl": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "DALYTRAN",
+          "FD Copies": null,
+          "File Status": "DALYTRAN-STATUS",
+          "Line": 29,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "DALYTRAN-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "TRANFILE",
+          "FD Copies": null,
+          "File Status": "TRANFILE-STATUS",
+          "Line": 34,
+          "Organization": "INDEXED",
+          "Record Key": "FD-TRANS-ID",
+          "Relative Key": null,
+          "Select": "TRANSACT-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "XREFFILE",
+          "FD Copies": null,
+          "File Status": "XREFFILE-STATUS",
+          "Line": 40,
+          "Organization": "INDEXED",
+          "Record Key": "FD-XREF-CARD-NUM",
+          "Relative Key": null,
+          "Select": "XREF-FILE"
+        },
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "DALYREJS",
+          "FD Copies": null,
+          "File Status": "DALYREJS-STATUS",
+          "Line": 46,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "DALYREJS-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "ACCTFILE",
+          "FD Copies": null,
+          "File Status": "ACCTFILE-STATUS",
+          "Line": 51,
+          "Organization": "INDEXED",
+          "Record Key": "FD-ACCT-ID",
+          "Relative Key": null,
+          "Select": "ACCOUNT-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "TCATBALF",
+          "FD Copies": null,
+          "File Status": "TCATBALF-STATUS",
+          "Line": 57,
+          "Organization": "INDEXED",
+          "Record Key": "FD-TRAN-CAT-KEY",
+          "Relative Key": null,
+          "Select": "TCATBAL-FILE"
+        }
+      ],
+      "cobol/aws-mainframe-modernization-carddemo/CBTRN03C.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "TRANFILE",
+          "FD Copies": null,
+          "File Status": "TRANFILE-STATUS",
+          "Line": 29,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TRANSACT-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "CARDXREF",
+          "FD Copies": null,
+          "File Status": "CARDXREF-STATUS",
+          "Line": 33,
+          "Organization": "INDEXED",
+          "Record Key": "FD-XREF-CARD-NUM",
+          "Relative Key": null,
+          "Select": "XREF-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "TRANTYPE",
+          "FD Copies": null,
+          "File Status": "TRANTYPE-STATUS",
+          "Line": 39,
+          "Organization": "INDEXED",
+          "Record Key": "FD-TRAN-TYPE",
+          "Relative Key": null,
+          "Select": "TRANTYPE-FILE"
+        },
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "TRANCATG",
+          "FD Copies": null,
+          "File Status": "TRANCATG-STATUS",
+          "Line": 45,
+          "Organization": "INDEXED",
+          "Record Key": "FD-TRAN-CAT-KEY",
+          "Relative Key": null,
+          "Select": "TRANCATG-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "TRANREPT",
+          "FD Copies": null,
+          "File Status": "TRANREPT-STATUS",
+          "Line": 51,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "REPORT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "DATEPARM",
+          "FD Copies": null,
+          "File Status": "DATEPARM-STATUS",
+          "Line": 55,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "DATE-PARMS-FILE"
+        }
+      ]
+    },
+    "cobol/che-che4z_lsp_project_fixtures": {
+      "cobol/che-che4z_lsp_project_fixtures/HOVER.CBL": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "SOMETHING-ELSE",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 21,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TRANS-FILE-IN"
+        }
+      ]
+    },
+    "cobol/che-che4z_nist_ccvs85": {
+      "cobol/che-che4z_nist_ccvs85/DB1024.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "DB1024",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 52,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/DB1034.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "DB1034",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 50,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/DB1044.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "DB1044",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 61,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "DB1044",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 63,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "GEN-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "DB1044",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 67,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SORT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/DB3014.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "DB3014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 15,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/DB3024.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "DB3024",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 16,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/DB3054.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "DB3054",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 16,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1014.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC1014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 39,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1024.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC1024",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 28,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1034.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC1034",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 34,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1044.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC1044",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 34,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1064.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC1064",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 38,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1074.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC1074",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 37,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1084.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC1084",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 30,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1094.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC1094",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 30,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1104.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC1104",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1144.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC1144",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 42,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC1164.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC1164",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 39,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2014.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2024.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2024",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 29,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2034.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2034",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 33,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2044.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2044",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 34,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2054.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2054",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 29,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2064.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2064",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 34,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2074.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2074",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2094.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2094",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 27,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2134.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2134",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 27,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2164.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2164",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 27,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2244.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2244",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 44,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2244",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 669,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2264.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2264",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 44,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2284.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2284",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 46,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2334.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2334",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 44,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2334",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 46,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TEST-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2344.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2344",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 57,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2344",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 59,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TEST-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IC2374.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2374",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 30,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IC2374",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 402,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1024.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1024",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1054.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1054",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 22,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1074.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1074",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1084.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1084",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1094.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1094",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1104.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1104",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1114.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1114",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1124.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1124",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1134.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1134",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1144.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1144",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1154.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1154",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1184.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1184",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1204.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1204",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 17,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1214.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1214",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 17,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1224.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1224",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 17,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1244.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1244",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1254.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1254",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1274.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1274",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 22,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1284.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1284",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 22,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1294.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1294",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 22,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1314.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1314",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1324.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1324",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 17,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1334.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1334",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1344.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1344",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 17,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1374.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1374",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1384.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1384",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 17,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1404.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1404",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1414.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1414",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 16,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IF1424.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IF1424",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 18,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1014.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 50,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 55,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 57,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1024.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1024",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 62,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1024",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 67,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1024",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 69,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1034.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1034",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 59,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1034",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 64,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1034",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 66,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1044.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1044",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 64,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1044",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 69,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1044",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 71,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS2"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1114.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1114",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 36,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1114",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 39,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-NOP"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1134.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1134",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 42,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1134",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 48,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1134",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 51,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS3"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1144.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1144",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 38,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1144",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 44,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1144",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 47,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS3"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1154.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1154",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 39,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1154",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 45,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1154",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 48,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS3"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1164.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1164",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 39,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1164",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 45,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1164",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 48,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS3"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1174.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1174",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 38,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1174",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 44,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1174",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 47,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS3"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1184.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1184",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 38,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1184",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 44,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1184",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 47,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS3"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1194.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1194",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 41,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1194",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 47,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1194",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 50,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS3"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1204.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1204",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 40,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1204",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 46,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1204",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 49,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS3"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX1214.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1214",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 45,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1214",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 51,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX1214",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 54,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-VS2"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX2014.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 51,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 56,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 58,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX2034.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2034",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 55,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2034",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 60,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2034",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 62,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FD1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX2044.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2044",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 73,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2044",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 78,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2044",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 80,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FD2"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX2174.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2174",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 58,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2174",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 61,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS1"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2174",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 69,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-VS1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX2184.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2184",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 66,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2184",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 71,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2184",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 74,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS1"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX2184",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 83,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "IX-FS2"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX3014.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX3014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 15,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/IX4014.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX4014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 15,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "IX4014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 30,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL2"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1114.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1114",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1134.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1134",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1254.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1254",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1274.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1274",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1314.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1314",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 30,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1334.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1334",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1344.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1344",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1354.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1354",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1364.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1364",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1374.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1374",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 30,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1384.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1384",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1394.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1394",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1404.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1404",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC1414.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC1414",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2104.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2104",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 30,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2144.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2144",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 54,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2154.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2154",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 51,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2194.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2194",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 69,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2224.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2224",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2244.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2244",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2354.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2354",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2364.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2364",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2374.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2374",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2384.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2384",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2394.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2394",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 31,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2404.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2404",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 34,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2414.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2414",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 33,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2424.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2424",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 35,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2434.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2434",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 33,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2444.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2444",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2454.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2454",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/NC2484.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "NC2484",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBIC24.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBIC24",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 36,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "ST-FS1"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBIC34.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBIC34",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 34,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBSQ34.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ34",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 30,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ34",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 35,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ34",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 37,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS1"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ34",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 40,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS2"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ34",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 43,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS3"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ34",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 46,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS4"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ34",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 49,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS5"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ34",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 51,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS6"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ34",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 54,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS7"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ34",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 58,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS8"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBSQ44.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ44",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 27,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ44",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 32,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ44",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 34,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS1"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ44",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 36,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS2"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ44",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 38,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS3"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ44",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 40,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS4"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/OBSQ54.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ54",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 29,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RAW-DATA"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ54",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 34,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ54",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 36,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS3"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ54",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 38,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS5"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ54",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 40,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS6"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ54",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 42,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS7"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "OBSQ54",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 44,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SQ-FS8"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/RL3014.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "RL3014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 15,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/RL4014.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "RL4014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 15,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "RL4014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 25,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL2"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/SM1074.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "SM1074",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 30,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/SQ3034.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "SQ3034",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 15,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "SQ3034",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 20,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL2"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/ST1084.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "ST1084",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 48,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "ST1084",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 50,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SORTFILE-1H"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/ST1184.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "ST1184",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 58,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "ST1184",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 60,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "SORTFILE-1H"
+        }
+      ],
+      "cobol/che-che4z_nist_ccvs85/ST3014.2.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "ST3014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 14,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "ST3014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 16,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL-2"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "ST3014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 19,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL-3"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "ST3014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 22,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL-4"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "ST3014",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 25,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TFIL-5"
+        }
+      ]
+    },
+    "cobol/cics-banking-sample-application-cbsa": {
+      "cobol/cics-banking-sample-application-cbsa/BANKDATA.cbl": [
+        {
+          "Access Mode": "RANDOM",
+          "Alternate Keys": null,
+          "Assign": "VSAM",
+          "FD Copies": "CUSTOMER",
+          "File Status": "CUSTOMER-VSAM-STATUS",
+          "Line": 46,
+          "Organization": "INDEXED",
+          "Record Key": "CUSTOMER-KEY",
+          "Relative Key": null,
+          "Select": "CUSTOMER-FILE"
+        }
+      ]
+    },
+    "cobol/cobol-check": {
+      "cobol/cobol-check/src_main_cobol_FileCopy.cbl": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "INFILE",
+          "FD Copies": null,
+          "File Status": "INPUT-FILE-STATUS",
+          "Line": 9,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "INPUT-FILE"
+        },
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "OUTFILE",
+          "FD Copies": "OUTREC",
+          "File Status": "OUTPUT-FILE-STATUS",
+          "Line": 13,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "OUTPUT-FILE"
+        }
+      ],
+      "cobol/cobol-check/src_main_cobol_WS88LEVEL.CBL": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "UT-S-LINEFILE",
+          "FD Copies": null,
+          "File Status": "STATUS-LINEFILE",
+          "Line": 13,
+          "Organization": "SEQUENTIAL",
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "LINEFILE"
+        }
+      ]
+    },
+    "cobol/cobol-programming-course": {
+      "cobol/cobol-programming-course/CBL0106.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "PRTLINE",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 14,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-LINE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "ACCTREC",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 15,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "ACCT-REC"
+        }
+      ],
+      "cobol/cobol-programming-course/CBL0106C.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "PRTLINE",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 14,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "PRINT-LINE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "ACCTREC",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 15,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "ACCT-REC"
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB21.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "UT-S-REPORT",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 15,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "REPOUT"
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB22.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "UT-S-REPORT",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 14,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "REPOUT"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "DA-S-RECIN",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 15,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "RECIN"
+        }
+      ],
+      "cobol/cobol-programming-course/CBLDB23.cbl": [
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "UT-S-REPORT",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 15,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "REPOUT"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "DA-S-CARDIN",
+          "FD Copies": null,
+          "File Status": null,
+          "Line": 17,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "CARDIN"
+        }
+      ]
+    },
+    "cobol/zopeneditor-sample": {
+      "cobol/zopeneditor-sample/SAM1.cbl": [
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "CUSTFILE",
+          "FD Copies": "CUSTCOPY",
+          "File Status": "WS-CUSTFILE-STATUS",
+          "Line": 40,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "CUSTOMER-FILE"
+        },
+        {
+          "Access Mode": "SEQUENTIAL",
+          "Alternate Keys": null,
+          "Assign": "CUSTOUT",
+          "FD Copies": "CUSTCOPY",
+          "File Status": "WS-CUSTOUT-STATUS",
+          "Line": 44,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "CUSTOMER-FILE-OUT"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "TRANFILE",
+          "FD Copies": "TRANREC",
+          "File Status": "WS-TRANFILE-STATUS",
+          "Line": 48,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "TRANSACTION-FILE"
+        },
+        {
+          "Access Mode": null,
+          "Alternate Keys": null,
+          "Assign": "CUSTRPT",
+          "FD Copies": null,
+          "File Status": "WS-REPORT-STATUS",
+          "Line": 51,
+          "Organization": null,
+          "Record Key": null,
+          "Relative Key": null,
+          "Select": "REPORT-FILE"
+        }
+      ]
+    }
+  },
+  "path": [
+    "6. Parsed Files (Scanned Artifacts)",
+    "10. Mainframe System Facts",
+    "File Control"
+  ]
+}

@@ -495,7 +495,9 @@ class RecordKeeper:
         JCL) rides on each file's own `job_submits` and becomes job_submit_data.
         IBM MQ calls (#3447) ride on each file's own `mq_calls` and become
         mq_call_data. Units of work and error handling (#3453) ride on each
-        file's own `uow_handlers` and become uow_handler_data.
+        file's own `uow_handlers` and become uow_handler_data. File definitions
+        (#3455) ride on `file_control` (COBOL SELECTs -> file_control_data) and
+        `vsam_defines` (JCL IDCAMS -> vsam_define_data).
 
         `transactions` (#3211-followup) is the CICS transaction map:
         `invocation_resolver.resolve_transactions()`'s resolved records, persisted
@@ -1239,6 +1241,68 @@ class RecordKeeper:
             "CREATE INDEX IF NOT EXISTS idx_uow_handler_snapshot ON uow_handler_data(repo_name, commit_hash);"
         )
 
+        # #3455: FILE-CONTROL SELECT definitions (core/file_control.py): per SELECT
+        #   select_name / assign_name -- the file and its ASSIGN target
+        #   organization  -- INDEXED | RELATIVE | SEQUENTIAL | LINE SEQUENTIAL (NULL: absent)
+        #   access_mode   -- SEQUENTIAL | RANDOM | DYNAMIC
+        #   record_key / relative_key / file_status -- data-names as written
+        #   alternate_keys -- comma-joined, `+DUP` = WITH DUPLICATES
+        #   fd_copies     -- COPY members inside the file's FD entry (its record)
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS file_control_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                select_name TEXT,
+                assign_name TEXT,
+                organization TEXT,
+                access_mode TEXT,
+                record_key TEXT,
+                alternate_keys TEXT,
+                relative_key TEXT,
+                file_status TEXT,
+                fd_copies TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_file_control_file_id ON file_control_data(file_id);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_file_control_snapshot ON file_control_data(repo_name, commit_hash);"
+        )
+        # #3455: IDCAMS DEFINE CLUSTER / ALTERNATEINDEX / PATH in JCL in-stream data.
+        #   kind          -- CLUSTER | AIX | PATH;  cluster_name as written
+        #   organization  -- INDEXED | NUMBERED | NONINDEXED | LINEAR
+        #   key_length / key_offset -- KEYS(l o);  record_avg / record_max -- RECORDSIZE
+        #   related       -- an AIX's RELATE base, a PATH's PATHENTRY
+        #   unique_key / upgrade -- AIX UNIQUEKEY|NONUNIQUEKEY, UPGRADE|NOUPGRADE
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS vsam_define_data (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                repo_name TEXT,
+                commit_hash TEXT,
+                file_id INTEGER,
+                kind TEXT,
+                cluster_name TEXT,
+                organization TEXT,
+                key_length INTEGER,
+                key_offset INTEGER,
+                record_avg INTEGER,
+                record_max INTEGER,
+                related TEXT,
+                unique_key TEXT,
+                upgrade TEXT,
+                step_name TEXT,
+                line_number INTEGER,
+                FOREIGN KEY(file_id) REFERENCES file_data(id) ON DELETE CASCADE
+            )
+        """)
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_vsam_define_file_id ON vsam_define_data(file_id);")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_vsam_define_name ON vsam_define_data(cluster_name);")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_vsam_define_snapshot ON vsam_define_data(repo_name, commit_hash);"
+        )
         # #3211-followup: the CICS transaction map -- which 4-char transaction id a
         # user submits and which program CICS routes it to. Extracted from the CSD
         # `DEFINE TRANSACTION(TTTT) ... PROGRAM(PPPP)` records (and PROGRAM
@@ -2812,6 +2876,79 @@ class RecordKeeper:
                 u.get("resp_var"),
                 u.get("attributes"),
                 int(u.get("line", 0) or 0),
+            ),
+        )
+
+        # #3455: file definitions -- per-file, like uow_handler_data.
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "file_control_data",
+            (
+                "select_name",
+                "assign_name",
+                "organization",
+                "access_mode",
+                "record_key",
+                "alternate_keys",
+                "relative_key",
+                "file_status",
+                "fd_copies",
+                "line_number",
+            ),
+            "file_control",
+            lambda f: (
+                f.get("select_name"),
+                f.get("assign"),
+                f.get("organization"),
+                f.get("access_mode"),
+                f.get("record_key"),
+                f.get("alternate_keys"),
+                f.get("relative_key"),
+                f.get("file_status"),
+                f.get("fd_copies"),
+                int(f.get("line", 0) or 0),
+            ),
+        )
+
+        _insert_per_file_child(
+            cursor,
+            parsed_files,
+            path_to_file_id,
+            repo_name,
+            commit_hash,
+            "vsam_define_data",
+            (
+                "kind",
+                "cluster_name",
+                "organization",
+                "key_length",
+                "key_offset",
+                "record_avg",
+                "record_max",
+                "related",
+                "unique_key",
+                "upgrade",
+                "step_name",
+                "line_number",
+            ),
+            "vsam_defines",
+            lambda v: (
+                v.get("kind"),
+                v.get("name"),
+                v.get("organization"),
+                int(v["key_length"]) if v.get("key_length") is not None else None,
+                int(v["key_offset"]) if v.get("key_offset") is not None else None,
+                int(v["record_avg"]) if v.get("record_avg") is not None else None,
+                int(v["record_max"]) if v.get("record_max") is not None else None,
+                v.get("related"),
+                v.get("unique_key"),
+                v.get("upgrade"),
+                v.get("step"),
+                int(v.get("line", 0) or 0),
             ),
         )
 

@@ -64904,5 +64904,77 @@
       },
       "rulings": {}
     }
-  ]
+  ],
+  "file_control": {
+    "src/base/cobol_src/BANKDATA.cbl": {
+      "selects": [
+        {
+          "select": "CUSTOMER-FILE",
+          "assign": "VSAM",
+          "org": "INDEXED",
+          "access": "RANDOM",
+          "key": "CUSTOMER-KEY",
+          "alt": [],
+          "rel": null,
+          "status": "CUSTOMER-VSAM-STATUS",
+          "line": 46,
+          "copies": [
+            "CUSTOMER"
+          ]
+        }
+      ],
+      "file_control_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  },
+  "vsam_defines": {
+    "etc/install/base/installjcl/BANKDATA.jcl": {
+      "defines": [
+        {
+          "kind": "CLUSTER",
+          "name": "@BANK_PREFIX@.ABNDFILE",
+          "org": "INDEXED",
+          "keys": [
+            12,
+            0
+          ],
+          "rec": [
+            681,
+            681
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "BANKDAT0",
+          "line": 42
+        },
+        {
+          "kind": "CLUSTER",
+          "name": "@BANK_PREFIX@.CUSTOMER",
+          "org": "INDEXED",
+          "keys": [
+            16,
+            4
+          ],
+          "rec": [
+            259,
+            259
+          ],
+          "related": null,
+          "unique": null,
+          "upgrade": null,
+          "step": "BANKDAT1",
+          "line": 62
+        }
+      ],
+      "vsam_validated": false,
+      "verification": {
+        "status": "draft",
+        "notes": []
+      }
+    }
+  }
 }

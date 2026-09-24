@@ -759,6 +759,52 @@ class StateRehydrator:
                     },
                 )
 
+                # #3455: file definitions, aliased back to the payload keys.
+                file_control_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "file_control_data",
+                    'SELECT fd.file_path AS _fp, fc.select_name, fc.assign_name AS "assign", fc.organization, fc.access_mode, fc.record_key, fc.alternate_keys, fc.relative_key, fc.file_status, fc.fd_copies, fc.line_number AS "line" '
+                    "FROM file_control_data fc JOIN file_data fd ON fc.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY fc.id",
+                    lambda r: {
+                        "select_name": r["select_name"],
+                        "assign": r["assign"],
+                        "organization": r["organization"],
+                        "access_mode": r["access_mode"],
+                        "record_key": r["record_key"],
+                        "alternate_keys": r["alternate_keys"],
+                        "relative_key": r["relative_key"],
+                        "file_status": r["file_status"],
+                        "fd_copies": r["fd_copies"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+                vsam_defines_by_file = _restore_child_table(
+                    cursor,
+                    repo_name,
+                    baseline_hash,
+                    "vsam_define_data",
+                    'SELECT fd.file_path AS _fp, vd.kind, vd.cluster_name AS "name", vd.organization, vd.key_length, vd.key_offset, vd.record_avg, vd.record_max, vd.related, vd.unique_key, vd.upgrade, vd.step_name AS "step", vd.line_number AS "line" '
+                    "FROM vsam_define_data vd JOIN file_data fd ON vd.file_id = fd.id "
+                    "WHERE fd.repo_name = ? AND fd.commit_hash = ? ORDER BY vd.id",
+                    lambda r: {
+                        "kind": r["kind"],
+                        "name": r["name"],
+                        "organization": r["organization"],
+                        "key_length": int(r["key_length"]) if r["key_length"] is not None else None,
+                        "key_offset": int(r["key_offset"]) if r["key_offset"] is not None else None,
+                        "record_avg": int(r["record_avg"]) if r["record_avg"] is not None else None,
+                        "record_max": int(r["record_max"]) if r["record_max"] is not None else None,
+                        "related": r["related"],
+                        "unique_key": r["unique_key"],
+                        "upgrade": r["upgrade"],
+                        "step": r["step"],
+                        "line": int(r["line"] or 0),
+                    },
+                )
+
                 for rel_path, node in ram_state.items():
                     node["functions"] = funcs_by_file.get(rel_path, [])
                     node["classes"] = classes_by_file.get(rel_path, [])
@@ -775,6 +821,8 @@ class StateRehydrator:
                     node["job_submits"] = job_submits_by_file.get(rel_path, [])
                     node["mq_calls"] = mq_calls_by_file.get(rel_path, [])
                     node["uow_handlers"] = uow_by_file.get(rel_path, [])
+                    node["file_control"] = file_control_by_file.get(rel_path, [])
+                    node["vsam_defines"] = vsam_defines_by_file.get(rel_path, [])
             except sqlite3.Error as fc_err:
                 print(f"⚠️ Could not rehydrate functions/classes (structure counts may drift): {fc_err}")
 

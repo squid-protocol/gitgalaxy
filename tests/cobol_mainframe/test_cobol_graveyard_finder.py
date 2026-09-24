@@ -545,3 +545,16 @@ def test_sql_include_resolves_to_a_dclgen_member(tmp_path):
     prog = tmp_path / "PROG.cbl"
     prog.write_text("       PROGRAM-ID. PROG.\n", encoding="utf-8")
     assert graveyard_module.find_copybook("AUTHFRDS", tmp_path, prog) == tmp_path / "dcl" / "AUTHFRDS.dcl"
+
+
+def test_an_exhaustive_evaluate_that_always_transfers_does_not_fall_through():
+    """#3510 (CICS GENAPP LGTESTP4): NO-ADD is one EVALUATE whose WHEN 70 and WHEN
+    OTHER both GO TO ERROR-OUT, so NO-UPD after it is unreachable; without WHEN
+    OTHER the EVALUATE can fall through."""
+    from gitgalaxy.tools.cobol_to_cobol.cobol_graveyard_finder import _sentence_is_terminal
+
+    assert _sentence_is_terminal(
+        "EVALUATE CA-RETURN-CODE WHEN 70 MOVE 'X' TO A GO TO ERROR-OUT WHEN OTHER MOVE 'Y' TO A GO TO ERROR-OUT END-EVALUATE"
+    )
+    assert not _sentence_is_terminal("EVALUATE A WHEN 70 GO TO E1 WHEN 80 GO TO E2 END-EVALUATE")
+    assert not _sentence_is_terminal("EVALUATE A WHEN 70 GO TO E1 WHEN OTHER MOVE 1 TO B END-EVALUATE")

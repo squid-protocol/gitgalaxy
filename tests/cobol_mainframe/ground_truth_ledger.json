@@ -6,11 +6,6 @@
       "kind": "deliberate",
       "summary": "The engine's usage_status is the unreferenced-by-name census (a unit's name occurs nowhere else in the file), not reachability. Reachability-based dead code stays on the forge by decision (docs/unreferenced_by_name_contract.md; #3348 scope note). Scoring usage_status against the key's reachability verdicts is therefore expected to disagree."
     },
-    "forge_exhaustive_evaluate_falls_through": {
-      "issue": 3510,
-      "kind": "defect",
-      "summary": "The forge's reachability treats every EVALUATE as able to fall through; an EVALUATE with WHEN OTHER whose every branch GO TOs never does (GENAPP LGTESTP4 NO-ADD -> NO-UPD dead). The key's reader was fixed; the forge is not yet."
-    },
     "forge_units_include_copied_paragraphs": {
       "issue": 3414,
       "kind": "deliberate",
@@ -1428,9 +1423,7 @@
         "engine | dead | base/src/lgupol01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgupvs01.cbl | A-EXIT | fp": "engine_dead_is_unreferenced_by_name",
         "engine | dead | base/src/lgupvs01.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
-        "engine | dead | base/src/lgwebst5.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name",
-        "forge | dead (non-trivial) | base/src/lgtestp4.cbl | NO-UPD | fn": "forge_exhaustive_evaluate_falls_through",
-        "forge | dead | base/src/lgtestp4.cbl | NO-UPD | fn": "forge_exhaustive_evaluate_falls_through"
+        "engine | dead | base/src/lgwebst5.cbl | MAINLINE | fp": "engine_dead_is_unreferenced_by_name"
       },
       "scoreboard": {
         "BMS screen fields": {
@@ -1628,8 +1621,8 @@
             "truth": 22
           },
           "forge": {
-            "got": 21,
-            "tp": 21,
+            "got": 22,
+            "tp": 22,
             "truth": 22
           },
           "truth": "cross_verified"
@@ -1641,8 +1634,8 @@
             "truth": 6
           },
           "forge": {
-            "got": 5,
-            "tp": 5,
+            "got": 6,
+            "tp": 6,
             "truth": 6
           },
           "truth": "cross_verified"

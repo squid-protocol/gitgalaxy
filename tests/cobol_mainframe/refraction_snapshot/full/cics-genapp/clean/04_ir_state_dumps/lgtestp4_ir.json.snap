@@ -16,8 +16,10 @@
         "CA-REQUEST-SPECIFIC"
       ],
       "total_paras": 10,
-      "dead_paras": [],
-      "loc_saved": 4
+      "dead_paras": [
+        "NO-UPD"
+      ],
+      "loc_saved": 14
     },
     "lineage": {
       "program_id": "LGTESTP4",

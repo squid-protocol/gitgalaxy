@@ -277,7 +277,23 @@ def _last_sentence(text: str) -> Optional[str]:
     return last[0] if last else None
 
 
+def _evaluate_is_terminal(sentence: str) -> bool:
+    """One EVALUATE with WHEN OTHER whose every branch ends in an unconditional
+    transfer never falls through (#3510: CICS GENAPP LGTESTP4 NO-ADD, `WHEN 70 ...
+    GO TO ERROR-OUT  WHEN OTHER ... GO TO ERROR-OUT`, so NO-UPD after it is dead).
+    A branch holding a nested IF / EVALUATE is not claimed."""
+    m = re.fullmatch(rf"{_V}EVALUATE\s(.*)\sEND-EVALUATE", sentence)
+    if not m or re.search(rf"{_V}(?:EVALUATE|IF)\b", m.group(1)):
+        return False
+    branches = re.split(rf"{_V}WHEN\s", m.group(1))[1:]
+    if not any(b.startswith("OTHER") for b in branches):
+        return False
+    return all(_TERMINAL_TAIL.search(b.strip()) and " DEPENDING " not in b for b in branches)
+
+
 def _sentence_is_terminal(sentence: str) -> bool:
+    if _evaluate_is_terminal(sentence):
+        return True
     if sentence.endswith("END-EXEC"):
         starts = [m.start() for m in re.finditer(r"\bEXEC\s", sentence)]
         return bool(starts) and _CICS_TERMINAL.match(sentence[starts[-1] :]) is not None

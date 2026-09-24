@@ -8207,6 +8207,43 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "COBOL/SAM1.cbl",
+        "COBOL/SAM1LIB.cbl",
+        "COBOL/SAM2.cbl",
+        "COPYBOOK/CUSTCOPY.cpy",
+        "COPYBOOK/TRANREC.cpy",
+        "COPYLIB-MVS/REPTTOTL.cpy",
+        "COPYLIB/DATETIME.cpy",
+        "multiroot/copybooks/cust/CUSTCOPY.cpy",
+        "multiroot/copybooks/trans/SAM2PAR5.cpy",
+        "multiroot/copybooks/trans/SAM2PARM.cpy",
+        "multiroot/copybooks/trans/TRANREC.cpy",
+        "multiroot/sam/SAM1.cbl",
+        "multiroot/sam/SAM2.cbl"
+      ],
+      "wide": false,
+      "suite": "calls",
+      "tasks": {
+        "using": {
+          "agree": 5,
+          "asked": 5
+        },
+        "dli": {
+          "agree": 0,
+          "asked": 0
+        },
+        "ims": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -9939,10 +9976,16 @@
           "line": 304
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "COBOL/SAM1LIB.cbl": {
@@ -9954,10 +9997,16 @@
           "line": 287
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "COBOL/SAM2.cbl": {
@@ -9969,10 +10018,16 @@
           "line": 52
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "multiroot/sam/SAM1.cbl": {
@@ -9984,10 +10039,16 @@
           "line": 338
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "multiroot/sam/SAM2.cbl": {
@@ -9999,10 +10060,16 @@
           "line": 54
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     }
   },

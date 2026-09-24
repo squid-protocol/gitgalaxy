@@ -13,10 +13,10 @@ their own per-file blocks, each with its own sign-off flag:
     job_submissions   submissions_validated    jobs submitted to the internal reader (corpus-wide)
     tdq_triggers      tdq_triggers_validated   transactions a filling TD queue starts (corpus-wide)
 
-    python tests/tools/cross_verify_sections.py census   --corpus NAME --out DIR --stage DIR [--max-items 70] [--suite channels|files]
+    python tests/tools/cross_verify_sections.py census   --corpus NAME --out DIR --stage DIR [--max-items 70] [--suite channels|files|calls]
     python tests/tools/cross_verify_sections.py grade    --corpus NAME --dir DIR/batch_NN
     python tests/tools/cross_verify_sections.py sign     --corpus NAME --dir DIR/batch_NN --by "REVIEWER"
-    python tests/tools/cross_verify_sections.py coverage --corpus NAME [--suite channels|files]
+    python tests/tools/cross_verify_sections.py coverage --corpus NAME [--suite channels|files|calls]
 
 SUITES. `channels` (the default) is the six sections above, asked of every COBOL
 source. `files` (#3455 / #3451) is the file-definition sections, asked of every
@@ -25,6 +25,11 @@ COBOL program and JCL member:
     file_control      file_control_validated   each FILE-CONTROL SELECT's clauses and FD COPYs
     vsam_defines      vsam_validated           IDCAMS DEFINE CLUSTER / AIX / PATH
     job_flow          jobflow_validated        JCL JOB / STEP / DSN-DD rows
+
+`calls` (#3454 / #3450) is asked of every COBOL source:
+
+    call_using        call_using_validated     CALL USING lists, PROCEDURE DIVISION / ENTRY USING
+    dli_calls         dli_validated            DL/I calls as written, and the IMS segment access
 
 The census asks about EVERY COBOL source of the corpus -- files the key lists
 nothing for included, so "none" is checked too (recall, not only precision) --
@@ -569,8 +574,181 @@ OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-re
     return brief, truth
 
 
+# ---- the `calls` suite (#3454 / #3450) ------------------------------------------
+CALL_TASKS = ("using", "dli", "ims")
+CALL_SECTIONS = {
+    "using": ("call_using", "call_using_validated"),
+    "dli": ("dli_calls", "dli_validated"),
+    "ims": ("dli_calls", "dli_validated"),
+}
+
+
+def _args_list(v: Any) -> str:
+    """A positional argument list, order kept: blanks collapsed, upper-cased."""
+    if not v:
+        return "-"
+    items = v.split(",") if isinstance(v, str) else list(v)
+    return ",".join(_ws(x) for x in items if str(x).strip()) or "-"
+
+
+def canon_using(r: dict[str, Any]) -> str:
+    return f"L{int(r.get('line') or 0)} {_ws(r.get('kind'))} {_d(r.get('name'))} USING {_args_list(r.get('args'))}"
+
+
+# The access the brief defines for each DL/I function: a reviewer who answers with
+# the function (GN) instead of its access (read) states the same fact.
+_DLI_ACCESS = {
+    "GU": "read", "GHU": "read", "GN": "read", "GHN": "read", "GNP": "read", "GHNP": "read",
+    "ISRT": "insert", "REPL": "update", "DLET": "delete",
+}  # fmt: skip
+
+
+def _io_operand(v: Any) -> Any:
+    """`INTO(X)` / `FROM(X)` -> `X`: the option keyword around the operand says nothing more."""
+    m = re.fullmatch(r"\s*(?:INTO|FROM)\s*\(\s*(.*?)\s*\)\s*", str(v), re.I) if v else None
+    return m.group(1) if m else v
+
+
+def canon_dli(r: dict[str, Any]) -> str:
+    where = ";".join(_nsp(w) for w in r.get("where") or []) or "-"
+    return (
+        f"L{int(r.get('line') or 0)} {_ws(r.get('interface'))} FN={_d(r.get('function') or r.get('operand'))} "
+        f"PCB={_d(r.get('pcb'))} IO={_d(_io_operand(r.get('io')))} SEG={_args_list(r.get('segs'))} WHERE={where} "
+        f"PSB={_d(r.get('psb'))}"
+    )
+
+
+def key_facts_calls(key: dict[str, Any], files: list[str]) -> dict[str, dict[str, list[str]]]:
+    out: dict[str, dict[str, list[str]]] = {t: {} for t in CALL_TASKS}
+    for rel in files:
+        out["using"][rel] = sorted({canon_using(r) for r in key.get("call_using", {}).get(rel, {}).get("rows", [])})
+        dl = key.get("dli_calls", {}).get(rel, {})
+        out["dli"][rel] = sorted({canon_dli(r) for r in dl.get("calls", [])})
+        out["ims"][rel] = sorted(
+            {_ws(a).lower().split(" ", 1)[0] + " " + _ws(a).split(" ", 1)[1] for a in dl.get("segment_access", [])}
+        )
+    return out
+
+
+def reviewer_facts_calls(answers: dict[str, Any], repo: Path) -> dict[str, dict[str, set[str]]]:
+    def rel(p: str) -> str:
+        root = str(repo).rstrip("/") + "/"
+        return p[len(root) :] if p.startswith(root) else p
+
+    out: dict[str, dict[str, set[str]]] = {t: {} for t in CALL_TASKS}
+    for path, v in (answers.get("files") or {}).items():
+        r, v = rel(path), v or {}
+        out["using"][r] = {canon_using(x) for x in v.get("using", []) if isinstance(x, dict)}
+        out["dli"][r] = {
+            canon_dli(
+                {
+                    "line": x.get("line"),
+                    "interface": x.get("interface"),
+                    "function": x.get("function"),
+                    "operand": x.get("function_operand"),
+                    "pcb": x.get("pcb"),
+                    "io": x.get("io_area"),
+                    "segs": (x.get("segments") or []) + (x.get("ssas") or []),
+                    "where": x.get("where") or [],
+                    "psb": x.get("psb"),
+                }
+            )
+            for x in v.get("dli", [])
+            if isinstance(x, dict)
+        }
+        out["ims"][r] = {
+            f"{_DLI_ACCESS.get(_ws(x.get('access')), str(x.get('access', '')).strip().lower())} {_ws(x.get('segment'))}"
+            for x in v.get("ims", [])
+            if isinstance(x, dict)
+        }
+    return out
+
+
+def batches_calls(key: dict[str, Any], files: list[str], max_items: int) -> list[list[str]]:
+    facts = key_facts_calls(key, files)
+    load = {f: 1 + sum(len(facts[t].get(f, [])) for t in CALL_TASKS) for f in files}
+    out: list[list[str]] = []
+    sizes: list[int] = []
+    for f in sorted(files, key=lambda x: (-load[x], x)):
+        for i, sz in enumerate(sizes):
+            if sz + load[f] <= max_items:
+                out[i].append(f)
+                sizes[i] += load[f]
+                break
+        else:
+            out.append([f])
+            sizes.append(load[f])
+    return [sorted(b) for b in out]
+
+
+def render_calls(key: dict[str, Any], repo: Path, files: list[str], index: int, of: int) -> tuple[str, dict[str, Any]]:
+    truth = {
+        "corpus": key["corpus"],
+        "ref": key["ref"],
+        "root": str(repo),
+        "mode": "section_census",
+        "suite": "calls",
+        "batch": index,
+        "of": of,
+        "files": files,
+        "facts": key_facts_calls(key, files),
+    }
+    listing = "\n".join(str(repo / f) for f in files)
+    brief = f"""You are independently verifying facts about real IBM mainframe COBOL source code, as a second reviewer.
+Read the source files yourself. They are all under the repository root {repo}; read only inside that directory
+(a COBOL program's copybooks are other files in it). Do NOT edit or create any files except your answers file, and
+do not look for any existing answer key or analysis of this code: the point is an independent reading. Line numbers
+are 1-based physical line numbers. Ignore comment lines, text inside quoted literals (DISPLAY 'CALL X' is no call),
+and columns 73-80.
+
+{FIXED_FORMAT_RULES}
+
+For EACH file below answer the three tasks; an empty list when a file has none.
+
+TASK USING -- one entry per:
+  - CALL statement that has a USING list: "kind": "CALL", "line" (of the word CALL), "name" (the called program
+    exactly as written: a literal's text without quotes, or the data-name), "args": the USING items in order.
+  - PROCEDURE DIVISION that has a USING list: "kind": "PROCEDURE", "line", "name": null, "args".
+  - ENTRY 'X' statement: "kind": "ENTRY", "line", "name": "X", "args" (null when it has no USING).
+  Each arg: the data-name upper-case, a qualification kept as `A OF B`, subscripts / reference modifiers dropped;
+  after BY CONTENT or BY VALUE prefix each following item "CONTENT:" / "VALUE:" until another BY (BY REFERENCE
+  is the default, no prefix); `ADDRESS OF X`, `LENGTH OF X`, `OMITTED` and quoted literals (quotes kept) as written.
+  The list ends at RETURNING, ON / NOT ON (EXCEPTION / OVERFLOW), END-CALL, a period, or the next statement.
+
+TASK DLI -- one entry per IMS call, operands exactly as written:
+  - EXEC DLI: "interface": "EXEC", "line", "function" (the command: GU / GN / GNP / ISRT / REPL / DLET / SCHD /
+    TERM / CHKP ...), "pcb" (the PCB(...) operand), "io_area" (INTO(...) or FROM(...)), "segments" (every
+    SEGMENT(...) operand in order), "where" (every WHERE(...) text in order), "psb" (SCHD PSB(...), extra
+    parentheses removed); null / [] where not coded.
+  - CALL 'CBLTDLI' (or 'AIBTDLI'): "interface": "CALL", "line", "function_operand" (1st USING item), "pcb" (2nd),
+    "io_area" (3rd), "ssas" (the remaining items in order).
+
+TASK IMS -- which IMS segments the file accesses and how: one {{"access": .., "segment": ..}} per distinct pair.
+  access: GU / GHU / GN / GHN / GNP / GHNP read, ISRT insert, REPL update, DLET delete (SCHD / TERM / CHKP none).
+  For a CALL 'CBLTDLI' the function is the VALUE of its function operand (usually in a copybook) and each segment is
+  the first 8 characters of the SSA's load-time value -- a group's elementary VALUEs concatenated, each padded or cut
+  to its PIC width (an SSA whose first 8 characters are unknown names no segment). For EXEC DLI the segments are its
+  SEGMENT(...) names. When a call names several segments (a path), the LAST gets the access and the ones before it
+  are "read".
+
+Files:
+{listing}
+
+OUTPUT: reply with ONLY one JSON object, no prose before or after (paths repo-relative):
+{{"files": {{"<path>": {{"using": [...], "dli": [...], "ims": [...]}}, ...every file above...}}}}
+"""
+    return brief, truth
+
+
 def grade(truth: dict[str, Any], answers: dict[str, Any], repo: Path) -> dict[str, Any]:
-    got = reviewer_facts_files(answers, repo) if truth.get("suite") == "files" else reviewer_facts(answers, repo)
+    suite = truth.get("suite")
+    got = (
+        reviewer_facts_files(answers, repo)
+        if suite == "files"
+        else reviewer_facts_calls(answers, repo)
+        if suite == "calls"
+        else reviewer_facts(answers, repo)
+    )
     out: dict[str, Any] = {"tasks": {}, "disagreements": []}
     for task, per_file in truth["facts"].items():
         if task in CORPUS_WIDE and not truth.get("wide"):
@@ -616,7 +794,13 @@ def sign(
     at = at or datetime.now(timezone.utc).strftime("%Y-%m-%d")
     # Read twice, blind, with every disagreement settled: the program census tier.
     stamp = {"status": "validated", "tier": "cross_verified", "cross_by": by, "census": {"by": by, "at": at}}
-    per_file = set(FILE_SECTIONS.values()) if truth.get("suite") == "files" else {SECTIONS[t] for t in PER_FILE}
+    per_file = (
+        set(FILE_SECTIONS.values())
+        if truth.get("suite") == "files"
+        else set(CALL_SECTIONS.values())
+        if truth.get("suite") == "calls"
+        else {SECTIONS[t] for t in PER_FILE}
+    )
     for rel in truth["files"]:
         for section, flag in per_file:
             entry = key.get(section, {}).get(rel)
@@ -646,8 +830,8 @@ def sign(
 def coverage(key: dict[str, Any], files: list[str], suite: str = "channels") -> dict[str, Any]:
     recs = [r for r in key.get("section_census", []) if r.get("suite", "channels") == suite]
     done = {f for rec in recs for f in rec["files"]}
-    # The files suite has no corpus-wide task.
-    wide = suite == "files" or any(rec.get("wide") for rec in recs)
+    # Only the channels suite has corpus-wide tasks.
+    wide = suite != "channels" or any(rec.get("wide") for rec in recs)
     return {"files": [len(done & set(files)), len(files)], "wide": wide, "missing": sorted(set(files) - done)}
 
 
@@ -659,10 +843,10 @@ def main() -> int:
     c.add_argument("--out", type=Path, required=True)
     c.add_argument("--stage", type=Path, required=True)
     c.add_argument("--max-items", type=int, default=70)
-    c.add_argument("--suite", choices=("channels", "files"), default="channels")
+    c.add_argument("--suite", choices=("channels", "files", "calls"), default="channels")
     cov = sub.add_parser("coverage")
     cov.add_argument("--corpus", required=True)
-    cov.add_argument("--suite", choices=("channels", "files"), default="channels")
+    cov.add_argument("--suite", choices=("channels", "files", "calls"), default="channels")
     for name in ("grade", "sign"):
         s = sub.add_parser(name)
         s.add_argument("--corpus", required=True)
@@ -675,7 +859,7 @@ def main() -> int:
     key = load_key(corpus)
     repo = mc.require_clone(corpus)
     suite = getattr(args, "suite", "channels")
-    files = corpus_files_files(repo) if suite == "files" else corpus_files(repo)
+    files = corpus_files_files(repo) if suite == "files" else corpus_files(repo)  # calls: every COBOL source
     if args.cmd == "coverage":
         cv = coverage(key, files, suite)
         print(
@@ -687,11 +871,12 @@ def main() -> int:
         if staged.exists():
             shutil.rmtree(staged)
         shutil.copytree(repo, staged, ignore=shutil.ignore_patterns(".git"))
-        packed = batches_files(key, files, args.max_items) if suite == "files" else batches(key, files, args.max_items)
+        pack = {"files": batches_files, "calls": batches_calls}.get(suite, batches)
+        packed = pack(key, files, args.max_items)
         for i, batch in enumerate(packed, 1):
             d = args.out / f"batch_{i:02d}"
             d.mkdir(parents=True, exist_ok=True)
-            make = render_files if suite == "files" else render
+            make = {"files": render_files, "calls": render_calls}.get(suite, render)
             brief, truth = make(key, staged, batch, i, len(packed))
             (d / "brief.md").write_text(brief, encoding="utf-8")
             (d / "truth.json").write_text(json.dumps(truth, indent=2) + "\n", encoding="utf-8")
@@ -721,6 +906,8 @@ def main() -> int:
     # sign: re-grade the same questions against the CURRENT key.
     if truth.get("suite") == "files":
         current = dict(truth, facts=key_facts_files(key, truth["files"]))
+    elif truth.get("suite") == "calls":
+        current = dict(truth, facts=key_facts_calls(key, truth["files"]))
     else:
         current = dict(truth, facts=key_facts(key, truth["files"], truth.get("wide", False)))
     g = grade(current, answers, root)

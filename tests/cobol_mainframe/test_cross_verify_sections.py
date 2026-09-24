@@ -315,3 +315,102 @@ def test_files_suite_sign_sets_its_own_flags_and_coverage():
     assert signed["file_control"]["P.cbl"]["verification"]["tier"] == "cross_verified"
     assert cs.coverage(signed, ["P.cbl", "D.jcl"], "files")["files"] == [2, 2]
     assert cs.coverage(signed, ["P.cbl", "D.jcl"], "channels")["files"] == [0, 2]
+
+
+# ---- the `calls` suite (#3454 / #3450) ------------------------------------------
+CALLS_KEY = {
+    "corpus": "k",
+    "ref": "0" * 40,
+    "programs": {},
+    "call_using": {
+        "P.cbl": {
+            "rows": [
+                {"kind": "PROCEDURE", "name": None, "args": "LS-A,LS-B", "line": 3},
+                {"kind": "CALL", "name": "SUB", "args": "WS-A,CONTENT:'X'", "line": 9},
+            ],
+            "call_using_validated": False,
+        }
+    },
+    "dli_calls": {
+        "P.cbl": {
+            "calls": [
+                {
+                    "interface": "EXEC",
+                    "function": "ISRT",
+                    "operand": None,
+                    "pcb": "1",
+                    "io": "IOA",
+                    "segs": ["ROOT", "CHILD"],
+                    "where": ["K = V"],
+                    "psb": None,
+                    "line": 12,
+                },
+            ],
+            "segment_access": ["insert CHILD", "read ROOT"],
+            "dli_validated": False,
+        }
+    },
+}
+
+
+def test_calls_suite_round_trips_and_signs_its_flags():
+    brief, truth = cs.render_calls(CALLS_KEY, REPO, ["P.cbl", "Q.cbl"], 1, 1)
+    for leaked in ("LS-A", "SUB", "ROOT", "IOA"):
+        assert leaked not in brief, leaked
+    answers = {
+        "files": {
+            "P.cbl": {
+                "using": [
+                    {"kind": "PROCEDURE", "line": 3, "name": None, "args": ["LS-A", "LS-B"]},
+                    {"kind": "CALL", "line": 9, "name": "SUB", "args": ["WS-A", "CONTENT:'X'"]},
+                ],
+                "dli": [
+                    {
+                        "interface": "EXEC",
+                        "line": 12,
+                        "function": "ISRT",
+                        "pcb": "1",
+                        "io_area": "IOA",
+                        "segments": ["ROOT", "CHILD"],
+                        "where": ["K=V"],
+                    }
+                ],
+                "ims": [{"access": "INSERT", "segment": "child"}, {"access": "read", "segment": "ROOT"}],
+            },
+            "Q.cbl": {},
+        }
+    }
+    g = cs.grade(truth, answers, REPO)
+    assert g["disagreements"] == [] and g["tasks"]["ims"] == {"agree": 2, "asked": 2}
+    signed = cs.sign(copy.deepcopy(CALLS_KEY), truth, g, {}, "rev", at="d")
+    assert signed["call_using"]["P.cbl"]["call_using_validated"] is True
+    assert signed["dli_calls"]["P.cbl"]["verification"]["tier"] == "cross_verified"
+    assert cs.coverage(signed, ["P.cbl", "Q.cbl"], "calls") == {"files": [2, 2], "wide": True, "missing": []}
+
+
+def test_calls_suite_normalises_function_codes_and_io_wrappers():
+    _brief, truth = cs.render_calls(CALLS_KEY, REPO, ["P.cbl"], 1, 1)
+    answers = {
+        "files": {
+            "P.cbl": {
+                "using": [
+                    {"kind": "PROCEDURE", "line": 3, "name": None, "args": ["LS-A", "LS-B"]},
+                    {"kind": "CALL", "line": 9, "name": "SUB", "args": ["WS-A", "CONTENT:'X'"]},
+                ],
+                # FROM(IOA) and ISRT / GU state the key's IOA / insert / read.
+                "dli": [
+                    {
+                        "interface": "EXEC",
+                        "line": 12,
+                        "function": "ISRT",
+                        "pcb": "1",
+                        "io_area": "FROM(IOA)",
+                        "segments": ["ROOT", "CHILD"],
+                        "where": ["K = V"],
+                    }
+                ],
+                "ims": [{"access": "ISRT", "segment": "CHILD"}, {"access": "GU", "segment": "ROOT"}],
+            }
+        }
+    }
+    assert cs.grade(truth, answers, REPO)["disagreements"] == []

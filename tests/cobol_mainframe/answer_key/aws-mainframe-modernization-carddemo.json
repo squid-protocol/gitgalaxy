@@ -93213,6 +93213,208 @@
         }
       },
       "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 1,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS2C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL",
+        "app/cbl/CBACT01C.cbl",
+        "app/cbl/CBSTM03A.CBL"
+      ],
+      "wide": false,
+      "suite": "calls",
+      "tasks": {
+        "using": {
+          "agree": 30,
+          "asked": 30
+        },
+        "dli": {
+          "agree": 15,
+          "asked": 15
+        },
+        "ims": {
+          "agree": 9,
+          "asked": 9
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 2,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cbl/CBPAUP0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl",
+        "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL",
+        "app/app-vsam-mq/cbl/COACCT01.cbl",
+        "app/app-vsam-mq/cbl/CODATE01.cbl"
+      ],
+      "wide": false,
+      "suite": "calls",
+      "tasks": {
+        "using": {
+          "agree": 23,
+          "asked": 23
+        },
+        "dli": {
+          "agree": 20,
+          "asked": 20
+        },
+        "ims": {
+          "agree": 11,
+          "asked": 11
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 3,
+      "files": [
+        "app/app-authorization-ims-db2-mq/cpy-bms/COPAU00.cpy",
+        "app/app-authorization-ims-db2-mq/cpy-bms/COPAU01.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/CCPAUERY.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/CCPAURLY.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/CCPAURQY.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/CIPAUDTY.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/CIPAUSMY.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/IMSFUNCS.cpy",
+        "app/app-authorization-ims-db2-mq/cpy/PADFLPCB.CPY",
+        "app/app-authorization-ims-db2-mq/cpy/PASFLPCB.CPY",
+        "app/app-authorization-ims-db2-mq/cpy/PAUTBPCB.CPY",
+        "app/app-transaction-type-db2/cbl/COBTUPDT.cbl",
+        "app/app-transaction-type-db2/cbl/COTRTLIC.cbl",
+        "app/app-transaction-type-db2/cbl/COTRTUPC.cbl",
+        "app/app-transaction-type-db2/cpy-bms/COTRTLI.cpy",
+        "app/app-transaction-type-db2/cpy-bms/COTRTUP.cpy",
+        "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy",
+        "app/app-transaction-type-db2/cpy/CSDB2RWY.cpy",
+        "app/cbl/CBACT02C.cbl",
+        "app/cbl/CBACT03C.cbl",
+        "app/cbl/CBACT04C.cbl",
+        "app/cbl/CBCUS01C.cbl",
+        "app/cbl/CBEXPORT.cbl",
+        "app/cbl/CBIMPORT.cbl",
+        "app/cbl/CBSTM03B.CBL",
+        "app/cbl/CBTRN01C.cbl",
+        "app/cbl/CBTRN02C.cbl",
+        "app/cbl/CBTRN03C.cbl",
+        "app/cbl/COACTUPC.cbl",
+        "app/cbl/COACTVWC.cbl",
+        "app/cbl/COADM01C.cbl",
+        "app/cbl/COBIL00C.cbl",
+        "app/cbl/COBSWAIT.cbl",
+        "app/cbl/COCRDLIC.cbl",
+        "app/cbl/COCRDSLC.cbl",
+        "app/cbl/COCRDUPC.cbl",
+        "app/cbl/COMEN01C.cbl",
+        "app/cbl/CORPT00C.cbl",
+        "app/cbl/COSGN00C.cbl",
+        "app/cbl/COTRN02C.cbl",
+        "app/cbl/CSUTLDTC.cbl",
+        "app/cpy/CSUTLDPY.cpy"
+      ],
+      "wide": false,
+      "suite": "calls",
+      "tasks": {
+        "using": {
+          "agree": 18,
+          "asked": 18
+        },
+        "dli": {
+          "agree": 0,
+          "asked": 0
+        },
+        "ims": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
+    },
+    {
+      "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+      "at": "2026-09-24",
+      "batch": 4,
+      "files": [
+        "app/cbl/COTRN00C.cbl",
+        "app/cbl/COTRN01C.cbl",
+        "app/cbl/COUSR00C.cbl",
+        "app/cbl/COUSR01C.cbl",
+        "app/cbl/COUSR02C.cbl",
+        "app/cbl/COUSR03C.cbl",
+        "app/cpy-bms/COACTUP.CPY",
+        "app/cpy-bms/COACTVW.CPY",
+        "app/cpy-bms/COADM01.CPY",
+        "app/cpy-bms/COBIL00.CPY",
+        "app/cpy-bms/COCRDLI.CPY",
+        "app/cpy-bms/COCRDSL.CPY",
+        "app/cpy-bms/COCRDUP.CPY",
+        "app/cpy-bms/COMEN01.CPY",
+        "app/cpy-bms/CORPT00.CPY",
+        "app/cpy-bms/COSGN00.CPY",
+        "app/cpy-bms/COTRN00.CPY",
+        "app/cpy-bms/COTRN01.CPY",
+        "app/cpy-bms/COTRN02.CPY",
+        "app/cpy-bms/COUSR00.CPY",
+        "app/cpy-bms/COUSR01.CPY",
+        "app/cpy-bms/COUSR02.CPY",
+        "app/cpy-bms/COUSR03.CPY",
+        "app/cpy/COADM02Y.cpy",
+        "app/cpy/COCOM01Y.cpy",
+        "app/cpy/CODATECN.cpy",
+        "app/cpy/COMEN02Y.cpy",
+        "app/cpy/COSTM01.CPY",
+        "app/cpy/COTTL01Y.cpy",
+        "app/cpy/CSDAT01Y.cpy",
+        "app/cpy/CSLKPCDY.cpy",
+        "app/cpy/CSMSG01Y.cpy",
+        "app/cpy/CSMSG02Y.cpy",
+        "app/cpy/CSSETATY.cpy",
+        "app/cpy/CSSTRPFY.cpy",
+        "app/cpy/CSUSR01Y.cpy",
+        "app/cpy/CSUTLDWY.cpy",
+        "app/cpy/CUSTREC.cpy",
+        "app/cpy/CVACT01Y.cpy",
+        "app/cpy/CVACT02Y.cpy",
+        "app/cpy/CVACT03Y.cpy",
+        "app/cpy/CVCRD01Y.cpy",
+        "app/cpy/CVCUS01Y.cpy",
+        "app/cpy/CVEXPORT.cpy",
+        "app/cpy/CVTRA01Y.cpy",
+        "app/cpy/CVTRA02Y.cpy",
+        "app/cpy/CVTRA03Y.cpy",
+        "app/cpy/CVTRA04Y.cpy",
+        "app/cpy/CVTRA05Y.cpy",
+        "app/cpy/CVTRA06Y.cpy",
+        "app/cpy/CVTRA07Y.cpy",
+        "app/cpy/UNUSED1Y.cpy"
+      ],
+      "wide": false,
+      "suite": "calls",
+      "tasks": {
+        "using": {
+          "agree": 0,
+          "asked": 0
+        },
+        "dli": {
+          "agree": 0,
+          "asked": 0
+        },
+        "ims": {
+          "agree": 0,
+          "asked": 0
+        }
+      },
+      "rulings": {}
     }
   ],
   "file_control": {
@@ -101202,10 +101404,16 @@
           "line": 132
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
@@ -101235,10 +101443,16 @@
           "line": 956
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL": {
@@ -101280,10 +101494,16 @@
           "line": 165
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL": {
@@ -101319,10 +101539,16 @@
           "line": 171
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL": {
@@ -101352,10 +101578,16 @@
           "line": 158
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-transaction-type-db2/cpy/CSDB2RPY.cpy": {
@@ -101367,10 +101599,16 @@
           "line": 57
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-vsam-mq/cbl/COACCT01.cbl": {
@@ -101430,10 +101668,16 @@
           "line": 602
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-vsam-mq/cbl/CODATE01.cbl": {
@@ -101493,10 +101737,16 @@
           "line": 506
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CBACT01C.cbl": {
@@ -101514,10 +101764,16 @@
           "line": 410
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CBACT02C.cbl": {
@@ -101529,10 +101785,16 @@
           "line": 158
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CBACT03C.cbl": {
@@ -101544,10 +101806,16 @@
           "line": 158
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CBACT04C.cbl": {
@@ -101565,10 +101833,16 @@
           "line": 180
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CBCUS01C.cbl": {
@@ -101580,10 +101854,16 @@
           "line": 158
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CBSTM03A.CBL": {
@@ -101667,10 +101947,16 @@
           "line": 909
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CBSTM03B.CBL": {
@@ -101682,10 +101968,16 @@
           "line": 114
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CBTRN01C.cbl": {
@@ -101697,10 +101989,16 @@
           "line": 473
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CBTRN02C.cbl": {
@@ -101712,10 +102010,16 @@
           "line": 711
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CBTRN03C.cbl": {
@@ -101727,10 +102031,16 @@
           "line": 630
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/COBSWAIT.cbl": {
@@ -101742,10 +102052,16 @@
           "line": 38
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CORPT00C.cbl": {
@@ -101763,10 +102079,16 @@
           "line": 412
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/COTRN02C.cbl": {
@@ -101784,10 +102106,16 @@
           "line": 413
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cbl/CSUTLDTC.cbl": {
@@ -101805,10 +102133,16 @@
           "line": 88
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/cpy/CSUTLDPY.cpy": {
@@ -101820,10 +102154,16 @@
           "line": 293
         }
       ],
-      "call_using_validated": false,
+      "call_using_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     }
   },
@@ -101900,10 +102240,16 @@
         "read PAUTDTL1",
         "read PAUTSUM0"
       ],
-      "dli_validated": false,
+      "dli_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUA0C.cbl": {
@@ -102016,10 +102362,16 @@
         "read PAUTSUM0",
         "update PAUTSUM0"
       ],
-      "dli_validated": false,
+      "dli_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS0C.cbl": {
@@ -102105,10 +102457,16 @@
         "read PAUTDTL1",
         "read PAUTSUM0"
       ],
-      "dli_validated": false,
+      "dli_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/COPAUS1C.cbl": {
@@ -102208,10 +102566,16 @@
         "read PAUTSUM0",
         "update PAUTDTL1"
       ],
-      "dli_validated": false,
+      "dli_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/DBUNLDGS.CBL": {
@@ -102269,10 +102633,16 @@
         "read PAUTDTL1",
         "read PAUTSUM0"
       ],
-      "dli_validated": false,
+      "dli_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBLOD.CBL": {
@@ -102322,10 +102692,16 @@
         "insert PAUTSUM0",
         "read PAUTSUM0"
       ],
-      "dli_validated": false,
+      "dli_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     },
     "app/app-authorization-ims-db2-mq/cbl/PAUDBUNL.CBL": {
@@ -102361,10 +102737,16 @@
         "read PAUTDTL1",
         "read PAUTSUM0"
       ],
-      "dli_validated": false,
+      "dli_validated": true,
       "verification": {
-        "status": "draft",
-        "notes": []
+        "status": "validated",
+        "notes": [],
+        "tier": "cross_verified",
+        "cross_by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+        "census": {
+          "by": "claude-opus-5-5 (blind fresh-context census reviewer)",
+          "at": "2026-09-24"
+        }
       }
     }
   }

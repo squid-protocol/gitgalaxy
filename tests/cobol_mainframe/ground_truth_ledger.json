@@ -146,7 +146,7 @@
             "truth": 71
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CICS resources": {
           "engine": {
@@ -213,7 +213,7 @@
             "truth": 35
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "IMS segment access": {
           "engine": {
@@ -222,7 +222,7 @@
             "truth": 20
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "JCL job flow": {
           "engine": {
@@ -938,7 +938,7 @@
             "truth": 22
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CICS resources": {
           "engine": {
@@ -1256,7 +1256,7 @@
             "truth": 5
           },
           "forge": null,
-          "truth": "draft"
+          "truth": "cross_verified"
         },
         "CICS resources": {
           "engine": null,

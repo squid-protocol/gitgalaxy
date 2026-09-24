@@ -34,6 +34,11 @@ GLOBAL = "2. Global Ecosystem Summary"
 SECURITY = "3. Forensic Security & Vulnerability Audit"
 PARSED = "6. Parsed Files (Scanned Artifacts)"
 
+_MAGNITUDE_NOTE = (
+    "> Structural weight and centralization, the same ranking as the LLM brief's Ranked Artifacts. "
+    "Magnitude is not a risk score; the blast radius says what a change would reach."
+)
+
 
 def _get(d: Any, *keys: str) -> Any:
     for k in keys:
@@ -129,8 +134,7 @@ def _top_files(audit: dict, top: int) -> list[str]:
     out = [
         f"### Top {min(top, len(ranked))} files by structural magnitude",
         "",
-        "> Structural weight and centralization, the same ranking as the LLM brief's Ranked Artifacts. "
-        "Magnitude is not a risk score; the blast radius says what a change would reach.",
+        _MAGNITUDE_NOTE,
         "",
         "| File | Language | LOC | Magnitude | Imported by |",
         "|---|---|--:|--:|--:|",
